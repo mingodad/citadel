@@ -569,7 +569,7 @@ void pop3_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		syslog(LOG_ERR, "Client disconnected: ending session.");
+		syslog(LOG_ERR, "POP3 client disconnected: ending session.");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}

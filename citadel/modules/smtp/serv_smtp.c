@@ -840,7 +840,7 @@ void smtp_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		syslog(LOG_CRIT, "Client disconnected: ending session.\n");
+		syslog(LOG_CRIT, "SMTP: client disconnected: ending session.\n");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
