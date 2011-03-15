@@ -23,6 +23,7 @@ endif
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
 endif
+
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP -D TECH_PREVIEW
 	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
@@ -33,6 +34,12 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 else
 	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
 	CFLAGS += -O2
+endif
+
+ifneq (,$(findstring backtrace,$(DEB_BUILD_OPTIONS)))
+	CFLAGS+= -rdynamic -D_GNU_SOURCE -MD -MP
+	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
+	EXTRA_ARGS += --with-backtrace
 endif
 
 ifneq (,$(findstring threadoff,$(DEB_BUILD_OPTIONS)))

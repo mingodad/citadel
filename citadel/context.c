@@ -332,12 +332,17 @@ void terminate_stuck_sessions(void)
  */
 void RemoveContext (CitContext *con)
 {
+	const char *c;
 	if (con==NULL) {
 		syslog(LOG_ERR,
 			"WARNING: RemoveContext() called with NULL!\n");
 		return;
 	}
-	syslog(LOG_DEBUG, "RemoveContext() session %d\n", con->cs_pid);
+	c = con->ServiceName;
+	if (c == NULL)
+		c = "WTF?";
+	syslog(LOG_DEBUG, "RemoveContext(%s) session %d\n", c, con->cs_pid);
+	cit_backtrace ();
 
 	/* Run any cleanup routines registered by loadable modules.
 	 * Note: We have to "become_session()" because the cleanup functions
