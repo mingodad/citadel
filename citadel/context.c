@@ -306,8 +306,19 @@ void terminate_idle_sessions(void)
 		syslog(LOG_INFO, "Didn't terminate %d protected idle sessions;\n", killed);
 }
 
+
+/*
+ * During shutdown, close the sockets of any sessions still connected.
+ */
 void terminate_stuck_sessions(void)
 {
+
+	return;
+	/* FIXME this function has been disabled because it is somehow being
+	 * called at times other than server shutdown, which is throwing all
+	 * the users off.  EPIC FAIL!!!
+	 */
+
 	CitContext *ccptr;
 	int killed = 0;
 
@@ -315,14 +326,16 @@ void terminate_stuck_sessions(void)
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (ccptr->client_socket != -1)
 		{
+			syslog(LOG_INFO, "terminate_stuck_sessions() is murdering %s", ccptr->curr_user);
 			close(ccptr->client_socket);
 			ccptr->client_socket = -1;
 			killed++;
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
-	if (killed > 0)
+	if (killed > 0) {
 		syslog(LOG_INFO, "Flushed %d stuck sessions\n", killed);
+	}
 }
 
 
