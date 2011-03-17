@@ -61,6 +61,7 @@ int CtdlClientGetLine(StrBuf *Target);
 int client_read_blob(StrBuf *Target, int bytes, int timeout);
 void client_set_inbound_buf(long N);
 int client_read_random_blob(StrBuf *Target, int timeout);
+void client_close(void);
 void sysdep_master_cleanup (void);
 void kill_session (int session_to_kill);
 void start_daemon (int do_close_stdio);

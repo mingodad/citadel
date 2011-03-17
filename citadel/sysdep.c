@@ -9,7 +9,7 @@
  *
  * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -431,6 +431,25 @@ static void flush_client_inbuf(void)
 }
 */
 
+
+/*
+ * client_close()	...	close the client socket
+ */
+void client_close(void) {
+	CitContext *CCC = CC;
+	int r;
+
+	if (!CCC) return;
+	if (CCC->client_socket < 0) return;
+	syslog(LOG_DEBUG, "Closing socket %d\n", CCC->client_socket);
+	r = close(CCC->client_socket);
+	if (!r) syslog(LOG_INFO, "close() failed: %s\n", strerror(errno));
+	CCC->client_socket = -1 ;
+}
+
+
+
+
 /*
  * client_write()   ...    Send binary data to the client.
  */
@@ -503,22 +522,25 @@ int client_write(const char *buf, int nbytes)
 					syslog(LOG_ERR,
 						"client_write(%d bytes) select failed: %s (%d)\n",
 						nbytes - bytes_written,
-						strerror(errno), errno);
+						strerror(errno), errno
+					);
 					cit_backtrace();
+					client_close();
 					Ctx->kill_me = KILLME_SELECT_FAILED;
 					return -1;
 				}
 			}
 		}
 
-		retval = write(Ctx->client_socket, &buf[bytes_written],
-			nbytes - bytes_written);
+		retval = write(Ctx->client_socket, &buf[bytes_written], nbytes - bytes_written);
 		if (retval < 1) {
 			syslog(LOG_ERR,
 				"client_write(%d bytes) failed: %s (%d)\n",
 				nbytes - bytes_written,
-				strerror(errno), errno);
+				strerror(errno), errno
+			);
 			cit_backtrace();
+			client_close();
 			// syslog(LOG_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
 			Ctx->kill_me = KILLME_WRITE_FAILED;
 			return -1;
@@ -633,10 +655,8 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 						O_TERM,
 						&Error);
 		if (retval < 0) {
-			syslog(LOG_CRIT, 
-				      "%s failed: %s\n",
-				      __FUNCTION__, 
-				      Error);
+			syslog(LOG_CRIT, "%s failed: %s\n", __FUNCTION__, Error);
+			client_close();
 			return retval;
 		}
 #ifdef BIGBAD_IODBG
@@ -647,8 +667,6 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 			StrLength(Target));
 		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
 		fprintf(fd, "]\n");
-		
-		
 		fclose(fd);
 #endif
 	}
@@ -1194,16 +1212,14 @@ do_select:	force_purge = 0;
 
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			int client_socket;
-			client_socket = ptr->client_socket;
-			/* Dont select on dead sessions only truly idle ones */
-			if ((ptr->state == CON_IDLE) && 
-			    (CC->kill_me == 0) &&
-			    (client_socket != -1))
-			{
-				FD_SET(client_socket, &readfds);
-				if (client_socket > highest)
-					highest = client_socket;
+			/* Don't select on dead sessions, only truly idle ones */
+			if (	(ptr->state == CON_IDLE)
+				&& (ptr->kill_me == 0)
+				&& (ptr->client_socket != -1)
+			) {
+				FD_SET(ptr->client_socket, &readfds);
+				if (ptr->client_socket > highest)
+					highest = ptr->client_socket;
 			}
 			if ((bind_me == NULL) && (ptr->state == CON_READY)) {
 				bind_me = ptr;
@@ -1408,9 +1424,7 @@ void *select_on_master (void *arg)
 			if (FD_ISSET(serviceptr->msock, &master_fds)) {
 				ssock = accept(serviceptr->msock, NULL, 0);
 				if (ssock >= 0) {
-					syslog(LOG_DEBUG,
-						"New client socket %d\n",
-						ssock);
+					syslog(LOG_DEBUG, "New client socket %d\n", ssock);
 
 					/* The master socket is non-blocking but the client
 					 * sockets need to be blocking, otherwise certain
@@ -1429,26 +1443,20 @@ void *select_on_master (void *arg)
 
 					/* Assign our new socket number to it. */
 					con->client_socket = ssock;
-					con->h_command_function =
-						serviceptr->h_command_function;
-					con->h_async_function =
-						serviceptr->h_async_function;
+					con->h_command_function = serviceptr->h_command_function;
+					con->h_async_function = serviceptr->h_async_function;
 					con->h_greeting_function = serviceptr->h_greeting_function;
-					con->ServiceName =
-						serviceptr->ServiceName;
+					con->ServiceName = serviceptr->ServiceName;
 					
 					/* Determine whether it's a local socket */
-					if (serviceptr->sockpath != NULL)
+					if (serviceptr->sockpath != NULL) {
 						con->is_local_socket = 1;
+					}
 	
 					/* Set the SO_REUSEADDR socket option */
 					i = 1;
-					setsockopt(ssock, SOL_SOCKET,
-						SO_REUSEADDR,
-						&i, sizeof(i));
-
+					setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 					con->state = CON_GREETING;
-
 					retval--;
 					if (retval == 0)
 						break;
