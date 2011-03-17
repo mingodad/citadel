@@ -334,8 +334,7 @@ void RemoveContext (CitContext *con)
 {
 	const char *c;
 	if (con==NULL) {
-		syslog(LOG_ERR,
-			"WARNING: RemoveContext() called with NULL!\n");
+		syslog(LOG_ERR, "WARNING: RemoveContext() called with NULL!\n");
 		return;
 	}
 	c = con->ServiceName;
@@ -356,8 +355,10 @@ void RemoveContext (CitContext *con)
 	syslog(LOG_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
 
 	/* If the client is still connected, blow 'em away. */
-	syslog(LOG_DEBUG, "Closing socket %d\n", con->client_socket);
-	close(con->client_socket);
+	if (con->client_socket != (-1)) {
+		syslog(LOG_DEBUG, "Closing socket %d\n", con->client_socket);
+		if (close(con->client_socket)) syslog(LOG_NOTICE, "close() : %s", strerror(errno));
+	}
 
 	/* If using AUTHMODE_LDAP, free the DN */
 	if (con->ldap_dn) {
