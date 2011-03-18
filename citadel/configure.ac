@@ -788,22 +788,6 @@ fi
 
 
 
-dnl Checks for the Boehm-Demers-Weiser garbage collection library.
-if test "x$with_gc" != xno ; then
-	AC_CHECK_HEADERS(gc/gc_local_alloc.h,
-		[AC_CHECK_LIB(gc, GC_init,
-			[ok_gc=yes],,
-	)])
-fi
-
-if test "x$ok_gc" = xyes ; then
-	SERVER_LIBS="-lgc $SERVER_LIBS"
-	AC_DEFINE(HAVE_GC, [], [define this if you have Boehm-Demers-Weiser available])
-fi
-
-
-
-
 
 dnl Checks for the libdspam mail spam scanning library.
 dnl if test "x$with_libdspam" != xno ; then

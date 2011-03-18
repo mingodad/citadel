@@ -168,22 +168,14 @@ void init_sysdep(void) {
 	 */
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);		// intr = shutdown
-	// sigaddset(&set, SIGQUIT);		// quit = force quit
 	sigaddset(&set, SIGHUP);
 	sigaddset(&set, SIGTERM);
-	// sigaddset(&set, SIGSEGV);		// we want core dumps
-	// sigaddset(&set, SIGILL);		// we want core dumps
-	// sigaddset(&set, SIGBUS);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 
 	signal(SIGINT, signal_cleanup);		// intr = shutdown
-	// signal(SIGQUIT, signal_cleanup);	// quit = force quit
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
 	signal(SIGUSR2, signal_exit);
-	// signal(SIGSEGV, signal_cleanup);	// we want coredumps
-	// signal(SIGILL, signal_cleanup);	// we want core dumps
-	// signal(SIGBUS, signal_cleanup);
 
 	/*
 	 * Do not shut down the server on broken pipe signals, otherwise the
@@ -1166,31 +1158,6 @@ int convert_login(char NameToConvert[]) {
 /* 
  * This loop just keeps going and going and going...
  */
-/*
- * FIXME:
- * This current implimentation of worker_thread creates a bottle neck in several situations
- * The first thing to remember is that a single thread can handle more than one connection at a time.
- * More threads mean less memory for the system to run in.
- * So for efficiency we want every thread to be doing something useful or waiting in the main loop for
- * something to happen anywhere.
- * This current implimentation requires worker threads to wait in other locations, after it has
- * been committed to a single connection which is very wasteful.
- * As an extreme case consider this:
- * A slow client connects and this slow client sends only one character each second.
- * With this current implimentation a single worker thread is dispatched to handle that connection
- * until such times as the client timeout expires, an error occurs on the socket or the client
- * completes its transmission.
- * THIS IS VERY BAD since that thread could have handled a read from many more clients in each one
- * second interval between chars.
- *
- * It is my intention to re-write this code and the associated client_getln, client_read functions
- * to allow any thread to read data on behalf of any connection (context).
- * To do this I intend to have this main loop read chars into a buffer stored in the context.
- * Once the correct criteria for a full buffer is met then we will dispatch a thread to 
- * process it.
- * This worker thread loop also needs to be able to handle binary data.
- */
- 
 void *worker_thread(void *arg) {
 	int highest;
 	CitContext *ptr;

@@ -81,8 +81,6 @@
 
 static int num_threads = 0;			/* Current number of threads */
 static int num_workers = 0;			/* Current number of worker threads */
-long statcount = 0;		/* are we doing a stats check? */
-static long stats_done = 0;
 
 CtdlThreadNode *CtdlThreadList = NULL;
 CtdlThreadNode *CtdlThreadSchedList = NULL;
@@ -1210,32 +1208,6 @@ void *new_worker_thread(void *arg);
 extern void close_masters (void);
 
 
-void *simulation_worker (void*arg) {
-	struct CitContext *this;
-
-	this = CreateNewContext();
-	CtdlThreadSleep(1);
-	this->kill_me = KILLME_SIMULATION_WORKER;
-	this->state = CON_IDLE;
-	dead_session_purge(1);
-	begin_critical_section(S_SESSION_TABLE);
-	stats_done++;
-	end_critical_section(S_SESSION_TABLE);
-	return NULL;
-}
-
-
-void *simulation_thread (void *arg)
-{
-	long stats = statcount;
-
-	while(stats && !CtdlThreadCheckStop()) {
-		CtdlThreadCreate("Connection simulation worker", CTDLTHREAD_BIGSTACK, simulation_worker, NULL);
-		stats--;
-	}
-	CtdlThreadStopAll();
-	return NULL;
-}
 
 void go_threading(void)
 {
@@ -1250,16 +1222,8 @@ void go_threading(void)
 	ctdl_thread_internal_init();
 
 	/* Second call to module init functions now that threading is up */
-	if (!statcount) {
-		initialise_modules(1);
-		CtdlThreadCreate("select_on_master", CTDLTHREAD_BIGSTACK, select_on_master, NULL);
-	}
-	else {
-		syslog(LOG_EMERG, "Running connection simulation stats\n");
-		gettimeofday(&start, NULL);
-		CtdlThreadCreate("Connection simulation master", CTDLTHREAD_BIGSTACK, simulation_thread, NULL);
-	}
-
+	initialise_modules(1);
+	CtdlThreadCreate("select_on_master", CTDLTHREAD_BIGSTACK, select_on_master, NULL);
 
 	/*
 	 * This thread is now used for garbage collection of other threads in the thread list
@@ -1328,8 +1292,11 @@ void go_threading(void)
 		/* FIXME: come up with a better way to dynamically alter the number of threads
 		 * based on the system load
 		 */
-		if (!statcount) {
-		if ((((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkerAvg() > 60)) || CtdlThreadGetWorkers() < config.c_min_workers) && (CT->state > CTDL_THREAD_STOP_REQ))
+		if (	(((CtdlThreadGetWorkers() < config.c_max_workers)
+			&& (CtdlThreadGetWorkerAvg() > 60))
+			|| CtdlThreadGetWorkers() < config.c_min_workers)
+			&& (CT->state > CTDL_THREAD_STOP_REQ)
+		)
 		{
 			/* Only start new threads if we are not going to overload the machine */
 			/* Temporarily set to 10 should be enough to make sure we don't stranglew the server
@@ -1345,7 +1312,6 @@ void go_threading(void)
 			}
 			else
 				syslog(LOG_WARNING, "Server strangled due to machine load average too high.\n");
-		}
 		}
 
 		CtdlThreadGC();
@@ -1366,13 +1332,6 @@ void go_threading(void)
 	 * If the above loop exits we must be shutting down since we obviously have no threads
 	 */
 	ctdl_thread_internal_cleanup();
-
-	if (statcount) {
-		gettimeofday(&now, NULL);
-		timersub(&now, &start, &result);
-		last_duration = (double)result.tv_sec + ((double)result.tv_usec / (double) 1000000);
-		syslog(LOG_EMERG, "Simulated %ld connections in %f seconds\n", stats_done, last_duration);
-	}
 }
 
 
