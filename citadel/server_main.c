@@ -116,12 +116,6 @@ int main(int argc, char **argv)
 //	eCrashSymbolTable symbol_table;
 #endif
 
-#ifdef HAVE_GC
-	GC_INIT();
-	GC_find_leak = 1;
-#endif
-
-
 	/* initialise semaphores here. Patch by Matt and davew
 	 * its called here as they are needed by syslog for thread safety
 	 */
@@ -141,11 +135,6 @@ int main(int argc, char **argv)
 		/* run in the background if -d was specified */
 		else if (!strcmp(argv[a], "-d")) {
 			running_as_daemon = 1;
-		}
-
-		/* run a few stats if -s was specified */
-		else if (!strncmp(argv[a], "-s", 2)) {
-			statcount = atoi(&argv[a][2]);
 		}
 
 		else if (!strncmp(argv[a], "-h", 2)) {
@@ -396,7 +385,6 @@ int main(int argc, char **argv)
 	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
 
 	go_threading();
-	
 	
 	master_cleanup(exit_signal);
 	return(0);

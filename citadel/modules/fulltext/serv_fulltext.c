@@ -1,8 +1,8 @@
 /*
  * This module handles fulltext indexing of the message base.
- * Copyright (c) 2005-2009 by the citadel.org team
+ * Copyright (c) 2005-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
+ *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -14,7 +14,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 
@@ -58,13 +58,10 @@
 
 #include "ctdl_module.h"
 
-
-
 long ft_newhighest = 0L;
 long *ft_newmsgs = NULL;
 int ft_num_msgs = 0;
 int ft_num_alloc = 0;
-
 
 int ftc_num_msgs[65536];
 long *ftc_msgs[65536];
@@ -248,6 +245,9 @@ void do_fulltext_indexing(void) {
 	static time_t last_progress = 0L;
 	time_t run_time = 0L;
 	time_t end_time = 0L;
+	static int is_running = 0;
+	if (is_running) return;         /* Concurrency check - only one can run */
+	is_running = 1;
 	
 	/*
 	 * Don't do this if the site doesn't have it enabled.
@@ -260,13 +260,10 @@ void do_fulltext_indexing(void) {
 	 * Make sure we don't run the indexer too frequently.
 	 * FIXME move the setting into config
 	 */
-/*
- * The thread sleeps for 300 seconds so we don't need this here any more
  
 	if ( (time(NULL) - last_index) < 300L) {
 		return;
 	}
-*/
 
 	/*
 	 * Check to see whether the fulltext index is up to date; if there
@@ -346,8 +343,10 @@ void do_fulltext_indexing(void) {
 	}
 	end_time = time(NULL);
 
-	if (CtdlThreadCheckStop())
+	if (CtdlThreadCheckStop()) {
+		is_running = 0;
 		return;
+	}
 	
 	syslog(LOG_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
 		
@@ -361,28 +360,8 @@ void do_fulltext_indexing(void) {
 	last_index = time(NULL);
 
 	syslog(LOG_DEBUG, "do_fulltext_indexing() finished\n");
+	is_running = 0;
 	return;
-}
-
-/*
- * Main loop for the indexer thread.
- */
-void *indexer_thread(void *arg) {
-	struct CitContext indexerCC;
-
-
-	CtdlFillSystemContext(&indexerCC, "indexer");
-	citthread_setspecific(MyConKey, (void *)&indexerCC );
-	syslog(LOG_DEBUG, "indexer_thread() initializing\n");
-
-	while (!CtdlThreadCheckStop()) {
-		do_fulltext_indexing();
-		CtdlThreadSleep(300);
-	}
-
-	syslog(LOG_DEBUG, "indexer_thread() exiting\n");
-	CtdlClearSystemContext();
-	return NULL;
 }
 
 
@@ -526,10 +505,7 @@ CTDL_MODULE_INIT(fulltext)
 		CtdlRegisterDeleteHook(ft_delete_remove);
 		CtdlRegisterSearchFuncHook(ft_search, "fulltext");
 		CtdlRegisterCleanupHook(noise_word_cleanup);
-	}
-	else
-	{
-		CtdlThreadCreate("Indexer", CTDLTHREAD_BIGSTACK, indexer_thread, NULL);
+		CtdlRegisterSessionHook(do_fulltext_indexing, EVT_TIMER);
 	}
 	/* return our Subversion id for the Log */
 	return "fulltext";

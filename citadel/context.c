@@ -313,7 +313,8 @@ void terminate_idle_sessions(void)
 void terminate_stuck_sessions(void)
 {
 
-	return;
+	abort();
+	
 	/* FIXME this function has been disabled because it is somehow being
 	 * called at times other than server shutdown, which is throwing all
 	 * the users off.  EPIC FAIL!!!
