@@ -694,6 +694,12 @@ void ctdl_thread_internal_calc_loadavg(void)
  */
 void CtdlThreadGC (void)
 {
+
+
+	return;
+	/* FIXME this is a big deal, but I think it's causing corruption */
+
+
 	CtdlThreadNode *this_thread, *that_thread;
 	int workers = 0, sys_workers;
 	int ret=0;
