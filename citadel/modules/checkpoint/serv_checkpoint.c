@@ -1,21 +1,21 @@
 /*
  * checkpointing module for the database
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
  
 #include "sysdep.h"
@@ -56,32 +56,12 @@
 #include "ctdl_module.h"
 #include "context.h"
  
-/*
- * Main loop for the checkpoint thread.
- */
-void *checkpoint_thread(void *arg) {
-	struct CitContext checkpointCC;
-
-
-	CtdlFillSystemContext(&checkpointCC, "checkpoint");
-	citthread_setspecific(MyConKey, (void *)&checkpointCC );
-
-	syslog(LOG_DEBUG, "checkpoint_thread() initializing\n");
-	while (!CtdlThreadCheckStop()) {
-		cdb_checkpoint();
-		CtdlThreadSleep(60);
-	}
-
-	syslog(LOG_DEBUG, "checkpoint_thread() exiting\n");
-	CtdlClearSystemContext();
-	return NULL;
-}
 
 
 CTDL_MODULE_INIT(checkpoint) {
 	if (threading)
 	{
-		CtdlThreadCreate ("checkpoint", CTDLTHREAD_BIGSTACK, checkpoint_thread, NULL);
+		CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
 	}
 	/* return our Subversion id for the Log */
 	return "checkpoint";

@@ -2,9 +2,9 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2010 by the citadel.org team
+ * Copyright (c) 2000-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
+ *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -91,9 +91,6 @@
 #include "ctdl_module.h"
 
 
-
-/* Nonzero while we are doing network processing */
-static int doing_queue = 0;
 
 /*
  * When we do network processing, it's accomplished in two passes; one to
@@ -2294,6 +2291,7 @@ void create_spool_dirs(void) {
  * Run through the rooms doing various types of network stuff.
  */
 void network_do_queue(void) {
+	static int doing_queue = 0;
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 	int full_processing = 1;
@@ -2459,24 +2457,6 @@ int network_room_handler (struct ctdlroom *room)
 	return 0;
 }
 
-void *ignet_thread(void *arg) {
-	struct CitContext ignet_thread_CC;
-
-	syslog(LOG_DEBUG, "ignet_thread() initializing\n");
-	CtdlFillSystemContext(&ignet_thread_CC, "IGnet Queue");
-	citthread_setspecific(MyConKey, (void *)&ignet_thread_CC);
-
-	while (!CtdlThreadCheckStop()) {
-		network_do_queue();
-		CtdlThreadSleep(60);
-	}
-
-	CtdlClearSystemContext();
-	return(NULL);
-}
-
-
-
 
 /*
  * Module entry point
@@ -2492,7 +2472,7 @@ CTDL_MODULE_INIT(network)
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 		CtdlRegisterRoomHook(network_room_handler);
 		CtdlRegisterCleanupHook(destroy_network_queue_room);
-		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, ignet_thread, NULL);
+		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	}
 	return "network";
 }

@@ -20,9 +20,9 @@
  * The VRFY and EXPN commands have been removed from this implementation
  * because nobody uses these commands anymore, except for spammers.
  *
- * Copyright (c) 1998-2009 by the citadel.org team
+ * Copyright (c) 1998-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
+ *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -936,30 +936,23 @@ void cmd_smtp(char *argbuf) {
  * 
  * Run through the queue sending out messages.
  */
-void *smtp_queue_thread(void *arg) {
+void smtp_do_queue(void) {
+	static int is_running = 0;
 	int num_processed = 0;
-	struct CitContext smtp_queue_CC;
 
-	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
-	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	syslog(LOG_DEBUG, "smtp_queue_thread() initializing\n");
+	if (is_running) return;		/* Concurrency check - only one can run */
+	is_running = 1;
 
-	while (!CtdlThreadCheckStop()) {
-		
-		syslog(LOG_INFO, "SMTP client: processing outbound queue\n");
+	syslog(LOG_INFO, "SMTP client: processing outbound queue\n");
 
-		if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
-			syslog(LOG_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
-		}
-		else {
-			num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
-		}
-		syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
-		CtdlThreadSleep(60);
+	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
+		syslog(LOG_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 	}
-
-	CtdlClearSystemContext();
-	return(NULL);
+	else {
+		num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
+	}
+	syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
+	is_running = 0;
 }
 
 
@@ -993,7 +986,7 @@ CTDL_MODULE_INIT(smtp_client)
 	if (!threading)
 	{
 		smtp_init_spoolout();
-		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, smtp_queue_thread, NULL);
+		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	}
 	
