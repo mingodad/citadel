@@ -60,13 +60,8 @@
 #include "sysdep_decls.h"
 #include "context.h"
 
-/*
- * define this to use the new worker_thread method of handling connections
- */
-//#define NEW_WORKER
 
 /*
- * New thread interface.
  * To create a thread you must call one of the create thread functions.
  * You must pass it the address of (a pointer to a CtdlThreadNode initialised to NULL) like this
  * struct CtdlThreadNode *node = NULL;
@@ -118,9 +113,6 @@ int try_critical_section(int which_one)
 	 * transaction; this could lead to deadlock.
 	 */
 	if (	(which_one != S_FLOORCACHE)
-#ifdef DEBUG_MEMORY_LEAKS
-		&& (which_one != S_DEBUGMEMLEAKS)
-#endif
 		&& (which_one != S_RPLIST)
 	) {
 		cdb_check_handles();
@@ -141,9 +133,6 @@ void begin_critical_section(int which_one)
 	 * transaction; this could lead to deadlock.
 	 */
 	if (	(which_one != S_FLOORCACHE)
-#ifdef DEBUG_MEMORY_LEAKS
-		&& (which_one != S_DEBUGMEMLEAKS)
-#endif
 		&& (which_one != S_RPLIST)
 	) {
 		cdb_check_handles();
@@ -300,30 +289,6 @@ void ctdl_thread_internal_init(void)
 
 
 /*
- * A function to update a threads load averages
- */
- void ctdl_thread_internal_update_avgs(CtdlThreadNode *this_thread)
- {
-	struct timeval now, result;
-	double last_duration;
-
-	gettimeofday(&now, NULL);
-	timersub(&now, &(this_thread->last_state_change), &result);
-	/* I don't think these mutex's are needed here */
-	citthread_mutex_lock(&this_thread->ThreadMutex);
-	// result now has a timeval for the time we spent in the last state since we last updated
-	last_duration = (double)result.tv_sec + ((double)result.tv_usec / (double) 1000000);
-	if (this_thread->state == CTDL_THREAD_SLEEPING)
-		this_thread->avg_sleeping += last_duration;
-	if (this_thread->state == CTDL_THREAD_RUNNING)
-		this_thread->avg_running += last_duration;
-	if (this_thread->state == CTDL_THREAD_BLOCKED)
-		this_thread->avg_blocked += last_duration;
-	memcpy (&this_thread->last_state_change, &now, sizeof (struct timeval));
-	citthread_mutex_unlock(&this_thread->ThreadMutex);
-}
-
-/*
  * A function to chenge the state of a thread
  */
 void ctdl_thread_internal_change_state (CtdlThreadNode *this_thread, enum CtdlThreadState new_state)
@@ -331,7 +296,6 @@ void ctdl_thread_internal_change_state (CtdlThreadNode *this_thread, enum CtdlTh
 	/*
 	 * Wether we change state or not we need update the load values
 	 */
-	ctdl_thread_internal_update_avgs(this_thread);
 	/* This mutex not needed here? */
 	citthread_mutex_lock(&this_thread->ThreadMutex); /* To prevent race condition of a sleeping thread */
 	if ((new_state == CTDL_THREAD_STOP_REQ) && (this_thread->state > CTDL_THREAD_STOP_REQ))
@@ -634,54 +598,6 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	CT->state = CTDL_THREAD_EXITED;	// needs to be last thing else house keeping will unlink us too early
 	citthread_mutex_unlock(&CT->ThreadMutex);
 }
-
-/*
- * A quick function to show the load averages
- */
-void ctdl_thread_internal_calc_loadavg(void)
-{
-	CtdlThreadNode *that_thread;
-	double load_avg, worker_avg;
-	int workers = 0;
-
-	that_thread = CtdlThreadList;
-	load_avg = 0;
-	worker_avg = 0;
-	while(that_thread)
-	{
-		/* Update load averages */
-		ctdl_thread_internal_update_avgs(that_thread);
-		citthread_mutex_lock(&that_thread->ThreadMutex);
-		that_thread->load_avg = (that_thread->avg_sleeping + that_thread->avg_running) / (that_thread->avg_sleeping + that_thread->avg_running + that_thread->avg_blocked) * 100;
-		that_thread->avg_sleeping /= 2;
-		that_thread->avg_running /= 2;
-		that_thread->avg_blocked /= 2;
-		load_avg += that_thread->load_avg;
-		if (that_thread->flags & CTDLTHREAD_WORKER)
-		{
-			worker_avg += that_thread->load_avg;
-			workers++;
-		}
-#ifdef WITH_THREADLOG
-		syslog(LOG_DEBUG, "CtdlThread, \"%s\" (%lu) \"%s\" %.2f %.2f %.2f %.2f\n",
-			that_thread->name,
-			that_thread->tid,
-			CtdlThreadStates[that_thread->state],
-			that_thread->avg_sleeping,
-			that_thread->avg_running,
-			that_thread->avg_blocked,
-			that_thread->load_avg);
-#endif
-		citthread_mutex_unlock(&that_thread->ThreadMutex);
-		that_thread = that_thread->next;
-	}
-	CtdlThreadLoadAvg = load_avg/num_threads;
-	CtdlThreadWorkerAvg = worker_avg/workers;
-#ifdef WITH_THREADLOG
-	syslog(LOG_INFO, "System load average %.2f, workers averag %.2f, threads %d, workers %d, sessions %d\n", CtdlThreadGetLoadAvg(), CtdlThreadWorkerAvg, num_threads, num_workers, num_sessions);
-#endif
-}
-
 
 /*
  * Garbage collection routine.
@@ -1029,7 +945,6 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	CtdlThreadList = this_thread;
 	if (this_thread->next)
 		this_thread->next->prev = this_thread;
-	ctdl_thread_internal_calc_loadavg();
 	
 	end_critical_section(S_THREAD_LIST);
 	
@@ -1085,7 +1000,6 @@ CtdlThreadNode *ctdl_thread_internal_start_scheduled (CtdlThreadNode *this_threa
 	if (this_thread->next)
 		this_thread->next->prev = this_thread;
 	
-	ctdl_thread_internal_calc_loadavg();
 	end_critical_section(S_THREAD_LIST);
 	
 	
@@ -1210,8 +1124,6 @@ void go_threading(void)
 {
 	int i;
 	CtdlThreadNode *last_worker;
-	struct timeval start, now, result;
-	double last_duration;
 
 	/*
 	 * Initialise the thread system
@@ -1246,7 +1158,6 @@ void go_threading(void)
 		if (CT->state > CTDL_THREAD_STOP_REQ)
 		{
 			begin_critical_section(S_THREAD_LIST);
-			ctdl_thread_internal_calc_loadavg();
 			end_critical_section(S_THREAD_LIST);
 			
 			ctdl_thread_internal_check_scheduled(); /* start scheduled threads */
