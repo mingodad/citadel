@@ -218,10 +218,6 @@ void master_cleanup(int exitcode) {
 	syslog(LOG_INFO, "Closing databases\n");
 	close_databases();
 
-#ifdef DEBUG_MEMORY_LEAKS
-	dump_heap();
-#endif
-
 	/* If the operator requested a halt but not an exit, halt here. */
 	if (shutdown_and_halt) {
 		syslog(LOG_NOTICE, "citserver: Halting server without exiting.\n");
