@@ -62,7 +62,7 @@
 #define TMP_SHORTER_URL_OFFSET 0xFE
 #define TMP_SHORTER_URLS 0xFD
 
-citthread_mutex_t RSSQueueMutex; /* locks the access to the following vars: */
+pthread_mutex_t RSSQueueMutex; /* locks the access to the following vars: */
 HashList *RSSQueueRooms = NULL; /* rss_room_counter */
 HashList *RSSFetchUrls = NULL; /* -> rss_aggregator; ->RefCount access to be locked too. */
 
@@ -161,7 +161,7 @@ eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 {
 	networker_save_message *Ctx = (networker_save_message *) IO->Data;
 
-	citthread_mutex_lock(&RSSQueueMutex);
+	pthread_mutex_lock(&RSSQueueMutex);
 	Ctx->Cfg->RefCount --;
 
 	if (Ctx->Cfg->RefCount == 0)
@@ -169,7 +169,7 @@ eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 		UnlinkRSSAggregator(Ctx->Cfg);
 
 	}
-	citthread_mutex_unlock(&RSSQueueMutex);
+	pthread_mutex_unlock(&RSSQueueMutex);
 
 	CtdlFreeMessage(Ctx->Msg);
 	free_recipients(Ctx->recp);
@@ -490,22 +490,22 @@ eNextState RSSAggregatorTerminate(AsyncIO *IO)
 	const char *HK;
 	void *vData;
 
-	citthread_mutex_lock(&RSSQueueMutex);
+	pthread_mutex_lock(&RSSQueueMutex);
 	rncptr->RefCount --;
 	if (rncptr->RefCount == 0)
 	{
 		UnlinkRSSAggregator(rncptr);
 
 	}
-	citthread_mutex_unlock(&RSSQueueMutex);
+	pthread_mutex_unlock(&RSSQueueMutex);
 /*
 	At = GetNewHashPos(RSSFetchUrls, 0);
 
-	citthread_mutex_lock(&RSSQueueMutex);
+	pthread_mutex_lock(&RSSQueueMutex);
 	GetHashPosFromKey(RSSFetchUrls, SKEY(rncptr->Url), At);
 	GetHashPos(RSSFetchUrls, At, &HKLen, &HK, &vData);
 	DeleteEntryFromHash(RSSFetchUrls, At);
-	citthread_mutex_unlock(&RSSQueueMutex);
+	pthread_mutex_unlock(&RSSQueueMutex);
 
 	DeleteHashPos(&At);
 */
@@ -531,17 +531,17 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	const char *CfgPtr, *lPtr;
 	const char *Err;
 
-	citthread_mutex_lock(&RSSQueueMutex);
+	pthread_mutex_lock(&RSSQueueMutex);
 	if (GetHash(RSSQueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
 		syslog(LOG_DEBUG, 
 			      "rssclient: [%ld] %s already in progress.\n", 
 			      qrbuf->QRnumber, 
 			      qrbuf->QRname);
-		citthread_mutex_unlock(&RSSQueueMutex);
+		pthread_mutex_unlock(&RSSQueueMutex);
 		return;
 	}
-	citthread_mutex_unlock(&RSSQueueMutex);
+	pthread_mutex_unlock(&RSSQueueMutex);
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
@@ -600,7 +600,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		    rncptr->Url = NewStrBuf();
 		    StrBufExtract_NextToken(rncptr->Url, Line, &lPtr, '|');
 
-		    citthread_mutex_lock(&RSSQueueMutex);
+		    pthread_mutex_lock(&RSSQueueMutex);
 		    GetHash(RSSFetchUrls, SKEY(rncptr->Url), &vptr);
 		    use_this_rncptr = (rss_aggregator *)vptr;
 		    if (use_this_rncptr != NULL)
@@ -626,29 +626,29 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 				    Put(use_this_rncptr->OtherQRnumbers, LKEY(qrbuf->QRnumber), QRnumber, NULL);
 				    use_this_rncptr->roomlist_parts++;
 			    }
-			    citthread_mutex_unlock(&RSSQueueMutex);
+			    pthread_mutex_unlock(&RSSQueueMutex);
 			    continue;
 		    }
-		    citthread_mutex_unlock(&RSSQueueMutex);
+		    pthread_mutex_unlock(&RSSQueueMutex);
 
 		    rncptr->ItemType = RSS_UNSET;
 				
 		    rncptr->rooms = NewStrBufPlain(qrbuf->QRname, -1);
 
-		    citthread_mutex_lock(&RSSQueueMutex);
+		    pthread_mutex_lock(&RSSQueueMutex);
 		    Put(RSSFetchUrls, SKEY(rncptr->Url), rncptr, DeleteRssCfg);
-		    citthread_mutex_unlock(&RSSQueueMutex);
+		    pthread_mutex_unlock(&RSSQueueMutex);
 		}
 	    }
 	}
 	if (Count != NULL)
 	{
 		Count->QRnumber = qrbuf->QRnumber;
-		citthread_mutex_lock(&RSSQueueMutex);
+		pthread_mutex_lock(&RSSQueueMutex);
 		syslog(LOG_DEBUG, "rssclient: [%ld] %s now starting.\n", 
 			      qrbuf->QRnumber, qrbuf->QRname);
 		Put(RSSQueueRooms, LKEY(qrbuf->QRnumber), Count, NULL);
-		citthread_mutex_unlock(&RSSQueueMutex);
+		pthread_mutex_unlock(&RSSQueueMutex);
 	}
 	FreeStrBuf(&CfgData);
 	FreeStrBuf(&CfgType);
@@ -683,7 +683,7 @@ void rssclient_scan(void) {
 	syslog(LOG_DEBUG, "rssclient started\n");
 	CtdlForEachRoom(rssclient_scan_room, NULL);
 
-	citthread_mutex_lock(&RSSQueueMutex);
+	pthread_mutex_lock(&RSSQueueMutex);
 
 	it = GetNewHashPos(RSSFetchUrls, 0);
 	while (GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) && 
@@ -694,7 +694,7 @@ void rssclient_scan(void) {
 				UnlinkRSSAggregator(rptr);
 	}
 	DeleteHashPos(&it);
-	citthread_mutex_unlock(&RSSQueueMutex);
+	pthread_mutex_unlock(&RSSQueueMutex);
 
 	syslog(LOG_DEBUG, "rssclient ended\n");
 	doing_rssclient = 0;
@@ -703,7 +703,7 @@ void rssclient_scan(void) {
 
 void rss_cleanup(void)
 {
-	citthread_mutex_destroy(&RSSQueueMutex);
+	/* citthread_mutex_destroy(&RSSQueueMutex); TODO */
 	DeleteHash(&RSSFetchUrls);
 	DeleteHash(&RSSQueueRooms);
 }
@@ -713,7 +713,7 @@ CTDL_MODULE_INIT(rssclient)
 {
 	if (threading)
 	{
-		citthread_mutex_init(&RSSQueueMutex, NULL);
+		pthread_mutex_init(&RSSQueueMutex, NULL);
 		RSSQueueRooms = NewHash(1, lFlathash);
 		RSSFetchUrls = NewHash(1, NULL);
 		syslog(LOG_INFO, "%s\n", curl_version());

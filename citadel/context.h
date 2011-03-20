@@ -145,7 +145,7 @@ typedef struct CitContext CitContext;
 #define CC MyContext()
 
 
-extern citthread_key_t MyConKey;			/* TSD key for MyContext() */
+extern pthread_key_t MyConKey;			/* TSD key for MyContext() */
 extern int num_sessions;
 extern CitContext masterCC;
 extern CitContext *ContextList;
@@ -162,7 +162,7 @@ void set_async_waiting(struct CitContext *ccptr);
 CitContext *CloneContext(CitContext *CloneMe);
 
 /* forcibly close and flush fd's on shutdown */
-void terminate_stuck_sessions(void);
+void terminate_all_sessions(void);
 
 /* Deprecated, user CtdlBumpNewMailCounter() instead */
 void BumpNewMailCounter(long) __attribute__ ((deprecated));
@@ -182,7 +182,7 @@ static INLINE void become_session(CitContext *which_con) {
 /*
 	pid_t tid = syscall(SYS_gettid);
 */
-	citthread_setspecific(MyConKey, (void *)which_con );
+	pthread_setspecific(MyConKey, (void *)which_con );
 /*
 	syslog(LOG_DEBUG, "[%d]: Now doing %s\n", 
 		      (int) tid, 

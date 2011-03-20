@@ -2,7 +2,7 @@
  * Citadel context management stuff.
  * Here's where we (hopefully) have all the code that manipulates contexts.
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@
 
 
 
-citthread_key_t MyConKey;				/* TSD key for MyContext() */
+pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
 
 CitContext masterCC;
@@ -259,12 +259,8 @@ int CtdlIsUserLoggedInByNum (long usernum)
  * This function is used *VERY* frequently and must be kept small.
  */
 CitContext *MyContext(void) {
-
 	register CitContext *c;
-
-	return ((c = (CitContext *) citthread_getspecific(MyConKey),
-		c == NULL) ? &masterCC : c
-	);
+	return ((c = (CitContext *) pthread_getspecific(MyConKey), c == NULL) ? &masterCC : c);
 }
 
 
@@ -310,16 +306,8 @@ void terminate_idle_sessions(void)
 /*
  * During shutdown, close the sockets of any sessions still connected.
  */
-void terminate_stuck_sessions(void)
+void terminate_all_sessions(void)
 {
-
-	abort();
-	
-	/* FIXME this function has been disabled because it is somehow being
-	 * called at times other than server shutdown, which is throwing all
-	 * the users off.  EPIC FAIL!!!
-	 */
-
 	CitContext *ccptr;
 	int killed = 0;
 
@@ -327,7 +315,7 @@ void terminate_stuck_sessions(void)
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (ccptr->client_socket != -1)
 		{
-			syslog(LOG_INFO, "terminate_stuck_sessions() is murdering %s", ccptr->curr_user);
+			syslog(LOG_INFO, "terminate_all_sessions() is murdering %s", ccptr->curr_user);
 			close(ccptr->client_socket);
 			ccptr->client_socket = -1;
 			killed++;
@@ -388,7 +376,6 @@ void RemoveContext (CitContext *con)
 
 
 
-
 /*
  * Initialize a new context and place it in the list.  The session number
  * used to be the PID (which is why it's called cs_pid), but that was when we
@@ -405,7 +392,8 @@ CitContext *CreateNewContext(void) {
 		return NULL;
 	}
 	memset(me, 0, sizeof(CitContext));
-	/* Give the contaxt a name. Hopefully makes it easier to track */
+
+	/* Give the context a name. Hopefully makes it easier to track */
 	strcpy (me->user.fullname, "SYS_notauth");
 	
 	/* The new context will be created already in the CON_EXECUTING state
@@ -418,12 +406,16 @@ CitContext *CreateNewContext(void) {
 	 * the list.
 	 */
 	me->MigrateBuf = NewStrBuf();
+
 	me->RecvBuf.Buf = NewStrBuf();
+
+	me->lastcmd = time(NULL);	/* set lastcmd to now to prevent idle timer infanticide TODO: if we have a valid IO, use that to set the timer. */
+
+
 	begin_critical_section(S_SESSION_TABLE);
 	me->cs_pid = ++next_pid;
 	me->prev = NULL;
 	me->next = ContextList;
-	me->lastcmd = time(NULL);	/* set lastcmd to now to prevent idle timer infanticide */
 	ContextList = me;
 	if (me->next != NULL) {
 		me->next->prev = me;
@@ -565,7 +557,7 @@ void CtdlClearSystemContext(void)
 	CitContext *CCC = MyContext();
 
 	memset(CCC, 0, sizeof(CitContext));
-	citthread_setspecific(MyConKey, NULL);
+	pthread_setspecific(MyConKey, NULL);
 }
 
 /*
@@ -671,7 +663,7 @@ void dead_session_purge(int force) {
  * function initializes it.
  */
 void InitializeMasterCC(void) {
-	memset(&masterCC, 0, sizeof( CitContext));
+	memset(&masterCC, 0, sizeof(struct CitContext));
 	masterCC.internal_pgm = 1;
 	masterCC.cs_pid = 0;
 }

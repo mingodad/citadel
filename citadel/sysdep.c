@@ -99,16 +99,9 @@ volatile int restart_server = 0;
 volatile int running_as_daemon = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
-	ThreadTSD *Cc;
-
-	Cc = CTP;
-	if (Cc && Cc->self)
-		Cc->self->signal = signum;
-	else
-	{
-		syslog(LOG_DEBUG, "Caught signal %d; shutting down.\n", signum);
-		exit_signal = signum;
-	}
+	syslog(LOG_DEBUG, "Caught signal %d; shutting down.", signum);
+	exit_signal = signum;
+///	server_shutting_down = 1;
 }
 
 static RETSIGTYPE signal_exit(int signum) {
@@ -145,22 +138,21 @@ void init_sysdep(void) {
 	 * CitContext structure (in the ContextList linked list) of the
 	 * session to which the calling thread is currently bound.
 	 */
-	if (citthread_key_create(&MyConKey, NULL) != 0) {
-		syslog(LOG_CRIT, "Can't create TSD key: %s\n",
-			strerror(errno));
+	if (pthread_key_create(&MyConKey, NULL) != 0) {
+		syslog(LOG_CRIT, "Can't create TSD key: %s", strerror(errno));
 	}
 
 	/*
-	 * The action for unexpected signals and exceptions should be to
-	 * call signal_cleanup() to gracefully shut down the server.
+	 * Interript, hangup, and terminate signals should cause the server
+	 * to gracefully clean up and shut down.
 	 */
 	sigemptyset(&set);
-	sigaddset(&set, SIGINT);		// intr = shutdown
+	sigaddset(&set, SIGINT);
 	sigaddset(&set, SIGHUP);
 	sigaddset(&set, SIGTERM);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 
-	signal(SIGINT, signal_cleanup);		// intr = shutdown
+	signal(SIGINT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
 	signal(SIGUSR2, signal_exit);
@@ -214,7 +206,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 			snprintf(errormessage, SIZ,
 				 "Error binding to [%s] : %s", ip_addr, strerror(errno)
 			);
-			syslog(LOG_ALERT, "%s\n", errormessage);
+			syslog(LOG_ALERT, "%s", errormessage);
 			return (-1);
 		}
 	}
@@ -225,16 +217,14 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 			snprintf(errormessage, SIZ,
 				 "Error binding to [%s] : %s", ip_addr, strerror(errno)
 			);
-			syslog(LOG_ALERT, "%s\n", errormessage);
+			syslog(LOG_ALERT, "%s", errormessage);
 			return (-1);
 		}
 	}
 
 	if (port_number == 0) {
-		snprintf(errormessage, SIZ,
-			 "Can't start: no port number specified."
-		);
-		syslog(LOG_ALERT, "%s\n", errormessage);
+		snprintf(errormessage, SIZ, "Can't start: no port number specified.");
+		syslog(LOG_ALERT, "%s", errormessage);
 		return (-1);
 	}
 	sin6.sin6_port = htons((u_short) port_number);
@@ -247,7 +237,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 		snprintf(errormessage, SIZ,
 			 "Can't create a listening socket: %s", strerror(errno)
 		);
-		syslog(LOG_ALERT, "%s\n", errormessage);
+		syslog(LOG_ALERT, "%s", errormessage);
 		return (-1);
 	}
 	/* Set some socket options that make sense. */
@@ -265,7 +255,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 		snprintf(errormessage, SIZ,
 			 "Can't bind: %s", strerror(errno)
 		);
-		syslog(LOG_ALERT, "%s\n", errormessage);
+		syslog(LOG_ALERT, "%s", errormessage);
 		return (-1);
 	}
 
@@ -275,7 +265,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 		snprintf(errormessage, SIZ,
 			 "Can't listen: %s", strerror(errno)
 		);
-		syslog(LOG_ALERT, "%s\n", errormessage);
+		syslog(LOG_ALERT, "%s", errormessage);
 		return (-1);
 	}
 	return (s);
@@ -306,7 +296,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, "citserver: can't unlink %s: %s",
 			sockpath, strerror(errno)
 		);
-		syslog(LOG_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s", errormessage);
 		return(-1);
 	}
 
@@ -319,7 +309,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't create a socket: %s",
 			 strerror(errno));
-		syslog(LOG_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s", errormessage);
 		return(-1);
 	}
 
@@ -327,7 +317,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't bind: %s",
 			 strerror(errno));
-		syslog(LOG_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s", errormessage);
 		return(-1);
 	}
 
@@ -336,7 +326,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't set socket to non-blocking: %s",
 			 strerror(errno));
-		syslog(LOG_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s", errormessage);
 		close(s);
 		return(-1);
 	}
@@ -345,7 +335,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't listen: %s",
 			 strerror(errno));
-		syslog(LOG_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s", errormessage);
 		return(-1);
 	}
 
@@ -419,13 +409,12 @@ static void flush_client_inbuf(void)
  */
 void client_close(void) {
 	CitContext *CCC = CC;
-	int r;
 
 	if (!CCC) return;
 	if (CCC->client_socket <= 0) return;
-	syslog(LOG_DEBUG, "Closing socket %d\n", CCC->client_socket);
-	r = close(CCC->client_socket);
-	if (!r) syslog(LOG_INFO, "close() failed: %s\n", strerror(errno));
+	syslog(LOG_DEBUG, "Closing socket %d", CCC->client_socket);
+
+	close(CCC->client_socket);
 	CCC->client_socket = -1 ;
 }
 
@@ -493,7 +482,9 @@ int client_write(const char *buf, int nbytes)
 			if (select(1, NULL, &wset, NULL, NULL) == -1) {
 				if (errno == EINTR)
 				{
-					syslog(LOG_DEBUG, "client_write(%d bytes) select() interrupted.\n", nbytes-bytes_written);
+					syslog(LOG_DEBUG, "client_write(%d bytes) select() interrupted.",
+						nbytes-bytes_written
+					);
 					if (CtdlThreadCheckStop()) {
 						CC->kill_me = KILLME_SELECT_INTERRUPTED;
 						return (-1);
@@ -503,7 +494,7 @@ int client_write(const char *buf, int nbytes)
 					}
 				} else {
 					syslog(LOG_ERR,
-						"client_write(%d bytes) select failed: %s (%d)\n",
+						"client_write(%d bytes) select failed: %s (%d)",
 						nbytes - bytes_written,
 						strerror(errno), errno
 					);
@@ -518,13 +509,12 @@ int client_write(const char *buf, int nbytes)
 		retval = write(Ctx->client_socket, &buf[bytes_written], nbytes - bytes_written);
 		if (retval < 1) {
 			syslog(LOG_ERR,
-				"client_write(%d bytes) failed: %s (%d)\n",
+				"client_write(%d bytes) failed: %s (%d)",
 				nbytes - bytes_written,
 				strerror(errno), errno
 			);
 			cit_backtrace();
 			client_close();
-			// syslog(LOG_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
 			Ctx->kill_me = KILLME_WRITE_FAILED;
 			return -1;
 		}
@@ -593,9 +583,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 #endif
 		retval = client_read_sslblob(Target, bytes, timeout);
 		if (retval < 0) {
-			syslog(LOG_CRIT, 
-				      "%s failed\n",
-				      __FUNCTION__);
+			syslog(LOG_CRIT, "%s failed", __FUNCTION__);
 		}
 #ifdef BIGBAD_IODBG
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
@@ -1146,7 +1134,7 @@ int convert_login(char NameToConvert[]) {
 /* 
  * This loop just keeps going and going and going...
  */
-void *worker_thread(void *arg) {
+void *worker_thread(void *blah) {
 	int highest;
 	CitContext *ptr;
 	CitContext *bind_me = NULL;
@@ -1154,7 +1142,6 @@ void *worker_thread(void *arg) {
 	int retval = 0;
 	struct timeval tv;
 	int force_purge = 0;
-	
 
 	while (!CtdlThreadCheckStop()) {
 
@@ -1208,18 +1195,18 @@ do_select:	force_purge = 0;
 		if (!CtdlThreadCheckStop()) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
-			retval = CtdlThreadSelect(highest + 1, &readfds, NULL, NULL, &tv);
+			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
-		else
+		else {
 			return NULL;
+		}
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
 		 */
 		if (retval < 0) {
 			if (errno == EBADF) {
-				syslog(LOG_NOTICE, "select() failed: (%s)\n",
-					strerror(errno));
+				syslog(LOG_NOTICE, "select() failed: (%s)\n", strerror(errno));
 				goto do_select;
 			}
 			if (errno != EINTR) {
@@ -1228,13 +1215,13 @@ do_select:	force_purge = 0;
 				continue;
 			} else {
 #if 0
-				syslog(LOG_DEBUG, "Interrupted CtdlThreadSelect.\n");
+				syslog(LOG_DEBUG, "Interrupted select()\n");
 #endif
 				if (CtdlThreadCheckStop()) return(NULL);
 				goto do_select;
 			}
 		}
-		else if(retval == 0) {
+		else if (retval == 0) {
 			if (CtdlThreadCheckStop()) return(NULL);
 		}
 
@@ -1318,21 +1305,21 @@ SKIP_SELECT:
  * In other words it handles new connections.
  * It is a thread.
  */
-void *select_on_master (void *arg)
+void *select_on_master(void *blah)
 {
 	struct ServiceFunctionHook *serviceptr;
 	fd_set master_fds;
 	int highest;
 	struct timeval tv;
 	int ssock;			/* Descriptor for client socket */
-	CitContext *con= NULL;	/* Temporary context pointer */
+	CitContext *con = NULL;		/* Temporary context pointer */
 	int m;
 	int i;
 	int retval;
 	struct CitContext select_on_master_CC;
 
 	CtdlFillSystemContext(&select_on_master_CC, "select_on_master");
-	citthread_setspecific(MyConKey, (void *)&select_on_master_CC);
+	pthread_setspecific(MyConKey, (void *)&select_on_master_CC);
 
 	while (!CtdlThreadCheckStop()) {
 		/* Initialize the fdset. */
@@ -1352,7 +1339,7 @@ void *select_on_master (void *arg)
 		if (!CtdlThreadCheckStop()) {
 			tv.tv_sec = 60;		/* wake up every second if no input */
 			tv.tv_usec = 0;
-			retval = CtdlThreadSelect(highest + 1, &master_fds, NULL, NULL, &tv);
+			retval = select(highest + 1, &master_fds, NULL, NULL, &tv);
 		}
 		else
 			return NULL;

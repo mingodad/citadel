@@ -385,7 +385,7 @@ void do_extnotify_queue(void)
 	if (doing_queue) return;
 	doing_queue = 1;
 
-	citthread_setspecific(MyConKey, (void *)&extnotify_queue_CC);
+	pthread_setspecific(MyConKey, (void *)&extnotify_queue_CC);
 
 	/*
 	 * Go ahead and run the queue

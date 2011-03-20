@@ -383,7 +383,7 @@ static void evcurl_shutdown (void)
  */
 int evbase_count = 0;
 int event_add_pipe[2] = {-1, -1};
-citthread_mutex_t EventQueueMutex; /* locks the access to the following vars: */
+pthread_mutex_t EventQueueMutex; /* locks the access to the following vars: */
 HashList *QueueEvents = NULL;
 HashList *InboundEventQueue = NULL;
 HashList *InboundEventQueues[2] = { NULL, NULL };
@@ -400,7 +400,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	const char *Key;
 
 	/* get the control command... */
-	citthread_mutex_lock(&EventQueueMutex);
+	pthread_mutex_lock(&EventQueueMutex);
 
 	if (InboundEventQueues[0] == InboundEventQueue) {
 		InboundEventQueue = InboundEventQueues[1];
@@ -410,7 +410,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		InboundEventQueue = InboundEventQueues[0];
 		q = InboundEventQueues[1];
 	}
-	citthread_mutex_unlock(&EventQueueMutex);
+	pthread_mutex_unlock(&EventQueueMutex);
 
 	It = GetNewHashPos(q, 0);
 	while (GetNextHashPos(q, It, &len, &Key, &v))
@@ -437,7 +437,7 @@ void InitEventQueue(void)
 {
 	struct rlimit LimitSet;
 
-	citthread_mutex_init(&EventQueueMutex, NULL);
+	pthread_mutex_init(&EventQueueMutex, NULL);
 
 	if (pipe(event_add_pipe) != 0) {
 		syslog(LOG_EMERG, "Unable to create pipe for libev queueing: %s\n", strerror(errno));
@@ -486,7 +486,7 @@ void *client_event_thread(void *arg)
 	InboundEventQueue = NULL;
 	DeleteHash(&InboundEventQueues[0]);
 	DeleteHash(&InboundEventQueues[1]);
-	citthread_mutex_destroy(&EventQueueMutex);
+/*	citthread_mutex_destroy(&EventQueueMutex); TODO */
 	evcurl_shutdown();
 
 	return(NULL);
@@ -499,7 +499,7 @@ void *client_event_thread(void *arg)
 ev_loop *event_db;
 int evdb_count = 0;
 int evdb_add_pipe[2] = {-1, -1};
-citthread_mutex_t DBEventQueueMutex; /* locks the access to the following vars: */
+pthread_mutex_t DBEventQueueMutex; /* locks the access to the following vars: */
 HashList *DBQueueEvents = NULL;
 HashList *DBInboundEventQueue = NULL;
 HashList *DBInboundEventQueues[2] = { NULL, NULL };
@@ -518,7 +518,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	const char *Key;
 
 	/* get the control command... */
-	citthread_mutex_lock(&DBEventQueueMutex);
+	pthread_mutex_lock(&DBEventQueueMutex);
 
 	if (DBInboundEventQueues[0] == DBInboundEventQueue) {
 		DBInboundEventQueue = DBInboundEventQueues[1];
@@ -528,7 +528,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		DBInboundEventQueue = DBInboundEventQueues[0];
 		q = DBInboundEventQueues[1];
 	}
-	citthread_mutex_unlock(&DBEventQueueMutex);
+	pthread_mutex_unlock(&DBEventQueueMutex);
 
 	It = GetNewHashPos(q, 0);
 	while (GetNextHashPos(q, It, &len, &Key, &v))
@@ -562,7 +562,7 @@ void DBInitEventQueue(void)
 {
 	struct rlimit LimitSet;
 
-	citthread_mutex_init(&DBEventQueueMutex, NULL);
+	pthread_mutex_init(&DBEventQueueMutex, NULL);
 
 	if (pipe(evdb_add_pipe) != 0) {
 		syslog(LOG_EMERG, "Unable to create pipe for libev queueing: %s\n", strerror(errno));
@@ -608,7 +608,7 @@ void *db_event_thread(void *arg)
 	DBInboundEventQueue = NULL;
 	DeleteHash(&DBInboundEventQueues[0]);
 	DeleteHash(&DBInboundEventQueues[1]);
-	citthread_mutex_destroy(&DBEventQueueMutex);
+/*	citthread_mutex_destroy(&DBEventQueueMutex); TODO */
 
 	return(NULL);
 }
@@ -622,8 +622,8 @@ CTDL_MODULE_INIT(event_client)
 	{
 		InitEventQueue();
 		DBInitEventQueue();
-		CtdlThreadCreate("Client event", CTDLTHREAD_BIGSTACK, client_event_thread, NULL);
-		CtdlThreadCreate("DB event", CTDLTHREAD_BIGSTACK, db_event_thread, NULL);
+		CtdlThreadCreate(/*"Client event", */ client_event_thread);
+		CtdlThreadCreate(/*"DB event", */db_event_thread);
 /// todo register shutdown callback.
 	}
 #endif

@@ -81,7 +81,7 @@ static void IO_abort_shutdown_callback(struct ev_loop *loop, ev_cleanup *watcher
  * Server DB IO 
  */
 extern int evdb_count;
-extern citthread_mutex_t DBEventQueueMutex;
+extern pthread_mutex_t DBEventQueueMutex;
 extern HashList *DBInboundEventQueue;
 extern struct ev_loop *event_db;
 extern ev_async DBAddJob;   
@@ -100,11 +100,11 @@ eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 	IO->db_abort_by_shutdown.data = IO;
 	ev_cleanup_start(event_db, &IO->db_abort_by_shutdown);
 
-	citthread_mutex_lock(&DBEventQueueMutex);
+	pthread_mutex_lock(&DBEventQueueMutex);
 	syslog(LOG_DEBUG, "DBEVENT Q\n");
 	i = ++evdb_count ;
 	Put(DBInboundEventQueue, IKEY(i), h, NULL);
-	citthread_mutex_unlock(&DBEventQueueMutex);
+	pthread_mutex_unlock(&DBEventQueueMutex);
 
 	ev_async_send (event_db, &DBAddJob);
 	syslog(LOG_DEBUG, "DBEVENT Q Done.\n");
@@ -170,7 +170,7 @@ eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB)
  * Client IO 
  */
 extern int evbase_count;
-extern citthread_mutex_t EventQueueMutex;
+extern pthread_mutex_t EventQueueMutex;
 extern HashList *InboundEventQueue;
 extern struct ev_loop *event_base;
 extern ev_async AddJob;   
@@ -190,11 +190,11 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	IO->abort_by_shutdown.data = IO;
 	ev_cleanup_start(event_base, &IO->abort_by_shutdown);
 
-	citthread_mutex_lock(&EventQueueMutex);
+	pthread_mutex_lock(&EventQueueMutex);
 	syslog(LOG_DEBUG, "EVENT Q\n");
 	i = ++evbase_count;
 	Put(InboundEventQueue, IKEY(i), h, NULL);
-	citthread_mutex_unlock(&EventQueueMutex);
+	pthread_mutex_unlock(&EventQueueMutex);
 
 	ev_async_send (event_base, &AddJob);
 	syslog(LOG_DEBUG, "EVENT Q Done.\n");
@@ -203,13 +203,13 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 
 int ShutDownEventQueue(void)
 {
-	citthread_mutex_lock(&DBEventQueueMutex);
+	pthread_mutex_lock(&DBEventQueueMutex);
 	ev_async_send (event_db, &DBExitEventLoop);
-	citthread_mutex_unlock(&DBEventQueueMutex);
+	pthread_mutex_unlock(&DBEventQueueMutex);
 
-	citthread_mutex_lock(&EventQueueMutex);
+	pthread_mutex_lock(&EventQueueMutex);
 	ev_async_send (EV_DEFAULT_ &ExitEventLoop);
-	citthread_mutex_unlock(&EventQueueMutex);
+	pthread_mutex_unlock(&EventQueueMutex);
 	return 0;
 }
 

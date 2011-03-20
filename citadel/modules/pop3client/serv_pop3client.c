@@ -55,7 +55,7 @@
 
 struct CitContext pop3_client_CC;
 
-citthread_mutex_t POP3QueueMutex; /* locks the access to the following vars: */
+pthread_mutex_t POP3QueueMutex; /* locks the access to the following vars: */
 HashList *POP3QueueRooms = NULL; /* rss_room_counter */
 HashList *POP3FetchUrls = NULL; /* -> rss_aggregator; ->RefCount access to be locked too. */
 
@@ -159,12 +159,12 @@ eNextState FinalizePOP3AggrRun(AsyncIO *IO)
 	syslog(LOG_DEBUG, "Terminating Aggregator; bye.\n");
 
 	It = GetNewHashPos(POP3FetchUrls, 0);
-	citthread_mutex_lock(&POP3QueueMutex);
+	pthread_mutex_lock(&POP3QueueMutex);
 	{
 		GetHashPosFromKey(POP3FetchUrls, SKEY(cptr->Url), It);
 		DeleteEntryFromHash(POP3FetchUrls, It);
 	}
-	citthread_mutex_unlock(&POP3QueueMutex);
+	pthread_mutex_unlock(&POP3QueueMutex);
 	DeleteHashPos(&It);
 	return eAbort;
 }
@@ -882,17 +882,17 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 //	pop3_room_counter *Count = NULL;
 //	pop3aggr *cpptr;
 
-	citthread_mutex_lock(&POP3QueueMutex);
+	pthread_mutex_lock(&POP3QueueMutex);
 	if (GetHash(POP3QueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
 		syslog(LOG_DEBUG, 
 			      "pop3client: [%ld] %s already in progress.\n", 
 			      qrbuf->QRnumber, 
 			      qrbuf->QRname);
-		citthread_mutex_unlock(&POP3QueueMutex);
+		pthread_mutex_unlock(&POP3QueueMutex);
 		return;
 	}
-	citthread_mutex_unlock(&POP3QueueMutex);
+	pthread_mutex_unlock(&POP3QueueMutex);
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
@@ -977,7 +977,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 #if 0 
 /* todo: we need to reunite the url to be shure. */
 				
-				citthread_mutex_lock(&POP3ueueMutex);
+				pthread_mutex_lock(&POP3ueueMutex);
 				GetHash(POP3FetchUrls, SKEY(ptr->Url), &vptr);
 				use_this_cptr = (pop3aggr *)vptr;
 				
@@ -1004,15 +1004,15 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 						Put(use_this_cptr->OtherQRnumbers, LKEY(qrbuf->QRnumber), QRnumber, NULL);
 						use_this_cptr->roomlist_parts++;
 					}
-					citthread_mutex_unlock(&POP3QueueMutex);
+					pthread_mutex_unlock(&POP3QueueMutex);
 					continue;
 				}
-				citthread_mutex_unlock(&RSSQueueMutex);
+				pthread_mutex_unlock(&RSSQueueMutex);
 #endif
 
-				citthread_mutex_lock(&POP3QueueMutex);
+				pthread_mutex_lock(&POP3QueueMutex);
 				Put(POP3FetchUrls, SKEY(cptr->Url), cptr, DeletePOP3Aggregator);
-				citthread_mutex_unlock(&POP3QueueMutex);
+				pthread_mutex_unlock(&POP3QueueMutex);
 
 			}
 
@@ -1063,7 +1063,7 @@ void pop3client_scan(void) {
 	CtdlForEachRoom(pop3client_scan_room, NULL);
 
 
-	citthread_mutex_lock(&POP3QueueMutex);
+	pthread_mutex_lock(&POP3QueueMutex);
 	it = GetNewHashPos(POP3FetchUrls, 0);
 	while (GetNextHashPos(POP3FetchUrls, it, &len, &Key, &vrptr) && 
 	       (vrptr != NULL)) {
@@ -1073,7 +1073,7 @@ void pop3client_scan(void) {
 				DeletePOP3Aggregator(cptr);////TODO
 	}
 	DeleteHashPos(&it);
-	citthread_mutex_unlock(&POP3QueueMutex);
+	pthread_mutex_unlock(&POP3QueueMutex);
 
 	syslog(LOG_DEBUG, "pop3client ended\n");
 	last_run = time(NULL);
@@ -1083,7 +1083,7 @@ void pop3client_scan(void) {
 
 void pop3_cleanup(void)
 {
-	citthread_mutex_destroy(&POP3QueueMutex);
+	/* citthread_mutex_destroy(&POP3QueueMutex); TODO */
 	DeleteHash(&POP3FetchUrls);
 	DeleteHash(&POP3QueueRooms);
 }
@@ -1093,7 +1093,7 @@ CTDL_MODULE_INIT(pop3client)
 	if (!threading)
 	{
 		CtdlFillSystemContext(&pop3_client_CC, "POP3aggr");
-		citthread_mutex_init(&POP3QueueMutex, NULL);
+		pthread_mutex_init(&POP3QueueMutex, NULL);
 		POP3QueueRooms = NewHash(1, lFlathash);
 		POP3FetchUrls = NewHash(1, NULL);
 		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
