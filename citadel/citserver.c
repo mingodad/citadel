@@ -146,11 +146,6 @@ void master_startup(void) {
 
 	syslog(LOG_INFO, "Opening databases\n");
 	open_databases();
-
-	ctdl_thread_internal_init_tsd();
-	
-	CtdlThreadAllocTSD();
-	
 	check_ref_counts();
 
 	syslog(LOG_INFO, "Creating base rooms (if necessary)\n");
@@ -277,10 +272,10 @@ void cmd_info(char *cmdbuf) {
 
 	cprintf("%s\n", config.c_default_cal_zone);
 
-	/* Output load averages */
-	cprintf("%f\n", CtdlThreadLoadAvg);
-	cprintf("%f\n", CtdlThreadWorkerAvg);
-	cprintf("%d\n", CtdlThreadGetCount());
+	/* thread load averages -- temporarily disabled during refactoring of this code */
+	cprintf("0\n");		/* load average */
+	cprintf("0\n");		/* worker average */
+	cprintf("0\n");		/* thread count */
 
 	cprintf("1\n");		/* yes, Sieve mail filtering is supported */
 	cprintf("%d\n", config.c_enable_fulltext);
@@ -1005,16 +1000,12 @@ void cmd_lout(char *argbuf)
  */
 void do_command_loop(void) {
 	char cmdbuf[SIZ];
-	const char *old_name = NULL;
-	
-	old_name = CtdlThreadName("do_command_loop");
 	
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		syslog(LOG_ERR, "Citadel client disconnected: ending session.\n");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
-		CtdlThreadName(old_name);
 		return;
 	}
 
@@ -1043,8 +1034,6 @@ void do_command_loop(void) {
 		time(&CC->lastidle);
 	}
 	
-	CtdlThreadName(cmdbuf);
-		
 	if ((strncasecmp(cmdbuf, "ENT0", 4))
 	   && (strncasecmp(cmdbuf, "MESG", 4))
 	   && (strncasecmp(cmdbuf, "MSGS", 4)))
@@ -1060,7 +1049,6 @@ void do_command_loop(void) {
 
 	/* Run any after-each-command routines registered by modules */
 	PerformSessionHooks(EVT_CMD);
-	CtdlThreadName(old_name);
 }
 
 

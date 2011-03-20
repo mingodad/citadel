@@ -149,37 +149,7 @@ int CtdlDoDirectoryServiceFunc(char *cn, char *ou, void **object, char *module, 
  */
 void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *error_response);
 
-
-/*
- * Citadel Threads API
- */
-struct CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (void *arg), void *args);
-void CtdlThreadSleep(int secs);
-void CtdlThreadStop(struct CtdlThreadNode *thread);
-int CtdlThreadCheckStop(void);
-/* void CtdlThreadCancel2(struct CtdlThreadNode *thread); Leave this out, it should never be needed */
-const char *CtdlThreadName(const char *name);
-struct CtdlThreadNode *CtdlThreadSelf(void);
-int CtdlThreadGetCount(void);
-int CtdlThreadGetWorkers(void);
-double CtdlThreadGetWorkerAvg(void);
-double CtdlThreadGetLoadAvg(void);
-void CtdlThreadGC(void);
-void CtdlThreadStopAll(void);
-int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
-void CtdlThreadAllocTSD(void);
-
-#define CTDLTHREAD_BIGSTACK	0x0001
-#define CTDLTHREAD_WORKER	0x0002
-
-/* Macros to speed up getting outr thread */
-
-#define MYCURSORS	(((ThreadTSD*)pthread_getspecific(ThreadKey))->cursors)
-#define MYTID		(((ThreadTSD*)pthread_getspecific(ThreadKey))->tid)
-#define CT		(((ThreadTSD*)pthread_getspecific(ThreadKey))->self)
-#define CTP		((ThreadTSD*)pthread_getspecific(ThreadKey))
-
-/** return the current context list as an array and do it in a safe manner
+/* return the current context list as an array and do it in a safe manner
  * The returned data is a copy so only reading is useful
  * The number of contexts is returned in count.
  * Beware, this does not copy any of the data pointed to by the context.
