@@ -352,12 +352,10 @@ void RemoveContext (CitContext *con)
 	become_session(con);
 	CtdlUserLogout();
 	PerformSessionHooks(EVT_STOP);
+	client_close();				/* If the client is still connected, blow 'em away. */
 	become_session(NULL);
 
 	syslog(LOG_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
-
-	/* If the client is still connected, blow 'em away. */
-	client_close();
 
 	/* If using AUTHMODE_LDAP, free the DN */
 	if (con->ldap_dn) {
