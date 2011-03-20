@@ -61,19 +61,8 @@
 #include "context.h"
 
 
-/*
- * To create a thread you must call one of the create thread functions.
- * You must pass it the address of (a pointer to a CtdlThreadNode initialised to NULL) like this
- * struct CtdlThreadNode *node = NULL;
- * pass in &node
- * If the thread is created *node will point to the thread control structure for the created thread.
- * If the thread creation fails *node remains NULL
- * Do not free the memory pointed to by *node, it doesn't belong to you.
- * This new interface duplicates much of the eCrash stuff. We should go for closer integration since that would
- * remove the need for the calls to eCrashRegisterThread and friends
- */
-
-static int num_threads = 0;			/* Current number of threads */
+int num_workers = 0;				/* Current number of worker threads */
+int active_workers = 0;				/* Number of ACTIVE worker threads */
 pthread_key_t ThreadKey;
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 struct thread_tsd masterTSD;
@@ -205,8 +194,6 @@ void CtdlThreadCreate(void *(*start_routine)(void*))
 	ret = pthread_attr_setstacksize(&attr, THREADSTACKSIZE);
 	ret = pthread_create(&thread, &attr, CTC_backend, (void *)start_routine);
 	if (ret != 0) syslog(LOG_EMERG, "pthread_create() : %s", strerror(errno));
-
-	++num_threads;
 }
 
 
@@ -230,20 +217,19 @@ void go_threading(void)
 
 	CtdlThreadCreate(select_on_master);
 
-	/* FIXME temporary fixed size pool of worker threads */
-	CtdlThreadCreate(worker_thread);
-	CtdlThreadCreate(worker_thread);
-	CtdlThreadCreate(worker_thread);
-	CtdlThreadCreate(worker_thread);
-	CtdlThreadCreate(worker_thread);
-	CtdlThreadCreate(worker_thread);
-	CtdlThreadCreate(worker_thread);
+	/* Begin with one worker thread.  We will expand the pool if necessary */
 	CtdlThreadCreate(worker_thread);
 
-	/* At this point I am a union worker and therefore serve no useful purpose. */
-
+	/* The supervisor thread monitors worker threads and spawns more of them if it finds that
+	 * they are all in use.  FIXME make the 256 max threads a configurable value.
+	 */
 	while(!CtdlThreadCheckStop()) {
-		sleep(3);
+		if ((active_workers == num_workers) && (num_workers < 256)) {
+			syslog(LOG_DEBUG, "worker threads: %d, active: %d\n", num_workers, active_workers);
+			CtdlThreadCreate(worker_thread);
+			syslog(LOG_DEBUG, "worker threads: %d, active: %d\n", num_workers, active_workers);
+		}
+		sleep(1);
 	}
 
 	/* Shut down */

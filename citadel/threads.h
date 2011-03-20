@@ -33,6 +33,9 @@ struct thread_tsd {
 extern struct thread_tsd masterTSD;
 #define TSD MyThread()
 
+extern int num_workers;
+extern int active_workers;
+
 struct thread_tsd *MyThread(void);
 int try_critical_section (int which_one);
 void begin_critical_section (int which_one);
