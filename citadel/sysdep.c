@@ -1143,6 +1143,8 @@ void *worker_thread(void *blah) {
 	struct timeval tv;
 	int force_purge = 0;
 
+	++num_workers;
+
 	while (!CtdlThreadCheckStop()) {
 
 		/* make doubly sure we're not holding any stale db handles
@@ -1259,6 +1261,7 @@ do_select:	force_purge = 0;
 
 SKIP_SELECT:
 		/* We're bound to a session */
+		++active_workers;
 		if (bind_me != NULL) {
 			become_session(bind_me);
 
@@ -1292,6 +1295,7 @@ SKIP_SELECT:
 
 		dead_session_purge(force_purge);
 		do_housekeeping();
+		--active_workers;
 	}
 	/* If control reaches this point, the server is shutting down */	
 	return(NULL);
