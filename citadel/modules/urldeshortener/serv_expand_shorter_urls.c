@@ -139,7 +139,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 	OPT(WRITEHEADER, ShorterUrlStr);
 
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto shutdown ;
 
 	evcurl_handle_start(IO);

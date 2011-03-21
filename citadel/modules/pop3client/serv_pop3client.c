@@ -174,6 +174,7 @@ eNextState FailAggregationRun(AsyncIO *IO)
 	return eAbort;
 }
 
+
 #define POP3C_DBG_SEND() syslog(LOG_DEBUG, "POP3 client[%ld]: > %s\n", RecvMsg->n, ChrPtr(RecvMsg->IO.SendBuf.Buf))
 #define POP3C_DBG_READ() syslog(LOG_DEBUG, "POP3 client[%ld]: < %s\n", RecvMsg->n, ChrPtr(RecvMsg->IO.IOBuf))
 #define POP3C_OK (strncasecmp(ChrPtr(RecvMsg->IO.IOBuf), "+OK", 3) == 0)
@@ -185,7 +186,6 @@ eNextState POP3C_ReadGreeting(pop3aggr *RecvMsg)
 	if (!POP3C_OK) return eTerminateConnection;
 	else return eSendReply;
 }
-
 
 eNextState POP3C_SendUser(pop3aggr *RecvMsg)
 {
@@ -301,7 +301,9 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 	if(GetNextHashPos(RecvMsg->MsgNumbers, RecvMsg->Pos, &HKLen, &HKey, &vData))
 	{
 		struct UseTable ut;
-
+		if (server_shutting_down)
+			return eAbort;
+			
 		RecvMsg->CurrMsg = (FetchItem*) vData;
 		syslog(LOG_DEBUG, "CHECKING: whether %s has already been seen: ", ChrPtr(RecvMsg->CurrMsg->MsgUID));
 		/* Find out if we've already seen this item */
@@ -890,13 +892,15 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 			      qrbuf->QRnumber, 
 			      qrbuf->QRname);
 		pthread_mutex_unlock(&POP3QueueMutex);
-		return;
 	}
 	pthread_mutex_unlock(&POP3QueueMutex);
 
+	if (server_shutting_down)
+		return;
+
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 		
 	/* Only do net processing for rooms that have netconfigs */
@@ -905,14 +909,14 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 		//syslog(LOG_DEBUG, "rssclient: %s no config.\n", qrbuf->QRname);
 		return;
 	}
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 	if (fstat(fd, &statbuf) == -1) {
 		syslog(LOG_DEBUG, "ERROR: could not stat configfile '%s' - %s\n",
 			      filename, strerror(errno));
 		return;
 	}
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 	CfgData = NewStrBufPlain(NULL, statbuf.st_size + 1);
 	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
@@ -923,7 +927,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 		return;
 	}
 	close(fd);
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 	
 	CfgPtr = NULL;
@@ -1062,15 +1066,25 @@ void pop3client_scan(void) {
 	syslog(LOG_DEBUG, "pop3client started\n");
 	CtdlForEachRoom(pop3client_scan_room, NULL);
 
-
 	pthread_mutex_lock(&POP3QueueMutex);
 	it = GetNewHashPos(POP3FetchUrls, 0);
-	while (GetNextHashPos(POP3FetchUrls, it, &len, &Key, &vrptr) && 
+	while (!server_shutting_down && 
+	       GetNextHashPos(POP3FetchUrls, it, &len, &Key, &vrptr) && 
 	       (vrptr != NULL)) {
 		cptr = (pop3aggr *)vrptr;
 		if (cptr->RefCount == 0) 
 			if (!pop3_do_fetching(cptr))
 				DeletePOP3Aggregator(cptr);////TODO
+
+/*
+		if ((palist->interval && time(NULL) > (last_run + palist->interval))
+			|| (time(NULL) > last_run + config.c_pop3_fetch))
+				pop3_do_fetching(palist->roomname, palist->pop3host,
+					palist->pop3user, palist->pop3pass, palist->keep);
+		pptr = palist;
+		palist = palist->next;
+		free(pptr);
+*/
 	}
 	DeleteHashPos(&it);
 	pthread_mutex_unlock(&POP3QueueMutex);

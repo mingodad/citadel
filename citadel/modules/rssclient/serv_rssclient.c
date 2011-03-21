@@ -137,6 +137,9 @@ void UnlinkRooms(rss_aggregator *Cfg)
 			long *lData = (long*) vData;
 			DeleteRoomReference(*lData);
 		}
+/*
+		if (server_shutting_down)
+			break; /* TODO */
 
 		DeleteHashPos(&At);
 	}
@@ -451,7 +454,6 @@ int rss_do_fetching(rss_aggregator *Cfg)
 }
 
 
-
 void DeleteRssCfg(void *vptr)
 {
 	rss_aggregator *rncptr = (rss_aggregator *)vptr;
@@ -545,7 +547,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 		
 	/* Only do net processing for rooms that have netconfigs */
@@ -554,15 +556,10 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		//syslog(LOG_DEBUG, "rssclient: %s no config.\n", qrbuf->QRname);
 		return;
 	}
-	if (CtdlThreadCheckStop())
-		return;
-	if (fstat(fd, &statbuf) == -1) {
-		syslog(LOG_DEBUG, "ERROR: could not stat configfile '%s' - %s\n",
-			filename, strerror(errno));
-		return;
-	}
-	if (CtdlThreadCheckStop())
-		return;
+
+	if (server_shutting_down)
+		return
+
 	CfgData = NewStrBufPlain(NULL, statbuf.st_size + 1);
 	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
@@ -572,7 +569,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		return;
 	}
 	close(fd);
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 	
 	CfgPtr = NULL;
@@ -686,7 +683,8 @@ void rssclient_scan(void) {
 	pthread_mutex_lock(&RSSQueueMutex);
 
 	it = GetNewHashPos(RSSFetchUrls, 0);
-	while (GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) && 
+	while (!server_shutting_down &&
+	       GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) && 
 	       (vrptr != NULL)) {
 		rptr = (rss_aggregator *)vrptr;
 		if (rptr->RefCount == 0) 

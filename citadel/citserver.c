@@ -817,7 +817,7 @@ void cmd_down(char *argbuf) {
 		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN); 
 	}
 	CC->kill_me = KILLME_SERVER_SHUTTING_DOWN;
-	CtdlThreadStopAll();
+	server_shutting_down = 1;
 }
 
 
@@ -829,7 +829,7 @@ void cmd_halt(char *argbuf) {
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	cprintf("%d Halting server.  Goodbye.\n", CIT_OK);
-	CtdlThreadStopAll();
+	server_shutting_down = 1;
 	shutdown_and_halt = 1;
 }
 

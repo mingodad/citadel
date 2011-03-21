@@ -35,14 +35,13 @@ extern struct thread_tsd masterTSD;
 
 extern int num_workers;
 extern int active_workers;
+extern int server_shutting_down;
 
 struct thread_tsd *MyThread(void);
 int try_critical_section (int which_one);
 void begin_critical_section (int which_one);
 void end_critical_section (int which_one);
 void go_threading(void);
-int CtdlThreadCheckStop(void);
-void CtdlThreadStopAll(void);
 void InitializeMasterTSD(void);
 void CtdlThreadCreate(void *(*start_routine)(void*));
 

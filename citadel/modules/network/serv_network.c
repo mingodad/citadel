@@ -1986,7 +1986,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 		 * If shutting down we can exit here and unlink the temp file.
 		 * this shouldn't loose us any messages.
 		 */
-		if (CtdlThreadCheckStop())
+		if (server_shutting_down)
 		{
 			fclose(fp);
 			unlink(tempfilename);
@@ -2028,7 +2028,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 	fclose(fp);
 
 	/* Last chance for shutdown exit */
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 	{
 		unlink(tempfilename);
 		return;
@@ -2099,7 +2099,7 @@ void transmit_spool(int *sock, char *remote_nodename)
 		bytes_to_write = plen;
 		while (bytes_to_write > 0L) {
 			/* Exit if shutting down */
-			if (CtdlThreadCheckStop())
+			if (server_shutting_down)
 			{
 				close(fd);
 				return;
@@ -2132,7 +2132,7 @@ ABORTUPL:
 	close(fd);
 
 	/* Last chance for shutdown exit */
-	if(CtdlThreadCheckStop())
+	if(server_shutting_down)
 		return;
 		
 	if (sock_puts(sock, "UCLS 1") < 0) return;
@@ -2205,9 +2205,9 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 		}
 	
 		/* At this point we are authenticated. */
-		if (!CtdlThreadCheckStop())
+		if (!server_shutting_down)
 			receive_spool(&sock, node);
-		if (!CtdlThreadCheckStop())
+		if (!server_shutting_down)
 			transmit_spool(&sock, node);
 	}
 
@@ -2244,7 +2244,7 @@ void network_poll_other_citadel_nodes(int full_poll) {
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
-		if(CtdlThreadCheckStop())
+		if(server_shutting_down)
 			return;
 		extract_token(linebuf, working_ignetcfg, i, '\n', sizeof linebuf);
 		extract_token(node, linebuf, 0, '|', sizeof node);
@@ -2354,14 +2354,14 @@ void network_do_queue(void) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	if (full_processing && !CtdlThreadCheckStop()) {
+	if (full_processing && !server_shutting_down) {
 		syslog(LOG_DEBUG, "network: loading outbound queue\n");
 		CtdlForEachRoom(network_queue_room, NULL);
 	}
 
 	if (rplist != NULL) {
 		syslog(LOG_DEBUG, "network: running outbound queue\n");
-		while (rplist != NULL && !CtdlThreadCheckStop()) {
+		while (rplist != NULL && !server_shutting_down) {
 			char spoolroomname[ROOMNAMELEN];
 			safestrncpy(spoolroomname, rplist->name, sizeof spoolroomname);
 			begin_critical_section(S_RPLIST);
@@ -2386,7 +2386,7 @@ void network_do_queue(void) {
 	}
 
 	/* If there is anything in the inbound queue, process it */
-	if (!CtdlThreadCheckStop()) {
+	if (!server_shutting_down) {
 		network_do_spoolin();
 	}
 

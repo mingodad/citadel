@@ -67,6 +67,7 @@ int active_workers = 0;				/* Number of ACTIVE worker threads */
 pthread_key_t ThreadKey;
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 struct thread_tsd masterTSD;
+int server_shutting_down = 0;			/* set to nonzero during shutdown */
 
 
 
@@ -128,27 +129,6 @@ void end_critical_section(int which_one)
 }
 
 
-/*
- * A function to tell all threads to exit
- */
-void CtdlThreadStopAll(void)
-{
-	terminate_all_sessions();		/* close all client sockets */
-	CtdlShutdownServiceHooks();		/* close all listener sockets to prevent new connections */
-	PerformSessionHooks(EVT_SHUTDOWN);	/* run any registered shutdown hooks */
-}
-
-
-/*
- * A function for a thread to check if it has been asked to stop
- */
-int CtdlThreadCheckStop(void)
-{
-
-	/* FIXME this needs to do something useful.  moar code pls ! */
-
-	return 0;
-}
 
 
 /*
@@ -224,16 +204,22 @@ void go_threading(void)
 	/* The supervisor thread monitors worker threads and spawns more of them if it finds that
 	 * they are all in use.  FIXME make the 256 max threads a configurable value.
 	 */
-	while(!CtdlThreadCheckStop()) {
+	while (!server_shutting_down) {
 		if ((active_workers == num_workers) && (num_workers < 256)) {
-			syslog(LOG_DEBUG, "worker threads: %d, active: %d\n", num_workers, active_workers);
 			CtdlThreadCreate(worker_thread);
-			syslog(LOG_DEBUG, "worker threads: %d, active: %d\n", num_workers, active_workers);
 		}
 		sleep(1);
 	}
 
-	/* Shut down */
-	CtdlThreadStopAll();
-	exit(0);
+	/* When we get to this point we are getting ready to shut down our Citadel server */
+
+	terminate_all_sessions();		/* close all client sockets */
+	CtdlShutdownServiceHooks();		/* close all listener sockets to prevent new connections */
+	PerformSessionHooks(EVT_SHUTDOWN);	/* run any registered shutdown hooks */
+
+	int countdown = 10;
+	while ( (num_workers > 0) && (countdown-- > 0)) {
+		syslog(LOG_DEBUG, "Waiting for %d worker threads to exit", num_workers);
+		sleep(1);
+	}
 }

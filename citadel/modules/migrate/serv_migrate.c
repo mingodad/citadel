@@ -831,7 +831,7 @@ void migr_xml_end(void *data, const char *el) {
 			msglist = NULL;
 			msglist_alloc = 0;
 			syslog(LOG_DEBUG, "Imported %d messages.\n", msgcount);
-			if (CtdlThreadCheckStop()) {
+			if (server_shutting_down) {
 				return;
 		}
 	}
@@ -932,7 +932,7 @@ void migr_do_import(void) {
 		linelen = strlen(buf);
 		strcpy(&buf[linelen++], "\n");
 
-		if (CtdlThreadCheckStop())
+		if (server_shutting_down)
 			break;	// Should we break or return?
 		
 		if (buf[0] == '\0')

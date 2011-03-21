@@ -101,7 +101,7 @@ volatile int running_as_daemon = 0;
 static RETSIGTYPE signal_cleanup(int signum) {
 	syslog(LOG_DEBUG, "Caught signal %d; shutting down.", signum);
 	exit_signal = signum;
-///	server_shutting_down = 1;
+	server_shutting_down = 1;
 }
 
 static RETSIGTYPE signal_exit(int signum) {
@@ -485,7 +485,7 @@ int client_write(const char *buf, int nbytes)
 					syslog(LOG_DEBUG, "client_write(%d bytes) select() interrupted.",
 						nbytes-bytes_written
 					);
-					if (CtdlThreadCheckStop()) {
+					if (server_shutting_down) {
 						CC->kill_me = KILLME_SELECT_INTERRUPTED;
 						return (-1);
 					} else {
@@ -1145,7 +1145,7 @@ void *worker_thread(void *blah) {
 
 	++num_workers;
 
-	while (!CtdlThreadCheckStop()) {
+	while (!server_shutting_down) {
 
 		/* make doubly sure we're not holding any stale db handles
 		 * which might cause a deadlock.
@@ -1194,7 +1194,7 @@ do_select:	force_purge = 0;
 		 * ahead and get ready to select().
 		 */
 
-		if (!CtdlThreadCheckStop()) {
+		if (!server_shutting_down) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
 			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
@@ -1213,18 +1213,18 @@ do_select:	force_purge = 0;
 			}
 			if (errno != EINTR) {
 				syslog(LOG_EMERG, "Exiting (%s)\n", strerror(errno));
-				CtdlThreadStopAll();
+				server_shutting_down = 1;
 				continue;
 			} else {
 #if 0
 				syslog(LOG_DEBUG, "Interrupted select()\n");
 #endif
-				if (CtdlThreadCheckStop()) return(NULL);
+				if (server_shutting_down) return(NULL);
 				goto do_select;
 			}
 		}
 		else if (retval == 0) {
-			if (CtdlThreadCheckStop()) return(NULL);
+			if (server_shutting_down) return(NULL);
 		}
 
 		/* It must be a client socket.  Find a context that has data
@@ -1297,7 +1297,9 @@ SKIP_SELECT:
 		do_housekeeping();
 		--active_workers;
 	}
-	/* If control reaches this point, the server is shutting down */	
+
+	/* If control reaches this point, the server is shutting down */
+	--num_workers;
 	return(NULL);
 }
 
@@ -1325,7 +1327,7 @@ void *select_on_master(void *blah)
 	CtdlFillSystemContext(&select_on_master_CC, "select_on_master");
 	pthread_setspecific(MyConKey, (void *)&select_on_master_CC);
 
-	while (!CtdlThreadCheckStop()) {
+	while (!server_shutting_down) {
 		/* Initialize the fdset. */
 		FD_ZERO(&master_fds);
 		highest = 0;
@@ -1340,7 +1342,7 @@ void *select_on_master(void *blah)
 			}
 		}
 
-		if (!CtdlThreadCheckStop()) {
+		if (!server_shutting_down) {
 			tv.tv_sec = 60;		/* wake up every second if no input */
 			tv.tv_usec = 0;
 			retval = select(highest + 1, &master_fds, NULL, NULL, &tv);
@@ -1359,17 +1361,17 @@ void *select_on_master(void *blah)
 			}
 			if (errno != EINTR) {
 				syslog(LOG_EMERG, "Exiting (%s)\n", strerror(errno));
-				CtdlThreadStopAll();
+				server_shutting_down = 1;
 			} else {
 #if 0
 				syslog(LOG_DEBUG, "Interrupted CtdlThreadSelect.\n");
 #endif
-				if (CtdlThreadCheckStop()) return(NULL);
+				if (server_shutting_down) return(NULL);
 				continue;
 			}
 		}
 		else if(retval == 0) {
-			if (CtdlThreadCheckStop()) return(NULL);
+			if (server_shutting_down) return(NULL);
 			continue;
 		}
 		/* Next, check to see if it's a new client connecting
