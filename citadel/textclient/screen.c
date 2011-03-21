@@ -1,6 +1,23 @@
 /*
  * Screen output handling
+ *
+ * Copyright (c) 1987-2011 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -21,6 +38,7 @@
 #include "commands.h"
 #include "screen.h"
 
+int enable_status_line = 0;
 char status_line[1024] = "     ";
 
 /* the default paginator prompt will be replaced by the server's prompt when we learn it */
@@ -165,7 +183,7 @@ int scr_putc(int c)
 	/* How many lines output before stopping for the paginator?
 	 * Depends on whether we are displaying a status line.
 	 */
-	int height_offset = ( ((enable_color) && (screenwidth > 0)) ? (3) : (2) ) ;
+	int height_offset = ( ((enable_color) && (screenwidth > 0) && (enable_status_line)) ? (3) : (2) ) ;
 
 	/* Ok, go check it.  Stop and display the paginator prompt if necessary. */
 	if ((screenheight > 0) && (lines_printed > (screenheight-height_offset))) {
@@ -180,7 +198,7 @@ int scr_putc(int c)
 
 void scr_flush(void)
 {
-	if ((enable_color) && (screenwidth > 0)) {
+	if ((enable_color) && (screenwidth > 0) && (enable_status_line)) {
 		if (strlen(status_line) < screenwidth) {
 			memset(&status_line[strlen(status_line)], 32, screenwidth - strlen(status_line));
 		}
@@ -217,6 +235,8 @@ RETSIGTYPE scr_winch(int signum)
  */
 void scr_wait_indicator(int state) {
 	int sp = (screenwidth - 2);
+
+	if (!enable_status_line) return;
 
 	if (screenwidth > 0) {
 		switch (state) {
