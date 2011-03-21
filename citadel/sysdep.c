@@ -1194,6 +1194,7 @@ do_select:	force_purge = 0;
 			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
 		else {
+			--num_workers;
 			return NULL;
 		}
 
@@ -1211,12 +1212,18 @@ do_select:	force_purge = 0;
 				continue;
 			} else {
 				syslog(LOG_DEBUG, "Interrupted select()\n");
-				if (server_shutting_down) return(NULL);
+				if (server_shutting_down) {
+					--num_workers;
+					return(NULL);
+				}
 				goto do_select;
 			}
 		}
 		else if (retval == 0) {
-			if (server_shutting_down) return(NULL);
+			if (server_shutting_down) {
+				--num_workers;
+				return(NULL);
+			}
 		}
 
 		/* It must be a client socket.  Find a context that has data
