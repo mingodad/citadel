@@ -217,9 +217,11 @@ void go_threading(void)
 	CtdlShutdownServiceHooks();		/* close all listener sockets to prevent new connections */
 	PerformSessionHooks(EVT_SHUTDOWN);	/* run any registered shutdown hooks */
 
-	int countdown = 10;
+	int countdown = 30;
 	while ( (num_workers > 0) && (countdown-- > 0)) {
-		syslog(LOG_DEBUG, "Waiting for %d worker threads to exit", num_workers);
+		syslog(LOG_DEBUG, "Waiting %d seconds for %d worker threads to exit",
+			countdown, num_workers
+		);
 		sleep(1);
 	}
 }
