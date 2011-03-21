@@ -1354,8 +1354,9 @@ void *select_on_master(void *blah)
 			tv.tv_usec = 0;
 			retval = select(highest + 1, &master_fds, NULL, NULL, &tv);
 		}
-		else
-			return NULL;
+		else {
+			retval = -1 ;
+		}
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
@@ -1377,15 +1378,11 @@ void *select_on_master(void *blah)
 				continue;
 			}
 		}
-		else if(retval == 0) {
-			if (server_shutting_down) return(NULL);
-			continue;
-		}
+
 		/* Next, check to see if it's a new client connecting
 		 * on a master socket.
 		 */
-		else for (serviceptr = ServiceHookTable; serviceptr != NULL;
-		     serviceptr = serviceptr->next ) {
+		else if ((retval > 0) && (!server_shutting_down)) for (serviceptr = ServiceHookTable; serviceptr != NULL; serviceptr = serviceptr->next) {
 
 			if (FD_ISSET(serviceptr->msock, &master_fds)) {
 				ssock = accept(serviceptr->msock, NULL, 0);
@@ -1431,7 +1428,6 @@ void *select_on_master(void *blah)
 		}
 	}
 	CtdlClearSystemContext();
-
 	return NULL;
 }
 
