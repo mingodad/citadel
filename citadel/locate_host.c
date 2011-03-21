@@ -105,7 +105,7 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 
 	/* Make our DNS query. */
 	answer = fixedans;
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 	{
 		if (txtbuf != NULL) {
 			snprintf(txtbuf, txtbufsize, "System shutting down");
@@ -136,7 +136,7 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 			return(1);
 		}
 	}
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 	{
 		if (txtbuf != NULL)
 			snprintf(txtbuf, txtbufsize, "System shutting down");
@@ -153,7 +153,7 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	 * nameserver we're using.
 	 */
 	len = res_query(domain, C_IN, T_TXT, answer, PACKETSZ);
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 	{
 		if (txtbuf != NULL) {
 			snprintf(txtbuf, txtbufsize, "System shutting down");

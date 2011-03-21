@@ -876,55 +876,55 @@ void purge_databases(void)
 
 	syslog(LOG_INFO, "Auto-purger: starting.\n");
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
 		retval = PurgeUsers();
 		syslog(LOG_NOTICE, "Purged %d users.\n", retval);
 	}
 		
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
 		PurgeMessages();
 	       	syslog(LOG_NOTICE, "Expired %d messages.\n", messages_purged);
 	}
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
        		retval = PurgeRooms();
        		syslog(LOG_NOTICE, "Expired %d rooms.\n", retval);
 	}
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
        		retval = PurgeVisits();
        		syslog(LOG_NOTICE, "Purged %d visits.\n", retval);
 	}
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
 		retval = PurgeUseTable();
        		syslog(LOG_NOTICE, "Purged %d entries from the use table.\n", retval);
 	}
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
        	retval = PurgeEuidIndexTable();
        	syslog(LOG_NOTICE, "Purged %d entries from the EUID index.\n", retval);
 	}
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
 		retval = PurgeStaleOpenIDassociations();
 	       	syslog(LOG_NOTICE, "Purged %d stale OpenID associations.\n", retval);
 	}
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
        		retval = TDAP_ProcessAdjRefCountQueue();
 	       	syslog(LOG_NOTICE, "Processed %d message reference count adjustments.\n", retval);
 	}
 
-	if (!CtdlThreadCheckStop())
+	if (!server_shutting_down)
 	{
 	       	syslog(LOG_INFO, "Auto-purger: finished.\n");
 		last_purge = now;	/* So we don't do it again soon */

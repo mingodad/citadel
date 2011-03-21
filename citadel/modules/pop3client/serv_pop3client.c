@@ -85,7 +85,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	syslog(LOG_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
 	syslog(LOG_NOTICE, "Connecting to <%s>\n", pop3host);
 	
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 		
 	sock = sock_connect(pop3host, "110");
@@ -94,7 +94,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		return;
 	}
 	
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto bail;
 
 	syslog(LOG_DEBUG, "Connected!\n");
@@ -107,7 +107,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto bail;
 
 	/* Identify ourselves.  NOTE: we have to append a CR to each command.  The LF will
@@ -122,7 +122,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto bail;
 
 	/* Password */
@@ -133,7 +133,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto bail;
 
 	/* Get the list of messages */
@@ -144,11 +144,11 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto bail;
 
 	do {
-		if (CtdlThreadCheckStop())
+		if (server_shutting_down)
 			goto bail;
 
 		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
@@ -181,7 +181,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 
 		snprintf(utmsgid, sizeof utmsgid, "pop3/%s/%s@%s", roomname, this_uidl, pop3host);
 
-		if (CtdlThreadCheckStop())
+		if (server_shutting_down)
 			goto bail;
 
 		cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
@@ -204,7 +204,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			syslog(LOG_DEBUG, ">%s\n", buf);
 			if (strncasecmp(buf, "+OK", 3)) goto bail;
 	
-			if (CtdlThreadCheckStop())
+			if (server_shutting_down)
 				goto bail;
 
 			/* If we get to this point, the message is on its way.  Read it. */
@@ -265,7 +265,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	FILE *fp;
 	struct pop3aggr *pptr;
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
@@ -331,7 +331,7 @@ void pop3client_scan(void) {
 	syslog(LOG_DEBUG, "pop3client started\n");
 	CtdlForEachRoom(pop3client_scan_room, NULL);
 
-	while (palist != NULL && !CtdlThreadCheckStop()) {
+	while (palist != NULL && !server_shutting_down) {
 		if ((palist->interval && time(NULL) > (last_run + palist->interval))
 			|| (time(NULL) > last_run + config.c_pop3_fetch))
 				pop3_do_fetching(palist->roomname, palist->pop3host,

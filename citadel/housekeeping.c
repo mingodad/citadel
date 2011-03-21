@@ -63,7 +63,7 @@
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
 		syslog(LOG_NOTICE, "Scheduled shutdown initiating.\n");
-		CtdlThreadStopAll();
+		server_shutting_down = 1;
 	}
 }
 
