@@ -228,7 +228,7 @@ void ft_index_msg(long msgnum, void *userdata) {
  */
 void ft_index_room(struct ctdlroom *qrbuf, void *data)
 {
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 		
 	CtdlGetRoom(&CC->room, qrbuf->QRname);
@@ -321,7 +321,7 @@ void do_fulltext_indexing(void) {
 			ft_index_message(ft_newmsgs[i], 1);
 
 			/* Check to see if we need to quit early */
-			if (CtdlThreadCheckStop()) {
+			if (server_shutting_down) {
 				syslog(LOG_DEBUG, "Indexer quitting early\n");
 				ft_newhighest = ft_newmsgs[i];
 				break;
@@ -343,7 +343,7 @@ void do_fulltext_indexing(void) {
 	}
 	end_time = time(NULL);
 
-	if (CtdlThreadCheckStop()) {
+	if (server_shutting_down) {
 		is_running = 0;
 		return;
 	}

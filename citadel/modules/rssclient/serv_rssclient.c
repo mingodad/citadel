@@ -374,7 +374,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto shutdown ;
 
 	rc = curl_easy_perform(curl);
@@ -1302,13 +1302,13 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 	{
 		curl_easy_cleanup(curl);
 		return;
 	}
 	
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto shutdown ;
 
 	res = curl_easy_perform(curl);
@@ -1316,7 +1316,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 		syslog(LOG_ALERT, "libcurl error %d: %s\n", res, errmsg);
 	}
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto shutdown ;
 
 
@@ -1410,7 +1410,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 		
 	/* Only do net processing for rooms that have netconfigs */
@@ -1419,7 +1419,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		return;
 	}
 
-	while (fgets(buf, sizeof buf, fp) != NULL && !CtdlThreadCheckStop()) {
+	while (fgets(buf, sizeof buf, fp) != NULL && !server_shutting_down) {
 		buf[strlen(buf)-1] = 0;
 
 		extract_token(instr, buf, 0, '|', sizeof instr);
@@ -1500,7 +1500,7 @@ void rssclient_scan(void) {
 	syslog(LOG_DEBUG, "rssclient started\n");
 	CtdlForEachRoom(rssclient_scan_room, NULL);
 
-	while (rnclist != NULL && !CtdlThreadCheckStop()) {
+	while (rnclist != NULL && !server_shutting_down) {
 		rss_do_fetching(rnclist);
 		rptr = rnclist;
 		rnclist = rnclist->next;

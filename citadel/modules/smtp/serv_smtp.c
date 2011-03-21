@@ -131,7 +131,7 @@ void smtp_greeting(int is_msa)
 	 */
 	if ( (config.c_rbl_at_greeting) && (sSMTP->is_msa == 0) ) {
 		if (rbl_check(message_to_spammer)) {
-			if (CtdlThreadCheckStop())
+			if (server_shutting_down)
 				cprintf("421 %s\r\n", message_to_spammer);
 			else
 				cprintf("550 %s\r\n", message_to_spammer);
@@ -584,7 +584,7 @@ void smtp_rcpt(char *argbuf) {
 	   && (!sSMTP->is_lmtp) ) {	/* Don't RBL LMTP clients */
 		if (config.c_rbl_at_greeting == 0) {	/* Don't RBL again if we already did it */
 			if (rbl_check(message_to_spammer)) {
-				if (CtdlThreadCheckStop())
+				if (server_shutting_down)
 					cprintf("421 %s\r\n", message_to_spammer);
 				else
 					cprintf("550 %s\r\n", message_to_spammer);
