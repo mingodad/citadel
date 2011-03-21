@@ -38,7 +38,7 @@
 #include "commands.h"
 #include "screen.h"
 
-int enable_status_line = 0;
+int enable_status_line = 0;	/* FIXME the status line works, but not on Mac.  Make this configurable. */
 char status_line[1024] = "     ";
 
 /* the default paginator prompt will be replaced by the server's prompt when we learn it */
