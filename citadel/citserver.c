@@ -1011,10 +1011,14 @@ void do_command_loop(void) {
 
 	/* Log the server command, but don't show passwords... */
 	if ( (strncasecmp(cmdbuf, "PASS", 4)) && (strncasecmp(cmdbuf, "SETP", 4)) ) {
-		syslog(LOG_INFO, "CtdlCommand [%s] [%s] %s\n", CTDLUSERIP, CC->curr_user, cmdbuf);
+		syslog(LOG_INFO, "[%d][%s(%ld)] %s",
+			CC->cs_pid, CC->curr_user, CC->user.usernum, cmdbuf
+		);
 	}
 	else {
-		syslog(LOG_INFO, "CtdlCommand [%s] [%s] <password command hidden from log>\n", CTDLUSERIP, CC->curr_user);
+		syslog(LOG_INFO, "[%d][%s(%ld)] <password command hidden from log>",
+			CC->cs_pid, CC->curr_user, CC->user.usernum
+		);
 	}
 
 	buffer_output();
