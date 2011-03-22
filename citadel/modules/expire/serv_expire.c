@@ -428,10 +428,6 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	/* The default rule is to not purge. */
 	purge = 0;
 	
-	/* don't attempt to purge system users. */
-	if (!strncmp(us->fullname, "SYS_", 4))
-		goto skip_all_this;
-
 	/* If the user hasn't called in two months and expiring of accounts is turned on, his/her account
 	 * has expired, so purge the record.
 	 */
@@ -472,7 +468,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (us->usernum < 0L) purge = 1;
 	
-	/** Don't purge user 0. That user is there for the system */
+	/* Don't purge user 0. That user is there for the system */
 	if (us->usernum == 0L)
 	{
 		/* FIXME: Temporary log message. Until we do unauth access with user 0 we should
@@ -480,7 +476,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 		 * we will need to try and purge them from users data bases.Some will not have names but
 		 * those with names should be purged.
 		 */
-		syslog(LOG_DEBUG, "Auto purger found a user 0 with name \"%s\"\n", us->fullname);
+		syslog(LOG_DEBUG, "Auto purger found a user 0 with name <%s>", us->fullname);
 		// purge = 0;
 	}
 	
@@ -498,11 +494,13 @@ void do_user_purge(struct ctdluser *us, void *data) {
 			if (users_corrupt_msg == NULL)
 			{
 				users_corrupt_msg = malloc(SIZ);
-				strcpy(users_corrupt_msg, "The auto-purger found the following user numbers with no name.\n"
-				"The system has no way to purge user with no name and should not be able to\n"
-				"create them either.\n"
-				"This indicates corruption of the user DB or possibly a bug.\n"
-				"It may be a good idea to restore your DB from a backup.\n");
+				strcpy(users_corrupt_msg,
+					"The auto-purger found the following user numbers with no name.\n"
+					"The system has no way to purge a user with no name,"
+					" and should not be able to create them either.\n"
+					"This indicates corruption of the user DB or possibly a bug.\n"
+					"It may be a good idea to restore your DB from a backup.\n"
+				);
 			}
 		
 			users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+30);
@@ -510,8 +508,6 @@ void do_user_purge(struct ctdluser *us, void *data) {
 		}
 	}
 
-skip_all_this:
-		
 	if (purge == 1) {
 		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
 		pptr->next = UserPurgeList;
