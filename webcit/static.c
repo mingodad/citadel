@@ -286,6 +286,9 @@ void robots_txt(void) {
 		"Disallow: /groupdav\r\n"
 		"Disallow: /do_template\r\n"
 		"Disallow: /static\r\n"
+		"Disallow: /display_page\r\n"
+		"Disallow: /readnew\r\n"
+		"Disallow: /display_enter\r\n"
 		"Sitemap: %s/sitemap.xml\r\n"
 		"\r\n"
 		,
