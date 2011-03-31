@@ -88,20 +88,20 @@
 #include "smtpqueue.h"
 #include "event_client.h"
 
-HashList *QItemHandlers = NULL;
 
 citthread_mutex_t ActiveQItemsLock;
-HashList *ActiveQItems = NULL;
+HashList *ActiveQItems  = NULL;
+HashList *QItemHandlers = NULL;
 
-int MsgCount = 0;
-int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
+int MsgCount            = 0;
+int run_queue_now       = 0;	/* Set to 1 to ignore SMTP send retry times */
 
-void smtp_try(OneQueItem *MyQItem, 
-	      MailQEntry *MyQEntry, 
-	      StrBuf *MsgText, 
-	      int KeepMsgText, /* KeepMsgText allows us to use MsgText as ours. */
-	      int MsgCount, 
-	      ParsedURL *RelayUrls);
+void smtp_try_one_queue_entry(OneQueItem *MyQItem, 
+			      MailQEntry *MyQEntry, 
+			      StrBuf *MsgText, 
+			      int KeepMsgText, /* KeepMsgText allows us to use MsgText as ours. */
+			      int MsgCount, 
+			      ParsedURL *RelayUrls);
 
 
 void smtp_evq_cleanup(void)
@@ -828,8 +828,17 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			if (ThisItem->Active == 1) {
 				int KeepBuffers = (i == m);
 				if (i > 1) n = MsgCount++;
-				CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: Trying <%s> %d / %d \n", ChrPtr(ThisItem->Recipient), i, m);
-				smtp_try(MyQItem, ThisItem, Msg, KeepBuffers, n, RelayUrls);
+				CtdlLogPrintf(CTDL_DEBUG, 
+					      "SMTP Queue: Trying <%s> %d / %d \n", 
+					      ChrPtr(ThisItem->Recipient), 
+					      i, 
+					      m);
+				smtp_try_one_queue_entry(MyQItem, 
+							 ThisItem, 
+							 Msg, 
+							 KeepBuffers, 
+							 n, 
+							 RelayUrls);
 				if (KeepBuffers) HaveBuffers = 1;
 				i++;
 			}

@@ -11,6 +11,7 @@ struct ParsedURL {
 	const char *Pass;
 	const char *LocalPart;
 	int IsIP;
+	int IPv6;
 	int af;
 	struct hostent *HEnt;
 	struct in6_addr Addr;

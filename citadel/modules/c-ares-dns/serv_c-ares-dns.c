@@ -342,6 +342,12 @@ int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *Query
 }
 
 
+
+
+
+/*****************************************************************************
+ *                   libevent / c-ares integration                           *
+ *****************************************************************************/
 static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
