@@ -712,16 +712,25 @@ void network_spool_msg(long msgnum, void *userdata) {
 				msg->cm_fields['U'] = strdup("(no subject)");
 			}
 			
-			len  = strlen(msg->cm_fields['U']);
-			rlen = strlen(CC->room.QRname);
-			pCh  = strstr(msg->cm_fields['U'], CC->room.QRname);
+			len = strlen(msg->cm_fields['U']);
+			pCh = strstr(msg->cm_fields['U'], CC->room.QRname);
 			if ((pCh == NULL) ||
-			    (*(pCh + rlen) != ']') ||
+			    (*(pCh + len) != ']') ||
 			    (pCh == msg->cm_fields['U']) ||
 			    (*(pCh - 1) != '[')
 				)
 			{
 				char *pBuff;
+
+				rlen = strlen(CC->room.QRname);
+				rlen += len + 4;
+				pBuff = malloc (rlen * sizeof(char));
+
+				snprintf(pBuff, rlen, "[%s] %s", CC->room.QRname, msg->cm_fields['U']);
+				free(msg->cm_fields['U']);
+				msg->cm_fields['U'] = pBuff;
+			}
+			/* else we won't modify the buffer, since the roomname is already here. */
 
 				rlen += len + 4;
 				pBuff = malloc (rlen * sizeof(char));
