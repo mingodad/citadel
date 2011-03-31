@@ -684,6 +684,9 @@ void network_spool_msg(long msgnum, void *userdata) {
 		 */
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
+			int len, rlen;
+			char *pCh;
+
 			if (msg->cm_fields['V'] == NULL){
 				/* local message, no enVelope */
 				StrBuf *Buf;
@@ -713,9 +716,26 @@ void network_spool_msg(long msgnum, void *userdata) {
 			if (msg->cm_fields['U'] == NULL) {
 				msg->cm_fields['U'] = strdup("(no subject)");
 			}
-			snprintf(buf, sizeof buf, "[%s] %s", CC->room.QRname, msg->cm_fields['U']);
-			free(msg->cm_fields['U']);
-			msg->cm_fields['U'] = strdup(buf);
+			
+			len = strlen(msg->cm_fields['U']);
+			pCh = strstr(msg->cm_fields['U'], CC->room.QRname);
+			if ((pCh == NULL) ||
+			    (*(pCh + len) != ']') ||
+			    (pCh == msg->cm_fields['U']) ||
+			    (*(pCh - 1) != '[')
+				)
+			{
+				char *pBuff;
+
+				rlen = strlen(CC->room.QRname);
+				rlen += len + 4;
+				pBuff = malloc (rlen * sizeof(char));
+
+				snprintf(pBuff, rlen, "[%s] %s", CC->room.QRname, msg->cm_fields['U']);
+				free(msg->cm_fields['U']);
+				msg->cm_fields['U'] = pBuff;
+			}
+			/* else we won't modify the buffer, since the roomname is already here. */
 
 			/* Set the recipient of the list message to the
 			 * email address of the room itself.
