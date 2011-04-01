@@ -112,6 +112,9 @@ eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO);
 eNextState SMTP_C_Terminate(AsyncIO *IO);
 eReadState SMTP_C_ReadServerStatus(AsyncIO *IO);
 
+eNextState mx_connect_ip(AsyncIO *IO);
+eNextState get_one_mx_host_ip(AsyncIO *IO);
+
 /******************************************************************************
  * So, we're finished with sending (regardless of success or failure)         *
  * This Message might be referenced by several Queue-Items, if we're the last,*
@@ -160,14 +163,21 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 
 eNextState FailOneAttempt(AsyncIO *IO)
 {
+	SmtpOutMsg *SendMsg = IO->Data;
 	/* 
 	 * possible ways here: 
 	 * - connection timeout 
 	 * - 
 	 */	
-}
+	SendMsg->pCurrRelay = SendMsg->pCurrRelay->Next;
 
-////TODO
+	if (SendMsg->pCurrRelay == NULL)
+		return eAbort;
+	if (SendMsg->pCurrRelay->IsIP)
+		return mx_connect_ip(IO);
+	else
+		return get_one_mx_host_ip(IO);
+}
 
 
 void SetConnectStatus(AsyncIO *IO)
@@ -190,7 +200,9 @@ void SetConnectStatus(AsyncIO *IO)
 
 	inet_ntop((IO->IP6)?AF_INET6:AF_INET,
 		  src,
-		  buf, sizeof(buf));
+		  buf, 
+		  sizeof(buf));
+
 	if (SendMsg->mx_host == NULL)
 		SendMsg->mx_host = "<no name>";
 
@@ -212,9 +224,8 @@ void SetConnectStatus(AsyncIO *IO)
 /*****************************************************************************
  * So we connect our Relay IP here.                                          *
  *****************************************************************************/
-eNextState mx_connect_relay_ip(AsyncIO *IO)
+eNextState mx_connect_ip(AsyncIO *IO)
 {
-	/*
 	SmtpOutMsg *SendMsg = IO->Data;
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
@@ -223,26 +234,8 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 	
 	if (SendMsg->pCurrRelay->Port != 0)
 		IO->dport = SendMsg->pCurrRelay->Port;
-
-	memset(&IO->Addr, 0, sizeof(struct sockaddr_in6));
-	if (IO->IP6) {
-		memcpy(&IO->Addr.sin6_addr.s6_addr, 
-		       &SendMsg->pCurrRelay->Addr,
-		       sizeof(struct in6_addr));
-
-		IO->Addr.sin6_family = AF_INET6;
-		IO->Addr.sin6_port   = htons(IO->dport);
-	}
-	else {
-		struct sockaddr_in *addr = (struct sockaddr_in*) &IO->Addr;
-		/*  Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); * /
-		memcpy(&addr->sin_addr,///.s_addr, 
-		       &SendMsg->pCurrRelay->Addr,
-		       sizeof(struct in_addr));
-		
-		addr->sin_family = AF_INET;
-		addr->sin_port   = htons(IO->dport);
-	}
+	IO->Addr = &SendMsg->pCurrRelay->Addr;
+	/*  Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
 
 	SetConnectStatus(IO);
 
@@ -250,7 +243,6 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 			   SMTP_C_ConnTimeout, 
 			   SMTP_C_ReadTimeouts[0],
 			   1);
-		*/
 }
 
 eNextState get_one_mx_host_ip_done(AsyncIO *IO)
@@ -263,14 +255,6 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 	hostent = SendMsg->HostLookup.VParsedDNSReply;
 	if ((SendMsg->HostLookup.DNSStatus == ARES_SUCCESS) && 
 	    (hostent != NULL) ) {
-		
-///		IO->IP6  = hostent->h_addrtype == AF_INET6;
-		////IO->HEnt = hostent;
-		
-///		SendMsg->pCurrRelay->Addr
-
-
-
 		memset(&SendMsg->pCurrRelay->Addr, 0, sizeof(struct in6_addr));
 		if (IO->IP6) {
 			memcpy(&SendMsg->pCurrRelay->Addr.sin6_addr.s6_addr, 
@@ -292,35 +276,15 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			addr->sin_port   = htons(IO->dport);
 			
 		}
-		////SendMsg->IO.HEnt = hostent;
-		SendMsg->IO.Addr = &SendMsg->pCurrRelay->Addr;
-		SetConnectStatus(IO);
-		return InitEventIO(IO, 
-				   SendMsg, 
-				   SMTP_C_ConnTimeout, 
-				   SMTP_C_ReadTimeouts[0],
-				   1);
+		return mx_connect_ip(IO);
 	}
 	else // TODO: here we need to find out whether there are more mx'es, backup relay, and so on
-		return SMTP_C_Terminate(IO);
+		return FailOneAttempt(IO);
 }
 
-/*
-
-	if (SendMsg->pCurrRelay != NULL) {
-		SendMsg->mx_host = Hostname = SendMsg->pCurrRelay->Host;
-		if (SendMsg->pCurrRelay->Port != 0)
-			SendMsg->IO.dport = SendMsg->pCurrRelay->Port;
-	}
-       	else
-*/
 eNextState get_one_mx_host_ip(AsyncIO *IO)
 {
 	SmtpOutMsg * SendMsg = IO->Data;
-	const char *Hostname;
-	//char *endpart;
-	//char buf[SIZ];
-
 	/* 
 	 * here we start with the lookup of one host. it might be...
 	 * - the relay host *sigh*
@@ -364,7 +328,6 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 	QueryCbDone(IO);
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	SendMsg->pCurrRelay = SendMsg->Relay;
 	pp = &SendMsg->Relay;
 	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
 		pp = &(*pp)->Next;
@@ -389,12 +352,10 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 				p->Host = SendMsg->CurrMX->host;
 				
 				*pp = p;
-				pp = &p;
+				pp = &p->Next;
 			}
 			SendMsg->CurrMX    = SendMsg->CurrMX->next;
 		}
-//		SendMsg->mx_host   = SendMsg->CurrMX->host;
-//		SendMsg->CurrMX    = SendMsg->CurrMX->next;
 		SendMsg->CXFlags   = SendMsg->CXFlags & F_HAVE_MX;
 	}
 	else { /* else fall back to the plain hostname */
@@ -412,10 +373,10 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 			*pp = p;
 			pp = &p;
 		}
-		///	SendMsg->mx_host   = SendMsg->node;
 		SendMsg->CXFlags   = SendMsg->CXFlags & F_DIRECT;
 	}
-	(*pp)->Next = SendMsg->MyQItem->FallBackHost;
+	*pp = SendMsg->MyQItem->FallBackHost;
+	SendMsg->pCurrRelay = SendMsg->Relay;
 	return get_one_mx_host_ip(IO);
 }
 
@@ -501,7 +462,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		else { /* oh... via relay host */
 			if (SendMsg->pCurrRelay->IsIP) {
 				QueueEventContext(&SendMsg->IO,
-						  mx_connect_relay_ip);
+						  mx_connect_ip);
 			}
 			else { /* uneducated admin has chosen to add DNS to the equation... */
 				QueueEventContext(&SendMsg->IO,
