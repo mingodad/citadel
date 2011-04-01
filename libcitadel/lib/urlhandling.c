@@ -105,7 +105,7 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 	}
 	if (pPort != NULL)
 		url->Port = atol(pPort);
-	url->IsIP = inet_pton(url->af, url->Host, &url->Addr);
+	url->IsIP = inet_pton(url->af, url->Host, &url->Addr.sin6_addr);
 	*Url = url;
 	return 1;
 }

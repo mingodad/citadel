@@ -180,10 +180,10 @@ void SetConnectStatus(AsyncIO *IO)
 	buf[0] = '\0';
 
 	if (IO->IP6) {
-		src = &IO->Addr.sin6_addr;
+		src = &IO->Addr->sin6_addr;
 	}
 	else {
-		struct sockaddr_in *addr = (struct sockaddr_in *)&IO->Addr;
+		struct sockaddr_in *addr = (struct sockaddr_in *)IO->Addr;
 
 		src = &addr->sin_addr.s_addr;
 	}
@@ -214,7 +214,7 @@ void SetConnectStatus(AsyncIO *IO)
  *****************************************************************************/
 eNextState mx_connect_relay_ip(AsyncIO *IO)
 {
-	
+	/*
 	SmtpOutMsg *SendMsg = IO->Data;
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
@@ -235,7 +235,7 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 	}
 	else {
 		struct sockaddr_in *addr = (struct sockaddr_in*) &IO->Addr;
-		/* Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
+		/*  Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); * /
 		memcpy(&addr->sin_addr,///.s_addr, 
 		       &SendMsg->pCurrRelay->Addr,
 		       sizeof(struct in_addr));
@@ -250,6 +250,7 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 			   SMTP_C_ConnTimeout, 
 			   SMTP_C_ReadTimeouts[0],
 			   1);
+		*/
 }
 
 eNextState get_one_mx_host_ip_done(AsyncIO *IO)
@@ -263,20 +264,24 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 	if ((SendMsg->HostLookup.DNSStatus == ARES_SUCCESS) && 
 	    (hostent != NULL) ) {
 		
-		IO->IP6  = hostent->h_addrtype == AF_INET6;
+///		IO->IP6  = hostent->h_addrtype == AF_INET6;
 		////IO->HEnt = hostent;
+		
+///		SendMsg->pCurrRelay->Addr
 
-		memset(&IO->Addr, 0, sizeof(struct in6_addr));
+
+
+		memset(&SendMsg->pCurrRelay->Addr, 0, sizeof(struct in6_addr));
 		if (IO->IP6) {
-			memcpy(&IO->Addr.sin6_addr.s6_addr, 
+			memcpy(&SendMsg->pCurrRelay->Addr.sin6_addr.s6_addr, 
 			       &hostent->h_addr_list[0],
 			       sizeof(struct in6_addr));
 			
-			IO->Addr.sin6_family = hostent->h_addrtype;
-			IO->Addr.sin6_port   = htons(IO->dport);
+			SendMsg->pCurrRelay->Addr.sin6_family = hostent->h_addrtype;
+			SendMsg->pCurrRelay->Addr.sin6_port   = htons(IO->dport);
 		}
 		else {
-			struct sockaddr_in *addr = (struct sockaddr_in*) &IO->Addr;
+			struct sockaddr_in *addr = (struct sockaddr_in*) &SendMsg->pCurrRelay->Addr;
 			/* Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
 //			addr->sin_addr.s_addr = htonl((uint32_t)&hostent->h_addr_list[0]);
 			memcpy(&addr->sin_addr.s_addr, 
@@ -288,6 +293,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			
 		}
 		////SendMsg->IO.HEnt = hostent;
+		SendMsg->IO.Addr = &SendMsg->pCurrRelay->Addr;
 		SetConnectStatus(IO);
 		return InitEventIO(IO, 
 				   SendMsg, 
@@ -324,19 +330,16 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 
 	InitC_ares_dns(IO);
 
-	if (SendMsg->mx_host != NULL) Hostname = SendMsg->mx_host;
-	else Hostname = SendMsg->node;
-
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	CtdlLogPrintf(CTDL_DEBUG, 
 		      "SMTP client[%ld]: looking up %s : %d ...\n", 
 		      SendMsg->n, 
-		      Hostname, 
+		      SendMsg->pCurrRelay->Host, 
 		      SendMsg->IO.dport);
-// TODO: ns_t_aaaa
-	if (!QueueQuery(ns_t_a, 
-			Hostname, 
+
+	if (!QueueQuery((SendMsg->pCurrRelay->IPv6)? ns_t_aaaa : ns_t_a, 
+			SendMsg->pCurrRelay->Host, 
 			&SendMsg->IO, 
 			&SendMsg->HostLookup, 
 			get_one_mx_host_ip_done))
@@ -361,6 +364,7 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 	QueryCbDone(IO);
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	SendMsg->pCurrRelay = SendMsg->Relay;
 	pp = &SendMsg->Relay;
 	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
 		pp = &(*pp)->Next;
@@ -370,7 +374,6 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 	{ /* ok, we found mx records. */
 		SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
 		
-
 		SendMsg->CurrMX    = SendMsg->AllMX 
 			           = IO->DNSQuery->VParsedDNSReply;
 		while (SendMsg->CurrMX) {

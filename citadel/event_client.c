@@ -396,9 +396,9 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	IO->rw_timeout.data = IO;
 
 	if (IO->IP6)
-		rc = connect(IO->sock, &IO->Addr, sizeof(struct sockaddr_in6));
+		rc = connect(IO->sock, IO->Addr, sizeof(struct sockaddr_in6));
 	else
-		rc = connect(IO->sock, (struct sockaddr_in *)&IO->Addr, sizeof(struct sockaddr_in));
+		rc = connect(IO->sock, (struct sockaddr_in *)IO->Addr, sizeof(struct sockaddr_in));
 
 	if (rc >= 0){
 ////		freeaddrinfo(res);

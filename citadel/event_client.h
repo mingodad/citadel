@@ -42,7 +42,7 @@ struct AsyncIO {
 
 	/* connection related */
 	int IP6;
-	struct sockaddr_in6 Addr;
+	struct sockaddr_in6 *Addr;
 
 	int sock;
 	unsigned short dport;

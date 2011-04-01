@@ -695,8 +695,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				StrBufExtract_NextToken(One, All, &Pos, '|');
 				if (!ParseURL(Url, One, 25))
 					CtdlLogPrintf(CTDL_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
-				else 
+				else {
+					///if (!Url->IsIP)) /// todo dupe me fork ipv6
 					Url = &(*Url)->Next;
+					
+				}
 			}
 			FreeStrBuf(&All);
 			FreeStrBuf(&One);

@@ -368,7 +368,7 @@ struct ParsedURL {
 	int IPv6;
 	int af;
 	struct hostent *HEnt;
-	struct in6_addr Addr;
+	struct sockaddr_in6 Addr;
 	ParsedURL *Next;
 };
 
