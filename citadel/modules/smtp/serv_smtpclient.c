@@ -182,7 +182,15 @@ void smtp_try(const char *key, const char *addr, int *status,
 				scan_done = 1;
 			}
 		} while (scan_done == 0);
-		if (IsEmptyStr(mailfrom)) strcpy(mailfrom, "someone@somewhere.org");
+		if (IsEmptyStr(mailfrom)) {
+			char badmail_filename[128];
+			snprintf(badmail_filename, sizeof badmail_filename, "/tmp/badmail.%d.%ld",
+				getpid, time(NULL)
+			);
+			FILE *badmail_fp = fopen(badmail_filename, "w");
+			fwrite(msgtext, msg_size, 1, badmail_fp);
+			fclose(badmail_fp);
+		}
 		stripallbut(mailfrom, '<', '>');
 		envelope_from = mailfrom;
 	}

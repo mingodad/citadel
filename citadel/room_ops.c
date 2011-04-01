@@ -143,7 +143,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 
 	/* For mailbox rooms, also check the namespace */
 	/* Also, mailbox owners can delete their messages */
-	if (roombuf->QRflags & QR_MAILBOX) {
+	if ( (roombuf->QRflags & QR_MAILBOX) && (atol(roombuf->QRname) != 0)) {
 		if (userbuf->usernum == atol(roombuf->QRname)) {
 			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED | UA_REPLYALLOWED;
 		}
