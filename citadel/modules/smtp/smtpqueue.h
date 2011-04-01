@@ -2,21 +2,6 @@
 /*               SMTP CLIENT (Queue Management) STUFF                        */
 /*****************************************************************************/
 
-typedef struct ParsedURL ParsedURL;
-struct ParsedURL {
-	StrBuf *URL;
-	unsigned Port;
-	const char *Host;
-	const char *User;
-	const char *Pass;
-	const char *LocalPart;
-	int IsIP;
-	int IPv6;
-	int af;
-	struct hostent *HEnt;
-	struct in6_addr Addr;
-	ParsedURL *Next;
-};
 
 
 #define MaxAttempts 15

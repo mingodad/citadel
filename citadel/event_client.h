@@ -35,9 +35,10 @@ struct AsyncIO {
 	StrBuf *Host;
 	char service[32];
 
-	/* To cycle through several possible services... */
+	/* To cycle through several possible services... * /
 	struct addrinfo *res;
 	struct addrinfo *curr_ai;
+	*/
 
 	/* connection related */
 	int IP6;

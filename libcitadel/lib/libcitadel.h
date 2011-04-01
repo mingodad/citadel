@@ -14,6 +14,9 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <arpa/inet.h>
+#include <libcitadel.h>
+
 #define LIBCITADEL_VERSION_NUMBER	789
 
 /*
@@ -351,6 +354,26 @@ int LoadIconDir(const char *DirName);
 /* Select the icon for a given MIME type */
 const char *GetIconFilename(char *MimeType, size_t len);
 
+
+/* URL parsing & connection data */
+typedef struct ParsedURL ParsedURL;
+struct ParsedURL {
+	StrBuf *URL;
+	unsigned Port;
+	const char *Host;
+	const char *User;
+	const char *Pass;
+	const char *LocalPart;
+	int IsIP;
+	int IPv6;
+	int af;
+	struct hostent *HEnt;
+	struct in6_addr Addr;
+	ParsedURL *Next;
+};
+
+void FreeURL(ParsedURL** Url);
+int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort);
 
 /* tools */
 
