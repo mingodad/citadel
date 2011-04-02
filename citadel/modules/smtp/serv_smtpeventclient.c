@@ -189,16 +189,16 @@ void SetConnectStatus(AsyncIO *IO)
 
 	buf[0] = '\0';
 
-	if (IO->IP6) {
-		src = &IO->Addr->sin6_addr;
+	if (IO->ConnectMe->IPv6) {
+		src = &IO->ConnectMe->Addr.sin6_addr;
 	}
 	else {
-		struct sockaddr_in *addr = (struct sockaddr_in *)IO->Addr;
+		struct sockaddr_in *addr = (struct sockaddr_in *)&IO->ConnectMe->Addr;
 
 		src = &addr->sin_addr.s_addr;
 	}
 
-	inet_ntop((IO->IP6)?AF_INET6:AF_INET,
+	inet_ntop((IO->ConnectMe->IPv6)?AF_INET6:AF_INET,
 		  src,
 		  buf, 
 		  sizeof(buf));
@@ -211,14 +211,14 @@ void SetConnectStatus(AsyncIO *IO)
 		      SendMsg->n, 
 		      SendMsg->mx_host, 
 		      buf,
-		      SendMsg->IO.dport);
+		      SendMsg->IO.ConnectMe->Port);
 
 	SendMsg->MyQEntry->Status = 5; 
 	StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
 		     "Timeout while connecting %s [%s]:%d ", 
 		     SendMsg->mx_host,
 		     buf,
-		     SendMsg->IO.dport);
+		     SendMsg->IO.ConnectMe->Port);
 }
 
 /*****************************************************************************
@@ -229,12 +229,8 @@ eNextState mx_connect_ip(AsyncIO *IO)
 	SmtpOutMsg *SendMsg = IO->Data;
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
-
-	IO->IP6 = SendMsg->pCurrRelay->af == AF_INET6;
 	
-	if (SendMsg->pCurrRelay->Port != 0)
-		IO->dport = SendMsg->pCurrRelay->Port;
-	IO->Addr = &SendMsg->pCurrRelay->Addr;
+	IO->ConnectMe = SendMsg->pCurrRelay;
 	/*  Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
 
 	SetConnectStatus(IO);
@@ -256,13 +252,13 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 	if ((SendMsg->HostLookup.DNSStatus == ARES_SUCCESS) && 
 	    (hostent != NULL) ) {
 		memset(&SendMsg->pCurrRelay->Addr, 0, sizeof(struct in6_addr));
-		if (IO->IP6) {
+		if (SendMsg->pCurrRelay->IPv6) {
 			memcpy(&SendMsg->pCurrRelay->Addr.sin6_addr.s6_addr, 
 			       &hostent->h_addr_list[0],
 			       sizeof(struct in6_addr));
 			
 			SendMsg->pCurrRelay->Addr.sin6_family = hostent->h_addrtype;
-			SendMsg->pCurrRelay->Addr.sin6_port   = htons(IO->dport);
+			SendMsg->pCurrRelay->Addr.sin6_port   = htons(DefaultMXPort);
 		}
 		else {
 			struct sockaddr_in *addr = (struct sockaddr_in*) &SendMsg->pCurrRelay->Addr;
@@ -273,7 +269,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			       sizeof(uint32_t));
 			
 			addr->sin_family = hostent->h_addrtype;
-			addr->sin_port   = htons(IO->dport);
+			addr->sin_port   = htons(DefaultMXPort);
 			
 		}
 		return mx_connect_ip(IO);
@@ -300,7 +296,7 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 		      "SMTP client[%ld]: looking up %s : %d ...\n", 
 		      SendMsg->n, 
 		      SendMsg->pCurrRelay->Host, 
-		      SendMsg->IO.dport);
+		      SendMsg->pCurrRelay->Port);
 
 	if (!QueueQuery((SendMsg->pCurrRelay->IPv6)? ns_t_aaaa : ns_t_a, 
 			SendMsg->pCurrRelay->Host, 
@@ -347,7 +343,7 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 				p = (ParsedURL*) malloc(sizeof(ParsedURL));
 				memset(p, 0, sizeof(ParsedURL));
 				p->IsIP = 0;
-				p->Port = 25; //// TODO define.
+				p->Port = DefaultMXPort;
 				p->IPv6 = i == 1;
 				p->Host = SendMsg->CurrMX->host;
 				
@@ -366,7 +362,7 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 			p = (ParsedURL*) malloc(sizeof(ParsedURL));
 			memset(p, 0, sizeof(ParsedURL));
 			p->IsIP = 0;
-			p->Port = 25; //// TODO define.
+			p->Port = DefaultMXPort;
 			p->IPv6 = i == 1;
 			p->Host = SendMsg->node;
 				
@@ -436,8 +432,7 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 
 	SendMsg->IO.sock          = (-1);
 	SendMsg->IO.NextState     = eReadMessage;
-	SendMsg->IO.dport         = DefaultMXPort;
-
+	
 	return SendMsg;
 }
 

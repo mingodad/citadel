@@ -32,20 +32,16 @@ typedef struct _DNSQueryParts {
 
 
 struct AsyncIO {
-	StrBuf *Host;
-	char service[32];
-
-	/* To cycle through several possible services... * /
-	struct addrinfo *res;
-	struct addrinfo *curr_ai;
-	*/
 
 	/* connection related */
+	ParsedURL *ConnectMe;
+/*
 	int IP6;
 	struct sockaddr_in6 *Addr;
-
-	int sock;
 	unsigned short dport;
+
+*/
+	int sock;
        	eNextState NextState;
 	
 	ev_cleanup abort_by_shutdown;

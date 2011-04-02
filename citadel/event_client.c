@@ -355,7 +355,7 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 
 	IO->SendBuf.fd = IO->RecvBuf.fd = 
 		IO->sock = socket(
-			(IO->IP6)?PF_INET6:PF_INET, 
+			(IO->ConnectMe->IPv6)?PF_INET6:PF_INET, 
 			SOCK_STREAM, 
 			IPPROTO_TCP);
 
@@ -395,10 +395,10 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	ev_timer_init(&IO->rw_timeout, IO_Timout_callback, first_rw_timeout, 0);
 	IO->rw_timeout.data = IO;
 
-	if (IO->IP6)
-		rc = connect(IO->sock, IO->Addr, sizeof(struct sockaddr_in6));
+	if (IO->ConnectMe->IPv6)
+		rc = connect(IO->sock, &IO->ConnectMe->Addr, sizeof(struct sockaddr_in6));
 	else
-		rc = connect(IO->sock, (struct sockaddr_in *)IO->Addr, sizeof(struct sockaddr_in));
+		rc = connect(IO->sock, (struct sockaddr_in *)&IO->ConnectMe->Addr, sizeof(struct sockaddr_in));
 
 	if (rc >= 0){
 ////		freeaddrinfo(res);
