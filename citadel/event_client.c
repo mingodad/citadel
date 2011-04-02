@@ -145,6 +145,7 @@ void ShutDownCLient(AsyncIO *IO)
 		IO->DNSChannel = NULL;
 	}
 	assert(IO->Terminate);
+	become_session(IO->CitContext);
 	IO->Terminate(IO);
 	
 }
@@ -154,6 +155,8 @@ eReadState HandleInbound(AsyncIO *IO)
 {
 	eReadState Finished = eBufferNotEmpty;
 	
+	become_session(IO->CitContext);
+
 	while ((Finished == eBufferNotEmpty) && (IO->NextState == eReadMessage)){
 		if (IO->RecvBuf.nBlobBytesWanted != 0) { 
 				
@@ -208,6 +211,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	int rc;
 	AsyncIO *IO = watcher->data;
 
+	become_session(IO->CitContext);
 	rc = StrBuf_write_one_chunk_callback(watcher->fd, 0/*TODO*/, &IO->SendBuf);
 
 	if (rc == 0)
@@ -282,6 +286,7 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 		break;
 	case eSendReply:
 	case eSendMore:
+		become_session(IO->CitContext);
 		IO_send_callback(loop, &IO->send_event, revents);
 		break;
 	case eTerminateConnection:
@@ -297,6 +302,8 @@ IO_Timout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	ev_timer_stop (event_base, &IO->rw_timeout);
+	become_session(IO->CitContext);
+
 	assert(IO->Timeout);
 	IO->Timeout(IO);
 }
@@ -307,6 +314,8 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 
 	ev_timer_stop (event_base, &IO->conn_fail);
 	ev_io_stop(loop, &IO->conn_event);
+	become_session(IO->CitContext);
+
 	assert(IO->ConnFail);
 	IO->ConnFail(IO);
 }
@@ -343,6 +352,7 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 	CtdlLogPrintf(CTDL_DEBUG, "event: %s\n", __FUNCTION__);
+	become_session(IO->CitContext);
 
 	IO->DNSQuery->PostDNS(IO);
 }
@@ -438,6 +448,7 @@ eNextState InitEventIO(AsyncIO *IO,
 		       int ReadFirst)
 {
 	IO->Data = pData;
+	become_session(IO->CitContext);
 	
 	if (ReadFirst) {
 		IO->NextState = eReadMessage;

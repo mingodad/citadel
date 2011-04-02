@@ -414,6 +414,61 @@ CitContext *CreateNewContext(void) {
 
 
 /*
+ * Initialize a new context and place it in the list.  The session number
+ * used to be the PID (which is why it's called cs_pid), but that was when we
+ * had one process per session.  Now we just assign them sequentially, starting
+ * at 1 (don't change it to 0 because masterCC uses 0).
+ */
+CitContext *CloneContext(CitContext *CloneMe) {
+	CitContext *me;
+	static int next_pid = 0;
+
+	me = (CitContext *) malloc(sizeof(CitContext));
+	if (me == NULL) {
+		CtdlLogPrintf(CTDL_ALERT, "citserver: can't allocate memory!!\n");
+		return NULL;
+	}
+	memcpy(me, CloneMe, sizeof(CitContext));
+
+	memset(&me->RecvBuf, 0, sizeof(IOBuffer));
+	memset(&me->SendBuf, 0, sizeof(IOBuffer));
+	memset(&me->SBuf, 0, sizeof(IOBuffer));
+	me->MigrateBuf = NULL;
+	me->sMigrateBuf = NULL;
+	me->redirect_buffer = NULL;
+#ifdef HAVE_OPENSSL
+	me->ssl = NULL;
+#endif
+
+	me->download_fp = NULL;
+	me->upload_fp = NULL;
+	/// TODO: what about the room/user?
+	me->ma = NULL;
+	me->openid_data = NULL;
+	me->ldap_dn = NULL;
+	me->session_specific_data = NULL;
+
+	me->MigrateBuf = NewStrBuf();
+	me->RecvBuf.Buf = NewStrBuf();
+
+	begin_critical_section(S_SESSION_TABLE);
+	{
+		me->cs_pid = ++next_pid;
+		me->prev = NULL;
+		me->next = ContextList;
+		me->lastcmd = time(NULL);	/* set lastcmd to now to prevent idle timer infanticide */
+		ContextList = me;
+		if (me->next != NULL) {
+			me->next->prev = me;
+		}
+		++num_sessions;
+	}
+	end_critical_section(S_SESSION_TABLE);
+	return (me);
+}
+
+
+/*
  * Return an array containing a copy of the context list.
  * This allows worker threads to perform "for each context" operations without
  * having to lock and traverse the live list.

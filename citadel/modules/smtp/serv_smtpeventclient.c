@@ -158,6 +158,8 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 
 		RemoveQItem(Msg->MyQItem);
 	}
+
+	RemoveContext(Msg->IO.CitContext);
 	DeleteSmtpOutMsg(Msg);
 }
 
@@ -450,9 +452,10 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 	else 		 SendMsg->msgtext = NewStrBufDup(MsgText);
 	
 	if (smtp_resolve_recipients(SendMsg)) {
-
-		
-
+		CitContext *SubC;
+		SubC = CloneContext (CC);
+		SubC->session_specific_data = (char*) SendMsg;
+		SendMsg->IO.CitContext = SubC;
 
 		if (SendMsg->pCurrRelay == NULL)
 			QueueEventContext(&SendMsg->IO,
