@@ -104,9 +104,9 @@ int spam_assassin(struct CtdlMessage *msg) {
 		return(0);
 	}
 
-	CCC->sReadBuf = NewStrBuf();
+	CCC->SBuf.Buf = NewStrBuf();
 	CCC->sMigrateBuf = NewStrBuf();
-	CCC->sPos = NULL;
+	CCC->SBuf.ReadWritePointer = NULL;
 
 	/* Command */
 	CtdlLogPrintf(CTDL_DEBUG, "Transmitting command\n");
@@ -188,7 +188,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	}
 
 bail:	close(sock);
-	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->SBuf.Buf);
 	FreeStrBuf(&CCC->sMigrateBuf);
 	return(is_spam);
 }

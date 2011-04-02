@@ -136,8 +136,8 @@ int socket_read_blob(int *Socket, StrBuf * Target, int bytes, int timeout)
 
 
 	retval = StrBufReadBLOBBuffered(Target,
-					CCC->sReadBuf,
-					&CCC->sPos,
+					CCC->SBuf.Buf,
+					&CCC->SBuf.ReadWritePointer,
 					Socket, 1, bytes, O_TERM, &Error);
 	if (retval < 0) {
 		CtdlLogPrintf(CTDL_CRIT,
@@ -155,8 +155,8 @@ int CtdlSockGetLine(int *sock, StrBuf * Target, int nSec)
 
 	FlushStrBuf(Target);
 	rc = StrBufTCP_read_buffered_line_fast(Target,
-					       CCC->sReadBuf,
-					       &CCC->sPos,
+					       CCC->SBuf.Buf,
+					       &CCC->SBuf.ReadWritePointer,
 					       sock, nSec, 1, &Error);
 	if ((rc < 0) && (Error != NULL))
 		CtdlLogPrintf(CTDL_CRIT,

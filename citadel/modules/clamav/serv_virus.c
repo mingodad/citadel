@@ -115,9 +115,9 @@ int clamd(struct CtdlMessage *msg) {
 		return(0);
 	}
 	CCC=CC;
-	CCC->sReadBuf = NewStrBuf();
+	CCC->SBuf.Buf = NewStrBuf();
 	CCC->sMigrateBuf = NewStrBuf();
-	CCC->sPos = NULL;
+	CCC->SBuf.ReadWritePointer = NULL;
 
 	/* Command */
 	CtdlLogPrintf(CTDL_DEBUG, "Transmitting STREAM command\n");
@@ -144,7 +144,7 @@ int clamd(struct CtdlMessage *msg) {
 		/* If the service isn't running, just pass the mail
 		 * through.  Potentially throwing away mails isn't good.
 		 */
-		FreeStrBuf(&CCC->sReadBuf);
+		FreeStrBuf(&CCC->SBuf.Buf);
 		FreeStrBuf(&CCC->sMigrateBuf);
 		return(0);
         }
@@ -187,7 +187,7 @@ int clamd(struct CtdlMessage *msg) {
 	}
 
 bail:	close(sock);
-	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->SBuf.Buf);
 	FreeStrBuf(&CCC->sMigrateBuf);
 	return(is_virus);
 }

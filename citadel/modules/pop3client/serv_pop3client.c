@@ -98,9 +98,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		goto bail;
 
 	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
-	CCC->sReadBuf = NewStrBuf();
+	CCC->SBuf.Buf = NewStrBuf();
 	CCC->sMigrateBuf = NewStrBuf();
-	CCC->sPos = NULL;
+	CCC->SBuf.ReadWritePointer = NULL;
 
 	/* Read the server greeting */
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
@@ -245,7 +245,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 bail:	
-	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->SBuf.Buf);
 	FreeStrBuf(&CCC->sMigrateBuf);
 
 	if (sock != -1)

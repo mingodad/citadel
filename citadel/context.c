@@ -361,7 +361,7 @@ void RemoveContext (CitContext *con)
 	}
 
 	FreeStrBuf(&con->MigrateBuf);
-	FreeStrBuf(&con->ReadBuf);
+	FreeStrBuf(&con->RecvBuf.Buf);
 	CtdlLogPrintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }
 
@@ -397,7 +397,7 @@ CitContext *CreateNewContext(void) {
 	 * the list.
 	 */
 	me->MigrateBuf = NewStrBuf();
-	me->ReadBuf = NewStrBuf();
+	me->RecvBuf.Buf = NewStrBuf();
 	begin_critical_section(S_SESSION_TABLE);
 	me->cs_pid = ++next_pid;
 	me->prev = NULL;

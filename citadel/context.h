@@ -27,13 +27,13 @@ struct CitContext {
 	int state;		/* thread state (see CON_ values below) */
 	int kill_me;		/* Set to nonzero to flag for termination */
 
-	const char *Pos;        /* Our read position inside of the ReadBuf */
-	StrBuf *ReadBuf;        /* Our block buffered read buffer */
-	StrBuf *MigrateBuf;        /* Our block buffered read buffer */
+	IOBuffer SendBuf, /* Our write Buffer */
+		RecvBuf, /* Our block buffered read buffer */
+		SBuf; /* Our block buffered read buffer for clients */
 
-	const char *sPos;        /* Our read position inside of the ReadBuf */
-	StrBuf *sReadBuf;        /* Our block buffered read buffer */
+	StrBuf *MigrateBuf;        /* Our block buffered read buffer */
 	StrBuf *sMigrateBuf;        /* Our block buffered read buffer */
+
 	int client_socket;
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 	/* Redirect this session's output to a memory buffer? */

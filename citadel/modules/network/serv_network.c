@@ -2180,9 +2180,9 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	}
 	
 	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
-	CCC->sReadBuf = NewStrBuf();
+	CCC->SBuf.Buf = NewStrBuf();
 	CCC->sMigrateBuf = NewStrBuf();
-	CCC->sPos = NULL;
+	CCC->SBuf.ReadWritePointer = NULL;
 
 	/* Read the server greeting */
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
@@ -2219,7 +2219,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	sock_puts(&sock, "QUIT");
 bail:	
-	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->SBuf.Buf);
 	FreeStrBuf(&CCC->sMigrateBuf);
 	if (sock != -1)
 		sock_close(sock);

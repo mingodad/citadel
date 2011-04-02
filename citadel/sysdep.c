@@ -495,7 +495,7 @@ static void flush_client_inbuf(void)
 	CitContext *CCC=CC;
 
 	FlushStrBuf(CCC->ReadBuf);
-	CCC->Pos = NULL;
+	CCC->RecvBuf->ReadWritePointer = NULL;
 
 }
 */
@@ -694,8 +694,8 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 		fclose(fd);
 #endif
 		retval = StrBufReadBLOBBuffered(Target, 
-						CCC->ReadBuf,
-						&CCC->Pos,
+						CCC->RecvBuf.Buf,
+						&CCC->RecvBuf.ReadWritePointer,
 						&CCC->client_socket,
 						1, 
 						bytes,
@@ -731,8 +731,9 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
  */
 void client_set_inbound_buf(long N)
 {
-	FlushStrBuf(CC->ReadBuf);
-	ReAdjustEmptyBuf(CC->ReadBuf, N * SIZ, N * SIZ);
+	CitContext *CCC=CC;
+	FlushStrBuf(CCC->RecvBuf.Buf);
+	ReAdjustEmptyBuf(CCC->RecvBuf.Buf, N * SIZ, N * SIZ);
 }
 
 int client_read_random_blob(StrBuf *Target, int timeout)
@@ -746,18 +747,18 @@ int client_read_random_blob(StrBuf *Target, int timeout)
 		long len;
 		const char *pch;
 		
-		len = StrLength(CCC->ReadBuf);
-		pch = ChrPtr(CCC->ReadBuf);
+		len = StrLength(CCC->RecvBuf.Buf);
+		pch = ChrPtr(CCC->RecvBuf.Buf);
 
 		if (len > 0)
 		{
-			if (CCC->Pos != NULL) {
-				len -= CCC->Pos - pch;
-				pch = CCC->Pos;
+			if (CCC->RecvBuf.ReadWritePointer != NULL) {
+				len -= CCC->RecvBuf.ReadWritePointer - pch;
+				pch = CCC->RecvBuf.ReadWritePointer;
 			}
 			StrBufAppendBufPlain(Target, pch, len, 0);
-			FlushStrBuf(CCC->ReadBuf);
-			CCC->Pos = NULL;
+			FlushStrBuf(CCC->RecvBuf.Buf);
+			CCC->RecvBuf.ReadWritePointer = NULL;
 #ifdef BIGBAD_IODBG
 			{
 				int rv = 0;
@@ -810,8 +811,8 @@ int client_read_to(char *buf, int bytes, int timeout)
 int HaveMoreLinesWaiting(CitContext *CCC)
 {
 	if ((CCC->kill_me == 1) || (
-	    (CCC->Pos == NULL) && 
-	    (StrLength(CCC->ReadBuf) == 0) && 
+	    (CCC->RecvBuf.ReadWritePointer == NULL) && 
+	    (StrLength(CCC->RecvBuf.Buf) == 0) && 
 	    (CCC->client_socket != -1)) )
 		return 0;
 	else
@@ -850,10 +851,10 @@ int CtdlClientGetLine(StrBuf *Target)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 
 		fd = fopen(fn, "a+");
-		pch = ChrPtr(CCC->ReadBuf);
-		len = StrLength(CCC->ReadBuf);
-		if (CCC->Pos != NULL)
-			rlen = CC->Pos - pch;
+		pch = ChrPtr(CCC->RecvBuf.Buf);
+		len = StrLength(CCC->RecvBuf.Buf);
+		if (CCC->RecvBuf.ReadWritePointer != NULL)
+			rlen = CCC->RecvBuf.ReadWritePointer - pch;
 		else
 			rlen = 0;
 
@@ -864,14 +865,14 @@ int CtdlClientGetLine(StrBuf *Target)
 			len, rlen);
 #endif
 		rc = client_readline_sslbuffer(Target,
-					       CCC->ReadBuf,
-					       &CCC->Pos,
+					       CCC->RecvBuf.Buf,
+					       &CCC->RecvBuf.ReadWritePointer,
 					       1);
 #ifdef BIGBAD_IODBG
-                pch = ChrPtr(CCC->ReadBuf);
-                nlen = StrLength(CCC->ReadBuf);
-                if (CCC->Pos != NULL)
-                        nrlen = CC->Pos - pch;
+                pch = ChrPtr(CCC->RecvBuf.Buf);
+                nlen = StrLength(CCC->RecvBuf.Buf);
+                if (CCC->RecvBuf.ReadWritePointer != NULL)
+                        nrlen = CCC->RecvBuf.ReadWritePointer - pch;
                 else
                         nrlen = 0;
 /*
@@ -904,10 +905,10 @@ int CtdlClientGetLine(StrBuf *Target)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 
 		fd = fopen(fn, "a+");
-		pch = ChrPtr(CCC->ReadBuf);
-		len = StrLength(CCC->ReadBuf);
-		if (CCC->Pos != NULL)
-			rlen = CC->Pos - pch;
+		pch = ChrPtr(CCC->RecvBuf.Buf);
+		len = StrLength(CCC->RecvBuf.Buf);
+		if (CCC->RecvBuf.ReadWritePointer != NULL)
+			rlen = CCC->RecvBuf.ReadWritePointer - pch;
 		else
 			rlen = 0;
 
@@ -918,18 +919,18 @@ int CtdlClientGetLine(StrBuf *Target)
 			len, rlen);
 #endif
 		rc = StrBufTCP_read_buffered_line_fast(Target, 
-						       CCC->ReadBuf,
-						       &CCC->Pos,
+						       CCC->RecvBuf.Buf,
+						       &CCC->RecvBuf.ReadWritePointer,
 						       &CCC->client_socket,
 						       5,
 						       1,
 						       &Error);
 
 #ifdef BIGBAD_IODBG
-                pch = ChrPtr(CCC->ReadBuf);
-                nlen = StrLength(CCC->ReadBuf);
-                if (CCC->Pos != NULL)
-                        nrlen = CC->Pos - pch;
+                pch = ChrPtr(CCC->RecvBuf.Buf);
+                nlen = StrLength(CCC->RecvBuf.Buf);
+                if (CCC->RecvBuf.ReadWritePointer != NULL)
+                        nrlen = CCC->RecvBuf.ReadWritePointer - pch;
                 else
                         nrlen = 0;
 /*
