@@ -125,17 +125,16 @@ void FreeAsyncIOContents(AsyncIO *IO)
 
 void ShutDownCLient(AsyncIO *IO)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->sock);
+	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->SendBuf.fd);
 
 	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 
-	if (IO->sock != 0)
+	if (IO->SendBuf.fd != 0)
 	{
 		ev_io_stop(event_base, &IO->send_event);
 		ev_io_stop(event_base, &IO->recv_event);
 		ev_timer_stop (event_base, &IO->rw_timeout);
-		close(IO->sock);
-		IO->sock = 0;
+		close(IO->SendBuf.fd);
 		IO->SendBuf.fd = 0;
 		IO->RecvBuf.fd = 0;
 	}
@@ -226,7 +225,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 				pchh = pch;
 			
 			nbytes = StrLength(IO->SendBuf.Buf) - (pchh - pch);
-			snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d", "smtpev", IO->sock);
+			snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d", "smtpev", IO->SendBuf.fd);
 		
 			fd = fopen(fn, "a+");
 			fprintf(fd, "Read: BufSize: %ld BufContent: [",
@@ -354,18 +353,18 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	int rc = -1;
 
 	IO->SendBuf.fd = IO->RecvBuf.fd = 
-		IO->sock = socket(
+		socket(
 			(IO->ConnectMe->IPv6)?PF_INET6:PF_INET, 
 			SOCK_STREAM, 
 			IPPROTO_TCP);
 
-	if (IO->sock < 0) {
+	if (IO->SendBuf.fd < 0) {
 		CtdlLogPrintf(CTDL_ERR, "EVENT: socket() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to create socket: %s", strerror(errno));
 //		freeaddrinfo(res);
 		return eAbort;
 	}
-	fdflags = fcntl(IO->sock, F_GETFL);
+	fdflags = fcntl(IO->SendBuf.fd, F_GETFL);
 	if (fdflags < 0) {
 		CtdlLogPrintf(CTDL_DEBUG,
 			      "EVENT: unable to get socket flags! %s \n",
@@ -374,20 +373,21 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 		return eAbort;
 	}
 	fdflags = fdflags | O_NONBLOCK;
-	if (fcntl(IO->sock, F_SETFL, fdflags) < 0) {
+	if (fcntl(IO->SendBuf.fd, F_SETFL, fdflags) < 0) {
 		CtdlLogPrintf(CTDL_DEBUG,
 			      "EVENT: unable to set socket nonblocking flags! %s \n",
 			      strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to set socket flags: %s", strerror(errno));
-		close(IO->sock);
+		close(IO->SendBuf.fd);
+		IO->SendBuf.fd = IO->RecvBuf.fd = -1;
 		return eAbort;
 	}
 /* TODO: maye we could use offsetof() to calc the position of data... 
  * http://doc.dvgu.ru/devel/ev.html#associating_custom_data_with_a_watcher
  */
-	ev_io_init(&IO->recv_event, IO_recv_callback, IO->sock, EV_READ);
+	ev_io_init(&IO->recv_event, IO_recv_callback, IO->RecvBuf.fd, EV_READ);
 	IO->recv_event.data = IO;
-	ev_io_init(&IO->send_event, IO_send_callback, IO->sock, EV_WRITE);
+	ev_io_init(&IO->send_event, IO_send_callback, IO->SendBuf.fd, EV_WRITE);
 	IO->send_event.data = IO;
 
 	ev_timer_init(&IO->conn_fail, IO_connfail_callback, conn_timeout, 0);
@@ -396,9 +396,9 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	IO->rw_timeout.data = IO;
 
 	if (IO->ConnectMe->IPv6)
-		rc = connect(IO->sock, &IO->ConnectMe->Addr, sizeof(struct sockaddr_in6));
+		rc = connect(IO->SendBuf.fd, &IO->ConnectMe->Addr, sizeof(struct sockaddr_in6));
 	else
-		rc = connect(IO->sock, (struct sockaddr_in *)&IO->ConnectMe->Addr, sizeof(struct sockaddr_in));
+		rc = connect(IO->SendBuf.fd, (struct sockaddr_in *)&IO->ConnectMe->Addr, sizeof(struct sockaddr_in));
 
 	if (rc >= 0){
 ////		freeaddrinfo(res);
@@ -408,7 +408,7 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	}
 	else if (errno == EINPROGRESS) {
 
-		ev_io_init(&IO->conn_event, IO_connestd_callback, IO->sock, EV_READ|EV_WRITE);
+		ev_io_init(&IO->conn_event, IO_connestd_callback, IO->SendBuf.fd, EV_READ|EV_WRITE);
 		IO->conn_event.data = IO;
 
 		ev_io_start(event_base, &IO->conn_event);

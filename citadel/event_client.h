@@ -32,32 +32,26 @@ typedef struct _DNSQueryParts {
 
 
 struct AsyncIO {
+       	eNextState NextState;
 
 	/* connection related */
 	ParsedURL *ConnectMe;
-/*
-	int IP6;
-	struct sockaddr_in6 *Addr;
-	unsigned short dport;
-
-*/
-	int sock;
-       	eNextState NextState;
 	
-	ev_cleanup abort_by_shutdown;
-
-	ev_timer conn_fail, 
-		rw_timeout;
-	ev_idle unwind_stack;
-	ev_io recv_event, 
-		send_event, 
-		conn_event;
-	StrBuf *ErrMsg; /* if we fail to connect, or lookup, error goes here. */
-
 	/* read/send related... */
 	StrBuf *IOBuf;
 	IOBuffer SendBuf, 
 		RecvBuf;
+
+	/* our events... */
+	ev_cleanup abort_by_shutdown; /* server wants to go down... */
+	ev_timer conn_fail,           /* connection establishing timed out */
+		rw_timeout;           /* timeout while sending data */
+	ev_idle unwind_stack;         /* get c-ares out of the stack */
+	ev_io recv_event,             /* receive data from the client */
+		send_event,           /* send more data to the client */
+		conn_event;           /* Connection successfully established */
+
+	StrBuf *ErrMsg; /* if we fail to connect, or lookup, error goes here. */
 
 	/* Citadel application callbacks... */
 	IO_CallBack ReadDone, /* Theres new data to read... */
@@ -69,6 +63,7 @@ struct AsyncIO {
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 
+	/* DNS Related */
 	ev_io dns_recv_event, 
 		dns_send_event;
 	struct ares_options DNSOptions;
@@ -76,8 +71,8 @@ struct AsyncIO {
 	DNSQueryParts *DNSQuery;
 
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
-	DeleteHashDataFunc DeleteData; /* so if we have to destroy you, what to do... */
-	void *Data; /* application specific data */
+	void *Data;        /* application specific data */
+	void *CitContext;  /* Citadel Session context... */
 };
 
 typedef struct _IOAddHandler {

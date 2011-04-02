@@ -430,7 +430,6 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 	SendMsg->IO.RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
 	SendMsg->IO.IOBuf         = NewStrBuf();
 
-	SendMsg->IO.sock          = (-1);
 	SendMsg->IO.NextState     = eReadMessage;
 	
 	return SendMsg;
@@ -451,6 +450,10 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 	else 		 SendMsg->msgtext = NewStrBufDup(MsgText);
 	
 	if (smtp_resolve_recipients(SendMsg)) {
+
+		
+
+
 		if (SendMsg->pCurrRelay == NULL)
 			QueueEventContext(&SendMsg->IO,
 					  resolve_mx_records);
