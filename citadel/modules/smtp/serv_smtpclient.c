@@ -104,8 +104,8 @@ int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
  *
  */
 void smtp_try(const char *key, const char *addr, int *status,
-	      char *dsn, size_t n, long msgnum, char *envelope_from)
-{
+	      char *dsn, size_t n, long msgnum, char *envelope_from
+) {
 	int sock = (-1);
 	char mxhosts[1024];
 	int num_mxhosts;
@@ -125,18 +125,29 @@ void smtp_try(const char *key, const char *addr, int *status,
 	int scan_done;
 	CitContext *CCC=CC;
 	
-	
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
 
-	syslog(LOG_DEBUG, "SMTP client: Attempting delivery to <%s> @ <%s> (%s)\n",
-		user, node, name);
+	syslog(LOG_DEBUG, "SMTP client: Attempting delivery to <%s> @ <%s> (%s)", user, node, name);
 
 	/* Load the message out of the database */
 	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, (ESC_DOT|SUPPRESS_ENV_TO) );
-	msg_size = StrLength(CC->redirect_buffer);
-	msgtext = SmashStrBuf(&CC->redirect_buffer);
+	msg_size = StrLength(CCC->redirect_buffer);
+	msgtext = SmashStrBuf(&CCC->redirect_buffer);
+
+	/* This check is being added on 2011apr02 as we are experiencing a problem where the msg_size
+	 * is being reported as zero for every delivery after about 12h of server runtime; this seems
+	 * to indicate a heap corruption of some sort?  Deferring will allow the message to be delivered
+	 * after a server restart instead of discarded.  After we fix the real problem, this will still
+	 * be a good sanity check to still have in place.  --ajc
+	 */
+	if (msg_size <= 0) {
+		syslog(LOG_ALERT, "msg_size is zero -- possible data corruption");
+		*status = 4;
+		strcpy(dsn, "Internal server error prevented successful delivery -- deferring");
+		goto bail;
+	}
 
 	/* If no envelope_from is supplied, extract one from the message */
 	if ( (envelope_from == NULL) || (IsEmptyStr(envelope_from)) ) {
@@ -184,13 +195,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			}
 		} while (scan_done == 0);
 		if (IsEmptyStr(mailfrom)) {
-			char badmail_filename[128];
-			snprintf(badmail_filename, sizeof badmail_filename, "/tmp/badmail.%d.%ld",
-				getpid, time(NULL)
-			);
-			FILE *badmail_fp = fopen(badmail_filename, "w");
-			fwrite(msgtext, msg_size, 1, badmail_fp);
-			fclose(badmail_fp);
+			syslog(LOG_DEBUG, "This message has no From: header.  Hmm...");
 		}
 		stripallbut(mailfrom, '<', '>');
 		envelope_from = mailfrom;
@@ -198,7 +203,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);
-	syslog(LOG_DEBUG, "Number of MX hosts for <%s> is %d [%s]\n", node, num_mxhosts, mxhosts);
+	syslog(LOG_DEBUG, "Number of MX hosts for <%s> is %d [%s]", node, num_mxhosts, mxhosts);
 	if (num_mxhosts < 1) {
 		*status = 5;
 		snprintf(dsn, SIZ, "No MX hosts found for <%s>", node);
@@ -232,23 +237,27 @@ void smtp_try(const char *key, const char *addr, int *status,
 		else {
 			strcpy(mx_port, "25");
 		}
-		syslog(LOG_DEBUG, "SMTP client: connecting to %s : %s ...\n", mx_host, mx_port);
+		syslog(LOG_DEBUG, "SMTP client: connecting to %s : %s ...", mx_host, mx_port);
 		sock = sock_connect(mx_host, mx_port);
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
 		if (sock >= 0) 
 		{
-			syslog(LOG_DEBUG, "SMTP client: connected!\n");
-				int fdflags; 
-				fdflags = fcntl(sock, F_GETFL);
-				if (fdflags < 0)
-					syslog(LOG_DEBUG,
-						      "unable to get SMTP-Client socket flags! %s \n",
-						      strerror(errno));
-				fdflags = fdflags | O_NONBLOCK;
-				if (fcntl(sock, F_SETFL, fdflags) < 0)
-					syslog(LOG_DEBUG,
-						      "unable to set SMTP-Client socket nonblocking flags! %s \n",
-						      strerror(errno));
+			syslog(LOG_DEBUG, "SMTP client: connected!");
+			int fdflags; 
+			fdflags = fcntl(sock, F_GETFL);
+			if (fdflags < 0) {
+				syslog(LOG_DEBUG,
+				      "unable to get SMTP-Client socket flags! %s",
+				      strerror(errno)
+				);
+			}
+			fdflags = fdflags | O_NONBLOCK;
+			if (fcntl(sock, F_SETFL, fdflags) < 0) {
+				syslog(LOG_DEBUG,
+				      "unable to set SMTP-Client socket nonblocking flags! %s",
+				      strerror(errno)
+				);
+			}
 		}
 		if (sock < 0) {
 			if (errno > 0) {
@@ -275,7 +284,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
 	}
-	syslog(LOG_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -300,7 +309,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP HELO");
 		goto bail;
 	}
-	syslog(LOG_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s", buf);
 	if (buf[0] != '2') {
 		snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
 		syslog(LOG_DEBUG, ">%s", buf);
@@ -337,7 +346,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			strcpy(dsn, "Connection broken during SMTP AUTH");
 			goto bail;
 		}
-		syslog(LOG_DEBUG, "<%s\n", buf);
+		syslog(LOG_DEBUG, "<%s", buf);
 		if (buf[0] != '2') {
 			if (buf[0] == '4') {
 				*status = 4;
@@ -361,7 +370,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP MAIL");
 		goto bail;
 	}
-	syslog(LOG_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -384,7 +393,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP RCPT");
 		goto bail;
 	}
-	syslog(LOG_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -399,14 +408,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* RCPT succeeded, now try the DATA command */
-	syslog(LOG_DEBUG, ">DATA\n");
+	syslog(LOG_DEBUG, ">DATA");
 	sock_write(&sock, "DATA\r\n", 6);
 	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP DATA");
 		goto bail;
 	}
-	syslog(LOG_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s", buf);
 	if (buf[0] != '3') {
 		if (buf[0] == '4') {
 			*status = 3;
@@ -427,7 +436,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			   (msg_size / 128) + 50);
 	if (msgtext[msg_size-1] != 10) {
 		syslog(LOG_WARNING, "Possible problem: message did not "
-			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
+			"correctly terminate. (expecting 0x10, got 0x%02x)",
 				buf[msg_size-1]);
 		sock_write(&sock, "\r\n", 2);
 	}
@@ -439,7 +448,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP message transmit");
 		goto bail;
 	}
-	syslog(LOG_DEBUG, "%s\n", buf);
+	syslog(LOG_DEBUG, "%s", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -457,30 +466,23 @@ void smtp_try(const char *key, const char *addr, int *status,
 	safestrncpy(dsn, &buf[4], 1023);
 	*status = 2;
 
-	syslog(LOG_DEBUG, ">QUIT\n");
+	syslog(LOG_DEBUG, ">QUIT");
 	sock_write(&sock, "QUIT\r\n", 6);
 	ml_sock_gets(&sock, buf, 30);
-	syslog(LOG_DEBUG, "<%s\n", buf);
-	syslog(LOG_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded\n",
-		user, node, name);
+	syslog(LOG_DEBUG, "<%s", buf);
+	syslog(LOG_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded", user, node, name);
 
 bail:	free(msgtext);
 	FreeStrBuf(&CCC->sReadBuf);
 	FreeStrBuf(&CCC->sMigrateBuf);
-	if (sock != -1)
+	if (sock != -1) {
 		sock_close(sock);
+	}
 
-	/* Write something to the syslog(which may or may not be where the
-	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).
+	/* Standard practice is to write DSN to LOG_MAIL which may or may not be where the
+	 * rest of the Citadel logs are going.
 	 */
-	syslog((LOG_MAIL | LOG_INFO),
-		"%ld: to=<%s>, relay=%s, stat=%s",
-		msgnum,
-		addr,
-		mx_host,
-		dsn
-	);
-
+	syslog((LOG_MAIL | LOG_INFO), "%ld: to=<%s>, relay=%s, stat=%s", msgnum, addr, mx_host, dsn);
 	return;
 }
 
@@ -513,7 +515,7 @@ void smtp_do_bounce(char *instr) {
 	StrBuf *BounceMB;
 	long omsgid = (-1);
 
-	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
+	syslog(LOG_DEBUG, "smtp_do_bounce() called");
 	strcpy(bounceto, "");
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
 	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
@@ -582,8 +584,7 @@ void smtp_do_bounce(char *instr) {
 		dsnlen = extract_token(dsn, buf, 3, '|', sizeof dsn);
 		bounce_this = 0;
 
-		syslog(LOG_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
-			key, addr, status, dsn);
+		syslog(LOG_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>", key, addr, status, dsn);
 
 		if (!strcasecmp(key, "bounceto")) {
 			strcpy(bounceto, addr);
@@ -636,13 +637,13 @@ void smtp_do_bounce(char *instr) {
 		free(bmsg->cm_fields['A']);
 	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
 	/* Deliver the bounce if there's anything worth mentioning */
-	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
+	syslog(LOG_DEBUG, "num_bounces = %d", num_bounces);
 	if (num_bounces > 0) {
 
 		/* First try the user who sent the message */
-		syslog(LOG_DEBUG, "bounce to user? <%s>\n", bounceto);
+		syslog(LOG_DEBUG, "bounce to user? <%s>", bounceto);
 		if (IsEmptyStr(bounceto)) {
-			syslog(LOG_ERR, "No bounce address specified\n");
+			syslog(LOG_ERR, "No bounce address specified");
 			bounce_msgid = (-1L);
 		}
 
@@ -667,7 +668,7 @@ void smtp_do_bounce(char *instr) {
 	}
 	FreeStrBuf(&boundary);
 	CtdlFreeMessage(bmsg);
-	syslog(LOG_DEBUG, "Done processing bounces\n");
+	syslog(LOG_DEBUG, "Done processing bounces");
 }
 
 
@@ -737,12 +738,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	time_t last_attempted = 0L;
 	time_t retry = SMTP_RETRY_INTERVAL;
 
-	syslog(LOG_DEBUG, "SMTP client: smtp_do_procmsg(%ld)\n", msgnum);
+	syslog(LOG_DEBUG, "SMTP client: smtp_do_procmsg(%ld)", msgnum);
 	strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		syslog(LOG_ERR, "SMTP client: tried %ld but no such message!\n", msgnum);
+		syslog(LOG_ERR, "SMTP client: tried %ld but no such message!", msgnum);
 		return;
 	}
 
@@ -790,7 +791,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Postpone delivery if we've already tried recently.
 	 */
 	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
-		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
+		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.");
 		free(instr);
 		return;
 	}
@@ -800,7 +801,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Bail out if there's no actual message associated with this
 	 */
 	if (text_msgid < 0L) {
-		syslog(LOG_ERR, "SMTP client: no 'msgid' directive found!\n");
+		syslog(LOG_ERR, "SMTP client: no 'msgid' directive found!");
 		free(instr);
 		return;
 	}
@@ -830,7 +831,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 			--i;
 			--lines;
-			syslog(LOG_DEBUG, "SMTP client: Trying <%s>\n", addr);
+			syslog(LOG_DEBUG, "SMTP client: Trying <%s>", addr);
 			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid, envelope_from);
 			if (status != 2) {
 				if (results == NULL) {
@@ -952,15 +953,15 @@ void smtp_do_queue(void) {
 	if (is_running) return;		/* Concurrency check - only one can run */
 	is_running = 1;
 
-	syslog(LOG_INFO, "SMTP client: processing outbound queue\n");
+	syslog(LOG_INFO, "SMTP client: processing outbound queue");
 
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
-		syslog(LOG_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
+		syslog(LOG_ERR, "Cannot find room <%s>", SMTP_SPOOLOUT_ROOM);
 	}
 	else {
 		num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 	}
-	syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
+	syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed", num_processed);
 	is_running = 0;
 }
 
