@@ -2344,7 +2344,7 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 					if (msg->cm_fields['U'] != NULL) {
 						free(msg->cm_fields['U']);
 					}
-					msg->cm_fields['U'] = strdup(buf);
+					msg->cm_fields['U'] = rfc2047encode(buf, strlen(buf));
 				}
 			}
 
