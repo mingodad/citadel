@@ -8,22 +8,23 @@
  * Based on bits of serv_funambol
  * Contact: <matt@mcbridematt.dhs.org> / <matt@comalies>
  *
- * Copyright (c) 2008-2009
+ * Copyright (c) 2008-2011
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -65,7 +66,6 @@
 #include "clientsocket.h"
 #include "event_client.h"
 #include "extnotify.h"
-
 #include "ctdl_module.h"
 
 struct CitContext extnotify_queue_CC;
@@ -120,8 +120,8 @@ int GetNotifyHosts(NotifyContext *Ctx)
 		pche = strchr(pchs, ':');
 		if (pche == NULL) {
 			syslog(LOG_ERR, 
-				      "extnotify: filename of notification template not found in %s.\n", 
-				      pchs);
+			       "extnotify: filename of notification template not found in %s.\n", 
+			       pchs);
 			continue;
 		}
 		File = GetNHBuf(notify * 2 + 1, 1, Ctx->NotifyHostList);
@@ -131,6 +131,7 @@ int GetNotifyHosts(NotifyContext *Ctx)
 	FreeStrBuf(&NotifyBuf);
 	return Ctx->nNotifyHosts;
 }
+
 
 
 /*! \brief Get configuration message for pager/funambol system from the
@@ -354,13 +355,9 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 }
 
-
-
-
-
-
 /*!
  * \brief Run through the pager room queue
+ * Checks to see what notification option the user has set
  */
 void do_extnotify_queue(void) 
 {
@@ -397,7 +394,6 @@ void do_extnotify_queue(void)
 	    (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0))
 	{
 		syslog(LOG_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
-		CtdlClearSystemContext();
 		if (Ctx.nNotifyHosts > 0)
 		{
 			for (i = 0; i < Ctx.nNotifyHosts * 2; i++)
@@ -442,6 +438,7 @@ void create_extnotify_queue(void) {
 		CtdlPutRoomLock(&qrbuf);
 	}
 }
+
 
 CTDL_MODULE_INIT(extnotify)
 {
