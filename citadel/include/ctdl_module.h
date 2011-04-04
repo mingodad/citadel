@@ -158,7 +158,6 @@ void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *er
  */
 struct CitContext *CtdlGetContextArray (int *count);
 void CtdlFillSystemContext(struct CitContext *context, char *name);
-void CtdlClearSystemContext(void);
 int CtdlTrySingleUser(void);
 void CtdlEndSingleUser(void);
 int CtdlWantSingleUser(void);

@@ -1427,7 +1427,6 @@ void *select_on_master(void *blah)
 			}
 		}
 	}
-	CtdlClearSystemContext();
 	return NULL;
 }
 
