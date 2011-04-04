@@ -483,16 +483,6 @@ void CtdlFillSystemContext(CitContext *context, char *name)
 	}
 }
 
-/*
- * flush it again...
- */
-void CtdlClearSystemContext(void)
-{
-	CitContext *CCC = MyContext();
-
-	memset(CCC, 0, sizeof(CitContext));
-	pthread_setspecific(MyConKey, NULL);
-}
 
 /*
  * Cleanup any contexts that are left lying around
