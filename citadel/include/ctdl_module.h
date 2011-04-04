@@ -157,7 +157,6 @@ void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *er
  * You must free the returned pointer when done.
  */
 struct CitContext *CtdlGetContextArray (int *count);
-void CtdlFillSystemContext(struct CitContext *context, char *name);
 int CtdlTrySingleUser(void);
 void CtdlEndSingleUser(void);
 int CtdlWantSingleUser(void);

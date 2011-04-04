@@ -448,42 +448,6 @@ CitContext *CtdlGetContextArray(int *count)
 }
 
 
-
-/*
- * This function fills in a context and its user field correctly
- * Then creates/loads that user
- */
-void CtdlFillSystemContext(CitContext *context, char *name)
-{
-	char sysname[SIZ];
-	long len;
-
-	memset(context, 0, sizeof(CitContext));
-	context->internal_pgm = 1;
-	context->cs_pid = 0;
-	strcpy (sysname, "SYS_");
-	strcat (sysname, name);
-	len = cutuserkey(sysname);
-	memcpy(context->curr_user, sysname, len + 1);
-	context->client_socket = (-1);
-
-	/* internal_create_user has the side effect of loading the user regardless of wether they
-	 * already existed or needed to be created
-	 */
-	internal_create_user (sysname, len, &(context->user), -1) ;
-	
-	/* Check to see if the system user needs upgrading */
-	if (context->user.usernum == 0)
-	{	/* old system user with number 0, upgrade it */
-		context->user.usernum = get_new_user_number();
-		syslog(LOG_DEBUG, "Upgrading system user \"%s\" from user number 0 to user number %ld\n", context->user.fullname, context->user.usernum);
-		/* add user to the database */
-		CtdlPutUser(&(context->user));
-		cdb_store(CDB_USERSBYNUMBER, &(context->user.usernum), sizeof(long), context->user.fullname, strlen(context->user.fullname)+1);
-	}
-}
-
-
 /*
  * Cleanup any contexts that are left lying around
  */
