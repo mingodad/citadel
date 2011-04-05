@@ -6,9 +6,9 @@
  *
  * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -86,7 +86,7 @@ int sock_connect(char *host, char *service)
 
 	rc = getaddrinfo(host, service, &hints, &res);
 	if (rc != 0) {
-		syslog(LOG_ERR, "%s: %s\n", host, gai_strerror(rc));
+		syslog(LOG_ERR, "%s: %s", host, gai_strerror(rc));
 		return(-1);
 	}
 
@@ -96,7 +96,7 @@ int sock_connect(char *host, char *service)
 	for (ai = res; ai != NULL; ai = ai->ai_next) {
 		sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (sock < 0) {
-			syslog(LOG_ERR, "socket() failed: %s\n", strerror(errno));
+			syslog(LOG_ERR, "socket() failed: %s", strerror(errno));
 			freeaddrinfo(res);
 			return(-1);
 		}
@@ -106,7 +106,7 @@ int sock_connect(char *host, char *service)
 			return(sock);
 		}
 		else {
-			syslog(LOG_ERR, "connect() failed: %s\n", strerror(errno));
+			syslog(LOG_ERR, "connect() failed: %s", strerror(errno));
 			close(sock);
 		}
 	}
@@ -140,9 +140,9 @@ int socket_read_blob(int *Socket, StrBuf * Target, int bytes, int timeout)
 					CCC->SBuf.Buf,
 					&CCC->SBuf.ReadWritePointer,
 					Socket, 1, bytes, O_TERM, &Error);
+	
 	if (retval < 0) {
-		syslog(LOG_CRIT,
-			      "%s failed: %s\n", __FUNCTION__, Error);
+		syslog(LOG_CRIT, "socket_read_blob() failed: %s", Error);
 	}
 	return retval;
 }
@@ -160,8 +160,7 @@ int CtdlSockGetLine(int *sock, StrBuf * Target, int nSec)
 					       &CCC->SBuf.ReadWritePointer,
 					       sock, nSec, 1, &Error);
 	if ((rc < 0) && (Error != NULL))
-		syslog(LOG_CRIT,
-			      "%s failed: %s\n", __FUNCTION__, Error);
+		syslog(LOG_CRIT, "CtdlSockGetLine() failed: %s", Error);
 	return rc;
 }
 
