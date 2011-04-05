@@ -581,7 +581,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 #endif
 		retval = client_read_sslblob(Target, bytes, timeout);
 		if (retval < 0) {
-			syslog(LOG_CRIT, "%s failed", __FUNCTION__);
+			syslog(LOG_CRIT, "client_read_blob() failed");
 		}
 #ifdef BIGBAD_IODBG
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
@@ -624,7 +624,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 						O_TERM,
 						&Error);
 		if (retval < 0) {
-			syslog(LOG_CRIT, "%s failed: %s\n", __FUNCTION__, Error);
+			syslog(LOG_CRIT, "client_read_blob() failed: %s", Error);
 			client_close();
 			return retval;
 		}
@@ -803,10 +803,9 @@ int CtdlClientGetLine(StrBuf *Target)
                         StrLength(Target), ChrPtr(Target));
                 fclose(fd);
 
-		if (rc < 0)
-			syslog(LOG_CRIT, 
-				      "%s failed\n",
-				      __FUNCTION__);
+		if (rc < 0) {
+			syslog(LOG_CRIT, "CtdlClientGetLine() failed");
+		}
 #endif
 		return rc;
 	}
@@ -861,11 +860,9 @@ int CtdlClientGetLine(StrBuf *Target)
                         StrLength(Target), ChrPtr(Target));
                 fclose(fd);
 
-		if ((rc < 0) && (Error != NULL))
-			syslog(LOG_CRIT, 
-				      "%s failed: %s\n",
-				      __FUNCTION__,
-				      Error);
+		if ((rc < 0) && (Error != NULL)) {
+			syslog(LOG_CRIT, "CtdlClientGetLine() failed: %s", Error);
+		}
 #endif
 		return rc;
 	}
@@ -1321,7 +1318,6 @@ void *select_on_master(void *blah)
 	int m;
 	int i;
 	int retval;
-	struct CitContext select_on_master_CC;
 
 	while (!server_shutting_down) {
 		/* Initialize the fdset. */

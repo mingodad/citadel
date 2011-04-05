@@ -45,7 +45,7 @@
 #include "citserver.h"
 #include "ecrash.h"
 
-#define NIY()	printf("%s: Not Implemented Yet!\n", __FUNCTION__)
+#define NIY()	printf("function not implemented yet!\n");
 #ifdef HAVE_BACKTRACE
 #include <execinfo.h>
 static eCrashParameters gbl_params;
