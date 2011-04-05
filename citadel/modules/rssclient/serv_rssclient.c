@@ -342,6 +342,10 @@ void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
 				StrBufRFC2047encode(&Encoded, ri->author_or_creator);
 				msg->cm_fields['A'] = SmashStrBuf(&Encoded);
 				msg->cm_fields['P'] = strdup("rss@localhost");
+
+			}
+			if (ri->pubdate <= 0) {
+				ri->pubdate = time(NULL);
 			}
 		}
 	}
