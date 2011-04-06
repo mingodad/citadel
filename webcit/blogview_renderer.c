@@ -122,13 +122,17 @@ struct bltr blogview_learn_thread_references(long msgnum)
 {
 	StrBuf *Buf;
 	StrBuf *r;
+	int len;
 	struct bltr bltr = { 0, 0 } ;
 	Buf = NewStrBuf();
 	r = NewStrBuf();
 	serv_printf("MSG0 %ld|1", msgnum);		/* top level citadel headers only */
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
-		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while (len = StrBuf_ServGetln(Buf), 
+		       ((len >= 0) && 
+			((len != 3) || strcmp(ChrPtr(Buf), "000") )))
+		{
 			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
 				StrBufCutLeft(Buf, 5);
 				bltr.id = HashLittle(ChrPtr(Buf), StrLength(Buf));

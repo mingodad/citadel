@@ -154,7 +154,8 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 	Preference *LastData = NULL;
 				
 	while (!Done) {
-		StrBuf_ServGetln(ReadBuf);
+		if (StrBuf_ServGetln(ReadBuf) < 0)
+			break;
 		if ( (StrLength(ReadBuf)==3) && 
 		     !strcmp(ChrPtr(ReadBuf), "000")) {
 			Done = 1;
@@ -221,7 +222,7 @@ void load_preferences(void)
 		serv_puts("000");
 	}
 	while (!Done &&
-	       StrBuf_ServGetln(ReadBuf)) {
+	       (StrBuf_ServGetln(ReadBuf) >= 0)) {
 		if ( (StrLength(ReadBuf)==3) && 
 		     !strcmp(ChrPtr(ReadBuf), "000")) {
 			Done = 1;
@@ -234,7 +235,7 @@ void load_preferences(void)
 		serv_printf("MSG0 %ld", msgnum);
 		StrBuf_ServGetln(ReadBuf);
 		if (GetServerStatus(ReadBuf, NULL) == 1) {
-			while (StrBuf_ServGetln(ReadBuf),
+			while ((StrBuf_ServGetln(ReadBuf) >= 0) && 
 			       (strcmp(ChrPtr(ReadBuf), "text") && 
 				strcmp(ChrPtr(ReadBuf), "000"))) {
 			}
@@ -375,7 +376,7 @@ void save_preferences(void)
 		serv_puts("000");
 	}
 	while (!Done &&
-	       StrBuf_ServGetln(ReadBuf)) {
+	       (StrBuf_ServGetln(ReadBuf) >= 0)) {
 		if ( (StrLength(ReadBuf)==3) && 
 		     !strcmp(ChrPtr(ReadBuf), "000")) {
 			Done = 1;
