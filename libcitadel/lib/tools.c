@@ -860,10 +860,15 @@ char *strcpy(char *dest, const char *src) {
 void generate_uuid(char *buf) {
 	static int seq = 0;
 
-	sprintf(buf, "%lx-%lx-%x",
-		time(NULL),
+	++seq;
+	seq = (seq % 0x0FFF) ;
+
+	sprintf(buf, "%08lx-%04lx-4%03x-a%03x-%012lx",
+		(long)time(NULL),
 		(long)getpid(),
-		(seq++)
+		seq,
+		seq,
+		(long)rand()
 	);
 }
 
