@@ -860,9 +860,12 @@ char *strcpy(char *dest, const char *src) {
 void generate_uuid(char *buf) {
 	static int seq = (-1);
 
+<<<<<<< HEAD
 	if (seq == (-1)) {
 		seq = (int)rand();
 	}
+=======
+>>>>>>> d0e228d... generate_uuid() now generates more or less DCE-compliant uuid's
 	++seq;
 	seq = (seq % 0x0FFF) ;
 
