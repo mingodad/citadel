@@ -854,7 +854,8 @@ void do_invt_kick(void)
 			if ((StrLength(User) > 0) && (Kick))
 			{
 				serv_printf("KICK %s", ChrPtr(User));
-				StrBuf_ServGetln(Buf);
+				if (StrBuf_ServGetln(Buf) < 0)
+					break;
 				if (GetServerStatus(Buf, NULL) != 2) {
 					StrBufCutLeft(Buf, 4);
 					AppendImportantMessage(SKEY(Buf));
@@ -870,7 +871,8 @@ void do_invt_kick(void)
 			else if ((StrLength(User) > 0) && (Invite))
 			{
 				serv_printf("INVT %s", ChrPtr(User));
-				StrBuf_ServGetln(Buf);
+				if (StrBuf_ServGetln(Buf) < 0)
+					break;
 				if (GetServerStatus(Buf, NULL) != 2) {
 					StrBufCutLeft(Buf, 4);
 					AppendImportantMessage(SKEY(Buf));
