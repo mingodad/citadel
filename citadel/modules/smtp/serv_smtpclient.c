@@ -961,6 +961,7 @@ void smtp_do_queue(void) {
 		num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 	}
 	syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed", num_processed);
+	run_queue_now = 0;
 	is_running = 0;
 }
 

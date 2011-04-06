@@ -673,8 +673,13 @@ void rss_save_item(rss_item *ri)
 			msg->cm_fields['U'] = SmashStrBuf(&QPEncoded);
 			FreeStrBuf(&Encoded);
 		}
+
+		if (ri->pubdate <= 0) {
+			ri->pubdate = time(NULL);
+		}
 		msg->cm_fields['T'] = malloc(64);
 		snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
+
 		if (ri->channel_title != NULL) {
 			if (StrLength(ri->channel_title) > 0) {
 				msg->cm_fields['O'] = strdup(ChrPtr(ri->channel_title));

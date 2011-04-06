@@ -8,22 +8,23 @@
  * Based on bits of serv_funambol
  * Contact: <matt@mcbridematt.dhs.org> / <matt@comalies>
  *
- * Copyright (c) 2008-2009
+ * Copyright (c) 2008-2011
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
+
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -64,9 +65,7 @@
 #include "domain.h"
 #include "clientsocket.h"
 #include "extnotify.h"
-
 #include "ctdl_module.h"
-
 
 
 void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg)
@@ -82,8 +81,6 @@ void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg)
 	    ErrMsg, 
 	    HFreeStrBuf);
 }
-
-
 
 
 StrBuf* GetNHBuf(int i, int allocit, StrBuf **NotifyHostList)
@@ -123,9 +120,7 @@ StrBuf** GetNotifyHosts(void)
 		pchs = ChrPtr(Host);
 		pche = strchr(pchs, ':');
 		if (pche == NULL) {
-			syslog(LOG_ERR, 
-				      __FILE__": filename not found in %s.\n", 
-				      pchs);
+			syslog(LOG_ERR, __FILE__": filename not found in %s.", pchs);
 			continue;
 		}
 		File = GetNHBuf(notify * 2 + 1, 1, NotifyHostList);
@@ -156,8 +151,10 @@ void create_extnotify_queue(void) {
 		CtdlPutRoomLock(&qrbuf);
 	}
 }
-/*!
- * \brief Run through the pager room queue
+
+
+/*
+ * Run through the pager room queue
  */
 void do_extnotify_queue(void) 
 {
@@ -178,13 +175,12 @@ void do_extnotify_queue(void)
 	/*
 	 * Go ahead and run the queue
 	 */
-	syslog(LOG_DEBUG, "serv_extnotify: processing notify queue\n");
+	syslog(LOG_DEBUG, "serv_extnotify: processing notify queue");
     
 	memset(&Ctx, 0, sizeof(NotifyContext));
 	Ctx.NotifyHostList = GetNotifyHosts();
 	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
-		syslog(LOG_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
-		CtdlClearSystemContext();
+		syslog(LOG_ERR, "Cannot find room <%s>", FNBL_QUEUE_ROOM);
 		return;
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
@@ -213,9 +209,10 @@ void do_extnotify_queue(void)
 		DeleteHash(&Ctx.NotifyErrors);
 	}
 
-	syslog(LOG_DEBUG, "serv_extnotify: queue run completed\n");
+	syslog(LOG_DEBUG, "serv_extnotify: queue run completed");
 	doing_queue = 0;
 }
+
 
 /*
  * Process messages in the external notification queue
@@ -335,8 +332,9 @@ nuke:
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 }
 
-/*! \brief Checks to see what notification option the user has set
- *
+
+/*
+ * Checks to see what notification option the user has set
  */
 void extNotify_getPrefs(long configMsgNum, char *configMsg) 
 {
@@ -344,7 +342,7 @@ void extNotify_getPrefs(long configMsgNum, char *configMsg)
 	// Do a simple string search to see if 'funambol' is selected as the
 	// type. This string would be at the very top of the message contents.
 	if (configMsgNum == -1) {
-		syslog(LOG_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id\n");
+		syslog(LOG_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id");
 		return;
 	}
 	prefMsg = CtdlFetchMessage(configMsgNum, 1);
@@ -352,8 +350,9 @@ void extNotify_getPrefs(long configMsgNum, char *configMsg)
 	CtdlFreeMessage(prefMsg);
 }
 
-/*! \brief Get configuration message for pager/funambol system from the
- *			users "My Citadel Config" room
+
+/*
+ * Get configuration message for pager/funambol system from the user's "My Citadel Config" room
  */
 long extNotify_getConfigMessage(char *username) {
 	struct ctdlroom qrbuf; // scratch for room
@@ -383,7 +382,7 @@ long extNotify_getConfigMessage(char *username) {
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
-		syslog(LOG_DEBUG, "extNotify_getConfigMessage: No config messages found\n");
+		syslog(LOG_DEBUG, "extNotify_getConfigMessage: No config messages found");
 		return -1;	/* No messages at all?  No further action. */
 	}
 	for (a = 0; a < num_msgs; ++a) {
@@ -400,6 +399,7 @@ long extNotify_getConfigMessage(char *username) {
 	return confMsgNum;
     
 }
+
 
 CTDL_MODULE_INIT(extnotify)
 {
