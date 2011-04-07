@@ -54,6 +54,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	ServInfo *info;
 	StrBuf *Buf;
 	int a;
+	int rc;
 
 	Buf = NewStrBuf();
 
@@ -100,7 +101,11 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	info = (ServInfo*)malloc(sizeof(ServInfo));
 	memset(info, 0, sizeof(ServInfo));
 	a = 0;
-	while (StrBuf_ServGetln(Buf), (strcmp(ChrPtr(Buf), "000")!= 0)) {
+	while (rc = StrBuf_ServGetln(Buf),
+	       (rc >= 0) &&
+	       ((rc != 3) || 
+		strcmp(ChrPtr(Buf), "000")))
+	{
 		switch (a) {
 		case 0:
 			info->serv_pid = StrToi(Buf);

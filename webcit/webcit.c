@@ -407,7 +407,8 @@ void ajax_servcmd(void)
 		}
 	case 1:
 		while (!Done) {
-			StrBuf_ServGetln(Buf);
+			if (StrBuf_ServGetln(Buf) < 0)
+				break;
 			if ( (StrLength(Buf)==3) && 
 			     !strcmp(ChrPtr(Buf), "000")) {
 				Done = 1;

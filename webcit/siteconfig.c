@@ -225,10 +225,10 @@ void load_siteconfig(void)
 	serv_getln(buf, sizeof buf);
 	i = 0;
 	Buf = NewStrBuf();
-	while ((sizeof(ServerConfig) / sizeof(CfgMapping)) &&
-	       (len = StrBuf_ServGetln(Buf),
-		strcmp(ChrPtr(Buf), "000")) && 
-	       (i <= sizeof(ServerConfig))) 
+	while (len = StrBuf_ServGetln(Buf),
+	       (len >= 0) && 
+	       (i <= (sizeof(ServerConfig) / sizeof(CfgMapping))) &&
+	       ((len != 3) || strcmp(ChrPtr(Buf), "000")))
 	{
 		Put(Cfg,
 		    ServerConfig[i].Key, 

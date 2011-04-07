@@ -114,9 +114,10 @@ void do_generic(void)
 		}
 	case 1:
 		while (!Done) {
-			StrBuf_ServGetln(Buf);
-			if ( (StrLength(Buf)==3) && 
-			     !strcmp(ChrPtr(Buf), "000")) {
+			if (StrBuf_ServGetln(LineBuf) < 0)
+				break;
+			if ( (StrLength(LineBuf)==3) && 
+			     !strcmp(ChrPtr(LineBuf), "000")) {
 				Done = 1;
 			}
 			StrEscAppend(WCC->WBuf, Buf, NULL, 0, 0);

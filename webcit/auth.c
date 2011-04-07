@@ -384,6 +384,7 @@ void finalize_openid_login(void)
 				long HKLen;
 				const char *HKey;
 				HashPos *Cursor;
+				int len;
 				
 				Cursor = GetNewHashPos (WCC->Hdr->urlstrings, 0);
 				while (GetNextHashPos(WCC->Hdr->urlstrings, Cursor, &HKLen, &HKey, &U)) {
@@ -396,7 +397,9 @@ void finalize_openid_login(void)
 				serv_puts("000");
 
 				linecount = 0;
-				while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) 
+				while (len = StrBuf_ServGetln(Buf), 
+				       ((len >= 0) &&
+					((len != 3) || strcmp(ChrPtr(Buf), "000") )))
 				{
 					if (linecount == 0) result = NewStrBufDup(Buf);
 					if (!strcasecmp(ChrPtr(result), "authenticate")) {

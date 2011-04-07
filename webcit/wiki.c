@@ -169,7 +169,7 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 		wc_printf("<th>%s</th>", _("Date"));
 		wc_printf("<th>%s</th>", _("Author"));
 
-		while(StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while((StrBuf_ServGetln(Buf) >= 0) &&  strcmp(ChrPtr(Buf), "000")) {
 
 			rev_date = extract_long(ChrPtr(Buf), 1);
 			webcit_fmt_date(rev_date_displayed, sizeof rev_date_displayed, rev_date, DATEFMT_FULL);
@@ -290,7 +290,7 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 
 		wc_printf("<th>%s</th>", _("Page title"));
 
-		while(StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while((StrBuf_ServGetln(Buf) >= 0) && strcmp(ChrPtr(Buf), "000")) {
 			StrBufExtract_token(pagetitle, Buf, 1, '|');
 
 			if (!bmstrcasestr((char *)ChrPtr(pagetitle), "_HISTORY_")) {	/* no history pages */

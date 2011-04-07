@@ -64,7 +64,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
 	if (GetServerStatus(Buf, NULL) == 1) 
 	{
-		while(!Done && StrBuf_ServGetln(Buf))
+		while(!Done && StrBuf_ServGetln(Buf) >= 0)
 			if ( (StrLength(Buf)==3) && 
 			     !strcmp(ChrPtr(Buf), "000")) 
 			{
@@ -181,7 +181,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) 
 	{
-		while(!Done && StrBuf_ServGetln(Buf))
+		while(!Done && (StrBuf_ServGetln(Buf) >= 0))
 			if ( (StrLength(Buf)==3) && 
 			     !strcmp(ChrPtr(Buf), "000")) 
 			{

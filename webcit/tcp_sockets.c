@@ -333,7 +333,10 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 		}
 
 		serv_printf("READ %d|%d", bytes_read, total_len-bytes_read);
-		if ( (StrBuf_ServGetln(Buf) > 0) && (GetServerStatus(Buf, NULL) == 6) ) {
+		if ( (rc = StrBuf_ServGetln(Buf) > 0) && (GetServerStatus(Buf, NULL) == 6) ) 
+		{
+			if (rc < 0)
+				return rc;
 			StrBufCutLeft(Buf, 4);
 			this_block = StrTol(Buf);
 			rc = StrBuf_ServGetBLOBBuffered(Ret, this_block);
