@@ -195,8 +195,6 @@ void go_threading(void)
 	/* Second call to module init functions now that threading is up */
 	initialise_modules(1);
 
-	CtdlThreadCreate(select_on_master);
-
 	/* Begin with one worker thread.  We will expand the pool if necessary */
 	CtdlThreadCreate(worker_thread);
 
