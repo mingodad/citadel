@@ -1136,6 +1136,10 @@ void *worker_thread(void *blah) {
 	int retval = 0;
 	struct timeval tv;
 	int force_purge = 0;
+	struct ServiceFunctionHook *serviceptr;
+	int ssock;                      /* Descriptor for client socket */
+	CitContext *con = NULL;         /* Temporary context pointer */
+	int i;
 
 	++num_workers;
 
@@ -1152,6 +1156,15 @@ do_select:	force_purge = 0;
 		FD_ZERO(&readfds);
 		highest = 0;
 
+		/* First, add the various master sockets to the fdset. */
+		for (serviceptr = ServiceHookTable; serviceptr != NULL; serviceptr = serviceptr->next ) {
+			FD_SET(serviceptr->msock, &readfds);
+			if (serviceptr->msock > highest) {
+				highest = serviceptr->msock;
+			}
+		}
+
+		/* Next, add all of the client sockets. */
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			/* Don't select on dead sessions, only truly idle ones */
@@ -1220,6 +1233,53 @@ do_select:	force_purge = 0;
 			if (server_shutting_down) {
 				--num_workers;
 				return(NULL);
+			}
+		}
+
+		/* Next, check to see if it's a new client connecting * on a master socket. */
+
+		else if ((retval > 0) && (!server_shutting_down)) for (serviceptr = ServiceHookTable; serviceptr != NULL; serviceptr = serviceptr->next) {
+
+			if (FD_ISSET(serviceptr->msock, &readfds)) {
+				ssock = accept(serviceptr->msock, NULL, 0);
+				if (ssock >= 0) {
+					syslog(LOG_DEBUG, "New client socket %d", ssock);
+
+					/* The master socket is non-blocking but the client
+					 * sockets need to be blocking, otherwise certain
+					 * operations barf on FreeBSD.  Not a fatal error.
+					 */
+					if (fcntl(ssock, F_SETFL, 0) < 0) {
+						syslog(LOG_EMERG,
+							"citserver: Can't set socket to blocking: %s\n",
+							strerror(errno));
+					}
+
+					/* New context will be created already
+					 * set up in the CON_EXECUTING state.
+					 */
+					con = CreateNewContext();
+
+					/* Assign our new socket number to it. */
+					con->client_socket = ssock;
+					con->h_command_function = serviceptr->h_command_function;
+					con->h_async_function = serviceptr->h_async_function;
+					con->h_greeting_function = serviceptr->h_greeting_function;
+					con->ServiceName = serviceptr->ServiceName;
+					
+					/* Determine whether it's a local socket */
+					if (serviceptr->sockpath != NULL) {
+						con->is_local_socket = 1;
+					}
+	
+					/* Set the SO_REUSEADDR socket option */
+					i = 1;
+					setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+					con->state = CON_GREETING;
+					retval--;
+					if (retval == 0)
+						break;
+				}
 			}
 		}
 
@@ -1302,116 +1362,9 @@ SKIP_SELECT:
 
 
 
-/*
- * A function to handle selecting on master sockets.
- * In other words it handles new connections.
- * It is a thread.
- */
-void *select_on_master(void *blah)
-{
-	struct ServiceFunctionHook *serviceptr;
-	fd_set master_fds;
-	int highest;
-	struct timeval tv;
-	int ssock;			/* Descriptor for client socket */
-	CitContext *con = NULL;		/* Temporary context pointer */
-	int m;
-	int i;
-	int retval;
 
-	while (!server_shutting_down) {
-		/* Initialize the fdset. */
-		FD_ZERO(&master_fds);
-		highest = 0;
 
-		/* First, add the various master sockets to the fdset. */
-		for (serviceptr = ServiceHookTable; serviceptr != NULL;
-	    	serviceptr = serviceptr->next ) {
-			m = serviceptr->msock;
-			FD_SET(m, &master_fds);
-			if (m > highest) {
-				highest = m;
-			}
-		}
 
-		if (!server_shutting_down) {
-			tv.tv_sec = 60;		/* wake up every second if no input */
-			tv.tv_usec = 0;
-			retval = select(highest + 1, &master_fds, NULL, NULL, &tv);
-		}
-		else {
-			retval = -1 ;
-		}
-
-		/* Now figure out who made this select() unblock.
-		 * First, check for an error or exit condition.
-		 */
-		if (retval < 0) {
-			if (errno == EBADF) {
-				syslog(LOG_NOTICE, "select() failed: (%s)\n",
-					strerror(errno));
-				continue;
-			}
-			if (errno != EINTR) {
-				syslog(LOG_EMERG, "Exiting (%s)\n", strerror(errno));
-				server_shutting_down = 1;
-			} else {
-				syslog(LOG_DEBUG, "Interrupted CtdlThreadSelect.\n");
-				if (server_shutting_down) return(NULL);
-				continue;
-			}
-		}
-
-		/* Next, check to see if it's a new client connecting
-		 * on a master socket.
-		 */
-		else if ((retval > 0) && (!server_shutting_down)) for (serviceptr = ServiceHookTable; serviceptr != NULL; serviceptr = serviceptr->next) {
-
-			if (FD_ISSET(serviceptr->msock, &master_fds)) {
-				ssock = accept(serviceptr->msock, NULL, 0);
-				if (ssock >= 0) {
-					syslog(LOG_DEBUG, "New client socket %d\n", ssock);
-
-					/* The master socket is non-blocking but the client
-					 * sockets need to be blocking, otherwise certain
-					 * operations barf on FreeBSD.  Not a fatal error.
-					 */
-					if (fcntl(ssock, F_SETFL, 0) < 0) {
-						syslog(LOG_EMERG,
-							"citserver: Can't set socket to blocking: %s\n",
-							strerror(errno));
-					}
-
-					/* New context will be created already
-					 * set up in the CON_EXECUTING state.
-					 */
-					con = CreateNewContext();
-
-					/* Assign our new socket number to it. */
-					con->client_socket = ssock;
-					con->h_command_function = serviceptr->h_command_function;
-					con->h_async_function = serviceptr->h_async_function;
-					con->h_greeting_function = serviceptr->h_greeting_function;
-					con->ServiceName = serviceptr->ServiceName;
-					
-					/* Determine whether it's a local socket */
-					if (serviceptr->sockpath != NULL) {
-						con->is_local_socket = 1;
-					}
-	
-					/* Set the SO_REUSEADDR socket option */
-					i = 1;
-					setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
-					con->state = CON_GREETING;
-					retval--;
-					if (retval == 0)
-						break;
-				}
-			}
-		}
-	}
-	return NULL;
-}
 
 
 
