@@ -62,7 +62,6 @@ void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void init_master_fdset(void);
 void *worker_thread(void *);
-void *select_on_master(void *);
 
 extern volatile int exit_signal;
 extern volatile int shutdown_and_halt;
