@@ -159,8 +159,8 @@ void SetTitles(void)
 	setup_text[eIP_ADDR] = _(
 "Please specify the IP address which the server should be listening to. "
 "You can name a specific IPv4 or IPv6 address, or you can specify\n"
-"'*' for 'any address', '::' for 'any IPv6 address', or '0.0.0.0'\n"
-"for 'any IPv4 address'. If you leave this blank, Citadel will\n"
+"\"*\" for \"any address\", \"::\" for \"any IPv6 address\", or \"0.0.0.0\"\n"
+"for \"any IPv4 address\". If you leave this blank, Citadel will\n"
 "listen on all addresses. "
 "This can usually be left to the default unless multiple instances of Citadel "
 "are running on the same computer.");
