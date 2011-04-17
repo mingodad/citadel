@@ -271,7 +271,7 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 			len = StrBuf_ServGetln(Buf);
 			if ((len <0) || 
 			    ((len == 3) &&
-			     strcmp(ChrPtr(Buf), "000")))
+			     !strcmp(ChrPtr(Buf), "000")))
 			{
 				Done = 1;
 				break;
