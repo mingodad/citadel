@@ -108,7 +108,7 @@ void GetPrefTypes(HashList *List)
 			Pref->Type = PrefType;
 			Pref->eFlatPrefType = Pref->Type->eType;
 
-			syslog(1, "Loading [%s]with type [%ld] [\"%s\"]\n",
+			syslog(1, "Loading [%s]with type [%d] [\"%s\"]\n",
 				ChrPtr(Pref->Key),
 				Pref->Type->eType,
 				ChrPtr(Pref->Val));
@@ -537,7 +537,7 @@ void set_preference_backend(const char *key, size_t keylen,
 		Pref->Type = PrefType;
 		Pref->eFlatPrefType = PrefType->eType;
 		if (Pref->Type->eType != lPrefType)
-			syslog(1, "warning: saving preference with wrong type [%s] %ld != %ld \n",
+			syslog(1, "warning: saving preference with wrong type [%s] %d != %ld \n",
 				key, Pref->Type->eType, lPrefType);
 		switch (Pref->Type->eType)
 		{

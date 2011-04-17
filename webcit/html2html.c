@@ -414,7 +414,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			if (!tag_end) {
 				syslog(9, "tag_end is null and ptr is:\n");
 				syslog(9, "%s\n", ptr);
-				syslog(9, "Theoretical bytes remaining: %d\n", msgend - ptr);
+				syslog(9, "Theoretical bytes remaining: %ld\n", msgend - ptr);
 			}
 
 			src=strstr(ptr, "src=\"cid:");
