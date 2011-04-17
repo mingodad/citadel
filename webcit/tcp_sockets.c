@@ -226,7 +226,7 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 	}
 #ifdef SERV_TRACE
         else
-                syslog(9, "%3d<<<BLOB: %ld bytes\n", WC->serv_sock, StrLength(buf));
+                syslog(9, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
 #endif
 
 	return rc;
@@ -251,7 +251,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	}
 #ifdef SERV_TRACE
         else
-                syslog(9, "%3d<<<BLOB: %ld bytes\n", WC->serv_sock, StrLength(buf));
+                syslog(9, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
 #endif
 
 	return rc;
@@ -275,7 +275,7 @@ void FlushReadBuf (void)
 		pche = pch + len;
 		if (WCC->ReadPos != pche)
 		{
-			syslog(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %d [%s]\n", 
+			syslog(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %ld [%s]\n", 
 				pche - WCC->ReadPos, pche);
 			syslog(1, 
 				"--------------------------------------------------------------------------------\n"

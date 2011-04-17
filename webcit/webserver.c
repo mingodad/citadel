@@ -109,9 +109,11 @@ void load_redirs(char *filename) {
 	}
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
+		char *ch;
+
 		buf[strlen(buf)-1] = 0;
 
-		char *ch = strchr(buf, '#');
+		ch = strchr(buf, '#');
 		if (ch) strcpy(ch, "");
 		striplt(buf);
 		if (!IsEmptyStr(buf)) {

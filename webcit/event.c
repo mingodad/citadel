@@ -1153,8 +1153,10 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '8') {
 				serv_puts("Content-type: text/calendar");
+				serv_puts("Content-Transfer-Encoding: quoted-printable");
 				serv_puts("");
-				serv_puts(icalcomponent_as_ical_string(encaps));
+				text_to_server_qp(icalcomponent_as_ical_string(encaps));
+//				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
 			}
 			if ( (buf[0] == '8') || (buf[0] == '4') ) {

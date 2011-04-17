@@ -179,7 +179,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				TheSession = sptr;
 			}
 			if (TheSession == NULL)
-				syslog(1, "found sessionkey [%ld], but credentials for [%s|%s] didn't match\n",
+				syslog(1, "found sessionkey [%d], but credentials for [%s|%s] didn't match\n",
 					Hdr->HR.SessionKey,ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username));
 			break;
 		case AUTH_COOKIE:
@@ -195,8 +195,8 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 	}
 	pthread_mutex_unlock(ListMutex);
 	if (TheSession == NULL)
-		syslog(1, "didn't find sessionkey [%ld] for user [%s]\n",
-			Hdr->HR.SessionKey,ChrPtr(Hdr->c_username));
+		syslog(1, "didn't find sessionkey [%d] for user [%s]\n",
+			Hdr->HR.SessionKey, ChrPtr(Hdr->c_username));
 	return TheSession;
 }
 

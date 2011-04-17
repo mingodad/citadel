@@ -61,7 +61,7 @@ void ParseURLParams(StrBuf *url)
 			u->url_data = NewStrBufPlain(aptr, len);
 			StrBufUnescape(u->url_data, 1);
 #ifdef DEBUG_URLSTRINGS
-			syslog(9, "%s = [%ld]  %s\n", 
+			syslog(9, "%s = [%d]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -71,7 +71,7 @@ void ParseURLParams(StrBuf *url)
 			len = bptr - aptr;
 			u->url_data = NewStrBufPlain(aptr, len);
 			StrBufUnescape(u->url_data, 1);
-			syslog(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
+			syslog(1, "REJECTED because of __ is internal only: %s = [%d]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -325,7 +325,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 		}
 		else {
-			syslog(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
+			syslog(1, "REJECTED because of __ is internal only: %s = [%d]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -333,7 +333,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			free_url(u);
 		}
 #ifdef DEBUG_URLSTRINGS
-		syslog(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
+		syslog(9, "Key: <%s> len: [%d] Data: <%s>\n", 
 			u->url_key, 
 			StrLength(u->url_data), 
 			ChrPtr(u->url_data));
