@@ -124,7 +124,7 @@ void groupdav_put(void)
 	 * version, so we fail...
 	 */
 	if (StrLength(WCC->Hdr->HR.dav_ifmatch) > 0) {
-		syslog(9, "dav_ifmatch: %s\n", WCC->Hdr->HR.dav_ifmatch);
+		syslog(9, "dav_ifmatch: %s\n", ChrPtr(WCC->Hdr->HR.dav_ifmatch));
 		old_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		syslog(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (StrTol(WCC->Hdr->HR.dav_ifmatch) != old_msgnum) {

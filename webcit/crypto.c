@@ -421,7 +421,7 @@ int starttls(int sock) {
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
 		if (ssl_error_reason == NULL) {
-			syslog(3, "SSL_accept failed: errval=%i, retval=%i %s\n", errval, retval, strerror(errval));
+			syslog(3, "SSL_accept failed: errval=%ld, retval=%d %s\n", errval, retval, strerror(errval));
 		}
 		else {
 			syslog(3, "SSL_accept failed: %s\n", ssl_error_reason);
@@ -436,7 +436,7 @@ int starttls(int sock) {
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
 		if (ssl_error_reason == NULL) {
-			syslog(3, "SSL_accept failed: errval=%i, retval=%i (%s)\n", errval, retval, strerror(errval));
+			syslog(3, "SSL_accept failed: errval=%ld, retval=%d (%s)\n", errval, retval, strerror(errval));
 		}
 		else {
 			syslog(3, "SSL_accept failed: %s\n", ssl_error_reason);
