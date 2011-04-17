@@ -1,3 +1,9 @@
+citadel (7.86-97) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 11 Apr 2011 10:00:00 +0001
+
 citadel (7.85-96) stable; urgency=low
 
   * new upstream version
