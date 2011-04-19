@@ -170,8 +170,9 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	 * possible ways here: 
 	 * - connection timeout 
 	 * - 
-	 */	
-	SendMsg->pCurrRelay = SendMsg->pCurrRelay->Next;
+	 */
+	if (SendMsg->pCurrRelay != NULL)
+		SendMsg->pCurrRelay = SendMsg->pCurrRelay->Next;
 
 	if (SendMsg->pCurrRelay == NULL)
 		return eAbort;
@@ -494,8 +495,10 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 
 void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 {
+	double Timeout = 0.0;
+
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	double Timeout;
+
 	switch (NextTCPState) {
 	case eSendReply:
 	case eSendMore:
