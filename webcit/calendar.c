@@ -432,11 +432,22 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	int num_recur = 0;
 	int stop_rr = 0;
 
+	/* first and foremost, check for bogosity.  bail if we see no DTSTART property */
+
+	if (icalcomponent_get_first_property(icalcomponent_get_first_component(
+		cal, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY) == NULL)
+	{
+		return;
+	}
+
+	/* ok, chances are we've got a live one here.  let's try to figure out where it goes. */
+
 	dtstart = icaltime_null_time();
 	dtend = icaltime_null_time();
 	
-	if (WCC->disp_cal_items == NULL)
+	if (WCC->disp_cal_items == NULL) {
 		WCC->disp_cal_items = NewHash(0, Flathash);
+	}
 
 	/* Note: anything we do here, we also have to do below for the recurrences. */
 	Cal = (disp_cal*) malloc(sizeof(disp_cal));
@@ -444,10 +455,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	Cal->cal = icalcomponent_new_clone(cal);
 
 	/* Dezonify and decapsulate at the very last moment */
-	/* syslog(9, "INITIAL: %s\n", icaltime_as_ical_string(icalproperty_get_dtstart(
-		icalcomponent_get_first_property(icalcomponent_get_first_component(
-		Cal->cal, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY)))
-	); */
 	ical_dezonify(Cal->cal);
 	if (icalcomponent_isa(Cal->cal) != ICAL_VEVENT_COMPONENT) {
 		cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
@@ -482,6 +489,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	}
 
 	/* Store it in the hash list. */
+	/* syslog(LOG_DEBUG, "\033[32mINITIAL: %s\033[0m", ctime(&Cal->event_start)); */
 	Put(WCC->disp_cal_items, 
 	    (char*) &Cal->event_start,
 	    sizeof(Cal->event_start), 
@@ -519,7 +527,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 		++num_recur;
 		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
 			icalcomponent *cptr;
-			/* syslog(9, "REPEATS: %s\n", icaltime_as_ical_string(next)); */
 
 			/* Note: anything we do here, we also have to do above for the root event. */
 			Cal = (disp_cal*) malloc(sizeof(disp_cal));
@@ -574,6 +581,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 
 			if ( (Cal->event_start > calv->lower_bound)
 			   && (Cal->event_start < calv->upper_bound) ) {
+				/* syslog(LOG_DEBUG, "\033[31mREPEATS: %s\033[0m", ctime(&Cal->event_start)); */
 				Put(WCC->disp_cal_items, 
 					(char*) &Cal->event_start,
 					sizeof(Cal->event_start), 
@@ -590,7 +598,9 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 		}
 	}
 	icalrecur_iterator_free(ritr);
-	/* syslog(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
+	/* syslog(9, "\033[34mPerformed %d recurrences; final one is %s\033[0m",
+		num_recur, ctime(&final_recurrence)
+	); */
 
 }
 
