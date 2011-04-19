@@ -489,7 +489,7 @@ void display_individual_cal(icalcomponent *event, long msgnum, char *from, int u
 	}
 
 	/* Store it in the hash list. */
-	syslog(LOG_DEBUG, "INITIAL: %s", ctime(&Cal->event_start));
+	/* syslog(LOG_DEBUG, "INITIAL: %s", ctime(&Cal->event_start)); */
 	Put(WCC->disp_cal_items, 
 	    (char*) &Cal->event_start,
 	    sizeof(Cal->event_start), 
@@ -550,33 +550,25 @@ void display_individual_cal(icalcomponent *event, long msgnum, char *from, int u
 				while (	ps = icalcomponent_get_first_property(cptr, ICAL_DTSTART_PROPERTY),
 					ps != NULL
 				) {
-					syslog(LOG_DEBUG, "Removing old dtstart");
 					icalcomponent_remove_property(cptr, ps);
-					syslog(LOG_DEBUG, "Removed old dtstart");
 				}
 
 				/* Add our shiny new DTSTART property from the iteration */
-				syslog(LOG_DEBUG, "Adding new dtstart");
 				ps = icalproperty_new_dtstart(next);
 				icalcomponent_add_property(cptr, ps);
 				Cal->event_start = icaltime_as_timet(next);
 				final_recurrence = Cal->event_start;
-				syslog(LOG_DEBUG, "Added new dtstart");
 
 				/* Remove any existing DTEND properties */
 				while (	ps = icalcomponent_get_first_property(cptr, ICAL_DTEND_PROPERTY),
 					(ps != NULL)
 				) {
-					syslog(LOG_DEBUG, "Removing old dtend");
 					icalcomponent_remove_property(cptr, ps);
-					syslog(LOG_DEBUG, "Removed old dtend");
 				}
 
 				/* Add our shiny new DTEND property from the iteration */
-				syslog(LOG_DEBUG, "Adding new dtend");
 				ps = icalproperty_new_dtend(icaltime_add(next, dur));
 				icalcomponent_add_property(cptr, ps);
-				syslog(LOG_DEBUG, "Added new dtend");
 
 			}
 
@@ -594,14 +586,7 @@ void display_individual_cal(icalcomponent *event, long msgnum, char *from, int u
 			if (	(Cal->event_start > calv->lower_bound)
 				&& (Cal->event_start < calv->upper_bound)
 			) {
-
-/* FIXME we are getting two different timestamps here and that's why it is not working */
-				syslog(LOG_DEBUG, "REPEATS: %s", ctime(&Cal->event_start));
-				time_t foo;
-				foo = icaltime_as_timet(icalproperty_get_dtstart(icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY)));
-				syslog(LOG_DEBUG, "REPEATZ: %s", ctime(&foo));
-
-
+				/* syslog(LOG_DEBUG, "REPEATS: %s", ctime(&Cal->event_start)); */
 				Put(WCC->disp_cal_items, 
 					(char*) &Cal->event_start,
 					sizeof(Cal->event_start), 
