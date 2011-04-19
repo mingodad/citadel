@@ -1,7 +1,7 @@
 /*
  * Functions which handle calendar objects and their processing/display.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -413,7 +413,7 @@ void delete_cal(void *vCal)
  * any iCalendar objects and store them in a hash table.  Later on, the second phase will
  * use this hash table to render the calendar for display.
  */
-void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread, calview *calv)
+void display_individual_cal(icalcomponent *event, long msgnum, char *from, int unread, calview *calv)
 {
 	icalproperty *ps = NULL;
 	struct icaltimetype dtstart, dtend;
@@ -435,7 +435,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	/* first and foremost, check for bogosity.  bail if we see no DTSTART property */
 
 	if (icalcomponent_get_first_property(icalcomponent_get_first_component(
-		cal, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY) == NULL)
+		event, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY) == NULL)
 	{
 		return;
 	}
@@ -452,7 +452,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	/* Note: anything we do here, we also have to do below for the recurrences. */
 	Cal = (disp_cal*) malloc(sizeof(disp_cal));
 	memset(Cal, 0, sizeof(disp_cal));
-	Cal->cal = icalcomponent_new_clone(cal);
+	Cal->cal = icalcomponent_new_clone(event);
 
 	/* Dezonify and decapsulate at the very last moment */
 	ical_dezonify(Cal->cal);
@@ -489,7 +489,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	}
 
 	/* Store it in the hash list. */
-	/* syslog(LOG_DEBUG, "\033[32mINITIAL: %s\033[0m", ctime(&Cal->event_start)); */
+	syslog(LOG_DEBUG, "INITIAL: %s", ctime(&Cal->event_start));
 	Put(WCC->disp_cal_items, 
 	    (char*) &Cal->event_start,
 	    sizeof(Cal->event_start), 
@@ -509,7 +509,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
 	 * stops or some outer bound is reached.  The display code will automatically do the Right Thing.
 	 */
-	cptr = cal;
+	cptr = event;
 	if (icalcomponent_isa(cptr) != ICAL_VEVENT_COMPONENT) {
 		cptr = icalcomponent_get_first_component(cptr, ICAL_VEVENT_COMPONENT);
 	}
@@ -531,7 +531,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 			/* Note: anything we do here, we also have to do above for the root event. */
 			Cal = (disp_cal*) malloc(sizeof(disp_cal));
 			memset(Cal, 0, sizeof(disp_cal));
-			Cal->cal = icalcomponent_new_clone(cal);
+			Cal->cal = icalcomponent_new_clone(event);
 			Cal->unread = unread;
 			len = strlen(from);
 			Cal->from = (char*)malloc(len+ 1);
@@ -545,26 +545,38 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
 			}
 			if (cptr) {
-				ps = icalcomponent_get_first_property(cptr, ICAL_DTSTART_PROPERTY);
-				if (ps != NULL) {
+
+				/* Remove any existing DTSTART properties */
+				while (	ps = icalcomponent_get_first_property(cptr, ICAL_DTSTART_PROPERTY),
+					ps != NULL
+				) {
+					syslog(LOG_DEBUG, "Removing old dtstart");
 					icalcomponent_remove_property(cptr, ps);
-					ps = icalproperty_new_dtstart(next);
-					icalcomponent_add_property(cptr, ps);
-	
-					Cal->event_start = icaltime_as_timet(next);
-					final_recurrence = Cal->event_start;
+					syslog(LOG_DEBUG, "Removed old dtstart");
 				}
 
-				ps = icalcomponent_get_first_property(cptr, ICAL_DTEND_PROPERTY);
-				if (ps != NULL) {
+				/* Add our shiny new DTSTART property from the iteration */
+				syslog(LOG_DEBUG, "Adding new dtstart");
+				ps = icalproperty_new_dtstart(next);
+				icalcomponent_add_property(cptr, ps);
+				Cal->event_start = icaltime_as_timet(next);
+				final_recurrence = Cal->event_start;
+				syslog(LOG_DEBUG, "Added new dtstart");
+
+				/* Remove any existing DTEND properties */
+				while (	ps = icalcomponent_get_first_property(cptr, ICAL_DTEND_PROPERTY),
+					(ps != NULL)
+				) {
+					syslog(LOG_DEBUG, "Removing old dtend");
 					icalcomponent_remove_property(cptr, ps);
-	
-					/* Make a new dtend */
-					ps = icalproperty_new_dtend(icaltime_add(next, dur));
-		
-					/* and stick it somewhere */
-					icalcomponent_add_property(cptr, ps);
+					syslog(LOG_DEBUG, "Removed old dtend");
 				}
+
+				/* Add our shiny new DTEND property from the iteration */
+				syslog(LOG_DEBUG, "Adding new dtend");
+				ps = icalproperty_new_dtend(icaltime_add(next, dur));
+				icalcomponent_add_property(cptr, ps);
+				syslog(LOG_DEBUG, "Added new dtend");
 
 			}
 
@@ -579,9 +591,17 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				}
 			}
 
-			if ( (Cal->event_start > calv->lower_bound)
-			   && (Cal->event_start < calv->upper_bound) ) {
-				/* syslog(LOG_DEBUG, "\033[31mREPEATS: %s\033[0m", ctime(&Cal->event_start)); */
+			if (	(Cal->event_start > calv->lower_bound)
+				&& (Cal->event_start < calv->upper_bound)
+			) {
+
+/* FIXME we are getting two different timestamps here and that's why it is not working */
+				syslog(LOG_DEBUG, "REPEATS: %s", ctime(&Cal->event_start));
+				time_t foo;
+				foo = icaltime_as_timet(icalproperty_get_dtstart(icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY)));
+				syslog(LOG_DEBUG, "REPEATZ: %s", ctime(&foo));
+
+
 				Put(WCC->disp_cal_items, 
 					(char*) &Cal->event_start,
 					sizeof(Cal->event_start), 
@@ -598,10 +618,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 		}
 	}
 	icalrecur_iterator_free(ritr);
-	/* syslog(9, "\033[34mPerformed %d recurrences; final one is %s\033[0m",
-		num_recur, ctime(&final_recurrence)
-	); */
-
+	/* syslog(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
 }
 
 
