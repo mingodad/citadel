@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <arpa/inet.h>
-#include <libcitadel.h>
 
 #define LIBCITADEL_VERSION_NUMBER	789
 
