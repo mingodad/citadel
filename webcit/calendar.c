@@ -1,7 +1,7 @@
 /*
  * Functions which handle calendar objects and their processing/display.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -413,7 +413,7 @@ void delete_cal(void *vCal)
  * any iCalendar objects and store them in a hash table.  Later on, the second phase will
  * use this hash table to render the calendar for display.
  */
-void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread, calview *calv)
+void display_individual_cal(icalcomponent *event, long msgnum, char *from, int unread, calview *calv)
 {
 	icalproperty *ps = NULL;
 	struct icaltimetype dtstart, dtend;
@@ -432,22 +432,29 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	int num_recur = 0;
 	int stop_rr = 0;
 
+	/* first and foremost, check for bogosity.  bail if we see no DTSTART property */
+
+	if (icalcomponent_get_first_property(icalcomponent_get_first_component(
+		event, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY) == NULL)
+	{
+		return;
+	}
+
+	/* ok, chances are we've got a live one here.  let's try to figure out where it goes. */
+
 	dtstart = icaltime_null_time();
 	dtend = icaltime_null_time();
 	
-	if (WCC->disp_cal_items == NULL)
+	if (WCC->disp_cal_items == NULL) {
 		WCC->disp_cal_items = NewHash(0, Flathash);
+	}
 
 	/* Note: anything we do here, we also have to do below for the recurrences. */
 	Cal = (disp_cal*) malloc(sizeof(disp_cal));
 	memset(Cal, 0, sizeof(disp_cal));
-	Cal->cal = icalcomponent_new_clone(cal);
+	Cal->cal = icalcomponent_new_clone(event);
 
 	/* Dezonify and decapsulate at the very last moment */
-	/* syslog(9, "INITIAL: %s\n", icaltime_as_ical_string(icalproperty_get_dtstart(
-		icalcomponent_get_first_property(icalcomponent_get_first_component(
-		Cal->cal, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY)))
-	); */
 	ical_dezonify(Cal->cal);
 	if (icalcomponent_isa(Cal->cal) != ICAL_VEVENT_COMPONENT) {
 		cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
@@ -482,6 +489,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	}
 
 	/* Store it in the hash list. */
+	/* syslog(LOG_DEBUG, "INITIAL: %s", ctime(&Cal->event_start)); */
 	Put(WCC->disp_cal_items, 
 	    (char*) &Cal->event_start,
 	    sizeof(Cal->event_start), 
@@ -501,7 +509,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
 	 * stops or some outer bound is reached.  The display code will automatically do the Right Thing.
 	 */
-	cptr = cal;
+	cptr = event;
 	if (icalcomponent_isa(cptr) != ICAL_VEVENT_COMPONENT) {
 		cptr = icalcomponent_get_first_component(cptr, ICAL_VEVENT_COMPONENT);
 	}
@@ -519,12 +527,11 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 		++num_recur;
 		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
 			icalcomponent *cptr;
-			/* syslog(9, "REPEATS: %s\n", icaltime_as_ical_string(next)); */
 
 			/* Note: anything we do here, we also have to do above for the root event. */
 			Cal = (disp_cal*) malloc(sizeof(disp_cal));
 			memset(Cal, 0, sizeof(disp_cal));
-			Cal->cal = icalcomponent_new_clone(cal);
+			Cal->cal = icalcomponent_new_clone(event);
 			Cal->unread = unread;
 			len = strlen(from);
 			Cal->from = (char*)malloc(len+ 1);
@@ -538,26 +545,30 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
 			}
 			if (cptr) {
-				ps = icalcomponent_get_first_property(cptr, ICAL_DTSTART_PROPERTY);
-				if (ps != NULL) {
+
+				/* Remove any existing DTSTART properties */
+				while (	ps = icalcomponent_get_first_property(cptr, ICAL_DTSTART_PROPERTY),
+					ps != NULL
+				) {
 					icalcomponent_remove_property(cptr, ps);
-					ps = icalproperty_new_dtstart(next);
-					icalcomponent_add_property(cptr, ps);
-	
-					Cal->event_start = icaltime_as_timet(next);
-					final_recurrence = Cal->event_start;
 				}
 
-				ps = icalcomponent_get_first_property(cptr, ICAL_DTEND_PROPERTY);
-				if (ps != NULL) {
+				/* Add our shiny new DTSTART property from the iteration */
+				ps = icalproperty_new_dtstart(next);
+				icalcomponent_add_property(cptr, ps);
+				Cal->event_start = icaltime_as_timet(next);
+				final_recurrence = Cal->event_start;
+
+				/* Remove any existing DTEND properties */
+				while (	ps = icalcomponent_get_first_property(cptr, ICAL_DTEND_PROPERTY),
+					(ps != NULL)
+				) {
 					icalcomponent_remove_property(cptr, ps);
-	
-					/* Make a new dtend */
-					ps = icalproperty_new_dtend(icaltime_add(next, dur));
-		
-					/* and stick it somewhere */
-					icalcomponent_add_property(cptr, ps);
 				}
+
+				/* Add our shiny new DTEND property from the iteration */
+				ps = icalproperty_new_dtend(icaltime_add(next, dur));
+				icalcomponent_add_property(cptr, ps);
 
 			}
 
@@ -572,8 +583,10 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				}
 			}
 
-			if ( (Cal->event_start > calv->lower_bound)
-			   && (Cal->event_start < calv->upper_bound) ) {
+			if (	(Cal->event_start > calv->lower_bound)
+				&& (Cal->event_start < calv->upper_bound)
+			) {
+				/* syslog(LOG_DEBUG, "REPEATS: %s", ctime(&Cal->event_start)); */
 				Put(WCC->disp_cal_items, 
 					(char*) &Cal->event_start,
 					sizeof(Cal->event_start), 
@@ -591,7 +604,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	}
 	icalrecur_iterator_free(ritr);
 	/* syslog(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
-
 }
 
 
