@@ -1,7 +1,7 @@
 /*
  * Handles the HTML display of calendar items.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -188,7 +188,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 	time_t tt;
 
 	if (GetCount(WCC->disp_cal_items) == 0) {
-		wc_printf("<br><br><br>\n");
+		wc_printf("<br>\n");
 		return;
 	}
 
@@ -259,6 +259,14 @@ void calendar_month_view_display_events(int year, int month, int day)
 		 * If we determined that this event occurs today, then display it.
 	 	 */
 		if (show_event) {
+
+			/* time_t logtt = icaltime_as_timet(t);
+			syslog(LOG_DEBUG, "Match on %04d-%02d-%02d for event %x%s on %s",
+				year, month, day,
+				(int)Cal, ((all_day_event) ? " (all day)" : ""),
+				ctime(&logtt)
+			); */
+
 			p = icalcomponent_get_first_property(Cal->cal, ICAL_SUMMARY_PROPERTY);
 			if (p == NULL) {
 				p = icalproperty_new_summary(_("Untitled Event"));
