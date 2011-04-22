@@ -651,19 +651,23 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		long bufremain;
+		long bufremain = 0;
 		long baselen;
 
 		baselen = StrLength(Target);
 
 		if (Hdr->Pos == NULL)
 			Hdr->Pos = ChrPtr(Hdr->ReadBuf);
-		bufremain = StrLength(Hdr->ReadBuf) - (Hdr->Pos - ChrPtr(Hdr->ReadBuf));
 
-		if (bytes < bufremain)
-			bufremain = bytes;
-		StrBufAppendBufPlain(Target, Hdr->Pos, bufremain, 0);
-		StrBufCutLeft(Hdr->ReadBuf, bufremain);
+		if (StrLength(Hdr->ReadBuf) > 0)
+		{
+			bufremain = StrLength(Hdr->ReadBuf) - (Hdr->Pos - ChrPtr(Hdr->ReadBuf));
+			
+			if (bytes < bufremain)
+				bufremain = bytes;
+			StrBufAppendBufPlain(Target, Hdr->Pos, bufremain, 0);
+			StrBufCutLeft(Hdr->ReadBuf, bufremain);
+		}
 
 		if (bytes > bufremain) 
 		{
