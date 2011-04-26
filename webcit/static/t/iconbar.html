@@ -44,13 +44,13 @@
 <??("X",3)>
 <li id="ib_rooms" class="ib_button">
 <a class="ib_button_link" href="knrooms?template=knrooms?SortBy=byfloorroom?SortOrder=1" title="<?_("List all your accessible rooms")>">
-<img src="static/expand.gif" onClick="alert('Please do not click this button again.')">
+<img src="static/expand.gif" onClick="alert('Please do not click this button again.'); return false;">
 <span><?_("Rooms")></span>
 </a>
 </li>
 <li id="ib_users" class="ib_button">
 <a class="ib_button_link" href="do_template?template=who" title="<?_("See who is online right now")>">
-<img src="static/expand.gif" onClick="alert('Please do not click this button again.')">
+<img src="static/expand.gif" onClick="$('online_users').style.display='block'; return false;">
 <span><?_("Online users")></span>
 </a>
 <ul id="online_users">
