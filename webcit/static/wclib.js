@@ -163,9 +163,8 @@ function setupIconBar() {
     }
   }
   var online_users = document.getElementById("online_users");
-  if (online_users.offsetParent != null && online_users.offsetTop > 0) {
-    new Ajax.PeriodicalUpdater('online_users', 'do_template?template=who_iconbar', {method: 'get', frequency: 30});
-  }
+  /* FIXME is there a way to not update this div when it is not showing? */
+  new Ajax.PeriodicalUpdater('online_users', 'do_template?template=who_iconbar', {method: 'get', frequency: 30});
 }
 function changeIconBarEvent(event) {
   changeIconBar(event.target);
