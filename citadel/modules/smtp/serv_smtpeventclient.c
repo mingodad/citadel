@@ -207,7 +207,7 @@ void SetConnectStatus(AsyncIO *IO)
 		  sizeof(buf));
 
 	if (SendMsg->mx_host == NULL)
-		SendMsg->mx_host = "<no name>";
+		SendMsg->mx_host = "<no MX-Record>";
 
 	CtdlLogPrintf(CTDL_DEBUG, 
 		      "SMTP client[%ld]: connecting to %s [%s]:%d ...\n", 
@@ -275,6 +275,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			addr->sin_port   = htons(DefaultMXPort);
 			
 		}
+		SendMsg->mx_host = SendMsg->pCurrRelay->Host;
 		return mx_connect_ip(IO);
 	}
 	else // TODO: here we need to find out whether there are more mx'es, backup relay, and so on
