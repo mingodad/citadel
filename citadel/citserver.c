@@ -482,7 +482,7 @@ void cmd_iden(char *argbuf)
 	cprintf("%d Ok\n",CIT_OK);
 }
 
-
+typedef const char *ccharp;
 /*
  * display system messages or help
  */
@@ -524,15 +524,15 @@ void cmd_mesg(char *mname)
 
 	/* Otherwise, look for the requested file by name. */
 	else {
-		mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
+		mesg_locate(targ, sizeof targ, buf2, 2, (const ccharp*)dirs);
 		if (IsEmptyStr(targ)) {
 			snprintf(buf2, sizeof buf2, "%s.%d",
 							buf, CC->cs_clientdev);
 			mesg_locate(targ, sizeof targ, buf2, 2,
-							(const char **)dirs);
+				    (const ccharp*)dirs);
 			if (IsEmptyStr(targ)) {
 				mesg_locate(targ, sizeof targ, buf, 2,
-							(const char **)dirs);
+					    (const ccharp*)dirs);
 			}	
 		}
 	}
@@ -592,7 +592,7 @@ void cmd_emsg(char *mname)
 	dirs[0] = strdup(ctdl_message_dir);
 	dirs[1] = strdup(ctdl_hlp_dir);
 
-	mesg_locate(targ, sizeof targ, buf, 2, (const char**)dirs);
+	mesg_locate(targ, sizeof targ, buf, 2, (const ccharp*)dirs);
 	free(dirs[0]);
 	free(dirs[1]);
 
