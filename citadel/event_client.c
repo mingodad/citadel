@@ -129,6 +129,10 @@ void ShutDownCLient(AsyncIO *IO)
 
 	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 
+	ev_timer_stop(event_base, &IO->conn_fail);
+	ev_io_stop(event_base, &IO->conn_event);
+	ev_idle_stop(event_base, &IO->unwind_stack);
+
 	if (IO->SendBuf.fd != 0)
 	{
 		ev_io_stop(event_base, &IO->send_event);
@@ -305,7 +309,13 @@ IO_Timout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 	become_session(IO->CitContext);
 
 	assert(IO->Timeout);
-	IO->Timeout(IO);
+        switch (IO->Timeout(IO))
+	{
+	case eAbort:
+		ShutDownCLient(IO);
+	default:
+		break;
+	}
 }
 static void
 IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
@@ -317,7 +327,14 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 	become_session(IO->CitContext);
 
 	assert(IO->ConnFail);
-	IO->ConnFail(IO);
+        switch (IO->ConnFail(IO))
+	{
+	case eAbort:
+		ShutDownCLient(IO);
+	default:
+		break;
+
+	}
 }
 static void
 IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
@@ -339,7 +356,14 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		HandleInbound(IO);
 	} else if (nbytes == 0) {
 		assert(IO->Timeout);
-		IO->Timeout(IO); /* this is a timeout... */
+
+		switch (IO->Timeout(IO))
+		{
+		case eAbort:
+			ShutDownCLient(IO);
+		default:
+			break;
+		}
 		return;
 	} else if (nbytes == -1) {
 /// TODO: FD is gone. kick it.        sock_buff_invoke_free(sb, errno);
