@@ -106,6 +106,7 @@ void save_pushemail(void)
 		sms = bstr("user_sms_number");
 	}
 	Buf = NewStrBuf();
+	memset(&Room, 0, sizeof(folder));
 	if (goto_config_room(Buf, &Room) != 0) {
 		FreeStrBuf(&Buf);
 		FlushFolder(&Room);
