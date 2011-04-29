@@ -39,8 +39,6 @@ html, body {
 
 .mailbox_summary { font-size: 80% }
 
-#online_users li a { font-size: 80% !important }
-
 /* Color */
 
 body {
@@ -62,17 +60,30 @@ body {
 	background-color: #CCC;
 }
 
-#online_users li.inactiveuser a { background-color: transparent }
+#online_users li a { font-size: 80% !important }
+
+#online_users li.inactiveuser {
+	background-color: transparent;
+}
+
+#online_users li.activeuser {
+	background-color: #8B8B8B;
+}
+
+#online_users li hover { /* separate in order for override */
+	background-color: #AAAAAA !important;
+	color: #333 !important;
+}
+
+#online_users li {
+	border: none;
+	border-top: 1px solid #AAA;
+}
 
 #room_infos, #address_book_popup, .roomops_cell, .roomops_cell_edit, .mimepart {
 	background-color: #F0FFFF;
 	color: #333;
 } 
-
-#online_users:hover { /* separate in order for override */
-	background-color: #F0FFFF !important;
-	color: #333 !important;
-}
 
 #room_infos, #address_book_popup, .mimepart, .room_actions form select {
 	border: 1px solid #333;
@@ -82,11 +93,6 @@ body {
 .buttons a,.roomlist_floor,.tablabel,.treetitle {
 	color: #000;
 	font-weight: 700;
-}
-
-#online_users li {
-	border: none;
-	border-top: 1px solid #AAA;
 }
 
 .mimepart div,.required { font-weight: 700 }
@@ -393,13 +399,13 @@ a:visited { color: purple}
 	color: black;
 }
 
-#important_message, .buttons a:hover, #button li:hover, #online_users li a:hover {
+#important_message, .buttons a:hover, #button li:hover {
 	background-color: #3E65AF;
 	color: #3E65AF;
 }
 
-.button_link a, input, select, li.activeuser, .room_actions form select, .room_actions li.search input, .address_book_popup_title, input#delbutton,.attachfile, .logbuttons input,.buttons input {
-	background-color: #fbf4ca !important; /* needed for li.activeuser */
+.button_link a, input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title, input#delbutton,.attachfile, .logbuttons input,.buttons input {
+	background-color: #fbf4ca;
 }
 
 .button_link a, input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title, input#delbutton,.attachfile, .logbuttons input,.buttons input {
