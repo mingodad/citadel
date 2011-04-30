@@ -2796,7 +2796,11 @@ long send_message(struct CtdlMessage *msg) {
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
-	snprintf(msgidbuf, sizeof msgidbuf, "%010ld@%s", newmsgid, config.c_fqdn);
+	snprintf(msgidbuf, sizeof msgidbuf, "%08lX-%08lX@%s",
+		(long unsigned int) time(NULL),
+		(long unsigned int) newmsgid,
+		config.c_fqdn
+	);
 
 	/* Generate an ID if we don't have one already */
 	if (msg->cm_fields['I']==NULL) {
