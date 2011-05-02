@@ -1221,6 +1221,11 @@ HashList *iterate_get_registered_Attachments(StrBuf *Target, WCTemplputParams *T
 	return WC->attachments;
 }
 
+void get_registered_Attachments_Count(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBufAppendPrintf(Target, "%ld", GetCount (WC->attachments));
+}
+
 void servcmd_do_search(char *buf, long bufsize)
 {
 	snprintf(buf, bufsize, "MSGS SEARCH|%s", bstr("query"));
@@ -1497,6 +1502,8 @@ InitModule_MSGRENDERERS
 	/* iterate the WC->attachments; use the above tokens for their contents */
 	RegisterIterator("MSG:ATTACHNAMES", 0, NULL, iterate_get_registered_Attachments, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE, IT_NOFLAG);
+
+	RegisterNamespace("MSG:NATTACH", 0, 0, get_registered_Attachments_Count,  NULL, CTX_NONE);
 
 	/* mime renderers translate an attachment into webcit viewable html text */
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 0, 150);
