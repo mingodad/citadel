@@ -358,11 +358,14 @@ const char *GetIconFilename(char *MimeType, size_t len);
 typedef struct ParsedURL ParsedURL;
 struct ParsedURL {
 	StrBuf *URL;
+	StrBuf *UrlWithoutCred;
+	StrBuf *CurlCreds;
 	unsigned Port;
 	const char *Host;
 	const char *User;
 	const char *Pass;
 	const char *LocalPart;
+	const char *PlainUrl;
 	int IsIP;
 	int IPv6;
 	int af;
@@ -373,6 +376,7 @@ struct ParsedURL {
 
 void FreeURL(ParsedURL** Url);
 int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort);
+void CurlPrepareURL(ParsedURL *Url);
 
 /* tools */
 

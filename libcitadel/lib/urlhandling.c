@@ -23,6 +23,8 @@ void FreeURL(ParsedURL** Url)
 {
 	if (*Url != NULL) {
 		FreeStrBuf(&(*Url)->URL);
+		FreeStrBuf(&(*Url)->UrlWithoutCred);
+		FreeStrBuf(&(*Url)->CurlCreds);
 		if ((*Url)->Next != NULL)
 			FreeURL(&(*Url)->Next);
 		free(*Url);
@@ -108,4 +110,26 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 	url->IsIP = inet_pton(url->af, url->Host, &url->Addr.sin6_addr);
 	*Url = url;
 	return 1;
+}
+
+void CurlPrepareURL(ParsedURL *Url)
+{
+	if (!strcmp(ChrPtr(Url->URL), "http"))
+		Url->UrlWithoutCred = NewStrBufPlain(ChrPtr(Url->URL), -1);
+	else 
+		Url->UrlWithoutCred = NewStrBufPlain(HKEY("http://"));
+	StrBufAppendBufPlain(Url->UrlWithoutCred, Url->Host, -1, 0);
+	StrBufAppendBufPlain(Url->UrlWithoutCred, HKEY(":"), 0);
+
+	StrBufAppendPrintf(Url->UrlWithoutCred, "%u", Url->Port);
+	StrBufAppendBufPlain(Url->UrlWithoutCred, HKEY("/"), 0);
+	if (Url->LocalPart)
+		StrBufAppendBufPlain(Url->UrlWithoutCred, Url->LocalPart, -1, 0);
+	if (Url->User != NULL)
+	{
+		Url->CurlCreds = NewStrBufPlain(Url->User, -1);
+		StrBufAppendBufPlain(Url->CurlCreds, HKEY(":"), 0);
+		if (Url->Pass != NULL)
+			StrBufAppendBufPlain(Url->CurlCreds, Url->Pass, -1, 0);
+	}
 }
