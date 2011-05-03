@@ -17,7 +17,7 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb -rdynamic -MD -MP -D DEBUG -D VALGRIND
 	EXTRA_ARGS =  --with-backtrace
 else
-	CFLAGS += -O2
+	CFLAGS += -O2 -fPIC
 endif
 
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
