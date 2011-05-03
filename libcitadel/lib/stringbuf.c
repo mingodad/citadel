@@ -259,8 +259,11 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 		return -1;
 		
 	if (DestSize > 0)
-		while (NewSize <= DestSize)
+		while ((NewSize <= DestSize) && (NewSize != 0))
 			NewSize *= 2;
+
+	if (NewSize == 0)
+		return -1;
 
 	NewBuf= (char*) malloc(NewSize);
 	if (NewBuf == NULL)
@@ -393,8 +396,13 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 	else
 		CopySize = nChars;
 
-	while (Siz <= CopySize)
+	while ((Siz <= CopySize) && (Siz != 0))
 		Siz *= 2;
+
+	if (Siz == 0)
+	{
+		return NULL;
+	}
 
 	NewBuf->buf = (char*) malloc(Siz);
 	NewBuf->BufSize = Siz;
@@ -441,8 +449,13 @@ int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
 	else
 		CopySize = nChars;
 
-	while (Siz <= CopySize)
+	while ((Siz <= CopySize) && (Siz != 0))
 		Siz *= 2;
+
+	if (Siz == 0) {
+		FlushStrBuf(Buf);
+		return -1;
+	}
 
 	if (Siz != Buf->BufSize)
 		IncreaseBuf(Buf, 0, Siz);
@@ -767,7 +780,8 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 		va_end(apl);
 		newused = Offset + nWritten;
 		if (newused >= Buf->BufSize) {
-			IncreaseBuf(Buf, 1, newused);
+			if (IncreaseBuf(Buf, 1, newused) == -1)
+				return; /* TODO: error handling? */
 			newused = Buf->BufSize + 1;
 		}
 		else {
@@ -808,7 +822,8 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 		va_end(arg_ptr);
 		newused = Buf->BufUsed + nWritten;
 		if (newused >= Buf->BufSize) {
-			IncreaseBuf(Buf, 1, newused);
+			if (IncreaseBuf(Buf, 1, newused) == -1)
+				return; /* TODO: error handling? */
 			newused = Buf->BufSize + 1;
 		}
 		else {
@@ -839,7 +854,8 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 		nWritten = vsnprintf(Buf->buf, Buf->BufSize, format, arg_ptr);
 		va_end(arg_ptr);
 		if (nWritten >= Buf->BufSize) {
-			IncreaseBuf(Buf, 0, 0);
+			if (IncreaseBuf(Buf, 0, 0) == -1)
+				return; /* TODO: error handling? */
 			nWritten = Buf->BufSize + 1;
 			continue;
 		}
@@ -1222,7 +1238,7 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 	//cit_backtrace();
 	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 
-	while ((s<e) && !IsEmptyStr(s)) {
+	while ((s < e) && !IsEmptyStr(s)) {
 		if (*s == separator) {
 			++current_token;
 		}
@@ -1507,7 +1523,7 @@ int StrBufSkip_NTokenS(const StrBuf *Source, const char **pStart, char separator
 	//cit_backtrace();
 	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 
-	while ((s<EndBuffer) && !IsEmptyStr(s)) {
+	while ((s < EndBuffer) && !IsEmptyStr(s)) {
 		if (*s == separator) {
 			++current_token;
 		}
