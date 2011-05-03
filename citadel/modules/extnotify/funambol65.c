@@ -58,63 +58,14 @@ int notify_http_server(char *remoteurl,
 		       long MsgNum, 
 		       NotifyContext *Ctx) 
 {
-	char curl_errbuf[CURL_ERROR_SIZE];
-	char *pchs, *pche;
-	char userpass[SIZ];
+	CURLcode sta;
 	char msgnumstr[128];
 	char *buf = NULL;
-	CURL *curl;
-	CURLcode res;
-	struct curl_slist * headers=NULL;
-	char errmsg[1024] = "";
 	char *SOAPMessage = NULL;
 	char *contenttype = NULL;
 	StrBuf *ReplyBuf;
+	CURL *chnd;
 
-	curl = curl_easy_init();
-	if (!curl) {
-		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
-		return 1;
-	}
-
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-	ReplyBuf = NewStrBuf();
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
-	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_errbuf);
-
-	pchs = strchr(remoteurl, ':');
-	pche = strchr(remoteurl, '@');
-	if ((pche != NULL) && 
-	    (pchs != NULL) && 
-	    (pchs < pche) && ((pche - pchs) < SIZ)) {
-		memcpy(userpass, pchs + 3, pche - pchs - 3);
-		
-		userpass[pche - pchs - 3] = '\0';
-		curl_easy_setopt(curl, CURLOPT_HTTPAUTH, (long)CURLAUTH_BASIC);
-		curl_easy_setopt(curl, CURLOPT_USERPWD, userpass);
-
-	}
-#ifdef CURLOPT_HTTP_CONTENT_DECODING
-	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
-	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
-#endif
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
-	if (
-		(!IsEmptyStr(config.c_ip_addr))
-		&& (strcmp(config.c_ip_addr, "*"))
-		&& (strcmp(config.c_ip_addr, "::"))
-		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
-	) {
-		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
-	}
-
-	headers = curl_slist_append(headers,"Accept: application/soap+xml, application/mime, multipart/related, text/*");
-	headers = curl_slist_append(headers,"Pragma: no-cache");
 
 	if (tlen > 0) {
 		/* Load the template message. Get mallocs done too */
@@ -131,7 +82,7 @@ int notify_http_server(char *remoteurl,
 			CtdlLogPrintf(CTDL_ERR, buf);
 
 			CtdlAideMessage(buf, "External notifier unable to find message template!");
-			goto free;
+			goto abort;
 		}
 		mimetype = GuessMimeByFilename(template, tlen);
 
@@ -156,7 +107,7 @@ int notify_http_server(char *remoteurl,
 			CtdlLogPrintf(CTDL_ERR, buf);
 
 			CtdlAideMessage(buf, "External notifier unable to load message template!");
-			goto free;
+			goto abort;
 		}
 		// Do substitutions
 		help_subst(SOAPMessage, "^notifyuser", user);
@@ -164,62 +115,111 @@ int notify_http_server(char *remoteurl,
 		help_subst(SOAPMessage, "^msgid", msgid);
 		help_subst(SOAPMessage, "^msgnum", msgnumstr);
 
-		curl_easy_setopt(curl, CURLOPT_URL, remoteurl);
-
 		/* pass our list of custom made headers */
 
 		contenttype=(char*) malloc(40+strlen(mimetype));
 		sprintf(contenttype,"Content-Type: %s; charset=utf-8", mimetype);
 
-		headers = curl_slist_append(headers, "SOAPAction: \"\"");
-		headers = curl_slist_append(headers, contenttype);
+		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "SOAPAction: \"\"");
+		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, contenttype);
+		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
+		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Pragma: no-cache");
 
 		/* Now specify the POST binary data */
-
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, SOAPMessage);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(SOAPMessage));
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		Ctx->HTTPData.PlainPostData = SOAPMessage;
+		Ctx->HTTPData.PlainPostDataLen = strlen(SOAPMessage);
 	}
 	else {
 		help_subst(remoteurl, "^notifyuser", user);
 		help_subst(remoteurl, "^syncsource", config.c_funambol_source);
 		help_subst(remoteurl, "^msgid", msgid);
 		help_subst(remoteurl, "^msgnum", msgnumstr);
-		curl_easy_setopt(curl, CURLOPT_URL, remoteurl);
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
+		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Pragma: no-cache");
 	}
 
-	res = curl_easy_perform(curl);
-	if (res) {
-		StrBuf *ErrMsg;
-
-		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", res, errmsg);
-		ErrMsg = NewStrBufPlain(HKEY("Error sending your Notification\n"));
-		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %d: %s\n", res, errmsg);
-		StrBufAppendBufPlain(ErrMsg, curl_errbuf, -1, 0);
-		StrBufAppendBufPlain(ErrMsg, HKEY("\nWas Trying to send: \n"), 0);
-		StrBufAppendBufPlain(ErrMsg, remoteurl, -1, 0);
-		if (tlen > 0) {
-			StrBufAppendBufPlain(ErrMsg, HKEY("\nThe Post document was: \n"), 0);
-			StrBufAppendBufPlain(ErrMsg, SOAPMessage, -1, 0);
-			StrBufAppendBufPlain(ErrMsg, HKEY("\n\n"), 0);			
-		}
-		if (StrLength(ReplyBuf) > 0) {			
-			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThe Serverreply was: \n\n"), 0);
-			StrBufAppendBuf(ErrMsg, ReplyBuf, 0);
-		}
-		else 
-			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThere was no Serverreply.\n\n"), 0);
-		ExtNotify_PutErrorMessage(Ctx, ErrMsg);
+	ParseURL(&Ctx->HTTPData.URL, NewStrBufPlain (remoteurl, -1), 80);
+	CurlPrepareURL(Ctx->HTTPData.URL);
+	int CallBack;
+	if (! evcurl_init(&Ctx->HTTPData, 
+			  Ctx, 
+			  "Citadel ExtNotify",
+			  CallBack))
+	{
+		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		goto abort;
+	}
+	chnd = Ctx->HTTPData.chnd;
+	OPT(SSL_VERIFYPEER, 0);
+	OPT(SSL_VERIFYHOST, 0);
+/*
+	ReplyBuf = NewStrBuf();
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
+*/
+	if (
+		(!IsEmptyStr(config.c_ip_addr))
+		&& (strcmp(config.c_ip_addr, "*"))
+		&& (strcmp(config.c_ip_addr, "::"))
+		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
+	) {
+		OPT(INTERFACE, config.c_ip_addr);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Funambol notified\n");
-free:
-	curl_slist_free_all (headers);
-	curl_easy_cleanup(curl);
+	evcurl_handle_start(&Ctx->HTTPData);
+
+	return 0;
+abort:
+///	curl_slist_free_all (headers);
+///	curl_easy_cleanup(curl);
 	if (contenttype) free(contenttype);
 	if (SOAPMessage != NULL) free(SOAPMessage);
 	if (buf != NULL) free(buf);
 	FreeStrBuf (&ReplyBuf);
+	return 1;
+}
+
+
+
+int EvaluateResult(NotifyContext *Ctx, int res, int b)
+{
+	if (res) {
+		StrBuf *ErrMsg;
+
+		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", 
+			      res, 
+			      Ctx->HTTPData.errdesc);
+		ErrMsg = NewStrBufPlain(HKEY("Error sending your Notification\n"));
+		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %d: %s\n", 
+				   res, 
+				   Ctx->HTTPData.errdesc);
+///		StrBufAppendBufPlain(ErrMsg, curl_errbuf, -1, 0);
+		StrBufAppendBufPlain(ErrMsg, HKEY("\nWas Trying to send: \n"), 0);
+		StrBufAppendBufPlain(ErrMsg, Ctx->HTTPData.URL->PlainUrl, -1, 0);
+		if (Ctx->HTTPData.PlainPostDataLen > 0) {
+			StrBufAppendBufPlain(ErrMsg, HKEY("\nThe Post document was: \n"), 0);
+			StrBufAppendBufPlain(ErrMsg, 
+					     Ctx->HTTPData.PlainPostData, 
+					     Ctx->HTTPData.PlainPostDataLen, 0);
+			StrBufAppendBufPlain(ErrMsg, HKEY("\n\n"), 0);			
+		}
+		if (StrLength(Ctx->HTTPData.ReplyData) > 0) {			
+			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThe Serverreply was: \n\n"), 0);
+			StrBufAppendBuf(ErrMsg, Ctx->HTTPData.ReplyData, 0);
+		}
+		else 
+			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThere was no Serverreply.\n\n"), 0);
+		///ExtNotify_PutErrorMessage(Ctx, ErrMsg);
+		CtdlAideMessage(ChrPtr(ErrMsg), "External notifier unable to load message template!");
+	}
+
+	CtdlLogPrintf(CTDL_DEBUG, "Funambol notified\n");
+
+////	curl_slist_free_all (headers);
+///	curl_easy_cleanup(curl);
+	///if (contenttype) free(contenttype);
+	///if (SOAPMessage != NULL) free(SOAPMessage);
+	///if (buf != NULL) free(buf);
+	///FreeStrBuf (&ReplyBuf);
 	return 0;
 }

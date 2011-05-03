@@ -18,9 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+#include "../curl/serv_curl.h"
 
 #define FUNAMBOL_CONFIG_TEXT "funambol"
 #define PAGER_CONFIG_MESSAGE "__ Push email settings __"
@@ -32,6 +30,7 @@ extern "C" {
 typedef struct _NotifyContext {
 	StrBuf **NotifyHostList;
 	HashList *NotifyErrors;
+	evcurl_request_data HTTPData;
 } NotifyContext;
 
 int notify_http_server(char *remoteurl, 
@@ -48,8 +47,5 @@ void extNotify_getPrefs(long configMsgNum, char *configMsg);
 long extNotify_getConfigMessage(char *username);
 void process_notify(long msgnum, void *usrdata);
 
-#ifdef	__cplusplus
-}
-#endif
 
 

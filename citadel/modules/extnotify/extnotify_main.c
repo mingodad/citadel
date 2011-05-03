@@ -164,7 +164,7 @@ void do_extnotify_queue(void)
 
 	NotifyContext Ctx;
 	static int doing_queue = 0;
-	int i = 0;
+	//int i = 0;
     
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -189,7 +189,7 @@ void do_extnotify_queue(void)
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
 			   SPOOLMIME, NULL, process_notify, &Ctx);
-
+/*
 	while ((Ctx.NotifyHostList != NULL) && (Ctx.NotifyHostList[i] != NULL))
 		FreeStrBuf(&Ctx.NotifyHostList[i]);
 
@@ -212,7 +212,7 @@ void do_extnotify_queue(void)
 		DeleteHashPos(&It);
 		DeleteHash(&Ctx.NotifyErrors);
 	}
-
+*/
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
 	doing_queue = 0;
 }
