@@ -1,8 +1,8 @@
 /*
  * XMPP (Jabber) service for the Citadel system
- * Copyright (c) 2007-2010 by Art Cancro
+ * Copyright (c) 2007-2011 by Art Cancro
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -57,7 +57,29 @@
 #include "ctdl_module.h"
 #include "serv_xmpp.h"
 
+#if XML_MAJOR_VERSION > 0
+/* XML_StopParser is present in expat 2.x */
+#define HAVE_XML_STOPPARSER
+#endif
+
 struct xmpp_event *xmpp_queue = NULL;
+
+
+
+#ifdef HAVE_XML_STOPPARSER
+/* Stop the parser if an entity declaration is hit. */
+static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
+				int is_parameter_entity, const XML_Char *value,
+				int value_length, const XML_Char *base,
+				const XML_Char *systemId, const XML_Char *publicId,
+				const XML_Char *notationName
+) {
+	syslog(LOG_WARNING, "Illegal entity declaration encountered; stopping parser.");
+	XML_StopParser(XMPP->xp, XML_FALSE);
+}
+#endif
+
+
 
 /*
  * Given a source string and a target buffer, returns the string
@@ -531,6 +553,17 @@ void xmpp_greeting(void) {
 	XML_SetElementHandler(XMPP->xp, xmpp_xml_start, xmpp_xml_end);
 	XML_SetCharacterDataHandler(XMPP->xp, xmpp_xml_chardata);
 	// XML_SetUserData(XMPP->xp, something...);
+
+	/* Prevent the "billion laughs" attack against expat by disabling
+	 * internal entity expansion.  With 2.x, forcibly stop the parser
+	 * if an entity is declared - this is safer and a more obvious
+	 * failure mode.  With older versions, simply prevent expansion
+	 * of such entities. */
+#ifdef HAVE_XML_STOPPARSER
+	XML_SetEntityDeclHandler(XMPP->xp, xmpp_entity_declaration);
+#else
+	XML_SetDefaultHandler(XMPP->xp, NULL);
+#endif
 
 	CC->can_receive_im = 1;		/* This protocol is capable of receiving instant messages */
 }
