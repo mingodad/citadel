@@ -48,6 +48,7 @@ void cal_process_object(StrBuf *Target,
 	int is_update = 0;
 	char divname[32];
 	static int divcount = 0;
+	const char *ch;
 
 	sprintf(divname, "rsvp%04x", ++divcount);
 
@@ -182,11 +183,11 @@ void cal_process_object(StrBuf *Target,
 		StrBufAppendPrintf(Target, "<dt>");
 		StrBufAppendPrintf(Target, _("Attendee:"));
 		StrBufAppendPrintf(Target, "</dt><dd>");
-		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
-		if (!strncasecmp(buf, "MAILTO:", 7)) {
+		ch = icalproperty_get_attendee(p);
+		if ((ch != NULL) && !strncasecmp(buf, "MAILTO:", 7)) {
 
 			/** screen name or email address */
-			strcpy(buf, &buf[7]);
+			safestrncpy(buf, ch + 7, sizeof(buf));
 			striplt(buf);
 			StrEscAppend(Target, NULL, buf, 0, 0);
 			StrBufAppendPrintf(Target, " ");
