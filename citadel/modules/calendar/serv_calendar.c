@@ -179,6 +179,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	icalparameter *partstat = NULL;
 	char *serialized_reply = NULL;
 	char *reply_message_text = NULL;
+	const char *ch;
 	struct CtdlMessage *msg = NULL;
 	struct recptypes *valid = NULL;
 
@@ -208,22 +209,20 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 		while (attendee = icalcomponent_get_first_property(vevent,
 		    ICAL_ATTENDEE_PROPERTY), (attendee != NULL)
 		) {
-			if (icalproperty_get_attendee(attendee)) {
-				strcpy(attendee_string,
-					icalproperty_get_attendee(attendee) );
-				if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
-					strcpy(attendee_string, &attendee_string[7]);
-					striplt(attendee_string);
-					recp = validate_recipients(attendee_string, NULL, 0);
-					if (recp != NULL) {
-						if (!strcasecmp(recp->recp_local, CC->user.fullname)) {
-							if (me_attend) icalproperty_free(me_attend);
-							me_attend = icalproperty_new_clone(attendee);
-						}
-						free_recipients(recp);
+			ch = icalproperty_get_attendee(attendee);
+			if ((ch != NULL) && !strncasecmp(ch, "MAILTO:", 7)) {
+				safestrncpy(attendee_string, ch + 7, sizeof (attendee_string));
+				striplt(attendee_string);
+				recp = validate_recipients(attendee_string, NULL, 0);
+				if (recp != NULL) {
+					if (!strcasecmp(recp->recp_local, CC->user.fullname)) {
+						if (me_attend) icalproperty_free(me_attend);
+						me_attend = icalproperty_new_clone(attendee);
 					}
+					free_recipients(recp);
 				}
 			}
+
 			/* Remove it... */
 			icalcomponent_remove_property(vevent, attendee);
 			icalproperty_free(attendee);
@@ -538,10 +537,13 @@ STARTOVER:
 
 			/* Check to see if these two attendees match...
 			 */
-			if (!strcasecmp(
-			   icalproperty_get_attendee(e_attendee),
-			   icalproperty_get_attendee(r_attendee)
-			)) {
+			const char *e, *r;
+			e = icalproperty_get_attendee(e_attendee);
+			r = icalproperty_get_attendee(r_attendee);
+
+			if ((e != NULL) && 
+			    (r != NULL) && 
+			    !strcasecmp(e, r)) {
 				/* ...and if they do, remove the attendee from the event
 				 * and replace it with the attendee from the reply.  (The
 				 * reply's copy will have the same address, but an updated
@@ -2032,19 +2034,17 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	/* Determine who the recipients of this message are (the attendees) */
 	strcpy(attendees_string, "");
 	for (attendee = icalcomponent_get_first_property(the_request, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(the_request, ICAL_ATTENDEE_PROPERTY)) {
-		if (icalproperty_get_attendee(attendee)) {
-			safestrncpy(this_attendee, icalproperty_get_attendee(attendee), sizeof this_attendee);
-			if (!strncasecmp(this_attendee, "MAILTO:", 7)) {
-				strcpy(this_attendee, &this_attendee[7]);
-
-				if (!CtdlIsMe(this_attendee, sizeof this_attendee)) {	/* don't send an invitation to myself! */
-					snprintf(&attendees_string[strlen(attendees_string)],
-						sizeof(attendees_string) - strlen(attendees_string),
-						"%s, ",
-						this_attendee
+		const char *ch = icalproperty_get_attendee(attendee);
+		if ((ch != NULL) && !strncasecmp(ch, "MAILTO:", 7)) {
+			safestrncpy(this_attendee, ch + 7, sizeof(this_attendee));
+			
+			if (!CtdlIsMe(this_attendee, sizeof this_attendee)) {	/* don't send an invitation to myself! */
+				snprintf(&attendees_string[strlen(attendees_string)],
+					 sizeof(attendees_string) - strlen(attendees_string),
+					 "%s, ",
+					 this_attendee
 					);
-					++num_attendees;
-				}
+				++num_attendees;
 			}
 		}
 	}
@@ -2499,6 +2499,7 @@ void ical_fixed_output_backend(icalcomponent *cal,
 	icalcomponent *c;
 	icalproperty *p;
 	char buf[256];
+	const char *ch;
 
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
@@ -2517,11 +2518,12 @@ void ical_fixed_output_backend(icalcomponent *cal,
 
 	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
-		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
-		if (!strncasecmp(buf, "MAILTO:", 7)) {
+		ch =  icalproperty_get_attendee(p);
+		if ((ch != NULL) && 
+		    !strncasecmp(ch, "MAILTO:", 7)) {
 
 			/* screen name or email address */
-			strcpy(buf, &buf[7]);
+			safestrncpy(buf, ch + 7, sizeof(buf));
 			striplt(buf);
 			cprintf("%s ", buf);
 		}
