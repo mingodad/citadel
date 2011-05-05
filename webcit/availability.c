@@ -211,6 +211,7 @@ void check_attendee_availability(icalcomponent *vevent) {
 	char attendee_string[SIZ];
 	char annotated_attendee_string[SIZ];
 	char annotation[SIZ];
+	const char *ch;
 
 	if (vevent == NULL) {
 		return;
@@ -250,12 +251,11 @@ void check_attendee_availability(icalcomponent *vevent) {
 	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY);
 	    attendee != NULL;
 	    attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
-
-		strcpy(attendee_string, icalproperty_get_attendee(attendee));
-		if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
+		ch = icalproperty_get_attendee(attendee);
+		if ((ch != NULL) && !strncasecmp(ch, "MAILTO:", 7)) {
 
 			/** screen name or email address */
-			strcpy(attendee_string, &attendee_string[7]);
+			safestrncpy(attendee_string, ch + 7, sizeof(attendee_string));
 			striplt(attendee_string);
 
 			check_individual_attendee(attendee_string,
