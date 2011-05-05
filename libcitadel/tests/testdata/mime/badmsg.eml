@@ -1,0 +1,145 @@
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:03:50 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000020@in.fostral.net>
+From: "Citadel" <citadel@fostral.net>
+Content-type: multipart/mixed; boundary="=_Citadel_Multipart_in.fostral.net_27260005"
+MIME-Version: 1.0
+X-Mailer: Citadel 7.37
+
+This is a multipart message in MIME format.
+
+--=_Citadel_Multipart_in.fostral.net_27260005
+Content-type: text/plain
+
+A message you sent could not be delivered to some or all of its recipients.
+The following addresses were undeliverable:
+
+message-archive@fostral.net: 5.1.1 <message-archive@fostral.net>: Recipient address rejected: User unknown in virtual mailbox table
+--=_Citadel_Multipart_in.fostral.net_27260005
+Content-type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:02:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000017@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="--Citadel-Journal-4b660c19-0004--"
+Content-Identifer: ExJournalReport
+MIME-Version: 1.0
+
+----Citadel-Journal-4b660c19-0004--
+Content-type: text/plain
+
+Sender: Citadel @ in
+Message-ID: <0000000013@in.fostral.net>
+Recipients:
+
+----Citadel-Journal-4b660c19-0004--
+Content-type: message/rfc822
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:02:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000013@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="=_Citadel_Multipart_in.fostral.net_27260002"
+MIME-Version: 1.0
+X-Mailer: Citadel 7.37
+
+This is a multipart message in MIME format.
+
+--=_Citadel_Multipart_in.fostral.net_27260002
+Content-type: text/plain
+
+A message you sent could not be delivered to some or all of its recipients.
+The following addresses were undeliverable:
+
+message-archive@fostral.net: 5.1.1 <message-archive@fostral.net>: Recipient address rejected: User unknown in virtual mailbox table
+--=_Citadel_Multipart_in.fostral.net_27260002
+Content-type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:01:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000008@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="--Citadel-Journal-4b660bdd-0001--"
+Content-Identifer: ExJournalReport
+MIME-Version: 1.0
+
+----Citadel-Journal-4b660bdd-0001--
+Content-type: text/plain
+
+Sender: Citadel @ in
+Message-ID: <0000000007@in.fostral.net>
+Recipients:
+
+----Citadel-Journal-4b660bdd-0001--
+Content-type: message/rfc822
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:01:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000007@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="=_Citadel_Multipart_in.fostral.net_27260001"
+MIME-Version: 1.0
+X-Mailer: Citadel 7.37
+
+This is a multipart message in MIME format.
+
+--=_Citadel_Multipart_in.fostral.net_27260001
+Content-type: text/plain
+
+A message you sent could not be delivered to some or all of its recipients.
+The following addresses were undeliverable:
+
+message-archive@fostral.net: 5.1.1 <message-archive@fostral.net>: Recipient address rejected: User unknown in virtual mailbox table
+--=_Citadel_Multipart_in.fostral.net_27260001
+Content-type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 22:59:47 -0000
+Subject: Citadel Configuration Manager Message
+Message-ID: <0000000005@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="--Citadel-Journal-4b660b63-0001--"
+Content-Identifer: ExJournalReport
+MIME-Version: 1.0
+
+----Citadel-Journal-4b660b63-0001--
+Content-type: text/plain
+
+Sender: Citadel @ in
+Message-ID: <0000000004@in.fostral.net>
+Recipients:
+
+----Citadel-Journal-4b660b63-0001--
+Content-type: message/rfc822
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 22:59:47 -0000
+Subject: Citadel Configuration Manager Message
+Message-ID: <0000000004@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+
+The global system configuration has been edited by earthian. 
+----Citadel-Journal-4b660b63-0001----
+--=_Citadel_Multipart_in.fostral.net_27260001--
+----Citadel-Journal-4b660bdd-0001----
+--=_Citadel_Multipart_in.fostral.net_27260002--
+----Citadel-Journal-4b660c19-0004----
+--=_Citadel_Multipart_in.fostral.net_27260005--

@@ -1,0 +1,128 @@
+Received: from mi025.mc1.hosteurope.de ([80.237.138.230])
+	by wp047.webpack.hosteurope.de running ExIM with esmtp
+	id 1N7rcN-0004jX-71; Tue, 10 Nov 2009 15:22:47 +0100
+Received: from ktown.kde.org ([131.246.120.250])
+	by mx0.webpack.hosteurope.de (mi025.mc1.hosteurope.de) with smtp
+	id 1N7rcM-0005Uj-S7
+	for frank@fthieme.net; Tue, 10 Nov 2009 15:22:47 +0100
+Received: (qmail 12260 invoked by uid 72); 10 Nov 2009 14:22:39 -0000
+Received: (qmail 12176 invoked from network); 10 Nov 2009 14:22:34 -0000
+X-Spam-Checker-Version: SpamAssassin 3.2.5 (2008-06-10) on ktown.kde.org
+Received: from unknown (HELO black1.koffiedik.net) (84.243.219.213)
+	by ktown.kde.org with SMTP; 10 Nov 2009 14:22:33 -0000
+Received: from ip4da20cb2.direct-adsl.nl ([77.162.12.178]
+	helo=karolina.localnet)
+	by black1.koffiedik.net with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.63) (envelope-from <subscribe@juriansluiman.nl>)
+	id 1N7rbW-0006pX-0u
+	for kdepim-users@kde.org; Tue, 10 Nov 2009 15:21:54 +0100
+User-Agent: KMail/1.12.2 (Linux/2.6.31-14-generic; KDE/4.3.2; i686; ; )
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_+bX+KiuOrHKudpp"
+X-BeenThere: kdepim-users@kde.org
+X-Mailman-Version: 2.1.9
+Precedence: list
+List-Unsubscribe: <https://mail.kde.org/mailman/listinfo/kdepim-users>,
+	<mailto:kdepim-users-request@kde.org?subject=unsubscribe>
+List-Post: <mailto:kdepim-users@kde.org>
+List-Help: <mailto:kdepim-users-request@kde.org?subject=help>
+List-Subscribe: <https://mail.kde.org/mailman/listinfo/kdepim-users>,
+	<mailto:kdepim-users-request@kde.org?subject=subscribe>
+X-HE-Virus-Scanned: yes
+X-HE-Spam-Level: /
+X-HE-Spam-Score: -0.4
+X-HE-Spam-Report: Content analysis details:   (-0.4 points)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.6 J_CHICKENPOX_33        BODY: 3alpha-pock-3alpha
+	-1.0 RCVD_IN_DNSWL_LOW      RBL: Sender listed at http://www.dnswl.org/, low
+	trust
+	[131.246.120.250 listed in list.dnswl.org]
+	0.0 RDNS_NONE              Delivered to trusted network by a host with no rDNS
+
+
+--Boundary-00=_+bX+KiuOrHKudpp
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+
+On Tuesday 10 Nov 2009 14:48:58 Kevin Krammer wrote:
+> std.vcf is the default addressbook file.
+> std.ics is the default calendar file.
+> 
+> Jurian mixed up vcard (addressbook) and whatever format he used for
+>  calendar export (probably ICAL)
+> 
+> Cheers,
+> Kevin
+> 
+
+Hi Kevin,
+Thanks for your tip! Afaik I do have the calendar in a vcard format. I 
+stripped down the file with all personal data and left only one task and one 
+event inside it. That file is attached. As far as I know this file is a vcal, or 
+am I wrong?
+
+Regards, Jurian
+-- 
+Jurian Sluiman
+CTO Soflomo V.O.F.
+http://soflomo.com
+
+--Boundary-00=_+bX+KiuOrHKudpp
+Content-Type: text/calendar;
+  charset="UTF-8";
+  name="test.ics"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="test.ics"
+
+BEGIN:VCALENDAR
+PRODID:-//K Desktop Environment//NONSGML libkcal 3.5//EN
+VERSION:1.0
+BEGIN:VTODO
+DUE:20091214T080000Z
+DCREATED:20091006T200815Z
+UID:libkcal-1845621325.324
+SEQUENCE:0
+LAST-MODIFIED:20091006T200815Z
+X-ORGANIZER:MAILTO:my@mail.com
+DESCRIPTION:Description of something
+SUMMARY:This is a summery
+STATUS:NEEDS_ACTION
+PRIORITY:5
+CATEGORIES:Things
+END:VTODO
+
+BEGIN:VEVENT
+DTSTART:20091010T000000
+DTEND:20091011T000000
+DCREATED:20090728T202936Z
+UID:libkcal-750119894.644
+SEQUENCE:1
+LAST-MODIFIED:20090728T202945Z
+X-ORGANIZER:MAILTO:my@mail.com
+ATTENDEE;RSVP=FALSE;STATUS=ACCEPTED:MAILTO:My Name <my@mail.com>
+SUMMARY:A summery of this event
+CLASS:PUBLIC
+PRIORITY:0
+TRANSP:0
+END:VEVENT
+
+END:VCALENDAR
+
+
+--Boundary-00=_+bX+KiuOrHKudpp
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+KDE PIM users mailing list
+kdepim-users@kde.org
+https://mail.kde.org/mailman/listinfo/kdepim-users
+
+--Boundary-00=_+bX+KiuOrHKudpp--
+

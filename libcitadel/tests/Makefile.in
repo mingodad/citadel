@@ -14,7 +14,7 @@ top_builddir=`pwd`
 
 # End of configuration section
 
-TARGETS=stringbuf_test stringbuf_IO_test stringbuf_conversion_test hashlist_test mimeparser_test
+TARGETS=stringbuf_test stringbuf_IO_test stringbuf_conversion_test hashlist_test mimeparser_test mime_xdg_lookup_test
 all: $(TARGETS)
 
 
@@ -57,6 +57,12 @@ mimeparser_test:	$(LIBOBJS) mimeparser_test.o
 	mimeparser_test.o \
 	../.libs/libcitadel.a \
 	-o mimeparser_test 
+
+mime_xdg_lookup_test:   $(LIBOBJS) mime_xdg_lookup_type.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	mime_xdg_lookup_type.o \
+	../.libs/libcitadel.a \
+	-o mime_xdg_lookup_test 
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c  $<
