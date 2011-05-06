@@ -1,5 +1,21 @@
 /*
  * Displays and customizes the iconbar.
+ *
+ * Copyright (c) 1996-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -242,6 +258,21 @@ ServerStartModule_ICONBAR
 	}
 }
 
+
+int ConditionalWholistExpanded(StrBuf *Target, WCTemplputParams *TP)
+{
+	if (WC) return(WC->ib_wholist_expanded);
+	return(0);
+}
+
+
+int ConditionalRoomlistExpanded(StrBuf *Target, WCTemplputParams *TP)
+{
+	if (WC) return(WC->ib_roomlist_expanded);
+	return(0);
+}
+
+
 void 
 InitModule_ICONBAR
 (void)
@@ -252,6 +283,8 @@ InitModule_ICONBAR
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), "", 0, commit_iconbar, 0);
 	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, NULL, CTX_NONE);
+	RegisterConditional(HKEY("COND:ICONBAR:WHOLISTEXPANDED"), 0, ConditionalWholistExpanded, CTX_NONE);
+	RegisterConditional(HKEY("COND:ICONBAR:ROOMLISTEXPANDED"), 0, ConditionalRoomlistExpanded, CTX_NONE);
 
 	RegisterPreference("iconbar", _("Iconbar Setting"), PRF_STRING, LoadIconSettings);
 	l = 1;
