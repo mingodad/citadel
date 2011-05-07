@@ -557,6 +557,8 @@ struct wcsession {
 	int cache_num_floors;
 	long *IBSettingsVec;                    /* which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/* which floordiv currently expanded */
+	int ib_wholist_expanded;
+	int ib_roomlist_expanded;
 
 /* Transcoding cache buffers; used to avoid to frequent realloc */
 	StrBuf *ConvertBuf1;
