@@ -619,7 +619,7 @@ dnl Check for libevent
 AC_CHECK_HEADER(ev.h,
 	[AC_CHECK_LIB(ev, libcitadel_version_string,
 		[
-			LIBS="-lev $LIBS $SERVER_LIBS"
+			LIBS="-lev -lm $LIBS $SERVER_LIBS"
 		],
 		[
 			AC_MSG_ERROR(libev was not found or is not usable.  Please install libev.)
