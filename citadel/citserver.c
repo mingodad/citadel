@@ -106,6 +106,32 @@ void cit_backtrace(void)
 #endif
 }
 
+void cit_oneline_backtrace(void)
+{
+#ifdef HAVE_BACKTRACE
+	void *stack_frames[50];
+	size_t size, i;
+	char **strings;
+	StrBuf *Buf;
+
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	strings = backtrace_symbols(stack_frames, size);
+	if (size > 0)
+	{
+		Buf = NewStrBuf();
+		for (i = 1; i < size; i++) {
+			if (strings != NULL)
+				StrBufAppendPrintf(Buf, "%s : ", strings[i]);
+			else
+				StrBufAppendPrintf(Buf, "%p : ", stack_frames[i]);
+		}
+		free(strings);
+		CtdlLogPrintf(CTDL_ALERT, "%s\n", ChrPtr(Buf));
+		FreeStrBuf(&Buf);
+	}
+#endif
+}
+
 /*
  * print the actual stack frame.
  */

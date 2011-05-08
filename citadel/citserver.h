@@ -32,6 +32,7 @@ struct UserProcList {
 #define CTDLUSERIP      (IsEmptyStr(CC->cs_addr) ?  CC->cs_clientinfo: CC->cs_addr)
 
 void cit_backtrace(void);
+void cit_oneline_backtrace(void);
 void cit_panic_backtrace(int SigNum);
 void master_startup (void);
 void master_cleanup (int exitcode);
