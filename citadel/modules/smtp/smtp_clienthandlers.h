@@ -1,5 +1,5 @@
 typedef enum _eSMTP_C_States {
-	eConnect, 
+	eConnectMX, 
 	eEHLO,
 	eHELO,
 	eSMTPAuth,

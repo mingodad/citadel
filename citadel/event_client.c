@@ -123,12 +123,8 @@ void FreeAsyncIOContents(AsyncIO *IO)
 }
 
 
-void ShutDownCLient(AsyncIO *IO)
+void StopClientWatchers(AsyncIO *IO)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->SendBuf.fd);
-
-	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
-
 	ev_timer_stop(event_base, &IO->conn_fail);
 	ev_io_stop(event_base, &IO->conn_event);
 	ev_idle_stop(event_base, &IO->unwind_stack);
@@ -142,6 +138,15 @@ void ShutDownCLient(AsyncIO *IO)
 		IO->SendBuf.fd = 0;
 		IO->RecvBuf.fd = 0;
 	}
+}
+
+void ShutDownCLient(AsyncIO *IO)
+{
+	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->SendBuf.fd);
+	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
+
+	StopClientWatchers(IO);
+
 	if (IO->DNSChannel != NULL) {
 		ares_destroy(IO->DNSChannel);
 		ev_io_stop(event_base, &IO->dns_recv_event);
@@ -269,6 +274,9 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			}
 
 			break;
+		case eSendDNSQuery:
+		case eReadDNSReply:
+		case eConnect:
 		case eTerminateConnection:
 		case eAbort:
 			break;
@@ -293,6 +301,9 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 		become_session(IO->CitContext);
 		IO_send_callback(loop, &IO->send_event, revents);
 		break;
+	case eSendDNSQuery:
+	case eReadDNSReply:
+	case eConnect:
 	case eTerminateConnection:
 	case eAbort:
 		/// TODO: WHUT?
@@ -301,12 +312,15 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 }
 
 static void
-IO_Timout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
+IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	become_session(IO->CitContext);
+
+	close(IO->SendBuf.fd);
+	IO->SendBuf.fd = IO->RecvBuf.fd = 0;
 
 	assert(IO->Timeout);
         switch (IO->Timeout(IO))
@@ -323,7 +337,12 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	ev_timer_stop (event_base, &IO->conn_fail);
+
 	ev_io_stop(loop, &IO->conn_event);
+
+	close(IO->SendBuf.fd);
+	IO->SendBuf.fd = IO->RecvBuf.fd = 0;
+
 	become_session(IO->CitContext);
 
 	assert(IO->ConnFail);
@@ -378,7 +397,13 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	CtdlLogPrintf(CTDL_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
 
-	IO->DNSQuery->PostDNS(IO);
+	switch (IO->DNSQuery->PostDNS(IO))
+	{
+	case eAbort:
+	    ShutDownCLient(IO);
+	default:
+	    break;
+	}
 }
 
 eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_rw_timeout)
@@ -426,7 +451,7 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 
 	ev_timer_init(&IO->conn_fail, IO_connfail_callback, conn_timeout, 0);
 	IO->conn_fail.data = IO;
-	ev_timer_init(&IO->rw_timeout, IO_Timout_callback, first_rw_timeout, 0);
+	ev_timer_init(&IO->rw_timeout, IO_Timeout_callback, first_rw_timeout, 0);
 	IO->rw_timeout.data = IO;
 
 	if (IO->ConnectMe->IPv6)
@@ -435,12 +460,14 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 		rc = connect(IO->SendBuf.fd, (struct sockaddr_in *)&IO->ConnectMe->Addr, sizeof(struct sockaddr_in));
 
 	if (rc >= 0){
+		CtdlLogPrintf(CTDL_DEBUG, "connect() immediate success.\n");
 ////		freeaddrinfo(res);
 		set_start_callback(event_base, IO, 0);
 		ev_timer_start(event_base, &IO->rw_timeout);
 		return IO->NextState;
 	}
 	else if (errno == EINPROGRESS) {
+		CtdlLogPrintf(CTDL_DEBUG, "connect() have to wait now.\n");
 
 		ev_io_init(&IO->conn_event, IO_connestd_callback, IO->SendBuf.fd, EV_READ|EV_WRITE);
 		IO->conn_event.data = IO;

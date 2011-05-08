@@ -8,6 +8,9 @@
 typedef struct AsyncIO AsyncIO;
 
 typedef enum _eNextState {
+	eSendDNSQuery,
+	eReadDNSReply,
+	eConnect,
 	eSendReply, 
 	eSendMore,
 	eReadMessage, 
@@ -98,6 +101,8 @@ void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryP
 void QueryCbDone(AsyncIO *IO);
 
 void StopClient(AsyncIO *IO);
+
+void StopClientWatchers(AsyncIO *IO);
 
 void SetNextTimeout(AsyncIO *IO, double timeout);
 

@@ -101,6 +101,7 @@ void DeleteSmtpOutMsg(void *v)
 		Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
+	memset (Msg, 0, sizeof(SmtpOutMsg)); /* just to be shure... */
 	free(Msg);
 }
 
@@ -171,6 +172,8 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	 * - connection timeout 
 	 * - 
 	 */
+	StopClientWatchers(IO);
+
 	if (SendMsg->pCurrRelay != NULL)
 		SendMsg->pCurrRelay = SendMsg->pCurrRelay->Next;
 
@@ -222,6 +225,7 @@ void SetConnectStatus(AsyncIO *IO)
 		     SendMsg->mx_host,
 		     buf,
 		     SendMsg->IO.ConnectMe->Port);
+	SendMsg->IO.NextState = eConnect;
 }
 
 /*****************************************************************************
@@ -297,8 +301,9 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	CtdlLogPrintf(CTDL_DEBUG, 
-		      "SMTP client[%ld]: looking up %s : %d ...\n", 
+		      "SMTP client[%ld]: looking up %s-Record %s : %d ...\n", 
 		      SendMsg->n, 
+		      (SendMsg->pCurrRelay->IPv6)? "aaaa": "a",
 		      SendMsg->pCurrRelay->Host, 
 		      SendMsg->pCurrRelay->Port);
 
@@ -311,8 +316,10 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 		SendMsg->MyQEntry->Status = 5;
 		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
 			     "No MX hosts found for <%s>", SendMsg->node);
+		SendMsg->IO.NextState = eTerminateConnection;
 		return IO->NextState;
 	}
+	IO->NextState = eReadDNSReply;
 	return IO->NextState;
 }
 
@@ -397,7 +404,8 @@ eNextState resolve_mx_records(AsyncIO *IO)
 			     "No MX hosts found for <%s>", SendMsg->node);
 		return IO->NextState;
 	}
-	return eAbort;
+	SendMsg->IO.NextState = eReadDNSReply;
+	return IO->NextState;
 }
 
 
@@ -519,6 +527,9 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 			Timeout += StrLength(pMsg->msgtext) / 1024;
 		}
 		break;
+	case eSendDNSQuery:
+	case eReadDNSReply:
+	case eConnect:
 	case eTerminateConnection:
 	case eAbort:
 		return;
