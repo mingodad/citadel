@@ -319,8 +319,14 @@ IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	become_session(IO->CitContext);
 
-	close(IO->SendBuf.fd);
-	IO->SendBuf.fd = IO->RecvBuf.fd = 0;
+	if (IO->SendBuf.fd != 0)
+	{
+		ev_io_stop(event_base, &IO->send_event);
+		ev_io_stop(event_base, &IO->recv_event);
+		ev_timer_stop (event_base, &IO->rw_timeout);
+		close(IO->SendBuf.fd);
+		IO->SendBuf.fd = IO->RecvBuf.fd = 0;
+	}
 
 	assert(IO->Timeout);
         switch (IO->Timeout(IO))
@@ -338,11 +344,15 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 
 	ev_timer_stop (event_base, &IO->conn_fail);
 
-	ev_io_stop(loop, &IO->conn_event);
-
-	close(IO->SendBuf.fd);
-	IO->SendBuf.fd = IO->RecvBuf.fd = 0;
-
+	if (IO->SendBuf.fd != 0)
+	{
+		ev_io_stop(loop, &IO->conn_event);
+		ev_io_stop(event_base, &IO->send_event);
+		ev_io_stop(event_base, &IO->recv_event);
+		ev_timer_stop (event_base, &IO->rw_timeout);
+		close(IO->SendBuf.fd);
+		IO->SendBuf.fd = IO->RecvBuf.fd = 0;
+	}
 	become_session(IO->CitContext);
 
 	assert(IO->ConnFail);
