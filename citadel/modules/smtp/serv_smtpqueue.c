@@ -205,7 +205,7 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 
 	citthread_mutex_lock(&ActiveQItemsLock);
 	if (GetHash(ActiveQItems, 
-		    IKEY(Item->QueMsgID), 
+		    IKEY(QueMsgID), 
 		    &v))
 	{
 		/* WHOOPS. somebody else is already working on this. */
@@ -897,7 +897,7 @@ CTDL_MODULE_INIT(smtp_queu)
 #ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
 	if (!threading)
 	{
-		ActiveQItems = NewHash(1, Flathash);
+		ActiveQItems = NewHash(1, lFlathash);
 		citthread_mutex_init(&ActiveQItemsLock, NULL);
 
 		QItemHandlers = NewHash(0, NULL);
