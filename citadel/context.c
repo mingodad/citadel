@@ -363,7 +363,7 @@ void RemoveContext (CitContext *con)
 	 */
 	if (con->client_socket != 0)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Closing socket %d\n", con->client_socket);
+		yslog(LOG_NOTICE, "Closing socket %d\n", con->client_socket);
 		close(con->client_socket);
 	}
 
