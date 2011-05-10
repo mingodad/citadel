@@ -357,6 +357,16 @@ void RemoveContext (CitContext *con)
 
 	syslog(LOG_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
 
+	/* 
+	 * If the client is still connected, blow 'em away. 
+	 * if the socket is 0, its already gone or was never there.
+	 */
+	CtdlLogPrintf(CTDL_DEBUG, "Closing socket %d\n", con->client_socket);
+	if (con->client_socket != 0)
+	{
+		close(con->client_socket);
+	}
+
 	/* If using AUTHMODE_LDAP, free the DN */
 	if (con->ldap_dn) {
 		free(con->ldap_dn);
