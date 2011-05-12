@@ -363,7 +363,7 @@ void RemoveContext (CitContext *con)
 	 */
 	if (con->client_socket != 0)
 	{
-		yslog(LOG_NOTICE, "Closing socket %d\n", con->client_socket);
+		syslog(LOG_NOTICE, "Closing socket %d\n", con->client_socket);
 		close(con->client_socket);
 	}
 
