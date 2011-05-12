@@ -132,7 +132,7 @@ extern char *ssl_cipher_list;
 
 #define SIZ			4096		/* generic buffer size */
 
-#define TRACE fprintf(stderr, "\033[7mCheckpoint: %s, %d\033[0m\n", __FILE__, __LINE__)
+#define TRACE syslog(LOG_DEBUG, "CHECKPOINT: %s, %d", __FILE__, __LINE__)
 
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
