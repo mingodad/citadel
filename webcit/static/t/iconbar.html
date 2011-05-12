@@ -50,7 +50,9 @@
 </li>
 <li id="ib_users" class="ib_button">
 <a class="ib_button_link" href="do_template?template=who" title="<?_("See who is online right now")>">
-<img src="static/expand.gif" onClick="$('online_users').style.display='block'; return false;">
+<img id="expand_wholist"
+src=<?%("COND:ICONBAR:WHOLISTEXPANDED", 1, 1, 1, "static/collapse.gif", "static/expand.gif")>
+onClick="return toggle_wholist();">
 <span><?_("Online users")></span>
 </a>
 <ul id="online_users">

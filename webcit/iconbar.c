@@ -261,8 +261,10 @@ ServerStartModule_ICONBAR
 
 int ConditionalWholistExpanded(StrBuf *Target, WCTemplputParams *TP)
 {
-	if (WC) return(WC->ib_wholist_expanded);
-	return(0);
+	int r = 0;
+	if (WC) r = WC->ib_wholist_expanded;
+	syslog(LOG_DEBUG, "ConditionalWholistExpanded() returns %d", r);
+	return(r);
 }
 
 
@@ -270,6 +272,24 @@ int ConditionalRoomlistExpanded(StrBuf *Target, WCTemplputParams *TP)
 {
 	if (WC) return(WC->ib_roomlist_expanded);
 	return(0);
+}
+
+
+
+/*
+ * Toggle the wholist expanded state in session memory
+ */
+void toggle_wholist_expanded_state(void) {
+	wcsession *WCC = WC;
+
+	if (!WCC) {
+		wc_printf("no session");
+		return;
+	}
+
+	WCC->ib_wholist_expanded = IBSTR("wstate");
+	wc_printf("%d", WCC->ib_wholist_expanded);
+	syslog(LOG_DEBUG, "ib_wholist_expanded set to %d", WCC->ib_wholist_expanded);
 }
 
 
@@ -281,6 +301,7 @@ InitModule_ICONBAR
 
 	/*WebcitAddUrlHandler(HKEY("user_iconbar"), "", 0, doUserIconStylesheet, 0); */
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), "", 0, commit_iconbar, 0);
+	WebcitAddUrlHandler(HKEY("toggle_wholist_expanded_state"), "", 0, toggle_wholist_expanded_state, AJAX);
 	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:ICONBAR:WHOLISTEXPANDED"), 0, ConditionalWholistExpanded, CTX_NONE);
@@ -306,3 +327,4 @@ SessionDestroyModule_ICONBAR
 	if (sess->IBSettingsVec != NULL)
 		free(sess->IBSettingsVec);
 }
+
