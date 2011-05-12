@@ -1,21 +1,21 @@
 /*
  * Consolidate mail from remote POP3 accounts.
  *
- * Copyright (c) 2007-2009 by the citadel.org team
+ * Copyright (c) 2007-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include <stdlib.h>
@@ -895,8 +895,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	}
 	pthread_mutex_unlock(&POP3QueueMutex);
 
-	if (server_shutting_down)
-		return;
+	if (server_shutting_down) return;
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
@@ -1063,7 +1062,7 @@ void pop3client_scan(void) {
 	if (doing_pop3client) return;
 	doing_pop3client = 1;
 
-	syslog(LOG_DEBUG, "pop3client started\n");
+	syslog(LOG_DEBUG, "pop3client started");
 	CtdlForEachRoom(pop3client_scan_room, NULL);
 
 	pthread_mutex_lock(&POP3QueueMutex);
@@ -1089,7 +1088,7 @@ void pop3client_scan(void) {
 	DeleteHashPos(&it);
 	pthread_mutex_unlock(&POP3QueueMutex);
 
-	syslog(LOG_DEBUG, "pop3client ended\n");
+	syslog(LOG_DEBUG, "pop3client ended");
 	last_run = time(NULL);
 	doing_pop3client = 0;
 }
@@ -1113,6 +1112,7 @@ CTDL_MODULE_INIT(pop3client)
 		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
                 CtdlRegisterCleanupHook(pop3_cleanup);
 	}
-	/* return our Subversion id for the Log */
+
+	/* return our module id for the log */
         return "pop3client";
 }
