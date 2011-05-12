@@ -90,7 +90,7 @@ int notify_http_server(char *remoteurl,
 			snprintf(buf, SIZ, 
 				 "Cannot load template file %s [%s]won't send notification\r\n", 
 				 file_funambol_msg, strerror(errno));
-			syslog(LOG_ERR, buf);
+			syslog(LOG_ERR, "%s", buf);
 
 			CtdlAideMessage(buf, "External notifier unable to find message template!");
 			goto abort;
@@ -113,7 +113,7 @@ int notify_http_server(char *remoteurl,
 			snprintf(buf, SIZ, 
 				 "Cannot load template file %s; won't send notification\r\n", 
 				 file_funambol_msg);
-			syslog(LOG_ERR, buf);
+			syslog(LOG_ERR, "%s", buf);
 
 			CtdlAideMessage(buf, "External notifier unable to load message template!");
 			goto abort;

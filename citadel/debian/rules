@@ -11,7 +11,7 @@ export DH_OPTIONS
 
 DEB_DESTDIR = $(CURDIR)/debian/tmp
 
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -Werror=format-security 
 
 COMPILER=
 EXTRA_ARGS=
