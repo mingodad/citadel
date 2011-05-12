@@ -275,7 +275,7 @@ void FlushReadBuf (void)
 		pche = pch + len;
 		if (WCC->ReadPos != pche)
 		{
-			syslog(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %ld [%s]\n", 
+			syslog(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %d [%s]\n", 
 				pche - WCC->ReadPos, pche);
 			syslog(1, 
 				"--------------------------------------------------------------------------------\n"
@@ -921,6 +921,8 @@ SessionDestroyModule_TCPSOCKETS
 	FreeStrBuf(&sess->ReadBuf);
 	sess->ReadPos = NULL;
 	FreeStrBuf(&sess->MigrateReadLineBuf);
-	if (sess->serv_sock > 0)
+	if (sess->serv_sock > 0) {
+		syslog(LOG_DEBUG, "Closing socket %d", sess->serv_sock);
 		close(sess->serv_sock);
+	}
 }
