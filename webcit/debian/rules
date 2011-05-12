@@ -18,6 +18,7 @@ DESTDIR=$(CURDIR)/debian/citadel-webcit
 EXTRA_ARGS=
 PROFILE_ARGS=
 COMPILER=
+CFLAGS= 
 #to enable debugging: export DEB_BUILD_OPTIONS="debug profiling compression urldebug iodbg clang"
 
 ifneq (,$(findstring clang,$(DEB_BUILD_OPTIONS)))
@@ -51,7 +52,7 @@ endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config.guess
 endif
-	CC=$(COMPILER) CFLAGS="$(CFLAGS)" ./configure \
+	CC=$(COMPILER) CFLAGS=" -Wformat -Werror=format-security $(CFLAGS)" ./configure \
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/usr/sbin/ \

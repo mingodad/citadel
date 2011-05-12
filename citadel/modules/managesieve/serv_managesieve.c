@@ -464,7 +464,7 @@ void cmd_mgsve_getscript(int num_parms, char **parms, struct sdm_userdata *u)
 			slen = strlen(script_content);
 			outbuf = malloc (slen + 64);
 			snprintf(outbuf, slen + 64, "{%ld+}\r\n%s\r\nOK\r\n",slen, script_content);
-			cprintf(outbuf);
+			cprintf("%s", outbuf);
 		}
 		else
 			cprintf("No \"there is no script by that name %s \"\r\n", parms[1]);

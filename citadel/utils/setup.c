@@ -1254,6 +1254,47 @@ void check_init_script (char *relhome)
 	}
 }
 
+
+
+#define GetDefaultVALINT(CFGNAME, DEFL) GetDefaultValInt(&config.CFGNAME, "CITADEL_"#CFGNAME, DEFL)
+void GetDefaultValInt(int *WhereTo, const char *VarName, int DefVal)
+{
+	const char *ch;
+	if (*WhereTo == 0) *WhereTo = DefVal;
+
+	if ((setup_type == UI_SILENT) &&
+	    (ch = getenv(VarName), ch != NULL))
+	{
+		*WhereTo = atoi(ch);
+	}
+}
+#define GetDefaultVALCHAR(CFGNAME, DEFL) GetDefaultValChar(&config.CFGNAME, "CITADEL_"#CFGNAME, DEFL)
+void GetDefaultValChar(char *WhereTo, const char *VarName, char DefVal)
+{
+	const char *ch;
+	if (*WhereTo == 0) *WhereTo = DefVal;
+
+	if ((setup_type == UI_SILENT) &&
+	    (ch = getenv(VarName), ch != NULL))
+	{
+		*WhereTo = atoi(ch);
+	}
+}
+#define GetDefaultVALSTR(CFGNAME, DEFL) GetDefaultValStr((char**)&config.CFGNAME, sizeof(config.CFGNAME), "CITADEL_"#CFGNAME, DEFL)
+void GetDefaultValStr(char **WhereTo, size_t nMax, const char *VarName, const char *DefVal)
+{
+	const char *ch;
+	if (**WhereTo == '\0') 
+		safestrncpy(*WhereTo, DefVal, nMax);
+
+	if ((setup_type == UI_SILENT) &&
+	    (ch = getenv(VarName), ch != NULL))
+	{
+		safestrncpy(*WhereTo, ch, nMax);
+	}
+}
+
+
 void set_default_values(void)
 {
 	struct passwd *pw;
@@ -1264,9 +1305,7 @@ void set_default_values(void)
 	uname(&my_utsname);
 
 	/* set some sample/default values in place of blanks... */
-	if (IsEmptyStr(config.c_nodename))
-		safestrncpy(config.c_nodename, my_utsname.nodename,
-			    sizeof config.c_nodename);
+	GetDefaultVALSTR(c_nodename, my_utsname.nodename);
 	strtok(config.c_nodename, ".");
 	if (IsEmptyStr(config.c_fqdn) ) {
 		if ((he = gethostbyname(my_utsname.nodename)) != NULL) {
@@ -1275,25 +1314,19 @@ void set_default_values(void)
 			safestrncpy(config.c_fqdn, my_utsname.nodename, sizeof config.c_fqdn);
 		}
 	}
-	if (IsEmptyStr(config.c_humannode)) {
-		strcpy(config.c_humannode, _("My System"));
-	}
-	if (IsEmptyStr(config.c_phonenum)) {
-		strcpy(config.c_phonenum, _("US 800 555 1212"));
-	}
-	if (config.c_initax == 0) {
-		config.c_initax = 4;
-	}
-	if (IsEmptyStr(config.c_moreprompt)) strcpy(config.c_moreprompt, "<more>");
-	if (IsEmptyStr(config.c_twitroom)) strcpy(config.c_twitroom, "Trashcan");
-	if (IsEmptyStr(config.c_baseroom)) strcpy(config.c_baseroom, BASEROOM);
-	if (IsEmptyStr(config.c_aideroom)) strcpy(config.c_aideroom, "Aide");
-	if (config.c_port_number == 0) {
-		config.c_port_number = 504;
-	}
-	if (config.c_sleeping == 0) {
-		config.c_sleeping = 900;
-	}
+	GetDefaultVALSTR(c_humannode, _("My System"));
+	GetDefaultVALSTR(c_phonenum, _("US 800 555 1212"));
+
+	GetDefaultVALCHAR(c_initax, 4);
+
+	GetDefaultVALSTR(c_moreprompt, "<more>");
+	GetDefaultVALSTR(c_twitroom, "Trashcan");
+	GetDefaultVALSTR(c_baseroom, BASEROOM);
+	GetDefaultVALSTR(c_aideroom, "Aide");
+	GetDefaultVALINT(c_port_number, 504);
+	
+	GetDefaultVALINT(c_sleeping, 900);
+
 	if (config.c_ctdluid == 0) {
 		pw = getpwnam("citadel");
 		if (pw != NULL) {
@@ -1333,17 +1366,17 @@ void set_default_values(void)
 	/*
 	 * Default port numbers for various services
 	 */
-	if (config.c_smtp_port == 0) config.c_smtp_port = 25;
-	if (config.c_pop3_port == 0) config.c_pop3_port = 110;
-	if (config.c_imap_port == 0) config.c_imap_port = 143;
-	if (config.c_msa_port == 0) config.c_msa_port = 587;
-	if (config.c_smtps_port == 0) config.c_smtps_port = 465;
-	if (config.c_pop3s_port == 0) config.c_pop3s_port = 995;
-	if (config.c_imaps_port == 0) config.c_imaps_port = 993;
-	if (config.c_pftcpdict_port == 0) config.c_pftcpdict_port = -1;
-	if (config.c_managesieve_port == 0) config.c_managesieve_port = 2020;
-	if (config.c_xmpp_c2s_port == 0) config.c_xmpp_c2s_port = 5222;
-	if (config.c_xmpp_s2s_port == 0) config.c_xmpp_s2s_port = 5269;
+	GetDefaultVALINT(c_smtp_port, 25);
+	GetDefaultVALINT(c_pop3_port, 110);
+	GetDefaultVALINT(c_imap_port, 143);
+	GetDefaultVALINT(c_msa_port, 587);
+	GetDefaultVALINT(c_smtps_port, 465);
+	GetDefaultVALINT(c_pop3s_port, 995);
+	GetDefaultVALINT(c_imaps_port, 993);
+	GetDefaultVALINT(c_pftcpdict_port, -1);
+	GetDefaultVALINT(c_managesieve_port, 2020);
+	GetDefaultVALINT(c_xmpp_c2s_port, 5222);
+	GetDefaultVALINT(c_xmpp_s2s_port, 5269);
 }
 
 

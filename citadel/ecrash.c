@@ -185,8 +185,7 @@ static void outputPrintf(char *format, ...)
 
 	va_start(ap, format);
 
-	snprintf (StaticBuf, SIZ, format, ap);
-	syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+	vsyslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, format, ap);
 } // outputPrintf
 
 
@@ -204,16 +203,12 @@ static void createGlobalBacktrace( void )
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	for (NThread = 0; NThread < size; NThread++) 
 	{
-		snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-		syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+		syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", stack_frames[NThread]);
 	}
-	
 	strings = backtrace_symbols(stack_frames, size);
 	for (NThread = 0; NThread < size; NThread++) {
 		if (strings != NULL) {
-			// vsyslogs printf compliance sucks.
-			snprintf (StaticBuf, SIZ, "RAW: %p  ", strings[NThread]);
-			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+			syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", strings[NThread]);
 		}
 	}
 } /* createGlobalBacktrace */
@@ -223,8 +218,7 @@ static void outputRawtrace( void )
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	for (NThread = 0; NThread < size; NThread++) 
 	{
-		snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-		syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+		syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", stack_frames[NThread]);
 	}
 } /* createGlobalBacktrace */
 
