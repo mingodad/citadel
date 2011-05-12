@@ -126,8 +126,8 @@ void LogPrintMessages(long err)
 
 	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
 
-	syslog(LOG_EMERG,Message);
-	syslog(LOG_EMERG,ErrSubject);
+	syslog(LOG_EMERG, "%s", Message);
+	syslog(LOG_EMERG, "%s", ErrSubject);
 	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
 	if (errormessages!=NULL) free (errormessages);
 	errormessages = NULL;
