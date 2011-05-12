@@ -2439,7 +2439,7 @@ void cmd_netp(char *cmdbuf)
 			"An unknown Citadel server called \"%s\" attempted to connect from %s [%s].\n",
 			node, CC->cs_host, CC->cs_addr
 		);
-		syslog(LOG_WARNING, err_buf);
+		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
 		return;
@@ -2450,7 +2450,7 @@ void cmd_netp(char *cmdbuf)
 			"A Citadel server at %s [%s] failed to authenticate as network node \"%s\".\n",
 			CC->cs_host, CC->cs_addr, node
 		);
-		syslog(LOG_WARNING, err_buf);
+		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
 		return;
