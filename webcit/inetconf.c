@@ -209,7 +209,7 @@ HashList *GetInetConfHash(StrBuf *Target, WCTemplputParams *TP)
 	if (WCC->InetCfg == NULL)
 		load_inetconf();
 	GetHash(WCC->InetCfg, TKEY(5), &vHash);
-	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, TP->Tokens->Params[5]->Start);
+	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, "%s", TP->Tokens->Params[5]->Start);
 	return vHash;
 }
 

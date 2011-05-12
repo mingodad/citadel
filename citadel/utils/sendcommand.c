@@ -291,7 +291,7 @@ int main(int argc, char **argv)
 				n = read(ipc->sock, rbuf, SIZ);
 				if (n>0) {
 					rbuf[n]='\0';
-					fprintf(stderr, rbuf);
+					fprintf(stderr, "%s", rbuf);
 					fflush (stdout);
 				}
 			}

@@ -187,8 +187,8 @@ static void outputPrintf(char *format, ...)
 
 	if (enable_syslog)
 	{
-		snprintf (StaticBuf, SIZ, format, ap);
-		syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+	        vsyslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, format, ap);
+
 	}
 	else
 		CtdlLogPrintf(CTDL_EMERG, format, ap);
@@ -211,8 +211,7 @@ static void createGlobalBacktrace( void )
 	if (enable_syslog)
 		for (NThread = 0; NThread < size; NThread++) 
 		{
-			snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+			syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", stack_frames[NThread]);
 		}
 	else 
 		for (NThread = 0; NThread < size; NThread++) 
@@ -222,8 +221,7 @@ static void createGlobalBacktrace( void )
 		if (strings != NULL) {
 			if (enable_syslog)
 			{// vsyslogs printf compliance sucks.
-				snprintf (StaticBuf, SIZ, "RAW: %p  ", strings[NThread]);
-				syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+				syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", strings[NThread]);
 			}
 			else
 				CtdlLogPrintf(1, "%s\n", strings[NThread]);
@@ -237,8 +235,7 @@ static void outputRawtrace( void )
 	if (enable_syslog)
 		for (NThread = 0; NThread < size; NThread++) 
 		{
-			snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
+			syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", stack_frames[NThread]);
 		}
 	else 
 		for (NThread = 0; NThread < size; NThread++) 

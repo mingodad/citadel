@@ -3227,7 +3227,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	/* If we're using a unix domain socket we can do a bunch of stuff */
 	if (!strcmp(cithost, UDS)) {
 		if (!strcasecmp(citport, DEFAULT_PORT)) {
-			snprintf(sockpath, sizeof sockpath, file_citadel_socket);
+			snprintf(sockpath, sizeof sockpath, "%s", file_citadel_socket);
 		}
 		else {
 			snprintf(sockpath, sizeof sockpath, "%s/%s", citport, "citadel.socket");
