@@ -1,8 +1,21 @@
 /*
- * Copyright 2005 - 2010 The Citadel Team
- * Licensed under the GPL V3
- *
  * JavaScript function library for WebCit.
+ *
+ * Copyright (c) 2005-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 
@@ -11,10 +24,6 @@ var room_is_trash = 0;
 
 var currentlyExpandedFloor = null;
 var roomlist = null;
-
-var _switchToRoomList = "switch to room list";
-var _switchToMenu = "switch to menu";
-
 var currentDropTarget = null;
 
 var supportsAddEventListener = (!!document.addEventListener);
@@ -163,24 +172,15 @@ function activate_iconbar_wholist_populat0r()
 }
 
 function setupIconBar() {
-  if (!document.getElementById("switch")) {
-      return;
-    }
-  _switchToRoomList = getTextContent(document.getElementById("rmlist_template"));
-  _switchToMenu = getTextContent(document.getElementById("mnlist_template"));
-  var switchSpan = document.getElementById("switch").firstChild;
-  if (switchSpan != null) {
-    setTextContent(switchSpan, _switchToRoomList);
-    $(switchSpan).observe('click', changeIconBarEvent);
-    var currentView = ctdlLocalPrefs.readPref("iconbar_view");
-    if (currentView != null) {
-      switchSpan.ctdlSwitchIconBarTo = currentView;
-      changeIconBar(switchSpan);
-    } else {
-      switchSpan.ctdlSwitchIconBarTo = "rooms";
-    }
-  }
-  var online_users = document.getElementById("online_users");
+
+	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
+	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) == "collapse.gif" ) {
+		$('roomlist').style.display = 'block';
+		FillRooms(IconBarRoomList);
+	}
+	else {
+		$('roomlist').style.display = 'none';
+	}
 
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
 	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) == "collapse.gif" ) {
@@ -191,42 +191,6 @@ function setupIconBar() {
 		$('online_users').style.display = 'none';
 	}
 
-}
-function changeIconBarEvent(event) {
-  changeIconBar(event.target);
-}
-function changeIconBar(target) {
-  var switchTo = target.ctdlSwitchIconBarTo;
-  WCLog("Changing to: " + switchTo);
-  ctdlLocalPrefs.setPref("iconbar_view", target.ctdlSwitchIconBarTo);  
-  if (switchTo == "rooms") {
-    switch_to_room_list();
-    setTextContent(target, _switchToMenu);
-    target.ctdlSwitchIconBarTo = "menu";
-  } else {
-    switch_to_menu_buttons();
-    setTextContent(target, _switchToRoomList);
-    target.ctdlSwitchIconBarTo = "rooms";
-  }
-}
-function switch_to_room_list() {
-  var roomlist = document.getElementById("roomlist");
-  var summary = document.getElementById("iconbar_menu");
-  if (!rooms || !floors || !roomlist) {
-    FillRooms(IconBarRoomList);
-  }
-  roomlist.className = roomlist.className.replace("hidden","");
-  summary.className += " hidden";
-}
-
-function switch_to_menu_buttons() {
-  if (roomlist != null) {
-    roomlist.className += "hidden";
-  }
-  var iconbar = document.getElementById("iconbar_menu");
-  iconbar.className = iconbar.className.replace("hidden","");
-  var roomlist = document.getElementById("roomlist");
-  roomlist.className += " hidden";
 }
 
 function GenericTreeRoomList(roomlist) {
@@ -922,7 +886,7 @@ function toggle_roomlist()
 	else {
 		$('roomlist').style.display = 'block';
 		$('expand_roomlist').src = 'static/collapse.gif';
-		/* activate_iconbar_roomlist_populat0r(); */
+		FillRooms(IconBarRoomList);
 		wstate=1;
 	}
 
