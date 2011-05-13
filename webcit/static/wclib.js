@@ -910,6 +910,30 @@ function switch_to_lang(new_lang) {
 }
 
 
+function toggle_roomlist() 
+{
+	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
+	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) == "collapse.gif" ) {
+		$('roomlist').style.display = 'none';
+		$('expand_roomlist').src = 'static/expand.gif';
+		wstate=0;
+	}
+
+	else {
+		$('roomlist').style.display = 'block';
+		$('expand_roomlist').src = 'static/collapse.gif';
+		/* activate_iconbar_roomlist_populat0r(); */
+		wstate=1;
+	}
+
+	// tell the server what I did
+	p = 'toggle_roomlist_expanded_state?wstate=' + wstate + '?rand=' + Math.random() ;
+	new Ajax.Request(p, { method: 'get' } );
+
+	return false;   /* this prevents the click from registering as a roomlist button press */
+}
+
+
 function toggle_wholist() 
 {
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
@@ -931,5 +955,6 @@ function toggle_wholist()
 	new Ajax.Request(p, { method: 'get' } );
 
 	return false;   /* this prevents the click from registering as a wholist button press */
-
 }
+
+
