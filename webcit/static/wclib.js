@@ -47,6 +47,19 @@ function strcmp ( str1, str2 ) {
     return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
 }
 
+
+
+function ToggleVisibility ($Which)
+{
+	if (document.getElementById)
+	{
+		if (document.getElementById($Which).style.display  == "none")
+			document.getElementById($Which).style.display  = "inline";
+		else
+			document.getElementById($Which).style.display  = "none";
+	}
+}
+
 function emptyElement(element) {
   childNodes = element.childNodes;
   for(var i=0; i<childNodes.length; i++) {
