@@ -277,6 +277,23 @@ int ConditionalRoomlistExpanded(StrBuf *Target, WCTemplputParams *TP)
 
 
 /*
+ * Toggle the roomlist expanded state in session memory
+ */
+void toggle_roomlist_expanded_state(void) {
+	wcsession *WCC = WC;
+
+	if (!WCC) {
+		wc_printf("no session");
+		return;
+	}
+
+	WCC->ib_roomlist_expanded = IBSTR("wstate");
+	wc_printf("%d", WCC->ib_roomlist_expanded);
+	syslog(LOG_DEBUG, "ib_roomlist_expanded set to %d", WCC->ib_roomlist_expanded);
+}
+
+
+/*
  * Toggle the wholist expanded state in session memory
  */
 void toggle_wholist_expanded_state(void) {
@@ -302,6 +319,7 @@ InitModule_ICONBAR
 	/*WebcitAddUrlHandler(HKEY("user_iconbar"), "", 0, doUserIconStylesheet, 0); */
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), "", 0, commit_iconbar, 0);
 	WebcitAddUrlHandler(HKEY("toggle_wholist_expanded_state"), "", 0, toggle_wholist_expanded_state, AJAX);
+	WebcitAddUrlHandler(HKEY("toggle_roomlist_expanded_state"), "", 0, toggle_roomlist_expanded_state, AJAX);
 	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:ICONBAR:WHOLISTEXPANDED"), 0, ConditionalWholistExpanded, CTX_NONE);
