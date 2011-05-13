@@ -899,9 +899,8 @@ function switch_to_lang(new_lang) {
 
 function toggle_wholist() 
 {
-	d = $('online_users').style.display;
-
-	if (d == 'block') {
+	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
+	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) == "collapse.gif" ) {
 		$('online_users').style.display = 'none';
 		$('expand_wholist').src = 'static/expand.gif';
 		wstate=0;
