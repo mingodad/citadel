@@ -400,7 +400,7 @@ CTDL_MODULE_INIT(curl_client)
 {
 	if (!threading)
 	{
-		curl_init_connectionpool();
+//		curl_init_connectionpool();
 /*
 		int r = ares_library_init(ARES_LIB_INIT_ALL);
 		if (0 != r) {

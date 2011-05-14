@@ -66,7 +66,7 @@ int notify_http_server(char *remoteurl,
 	StrBuf *ReplyBuf;
 	CURL *chnd;
 
-
+	return 0;
 	if (tlen > 0) {
 		/* Load the template message. Get mallocs done too */
 		FILE *Ftemplate = NULL;
