@@ -99,6 +99,7 @@ void DeleteSmtpOutMsg(void *v)
 	ares_free_data(Msg->AllMX);
 	if (Msg->HostLookup.VParsedDNSReply != NULL)
 		Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);
+	FreeURL(&Msg->Relay);
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
 	memset (Msg, 0, sizeof(SmtpOutMsg)); /* just to be shure... */
