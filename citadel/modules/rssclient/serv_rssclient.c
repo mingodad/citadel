@@ -386,6 +386,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 		rc = 1;
 
 shutdown:
+	FreeStrBuf(&Answer);
 	curl_easy_cleanup(curl);
 
        	return rc;
