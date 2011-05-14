@@ -58,6 +58,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 			wc_printf("#comments\">");
 			wc_printf(_("%d comments"), bp->num_msgs - 1);
 			wc_printf("</a>");
+			wc_printf("<br><br><br>\n");
 		}
 		else if (bp->num_msgs < 2) {
 			wc_printf(_("%d comments"), 0);
@@ -121,13 +122,17 @@ struct bltr blogview_learn_thread_references(long msgnum)
 {
 	StrBuf *Buf;
 	StrBuf *r;
+	int len;
 	struct bltr bltr = { 0, 0 } ;
 	Buf = NewStrBuf();
 	r = NewStrBuf();
 	serv_printf("MSG0 %ld|1", msgnum);		/* top level citadel headers only */
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
-		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while (len = StrBuf_ServGetln(Buf), 
+		       ((len >= 0) && 
+			((len != 3) || strcmp(ChrPtr(Buf), "000") )))
+		{
 			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
 				StrBufCutLeft(Buf, 5);
 				bltr.id = HashLittle(ChrPtr(Buf), StrLength(Buf));
@@ -243,14 +248,11 @@ int blogview_Cleanup(void **ViewSpecific)
  */
 void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
 	char perma[SIZ];
-	char encoded_perma[SIZ];
 	
 	strcpy(perma, "/readfwd?go=");
 	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), ChrPtr(WC->CurRoom.name));
 	snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", WC->bptlid);
-
-	CtdlEncodeBase64(encoded_perma, perma, strlen(perma), 0);
-	StrBufAppendPrintf(Target, "/B64%s", encoded_perma);
+	StrBufAppendPrintf(Target, "%s", perma);
 }
 
 

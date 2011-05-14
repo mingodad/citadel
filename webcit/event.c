@@ -65,7 +65,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int which_rrend_is_preselected;
 	int which_rryeartype_is_preselected;
 
-
+	const char *ch;
 	char *tabnames[3];
 	const char *frequency_units[8];
 	const char *ordinals[6];
@@ -463,11 +463,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY);
 	    attendee != NULL;
 	    attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
-		strcpy(attendee_string, icalproperty_get_attendee(attendee));
-		if (!strncasecmp(attendee_string, "mailto:", 7)) {
+		ch = icalproperty_get_attendee(attendee);
+		if ((ch != NULL) && !strncasecmp(ch, "mailto:", 7)) {
 
 			/* screen name or email address */
-			strcpy(attendee_string, &attendee_string[7]);
+			safestrncpy(attendee_string, ch + 7, sizeof(attendee_string));
 			striplt(attendee_string);
 			if (i++) wc_printf("\n");
 			escputs(attendee_string);
@@ -805,6 +805,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 	char organizer_string[SIZ];
 	int sequence = 0;
 	enum icalproperty_transp formtransp = ICAL_TRANSP_NONE;
+	const char *ch;
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
@@ -1099,15 +1100,15 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 				foundit = 0;
 
 				for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
-					if (!strcasecmp(attendee_string,
-					   icalproperty_get_attendee(attendee)))
+					ch = icalproperty_get_attendee(attendee);
+					if ((ch != NULL) && !strcasecmp(attendee_string, ch))
 						++foundit;
 				}
 
 
 				if (foundit == 0) {
 					icalcomponent_add_property(vevent,
-						icalproperty_new_attendee(attendee_string)
+								   icalproperty_new_attendee(attendee_string)
 					);
 				}
 			}
@@ -1117,9 +1118,9 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		 * Remove any attendees *not* listed in the web form
 		 */
 STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
-			strcpy(attendee_string, icalproperty_get_attendee(attendee));
-			if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
-				strcpy(attendee_string, &attendee_string[7]);
+			ch = icalproperty_get_attendee(attendee);
+			if ((ch != NULL) && !strncasecmp(ch, "MAILTO:", 7)) {
+				safestrncpy(attendee_string, ch + 7, sizeof(attendee_string));
 				striplt(attendee_string);
 				foundit = 0;
 				for (i=0; i<num_tokens(form_attendees, '\n'); ++i) {
@@ -1153,8 +1154,10 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '8') {
 				serv_puts("Content-type: text/calendar");
+				serv_puts("Content-Transfer-Encoding: quoted-printable");
 				serv_puts("");
-				serv_puts(icalcomponent_as_ical_string(encaps));
+				text_to_server_qp(icalcomponent_as_ical_string(encaps));
+//				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
 			}
 			if ( (buf[0] == '8') || (buf[0] == '4') ) {

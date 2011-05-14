@@ -67,7 +67,7 @@ void openid_attach(void) {
 		syslog(LOG_DEBUG, "Attempting to attach %s\n", bstr("openid_url"));
 
 		snprintf(buf, sizeof buf,
-			"OIDS %s|%s/finalize_openid_login|%s",
+			"OIDS %s|%s/finalize_openid_login?attach_existing=1|%s",
 			bstr("openid_url"),
 			ChrPtr(site_prefix),
 			ChrPtr(site_prefix)

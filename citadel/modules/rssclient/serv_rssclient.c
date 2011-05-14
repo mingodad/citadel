@@ -374,7 +374,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto shutdown ;
 
 	rc = curl_easy_perform(curl);
@@ -386,6 +386,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 		rc = 1;
 
 shutdown:
+	FreeStrBuf(&Answer);
 	curl_easy_cleanup(curl);
 
        	return rc;
@@ -458,7 +459,7 @@ void ExpandShortUrls(StrBuf *Message)
 	{
 		StrBuf *ShorterUrlStr;
 		HashPos *Pos;
-		const char *Key;
+		const char *RetrKey;
 		void *pv;
 		long len;
 
@@ -470,7 +471,7 @@ void ExpandShortUrls(StrBuf *Message)
 		pch = ChrPtr(Message);
 		pche = pch + StrLength(Message);
 		Pos = GetNewHashPos(pUrls, 1);
-		while (GetNextHashPos(pUrls, Pos, &len, &Key, &pv))
+		while (GetNextHashPos(pUrls, Pos, &len, &RetrKey, &pv))
 		{
 			pCUrl = (ConstStr*) pv;
 
@@ -632,7 +633,10 @@ void rss_save_item(rss_item *ri)
 			else
 			{
 				if (FromAt)
-					msg->cm_fields['P'] = SmashStrBuf(&ri->author_or_creator);
+				{
+					msg->cm_fields['A'] = SmashStrBuf(&ri->author_or_creator);
+					msg->cm_fields['P'] = strdup(msg->cm_fields['A']);
+				}
 				else 
 				{
 					StrBufRFC2047encode(&Encoded, ri->author_or_creator);
@@ -670,8 +674,13 @@ void rss_save_item(rss_item *ri)
 			msg->cm_fields['U'] = SmashStrBuf(&QPEncoded);
 			FreeStrBuf(&Encoded);
 		}
+
+		if (ri->pubdate <= 0) {
+			ri->pubdate = time(NULL);
+		}
 		msg->cm_fields['T'] = malloc(64);
 		snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
+
 		if (ri->channel_title != NULL) {
 			if (StrLength(ri->channel_title) > 0) {
 				msg->cm_fields['O'] = strdup(ChrPtr(ri->channel_title));
@@ -756,10 +765,14 @@ void flush_rss_item(rss_item *ri)
 	FreeStrBuf(&ri->guid);
 	FreeStrBuf(&ri->title);
 	FreeStrBuf(&ri->link);
-	FreeStrBuf(&ri->author_or_creator);
-	FreeStrBuf(&ri->author_email);
-	FreeStrBuf(&ri->author_url);
+	FreeStrBuf(&ri->linkTitle);
+	FreeStrBuf(&ri->reLink);
+	FreeStrBuf(&ri->reLinkTitle);
 	FreeStrBuf(&ri->description);
+	FreeStrBuf(&ri->channel_title);
+	FreeStrBuf(&ri->author_or_creator);
+	FreeStrBuf(&ri->author_url);
+	FreeStrBuf(&ri->author_email);
 }
 
 void rss_xml_start(void *data, const char *supplied_el, const char **attr)
@@ -1295,13 +1308,13 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 	{
 		curl_easy_cleanup(curl);
 		return;
 	}
 	
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto shutdown ;
 
 	res = curl_easy_perform(curl);
@@ -1309,7 +1322,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 		syslog(LOG_ALERT, "libcurl error %d: %s\n", res, errmsg);
 	}
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		goto shutdown ;
 
 
@@ -1374,6 +1387,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 			      XML_GetErrorCode(xp)));
 
 shutdown:
+	FreeStrBuf(&Answer);
 	curl_easy_cleanup(curl);
 	XML_ParserFree(xp);
 
@@ -1402,7 +1416,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
 
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 		return;
 		
 	/* Only do net processing for rooms that have netconfigs */
@@ -1411,7 +1425,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		return;
 	}
 
-	while (fgets(buf, sizeof buf, fp) != NULL && !CtdlThreadCheckStop()) {
+	while (fgets(buf, sizeof buf, fp) != NULL && !server_shutting_down) {
 		buf[strlen(buf)-1] = 0;
 
 		extract_token(instr, buf, 0, '|', sizeof instr);
@@ -1475,6 +1489,11 @@ void rssclient_scan(void) {
 	static int doing_rssclient = 0;
 	rssnetcfg *rptr = NULL;
 
+	/* Run no more than once every 15 minutes. */
+	if ((time(NULL) - last_run) < 900) {
+		return;
+	}
+
 	/*
 	 * This is a simple concurrency check to make sure only one rssclient run
 	 * is done at a time.  We could do this with a mutex, but since we
@@ -1487,7 +1506,7 @@ void rssclient_scan(void) {
 	syslog(LOG_DEBUG, "rssclient started\n");
 	CtdlForEachRoom(rssclient_scan_room, NULL);
 
-	while (rnclist != NULL && !CtdlThreadCheckStop()) {
+	while (rnclist != NULL && !server_shutting_down) {
 		rss_do_fetching(rnclist);
 		rptr = rnclist;
 		rnclist = rnclist->next;

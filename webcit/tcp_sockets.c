@@ -182,7 +182,7 @@ int StrBuf_ServGetln(StrBuf *buf)
 					       &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "Server connection broken: %s\n",
+		syslog(1, "StrBuf_ServGetln(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
 		WCC->serv_sock = (-1);
@@ -217,7 +217,7 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 				    &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "Server connection broken: %s\n",
+		syslog(1, "StrBuf_ServGetBLOBBuffered(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
 		WCC->serv_sock = (-1);
@@ -226,7 +226,7 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 	}
 #ifdef SERV_TRACE
         else
-                syslog(9, "%3d<<<BLOB: %ld bytes\n", WC->serv_sock, StrLength(buf));
+                syslog(9, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
 #endif
 
 	return rc;
@@ -242,7 +242,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	rc = StrBufReadBLOB(buf, &WCC->serv_sock, 1, BlobSize, &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "Server connection broken: %s\n",
+		syslog(1, "StrBuf_ServGetBLOB(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
 		WCC->serv_sock = (-1);
@@ -251,7 +251,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	}
 #ifdef SERV_TRACE
         else
-                syslog(9, "%3d<<<BLOB: %ld bytes\n", WC->serv_sock, StrLength(buf));
+                syslog(9, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
 #endif
 
 	return rc;
@@ -310,7 +310,7 @@ void serv_write(const char *buf, int nbytes)
 			       nbytes - bytes_written);
 		if (retval < 1) {
 			const char *ErrStr = strerror(errno);
-			syslog(1, "Server connection broken: %s\n",
+			syslog(1, "serv_write(): Server connection broken: %s\n",
 				(ErrStr)?ErrStr:"");
 			close(WCC->serv_sock);
 			WCC->serv_sock = (-1);
@@ -404,7 +404,10 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 		}
 
 		serv_printf("READ %d|%d", bytes_read, total_len-bytes_read);
-		if ( (StrBuf_ServGetln(Buf) > 0) && (GetServerStatus(Buf, NULL) == 6) ) {
+		if ( (rc = StrBuf_ServGetln(Buf) > 0) && (GetServerStatus(Buf, NULL) == 6) ) 
+		{
+			if (rc < 0)
+				return rc;
 			StrBufCutLeft(Buf, 4);
 			this_block = StrTol(Buf);
 			rc = StrBuf_ServGetBLOBBuffered(Ret, this_block);
@@ -648,19 +651,23 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		long bufremain;
+		long bufremain = 0;
 		long baselen;
 
 		baselen = StrLength(Target);
 
 		if (Hdr->Pos == NULL)
 			Hdr->Pos = ChrPtr(Hdr->ReadBuf);
-		bufremain = StrLength(Hdr->ReadBuf) - (Hdr->Pos - ChrPtr(Hdr->ReadBuf));
 
-		if (bytes < bufremain)
-			bufremain = bytes;
-		StrBufAppendBufPlain(Target, Hdr->Pos, bufremain, 0);
-		StrBufCutLeft(Hdr->ReadBuf, bufremain);
+		if (StrLength(Hdr->ReadBuf) > 0)
+		{
+			bufremain = StrLength(Hdr->ReadBuf) - (Hdr->Pos - ChrPtr(Hdr->ReadBuf));
+			
+			if (bytes < bufremain)
+				bufremain = bytes;
+			StrBufAppendBufPlain(Target, Hdr->Pos, bufremain, 0);
+			StrBufCutLeft(Hdr->ReadBuf, bufremain);
+		}
 
 		if (bytes > bufremain) 
 		{
@@ -914,6 +921,8 @@ SessionDestroyModule_TCPSOCKETS
 	FreeStrBuf(&sess->ReadBuf);
 	sess->ReadPos = NULL;
 	FreeStrBuf(&sess->MigrateReadLineBuf);
-	if (sess->serv_sock > 0)
+	if (sess->serv_sock > 0) {
+		syslog(LOG_DEBUG, "Closing socket %d", sess->serv_sock);
 		close(sess->serv_sock);
+	}
 }

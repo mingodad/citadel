@@ -58,7 +58,8 @@ void do_generic(void)
 		LineBuf = NewStrBuf();
 		StrBufAppendBufPlain(Buf, HKEY("\n"), 0);
 		while (!Done) {
-			StrBuf_ServGetln(LineBuf);
+			if (StrBuf_ServGetln(LineBuf) < 0)
+				break;
 			if ( (StrLength(LineBuf)==3) && 
 			     !strcmp(ChrPtr(LineBuf), "000")) {
 				Done = 1;

@@ -1,17 +1,11 @@
-<?=("head")>
-<div id="login_screen">
-<?=("beginbox_1")>
-<?SERV:HUMANNODE><?_(" - powered by <a href='http://www.citadel.org'>Citadel</a>")>
-<?=("beginbox_2")>
-<?HELLO>
 <div class="login_infos">
 	<img src="static/openid-small.gif"><?_("Your OpenID")> <tt><?BSTR("__claimed_id", "X")></tt> <?_("was successfully verified.")><br>
-<??("COND:BSTR", 1, "__username")><?_("However, the user name")>  '<?BSTR("__claimed_id", "X")>' <?_("conflicts with an existing user.")><??("X", 1)>
+<?!("COND:BSTR", 1, "__username")><?_("However, the user name")>  '<?BSTR("__username", "X")>' <?_("conflicts with an existing user.")><??("X", 1)>
 <br>
 	<?_("Please specify the user name you would like to use.")><br>
 </div>
 <form action="openid_manual_create" method="POST"  class="box" id="login_form">
-	<input type="hidden" NAME="openid_url" VALUE="<?BSTR("__claimed_id", "U")>">
+	<input type="hidden" NAME="openid_url" VALUE="<?BSTR("__claimed_id", "X")>">
         <label for="uname"><?_("User name:")></label>
         <input type="text" name="name" id="uname" > <br>
         <div class="logbuttons">
@@ -20,5 +14,3 @@
         <br>
         </div>
 </form>
-<?=("endbox")>
-<?=("trailing")>

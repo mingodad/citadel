@@ -537,8 +537,10 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 	Msg = (message_summary*)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
 	while (len = StrBuf_ServGetln(Buf),
+	       (len >= 0) && 
 	       ((len != 3)  ||
-		strcmp(ChrPtr(Buf), "000")== 0)){
+		strcmp(ChrPtr(Buf), "000")))
+	{
 		buf = ChrPtr(Buf);
 		ebuf = strchr(ChrPtr(Buf), '=');
 		nBuf = ebuf - buf;
@@ -589,7 +591,10 @@ int load_msg_ptrs(const char *servcmd,
 		return (Stat->nummsgs);
 	}
 	Buf2 = NewStrBuf();
-	while (len = StrBuf_ServGetln(Buf), ((len != 3) || strcmp(ChrPtr(Buf), "000")!= 0))
+	while (len = StrBuf_ServGetln(Buf), 
+	       ((len >= 0) &&
+		((len != 3) || 
+		 strcmp(ChrPtr(Buf), "000")!= 0)))
 	{
 		if (Stat->nummsgs < Stat->maxload) {
 			skipit = 0;
@@ -936,7 +941,7 @@ void post_mime_to_server(void) {
         	text_to_server_qp(txtmail);     /* Transmit message in quoted-printable encoding */
         	free(txtmail);
 
-		serv_printf("--%s", alt_boundary);
+		serv_printf("\n--%s", alt_boundary);
 	}
 
 	serv_puts("Content-type: text/html; charset=utf-8");

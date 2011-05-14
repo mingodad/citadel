@@ -48,7 +48,10 @@ int GetWholistSection(HashList *List, time_t now, StrBuf *Buf)
 	serv_puts("RWHO");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
-		while (BufLen = StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while (BufLen = StrBuf_ServGetln(Buf), 
+		       ((BufLen >= 0) && 
+			((BufLen != 3) || strcmp(ChrPtr(Buf), "000"))))
+		{
 			if (BufLen <= 0)
 			    continue;
 			Pos = NULL;

@@ -1,6 +1,22 @@
 /*
  * A basic toolset containing miscellaneous functions for string manipluation,
  * encoding/decoding, and a bunch of other stuff.
+ *
+ * Copyright (c) 1987-2011 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 
@@ -860,10 +876,15 @@ char *strcpy(char *dest, const char *src) {
 void generate_uuid(char *buf) {
 	static int seq = 0;
 
-	sprintf(buf, "%lx-%lx-%x",
-		time(NULL),
+	++seq;
+	seq = (seq % 0x0FFF) ;
+
+	sprintf(buf, "%08lx-%04lx-4%03x-a%03x-%012lx",
+		(long)time(NULL),
 		(long)getpid(),
-		(seq++)
+		seq,
+		seq,
+		(long)rand()
 	);
 }
 

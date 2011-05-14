@@ -63,7 +63,7 @@
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
 		syslog(LOG_NOTICE, "Scheduled shutdown initiating.\n");
-		CtdlThreadStopAll();
+		server_shutting_down = 1;
 	}
 }
 
@@ -123,7 +123,6 @@ void do_housekeeping(void) {
 	int do_housekeeping_now = 0;
 	int do_perminute_housekeeping_now = 0;
 	time_t now;
-	const char *old_name;
 
 	/*
 	 * We do it this way instead of wrapping the whole loop in an
@@ -152,16 +151,12 @@ void do_housekeeping(void) {
 	 */
 
 	/* First, do the "as often as needed" stuff... */
-	old_name = CtdlThreadName("House Keeping - Journal");
 	JournalRunQueue();
-
-	CtdlThreadName("House Keeping - EVT_HOUSE");
-	PerformSessionHooks(EVT_HOUSE);	/* perform as needed housekeeping */
+	PerformSessionHooks(EVT_HOUSE);
 
 	/* Then, do the "once per minute" stuff... */
 	if (do_perminute_housekeeping_now) {
 		cdb_check_handles();			/* suggested by Justin Case */
-		CtdlThreadName("House Keeping - EVT_TIMER");
 		PerformSessionHooks(EVT_TIMER);		/* Run any timer hooks */
 	}
 
@@ -169,5 +164,4 @@ void do_housekeeping(void) {
 	 * All done.
 	 */
 	housekeeping_in_progress = 0;
-	CtdlThreadName(old_name);
 }

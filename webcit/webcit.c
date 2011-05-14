@@ -424,7 +424,8 @@ void ajax_servcmd(void)
 		}
 	case 1:
 		while (!Done) {
-			StrBuf_ServGetln(Buf);
+			if (StrBuf_ServGetln(Buf) < 0)
+				break;
 			if ( (StrLength(Buf)==3) && 
 			     !strcmp(ChrPtr(Buf), "000")) {
 				Done = 1;
@@ -512,17 +513,33 @@ void push_destination(void) {
 void pop_destination(void) {
 	wcsession *WCC = WC;
 
+	/*
+	 * If we are in the middle of a new user signup, the server may request that
+	 * we first pass through a registration screen.
+	 */
 	if ((WCC) && (WCC->need_regi)) {
+		if ((WCC->PushedDestination != NULL) && (StrLength(WCC->PushedDestination) > 0)) {
+			/* Registering will take us to the My Citadel Config room, so save our place */
+			StrBufAppendBufPlain(WCC->PushedDestination, HKEY("?go="), 0);
+			StrBufUrlescAppend(WCC->PushedDestination, WCC->CurRoom.name, NULL);
+		}
 		WCC->need_regi = 0;
 		display_reg(1);
 		return;
 	}
 
+	/*
+	 * Do something reasonable if we somehow ended up requesting a pop without
+	 * having first done a push.
+	 */
 	if ( (!WCC) || (WCC->PushedDestination == NULL) || (StrLength(WCC->PushedDestination) == 0) ) {
 		do_welcome();
 		return;
 	}
 
+	/*
+	 * All righty then!  We have a destination saved, so go there now.
+	 */
 	syslog(9, "Pop: %s\n", ChrPtr(WCC->PushedDestination));
 	http_redirect(ChrPtr(WCC->PushedDestination));
 }
@@ -856,7 +873,9 @@ SKIP_ALL_THIS_CRAP:
  * Display the appropriate landing page for this site.
  */
 void display_default_landing_page(void) {
-	if (WC->serv_info->serv_supports_guest) {
+	wcsession *WCC = WC;
+
+	if (WCC && WCC->serv_info && WCC->serv_info->serv_supports_guest) {
 		/* default action.  probably revisit this. */
 		StrBuf *teh_lobby = NewStrBufPlain(HKEY("_BASEROOM_"));
 		smart_goto(teh_lobby);

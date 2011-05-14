@@ -2,14 +2,6 @@
 #ifndef SYSDEP_DECLS_H
 #define SYSDEP_DECLS_H
 
-/*
- * Uncomment this #define if you are a Citadel developer tracking
- * down memory leaks in the server.  Do NOT do this on a production
- * system because it definitely incurs a lot of additional overhead.
-#define DEBUG_MEMORY_LEAKS
- */
-
-
 #include <stdarg.h>
 #include "sysdep.h"
 
@@ -61,16 +53,15 @@ int CtdlClientGetLine(StrBuf *Target);
 int client_read_blob(StrBuf *Target, int bytes, int timeout);
 void client_set_inbound_buf(long N);
 int client_read_random_blob(StrBuf *Target, int timeout);
+void client_close(void);
 void sysdep_master_cleanup (void);
 void kill_session (int session_to_kill);
 void start_daemon (int do_close_stdio);
 void checkcrash(void);
 void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
-void *worker_thread (void *arg);
 void init_master_fdset(void);
-void create_worker(void);
-void *select_on_master (void *arg);
+void *worker_thread(void *);
 
 extern volatile int exit_signal;
 extern volatile int shutdown_and_halt;
@@ -82,60 +73,5 @@ extern int rescan[];
 
 
 extern int SyslogFacility(char *name);
-
-
-/*
- * Typdefs and stuff to abstract pthread for Citadel
- */
-#ifdef HAVE_PTHREAD_H
-
-typedef pthread_t	citthread_t;
-typedef pthread_key_t	citthread_key_t;
-typedef pthread_mutex_t	citthread_mutex_t;
-typedef pthread_cond_t	citthread_cond_t;
-typedef pthread_attr_t	citthread_attr_t;
-
-
-#define citthread_mutex_init	pthread_mutex_init
-#define citthread_cond_init	pthread_cond_init
-#define citthread_attr_init	pthread_attr_init
-#define citthread_mutex_trylock	pthread_mutex_trylock
-#define citthread_mutex_lock	pthread_mutex_lock
-#define citthread_mutex_unlock	pthread_mutex_unlock
-#define citthread_key_create	pthread_key_create
-#define citthread_getspecific	pthread_getspecific
-#define citthread_setspecific	pthread_setspecific
-#define citthread_mutex_destroy	pthread_mutex_destroy
-#define citthread_cond_destroy	pthread_cond_destroy
-#define citthread_attr_destroy	pthread_attr_destroy
-
-#define citthread_kill		pthread_kill
-#define citthread_cond_signal	pthread_cond_signal
-#define citthread_cancel	pthread_cancel
-#define citthread_cond_timedwait	pthread_cond_timedwait
-#define citthread_equal		pthread_equal
-#define citthread_self		pthread_self
-#define citthread_create	pthread_create
-#define citthread_attr_setstacksize	pthread_attr_setstacksize
-#define citthread_join		pthread_join
-#define citthread_cleanup_push	pthread_cleanup_push
-#define citthread_cleanup_pop	pthread_cleanup_pop
-
-
-#endif /* HAVE_PTHREAD_H */
-
-
-#ifdef DEBUG_MEMORY_LEAKS
-#define malloc(x) tracked_malloc(x, __FILE__, __LINE__)
-#define realloc(x,y) tracked_realloc(x, y, __FILE__, __LINE__)
-#undef strdup
-#define strdup(x) tracked_strdup(x, __FILE__, __LINE__)
-#define free(x) tracked_free(x)
-void *tracked_malloc(size_t size, char *file, int line);
-void *tracked_realloc(void *ptr, size_t size, char *file, int line);
-void tracked_free(void *ptr);
-char *tracked_strdup(const char *s, char *file, int line);
-void dump_heap(void);
-#endif
 
 #endif /* SYSDEP_DECLS_H */

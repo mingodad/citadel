@@ -251,13 +251,13 @@ char *ReadString(long size, char *command)
 	if (size < 1) {
 		cprintf("NO %s: %ld BAD Message length must be at least 1.\r\n",
 			command, size);
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_READSTRING_FAILED;
 		return NULL;
 	}
 	MGSVE->transmitted_message = malloc(size + 2);
 	if (MGSVE->transmitted_message == NULL) {
 		cprintf("NO %s Cannot allocate memory.\r\n", command);
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_MALLOC_FAILED;
 		return NULL;
 	}
 	MGSVE->transmitted_length = size;
@@ -314,7 +314,7 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 		}
 	}
 	cprintf("NO \"Authentication Failure.\"\r\n");/* we just support auth plain. */
-	CC->kill_me = 1;
+	CC->kill_me = KILLME_AUTHFAILED;
 }
 
 
@@ -330,18 +330,18 @@ void cmd_mgsve_starttls(void)
 
 
 
-/**
- *LOGOUT command, see chapter 2.3 
+/*
+ * LOGOUT command, see chapter 2.3 
  */
 void cmd_mgsve_logout(struct sdm_userdata *u)
 {
 	cprintf("OK\r\n");
 	syslog(LOG_NOTICE, "MgSve bye.");
-	CC->kill_me = 1;
+	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 }
 
 
-/**
+/*
  * HAVESPACE command. see chapter 2.5 
  */
 void cmd_mgsve_havespace(void)
@@ -352,7 +352,7 @@ void cmd_mgsve_havespace(void)
 	if (MGSVE->command_state != mgsve_password)
 	{
 		cprintf("NO\r\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_QUOTA;
 	}
 	else
 	{
@@ -362,7 +362,7 @@ void cmd_mgsve_havespace(void)
 	}
 }
 
-/**
+/*
  * PUTSCRIPT command, see chapter 2.6 
  */
 void cmd_mgsve_putscript(int num_parms, char **parms, struct sdm_userdata *u)
@@ -396,7 +396,7 @@ void cmd_mgsve_putscript(int num_parms, char **parms, struct sdm_userdata *u)
 	}
 	else {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_READ_FAILED;
 		return;
 	} 
 
@@ -464,7 +464,7 @@ void cmd_mgsve_getscript(int num_parms, char **parms, struct sdm_userdata *u)
 			slen = strlen(script_content);
 			outbuf = malloc (slen + 64);
 			snprintf(outbuf, slen + 64, "{%ld+}\r\n%s\r\nOK\r\n",slen, script_content);
-			cprintf(outbuf);
+			cprintf("%s", outbuf);
 		}
 		else
 			cprintf("No \"there is no script by that name %s \"\r\n", parms[1]);
@@ -585,8 +585,8 @@ void managesieve_command_loop(void) {
 		length = strlen(parms[0]);
 	}
 	if (length < 1) {
-		syslog(LOG_CRIT, "Client disconnected: ending session.\n");
-		CC->kill_me = 1;
+		syslog(LOG_CRIT, "managesieve: client disconnected: ending session.\n");
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 	syslog(LOG_INFO, "MANAGESIEVE: %s\n", cmdbuf);
@@ -635,7 +635,7 @@ void managesieve_command_loop(void) {
 	else {
 		cprintf("No Invalid access or command.\r\n");
 		syslog(LOG_INFO, "illegal Managesieve command: %s", parms[0]);
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_ILLEGAL_MANAGESIEVE_COMMAND;
 	}
 
 

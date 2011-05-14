@@ -85,7 +85,7 @@ static DB_ENV *dbenv;		/* The DB environment (global) */
 void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 {
 	if (!IsEmptyStr(msg)) {
-		syslog(LOG_DEBUG, "DB: %s\n", msg);
+		syslog(LOG_DEBUG, "DB: %s", msg);
 	}
 }
 
@@ -93,7 +93,7 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 /* Verbose logging callback */
 void cdb_verbose_err(const DB_ENV *dbenv, const char *errpfx, const char *msg)
 {
-	syslog(LOG_ALERT, "DB: %s\n", msg);
+	syslog(LOG_ALERT, "DB: %s", msg);
 }
 
 
@@ -105,7 +105,7 @@ static void txabort(DB_TXN * tid)
 	ret = tid->abort(tid);
 
 	if (ret) {
-		syslog(LOG_EMERG, "bdb(): txn_abort: %s\n", db_strerror(ret));
+		syslog(LOG_EMERG, "bdb(): txn_abort: %s", db_strerror(ret));
 		abort();
 	}
 }
@@ -118,7 +118,7 @@ static void txcommit(DB_TXN * tid)
 	ret = tid->commit(tid, 0);
 
 	if (ret) {
-		syslog(LOG_EMERG, "bdb(): txn_commit: %s\n", db_strerror(ret));
+		syslog(LOG_EMERG, "bdb(): txn_commit: %s", db_strerror(ret));
 		abort();
 	}
 }
@@ -131,14 +131,14 @@ static void txbegin(DB_TXN ** tid)
 	ret = dbenv->txn_begin(dbenv, NULL, tid, 0);
 
 	if (ret) {
-		syslog(LOG_EMERG, "bdb(): txn_begin: %s\n", db_strerror(ret));
+		syslog(LOG_EMERG, "bdb(): txn_begin: %s", db_strerror(ret));
 		abort();
 	}
 }
 
 static void dbpanic(DB_ENV * env, int errval)
 {
-	syslog(LOG_EMERG, "bdb(): PANIC: %s\n", db_strerror(errval));
+	syslog(LOG_EMERG, "bdb(): PANIC: %s", db_strerror(errval));
 }
 
 static void cclose(DBC * cursor)
@@ -146,7 +146,7 @@ static void cclose(DBC * cursor)
 	int ret;
 
 	if ((ret = cursor->c_close(cursor))) {
-		syslog(LOG_EMERG, "bdb(): c_close: %s\n", db_strerror(ret));
+		syslog(LOG_EMERG, "bdb(): c_close: %s", db_strerror(ret));
 		abort();
 	}
 }
@@ -157,29 +157,20 @@ static void bailIfCursor(DBC ** cursors, const char *msg)
 
 	for (i = 0; i < MAXCDB; i++)
 		if (cursors[i] != NULL) {
-			syslog(LOG_EMERG,
-				"bdb(): cursor still in progress on cdb %02x: %s\n", i, msg);
+			syslog(LOG_EMERG, "bdb(): cursor still in progress on cdb %02x: %s", i, msg);
 			abort();
 		}
 }
 
-void check_handles(void *arg)
-{
-	if (arg != NULL) {
-		ThreadTSD *tsd = (ThreadTSD *) arg;
-
-		bailIfCursor(tsd->cursors, "in check_handles");
-
-		if (tsd->tid != NULL) {
-			syslog(LOG_EMERG, "bdb(): transaction still in progress!");
-			abort();
-		}
-	}
-}
 
 void cdb_check_handles(void)
 {
-	check_handles(pthread_getspecific(ThreadKey));
+	bailIfCursor(TSD->cursors, "in check_handles");
+
+	if (TSD->tid != NULL) {
+		syslog(LOG_EMERG, "bdb(): transaction still in progress!");
+		abort();
+	}
 }
 
 
@@ -197,14 +188,14 @@ static void cdb_cull_logs(void)
 
 	/* Get the list of names. */
 	if ((ret = dbenv->log_archive(dbenv, &list, flags)) != 0) {
-		syslog(LOG_ERR, "cdb_cull_logs: %s\n", db_strerror(ret));
+		syslog(LOG_ERR, "cdb_cull_logs: %s", db_strerror(ret));
 		return;
 	}
 
 	/* Print the list of names. */
 	if (list != NULL) {
 		for (file = list; *file != NULL; ++file) {
-			syslog(LOG_DEBUG, "Deleting log: %s\n", *file);
+			syslog(LOG_DEBUG, "Deleting log: %s", *file);
 			ret = unlink(*file);
 			if (ret != 0) {
 				snprintf(errmsg, sizeof(errmsg),
@@ -228,7 +219,7 @@ static void cdb_cull_logs(void)
 void cmd_cull(char *argbuf) {
 	if (CtdlAccessCheck(ac_internal)) return;
 	cdb_cull_logs();
-	cprintf("%d Database log file cull completed.\n", CIT_OK);
+	cprintf("%d Database log file cull completed.", CIT_OK);
 }
 
 
@@ -239,11 +230,11 @@ void cdb_checkpoint(void)
 {
 	int ret;
 
-	syslog(LOG_DEBUG, "-- db checkpoint --\n");
+	syslog(LOG_DEBUG, "-- db checkpoint --");
 	ret = dbenv->txn_checkpoint(dbenv, MAX_CHECKPOINT_KBYTES, MAX_CHECKPOINT_MINUTES, 0);
 
 	if (ret != 0) {
-		syslog(LOG_EMERG, "cdb_checkpoint: txn_checkpoint: %s\n", db_strerror(ret));
+		syslog(LOG_EMERG, "cdb_checkpoint: txn_checkpoint: %s", db_strerror(ret));
 		abort();
 	}
 
@@ -270,22 +261,22 @@ void open_databases(void)
 	int dbversion_major, dbversion_minor, dbversion_patch;
 	int current_dbversion = 0;
 
-	syslog(LOG_DEBUG, "bdb(): open_databases() starting\n");
-	syslog(LOG_DEBUG, "Compiled db: %s\n", DB_VERSION_STRING);
-	syslog(LOG_INFO, "  Linked db: %s\n",
+	syslog(LOG_DEBUG, "bdb(): open_databases() starting");
+	syslog(LOG_DEBUG, "Compiled db: %s", DB_VERSION_STRING);
+	syslog(LOG_INFO, "  Linked db: %s",
 		db_version(&dbversion_major, &dbversion_minor, &dbversion_patch));
 
 	current_dbversion = (dbversion_major * 1000000) + (dbversion_minor * 1000) + dbversion_patch;
 
-	syslog(LOG_DEBUG, "Calculated dbversion: %d\n", current_dbversion);
-	syslog(LOG_DEBUG, "  Previous dbversion: %d\n", CitControl.MMdbversion);
+	syslog(LOG_DEBUG, "Calculated dbversion: %d", current_dbversion);
+	syslog(LOG_DEBUG, "  Previous dbversion: %d", CitControl.MMdbversion);
 
 	if ( (getenv("SUPPRESS_DBVERSION_CHECK") == NULL)
 	   && (CitControl.MMdbversion > current_dbversion) ) {
-		syslog(LOG_EMERG, "You are attempting to run the Citadel server using a version\n"
-					"of Berkeley DB that is older than that which last created or\n"
-					"updated the database.  Because this would probably cause data\n"
-					"corruption or loss, the server is aborting execution now.\n");
+		syslog(LOG_EMERG, "You are attempting to run the Citadel server using a version");
+		syslog(LOG_EMERG, "of Berkeley DB that is older than that which last created or");
+		syslog(LOG_EMERG, "updated the database.  Because this would probably cause data");
+		syslog(LOG_EMERG, "corruption or loss, the server is aborting execution now.");
 		exit(CTDLEXIT_DB);
 	}
 
@@ -316,7 +307,7 @@ void open_databases(void)
 			      ctdl_data_dir, strerror(errno));
 	}
 	syslog(LOG_DEBUG, "bdb(): Setting up DB environment\n");
-	db_env_set_func_yield((int (*)(u_long,  u_long))sched_yield);
+	/* db_env_set_func_yield((int (*)(u_long,  u_long))sched_yield); */
 	ret = db_env_create(&dbenv, 0);
 	if (ret) {
 		syslog(LOG_EMERG, "bdb(): db_env_create: %s\n", db_strerror(ret));
@@ -453,8 +444,6 @@ void close_databases(void)
 	int a;
 	int ret;
 
-	ctdl_thread_internal_free_tsd();
-	
 	if ((ret = dbenv->txn_checkpoint(dbenv, 0, 0, 0))) {
 		syslog(LOG_EMERG,
 			"txn_checkpoint: %s\n", db_strerror(ret));
@@ -530,8 +519,8 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 	cdb->len = (size_t) destLen;
 	cdb->ptr = uncompressed_data;
 #else				/* HAVE_ZLIB */
-	syslog(LOG_EMERG, "Database contains compressed data, but this citserver was built without compression support.\n");
-	abort();
+	syslog(LOG_EMERG, "Database contains compressed data, but this citserver was built without compression support.");
+	exit(CTDLEXIT_DB);
 #endif				/* HAVE_ZLIB */
 }
 
@@ -586,14 +575,14 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 	}
 #endif
 
-	if (MYTID != NULL) {
+	if (TSD->tid != NULL) {
 		ret = dbp[cdb]->put(dbp[cdb],	/* db */
-				    MYTID,	/* transaction ID */
+				    TSD->tid,	/* transaction ID */
 				    &dkey,	/* key */
 				    &ddata,	/* data */
 				    0);	/* flags */
 		if (ret) {
-			syslog(LOG_EMERG, "cdb_store(%d): %s\n", cdb, db_strerror(ret));
+			syslog(LOG_EMERG, "cdb_store(%d): %s", cdb, db_strerror(ret));
 			abort();
 		}
 #ifdef HAVE_ZLIB
@@ -603,7 +592,7 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 		return ret;
 
 	} else {
-		bailIfCursor(MYCURSORS, "attempt to write during r/o cursor");
+		bailIfCursor(TSD->cursors, "attempt to write during r/o cursor");
 
 	      retry:
 		txbegin(&tid);
@@ -617,8 +606,7 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 				txabort(tid);
 				goto retry;
 			} else {
-				syslog(LOG_EMERG, "cdb_store(%d): %s\n",
-					cdb, db_strerror(ret));
+				syslog(LOG_EMERG, "cdb_store(%d): %s", cdb, db_strerror(ret));
 				abort();
 			}
 		} else {
@@ -648,8 +636,8 @@ int cdb_delete(int cdb, void *key, int keylen)
 	dkey.size = keylen;
 	dkey.data = key;
 
-	if (MYTID != NULL) {
-		ret = dbp[cdb]->del(dbp[cdb], MYTID, &dkey, 0);
+	if (TSD->tid != NULL) {
+		ret = dbp[cdb]->del(dbp[cdb], TSD->tid, &dkey, 0);
 		if (ret) {
 			syslog(LOG_EMERG, "cdb_delete(%d): %s\n", cdb, db_strerror(ret));
 			if (ret != DB_NOTFOUND) {
@@ -657,7 +645,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 			}
 		}
 	} else {
-		bailIfCursor(MYCURSORS, "attempt to delete during r/o cursor");
+		bailIfCursor(TSD->cursors, "attempt to delete during r/o cursor");
 
 	      retry:
 		txbegin(&tid);
@@ -684,12 +672,10 @@ static DBC *localcursor(int cdb)
 	int ret;
 	DBC *curs;
 
-	if (MYCURSORS[cdb] == NULL)
-		ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &curs, 0);
+	if (TSD->cursors[cdb] == NULL)
+		ret = dbp[cdb]->cursor(dbp[cdb], TSD->tid, &curs, 0);
 	else
-		ret =
-		    MYCURSORS[cdb]->c_dup(MYCURSORS[cdb], &curs,
-					  DB_POSITION);
+		ret = TSD->cursors[cdb]->c_dup(TSD->cursors[cdb], &curs, DB_POSITION);
 
 	if (ret) {
 		syslog(LOG_EMERG, "localcursor: %s\n", db_strerror(ret));
@@ -716,10 +702,10 @@ struct cdbdata *cdb_fetch(int cdb, const void *key, int keylen)
 	dkey.size = keylen;
 	dkey.data = key;
 
-	if (MYTID != NULL) {
+	if (TSD->tid != NULL) {
 		memset(&dret, 0, sizeof(DBT));
 		dret.flags = DB_DBT_MALLOC;
-		ret = dbp[cdb]->get(dbp[cdb], MYTID, &dkey, &dret, 0);
+		ret = dbp[cdb]->get(dbp[cdb], TSD->tid, &dkey, &dret, 0);
 	} else {
 		DBC *curs;
 
@@ -775,11 +761,11 @@ void cdb_free(struct cdbdata *cdb)
 
 void cdb_close_cursor(int cdb)
 {
-	if (MYCURSORS[cdb] != NULL) {
-		cclose(MYCURSORS[cdb]);
+	if (TSD->cursors[cdb] != NULL) {
+		cclose(TSD->cursors[cdb]);
 	}
 
-	MYCURSORS[cdb] = NULL;
+	TSD->cursors[cdb] = NULL;
 }
 
 /* 
@@ -791,17 +777,17 @@ void cdb_rewind(int cdb)
 {
 	int ret = 0;
 
-	if (MYCURSORS[cdb] != NULL) {
+	if (TSD->cursors[cdb] != NULL) {
 		syslog(LOG_EMERG,
 			"cdb_rewind: must close cursor on database %d before reopening.\n", cdb);
 		abort();
-		/* cclose(MYCURSORS[cdb]); */
+		/* cclose(TSD->cursors[cdb]); */
 	}
 
 	/*
 	 * Now initialize the cursor
 	 */
-	ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &MYCURSORS[cdb], 0);
+	ret = dbp[cdb]->cursor(dbp[cdb], TSD->tid, &TSD->cursors[cdb], 0);
 	if (ret) {
 		syslog(LOG_EMERG, "cdb_rewind: db_cursor: %s\n", db_strerror(ret));
 		abort();
@@ -824,15 +810,14 @@ struct cdbdata *cdb_next_item(int cdb)
 	memset(&data, 0, sizeof(data));
 	data.flags = DB_DBT_MALLOC;
 
-	ret = MYCURSORS[cdb]->c_get(MYCURSORS[cdb], &key, &data, DB_NEXT);
+	ret = TSD->cursors[cdb]->c_get(TSD->cursors[cdb], &key, &data, DB_NEXT);
 
 	if (ret) {
 		if (ret != DB_NOTFOUND) {
 			syslog(LOG_EMERG, "cdb_next_item(%d): %s\n", cdb, db_strerror(ret));
 			abort();
 		}
-		cclose(MYCURSORS[cdb]);
-		MYCURSORS[cdb] = NULL;
+		cdb_close_cursor(cdb);
 		return NULL;	/* presumably, end of file */
 	}
 
@@ -853,14 +838,14 @@ struct cdbdata *cdb_next_item(int cdb)
 void cdb_begin_transaction(void)
 {
 
-	bailIfCursor(MYCURSORS, "can't begin transaction during r/o cursor");
+	bailIfCursor(TSD->cursors, "can't begin transaction during r/o cursor");
 
-	if (MYTID != NULL) {
+	if (TSD->tid != NULL) {
 		syslog(LOG_EMERG, "cdb_begin_transaction: ERROR: nested transaction\n");
 		abort();
 	}
 
-	txbegin(&MYTID);
+	txbegin(&TSD->tid);
 }
 
 void cdb_end_transaction(void)
@@ -868,23 +853,23 @@ void cdb_end_transaction(void)
 	int i;
 
 	for (i = 0; i < MAXCDB; i++)
-		if (MYCURSORS[i] != NULL) {
+		if (TSD->cursors[i] != NULL) {
 			syslog(LOG_WARNING,
 				"cdb_end_transaction: WARNING: cursor %d still open at transaction end\n",
 				i);
-			cclose(MYCURSORS[i]);
-			MYCURSORS[i] = NULL;
+			cclose(TSD->cursors[i]);
+			TSD->cursors[i] = NULL;
 		}
 
-	if (MYTID == NULL) {
+	if (TSD->tid == NULL) {
 		syslog(LOG_EMERG,
 			"cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
 		abort();
 	} else {
-		txcommit(MYTID);
+		txcommit(TSD->tid);
 	}
 
-	MYTID = NULL;
+	TSD->tid = NULL;
 }
 
 /*
@@ -896,12 +881,11 @@ void cdb_trunc(int cdb)
 	int ret;
 	u_int32_t count;
 
-	if (MYTID != NULL) {
-		syslog(LOG_EMERG,
-			"cdb_trunc must not be called in a transaction.\n");
+	if (TSD->tid != NULL) {
+		syslog(LOG_EMERG, "cdb_trunc must not be called in a transaction.");
 		abort();
 	} else {
-		bailIfCursor(MYCURSORS, "attempt to write during r/o cursor");
+		bailIfCursor(TSD->cursors, "attempt to write during r/o cursor");
 
 	      retry:
 		/* txbegin(&tid); */
@@ -916,9 +900,9 @@ void cdb_trunc(int cdb)
 			} else {
 				syslog(LOG_EMERG, "cdb_truncate(%d): %s\n", cdb, db_strerror(ret));
 				if (ret == ENOMEM) {
-					syslog(LOG_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php/faq:troubleshooting:out_of_lock_entries for more information.\n");
+					syslog(LOG_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php/faq:troubleshooting:out_of_lock_entries for more information.");
 				}
-				abort();
+				exit(CTDLEXIT_DB);
 			}
 		} else {
 			/* txcommit(tid); */
