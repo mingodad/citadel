@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.52)
-AC_INIT([Citadel], [7.89], [http://www.citadel.org/])
+AC_INIT([Citadel], [7.90], [http://www.citadel.org/])
 AC_REVISION([$Revision: 5108 $])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_CONFIG_HEADER(sysdep.h)
@@ -467,16 +467,6 @@ AC_ARG_WITH(gprof,
 			]
 )
 
-dnl disable thread table reporting
-AC_ARG_WITH(threadlog,
-		[  --with-threadlog        enable logging of thread table],
-			[ if test "x$withval" != "xno" ; then
-				AC_DEFINE(WITH_THREADLOG, [], [Define if you want logging of the thread tables.])
-			  fi
-			]
-)
-
-
 if test "$ac_cv_func_gethostbyname" = no; then
 	AC_CHECK_LIB(nsl, gethostbyname)
 fi
@@ -731,22 +721,6 @@ if test "x$ok_ldap" = xyes ; then
 	AC_DEFINE(HAVE_LDAP, [], [define this if you have OpenLDAP client available])
 fi
 
-
-
-
-
-dnl Checks for the Boehm-Demers-Weiser garbage collection library.
-if test "x$with_gc" != xno ; then
-	AC_CHECK_HEADERS(gc/gc_local_alloc.h,
-		[AC_CHECK_LIB(gc, GC_init,
-			[ok_gc=yes],,
-	)])
-fi
-
-if test "x$ok_gc" = xyes ; then
-	SERVER_LIBS="-lgc $SERVER_LIBS"
-	AC_DEFINE(HAVE_GC, [], [define this if you have Boehm-Demers-Weiser available])
-fi
 
 
 

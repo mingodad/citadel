@@ -146,11 +146,6 @@ void master_startup(void) {
 
 	syslog(LOG_INFO, "Opening databases\n");
 	open_databases();
-
-	ctdl_thread_internal_init_tsd();
-	
-	CtdlThreadAllocTSD();
-	
 	check_ref_counts();
 
 	syslog(LOG_INFO, "Creating base rooms (if necessary)\n");
@@ -218,10 +213,6 @@ void master_cleanup(int exitcode) {
 	syslog(LOG_INFO, "Closing databases\n");
 	close_databases();
 
-#ifdef DEBUG_MEMORY_LEAKS
-	dump_heap();
-#endif
-
 	/* If the operator requested a halt but not an exit, halt here. */
 	if (shutdown_and_halt) {
 		syslog(LOG_NOTICE, "citserver: Halting server without exiting.\n");
@@ -281,10 +272,10 @@ void cmd_info(char *cmdbuf) {
 
 	cprintf("%s\n", config.c_default_cal_zone);
 
-	/* Output load averages */
-	cprintf("%f\n", CtdlThreadLoadAvg);
-	cprintf("%f\n", CtdlThreadWorkerAvg);
-	cprintf("%d\n", CtdlThreadGetCount());
+	/* thread load averages -- temporarily disabled during refactoring of this code */
+	cprintf("0\n");		/* load average */
+	cprintf("0\n");		/* worker average */
+	cprintf("0\n");		/* thread count */
 
 	cprintf("1\n");		/* yes, Sieve mail filtering is supported */
 	cprintf("%d\n", config.c_enable_fulltext);
@@ -765,7 +756,7 @@ void cmd_ipgm(char *argbuf)
 		sleep(5);
 		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
 		syslog(LOG_ERR, "Warning: ipgm authentication failed.\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_AUTHFAILED;
 	}
 }
 
@@ -799,8 +790,8 @@ void cmd_down(char *argbuf) {
 	{
 		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN); 
 	}
-	CC->kill_me = 1; /* Even the DOWN command has to follow correct proceedure when disconecting */
-	CtdlThreadStopAll();
+	CC->kill_me = KILLME_SERVER_SHUTTING_DOWN;
+	server_shutting_down = 1;
 }
 
 
@@ -812,7 +803,7 @@ void cmd_halt(char *argbuf) {
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	cprintf("%d Halting server.  Goodbye.\n", CIT_OK);
-	CtdlThreadStopAll();
+	server_shutting_down = 1;
 	shutdown_and_halt = 1;
 }
 
@@ -968,7 +959,7 @@ void citproto_begin_session() {
 			ERROR + MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions
 		);
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_MAX_SESSIONS_EXCEEDED;
 	}
 	else {
 		cprintf("%d %s Citadel server ready.\n", CIT_OK, config.c_nodename);
@@ -992,7 +983,7 @@ void cmd_qnop(char *argbuf)
 void cmd_quit(char *argbuf)
 {
 	cprintf("%d Goodbye.\n", CIT_OK);
-	CC->kill_me = 1;
+	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 }
 
 
@@ -1009,25 +1000,25 @@ void cmd_lout(char *argbuf)
  */
 void do_command_loop(void) {
 	char cmdbuf[SIZ];
-	const char *old_name = NULL;
-	
-	old_name = CtdlThreadName("do_command_loop");
 	
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		syslog(LOG_ERR, "Client disconnected: ending session.\n");
-		CC->kill_me = 1;
-		CtdlThreadName(old_name);
+		syslog(LOG_ERR, "Citadel client disconnected: ending session.\n");
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 
 	/* Log the server command, but don't show passwords... */
 	if ( (strncasecmp(cmdbuf, "PASS", 4)) && (strncasecmp(cmdbuf, "SETP", 4)) ) {
-		syslog(LOG_INFO, "CtdlCommand [%s] [%s] %s\n", CTDLUSERIP, CC->curr_user, cmdbuf);
+		syslog(LOG_INFO, "[%d][%s(%ld)] %s",
+			CC->cs_pid, CC->curr_user, CC->user.usernum, cmdbuf
+		);
 	}
 	else {
-		syslog(LOG_INFO, "CtdlCommand [%s] [%s] <password command hidden from log>\n", CTDLUSERIP, CC->curr_user);
+		syslog(LOG_INFO, "[%d][%s(%ld)] <password command hidden from log>",
+			CC->cs_pid, CC->curr_user, CC->user.usernum
+		);
 	}
 
 	buffer_output();
@@ -1047,8 +1038,6 @@ void do_command_loop(void) {
 		time(&CC->lastidle);
 	}
 	
-	CtdlThreadName(cmdbuf);
-		
 	if ((strncasecmp(cmdbuf, "ENT0", 4))
 	   && (strncasecmp(cmdbuf, "MESG", 4))
 	   && (strncasecmp(cmdbuf, "MSGS", 4)))
@@ -1064,7 +1053,6 @@ void do_command_loop(void) {
 
 	/* Run any after-each-command routines registered by modules */
 	PerformSessionHooks(EVT_CMD);
-	CtdlThreadName(old_name);
 }
 
 

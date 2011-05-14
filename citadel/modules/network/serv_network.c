@@ -2,9 +2,9 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2010 by the citadel.org team
+ * Copyright (c) 2000-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
+ *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -91,9 +91,6 @@
 #include "ctdl_module.h"
 
 
-
-/* Nonzero while we are doing network processing */
-static int doing_queue = 0;
 
 /*
  * When we do network processing, it's accomplished in two passes; one to
@@ -682,6 +679,9 @@ void network_spool_msg(long msgnum, void *userdata) {
 		 */
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
+			int len, rlen;
+			char *pCh;
+
 			if (msg->cm_fields['V'] == NULL){
 				/* local message, no enVelope */
 				StrBuf *Buf;
@@ -711,9 +711,26 @@ void network_spool_msg(long msgnum, void *userdata) {
 			if (msg->cm_fields['U'] == NULL) {
 				msg->cm_fields['U'] = strdup("(no subject)");
 			}
-			snprintf(buf, sizeof buf, "[%s] %s", CC->room.QRname, msg->cm_fields['U']);
-			free(msg->cm_fields['U']);
-			msg->cm_fields['U'] = strdup(buf);
+			
+			len  = strlen(msg->cm_fields['U']);
+			rlen = strlen(CC->room.QRname);
+			pCh  = strstr(msg->cm_fields['U'], CC->room.QRname);
+			if ((pCh == NULL) ||
+			    (*(pCh + rlen) != ']') ||
+			    (pCh == msg->cm_fields['U']) ||
+			    (*(pCh - 1) != '[')
+				)
+			{
+				char *pBuff;
+
+				rlen += len + 4;
+				pBuff = malloc (rlen * sizeof(char));
+
+				snprintf(pBuff, rlen, "[%s] %s", CC->room.QRname, msg->cm_fields['U']);
+				free(msg->cm_fields['U']);
+				msg->cm_fields['U'] = pBuff;
+			}
+			/* else we won't modify the buffer, since the roomname is already here. */
 
 			/* Set the recipient of the list message to the
 			 * email address of the room itself.
@@ -1972,7 +1989,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 		 * If shutting down we can exit here and unlink the temp file.
 		 * this shouldn't loose us any messages.
 		 */
-		if (CtdlThreadCheckStop())
+		if (server_shutting_down)
 		{
 			fclose(fp);
 			unlink(tempfilename);
@@ -2014,7 +2031,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 	fclose(fp);
 
 	/* Last chance for shutdown exit */
-	if (CtdlThreadCheckStop())
+	if (server_shutting_down)
 	{
 		unlink(tempfilename);
 		return;
@@ -2085,7 +2102,7 @@ void transmit_spool(int *sock, char *remote_nodename)
 		bytes_to_write = plen;
 		while (bytes_to_write > 0L) {
 			/* Exit if shutting down */
-			if (CtdlThreadCheckStop())
+			if (server_shutting_down)
 			{
 				close(fd);
 				return;
@@ -2118,7 +2135,7 @@ ABORTUPL:
 	close(fd);
 
 	/* Last chance for shutdown exit */
-	if(CtdlThreadCheckStop())
+	if(server_shutting_down)
 		return;
 		
 	if (sock_puts(sock, "UCLS 1") < 0) return;
@@ -2191,9 +2208,9 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 		}
 	
 		/* At this point we are authenticated. */
-		if (!CtdlThreadCheckStop())
+		if (!server_shutting_down)
 			receive_spool(&sock, node);
-		if (!CtdlThreadCheckStop())
+		if (!server_shutting_down)
 			transmit_spool(&sock, node);
 	}
 
@@ -2230,7 +2247,7 @@ void network_poll_other_citadel_nodes(int full_poll) {
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
-		if(CtdlThreadCheckStop())
+		if(server_shutting_down)
 			return;
 		extract_token(linebuf, working_ignetcfg, i, '\n', sizeof linebuf);
 		extract_token(node, linebuf, 0, '|', sizeof node);
@@ -2294,6 +2311,7 @@ void create_spool_dirs(void) {
  * Run through the rooms doing various types of network stuff.
  */
 void network_do_queue(void) {
+	static int doing_queue = 0;
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 	int full_processing = 1;
@@ -2339,14 +2357,14 @@ void network_do_queue(void) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	if (full_processing && !CtdlThreadCheckStop()) {
+	if (full_processing && !server_shutting_down) {
 		syslog(LOG_DEBUG, "network: loading outbound queue\n");
 		CtdlForEachRoom(network_queue_room, NULL);
 	}
 
 	if (rplist != NULL) {
 		syslog(LOG_DEBUG, "network: running outbound queue\n");
-		while (rplist != NULL && !CtdlThreadCheckStop()) {
+		while (rplist != NULL && !server_shutting_down) {
 			char spoolroomname[ROOMNAMELEN];
 			safestrncpy(spoolroomname, rplist->name, sizeof spoolroomname);
 			begin_critical_section(S_RPLIST);
@@ -2371,7 +2389,7 @@ void network_do_queue(void) {
 	}
 
 	/* If there is anything in the inbound queue, process it */
-	if (!CtdlThreadCheckStop()) {
+	if (!server_shutting_down) {
 		network_do_spoolin();
 	}
 
@@ -2421,7 +2439,7 @@ void cmd_netp(char *cmdbuf)
 			"An unknown Citadel server called \"%s\" attempted to connect from %s [%s].\n",
 			node, CC->cs_host, CC->cs_addr
 		);
-		syslog(LOG_WARNING, err_buf);
+		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
 		return;
@@ -2432,7 +2450,7 @@ void cmd_netp(char *cmdbuf)
 			"A Citadel server at %s [%s] failed to authenticate as network node \"%s\".\n",
 			CC->cs_host, CC->cs_addr, node
 		);
-		syslog(LOG_WARNING, err_buf);
+		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
 		return;
@@ -2459,24 +2477,6 @@ int network_room_handler (struct ctdlroom *room)
 	return 0;
 }
 
-void *ignet_thread(void *arg) {
-	struct CitContext ignet_thread_CC;
-
-	syslog(LOG_DEBUG, "ignet_thread() initializing\n");
-	CtdlFillSystemContext(&ignet_thread_CC, "IGnet Queue");
-	citthread_setspecific(MyConKey, (void *)&ignet_thread_CC);
-
-	while (!CtdlThreadCheckStop()) {
-		network_do_queue();
-		CtdlThreadSleep(60);
-	}
-
-	CtdlClearSystemContext();
-	return(NULL);
-}
-
-
-
 
 /*
  * Module entry point
@@ -2492,7 +2492,7 @@ CTDL_MODULE_INIT(network)
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 		CtdlRegisterRoomHook(network_room_handler);
 		CtdlRegisterCleanupHook(destroy_network_queue_room);
-		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, ignet_thread, NULL);
+		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	}
 	return "network";
 }

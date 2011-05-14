@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 1987-2011 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #include "sysdep.h"
 #include <ctype.h>
 #include <errno.h>
@@ -276,8 +294,11 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 		return -1;
 		
 	if (DestSize > 0)
-		while (NewSize <= DestSize)
+		while ((NewSize <= DestSize) && (NewSize != 0))
 			NewSize *= 2;
+
+	if (NewSize == 0)
+		return -1;
 
 	NewBuf= (char*) malloc(NewSize);
 	if (NewBuf == NULL)
@@ -479,8 +500,13 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 	else
 		CopySize = nChars;
 
-	while (Siz <= CopySize)
+	while ((Siz <= CopySize) && (Siz != 0))
 		Siz *= 2;
+
+	if (Siz == 0)
+	{
+		return NULL;
+	}
 
 	NewBuf->buf = (char*) malloc(Siz);
 	if (NewBuf->buf == NULL)
@@ -532,8 +558,13 @@ int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
 	else
 		CopySize = nChars;
 
-	while (Siz <= CopySize)
+	while ((Siz <= CopySize) && (Siz != 0))
 		Siz *= 2;
+
+	if (Siz == 0) {
+		FlushStrBuf(Buf);
+		return -1;
+	}
 
 	if (Siz != Buf->BufSize)
 		IncreaseBuf(Buf, 0, Siz);
@@ -858,7 +889,8 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 		va_end(apl);
 		newused = Offset + nWritten;
 		if (newused >= Buf->BufSize) {
-			IncreaseBuf(Buf, 1, newused);
+			if (IncreaseBuf(Buf, 1, newused) == -1)
+				return; /* TODO: error handling? */
 			newused = Buf->BufSize + 1;
 		}
 		else {
@@ -899,7 +931,8 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 		va_end(arg_ptr);
 		newused = Buf->BufUsed + nWritten;
 		if (newused >= Buf->BufSize) {
-			IncreaseBuf(Buf, 1, newused);
+			if (IncreaseBuf(Buf, 1, newused) == -1)
+				return; /* TODO: error handling? */
 			newused = Buf->BufSize + 1;
 		}
 		else {
@@ -930,7 +963,8 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 		nWritten = vsnprintf(Buf->buf, Buf->BufSize, format, arg_ptr);
 		va_end(arg_ptr);
 		if (nWritten >= Buf->BufSize) {
-			IncreaseBuf(Buf, 0, 0);
+			if (IncreaseBuf(Buf, 0, 0) == -1)
+				return; /* TODO: error handling? */
 			nWritten = Buf->BufSize + 1;
 			continue;
 		}
@@ -1333,7 +1367,7 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 	//cit_backtrace();
 	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 
-	while ((s<e) && !IsEmptyStr(s)) {
+	while ((s < e) && !IsEmptyStr(s)) {
 		if (*s == separator) {
 			++current_token;
 		}
@@ -1618,7 +1652,7 @@ int StrBufSkip_NTokenS(const StrBuf *Source, const char **pStart, char separator
 	//cit_backtrace();
 	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
 
-	while ((s<EndBuffer) && !IsEmptyStr(s)) {
+	while ((s < EndBuffer) && !IsEmptyStr(s)) {
 		if (*s == separator) {
 			++current_token;
 		}
@@ -2828,7 +2862,8 @@ static inline const char *FindNextEnd (const StrBuf *Buf, const char *bptr)
 		return NULL;
 
 	if ((Buf->BufUsed - (end - Buf->buf) > 3) &&
-	    ((*(end + 1) == 'B') || (*(end + 1) == 'Q')) && 
+	    (((*(end + 1) == 'B') || (*(end + 1) == 'Q')) ||
+	     ((*(end + 1) == 'b') || (*(end + 1) == 'q'))) && 
 	    (*(end + 2) == '?')) {
 		/* skip on to the end of the cluster, the next ?= */
 		end = strstr(end + 3, "?=");
@@ -3081,7 +3116,7 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 	start = strstr(DecodeMee->buf, "=?");
 	eptr = DecodeMee->buf + DecodeMee->BufUsed;
 	if (start != NULL) 
-		end = FindNextEnd (DecodeMee, start);
+		end = FindNextEnd (DecodeMee, start + 2);
 	else {
 		StrBufAppendBuf(Target, DecodeMee, 0);
 		FreeStrBuf(&DecodedInvalidBuf);

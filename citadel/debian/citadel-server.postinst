@@ -74,7 +74,7 @@ case "$1" in
 		export SEPERATOR=2600908b3f21ae7f692b973ed26e212d
 		export WELCOMEHTML=/usr/share/doc/citadel-server/welcomemail.html
 		export WELCOMETXT=/usr/share/doc/citadel-server/welcomemail.txt
-		export FROM=room_citadel_stats@uncensored.citadel.org
+		export FROM=nobody@example.com
 		export TO=room_lobby
 		(
                     printf "MIME-Version: 1.0\r\nContent-Type: multipart/alternative; \r\n boundary=$SEPERATOR\r\n\r\nThis is a multi-part message in MIME format.\r\n\r\n--$SEPERATOR\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n"; 

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000-2009 by Art Cancro and others.
  *
- *  This program is free software; you can redistribute it and/or modify
+ *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -377,7 +377,7 @@ void imap_list(int num_parms, ConstStr *Params)
 					  &Params[i], 
 					  1);
 
-			syslog(LOG_DEBUG, "evaluating <%s>\n", Params[i].Key);
+			syslog(LOG_DEBUG, "evaluating <%s>", Params[i].Key);
 
 			if (!strcasecmp(Params[i].Key, "SUBSCRIBED")) {
 				ImapFilter.return_subscribed = 1;

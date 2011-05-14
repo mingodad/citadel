@@ -2,9 +2,9 @@
  * Citadel context management stuff.
  * Here's where we (hopefully) have all the code that manipulates contexts.
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -86,7 +86,7 @@
 
 
 
-citthread_key_t MyConKey;				/* TSD key for MyContext() */
+pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
 
 CitContext masterCC;
@@ -167,7 +167,7 @@ int CtdlTerminateOtherSession (int session_num)
 			if ((ccptr->user.usernum == CC->user.usernum)
 			   || (CC->user.axlevel >= AxAideU)) {
 				ret |= TERM_ALLOWED;
-				ccptr->kill_me = 1;
+				ccptr->kill_me = KILLME_ADMIN_TERMINATE;
 			}
 		}
 	}
@@ -259,12 +259,8 @@ int CtdlIsUserLoggedInByNum (long usernum)
  * This function is used *VERY* frequently and must be kept small.
  */
 CitContext *MyContext(void) {
-
 	register CitContext *c;
-
-	return ((c = (CitContext *) citthread_getspecific(MyConKey),
-		c == NULL) ? &masterCC : c
-	);
+	return ((c = (CitContext *) pthread_getspecific(MyConKey), c == NULL) ? &masterCC : c);
 }
 
 
@@ -292,7 +288,7 @@ void terminate_idle_sessions(void)
 	   	&& (config.c_sleeping > 0)
 	   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
 			if (!ccptr->dont_term) {
-				ccptr->kill_me = 1;
+				ccptr->kill_me = KILLME_IDLE;
 				++killed;
 			}
 			else 
@@ -306,7 +302,11 @@ void terminate_idle_sessions(void)
 		syslog(LOG_INFO, "Didn't terminate %d protected idle sessions;\n", killed);
 }
 
-void terminate_stuck_sessions(void)
+
+/*
+ * During shutdown, close the sockets of any sessions still connected.
+ */
+void terminate_all_sessions(void)
 {
 	CitContext *ccptr;
 	int killed = 0;
@@ -315,14 +315,16 @@ void terminate_stuck_sessions(void)
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (ccptr->client_socket != -1)
 		{
+			syslog(LOG_INFO, "terminate_all_sessions() is murdering %s", ccptr->curr_user);
 			close(ccptr->client_socket);
 			ccptr->client_socket = -1;
 			killed++;
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
-	if (killed > 0)
+	if (killed > 0) {
 		syslog(LOG_INFO, "Flushed %d stuck sessions\n", killed);
+	}
 }
 
 
@@ -332,12 +334,16 @@ void terminate_stuck_sessions(void)
  */
 void RemoveContext (CitContext *con)
 {
+	const char *c;
 	if (con==NULL) {
-		syslog(LOG_ERR,
-			"WARNING: RemoveContext() called with NULL!\n");
+		syslog(LOG_ERR, "WARNING: RemoveContext() called with NULL!\n");
 		return;
 	}
-	syslog(LOG_DEBUG, "RemoveContext() session %d\n", con->cs_pid);
+	c = con->ServiceName;
+	if (c == NULL)
+		c = "WTF?";
+	syslog(LOG_DEBUG, "RemoveContext(%s) session %d\n", c, con->cs_pid);
+	cit_backtrace ();
 
 	/* Run any cleanup routines registered by loadable modules.
 	 * Note: We have to "become_session()" because the cleanup functions
@@ -346,13 +352,20 @@ void RemoveContext (CitContext *con)
 	become_session(con);
 	CtdlUserLogout();
 	PerformSessionHooks(EVT_STOP);
+	client_close();				/* If the client is still connected, blow 'em away. */
 	become_session(NULL);
 
 	syslog(LOG_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
 
-	/* If the client is still connected, blow 'em away. */
-	syslog(LOG_DEBUG, "Closing socket %d\n", con->client_socket);
-	close(con->client_socket);
+	/* 
+	 * If the client is still connected, blow 'em away. 
+	 * if the socket is 0, its already gone or was never there.
+	 */
+	if (con->client_socket != 0)
+	{
+		syslog(LOG_NOTICE, "Closing socket %d\n", con->client_socket);
+		close(con->client_socket);
+	}
 
 	/* If using AUTHMODE_LDAP, free the DN */
 	if (con->ldap_dn) {
@@ -368,7 +381,6 @@ void RemoveContext (CitContext *con)
 
 	syslog(LOG_DEBUG, "Done with RemoveContext()\n");
 }
-
 
 
 
@@ -388,7 +400,8 @@ CitContext *CreateNewContext(void) {
 		return NULL;
 	}
 	memset(me, 0, sizeof(CitContext));
-	/* Give the contaxt a name. Hopefully makes it easier to track */
+
+	/* Give the context a name. Hopefully makes it easier to track */
 	strcpy (me->user.fullname, "SYS_notauth");
 	
 	/* The new context will be created already in the CON_EXECUTING state
@@ -402,11 +415,12 @@ CitContext *CreateNewContext(void) {
 	 */
 	me->MigrateBuf = NewStrBuf();
 	me->ReadBuf = NewStrBuf();
+	me->lastcmd = time(NULL);	/* set lastcmd to now to prevent idle timer infanticide */
+
 	begin_critical_section(S_SESSION_TABLE);
 	me->cs_pid = ++next_pid;
 	me->prev = NULL;
 	me->next = ContextList;
-	me->lastcmd = time(NULL);	/* set lastcmd to now to prevent idle timer infanticide */
 	ContextList = me;
 	if (me->next != NULL) {
 		me->next->prev = me;
@@ -444,52 +458,6 @@ CitContext *CtdlGetContextArray(int *count)
 }
 
 
-
-/*
- * This function fills in a context and its user field correctly
- * Then creates/loads that user
- */
-void CtdlFillSystemContext(CitContext *context, char *name)
-{
-	char sysname[SIZ];
-	long len;
-
-	memset(context, 0, sizeof(CitContext));
-	context->internal_pgm = 1;
-	context->cs_pid = 0;
-	strcpy (sysname, "SYS_");
-	strcat (sysname, name);
-	len = cutuserkey(sysname);
-	memcpy(context->curr_user, sysname, len + 1);
-	context->client_socket = (-1);
-
-	/* internal_create_user has the side effect of loading the user regardless of wether they
-	 * already existed or needed to be created
-	 */
-	internal_create_user (sysname, len, &(context->user), -1) ;
-	
-	/* Check to see if the system user needs upgrading */
-	if (context->user.usernum == 0)
-	{	/* old system user with number 0, upgrade it */
-		context->user.usernum = get_new_user_number();
-		syslog(LOG_DEBUG, "Upgrading system user \"%s\" from user number 0 to user number %ld\n", context->user.fullname, context->user.usernum);
-		/* add user to the database */
-		CtdlPutUser(&(context->user));
-		cdb_store(CDB_USERSBYNUMBER, &(context->user.usernum), sizeof(long), context->user.fullname, strlen(context->user.fullname)+1);
-	}
-}
-
-/*
- * flush it again...
- */
-void CtdlClearSystemContext(void)
-{
-	CitContext *CCC = MyContext();
-
-	memset(CCC, 0, sizeof(CitContext));
-	citthread_setspecific(MyConKey, NULL);
-}
-
 /*
  * Cleanup any contexts that are left lying around
  */
@@ -516,7 +484,7 @@ void context_cleanup(void)
 		rem = ptr->next;
 		--num_sessions;
 		
-		syslog(LOG_DEBUG, "Purging session %d\n", ptr->cs_pid);
+		syslog(LOG_DEBUG, "context_cleanup(): purging session %d\n", ptr->cs_pid);
 		RemoveContext(ptr);
 		free (ptr);
 		ptr = rem;
@@ -524,23 +492,6 @@ void context_cleanup(void)
 }
 
 
-
-/*
- * Terminate another session.
- * (This could justifiably be moved out of sysdep.c because it
- * no longer does anything that is system-dependent.)
- */
-void kill_session(int session_to_kill) {
-	CitContext *ptr;
-
-	begin_critical_section(S_SESSION_TABLE);
-	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-		if (ptr->cs_pid == session_to_kill) {
-			ptr->kill_me = 1;
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-}
 
 /*
  * Purge all sessions which have the 'kill_me' flag set.
@@ -551,7 +502,7 @@ void kill_session(int session_to_kill) {
  */
 void dead_session_purge(int force) {
 	CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
-	CitContext *rem = NULL;	/* list of sessions to be destroyed */
+	CitContext *rem = NULL;		/* list of sessions to be destroyed */
 	
 	if (force == 0) {
 		if ( (time(NULL) - last_purge) < 5 ) {
@@ -593,7 +544,7 @@ void dead_session_purge(int force) {
 	 * is allocated privately on this thread's stack.
 	 */
 	while (rem != NULL) {
-		syslog(LOG_DEBUG, "Purging session %d\n", rem->cs_pid);
+		syslog(LOG_DEBUG, "dead_session_purge(): purging session %d, reason=%d\n", rem->cs_pid, rem->kill_me);
 		RemoveContext(rem);
 		ptr = rem;
 		rem = rem->next;
@@ -610,7 +561,7 @@ void dead_session_purge(int force) {
  * function initializes it.
  */
 void InitializeMasterCC(void) {
-	memset(&masterCC, 0, sizeof( CitContext));
+	memset(&masterCC, 0, sizeof(struct CitContext));
 	masterCC.internal_pgm = 1;
 	masterCC.cs_pid = 0;
 }

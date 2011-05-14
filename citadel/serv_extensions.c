@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -126,8 +126,8 @@ void LogPrintMessages(long err)
 
 	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
 
-	syslog(LOG_EMERG,Message);
-	syslog(LOG_EMERG,ErrSubject);
+	syslog(LOG_EMERG, "%s", Message);
+	syslog(LOG_EMERG, "%s", ErrSubject);
 	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
 	if (errormessages!=NULL) free (errormessages);
 	errormessages = NULL;
@@ -944,7 +944,7 @@ void PerformSessionHooks(int EventType)
 	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
 			if (EventType == EVT_TIMER) {
-				citthread_setspecific(MyConKey, NULL);	/* for every hook */
+				pthread_setspecific(MyConKey, NULL);	/* for every hook */
 			}
 			(*fcn->h_function_pointer) ();
 		}

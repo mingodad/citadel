@@ -84,14 +84,20 @@ void xml_strout(char *str) {
 	char *c = str;
 
 	while (*c != 0) {
-		if (*c == '&') {
-			client_write("&amp;", 5);
+		if (*c == '\"') {
+			client_write("&quot;", 6);
+		}
+		else if (*c == '\'') {
+			client_write("&apos;", 6);
 		}
 		else if (*c == '<') {
 			client_write("&lt;", 4);
 		}
 		else if (*c == '>') {
 			client_write("&gt;", 4);
+		}
+		else if (*c == '&') {
+			client_write("&amp;", 5);
 		}
 		else {
 			client_write(c, 1);
@@ -140,7 +146,11 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	cprintf("<QRhighest>%ld</QRhighest>\n", buf->QRhighest);
 	cprintf("<QRgen>%ld</QRgen>\n", (long)buf->QRgen);
 	cprintf("<QRflags>%u</QRflags>\n", buf->QRflags);
-	client_write("<QRdirname>", 11);	xml_strout(buf->QRdirname);	client_write("</QRdirname>\n", 13);
+	if (buf->QRflags & QR_DIRECTORY) {
+		client_write("<QRdirname>", 11);
+		xml_strout(buf->QRdirname);
+		client_write("</QRdirname>\n", 13);
+	}
 	cprintf("<QRinfo>%ld</QRinfo>\n", buf->QRinfo);
 	cprintf("<QRfloor>%d</QRfloor>\n", buf->QRfloor);
 	cprintf("<QRmtime>%ld</QRmtime>\n", (long)buf->QRmtime);
@@ -180,7 +190,7 @@ void migr_export_rooms(void) {
 	 * this will be handled by exporting the reference count, not by
 	 * exporting the message multiple times.)
 	 */
-	snprintf(cmd, sizeof cmd, "sort <%s >%s", migr_tempfilename1, migr_tempfilename2);
+	snprintf(cmd, sizeof cmd, "sort -n <%s >%s", migr_tempfilename1, migr_tempfilename2);
 	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
 	snprintf(cmd, sizeof cmd, "uniq <%s >%s", migr_tempfilename2, migr_tempfilename1);
 	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
@@ -203,6 +213,23 @@ void migr_export_floors(void) {
 		cprintf("<f_ep_expire_value>%d</f_ep_expire_value>\n", buf->f_ep.expire_value);
 		client_write("</floor>\n", 9);
 	}
+}
+
+
+/*
+ * Return nonzero if the supplied string contains only characters which are valid in a sequence set.
+ */
+int is_sequence_set(char *s) {
+	if (!s) return(0);
+
+	char *c = s;
+	char ch;
+	while (ch = *c++, ch) {
+		if (!strchr("0123456789*,:", ch)) {
+			return(0);
+		}
+	}
+	return(1);
 }
 
 
@@ -229,7 +256,7 @@ void migr_export_visits(void) {
 		cprintf("<v_usernum>%ld</v_usernum>\n", vbuf.v_usernum);
 
 		client_write("<v_seen>", 8);
-		if (!IsEmptyStr(vbuf.v_seen)) {
+		if ( (!IsEmptyStr(vbuf.v_seen)) && (is_sequence_set(vbuf.v_seen)) ) {
 			xml_strout(vbuf.v_seen);
 		}
 		else {
@@ -237,7 +264,12 @@ void migr_export_visits(void) {
 		}
 		client_write("</v_seen>", 9);
 
-		client_write("<v_answered>", 12); xml_strout(vbuf.v_answered); client_write("</v_answered>\n", 14);
+		if ( (!IsEmptyStr(vbuf.v_answered)) && (is_sequence_set(vbuf.v_answered)) ) {
+			client_write("<v_answered>", 12);
+			xml_strout(vbuf.v_answered);
+			client_write("</v_answered>\n", 14);
+		}
+
 		cprintf("<v_flags>%u</v_flags>\n", vbuf.v_flags);
 		cprintf("<v_view>%d</v_view>\n", vbuf.v_view);
 		client_write("</visit>\n", 9);
@@ -341,7 +373,7 @@ void migr_export_messages(void) {
 	migr_global_message_list = fopen(migr_tempfilename1, "r");
 	if (migr_global_message_list != NULL) {
 		syslog(LOG_INFO, "Opened %s\n", migr_tempfilename1);
-		while ((Ctx->kill_me != 1) && 
+		while ((Ctx->kill_me == 0) && 
 		       (fgets(buf, sizeof(buf), migr_global_message_list) != NULL)) {
 			msgnum = atol(buf);
 			if (msgnum > 0L) {
@@ -351,7 +383,7 @@ void migr_export_messages(void) {
 		}
 		fclose(migr_global_message_list);
 	}
-	if (Ctx->kill_me != 1)
+	if (Ctx->kill_me == 0)
 		syslog(LOG_INFO, "Exported %d messages.\n", count);
 	else
 		syslog(LOG_ERR, "Export aborted due to client disconnect! \n");
@@ -462,12 +494,12 @@ void migr_do_export(void) {
 	cprintf("<control_version>%d</control_version>\n", CitControl.version);
 	client_write("</control>\n", 11);
 
-	if (Ctx->kill_me != 1)	migr_export_users();
-	if (Ctx->kill_me != 1)	migr_export_openids();
-	if (Ctx->kill_me != 1)	migr_export_rooms();
-	if (Ctx->kill_me != 1)	migr_export_floors();
-	if (Ctx->kill_me != 1)	migr_export_visits();
-	if (Ctx->kill_me != 1)	migr_export_messages();
+	if (Ctx->kill_me == 0)	migr_export_users();
+	if (Ctx->kill_me == 0)	migr_export_openids();
+	if (Ctx->kill_me == 0)	migr_export_rooms();
+	if (Ctx->kill_me == 0)	migr_export_floors();
+	if (Ctx->kill_me == 0)	migr_export_visits();
+	if (Ctx->kill_me == 0)	migr_export_messages();
 	client_write("</citadel_migrate_data>\n", 24);
 	client_write("000\n", 4);
 	Ctx->dont_term = 0;
@@ -799,7 +831,7 @@ void migr_xml_end(void *data, const char *el) {
 			msglist = NULL;
 			msglist_alloc = 0;
 			syslog(LOG_DEBUG, "Imported %d messages.\n", msgcount);
-			if (CtdlThreadCheckStop()) {
+			if (server_shutting_down) {
 				return;
 		}
 	}
@@ -900,7 +932,7 @@ void migr_do_import(void) {
 		linelen = strlen(buf);
 		strcpy(&buf[linelen++], "\n");
 
-		if (CtdlThreadCheckStop())
+		if (server_shutting_down)
 			break;	// Should we break or return?
 		
 		if (buf[0] == '\0')

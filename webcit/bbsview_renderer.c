@@ -55,13 +55,15 @@ long bbsview_get_last_seen(void)
 	serv_puts("GTSN");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
+		char *colon_pos;
+		char *comma_pos;
 
-		char *comma_pos = strchr(buf, ',');	/* kill first comma and everything to its right */
+		comma_pos = strchr(buf, ',');	/* kill first comma and everything to its right */
 		if (comma_pos) {
 			*comma_pos = 0;
 		}
 
-		char *colon_pos = strchr(buf, ':');	/* kill first colon and everything to its left */
+		colon_pos = strchr(buf, ':');	/* kill first colon and everything to its left */
 		if (colon_pos) {
 			strcpy(buf, ++colon_pos);
 		}
@@ -281,13 +283,15 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		}
 
 		else if ( (seq == 0) || (seq == 2) ) {
+			int first;
+			int last;
 			/* Display the selecto-bar with the page numbers */
 
 			wc_printf("<div class=\"moreprompt\">");
 			wc_printf(_("Go to page: "));
 
-			int first = 0;
-			int last = BBS->num_pages - 1;
+			first = 0;
+			last = BBS->num_pages - 1;
 
 			for (i=0; i<=last; ++i) {
 

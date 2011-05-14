@@ -47,6 +47,19 @@ function strcmp ( str1, str2 ) {
     return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
 }
 
+
+
+function ToggleVisibility ($Which)
+{
+	if (document.getElementById)
+	{
+		if (document.getElementById($Which).style.display  == "none")
+			document.getElementById($Which).style.display  = "inline";
+		else
+			document.getElementById($Which).style.display  = "none";
+	}
+}
+
 function emptyElement(element) {
   childNodes = element.childNodes;
   for(var i=0; i<childNodes.length; i++) {
@@ -144,6 +157,11 @@ function activate_entmsg_autocompleters() {
 	new Ajax.Autocompleter('recp_id', 'recp_name_choices', 'recp_autocomplete', {} );
 }
 
+function activate_iconbar_wholist_populat0r() 
+{
+	new Ajax.PeriodicalUpdater('online_users', 'do_template?template=who_iconbar', {method: 'get', frequency: 30});
+}
+
 function setupIconBar() {
   if (!document.getElementById("switch")) {
       return;
@@ -163,9 +181,16 @@ function setupIconBar() {
     }
   }
   var online_users = document.getElementById("online_users");
-  if (online_users.offsetParent != null && online_users.offsetTop > 0) {
-    new Ajax.PeriodicalUpdater('online_users', 'do_template?template=who_iconbar', {method: 'get', frequency: 30});
-  }
+
+	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
+	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) == "collapse.gif" ) {
+		$('online_users').style.display = 'block';
+		activate_iconbar_wholist_populat0r();
+	}
+	else {
+		$('online_users').style.display = 'none';
+	}
+
 }
 function changeIconBarEvent(event) {
   changeIconBar(event.target);
@@ -868,11 +893,43 @@ function ConfirmLogoff() {
 	new Ajax.Updater(
 		'md-content',
 		'do_template?template=confirmlogoff',
-                {
-                        method: 'get',
+		{
+			method: 'get',
 			onSuccess: function(cl_success) {
 				toggleModal(1);
 			}
-                }
-        );
+		}
+	);
+}
+
+
+function switch_to_lang(new_lang) {
+	p = 'push?url=' + encodeURI(window.location);
+	new Ajax.Request(p, { method: 'get' } );
+	window.location = 'switch_language?lang=' + new_lang ;
+}
+
+
+function toggle_wholist() 
+{
+	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
+	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) == "collapse.gif" ) {
+		$('online_users').style.display = 'none';
+		$('expand_wholist').src = 'static/expand.gif';
+		wstate=0;
+	}
+
+	else {
+		$('online_users').style.display = 'block';
+		$('expand_wholist').src = 'static/collapse.gif';
+		activate_iconbar_wholist_populat0r();
+		wstate=1;
+	}
+
+	// tell the server what I did
+	p = 'toggle_wholist_expanded_state?wstate=' + wstate + '?rand=' + Math.random() ;
+	new Ajax.Request(p, { method: 'get' } );
+
+	return false;   /* this prevents the click from registering as a wholist button press */
+
 }

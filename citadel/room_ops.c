@@ -1,6 +1,21 @@
 /* 
  * Server functions which perform operations on room objects.
  *
+ * Copyright (c) 1987-2011 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -128,7 +143,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 
 	/* For mailbox rooms, also check the namespace */
 	/* Also, mailbox owners can delete their messages */
-	if (roombuf->QRflags & QR_MAILBOX) {
+	if ( (roombuf->QRflags & QR_MAILBOX) && (atol(roombuf->QRname) != 0)) {
 		if (userbuf->usernum == atol(roombuf->QRname)) {
 			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED | UA_REPLYALLOWED;
 		}
@@ -774,7 +789,7 @@ void cmd_lprm(char *argbuf)
 	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	cprintf("%d Publiic rooms:\n", LISTING_FOLLOWS);
+	cprintf("%d Public rooms:\n", LISTING_FOLLOWS);
 
 	CtdlForEachRoom(cmd_lprm_backend, &FloorBeingSearched);
 	cprintf("000\n");
@@ -2099,7 +2114,7 @@ void cmd_lflr(char *gargs)
 	int a;
 	struct floor flbuf;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	cprintf("%d Known floors:\n", LISTING_FOLLOWS);
 
@@ -2265,22 +2280,22 @@ CTDL_MODULE_INIT(room_ops)
 		CtdlRegisterProtoHook(cmd_lkrn, "LKRN", "List known rooms with new messages");
 		CtdlRegisterProtoHook(cmd_lkro, "LKRO", "List known rooms without new messages");
 		CtdlRegisterProtoHook(cmd_lzrm, "LZRM", "List zapped rooms");
-		CtdlRegisterProtoHook(cmd_lprm, "LPRM", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_lprm, "LPRM", "List public rooms");
 		CtdlRegisterProtoHook(cmd_goto, "GOTO", "Goto a named room");
 		CtdlRegisterProtoHook(cmd_whok, "WHOK", "List users who know this room");
 		CtdlRegisterProtoHook(cmd_rdir, "RDIR", "List files in room directory");
-		CtdlRegisterProtoHook(cmd_getr, "GETR", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_setr, "SETR", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_geta, "GETA", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_seta, "SETA", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_rinf, "RINF", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_kill, "KILL", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_getr, "GETR", "Get room parameters");
+		CtdlRegisterProtoHook(cmd_setr, "SETR", "Set room parameters");
+		CtdlRegisterProtoHook(cmd_geta, "GETA", "Get the room aide name");
+		CtdlRegisterProtoHook(cmd_seta, "SETA", "Set the room aide for this room");
+		CtdlRegisterProtoHook(cmd_rinf, "RINF", "Fetch room info file");
+		CtdlRegisterProtoHook(cmd_kill, "KILL", "Kill (delete) the current room");
 		CtdlRegisterProtoHook(cmd_cre8, "CRE8", "Create a new room");
-		CtdlRegisterProtoHook(cmd_einf, "EINF", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_lflr, "LFLR", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_cflr, "CFLR", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_kflr, "KFLR", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_eflr, "EFLR", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_einf, "EINF", "Enter info file for the current room");
+		CtdlRegisterProtoHook(cmd_lflr, "LFLR", "List all known floors");
+		CtdlRegisterProtoHook(cmd_cflr, "CFLR", "Create a new floor");
+		CtdlRegisterProtoHook(cmd_kflr, "KFLR", "Kill a floor");
+		CtdlRegisterProtoHook(cmd_eflr, "EFLR", "Edit a floor");
 	}
         /* return our Subversion id for the Log */
 	return "room_ops";

@@ -29,7 +29,7 @@ void display_pushemail(void)
 			serv_puts("subj|__ Push email settings __");
 			serv_puts("000");
 			while (!Done &&
-			       StrBuf_ServGetln(Buf)) {
+			       StrBuf_ServGetln(Buf) >= 0) {
 				if ( (StrLength(Buf)==3) && 
 				     !strcmp(ChrPtr(Buf), "000")) {
 					Done = 1;
@@ -45,7 +45,7 @@ void display_pushemail(void)
 			int i =0;
 			Done = 0;
 			while (!Done &&
-			       StrBuf_ServGetln(Buf)) {
+			       StrBuf_ServGetln(Buf) >= 0) {
 				if (( (StrLength(Buf)==3) && 
 				      !strcmp(ChrPtr(Buf), "000"))||
 				    ((StrLength(Buf)==4) && 
@@ -58,7 +58,7 @@ void display_pushemail(void)
 			if (!strcmp(ChrPtr(Buf), "text")) {
 				Done = 0;
 				while (!Done &&
-				       StrBuf_ServGetln(Buf)) {
+				       StrBuf_ServGetln(Buf) >= 0) {
 					if ( (StrLength(Buf)==3) && 
 					     !strcmp(ChrPtr(Buf), "000")) {
 						Done = 1;
@@ -106,6 +106,7 @@ void save_pushemail(void)
 		sms = bstr("user_sms_number");
 	}
 	Buf = NewStrBuf();
+	memset(&Room, 0, sizeof(folder));
 	if (goto_config_room(Buf, &Room) != 0) {
 		FreeStrBuf(&Buf);
 		FlushFolder(&Room);
@@ -125,7 +126,7 @@ void save_pushemail(void)
 	}
 
 	while (!Done &&
-	       StrBuf_ServGetln(Buf)) {
+	       StrBuf_ServGetln(Buf) >= 0) {
 		if ( (StrLength(Buf)==3) && 
 		     !strcmp(ChrPtr(Buf), "000")) {
 			Done = 1;

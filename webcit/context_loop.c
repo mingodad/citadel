@@ -70,13 +70,14 @@ void do_housekeeping(void)
 
 		/* Kill idle sessions */
 		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
+			syslog(3, "Timeout session %d\n", sptr->wc_session);
 			sptr->killthis = 1;
 		}
 
 		/* Remove sessions flagged for kill */
 		if (sptr->killthis) {
 
-			/** remove session from linked list */
+			/* remove session from linked list */
 			if (sptr == SessionList) {
 				SessionList = SessionList->next;
 			}
@@ -97,10 +98,7 @@ void do_housekeeping(void)
 	 */
 	while (sessions_to_kill != NULL) {
 		syslog(3, "Destroying session %d\n", sessions_to_kill->wc_session);
-		pthread_mutex_lock(&sessions_to_kill->SessionMutex);
-		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
-
 		session_destroy_modules(&sessions_to_kill);
 		sessions_to_kill = sptr;
 	}
@@ -179,7 +177,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				TheSession = sptr;
 			}
 			if (TheSession == NULL)
-				syslog(1, "found sessionkey [%ld], but credentials for [%s|%s] didn't match\n",
+				syslog(1, "found sessionkey [%d], but credentials for [%s|%s] didn't match\n",
 					Hdr->HR.SessionKey,ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username));
 			break;
 		case AUTH_COOKIE:
@@ -195,16 +193,14 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 	}
 	pthread_mutex_unlock(ListMutex);
 	if (TheSession == NULL)
-		syslog(1, "didn't find sessionkey [%ld] for user [%s]\n",
-			Hdr->HR.SessionKey,ChrPtr(Hdr->c_username));
+		syslog(1, "didn't find sessionkey [%d] for user [%s]\n",
+			Hdr->HR.SessionKey, ChrPtr(Hdr->c_username));
 	return TheSession;
 }
 
 wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex)
 {
 	wcsession *TheSession;
-	if (!Static)
-		syslog(3, "Creating a new session\n");
 	TheSession = (wcsession *) malloc(sizeof(wcsession));
 	memset(TheSession, 0, sizeof(wcsession));
 	TheSession->Hdr = Hdr;
@@ -221,9 +217,11 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	 */	
 	if (Hdr->HR.desired_session == 0) {
 		TheSession->wc_session = GenerateSessionID();
+		syslog(3, "Created new session %d", TheSession->wc_session);
 	}
 	else {
 		TheSession->wc_session = Hdr->HR.desired_session;
+		syslog(3, "Re-created session %d", TheSession->wc_session);
 	}
 	Hdr->HR.Static = Static;
 	session_new_modules(TheSession);

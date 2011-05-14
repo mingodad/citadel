@@ -81,7 +81,7 @@ void pop3_cleanup_function(void) {
 	/* Don't do this stuff if this is not a POP3 session! */
 	if (CC->h_command_function != pop3_command_loop) return;
 
-	syslog(LOG_DEBUG, "Performing POP3 cleanup hook\n");
+	syslog(LOG_DEBUG, "Performing POP3 cleanup hook");
 	if (POP3->msgs != NULL) free(POP3->msgs);
 
 	free(POP3);
@@ -110,9 +110,9 @@ void pop3s_greeting(void) {
 
 /* kill session if no crypto */
 #ifdef HAVE_OPENSSL
-	if (!CC->redirect_ssl) CC->kill_me = 1;
+	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
 #else
-	CC->kill_me = 1;
+	CC->kill_me = KILLME_NO_CRYPTO;
 #endif
 
 	pop3_greeting();
@@ -134,7 +134,7 @@ void pop3_user(char *argbuf) {
 	strcpy(username, argbuf);
 	striplt(username);
 
-	/* syslog(LOG_DEBUG, "Trying <%s>\n", username); */
+	/* syslog(LOG_DEBUG, "Trying <%s>", username); */
 	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		cprintf("+OK Password required for %s\r\n", username);
 	}
@@ -212,7 +212,7 @@ void pop3_login(void)
 	if (msgs >= 0) {
 		cprintf("+OK %s is logged in (%d messages)\r\n",
 			CC->user.fullname, msgs);
-		syslog(LOG_NOTICE, "POP3 authenticated %s\n", CC->user.fullname);
+		syslog(LOG_NOTICE, "POP3 authenticated %s", CC->user.fullname);
 	}
 	else {
 		cprintf("-ERR Can't open your mailbox\r\n");
@@ -230,7 +230,7 @@ void pop3_pass(char *argbuf) {
 	safestrncpy(password, argbuf, sizeof password);
 	striplt(password);
 
-	/* syslog(LOG_DEBUG, "Trying <%s>\n", password); */
+	/* syslog(LOG_DEBUG, "Trying <%s>", password); */
 	if (CtdlTryPassword(password, strlen(password)) == pass_ok) {
 		pop3_login();
 	}
@@ -569,15 +569,15 @@ void pop3_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		syslog(LOG_ERR, "Client disconnected: ending session.\r\n");
-		CC->kill_me = 1;
+		syslog(LOG_ERR, "POP3 client disconnected: ending session.");
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 	if (!strncasecmp(cmdbuf, "PASS", 4)) {
-		syslog(LOG_INFO, "POP3: PASS...\r\n");
+		syslog(LOG_INFO, "POP3: PASS...");
 	}
 	else {
-		syslog(LOG_INFO, "POP3: %s\r\n", cmdbuf);
+		syslog(LOG_INFO, "POP3: %s", cmdbuf);
 	}
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
@@ -592,7 +592,7 @@ void pop3_command_loop(void) {
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
 		cprintf("+OK Goodbye...\r\n");
 		pop3_update();
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 		return;
 	}
 
@@ -616,7 +616,7 @@ void pop3_command_loop(void) {
 	
 	else if (CC->nologin) {
 		cprintf("-ERR System busy, try later.\r\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_NOLOGIN;
 	}
 
 	else if (!strncasecmp(cmdbuf, "LIST", 4)) {

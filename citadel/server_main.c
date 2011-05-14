@@ -116,19 +116,9 @@ int main(int argc, char **argv)
 //	eCrashSymbolTable symbol_table;
 #endif
 
-#ifdef HAVE_GC
-	GC_INIT();
-	GC_find_leak = 1;
-#endif
-
-
-	/* initialise semaphores here. Patch by Matt and davew
-	 * its called here as they are needed by syslog for thread safety
-	 */
-	InitialiseSemaphores();
-	
 	/* initialize the master context */
 	InitializeMasterCC();
+	InitializeMasterTSD();
 
 	/* parse command-line arguments */
 	for (a=1; a<argc; ++a) {
@@ -141,11 +131,6 @@ int main(int argc, char **argv)
 		/* run in the background if -d was specified */
 		else if (!strcmp(argv[a], "-d")) {
 			running_as_daemon = 1;
-		}
-
-		/* run a few stats if -s was specified */
-		else if (!strncmp(argv[a], "-s", 2)) {
-			statcount = atoi(&argv[a][2]);
 		}
 
 		else if (!strncmp(argv[a], "-h", 2)) {
@@ -227,25 +212,25 @@ int main(int argc, char **argv)
 #endif
 
 	/* Tell 'em who's in da house */
-	syslog(LOG_NOTICE, "\n");
-	syslog(LOG_NOTICE, "\n");
+	syslog(LOG_NOTICE, " ");
+	syslog(LOG_NOTICE, " ");
 	syslog(LOG_NOTICE,
-		"*** Citadel server engine v%d.%02d (build %s) ***\n",
+		"*** Citadel server engine v%d.%02d (build %s) ***",
 		(REV_LEVEL/100), (REV_LEVEL%100), svn_revision());
-	syslog(LOG_NOTICE, "Copyright (C) 1987-2010 by the Citadel development team.\n");
+	syslog(LOG_NOTICE, "Copyright (C) 1987-2011 by the Citadel development team.");
 	syslog(LOG_NOTICE, "This program is distributed under the terms of the GNU "
-					"General Public License.\n");
-	syslog(LOG_NOTICE, "\n");
-	syslog(LOG_DEBUG, "Called as: %s\n", argv[0]);
-	syslog(LOG_INFO, "%s\n", libcitadel_version_string());
+					"General Public License.");
+	syslog(LOG_NOTICE, " ");
+	syslog(LOG_DEBUG, "Called as: %s", argv[0]);
+	syslog(LOG_INFO, "%s", libcitadel_version_string());
 
 	/* Load site-specific parameters, and set the ipgm secret */
-	syslog(LOG_INFO, "Loading citadel.config\n");
+	syslog(LOG_INFO, "Loading citadel.config");
 	get_config();
 	config.c_ipgm_secret = rand();
 
 	/* get_control() MUST MUST MUST be called BEFORE the databases are opened!! */
-	syslog(LOG_INFO, "Acquiring control record\n");
+	syslog(LOG_INFO, "Acquiring control record");
 	get_control();
 
 	put_config();
@@ -294,18 +279,18 @@ int main(int argc, char **argv)
 	/*
 	 * Run any upgrade entry points
 	 */
-	syslog(LOG_INFO, "Upgrading modules.\n");
+	syslog(LOG_INFO, "Upgrading modules.");
 	upgrade_modules();
 	
-/**
+/*
  * Load the user for the masterCC or create them if they don't exist
  */
 	if (CtdlGetUser(&masterCC.user, "SYS_Citadel"))
 	{
-		/** User doesn't exist. We can't use create user here as the user number needs to be 0 */
+		/* User doesn't exist. We can't use create user here as the user number needs to be 0 */
 		strcpy (masterCC.user.fullname, "SYS_Citadel") ;
 		CtdlPutUser(&masterCC.user);
-		CtdlGetUser(&masterCC.user, "SYS_Citadel"); /** Just to be safe */
+		CtdlGetUser(&masterCC.user, "SYS_Citadel"); /* Just to be safe */
 	}
 	
 	/*
@@ -396,7 +381,6 @@ int main(int argc, char **argv)
 	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
 
 	go_threading();
-	
 	
 	master_cleanup(exit_signal);
 	return(0);

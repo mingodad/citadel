@@ -128,7 +128,7 @@ extern char *ssl_cipher_list;
 
 #define SIZ			4096		/* generic buffer size */
 
-#define TRACE fprintf(stderr, "\033[7mCheckpoint: %s, %d\033[0m\n", __FILE__, __LINE__)
+#define TRACE syslog(LOG_DEBUG, "CHECKPOINT: %s, %d", __FILE__, __LINE__)
 
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
@@ -557,6 +557,8 @@ struct wcsession {
 	int cache_num_floors;
 	long *IBSettingsVec;                    /* which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/* which floordiv currently expanded */
+	int ib_wholist_expanded;
+	int ib_roomlist_expanded;
 
 /* Transcoding cache buffers; used to avoid to frequent realloc */
 	StrBuf *ConvertBuf1;
@@ -642,6 +644,7 @@ void display_openids(void);
 void display_default_landing_page(void);
 void do_welcome(void);
 void do_logout(void);
+void display_reg(int during_login);
 void display_main_menu(void);
 void display_aide_menu(void);
 void slrp_highest(void);
@@ -659,6 +662,8 @@ void serv_puts(const char *string);
 void who(void);
 void push_destination(void);
 void pop_destination(void);
+void robots_txt(void);
+extern void do_404(void);
 
 void ajax_mini_calendar(void);
 void fmout(char *align);

@@ -3,21 +3,21 @@
  *
  * You might also see this module affectionately referred to as the DAP (the Dreaded Auto-Purger).
  *
- * Copyright (c) 1988-2009 by citadel.org (Art Cancro, Wilifried Goesgens, and others)
+ * Copyright (c) 1988-2011 by citadel.org (Art Cancro, Wilifried Goesgens, and others)
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
  * A brief technical discussion:
@@ -148,7 +148,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 	time_t xtime, now;
 	struct CtdlMessage *msg = NULL;
 	int a;
-        struct cdbdata *cdbfr;
+	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
 	FILE *purgelist;
@@ -167,13 +167,13 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 	if (!strcasecmp(qrbuf->QRname, SYSCONFIGROOM)) return;
 
 	/* Ok, we got this far ... now let's see what's in the room */
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long));
 
-        if (cdbfr != NULL) {
-        	msglist = malloc(cdbfr->len);
-        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
-        	num_msgs = cdbfr->len / sizeof(long);
-        	cdb_free(cdbfr);
+	if (cdbfr != NULL) {
+		msglist = malloc(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
 	}
 
 	/* Nothing to do if there aren't any messages */
@@ -247,13 +247,12 @@ void DoPurgeMessages(FILE *purgelist) {
 void PurgeMessages(void) {
 	FILE *purgelist;
 
-	syslog(LOG_DEBUG, "PurgeMessages() called\n");
+	syslog(LOG_DEBUG, "PurgeMessages() called");
 	messages_purged = 0;
 
 	purgelist = tmpfile();
 	if (purgelist == NULL) {
-		syslog(LOG_CRIT, "Can't create purgelist temp file: %s\n",
-			strerror(errno));
+		syslog(LOG_CRIT, "Can't create purgelist temp file: %s", strerror(errno));
 		return;
 	}
 
@@ -320,7 +319,7 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 		age = time(NULL) - (qrbuf->QRmtime);
 		purge_secs = (time_t)config.c_roompurge * (time_t)86400;
 		if (purge_secs <= (time_t)0) return;
-		syslog(LOG_DEBUG, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
+		syslog(LOG_DEBUG, "<%s> is <%ld> seconds old", qrbuf->QRname, (long)age);
 		if (age > purge_secs) do_purge = 1;
 	} /* !QR_MAILBOX */
 
@@ -342,7 +341,7 @@ int PurgeRooms(void) {
 	struct ValidUser *vuptr;
 	char *transcript = NULL;
 
-	syslog(LOG_DEBUG, "PurgeRooms() called\n");
+	syslog(LOG_DEBUG, "PurgeRooms() called");
 
 
 	/* Load up a table full of valid user numbers so we can delete
@@ -379,7 +378,7 @@ int PurgeRooms(void) {
 	if (num_rooms_purged > 0) CtdlAideMessage(transcript, "Room Autopurger Message");
 	free(transcript);
 
-	syslog(LOG_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
+	syslog(LOG_DEBUG, "Purged %d rooms.", num_rooms_purged);
 	return(num_rooms_purged);
 }
 
@@ -428,10 +427,6 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	/* The default rule is to not purge. */
 	purge = 0;
 	
-	/* don't attempt to purge system users. */
-	if (!strncmp(us->fullname, "SYS_", 4))
-		goto skip_all_this;
-
 	/* If the user hasn't called in two months and expiring of accounts is turned on, his/her account
 	 * has expired, so purge the record.
 	 */
@@ -472,7 +467,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (us->usernum < 0L) purge = 1;
 	
-	/** Don't purge user 0. That user is there for the system */
+	/* Don't purge user 0. That user is there for the system */
 	if (us->usernum == 0L)
 	{
 		/* FIXME: Temporary log message. Until we do unauth access with user 0 we should
@@ -480,7 +475,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 		 * we will need to try and purge them from users data bases.Some will not have names but
 		 * those with names should be purged.
 		 */
-		syslog(LOG_DEBUG, "Auto purger found a user 0 with name \"%s\"\n", us->fullname);
+		syslog(LOG_DEBUG, "Auto purger found a user 0 with name <%s>", us->fullname);
 		// purge = 0;
 	}
 	
@@ -498,11 +493,13 @@ void do_user_purge(struct ctdluser *us, void *data) {
 			if (users_corrupt_msg == NULL)
 			{
 				users_corrupt_msg = malloc(SIZ);
-				strcpy(users_corrupt_msg, "The auto-purger found the following user numbers with no name.\n"
-				"The system has no way to purge user with no name and should not be able to\n"
-				"create them either.\n"
-				"This indicates corruption of the user DB or possibly a bug.\n"
-				"It may be a good idea to restore your DB from a backup.\n");
+				strcpy(users_corrupt_msg,
+					"The auto-purger found the following user numbers with no name.\n"
+					"The system has no way to purge a user with no name,"
+					" and should not be able to create them either.\n"
+					"This indicates corruption of the user DB or possibly a bug.\n"
+					"It may be a good idea to restore your DB from a backup.\n"
+				);
 			}
 		
 			users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+30);
@@ -510,8 +507,6 @@ void do_user_purge(struct ctdluser *us, void *data) {
 		}
 	}
 
-skip_all_this:
-		
 	if (purge == 1) {
 		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
 		pptr->next = UserPurgeList;
@@ -531,7 +526,7 @@ int PurgeUsers(void) {
 	int num_users_purged = 0;
 	char *transcript = NULL;
 
-	syslog(LOG_DEBUG, "PurgeUsers() called\n");
+	syslog(LOG_DEBUG, "PurgeUsers() called");
 	users_not_purged = 0;
 
 	switch(config.c_auth_mode) {
@@ -542,7 +537,7 @@ int PurgeUsers(void) {
 			ForEachUser(do_uid_user_purge, NULL);
 			break;
 		default:
-			syslog(LOG_DEBUG, "User purge for auth mode %d is not implemented.\n",
+			syslog(LOG_DEBUG, "User purge for auth mode %d is not implemented.",
 				config.c_auth_mode);
 			break;
 	}
@@ -593,7 +588,7 @@ int PurgeUsers(void) {
 		users_zero_msg = NULL;
 	}
 		
-	syslog(LOG_DEBUG, "Purged %d users.\n", num_users_purged);
+	syslog(LOG_DEBUG, "Purged %d users.", num_users_purged);
 	return(num_users_purged);
 }
 
@@ -708,7 +703,7 @@ int PurgeUseTable(void) {
 	struct UPurgeList *uptr; 
 
 	/* Phase 1: traverse through the table, discovering old records... */
-	syslog(LOG_DEBUG, "Purge use table: phase 1\n");
+	syslog(LOG_DEBUG, "Purge use table: phase 1");
 	cdb_rewind(CDB_USETABLE);
 	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
 
@@ -717,10 +712,10 @@ int PurgeUseTable(void) {
 	 * this will release this file from the serv_network.h
 	 * Maybe it could be a macro that extracts and casts the reult
 	 */
-                memcpy(&ut, cdbut->ptr,
-                       ((cdbut->len > sizeof(struct UseTable)) ?
-                        sizeof(struct UseTable) : cdbut->len));
-                cdb_free(cdbut);
+	       memcpy(&ut, cdbut->ptr,
+		     ((cdbut->len > sizeof(struct UseTable)) ?
+		      sizeof(struct UseTable) : cdbut->len));
+	       cdb_free(cdbut);
 
 		if ( (time(NULL) - ut.ut_timestamp) > USETABLE_RETAIN ) {
 			uptr = (struct UPurgeList *) malloc(sizeof(struct UPurgeList));
@@ -735,7 +730,7 @@ int PurgeUseTable(void) {
 	}
 
 	/* Phase 2: delete the records */
-	syslog(LOG_DEBUG, "Purge use table: phase 2\n");
+	syslog(LOG_DEBUG, "Purge use table: phase 2");
 	while (ul != NULL) {
 		cdb_delete(CDB_USETABLE, ul->up_key, strlen(ul->up_key));
 		uptr = ul->next;
@@ -743,7 +738,7 @@ int PurgeUseTable(void) {
 		ul = uptr;
 	}
 
-	syslog(LOG_DEBUG, "Purge use table: finished (purged %d records)\n", purged);
+	syslog(LOG_DEBUG, "Purge use table: finished (purged %d records)", purged);
 	return(purged);
 }
 
@@ -762,7 +757,7 @@ int PurgeEuidIndexTable(void) {
 	struct CtdlMessage *msg = NULL;
 
 	/* Phase 1: traverse through the table, discovering old records... */
-	syslog(LOG_DEBUG, "Purge EUID index: phase 1\n");
+	syslog(LOG_DEBUG, "Purge EUID index: phase 1");
 	cdb_rewind(CDB_EUIDINDEX);
 	while(cdbei = cdb_next_item(CDB_EUIDINDEX), cdbei != NULL) {
 
@@ -784,12 +779,12 @@ int PurgeEuidIndexTable(void) {
 			++purged;
 		}
 
-                cdb_free(cdbei);
+	       cdb_free(cdbei);
 
 	}
 
 	/* Phase 2: delete the records */
-	syslog(LOG_DEBUG, "Purge euid index: phase 2\n");
+	syslog(LOG_DEBUG, "Purge euid index: phase 2");
 	while (el != NULL) {
 		cdb_delete(CDB_EUIDINDEX, el->ep_key, el->ep_keylen);
 		free(el->ep_key);
@@ -798,7 +793,7 @@ int PurgeEuidIndexTable(void) {
 		el = eptr;
 	}
 
-	syslog(LOG_DEBUG, "Purge euid index: finished (purged %d records)\n", purged);
+	syslog(LOG_DEBUG, "Purge euid index: finished (purged %d records)", purged);
 	return(purged);
 }
 
@@ -840,7 +835,7 @@ int PurgeStaleOpenIDassociations(void) {
 	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
-		syslog(LOG_DEBUG, "Deleting associated OpenID <%s>\n",  (char*)Value);
+		syslog(LOG_DEBUG, "Deleting associated OpenID <%s>",  (char*)Value);
 		cdb_delete(CDB_OPENID, Value, strlen(Value));
 		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 		++num_deleted;
@@ -854,183 +849,87 @@ int PurgeStaleOpenIDassociations(void) {
 
 
 
-void *purge_databases(void *args)
+void purge_databases(void)
 {
-        int retval;
-        static time_t last_purge = 0;
-        time_t now;
-        struct tm tm;
-	struct CitContext purgerCC;
+	int retval;
+	static time_t last_purge = 0;
+	time_t now;
+	struct tm tm;
 
-	CtdlFillSystemContext(&purgerCC, "purger");
-	citthread_setspecific(MyConKey, (void *)&purgerCC );
-	syslog(LOG_DEBUG, "Auto-purger_thread() initializing\n");
+	/* Do the auto-purge if the current hour equals the purge hour,
+	 * but not if the operation has already been performed in the
+	 * last twelve hours.  This is usually enough granularity.
+	 */
+	now = time(NULL);
+	localtime_r(&now, &tm);
+	if (
+		((tm.tm_hour != config.c_purge_hour) || ((now - last_purge) < 43200))
+		&& (force_purge_now == 0)
+	) {
+			return;
+	}
 
-        while (!CtdlThreadCheckStop()) {
-                /* Do the auto-purge if the current hour equals the purge hour,
-                 * but not if the operation has already been performed in the
-                 * last twelve hours.  This is usually enough granularity.
-                 */
-                now = time(NULL);
-                localtime_r(&now, &tm);
-                if (
-			((tm.tm_hour != config.c_purge_hour) || ((now - last_purge) < 43200))
-			&& (force_purge_now == 0)
-		) {
-                        CtdlThreadSleep(60);
-                        continue;
-                }
+	syslog(LOG_INFO, "Auto-purger: starting.");
 
-
-                syslog(LOG_INFO, "Auto-purger: starting.\n");
-
-		if (!CtdlThreadCheckStop())
-		{
-			retval = PurgeUsers();
-                	syslog(LOG_NOTICE, "Purged %d users.\n", retval);
-		}
+	if (!server_shutting_down)
+	{
+		retval = PurgeUsers();
+		syslog(LOG_NOTICE, "Purged %d users.", retval);
+	}
 		
-		if (!CtdlThreadCheckStop())
-		{
-                	PurgeMessages();
-                	syslog(LOG_NOTICE, "Expired %d messages.\n", messages_purged);
-		}
-
-		if (!CtdlThreadCheckStop())
-		{
-                	retval = PurgeRooms();
-                	syslog(LOG_NOTICE, "Expired %d rooms.\n", retval);
-		}
-
-		if (!CtdlThreadCheckStop())
-		{
-                	retval = PurgeVisits();
-                	syslog(LOG_NOTICE, "Purged %d visits.\n", retval);
-		}
-
-		if (!CtdlThreadCheckStop())
-		{
-			retval = PurgeUseTable();
-                	syslog(LOG_NOTICE, "Purged %d entries from the use table.\n", retval);
-		}
-
-		if (!CtdlThreadCheckStop())
-		{
-                	retval = PurgeEuidIndexTable();
-                	syslog(LOG_NOTICE, "Purged %d entries from the EUID index.\n", retval);
-		}
-
-		if (!CtdlThreadCheckStop())
-		{
-			retval = PurgeStaleOpenIDassociations();
-                	syslog(LOG_NOTICE, "Purged %d stale OpenID associations.\n", retval);
-		}
-
-		if (!CtdlThreadCheckStop())
-		{
-                	retval = TDAP_ProcessAdjRefCountQueue();
-                	syslog(LOG_NOTICE, "Processed %d message reference count adjustments.\n", retval);
-		}
-
-		if (!CtdlThreadCheckStop())
-		{
-                	syslog(LOG_INFO, "Auto-purger: finished.\n");
-	                last_purge = now;	/* So we don't do it again soon */
-			force_purge_now = 0;
-		}
-		else
-                	syslog(LOG_INFO, "Auto-purger: STOPPED.\n");
-
-        }
-	CtdlClearSystemContext();
-        return NULL;
-}
-/*****************************************************************************/
-
-
-/* The FSCK command has been removed because people were misusing it */
-
-#if 0
-
-void do_fsck_msg(long msgnum, void *userdata) {
-	struct ctdlroomref *ptr;
-
-	ptr = (struct ctdlroomref *)malloc(sizeof(struct ctdlroomref));
-	ptr->next = rr;
-	ptr->msgnum = msgnum;
-	rr = ptr;
-}
-
-void do_fsck_room(struct ctdlroom *qrbuf, void *data)
-{
-	CtdlGetRoom(&CC->room, qrbuf->QRname);
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, do_fsck_msg, NULL);
-}
-
-/*
- * Check message reference counts
- */
-void cmd_fsck(char *argbuf) {
-	long msgnum;
-	struct cdbdata *cdbmsg;
-	struct MetaData smi;
-	struct ctdlroomref *ptr;
-	int realcount;
-
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	/* Lame way of checking whether anyone else is doing this now */
-	if (rr != NULL) {
-		cprintf("%d Another FSCK is already running.\n", ERROR + RESOURCE_BUSY);
-		return;
+	if (!server_shutting_down)
+	{
+		PurgeMessages();
+	       	syslog(LOG_NOTICE, "Expired %d messages.", messages_purged);
 	}
 
-	cprintf("%d Checking message reference counts\n", LISTING_FOLLOWS);
-
-	cprintf("\nThis could take a while.  Please be patient!\n\n");
-	cprintf("Gathering pointers...\n");
-	CtdlForEachRoom(do_fsck_room, NULL);
-
-	get_control();
-	cprintf("Checking message base...\n");
-	for (msgnum = 0L; msgnum <= CitControl.MMhighest; ++msgnum) {
-
-		cdbmsg = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
-		if (cdbmsg != NULL) {
-			cdb_free(cdbmsg);
-			cprintf("Message %7ld    ", msgnum);
-
-			GetMetaData(&smi, msgnum);
-			cprintf("refcount=%-2d   ", smi.meta_refcount);
-
-			realcount = 0;
-			for (ptr = rr; ptr != NULL; ptr = ptr->next) {
-				if (ptr->msgnum == msgnum) ++realcount;
-			}
-			cprintf("realcount=%-2d\n", realcount);
-
-			if ( (smi.meta_refcount != realcount)
-			   || (realcount == 0) ) {
-				AdjRefCount(msgnum, (smi.meta_refcount - realcount));
-			}
-
-		}
-
+	if (!server_shutting_down)
+	{
+       		retval = PurgeRooms();
+       		syslog(LOG_NOTICE, "Expired %d rooms.", retval);
 	}
 
-	cprintf("Freeing memory...\n");
-	while (rr != NULL) {
-		ptr = rr->next;
-		free(rr);
-		rr = ptr;
+	if (!server_shutting_down)
+	{
+       		retval = PurgeVisits();
+       		syslog(LOG_NOTICE, "Purged %d visits.", retval);
 	}
 
-	cprintf("Done!\n");
-	cprintf("000\n");
+	if (!server_shutting_down)
+	{
+		retval = PurgeUseTable();
+       		syslog(LOG_NOTICE, "Purged %d entries from the use table.", retval);
+	}
 
+	if (!server_shutting_down)
+	{
+       	retval = PurgeEuidIndexTable();
+       	syslog(LOG_NOTICE, "Purged %d entries from the EUID index.", retval);
+	}
+
+	if (!server_shutting_down)
+	{
+		retval = PurgeStaleOpenIDassociations();
+	       	syslog(LOG_NOTICE, "Purged %d stale OpenID associations.", retval);
+	}
+
+	if (!server_shutting_down)
+	{
+       		retval = TDAP_ProcessAdjRefCountQueue();
+	       	syslog(LOG_NOTICE, "Processed %d message reference count adjustments.", retval);
+	}
+
+	if (!server_shutting_down)
+	{
+	       	syslog(LOG_INFO, "Auto-purger: finished.");
+		last_purge = now;	/* So we don't do it again soon */
+		force_purge_now = 0;
+	}
+	else {
+	       	syslog(LOG_INFO, "Auto-purger: STOPPED.");
+	}
 }
 
-#endif	/* end of commented-out fsck cmd */
 
 /*
  * Manually initiate a run of The Dreaded Auto-Purger (tm)
@@ -1042,20 +941,17 @@ void cmd_tdap(char *argbuf) {
 }
 
 
-/*****************************************************************************/
 
 CTDL_MODULE_INIT(expire)
 {
 	if (!threading)
 	{
-		/* CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts"); */
 		CtdlRegisterProtoHook(cmd_tdap, "TDAP", "Manually initiate auto-purger");
-
 		CtdlRegisterProtoHook(cmd_gpex, "GPEX", "Get expire policy");
 		CtdlRegisterProtoHook(cmd_spex, "SPEX", "Set expire policy");
+		CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
 	}
-	else
-		CtdlThreadCreate("Auto Purger", CTDLTHREAD_BIGSTACK, purge_databases, NULL);
+
 	/* return our Subversion id for the Log */
 	return "expire";
 }

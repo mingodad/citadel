@@ -3,6 +3,9 @@
   <div id="citlogo" class="logo_citadel">
     <img src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>"  width="120" height="35">
   </div>
+  <div class="iconbar_text">
+    <?_("Language:")><?LANG:SELECT>
+  </div>
   <div id="switch" class="iconbar_text"><span></span></div>
   <div id="roomlist"></div>
   <div id="iconbar_menu">
@@ -40,14 +43,17 @@
 </li>
 <??("X",3)>
 <li id="ib_rooms" class="ib_button">
-<a class="ib_button_link" href="knrooms?template=knrooms?SortBy=byfloorroom?SortOrder=1" title="<?_("List all your accessible rooms")>"><span>
-<?_("Rooms")></span>
+<a class="ib_button_link" href="knrooms?template=knrooms?SortBy=byfloorroom?SortOrder=1" title="<?_("List all your accessible rooms")>">
+<img src="static/expand.gif" onClick="alert('Please do not click this button again.'); return false;">
+<span><?_("Rooms")></span>
 </a>
 </li>
 <li id="ib_users" class="ib_button">
-<a class="ib_button_link" href="do_template?template=who" title="<?_("See who is online right now")>"><span>
-<?_("Online users")>
-</span>
+<a class="ib_button_link" href="do_template?template=who" title="<?_("See who is online right now")>">
+<img id="expand_wholist"
+src=<?%("COND:ICONBAR:WHOLISTEXPANDED", 1, 1, 1, "static/collapse.gif", "static/expand.gif")>
+onClick="return toggle_wholist();">
+<span><?_("Online users")></span>
 </a>
 <ul id="online_users">
 <li><?_("Loading")></li>

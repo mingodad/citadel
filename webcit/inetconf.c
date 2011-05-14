@@ -62,7 +62,10 @@ void load_inetconf(void)
 	if (GetServerStatus(Buf, NULL) == 1) {
 		CfgToken = NewStrBuf();
 		while ((len = StrBuf_ServGetln(Buf),
-			strcmp(ChrPtr(Buf), "000"))) {
+			((len >= 0) && 
+			 ((len != 3) ||
+			  strcmp(ChrPtr(Buf), "000")))))
+		{
 			Value = NewStrBuf();
  
 			StrBufExtract_token(CfgToken, Buf, 1, '|');

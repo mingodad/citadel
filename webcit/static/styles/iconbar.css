@@ -29,6 +29,10 @@
 	font-weight: bold;
 } 
 
+.iconbar_text {
+	font-size: 75%;
+}
+
 .ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
 	display: block;
 	color: #F0FEFF;

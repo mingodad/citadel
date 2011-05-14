@@ -24,8 +24,6 @@
 
 extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
-void display_reg(int during_login);
-
 /*
  * Access level definitions.  This is initialized from a function rather than a
  * static array so that the strings may be localized.
@@ -114,7 +112,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 	}
 
 	WCC->axlevel = StrBufExtract_int(serv_response, 1, '|');
-	if (WCC->axlevel >= 6) { /* TODO: make this a define, else it might trick us later */
+	if (WCC->axlevel >= 6) {
 		WCC->is_aide = 1;
 	}
 
@@ -137,6 +135,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 	get_preference("floordiv_expanded", &FloorDiv);
 	WCC->floordiv_expanded = FloorDiv;
 	FreeStrBuf(&Buf);
+	FlushRoomlist();
 }
 
 
@@ -167,21 +166,21 @@ void ajax_login_username_password(void) {
  * modal/ajax version of 'new user' (username and password)
  */
 void ajax_login_newuser(void) {
-	StrBuf *Buf = NewStrBuf();
+	StrBuf *NBuf = NewStrBuf();
+	StrBuf *SBuf = NewStrBuf();
 
 	serv_printf("NEWU %s", bstr("name"));
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 2) {
+	StrBuf_ServGetln(NBuf);
+	if (GetServerStatus(NBuf, NULL) == 2) {
+		become_logged_in(sbstr("name"), sbstr("pass"), NBuf);
 		serv_printf("SETP %s", bstr("pass"));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
-		}
+		StrBuf_ServGetln(SBuf);
 	}
 
 	/* The client is expecting to read back a citadel protocol response */
-	wc_printf("%s", ChrPtr(Buf));
-	FreeStrBuf(&Buf);
+	wc_printf("%s", ChrPtr(NBuf));
+	FreeStrBuf(&NBuf);
+	FreeStrBuf(&SBuf);
 }
 
 
@@ -193,45 +192,53 @@ void openid_manual_create(void)
 {
 	StrBuf *Buf;
 
+	/* Did the user change his mind?  Pack up and go home. */
 	if (havebstr("exit_action")) {
-		do_logout();
+		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		do_template("authpopup_finished", NULL);
+		end_burst();
 		return;
 	}
 
-	if (havebstr("newuser_action")) {
-		Buf = NewStrBuf();
-		serv_printf("OIDC %s", bstr("name"));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			StrBuf *gpass;
 
-			gpass = NewStrBuf();
-			serv_puts("SETP GENERATE_RANDOM_PASSWORD");
-			StrBuf_ServGetln(gpass);
-			StrBufCutLeft(gpass, 4);
-			become_logged_in(sbstr("name"), gpass, Buf);
-			FreeStrBuf(&gpass);
-		}
-		FreeStrBuf(&Buf);
+	/* Ok, let's give this a try.  Can we create the new user? */
+
+	Buf = NewStrBuf();
+	serv_printf("OIDC %s", bstr("name"));
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBuf *gpass;
+
+		gpass = NewStrBuf();
+		serv_puts("SETP GENERATE_RANDOM_PASSWORD");
+		StrBuf_ServGetln(gpass);
+		StrBufCutLeft(gpass, 4);
+		become_logged_in(sbstr("name"), gpass, Buf);
+		FreeStrBuf(&gpass);
 	}
+	FreeStrBuf(&Buf);
 
+	/* Did we manage to log in?  If so, continue with the normal flow... */
 	if (WC->logged_in) {
-		if (WC->need_regi) {
-			display_reg(1);
-		} else if (WC->need_vali) {
-			validate();
-		} else {
-			do_welcome();
+		if (WC->logged_in) {
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			do_template("authpopup_finished", NULL);
+			end_burst();
 		}
 	} else {
+		/* Still no good!  Go back to teh dialog to select a username */
 		const StrBuf *Buf;
-
 		putbstr("__claimed_id", NewStrBufDup(sbstr("openid_url")));
 		Buf = sbstr("name");
 		if (StrLength(Buf) > 0)
 			putbstr("__username", NewStrBufDup(Buf));
 		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		wc_printf("<html><body>");
 		do_template("openid_manual_create", NULL);
+		wc_printf("</body></html>");
 		end_burst();
 	}
 
@@ -278,7 +285,6 @@ void finalize_openid_login(void)
 {
 	StrBuf *Buf;
 	wcsession *WCC = WC;
-	int already_logged_in = (WCC->logged_in) ;
 	int linecount = 0;
 	StrBuf *result = NULL;
 	StrBuf *username = NULL;
@@ -297,6 +303,7 @@ void finalize_openid_login(void)
 				long HKLen;
 				const char *HKey;
 				HashPos *Cursor;
+				int len;
 				
 				Cursor = GetNewHashPos (WCC->Hdr->urlstrings, 0);
 				while (GetNextHashPos(WCC->Hdr->urlstrings, Cursor, &HKLen, &HKey, &U)) {
@@ -309,7 +316,9 @@ void finalize_openid_login(void)
 				serv_puts("000");
 
 				linecount = 0;
-				while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) 
+				while (len = StrBuf_ServGetln(Buf), 
+				       ((len >= 0) &&
+					((len != 3) || strcmp(ChrPtr(Buf), "000") )))
 				{
 					if (linecount == 0) result = NewStrBufDup(Buf);
 					if (!strcasecmp(ChrPtr(result), "authenticate")) {
@@ -338,33 +347,38 @@ void finalize_openid_login(void)
 		}
 	}
 
-	/* If we were already logged in, this was an attempt to associate an OpenID account 
-	FIXME put this back in
-	if (already_logged_in) {
+	/*
+	 * Is this an attempt to associate a new OpenID with an account that is already logged in?
+	 */
+	if ( (WCC->logged_in) && (havebstr("attach_existing")) ) {
 		display_openids();
-		FreeStrBuf(&result);
-		FreeStrBuf(&username);
-		FreeStrBuf(&password);
-		FreeStrBuf(&claimed_id);
-		FreeStrBuf(&logged_in_response);
-		return;
 	}
-	*/
 
 	/* If this operation logged us in, either by connecting with an existing account or by
 	 * auto-creating one using Simple Registration Extension, we're already on our way.
 	 */
-	if (!strcasecmp(ChrPtr(result), "authenticate")) {
+	else if (!strcasecmp(ChrPtr(result), "authenticate")) {
 		become_logged_in(username, password, logged_in_response);
+
+		/* Did we manage to log in?  If so, continue with the normal flow... */
+		if (WC->logged_in) {
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			do_template("authpopup_finished", NULL);
+			end_burst();
+		} else {
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			wc_printf("<html><body>");
+			wc_printf(_("An error has occurred."));
+			wc_printf("</body></html>");
+			end_burst();
+		}
 	}
 
-	/* The specified OpenID was verified but the desired user name was either not specified via SRI
+	/* The specified OpenID was verified but the desired user name was either not specified via SRE
 	 * or conflicts with an existing user.  Either way the user will need to specify a new name.
 	 */
-
-/*
- * FIXME make this work again!!!!
- *
 	else if (!strcasecmp(ChrPtr(result), "verify_only")) {
 		putbstr("__claimed_id", claimed_id);
 		claimed_id = NULL;
@@ -373,24 +387,20 @@ void finalize_openid_login(void)
 			username = NULL;
 		}
 		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		wc_printf("<html><body>");
 		do_template("openid_manual_create", NULL);
+		wc_printf("</body></html>");
 		end_burst();
 	}
-*/
 
-
-
-	/* Did we manage to log in?  If so, continue with the normal flow... */
-	if (WC->logged_in) {
-		begin_burst();
-		output_headers(1, 0, 0, 0, 1, 0);
-		do_template("authpopup_finished", NULL);
-		end_burst();
-	} else {
+	/* Something went VERY wrong if we get to this point */
+	else {
+		syslog(1, "finalize_openid_login() failed to do anything.  This is a code problem.\n");
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
-		wc_printf(_("An error has occurred."));		/* FIXME do something prettier here */
+		wc_printf(_("An error has occurred."));
 		wc_printf("</body></html>");
 		end_burst();
 	}
@@ -439,7 +449,7 @@ void do_welcome(void)
 				buf[strlen(buf)-1] = 0;
 				fclose(fp);
 				if (atoi(buf) == serv_info.serv_rev_level) {
-					setup_wizard = 1; /**< already run */
+					setup_wizard = 1;	/* already run */
 				}
 			}
 		}
@@ -479,8 +489,9 @@ void end_webcit_session(void) {
 	/* close() of citadel socket will be done by do_housekeeping() */
 }
 
+
 /* 
- * execute the logout
+ * Log out the session with the Citadel server
  */
 void do_logout(void)
 {
@@ -490,6 +501,7 @@ void do_logout(void)
 	FlushStrBuf(WCC->wc_username);
 	FlushStrBuf(WCC->wc_password);
 	FlushStrBuf(WCC->wc_fullname);
+	FlushRoomlist();
 
 	serv_puts("LOUT");
 	serv_getln(buf, sizeof buf);
@@ -550,14 +562,11 @@ void validate(void)
 	char buf[SIZ];
 	int a;
 
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<h1>");
-	wc_printf(_("Validate new users"));
-	wc_printf("</h1>");
-	wc_printf("</div>\n");
+	output_headers(1, 1, 1, 0, 0, 0);
 
-	wc_printf("<div id=\"content\" class=\"service\">\n");
+        do_template("beginbox_1", NULL);
+        StrBufAppendBufPlain(WC->WBuf, _("Validate new users"), -1, 0);
+        do_template("beginbox_2", NULL);
 
 	/* If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
@@ -671,9 +680,9 @@ void validate(void)
 
 	wc_printf("</div>\n");
 	wc_printf("</td></tr></table>\n");
+	do_template("endbox", NULL);
 	wDumpContent(1);
 }
-
 
 
 /*
@@ -730,10 +739,7 @@ void display_reg(int during_login)
 		FreeStrBuf(&ReturnTo);
 	}
 
-	/* FIXME - don't we have to free VCMsg and VCAtt ?? */
 }
-
-
 
 
 /*
@@ -843,6 +849,7 @@ void changepw(void)
 	}
 }
 
+
 int ConditionalHaveAccessCreateRoom(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Buf;	
@@ -861,11 +868,13 @@ int ConditionalHaveAccessCreateRoom(StrBuf *Target, WCTemplputParams *TP)
 	return 1;
 }
 
+
 int ConditionalAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	return (WCC != NULL) ? ((WCC->logged_in == 0)||(WC->is_aide == 0)) : 0;
 }
+
 
 int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) 
 {
@@ -874,6 +883,14 @@ int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP)
 
 }
 
+
+/* 
+ * toggle the session over to a different language
+ */
+void switch_language(void) {
+	set_selected_language(bstr("lang"));
+	pop_destination();
+}
 
 
 void _display_reg(void) {
@@ -896,6 +913,7 @@ void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
 	}
 }
 
+
 void CheckAuthBasic(ParsedHttpHdrs *hdr)
 {
 /*
@@ -912,6 +930,7 @@ void CheckAuthBasic(ParsedHttpHdrs *hdr)
 */
 }
 
+
 void GetAuthBasic(ParsedHttpHdrs *hdr)
 {
 	const char *Pos = NULL;
@@ -922,6 +941,7 @@ void GetAuthBasic(ParsedHttpHdrs *hdr)
 	StrBufExtract_NextToken(hdr->c_username, hdr->HR.plainauth, &Pos, ':');
 	StrBufExtract_NextToken(hdr->c_password, hdr->HR.plainauth, &Pos, ':');
 }
+
 
 void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
@@ -949,6 +969,7 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 	hdr->HR.got_auth = AUTH_COOKIE;
 }
 
+
 void 
 HttpNewModule_AUTH
 (ParsedHttpHdrs *httpreq)
@@ -958,6 +979,8 @@ HttpNewModule_AUTH
 	httpreq->c_roomname = NewStrBuf();
 	httpreq->c_language = NewStrBuf();
 }
+
+
 void 
 HttpDetachModule_AUTH
 (ParsedHttpHdrs *httpreq)
@@ -968,6 +991,7 @@ HttpDetachModule_AUTH
 	FLUSHStrBuf(httpreq->c_language);
 }
 
+
 void 
 HttpDestroyModule_AUTH
 (ParsedHttpHdrs *httpreq)
@@ -977,6 +1001,7 @@ HttpDestroyModule_AUTH
 	FreeStrBuf(&httpreq->c_roomname);
 	FreeStrBuf(&httpreq->c_language);
 }
+
 
 void 
 InitModule_AUTH
@@ -989,7 +1014,6 @@ InitModule_AUTH
 	/* no url pattern at all? Show login. */
 	WebcitAddUrlHandler(HKEY(""), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
 
-	/* some of these will be removed soon */
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("openid_login"), "", 0, do_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
@@ -1003,6 +1027,7 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("ajax_login_newuser"), "", 0, ajax_login_newuser, AJAX|ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("switch_language"), "", 0, switch_language, ANONYMOUS);
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
 	RegisterConditional(HKEY("COND:MAY_CREATE_ROOM"), 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);

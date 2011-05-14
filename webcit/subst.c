@@ -256,7 +256,7 @@ void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
 	StrBufVAppendPrintf(Error, Format, arg_ptr);
 	va_end(arg_ptr);
 
-	syslog(1, ChrPtr(Error));
+	syslog(1, "%s", ChrPtr(Error));
 
 	WCC = WC;
 	if (WCC->WFBuf == NULL) WCC->WFBuf = NewStrBuf();
@@ -2629,7 +2629,7 @@ void dbg_print_longvector(long *LongVector)
 			StrBufAppendPrintf(Buf, "%d: %ld]\n", i, LongVector[i]);
 
 	}
-	syslog(1, ChrPtr(Buf));
+	syslog(1, "%s", ChrPtr(Buf));
 	FreeStrBuf(&Buf);
 }
 

@@ -4,7 +4,7 @@
  * Copyright (c) 2001-2009 by the citadel.org team and others, except for
  * most of the UTF7 and UTF8 handling code which was lifted from Evolution.
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -225,7 +225,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* syslog(LOG_DEBUG, "toimap %s\r\n", src); */
+	/* syslog(LOG_DEBUG, "toimap %s", src); */
 
 	for (;;)
 	{
@@ -291,7 +291,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	if (state == 1)
 		utf7_closeb64(&dest, v, i);
-	/* syslog(LOG_DEBUG, "    -> %s\r\n", destp); */
+	/* syslog(LOG_DEBUG, "    -> %s", destp); */
 	return string_end(&dest);
 }
 
@@ -309,7 +309,7 @@ static char* fromimap(char* destp, char* destend, const char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* syslog(LOG_DEBUG, "fromimap %s\r\n", src); */
+	/* syslog(LOG_DEBUG, "fromimap %s", src); */
 
 	do {
 		c = *p++;
@@ -367,7 +367,7 @@ static char* fromimap(char* destp, char* destend, const char* src)
 			}
 	} while (c != '\0');
 
-	/* syslog(LOG_DEBUG, "      -> %s\r\n", destp); */
+	/* syslog(LOG_DEBUG, "      -> %s", destp); */
 	return string_end(&dest);
 }
 
@@ -680,7 +680,7 @@ int imap_roomname(char *rbuf, int bufsize, const char *foldername)
 	ret = (0 | IR_MAILBOX);
 
 exit:
-	syslog(LOG_DEBUG, "(That translates to \"%s\")\n", rbuf);
+	syslog(LOG_DEBUG, "(That translates to \"%s\")", rbuf);
 	return(ret);
 }
 

@@ -1,21 +1,21 @@
 /*
  * Transparently handle the upgrading of server data formats.
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -77,27 +77,25 @@ void fix_sys_user_name(void)
 	while (CtdlGetUserByNumber(&usbuf, 0) == 0)
 	{
 		/* delete user with number 0 and no name */
-		if (IsEmptyStr(usbuf.fullname))
+		if (IsEmptyStr(usbuf.fullname)) {
 			cdb_delete(CDB_USERS, "", 0);
-		else
-		{ /* temporarily set this user to -1 */
+		}
+		else {
+			/* temporarily set this user to -1 */
 			usbuf.usernum = -1;
 			CtdlPutUser(&usbuf);
 		}
 	}
 
-	/** Make sure user SYS_* is user 0 */
+	/* Make sure user SYS_* is user 0 */
 	while (CtdlGetUserByNumber(&usbuf, -1) == 0)
 	{
 		if (strncmp(usbuf.fullname, "SYS_", 4))
-		{	/** Delete any user 0 that doesn't start with SYS_ */
-			makeuserkey(usernamekey, 
-				    usbuf.fullname, 
-				    cutuserkey(usbuf.fullname));
+		{	/* Delete any user 0 that doesn't start with SYS_ */
+			makeuserkey(usernamekey, usbuf.fullname, cutuserkey(usbuf.fullname));
 			cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
 		}
-		else
-		{
+		else {
 			usbuf.usernum = 0;
 			CtdlPutUser(&usbuf);
 		}
@@ -118,8 +116,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 	 * to make it do the processing.
 	 */
 	if (qrbuf != NULL) {
-		ptr = (struct RoomProcList *)
-			malloc(sizeof (struct RoomProcList));
+		ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
 		if (ptr == NULL) return;
 
 		safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
@@ -131,14 +128,14 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 	while (rplist != NULL) {
 
 		if (CtdlGetRoomLock(&qr, rplist->name) == 0) {
-			syslog(LOG_DEBUG, "Processing <%s>...\n", rplist->name);
+			syslog(LOG_DEBUG, "Processing <%s>...", rplist->name);
 			if ( (qr.QRflags & QR_MAILBOX) == 0) {
-				syslog(LOG_DEBUG, "  -- not a mailbox\n");
+				syslog(LOG_DEBUG, "  -- not a mailbox");
 			}
 			else {
 
 				qr.QRgen = time(NULL);
-				syslog(LOG_DEBUG, "  -- fixed!\n");
+				syslog(LOG_DEBUG, "  -- fixed!");
 			}
 			CtdlPutRoomLock(&qr);
 		}
@@ -153,7 +150,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
  * quick fix to bump mailbox generation numbers
  */
 void bump_mailbox_generation_numbers(void) {
-	syslog(LOG_WARNING, "Applying security fix to mailbox rooms\n");
+	syslog(LOG_WARNING, "Applying security fix to mailbox rooms");
 	CtdlForEachRoom(cmd_bmbx_backend, NULL);
 	cmd_bmbx_backend(NULL, NULL);
 	return;
@@ -186,7 +183,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 	while (uplist != NULL) {
 
 		if (CtdlGetUserLock(&us, uplist->user) == 0) {
-			syslog(LOG_DEBUG, "Processing <%s>...\n", uplist->user);
+			syslog(LOG_DEBUG, "Processing <%s>...", uplist->user);
 			if (us.uid == CTDLUID) {
 				us.uid = (-1);
 			}
@@ -203,10 +200,45 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
  * quick fix to change all CTDLUID users to (-1)
  */
 void convert_ctdluid_to_minusone(void) {
-	syslog(LOG_WARNING, "Applying uid changes\n");
+	syslog(LOG_WARNING, "Applying uid changes");
 	ForEachUser(cbtm_backend, NULL);
 	cbtm_backend(NULL, NULL);
 	return;
+}
+
+
+
+/*
+ * These accounts may have been created by code that ran between mid 2008 and early 2011.
+ * If present they are no longer in use and may be deleted.
+ */
+void remove_thread_users(void) {
+	char *deleteusers[] = {
+		"SYS_checkpoint",
+		"SYS_extnotify",
+		"SYS_IGnet Queue",
+		"SYS_indexer",
+		"SYS_network",
+		"SYS_popclient",
+		"SYS_purger",
+		"SYS_rssclient",
+		"SYS_select_on_master",
+		"SYS_SMTP Send"
+	};
+
+	int i;
+	struct ctdluser usbuf;
+	for (i=0; i<(sizeof(deleteusers)/sizeof(char *)); ++i) {
+		if (CtdlGetUser(&usbuf, deleteusers[i]) == 0) {
+			usbuf.axlevel = 0;
+			strcpy(usbuf.password, "deleteme");
+			CtdlPutUser(&usbuf);
+			syslog(LOG_INFO,
+				"System user account <%s> is no longer in use and will be deleted.",
+				deleteusers[i]
+			);
+		}
+	}
 }
 
 
@@ -223,7 +255,7 @@ void guess_time_zone(void) {
 		if (fgets(buf, sizeof buf, fp) && (strlen(buf) > 2)) {
 			buf[strlen(buf)-1] = 0;
 			safestrncpy(config.c_default_cal_zone, buf, sizeof config.c_default_cal_zone);
-			syslog(LOG_INFO, "Configuring timezone: %s\n", config.c_default_cal_zone);
+			syslog(LOG_INFO, "Configuring timezone: %s", config.c_default_cal_zone);
 		}
 		fclose(fp);
 	}
@@ -274,18 +306,22 @@ void update_config(void) {
 
 
 
-
+/*
+ * Based on the server version number reported by the existing database,
+ * run in-place data format upgrades until everything is up to date.
+ */
 void check_server_upgrades(void) {
 
 	get_control();
-	syslog(LOG_INFO, "Server-hosted upgrade level is %d.%02d\n",
+	syslog(LOG_INFO, "Existing database version on disk is %d.%02d",
 		(CitControl.version / 100),
-		(CitControl.version % 100) );
+		(CitControl.version % 100)
+	);
 
 	if (CitControl.version < REV_LEVEL) {
 		syslog(LOG_WARNING,
-			"Server hosted updates need to be processed at "
-			"this time.  Please wait...\n");
+			"Server hosted updates need to be processed at this time.  Please wait..."
+		);
 	}
 	else {
 		return;
@@ -294,9 +330,7 @@ void check_server_upgrades(void) {
 	update_config();
 
 	if ((CitControl.version > 000) && (CitControl.version < 555)) {
-		syslog(LOG_EMERG,
-			"Your data files are from a version of Citadel\n"
-			"that is too old to be upgraded.  Sorry.\n");
+		syslog(LOG_EMERG, "This database is too old to be upgraded.  Citadel server will exit.");
 		exit(EXIT_FAILURE);
 	}
 	if ((CitControl.version > 000) && (CitControl.version < 591)) {
@@ -314,6 +348,9 @@ void check_server_upgrades(void) {
 	if (CitControl.version < 736) {
 		rebuild_usersbynumber();
 	}
+	if (CitControl.version < 790) {
+		remove_thread_users();
+	}
 	CitControl.version = REV_LEVEL;
 	put_control();
 }
@@ -323,6 +360,6 @@ CTDL_MODULE_UPGRADE(upgrade)
 {
 	check_server_upgrades();
 	
-	/* return our Subversion id for the Log */
+	/* return our module id for the Log */
 	return "upgrade";
 }
