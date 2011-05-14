@@ -919,7 +919,7 @@ void post_mime_to_server(void) {
         	text_to_server_qp(txtmail);     /* Transmit message in quoted-printable encoding */
         	free(txtmail);
 
-		serv_printf("--%s", alt_boundary);
+		serv_printf("\n--%s", alt_boundary);
 	}
 
 	serv_puts("Content-type: text/html; charset=utf-8");
