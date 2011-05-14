@@ -143,7 +143,6 @@ void UnlinkRooms(rss_aggregator *Cfg)
 
 		DeleteHashPos(&At);
 	}
-
 }
 
 void UnlinkRSSAggregator(rss_aggregator *Cfg)
