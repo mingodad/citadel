@@ -454,6 +454,10 @@ CitContext *CloneContext(CitContext *CloneMe) {
 	me->ldap_dn = NULL;
 	me->session_specific_data = NULL;
 
+	me->download_fp = NULL;
+	me->upload_fp = NULL;
+	me->client_socket = 0;
+
 	me->MigrateBuf = NewStrBuf();
 	me->RecvBuf.Buf = NewStrBuf();
 
