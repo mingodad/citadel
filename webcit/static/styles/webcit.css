@@ -202,9 +202,10 @@ body {
 .mimepart dl dt { font-weight: 700 }
 
 .roomops_cell_label, .tab_cell_label {
-	background-color: #3E65AF;
+	background-color: #424b52;
 	color: #EABB3A;
-	font-size: 90%;
+	font-size: 80%;
+	font-weight: bold;
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
@@ -216,9 +217,10 @@ body {
 }
 
 .tab_cell, .tab_cell_edit {
-	background-color: #5F84C5;
+	background-color: #5c646b;
 	color: #F9FDFB;
-	font-size: 90%;
+	font-size: 80%;
+	font-weight: bold;
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
@@ -379,19 +381,28 @@ a:visited { color: purple}
 	color: black;
 }
 
-#important_message, .buttons a:hover {
+#important_message {
 	background-color: #3E65AF;
-	color: #3E65AF;
+	color: #FFF;
 }
 
-.button_link a, input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title, input#delbutton,.attachfile, .logbuttons input,.buttons input {
-	background-color: #fbf4ca;
-}
-
-.button_link a, input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title, input#delbutton,.attachfile, .logbuttons input,.buttons input {
-	border: 1px solid #999;
+input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
+	background-color: #efefe0; /*#fbf4ca;*/
+	border: 2px solid #5c646b;
 	color: #333;
 }
+
+.buttons a:hover { background-color: #5c646b; }
+ 
+.button_link a, input#delbutton,.attachfile, .logbuttons input,.buttons input {
+	background-color: #4d555c;
+}
+ 
+.button_link a, input#delbutton,.attachfile, .logbuttons input,.buttons input {
+	border: 2px solid #5c646b;
+	color: #F0FEFF;
+}
+
 
 .button_link a, input#delbutton,.attachfile, .buttons input {
 	cursor: pointer;
