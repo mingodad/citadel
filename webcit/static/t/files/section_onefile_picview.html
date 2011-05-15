@@ -2,5 +2,5 @@
 	<div id="slideshow<?ITERATE:N>" class="slide" style="display: <?%("COND:FIRSTN", 1, 1, 1, "visible", "none")>"><div>download_file/<?FILE:NAME("X")></div></div>
 <??("X", 2)>
 <?!("COND:ITERATE:LASTN", 3)>
-	<script>$end=<?ITERATE:N></script>
+	<script>$lastfile=<?ITERATE:N></script>
 <?!("X", 3)>
