@@ -1,5 +1,5 @@
 <??("COND:FILE:ISPIC", 2)>
-	<div id="slideshow<?ITERATE:N>" class="slide" style="display: <?%("COND:FIRSTN", 1, 1, 1, "visible", "none")>"><div>download_file/<?FILE:NAME("X")></div></div>
+	<div id="slideshow<?ITERATE:N>" class="slide" style="display: <?%("COND:ITERATE:FIRSTN", 1, 1, 1, "visible", "none")>"><div>download_file/<?FILE:NAME("X")></div></div>
 <??("X", 2)>
 <?!("COND:ITERATE:LASTN", 3)>
 	<script>$lastfile=<?ITERATE:N></script>
