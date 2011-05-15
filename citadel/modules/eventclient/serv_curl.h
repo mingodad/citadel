@@ -1,4 +1,3 @@
-#include <event_client.h>
 #include <curl/curl.h>
 
 typedef struct _evcurl_global_data {
