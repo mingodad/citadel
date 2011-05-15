@@ -29,5 +29,7 @@
         			})
     			}
 		</script>
-	</td><th>
+	</td></tr>
+	<th></th>
+	</table>
 <?=("trailing")>
