@@ -84,9 +84,6 @@ void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg)
 	    HFreeStrBuf);
 }
 
-
-
-
 StrBuf* GetNHBuf(int i, int allocit, StrBuf **NotifyHostList)
 {
 	if ((NotifyHostList[i] == NULL) && (allocit != 0))
@@ -125,7 +122,7 @@ StrBuf** GetNotifyHosts(void)
 		pche = strchr(pchs, ':');
 		if (pche == NULL) {
 			CtdlLogPrintf(CTDL_ERR, 
-				      __FILE__": filename not found in %s.\n", 
+				      "extnotify: filename of notification template not found in %s.\n", 
 				      pchs);
 			continue;
 		}
@@ -135,6 +132,272 @@ StrBuf** GetNotifyHosts(void)
 	}
 	return NotifyHostList;
 }
+
+
+/*! \brief Get configuration message for pager/funambol system from the
+ *			users "My Citadel Config" room
+ */
+eNotifyType extNotify_getConfigMessage(char *username, char **PagerNumber, char **FreeMe) 
+{
+	struct ctdlroom qrbuf; // scratch for room
+	struct ctdluser user; // ctdl user instance
+	char configRoomName[ROOMNAMELEN];
+	struct CtdlMessage *msg = NULL;
+	struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
+	int a;
+	char *configMsg;
+	char *pch;
+
+	// Get the user
+	CtdlGetUser(&user, username);
+    
+	CtdlMailboxName(configRoomName, sizeof configRoomName, &user, USERCONFIGROOM);
+	// Fill qrbuf
+	CtdlGetRoom(&qrbuf, configRoomName);
+	/* Do something really, really stoopid here. Raid the room on ourselves,
+	 * loop through the messages manually and find it. I don't want
+	 * to use a CtdlForEachMessage callback here, as we would be
+	 * already in one */
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		msglist = (long *) cdbfr->ptr;
+		cdbfr->ptr = NULL;	/* CtdlForEachMessage() now owns this memory */
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
+	} else {
+		CtdlLogPrintf(CTDL_DEBUG, "extNotify_getConfigMessage: No config messages found\n");
+		return eNone;	/* No messages at all?  No further action. */
+	}
+	for (a = 0; a < num_msgs; ++a) {
+		msg = CtdlFetchMessage(msglist[a], 1);
+		if (msg != NULL) {
+			if ((msg->cm_fields['U'] != NULL) && 
+			    (strncasecmp(msg->cm_fields['U'], PAGER_CONFIG_MESSAGE,
+					 strlen(PAGER_CONFIG_MESSAGE)) == 0)) {
+				break;
+			}
+			CtdlFreeMessage(msg);
+			msg = NULL;
+		}
+	}
+       
+	if (msg == NULL)
+		return eNone;
+
+	// Do a simple string search to see if 'funambol' is selected as the
+	// type. This string would be at the very top of the message contents.
+
+	configMsg = msg->cm_fields['M'];
+	msg->cm_fields['M'] = NULL;
+	CtdlFreeMessage(msg);
+
+	/* here we would find the pager number... */
+	pch = strchr(configMsg, '\n');
+	if (pch != NULL)
+	{
+		*pch = '\0';
+		pch ++;
+	}
+
+	/* Check to see if:
+	 * 1. The user has configured paging / They have and disabled it
+	 * AND 2. There is an external pager program
+	 * 3. A Funambol server has been entered
+	 *
+	 */
+	if (!strncasecmp(configMsg, "none", 4))
+	{
+		free(configMsg);
+		return eNone;
+	}
+
+	if (!strncasecmp(configMsg, HKEY(PAGER_CONFIG_HTTP)))
+	{
+		free(configMsg);
+		return eHttpMessages;
+	}
+	if (!strncasecmp(configMsg, HKEY(FUNAMBOL_CONFIG_TEXT)))
+	{
+		free(configMsg);
+		return eFunambol;
+	}
+	else if (!strncasecmp(configMsg, HKEY(PAGER_CONFIG_SYSTEM)))
+	{
+		// whats the pager number?
+		if (!pch || (*pch == '\0'))
+		{
+			free(configMsg);
+			
+			return eNone;
+		}
+		while (isspace(*pch)) 
+			pch ++;
+		*PagerNumber = pch;
+		while (isdigit(*pch) || (*pch == '+'))
+			pch++;
+		*pch = '\0';
+		*FreeMe = configMsg;
+		return eTextMessage;
+	}
+
+	free(configMsg);
+	return eNone;
+}
+
+
+/*
+ * Process messages in the external notification queue
+ */
+void process_notify(long NotifyMsgnum, void *usrdata) 
+{
+	NotifyContext *Ctx;
+	long msgnum = 0;
+	long todelete[1];
+	char *pch;
+	struct CtdlMessage *msg;
+	eNotifyType Type;
+	char remoteurl[SIZ];
+	char *FreeMe = NULL;
+	char *PagerNo;
+
+	Ctx = (NotifyContext*) usrdata;
+
+	msg = CtdlFetchMessage(NotifyMsgnum, 1);
+	if ( msg->cm_fields['W'] != NULL) 
+	{
+    		Type = extNotify_getConfigMessage(msg->cm_fields['W'], &PagerNo, &FreeMe);
+	
+		pch = strstr(msg->cm_fields['M'], "msgid|");
+		if (pch != NULL) 
+			msgnum = atol(pch + sizeof("msgid"));
+
+		switch (Type)
+		{
+		case eFunambol:
+			snprintf(remoteurl, SIZ, "http://%s@%s:%d/%s",
+				 config.c_funambol_auth,
+				 config.c_funambol_host,
+				 config.c_funambol_port,
+				 FUNAMBOL_WS);
+			notify_http_server(remoteurl, 
+					   file_funambol_msg,
+					   strlen(file_funambol_msg),/*GNA*/
+					   msg->cm_fields['W'], 
+					   msg->cm_fields['I'],
+					   msgnum, 
+					   Ctx);
+			break;
+		case eHttpMessages:
+		{
+			int i = 0;
+			StrBuf *URL;
+			char URLBuf[SIZ];
+			StrBuf *File;
+			StrBuf *FileBuf = NewStrBuf();
+		
+			while(1)
+			{
+
+				URL = GetNHBuf(i*2, 0, Ctx->NotifyHostList);
+				if (URL==NULL) break;
+				File = GetNHBuf(i*2 + 1, 0, Ctx->NotifyHostList);
+				if (File==NULL) break;
+
+				if (StrLength(File)>0)
+					StrBufPrintf(FileBuf, "%s/%s", 
+						     ctdl_shared_dir, 
+						     ChrPtr(File));
+				else
+					FlushStrBuf(FileBuf);
+				memcpy(URLBuf, ChrPtr(URL), StrLength(URL) + 1);
+
+				notify_http_server(URLBuf, 
+						   ChrPtr(FileBuf),
+						   StrLength(FileBuf),
+						   msg->cm_fields['W'], 
+						   msg->cm_fields['I'],
+						   msgnum, 
+						   Ctx);
+				i++;
+			}
+			FreeStrBuf(&FileBuf);
+		} 
+		break;
+		case eTextMessage:
+		{
+			int commandSiz;
+			char *command;
+
+			commandSiz = sizeof(config.c_pager_program) + strlen(PagerNo) + strlen(msg->cm_fields['W']) + 5;
+			command = malloc(commandSiz);
+			snprintf(command, commandSiz, "%s %s -u %s", config.c_pager_program, PagerNo, msg->cm_fields['W']);
+			system(command);
+			free(command);
+		}
+		break;
+		case eNone:
+			break;
+		}
+	}
+	if (FreeMe != NULL)
+		free(FreeMe);
+	CtdlFreeMessage(msg);
+	todelete[0] = NotifyMsgnum;
+	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
+}
+
+
+
+
+
+
+/*!
+ * \brief Run through the pager room queue
+ */
+void do_extnotify_queue(void) 
+{
+
+	NotifyContext Ctx;
+	static int doing_queue = 0;
+	//int i = 0;
+    
+	/*
+	 * This is a simple concurrency check to make sure only one queue run
+	 * is done at a time.  We could do this with a mutex, but since we
+	 * don't really require extremely fine granularity here, we'll do it
+	 * with a static variable instead.
+	 */
+
+	if (IsEmptyStr(config.c_pager_program) && 
+	    IsEmptyStr(config.c_funambol_host))
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "No external notifiers configured on system/user");
+		return;
+	}
+
+	if (doing_queue) return;
+	doing_queue = 1;
+
+	/*
+	 * Go ahead and run the queue
+	 */
+	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
+    
+	memset(&Ctx, 0, sizeof(NotifyContext));
+	Ctx.NotifyHostList = GetNotifyHosts();
+	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
+		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
+		CtdlClearSystemContext();
+		return;
+	}
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
+			   SPOOLMIME, NULL, process_notify, &Ctx);
+	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
+	doing_queue = 0;
+}
+
 
 
 /* Create the notify message queue. We use the exact same room
@@ -156,250 +419,6 @@ void create_extnotify_queue(void) {
 		qrbuf.QRflags2 |= QR2_SYSTEM;
 		CtdlPutRoomLock(&qrbuf);
 	}
-}
-/*!
- * \brief Run through the pager room queue
- */
-void do_extnotify_queue(void) 
-{
-
-	NotifyContext Ctx;
-	static int doing_queue = 0;
-	//int i = 0;
-    
-	/*
-	 * This is a simple concurrency check to make sure only one queue run
-	 * is done at a time.  We could do this with a mutex, but since we
-	 * don't really require extremely fine granularity here, we'll do it
-	 * with a static variable instead.
-	 */
-	if (doing_queue) return;
-	doing_queue = 1;
-
-	/*
-	 * Go ahead and run the queue
-	 */
-	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
-    
-	memset(&Ctx, 0, sizeof(NotifyContext));
-	Ctx.NotifyHostList = GetNotifyHosts();
-	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
-		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
-		CtdlClearSystemContext();
-		return;
-	}
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
-			   SPOOLMIME, NULL, process_notify, &Ctx);
-/*
-	while ((Ctx.NotifyHostList != NULL) && (Ctx.NotifyHostList[i] != NULL))
-		FreeStrBuf(&Ctx.NotifyHostList[i]);
-
-	if (Ctx.NotifyErrors != NULL)
-	{
-		long len;
-		const char *Key;
-		HashPos *It;
-		void *vErr;
-		StrBuf *ErrMsg;
-
-		It = GetNewHashPos(Ctx.NotifyErrors, 0);
-		while (GetNextHashPos(Ctx.NotifyErrors, It, &len, &Key, &vErr) && 
-		       (vErr != NULL)) {
-			ErrMsg = (StrBuf*) vErr;
-			quickie_message("Citadel", NULL, NULL, AIDEROOM, ChrPtr(ErrMsg), FMT_FIXED, 
-					"Failed to notify external service about inbound mail");
-		}
-
-		DeleteHashPos(&It);
-		DeleteHash(&Ctx.NotifyErrors);
-	}
-*/
-	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
-	doing_queue = 0;
-}
-
-/*
- * Process messages in the external notification queue
- */
-void process_notify(long NotifyMsgnum, void *usrdata) 
-{
-	NotifyContext *Ctx;
-	long msgnum = 0;
-	long todelete[1];
-	int fnblAllowed;
-	int extPagerAllowedHttp;
-	int extPagerAllowedSystem;
-	char *pch;
-	long configMsgNum;
-	char configMsg[SIZ];
-	struct CtdlMessage *msg;
-
-	Ctx = (NotifyContext*) usrdata;
-
-	msg = CtdlFetchMessage(NotifyMsgnum, 1);
-	if ( msg->cm_fields['W'] == NULL) {
-		goto nuke;
-	}
-    
-	configMsgNum = extNotify_getConfigMessage(msg->cm_fields['W']);
-    
-	extNotify_getPrefs(configMsgNum, &configMsg[0]);
-	
-	/* Check to see if:
-	 * 1. The user has configured paging / They have and disabled it
-	 * AND 2. There is an external pager program
-	 * 3. A Funambol server has been entered
-	 *
-	 */
-	if ((configMsgNum == -1) || 
-	    ((strncasecmp(configMsg, "none", 4) == 0) &&
-	     IsEmptyStr(config.c_pager_program) && 
-	     IsEmptyStr(config.c_funambol_host))) {
-		CtdlLogPrintf(CTDL_DEBUG, "No external notifiers configured on system/user");
-		goto nuke;
-	}
-
-	// Can Funambol take the message?
-	pch = strchr(configMsg, '\n');
-	if (*pch == '\n')
-	    *pch = '\0';
-	fnblAllowed = strncasecmp(configMsg, HKEY(FUNAMBOL_CONFIG_TEXT));
-	extPagerAllowedHttp = strncasecmp(configMsg, HKEY(PAGER_CONFIG_HTTP)); 
-	extPagerAllowedSystem = strncasecmp(configMsg, HKEY(PAGER_CONFIG_SYSTEM));
-	pch = strstr(msg->cm_fields['M'], "msgid|");
-	if (pch != NULL) 
-		msgnum = atol(pch + sizeof("msgid"));
-	if (fnblAllowed == 0) {
-		char remoteurl[SIZ];
-		snprintf(remoteurl, SIZ, "http://%s@%s:%d/%s",
-			 config.c_funambol_auth,
-			 config.c_funambol_host,
-			 config.c_funambol_port,
-			 FUNAMBOL_WS);
-		notify_http_server(remoteurl, 
-				   file_funambol_msg,
-				   strlen(file_funambol_msg),/*GNA*/
-				   msg->cm_fields['W'], 
-				   msg->cm_fields['I'],
-				   msgnum, 
-				   Ctx);
-	} else if (extPagerAllowedHttp == 0) {
-		int i = 0;
-		StrBuf *URL;
-		char URLBuf[SIZ];
-		StrBuf *File;
-		StrBuf *FileBuf = NewStrBuf();
-		
-		while(1)
-		{
-
-			URL = GetNHBuf(i*2, 0, Ctx->NotifyHostList);
-			if (URL==NULL) break;
-			File = GetNHBuf(i*2 + 1, 0, Ctx->NotifyHostList);
-			if (File==NULL) break;
-
-			if (StrLength(File)>0)
-				StrBufPrintf(FileBuf, "%s/%s", 
-					     ctdl_shared_dir, 
-					     ChrPtr(File));
-			else
-				FlushStrBuf(FileBuf);
-			memcpy(URLBuf, ChrPtr(URL), StrLength(URL) + 1);
-
-			notify_http_server(URLBuf, 
-					   ChrPtr(FileBuf),
-					   StrLength(FileBuf),
-					   msg->cm_fields['W'], 
-					   msg->cm_fields['I'],
-					   msgnum, 
-					   Ctx);
-			i++;
-		}
-		FreeStrBuf(&FileBuf);
-	} 
-	else if (extPagerAllowedSystem == 0) {
-		char *number;
-		int commandSiz;
-		char *command;
-
-		number = strtok(configMsg, "textmessage\n");
-		commandSiz = sizeof(config.c_pager_program) + strlen(number) + strlen(msg->cm_fields['W']) + 5;
-		command = malloc(commandSiz);
-		snprintf(command, commandSiz, "%s %s -u %s", config.c_pager_program, number, msg->cm_fields['W']);
-		system(command);
-		free(command);
-	}
-nuke:
-	CtdlFreeMessage(msg);
-	memset(configMsg, 0, sizeof(configMsg));
-	todelete[0] = NotifyMsgnum;
-	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
-}
-
-/*! \brief Checks to see what notification option the user has set
- *
- */
-void extNotify_getPrefs(long configMsgNum, char *configMsg) 
-{
-	struct CtdlMessage *prefMsg;
-	// Do a simple string search to see if 'funambol' is selected as the
-	// type. This string would be at the very top of the message contents.
-	if (configMsgNum == -1) {
-		CtdlLogPrintf(CTDL_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id\n");
-		return;
-	}
-	prefMsg = CtdlFetchMessage(configMsgNum, 1);
-	strncpy(configMsg, prefMsg->cm_fields['M'], strlen(prefMsg->cm_fields['M']));
-	CtdlFreeMessage(prefMsg);
-}
-
-/*! \brief Get configuration message for pager/funambol system from the
- *			users "My Citadel Config" room
- */
-long extNotify_getConfigMessage(char *username) {
-	struct ctdlroom qrbuf; // scratch for room
-	struct ctdluser user; // ctdl user instance
-	char configRoomName[ROOMNAMELEN];
-	struct CtdlMessage *msg;
-	struct cdbdata *cdbfr;
-	long *msglist = NULL;
-	int num_msgs = 0;
-	long confMsgNum = -1;
-	int a;
-
-	// Get the user
-	CtdlGetUser(&user, username);
-    
-	CtdlMailboxName(configRoomName, sizeof configRoomName, &user, USERCONFIGROOM);
-	// Fill qrbuf
-	CtdlGetRoom(&qrbuf, configRoomName);
-	/* Do something really, really stoopid here. Raid the room on ourselves,
-	 * loop through the messages manually and find it. I don't want
-	 * to use a CtdlForEachMessage callback here, as we would be
-	 * already in one */
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
-	if (cdbfr != NULL) {
-		msglist = (long *) cdbfr->ptr;
-		cdbfr->ptr = NULL;	/* CtdlForEachMessage() now owns this memory */
-		num_msgs = cdbfr->len / sizeof(long);
-		cdb_free(cdbfr);
-	} else {
-		CtdlLogPrintf(CTDL_DEBUG, "extNotify_getConfigMessage: No config messages found\n");
-		return -1;	/* No messages at all?  No further action. */
-	}
-	for (a = 0; a < num_msgs; ++a) {
-		msg = CtdlFetchMessage(msglist[a], 1);
-		if (msg != NULL) {
-			if ((msg->cm_fields['U'] != NULL) && 
-			    (strncasecmp(msg->cm_fields['U'], PAGER_CONFIG_MESSAGE,
-					 strlen(PAGER_CONFIG_MESSAGE)) == 0)) {
-				confMsgNum = msglist[a];
-			}
-			CtdlFreeMessage(msg);
-		}
-	}
-	return confMsgNum;
-    
 }
 
 CTDL_MODULE_INIT(extnotify)

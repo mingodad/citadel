@@ -20,10 +20,18 @@
 
 #include "../eventclient/serv_curl.h"
 
-#define FUNAMBOL_CONFIG_TEXT "funambol"
 #define PAGER_CONFIG_MESSAGE "__ Push email settings __"
+#define FUNAMBOL_CONFIG_TEXT "funambol"
 #define PAGER_CONFIG_SYSTEM  "textmessage"    
 #define PAGER_CONFIG_HTTP  "httpmessage"    
+
+typedef enum _eNotifyType {
+	eNone, 
+	eFunambol, 
+	eHttpMessages,
+	eTextMessage
+}eNotifyType;
+
 
 #define FUNAMBOL_WS "/funambol/services/admin"
 
@@ -43,9 +51,7 @@ int notify_http_server(char *remoteurl,
 
 void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg);
 
-void extNotify_getPrefs(long configMsgNum, char *configMsg);
-long extNotify_getConfigMessage(char *username);
-void process_notify(long msgnum, void *usrdata);
+///void process_notify(long msgnum, void *usrdata);
 
 
 

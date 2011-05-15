@@ -214,6 +214,30 @@ int EvaluateResult(NotifyContext *Ctx, int res, int b)
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "Funambol notified\n");
+/*
+	while ((Ctx.NotifyHostList != NULL) && (Ctx.NotifyHostList[i] != NULL))
+		FreeStrBuf(&Ctx.NotifyHostList[i]);
+
+	if (Ctx.NotifyErrors != NULL)
+	{
+		long len;
+		const char *Key;
+		HashPos *It;
+		void *vErr;
+		StrBuf *ErrMsg;
+
+		It = GetNewHashPos(Ctx.NotifyErrors, 0);
+		while (GetNextHashPos(Ctx.NotifyErrors, It, &len, &Key, &vErr) && 
+		       (vErr != NULL)) {
+			ErrMsg = (StrBuf*) vErr;
+			quickie_message("Citadel", NULL, NULL, AIDEROOM, ChrPtr(ErrMsg), FMT_FIXED, 
+					"Failed to notify external service about inbound mail");
+		}
+
+		DeleteHashPos(&It);
+		DeleteHash(&Ctx.NotifyErrors);
+	}
+*/
 
 ////	curl_slist_free_all (headers);
 ///	curl_easy_cleanup(curl);
