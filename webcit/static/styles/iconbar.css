@@ -11,7 +11,7 @@
 
 #iconbar_container { background-color: #FFF; }
 
-#citlogo { padding: 10px 0; }
+#citlogo { padding: 13px 0; }
 
 .logo_citadel a,.logo_citadel img {
 	border: none;
@@ -52,8 +52,8 @@
 	-khtml-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
-	behavior: url(/static/styles/PIE.htc);
-}
+	behavior: url(border-radius.htc);
+ }
 
 .logo, .logo_citadel, .iconbar_text {
 	margin: 0;
@@ -123,4 +123,11 @@
 
 #button li:hover, #ib_logoff:hover {
         background-color: #5c646b;
+}
+
+#ib_users {
+	-khtml-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	behavior: url(border-radius.htc);
 }

@@ -5,11 +5,12 @@
 	background: linear-gradient(#4D555C, #7D858C);
 	-pie-background: linear-gradient(#4D555C, #7D858C);
 	behavior: url(/static/styles/PIE.htc);
+        border-bottom: 2px solid #424b52;
 	color: #FFF;
 	margin: 0;
 	padding: 0;
 	top: 0;
-	height: 120px;          /* when changing this, also change #content */
+	height: 100px;          /* when changing this, also change #content */
 	position: fixed;
 	width: 84%;             /* when changing this, also change #iconbar and #content */
 	left: 16%;              /* when changing this, also change #iconbar and #content */
@@ -70,6 +71,7 @@
 #banner ul.room_actions {
 	list-style: none;
 	text-align: left;
+	margin: 0;
 }
 #banner ul.room_actions li {
 	white-space: nowrap;
