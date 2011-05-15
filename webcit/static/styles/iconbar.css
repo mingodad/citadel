@@ -52,8 +52,8 @@
 	-khtml-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
-	behavior: url(border-radius.htc);
- }
+	behavior: url(/static/styles/PIE.htc);
+}
 
 .logo, .logo_citadel, .iconbar_text {
 	margin: 0;
@@ -123,11 +123,4 @@
 
 #button li:hover, #ib_logoff:hover {
         background-color: #5c646b;
-}
-
-#ib_users {
-	-khtml-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	behavior: url(border-radius.htc);
 }
