@@ -32,17 +32,20 @@
 	font-size: 75%;
 }
 
+#iconbar #button {
+	padding: 0;
+	border: none;
+	list-style: none;
+}
+
+
 .ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
 	display: block;
 	text-decoration: none;
 	color: #F0FEFF;
 }
 
-#iconbar #button {
-	padding: 0;
-	border: none;
-	list-style: none;
-}
+li.ib_button a img { border: none; } /* FF draws borders around the expand/collapse buttons */
 
 .ib_button {
 	margin: 3px;
@@ -95,7 +98,6 @@
 #online_users li.activeuser { background-color: #4d555c; }
  
 #online_users li:hover { /* separate in order for override */ }
-
 
 
 .ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old, .roomlist_floor, .roomlist_new, .roomlist_old {
