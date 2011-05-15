@@ -1,3 +1,6 @@
 <??("COND:FILE:ISPIC", 2)>
-fadeimages[<?ITERATE:N>]=["download_file/<?FILE:NAME("X")>"]
+	<div id="slideshow<?ITERATE:N>" class="slide" style="display: <?%("COND:ITERATE:FIRSTN", 1, 1, 1, "visible", "none")>"><div>download_file/<?FILE:NAME("X")></div></div>
 <??("X", 2)>
+<?!("COND:ITERATE:LASTN", 3)>
+	<script>$lastfile=<?ITERATE:N></script>
+<?!("X", 3)>
