@@ -9,14 +9,9 @@
 	overflow-x: hidden !important;
 }
 
-#iconbar_container {
-	background-color: #FFF;
-	color: #000;
-}
+#iconbar_container { background-color: #FFF; }
 
-#citlogo {
-	padding: 10px 0;
-}
+#citlogo { padding: 10px 0; }
 
 .logo_citadel a,.logo_citadel img {
 	border: none;
@@ -29,7 +24,7 @@
 
 .ib_button, .iconbar_text{
 	background-color: #4d555c;
-	color: #9c959d;
+	color: #F0FEFF;
 	font-weight: bold;
 } 
 
@@ -39,8 +34,8 @@
 
 .ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
 	display: block;
-	color: #F0FEFF;
 	text-decoration: none;
+	color: #F0FEFF;
 }
 
 #iconbar #button {
@@ -49,7 +44,7 @@
 	list-style: none;
 }
 
-.ib_button, #button li:hover{
+.ib_button {
 	margin: 3px;
 	padding: 0;
 	display: block;
@@ -81,13 +76,27 @@
 	max-height: 200px;
 	overflow: auto;
 	padding-left: 0;
+	padding-bottom: 5px;
 } 
+
 #online_users li {
 	list-style: none;
 	margin: 0;
 	padding: 2px;
 	white-space: nowrap;
+	border: none;
+	border-top: 1px solid #777277;
 }
+
+#online_users li a { font-size: 80% !important }
+
+#online_users li.inactiveuser { background-color: #9c959d; }
+ 
+#online_users li.activeuser { background-color: #4d555c; }
+ 
+#online_users li:hover { /* separate in order for override */ }
+
+
 
 .ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old, .roomlist_floor, .roomlist_new, .roomlist_old {
 	margin: 4px;
@@ -102,9 +111,7 @@
 	font-weight: 700;
 }
 
-.ib_roomlist_floor {
-	color: #000;
-}
+.ib_roomlist_floor {}
 
 .roomlist_new, .ib_roomlist_new {
 	color: #800;
@@ -116,4 +123,11 @@
 
 #button li:hover, #ib_logoff:hover {
         background-color: #5c646b;
+}
+
+#ib_users {
+	-khtml-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	behavior: url(border-radius.htc);
 }
