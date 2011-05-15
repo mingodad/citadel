@@ -55,9 +55,14 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 	url->LocalPart = strchr(pch, '/');
 	if (url->LocalPart != NULL) {
 		if ((*(url->LocalPart + 1) == '/') && 
-		    (*(url->LocalPart + 2) == ':')) { /* TODO: find default port for this protocol... */
-			url->Host = url->LocalPart + 3;
+		    (*(url->LocalPart - 1) == ':')) { /* TODO: find default port for this protocol... */
+			url->Host = url->LocalPart + 2;
 			url->LocalPart = strchr(url->Host, '/');
+			if (url->LocalPart != NULL)
+			{
+			    StrBufPeek(url->URL, url->LocalPart, 0, '\0');
+			    url->LocalPart++;
+			}
 		}
 	}
 	if (url->LocalPart == NULL) {
@@ -119,12 +124,16 @@ void CurlPrepareURL(ParsedURL *Url)
 	else 
 		Url->UrlWithoutCred = NewStrBufPlain(HKEY("http://"));
 	StrBufAppendBufPlain(Url->UrlWithoutCred, Url->Host, -1, 0);
+
 	StrBufAppendBufPlain(Url->UrlWithoutCred, HKEY(":"), 0);
 
 	StrBufAppendPrintf(Url->UrlWithoutCred, "%u", Url->Port);
+
 	StrBufAppendBufPlain(Url->UrlWithoutCred, HKEY("/"), 0);
 	if (Url->LocalPart)
-		StrBufAppendBufPlain(Url->UrlWithoutCred, Url->LocalPart, -1, 0);
+	{
+	    StrBufAppendBufPlain(Url->UrlWithoutCred, Url->LocalPart, -1, 0);
+	}
 	if (Url->User != NULL)
 	{
 		Url->CurlCreds = NewStrBufPlain(Url->User, -1);
@@ -132,4 +141,5 @@ void CurlPrepareURL(ParsedURL *Url)
 		if (Url->Pass != NULL)
 			StrBufAppendBufPlain(Url->CurlCreds, Url->Pass, -1, 0);
 	}
+	Url->PlainUrl = ChrPtr(Url->UrlWithoutCred);
 }
