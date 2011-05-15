@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "../curl/serv_curl.h"
+#include "../eventclient/serv_curl.h"
 
 #define FUNAMBOL_CONFIG_TEXT "funambol"
 #define PAGER_CONFIG_MESSAGE "__ Push email settings __"

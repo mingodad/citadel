@@ -44,6 +44,7 @@
 #include "msgbase.h"
 #include "ctdl_module.h"
 
+#include "event_client.h"
 #include "extnotify.h"
 
 /*
@@ -66,7 +67,8 @@ int notify_http_server(char *remoteurl,
 	StrBuf *ReplyBuf;
 	CURL *chnd;
 
-	return 0;
+	snprintf(msgnumstr, 128, "%ld", MsgNum);
+
 	if (tlen > 0) {
 		/* Load the template message. Get mallocs done too */
 		FILE *Ftemplate = NULL;
@@ -85,8 +87,6 @@ int notify_http_server(char *remoteurl,
 			goto abort;
 		}
 		mimetype = GuessMimeByFilename(template, tlen);
-
-		snprintf(msgnumstr, 128, "%ld", MsgNum);
 
 		buf = malloc(SIZ);
 		memset(buf, 0, SIZ);

@@ -527,13 +527,14 @@ int client_write(const char *buf, int nbytes)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", Ctx->ServiceName, Ctx->cs_pid);
 		
 		fd = fopen(fn, "a+");
-		fprintf(fd, "Sending: BufSize: %d BufContent: [",
-			nbytes);
-		rv = fwrite(buf, nbytes, 1, fd);
-		fprintf(fd, "]\n");
-		
-			
-		fclose(fd);
+		if (fd)
+		{
+		    fprintf(fd, "Sending: BufSize: %d BufContent: [",
+			    nbytes);
+		    rv = fwrite(buf, nbytes, 1, fd);
+		    fprintf(fd, "]\n");
+		    fclose(fd);
+		}
 	}
 #endif
 //	flush_client_inbuf();

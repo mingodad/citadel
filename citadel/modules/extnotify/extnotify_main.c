@@ -63,6 +63,7 @@
 #include "internet_addressing.h"
 #include "domain.h"
 #include "clientsocket.h"
+#include "event_client.h"
 #include "extnotify.h"
 
 #include "ctdl_module.h"
