@@ -399,7 +399,7 @@ a:visited { color: purple}
 	color: black;
 }
 
-#important_message, .buttons a:hover, #button li:hover {
+#important_message, .buttons a:hover {
 	background-color: #3E65AF;
 	color: #3E65AF;
 }

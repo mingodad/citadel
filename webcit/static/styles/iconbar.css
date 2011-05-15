@@ -14,6 +14,10 @@
 	color: #000;
 }
 
+#citlogo {
+	padding: 10px 0;
+}
+
 .logo_citadel a,.logo_citadel img {
 	border: none;
 }
@@ -24,8 +28,8 @@
 } 
 
 .ib_button, .iconbar_text{
-	background-color: #5F84C5;
-	color: #F0FEFF;
+	background-color: #4d555c;
+	color: #9c959d;
 	font-weight: bold;
 } 
 
@@ -40,21 +44,23 @@
 }
 
 #iconbar #button {
+	padding: 0;
 	border: none;
 	list-style: none;
 }
 
-.ib_button {
-	margin: 4px 8px 4px 8px;
+.ib_button, #button li:hover{
+	margin: 3px;
 	padding: 0;
 	display: block;
 	font-size: 80%;
-	border: none;
-	border-bottom: 2px groove #DADCDA;
-	border-right: 2px groove #DADCDA;
+	-khtml-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	behavior: url(border-radius.htc);
  }
 
-.logo, .logo_citadel, #iconbar #button, .iconbar_text, .ib_button {
+.logo, .logo_citadel, .iconbar_text {
 	margin: 0;
 	padding: 0;
 }
@@ -108,8 +114,6 @@
 	color: #008;
 }
 
-#ib_logoff:hover {
-	background-color: #3E65AF;
-	color: #F1BD22;
+#button li:hover, #ib_logoff:hover {
+        background-color: #5c646b;
 }
-
