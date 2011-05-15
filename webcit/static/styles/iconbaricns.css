@@ -8,11 +8,12 @@
 .ib_button {
     min-height: 32px;
     background-repeat: no-repeat !important;
+    background-position: 3px 0px;
     vertical-align: middle;
 }
 .ib_button_link {
-    padding-top: 6px;
-    padding-left: 35px;
+    padding-top: 8px;
+    padding-left: 37px;
     height: 100%;
     min-height: 25px; /* Makes all of the 'button' to be clickable */
 }
