@@ -1,4 +1,4 @@
-.message {
+.message, .entmsg{
 	background-color: #deded0;
 	margin: 1em;
 	border: 1px solid #5C646B;
@@ -10,6 +10,8 @@
 	box-shadow: #666 0px 2px 3px;
 	behavior: url(/static/styles/PIE.htc);
 }
+
+.entmsg { height: 95%; }
 
 .message_header {
 	font-size: x-small;
