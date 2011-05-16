@@ -11,29 +11,54 @@
 
 #iconbar_container {}
 
-#citlogo { padding: 13px 0; }
+#citlogo { 
+	height: 76px;
+        background: #4D555C;
+        background: -webkit-gradient(linear, 0 0, 0 bottom, from(#4D555C), to(#7D858C));
+        background: -moz-linear-gradient(#4D555C, #7D858C);
+        background: linear-gradient(#4D555C, #7D858C);
+        -pie-background: linear-gradient(#4D555C, #7D858C);
+        behavior: url(/static/styles/PIE.htc);
+}
 
-.logo_citadel a,.logo_citadel img {
+.logo_citadel, li.ib_button a img {
 	border: none;
 }
 
-.logo,.logo_citadel, .iconbar_text {
-	border: none;
-	border-bottom: 1px solid #AAA;
+.logo_citadel img{
+	padding: 3px;
+	margin-top: 16px;
+	background-color: #edede0;
+	border: 2px solid #edede0;
+	-khtml-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        behavior: url(/static/style/PIE.htc);
 } 
 
-.ib_button, .iconbar_text{
-	background-color: #4d555c;
-	color: #F0FEFF;
+.iconbar_text {        
+	height: 2em;
+	font-size: 70%;
 	font-weight: bold;
-} 
-
-.iconbar_text {
-	font-size: 75%;
+	color: #fff;
+	background-color: #7d858c;
+	border-top-color: #424b52;
+	border-top-style: solid;
+	border-top-width: 2px;
+	border-bottom-color: #424b52;
+	border-bottom-style: solid;
+	border-bottom-width: 2px;
 }
+
+.iconbar_text > span { 	cursor: pointer }
+
+div.iconbar_text select { border: 1px solid 424b5; }
+
+#iconbar_menu {}
 
 #iconbar #button {
 	padding: 0;
+	margin: 5px 0;
 	border: none;
 	list-style: none;
 }
@@ -45,33 +70,23 @@
 	color: #F0FEFF;
 }
 
-li.ib_button a img { border: none; } /* FF draws borders around the expand/collapse buttons */
-
 .ib_button, .floor {
-	margin: 3px;
+	margin: 3px 9px;
 	padding: 0;
 	display: block;
 	font-size: 80%;
+	background-color: #4d555c;
+	color: #F0FEFF;
+	font-weight: bold;
 	-khtml-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
-	behavior: url(border-radius.htc);
+	behavior: url(static/style/PIE.htc);
  }
-
-.logo, .logo_citadel, .iconbar_text {
-	margin: 0;
-	padding: 0;
-}
 
 .logo, #citlogo, .iconbar_text, #online_users li {
 	text-align: center;
 }
-
-.iconbar_text > span {
-	cursor: pointer;
-}
-
-#iconbar #button { width: 100% }
 
 #button li:hover, #ib_logoff:hover {
 	background-color: #5c646b;
@@ -127,7 +142,18 @@ li.ib_button a img { border: none; } /* FF draws borders around the expand/colla
 	color: #008;
 }
 
-#button li:hover, #ib_logoff:hover {
-        background-color: #5c646b;
+#iconbar_container #customize {
+	margin: 0 9px;
+	border: 2px solid #424b52;
+	-khtml-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	behavior: url(/static/style/PIE.htc);
+}
+
+#iconbar_container #customize a:active, #iconbar_container #customize a:link, #iconbar_container #customize a:visited {
+        color: #fff;
+	line-height:2em;
+	display: block;
 }
 
