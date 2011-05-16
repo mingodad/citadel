@@ -320,8 +320,6 @@ ul.adminitems li span {	color: #666 }
 
 var sub { font-style: normal }
 
-.calendar { background-color: #204B78 }
-
 .week_of_year {
 	background-color: #e1e1e1;
 	font-size: 70%;	
@@ -833,11 +831,19 @@ ul.tabbed_dialog li {
 /* Calendar view */
 
 .calendar {
-	background-color: #204B78;
-	margin: 0;
-	width: 100%;
+	background-color: #424b52;
+	margin: 0 auto;
+	width: 98%;
 	height: 302px;
+	border-radius: 8px;
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        behavior: url(/static/styles/PIE.htc);
 }
+
+.calendar th { 
+	background-color: #424b52;
+	border-color: #424b52; }
 
 td.events_of_the_day { width: 500px }
 
