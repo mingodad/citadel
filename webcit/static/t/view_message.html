@@ -9,9 +9,9 @@
       <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
  <??("X", 1)>
  <?!("COND:MAIL:ANON", 4)>****<??("X", 4)>
- <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)><br>
-<?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
-<?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
+ <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)>
+<?!("COND:MAIL:SUMM:CCCC", 6)><br><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
+<?!("COND:MAIL:SUBJ", 7)><br><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
  <p id="msg<?MAIL:SUMM:N>" class="msgbuttons">
  <a href="display_enter?edit=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:TO("U")>?cc=<?MAIL:SUMM:CCCC("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "", "")>?force_room=_MAIL_"><span>[</span><?_("Edit")><span>]</span></a> 
 <?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")>
