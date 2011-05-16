@@ -12,6 +12,7 @@
 @import url("navbar.css");
 @import url("content.css");
 @import url("box.css");
+@import url("message.css");
 @import url("modal.css");
 
 @media print {
@@ -29,7 +30,7 @@ html, body {
 
 .address_book_popup_title { font-size: 130% }
 
-#button, #content .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,li.search,li.view, .room_actions form select option, .selectbox, .message_header, ul.adminitems li span, #message_list tr > td {
+#button, #content .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,li.search,li.view, .room_actions form select option, .selectbox, ul.adminitems li span, #message_list tr > td {
 	font-size: 100%;
 }
 
@@ -51,12 +52,12 @@ body {
 	background-color: #69aaff !important;
 }
 
-.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .wiki_history_background, .wiki_pagelist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul, #summary_view {
+.service form div,table.altern .odd, #message_list, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .wiki_history_background, .wiki_pagelist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul, #summary_view {
 	background-color: #FFF;
 	color: #000;
 }
 
-#message_list_hdr table, #resize_msglist, .message, .entmsg, .message_header, .vcard_edit_background_alt,.roomops_background_alt {
+#message_list_hdr table, #resize_msglist, .entmsg, .vcard_edit_background_alt,.roomops_background_alt {
 	background-color: #CCC;
 }
 
@@ -107,7 +108,7 @@ body {
 	height: 3px;
 }
 
-.message, .entmsg {
+.entmsg {
 	border: 1px outset #999;
 	clear: both;
 	margin: 1%;
@@ -118,11 +119,6 @@ body {
 	position: absolute;
 	height: 95%;
 	width: 98%;
-}
-
-.message_header .message_subject {
-	font-style: italic;
-	float: left;	
 }
 
 .adminlist { list-style: none }
@@ -445,28 +441,9 @@ body {
 	text-align: center;
 }
 
-.moreprompt {
-	text-align: center;
-	font-size: 100%;
-	background-color: #004E79;
-	color: #dddddd;
-}
-
-.moreprompt_link {
-	color: #dddddd;
-	font-weight: bold;
-}
-
-.moreprompt_link:hover {
-	background-color: #3E65AF;
-	color: #3E65AF;
-}
-
 #validate { text-align: center }
 
 #iconbar, #banner, #content, #message_list_hdr, #message_list, #preview_pane  { text-align: left }
-
-.message_content > div > div { text-align: justify !important }
 
 /* Please avoid setting heights for any of the mailbox view elements (except summary_view
  * and resize). In particular, do NOT set any for message_list_hdr as its not good feng shui
@@ -595,11 +572,6 @@ body {
 	padding: 2px;
 }
 
-.message_header p {
-	margin: 2px 0 2px 0;
-	padding: 0 0 2px 0;
-}
-
 .button_link a, .attachfile, .logbuttons input,.buttons input .logbutton {
 	margin: 3px;
 	padding: 2px 4px 2px 4px;
@@ -658,31 +630,7 @@ input#delbutton {
 	clear: both;
 }
 
-.msgbuttons {
- 	float: right;
-	padding: 2px;
-	font-size: 80%;
-}
-
 .buttons a { text-align: center }
-
-.message_content {
-	margin: 0;
-	padding: 0.3em;
- 	clear: both;
-}
-
-.message form div label, .entmsg form div label {
- 	display: block;
- 	float: left;
- 	margin: 0.3em;
- 	width: 9em;
- 	text-align: right;
-}
-
-.message form div input, .message form div select, .entmsg form div input, .entmsg form div select {
-	margin: 0.3em
-}
 
 .imgedit {
 	vertical-align: middle
