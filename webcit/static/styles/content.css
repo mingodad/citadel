@@ -1,13 +1,14 @@
 #content {
 	position: fixed;
-	top: 120px;             /* when changing this, also change #banner and #iconbar */
+	top: 100px;             /* when changing this, also change #banner and #iconbar */
 	left: 16%;              /* when changing this, also change #banner and #iconbar */
 	bottom: 0;
 	width: 84%;             /* when changing this, also change #banner and #iconbar */
 	background: #F3F6F2;
 	color: #000;
 	z-index: 2;
-	overflow-y: auto;                               
+	overflow-y: auto;
+	padding-top: 0.5em;
 }
 
 .boxcontent table {
@@ -35,4 +36,34 @@
 .instructions {
 	text-align: center;
 }
+
+.moreprompt {
+	margin: 0 1em;
+	text-align: center;
+	font-size: small;
+	background-color: #4d555c;
+	color: #ddd;
+	border: 2px solid #4d555c; /*in order to make the hover effect pop out nice */
+	/*border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px; */
+}
+ 
+.moreprompt_link {
+	color: #ddd;
+	font-weight: bold;
+}
+ 
+.moreprompt_link:hover {
+	background-color: #ddd;
+	color: #4d555c;
+	border: 0px solid #5c646b;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+/* a > div.moreprompt { 
+	border: none;
+	border-radius: 0; } */
 

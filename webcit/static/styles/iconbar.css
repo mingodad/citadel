@@ -47,7 +47,7 @@
 
 li.ib_button a img { border: none; } /* FF draws borders around the expand/collapse buttons */
 
-.ib_button {
+.ib_button, .floor {
 	margin: 3px;
 	padding: 0;
 	display: block;
@@ -72,6 +72,10 @@ li.ib_button a img { border: none; } /* FF draws borders around the expand/colla
 }
 
 #iconbar #button { width: 100% }
+
+#button li:hover, #ib_logoff:hover {
+	background-color: #5c646b;
+}
 
 #online_users {
 	display: none; /* Hide by default */
@@ -127,9 +131,3 @@ li.ib_button a img { border: none; } /* FF draws borders around the expand/colla
         background-color: #5c646b;
 }
 
-#ib_users {
-	-khtml-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	behavior: url(border-radius.htc);
-}
