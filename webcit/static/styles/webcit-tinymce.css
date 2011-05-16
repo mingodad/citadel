@@ -1,2 +1,3 @@
 /* styles applied to the TinyMCE editor component when used in WebCit */
+body, td, pre {color:red; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px; margin:8px;}
 
