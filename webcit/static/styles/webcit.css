@@ -57,7 +57,7 @@ body {
 	color: #000;
 }
 
-#message_list_hdr table, #resize_msglist, .entmsg, .vcard_edit_background_alt,.roomops_background_alt {
+#message_list_hdr table, #resize_msglist, .vcard_edit_background_alt,.roomops_background_alt {
 	background-color: #CCC;
 }
 
@@ -106,19 +106,6 @@ body {
 	border: 0;
 	color: #999;
 	height: 3px;
-}
-
-.entmsg {
-	border: 1px outset #999;
-	clear: both;
-	margin: 1%;
-	padding: 0;
-}
-
-.entmsg {
-	position: absolute;
-	height: 95%;
-	width: 98%;
 }
 
 .adminlist { list-style: none }
