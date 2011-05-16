@@ -963,7 +963,8 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	StrBuf *Line1;
 	StrBuf *Line2;
 	StrBuf *Target;
-
+	long Linecount;
+	long nEmptyLines;
 	int bn = 0;
 	int bq = 0;
 	int i;
@@ -1009,7 +1010,8 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	Line1 = NewStrBufPlain(NULL, SIZ);
 	Line2 = NewStrBufPlain(NULL, SIZ);
 	Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
-
+	Linecount = 0;
+	nEmptyLines = 0;
 	if (StrLength(Mime->Data) > 0) 
 		do 
 		{
@@ -1032,10 +1034,14 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 			if (i > 0) StrBufCutLeft(Line, i);
 		
 			if (StrLength(Line) == 0) {
+				if (Linecount == 0)
+					continue;
 				StrBufAppendBufPlain(Target, HKEY("<tt></tt><br>\n"), 0);
+
+				nEmptyLines ++;
 				continue;
 			}
-
+			nEmptyLines = 0;
 			for (i = bn; i < bq; i++)				
 				StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
 			for (i = bq; i < bn; i++)				
@@ -1051,10 +1057,13 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 			StrEscAppend(Target, Line1, NULL, 0, 0);
 			StrBufAppendBufPlain(Target, HKEY("</tt><br>\n"), 0);
 			bn = bq;
+			Linecount ++;
 		}
 	while ((BufPtr != StrBufNOTNULL) &&
 	       (BufPtr != NULL));
 
+	if (nEmptyLines > 0)
+		StrBufCutRight(Target, nEmptyLines * (sizeof ("<tt></tt><br>\n") - 1));
 	for (i = 0; i < bn; i++)				
 		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
 
