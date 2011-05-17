@@ -176,6 +176,7 @@ function setupIconBar() {
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
 	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) == "collapse.gif" ) {
 		$('roomlist').style.display = 'block';
+		$('roomlist').innerHTML = '';
 		FillRooms(IconBarRoomList);
 	}
 	else {
@@ -886,6 +887,7 @@ function toggle_roomlist()
 	else {
 		$('roomlist').style.display = 'block';
 		$('expand_roomlist').src = 'static/collapse.gif';
+		$('roomlist').innerHTML = '';
 		FillRooms(IconBarRoomList);
 		wstate=1;
 	}
