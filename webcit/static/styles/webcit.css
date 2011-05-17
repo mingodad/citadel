@@ -1049,56 +1049,60 @@ li.event_unread span, a.event_read_title { font-size: 100% }
 
 .chatrecv_history_class {
 	position: absolute;
-	top: 0;
-	left: 1%;
-	width: 74%;
-	margin-top: 5px;
-	margin-bottom: 5px;
+	top: 0.5em;
+	left: 0.5%;
+	width: 700px;
 	height: 70%;
-	background-color: #FFFFFF;
+	background-color: #edede0;
 	overflow: auto;
-	border-style: solid;
-	border-color: #022750;
-	border-width: 1px;
-	padding-left: 3px;
-	padding-right: 3px;
+	border: 2px solid #424d52;
+	border-radius: 8px;
+	-khtml-border-radius: 8px;
+	-moz-border-radius: 8px;
+	behavior: url(/static/style/PIE.htc);
+	-webkit-box-shadow: #666 0px 1px 2px;
+	-moz-box-shadow: #666 0px 2px 3px;
+	box-shadow: #666 0px 2px 3px;
+	padding: 0.5em;
 }
 
 .chat_userlist_class {
 	position: absolute;
-	top: 0;
-	right: 1%;
-	width: 23%;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	height: 70%;
-	background-color: #FFFFFF;
+	top: 0.5em;
+	right: 0.5%;
+	width: 110px;
+	height: 90%;
+	background-color: #edede0;
 	overflow: auto;
-	border-style: solid;
-	border-color: #022750;
-	border-width: 1px;
-	padding-left: 3px;
-	padding-right: 3px;
+	border: 2px solid #424d52;
+	border-radius: 8px;
+	-khtml-border-radius: 8px;
+	-moz-border-radius: 8px;
+        box-shadow: #666 0px 2px 3px;
+	-webkit-box-shadow: #666 0px 1px 2px;
+        -moz-box-shadow: #666 0px 2px 3px;
+	behavior: url(/static/style/PIE.htc);
+	padding: 0.5em;
 }
 
 .chatrecv_class { display: none }
 
 .chatsend_class {
 	position: absolute;
-	left: 1%;
-	right: 1%;
-	height: 28%;
-	bottom: 0;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	margin-left: auto;
-	margin-right: auto;
-	border-style: solid;
-	border-color: #022750;
-	border-width: 1px;
-	padding-left: 3px;
-	padding-right: 3px;
-	background-color: #004E79;
+	left: 0.5%;
+	bottom: 3%;
+	height: 95px;
+	width: 700px;
+	border: 2px solid #424d52;
+	border-radius: 8px; 
+	-khtml-border-radius: 8px;
+	-moz-border-radius: 8px;
+	box-shadow: #666 0px 2px 3px;
+	-webkit-box-shadow: #666 0px 1px 2px;
+	-moz-box-shadow: #666 0px 2px 3px;
+	behavior: url(/static/style/PIE.htc);
+	background-color: #7d858c;
+	padding: 0.5em;
 }
 
 .chat_myname_class {
