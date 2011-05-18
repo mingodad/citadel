@@ -75,8 +75,9 @@
 	margin-left: 0.3em;
 }
 
-/* make blockquotes in messages distingushable */
+/* Blockquotes in messages need to be distingushable */
 /* there is a lot of cascading happen io order to make it look beautiful */
+/* if you make changes here, port them to WEBCIT-TINYMCE.css! */
 .message_content blockquote {
 	border: 1px solid #5C646B;
         border-radius: 8px;
@@ -106,6 +107,8 @@ blockquote .message_content {
 	behavior: url(/static/styles/PIE.htc);
 	background-color: #deded0;
 }
+/* --- End of blockquoting block --- */
+
 
 .message img {
 	max-width: 700px;

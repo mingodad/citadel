@@ -68,7 +68,6 @@ blockquote{
 /* there is a lot of cascading happen io order to make it look beautiful */
 .message_content blockquote {
 	border: 1px solid #5C646B;
-	border-top: 0px;
         border-radius: 8px;
         -webkit-border-radius: 8px;
         -moz-border-radius: 8px;   
@@ -78,14 +77,9 @@ blockquote{
         behavior: url(/static/styles/PIE.htc);
 }
 
-/*remove top border of blockquote INSIDE of blockquotes*/
-.message_content blockquote blockquote {
-	border-top: none;
-}
-
 /*but draw a top border if message inside blockquote was quoted with header!*/
 blockquote .message_header {          
-        border-top: 1px solid #5C646B;  
+        border-top: 1px solid transparent;  
         border-radius: 8px 8px 0px 0px;
         -webkit-border-radius: 8px 8px 0px 0px;
         -moz-border-radius: 8px 8px 0px 0px;
