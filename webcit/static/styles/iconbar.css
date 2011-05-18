@@ -119,7 +119,7 @@ div.iconbar_text select { border: 1px solid 424b5; }
 #online_users li:hover { /* separate in order for override */ }
 
 
-.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old, .roomlist_floor, .roomlist_new, .roomlist_old {
+.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old {
 	margin: 4px;
 	padding: 0;
 }
@@ -134,11 +134,11 @@ div.iconbar_text select { border: 1px solid 424b5; }
 
 .ib_roomlist_floor {}
 
-.roomlist_new, .ib_roomlist_new {
+.ib_roomlist_new {
 	color: #800;
 }
 
-.roomlist_old, .ib_roomlist_old {
+.ib_roomlist_old {
 	color: #008;
 }
 
@@ -156,4 +156,3 @@ div.iconbar_text select { border: 1px solid 424b5; }
 	line-height:2em;
 	display: block;
 }
-
