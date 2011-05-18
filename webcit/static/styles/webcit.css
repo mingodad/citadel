@@ -30,7 +30,7 @@ html, body {
 
 .address_book_popup_title { font-size: 130% }
 
-#button, #content .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,li.search,li.view, .room_actions form select option, .selectbox, ul.adminitems li span, #message_list tr > td {
+#button, #content .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,li.search,li.view, .room_actions form select option, .selectbox, ul.adminitems li span, #message_list tr > td {
 	font-size: 100%;
 }
 
@@ -71,7 +71,7 @@ body {
 	overflow: scroll;
 }
 
-.buttons a,.roomlist_floor,.tablabel,.treetitle {
+.buttons a,.tablabel,.treetitle {
 	color: #000;
 	font-weight: 700;
 }
@@ -348,15 +348,29 @@ var sub { font-style: normal }
 
 a { text-decoration: none }
 
-a:active {
-	color: #3E65AF;
+a:link { color: #0e73e3 } /*color: #2F65DD;*/
+
+a:active { color: #3E65AF }
+
+a:visited { color: #70342e }
+
+.roomlist_old { color: #424b52 }
+
+.roomlist_new { color: #ef7114 }
+
+.roomlist_new, .roomlist_old {
+	font-size: medium;
+	font-weight: bold;
+	padding: 0.1em 0.3em;
 }
 
-a:link {
-	color: #2F65DD;
+.roomlist_new:hover, .roomlist_old:hover{
+	outline: 1px solid #7d858c;
+	outline-radius: 5px;
+	-khtml-outline-radius: 5px;
+	-moz-outline-radius: 5px;
+	behavior: url(static/style/PIE.htc);
 }
-
-a:visited { color: purple}
 
 #customize a:active, #customize a:link, #customize a:visited {
 	color: black;
