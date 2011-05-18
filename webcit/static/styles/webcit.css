@@ -348,7 +348,7 @@ var sub { font-style: normal }
 
 a { text-decoration: none }
 
-a:link { color: #0e73e3 } /*color: #2F65DD;*/
+a:link, .calendar a:visited { color: #0e73e3 } /*color: #2F65DD;*/
 
 a:active { color: #3E65AF }
 
@@ -859,15 +859,17 @@ ul.tabbed_dialog li {
 	background-color: #424b52;
 	border-color: #424b52; }
 
-td.events_of_the_day { width: 500px }
+#inner_day { padding: 0.2em; }
+
+td.events_of_the_day { width: 50% }
 
 .events_of_the_day dl {
 	margin: 0;
-	padding: 0;
+/*	padding: 0;
 	position: absolute;
 	top: 0;
-	left:0;
-	width: 500px;
+	left:0; */
+	width: 100%;
 }
 
 .events_of_the_day dl dt {
@@ -897,11 +899,12 @@ td.events_of_the_day { width: 500px }
 	text-align: left;	
 }
 
+.extra_events { border: 1px solid #ccc }
 
 .extra_events ul {
 	list-style: none;
-	margin: 0;
 	padding: 0;
+	margin: 0;
 }
 
 .extra_events ul li { margin: 4px }

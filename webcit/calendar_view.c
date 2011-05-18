@@ -1183,13 +1183,7 @@ void calendar_day_view(int year, int month, int day) {
 	if (hourlabel > (timeline - 2)) hourlabel = timeline - 2;
 
 	for (hour = 0; hour < daystart; ++hour) {	/* could do HEIGHT=xx */
-		wc_printf("<dt class=\"extrahour\" 	"
-			"style=\"		"
-			"position: absolute; 	"
-			"top: %dpx; left: 0px; 	"
-			"height: %dpx;		"
-			"font-size: %dpx;	"
-			"\" >			"
+		wc_printf("<dt class=\"extrahour\">"
 			"<a href=\"display_edit_event?msgnum=0"
 			"?calview=day?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
 			(hour * extratimeline ),
@@ -1214,13 +1208,7 @@ void calendar_day_view(int year, int month, int day) {
 	gap = daystart * extratimeline;
 
         for (hour = daystart; hour <= dayend; ++hour) {       /* could do HEIGHT=xx */
-                wc_printf("<dt class=\"hour\"     "
-                        "style=\"               "
-                        "position: absolute;    "
-                        "top: %ldpx; left: 0px; "
-                        "height: %dpx;          "
-			"font-size: %dpx;	"
-                        "\" >                   "
+                wc_printf("<dt class=\"hour\">"
                         "<a href=\"display_edit_event?msgnum=0?calview=day"
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
                         gap + ((hour - daystart) * timeline ),
@@ -1245,13 +1233,7 @@ void calendar_day_view(int year, int month, int day) {
 	gap = gap + ((dayend - daystart + 1) * timeline);
 
         for (hour = (dayend + 1); hour < 24; ++hour) {       /* could do HEIGHT=xx */
-                wc_printf("<dt class=\"extrahour\"     "
-                        "style=\"               "
-                        "position: absolute;    "
-                        "top: %ldpx; left: 0px; "
-                        "height: %dpx;          "
-			"font-size: %dpx;	"
-                        "\" >                   "
+                wc_printf("<dt class=\"extrahour\">"
                         "<a href=\"display_edit_event?msgnum=0?calview=day"
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
                         gap + ((hour - dayend - 1) * extratimeline ),
