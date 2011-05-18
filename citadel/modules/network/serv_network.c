@@ -735,20 +735,16 @@ void network_spool_msg(long msgnum, void *userdata) {
 			}
 			/* else we won't modify the buffer, since the roomname is already here. */
 
-			/* Set the recipient of the list message to the
-			 * email address of the room itself.
-			 * FIXME ... I want to be able to pick any address
-			 */
-			if (msg->cm_fields['R'] != NULL) {
-				free(msg->cm_fields['R']);
-			}
-			msg->cm_fields['R'] = malloc(256);
-			snprintf(msg->cm_fields['R'], 256,
-				"room_%s@%s", CC->room.QRname,
-				config.c_fqdn);
-			for (i=0; msg->cm_fields['R'][i]; ++i) {
-				if (isspace(msg->cm_fields['R'][i])) {
-					msg->cm_fields['R'][i] = '_';
+			/* if we don't already have a 'reply to' field, put our roomname in. */
+			if (msg->cm_fields['K'] == NULL) {
+				msg->cm_fields['K'] = malloc(256);
+				snprintf(msg->cm_fields['K'], 256,
+					 "room_%s@%s", CC->room.QRname,
+					 config.c_fqdn);
+				for (i=0; msg->cm_fields['K'][i]; ++i) {
+					if (isspace(msg->cm_fields['K'][i])) {
+						msg->cm_fields['K'][i] = '_';
+					}
 				}
 			}
 
