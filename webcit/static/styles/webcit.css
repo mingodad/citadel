@@ -369,7 +369,7 @@ a:visited { color: #70342e }
 	outline-radius: 5px;
 	-khtml-outline-radius: 5px;
 	-moz-outline-radius: 5px;
-	behavior: url(static/styles/PIE.htc);
+	behavior: url(/static/styles/PIE.htc);
 }
 
 #customize a:active, #customize a:link, #customize a:visited {
