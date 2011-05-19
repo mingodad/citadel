@@ -33,7 +33,7 @@
 	-khtml-border-radius: 8px;
         -moz-border-radius: 8px;
         border-radius: 8px;
-        behavior: url(/static/style/PIE.htc);
+        behavior: url(/static/styles/PIE.htc);
 } 
 
 .iconbar_text {        
@@ -81,7 +81,7 @@ div.iconbar_text select { border: 1px solid 424b5; }
 	-khtml-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
-	behavior: url(static/style/PIE.htc);
+	behavior: url(static/styles/PIE.htc);
  }
 
 .logo, #citlogo, .iconbar_text, #online_users li {
@@ -148,7 +148,7 @@ div.iconbar_text select { border: 1px solid 424b5; }
 	-khtml-border-radius: 8px;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
-	behavior: url(/static/style/PIE.htc);
+	behavior: url(/static/styles/PIE.htc);
 }
 
 #iconbar_container #customize a:active, #iconbar_container #customize a:link, #iconbar_container #customize a:visited {
