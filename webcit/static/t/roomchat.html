@@ -1,17 +1,14 @@
-<div id="chatrecv_history" class="chatrecv_history_class">
-</div>
-<div id="chatrecv" class="chatrecv_class">
-</div>
-<div id="chat_userlist" class="chat_userlist_class">
-</div>
+<div id="chatrecv_history" class="chatrecv_history_class"></div>
+<div id="chatrecv" class="chatrecv_class"></div>
+<div id="chat_userlist" class="chat_userlist_class"></div>
 <div id="chatsend" class="chatsend_class">
-<form method="POST" onsubmit="return chatsendfunc()" action="chat_send" id="chatsendid" name="chatsendform">
-<input type="hidden" name="nonce" value="<?NONCE>">
-<img src="static/citadelchat_32x.gif">
-<textarea maxlength="1024" id="send_this_id" name="send_this" wrap="soft" rows="5" cols="80"
- onKeyPress="chat_enter(event);"></textarea>
-<input type="submit" value="<?_("Send")>">
-<iframe style="width:0px; height:0px; border: 0px" src="static/roomchat_unload.html"></iframe>
+	<form method="POST" onsubmit="return chatsendfunc()" action="chat_send" id="chatsendid" name="chatsendform">
+	<input type="hidden" name="nonce" value="<?NONCE>">
+	<img src="static/citadelchat_32x.gif" alt="">
+	<textarea id="send_this_id" name="send_this" rows="4" cols="78"
+ 		onKeyPress="chat_enter(event);"></textarea>
+	<input type="submit" value="<?_("Send")>">
+	<iframe style="width:0px; height:0px; border: 0px" src="static/roomchat_unload.html"></iframe>
 </div>
 
 <script type="text/javascript">
