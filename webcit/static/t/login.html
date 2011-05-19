@@ -1,18 +1,20 @@
 <?=("head")>
 <!-- start login.html -->
 <div id="login_screen">
-<div class="box">
-<div class="boxlabel"><?SERV:HUMANNODE> - <?_("powered by")> <a href="http://www.citadel.org">Citadel</a></div>
-<div class="boxcontent">
-<div id="hellomsg">
-<?SERV:MESG("hello")>
-</div>
-<?!("COND:IMPMSG", 1)>
-<div class="login_message"><?IMPORTANTMESSAGE></div>
-<?!("X", 1)>
-<div class="login_image"><img src="image?name=hello" alt="">
-<span class=\"button_link\"><a href="javascript:GetLoggedInFirst('do_welcome');"><?_("Log in")></a></span>
-</div>
+		<div class="box">
+		<div class="boxlabel"><?SERV:HUMANNODE> - <?_("powered by")>
+			<a href="http://www.citadel.org">Citadel</a>
+		</div>
+		<div class="boxcontent">
+			<div id="hellomsg"><?SERV:MESG("hello")></div>
+		<?!("COND:IMPMSG", 1)>
+			<div class="login_message"><?IMPORTANTMESSAGE></div>
+		<?!("X", 1)>
+			<div class="login_image"><img src="image?name=hello" alt="">
+				<span class="button_link">
+					<a href="javascript:GetLoggedInFirst('do_welcome');"><?_("Log in")></a>
+				</span>
+			</div>
 </div>
 <!-- end login.html -->
 <?=("endbox")>
