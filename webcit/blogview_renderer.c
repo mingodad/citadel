@@ -87,6 +87,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 struct bltr {
 	int id;
 	int refs;
+	StrBuf *euid;
 };
 
 
@@ -123,7 +124,7 @@ struct bltr blogview_learn_thread_references(long msgnum)
 	StrBuf *Buf;
 	StrBuf *r;
 	int len;
-	struct bltr bltr = { 0, 0 } ;
+	struct bltr bltr = { 0, 0, NULL };
 	Buf = NewStrBuf();
 	r = NewStrBuf();
 	serv_printf("MSG0 %ld|1", msgnum);		/* top level citadel headers only */
@@ -141,6 +142,10 @@ struct bltr blogview_learn_thread_references(long msgnum)
 				StrBufCutLeft(Buf, 5);		/* trim the field name */
 				StrBufExtract_token(r, Buf, 0, '|');
 				bltr.refs = HashLittle(ChrPtr(r), StrLength(r));
+			}
+			else if (!strncasecmp(ChrPtr(Buf), "exti=", 5)) {
+				StrBufCutLeft(Buf, 5);		/* trim the field name */
+				bltr.euid = NewStrBufDup(Buf);
 			}
 		}
 	}
@@ -164,6 +169,11 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	struct blogpost *bp = NULL;
 
 	b = blogview_learn_thread_references(Msg->msgnum);
+
+	if (b.euid != NULL) {
+		syslog(LOG_DEBUG, "\033[7m%s\033[0m", ChrPtr(b.euid));
+		FreeStrBuf(&b.euid);
+	}
 
 	/* FIXME an optimization here -- one we ought to perform -- is to exit this
 	 * function immediately if the viewer is only interested in a single post and
