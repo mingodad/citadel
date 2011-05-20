@@ -520,6 +520,7 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 	cdb->ptr = uncompressed_data;
 #else				/* HAVE_ZLIB */
 	syslog(LOG_EMERG, "Database contains compressed data, but this citserver was built without compression support.");
+	syslog(LOG_EMERG, "Please see http://www.citadel.org/doku.php/faq:installation:zlib for more information.");
 	exit(CTDLEXIT_DB);
 #endif				/* HAVE_ZLIB */
 }
