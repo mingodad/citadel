@@ -1,15 +1,8 @@
 #include <curl/curl.h>
 
-typedef struct _evcurl_global_data {
-	int magic;
-	CURLM *mhnd;
-	ev_timer timeev;
-	int nrun;
-} evcurl_global_data;
 
 typedef struct _evcurl_request_data 
 {
-	evcurl_global_data *global;
 	CURL *chnd;
 	char errdesc[CURL_ERROR_SIZE];
 	int attached;
@@ -21,11 +14,6 @@ typedef struct _evcurl_request_data
 	struct curl_slist * headers;
 } evcurl_request_data;
 
-typedef struct _sockwatcher_data 
-{
-	evcurl_global_data *global;
-	ev_io ioev;
-} sockwatcher_data;
 
 
 

@@ -92,7 +92,18 @@ void SockStateCb(void *data, int sock, int read, int write);
 /*****************************************************************************
  *                   libevent / curl integration                             *
  *****************************************************************************/
+typedef struct _evcurl_global_data {
+	int magic;
+	CURLM *mhnd;
+	ev_timer timeev;
+	int nrun;
+} evcurl_global_data;
 
+typedef struct _sockwatcher_data 
+{
+	evcurl_global_data *global;
+	ev_io ioev;
+} sockwatcher_data;
 
 evcurl_global_data global;
 
@@ -123,8 +134,7 @@ gotstatus(evcurl_global_data *global, int nnrun)
 			if (sta)
 				CtdlLogPrintf(CTDL_ERR, "EVCURL: error asking curl for private cookie of curl handle: %s\n", curl_easy_strerror(sta));
 			evcurl_request_data  *handle = (void *)chandle;
-			if (global != handle->global || chnd != handle->chnd)
-				CtdlLogPrintf(CTDL_ERR, "EVCURL: internal evcurl error: unknown curl handle completed\n");
+			
 			sta = msg->data.result;
 			if (sta) {
 				CtdlLogPrintf(CTDL_ERR, "EVCURL: error description: %s\n", handle->errdesc);
@@ -269,7 +279,6 @@ int evcurl_init(evcurl_request_data *handle,
 	CURL *chnd;
 
 	CtdlLogPrintf(CTDL_DEBUG,"EVCURL: evcurl_init called ms\n");
-	handle->global = &global;
 	handle->attached = 0;
 	chnd = handle->chnd = curl_easy_init();
 	if (!chnd)
@@ -337,7 +346,7 @@ evcurl_handle_start(evcurl_request_data *handle)
 	CURLMcode msta;
 	
 	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: attaching to curl multi handle\n");
-	msta = curl_multi_add_handle(handle->global->mhnd, handle->chnd);
+	msta = curl_multi_add_handle(global.mhnd, handle->chnd);
 	if (msta)
 		CtdlLogPrintf(CTDL_ERR, "EVCURL: error attaching to curl multi handle: %s\n", curl_multi_strerror(msta));
 	handle->attached = 1;
