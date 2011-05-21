@@ -19,7 +19,6 @@
  */
 
 #include "../eventclient/serv_curl.h"
-
 #define PAGER_CONFIG_MESSAGE "__ Push email settings __"
 #define FUNAMBOL_CONFIG_TEXT "funambol"
 #define PAGER_CONFIG_SYSTEM  "textmessage"    
@@ -38,7 +37,7 @@ typedef enum _eNotifyType {
 typedef struct _NotifyContext {
 	StrBuf **NotifyHostList;
 	HashList *NotifyErrors;
-	evcurl_request_data HTTPData;
+	AsyncIO IO;
 } NotifyContext;
 
 int notify_http_server(char *remoteurl, 

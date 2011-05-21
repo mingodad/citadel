@@ -120,28 +120,28 @@ int notify_http_server(char *remoteurl,
 		contenttype=(char*) malloc(40+strlen(mimetype));
 		sprintf(contenttype,"Content-Type: %s; charset=utf-8", mimetype);
 
-		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "SOAPAction: \"\"");
-		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, contenttype);
-		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
-		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Pragma: no-cache");
+		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "SOAPAction: \"\"");
+		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, contenttype);
+		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
+		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Pragma: no-cache");
 
 		/* Now specify the POST binary data */
-		Ctx->HTTPData.PlainPostData = SOAPMessage;
-		Ctx->HTTPData.PlainPostDataLen = strlen(SOAPMessage);
+		Ctx->IO.HttpReq.PlainPostData = SOAPMessage;
+		Ctx->IO.HttpReq.PlainPostDataLen = strlen(SOAPMessage);
 	}
 	else {
 		help_subst(remoteurl, "^notifyuser", user);
 		help_subst(remoteurl, "^syncsource", config.c_funambol_source);
 		help_subst(remoteurl, "^msgid", msgid);
 		help_subst(remoteurl, "^msgnum", msgnumstr);
-		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
-		Ctx->HTTPData.headers = curl_slist_append(Ctx->HTTPData.headers, "Pragma: no-cache");
+		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
+		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Pragma: no-cache");
 	}
 
-	ParseURL(&Ctx->HTTPData.URL, NewStrBufPlain (remoteurl, -1), 80);
-	CurlPrepareURL(Ctx->HTTPData.URL);
+	ParseURL(&Ctx->IO.ConnectMe, NewStrBufPlain (remoteurl, -1), 80);
+	CurlPrepareURL(Ctx->IO.ConnectMe);
 	int CallBack;
-	if (! evcurl_init(&Ctx->HTTPData, 
+	if (! evcurl_init(&Ctx->IO, 
 			  Ctx, 
 			  "Citadel ExtNotify",
 			  CallBack))
@@ -149,7 +149,7 @@ int notify_http_server(char *remoteurl,
 		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
 		goto abort;
 	}
-	chnd = Ctx->HTTPData.chnd;
+	chnd = Ctx->IO.HttpReq.chnd;
 	OPT(SSL_VERIFYPEER, 0);
 	OPT(SSL_VERIFYHOST, 0);
 /*
@@ -166,7 +166,7 @@ int notify_http_server(char *remoteurl,
 		OPT(INTERFACE, config.c_ip_addr);
 	}
 
-	evcurl_handle_start(&Ctx->HTTPData);
+	evcurl_handle_start(&Ctx->IO);
 
 	return 0;
 abort:
@@ -188,24 +188,24 @@ int EvaluateResult(NotifyContext *Ctx, int res, int b)
 
 		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", 
 			      res, 
-			      Ctx->HTTPData.errdesc);
+			      Ctx->IO.HttpReq.errdesc);
 		ErrMsg = NewStrBufPlain(HKEY("Error sending your Notification\n"));
 		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %d: %s\n", 
 				   res, 
-				   Ctx->HTTPData.errdesc);
+				   Ctx->IO.HttpReq.errdesc);
 ///		StrBufAppendBufPlain(ErrMsg, curl_errbuf, -1, 0);
 		StrBufAppendBufPlain(ErrMsg, HKEY("\nWas Trying to send: \n"), 0);
-		StrBufAppendBufPlain(ErrMsg, Ctx->HTTPData.URL->PlainUrl, -1, 0);
-		if (Ctx->HTTPData.PlainPostDataLen > 0) {
+		StrBufAppendBufPlain(ErrMsg, Ctx->IO.ConnectMe->PlainUrl, -1, 0);
+		if (Ctx->IO.HttpReq.PlainPostDataLen > 0) {
 			StrBufAppendBufPlain(ErrMsg, HKEY("\nThe Post document was: \n"), 0);
 			StrBufAppendBufPlain(ErrMsg, 
-					     Ctx->HTTPData.PlainPostData, 
-					     Ctx->HTTPData.PlainPostDataLen, 0);
+					     Ctx->IO.HttpReq.PlainPostData, 
+					     Ctx->IO.HttpReq.PlainPostDataLen, 0);
 			StrBufAppendBufPlain(ErrMsg, HKEY("\n\n"), 0);			
 		}
-		if (StrLength(Ctx->HTTPData.ReplyData) > 0) {			
+		if (StrLength(Ctx->IO.HttpReq.ReplyData) > 0) {			
 			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThe Serverreply was: \n\n"), 0);
-			StrBufAppendBuf(ErrMsg, Ctx->HTTPData.ReplyData, 0);
+			StrBufAppendBuf(ErrMsg, Ctx->IO.HttpReq.ReplyData, 0);
 		}
 		else 
 			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThere was no Serverreply.\n\n"), 0);

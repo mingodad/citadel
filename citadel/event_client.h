@@ -4,6 +4,7 @@
 #include <netdb.h>
 #include <arpa/nameser.h>
 #include <ares.h>
+#include <curl/curl.h>
 
 typedef struct AsyncIO AsyncIO;
 
@@ -33,6 +34,18 @@ typedef struct _DNSQueryParts {
 	void *Data;
 } DNSQueryParts;
 
+typedef struct _evcurl_request_data 
+{
+	CURL *chnd;
+	char errdesc[CURL_ERROR_SIZE];
+	int attached;
+	char* PlainPostData;
+	long PlainPostDataLen;
+	StrBuf *PostData;
+	StrBuf *ReplyData;
+///	ParsedURL *URL; /// take from AsyncIO->ConnectMe
+	struct curl_slist * headers;
+} evcurl_request_data;
 
 struct AsyncIO {
        	eNextState NextState;
@@ -72,6 +85,8 @@ struct AsyncIO {
 	struct ares_options DNSOptions;
 	ares_channel DNSChannel;
 	DNSQueryParts *DNSQuery;
+	
+	evcurl_request_data HttpReq;
 
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
 	void *Data;        /* application specific data */
@@ -107,3 +122,20 @@ void StopClientWatchers(AsyncIO *IO);
 void SetNextTimeout(AsyncIO *IO, double timeout);
 
 void InitC_ares_dns(AsyncIO *IO);
+
+#include <curl/curl.h>
+
+#define OPT(s, v) \
+	do { \
+		sta = curl_easy_setopt(chnd, (CURLOPT_##s), (v)); \
+		if (sta)  {						\
+			CtdlLogPrintf(CTDL_ERR, "error setting option " #s " on curl handle: %s", curl_easy_strerror(sta)); \
+	} } while (0)
+
+
+int evcurl_init(AsyncIO *IO, 
+		void *CustomData, 
+		const char* Desc,
+		int CallBack);
+
+void evcurl_handle_start(AsyncIO *IO);

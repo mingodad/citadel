@@ -270,7 +270,7 @@ void curl_init_connectionpool(void)
 
 
 
-int evcurl_init(evcurl_request_data *handle, 
+int evcurl_init(AsyncIO *IO, 
 		void *CustomData, 
 		const char* Desc,
 		int CallBack) 
@@ -279,15 +279,15 @@ int evcurl_init(evcurl_request_data *handle,
 	CURL *chnd;
 
 	CtdlLogPrintf(CTDL_DEBUG,"EVCURL: evcurl_init called ms\n");
-	handle->attached = 0;
-	chnd = handle->chnd = curl_easy_init();
+	IO->HttpReq.attached = 0;
+	chnd = IO->HttpReq.chnd = curl_easy_init();
 	if (!chnd)
 	{
 		CtdlLogPrintf(CTDL_ERR, "EVCURL: error initializing curl handle\n");
 		return 1;
 	}
 
-	strcpy(handle->errdesc, Desc);
+	strcpy(IO->HttpReq.errdesc, Desc);
 
 	OPT(VERBOSE, (long)1);
 		/* unset in production */
@@ -303,53 +303,53 @@ int evcurl_init(evcurl_request_data *handle,
 	OPT(LOW_SPEED_LIMIT, (long)64);
 	OPT(LOW_SPEED_TIME, (long)600);
 	OPT(CONNECTTIMEOUT, (long)600); 
-	OPT(PRIVATE, (void *)handle);
+	OPT(PRIVATE, (void *)IO);
 
 
 	OPT(WRITEFUNCTION, &gotdata); 
-	OPT(WRITEDATA, (void *)handle);
-	OPT(ERRORBUFFER, handle->errdesc);
+	OPT(WRITEDATA, (void *)IO);
+	OPT(ERRORBUFFER, IO->HttpReq.errdesc);
 
 		/* point to a structure that points back to the perl structure and stuff */
-	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: Loading URL: %s\n", handle->URL->PlainUrl);
-	OPT(URL, handle->URL->PlainUrl);
-	if (StrLength(handle->URL->CurlCreds))
+	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: Loading URL: %s\n", IO->ConnectMe->PlainUrl);
+	OPT(URL, IO->ConnectMe->PlainUrl);
+	if (StrLength(IO->ConnectMe->CurlCreds))
 	{
 		OPT(HTTPAUTH, (long)CURLAUTH_BASIC);
-		OPT(USERPWD, ChrPtr(handle->URL->CurlCreds));
+		OPT(USERPWD, ChrPtr(IO->ConnectMe->CurlCreds));
 	}
 #ifdef CURLOPT_HTTP_CONTENT_DECODING
 	OPT(HTTP_CONTENT_DECODING, 1);
 	OPT(ENCODING, "");
 #endif
-	if (StrLength(handle->PostData) > 0)
+	if (StrLength(IO->HttpReq.PostData) > 0)
 	{ 
-		OPT(POSTFIELDS, ChrPtr(handle->PostData));
-		OPT(POSTFIELDSIZE, StrLength(handle->PostData));
+		OPT(POSTFIELDS, ChrPtr(IO->HttpReq.PostData));
+		OPT(POSTFIELDSIZE, StrLength(IO->HttpReq.PostData));
 
 	}
-	else if ((handle->PlainPostDataLen != 0) && (handle->PlainPostData != NULL))
+	else if ((IO->HttpReq.PlainPostDataLen != 0) && (IO->HttpReq.PlainPostData != NULL))
 	{
-		OPT(POSTFIELDS, handle->PlainPostData);
-		OPT(POSTFIELDSIZE, handle->PlainPostDataLen);
+		OPT(POSTFIELDS, IO->HttpReq.PlainPostData);
+		OPT(POSTFIELDSIZE, IO->HttpReq.PlainPostDataLen);
 	}
 
-	if (handle->headers != NULL)
-		OPT(HTTPHEADER, handle->headers);
+	if (IO->HttpReq.headers != NULL)
+		OPT(HTTPHEADER, IO->HttpReq.headers);
 
 	return 1;
 }
 
 void
-evcurl_handle_start(evcurl_request_data *handle) 
+evcurl_handle_start(AsyncIO *IO) 
 {
 	CURLMcode msta;
 	
 	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: attaching to curl multi handle\n");
-	msta = curl_multi_add_handle(global.mhnd, handle->chnd);
+	msta = curl_multi_add_handle(global.mhnd, IO->HttpReq.chnd);
 	if (msta)
 		CtdlLogPrintf(CTDL_ERR, "EVCURL: error attaching to curl multi handle: %s\n", curl_multi_strerror(msta));
-	handle->attached = 1;
+	IO->HttpReq.attached = 1;
 //	ev_timer_start(EV_DEFAULT, &global.timeev);
 	ev_async_send (event_base, &WakeupCurl);
 }
