@@ -1,10 +1,7 @@
 .message, .entmsg{
 	background-color: #deded0;
 	margin: 0.5em 1em;
-	border: 1px solid #5C646B;
-	border-radius: 8px;
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px; 
+/*	border: 1px solid #5C646B; */
 	-webkit-box-shadow: #666 0px 1px 2px;
 	-moz-box-shadow: #666 0px 2px 3px;
 	box-shadow: #666 0px 2px 3px;
@@ -16,22 +13,12 @@
 .message_header {
 	font-size: x-small;
 	padding: 0.5em;
-        border-top: 1px solid transparent;
-        border-radius: 8px 8px 0 0;
-        -webkit-border-radius: 8px 8px 0 0;
-        -moz-border-radius: 8px 8px 0 0; 
-        behavior: url(/static/styles/PIE.htc);
 }
 
 .message_content {
 	background-color: #fff;
 	padding: 0.5em;
 	clear: both;
-	border-bottom: 1px solid transparent;
-	border-radius: 0 0 8px 8px;
-	-webkit-border-radius: 0 0 8px 8px;
-	-moz-border-radius: 0 0 8px 8px; 
-	behavior: url(/static/styles/PIE.htc);
 }
 
 
@@ -60,7 +47,7 @@
 }
  
 .message form div input, .message form div select, .entmsg form div input, .entmsg form div select {
-	margin: 0.3em
+	margin: 0.3em;
 }
 
 .msgbuttons {
@@ -79,33 +66,29 @@
 /* there is a lot of cascading happen io order to make it look beautiful */
 /* if you make changes here, port them to WEBCIT-TINYMCE.css! */
 .message_content blockquote {
-	border: 1px solid #5C646B;
-        border-radius: 8px;
-        -webkit-border-radius: 8px;
-        -moz-border-radius: 8px;   
-        -webkit-box-shadow: #666 0px 1px 2px;
-        -moz-box-shadow: #666 0px 2px 3px;
-        box-shadow: #666 0px 2px 3px;
-        behavior: url(/static/styles/PIE.htc);
+	/*border: 1px solid #5C646B;*/
+	padding: 0.3em;
 }
 
+.message_content blockquote .message_header span {
+	display: inline-block;
+}
+
+.message_content blockquote .message_header span.message_subject {
+	display: block;
+	float: none;
+}
 
 /*top border of message headerrs in a blockquote need to be transparent*/
 blockquote .message_header {          
-        border-top: 1px solid transparent;
-        border-radius: 8px 8px 0px 0px;
-        -webkit-border-radius: 8px 8px 0px 0px;
-        -moz-border-radius: 8px 8px 0px 0px;
-        behavior: url(/static/styles/PIE.htc);
+	padding: 0;
+	background-color: #deded0;
 }
 
 /*make bottom border of content inside of a blockquote rounded, so it fits the blockquote*/
 blockquote .message_content {
-	border-radius: 0px 0px 8px 8px;
-        -webkit-border-radius: 0px 0px 8px 8px;
-        -moz-border-radius: 0px 0px 8px 8px;
-	behavior: url(/static/styles/PIE.htc);
-	background-color: #deded0;
+	padding: 0;
+	background-color: transparent;
 }
 /* --- End of blockquoting block --- */
 
