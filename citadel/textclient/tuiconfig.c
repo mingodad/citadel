@@ -402,7 +402,7 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 	keyopt(" <6> RBL            (domain suffix of spam hunting RBL)\n");
 	keyopt(" <7> masq domains   (Domains as which users are allowed to masquerade)\n");
 	keyopt(" <8> ClamAV         (Address of ClamAV clamd server)\n");
-	sel = intprompt("Which one", 1, 1, 7);
+	sel = intprompt("Which one", 1, 1, 8);
 	switch(sel) {
 		case 1:	strcpy(buf, "localhost");
 			return;
