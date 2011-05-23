@@ -1,7 +1,7 @@
 /* 
  * Blog view renderer module for WebCit
  *
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2010 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,7 +87,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 struct bltr {
 	int id;
 	int refs;
-	char euid[BLOG_EUIDBUF_SIZE];	/* please do not change this to a StrBuf */
+	StrBuf *euid;
 };
 
 
@@ -124,7 +124,7 @@ struct bltr blogview_learn_thread_references(long msgnum)
 	StrBuf *Buf;
 	StrBuf *r;
 	int len;
-	struct bltr bltr = { 0, 0, "" } ;
+	struct bltr bltr = { 0, 0, NULL };
 	Buf = NewStrBuf();
 	r = NewStrBuf();
 	serv_printf("MSG0 %ld|1", msgnum);		/* top level citadel headers only */
@@ -145,7 +145,7 @@ struct bltr blogview_learn_thread_references(long msgnum)
 			}
 			else if (!strncasecmp(ChrPtr(Buf), "exti=", 5)) {
 				StrBufCutLeft(Buf, 5);		/* trim the field name */
-				safestrncpy(bltr.euid, ChrPtr(Buf), sizeof(bltr.euid));
+				bltr.euid = NewStrBufDup(Buf);
 			}
 		}
 	}
@@ -170,8 +170,9 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 	b = blogview_learn_thread_references(Msg->msgnum);
 
-	if (!IsEmptyStr(b.euid)) {
-		syslog(LOG_DEBUG, "\033[7m%s\033[0m", b.euid);
+	if (b.euid != NULL) {
+		syslog(LOG_DEBUG, "\033[7m%s\033[0m", ChrPtr(b.euid));
+		FreeStrBuf(&b.euid);
 	}
 
 	/* FIXME an optimization here -- one we ought to perform -- is to exit this
