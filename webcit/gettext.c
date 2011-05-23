@@ -41,7 +41,7 @@ const char *AvailLang[] = {
 	""
 };
 
-const char **AvailLangLoaded;
+const char **AvailLangLoaded = NULL;
 long nLocalesLoaded = 0;
 
 #ifdef HAVE_USELOCALE
@@ -379,22 +379,6 @@ void initialize_locales(void) {
 #endif
 }
 
-
-void 
-ServerShutdownModule_GETTEXT
-(void)
-{
-#ifdef HAVE_USELOCALE
-	int i;
-	for (i = 0; i < nLocalesLoaded; ++i) {
-		if (Empty_Locale != wc_locales[i])
-			freelocale(wc_locales[i]);
-	}
-	free(wc_locales);
-#endif
-	free(AvailLangLoaded);
-}
-
 #else	/* ENABLE_NLS */
 const char *AvailLang[] = {
 	"C", ""};
@@ -493,4 +477,20 @@ SessionDestroyModule_GETTEXT
 #ifdef ENABLE_NLS
 	stop_selected_language();				/* unset locale */
 #endif
+
+void 
+ServerShutdownModule_GETTEXT
+(void)
+{
+#ifdef HAVE_USELOCALE
+	int i;
+	for (i = 0; i < nLocalesLoaded; ++i) {
+		if (Empty_Locale != wc_locales[i])
+			freelocale(wc_locales[i]);
+	}
+	free(wc_locales);
+#endif
+	if (!AvailLangLoaded) free(AvailLangLoaded);
+}
+
 }
