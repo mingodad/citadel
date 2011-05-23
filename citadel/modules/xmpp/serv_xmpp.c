@@ -74,7 +74,7 @@ static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
 				const XML_Char *systemId, const XML_Char *publicId,
 				const XML_Char *notationName
 ) {
-	syslog(LOG_WARNING, "Illegal entity declaration encountered; stopping parser.");
+	syslog(CTDL_WARNING, "Illegal entity declaration encountered; stopping parser.");
 	XML_StopParser(XMPP->xp, XML_FALSE);
 }
 #endif
