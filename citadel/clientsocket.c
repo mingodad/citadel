@@ -30,6 +30,7 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/un.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
@@ -52,6 +53,30 @@
 #define INADDR_NONE 0xffffffff
 #endif
 
+
+int uds_sock_connect(char *sockpath)
+{
+	struct sockaddr_un addr;
+	int s;
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		return(-1);
+	}
+
+	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		close(s);
+		return(-1);
+	}
+
+	return s;
+}
+
+
 int sock_connect(char *host, char *service, char *protocol)
 {
 	struct hostent *phe;
@@ -63,6 +88,11 @@ int sock_connect(char *host, char *service, char *protocol)
 
 	if ((host == NULL) || IsEmptyStr(host)) 
 		return(-1);
+
+	if (host[0] == '/') {
+		return uds_sock_connect(host);
+	}
+
 	if ((service == NULL) || IsEmptyStr(service)) 
 		return(-1);
 	if ((protocol == NULL) || IsEmptyStr(protocol)) 
