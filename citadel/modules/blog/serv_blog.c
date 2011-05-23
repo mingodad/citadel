@@ -74,16 +74,9 @@ int blog_upload_beforesave(struct CtdlMessage *msg) {
 	 */
 	if (msg->cm_fields['E'] == NULL)
 	{
-		char uuid[BLOG_EUIDBUF_SIZE];
+		char uuid[37];
 		generate_uuid(uuid);
 		msg->cm_fields['E'] = strdup(uuid);
-	}
-
-	/*
-	 * We also want to define a maximum length, whether we generated it or not.
-	 */
-	else if (strlen(msg->cm_fields['E']) >= BLOG_EUIDBUF_SIZE) {
-		msg->cm_fields['E'][BLOG_EUIDBUF_SIZE-1] = 0;
 	}
 
 	/* Now allow the save to complete. */
