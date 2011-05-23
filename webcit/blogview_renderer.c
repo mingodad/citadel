@@ -28,10 +28,9 @@
  */
 struct blogpost {
 	int top_level_id;
-	long *msgs;			/* Array of msgnums for messages we are displaying */
-	int num_msgs;			/* Number of msgnums stored in 'msgs' */
-	int alloc_msgs;			/* Currently allocated size of array */
-	char euid[BLOG_EUIDBUF_SIZE];	/* please do not change this to a StrBuf */
+	long *msgs;		/* Array of msgnums for messages we are displaying */
+	int num_msgs;		/* Number of msgnums stored in 'msgs' */
+	int alloc_msgs;		/* Currently allocated size of array */
 };
 
 
@@ -54,10 +53,8 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 
 		if (p == 0) {
 			/* Show the number of comments */
-			wc_printf("<a href=\"readfwd");
-			wc_printf("?p=%d", bp->top_level_id);
-			wc_printf("?euid=");	urlescputs(bp->euid);	/* FIXME not really */
-			wc_printf("?go=");	urlescputs(ChrPtr(WC->CurRoom.name));
+			wc_printf("<a href=\"readfwd?p=%d?go=", bp->top_level_id);
+			urlescputs(ChrPtr(WC->CurRoom.name));
 			wc_printf("#comments\">");
 			wc_printf(_("%d comments"), bp->num_msgs - 1);
 			wc_printf("</a>");
@@ -188,7 +185,6 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		if (!bp) return(200);
 		memset(bp, 0, sizeof (struct blogpost));
 		bp->top_level_id = b.id;
-		strcpy(bp->euid, b.euid);
 		Put(BLOG, (const char *)&b.id, sizeof(b.id), bp,
 					(DeleteHashDataFunc)blogpost_render_and_destroy);
 	}
