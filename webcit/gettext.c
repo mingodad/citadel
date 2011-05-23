@@ -477,6 +477,7 @@ SessionDestroyModule_GETTEXT
 #ifdef ENABLE_NLS
 	stop_selected_language();				/* unset locale */
 #endif
+}
 
 void 
 ServerShutdownModule_GETTEXT
@@ -491,6 +492,4 @@ ServerShutdownModule_GETTEXT
 	free(wc_locales);
 #endif
 	if (!AvailLangLoaded) free(AvailLangLoaded);
-}
-
 }
