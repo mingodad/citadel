@@ -332,7 +332,7 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 			return -1; 
 		}
 
-		serv_printf("READ %d|%d", bytes_read, total_len-bytes_read);
+		serv_printf("READ "SIZE_T_FMT"|"SIZE_T_FMT, bytes_read, total_len-bytes_read);
 		if ( (rc = StrBuf_ServGetln(Buf) > 0) && (GetServerStatus(Buf, NULL) == 6) ) 
 		{
 			if (rc < 0)
