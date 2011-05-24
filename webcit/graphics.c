@@ -1,7 +1,7 @@
 /*
  * Handles HTTP upload of graphics files into the system.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,7 +72,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	wc_printf("</div>\n");
 	wc_printf("</form>\n");
 
-	do_template("endbox", NULL);
+	do_template("endbox");
 
 	wDumpContent(1);
 }

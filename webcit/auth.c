@@ -64,7 +64,7 @@ void display_login(void)
 {
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	do_template("login", NULL);
+	do_template("login");
 	end_burst();
 }
 
@@ -196,7 +196,7 @@ void openid_manual_create(void)
 	if (havebstr("exit_action")) {
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
-		do_template("authpopup_finished", NULL);
+		do_template("authpopup_finished");
 		end_burst();
 		return;
 	}
@@ -224,7 +224,7 @@ void openid_manual_create(void)
 		if (WC->logged_in) {
 			begin_burst();
 			output_headers(1, 0, 0, 0, 1, 0);
-			do_template("authpopup_finished", NULL);
+			do_template("authpopup_finished");
 			end_burst();
 		}
 	} else {
@@ -237,7 +237,7 @@ void openid_manual_create(void)
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
-		do_template("openid_manual_create", NULL);
+		do_template("openid_manual_create");
 		wc_printf("</body></html>");
 		end_burst();
 	}
@@ -364,7 +364,7 @@ void finalize_openid_login(void)
 		if (WC->logged_in) {
 			begin_burst();
 			output_headers(1, 0, 0, 0, 1, 0);
-			do_template("authpopup_finished", NULL);
+			do_template("authpopup_finished");
 			end_burst();
 		} else {
 			begin_burst();
@@ -389,7 +389,7 @@ void finalize_openid_login(void)
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
-		do_template("openid_manual_create", NULL);
+		do_template("openid_manual_create");
 		wc_printf("</body></html>");
 		end_burst();
 	}
@@ -564,9 +564,9 @@ void validate(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-        do_template("beginbox_1", NULL);
+        do_template("beginbox_1");
         StrBufAppendBufPlain(WC->WBuf, _("Validate new users"), -1, 0);
-        do_template("beginbox_2", NULL);
+        do_template("beginbox_2");
 
 	/* If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
@@ -680,7 +680,7 @@ void validate(void)
 
 	wc_printf("</div>\n");
 	wc_printf("</td></tr></table>\n");
-	do_template("endbox", NULL);
+	do_template("endbox");
 	wDumpContent(1);
 }
 
@@ -792,7 +792,7 @@ void display_changepw(void)
 	wc_printf("</div>\n");
 	wc_printf("</form>\n");
 
-	do_template("endbox", NULL);
+	do_template("endbox");
 	wDumpContent(1);
 }
 

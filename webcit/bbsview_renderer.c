@@ -6,7 +6,7 @@
  * with it, go get commit dcf99fe61379b78436c387ea3f89ebfd4ffaf635 of
  * bbsview_renderer.c and have fun.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -265,7 +265,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 					&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
 				) {
 					/* new messages start here */
-					do_template("start_of_new_msgs", NULL);
+					do_template("start_of_new_msgs");
 					StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#newmsgs\";\n");
 				}
 				if (BBS->msgs[i] > 0L) {
@@ -276,7 +276,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 					&& (BBS->msgs[i] <= BBS->lastseen)
 				) {
 					/* no new messages */
-					do_template("no_new_msgs", NULL);
+					do_template("no_new_msgs");
 					StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#nonewmsgs\";\n");
 				}
 			}

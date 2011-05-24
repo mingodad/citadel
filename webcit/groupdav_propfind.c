@@ -10,7 +10,7 @@
  *     This makes it difficult to read, but we have discovered clients which
  *     crash when you try to pretty it up.
  *
- * Copyright (c) 2005-2010 by the citadel.org team
+ * Copyright (c) 2005-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -494,7 +494,7 @@ void groupdav_propfind(void)
 		/*
 		 * If the client is requesting the root, show a root node.
 		 */
-		do_template("dav_propfind_top", NULL);
+		do_template("dav_propfind_top");
 		end_burst();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);

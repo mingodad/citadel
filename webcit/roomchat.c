@@ -1,7 +1,7 @@
 /*
  * This module handles multiuser chat.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -32,7 +32,7 @@ void do_chat(void)
 	WC->last_chat_user[0] = 0;
 
 	output_headers(1, 1, 1, 0, 0, 0);
-	do_template("roomchat", NULL);
+	do_template("roomchat");
 
 	serv_puts("RCHT enter");
 	serv_getln(buf, sizeof buf);

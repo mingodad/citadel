@@ -668,7 +668,7 @@ void toggle_self_service(void) {
 
 	SetCurrentRoomFlags (&WCC->CurRoom);
 	
-	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 }
 
 
@@ -691,7 +691,7 @@ void editroom(void)
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
 		       _("Cancelled.  Changes were not saved."));
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
 	if (GetCurrentRoomFlags (&WCC->CurRoom) == 0)
@@ -819,7 +819,7 @@ void editroom(void)
 	
 	if (succ1 + succ2 == 0)
 		AppendImportantMessage (_("Your changes have been saved."), -1);
-	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 	return;
 }
 
@@ -888,7 +888,7 @@ void do_invt_kick(void)
                 }
         }
 
-	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 }
 
 
@@ -950,7 +950,7 @@ void entroom(void)
 	WCC->CurRoom.view = er_view;
 
 	if ( (WCC != NULL) && ( (WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) )  {
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 	} else {
 		smart_goto(WCC->CurRoom.name);
 	}
@@ -986,7 +986,7 @@ void set_room_policy(void) {
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
 		       _("Cancelled.  Changes were not saved."));
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
 
@@ -1001,7 +1001,7 @@ void set_room_policy(void) {
 		strcat(WC->ImportantMessage, &buf[4]);
 	}
 	ReloadCurrentRoom();
-	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 }
 
 
@@ -1041,14 +1041,14 @@ void netedit(void) {
 		strcat(line, bstr("suffix"));
 	}
 	else {
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
 
 
 	fp = tmpfile();
 	if (fp == NULL) {
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
 
@@ -1059,7 +1059,7 @@ void netedit(void) {
 		fclose(fp);
 		AppendImportantMessage(SRV_STATUS_MSG(Line));	
 		FreeStrBuf(&Line);
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
 
@@ -1091,7 +1091,7 @@ void netedit(void) {
 	if  (GetServerStatus(Line, NULL) != 4) {
 		fclose(fp);
 		AppendImportantMessage(SRV_STATUS_MSG(Line));	
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		FreeStrBuf(&Line);
 		return;
 	}
@@ -1125,7 +1125,7 @@ void netedit(void) {
 	FlushIgnetCfgs(&WC->CurRoom);
 	FreeStrBuf(&Line);
 
-	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 }
 
 /*
@@ -1135,7 +1135,7 @@ void knrooms(void)
 {
 	DeleteHash(&WC->Rooms);
 	output_headers(1, 1, 1, 0, 0, 0); 
-	do_template("knrooms", NULL);
+	do_template("knrooms");
 	wDumpContent(1);
 }
 
@@ -1185,7 +1185,7 @@ void delete_floor(void) {
 	AppendImportantMessage (SKEY(Buf));
 
 	FlushRoomlist();
-	http_transmit_thing(ChrPtr(do_template("floors", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("floors")), 0);
 	FreeStrBuf(&Buf);
 }
 
@@ -1208,7 +1208,7 @@ void create_floor(void) {
 	}
 	AppendImportantMessage (SKEY(Buf));
 	FlushRoomlist();
-	http_transmit_thing(ChrPtr(do_template("floors", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("floors")), 0);
 	FreeStrBuf(&Buf);
 }
 
@@ -1228,7 +1228,7 @@ void rename_floor(void) {
 	StrBufCutLeft(Buf, 4);
 	AppendImportantMessage (SKEY(Buf));
 
-	http_transmit_thing(ChrPtr(do_template("floors", NULL)), 0);
+	http_transmit_thing(ChrPtr(do_template("floors")), 0);
 	FreeStrBuf(&Buf);
 }
 
