@@ -233,11 +233,16 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			Type, 
 			ChrPtr(Error));
 		*/
-		StrBufPrintf(Info, "%s [%s]  %s; [%s]", 
-			     Type, 
-			     Err, 
-			     ChrPtr(Error), 
-			     ChrPtr(TP->Tokens->FlatToken));
+		FlushStrBuf(Info);
+		StrBufAppendBufPlain(Info, Type, -1, 0);
+		StrBufAppendBufPlain(Info, HKEY(" ["), 0);
+		StrBufAppendBufPlain(Info, Err, -1, 0);
+		StrBufAppendBufPlain(Info, HKEY("] "), 0);
+		StrBufAppendBuf(Info, Error, 0);
+		StrBufAppendBufPlain(Info, HKEY("; ["), 0);
+		if (TP->Tokens != NULL)
+			StrBufAppendBuf(Info, TP->Tokens->FlatToken, 0);
+		StrBufAppendBufPlain(Info, HKEY("]"), 0);
 		SerializeJson(WCC->WFBuf, WildFireException(HKEY(__FILE__), __LINE__, Info, 1), 1);
 	}
 	FreeStrBuf(&Info);
@@ -418,9 +423,6 @@ void VarPrintEntry(const char *Key, void *vSubst, int odd)
 	case WCS_STRING:
 		lprintf(1, "  -> %s\n", ChrPtr(ptr->wcs_value));
 		break;
-	case WCS_SERVCMD:
-		lprintf(1, "  -> Server [%s]\n", ChrPtr(ptr->wcs_value));
-		break;
 	case WCS_FUNCTION:
 		lprintf(1, "  -> function at [%0xd]\n", ptr->wcs_function);
 		break;
@@ -452,7 +454,6 @@ int NeedNewBuf(int type)
 {
 	switch(type) {
 	case WCS_STRING:
-	case WCS_SERVCMD:
 	case WCS_STRBUF:
 		return 1;
 	case WCS_FUNCTION:
@@ -468,7 +469,6 @@ void FlushPayload(wcsubst *ptr, int reusestrbuf, int type)
 	int NeedNew = NeedNewBuf(type);
 	switch(ptr->wcs_type) {
 	case WCS_STRING:
-	case WCS_SERVCMD:
 	case WCS_STRBUF:
 		if (reusestrbuf && NeedNew) {
 			FlushStrBuf(ptr->wcs_value);
@@ -527,9 +527,6 @@ wcsubst *NewSubstVar(const char *keyname, int keylen, int type)
 
 	switch(ptr->wcs_type) {
 	case WCS_STRING:
-	case WCS_SERVCMD:
-		ptr->wcs_value = NewStrBuf();
-		break;
 	case WCS_STRBUF:
 	case WCS_FUNCTION:
 	case WCS_STRBUF_REF:
@@ -731,33 +728,6 @@ void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref)
 		ptr = NewSubstVar(keyname, keylen, (ref)?WCS_STRBUF_REF:WCS_STRBUF);
 	}
 	ptr->wcs_value = (StrBuf*)Buf;
-}
-
-/**
- * \brief back end for print_value_of() ... does a server command
- * \param servcmd server command to execute on the citadel server
- */
-void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
-	char buf[SIZ];
-	int len;
-
-	serv_puts(ChrPtr(servcmd));
-	len = serv_getln(buf, sizeof buf);
-
-	switch(buf[0]) {
-		case '2':
-		case '3':
-		case '5':
-			StrBufAppendPrintf(Target, "%s\n", &buf[4]);
-			break;
-		case '1':
-			_fmout(Target, "CENTER");
-			break;
-		case '4':
-			StrBufAppendPrintf(Target, "%s\n", &buf[4]);
-			serv_puts("000");
-			break;
-	}
 }
 
 int HaveTemplateTokenString(StrBuf *Target, 
@@ -975,9 +945,6 @@ void print_value_of(StrBuf *Target, WCTemplputParams *TP)
 		case WCS_STRING:
 			StrBufAppendBuf(Target, ptr->wcs_value, 0);
 			break;
-		case WCS_SERVCMD:
-			pvo_do_cmd(Target, ptr->wcs_value);
-			break;
 		case WCS_FUNCTION:
 			(*ptr->wcs_function) (Target, TP);
 			break;
@@ -1021,9 +988,6 @@ int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLoo
 			else
 				return ParamToCompare->lvalue == StrTol(ptr->wcs_value);
 			break;
-		case WCS_SERVCMD:
-			return 1; 
-			break;
 		case WCS_FUNCTION:
 			return 1;
 		case WCS_LONG:
@@ -1055,9 +1019,6 @@ int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup)
 		case WCS_STRBUF_REF:
 			return ((StrLength(Compare) == StrLength(ptr->wcs_value)) &&
 				(strcmp(ChrPtr(Compare), ChrPtr(ptr->wcs_value)) == 0));
-		case WCS_SERVCMD:
-			return 1; 
-			break;
 		case WCS_FUNCTION:
 			return 1;
 		case WCS_LONG:
@@ -1081,7 +1042,6 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  WCTemplputParams *TP,
 			  const StrBuf *Source, int FormatTypeIndex)
 {
-        wcsession *WCC;
 	char EscapeAs = ' ';
 
 	if ((FormatTypeIndex < TP->Tokens->nParameters) &&
@@ -1093,7 +1053,6 @@ void StrBufAppendTemplate(StrBuf *Target,
 	switch(EscapeAs)
 	{
 	case 'H':
-		WCC = WC;
 		StrEscAppend(Target, Source, NULL, 0, 2);
 		break;
 	case 'X':
@@ -1581,7 +1540,6 @@ void *load_template(WCTemplate *NewTemplate)
 	struct stat statbuf;
 	const char *pS, *pE, *pch, *Err;
 	long Line;
-	int pos;
 
 	fd = open(ChrPtr(NewTemplate->FileName), O_RDONLY);
 	if (fd <= 0) {
@@ -1617,7 +1575,6 @@ void *load_template(WCTemplate *NewTemplate)
 		int InDoubleQuotes = 0;
 
 		/** Find one <? > */
-		pos = (-1);
 		for (; pch < pE; pch ++) {
 			if ((*pch=='<')&&(*(pch + 1)=='?') &&
 			    !((pch == pS) && /* we must ommit a <?xml */
@@ -1697,7 +1654,6 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 	       (filedir_entry != NULL))
 	{
 		char *MinorPtr;
-		char *PStart;
 #ifdef _DIRENT_HAVE_D_NAMELEN
 		d_namelen = filedir_entry->d_namelen;
 		d_type = filedir_entry->d_type;
@@ -1779,7 +1735,6 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 			if (d_without_ext > 2)
 				IsMobile = (filedir_entry->d_name[d_without_ext - 1] == 'm') &&
 					(filedir_entry->d_name[d_without_ext - 2] == '.');
-			PStart = filedir_entry->d_name;
 			StrBufPrintf(FileName, "%s/%s", ChrPtr(DirName),  filedir_entry->d_name);
 			MinorPtr = strchr(filedir_entry->d_name, '.');
 			if (MinorPtr != NULL)
@@ -2372,9 +2327,6 @@ int ConditionalVar(StrBuf *Target, WCTemplputParams *TP)
 	switch(subst->wcs_type) {
 	case WCS_FUNCTION:
 		return (subst->wcs_function!=NULL);
-	case WCS_SERVCMD:
-		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);/* TODO */
-		return 1;
 	case WCS_STRING:
 	case WCS_STRBUF:
 	case WCS_STRBUF_REF:
@@ -2700,7 +2652,6 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 			 const char *OtherPrefix, long OtherPrefixLen,
 			 const char *Default, long ldefault, long DefaultDirection)
 {
-	int isdefault = 0;
 	const StrBuf *BSort = NULL;
 	SortStruct *SortBy;
 	void *vSortBy;
@@ -2734,7 +2685,6 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 
 	if (!GetHash(SortHash, SKEY(BSort), &vSortBy) || 
 	    (vSortBy == NULL)) {
-		isdefault = 1;
 		if (!GetHash(SortHash, Default, ldefault, &vSortBy) || 
 		    (vSortBy == NULL)) {
 			LogTemplateError(
@@ -2759,6 +2709,7 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 			SortOrder = StrTol(Buf);
 		}
 		else {
+			/* TODO: this is never used??? */
 			BSort = get_X_PREFS(HKEY("SortOrder"), OtherPrefix, OtherPrefixLen);
 		}
 

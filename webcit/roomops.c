@@ -59,7 +59,6 @@ int is_view_allowed_as_default(int which_view)
 void load_floorlist(StrBuf *Buf)
 {
 	int a;
-	int Done = 0;
 
 	for (a = 0; a < MAX_FLOORS; ++a)
 		floorlist[a][0] = 0;
@@ -70,10 +69,9 @@ void load_floorlist(StrBuf *Buf)
 		strcpy(floorlist[0], "Main Floor");
 		return;
 	}
-	while (!Done && (StrBuf_ServGetln(Buf)>=0)) {
+	while (StrBuf_ServGetln(Buf) >= 0) {
 		if ( (StrLength(Buf)==3) && 
 		     !strcmp(ChrPtr(Buf), "000")) {
-			Done = 1;
 			break;
 		}
 		extract_token(floorlist[StrBufExtract_int(Buf, 0, '|')], ChrPtr(Buf), 1, '|', sizeof floorlist[0]);

@@ -654,7 +654,6 @@ void load_ical_object(long msgnum, int unread,
 	StrBuf *Buf;
 	StrBuf *Data = NULL;
 	const char *bptr;
-	int Done = 0;
 	char from[128] = "";
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -676,10 +675,9 @@ void load_ical_object(long msgnum, int unread,
 		FreeStrBuf (&Buf);
 		return;
 	}
-	while (!Done && (StrBuf_ServGetln(Buf)>=0)) {
+	while ((StrBuf_ServGetln(Buf)>=0)) {
 		if ( (StrLength(Buf)==3) && 
 		     !strcmp(ChrPtr(Buf), "000")) {
-			Done = 1;
 			break;
 		}
 		bptr = ChrPtr(Buf);

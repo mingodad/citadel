@@ -38,7 +38,6 @@ void output_static(const char *what)
 	int fd;
 	struct stat statbuf;
 	off_t bytes;
-	off_t count = 0;
 	const char *content_type;
 	int len;
 	const char *Err;
@@ -65,7 +64,6 @@ void output_static(const char *what)
 			return;
 		}
 
-		count = 0;
 		bytes = statbuf.st_size;
 
 		if (StrBufReadBLOB(WC->WBuf, &fd, 1, bytes, &Err) < 0)
@@ -104,7 +102,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	struct dirent *filedir_entry;
 	int d_type = 0;
         int d_namelen;
-	int d_without_ext;
 	int istoplevel;
 		
 	filedir = opendir (DirName);
@@ -125,7 +122,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-		char *PStart;
 #ifdef _DIRENT_HAVE_D_NAMELEN
 		d_namelen = filedir_entry->d_namelen;
 		d_type = filedir_entry->d_type;
@@ -143,8 +139,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 		d_namelen = strlen(filedir_entry->d_name);
 		d_type = DT_UNKNOWN;
 #endif
-		d_without_ext = d_namelen;
-
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
 			continue; /* Ignore backup files... */
 
@@ -188,7 +182,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			break;
 		case DT_LNK: /* TODO: check whether its a file or a directory */
 		case DT_REG:
-			PStart = filedir_entry->d_name;
 			FileName = NewStrBufDup(Dir);
 			if (ChrPtr(FileName) [ StrLength(FileName) - 1] != '/')
 				StrBufAppendBufPlain(FileName, "/", 1, 0);
@@ -229,7 +222,7 @@ void output_flat_static(void)
 	    (vFile != NULL))
 	{
 		File = (StrBuf*) vFile;
-		output_static(ChrPtr(vFile));
+		output_static(ChrPtr(File));
 	}
 }
 
@@ -245,7 +238,7 @@ void output_static_safe(HashList *DirList)
 	    (vFile != NULL))
 	{
 		File = (StrBuf*) vFile;
-		output_static(ChrPtr(vFile));
+		output_static(ChrPtr(File));
 	}
 	else {
 		lprintf(1, "output_static_safe() file %s not found. \n", 

@@ -39,7 +39,6 @@ int load_message(message_summary *Msg,
 	headereval *Hdr;
 	void *vHdr;
 	char buf[SIZ];
-	int Done = 0;
 	int state=0;
 	
 	Buf = NewStrBuf();
@@ -63,11 +62,10 @@ int load_message(message_summary *Msg,
 
 	/* begin everythingamundo table */
 	HdrToken = NewStrBuf();
-	while (!Done && StrBuf_ServGetln(Buf)>=0) {
-		if ( (StrLength(Buf)==3) && 
+	while (StrBuf_ServGetln(Buf) >= 0) {
+		if ( (StrLength(Buf) ==3 ) && 
 		    !strcmp(ChrPtr(Buf), "000")) 
 		{
-			Done = 1;
 			if (state < 2) {
 				if (Msg->MsgBody->Data == NULL)
 					Msg->MsgBody->Data = NewStrBuf();
@@ -273,9 +271,10 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 }
 
 
-void
+long
 HttpStatus(long CitadelStatus)
 {
+	/* TODO: this doesn't realy work currently, the HTTP status isn't printed to the browser! */
 	long httpstatus = 502;
 	
 	switch (MAJORCODE(CitadelStatus))
@@ -338,7 +337,7 @@ HttpStatus(long CitadelStatus)
 		break;
 	}
 
-
+	return httpstatus;
 }
 
 /*
@@ -347,7 +346,7 @@ HttpStatus(long CitadelStatus)
  */
 void handle_one_message(void) 
 {
-	long CitStatus;
+	long CitStatus = ERROR;
 	int CopyMessage = 0;
 	const StrBuf *Destination;
 	void *vLine;
@@ -718,7 +717,7 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	void *vViewMsg;
 	void *vMsg;
 	message_summary *Msg;
-	char cmd[256] = "";
+	char cmd[256];
 	int i, r;
 	wcsession *WCC = WC;
 	HashPos *at;
@@ -727,6 +726,8 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	WCTemplputParams SubTP;
 	SharedMessageStatus Stat;
 	void *ViewSpecific;
+
+	cmd[0] = '\0';
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary")))) {
 		WCC->CurRoom.view = VIEW_MAILBOX;
@@ -1454,12 +1455,8 @@ void move_msg(void)
  */
 void confirm_move_msg(void)
 {
-	long msgid;
 	char buf[SIZ];
 	char targ[SIZ];
-
-	msgid = lbstr("msgid");
-
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\">\n");

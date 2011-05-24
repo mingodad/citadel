@@ -97,8 +97,8 @@ HashList *load_netconf(StrBuf *Target, WCTemplputParams *TP)
 		Hash = NewHash(1, NULL);
 
 		Buf = NewStrBuf();
-		while ((len = StrBuf_ServGetln(Buf),
-			strcmp(ChrPtr(Buf), "000"))) {
+		while ((len = StrBuf_ServGetln(Buf), (len >= 0) && 
+			((len != 3) || !strcmp(ChrPtr(Buf), "000")))) {
 			Node = NewNode(Buf);
 			if (Node == NULL)
 				continue;
