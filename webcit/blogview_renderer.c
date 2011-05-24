@@ -102,6 +102,12 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 	if (bp->alloc_msgs > 0) {
 		free(bp->msgs);
 	}
+
+	/* offer the comment box */
+	if (p == bp->top_level_id) {
+		do_template("blog_comment_box");
+	}
+
 	free(bp);
 }
 

@@ -256,7 +256,7 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 void display_wiki_history(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
-	do_template("wiki_history", NULL);
+	do_template("wiki_history");
 	wDumpContent(1);
 }
 
@@ -327,7 +327,7 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 void display_wiki_pagelist(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
-	do_template("wiki_pagelist", NULL);
+	do_template("wiki_pagelist");
 	wDumpContent(1);
 }
 

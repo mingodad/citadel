@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 1996-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #include "webcit.h"
 
 
@@ -29,9 +47,9 @@ void display_edit(char *description, char *check_cmd,
 		output_headers(1, 1, 0, 0, 0, 0);
 	}
 
-	do_template("beginbox_1", NULL);
+	do_template("beginbox_1");
 	StrBufAppendPrintf (WC->WBuf, _("Edit %s"), description);
-	do_template("beginbox_2", NULL);
+	do_template("beginbox_2");
 
 	wc_printf(_("Enter %s below. Text is formatted to the reader's browser."
 		" A newline is forced by preceding the next line by a blank."), description);
@@ -50,7 +68,7 @@ void display_edit(char *description, char *check_cmd,
 	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br>\n", _("Cancel"));
 	wc_printf("</div></form>\n");
 
-	do_template("endbox", NULL);
+	do_template("endbox");
 	wDumpContent(1);
 }
 
