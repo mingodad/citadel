@@ -30,7 +30,6 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <sys/un.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
@@ -49,40 +48,6 @@
 #include "clientsocket.h"
 #include "ctdl_module.h"
 
-
-/*
- * Connect to a unix domain socket (normally called by sock_connect() passthru)
- */
-int uds_sock_connect(char *sockpath)
-{
-	struct sockaddr_un addr;
-	int s;
-
-	memset(&addr, 0, sizeof(addr));
-	addr.sun_family = AF_UNIX;
-	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
-
-	s = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (s < 0) {
-		syslog(LOG_ERR, "socket() failed: %s", strerror(errno));
-		return(-1);
-	}
-
-	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		syslog(LOG_ERR, "connect() failed: %s", strerror(errno));
-		close(s);
-		return(-1);
-	}
-
-	return s;
-}
-
-
-/*
- * Connect to a service via a client socket.  This supports both IPv4 and IPv6.
- * If the first character of the host name/addr is "/" then we assume the caller
- * is actually trying to connect to a unix domain socket and we do that instead.
- */
 int sock_connect(char *host, char *service)
 {
 	struct in6_addr serveraddr;
@@ -94,11 +59,6 @@ int sock_connect(char *host, char *service)
 
 	if ((host == NULL) || IsEmptyStr(host))
 		return (-1);
-
-	if (host[0] == '/') {
-		return uds_sock_connect(host);
-	}
-
 	if ((service == NULL) || IsEmptyStr(service))
 		return (-1);
 
