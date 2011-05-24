@@ -854,6 +854,7 @@ void calendar_day_view_display_events(time_t thetime,
 	 * overlap with this one take place at least partially in this day.
 	 */
 	memset(&starting_tm, 0, sizeof(struct tm));
+	memset(&event_te, 0, sizeof(struct tm));
 	starting_tm.tm_year = year - 1900;
 	starting_tm.tm_mon = month - 1;
 	starting_tm.tm_mday = day;
