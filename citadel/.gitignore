@@ -38,3 +38,7 @@ userlist
 whobbs
 gmon.out
 autom4te.cache
+citadel.config
+citadel.control
+citadel.pid
+refcount_adjustments.dat
