@@ -44,7 +44,7 @@ void feed_rss_one_message(long msgnum) {
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (in_body) {
-			escputs(buf);			/* FIXME we want a CDATA block instead */
+			cdataout(buf);
 			wc_printf("\r\n");
 		}
 		else if (!strncasecmp(buf, "subj=", 5)) {
