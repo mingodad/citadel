@@ -858,8 +858,11 @@ char *strcpy(char *dest, const char *src) {
  * Generate a new, globally unique UID parameter for a calendar etc. object
  */
 void generate_uuid(char *buf) {
-	static int seq = 0;
+	static int seq = (-1);
 
+	if (seq == (-1)) {
+		seq = (int)rand();
+	}
 	++seq;
 	seq = (seq % 0x0FFF) ;
 

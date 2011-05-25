@@ -1,11 +1,11 @@
 /*
  * Support for blog rooms
  *
- * Copyright (c) 1999-2010 by the citadel.org team
+ * Copyright (c) 1999-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -59,10 +59,10 @@
 #include "ctdl_module.h"
 
 /*
- * sd sdhfksdjhkjsdfhk jsdhfkjsdfhkjsd hkfjhsdkjfhsdkjfhksdjfhsd
+ * Pre-save hook for saving a message in a blog room.
+ * (Do we want to only do this for top-level messages?)
  */
 int blog_upload_beforesave(struct CtdlMessage *msg) {
-	char buf[SIZ];
 
 	/* Only run this hook for blog rooms */
 	if (CC->room.QRdefaultview != VIEW_BLOG) {
@@ -72,10 +72,18 @@ int blog_upload_beforesave(struct CtdlMessage *msg) {
 	/* 
 	 * If the message doesn't have an EUID, give it one.
 	 */
-	if (msg->cm_fields['E'] != NULL)
+	if (msg->cm_fields['E'] == NULL)
 	{
-		generate_uuid(buf);
-		msg->cm_fields['E'] = strdup(buf);
+		char uuid[BLOG_EUIDBUF_SIZE];
+		generate_uuid(uuid);
+		msg->cm_fields['E'] = strdup(uuid);
+	}
+
+	/*
+	 * We also want to define a maximum length, whether we generated it or not.
+	 */
+	else if (strlen(msg->cm_fields['E']) >= BLOG_EUIDBUF_SIZE) {
+		msg->cm_fields['E'][BLOG_EUIDBUF_SIZE-1] = 0;
 	}
 
 	/* Now allow the save to complete. */
