@@ -275,3 +275,28 @@ void msgescputs(char *strbuf) {
 
 
 
+
+
+/*
+ * Output a string to the client as a CDATA block
+ */
+void cdataout(char *rawdata)
+{
+	char *ptr = rawdata;
+	wc_printf("<![CDATA[");
+
+	while ((ptr != NULL) && (ptr[0] != 0))
+	{
+		if (!strncmp(ptr, "]]>", 3)) {
+			wc_printf("]]]]><![CDATA[>");
+			++ptr; ++ptr; ++ptr;
+		}
+		else {
+			wc_printf("%c", ptr[0]);
+			++ptr;
+		}
+	}
+
+	wc_printf("]]>");
+}
+

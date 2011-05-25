@@ -694,6 +694,7 @@ void output_headers(    int do_httpheaders,
 			int suppress_check,
 			int cache);
 void output_custom_content_header(const char *ctype);
+void cdataout(char *rawdata);
 
 #ifdef UBER_VERBOSE_DEBUGGING
 #define wc_printf(...) wcc_printf(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
