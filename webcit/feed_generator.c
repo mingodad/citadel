@@ -28,13 +28,14 @@
 void feed_rss_one_message(long msgnum) {
 	char buf[1024];
 	int in_body = 0;
+	int in_messagetext = 0;
 	int found_title = 0;
 	char pubdate[128];
 	StrBuf *messagetext = NULL;
 
 	/* FIXME if this is a blog room we only want to include top-level messages */
 
-	serv_printf("MSG0 %ld", msgnum);		/* FIXME we want msg4 eventually */
+	serv_printf("MSG4 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
@@ -45,8 +46,13 @@ void feed_rss_one_message(long msgnum) {
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (in_body) {
-			StrBufAppendBufPlain(messagetext, buf, -1, 0);
-			StrBufAppendBufPlain(messagetext, HKEY("\r\n"), 0);
+			if (in_messagetext) {
+				StrBufAppendBufPlain(messagetext, buf, -1, 0);
+				StrBufAppendBufPlain(messagetext, HKEY("\r\n"), 0);
+			}
+			else if (IsEmptyStr(buf)) {
+				in_messagetext = 1;
+			}
 		}
 		else if (!strncasecmp(buf, "subj=", 5)) {
 			wc_printf("<title>");
