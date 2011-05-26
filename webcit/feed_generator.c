@@ -30,6 +30,7 @@ void feed_rss_one_message(long msgnum) {
 	int in_body = 0;
 	int in_messagetext = 0;
 	int found_title = 0;
+	int found_guid = 0;
 	char pubdate[128];
 	StrBuf *messagetext = NULL;
 
@@ -41,7 +42,7 @@ void feed_rss_one_message(long msgnum) {
 
 	wc_printf("<item>");
 	wc_printf("<link>%s/readfwd?go=", ChrPtr(site_prefix));
-	urlescputs(ChrPtr(WC->CurRoom.name));
+	escputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("?start_reading_at=%ld</link>", msgnum);
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -61,9 +62,10 @@ void feed_rss_one_message(long msgnum) {
 			++found_title;
 		}
 		else if (!strncasecmp(buf, "exti=", 5)) {
-			wc_printf("<guid>");
+			wc_printf("<guid isPermaLink=\"false\">");
 			escputs(&buf[5]);
 			wc_printf("</guid>");
+			++found_guid;
 		}
 		else if (!strncasecmp(buf, "time=", 5)) {
 			http_datestring(pubdate, sizeof pubdate, atol(&buf[5]));
@@ -72,6 +74,12 @@ void feed_rss_one_message(long msgnum) {
 		else if (!strncasecmp(buf, "text", 4)) {
 			if (!found_title) {
 				wc_printf("<title>Message #%ld</title>", msgnum);
+			}
+			if (!found_guid) {
+				wc_printf("<guid isPermaLink=\"false\">%ld@%s</guid>",
+					msgnum,
+					ChrPtr(WC->serv_info->serv_humannode)
+				);
 			}
 			wc_printf("<description>");
 			in_body = 1;
@@ -123,7 +131,7 @@ void feed_rss(void) {
 	char buf[1024];
 
 	output_headers(0, 0, 0, 0, 1, 0);
-	hprintf("Content-type: text/xml\r\n");
+	hprintf("Content-type: text/xml; charset=utf-8\r\n");
 	hprintf(
 		"Server: %s / %s\r\n"
 		"Connection: close\r\n"
@@ -133,7 +141,7 @@ void feed_rss(void) {
 	begin_burst();
 
 	wc_printf("<?xml version=\"1.0\"?>"
-		"<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">"
+		"<rss version=\"2.0\">"
 		"<channel>"
 	);
 
@@ -142,8 +150,8 @@ void feed_rss(void) {
 	wc_printf("</title>");
 
 	wc_printf("<link>");
-	urlescputs(ChrPtr(site_prefix));
-	wc_printf("</link>");
+	escputs(ChrPtr(site_prefix));
+	wc_printf("/</link>");
 
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
@@ -159,12 +167,12 @@ void feed_rss(void) {
 	wc_printf("<image><title>");
 	escputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</title><url>");
-	urlescputs(ChrPtr(site_prefix));
+	escputs(ChrPtr(site_prefix));
 	wc_printf("/image?name=_roompic_?go=");
 	urlescputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</url><link>");
-	urlescputs(ChrPtr(site_prefix));
-	wc_printf("</link></image>\r\n");
+	escputs(ChrPtr(site_prefix));
+	wc_printf("/</link></image>\r\n");
 
 	feed_rss_do_messages();
 
