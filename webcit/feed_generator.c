@@ -42,7 +42,7 @@ void feed_rss_one_message(long msgnum) {
 
 	wc_printf("<item>");
 	wc_printf("<link>%s/readfwd?go=", ChrPtr(site_prefix));
-	escputs(ChrPtr(WC->CurRoom.name));
+	urlescputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("?start_reading_at=%ld</link>", msgnum);
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -125,6 +125,17 @@ void feed_rss_do_messages(void) {
 
 
 /*
+ * Output the room info file of the current room as a <description> for the channel
+ */
+void feed_rss_do_room_info_as_description(void)
+{
+	wc_printf("<description>");
+	escputs(ChrPtr(WC->CurRoom.name));	/* FIXME use the output of RINF instead */
+	wc_printf("</description>\r\n");
+}
+
+
+/*
  * Entry point for RSS feed generator
  */
 void feed_rss(void) {
@@ -174,6 +185,7 @@ void feed_rss(void) {
 	escputs(ChrPtr(site_prefix));
 	wc_printf("/</link></image>\r\n");
 
+	feed_rss_do_room_info_as_description();
 	feed_rss_do_messages();
 
 	wc_printf("</channel>"
