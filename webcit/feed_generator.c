@@ -1,7 +1,7 @@
 /*
  * RSS feed generator (could be adapted in the future to feed both RSS and Atom)
  *
- * Copyright (c) 2010 by the citadel.org team
+ * Copyright (c) 2010-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@ void feed_rss_one_message(long msgnum) {
 	int in_body = 0;
 	int found_title = 0;
 	char pubdate[128];
+	StrBuf *messagetext = NULL;
 
 	/* FIXME if this is a blog room we only want to include top-level messages */
 
@@ -44,8 +45,8 @@ void feed_rss_one_message(long msgnum) {
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (in_body) {
-			cdataout(buf);
-			wc_printf("\r\n");
+			StrBufAppendBufPlain(messagetext, buf, -1, 0);
+			StrBufAppendBufPlain(messagetext, HKEY("\r\n"), 0);
 		}
 		else if (!strncasecmp(buf, "subj=", 5)) {
 			wc_printf("<title>");
@@ -68,10 +69,13 @@ void feed_rss_one_message(long msgnum) {
 			}
 			wc_printf("<description>");
 			in_body = 1;
+			messagetext = NewStrBuf();
 		}
 	}
 
 	if (in_body) {
+		cdataout((char*)ChrPtr(messagetext));
+		FreeStrBuf(&messagetext);
 		wc_printf("</description>");
 	}
 
