@@ -1,5 +1,18 @@
+<script type="text/javascript">
+function submit_comment() {
+	$('comment_form_references').value = $('comment_replyto').innerHTML ;
+	return false;
+}
+</script>
 <div class="blog_comment">
-Be the first or the last to leave a comment here.  First post!
-<br>
-<TEXTAREA NAME="comments" COLS=80 ROWS=10></TEXTAREA>
+Leave a comment FIXME i18n
+<form id="blog_comment_form" accept-charset="UTF-8" enctype="multipart/form-data"
+ method="POST" action="post" onSubmit="submit_comment();">
+<input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<input type="hidden" name="force_room" value="<?ROOMNAME("X")>">
+<input type="hidden" name="references" id="comment_form_references" /><br>
+<textarea name="msgtext" id="comment_form_msgtext" cols=80 rows=10 style="width:98%"></textarea>
+<input type="submit" name="submit_action" value="Submit Comment" />
+</form>
 </div>
