@@ -1,7 +1,7 @@
 /* 
  * Blog view renderer module for WebCit
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,6 +35,26 @@ struct blogpost {
 
 
 /*
+ * Generate a permalink for a post
+ * (Call with NULL arguments to make this function wcprintf() the permalink
+ * instead of writing it to the template)
+ */
+void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
+	char perma[SIZ];
+	
+	strcpy(perma, "/readfwd?go=");
+	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), (char *)ChrPtr(WC->CurRoom.name));
+	snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", WC->bptlid);
+	if (!Target) {
+		wc_printf("%s", perma);
+	}
+	else {
+		StrBufAppendPrintf(Target, "%s", perma);
+	}
+}
+
+
+/*
  * Destructor for 'struct blogpost' which does the rendering first.
  * By rendering from here, we eliminate the need for a separate iterator, although
  * we might run into trouble when we get around to displaying newest-to-oldest...
@@ -57,7 +77,9 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 			urlescputs(ChrPtr(WC->CurRoom.name));
 			wc_printf("#comments\">");
 			wc_printf(_("%d comments"), bp->num_msgs - 1);
-			wc_printf("</a>");
+			wc_printf("</a> | <a href=\"");
+			tmplput_blog_permalink(NULL, NULL);
+			wc_printf("\">%s</a>", _("permalink"));
 			wc_printf("<br><br><br>\n");
 		}
 		else if (bp->num_msgs < 2) {
@@ -66,6 +88,9 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 		else {
 			wc_printf("<a name=\"comments\"></a>\n");
 			wc_printf(_("%d comments"), bp->num_msgs - 1);
+			wc_printf(" | <a href=\"");
+			tmplput_blog_permalink(NULL, NULL);
+			wc_printf("\">%s</a>", _("permalink"));
 			wc_printf("<br>\n");
 			for (i=1; i<bp->num_msgs; ++i) {
 				read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
@@ -77,6 +102,12 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 	if (bp->alloc_msgs > 0) {
 		free(bp->msgs);
 	}
+
+	/* offer the comment box */
+	if (p == bp->top_level_id) {
+		do_template("blog_comment_box");
+	}
+
 	free(bp);
 }
 
@@ -135,12 +166,12 @@ struct bltr blogview_learn_thread_references(long msgnum)
 		{
 			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
 				StrBufCutLeft(Buf, 5);
-				bltr.id = HashLittle(ChrPtr(Buf), StrLength(Buf));
+				bltr.id = abs(HashLittle(ChrPtr(Buf), StrLength(Buf)));
 			}
 			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
 				StrBufCutLeft(Buf, 5);		/* trim the field name */
 				StrBufExtract_token(r, Buf, 0, '|');
-				bltr.refs = HashLittle(ChrPtr(r), StrLength(r));
+				bltr.refs = abs(HashLittle(ChrPtr(r), StrLength(r)));
 			}
 		}
 	}
@@ -222,7 +253,7 @@ int blogview_sortfunc(const void *s1, const void *s2) {
 
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
-	/*HashList *BLOG = (HashList *) *ViewSpecific;*/
+	/* HashList *BLOG = (HashList *) *ViewSpecific; */
 
 	/*
 	 * No code needed here -- we render during disposition.
@@ -242,19 +273,6 @@ int blogview_Cleanup(void **ViewSpecific)
 	wDumpContent(1);
 	return 0;
 }
-
-/*
- * Generate a permalink for a post
- */
-void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
-	char perma[SIZ];
-	
-	strcpy(perma, "/readfwd?go=");
-	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), ChrPtr(WC->CurRoom.name));
-	snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", WC->bptlid);
-	StrBufAppendPrintf(Target, "%s", perma);
-}
-
 
 void 
 InitModule_BLOGVIEWRENDERERS

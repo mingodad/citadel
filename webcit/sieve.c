@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 1996-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #include "webcit.h"
 
 #define MAX_SCRIPTS	100
@@ -651,9 +669,9 @@ void display_add_remove_scripts(char *message)
 
 	wc_printf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
-	do_template("beginbox_1", NULL);
+	do_template("beginbox_1");
 	StrBufAppendBufPlain(WC->WBuf, _("Add a new script"), -1, 0);
-	do_template("beginbox_2", NULL);
+	do_template("beginbox_2");
 
 	wc_printf(_("To create a new script, enter the desired "
 		"script name in the box below and click 'Create'."));
@@ -666,21 +684,21 @@ void display_add_remove_scripts(char *message)
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
 		"</form></center>\n", _("Create"));
 
-	do_template("endbox", NULL);
+	do_template("endbox");
 
-	do_template("beginbox_1", NULL);
+	do_template("beginbox_1");
 	StrBufAppendBufPlain(WC->WBuf, _("Edit scripts"), -1, 0);
-	do_template("beginbox_2", NULL);
+	do_template("beginbox_2");
 	wc_printf("<br><div align=center><a href=\"display_sieve\">%s</a><br><br>\n",
 		_("Return to the script editing screen")
 	);
-	do_template("endbox", NULL);
+	do_template("endbox");
 
 	wc_printf("</td><td>");
 
-	do_template("beginbox_1", NULL);
+	do_template("beginbox_1");
 	StrBufAppendBufPlain(WC->WBuf, _("Delete scripts"), -1, 0);
-	do_template("beginbox_2", NULL);
+	do_template("beginbox_2");
 
 	wc_printf(_("To delete an existing script, select the script "
 		"name from the list and click 'Delete'."));
@@ -708,7 +726,7 @@ void display_add_remove_scripts(char *message)
         wc_printf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete script"), _("Delete this script?"));
         wc_printf("</form></center>\n");
-	do_template("endbox", NULL);
+	do_template("endbox");
 
 	wc_printf("</td></tr></table>\n");
 

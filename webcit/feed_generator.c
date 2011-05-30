@@ -1,7 +1,7 @@
 /*
  * RSS feed generator (could be adapted in the future to feed both RSS and Atom)
  *
- * Copyright (c) 2010 by the citadel.org team
+ * Copyright (c) 2010-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,12 +28,15 @@
 void feed_rss_one_message(long msgnum) {
 	char buf[1024];
 	int in_body = 0;
+	int in_messagetext = 0;
 	int found_title = 0;
+	int found_guid = 0;
 	char pubdate[128];
+	StrBuf *messagetext = NULL;
 
 	/* FIXME if this is a blog room we only want to include top-level messages */
 
-	serv_printf("MSG0 %ld", msgnum);		/* FIXME we want msg4 eventually */
+	serv_printf("MSG4 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
@@ -44,8 +47,13 @@ void feed_rss_one_message(long msgnum) {
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (in_body) {
-			escputs(buf);			/* FIXME we want a CDATA block instead */
-			wc_printf("\r\n");
+			if (in_messagetext) {
+				StrBufAppendBufPlain(messagetext, buf, -1, 0);
+				StrBufAppendBufPlain(messagetext, HKEY("\r\n"), 0);
+			}
+			else if (IsEmptyStr(buf)) {
+				in_messagetext = 1;
+			}
 		}
 		else if (!strncasecmp(buf, "subj=", 5)) {
 			wc_printf("<title>");
@@ -54,9 +62,10 @@ void feed_rss_one_message(long msgnum) {
 			++found_title;
 		}
 		else if (!strncasecmp(buf, "exti=", 5)) {
-			wc_printf("<guid>");
+			wc_printf("<guid isPermaLink=\"false\">");
 			escputs(&buf[5]);
 			wc_printf("</guid>");
+			++found_guid;
 		}
 		else if (!strncasecmp(buf, "time=", 5)) {
 			http_datestring(pubdate, sizeof pubdate, atol(&buf[5]));
@@ -66,12 +75,21 @@ void feed_rss_one_message(long msgnum) {
 			if (!found_title) {
 				wc_printf("<title>Message #%ld</title>", msgnum);
 			}
+			if (!found_guid) {
+				wc_printf("<guid isPermaLink=\"false\">%ld@%s</guid>",
+					msgnum,
+					ChrPtr(WC->serv_info->serv_humannode)
+				);
+			}
 			wc_printf("<description>");
 			in_body = 1;
+			messagetext = NewStrBuf();
 		}
 	}
 
 	if (in_body) {
+		cdataout((char*)ChrPtr(messagetext));
+		FreeStrBuf(&messagetext);
 		wc_printf("</description>");
 	}
 
@@ -107,13 +125,24 @@ void feed_rss_do_messages(void) {
 
 
 /*
+ * Output the room info file of the current room as a <description> for the channel
+ */
+void feed_rss_do_room_info_as_description(void)
+{
+	wc_printf("<description>");
+	escputs(ChrPtr(WC->CurRoom.name));	/* FIXME use the output of RINF instead */
+	wc_printf("</description>\r\n");
+}
+
+
+/*
  * Entry point for RSS feed generator
  */
 void feed_rss(void) {
 	char buf[1024];
 
 	output_headers(0, 0, 0, 0, 1, 0);
-	hprintf("Content-type: text/xml\r\n");
+	hprintf("Content-type: text/xml; charset=utf-8\r\n");
 	hprintf(
 		"Server: %s / %s\r\n"
 		"Connection: close\r\n"
@@ -123,7 +152,7 @@ void feed_rss(void) {
 	begin_burst();
 
 	wc_printf("<?xml version=\"1.0\"?>"
-		"<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">"
+		"<rss version=\"2.0\">"
 		"<channel>"
 	);
 
@@ -132,8 +161,8 @@ void feed_rss(void) {
 	wc_printf("</title>");
 
 	wc_printf("<link>");
-	urlescputs(ChrPtr(site_prefix));
-	wc_printf("</link>");
+	escputs(ChrPtr(site_prefix));
+	wc_printf("/</link>");
 
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
@@ -149,13 +178,14 @@ void feed_rss(void) {
 	wc_printf("<image><title>");
 	escputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</title><url>");
-	urlescputs(ChrPtr(site_prefix));
+	escputs(ChrPtr(site_prefix));
 	wc_printf("/image?name=_roompic_?go=");
 	urlescputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</url><link>");
-	urlescputs(ChrPtr(site_prefix));
-	wc_printf("</link></image>\r\n");
+	escputs(ChrPtr(site_prefix));
+	wc_printf("/</link></image>\r\n");
 
+	feed_rss_do_room_info_as_description();
 	feed_rss_do_messages();
 
 	wc_printf("</channel>"

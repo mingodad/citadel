@@ -1,7 +1,7 @@
 /*
  * Lots of different room-related operations.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -53,9 +53,9 @@ void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 	}
 	StrBufPrintf(WCC->Hdr->this_page, "dotskip?room=%s", ChrPtr(WC->CurRoom.name));
 
-	do_template("roombanner", NULL);
+	do_template("roombanner");
 
-	do_template("navbar", NULL);
+	do_template("navbar");
 	wc_printf("</div>\n");
 }
 
