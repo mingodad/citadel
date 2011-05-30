@@ -36,15 +36,18 @@ typedef struct _DNSQueryParts {
 
 typedef struct _evcurl_request_data 
 {
-	CURL *chnd;
-	char errdesc[CURL_ERROR_SIZE];
-	int attached;
-	char* PlainPostData;
-	long PlainPostDataLen;
-	StrBuf *PostData;
-	StrBuf *ReplyData;
-///	ParsedURL *URL; /// take from AsyncIO->ConnectMe
-	struct curl_slist * headers;
+	CURL   		  *chnd;
+	struct curl_slist *headers;
+	char   		   errdesc[CURL_ERROR_SIZE];
+
+	int    		   attached;
+
+	char   		  *PlainPostData;
+	long   		   PlainPostDataLen;
+	StrBuf 		  *PostData;
+
+	StrBuf 		  *ReplyData;
+	long   		   httpcode;
 } evcurl_request_data;
 
 struct AsyncIO {
@@ -136,6 +139,6 @@ void InitC_ares_dns(AsyncIO *IO);
 int evcurl_init(AsyncIO *IO, 
 		void *CustomData, 
 		const char* Desc,
-		int CallBack);
+		IO_CallBack CallBack);
 
 void evcurl_handle_start(AsyncIO *IO);

@@ -127,28 +127,35 @@ gotstatus(evcurl_global_data *global, int nnrun)
 	while ((msg = curl_multi_info_read(mhnd, &nmsg))) {
 		CtdlLogPrintf(CTDL_ERR, "EVCURL: got curl multi_info message msg=%d\n", msg->msg);
 		if (CURLMSG_DONE == msg->msg) {
+			CURL *chnd;
+			char *chandle;
+			CURLcode sta;
+			CURLMcode msta;
+			AsyncIO  *IO;
+
+			chandle = NULL;;
+			chnd = msg->easy_handle;
+			sta = curl_easy_getinfo(chnd, CURLINFO_PRIVATE, &chandle);
 			CtdlLogPrintf(CTDL_ERR, "EVCURL: request complete\n");
-			CURL *chnd = msg->easy_handle;
-			char *chandle = NULL;;
-			CURLcode sta = curl_easy_getinfo(chnd, CURLINFO_PRIVATE, &chandle);
 			if (sta)
 				CtdlLogPrintf(CTDL_ERR, "EVCURL: error asking curl for private cookie of curl handle: %s\n", curl_easy_strerror(sta));
-			evcurl_request_data  *handle = (void *)chandle;
+			IO = (AsyncIO *)chandle;
 			
 			sta = msg->data.result;
 			if (sta) {
-				CtdlLogPrintf(CTDL_ERR, "EVCURL: error description: %s\n", handle->errdesc);
+				CtdlLogPrintf(CTDL_ERR, "EVCURL: error description: %s\n", IO->HttpReq.errdesc);
 				CtdlLogPrintf(CTDL_ERR, "EVCURL: error performing request: %s\n", curl_easy_strerror(sta));
 			}
-			long httpcode;
-			sta = curl_easy_getinfo(chnd, CURLINFO_RESPONSE_CODE, &httpcode);
+			sta = curl_easy_getinfo(chnd, CURLINFO_RESPONSE_CODE, &IO->HttpReq.httpcode);
 			if (sta)
 				CtdlLogPrintf(CTDL_ERR, "EVCURL: error asking curl for response code from request: %s\n", curl_easy_strerror(sta));
-			CtdlLogPrintf(CTDL_ERR, "EVCURL: http response code was %ld\n", (long)httpcode);
-			CURLMcode msta = curl_multi_remove_handle(mhnd, chnd);
+			CtdlLogPrintf(CTDL_ERR, "EVCURL: http response code was %ld\n", (long)IO->HttpReq.httpcode);
+			msta = curl_multi_remove_handle(mhnd, chnd);
 			if (msta)
 				CtdlLogPrintf(CTDL_ERR, "EVCURL: warning problem detaching completed handle from curl multi: %s\n", curl_multi_strerror(msta));
-			handle->attached = 0;
+			IO->HttpReq.attached = 0;
+			IO->SendDone(IO);
+			curl_multi_cleanup(msta);
 		}
 	}
 }
@@ -156,7 +163,13 @@ gotstatus(evcurl_global_data *global, int nnrun)
 static void
 stepmulti(evcurl_global_data *global, curl_socket_t fd) {
 	int nnrun;
-	CURLMcode msta = curl_multi_socket_action(global->mhnd, fd, 0, &nnrun);
+	CURLMcode msta;
+	
+	if (global == NULL) {
+	    CtdlLogPrintf(CTDL_DEBUG, "EVCURL: stepmulti(NULL): wtf?\n");
+	    return;
+	}
+	msta = curl_multi_socket_action(global->mhnd, fd, 0, &nnrun);
 	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: stepmulti(): calling gotstatus()\n");
 	if (msta)
 		CtdlLogPrintf(CTDL_ERR, "EVCURL: error in curl processing events on multi handle, fd %d: %s\n", (int)fd, curl_multi_strerror(msta));
@@ -180,9 +193,15 @@ gotio(struct ev_loop *loop, ev_io *ioev, int events) {
 
 static size_t
 gotdata(void *data, size_t size, size_t nmemb, void *cglobal) {
-	evcurl_request_data *D = (evcurl_request_data*) data;
+	AsyncIO *IO = (AsyncIO*) cglobal;
+	//evcurl_request_data *D = (evcurl_request_data*) data;
 	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: gotdata(): calling CurlFillStrBuf_callback()\n");
-	return CurlFillStrBuf_callback(D->ReplyData, size, nmemb, cglobal);
+
+	if (IO->HttpReq.ReplyData == NULL)
+	{
+	    IO->HttpReq.ReplyData = NewStrBufPlain(NULL, SIZ);
+	}
+	return CurlFillStrBuf_callback(data, size, nmemb, IO->HttpReq.ReplyData);
 }
 
 static int
@@ -273,13 +292,14 @@ void curl_init_connectionpool(void)
 int evcurl_init(AsyncIO *IO, 
 		void *CustomData, 
 		const char* Desc,
-		int CallBack) 
+		IO_CallBack CallBack) 
 {
 	CURLcode sta;
 	CURL *chnd;
 
 	CtdlLogPrintf(CTDL_DEBUG,"EVCURL: evcurl_init called ms\n");
 	IO->HttpReq.attached = 0;
+	IO->SendDone = CallBack;
 	chnd = IO->HttpReq.chnd = curl_easy_init();
 	if (!chnd)
 	{

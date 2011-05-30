@@ -68,7 +68,7 @@
 
 #include "ctdl_module.h"
 
-
+struct CitContext extnotify_queue_CC;
 
 void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg)
 {
@@ -261,6 +261,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	char remoteurl[SIZ];
 	char *FreeMe = NULL;
 	char *PagerNo;
+	CitContext *SubC;
 
 	Ctx = (NotifyContext*) usrdata;
 
@@ -281,13 +282,17 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 				 config.c_funambol_host,
 				 config.c_funambol_port,
 				 FUNAMBOL_WS);
+
+			SubC = CloneContext (CC);
+			SubC->session_specific_data = NULL;// (char*) DupNotifyContext(Ctx);
+			
 			notify_http_server(remoteurl, 
 					   file_funambol_msg,
 					   strlen(file_funambol_msg),/*GNA*/
 					   msg->cm_fields['W'], 
 					   msg->cm_fields['I'],
 					   msgnum, 
-					   Ctx);
+					   NULL);
 			break;
 		case eHttpMessages:
 		{
@@ -313,13 +318,15 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 					FlushStrBuf(FileBuf);
 				memcpy(URLBuf, ChrPtr(URL), StrLength(URL) + 1);
 
+				SubC = CloneContext (CC);
+				SubC->session_specific_data = NULL;// (char*) DupNotifyContext(Ctx);
 				notify_http_server(URLBuf, 
 						   ChrPtr(FileBuf),
 						   StrLength(FileBuf),
 						   msg->cm_fields['W'], 
 						   msg->cm_fields['I'],
 						   msgnum, 
-						   Ctx);
+						   NULL);
 				i++;
 			}
 			FreeStrBuf(&FileBuf);
@@ -358,6 +365,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
  */
 void do_extnotify_queue(void) 
 {
+	CitContext *CCC = CC;
 
 	NotifyContext Ctx;
 	static int doing_queue = 0;
@@ -380,11 +388,13 @@ void do_extnotify_queue(void)
 	if (doing_queue) return;
 	doing_queue = 1;
 
+	citthread_setspecific(MyConKey, (void *)&extnotify_queue_CC);
+
 	/*
 	 * Go ahead and run the queue
 	 */
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
-    
+
 	memset(&Ctx, 0, sizeof(NotifyContext));
 	Ctx.NotifyHostList = GetNotifyHosts();
 	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
@@ -410,6 +420,8 @@ void create_extnotify_queue(void) {
 	struct ctdlroom qrbuf;
     
 	CtdlCreateRoom(FNBL_QUEUE_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
+
+    	CtdlFillSystemContext(&extnotify_queue_CC, "Extnotify");
     
 	/*
 	 * Make sure it's set to be a "system room" so it doesn't show up

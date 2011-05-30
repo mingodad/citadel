@@ -47,6 +47,8 @@
 #include "event_client.h"
 #include "extnotify.h"
 
+eNextState EvaluateResult(AsyncIO *IO);
+
 /*
 * \brief Sends a message to the Funambol server notifying 
 * of new mail for a user
@@ -66,6 +68,11 @@ int notify_http_server(char *remoteurl,
 	char *contenttype = NULL;
 	StrBuf *ReplyBuf;
 	CURL *chnd;
+	AsyncIO *IO;
+
+	IO = (AsyncIO*) malloc(sizeof(AsyncIO));
+	memset(IO, 0, sizeof(AsyncIO));
+	IO->CitContext = CC;
 
 	snprintf(msgnumstr, 128, "%ld", MsgNum);
 
@@ -120,36 +127,36 @@ int notify_http_server(char *remoteurl,
 		contenttype=(char*) malloc(40+strlen(mimetype));
 		sprintf(contenttype,"Content-Type: %s; charset=utf-8", mimetype);
 
-		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "SOAPAction: \"\"");
-		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, contenttype);
-		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
-		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Pragma: no-cache");
+		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "SOAPAction: \"\"");
+		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, contenttype);
+		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
+		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Pragma: no-cache");
 
 		/* Now specify the POST binary data */
-		Ctx->IO.HttpReq.PlainPostData = SOAPMessage;
-		Ctx->IO.HttpReq.PlainPostDataLen = strlen(SOAPMessage);
+		IO->HttpReq.PlainPostData = SOAPMessage;
+		IO->HttpReq.PlainPostDataLen = strlen(SOAPMessage);
 	}
 	else {
 		help_subst(remoteurl, "^notifyuser", user);
 		help_subst(remoteurl, "^syncsource", config.c_funambol_source);
 		help_subst(remoteurl, "^msgid", msgid);
 		help_subst(remoteurl, "^msgnum", msgnumstr);
-		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
-		Ctx->IO.HttpReq.headers = curl_slist_append(Ctx->IO.HttpReq.headers, "Pragma: no-cache");
+		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
+		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Pragma: no-cache");
 	}
 
-	ParseURL(&Ctx->IO.ConnectMe, NewStrBufPlain (remoteurl, -1), 80);
-	CurlPrepareURL(Ctx->IO.ConnectMe);
-	int CallBack;
-	if (! evcurl_init(&Ctx->IO, 
-			  Ctx, 
+	ParseURL(&IO->ConnectMe, NewStrBufPlain (remoteurl, -1), 80);
+	CurlPrepareURL(IO->ConnectMe);
+	if (! evcurl_init(IO, 
+//			  Ctx, 
+			  NULL,
 			  "Citadel ExtNotify",
-			  CallBack))
+			  EvaluateResult))
 	{
 		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
 		goto abort;
 	}
-	chnd = Ctx->IO.HttpReq.chnd;
+	chnd = IO->HttpReq.chnd;
 	OPT(SSL_VERIFYPEER, 0);
 	OPT(SSL_VERIFYHOST, 0);
 /*
@@ -166,7 +173,7 @@ int notify_http_server(char *remoteurl,
 		OPT(INTERFACE, config.c_ip_addr);
 	}
 
-	evcurl_handle_start(&Ctx->IO);
+	evcurl_handle_start(IO);
 
 	return 0;
 abort:
@@ -180,32 +187,31 @@ abort:
 }
 
 
-
-int EvaluateResult(NotifyContext *Ctx, int res, int b)
+eNextState EvaluateResult(AsyncIO *IO)
 {
-	if (res) {
+
+	if (IO->HttpReq.httpcode != 200) {
 		StrBuf *ErrMsg;
 
-		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", 
-			      res, 
-			      Ctx->IO.HttpReq.errdesc);
+		CtdlLogPrintf(CTDL_ALERT, "libcurl error %ld: %s\n", 
+			      IO->HttpReq.httpcode, 
+			      IO->HttpReq.errdesc);
 		ErrMsg = NewStrBufPlain(HKEY("Error sending your Notification\n"));
-		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %d: %s\n", 
-				   res, 
-				   Ctx->IO.HttpReq.errdesc);
-///		StrBufAppendBufPlain(ErrMsg, curl_errbuf, -1, 0);
+		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %ld: \n\t\t%s\n", 
+				   IO->HttpReq.httpcode, 
+				   IO->HttpReq.errdesc);
 		StrBufAppendBufPlain(ErrMsg, HKEY("\nWas Trying to send: \n"), 0);
-		StrBufAppendBufPlain(ErrMsg, Ctx->IO.ConnectMe->PlainUrl, -1, 0);
-		if (Ctx->IO.HttpReq.PlainPostDataLen > 0) {
+		StrBufAppendBufPlain(ErrMsg, IO->ConnectMe->PlainUrl, -1, 0);
+		if (IO->HttpReq.PlainPostDataLen > 0) {
 			StrBufAppendBufPlain(ErrMsg, HKEY("\nThe Post document was: \n"), 0);
 			StrBufAppendBufPlain(ErrMsg, 
-					     Ctx->IO.HttpReq.PlainPostData, 
-					     Ctx->IO.HttpReq.PlainPostDataLen, 0);
+					     IO->HttpReq.PlainPostData, 
+					     IO->HttpReq.PlainPostDataLen, 0);
 			StrBufAppendBufPlain(ErrMsg, HKEY("\n\n"), 0);			
 		}
-		if (StrLength(Ctx->IO.HttpReq.ReplyData) > 0) {			
+		if (StrLength(IO->HttpReq.ReplyData) > 0) {			
 			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThe Serverreply was: \n\n"), 0);
-			StrBufAppendBuf(ErrMsg, Ctx->IO.HttpReq.ReplyData, 0);
+			StrBufAppendBuf(ErrMsg, IO->HttpReq.ReplyData, 0);
 		}
 		else 
 			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThere was no Serverreply.\n\n"), 0);
