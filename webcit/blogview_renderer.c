@@ -23,17 +23,6 @@
 #include "groupdav.h"
 
 
-/* 
- * Array type for a blog post.  The first message is the post; the rest are comments
- */
-struct blogpost {
-	int top_level_id;
-	long *msgs;		/* Array of msgnums for messages we are displaying */
-	int num_msgs;		/* Number of msgnums stored in 'msgs' */
-	int alloc_msgs;		/* Currently allocated size of array */
-};
-
-
 /*
  * Generate a permalink for a post
  * (Call with NULL arguments to make this function wcprintf() the permalink
@@ -113,15 +102,6 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 
 
 /*
- * Data which gets returned from a call to blogview_learn_thread_references()
- */
-struct bltr {
-	int id;
-	int refs;
-};
-
-
-/*
  * Entry point for message read operations.
  */
 int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat, 
@@ -146,8 +126,8 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 
 
 /*
- * Given a 'struct blogpost' containing a msgnum, populate the id
- * and refs fields by fetching them from the Citadel server
+ * Given a msgnum, populate the id and refs fields of
+ * a "struct bltr" by fetching them from the Citadel server
  */
 struct bltr blogview_learn_thread_references(long msgnum)
 {
