@@ -1225,6 +1225,9 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	font-style: italic;
 }
 
+.post_a_comment_title {
+	font-size: 120%;
+}
 
 /*---------- styles for the attachments form -----------*/
 
