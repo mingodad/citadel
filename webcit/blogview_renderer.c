@@ -146,12 +146,12 @@ struct bltr blogview_learn_thread_references(long msgnum)
 		{
 			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
 				StrBufCutLeft(Buf, 5);
-				bltr.id = abs(HashLittle(ChrPtr(Buf), StrLength(Buf)));
+				bltr.id = ThreadIdHash(Buf);
 			}
 			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
 				StrBufCutLeft(Buf, 5);		/* trim the field name */
 				StrBufExtract_token(r, Buf, 0, '|');
-				bltr.refs = abs(HashLittle(ChrPtr(r), StrLength(r)));
+				bltr.refs = ThreadIdHash(r);
 			}
 		}
 	}
