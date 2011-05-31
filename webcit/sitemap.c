@@ -53,6 +53,39 @@ void sitemap_do_bbs(void) {
 
 
 /*
+ * XML sitemap generator -- go through the message list for a Blog room
+ */
+void sitemap_do_blog(void) {
+	wcsession *WCC = WC;
+	int num_msgs = 0;
+	int i;
+	SharedMessageStatus Stat;
+	message_summary *Msg = NULL;
+
+	memset(&Stat, 0, sizeof Stat);
+	Stat.maxload = INT_MAX;
+	Stat.lowest_found = (-1);
+	Stat.highest_found = (-1);
+	num_msgs = load_msg_ptrs("MSGS ALL", &Stat, NULL);
+	if (num_msgs < 1) return;
+
+	for (i=0; i<num_msgs; ++i) {
+		Msg = GetMessagePtrAt(i, WCC->summ);
+		if (Msg != NULL) {
+			struct bltr bltr = blogview_learn_thread_references(Msg->msgnum);
+			/* Show only top level posts, not comments */
+			if ((bltr.id != 0) && (bltr.refs == 0)) {
+				WC->bptlid = bltr.id;
+				wc_printf("<url><loc>%s", ChrPtr(site_prefix));
+				tmplput_blog_permalink(NULL, NULL);
+				wc_printf("</loc></url>\r\n");
+			}
+		}
+	}
+}
+
+
+/*
  * XML sitemap generator -- go through the message list for a wiki room
  */
 void sitemap_do_wiki(void) {
@@ -129,6 +162,9 @@ void sitemap(void) {
 				break;
 			case VIEW_WIKI:
 				sitemap_do_wiki();
+				break;
+			case VIEW_BLOG:
+				sitemap_do_blog();
 				break;
 			default:
 				break;
