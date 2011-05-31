@@ -12,7 +12,16 @@ Leave a comment FIXME i18n
 <input type="hidden" name="nonce" value="<?NONCE>">
 <input type="hidden" name="force_room" value="<?ROOMNAME("X")>">
 <input type="hidden" name="references" id="comment_form_references" /><br>
-<textarea name="msgtext" id="comment_form_msgtext" cols=80 rows=10 style="width:98%"></textarea>
-<input type="submit" name="submit_action" value="Submit Comment" />
+<textarea name="msgtext" id="comment_form_msgtext" cols=80 rows=10 style="width:98%"
+	<?!("COND:LOGGEDIN",1)>
+		onClick="javascript:GetLoggedInFirst(encodeURIComponent(window.location.href));"
+	<??("X",1)>
+>
+</textarea>
+<input type="submit" name="submit_action" value="Submit Comment"
+	<?!("COND:LOGGEDIN",1)>
+		disabled="disabled"
+	<??("X",1)>
+/>
 </form>
 </div>
