@@ -54,7 +54,6 @@ void sitemap_do_bbs(void) {
 
 /*
  * XML sitemap generator -- go through the message list for a wiki room
- * (this might work for blogs too; we'll see)
  */
 void sitemap_do_wiki(void) {
 	wcsession *WCC = WC;
@@ -121,23 +120,23 @@ void sitemap(void) {
 
 	while (GetNextHashPos(roomlist, it, &HKlen, &HashKey, (void *)&room))
 	{
+		gotoroom(room->name);
+
 		/* Output the messages in this room only if it's a room type we can make sense of */
 		switch(room->defview) {
-		case VIEW_BBS:
-			gotoroom(room->name);
-			sitemap_do_bbs();
-			break;
-		case VIEW_WIKI:
-			gotoroom(room->name);
-			sitemap_do_wiki();
-			break;
-		default:
-			break;
+			case VIEW_BBS:
+				sitemap_do_bbs();
+				break;
+			case VIEW_WIKI:
+				sitemap_do_wiki();
+				break;
+			default:
+				break;
 		}
 	}
 
 	DeleteHashPos(&it);
-	/* DeleteHash(&roomlist); This will be freed when the session closes */
+	/* No need to DeleteHash(&roomlist) -- it will be freed when the session closes */
 
 	wc_printf("</urlset>\r\n");
 	wDumpContent(0);
