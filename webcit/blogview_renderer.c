@@ -176,14 +176,21 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	HashList *BLOG = (HashList *) *ViewSpecific;
 	struct bltr b;
 	struct blogpost *bp = NULL;
+	int p = 0;
 
 	b = blogview_learn_thread_references(Msg->msgnum);
 
-	/* FIXME an optimization here -- one we ought to perform -- is to exit this
-	 * function immediately if the viewer is only interested in a single post and
+	/* Stop processing if the viewer is only interested in a single post and
 	 * that message ID is neither the id nor the refs.
 	 */
+	p = atoi(BSTR("p"));	/* are we looking for a specific post? */
+	if ((p != 0) && (p != b.id) && (p != b.refs)) {
+		return 200;
+	}
 
+	/*
+	 * Add our little bundle of blogworthy wonderfulness to the hash table
+	 */
 	if (b.refs == 0) {
 		bp = malloc(sizeof(struct blogpost));
 		if (!bp) return(200);
