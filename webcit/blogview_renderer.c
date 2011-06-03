@@ -222,19 +222,16 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 /*
  * Sort a list of 'struct blogpost' objects by newest-to-oldest msgnum.
+ * With big thanks to whoever wrote http://www.c.happycodings.com/Sorting_Searching/code14.html
  */
-int blogview_sortfunc(const void *s1, const void *s2) {
-	struct blogpost *l1 = (struct blogpost *)(s1);
-	struct blogpost *l2 = (struct blogpost *)(s2);
+static int blogview_sortfunc(const void *a, const void *b) { 
+	struct blogpost * const *one = a;
+	struct blogpost * const *two = b;
 
-	wc_printf("Sort function called on %d, %d<br>\n", l1->top_level_id, l2->top_level_id);
-	return(0);
-
-	if (l1->msgs[0] > l2->msgs[0]) return(-1);
-	if (l1->msgs[0] < l2->msgs[0]) return(+1);
+	if ( (*one)->msgs[0] > (*two)->msgs[0] ) return(-1);
+	if ( (*one)->msgs[0] < (*two)->msgs[0] ) return(+1);
 	return(0);
 }
-
 
 
 /*
@@ -270,10 +267,8 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	DeleteHashPos(&it);
 
 	if (num_blogposts > 0) {
-		qsort(blogposts, num_blogposts, sizeof(struct blogpost *), blogview_sortfunc);
+		qsort(blogposts, num_blogposts, sizeof(void *), blogview_sortfunc);
 		for (i=0; i<num_blogposts; ++i) {
-			wc_printf("Top level ID is %d", blogposts[i]->top_level_id);
-			wc_printf("; top level msgnum is %ld", blogposts[i]->msgs[0]);
 			blogpost_render(blogposts[i]);
 		}
 		free(blogposts);
