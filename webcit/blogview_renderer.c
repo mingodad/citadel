@@ -5,7 +5,7 @@
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
+ * published by the Free Software Foundation -- either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -270,7 +270,6 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 		qsort(blogposts, num_blogposts, sizeof(void *), blogview_sortfunc);
 
 		/* FIXME this is where we handle date ranges etc */
-
 		for (i=0; i<num_blogposts; ++i) {
 			blogpost_render(blogposts[i]);
 		}
