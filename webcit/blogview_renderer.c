@@ -44,11 +44,9 @@ void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
 
 
 /*
- * Destructor for 'struct blogpost' which does the rendering first.
- * By rendering from here, we eliminate the need for a separate iterator, although
- * we might run into trouble when we get around to displaying newest-to-oldest...
+ * Render (maybe) a single blog post and (maybe) its comments
  */
-void blogpost_render_and_destroy(struct blogpost *bp) {
+void blogpost_render(struct blogpost *bp) {
 	const StrBuf *Mime;
 	int p = 0;
 	int i;
@@ -87,16 +85,21 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 		}
 	}
 
-
-	if (bp->alloc_msgs > 0) {
-		free(bp->msgs);
-	}
-
 	/* offer the comment box */
 	if (p == bp->top_level_id) {
 		do_template("blog_comment_box");
 	}
 
+}
+
+
+/*
+ * Destructor for "struct blogpost"
+ */
+void blogpost_destroy(struct blogpost *bp) {
+	if (bp->alloc_msgs > 0) {
+		free(bp->msgs);
+	}
 	free(bp);
 }
 
@@ -187,8 +190,7 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		if (!bp) return(200);
 		memset(bp, 0, sizeof (struct blogpost));
 	 	bp->top_level_id = b.id;
-		Put(BLOG, (const char *)&b.id, sizeof(b.id), bp,
-					(DeleteHashDataFunc)blogpost_render_and_destroy);
+		Put(BLOG, (const char *)&b.id, sizeof(b.id), bp, (DeleteHashDataFunc)blogpost_destroy);
 	}
 	else {
 		GetHash(BLOG, (const char *)&b.refs , sizeof(b.refs), (void *)&bp);
@@ -253,6 +255,7 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 			wc_printf("; top level msgnum is %ld", bp->msgs[0]);
 		}
 		wc_printf("<br>\n");
+		blogpost_render(bp);
 	}
 
 	DeleteHashPos(&it);
