@@ -235,7 +235,7 @@ static int blogview_sortfunc(const void *a, const void *b) {
 
 /*
  * All blogpost entries are now in the hash list.
- * Sort them, (FIXME cull by date range if needed,) and render what we want to see.
+ * Sort them, select the desired range, and render what we want to see.
  */
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
@@ -249,29 +249,44 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	int num_blogposts = 0;
 	int num_blogposts_alloc = 0;
 
+	/* Iterate through the hash list and copy the data pointers into an array */
+
 	it = GetNewHashPos(BLOG, 0);
 	while (GetNextHashPos(BLOG, it, &len, &Key, &Data)) {
 		if (num_blogposts >= num_blogposts_alloc) {
 			if (num_blogposts_alloc == 0) {
 				num_blogposts_alloc = 100;
-				blogposts = malloc((num_blogposts_alloc * sizeof (struct blogpost *)));
 			}
 			else {
 				num_blogposts_alloc *= 2;
-				blogposts = realloc(blogposts, (num_blogposts_alloc * sizeof (struct blogpost *)));
 			}
+			blogposts = realloc(blogposts, (num_blogposts_alloc * sizeof (struct blogpost *)));
 		}
 		blogposts[num_blogposts++] = (struct blogpost *) Data;
 	}
 	DeleteHashPos(&it);
 
+	/* Now we have our array.  It is ONLY an array of pointers.  The objects to
+	 * which they point are still owned by the hash list.
+	 */
+
 	if (num_blogposts > 0) {
+
+		/* Sort newest-to-oldest */
 		qsort(blogposts, num_blogposts, sizeof(void *), blogview_sortfunc);
 
-		/* FIXME this is where we handle date ranges etc */
+		/* FIXME -- allow the user to select a starting point in the list */
+
+		/* FIXME -- allow the user (or a default setting) to select a maximum number of posts to display */
+
+		/* Now go through the list and render what we've got */
 		for (i=0; i<num_blogposts; ++i) {
 			blogpost_render(blogposts[i]);
 		}
+
+		/* Done.  We are only freeing the array of pointers; the data itself
+		 * will be freed along with the hash list.
+		 */
 		free(blogposts);
 	}
 
