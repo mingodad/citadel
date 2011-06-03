@@ -44,49 +44,51 @@ void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
 
 
 /*
- * Render (maybe) a single blog post and (maybe) its comments
+ * Render single blog post and (optionally) its comments
  */
-void blogpost_render(struct blogpost *bp) {
+void blogpost_render(struct blogpost *bp, int with_comments)
+{
 	const StrBuf *Mime;
-	int p = 0;
 	int i;
 
-	p = atoi(BSTR("p"));	/* are we looking for a specific post? */
 	WC->bptlid = bp->top_level_id;
 
-	if ( ((p == 0) || (p == bp->top_level_id)) && (bp->num_msgs > 0) ) {
-		/* Show the top level post */
+	/* Always show the top level post, unless we somehow ended up with an empty list */
+	if (bp->num_msgs > 0) {
 		read_message(WC->WBuf, HKEY("view_blog_post"), bp->msgs[0], NULL, &Mime);
+	}
 
-		if (p == 0) {
-			/* Show the number of comments */
-			wc_printf("<a href=\"readfwd?p=%d?go=", bp->top_level_id);
-			urlescputs(ChrPtr(WC->CurRoom.name));
-			wc_printf("#comments\">");
-			wc_printf(_("%d comments"), bp->num_msgs - 1);
-			wc_printf("</a> | <a href=\"");
-			tmplput_blog_permalink(NULL, NULL);
-			wc_printf("\">%s</a>", _("permalink"));
-			wc_printf("<br><br><br>\n");
-		}
-		else if (bp->num_msgs < 2) {
-			wc_printf(_("%d comments"), 0);
-		}
-		else {
-			wc_printf("<a name=\"comments\"></a>\n");
-			wc_printf(_("%d comments"), bp->num_msgs - 1);
-			wc_printf(" | <a href=\"");
-			tmplput_blog_permalink(NULL, NULL);
-			wc_printf("\">%s</a>", _("permalink"));
-			wc_printf("<br>\n");
-			for (i=1; i<bp->num_msgs; ++i) {
-				read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
-			}
+	/* If we were asked to suppress comments, show only the comment count */
+	if (!with_comments) {
+		/* Show the number of comments */
+		wc_printf("<a href=\"readfwd?p=%d?go=", bp->top_level_id);
+		urlescputs(ChrPtr(WC->CurRoom.name));
+		wc_printf("#comments\">");
+		wc_printf(_("%d comments"), bp->num_msgs - 1);
+		wc_printf("</a> | <a href=\"");
+		tmplput_blog_permalink(NULL, NULL);
+		wc_printf("\">%s</a>", _("permalink"));
+		wc_printf("<br><br><br>\n");
+	}
+
+	else if (bp->num_msgs < 2) {
+		wc_printf(_("%d comments"), 0);
+	}
+
+	else {
+		wc_printf("<a name=\"comments\"></a>\n");
+		wc_printf(_("%d comments"), bp->num_msgs - 1);
+		wc_printf(" | <a href=\"");
+		tmplput_blog_permalink(NULL, NULL);
+		wc_printf("\">%s</a>", _("permalink"));
+		wc_printf("<br>\n");
+		for (i=1; i<bp->num_msgs; ++i) {
+			read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
 		}
 	}
 
 	/* offer the comment box */
-	if (p == bp->top_level_id) {
+	if (with_comments) {
 		do_template("blog_comment_box");
 	}
 
@@ -255,9 +257,12 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	struct blogpost **blogposts = NULL;
 	int num_blogposts = 0;
 	int num_blogposts_alloc = 0;
+	int with_comments = 0;
+
+	/* Comments are shown if we are only viewing a single blog post */
+	if (atoi(BSTR("p"))) with_comments = 1;
 
 	/* Iterate through the hash list and copy the data pointers into an array */
-
 	it = GetNewHashPos(BLOG, 0);
 	while (GetNextHashPos(BLOG, it, &len, &Key, &Data)) {
 		if (num_blogposts >= num_blogposts_alloc) {
@@ -276,7 +281,6 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	/* Now we have our array.  It is ONLY an array of pointers.  The objects to
 	 * which they point are still owned by the hash list.
 	 */
-
 	if (num_blogposts > 0) {
 
 		/* Sort newest-to-oldest */
@@ -288,7 +292,7 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 
 		/* Now go through the list and render what we've got */
 		for (i=0; i<num_blogposts; ++i) {
-			blogpost_render(blogposts[i]);
+			blogpost_render(blogposts[i], with_comments);
 		}
 
 		/* Done.  We are only freeing the array of pointers; the data itself
