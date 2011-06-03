@@ -268,6 +268,9 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 
 	if (num_blogposts > 0) {
 		qsort(blogposts, num_blogposts, sizeof(void *), blogview_sortfunc);
+
+		/* FIXME this is where we handle date ranges etc */
+
 		for (i=0; i<num_blogposts; ++i) {
 			blogpost_render(blogposts[i]);
 		}
@@ -287,6 +290,7 @@ int blogview_Cleanup(void **ViewSpecific)
 	wDumpContent(1);
 	return 0;
 }
+
 
 void 
 InitModule_BLOGVIEWRENDERERS
