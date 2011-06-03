@@ -181,8 +181,7 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 	/* FIXME an optimization here -- one we ought to perform -- is to exit this
 	 * function immediately if the viewer is only interested in a single post and
-	 * that message ID is neither the id nor the refs.  Actually, that might *be*
-	 * the way to display only a single message (with or without comments).
+	 * that message ID is neither the id nor the refs.
 	 */
 
 	if (b.refs == 0) {
