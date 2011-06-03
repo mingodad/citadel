@@ -222,15 +222,18 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 /*
  * Sort a list of 'struct blogpost' objects by newest-to-oldest msgnum.
+ */
 int blogview_sortfunc(const void *s1, const void *s2) {
-	long *l1 = (long *)(s1);
-	long *l2 = (long *)(s2);
+	struct blogpost *l1 = (struct blogpost *)(s1);
+	struct blogpost *l2 = (struct blogpost *)(s2);
 
-	if (*l1 > *l2) return(-1);
-	if (*l1 < *l2) return(+1);
+	wc_printf("Sort function called on %d, %d<br>\n", l1->top_level_id, l2->top_level_id);
+	return(0);
+
+	if (l1->msgs[0] > l2->msgs[0]) return(-1);
+	if (l1->msgs[0] < l2->msgs[0]) return(+1);
 	return(0);
 }
- */
 
 
 
@@ -245,7 +248,6 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	const char *Key;
 	void *Data;
 	long len;
-	struct blogpost *bp;
 	int i;
 	struct blogpost **blogposts = NULL;
 	int num_blogposts = 0;
@@ -253,23 +255,22 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 
 	it = GetNewHashPos(BLOG, 0);
 	while (GetNextHashPos(BLOG, it, &len, &Key, &Data)) {
-		bp = (struct blogpost *) Data;
-
 		if (num_blogposts >= num_blogposts_alloc) {
 			if (num_blogposts_alloc == 0) {
 				num_blogposts_alloc = 100;
+				blogposts = malloc((num_blogposts_alloc * sizeof (struct blogpost *)));
 			}
 			else {
 				num_blogposts_alloc *= 2;
+				blogposts = realloc(blogposts, (num_blogposts_alloc * sizeof (struct blogpost *)));
 			}
-			blogposts = realloc(blogposts, (num_blogposts_alloc * sizeof (struct blogpost *)));
 		}
-		blogposts[num_blogposts++] = bp;
+		blogposts[num_blogposts++] = (struct blogpost *) Data;
 	}
-
 	DeleteHashPos(&it);
 
 	if (num_blogposts > 0) {
+		qsort(blogposts, num_blogposts, sizeof(struct blogpost *), blogview_sortfunc);
 		for (i=0; i<num_blogposts; ++i) {
 			wc_printf("Top level ID is %d", blogposts[i]->top_level_id);
 			wc_printf("; top level msgnum is %ld", blogposts[i]->msgs[0]);
