@@ -235,8 +235,8 @@ int blogview_sortfunc(const void *s1, const void *s2) {
 
 
 /*
- * We have to move the render code into this function because it needs to be sorted,
- * and possibly culled to a specific number of messages or date range...
+ * All blogpost entries are now in the hash list.
+ * Sort them, (FIXME cull by date range if needed,) and render what we want to see.
  */
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
@@ -246,19 +246,38 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	void *Data;
 	long len;
 	struct blogpost *bp;
+	int i;
+	struct blogpost **blogposts = NULL;
+	int num_blogposts = 0;
+	int num_blogposts_alloc = 0;
 
 	it = GetNewHashPos(BLOG, 0);
 	while (GetNextHashPos(BLOG, it, &len, &Key, &Data)) {
 		bp = (struct blogpost *) Data;
-		wc_printf("Top level ID is %d\n", bp->top_level_id);
-		if (bp->num_msgs > 0) {
-			wc_printf("; top level msgnum is %ld", bp->msgs[0]);
+
+		if (num_blogposts >= num_blogposts_alloc) {
+			if (num_blogposts_alloc == 0) {
+				num_blogposts_alloc = 100;
+			}
+			else {
+				num_blogposts_alloc *= 2;
+			}
+			blogposts = realloc(blogposts, (num_blogposts_alloc * sizeof (struct blogpost *)));
 		}
-		wc_printf("<br>\n");
-		blogpost_render(bp);
+		blogposts[num_blogposts++] = bp;
 	}
 
 	DeleteHashPos(&it);
+
+	if (num_blogposts > 0) {
+		for (i=0; i<num_blogposts; ++i) {
+			wc_printf("Top level ID is %d", blogposts[i]->top_level_id);
+			wc_printf("; top level msgnum is %ld", blogposts[i]->msgs[0]);
+			blogpost_render(blogposts[i]);
+		}
+		free(blogposts);
+	}
+
 	return(0);
 }
 
