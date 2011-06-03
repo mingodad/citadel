@@ -44,38 +44,22 @@ void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
 
 
 /*
- * Render single blog post and (optionally) its comments
+ * Render a single blog post and (optionally) its comments
  */
 void blogpost_render(struct blogpost *bp, int with_comments)
 {
 	const StrBuf *Mime;
 	int i;
 
-	WC->bptlid = bp->top_level_id;
+	WC->bptlid = bp->top_level_id;	/* This is used in templates; do not remove it */
 
 	/* Always show the top level post, unless we somehow ended up with an empty list */
 	if (bp->num_msgs > 0) {
 		read_message(WC->WBuf, HKEY("view_blog_post"), bp->msgs[0], NULL, &Mime);
 	}
 
-	/* If we were asked to suppress comments, show only the comment count */
-	if (!with_comments) {
-		/* Show the number of comments */
-		wc_printf("<a href=\"readfwd?p=%d?go=", bp->top_level_id);
-		urlescputs(ChrPtr(WC->CurRoom.name));
-		wc_printf("#comments\">");
-		wc_printf(_("%d comments"), bp->num_msgs - 1);
-		wc_printf("</a> | <a href=\"");
-		tmplput_blog_permalink(NULL, NULL);
-		wc_printf("\">%s</a>", _("permalink"));
-		wc_printf("<br><br><br>\n");
-	}
-
-	else if (bp->num_msgs < 2) {
-		wc_printf(_("%d comments"), 0);
-	}
-
-	else {
+	if (with_comments) {
+		/* Show any existing comments, then offer the comment box */
 		wc_printf("<a name=\"comments\"></a>\n");
 		wc_printf(_("%d comments"), bp->num_msgs - 1);
 		wc_printf(" | <a href=\"");
@@ -85,13 +69,20 @@ void blogpost_render(struct blogpost *bp, int with_comments)
 		for (i=1; i<bp->num_msgs; ++i) {
 			read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
 		}
-	}
-
-	/* offer the comment box */
-	if (with_comments) {
 		do_template("blog_comment_box");
 	}
 
+	else {
+		/* Show only the number of comments */
+		wc_printf("<a href=\"readfwd?p=%d?go=", bp->top_level_id);
+		urlescputs(ChrPtr(WC->CurRoom.name));
+		wc_printf("#comments\">");
+		wc_printf(_("%d comments"), bp->num_msgs - 1);
+		wc_printf("</a> | <a href=\"");
+		tmplput_blog_permalink(NULL, NULL);
+		wc_printf("\">%s</a>", _("permalink"));
+		wc_printf("<br><br><br>\n");
+	}
 }
 
 
