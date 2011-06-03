@@ -186,7 +186,7 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		bp = malloc(sizeof(struct blogpost));
 		if (!bp) return(200);
 		memset(bp, 0, sizeof (struct blogpost));
-		bp->top_level_id = b.id;
+	 	bp->top_level_id = b.id;
 		Put(BLOG, (const char *)&b.id, sizeof(b.id), bp,
 					(DeleteHashDataFunc)blogpost_render_and_destroy);
 	}
@@ -220,7 +220,6 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 /*
  * Sort a list of 'struct blogpost' objects by newest-to-oldest msgnum.
- */
 int blogview_sortfunc(const void *s1, const void *s2) {
 	long *l1 = (long *)(s1);
 	long *l2 = (long *)(s2);
@@ -229,17 +228,34 @@ int blogview_sortfunc(const void *s1, const void *s2) {
 	if (*l1 < *l2) return(+1);
 	return(0);
 }
+ */
 
 
+
+/*
+ * We have to move the render code into this function because it needs to be sorted,
+ * and possibly culled to a specific number of messages or date range...
+ */
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
-	/* HashList *BLOG = (HashList *) *ViewSpecific; */
+	HashList *BLOG = (HashList *) *ViewSpecific;
+	HashPos *it;
+	const char *Key;
+	void *Data;
+	long len;
+	struct blogpost *bp;
 
-	/*
-	 * No code needed here -- we render during disposition.
-	 * Maybe this is the location where we want to handle pretty permalinks.
-	 */
+	it = GetNewHashPos(BLOG, 0);
+	while (GetNextHashPos(BLOG, it, &len, &Key, &Data)) {
+		bp = (struct blogpost *) Data;
+		wc_printf("Top level ID is %d\n", bp->top_level_id);
+		if (bp->num_msgs > 0) {
+			wc_printf("; top level msgnum is %ld", bp->msgs[0]);
+		}
+		wc_printf("<br>\n");
+	}
 
+	DeleteHashPos(&it);
 	return(0);
 }
 
