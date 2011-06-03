@@ -220,7 +220,7 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 
 /*
- * Sort a list of 'struct blogpost' objects by newest-to-oldest msgnum.
+ * Sort a list of 'struct blogpost' pointers by newest-to-oldest msgnum.
  * With big thanks to whoever wrote http://www.c.happycodings.com/Sorting_Searching/code14.html
  */
 static int blogview_sortfunc(const void *a, const void *b) { 
