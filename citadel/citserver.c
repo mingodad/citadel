@@ -414,7 +414,7 @@ int is_public_client(void)
 	for (i=0; i<num_parms(public_clients); ++i) {
 		extract_token(addrbuf, public_clients, i, '|', sizeof addrbuf);
 		if (!strcasecmp(CC->cs_addr, addrbuf)) {
-			syslog(LOG_DEBUG, "... yes it is.\n");
+			syslog(LOG_DEBUG, "... yes its local.\n");
 			return(1);
 		}
 	}
