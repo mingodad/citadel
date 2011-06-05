@@ -67,6 +67,7 @@ int notify_http_server(char *remoteurl,
 	char *SOAPMessage = NULL;
 	char *contenttype = NULL;
 	StrBuf *ReplyBuf;
+	StrBuf *Buf;
 	CURL *chnd;
 	AsyncIO *IO;
 
@@ -145,7 +146,9 @@ int notify_http_server(char *remoteurl,
 		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Pragma: no-cache");
 	}
 
-	ParseURL(&IO->ConnectMe, NewStrBufPlain (remoteurl, -1), 80);
+	Buf = NewStrBufPlain (remoteurl, -1);
+	ParseURL(&IO->ConnectMe, Buf, 80);
+	FreeStrBuf(&Buf); /* TODO: this is uncool... */
 	CurlPrepareURL(IO->ConnectMe);
 	if (! evcurl_init(IO, 
 //			  Ctx, 

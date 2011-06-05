@@ -92,7 +92,7 @@ StrBuf* GetNHBuf(int i, int allocit, StrBuf **NotifyHostList)
 }
 
 
-StrBuf** GetNotifyHosts(void)
+int GetNotifyHosts(NotifyContext *Ctx)
 {
 	char NotifyHostsBuf[SIZ];
 	StrBuf *Host;
@@ -101,22 +101,20 @@ StrBuf** GetNotifyHosts(void)
 	int notify;
 	const char *pchs, *pche;
 	const char *NextHost = NULL;
-	StrBuf **NotifyHostList;
-	int num_notify;
 
 	/* See if we have any Notification Hosts configured */
-	num_notify = get_hosts(NotifyHostsBuf, "notify");
-	if (num_notify < 1)
-		return(NULL);
+	Ctx->nNotifyHosts = get_hosts(NotifyHostsBuf, "notify");
+	if (Ctx->nNotifyHosts < 1)
+		return 0;
 
-	NotifyHostList = malloc(sizeof(StrBuf*) * 2 * (num_notify + 1));
-	memset(NotifyHostList, 0, sizeof(StrBuf*) * 2 * (num_notify + 1));
+	Ctx->NotifyHostList = malloc(sizeof(StrBuf*) * 2 * (Ctx->nNotifyHosts + 1));
+	memset(Ctx->NotifyHostList, 0, sizeof(StrBuf*) * 2 * (Ctx->nNotifyHosts + 1));
 	
 	NotifyBuf = NewStrBufPlain(NotifyHostsBuf, -1);
 	/* get all configured notifiers's */
-        for (notify=0; notify<num_notify; notify++) {
+        for (notify=0; notify<Ctx->nNotifyHosts; notify++) {
 		
-		Host = GetNHBuf(notify * 2, 1, NotifyHostList);
+		Host = GetNHBuf(notify * 2, 1, Ctx->NotifyHostList);
 		StrBufExtract_NextToken(Host, NotifyBuf, &NextHost, '|');
 		pchs = ChrPtr(Host);
 		pche = strchr(pchs, ':');
@@ -126,11 +124,12 @@ StrBuf** GetNotifyHosts(void)
 				      pchs);
 			continue;
 		}
-		File = GetNHBuf(notify * 2 + 1, 1, NotifyHostList);
+		File = GetNHBuf(notify * 2 + 1, 1, Ctx->NotifyHostList);
 		StrBufPlain(File, pchs, pche - pchs);
 		StrBufCutLeft(Host, pche - pchs + 1);
 	}
-	return NotifyHostList;
+	FreeStrBuf(&NotifyBuf);
+	return Ctx->nNotifyHosts;
 }
 
 
@@ -183,6 +182,7 @@ eNotifyType extNotify_getConfigMessage(char *username, char **PagerNumber, char 
 		}
 	}
        
+	free(msglist);
 	if (msg == NULL)
 		return eNone;
 
@@ -302,7 +302,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 			StrBuf *File;
 			StrBuf *FileBuf = NewStrBuf();
 		
-			while(1)
+			for (i = 0; i < Ctx->nNotifyHosts; i++)
 			{
 
 				URL = GetNHBuf(i*2, 0, Ctx->NotifyHostList);
@@ -327,7 +327,6 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 						   msg->cm_fields['I'],
 						   msgnum, 
 						   NULL);
-				i++;
 			}
 			FreeStrBuf(&FileBuf);
 		} 
@@ -365,11 +364,9 @@ void process_notify(long NotifyMsgnum, void *usrdata)
  */
 void do_extnotify_queue(void) 
 {
-	CitContext *CCC = CC;
-
 	NotifyContext Ctx;
 	static int doing_queue = 0;
-	//int i = 0;
+	int i = 0;
     
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -396,16 +393,29 @@ void do_extnotify_queue(void)
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
 
 	memset(&Ctx, 0, sizeof(NotifyContext));
-	Ctx.NotifyHostList = GetNotifyHosts();
-	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
+	if ((GetNotifyHosts(&Ctx) > 0) && 
+	    (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0))
+	{
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
 		CtdlClearSystemContext();
+		if (Ctx.nNotifyHosts > 0)
+		{
+			for (i = 0; i < Ctx.nNotifyHosts * 2; i++)
+				FreeStrBuf(&Ctx.NotifyHostList[i]);
+			free(Ctx.NotifyHostList);
+		}
 		return;
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
 			   SPOOLMIME, NULL, process_notify, &Ctx);
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
 	doing_queue = 0;
+	if (Ctx.nNotifyHosts > 0)
+	{
+		for (i = 0; i < Ctx.nNotifyHosts * 2; i++)
+			FreeStrBuf(&Ctx.NotifyHostList[i]);
+		free(Ctx.NotifyHostList);
+	}
 }
 
 

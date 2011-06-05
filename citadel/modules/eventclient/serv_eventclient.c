@@ -153,9 +153,15 @@ gotstatus(evcurl_global_data *global, int nnrun)
 			msta = curl_multi_remove_handle(mhnd, chnd);
 			if (msta)
 				CtdlLogPrintf(CTDL_ERR, "EVCURL: warning problem detaching completed handle from curl multi: %s\n", curl_multi_strerror(msta));
+
 			IO->HttpReq.attached = 0;
 			IO->SendDone(IO);
-			curl_multi_cleanup(msta);
+			curl_easy_cleanup(IO->HttpReq.chnd);
+			curl_slist_free_all(IO->HttpReq.headers);
+			FreeStrBuf(&IO->HttpReq.ReplyData);
+			FreeURL(&IO->ConnectMe);
+			RemoveContext(IO->CitContext);
+			free(IO);
 		}
 	}
 }
@@ -235,6 +241,7 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *csoc
 	}
 	if (CURL_POLL_REMOVE == action) {
 		CtdlLogPrintf(CTDL_ERR,"EVCURL: called last time to unregister this sockwatcher\n");
+		ev_io_stop(event_base, &sockwatcher->ioev);
 		free(sockwatcher);
 	} else {
 		int events = (action & CURL_POLL_IN ? EV_READ : 0) | (action & CURL_POLL_OUT ? EV_WRITE : 0);
@@ -383,6 +390,10 @@ static void WakeupCurlCallback(EV_P_ ev_async *w, int revents)
 	curl_multi_perform(&global, CURL_POLL_NONE);
 }
 
+static void evcurl_shutdown (void)
+{
+	curl_multi_cleanup(global.mhnd);
+}
 /*****************************************************************************
  *                       libevent integration                                *
  *****************************************************************************/
@@ -484,7 +495,7 @@ void *client_event_thread(void *arg)
 	DeleteHash(&InboundEventQueues[0]);
 	DeleteHash(&InboundEventQueues[1]);
 	citthread_mutex_destroy(&EventQueueMutex);
-
+	evcurl_shutdown();
 
 	return(NULL);
 }

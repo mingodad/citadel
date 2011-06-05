@@ -36,6 +36,7 @@ typedef enum _eNotifyType {
 
 typedef struct _NotifyContext {
 	StrBuf **NotifyHostList;
+	int nNotifyHosts;
 	HashList *NotifyErrors;
 	AsyncIO IO;
 } NotifyContext;
