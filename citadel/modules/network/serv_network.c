@@ -1137,13 +1137,14 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 		unlink(tempfilename);
 	}
 	else {
+		fchown(TmpFD, config.c_ctdluid, 0);
 		StrBufAppendPrintf(Cfg, "lastsent|%ld\n", sc->lastsent);
-
+		
 		/* Write out the listrecps while freeing from memory at the
 		 * same time.  Am I clever or what?  :)
 		 */
 		while (sc->listrecps != NULL) {
-			StrBufAppendPrintf(Cfg, "listrecp|%s\n", sc->listrecps->name);
+		    StrBufAppendPrintf(Cfg, "listrecp|%s\n", sc->listrecps->name);
 			nptr = sc->listrecps->next;
 			free(sc->listrecps);
 			sc->listrecps = nptr;
@@ -1287,7 +1288,7 @@ void network_spoolout_room(char *room_to_spool) {
 	}
 
 	/* Now rewrite the config file */
-	writenfree_spoolcontrol_file (&sc, filename);
+	writenfree_spoolcontrol_file(&sc, filename);
 	end_critical_section(S_NETCONFIGS);
 }
 
