@@ -113,7 +113,6 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 
 	ParseURL(&IO->ConnectMe, ShorterUrlStr, 80);
 	CurlPrepareURL(IO->ConnectMe);
-
 	if (! evcurl_init(IO, 
 //			  Ctx, 
 			  NULL,

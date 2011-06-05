@@ -290,6 +290,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(Cfg->Url));
 	ParseURL(&IO->ConnectMe, Cfg->Url, 80);
+	CurlPrepareURL(IO->ConnectMe);
 
 	if (! evcurl_init(IO, 
 //			  Ctx, 

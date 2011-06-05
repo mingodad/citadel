@@ -649,7 +649,7 @@ eNextState ParseRSSReply(AsyncIO *IO)
 
 	XML_SetElementHandler(rssc->xp, rss_xml_start, rss_xml_end);
 	XML_SetCharacterDataHandler(rssc->xp, rss_xml_chardata);
-	XML_SetUserData(rssc->xp, &rssc);
+	XML_SetUserData(rssc->xp, rssc);
 	XML_SetCdataSectionHandler(rssc->xp,
 				   rss_xml_cdata_start,
 				   rss_xml_cdata_end);
