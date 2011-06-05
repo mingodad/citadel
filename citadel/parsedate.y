@@ -102,7 +102,7 @@ typedef enum _MERIDIAN {
 **  union, but this is more efficient.  (This routine predates the
 **  yacc %union construct.)
 */
-static char	*yyInput;
+static const char	*yyInput;
 static DSTMODE	yyDSTmode;
 static int	yyHaveDate;
 static int	yyHaveRel;
@@ -730,12 +730,12 @@ date_lex(void)
 
 
 time_t
-parsedate(char *p)
+parsedate(const char *p)
 {
     extern int		date_parse(void);
     time_t		Start;
 
-    yyInput = p;
+    yyInput = p; /* well, its supposed to be const... */
 
     yyYear = 0;
     yyMonth = 0;

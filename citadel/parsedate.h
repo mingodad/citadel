@@ -1,2 +1,2 @@
 
-time_t parsedate(char *);
+time_t parsedate(const char *);
