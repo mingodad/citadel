@@ -73,7 +73,7 @@ int notify_http_server(char *remoteurl,
 
 	IO = (AsyncIO*) malloc(sizeof(AsyncIO));
 	memset(IO, 0, sizeof(AsyncIO));
-	IO->CitContext = CC;
+	IO->CitContext = CloneContext(CC);
 
 	snprintf(msgnumstr, 128, "%ld", MsgNum);
 
