@@ -337,6 +337,14 @@ int evcurl_init(AsyncIO *IO,
 	OPT(WRITEDATA, (void *)IO);
 	OPT(ERRORBUFFER, IO->HttpReq.errdesc);
 
+	if (
+		(!IsEmptyStr(config.c_ip_addr))
+		&& (strcmp(config.c_ip_addr, "*"))
+		&& (strcmp(config.c_ip_addr, "::"))
+		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
+	) {
+		OPT(INTERFACE, config.c_ip_addr);
+	}
 		/* point to a structure that points back to the perl structure and stuff */
 	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: Loading URL: %s\n", IO->ConnectMe->PlainUrl);
 	OPT(URL, IO->ConnectMe->PlainUrl);
