@@ -294,15 +294,22 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 
 		/* Now go through the list and render what we've got */
 		for (i=start_here; i<num_blogposts; ++i) {
-			wc_printf("<tt>%d</tt><br>\n", blogposts[i]->top_level_id);
+			if ((i > 0) && (i == start_here)) {
+				int j = i - maxp;
+				if (j < 0) j = 0;
+				wc_printf("<div class=\"newer_blog_posts\"><a href=\"readfwd?go=");
+				urlescputs(ChrPtr(WC->CurRoom.name));
+				wc_printf("?firstp=%d?maxp=%d\">", blogposts[j]->top_level_id, maxp);
+				wc_printf("%s →</a></div>\n", _("Newer posts"));
+			}
 			if (i < (start_here + maxp)) {
 				blogpost_render(blogposts[i], with_comments);
 			}
 			else if (i == (start_here + maxp)) {
-				wc_printf("<a href=\"readfwd?go=");
+				wc_printf("<div class=\"older_blog_posts\"><a href=\"readfwd?go=");
 				urlescputs(ChrPtr(WC->CurRoom.name));
 				wc_printf("?firstp=%d?maxp=%d\">", blogposts[i]->top_level_id, maxp);
-				wc_printf("← %s</a><br>\n", _("Older posts"));
+				wc_printf("← %s</a></div>\n", _("Older posts"));
 			}
 		}
 
