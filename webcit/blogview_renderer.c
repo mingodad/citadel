@@ -249,9 +249,15 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	int num_blogposts = 0;
 	int num_blogposts_alloc = 0;
 	int with_comments = 0;
+	int firstp = 0;
+	int maxp = 0;
 
 	/* Comments are shown if we are only viewing a single blog post */
 	if (atoi(BSTR("p"))) with_comments = 1;
+
+	firstp = atoi(BSTR("firstp"));	/* start reading at... */
+	maxp = atoi(BSTR("maxp"));	/* max posts to show... */
+	if (maxp < 1) maxp = 5;		/* default; move somewhere else? */
 
 	/* Iterate through the hash list and copy the data pointers into an array */
 	it = GetNewHashPos(BLOG, 0);
@@ -273,16 +279,21 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	 * which they point are still owned by the hash list.
 	 */
 	if (num_blogposts > 0) {
-
 		/* Sort newest-to-oldest */
 		qsort(blogposts, num_blogposts, sizeof(void *), blogview_sortfunc);
 
-		/* FIXME -- allow the user to select a starting point in the list */
+		/* allow the user to select a starting point in the list */
+		int start_here = 0;
+		for (i=0; i<num_blogposts; ++i) {
+			if (blogposts[i]->top_level_id == firstp) {
+				start_here = i;
+			}
+		}
 
 		/* FIXME -- allow the user (or a default setting) to select a maximum number of posts to display */
 
 		/* Now go through the list and render what we've got */
-		for (i=0; i<num_blogposts; ++i) {
+		for (i=start_here; i<num_blogposts; ++i) {
 			blogpost_render(blogposts[i], with_comments);
 		}
 
