@@ -337,6 +337,7 @@ IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 		break;
 	}
 }
+
 static void
 IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 {
@@ -365,6 +366,32 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 
 	}
 }
+
+static void
+IO_connfailimmediate_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
+
+	ev_idle_stop (event_base, &IO->conn_fail_immediate);
+
+	if (IO->SendBuf.fd != 0)
+	{
+		close(IO->SendBuf.fd);
+		IO->SendBuf.fd = IO->RecvBuf.fd = 0;
+	}
+	become_session(IO->CitContext);
+
+	assert(IO->ConnFail);
+        switch (IO->ConnFail(IO))
+	{
+	case eAbort:
+		ShutDownCLient(IO);
+	default:
+		break;
+
+	}
+}
+
 static void
 IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
@@ -487,11 +514,14 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 		return IO->NextState;
 	}
 	else {
+		ev_idle_init(&IO->conn_fail_immediate,
+			     IO_connfailimmediate_callback);
+		IO->conn_fail_immediate.data = IO;
+		ev_idle_start(event_base, &IO->conn_fail_immediate);
+		
 		CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to connect: %s", strerror(errno));
-		assert(IO->ConnFail);
-		IO->ConnFail(IO);
-		return eAbort;
+		return IO->NextState;
 	}
 	return IO->NextState;
 }

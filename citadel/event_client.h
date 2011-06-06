@@ -65,7 +65,8 @@ struct AsyncIO {
 	ev_cleanup abort_by_shutdown; /* server wants to go down... */
 	ev_timer conn_fail,           /* connection establishing timed out */
 		rw_timeout;           /* timeout while sending data */
-	ev_idle unwind_stack;         /* get c-ares out of the stack */
+	ev_idle unwind_stack,         /* get c-ares out of the stack */
+		conn_fail_immediate;  /* unwind stack, but fail immediately. */
 	ev_io recv_event,             /* receive data from the client */
 		send_event,           /* send more data to the client */
 		conn_event;           /* Connection successfully established */
