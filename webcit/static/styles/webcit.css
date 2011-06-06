@@ -1332,3 +1332,15 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 .registernow {
 	text-align: right;
 }
+
+.older_blog_posts, .newer_blog_posts {
+	font-size: 110%;
+}
+
+.older_blog_posts {
+	text-align: left;
+}
+
+.newer_blog_posts {
+	text-align: right;
+}

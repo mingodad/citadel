@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-31 13:10-0400\n"
+"POT-Creation-Date: 2011-06-06 13:35-0400\n"
 "PO-Revision-Date: 2010-11-25 13:41+0000\n"
 "Last-Translator: Alessandro Cesar <Unknown>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -957,15 +957,22 @@ msgstr "Eles não batem.  Senha não foi modificada."
 msgid "Blank passwords are not allowed."
 msgstr "Senhas em branco não são permitidas."
 
-#: ../../blogview_renderer.c:79 ../../blogview_renderer.c:86
-#: ../../blogview_renderer.c:90
+#: ../../blogview_renderer.c:64 ../../blogview_renderer.c:80
 #, fuzzy, c-format
 msgid "%d comments"
 msgstr "Enviar comando"
 
-#: ../../blogview_renderer.c:82 ../../blogview_renderer.c:93
+#: ../../blogview_renderer.c:67 ../../blogview_renderer.c:83
 msgid "permalink"
 msgstr ""
+
+#: ../../blogview_renderer.c:303
+msgid "Newer posts"
+msgstr "posts recentes"
+
+#: ../../blogview_renderer.c:312
+msgid "Older posts"
+msgstr "posts mais antigos"
 
 #: ../../vcard_edit.c:175 ../../vcard_edit.c:178
 msgid "(no name)"
@@ -3828,9 +3835,6 @@ msgstr "Novas mensagens"
 
 #~ msgid "Room list"
 #~ msgstr "Lista de salas"
-
-#~ msgid "Folder list"
-#~ msgstr "Lista de pastas"
 
 #~ msgid "View as room list"
 #~ msgstr "Ver na lista de salas"
