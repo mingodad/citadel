@@ -294,7 +294,16 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 
 		/* Now go through the list and render what we've got */
 		for (i=start_here; i<num_blogposts; ++i) {
-			blogpost_render(blogposts[i], with_comments);
+			wc_printf("<tt>%d</tt><br>\n", blogposts[i]->top_level_id);
+			if (i < (start_here + maxp)) {
+				blogpost_render(blogposts[i], with_comments);
+			}
+			else if (i == (start_here + maxp)) {
+				wc_printf("<a href=\"readfwd?go=");
+				urlescputs(ChrPtr(WC->CurRoom.name));
+				wc_printf("?firstp=%d?maxp=%d\">", blogposts[i]->top_level_id, maxp);
+				wc_printf("← %s</a><br>\n", _("Older posts"));
+			}
 		}
 
 		/* Done.  We are only freeing the array of pointers; the data itself
