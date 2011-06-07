@@ -37,8 +37,7 @@ void feed_rss_one_message(long msgnum) {
 	StrBuf *Line = NewStrBufPlain(NULL, 1024);
 	char buf[1024];
 
-	/* FIXME if this is a blog room we only want to include top-level messages */
-
+	/* Phase 1: read the message into memory */
 	serv_printf("MSG4 %ld", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
@@ -47,64 +46,80 @@ void feed_rss_one_message(long msgnum) {
 		StrBufAppendPrintf(ServerResponse, "%s\n", buf);
 	}
 
-	wc_printf("<item>");
-	wc_printf("<link>%s/readfwd?go=", ChrPtr(site_prefix));
-	urlescputs(ChrPtr(WC->CurRoom.name));
-	wc_printf("?start_reading_at=%ld</link>", msgnum);
-
+	/* Phase 2: help SkyNet become self-aware */
+	BufPtr = NULL;
 	while (StrBufSipLine(Line, ServerResponse, &BufPtr), ((BufPtr!=StrBufNOTNULL)&&(BufPtr!=NULL)) ) {
-		safestrncpy(buf, ChrPtr(Line), sizeof buf);
-		if (in_body) {
-			if (in_messagetext) {
-				StrBufAppendBufPlain(messagetext, buf, -1, 0);
-				StrBufAppendBufPlain(messagetext, HKEY("\r\n"), 0);
-			}
-			else if (IsEmptyStr(buf)) {
-				in_messagetext = 1;
-			}
-		}
-		else if (!strncasecmp(buf, "subj=", 5)) {
-			wc_printf("<title>");
-			escputs(&buf[5]);
-			wc_printf("</title>");
-			++found_title;
-		}
-		else if (!strncasecmp(buf, "exti=", 5)) {
-			wc_printf("<guid isPermaLink=\"false\">");
-			escputs(&buf[5]);
-			wc_printf("</guid>");
-			++found_guid;
-		}
-		else if (!strncasecmp(buf, "time=", 5)) {
-			http_datestring(pubdate, sizeof pubdate, atol(&buf[5]));
-			wc_printf("<pubDate>%s</pubDate>", pubdate);
-		}
-		else if (!strncasecmp(buf, "wefw=", 5)) {
+		if (StrLength(Line) == 0) ++in_body;
+		if ((StrLength(Line) > 5) && (!strncasecmp(ChrPtr(Line), "wefw=", 5))) {
 			is_top_level_post = 0;	/* presence of references means it's a reply/comment */
 		}
-		else if (!strncasecmp(buf, "text", 4)) {
-			if (!found_title) {
-				wc_printf("<title>Message #%ld</title>", msgnum);
+	}
+
+	/*
+	 * Phase 3: output the message in RSS <item> form
+	 * (suppress replies [comments] if this is a blog room)
+	 */
+	if ( (WC->CurRoom.view != VIEW_BLOG) || (is_top_level_post == 1) ) {
+		wc_printf("<item>");
+		wc_printf("<link>%s/readfwd?go=", ChrPtr(site_prefix));
+		urlescputs(ChrPtr(WC->CurRoom.name));
+		wc_printf("?start_reading_at=%ld</link>", msgnum);
+	
+		BufPtr = NULL;
+		in_body = 0;
+		in_messagetext = 0;
+		while (StrBufSipLine(Line, ServerResponse, &BufPtr), ((BufPtr!=StrBufNOTNULL)&&(BufPtr!=NULL)) ) {
+			safestrncpy(buf, ChrPtr(Line), sizeof buf);
+			if (in_body) {
+				if (in_messagetext) {
+					StrBufAppendBufPlain(messagetext, buf, -1, 0);
+					StrBufAppendBufPlain(messagetext, HKEY("\r\n"), 0);
+				}
+				else if (IsEmptyStr(buf)) {
+					in_messagetext = 1;
+				}
 			}
-			if (!found_guid) {
-				wc_printf("<guid isPermaLink=\"false\">%ld@%s</guid>",
-					msgnum,
-					ChrPtr(WC->serv_info->serv_humannode)
-				);
+			else if (!strncasecmp(buf, "subj=", 5)) {
+				wc_printf("<title>");
+				escputs(&buf[5]);
+				wc_printf("</title>");
+				++found_title;
 			}
-			wc_printf("<description>");
-			in_body = 1;
-			messagetext = NewStrBuf();
+			else if (!strncasecmp(buf, "exti=", 5)) {
+				wc_printf("<guid isPermaLink=\"false\">");
+				escputs(&buf[5]);
+				wc_printf("</guid>");
+				++found_guid;
+			}
+			else if (!strncasecmp(buf, "time=", 5)) {
+				http_datestring(pubdate, sizeof pubdate, atol(&buf[5]));
+				wc_printf("<pubDate>%s</pubDate>", pubdate);
+			}
+			else if (!strncasecmp(buf, "text", 4)) {
+				if (!found_title) {
+					wc_printf("<title>Message #%ld</title>", msgnum);
+				}
+				if (!found_guid) {
+					wc_printf("<guid isPermaLink=\"false\">%ld@%s</guid>",
+						msgnum,
+						ChrPtr(WC->serv_info->serv_humannode)
+					);
+				}
+				wc_printf("<description>");
+				in_body = 1;
+				messagetext = NewStrBuf();
+			}
 		}
+	
+		if (in_body) {
+			cdataout((char*)ChrPtr(messagetext));
+			FreeStrBuf(&messagetext);
+			wc_printf("</description>");
+		}
+
+		wc_printf("</item>");
 	}
 
-	if (in_body) {
-		cdataout((char*)ChrPtr(messagetext));
-		FreeStrBuf(&messagetext);
-		wc_printf("</description>");
-	}
-
-	wc_printf("</item>");
 	FreeStrBuf(&Line);
 	FreeStrBuf(&ServerResponse);
 	return;
