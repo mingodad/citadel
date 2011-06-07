@@ -36,6 +36,7 @@ void feed_rss_one_message(long msgnum) {
 	const char *BufPtr = NULL;
 	StrBuf *Line = NewStrBufPlain(NULL, 1024);
 	char buf[1024];
+	int permalink_hash = 0;
 
 	/* Phase 1: read the message into memory */
 	serv_printf("MSG4 %ld", msgnum);
@@ -49,9 +50,18 @@ void feed_rss_one_message(long msgnum) {
 	/* Phase 2: help SkyNet become self-aware */
 	BufPtr = NULL;
 	while (StrBufSipLine(Line, ServerResponse, &BufPtr), ((BufPtr!=StrBufNOTNULL)&&(BufPtr!=NULL)) ) {
-		if (StrLength(Line) == 0) ++in_body;
-		if ((StrLength(Line) > 5) && (!strncasecmp(ChrPtr(Line), "wefw=", 5))) {
+		if (in_body) {
+			/* do nothing */
+		}
+		else if (StrLength(Line) == 0) {
+			++in_body;
+		}
+		else if ((StrLength(Line) > 5) && (!strncasecmp(ChrPtr(Line), "wefw=", 5))) {
 			is_top_level_post = 0;	/* presence of references means it's a reply/comment */
+		}
+		else if ((StrLength(Line) > 5) && (!strncasecmp(ChrPtr(Line), "msgn=", 5))) {
+			StrBufCutLeft(Line, 5);
+			permalink_hash = ThreadIdHash(Line);
 		}
 	}
 
@@ -63,7 +73,13 @@ void feed_rss_one_message(long msgnum) {
 		wc_printf("<item>");
 		wc_printf("<link>%s/readfwd?go=", ChrPtr(site_prefix));
 		urlescputs(ChrPtr(WC->CurRoom.name));
-		wc_printf("?start_reading_at=%ld</link>", msgnum);
+		if ((WC->CurRoom.view == VIEW_BLOG) && (permalink_hash != 0)) {
+			wc_printf("?p=%d", permalink_hash);
+		}
+		else {
+			wc_printf("?start_reading_at=%ld", msgnum);
+		}
+		wc_printf("</link>");
 	
 		BufPtr = NULL;
 		in_body = 0;
