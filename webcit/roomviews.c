@@ -22,7 +22,7 @@ ROOM_VIEWS allowed_default_views[VIEW_MAX] = {
 	0, /* VIEW_CALBRIEF	Brief Calendar */
 	0, /* VIEW_JOURNAL	Journal */
 	0, /* VIEW_DRAFTS	Drafts */
-	0  /* VIEW_BLOG		Blog */
+	1  /* VIEW_BLOG		Blog */
 };
 
 /*
