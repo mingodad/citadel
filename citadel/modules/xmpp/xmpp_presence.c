@@ -121,7 +121,7 @@ void xmpp_wholist_presence_dump(void)
  * Function to remove a buddy subscription and delete from the roster
  * (used in several places)
  */
-void xmpp_destroy_buddy(char *presence_jid) {
+void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	static int unsolicited_id = 1;
 	char xmlbuf1[256];
 	char xmlbuf2[256];
@@ -135,10 +135,20 @@ void xmpp_destroy_buddy(char *presence_jid) {
 		xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
 		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
 	);
-	cprintf("<presence type=\"unsubscribed\" from=\"%s\" to=\"%s\"></presence>",
-		xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
-		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
-	);
+
+	/*
+	 * Setting the "aggressively" flag also sends an "unsubscribed" presence update.
+	 * We only ask for this when flushing the client side roster, because if we do it
+	 * in the middle of a session when another user logs off, some clients (Jitsi) interpret
+	 * it as a rejection of a subscription request.
+	 */
+	if (aggressively) {
+		cprintf("<presence type=\"unsubscribed\" from=\"%s\" to=\"%s\"></presence>",
+			xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
+			xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
+		);
+	}
+
 	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
 	/* Do an unsolicited roster update that deletes the contact. */
@@ -208,7 +218,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	if (visible_sessions == 0) {
 		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n",
 			CC->cs_pid, presence_jid);
-		xmpp_destroy_buddy(presence_jid);
+		xmpp_destroy_buddy(presence_jid, 0);	/* non aggressive presence update */
 	}
 
 	free(cptr);
@@ -393,7 +403,7 @@ void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void)
 		}
 
 		if (!online_now) {
-			xmpp_destroy_buddy((char *)Value);
+			xmpp_destroy_buddy((char *)Value, 1);	/* aggressive presence update */
 		}
 
 	}
