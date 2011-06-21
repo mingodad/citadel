@@ -580,6 +580,88 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 	}
 }
 
+
+/*
+ * free memory allocated using libical
+ */
+void delete_task(void *vCal)
+{
+        disp_cal *Cal = (disp_cal*) vCal;
+        icalcomponent_free(Cal->cal);
+        free(Cal->from);
+        free(Cal);
+}
+
+
+/*
+ * Load a Task into a hash table for later display.
+ */
+void load_task(icalcomponent *event, long msgnum, char *from, int unread, calview *calv)
+{
+	icalproperty *ps = NULL;
+	struct icaltimetype dtstart, dtend;
+	wcsession *WCC = WC;
+	disp_cal *Cal;
+	size_t len;
+	icalcomponent *cptr = NULL;
+
+	dtstart = icaltime_null_time();
+	dtend = icaltime_null_time();
+	
+	if (WCC->disp_cal_items == NULL) {
+		WCC->disp_cal_items = NewHash(0, Flathash);
+	}
+
+	Cal = (disp_cal*) malloc(sizeof(disp_cal));
+	memset(Cal, 0, sizeof(disp_cal));
+	Cal->cal = icalcomponent_new_clone(event);
+
+	/* Dezonify and decapsulate at the very last moment */
+	ical_dezonify(Cal->cal);
+	if (icalcomponent_isa(Cal->cal) != ICAL_VTODO_COMPONENT) {
+		cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VTODO_COMPONENT);
+		if (cptr) {
+			cptr = icalcomponent_new_clone(cptr);
+			icalcomponent_free(Cal->cal);
+			Cal->cal = cptr;
+		}
+	}
+
+	Cal->unread = unread;
+	len = strlen(from);
+	Cal->from = (char*)malloc(len+ 1);
+	memcpy(Cal->from, from, len + 1);
+	Cal->cal_msgnum = msgnum;
+
+	/* Precalculate the starting date and time of this event, and store it in our top-level
+	 * structure.  Later, when we are rendering the calendar, we can just peek at these values
+	 * without having to break apart every calendar item.
+	 */
+	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
+	if (ps != NULL) {
+		dtstart = icalproperty_get_dtstart(ps);
+		Cal->event_start = icaltime_as_timet(dtstart);
+	}
+
+	/* Do the same for the ending date and time.  It makes the day view much easier to render. */
+	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
+	if (ps != NULL) {
+		dtend = icalproperty_get_dtend(ps);
+		Cal->event_end = icaltime_as_timet(dtend);
+	}
+
+	/* Store it in the hash list. */
+	/* syslog(LOG_DEBUG, "INITIAL: %s", ctime(&Cal->event_start)); */
+	Put(WCC->disp_cal_items, 
+	    (char*) &Cal->event_start,
+	    sizeof(Cal->event_start), 
+	    Cal, 
+	    delete_task
+	);
+}
+
+
+
 /*
  * Display task view
  */
@@ -591,7 +673,7 @@ int tasks_LoadMsgFromServer(SharedMessageStatus *Stat,
 {
 	/* Not (yet?) needed here? calview *c = (calview *) *ViewSpecific; */
 
-	load_ical_object(Msg->msgnum, is_new, ICAL_VTODO_COMPONENT, display_individual_cal, NULL, 0);
+	load_ical_object(Msg->msgnum, is_new, ICAL_VTODO_COMPONENT, load_task, NULL, 0);
 	return 0;
 }
 
