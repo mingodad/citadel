@@ -25,6 +25,7 @@ int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int DisableGzip = 0;
 struct redirector *redir = NULL;
+char *default_landing_page = NULL;
 int num_redir = 0;
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
@@ -131,6 +132,9 @@ void load_redirs(char *filename) {
 			extract_token(redir[num_redir].urlpart, buf, 0, '|', sizeof(redir[num_redir].urlpart));
 			extract_token(redir[num_redir].redirect_to, buf, 1, '|', sizeof(redir[num_redir].redirect_to));
 			WebcitAddUrlHandler(redir[num_redir].urlpart, strlen(redir[num_redir].urlpart), "", 0, handle_redir, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+			if (!strcasecmp(redir[num_redir].urlpart, "home")) {
+				default_landing_page = redir[num_redir].redirect_to ;
+			}
 			++num_redir;
 		}
 

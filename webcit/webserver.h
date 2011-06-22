@@ -10,6 +10,7 @@ struct redirector {
 	
 extern struct redirector *redir;
 extern int num_redir;
+extern char *default_landing_page;
 
 int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target);
 int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout);
