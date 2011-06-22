@@ -876,10 +876,16 @@ void display_default_landing_page(void) {
 	wcsession *WCC = WC;
 
 	if (WCC && WCC->serv_info && WCC->serv_info->serv_supports_guest) {
-		/* default action.  probably revisit this. */
-		StrBuf *teh_lobby = NewStrBufPlain(HKEY("_BASEROOM_"));
-		smart_goto(teh_lobby);
-		FreeStrBuf(&teh_lobby);
+		/* default action */
+
+		if (default_landing_page) {
+			http_redirect(default_landing_page);
+		}
+		else {
+			StrBuf *teh_lobby = NewStrBufPlain(HKEY("_BASEROOM_"));
+			smart_goto(teh_lobby);
+			FreeStrBuf(&teh_lobby);
+		}
 	}
 	else {
 		display_login();
