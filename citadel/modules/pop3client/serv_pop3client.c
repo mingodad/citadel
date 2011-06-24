@@ -66,21 +66,21 @@ struct pop3aggr *palist = NULL;
 
 void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3pass, int keep)
 {
-	int sock;
-	char buf[SIZ];
+	int sock = (-1);
+	char buf[SIZ] = "";
 	int msg_to_fetch = 0;
 	int *msglist = NULL;
 	int num_msgs = 0;
 	int alloc_msgs = 0;
-	int i;
+	int i = 0;
 	char *body = NULL;
 	struct CtdlMessage *msg = NULL;
 	long msgnum = 0;
-	char this_uidl[64];
-	char utmsgid[SIZ];
-	struct cdbdata *cdbut;
-	struct UseTable ut;
-	CitContext *CCC=CC;
+	char this_uidl[64] = "";
+	char utmsgid[SIZ] = "";
+	struct cdbdata *cdbut = NULL;
+	struct UseTable ut = { "", 0 };
+	CitContext *CCC = CC;
 
 	syslog(LOG_DEBUG, "POP3: %s %s %s <password>", roomname, pop3host, pop3user);
 	syslog(LOG_NOTICE, "Connecting to <%s>", pop3host);
