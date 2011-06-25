@@ -58,6 +58,11 @@
 #include "rss_atom_parser.h"
 
 
+#define TMP_MSGDATA 0xFF
+#define TMP_SHORTER_URL_OFFSET 0xFE
+#define TMP_SHORTER_URLS 0xFD
+
+
 struct rssnetcfg *rnclist = NULL;
 void AppendLink(StrBuf *Message, StrBuf *link, StrBuf *LinkTitle, const char *Title)
 {
@@ -75,6 +80,25 @@ void AppendLink(StrBuf *Message, StrBuf *link, StrBuf *LinkTitle, const char *Ti
 		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
 	}
 }
+
+void RSSSaveMessage(struct CtdlMessage *Msg, rss_item *ri, struct UseTable *ut)
+{
+
+	CtdlSubmitMsg(msg, recp, NULL, 0);
+	CtdlFreeMessage(msg);
+
+	/* write the uidl to the use table so we don't store this item again */
+	cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid), &ut, sizeof(struct UseTable) );
+	free(ut);
+}
+
+
+rss_save_msg(msg, recp)
+{
+
+
+}
+
 /*
  * Commit a fetched and parsed RSS item to disk
  */
@@ -91,6 +115,7 @@ void rss_save_item(rss_item *ri)
 	struct recptypes *recp = NULL;
 	int msglen = 0;
 	StrBuf *Message;
+	AsyncIO *OtherIO;
 
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
@@ -125,137 +150,149 @@ void rss_save_item(rss_item *ri)
 		strcat(utmsgid, "_rss2ctdl");
 	}
 
-	/* Find out if we've already seen this item */
+	/* translate Item into message. */
+	CtdlLogPrintf(CTDL_DEBUG, "RSS: translating item...\n");
+	if (ri->description == NULL) ri->description = NewStrBufPlain(HKEY(""));
+	StrBufSpaceToBlank(ri->description);
+	msg = malloc(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = MES_NORMAL;
+	msg->cm_format_type = FMT_RFC822;
+
+	if (ri->guid != NULL) {
+		msg->cm_fields['E'] = strdup(ChrPtr(ri->guid));
+	}
+
+	if (ri->author_or_creator != NULL) {
+		char *From;
+		StrBuf *Encoded = NULL;
+		int FromAt;
+			
+		From = html_to_ascii(ChrPtr(ri->author_or_creator),
+				     StrLength(ri->author_or_creator), 
+				     512, 0);
+		StrBufPlain(ri->author_or_creator, From, -1);
+		StrBufTrim(ri->author_or_creator);
+		free(From);
+
+		FromAt = strchr(ChrPtr(ri->author_or_creator), '@') != NULL;
+		if (!FromAt && StrLength (ri->author_email) > 0)
+		{
+			StrBufRFC2047encode(&Encoded, ri->author_or_creator);
+			msg->cm_fields['A'] = SmashStrBuf(&Encoded);
+			msg->cm_fields['P'] = SmashStrBuf(&ri->author_email);
+		}
+		else
+		{
+			if (FromAt)
+				msg->cm_fields['P'] = SmashStrBuf(&ri->author_or_creator);
+			else 
+			{
+				StrBufRFC2047encode(&Encoded, ri->author_or_creator);
+				msg->cm_fields['A'] = SmashStrBuf(&Encoded);
+				msg->cm_fields['P'] = strdup("rss@localhost");
+			}
+		}
+	}
+	else {
+		msg->cm_fields['A'] = strdup("rss");
+	}
+
+	msg->cm_fields['N'] = strdup(NODENAME);
+	if (ri->title != NULL) {
+		long len;
+		char *Sbj;
+		StrBuf *Encoded, *QPEncoded;
+
+		QPEncoded = NULL;
+		StrBufSpaceToBlank(ri->title);
+		len = StrLength(ri->title);
+		Sbj = html_to_ascii(ChrPtr(ri->title), len, 512, 0);
+		len = strlen(Sbj);
+		if (Sbj[len - 1] == '\n')
+		{
+			len --;
+			Sbj[len] = '\0';
+		}
+		Encoded = NewStrBufPlain(Sbj, len);
+		free(Sbj);
+
+		StrBufTrim(Encoded);
+		StrBufRFC2047encode(&QPEncoded, Encoded);
+
+		msg->cm_fields['U'] = SmashStrBuf(&QPEncoded);
+		FreeStrBuf(&Encoded);
+	}
+	msg->cm_fields['T'] = malloc(64);
+	snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
+	if (ri->channel_title != NULL) {
+		if (StrLength(ri->channel_title) > 0) {
+			msg->cm_fields['O'] = strdup(ChrPtr(ri->channel_title));
+		}
+	}
+	if (ri->link == NULL) 
+		ri->link = NewStrBufPlain(HKEY(""));
+
+
+	msg->cm_fields[TMP_SHORTER_URLS] = GetShorterUrls(ri->description);
+
+	strcpy(ut->ut_msgid, utmsgid);
+	ut->ut_timestamp = time(NULL);
+
+	msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
+
+	Message = NewStrBufPlain(NULL, StrLength(ri->description));
+
+	StrBufPlain(Message, HKEY(
+			    "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
+			    "<html><body>\n"));
+	msg->cm_fields[TMP_SHORTER_URL_OFFSET] = StrLength(Message);
+	StrBufAppendBuf(Message, ri->description, 0);
+	StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
+
+	AppendLink(Message, ri->link, ri->linkTitle, NULL);
+	AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
+	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
+
+
+	msg->cm_fields[TMP_MSGDATA] = Message;
+	
+
+	OtherIO = malloc(sizeof(AsyncIO));
+	memset(OtherIO, 0, sizeof(AsyncIO));
+	OtherIO->AsyncMsg = msg;
+	OtherIO->AsyncRcp = recp;
+
+	rss_save_msg(msg, recp);
+//	msg->cm_fields['M'] = SmashStrBuf(&Message);
+
+	// TODO: reenable me	ExpandShortUrls(ri->description);
+
+///	free_recipients(recp);
+}
+
+
+
+
+	/* Find out if we've already seen this item * /
 
 	cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
 #ifndef DEBUG_RSS
 	if (cdbut != NULL) {
-		/* Item has already been seen */
+		/* Item has already been seen * /
 		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
 		cdb_free(cdbut);
 
-		/* rewrite the record anyway, to update the timestamp */
+		/* rewrite the record anyway, to update the timestamp * /
 		strcpy(ut.ut_msgid, utmsgid);
 		ut.ut_timestamp = time(NULL);
 		cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid), &ut, sizeof(struct UseTable) );
 	}
 	else
 #endif
-{
-		/* Item has not been seen, so save it. */
-		CtdlLogPrintf(CTDL_DEBUG, "RSS: saving item...\n");
-		if (ri->description == NULL) ri->description = NewStrBufPlain(HKEY(""));
-		StrBufSpaceToBlank(ri->description);
-		msg = malloc(sizeof(struct CtdlMessage));
-		memset(msg, 0, sizeof(struct CtdlMessage));
-		msg->cm_magic = CTDLMESSAGE_MAGIC;
-		msg->cm_anon_type = MES_NORMAL;
-		msg->cm_format_type = FMT_RFC822;
-
-		if (ri->guid != NULL) {
-			msg->cm_fields['E'] = strdup(ChrPtr(ri->guid));
-		}
-
-		if (ri->author_or_creator != NULL) {
-			char *From;
-			StrBuf *Encoded = NULL;
-			int FromAt;
-			
-			From = html_to_ascii(ChrPtr(ri->author_or_creator),
-					     StrLength(ri->author_or_creator), 
-					     512, 0);
-			StrBufPlain(ri->author_or_creator, From, -1);
-			StrBufTrim(ri->author_or_creator);
-			free(From);
-
-			FromAt = strchr(ChrPtr(ri->author_or_creator), '@') != NULL;
-			if (!FromAt && StrLength (ri->author_email) > 0)
-			{
-				StrBufRFC2047encode(&Encoded, ri->author_or_creator);
-				msg->cm_fields['A'] = SmashStrBuf(&Encoded);
-				msg->cm_fields['P'] = SmashStrBuf(&ri->author_email);
-			}
-			else
-			{
-				if (FromAt)
-					msg->cm_fields['P'] = SmashStrBuf(&ri->author_or_creator);
-				else 
-				{
-					StrBufRFC2047encode(&Encoded, ri->author_or_creator);
-					msg->cm_fields['A'] = SmashStrBuf(&Encoded);
-					msg->cm_fields['P'] = strdup("rss@localhost");
-				}
-			}
-		}
-		else {
-			msg->cm_fields['A'] = strdup("rss");
-		}
-
-		msg->cm_fields['N'] = strdup(NODENAME);
-		if (ri->title != NULL) {
-			long len;
-			char *Sbj;
-			StrBuf *Encoded, *QPEncoded;
-
-			QPEncoded = NULL;
-			StrBufSpaceToBlank(ri->title);
-			len = StrLength(ri->title);
-			Sbj = html_to_ascii(ChrPtr(ri->title), len, 512, 0);
-			len = strlen(Sbj);
-			if (Sbj[len - 1] == '\n')
-			{
-				len --;
-				Sbj[len] = '\0';
-			}
-			Encoded = NewStrBufPlain(Sbj, len);
-			free(Sbj);
-
-			StrBufTrim(Encoded);
-			StrBufRFC2047encode(&QPEncoded, Encoded);
-
-			msg->cm_fields['U'] = SmashStrBuf(&QPEncoded);
-			FreeStrBuf(&Encoded);
-		}
-		msg->cm_fields['T'] = malloc(64);
-		snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
-		if (ri->channel_title != NULL) {
-			if (StrLength(ri->channel_title) > 0) {
-				msg->cm_fields['O'] = strdup(ChrPtr(ri->channel_title));
-			}
-		}
-		if (ri->link == NULL) 
-			ri->link = NewStrBufPlain(HKEY(""));
-		// TODO: reenable me	ExpandShortUrls(ri->description);
-		msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
-
-		Message = NewStrBufPlain(NULL, StrLength(ri->description));
-
-		StrBufPlain(Message, HKEY(
-			 "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
-			 "<html><body>\n"));
-
-		StrBufAppendBuf(Message, ri->description, 0);
-		StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
-
-		AppendLink(Message, ri->link, ri->linkTitle, NULL);
-		AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
-		StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
-
-		msg->cm_fields['M'] = SmashStrBuf(&Message);
-
-		CtdlSubmitMsg(msg, recp, NULL, 0);
-		CtdlFreeMessage(msg);
-
-		/* write the uidl to the use table so we don't store this item again */
-		strcpy(ut.ut_msgid, utmsgid);
-		ut.ut_timestamp = time(NULL);
-		cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid), &ut, sizeof(struct UseTable) );
-	}
-	free_recipients(recp);
-}
-
-
-
+	{
+*/
 
 
 /*

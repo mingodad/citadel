@@ -92,6 +92,10 @@ struct AsyncIO {
 	
 	evcurl_request_data HttpReq;
 
+	/* Saving / loading a message async from / to disk */
+
+	struct CtdlMessage *AsyncMsg;
+	struct recptypes AsyncRcp;
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
 	void *Data;        /* application specific data */
 	void *CitContext;  /* Citadel Session context... */

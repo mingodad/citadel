@@ -191,77 +191,84 @@ int SortConstStrByPosition(const void *Item1, const void *Item2)
 	return -1;
 }
 
-void ExpandShortUrls(StrBuf *Message)
+HashList GetShorterUrls(StrBuf Message)
 {
-	StrBuf *Shadow;
 	HashList *pUrls;
-	ConstStr *pCUrl;
-	const char *pch;
-	const char *pche;
-
 	/* we just suspect URL shorteners to be inside of feeds from twitter
 	 * or other short content messages, so don't crawl through real blogs.
 	 */
 	if (StrLength(Message) > 500)
-		return;
+		return NULL;
 
 	pUrls = NewHash(1, Flathash);
 	CrawlMessageForShorterUrls(pUrls, Message);
 
 	if (GetCount(pUrls) > 0)
+		return pURLs;
+	else 
+		return NULL;
+
+}
+
+void ExpandShortUrls(StrBuf *Message, HashList *pUrls, int Callback)
+{
+	StrBuf *Shadow;
+	ConstStr *pCUrl;
+	const char *pch;
+	const char *pche;
+
+	StrBuf *ShorterUrlStr;
+	HashPos *Pos;
+	const char *Key;
+	void *pv;
+	long len;
+	
+	Shadow = NewStrBufPlain(NULL, StrLength(Message));
+	SortByPayload (pUrls, SortConstStrByPosition);
+		
+	ShorterUrlStr = NewStrBufPlain(NULL, StrLength(Message));
+		
+	pch = ChrPtr(Message);
+	pche = pch + StrLength(Message);
+	Pos = GetNewHashPos(pUrls, 1);
+	while (GetNextHashPos(pUrls, Pos, &len, &Key, &pv))
 	{
-		StrBuf *ShorterUrlStr;
-		HashPos *Pos;
-		const char *Key;
-		void *pv;
-		long len;
+		pCUrl = (ConstStr*) pv;
 
-		Shadow = NewStrBufPlain(NULL, StrLength(Message));
-		SortByPayload (pUrls, SortConstStrByPosition);
-
-		ShorterUrlStr = NewStrBufPlain(NULL, StrLength(Message));
-
-		pch = ChrPtr(Message);
-		pche = pch + StrLength(Message);
-		Pos = GetNewHashPos(pUrls, 1);
-		while (GetNextHashPos(pUrls, Pos, &len, &Key, &pv))
-		{
-			pCUrl = (ConstStr*) pv;
-
-			if (pch != pCUrl->Key)
-				StrBufAppendBufPlain(Shadow, pch, pCUrl->Key - pch, 0);
+		if (pch != pCUrl->Key)
+			StrBufAppendBufPlain(Shadow, pch, pCUrl->Key - pch, 0);
 			
-			StrBufPlain(ShorterUrlStr, CKEY(*pCUrl));
-			if (LookupUrl(ShorterUrlStr))
-			{
-				StrBufAppendBufPlain(Shadow, HKEY("<a href=\""), 0);
-				StrBufAppendBuf(Shadow, ShorterUrlStr, 0);
-				StrBufAppendBufPlain(Shadow, HKEY("\">"), 0);
-				StrBufAppendBuf(Shadow, ShorterUrlStr, 0);
-				StrBufAppendBufPlain(Shadow, HKEY("["), 0);
-				StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
-				StrBufAppendBufPlain(Shadow, HKEY("]</a>"), 0);
-			}
-			else
-			{
-				StrBufAppendBufPlain(Shadow, HKEY("<a href=\""), 0);
-				StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
-				StrBufAppendBufPlain(Shadow, HKEY("\">"), 0);
-				StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
-				StrBufAppendBufPlain(Shadow, HKEY("</a>"), 0);
-			}
-			pch = pCUrl->Key + pCUrl->len + 1;
-
+		StrBufPlain(ShorterUrlStr, CKEY(*pCUrl));
+		if (LookupUrl(ShorterUrlStr))
+		{
+			StrBufAppendBufPlain(Shadow, HKEY("<a href=\""), 0);
+			StrBufAppendBuf(Shadow, ShorterUrlStr, 0);
+			StrBufAppendBufPlain(Shadow, HKEY("\">"), 0);
+			StrBufAppendBuf(Shadow, ShorterUrlStr, 0);
+			StrBufAppendBufPlain(Shadow, HKEY("["), 0);
+			StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
+			StrBufAppendBufPlain(Shadow, HKEY("]</a>"), 0);
 		}
-		if (pch < pche)
-			StrBufAppendBufPlain(Shadow, pch, pche - pch, 0);
-		FlushStrBuf(Message);
-		StrBufAppendBuf(Message, Shadow, 0);
+		else
+		{
+			StrBufAppendBufPlain(Shadow, HKEY("<a href=\""), 0);
+			StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
+			StrBufAppendBufPlain(Shadow, HKEY("\">"), 0);
+			StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
+			StrBufAppendBufPlain(Shadow, HKEY("</a>"), 0);
+		}
+		pch = pCUrl->Key + pCUrl->len + 1;
 
-		FreeStrBuf(&ShorterUrlStr);
-		FreeStrBuf(&Shadow);
-		DeleteHashPos(&Pos);
 	}
+	if (pch < pche)
+		StrBufAppendBufPlain(Shadow, pch, pche - pch, 0);
+	FlushStrBuf(Message);
+	StrBufAppendBuf(Message, Shadow, 0);
+
+	FreeStrBuf(&ShorterUrlStr);
+	FreeStrBuf(&Shadow);
+	DeleteHashPos(&Pos);
+	
 
 	DeleteHash(&pUrls);
 }

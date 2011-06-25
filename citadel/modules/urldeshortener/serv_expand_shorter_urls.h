@@ -1,1 +1,3 @@
-void ExpandShortUrls(StrBuf *Message, Callback)
+void ExpandShortUrls(StrBuf *Message, Callback);
+
+HashList GetShorterUrls(StrBuf Message);
