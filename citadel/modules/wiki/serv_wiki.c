@@ -239,6 +239,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	 */
 	if (history_msg->cm_fields['I'] != NULL) {
 		free(history_msg->cm_fields['I']);
+		history_msg->cm_fields['I'] = NULL;
 	}
 
 	/* Figure out the boundary string.  We do this even when we generated the

@@ -81,39 +81,6 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 }
 
 
-#ifdef ___NOT_CURRENTLY_IN_USE___
-void spamstrings_setTo(struct CtdlMessage *msg) {
-	char buf[SIZ];
-	char *conf;
-	struct spamstrings_t *sptr;
-	int i, n;
-
-	/* Clear out the existing list */
-	while (spamstrings != NULL) {
-		sptr = spamstrings;
-		spamstrings = spamstrings->next;
-		free(sptr->string);
-		free(sptr);
-	}
-
-	/* Read in the new list */
-	if (msg->cm_fields['M']==NULL) return;
-	conf = strdup(msg->cm_fields['M']);
-	if (conf == NULL) return;
-
-	n = num_tokens(conf, '\n');
-	for (i=0; i<n; ++i) {
-		extract_token(buf, conf, i, '\n', sizeof buf);
-		sptr = malloc(sizeof(struct spamstrings_t));
-		sptr->string = strdup(buf);
-		sptr->next = spamstrings;
-		spamstrings = sptr;
-	}
-
-}
-#endif
-
-
 /*
  * This handler detects changes being made to the system's Internet
  * configuration.
@@ -158,19 +125,6 @@ void inetcfg_init_backend(long msgnum, void *userdata) {
                	CtdlFreeMessage(msg);
 	}
 }
-
-
-#ifdef ___NOT_CURRENTLY_IN_USE___
-void spamstrings_init_backend(long msgnum, void *userdata) {
-	struct CtdlMessage *msg;
-
-       	msg = CtdlFetchMessage(msgnum, 1);
-       	if (msg != NULL) {
-		spamstrings_setTo(msg);
-               	CtdlFreeMessage(msg);
-	}
-}
-#endif
 
 
 void inetcfg_init(void) {
