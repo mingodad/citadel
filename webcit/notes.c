@@ -28,7 +28,6 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 	StrBuf *Buf;
 	StrBuf *Data = NULL;
 	const char *bptr;
-	int Done = 0;
 	char uid_from_headers[256];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -43,6 +42,7 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 	struct vnote *vnote_from_body = NULL;
 	int vnote_inline = 0;			/* 1 = MSG4 gave us a text/x-vnote top level */
 
+	uid_from_headers[0] = '\0';
 	relevant_partnum[0] = '\0';
 	serv_printf("MSG4 %ld", msgnum);	/* we need the mime headers */
 	Buf = NewStrBuf();
@@ -51,10 +51,9 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 		FreeStrBuf (&Buf);
 		return NULL;
 	}
-	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
+	while ((StrBuf_ServGetln(Buf)>=0)) {
 		if ( (StrLength(Buf)==3) && 
 		     !strcmp(ChrPtr(Buf), "000")) {
-			Done = 1;
 			break;
 		}
 		bptr = ChrPtr(Buf);

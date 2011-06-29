@@ -270,13 +270,12 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 	if (GetServerStatus(Buf, NULL) == 1) {
 		Hash = NewHash(1, NULL);
 
-		while (!Done) {
+		while (1) {
 			len = StrBuf_ServGetln(Buf);
-			if ((len <0) || 
+			if ((len < 0) || 
 			    ((len == 3) &&
 			     !strcmp(ChrPtr(Buf), "000")))
 			{
-				Done = 1;
 				break;
 			}
 			ul = NewUserListEntry(Buf);
@@ -419,7 +418,6 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg, wc_mime_attachment 
 	void *vMsg;
 	message_summary *Msg;
 	wc_mime_attachment *Att;
-	int Done;
 	StrBuf *Buf;
 	long vcard_msgnum = (-1L);
 	int already_tried_creating_one = 0;
@@ -434,7 +432,6 @@ TRYAGAIN:
 	Stat.maxload = 10000;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	Done = 0;
 	/* Search for the user's vCard */
 	if (load_msg_ptrs("MSGS ALL||||1", &Stat, NULL) > 0) {
 		at = GetNewHashPos(WCC->summ, 0);

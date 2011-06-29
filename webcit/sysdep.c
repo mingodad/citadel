@@ -386,8 +386,6 @@ void start_daemon(char *pid_file)
 			waitpid(current_child, &status, 0);
 		}
 
-		do_restart = 0;
-
 		/* Did the main process exit with an actual exit code? */
 		if (WIFEXITED(status)) {
 

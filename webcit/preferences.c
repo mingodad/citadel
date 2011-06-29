@@ -152,16 +152,14 @@ void GetPrefTypes(HashList *List)
 
 void ParsePref(HashList **List, StrBuf *ReadBuf)
 {
-	int Done = 0;
 	Preference *Data = NULL;
 	Preference *LastData = NULL;
 				
-	while (!Done) {
+	while (1) {
 		if (StrBuf_ServGetln(ReadBuf) < 0)
 			break;
 		if ( (StrLength(ReadBuf)==3) && 
 		     !strcmp(ChrPtr(ReadBuf), "000")) {
-			Done = 1;
 			break;
 		}
 
@@ -205,7 +203,6 @@ void load_preferences(void)
 {
 	folder Room;
 	wcsession *WCC = WC;
-	int Done = 0;
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
@@ -224,11 +221,9 @@ void load_preferences(void)
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (!Done &&
-	       (StrBuf_ServGetln(ReadBuf) >= 0)) {
+	while (StrBuf_ServGetln(ReadBuf) >= 0) {
 		if ( (StrLength(ReadBuf)==3) && 
 		     !strcmp(ChrPtr(ReadBuf), "000")) {
-			Done = 1;
 			break;
 		}
 		msgnum = StrTol(ReadBuf);
@@ -344,7 +339,6 @@ void save_preferences(void)
 {
 	folder Room;
 	wcsession *WCC = WC;
-	int Done = 0;
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
@@ -378,11 +372,9 @@ void save_preferences(void)
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (!Done &&
-	       (StrBuf_ServGetln(ReadBuf) >= 0)) {
+	while (StrBuf_ServGetln(ReadBuf) >= 0) {
 		if ( (StrLength(ReadBuf)==3) && 
 		     !strcmp(ChrPtr(ReadBuf), "000")) {
-			Done = 1;
 			break;
 		}
 		msgnum = StrTol(ReadBuf);
@@ -865,7 +857,7 @@ void tmplput_CFG_Value(StrBuf *Target, WCTemplputParams *TP)
 		if (Pref->Type == NULL) {
 			StrBufAppendTemplate(Target, TP, Pref->Val, 1);
 		}
-		switch (Pref->Type->eType)
+		else switch (Pref->Type->eType)
 		{
 		case PRF_UNSET: /* default to string... */
 		case PRF_STRING:

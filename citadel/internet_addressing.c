@@ -389,9 +389,10 @@ void unfold_rfc822_field(char **field, char **FieldEnd)
 	     pField++, sField++)
 	{
 		if ((*sField=='\r') || (*sField=='\n')) {
-			while (isspace(*sField))
-				sField++;
-			*pField = *sField;
+		    sField++;
+		    if  (*sField == '\n')
+			sField++;
+		    *pField = *sField;
 		}
 		else {
 			if (*sField=='\"') quote = 1 - quote;

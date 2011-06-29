@@ -436,7 +436,6 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 		StrBufExtract_token(HeaderName, Line, 0, ':');
 
 		pchs = ChrPtr(Line);
-		pche = pchs + StrLength(Line);
 		pch = pchs + StrLength(HeaderName) + 1;
 		pche = pchs + StrLength(Line);
 		while ((pch < pche) && isspace(*pch))
@@ -521,6 +520,9 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		Bogus = CreateSession(0, 1, NULL, Hdr, NULL);
 
 		do_404();
+
+		/* How long did this transaction take? */
+		gettimeofday(&tx_finish, NULL);
 
 		lprintf(9, "HTTP: 404 [%ld.%06ld] %s %s \n",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,

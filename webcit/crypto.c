@@ -60,7 +60,7 @@ void shutdown_ssl(void)
  */
 void init_ssl(void)
 {
-	SSL_METHOD *ssl_method;
+	const SSL_METHOD *ssl_method;
 	RSA *rsa=NULL;
 	X509_REQ *req = NULL;
 	X509 *cer = NULL;

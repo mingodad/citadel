@@ -518,7 +518,7 @@ void text_to_server_qp(char *ptr)
 				output_len += 2;
 			}
 			buf[output_len++] = '=';
-			buf[output_len++] = 0;
+			buf[output_len] = '\0';
 			serv_puts((char *)buf);
 			output_len = 0;
 		}
@@ -530,9 +530,8 @@ void text_to_server_qp(char *ptr)
 			sprintf((char *)&buf[output_len-1], "=%02X", buf[output_len-1]);
 			output_len += 2;
 		}
-		buf[output_len++] = 0;
+		buf[output_len] = '\0';
 		serv_puts((char *)buf);
-		output_len = 0;
 	}
 }
 

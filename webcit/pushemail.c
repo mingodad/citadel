@@ -7,7 +7,6 @@
 void display_pushemail(void) 
 {
 	folder Room;
-	int Done = 0;
 	StrBuf *Buf;
 	long vector[8] = {8, 0, 0, 1, 2, 3, 4, 5};
 	WCTemplputParams SubTP;
@@ -28,11 +27,9 @@ void display_pushemail(void)
 		if (GetServerStatus(Buf, NULL) == 8) {
 			serv_puts("subj|__ Push email settings __");
 			serv_puts("000");
-			while (!Done &&
-			       StrBuf_ServGetln(Buf) >= 0) {
+			while (StrBuf_ServGetln(Buf) >= 0) {
 				if ( (StrLength(Buf)==3) && 
 				     !strcmp(ChrPtr(Buf), "000")) {
-					Done = 1;
 					break;
 				}
 				msgnum = StrTol(Buf);
@@ -43,25 +40,19 @@ void display_pushemail(void)
 		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) == 1) {
 			int i =0;
-			Done = 0;
-			while (!Done &&
-			       StrBuf_ServGetln(Buf) >= 0) {
+			while (StrBuf_ServGetln(Buf) >= 0) {
 				if (( (StrLength(Buf)==3) && 
 				      !strcmp(ChrPtr(Buf), "000"))||
 				    ((StrLength(Buf)==4) && 
 				     !strcmp(ChrPtr(Buf), "text")))
 				{
-					Done = 1;
 					break;
 				}
 			}
 			if (!strcmp(ChrPtr(Buf), "text")) {
-				Done = 0;
-				while (!Done &&
-				       StrBuf_ServGetln(Buf) >= 0) {
+				while (StrBuf_ServGetln(Buf) >= 0) {
 					if ( (StrLength(Buf)==3) && 
 					     !strcmp(ChrPtr(Buf), "000")) {
-						Done = 1;
 						break;
 					}
 					if (strncasecmp(ChrPtr(Buf), "none", 4) == 0) {
@@ -96,7 +87,6 @@ void display_pushemail(void)
 void save_pushemail(void) 
 {
 	folder Room;
-	int Done = 0;
 	StrBuf *Buf;
 	char buf[SIZ];
 	int msgnum = 0;
@@ -125,11 +115,9 @@ void save_pushemail(void)
 		return;
 	}
 
-	while (!Done &&
-	       StrBuf_ServGetln(Buf) >= 0) {
+	while (StrBuf_ServGetln(Buf) >= 0) {
 		if ( (StrLength(Buf)==3) && 
 		     !strcmp(ChrPtr(Buf), "000")) {
-			Done = 1;
 			break;
 		}
 		msgnum = StrTol(Buf);

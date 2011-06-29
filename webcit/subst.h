@@ -26,7 +26,6 @@ extern HashList *LocalTemplateCache;
 enum {
 	WCS_STRING,       /* its a string */
 	WCS_FUNCTION,     /* its a function callback */
-	WCS_SERVCMD,      /* its a command to send to the citadel server */
 	WCS_STRBUF,       /* its a strbuf we own */
 	WCS_STRBUF_REF,   /* its a strbuf we mustn't free */
 	WCS_LONG          /* its an integer */

@@ -181,11 +181,8 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	icalcomponent *vtodo;
 	icalproperty *p;
 	struct icaltimetype IcalTime;
-	time_t now;
 	int created_new_vtodo = 0;
 	icalproperty_status todoStatus;
-
-	now = time(NULL);
 
 	if (supplied_vtodo != NULL) {
 		vtodo = supplied_vtodo;

@@ -46,7 +46,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	char buf[SIZ];
 	int organizer_is_me = 0;
 	int i, j = 0;
+#ifdef DEBUG_UID_CALENDAR
 	int sequence = 0;
+#endif
 	char weekday_labels[7][32];
 	char month_labels[12][32];
 	long weekstart = 0;
@@ -159,9 +161,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	/* Learn the sequence */
 	p = icalcomponent_get_first_property(vevent, ICAL_SEQUENCE_PROPERTY);
+#ifdef DEBUG_UID_CALENDAR
 	if (p != NULL) {
 		sequence = icalproperty_get_sequence(p);
 	}
+#endif
 
 	/* Begin output */
 	output_headers(1, 1, 2, 0, 0, 0);
@@ -175,8 +179,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wc_printf("<div class=\"fix_scrollbar_bug\">");
 
+#ifdef DEBUG_UID_CALENDAR
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
+	*************************************************************/
 	wc_printf("UID == ");
 	p = icalcomponent_get_first_property(vevent, ICAL_UID_PROPERTY);
 	if (p != NULL) {
@@ -184,7 +190,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	wc_printf("<br />\n");
 	wc_printf("SEQUENCE == %d<br />\n", sequence);
-	*************************************************************/
+#endif
 
 	wc_printf("<form name=\"EventForm\" method=\"POST\" action=\"save_event\">\n");
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
@@ -979,7 +985,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 						if (YESBSTR(buf)) recur.by_day[j++] =
 							icalrecurrencetype_day_day_of_week(i+1);
 					}
-					recur.by_day[j++] = ICAL_RECURRENCE_ARRAY_MAX;
+					recur.by_day[j] = ICAL_RECURRENCE_ARRAY_MAX;
 					break;
 
 				case ICAL_MONTHLY_RECURRENCE:
