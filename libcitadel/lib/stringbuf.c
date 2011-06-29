@@ -2282,20 +2282,20 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 			if (((unsigned char)*aptr) >= 0x20)
 			{
 				IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
-				
+
 				*bptr = *aptr;
 				Target->BufUsed ++;
-				while (IsUtf8Sequence > 1){
-					if(bptr + IsUtf8Sequence >= eptr) {
-						IncreaseBuf(Target, 1, -1);
-						eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
-						bptr = Target->buf + Target->BufUsed - 1;
-					}
+				if (IsUtf8Sequence > 1) while (IsUtf8Sequence > 0){
+						if(bptr + IsUtf8Sequence >= eptr) {
+							IncreaseBuf(Target, 1, -1);
+							eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
+							bptr = Target->buf + Target->BufUsed - 1;
+						}
 					bptr++; aptr++;
-					IsUtf8Sequence --;
-					*bptr = *aptr;
-					Target->BufUsed ++;
-				}
+						IsUtf8Sequence --;
+						*bptr = *aptr;
+						Target->BufUsed ++;
+					}
 				bptr++;
 			}
 
