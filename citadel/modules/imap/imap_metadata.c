@@ -206,11 +206,13 @@ void imap_getmetadata(int num_parms, ConstStr *Params) {
 	int ret;
 	int found = 0;
 
+/* this doesn't work if you have rooms/floors with spaces. 
+   we need this for the bynari connector.
 	if (num_parms > 5) {
 		IReply("BAD usage error");
 		return;
 	}
-
+*/
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
 		IReply("NO Invalid mailbox name or access denied");
