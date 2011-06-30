@@ -31,6 +31,9 @@
 int fromstdin = 0;
 int parse_email = 0;
 int parse_html = 0;
+int OutputEscape = 0;
+int OutputEscapeAs = 0;
+
 static void TestRevalidateStrBuf(StrBuf *Buf)
 {
 	CU_ASSERT(strlen(ChrPtr(Buf)) == StrLength(Buf));
@@ -134,6 +137,127 @@ static void TestRFC822DecodeStdin(void)
 	FreeStrBuf(&Source);
 	FreeStrBuf(&FoundCharset);
 	FreeStrBuf(&DefaultCharset);
+}
+
+
+static void TestHTMLEscEncodeStdin(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Target;
+	StrBuf *Source;
+
+	Source = NewStrBuf();
+
+	while (fdin == 0) {
+
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		Target = NewStrBuf();
+		
+		StrEscAppend(Target, Source, NULL, 0, 2);
+		
+		TestRevalidateStrBuf(Target);
+		printf("%s\n", ChrPtr(Target));
+		FreeStrBuf(&Target);
+	}
+	FreeStrBuf(&Source);
+}
+
+static void TestEscEncodeStdin(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Target;
+	StrBuf *Source;
+
+	Source = NewStrBuf();
+
+	while (fdin == 0) {
+
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		Target = NewStrBuf();
+		
+		StrEscAppend(Target, Source, NULL, 0, 0);
+		
+		TestRevalidateStrBuf(Target);
+		printf("%s\n", ChrPtr(Target));
+		FreeStrBuf(&Target);
+	}
+	FreeStrBuf(&Source);
+}
+
+
+static void TestECMAEscEncodeStdin(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Target;
+	StrBuf *Source;
+
+	Source = NewStrBuf();
+
+	printf("[");
+	while (fdin == 0) {
+
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		Target = NewStrBuf();
+		
+		StrECMAEscAppend(Target, Source, NULL);
+		
+		TestRevalidateStrBuf(Target);
+		printf("\"%s\",\n", ChrPtr(Target));
+		FreeStrBuf(&Target);
+	}
+	printf("]\n");
+	FreeStrBuf(&Source);
+}
+
+static void TestHtmlEcmaEscEncodeStdin(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Target;
+	StrBuf *Source;
+
+	Source = NewStrBuf();
+
+	printf("[");
+	while (fdin == 0) {
+
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		Target = NewStrBuf();
+		
+		StrHtmlEcmaEscAppend(Target, Source, NULL, 0, 2);
+		
+		TestRevalidateStrBuf(Target);
+		printf("\"%s\",\n", ChrPtr(Target));
+		FreeStrBuf(&Target);
+	}
+	printf("]");
+	FreeStrBuf(&Source);
+}
+
+static void TestUrlescEncodeStdin(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Target;
+	StrBuf *Source;
+
+	Source = NewStrBuf();
+
+	while (fdin == 0) {
+
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		Target = NewStrBuf();
+		
+		StrBufUrlescAppend(Target, Source, NULL);
+		
+		TestRevalidateStrBuf(Target);
+		printf("%s\n", ChrPtr(Target));
+		FreeStrBuf(&Target);
+	}
+	FreeStrBuf(&Source);
 }
 
 
@@ -251,7 +375,31 @@ static void AddStrBufSimlpeTests(void)
 			pTest = CU_add_test(pGroup, "testRFC822Decode3", TestRFC822Decode);
 		}
 		else
-			pTest = CU_add_test(pGroup, "testRFC822DecodeSTDIN", TestRFC822DecodeStdin);
+		{
+			if (!OutputEscape)
+				pTest = CU_add_test(pGroup, "testRFC822DecodeSTDIN", TestRFC822DecodeStdin);
+			else switch(OutputEscapeAs)
+			     {
+			     case 'H':
+				     pTest = CU_add_test(pGroup, "TestHTMLEscEncodeStdin", TestHTMLEscEncodeStdin);
+				     break;
+			     case 'X':
+				     pTest = CU_add_test(pGroup, "TestEscEncodeStdin", TestEscEncodeStdin);
+				     break;
+			     case 'J':
+				     pTest = CU_add_test(pGroup, "TestECMAEscEncodeStdin", TestECMAEscEncodeStdin);
+				     break;
+			     case 'K':
+				     pTest = CU_add_test(pGroup, "TestHtmlEcmaEscEncodeStdin", TestHtmlEcmaEscEncodeStdin);
+				     break;
+			     case 'U':
+				     pTest = CU_add_test(pGroup, "TestUrlescEncodeStdin", TestUrlescEncodeStdin);
+				     break;
+			     default:
+				     printf("%c not supported!\n", OutputEscapeAs);
+				     CU_ASSERT(1);
+			     }
+		}
 	}
 
 }
@@ -261,8 +409,15 @@ int main(int argc, char* argv[])
 {
 	int a;
 
-	while ((a = getopt(argc, argv, "@ih")) != EOF)
+	while ((a = getopt(argc, argv, "@iho:")) != EOF)
 		switch (a) {
+		case 'o':
+			if (optarg)
+			{
+				OutputEscape = 1;
+				OutputEscapeAs = *optarg;
+			}
+			break;
 		case 'h':
 			parse_html = 1;
 			break;
