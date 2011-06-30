@@ -1,5 +1,5 @@
 /*
- * Copyright 2005 - 2010 The Citadel Team
+ * Copyright 2005 - 2011 The Citadel Team
  * Licensed under the GPL V3
  */
 
@@ -544,7 +544,7 @@ body {
 }
 
 /* Override to disable list-style-image" */
-.room a, .room a, .room a:visited, .room a:link { color: #333333 }
+.room a, .room a, .room a:visited, .room a:link { color: #f0feff }
 
 .room-private { list-style-image: url("/static/privatemess_16x.gif") }
 
