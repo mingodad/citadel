@@ -1003,7 +1003,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 						     &NewToken->Params[NewToken->nParameters - 1]))
 				{
 					NewToken->HaveParameters = 1;
-					if (NewToken->nParameters > MAXPARAM) {
+					if (NewToken->nParameters >= MAXPARAM) {
 						LogTemplateError(
 							NULL, "Parseerror", ERR_NAME, &TP,
 							"only [%d] Params allowed in Tokens",
