@@ -132,7 +132,7 @@ void chat_rwho(void) {
 			else {
 				wc_printf("<span class=\"chat_notmyname_class\">");
 			}
-			wc_printf("<img src=\"static/citadelchat_16x.gif\">");
+			wc_printf("<img src=\"static/icons/essen/16x16/chat.png\">");
 			escputs(buf);
 			wc_printf("</span><br>\n");
 		}

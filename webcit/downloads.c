@@ -246,7 +246,7 @@ void display_mime_icon(void)
 	FileName = GetIconFilename(MimeType, tlen);
 
 	if (FileName == NULL)
-		snprintf (FileBuf, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");
+		snprintf (FileBuf, SIZ, "%s%s", static_dirs[0], "/icons/essen/16x16/file.png");
 	else
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[3], FileName);
 	output_static(FileBuf);
@@ -410,7 +410,7 @@ void output_image(void)
 	 * Instead of an ugly 404, send a 1x1 transparent GIF
 	 * when there's no such image on the server.
 	 */
-	StrBufPrintf (Buf, "%s%s", static_dirs[0], "/blank.gif");
+	StrBufPrintf (Buf, "%s%s", static_dirs[0], "/icons/blank.gif");
 	output_static(ChrPtr(Buf));
 	FreeStrBuf(&Buf);
 }

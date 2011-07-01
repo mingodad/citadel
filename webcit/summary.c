@@ -286,7 +286,7 @@ void summary(void) {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\" class=\"banner\">\n");
 	wc_printf("<table border=0><tr>");
-        wc_printf("<td><img src=\"static/summscreen_48x.gif\"></td>");
+        wc_printf("<td><img src=\"static/icons/essen/32x32/summary.png\"></td>");
         wc_printf("<td><h1>");
         snprintf(title, sizeof title, _("Summary page for %s"),
 		( (WC->logged_in) ?  ChrPtr(WC->wc_fullname) : ChrPtr(WC->serv_info->serv_humannode))
