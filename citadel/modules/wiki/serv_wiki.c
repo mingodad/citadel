@@ -83,6 +83,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	struct CtdlMessage *history_msg = NULL;
 	char diff_old_filename[PATH_MAX];
 	char diff_new_filename[PATH_MAX];
+	char diff_out_filename[PATH_MAX];
 	char diff_cmd[PATH_MAX];
 	FILE *fp;
 	int rv;
@@ -90,7 +91,6 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	char boundary[256];
 	char prefixed_boundary[258];
 	char buf[1024];
-	int nbytes = 0;
 	char *diffbuf = NULL;
 	size_t diffbuf_len = 0;
 	char *ptr = NULL;
@@ -154,6 +154,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	 */
 	CtdlMakeTempFileName(diff_old_filename, sizeof diff_old_filename);
 	CtdlMakeTempFileName(diff_new_filename, sizeof diff_new_filename);
+	CtdlMakeTempFileName(diff_out_filename, sizeof diff_out_filename);
 
 	if (old_msg != NULL) {
 		fp = fopen(diff_old_filename, "w");
@@ -166,29 +167,37 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	rv = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
 	fclose(fp);
 
+	snprintf(diff_cmd, sizeof diff_cmd,
+		"diff -u %s %s >%s",
+		diff_new_filename,
+		((old_msg != NULL) ? diff_old_filename : "/dev/null"),
+		diff_out_filename
+	);
+	syslog(LOG_DEBUG, "diff cmd: %s", diff_cmd);
+	rv = system(diff_cmd);
+	syslog(LOG_DEBUG, "diff cmd returned %d", rv);
+
 	diffbuf_len = 0;
 	diffbuf = NULL;
-	snprintf(diff_cmd, sizeof diff_cmd,
-		"diff -u %s %s",
-		diff_new_filename,
-		((old_msg != NULL) ? diff_old_filename : "/dev/null")
-	);
-	fp = popen(diff_cmd, "r");
-	if (fp != NULL) {
-		do {
-			diffbuf = realloc(diffbuf, diffbuf_len + 1025);
-			nbytes = fread(&diffbuf[diffbuf_len], 1, 1024, fp);
-			diffbuf_len += nbytes;
-		} while (nbytes == 1024);
-		diffbuf[diffbuf_len] = 0;
-		if (pclose(fp) != 0) {
-			syslog(LOG_ERR, "pclose() returned an error - diff failed\n");
-		}
+	fp = fopen(diff_out_filename, "r");
+	if (fp == NULL) {
+		fp = fopen("/dev/null", "r");
 	}
-	syslog(LOG_DEBUG, "diff length is %d bytes\n", diffbuf_len);
+	if (fp != NULL) {
+		fseek(fp, 0L, SEEK_END);
+		diffbuf_len = ftell(fp);
+		fseek(fp, 0L, SEEK_SET);
+		diffbuf = malloc(diffbuf_len + 1);
+		fread(diffbuf, diffbuf_len, 1, fp);
+		diffbuf[diffbuf_len] = 0;
+		fclose(fp);
+	}
+
+	syslog(LOG_DEBUG, "diff length is %d bytes", diffbuf_len);
 
 	unlink(diff_old_filename);
 	unlink(diff_new_filename);
+	unlink(diff_out_filename);
 
 	/* Determine whether this was a bogus (empty) edit */
 	if ((diffbuf_len = 0) && (diffbuf != NULL)) {
@@ -272,6 +281,10 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		}
 	} while ( (IsEmptyStr(boundary)) && (*ptr != 0) );
 
+
+	/****************** STACK SMASH IS SOMEWHERE BELOW THIS LINE **************/
+
+
 	/* Now look for the first boundary.  That is where we need to insert our fun.
 	 */
 	if (!IsEmptyStr(boundary)) {
@@ -311,6 +324,9 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		}
 
 		history_msg->cm_fields['T'] = realloc(history_msg->cm_fields['T'], 32);
+		if (history_msg->cm_fields['T'] == NULL) {
+			syslog(LOG_EMERG, "*** REALLOC FAILED *** %s", strerror(errno));
+		}
 		snprintf(history_msg->cm_fields['T'], 32, "%ld", time(NULL));
 	
 		CtdlSubmitMsg(history_msg, NULL, "", 0);
@@ -318,6 +334,10 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	else {
 		syslog(LOG_ALERT, "Empty boundary string in history message.  No history!\n");
 	}
+
+
+	/****************** STACK SMASH IS SOMEWHERE BELOW THIS LINE **************/
+
 
 	free(diffbuf);
 	free(history_msg);
