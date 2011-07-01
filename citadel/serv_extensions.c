@@ -978,13 +978,9 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 
 	/* Otherwise, run all the hooks appropriate to this event type.
 	 */
-	int num_hooks_processed = 0;
 	for (fcn = MessageHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
 			total_retval = total_retval + (*fcn->h_function_pointer) (msg);
-			syslog(LOG_DEBUG, "%d hooks completed, total_retval=%d",
-				++num_hooks_processed, total_retval
-			);
 		}
 	}
 

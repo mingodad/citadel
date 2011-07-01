@@ -281,11 +281,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		}
 	} while ( (IsEmptyStr(boundary)) && (*ptr != 0) );
 
-
-	/****************** STACK SMASH IS SOMEWHERE BELOW THIS LINE **************/
-
-
-	/* Now look for the first boundary.  That is where we need to insert our fun.
+	/*
+	 * Now look for the first boundary.  That is where we need to insert our fun.
 	 */
 	if (!IsEmptyStr(boundary)) {
 		snprintf(prefixed_boundary, sizeof prefixed_boundary, "--%s", boundary);
@@ -295,16 +292,15 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		ptr = bmstrcasestr(history_msg->cm_fields['M'], prefixed_boundary);
 		if (ptr != NULL) {
 			char *the_rest_of_it = strdup(ptr);
-			char uuid[32];
+			char uuid[64];
 			char memo[512];
-			char encoded_memo[768];
+			char encoded_memo[1024];
 			generate_uuid(uuid);
 			snprintf(memo, sizeof memo, "%s|%ld|%s|%s", 
 				uuid,
 				time(NULL),
 				CCC->user.fullname,
 				config.c_nodename
-				/* no longer logging CCC->cs_inet_email */
 			);
 			CtdlEncodeBase64(encoded_memo, memo, strlen(memo), 0);
 			sprintf(ptr, "--%s\n"
@@ -324,20 +320,15 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		}
 
 		history_msg->cm_fields['T'] = realloc(history_msg->cm_fields['T'], 32);
-		if (history_msg->cm_fields['T'] == NULL) {
-			syslog(LOG_EMERG, "*** REALLOC FAILED *** %s", strerror(errno));
+		if (history_msg->cm_fields['T'] != NULL) {
+			snprintf(history_msg->cm_fields['T'], 32, "%ld", time(NULL));
 		}
-		snprintf(history_msg->cm_fields['T'], 32, "%ld", time(NULL));
 	
 		CtdlSubmitMsg(history_msg, NULL, "", 0);
 	}
 	else {
 		syslog(LOG_ALERT, "Empty boundary string in history message.  No history!\n");
 	}
-
-
-	/****************** STACK SMASH IS SOMEWHERE BELOW THIS LINE **************/
-
 
 	free(diffbuf);
 	free(history_msg);
