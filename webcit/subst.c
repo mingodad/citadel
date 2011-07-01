@@ -2433,9 +2433,9 @@ enum {
 };
 
 ConstStr SortIcons[] = {
-	{HKEY("static/sort_none.gif")},
-	{HKEY("static/up_pointer.gif")},
-	{HKEY("static/down_pointer.gif")},
+	{HKEY("static/icons/sort_none.gif")},
+	{HKEY("static/icons/up_pointer.gif")},
+	{HKEY("static/icons/down_pointer.gif")},
 };
 
 ConstStr SortNextOrder[] = {

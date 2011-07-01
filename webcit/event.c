@@ -445,7 +445,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wc_printf(
 		"&nbsp;<a href=\"javascript:PopOpenAddressBook('attendees_box|%s');\" "
 		"title=\"%s\">"
-		"<img alt='' align='middle' border='0' width='24' height='24' src=\"static/viewcontacts_24x.gif\">"
+		"<img alt='' align='middle' border='0' width='16' height='16' src=\"static/icons/essen/16x16/contact.png\">"
 		"</a>",
 		_("Attendees"),
 		_("Contacts")
