@@ -1,22 +1,25 @@
 <?=("head")>
 <?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <div id="banner">
-  <img src="static/usermanag_48x.gif">
-  <h1><??("COND:AIDE", 1)><?_("Edit or delete users")><??("X", 1)></h1>
+	<img src="static/icons/essen/32x32/account.png">
+	<h1><??("COND:AIDE", 1)><?_("Edit or delete users")><??("X", 1)></h1>
 </div>
 
 <div id="content" class="service"> 
-<?!("COND:AIDE", 1)><?_("You need to be aide to view this.")><?!("X", 1)>
-<??("COND:AIDE", 2)>
+	<?!("COND:AIDE", 1)><?_("You need to be aide to view this.")><?!("X", 1)>
+	<??("COND:AIDE", 2)>
  
-<!--- TODO if (message != NULL) message); -->
+	<!--- TODO if (message != NULL) message); -->
 
-<table border=0 cellspacing=10>
-<tr valign=top><td>
-  <?DOBOXED(="aide_edituser_add", _("Add users"))>
-</td><td>
- <?DOBOXED(="aide_edituser_box_select", _("Edit or Delete users"))>
-</td></tr>
-</table>
-<??("X", 2)>
+		<table border=0 cellspacing=10>
+			<tr valign=top>
+				<td>
+					<?DOBOXED(="aide_edituser_add", _("Add users"))>
+				</td>
+				<td>
+	 				<?DOBOXED(="aide_edituser_box_select", _("Edit or Delete users"))>
+				</td>
+			</tr>
+		</table>
+	<??("X", 2)>
 <?=("trailing")>

@@ -1,97 +1,96 @@
 <?=("head")>
 <?=("important_msg")>
 <div id="banner">
-<h1>
-<?_("Customize the icon bar")>
-</h1></div>
+	<h1><?_("Customize the icon bar")></h1>
+</div>
 <div id="content" class="service">
-<form method="post" action="commit_iconbar">
-<input type="hidden" name="nonce" value="<?NONCE>">
-<table class="altern" >
-<tr><td></td><td colspan="2"><b><?_("Display icons as:")></b>
-
-<input type="radio" name="ib_displayas" value="0" <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_displayas", "CHECKED", "")>><?_("pictures and text")></input>
-<input type="radio" name="ib_displayas" value="1" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_displayas", "CHECKED", "")>><?_("pictures only")></input>
-<input type="radio" name="ib_displayas" value="2" <?%("COND:ICONBAR:ACTIVE", 1, 2, #"ib_displayas", "CHECKED", "")>><?_("text only")></input>
-<br>
-<?_("Select the icons you would like to see displayed in the 'icon bar' menu on the left side of the screen.")>
-</td></tr>
-
-<tr class="even"><td>
-<input type="radio" name="ib_logo" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_logo", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_logo" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_logo", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="image?name=hello" width="48" alt="&nbsp;">
-</td><td><b><?_("Site logo")></b><br><?_("An icon describing this site")></td></tr>
-
-<tr class="odd"><td>
-<input type="radio" name="ib_summary" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_summary", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_summary" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_summary", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/summscreen_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Summary")></b><br><?_("Your summary page")></td></tr>
-
-<tr class="even"><td>
-<input type="radio" name="ib_inbox" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_inbox", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_inbox" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_inbox", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/privatemess_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Mail (inbox)")></b><br><?_("A shortcut to your email Inbox")></td></tr>
-
-<tr class="odd"><td>
-<input type="radio" name="ib_contacts" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_contacts", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_contacts" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_contacts", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/viewcontacts_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Contacts")></b><br><?_("Your personal address book")></td></tr>
-
-<tr class="even"><td>
-<input type="radio" name="ib_notes" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_notes", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_notes" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_notes", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/storenotes_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Notes")></b><br><?_("Your personal notes")></td></tr>
-
-<tr class="odd"><td>
-<input type="radio" name="ib_calendar" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_calendar", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_calendar" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_calendar", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/calarea_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Calendar")></b><br><?_("A shortcut to your personal calendar")></td></tr>
-
-<tr class="even"><td>
-<input type="radio" name="ib_tasks" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_tasks", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_tasks" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_tasks", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/taskmanag_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Tasks")></b><br><?_("A shortcut to your personal task list")></td></tr>
-
-<tr class="odd"><td>
-<input type="radio" name="ib_rooms" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_rooms", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_rooms" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_rooms", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/chatrooms_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Rooms")></b><br><?_("Clicking this icon displays a list of all accessible rooms (or folders) available.")></td></tr>
-
-<tr class="even"><td>
-<input type="radio" name="ib_users" value="yes"     <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_users", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_users" value="no"      <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_users", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/usermanag_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Who is online?")></b><br><?_("Clicking this icon displays a list of all users currently logged in.")></td></tr>
-
-<tr class="odd"><td>
-<input type="radio" name="ib_chat" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_chat", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_chat" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_chat", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/citadelchat_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Chat")></b><br><?_("Clicking this icon enters real-time chat mode with other users in the same room.")></td></tr>
-
-<tr class="even"><td>
-<input type="radio" name="ib_advanced" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_advanced", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_advanced" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_advanced", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img src="static/advanpage2_48x.gif" alt="&nbsp;">
-</td><td><b><?_("Advanced options")></b><br><?_("Access to the complete menu of Citadel functions.")></td></tr>
-
-<tr class="odd"><td>
-<input type="radio" name="ib_citadel" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_citadel", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
-<input type="radio" name="ib_citadel" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_citadel", "CHECKED", "")>> <?_("No")> <br>
-</td><td><img border="0" width="48" height="48" src="static/citadel-logo.gif" alt="&nbsp;">
-</td><td><b><?_("Citadel logo")></b><br><?_("Displays the 'Powered by Citadel' icon")></td></tr>
-
-</table><br>
-
-<center><input type="submit" name="ok_button" value="<?_("Save changes")>">&nbsp;<input type="submit" name="cancel_button" value="<?_("Cancel")>"></center>
-
+	<form method="post" action="commit_iconbar">
+	<input type="hidden" name="nonce" value="<?NONCE>">
+	<table class="altern" >
+		<tr><td></td><td colspan="2">
+			<b><?_("Display icons as:")></b>
+			<input type="radio" name="ib_displayas" value="0" <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_displayas", "CHECKED", "")>><?_("pictures and text")></input>
+			<input type="radio" name="ib_displayas" value="1" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_displayas", "CHECKED", "")>><?_("pictures only")></input>
+			<input type="radio" name="ib_displayas" value="2" <?%("COND:ICONBAR:ACTIVE", 1, 2, #"ib_displayas", "CHECKED", "")>><?_("text only")></input>
+			<br>
+			<?_("Select the icons you would like to see displayed in the 'icon bar' menu on the left side of the screen.")>
+		</td></tr>
+		<tr class="even"><td>
+			<input type="radio" name="ib_logo" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_logo", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_logo" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_logo", "CHECKED", "")>> <?_("No")> <br>
+			</td>
+			<td><img src="image?name=hello" width="120" alt="&nbsp;"></td>
+			<td><b><?_("Site logo")></b><br><?_("An icon describing this site")></td>
+		</tr>
+		<tr class="odd"><td>
+			<input type="radio" name="ib_summary" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_summary", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_summary" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_summary", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/summary.png" alt="&nbsp;"></td>
+			<td><b><?_("Summary")></b><br><?_("Your summary page")></td>
+		</tr>
+		<tr class="even"><td>
+			<input type="radio" name="ib_inbox" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_inbox", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_inbox" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_inbox", "CHECKED", "")>> <?_("No")> <br>
+			</td>
+			<td><img src="static/icons/essen/32x32/email.png" alt="&nbsp;"></td>
+			<td><b><?_("Mail (inbox)")></b><br><?_("A shortcut to your email Inbox")></td>
+		</tr>
+		<tr class="odd"><td>
+			<input type="radio" name="ib_contacts" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_contacts", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_contacts" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_contacts", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/contact.png" alt="&nbsp;">
+			</td><td><b><?_("Contacts")></b><br><?_("Your personal address book")></td>
+		</tr>
+		<tr class="even"><td>
+			<input type="radio" name="ib_notes" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_notes", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_notes" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_notes", "CHECKED", "")>> <?_("No")> <br>
+			</td>
+			<td><img src="static/icons/essen/32x32/note.png" alt="&nbsp;"></td>
+			<td><b><?_("Notes")></b><br><?_("Your personal notes")></td>
+		</tr>
+		<tr class="odd"><td>
+			<input type="radio" name="ib_calendar" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_calendar", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_calendar" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_calendar", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/calendar.png" alt="&nbsp;"></td>
+			<td><b><?_("Calendar")></b><br><?_("A shortcut to your personal calendar")></td>
+		</tr>
+		<tr class="even"><td>
+			<input type="radio" name="ib_tasks" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_tasks", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_tasks" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_tasks", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/task.png" alt="&nbsp;"></td>
+			<td><b><?_("Tasks")></b><br><?_("A shortcut to your personal task list")></td>
+		</tr>
+		<tr class="odd"><td>
+			<input type="radio" name="ib_rooms" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_rooms", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_rooms" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_rooms", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/room.png" alt="&nbsp;"></td>
+			<td><b><?_("Rooms")></b><br><?_("Clicking this icon displays a list of all accessible rooms (or folders) available.")></td>
+		</tr>
+		<tr class="even"><td>
+			<input type="radio" name="ib_users" value="yes"     <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_users", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_users" value="no"      <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_users", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/user.png" alt="&nbsp;"></td>
+			<td><b><?_("Who is online?")></b><br><?_("Clicking this icon displays a list of all users currently logged in.")></td>
+		</tr>
+		<tr class="odd"><td>
+			<input type="radio" name="ib_chat" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_chat", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_chat" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_chat", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/chat.png" alt="&nbsp;"></td>
+			<td><b><?_("Chat")></b><br><?_("Clicking this icon enters real-time chat mode with other users in the same room.")></td>
+		</tr>
+		<tr class="even"><td>
+			<input type="radio" name="ib_advanced" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_advanced", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_advanced" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_advanced", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img src="static/icons/essen/32x32/config.png" alt="&nbsp;"></td>
+			<td><b><?_("Advanced options")></b><br><?_("Access to the complete menu of Citadel functions.")></td>
+		</tr>
+		<tr class="odd"><td>
+			<input type="radio" name="ib_citadel" value="yes" <?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_citadel", "CHECKED", "")>> <?_("Yes")> &nbsp;&nbsp;&nbsp;
+			<input type="radio" name="ib_citadel" value="no"  <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_citadel", "CHECKED", "")>> <?_("No")> <br>
+			</td><td><img border="0" width="120" height="60" src="static/citadel-logo.gif" alt="&nbsp;"></td>
+			<td><b><?_("Citadel logo")></b><br><?_("Displays the 'Powered by Citadel' icon")></td>
+		</tr>
+	</table><br>
+	<center><input type="submit" name="ok_button" value="<?_("Save changes")>">&nbsp;<input type="submit" name="cancel_button" value="<?_("Cancel")>"></center>
 </form>
 <?=("trailing")>
