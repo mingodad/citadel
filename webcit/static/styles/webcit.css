@@ -30,7 +30,7 @@ html, body {
 
 .address_book_popup_title { font-size: 130% }
 
-#button, #content .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,li.search,li.view, .room_actions form select option, .selectbox, ul.adminitems li span, #message_list tr > td {
+#button, #content .button_link a, input#delbutton,.attachfile, .buttons input, .buttons a, .customize, .menubar_link, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,li.search,li.view, .room_actions form select option, .selectbox, ul.adminitems li span, #message_list tr > td {
 	font-size: 100%;
 }
 
@@ -389,11 +389,11 @@ input, select, .room_actions form select, .room_actions li.search input, .addres
 
 .buttons a:hover { background-color: #5c646b; }
  
-.button_link a, input#delbutton,.attachfile, .logbuttons input,.buttons input {
+.button_link a, input#delbutton,.attachfile, .buttons input {
 	background-color: #4d555c;
 }
  
-.button_link a, input#delbutton,.attachfile, .logbuttons input,.buttons input {
+.button_link a, input#delbutton,.attachfile, .buttons input {
 	border: 2px solid #5c646b;
 	color: #F0FEFF;
 }
@@ -571,7 +571,7 @@ body {
 	padding: 2px;
 }
 
-.button_link a, .attachfile, .logbuttons input,.buttons input .logbutton {
+.button_link a, .attachfile, .buttons input .logbutton {
 	margin: 3px;
 	padding: 2px 4px 2px 4px;
 }
@@ -798,7 +798,7 @@ table.advanced {
 
 /* Links and buttons */
 
-.logbuttons, .buttons, .registernow {
+.buttons {
 	margin: 2px auto 2px auto;
 	width: 96%;
 	text-align: center;
@@ -1323,10 +1323,6 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 .openid_urlarea {
         background: url('../icons/openid-small.gif') no-repeat scroll 0pt 50%;
         padding-left: 18px;
-}
-
-.registernow {
-	text-align: right;
 }
 
 .older_blog_posts, .newer_blog_posts {
