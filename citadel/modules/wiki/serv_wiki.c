@@ -583,6 +583,18 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			msg->cm_fields['A'] = strdup("Citadel");
 			CtdlCreateRoom(wwm, 5, "", 0, 1, 1, VIEW_BBS);	/* Not an error if already exists */
 			msgnum = CtdlSubmitMsg(msg, NULL, wwm, 0);	/* Store the revision here */
+
+			/*
+			 * WARNING: VILE SLEAZY HACK
+			 * This will avoid the 'message xxx is not in this room' security error,
+			 * but only if the client fetches the message we just generated immediately
+			 * without first trying to perform other fetch operations.
+			 */
+			if (CC->cached_msglist != NULL) free(CC->cached_msglist);
+			CC->cached_num_msgs = 1;
+			CC->cached_msglist = malloc(sizeof(long));
+			CC->cached_msglist[0] = msgnum;
+
 		}
 		else if (!strcasecmp(operation, "revert")) {
 			snprintf(timestamp, sizeof timestamp, "%ld", time(NULL));
