@@ -359,9 +359,9 @@ void RemoveContext (CitContext *con)
 
 	/* 
 	 * If the client is still connected, blow 'em away. 
-	 * if the socket is 0, its already gone or was never there.
+	 * if the socket is 0 or -1, its already gone or was never there.
 	 */
-	if (con->client_socket != 0)
+	if (con->client_socket > 0)
 	{
 		syslog(LOG_NOTICE, "Closing socket %d\n", con->client_socket);
 		close(con->client_socket);
