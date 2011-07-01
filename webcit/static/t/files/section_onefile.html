@@ -1,5 +1,5 @@
 <?!("COND:ITERATE:ISGROUPCHANGE", 1)><?!("COND:BSTR", 2, "SortOrder", "filename")>
-<tr class="<?ITERATE:ODDEVEN>"><th colspan = 4><?FILE:NAME("U", 1)></th></tr>
+	<tr class="<?ITERATE:ODDEVEN>"><th colspan = 4><?FILE:NAME("U", 1)></th></tr>
 <?!("X", 2)><?!("X", 1)>
 
 <tr class="<?ITERATE:ODDEVEN>">
@@ -11,7 +11,7 @@
 <td><?FILE:SIZE></td>
 <td><?FILE:MIMETYPE></td>
 <td><?FILE:COMMENT("X")></td>
-<??("COND:AIDE", 4)><td><a href="delete_file?file=<?FILE:NAME("U")>"><img src="static/delete.gif" alt="<?_("Delete File")>"></a></td><??("X", 4)>
+<??("COND:AIDE", 4)><td><a href="delete_file?file=<?FILE:NAME("U")>"><img src="static/icons/essen/16x16/delete.png" alt="<?_("Delete File")>"></a></td><??("X", 4)>
 </tr>
 
 <?!("COND:ITERATE:LASTN", 2)>

@@ -1,20 +1,25 @@
 <tr class="<?ITERATE:ODDEVEN>">
-<!-- link to page this user -->
-<td width="5%"><a href="display_page?recp=<?WHO:NAME("X")>">
-   <img align="middle" src="static/citadelchat_24x.gif" alt="(p)" border="0" /></a> 
-</td>
-<!-- idle flag -->
-<td width="5%">
-<?!("WHO:IDLE", 4)>  <img align="middle" src="static/inactiveuser_24x.gif" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)" border="0" />  <?!("X", 4)>
-<??("WHO:IDLE", 5)>  <img align="middle" src="static/activeuser_24x.gif" alt="(<?_("active")>)" border="0" />  <?!("X", 5)>
-</td>
-<td>
-<!--  username (link to user bio/photo page)  -->
-<a href="showuser?who=<?WHO:NAME("U")>"> <?WHO:NAME("X")></a> 
-<??("WHO:NSESSIONS", 6, 0, 1)>[<?WHO:NSESSIONS>] </a><?!("X", 6)>
-<!-- room -->
-</td><td>
-<?WHO:ROOM>
-<?!("WHO:REALROOM", 7)> <br><i>  <?WHO:REALROOM("X")>  </i>  <?!("X", 7)>
-</td>
+	<!-- link to page this user -->
+	<td width="5%"><a href="display_page?recp=<?WHO:NAME("X")>">
+   		<img align="middle" src="static/icons/essen/16x16/chat.png" alt="(p)"></a> 
+	</td>
+	<!-- idle flag -->
+	<td width="5%">
+		<?!("WHO:IDLE", 4)>
+			<img align="middle" src="static/icons/essen/16x16/user.png" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)">
+		<?!("X", 4)>
+		<??("WHO:IDLE", 5)>
+			<img align="middle" src="static/icons/essen/16x16/activeuser.png" alt="(<?_("active")>)">
+		<?!("X", 5)>
+	</td>
+	<td>
+		<!--  username (link to user bio/photo page)  -->
+		<a href="showuser?who=<?WHO:NAME("U")>"> <?WHO:NAME("X")></a> 
+		<??("WHO:NSESSIONS", 6, 0, 1)>[<?WHO:NSESSIONS>] </a><?!("X", 6)>
+		<!-- room -->
+	</td>
+	<td>
+		<?WHO:ROOM>
+		<?!("WHO:REALROOM", 7)><br><i>  <?WHO:REALROOM("X")>  </i><?!("X", 7)>
+	</td>
 </tr>

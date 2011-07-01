@@ -75,7 +75,7 @@ void cal_process_object(StrBuf *Target,
 		the_method = icalproperty_get_method(method);
 
 		StrBufAppendPrintf(Target, "<div id=\"%s_title\">", divname);
-		StrBufAppendPrintf(Target, "<img src=\"static/calarea_48x.gif\">");
+		StrBufAppendPrintf(Target, "<img src=\"static/icons/essen/32x32/calendar.png\">");
 		StrBufAppendPrintf(Target, "<span>");
 		switch(the_method) {
 		case ICAL_METHOD_REQUEST:
@@ -329,7 +329,7 @@ void respond_to_request(void)
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wc_printf("<img src=\"static/calarea_48x.gif\"><span>");
+		wc_printf("<img src=\"static/icons/essen/32x32/calendar.png\"><span>");
 		if (!strcasecmp(bstr("sc"), "accept")) {
 			wc_printf(_("You have accepted this meeting invitation.  "
 				"It has been entered into your calendar.")
@@ -347,7 +347,7 @@ void respond_to_request(void)
 		wc_printf(_("A reply has been sent to the meeting organizer."));
 		wc_printf("</span>");
 	} else {
-		wc_printf("<img align=\"center\" src=\"static/error.gif\"><span>");
+		wc_printf("<img align=\"center\" src=\"static/icons/error.gif\"><span>");
 		wc_printf("%s\n", &buf[4]);
 		wc_printf("</span>");
 	}
@@ -374,7 +374,7 @@ void handle_rsvp(void)
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wc_printf("<img src=\"static/calarea_48x.gif\"><span>");
+		wc_printf("<img src=\"static/icons/calendar.png\"><span>");
 		if (!strcasecmp(bstr("sc"), "update")) {
 			/* Translators: RSVP aka Répondez s'il-vous-plaît Is the term 
 			   that the recipient of an ical-invitation should please 
@@ -387,7 +387,7 @@ void handle_rsvp(void)
 		}
 		wc_printf("</span>");
 	} else {
-		wc_printf("<img src=\"static/error.gif\"><span> %s\n", &buf[4]);
+		wc_printf("<img src=\"static/icons/error.gif\"><span> %s\n", &buf[4]);
 		wc_printf("</span>");
 	}
 
