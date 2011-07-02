@@ -1,0 +1,32 @@
+<div id="banner">
+<img src="static/advanpage2_48x.gif">
+<?_("Add or delete scripts")>
+</h1>
+</div>
+	
+<div id="content" class="service">
+<?SIEVE:MESSAGE>
+
+<table border=0 cellspacing=10><tr valign=top><td>
+<?=("beginbox_1")> <?_("Add a new script")><?=("beginbox_2")>
+<?_("To create a new script, enter the desired script name in the box below and click 'Create'.")>
+<br><br>
+
+<center><form method="POST" action="create_script">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<?_("Script name: ")>
+<input type="text" name="script_name"><br>
+<input type="submit" name="create_button" value='<?_("Create")>'></form></center>
+<?=("endbox")>
+<?=("beginbox_1")><?_("Edit scripts")><?=("beginbox_2")>
+<br><div align=center><a href="display_sieve"><?_("Return to the script editing screen")></a><br><br>
+<?=("endbox")>
+</td><td>
+<?=("beginbox_1")><?_("Delete scripts")><?=("beginbox_2")>
+<?_("To delete an existing script, select the script name from the list and click 'Delete'.")>
+<br><br>
+<center><form method="POST" action="delete_script">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<select name="script_name" size=10 style="width:100%%">
+<?ITERATE("SIEVE:SCRIPTS", ="sieve_script_select")>
+</select>

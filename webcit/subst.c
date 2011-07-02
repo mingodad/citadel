@@ -109,6 +109,8 @@ const char *CtxNames[]  = {
 	"Context DavNamespace",
 	"Context TAB",
 	"Context VCARD",
+	"Context SIEVE List",
+	"Context SIEVE Script",
 	"Context UNKNOWN"
 };
 
