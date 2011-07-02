@@ -505,7 +505,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 		if (pass == 1) {
 			StrBufAppendPrintf(Target, "<tr bgcolor=\"#aaaaaa\">"
       "<td colspan=2 bgcolor=\"#ffffff\">"
-      "<img align=\"center\" src=\"static/icons/essen/32x32/contact.png\">"
+      "<img align=\"center\" src=\"static/webcit_icons/essen/32x32/contact.png\">"
       "<font size=\"+1\"><b>");
 			StrEscAppend(Target, NULL, fullname, 0, 0);
 			StrBufAppendPrintf(Target, "</b></font>");

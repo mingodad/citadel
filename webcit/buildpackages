@@ -60,7 +60,7 @@ case $1 in
 	;;
     sourcedist)
 	if test "$2" == "dfsg"; then
-	    NONDFSG=-"-exclude static/icons/openid-small.gif"
+	    NONDFSG=-"-exclude static/webcit_icons/openid-small.gif"
 	fi
 	cd ..; tar --exclude .svn --exclude "debian/*" $NONDFSG -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
 	;;

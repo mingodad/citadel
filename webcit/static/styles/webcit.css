@@ -96,7 +96,7 @@ body {
 #message_list_hdr table { font-style: italic }
 
 #resize_msglist {
-	background-image: url(/static/icons/resizegrippy.gif);
+	background-image: url(/static/webcit_icons/resizegrippy.gif);
 	background-position: center;
 	background-repeat: no-repeat; 
 }
@@ -546,17 +546,17 @@ body {
 /* Override to disable list-style-image" */
 .room a, .room a, .room a:visited, .room a:link { color: #f0feff }
 
-.room-private { list-style-image: url("/static/icons/essen/16x16/email.png") }
+.room-private { list-style-image: url("/static/webcit_icons/essen/16x16/email.png") }
 
-.room-addr { list-style-image: url("/static/icons/essen/16x16/contact.png") }
+.room-addr { list-style-image: url("/static/webcit_icons/essen/16x16/contact.png") }
 
-.room-cal { list-style-image: url("/static/icons/essen/16x16/calendar.png") }
+.room-cal { list-style-image: url("/static/webcit_icons/essen/16x16/calendar.png") }
 
-.room-tasks { list-style-image: url("/static/icons/essen/16x16/task.png") }
+.room-tasks { list-style-image: url("/static/webcit_icons/essen/16x16/task.png") }
 
-.room-notes { list-style-image: url("/static/icons/essen/16x16/note.png") }
+.room-notes { list-style-image: url("/static/webcit_icons/essen/16x16/note.png") }
 
-.room-chat { list-style-image: url("/static/icons/essen/16x16/room.png") }
+.room-chat { list-style-image: url("/static/webcit_icons/essen/16x16/room.png") }
 
 .room-newmsgs { font-weight: bold }
 
@@ -723,9 +723,9 @@ div.auto_complete ul strong.highlight {
 	background-position: center right;
 }
 
-.sort_ascending { background-image: url("/static/icons/down_pointer.gif") }
+.sort_ascending { background-image: url("/static/webcit_icons/down_pointer.gif") }
 
-.sort_descending { background-image: url("/static/icons/up_pointer.gif") }
+.sort_descending { background-image: url("/static/webcit_icons/up_pointer.gif") }
 
 #message_list_hdr > table { border-collapse: collapse }
 
@@ -1160,14 +1160,14 @@ a.event_title:hover span.tooltip, a.event_unread:hover span.tooltip, a.event_rea
 a.event_title:hover span.btttop, a.event_unread:hover span.btttop, a.event_read:hover span.btttop {
 	display: block;
 	padding: 30px 8px 0;
-	background: url(/static/icons/bubble.gif) no-repeat top;
+	background: url(/static/webcit_icons/bubble.gif) no-repeat top;
 }
 
 /* different middle bg for stretch */
 a.event_title:hover span.bttmiddle, a.event_unread:hover span.bttmiddle, a.event_read:hover span.bttmiddle {
 	display: block;
 	padding: 0 8px; 
-	background: url(/static/icons/bubble_filler.gif) repeat bottom; 
+	background: url(/static/webcit_icons/bubble_filler.gif) repeat bottom; 
 	color: #022750;
 	font-size: 10px;
 }
@@ -1175,7 +1175,7 @@ a.event_title:hover span.bttmiddle, a.event_unread:hover span.bttmiddle, a.event
 a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event_read:hover span.bttbottom {
 	display: block;
 	padding:3px 8px 10px;
-	background: url(/static/icons/bubble.gif) no-repeat bottom;
+	background: url(/static/webcit_icons/bubble.gif) no-repeat bottom;
 }
 
 
@@ -1321,7 +1321,7 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 }
 
 .openid_urlarea {
-        background: url('../icons/openid-small.gif') no-repeat scroll 0pt 50%;
+        background: url('../webcit_icons/openid-small.gif') no-repeat scroll 0pt 50%;
         padding-left: 18px;
 }
 

@@ -586,7 +586,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/icons/essen/32x32/back.png\" border=\"0\"></a>\n", _("previous"));
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/back.png\" border=\"0\"></a>\n", _("previous"));
 
 	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
 	wc_printf("&nbsp;&nbsp;"
@@ -598,7 +598,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/icons/essen/32x32/forward.png\" border=\"0\"></A>\n", _("next"));
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/forward.png\" border=\"0\"></A>\n", _("next"));
 
 	wc_printf("</td></tr></table>\n");
 
@@ -722,7 +722,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/icons/essen/32x32/back.png\" border=\"0\"></a>\n", _("previous"));
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/back.png\" border=\"0\"></a>\n", _("previous"));
 
 	wc_strftime(month_label, sizeof month_label, "%B", &tm);
 	wc_printf("&nbsp;&nbsp;"
@@ -734,7 +734,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/icons/essen/32x32/forward.png\" border=\"0\"></a>\n", _("next"));
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/forward.png\" border=\"0\"></a>\n", _("next"));
 
 	wc_printf("</td></tr></table>\n");
 
@@ -1284,7 +1284,7 @@ void calendar_day_view(int year, int month, int day) {
 	wc_printf("<td align=\"center\">");
 	wc_printf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
-	wc_printf("<img alt=\"previous\" align=\"middle\" src=\"static/icons/essen/32x32/back.png\" border=\"0\"></a>");
+	wc_printf("<img alt=\"previous\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/back.png\" border=\"0\"></a>");
 	wc_printf("</td>");
 
 	wc_strftime(d_str, sizeof d_str,
@@ -1302,7 +1302,7 @@ void calendar_day_view(int year, int month, int day) {
 	wc_printf("<td align=\"center\">");
 	wc_printf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/icons/essen/32x32/forward.png\""
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/forward.png\""
 		" border=\"0\"></a>\n", _("next"));
 	wc_printf("</td>");
 
