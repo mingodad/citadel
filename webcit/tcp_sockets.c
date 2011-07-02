@@ -275,7 +275,7 @@ void FlushReadBuf (void)
 		pche = pch + len;
 		if (WCC->ReadPos != pche)
 		{
-			syslog(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %d [%s]\n", 
+			syslog(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %ld [%s]\n", 
 				pche - WCC->ReadPos, pche);
 			syslog(1, 
 				"--------------------------------------------------------------------------------\n"
@@ -298,7 +298,7 @@ void FlushReadBuf (void)
  *  buf the buffer to write to citadel server
  *  nbytes how many bytes to send to citadel server
  */
-void serv_write(const char *buf, int nbytes)
+int serv_write(const char *buf, int nbytes)
 {
 	wcsession *WCC = WC;
 	int bytes_written = 0;
@@ -316,10 +316,11 @@ void serv_write(const char *buf, int nbytes)
 			WCC->serv_sock = (-1);
 			WCC->connected = 0;
 			WCC->logged_in = 0;
-			return;
+			return 0;
 		}
 		bytes_written = bytes_written + retval;
 	}
+	return 1;
 }
 
 
@@ -327,30 +328,32 @@ void serv_write(const char *buf, int nbytes)
  *  send line to server
  *  string the line to send to the citadel server
  */
-void serv_puts(const char *string)
+int serv_puts(const char *string)
 {
 #ifdef SERV_TRACE
 	syslog(9, "%3d>>>%s\n", WC->serv_sock, string);
 #endif
 	FlushReadBuf();
 
-	serv_write(string, strlen(string));
-	serv_write("\n", 1);
+	if (!serv_write(string, strlen(string)))
+		return 0;
+	return serv_write("\n", 1);
 }
 
 /*
  *  send line to server
  *  string the line to send to the citadel server
  */
-void serv_putbuf(const StrBuf *string)
+int serv_putbuf(const StrBuf *string)
 {
 #ifdef SERV_TRACE
 	syslog(9, "%3d>>>%s\n", WC->serv_sock, ChrPtr(string));
 #endif
 	FlushReadBuf();
 
-	serv_write(ChrPtr(string), StrLength(string));
-	serv_write("\n", 1);
+	if (!serv_write(ChrPtr(string), StrLength(string)))
+		return 0;
+	return serv_write("\n", 1);
 }
 
 
@@ -359,11 +362,12 @@ void serv_putbuf(const StrBuf *string)
  *  format the formatstring
  *  ... the entities to insert into format 
  */
-void serv_printf(const char *format,...)
+int serv_printf(const char *format,...)
 {
 	va_list arg_ptr;
 	char buf[SIZ];
 	size_t len;
+	int rc;
 
 	FlushReadBuf();
 
@@ -374,10 +378,11 @@ void serv_printf(const char *format,...)
 	len = strlen(buf);
 	buf[len++] = '\n';
 	buf[len] = '\0';
-	serv_write(buf, len);
+	rc = serv_write(buf, len);
 #ifdef SERV_TRACE
 	syslog(9, ">>>%s", buf);
 #endif
+	return rc;
 }
 
 
@@ -403,7 +408,7 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 			return -1; 
 		}
 
-		serv_printf("READ %d|%d", bytes_read, total_len-bytes_read);
+		serv_printf("READ "SIZE_T_FMT"|"SIZE_T_FMT, bytes_read, total_len-bytes_read);
 		if ( (rc = StrBuf_ServGetln(Buf) > 0) && (GetServerStatus(Buf, NULL) == 6) ) 
 		{
 			if (rc < 0)

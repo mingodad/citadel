@@ -16,7 +16,7 @@ extern HashList *LocalTemplateCache;
 #define TYPE_BSTR 6
 #define TYPE_SUBTEMPLATE 7
 #define TYPE_INTDEFINE 8
-#define MAXPARAM  20
+#define MAXPARAM  25
 
 #define IS_NUMBER(a) ((a == TYPE_LONG) || (a == TYPE_PREFINT) || (a == TYPE_INTDEFINE))
 
@@ -57,8 +57,10 @@ enum {
 #define CTX_DAVNS 19
 #define CTX_TAB 20
 #define CTX_VCARD 21
+#define CTX_SIEVELIST 22
+#define CTX_SIEVESCRIPT 23
 
-#define CTX_UNKNOWN 22
+#define CTX_UNKNOWN 24
 
 
 /**
