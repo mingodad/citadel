@@ -6,52 +6,52 @@
  */
 
 .ib_button {
-    min-height: 32px;
+    min-height: 38px;
     background-repeat: no-repeat !important;
-    background-position: 3px 0px;
+    background-position: 7px 3px;
     vertical-align: middle;
 }
 .ib_button_link {
-    padding-top: 8px;
-    padding-left: 37px;
+    padding-top: 0.8em;
+    padding-left: 48px;
     height: 100%;
     min-height: 25px; /* Makes all of the 'button' to be clickable */
 }
 #ib_summary {
-    background-image: url("/static/summscreen_32x.gif");
+    background-image: url("/static/icons/essen/32x32/summary.png");
 }
 #ib_inbox {
-    background-image: url("/static/privatemess_32x.gif");
+    background-image: url("/static/icons/essen/32x32/email.png");
 }
 #ib_calendar {
-    background-image: url("/static/calarea_32x.gif");
+    background-image: url("/static/icons/essen/32x32/calendar.png");
 }
 #ib_contacts {
-    background-image: url("/static/viewcontacts_32x.gif");
+    background-image: url("/static/icons/essen/32x32/contact.png");
 }
 #ib_notes {
-    background-image: url("/static/storenotes_32x.gif");
+    background-image: url("/static/icons/essen/32x32/note.png");
 }
 #ib_tasks {
-    background-image: url("/static/taskmanag_32x.gif");
+    background-image: url("/static/icons/essen/32x32/task.png");
 }
 #ib_rooms {
-    background-image: url("/static/chatrooms_32x.gif");
+    background-image: url("/static/icons/essen/32x32/room.png");
 }
 #ib_users {
-    background-image: url("/static/usermanag_32x.gif");
+    background-image: url("/static/icons/essen/32x32/user.png");
 }
 #ib_chat {
-    background-image: url("/static/citadelchat_32x.gif");
+    background-image: url("/static/icons/essen/32x32/chat.png");
 }
 #ib_advanced, #ib_admin {
-    background-image: url("/static/advanpage2_32x.gif");
+    background-image: url("/static/icons/essen/32x32/config.png");
 }
 #ib_aide {
-    background-image: url("/static/advanpage2_32x.gif");
+    background-image: url("/static/icons/essen/32x32/config.png");
 }
 #ib_logoff {
-    background-image: url("/static/logoff_32x.gif");
+    background-image: url("/static/icons/essen/32x32/logout.png");
 }
 #citlogo {
     display: block !important;

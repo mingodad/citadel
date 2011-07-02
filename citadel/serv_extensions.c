@@ -969,8 +969,7 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 
 	/* Other code may elect to protect this message from server-side
 	 * handlers; if this is the case, don't do anything.
-	syslog(LOG_DEBUG, "** Event type is %d, flags are %d\n",
-		EventType, msg->cm_flags);
+	syslog(LOG_DEBUG, "** Event type is %d, flags are %d\n", EventType, msg->cm_flags);
 	 */
 	if (msg->cm_flags & CM_SKIP_HOOKS) {
 		syslog(LOG_DEBUG, "Skipping hooks\n");
@@ -981,8 +980,7 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 	 */
 	for (fcn = MessageHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
-			total_retval = total_retval +
-				(*fcn->h_function_pointer) (msg);
+			total_retval = total_retval + (*fcn->h_function_pointer) (msg);
 		}
 	}
 

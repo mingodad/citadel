@@ -1,24 +1,25 @@
 #login_screen, #logout_screen {
 	position: fixed;
-	margin: 0px;
-	top: 0px;
-	left: 0px;
-	bottom: 0px;
-	right: 0px;
-	padding: 3% 6% 3% 6%;
+	left: 0;
+	right: 0;
+	margin: 5em auto;
+	width: 42em;
 	overflow: auto;
 }
 
-#login_screen .login_message, #login_screen .login_image, .login_hello, #login_screen #login_form {
+#login_screen .login_message, .login_hello, #login_screen #login_form {
 	display: block;
 	margin: 5px auto 5px auto;
 }
 
 #login_screen .login_message, .login_hello { width: 80% }
 
-#login_screen .login_image { width: 135px }
+#login_screen .login_image { 
+	width: 135px;
+	margin: 0 auto;
+}
 
-#login_screen .login_image img { text-align: center }
+/*#login_screen .login_image img { width: 135px }*/
 
 #login_screen #login_form {
 	padding: 10px;
@@ -68,3 +69,20 @@
 	text-align: center;
 	font-weight: bold;
 }
+
+.logbuttons, .registernow {
+	width: 50%;
+        margin: 1em auto;
+        text-align: center;
+        display: block;
+	height: 2em;
+	line-height: 2em;
+        background-color: #4d555c;
+        font-weight: bold;
+        -khtml-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        behavior: url(static/styles/PIE.htc);
+}
+
+.logbuttons a:link, .registernow a:link { color: #f0feff; }
