@@ -21,6 +21,7 @@
 #define MAX_SCRIPTS	100
 #define MAX_RULES	50
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
+
 #define FOO 1
 
 /*
@@ -699,7 +700,7 @@ void display_add_remove_scripts(char *message)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<img src=\"static/icons/essen/32x32/config.png\">");
+	wc_printf("<img src=\"static/webcit_icons/essen/32x32/config.png\">");
 	wc_printf(_("Add or delete scripts"));
 	wc_printf("</h1>\n");
 	wc_printf("</div>\n");
@@ -986,17 +987,17 @@ void display_rules_editor_inner_div(void) {
 		wc_printf("</div>");
 
 		if (i>0) wc_printf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
-			"<img border=\"0\" src=\"static/icons/up_pointer.gif\" "
+			"<img border=\"0\" src=\"static/webcit_icons/up_pointer.gif\" "
 			"title=\"%s\"/></a>",
 			i-1, i, _("Move rule up") );
 
 		wc_printf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
-			"<img id=\"movedown%d\" border=\"0\" src=\"static/icons/down_pointer.gif\" "
+			"<img id=\"movedown%d\" border=\"0\" src=\"static/webcit_icons/down_pointer.gif\" "
 			"title=\"%s\"/></a>",
 			i, i+1, i, _("Move rule down") );
 
 		wc_printf("<a href=\"javascript:DeleteRule(%d);UpdateRules();\">"
-			"<img id=\"delete%d\" border=\"0\" src=\"static/icons/delete.gif\" "
+			"<img id=\"delete%d\" border=\"0\" src=\"static/webcit_icons/delete.gif\" "
 			"title=\"%s\"/></a>",
 			i, i, _("Delete rule") );
 

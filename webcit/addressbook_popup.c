@@ -53,7 +53,7 @@ void display_address_book_middle_div(void) {
 	DefAddrBook = get_room_pref("defaddrbook");
 
 	wc_printf("<table border=0 width=100%%><tr valign=middle>");
-	wc_printf("<td align=left><img src=\"static/icons/essen/32x32/contact.png\"></td>");
+	wc_printf("<td align=left><img src=\"static/webcit_icons/essen/32x32/contact.png\"></td>");
 	wc_printf("<td align=center>");
 
 	wc_printf("<form>"
@@ -99,7 +99,7 @@ void display_address_book_middle_div(void) {
 	wc_printf("</td>");
 	wc_printf("<td align=right "
 		"onclick=\"javascript:$('address_book_popup').style.display='none';\" "
-		"><img src=\"static/icons/closewindow.gif\">");
+		"><img src=\"static/webcit_icons/closewindow.gif\">");
 	wc_printf("</td></tr></table>");
 
 	wc_printf("<script type=\"text/javascript\">PopulateAddressBookInnerDiv($('which_addr_book').value,'%s');</script>",

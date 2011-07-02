@@ -43,7 +43,7 @@ void display_openids(void)
 		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			bg = 1 - bg;
 			wc_printf("<tr class=\"%s\">", (bg ? "even" : "odd"));
-			wc_printf("<td><img src=\"static/icons/openid-small.gif\"></td><td>");
+			wc_printf("<td><img src=\"static/webcit_icons/openid-small.gif\"></td><td>");
 			escputs(buf);
 			wc_printf("</td><td>");
 			wc_printf("<a href=\"openid_detach?id_to_detach=");

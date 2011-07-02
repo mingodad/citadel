@@ -243,7 +243,7 @@ void display_smtpqueue(void)
 		"<tr><td valign=top>\n");
 
 	wc_printf("<div id=\"smtpqueue_inner_div\">"
-		"<div align=\"center\"><img src=\"static/icons/throbber.gif\"></div>"
+		"<div align=\"center\"><img src=\"static/webcit_icons/throbber.gif\"></div>"
 		"</div>"
 		"<div align=\"center\">"
 		"<a href=\"javascript:RefreshSMTPqueueDisplay();\">%s</a>"
