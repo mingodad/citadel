@@ -564,6 +564,9 @@ struct wcsession {
 	int ib_wholist_expanded;
 	int ib_roomlist_expanded;
 
+/* our known Sieve scripts; loaded by SIEVE:SCRIPTS iterator. */
+	HashList *KnownSieveScripts;
+
 /* Transcoding cache buffers; used to avoid to frequent realloc */
 	StrBuf *ConvertBuf1;
 	StrBuf *ConvertBuf2;
@@ -662,7 +665,7 @@ int tcp_connectsock(char *, char *);
 int serv_getln(char *strbuf, int bufsize);
 int StrBuf_ServGetln(StrBuf *buf);
 int GetServerStatus(StrBuf *Line, long* FullState);
-void serv_puts(const char *string);
+int serv_puts(const char *string);
 void who(void);
 void push_destination(void);
 void pop_destination(void);
@@ -734,11 +737,6 @@ long gotoroom(const StrBuf *gname);
 void remove_march(const StrBuf *aaa);
 void dotskip(void);
 void validate(void);
-void display_graphics_upload(char *, char *, char *);
-void do_graphics_upload(char *upl_cmd);
-void serv_write(const char *buf, int nbytes);
-void serv_putbuf(const StrBuf *string);
-void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void shutdown_sessions(void);
 void do_housekeeping(void);
 void smart_goto(const StrBuf *);
@@ -809,6 +807,11 @@ int ical_ctdl_is_overlap(
 
 extern char *months[];
 extern char *days[];
+void display_graphics_upload(char *, char *, char *);
+void do_graphics_upload(char *upl_cmd);
+int serv_write(const char *buf, int nbytes);
+int serv_putbuf(const StrBuf *string);
+int serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);

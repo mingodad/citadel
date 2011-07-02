@@ -21,218 +21,7 @@
 #define MAX_SCRIPTS	100
 #define MAX_RULES	50
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
-
-
-/*
- * dummy panel indicating to the user that the server doesn't support Sieve
- */
-void display_no_sieve(void) {
-
-	output_headers(1, 1, 2, 0, 0, 0);
-
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<img src=\"static/icons/essen/32x32/config.png\">");
-	wc_printf("<h1>");
-	wc_printf(_("View/edit server-side mail filters"));
-	wc_printf("</h1>\n");
-	wc_printf("</div>\n");
-
-	wc_printf("<div id=\"content\" class=\"service\">\n");
-
-	wc_printf("<table class=\"sieve_background\">"
-		"<tr><td valign=top>\n");
-
-	wc_printf(_("This installation of Citadel was built without support for server-side mail filtering."
-		"<br>Please contact your system administrator if you require this feature.<br>"));
-
-	wc_printf("</td></tr></table>\n");
-	wDumpContent(1);
-}
-
-
-/*
- * view/edit sieve config
- */
-void display_sieve(void)
-{
-	char script_names[MAX_SCRIPTS][64];
-	int num_scripts = 0;
-	int active_script = (-1);
-	char buf[SIZ];		/* Don't make this buffer smaller or it will restrict line length */
-	int i;
-	int rules_script_is_active = 0;
-
-	if (!WC->serv_info->serv_supports_sieve) {
-		display_no_sieve();
-		return;
-	}
-
-	memset(script_names, 0, sizeof script_names);
-
-	serv_puts("MSIV listscripts");
-	serv_getln(buf, sizeof(buf));
-	if (buf[0] == '1') while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
-		if (num_scripts < MAX_SCRIPTS) {
-			extract_token(script_names[num_scripts], buf, 0, '|', 64);
-			if (extract_int(buf, 1) > 0) {
-				active_script = num_scripts;
-				if (!strcasecmp(script_names[num_scripts], RULES_SCRIPT)) {
-					rules_script_is_active = 1;
-				}
-			}
-			++num_scripts;
-		}
-	}
-
-	output_headers(1, 1, 2, 0, 0, 0);
-
-	wc_printf("<script type=\"text/javascript\">					\n"
-		"									\n"
-		"var previously_active_script;						\n"
-		"									\n"
-		"function ToggleSievePanels() {						\n"
-		" d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);	\n"
-		" for (i=0; i<3; ++i) {							\n"
-		"  if (i == d) {							\n"
-		"   $('sievediv' + i).style.display = 'block';				\n"
-		"  }									\n"
-		"  else {								\n"
-		"   $('sievediv' + i).style.display = 'none';				\n"
-		"  }									\n"
-		" }									\n"
-		"}									\n"
-		"									\n"
-		"function ToggleScriptPanels() {					\n"
-		" d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);	\n"
-		" if ($('script_' + previously_active_script)) {			\n"
-		"  $('script_' + previously_active_script).style.display = 'none';	\n"
-		" }									\n"
-		" $('script_' + d).style.display = 'block';				\n"
-		" previously_active_script = d;						\n"
-		"}									\n"
-		"									\n"
-		"</script>								\n"
-	);
-
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<img src=\"static/icons/essen/32x32/config.png\">");
-	wc_printf("<h1>");
-	wc_printf(_("View/edit server-side mail filters"));
-	wc_printf("</h1>\n");
-	wc_printf("</div>\n");
-
-	wc_printf("<div id=\"content\" class=\"service\">\n");
-
-	wc_printf("<table class=\"sieve_background\">"
-		"<tr><td valign=top>\n");
-
-
-	wc_printf("<form id=\"sieveform\" method=\"post\" action=\"save_sieve\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-
-	wc_printf(_("When new mail arrives: "));
-        wc_printf("<select name=\"bigaction\" size=1 onChange=\"ToggleSievePanels();\">\n");
-
-	wc_printf("<option %s value=\"0\">", ((active_script < 0) ? "selected" : ""));
-	wc_printf(_("Leave it in my inbox without filtering"));
-	wc_printf("</option>\n");
-
-	wc_printf("<option %s value=\"1\">", ((rules_script_is_active) ? "selected" : ""));
-	wc_printf(_("Filter it according to rules selected below"));
-	wc_printf("</option>\n");
-
-	wc_printf("<option %s value=\"2\">",
-			(((active_script >= 0) && (!rules_script_is_active)) ? "selected" : ""));
-	wc_printf(_("Filter it through a manually edited script (advanced users only)"));
-	wc_printf("</option>\n");
-
-	wc_printf("</select>");
-
-
-
-	/* The "no filtering" div */
-
-	wc_printf("<div id=\"sievediv0\" style=\"display:none\">\n");
-	wc_printf("<div align=\"center\"><br><br>");
-	wc_printf(_("Your incoming mail will not be filtered through any scripts."));
-	wc_printf("<br><br></div>\n");
-	wc_printf("</div>\n");
-
-	/* The "webcit managed scripts" div */
-
-	wc_printf("<div id=\"sievediv1\" style=\"display:none\">\n");
-	display_rules_editor_inner_div();
-	wc_printf("</div>\n");
-
-	/* The "I'm smart and can write my own Sieve scripts" div */
-
-	wc_printf("<div id=\"sievediv2\" style=\"display:none\">\n");
-
-	if (num_scripts > 0) {
-		wc_printf(_("The currently active script is: "));
-        	wc_printf("<select name=\"active_script\" size=1 onChange=\"ToggleScriptPanels();\">\n");
-		for (i=0; i<num_scripts; ++i) {
-			if (strcasecmp(script_names[i], RULES_SCRIPT)) {
-				wc_printf("<option %s value=\"%s\">%s</option>\n",
-					((active_script == i) ? "selected" : ""),
-					script_names[i],
-					script_names[i]
-				);
-			}
-		}
-		wc_printf("</select>\n");
-	}
-
-	wc_printf("&nbsp;&nbsp;&nbsp;");
-	wc_printf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add or delete scripts"));
-
-	wc_printf("<br>\n");
-
-	if (num_scripts > 0) {
-		for (i=0; i<num_scripts; ++i) {
-			if (strcasecmp(script_names[i], RULES_SCRIPT)) {
-				wc_printf("<div id=\"script_%s\" style=\"display:none\">\n", script_names[i]);
-				wc_printf("<textarea name=\"text_%s\" wrap=soft rows=20 cols=80 width=80>\n",
-					script_names[i]);
-				serv_printf("MSIV getscript|%s", script_names[i]);
-				serv_getln(buf, sizeof buf);
-				if (buf[0] == '1') while(serv_getln(buf, sizeof (buf)), strcmp(buf, "000")) {
-					wc_printf("%s\n", buf);
-				}
-				wc_printf("</textarea>\n");
-				wc_printf("</div>\n");
-			}
-		}
-	}
-
-	wc_printf("<script type=\"text/javascript\">	\n"
-		"ToggleScriptPanels();			\n"
-		"</script>				\n"
-	);
-
-	wc_printf("</div>\n");
-
-
-	/* The rest of this is common for all panels... */
-
-	wc_printf("<div align=\"center\"><br>");
-	wc_printf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
-	wc_printf("&nbsp;");
-	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
-	wc_printf("</div></form>\n");
-
-	wc_printf("</td></tr></table>\n");
-
-	wc_printf("<script type=\"text/javascript\">	\n"
-		"ToggleSievePanels();			\n"
-		"</script>				\n"
-	);
-
-	wDumpContent(1);
-
-}
-
-
+#define FOO 1
 
 /*
  * Helper function for output_sieve_rule() to output strings with quotes escaped
@@ -251,6 +40,12 @@ void osr_sanitize(char *str) {
 		}
 	}
 }
+
+void display_add_remove_scripts(char *message);
+
+
+
+
 
 
 /*
@@ -645,6 +440,254 @@ void save_sieve(void) {
 	return;
 }
 
+/*
+ * create a new script
+ * take the web environment script name and create it on the citadel server
+ */
+void create_script(void) {
+	char buf[256];
+
+	serv_printf("MSIV getscript|%s", bstr("script_name"));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
+			/* flush */
+		}
+#if FOO
+		display_add_remove_scripts(_("A script by that name already exists."));
+#endif
+		return;
+	}
+	
+	serv_printf("MSIV putscript|%s", bstr("script_name"));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '4') {
+		serv_puts("keep;");
+		serv_puts("000");
+#if FOO
+		display_add_remove_scripts(_("A new script has been created.  Return to the script editing screen to edit and activate it."));
+#endif
+		return;
+	}
+
+#if FOO
+	display_add_remove_scripts(&buf[4]);
+#endif
+}
+
+
+
+
+/*
+ * delete a script
+ */
+void delete_script(void) {
+	char buf[256];
+
+	serv_printf("MSIV deletescript|%s", bstr("script_name"));
+	serv_getln(buf, sizeof buf);
+#if FOO
+	display_add_remove_scripts(&buf[4]);
+#endif
+}
+		
+
+
+/*
+ * dummy panel indicating to the user that the server doesn't support Sieve
+ */
+void display_no_sieve(void) {
+
+	output_headers(1, 1, 2, 0, 0, 0);
+	do_template("sieve_none");
+	wDumpContent(1);
+}
+
+#if FOO
+/*
+ * view/edit sieve config
+ */
+void display_sieve(void)
+{
+	char script_names[MAX_SCRIPTS][64];
+	int num_scripts = 0;
+	int active_script = (-1);
+	char buf[SIZ];		/* Don't make this buffer smaller or it will restrict line length */
+	int i;
+	int rules_script_is_active = 0;
+
+	if (!WC->serv_info->serv_supports_sieve) {
+		display_no_sieve();
+		return;
+	}
+
+	memset(script_names, 0, sizeof script_names);
+
+	serv_puts("MSIV listscripts");
+	serv_getln(buf, sizeof(buf));
+	if (buf[0] == '1') while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
+		if (num_scripts < MAX_SCRIPTS) {
+			extract_token(script_names[num_scripts], buf, 0, '|', 64);
+			if (extract_int(buf, 1) > 0) {
+				active_script = num_scripts;
+				if (!strcasecmp(script_names[num_scripts], RULES_SCRIPT)) {
+					rules_script_is_active = 1;
+				}
+			}
+			++num_scripts;
+		}
+	}
+
+	output_headers(1, 1, 2, 0, 0, 0);
+
+	wc_printf("<script type=\"text/javascript\">					\n"
+		"									\n"
+		"var previously_active_script;						\n"
+		"									\n"
+		"function ToggleSievePanels() {						\n"
+		" d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);	\n"
+		" for (i=0; i<3; ++i) {							\n"
+		"  if (i == d) {							\n"
+		"   $('sievediv' + i).style.display = 'block';				\n"
+		"  }									\n"
+		"  else {								\n"
+		"   $('sievediv' + i).style.display = 'none';				\n"
+		"  }									\n"
+		" }									\n"
+		"}									\n"
+		"									\n"
+		"function ToggleScriptPanels() {					\n"
+		" d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);	\n"
+		" if ($('script_' + previously_active_script)) {			\n"
+		"  $('script_' + previously_active_script).style.display = 'none';	\n"
+		" }									\n"
+		" $('script_' + d).style.display = 'block';				\n"
+		" previously_active_script = d;						\n"
+		"}									\n"
+		"									\n"
+		"</script>								\n"
+	);
+
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<img src=\"static/advanpage2_48x.gif\">");
+	wc_printf("<h1>");
+	wc_printf(_("View/edit server-side mail filters"));
+	wc_printf("</h1>\n");
+	wc_printf("</div>\n");
+
+	wc_printf("<div id=\"content\" class=\"service\">\n");
+
+	wc_printf("<table class=\"sieve_background\">"
+		"<tr><td valign=top>\n");
+
+
+	wc_printf("<form id=\"sieveform\" method=\"post\" action=\"save_sieve\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+
+	wc_printf(_("When new mail arrives: "));
+        wc_printf("<select name=\"bigaction\" size=1 onChange=\"ToggleSievePanels();\">\n");
+
+	wc_printf("<option %s value=\"0\">", ((active_script < 0) ? "selected" : ""));
+	wc_printf(_("Leave it in my inbox without filtering"));
+	wc_printf("</option>\n");
+
+	wc_printf("<option %s value=\"1\">", ((rules_script_is_active) ? "selected" : ""));
+	wc_printf(_("Filter it according to rules selected below"));
+	wc_printf("</option>\n");
+
+	wc_printf("<option %s value=\"2\">",
+			(((active_script >= 0) && (!rules_script_is_active)) ? "selected" : ""));
+	wc_printf(_("Filter it through a manually edited script (advanced users only)"));
+	wc_printf("</option>\n");
+
+	wc_printf("</select>");
+
+
+
+	/* The "no filtering" div */
+
+	wc_printf("<div id=\"sievediv0\" style=\"display:none\">\n");
+	wc_printf("<div align=\"center\"><br><br>");
+	wc_printf(_("Your incoming mail will not be filtered through any scripts."));
+	wc_printf("<br><br></div>\n");
+	wc_printf("</div>\n");
+
+	/* The "webcit managed scripts" div */
+
+	wc_printf("<div id=\"sievediv1\" style=\"display:none\">\n");
+	display_rules_editor_inner_div();
+	wc_printf("</div>\n");
+
+	/* The "I'm smart and can write my own Sieve scripts" div */
+
+	wc_printf("<div id=\"sievediv2\" style=\"display:none\">\n");
+
+	if (num_scripts > 0) {
+		wc_printf(_("The currently active script is: "));
+        	wc_printf("<select name=\"active_script\" size=1 onChange=\"ToggleScriptPanels();\">\n");
+		for (i=0; i<num_scripts; ++i) {
+			if (strcasecmp(script_names[i], RULES_SCRIPT)) {
+				wc_printf("<option %s value=\"%s\">%s</option>\n",
+					((active_script == i) ? "selected" : ""),
+					script_names[i],
+					script_names[i]
+				);
+			}
+		}
+		wc_printf("</select>\n");
+	}
+
+	wc_printf("&nbsp;&nbsp;&nbsp;");
+	wc_printf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add or delete scripts"));
+
+	wc_printf("<br>\n");
+
+	if (num_scripts > 0) {
+		for (i=0; i<num_scripts; ++i) {
+			if (strcasecmp(script_names[i], RULES_SCRIPT)) {
+				wc_printf("<div id=\"script_%s\" style=\"display:none\">\n", script_names[i]);
+				wc_printf("<textarea name=\"text_%s\" wrap=soft rows=20 cols=80 width=80>\n",
+					script_names[i]);
+				serv_printf("MSIV getscript|%s", script_names[i]);
+				serv_getln(buf, sizeof buf);
+				if (buf[0] == '1') while(serv_getln(buf, sizeof (buf)), strcmp(buf, "000")) {
+					wc_printf("%s\n", buf);
+				}
+				wc_printf("</textarea>\n");
+				wc_printf("</div>\n");
+			}
+		}
+	}
+
+	wc_printf("<script type=\"text/javascript\">	\n"
+		"ToggleScriptPanels();			\n"
+		"</script>				\n"
+	);
+
+	wc_printf("</div>\n");
+
+
+	/* The rest of this is common for all panels... */
+
+	wc_printf("<div align=\"center\"><br>");
+	wc_printf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
+	wc_printf("&nbsp;");
+	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wc_printf("</div></form>\n");
+
+	wc_printf("</td></tr></table>\n");
+
+	wc_printf("<script type=\"text/javascript\">	\n"
+		"ToggleSievePanels();			\n"
+		"</script>				\n"
+	);
+
+	wDumpContent(1);
+
+}
+
+
+
 
 /*
  * show a list of available scripts to add/remove them
@@ -734,48 +777,6 @@ void display_add_remove_scripts(char *message)
 }
 
 
-
-/*
- * delete a script
- */
-void delete_script(void) {
-	char buf[256];
-
-	serv_printf("MSIV deletescript|%s", bstr("script_name"));
-	serv_getln(buf, sizeof buf);
-	display_add_remove_scripts(&buf[4]);
-}
-		
-
-
-/*
- * create a new script
- * take the web environment script name and create it on the citadel server
- */
-void create_script(void) {
-	char buf[256];
-
-	serv_printf("MSIV getscript|%s", bstr("script_name"));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
-		while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
-			/* flush */
-		}
-		display_add_remove_scripts(_("A script by that name already exists."));
-		return;
-	}
-	
-	serv_printf("MSIV putscript|%s", bstr("script_name"));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '4') {
-		serv_puts("keep;");
-		serv_puts("000");
-		display_add_remove_scripts(_("A new script has been created.  Return to the script editing screen to edit and activate it."));
-		return;
-	}
-
-	display_add_remove_scripts(&buf[4]);
-}
 
 
 
@@ -1180,16 +1181,501 @@ void display_rules_editor_inner_div(void) {
 
 	free(rooms);
 }
-
 void _display_add_remove_scripts(void) {display_add_remove_scripts(NULL);}
+#endif
+
+
+typedef struct __SieveListing {
+	int IsActive;
+	int IsRulesScript;
+	StrBuf *Name;
+	StrBuf *Content;
+} SieveListing;
+
+int ConditionalSieveScriptIsActive(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveListing     *SieveList = (SieveListing *)CTX;
+	return SieveList->IsActive;
+}
+int ConditionalSieveScriptIsRulesScript(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveListing     *SieveList = (SieveListing *)CTX;
+	return SieveList->IsActive;
+}
+void tmplput_SieveScriptName(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveListing     *SieveList = (SieveListing *)CTX;
+	StrBufAppendTemplate(Target, TP, SieveList->Name, 0);
+}
+void tmplput_SieveScriptContent(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveListing     *SieveList = (SieveListing *)CTX;
+	StrBufAppendTemplate(Target, TP, SieveList->Content, 0);
+}
+void FreeSieveListing(void *vSieveListing)
+{
+	SieveListing *List = (SieveListing*) vSieveListing;
+
+	FreeStrBuf(&List->Name);
+	free(List);
+}
+
+HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
+{
+        wcsession *WCC = WC;
+	StrBuf *Line;
+	int num_scripts = 0;
+	int rules_script_active = 0;
+	int have_rules_script = 0;
+	const char *pch;
+	HashPos  *it;
+	int Done = 0;
+	SieveListing *Ruleset;
+
+	if (WCC->KnownSieveScripts != NULL)
+		return WCC->KnownSieveScripts;
+
+	serv_puts("MSIV listscripts");
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, NULL) == 1) 
+	{
+		WCC->KnownSieveScripts = NewHash(1, Flathash);
+
+		while(!Done && (StrBuf_ServGetln(Line) >= 0) )
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000")) 
+			{
+				Done = 1;
+			}
+			else
+			{
+				pch = NULL;
+				Ruleset = (SieveListing *) malloc(sizeof(SieveListing));
+				Ruleset->Name = NewStrBufPlain(NULL, StrLength(Line));
+				StrBufExtract_NextToken(Ruleset->Name, Line, &pch, '|');
+				Ruleset->IsActive = StrBufExtractNext_int(Line, &pch, '|'); 
+
+				if (!strcasecmp(ChrPtr(Ruleset->Name), RULES_SCRIPT))
+				{
+					Ruleset->IsRulesScript = 1;
+					have_rules_script = 1;
+					if (Ruleset->IsActive)
+					{
+						rules_script_active = 1;
+						PutBstr(HKEY("__SIEVE:RULESSCRIPT"), NewStrBufPlain(HKEY("1")));
+					}
+				}
+				Put(WCC->KnownSieveScripts, IKEY(num_scripts), Ruleset, FreeSieveListing);
+
+				++num_scripts;
+			}
+	}
+	if ((num_scripts > 0) && (rules_script_active == 0))
+		PutBstr(HKEY("__SIEVE:EXTERNAL_SCRIPT"), NewStrBufPlain(HKEY("1")));
+
+	if (num_scripts > have_rules_script)
+	{
+		long rc;
+		long len;
+		const char *Key;
+		void *vRuleset;
+
+		/* 
+		 * ok; we have custom scripts, expose that via bstr, and load the payload.
+		 */
+		PutBstr(HKEY("__SIEVE:HAVE_EXTERNAL_SCRIPT"), NewStrBufPlain(HKEY("1")));
+
+		it = GetNewHashPos(WCC->KnownSieveScripts, 0);
+		while (GetNextHashPos(WCC->KnownSieveScripts, it, &len, &Key, &vRuleset) && 
+		       (vRuleset != NULL))
+		{
+			Ruleset = (SieveListing *) vRuleset;
+
+			/*
+			 * its the webcit rule? we don't need to load that here.
+			 */
+			if (Ruleset->IsRulesScript)
+				continue;
+
+			if (!serv_printf("MSIV getscript|%s", ChrPtr(Ruleset->Name)))
+				break;
+			StrBuf_ServGetln(Line);
+			if (GetServerStatus(Line, NULL) == 1) 
+			{
+				Ruleset->Content = NewStrBuf();
+				while(!Done && (rc = StrBuf_ServGetln(Line), rc >= 0) )
+					if ( (StrLength(Line)==3) && 
+					     !strcmp(ChrPtr(Line), "000")) 
+					{
+						Done = 1;
+					}
+					else
+					{
+						if (StrLength(Ruleset->Content)>0)
+							StrBufAppendBufPlain(Ruleset->Content, HKEY("\n"), 0);
+						StrBufAppendBuf(Ruleset->Content, Line, 0);
+					}
+				if (rc < 0) break;
+			}
+		}
+	}
+	FreeStrBuf(&Line);
+	return WCC->KnownSieveScripts;
+}
+
+
+typedef enum __eSieveHfield 
+{
+	from,		
+	tocc,		
+	subject,	
+	replyto,	
+	sender,	
+	resentfrom,	
+	resentto,	
+	envfrom,	
+	envto,	
+	xmailer,	
+	xspamflag,	
+	xspamstatus,	
+	listid,	
+	size,		
+	all
+} eSieveHfield;
+
+typedef enum __eSieveCompare {
+	contains,
+	notcontains,
+	is,
+	isnot,
+	matches,
+	notmatches
+} eSieveCompare;
+
+typedef enum __eSieveAction {
+	keep,
+	discard,
+	reject,
+	fileinto,
+	redirect,
+	vacation
+} eSieveAction;
+
+
+typedef enum __eSieveSizeComp {
+	larger,
+	smaller
+} eSieveSizeComp;
+
+typedef enum __eSieveFinal {
+	econtinue,
+	estop
+} eSieveFinal;
+
+
+typedef struct __SieveRule {
+	int active;
+	int sizeval;
+	eSieveHfield hfield;
+	eSieveCompare compare;
+	StrBuf *htext;
+	eSieveSizeComp sizecomp;
+	eSieveAction Action;
+	StrBuf *fileinto;
+	StrBuf *redirect;
+	StrBuf *automsg;
+	eSieveFinal final;
+}SieveRule;
+
+
+
+int ConditionalSieveRule_hfield(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	
+        return GetTemplateTokenNumber(Target, 
+                                      TP, 
+                                      3, 
+                                      from)
+                ==
+                Rule->hfield;
+}
+int ConditionalSieveRule_compare(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+        return GetTemplateTokenNumber(Target, 
+                                      TP, 
+                                      3, 
+                                      contains)
+                ==
+		Rule->compare;
+}
+int ConditionalSieveRule_action(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+        return GetTemplateTokenNumber(Target, 
+                                      TP, 
+                                      3, 
+                                      keep)
+                ==
+		Rule->Action; 
+}
+int ConditionalSieveRule_sizecomp(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+        return GetTemplateTokenNumber(Target, 
+                                      TP, 
+                                      3, 
+                                      larger)
+                ==
+		Rule->sizecomp;
+}
+int ConditionalSieveRule_final(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+        return GetTemplateTokenNumber(Target, 
+                                      TP, 
+                                      3, 
+                                      econtinue)
+                ==
+		Rule->final;
+}
+int ConditionalSieveRule_ThisRoom(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+        return GetTemplateTokenNumber(Target, 
+                                      TP, 
+                                      3, 
+                                      econtinue)
+                ==
+		Rule->final;
+}
+int ConditionalSieveRule_Active(StrBuf *Target, WCTemplputParams *TP)
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+        return Rule->active;
+}
+
+
+/*
+void tmplput_SieveRule_hfield(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->hfield, 0);
+}
+void tmplput_SieveRule_compare(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->compare, 0);
+}
+*/
+void tmplput_SieveRule_htext(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->htext, 0);
+}
+/*
+void tmplput_SieveRule_sizecomp(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->sizecomp, 0);
+}
+void tmplput_SieveRule_action(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->action, 0);
+	}*/
+void tmplput_SieveRule_fileinto(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->fileinto, 0);
+}
+void tmplput_SieveRule_redirect(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->redirect, 0);
+}
+void tmplput_SieveRule_automsg(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->automsg, 0);
+}
+/*
+void tmplput_SieveRule_final(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	StrBufAppendTemplate(Target, TP, Rule->final, 0);
+}
+*/
+void FreeSieveRule(void *vRule)
+{
+	SieveRule *Rule = (SieveRule*) Rule;
+
+	FreeStrBuf(&Rule->htext);
+	FreeStrBuf(&Rule->fileinto);
+	FreeStrBuf(&Rule->redirect);
+	FreeStrBuf(&Rule->automsg);
+	
+	free(Rule);
+}
+
+#define WC_RULE_HEADER "# WEBCIT_RULE|"
+HashList *GetSieveRules(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBuf *Line;
+	StrBuf *EncodedRule;
+	int n;
+	const char *pch;
+	HashList *SieveRules = NULL;
+	int Done = 0;
+	SieveRule *Rule;
+
+	serv_printf("MSIV getscript|"RULES_SCRIPT);
+	Line = NewStrBuf();
+	EncodedRule = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, NULL) == 1) 
+	{
+		SieveRules = NewHash(1, Flathash);
+
+		while(!Done && (StrBuf_ServGetln(Line) >= 0) )
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000")) 
+			{
+				Done = 1;
+			}
+			else
+			{
+				pch = NULL;
+				/* We just care for our encoded header and skip everything else */
+				if ((StrLength(Line) > sizeof(WC_RULE_HEADER) - 1) &&
+				    (!strncasecmp(ChrPtr(Line), HKEY(WC_RULE_HEADER))))
+				{
+					StrBufSkip_NTokenS(Line, &pch, '|', 1);
+					n = StrBufExtractNext_int(Line, &pch, '|'); 
+					StrBufExtract_NextToken(EncodedRule, Line, &pch, '|');
+					StrBufDecodeBase64(EncodedRule);
+
+					Rule = (SieveRule*) malloc(sizeof(SieveRule));
+
+					Rule->htext = NewStrBufPlain (NULL, StrLength(EncodedRule));
+
+					Rule->fileinto = NewStrBufPlain (NULL, StrLength(EncodedRule));
+					Rule->redirect = NewStrBufPlain (NULL, StrLength(EncodedRule));
+					Rule->automsg = NewStrBufPlain (NULL, StrLength(EncodedRule));
+
+					/* Grab our existing values to populate */
+					pch = NULL;
+					Rule->active = StrBufExtractNext_int(EncodedRule, &pch, '|');
+					StrBufExtract_NextToken(Line, EncodedRule, &pch, '|');
+					
+					Rule->hfield = (eSieveHfield) GetTokenDefine(SKEY(Line), tocc);
+					StrBufExtract_NextToken(Line, EncodedRule, &pch, '|');
+					Rule->compare = (eSieveCompare) GetTokenDefine(SKEY(Line), contains);
+					StrBufExtract_NextToken(Rule->htext, EncodedRule, &pch, '|');
+					StrBufExtract_NextToken(Line, EncodedRule, &pch, '|');
+					Rule->sizecomp = (eSieveSizeComp) GetTokenDefine(SKEY(Line), larger);
+					Rule->sizeval = StrBufExtractNext_int(EncodedRule, &pch, '|');
+					StrBufExtract_NextToken(Line, EncodedRule, &pch, '|');
+					Rule->Action = (eSieveAction) GetTokenDefine(SKEY(Line), keep);
+					StrBufExtract_NextToken(Rule->fileinto, EncodedRule, &pch, '|');
+					StrBufExtract_NextToken(Rule->redirect, EncodedRule, &pch, '|');
+					StrBufExtract_NextToken(Rule->automsg, EncodedRule, &pch, '|');
+					StrBufExtract_NextToken(Line, EncodedRule, &pch, '|');
+					Rule->final = (eSieveFinal) GetTokenDefine(SKEY(Line), econtinue);
+					Put(SieveRules, IKEY(n), Rule, FreeSieveRule);
+				}
+			}
+	}
+
+	FreeStrBuf(&EncodedRule);
+	FreeStrBuf(&Line);
+	return SieveRules;
+}
+
+void
+SessionDetachModule_SIEVE
+(wcsession *sess)
+{
+	DeleteHash(&sess->KnownSieveScripts);
+}
 
 void 
 InitModule_SIEVE
 (void)
 {
+	REGISTERTokenParamDefine(from);		
+	REGISTERTokenParamDefine(tocc);		
+	REGISTERTokenParamDefine(subject);	
+	REGISTERTokenParamDefine(replyto);	
+	REGISTERTokenParamDefine(sender);	
+	REGISTERTokenParamDefine(resentfrom);	
+	REGISTERTokenParamDefine(resentto);	
+	REGISTERTokenParamDefine(envfrom);	
+	REGISTERTokenParamDefine(envto);	
+	REGISTERTokenParamDefine(xmailer);	
+	REGISTERTokenParamDefine(xspamflag);	
+	REGISTERTokenParamDefine(xspamstatus);	
+	REGISTERTokenParamDefine(listid);	
+	REGISTERTokenParamDefine(size);		
+	REGISTERTokenParamDefine(all);
+
+	REGISTERTokenParamDefine(contains);
+	REGISTERTokenParamDefine(notcontains);
+	REGISTERTokenParamDefine(is);
+	REGISTERTokenParamDefine(isnot);
+	REGISTERTokenParamDefine(matches);
+	REGISTERTokenParamDefine(notmatches);
+
+	REGISTERTokenParamDefine(keep);
+	REGISTERTokenParamDefine(discard);
+	REGISTERTokenParamDefine(reject);
+	REGISTERTokenParamDefine(fileinto);
+	REGISTERTokenParamDefine(redirect);
+	REGISTERTokenParamDefine(vacation);
+
+	REGISTERTokenParamDefine(larger);
+	REGISTERTokenParamDefine(smaller);
+
+	/* these are c-keyworads, so do it by hand. */
+	RegisterTokenParamDefine(HKEY("continue"), econtinue);
+	RegisterTokenParamDefine(HKEY("stop"), estop);
+
+	RegisterIterator("SIEVE:SCRIPTS", 0, NULL, GetSieveRules, NULL, NULL, CTX_SIEVELIST, CTX_NONE, IT_NOFLAG);
+
+	RegisterIterator("SIEVE:RULES", 0, NULL, GetSieveRules, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
+
+	RegisterConditional(HKEY("COND:SIEVE:SCRIPT:ACTIVE"), 0, ConditionalSieveScriptIsActive, CTX_SIEVELIST);
+	RegisterConditional(HKEY("COND:SIEVE:SCRIPT:ISRULES"), 0, ConditionalSieveScriptIsRulesScript, CTX_SIEVELIST);
+	RegisterNamespace("SIEVE:SCRIPT:NAME", 0, 1, tmplput_SieveScriptName, NULL, CTX_ROOMS);
+	RegisterNamespace("SIEVE:SCRIPT:CONTENT", 0, 1, tmplput_SieveScriptContent, NULL, CTX_SIEVELIST);
+
+ 
+	RegisterConditional(HKEY("COND:SIEVE:ACTIVE"), 1, ConditionalSieveRule_Active, CTX_SIEVESCRIPT);
+	RegisterConditional(HKEY("COND:SIEVE:HFIELD"), 1, ConditionalSieveRule_hfield, CTX_SIEVESCRIPT);
+	RegisterConditional(HKEY("COND:SIEVE:COMPARE"), 1, ConditionalSieveRule_compare, CTX_SIEVESCRIPT);
+	RegisterConditional(HKEY("COND:SIEVE:ACTION"), 1, ConditionalSieveRule_action, CTX_SIEVESCRIPT);
+	RegisterConditional(HKEY("COND:SIEVE:SIZECOMP"), 1, ConditionalSieveRule_sizecomp, CTX_SIEVESCRIPT);
+	RegisterConditional(HKEY("COND:SIEVE:FINAL"), 1, ConditionalSieveRule_final, CTX_SIEVESCRIPT);
+	RegisterConditional(HKEY("COND:SIEVE:THISROOM"), 1, ConditionalSieveRule_ThisRoom, CTX_SIEVESCRIPT);
+
+	//RegisterNamespace("SIEVE:SCRIPT:HFIELD", 0, 1, tmplput_SieveRule_hfield, NULL, CTX_SIEVESCRIPT);
+	//RegisterNamespace("SIEVE:SCRIPT:COMPARE", 0, 1, tmplput_SieveRule_compare, NULL, CTX_SIEVESCRIPT);
+	RegisterNamespace("SIEVE:SCRIPT:HTEXT", 0, 1, tmplput_SieveRule_htext, NULL, CTX_SIEVESCRIPT);
+	//RegisterNamespace("SIEVE:SCRIPT:SIZECOMP", 0, 1, tmplput_SieveRule_sizecomp, NULL, CTX_SIEVESCRIPT);
+	///RegisterNamespace("SIEVE:SCRIPT:ACTION", 0, 1, tmplput_SieveRule_action, NULL, CTX_SIEVESCRIPT);
+	RegisterNamespace("SIEVE:SCRIPT:FILEINTO", 0, 1, tmplput_SieveRule_fileinto, NULL, CTX_SIEVESCRIPT);
+	RegisterNamespace("SIEVE:SCRIPT:REDIRECT", 0, 1, tmplput_SieveRule_redirect, NULL, CTX_SIEVESCRIPT);
+	RegisterNamespace("SIEVE:SCRIPT:AUTOMSG", 0, 1, tmplput_SieveRule_automsg, NULL, CTX_SIEVESCRIPT);
+	///RegisterNamespace("SIEVE:SCRIPT:FINAL", 0, 1, tmplput_SieveRule_final, NULL, CTX_SIEVESCRIPT);
+
+#if FOO
 	WebcitAddUrlHandler(HKEY("display_sieve"), "", 0, display_sieve, 0);
-	WebcitAddUrlHandler(HKEY("save_sieve"), "", 0, save_sieve, 0);
 	WebcitAddUrlHandler(HKEY("display_add_remove_scripts"), "", 0, _display_add_remove_scripts, 0);
+#endif
+	WebcitAddUrlHandler(HKEY("save_sieve"), "", 0, save_sieve, 0);
+
 	WebcitAddUrlHandler(HKEY("create_script"), "", 0, create_script, 0);
 	WebcitAddUrlHandler(HKEY("delete_script"), "", 0, delete_script, 0);
 }

@@ -1,0 +1,123 @@
+
+/*
+ * This script should get called by every onChange event...
+ *
+ */
+<script type="text/javascript">
+
+var highest_active_rule = (-1);
+
+function UpdateRules() {
+/*
+ * Show only the active rows...
+ */
+  highest_active_rule = (-1);
+  for (i=0; i< <?SIEVE:MAX_RULES>; ++i) {
+   if ($('active'+i).checked) {
+     $('rule' + i).style.display = 'block';
+     highest_active_rule = i;
+   }
+   else {
+     $('rule' + i).style.display = 'none';
+   }
+  }
+/*
+ * Show only the fields relevant to the rules...
+ */
+  for (i=0; i<=highest_active_rule; ++i) {
+    d = ($('movedown'+i));
+    if (i < highest_active_rule) {
+      d.style.display = 'block';
+    }
+    else {
+      d.style.display = 'none';
+    }
+    d = ($('hfield'+i).options[$('hfield'+i).selectedIndex].value);
+    if (d == 'all') {
+      $('div_size'+i).style.display = 'none';	 
+      $('div_compare'+i).style.display = 'none';
+      $('div_nocompare'+i).style.display = 'block';
+    }
+    else if (d == 'size') {
+      $('div_size'+i).style.display = 'block';	 
+      $('div_compare'+i).style.display = 'none';
+      $('div_nocompare'+i).style.display = 'none';
+    }
+    else {
+      $('div_size'+i).style.display = 'none';	 
+      $('div_compare'+i).style.display = 'block';
+      $('div_nocompare'+i).style.display = 'none';
+    }
+    d = ($('action'+i).options[$('action'+i).selectedIndex].value);
+    if (d == 'fileinto') {
+      $('div_fileinto'+i).style.display = 'block';
+      $('div_redirect'+i).style.display = 'none';
+      $('div_automsg'+i).style.display = 'none';
+    } else if (d == 'redirect') {
+      $('div_fileinto'+i).style.display = 'none';
+      $('div_redirect'+i).style.display = 'block';
+      $('div_automsg'+i).style.display = 'none';
+    } else if ((d == 'reject') || (d == 'vacation'))  {
+      $('div_fileinto'+i).style.display = 'none';
+      $('div_redirect'+i).style.display = 'none';
+      $('div_automsg'+i).style.display = 'block';
+    } else {
+      $('div_fileinto'+i).style.display = 'none';
+      $('div_redirect'+i).style.display = 'none';
+      $('div_automsg'+i).style.display = 'none';
+    }
+    if (highest_active_rule < <?SIEVE:MAX_RULES> - 1) {
+      $('div_addrule').style.display = 'block';
+    } else {
+      $('div_addrule').style.display = 'none';
+    }
+  }
+}
+/*
+ * Add a rule (really, just un-hide it)
+ */
+function AddRule() {
+  highest_active_rule = highest_active_rule + 1;
+  $('active'+highest_active_rule).checked = true;
+  UpdateRules();
+}
+/*
+ * Swap two rules
+ */
+function SwapRules(ra, rb) {
+
+  var things = new Array();
+  things[0] = 'hfield';
+  things[1] = 'compare';
+  things[2] = 'htext';
+  things[3] = 'action';
+  things[4] = 'fileinto';
+  things[5] = 'redirect';
+  things[6] = 'final';
+  things[7] = 'sizecomp';
+  things[8] = 'sizeval';
+  things[9] = 'automsg';
+
+  for (i=0; i<=9; ++i) {
+    tempval=$(things[i]+ra).value;
+    $(things[i]+ra).value = $(things[i]+rb).value;
+    $(things[i]+rb).value = tempval;
+  }
+}
+/*
+ * Delete a rule (percolate the deleted rule out to the end, then deactivate it)
+ */
+function DeleteRule(rd) {
+  for (j=rd; j<=highest_active_rule; ++j) {
+    SwapRules(j, (j+1));
+  }
+  $('active'+highest_active_rule).checked = false;
+}
+</script>
+
+
+<br>
+
+<div id="div_addrule"><a href="javascript:AddRule();"><?_("Add rule")></a><br></div>
+<script type="text/javascript">UpdateRules();</script>
+
