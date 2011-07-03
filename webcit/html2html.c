@@ -2,7 +2,7 @@
  * Output an HTML message, modifying it slightly to make sure it plays nice
  * with the rest of our web framework.
  *
- * Copyright (c) 2005-2010 by the citadel.org team
+ * Copyright (c) 2005-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -386,6 +386,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		else if (!strncasecmp(ptr, "<a href=\"", 9)) {
 			++alevel;
 			++brak;
+			syslog(LOG_DEBUG, "\033[32mHYPERLINK: %s\033[0m", ptr);
 			if ( ((strchr(ptr, ':') < strchr(ptr, '/')))
 					&&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
 			   ) {
@@ -393,7 +394,11 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 				StrBufAppendPrintf(converted_msg, new_window);
 				ptr = &ptr[8];
 			}
-			else if ( (treat_as_wiki) && (strncasecmp(ptr, "<a href=\"wiki?", 14)) ) {
+			else if (
+				(treat_as_wiki)
+				&& (strncasecmp(ptr, "<a href=\"wiki?", 14))
+				&& (strncasecmp(ptr, "<a href=\"dotgoto?", 17))
+			) {
 				content_length += 64;
 				StrBufAppendPrintf(converted_msg, "<a href=\"wiki?page=");
 				ptr = &ptr[9];
@@ -414,7 +419,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			if (!tag_end) {
 				syslog(9, "tag_end is null and ptr is:\n");
 				syslog(9, "%s\n", ptr);
-				syslog(9, "Theoretical bytes remaining: %ld\n", msgend - ptr);
+				syslog(9, "Theoretical bytes remaining: %d\n", (int)(msgend - ptr));
 			}
 
 			src=strstr(ptr, "src=\"cid:");
