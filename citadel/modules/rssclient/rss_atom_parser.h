@@ -25,8 +25,11 @@
 #define RSS_REQUIRE_BUF (1<<3)
 
 typedef struct _rss_item {
-	char *roomlist;
-	int done_parsing;
+	int     done_parsing;
+	int     item_tag_nesting;
+	int     roomlist_parts;
+	time_t  pubdate;
+	StrBuf *roomlist;
 	StrBuf *guid;
 	StrBuf *title;
 	StrBuf *link;
@@ -34,25 +37,21 @@ typedef struct _rss_item {
 	StrBuf *reLink;
 	StrBuf *reLinkTitle;
 	StrBuf *description;
-	time_t pubdate;
 	StrBuf *channel_title;
-	int item_tag_nesting;
 	StrBuf *author_or_creator;
 	StrBuf *author_url;
 	StrBuf *author_email;
 }rss_item;
 
-
-typedef struct rssnetcfg rssnetcfg;
-struct rssnetcfg {
-	int Attached;
-	rssnetcfg *next;
-	StrBuf* Url;
-	char *rooms;
-	time_t last_error_when;
-	int ItemType;
-	time_t next_poll;
-};
+typedef struct __rssnetcfg {
+	int     Attached;
+	int     ItemType;
+	int     roomlist_parts;
+	time_t  last_error_when;
+	time_t  next_poll;
+	StrBuf *Url;
+	StrBuf *rooms;
+}rssnetcfg;
 
 typedef void (*rss_handler_func)(StrBuf *CData, 
 				 rss_item *ri, 
@@ -60,19 +59,19 @@ typedef void (*rss_handler_func)(StrBuf *CData,
 				 const char** Attr);
 
 typedef struct __rss_xml_handler {
-	int Flags;
+	int              Flags;
 	rss_handler_func Handler;
 }rss_xml_handler;
 
 typedef struct _rsscollection {
-	AsyncIO IO;
-	XML_Parser xp;
-
-	StrBuf *CData;
-	StrBuf *Key;
-
-	rss_item *Item;
-	rssnetcfg *Cfg;
+	AsyncIO    	 IO;
+	XML_Parser 	 xp;
+		   	
+	StrBuf     	*CData;
+	StrBuf     	*Key;
+		   	
+	rss_item   	*Item;
+	rssnetcfg  	*Cfg;
 	
 	rss_xml_handler *Current;
 } rsscollection;

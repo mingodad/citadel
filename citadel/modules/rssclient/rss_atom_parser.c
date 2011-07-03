@@ -617,6 +617,8 @@ eNextState ParseRSSReply(AsyncIO *IO)
 
 	rssc = IO->Data;
 	ri = rssc->Item;
+	ri->roomlist_parts = rssc->Cfg->roomlist_parts;
+	ri->roomlist = rssc->Cfg->rooms;
 	rssc->CData = NewStrBufPlain(NULL, SIZ);
 	rssc->Key = NewStrBuf();
 	at = NULL;

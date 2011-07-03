@@ -182,12 +182,14 @@ void rss_save_item(rss_item *ri)
 	int msglen = 0;
 	StrBuf *Message;
 	StrBuf *guid;
+	StrBuf *Buf;
 
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
 	memset(recp, 0, sizeof(struct recptypes));
-	recp->recp_room = strdup(ri->roomlist);
-	recp->num_room = num_tokens(ri->roomlist, '|');
+	Buf = NewStrBufDup(ri->roomlist);
+	recp->recp_room = SmashStrBuf(&Buf);
+	recp->num_room = ri->roomlist_parts;
 	recp->recptypes_magic = RECPTYPES_MAGIC;
    
 	/* Construct a GUID to use in the S_USETABLE table.
@@ -437,7 +439,7 @@ void DeleteRssCfg(void *vptr)
 	rssnetcfg *rncptr = (rssnetcfg *)vptr;
 
 	FreeStrBuf(&rncptr->Url);
-	if (rncptr->rooms != NULL) free(rncptr->rooms);
+	FreeStrBuf(&rncptr->rooms);
 	free(rncptr);
 }
 
@@ -528,6 +530,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		    Count->count ++;
 		    rncptr = (rssnetcfg *) malloc(sizeof(rssnetcfg));
 		    memset (rncptr, 0, sizeof(rssnetcfg));
+		    rncptr->roomlist_parts = 1;
 		    rncptr->Url = NewStrBuf();
 		    StrBufExtract_NextToken(rncptr->Url, Line, &lPtr, '|');
 
@@ -545,7 +548,10 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 			}
 			else 
 			{
-			    /* TODO: hook us into the otherone here. */
+				StrBufAppendBufPlain(use_this_rncptr->rooms, 
+						     qrbuf->QRname, 
+						     -1, 0);
+				use_this_rncptr->roomlist_parts++;
 			}
 
 			continue;
@@ -553,8 +559,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 
 		    rncptr->ItemType = RSS_UNSET;
 				
-		    rncptr->rooms = NULL;
-		    rncptr->rooms = strdup(qrbuf->QRname);
+		    rncptr->rooms = NewStrBufPlain(qrbuf->QRname, -1);
 
 		    citthread_mutex_lock(&RSSQueueMutex);
 		    Put(RSSFetchUrls, SKEY(rncptr->Url), rncptr, DeleteRssCfg);
