@@ -23,7 +23,6 @@
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
 
 #define FOO 1
-
 /*
  * Helper function for output_sieve_rule() to output strings with quotes escaped
  */
@@ -570,7 +569,7 @@ void display_sieve(void)
 	);
 
 	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<img src=\"static/advanpage2_48x.gif\">");
+	wc_printf("<img src=\"static/webcit_icons/essen/32x32/config.png\">");
 	wc_printf("<h1>");
 	wc_printf(_("View/edit server-side mail filters"));
 	wc_printf("</h1>\n");
