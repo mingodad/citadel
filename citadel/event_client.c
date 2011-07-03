@@ -67,21 +67,104 @@
 
 #include "event_client.h"
 
+static void IO_abort_shutdown_callback(struct ev_loop *loop, ev_cleanup *watcher, int revents)
+{
+	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q: %s\n", __FUNCTION__);
+
+	AsyncIO *IO = watcher->data;
+	assert(IO->ShutdownAbort);
+	IO->ShutdownAbort(IO);
+}
+
+
+/*--------------------------------------------------------------------------------
+ * Server DB IO 
+ */
+extern int evdb_count;
+extern citthread_mutex_t DBEventQueueMutex;
+extern HashList *DBInboundEventQueue;
+extern struct ev_loop *event_db;
+extern ev_async DBAddJob;   
+extern ev_async DBExitEventLoop;
+
+int QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
+{
+	IOAddHandler *h;
+	int i;
+
+	h = (IOAddHandler*)malloc(sizeof(IOAddHandler));
+	h->IO = IO;
+	h->EvAttch = CB;
+	ev_cleanup_init(&IO->abort_by_shutdown, 
+			IO_abort_shutdown_callback);
+	IO->abort_by_shutdown.data = IO;
+	ev_cleanup_start(event_db, &IO->abort_by_shutdown);
+
+	citthread_mutex_lock(&DBEventQueueMutex);
+	CtdlLogPrintf(CTDL_DEBUG, "DBEVENT Q\n");
+	i = ++evdb_count ;
+	Put(DBInboundEventQueue, IKEY(i), h, NULL);
+	citthread_mutex_unlock(&DBEventQueueMutex);
+
+	ev_async_send (event_db, &DBAddJob);
+	CtdlLogPrintf(CTDL_DEBUG, "DBEVENT Q Done.\n");
+	return 0;
+}
+
+void ShutDownDBCLient(AsyncIO *IO)
+{
+	CitContext *Ctx =IO->CitContext;
+	become_session(Ctx);
+
+	CtdlLogPrintf(CTDL_DEBUG, "DBEVENT\n");
+	ev_cleanup_stop(event_db, &IO->abort_by_shutdown);
+
+	assert(IO->Terminate);
+	IO->Terminate(IO);	
+
+	Ctx->state = CON_IDLE;
+	Ctx->kill_me = 1;
+}
+
+void
+DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
+	CtdlLogPrintf(CTDL_DEBUG, "event: %s\n", __FUNCTION__);
+	become_session(IO->CitContext);
+	
+	ev_idle_stop(event_db, &IO->unwind_stack);
+
+	assert(IO->ReadDone);
+	switch (IO->ReadDone(IO))
+	{
+	case eAbort:
+	    ShutDownDBCLient(IO);
+	default:
+	    break;
+	}
+}
+
+void NextDBOperation(AsyncIO *IO, IO_CallBack CB)
+{
+	IO->ReadDone = CB;
+	ev_idle_init(&IO->unwind_stack,
+		     DB_PerformNext);
+	IO->unwind_stack.data = IO;
+	ev_idle_start(event_db, &IO->unwind_stack);
+}
+
+/*--------------------------------------------------------------------------------
+ * Client IO 
+ */
+extern int evbase_count;
 extern citthread_mutex_t EventQueueMutex;
 extern HashList *InboundEventQueue;
 extern struct ev_loop *event_base;
 extern ev_async AddJob;   
 extern ev_async ExitEventLoop;
 
-static void
-IO_abort_shutdown_callback(struct ev_loop *loop, ev_cleanup *watcher, int revents)
-{
-	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q: %s\n", __FUNCTION__);
 
-	AsyncIO *IO = watcher->data;
-	IO->ShutdownAbort(IO);
-}
-	
 int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 {
 	IOAddHandler *h;
@@ -97,7 +180,7 @@ int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 
 	citthread_mutex_lock(&EventQueueMutex);
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q\n");
-	i = GetCount(InboundEventQueue);
+	i = ++evbase_count;
 	Put(InboundEventQueue, IKEY(i), h, NULL);
 	citthread_mutex_unlock(&EventQueueMutex);
 
@@ -106,9 +189,12 @@ int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	return 0;
 }
 
-
 int ShutDownEventQueue(void)
 {
+	citthread_mutex_lock(&DBEventQueueMutex);
+	ev_async_send (event_db, &DBExitEventLoop);
+	citthread_mutex_unlock(&DBEventQueueMutex);
+
 	citthread_mutex_lock(&EventQueueMutex);
 	ev_async_send (EV_DEFAULT_ &ExitEventLoop);
 	citthread_mutex_unlock(&EventQueueMutex);
@@ -142,9 +228,12 @@ void StopClientWatchers(AsyncIO *IO)
 
 void ShutDownCLient(AsyncIO *IO)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->SendBuf.fd);
-	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
+	CitContext *Ctx =IO->CitContext;
+	become_session(Ctx);
 
+	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->SendBuf.fd);
+
+	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 	StopClientWatchers(IO);
 
 	if (IO->DNSChannel != NULL) {
@@ -154,9 +243,9 @@ void ShutDownCLient(AsyncIO *IO)
 		IO->DNSChannel = NULL;
 	}
 	assert(IO->Terminate);
-	become_session(IO->CitContext);
 	IO->Terminate(IO);
-	
+	Ctx->state = CON_IDLE;
+	Ctx->kill_me = 1;
 }
 
 
@@ -244,6 +333,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			fprintf(fd, "Read: BufSize: %ld BufContent: [",
 				nbytes);
 			rv = fwrite(pchh, nbytes, 1, fd);
+			if (!rv) printf("failed to write debug!");
 			fprintf(fd, "]\n");
 		
 			
@@ -457,7 +547,6 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	if (IO->SendBuf.fd < 0) {
 		CtdlLogPrintf(CTDL_ERR, "EVENT: socket() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to create socket: %s", strerror(errno));
-//		freeaddrinfo(res);
 		return eAbort;
 	}
 	fdflags = fcntl(IO->SendBuf.fd, F_GETFL);
@@ -498,7 +587,6 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 
 	if (rc >= 0){
 		CtdlLogPrintf(CTDL_DEBUG, "connect() immediate success.\n");
-////		freeaddrinfo(res);
 		set_start_callback(event_base, IO, 0);
 		ev_timer_start(event_base, &IO->rw_timeout);
 		return IO->NextState;

@@ -1,3 +1,4 @@
+#define EV_COMPAT3 0
 #include <ev.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -95,7 +96,7 @@ struct AsyncIO {
 	/* Saving / loading a message async from / to disk */
 
 	struct CtdlMessage *AsyncMsg;
-	struct recptypes AsyncRcp;
+	struct recptypes *AsyncRcp;
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
 	void *Data;        /* application specific data */
 	void *CitContext;  /* Citadel Session context... */
@@ -108,6 +109,8 @@ typedef struct _IOAddHandler {
 
 void FreeAsyncIOContents(AsyncIO *IO);
 
+void NextDBOperation(AsyncIO *IO, IO_CallBack CB);
+int QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 int QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 int ShutDownEventQueue(void);
 

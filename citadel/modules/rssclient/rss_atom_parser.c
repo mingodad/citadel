@@ -639,6 +639,7 @@ eNextState ParseRSSReply(AsyncIO *IO)
 	else
 		ptr = "UTF-8";
 
+	CtdlLogPrintf(CTDL_ALERT, "RSS: Now parsing [%s] \n", ChrPtr(rssc->Cfg->Url));
 
 	rssc->xp = XML_ParserCreateNS(ptr, ':');
 	if (!rssc->xp) {

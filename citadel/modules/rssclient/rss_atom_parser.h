@@ -45,6 +45,7 @@ typedef struct _rss_item {
 
 typedef struct rssnetcfg rssnetcfg;
 struct rssnetcfg {
+	int Attached;
 	rssnetcfg *next;
 	StrBuf* Url;
 	char *rooms;

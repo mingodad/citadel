@@ -60,24 +60,11 @@
 #include "event_client.h"
 #include "serv_curl.h"
 
-int event_add_pipe[2] = {-1, -1};
+ev_loop *event_base;
 
-citthread_mutex_t EventQueueMutex; /* locks the access to the following vars: */
-HashList *QueueEvents = NULL;
-
-HashList *InboundEventQueue = NULL;
-HashList *InboundEventQueues[2] = { NULL, NULL };
-
-struct ev_loop *event_base;
-
-ev_async AddJob;   
-ev_async ExitEventLoop;
-ev_async WakeupCurl;
-
-extern struct ev_loop *event_base;
-
-void SockStateCb(void *data, int sock, int read, int write);
-
+/*****************************************************************************
+ *                   libevent / curl integration                             *
+ *****************************************************************************/
 #define MOPT(s, v)							\
 	do {								\
 		sta = curl_multi_setopt(mhnd, (CURLMOPT_##s), (v));	\
@@ -87,11 +74,6 @@ void SockStateCb(void *data, int sock, int read, int write);
 		}							\
 	} while (0)
 
-
-
-/*****************************************************************************
- *                   libevent / curl integration                             *
- *****************************************************************************/
 typedef struct _evcurl_global_data {
 	int magic;
 	CURLM *mhnd;
@@ -105,6 +87,7 @@ typedef struct _sockwatcher_data
 	ev_io ioev;
 } sockwatcher_data;
 
+ev_async WakeupCurl;
 evcurl_global_data global;
 
 static void
@@ -257,7 +240,6 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *csoc
 void curl_init_connectionpool(void) 
 {
 	CURLM *mhnd ;
-//	global.magic = EVCURL_GLOBAL_MAGIC;
 
 	ev_timer_init(&global.timeev, &gottime, 14.0, 14.0);
 	global.timeev.data = (void *)&global;
@@ -269,13 +251,6 @@ void curl_init_connectionpool(void)
 		CtdlLogPrintf(CTDL_ERR,"EVCURL: error initializing curl library: %s\n", curl_easy_strerror(sta));
 		exit(1);
 	}
-/*
-  if (!ev_default_loop(EVFLAG_AUTO))
-  {
-  CtdlLogPrintf(CTDL_ERR,"error initializing libev\n");
-  exit(2);
-  }
-*/
 	mhnd = global.mhnd = curl_multi_init();
 	if (!mhnd)
 	{
@@ -288,8 +263,6 @@ void curl_init_connectionpool(void)
 	MOPT(TIMERFUNCTION, &gotwatchtime);
 	MOPT(TIMERDATA, (void *)&global);
 
-	/* well, just there to fire the sample request?*/
-/// 	ev_timer_start(EV_DEFAULT, &global.timeev);
 	return;
 }
 
@@ -385,14 +358,11 @@ evcurl_handle_start(AsyncIO *IO)
 	if (msta)
 		CtdlLogPrintf(CTDL_ERR, "EVCURL: error attaching to curl multi handle: %s\n", curl_multi_strerror(msta));
 	IO->HttpReq.attached = 1;
-//	ev_timer_start(EV_DEFAULT, &global.timeev);
 	ev_async_send (event_base, &WakeupCurl);
 }
 
 static void WakeupCurlCallback(EV_P_ ev_async *w, int revents)
 {
-///	evcurl_global_data *global = cglobal;
-
 	CtdlLogPrintf(CTDL_DEBUG, "EVCURL: waking up curl multi handle\n");
 
 	curl_multi_perform(&global, CURL_POLL_NONE);
@@ -405,7 +375,19 @@ static void evcurl_shutdown (void)
 /*****************************************************************************
  *                       libevent integration                                *
  *****************************************************************************/
+/*
+ * client event queue plus its methods.
+ * this currently is the main loop (which may change in some future?)
+ */
+int evbase_count = 0;
+int event_add_pipe[2] = {-1, -1};
+citthread_mutex_t EventQueueMutex; /* locks the access to the following vars: */
+HashList *QueueEvents = NULL;
+HashList *InboundEventQueue = NULL;
+HashList *InboundEventQueues[2] = { NULL, NULL };
 
+ev_async AddJob;   
+ev_async ExitEventLoop;
 
 static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
@@ -442,7 +424,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 
 static void EventExitCallback(EV_P_ ev_async *w, int revents)
 {
-	ev_unloop(event_base, EVUNLOOP_ALL);
+	ev_break(event_base, EVBREAK_ALL);
 
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q exiting.\n");
 }
@@ -475,9 +457,9 @@ void InitEventQueue(void)
  */
 void *client_event_thread(void *arg) 
 {
-	struct CitContext libevent_client_CC;
+	struct CitContext libev_client_CC;
 
-	CtdlFillSystemContext(&libevent_client_CC, "LibEv Thread");
+	CtdlFillSystemContext(&libev_client_CC, "LibEv Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
 	CtdlLogPrintf(CTDL_DEBUG, "client_ev_thread() initializing\n");
 
@@ -492,11 +474,11 @@ void *client_event_thread(void *arg)
 
 	curl_init_connectionpool();
 
-	ev_loop (event_base, 0);
+	ev_run (event_base, 0);
 
 
 	CtdlClearSystemContext();
-	ev_default_destroy ();
+	ev_loop_destroy (EV_DEFAULT_UC);
 	
 	DeleteHash(&QueueEvents);
 	InboundEventQueue = NULL;
@@ -504,6 +486,118 @@ void *client_event_thread(void *arg)
 	DeleteHash(&InboundEventQueues[1]);
 	citthread_mutex_destroy(&EventQueueMutex);
 	evcurl_shutdown();
+
+	return(NULL);
+}
+/*------------------------------------------------------------------------------*/
+/*
+ * DB-Queue; does async bdb operations.
+ * has its own set of handlers.
+ */
+ev_loop *event_db;
+int evdb_count = 0;
+int evdb_add_pipe[2] = {-1, -1};
+citthread_mutex_t DBEventQueueMutex; /* locks the access to the following vars: */
+HashList *DBQueueEvents = NULL;
+HashList *DBInboundEventQueue = NULL;
+HashList *DBInboundEventQueues[2] = { NULL, NULL };
+
+ev_async DBAddJob;   
+ev_async DBExitEventLoop;
+
+static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
+{
+	HashList *q;
+	void *v;
+	HashPos  *It;
+	long len;
+	const char *Key;
+
+	/* get the control command... */
+	citthread_mutex_lock(&DBEventQueueMutex);
+
+	if (DBInboundEventQueues[0] == DBInboundEventQueue) {
+		DBInboundEventQueue = DBInboundEventQueues[1];
+		q = DBInboundEventQueues[0];
+	}
+	else {
+		DBInboundEventQueue = DBInboundEventQueues[0];
+		q = DBInboundEventQueues[1];
+	}
+	citthread_mutex_unlock(&DBEventQueueMutex);
+
+	It = GetNewHashPos(q, 0);
+	while (GetNextHashPos(q, It, &len, &Key, &v))
+	{
+		IOAddHandler *h = v;
+		h->EvAttch(h->IO);
+	}
+	DeleteHashPos(&It);
+	DeleteHashContent(&q);
+	CtdlLogPrintf(CTDL_DEBUG, "DBEVENT Q Read done.\n");
+}
+
+
+static void DBEventExitCallback(EV_P_ ev_async *w, int revents)
+{
+	ev_break(event_db, EVBREAK_ALL);
+
+	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q exiting.\n");
+}
+
+
+
+void DBInitEventQueue(void)
+{
+	struct rlimit LimitSet;
+
+	citthread_mutex_init(&DBEventQueueMutex, NULL);
+
+	if (pipe(evdb_add_pipe) != 0) {
+		CtdlLogPrintf(CTDL_EMERG, "Unable to create pipe for libev queueing: %s\n", strerror(errno));
+		abort();
+	}
+	LimitSet.rlim_cur = 1;
+	LimitSet.rlim_max = 1;
+	setrlimit(evdb_add_pipe[1], &LimitSet);
+
+	DBQueueEvents = NewHash(1, Flathash);
+	DBInboundEventQueues[0] = NewHash(1, Flathash);
+	DBInboundEventQueues[1] = NewHash(1, Flathash);
+	DBInboundEventQueue = DBInboundEventQueues[0];
+}
+
+/*
+ * this thread operates writing to the message database via libev.
+ * 
+ * 
+ */
+void *db_event_thread(void *arg) 
+{
+	struct CitContext libev_msg_CC;
+
+	CtdlFillSystemContext(&libev_msg_CC, "LibEv DB IO Thread");
+//	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
+	CtdlLogPrintf(CTDL_DEBUG, "client_msgev_thread() initializing\n");
+
+	event_db = ev_loop_new (EVFLAG_AUTO);
+
+	ev_async_init(&DBAddJob, DBQueueEventAddCallback);
+	ev_async_start(event_db, &DBAddJob);
+	ev_async_init(&DBExitEventLoop, DBEventExitCallback);
+	ev_async_start(event_db, &DBExitEventLoop);
+
+	ev_run (event_db, 0);
+
+
+	CtdlClearSystemContext();
+	ev_loop_destroy (event_db);
+
+	DeleteHash(&DBQueueEvents);
+	DBInboundEventQueue = NULL;
+	DeleteHash(&DBInboundEventQueues[0]);
+	DeleteHash(&DBInboundEventQueues[1]);
+	citthread_mutex_destroy(&DBEventQueueMutex);
 
 	return(NULL);
 }
@@ -516,7 +610,9 @@ CTDL_MODULE_INIT(event_client)
 	if (!threading)
 	{
 		InitEventQueue();
+		DBInitEventQueue();
 		CtdlThreadCreate("Client event", CTDLTHREAD_BIGSTACK, client_event_thread, NULL);
+		CtdlThreadCreate("DB event", CTDLTHREAD_BIGSTACK, db_event_thread, NULL);
 /// todo register shutdown callback.
 	}
 #endif

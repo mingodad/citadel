@@ -191,7 +191,7 @@ int SortConstStrByPosition(const void *Item1, const void *Item2)
 	return -1;
 }
 
-HashList GetShorterUrls(StrBuf Message)
+HashList *GetShorterUrls(StrBuf *Message)
 {
 	HashList *pUrls;
 	/* we just suspect URL shorteners to be inside of feeds from twitter
@@ -204,7 +204,7 @@ HashList GetShorterUrls(StrBuf Message)
 	CrawlMessageForShorterUrls(pUrls, Message);
 
 	if (GetCount(pUrls) > 0)
-		return pURLs;
+		return pUrls;
 	else 
 		return NULL;
 
