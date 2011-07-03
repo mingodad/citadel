@@ -109,6 +109,7 @@ typedef enum _room_views {
 	VIEW_MAX
 } ROOM_VIEWS;
 
+#define BLOG_EUIDBUF_SIZE	40
 
 #ifndef IsEmptyStr
 #define IsEmptyStr(a) ((a)[0] == '\0')
