@@ -6,7 +6,7 @@
 	-pie-background: linear-gradient(#4D555C, #7D858C);
 	behavior: url(/static/styles/PIE.htc);
         border-bottom: 2px solid #424b52;
-	color: #FFF;
+	color: #f0feff;
 	margin: 0;
 	padding: 0;
 	top: 0;
@@ -18,12 +18,16 @@
 	overflow: hidden;
 }
 
-#banner a { color: #FFF }
+#banner table { width: 100% }
+
+#banner a { color: #f0feff }
 
 #banner h1 {
 	font-size: 160%;
 	font-weight: 700;
 }
+
+#banner #rmname { white-space: nowrap; }
 
 #banner h2 { font-weight: 700}
 
@@ -34,20 +38,20 @@
 	color: #FEFFFC;
 	border: 1px solid black;
 }
-#banner .banner {
-	display: table-cell;
-	width: 90%;
-}
+
+#banner .banner {}
 
 #banner .banner img {
 	float: left;
-	margin: 0 5px 15px 0;
+	margin: 0 0.3em 1em 0;
 }
 
-#banner h1, #banner h2, #banner .banner .infos, #banner .banner p {
+#banner h1, #banner h2, #banner .banner p {
 	margin: 2px;
 	padding: 0;
 }
+
+#banner .infos{ margin: 0.5em }
 
 #room_infos {
 	position: absolute;
@@ -63,9 +67,9 @@
 #room_infos img.close_infos { float: right }
 
 #actiondiv {
-	position: absolute;
-	right: 0;
-	top: 0;
+	float: right;
+	margin: 0;
+	padding: 0;
 	text-align: right;
 	font-size: 70%;
 	font-weight: bold;
@@ -74,10 +78,10 @@
 #banner ul.room_actions {
 	list-style: none;
 	margin: 0;
+	padding: 0;
 }
 #banner ul.room_actions li {
 	white-space: nowrap;
-	display: inline;
 }
 #banner ul.room_actions li form {
 	margin: 0;
@@ -88,6 +92,7 @@
 	margin-top: 2px;
 	margin-right: 2px;
 }
+
 #selectpage.hidden { display: none !important }
 
 
@@ -95,6 +100,4 @@
 
 .room_actions form select { cursor: pointer }
 
-.start_page {
-	font-size: 50%
-}
+.start_page { font-size: 50% }

@@ -62,13 +62,13 @@ body {
 }
 
 #room_infos, #address_book_popup, .roomops_cell, .roomops_cell_edit, .mimepart {
-	background-color: #F0FFFF;
-	color: #333;
+	background-color: #deded0;
+	color: #5C646B;
 } 
 
 #room_infos, #address_book_popup, .mimepart, .room_actions form select {
-	border: 1px solid #333;
-	overflow: scroll;
+	border: 1px solid #5C646B;
+	overflow: auto;
 }
 
 .buttons a,.tablabel,.treetitle {
