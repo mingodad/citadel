@@ -1,18 +1,19 @@
 
+<script type="text/javascript">
+
 /*
  * This script should get called by every onChange event...
  *
  */
-<script type="text/javascript">
 
 var highest_active_rule = (-1);
 
 function UpdateRules() {
 /*
- * Show only the active rows...
+ * Show only the active rows... /// TODO 255-> we need no limit anymore.
  */
   highest_active_rule = (-1);
-  for (i=0; i< <?SIEVE:MAX_RULES>; ++i) {
+  for (i=0; i< 255; ++i) {
    if ($('active'+i).checked) {
      $('rule' + i).style.display = 'block';
      highest_active_rule = i;
@@ -21,6 +22,7 @@ function UpdateRules() {
      $('rule' + i).style.display = 'none';
    }
   }
+
 /*
  * Show only the fields relevant to the rules...
  */
@@ -65,14 +67,15 @@ function UpdateRules() {
       $('div_fileinto'+i).style.display = 'none';
       $('div_redirect'+i).style.display = 'none';
       $('div_automsg'+i).style.display = 'none';
-    }
-    if (highest_active_rule < <?SIEVE:MAX_RULES> - 1) {
+    }/* TODO: we don't have any limits anymore */
+    if (highest_active_rule < 255 - 1) {
       $('div_addrule').style.display = 'block';
     } else {
       $('div_addrule').style.display = 'none';
     }
   }
 }
+
 /*
  * Add a rule (really, just un-hide it)
  */
@@ -81,6 +84,7 @@ function AddRule() {
   $('active'+highest_active_rule).checked = true;
   UpdateRules();
 }
+
 /*
  * Swap two rules
  */
@@ -104,6 +108,7 @@ function SwapRules(ra, rb) {
     $(things[i]+rb).value = tempval;
   }
 }
+
 /*
  * Delete a rule (percolate the deleted rule out to the end, then deactivate it)
  */
@@ -120,4 +125,4 @@ function DeleteRule(rd) {
 
 <div id="div_addrule"><a href="javascript:AddRule();"><?_("Add rule")></a><br></div>
 <script type="text/javascript">UpdateRules();</script>
-
+</div>
