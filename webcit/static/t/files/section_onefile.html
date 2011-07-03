@@ -3,20 +3,20 @@
 <?!("X", 2)><?!("X", 1)>
 
 <tr class="<?ITERATE:ODDEVEN>">
-<td>
- <a href="download_file/<?FILE:NAME("U")>">
-  <img src="display_mime_icon?type=<?FILE:MIMETYPE>" border="0" align="middle" alt="">
-  <?FILE:NAME></a>
-</td>
-<td><?FILE:SIZE></td>
-<td><?FILE:MIMETYPE></td>
-<td><?FILE:COMMENT("X")></td>
-<??("COND:AIDE", 4)><td><a href="delete_file?file=<?FILE:NAME("U")>"><img src="static/webcit_icons/essen/16x16/delete.png" alt="<?_("Delete File")>"></a></td><??("X", 4)>
+	<td>
+	 <a href="download_file/<?FILE:NAME("U")>">
+	  <img src="display_mime_icon?type=<?FILE:MIMETYPE>" border="0" align="middle" alt="">
+	  <?FILE:NAME></a>
+	</td>
+	<td><?FILE:SIZE></td>
+	<td><?FILE:MIMETYPE></td>
+	<td><?FILE:COMMENT("X")></td>
+	<??("COND:AIDE", 4)><td><a href="delete_file?file=<?FILE:NAME("U")>"><img src="static/webcit_icons/essen/16x16/delete.png" alt="<?_("Delete File")>"></a></td><??("X", 4)>
 </tr>
 
 <?!("COND:ITERATE:LASTN", 2)>
-</table>
-<?!("COND:FILE:ISPIC", 3)>
-<div class="buttons"><a href="do_template?template=files_jspicview&frame=1"><?_("Slideshow")></a></div>
-<??("X", 3)>
+	</table>
+	<?!("COND:FILE:ISPIC", 3)>
+		<div class="buttons"><?=("files_section_onefile_picview")><?_("Slideshow")></a></div>
+	<??("X", 3)>
 <?!("X", 2)>
