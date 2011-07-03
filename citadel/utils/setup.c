@@ -1278,17 +1278,17 @@ void GetDefaultValChar(char *WhereTo, const char *VarName, char DefVal)
 		*WhereTo = atoi(ch);
 	}
 }
-#define GetDefaultVALSTR(CFGNAME, DEFL) GetDefaultValStr((char**)&config.CFGNAME, sizeof(config.CFGNAME), "CITADEL_"#CFGNAME, DEFL)
-void GetDefaultValStr(char **WhereTo, size_t nMax, const char *VarName, const char *DefVal)
+#define GetDefaultVALSTR(CFGNAME, DEFL) GetDefaultValStr(&config.CFGNAME[0], sizeof(config.CFGNAME), "CITADEL_"#CFGNAME, DEFL)
+void GetDefaultValStr(char *WhereTo, size_t nMax, const char *VarName, const char *DefVal)
 {
 	const char *ch;
-	if (**WhereTo == '\0') 
-		safestrncpy(*WhereTo, DefVal, nMax);
+	if (*WhereTo == '\0') 
+		safestrncpy(WhereTo, DefVal, nMax);
 
 	if ((setup_type == UI_SILENT) &&
 	    (ch = getenv(VarName), ch != NULL))
 	{
-		safestrncpy(*WhereTo, ch, nMax);
+		safestrncpy(WhereTo, ch, nMax);
 	}
 }
 
