@@ -1803,22 +1803,26 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
  * @param OutBuf the output buffer
  * @param In Buffer to encode
  * @param PlainIn way in from plain old c strings
+ * @param PlainInLen way in from plain old c strings; maybe you've got binary data or know the length?
  */
-void StrBufHexescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
+void StrBufHexEscAppend(StrBuf *OutBuf, const StrBuf *In, const unsigned char *PlainIn, long PlainInLen)
 {
-	const char *pch, *pche;
+	const unsigned char *pch, *pche;
 	char *pt, *pte;
 	int len;
 	
 	if (((In == NULL) && (PlainIn == NULL)) || (OutBuf == NULL) )
 		return;
 	if (PlainIn != NULL) {
-		len = strlen(PlainIn);
+		if (PlainInLen < 0)
+			len = strlen((const char*)PlainIn);
+		else
+			len = PlainInLen;
 		pch = PlainIn;
 		pche = pch + len;
 	}
 	else {
-		pch = In->buf;
+		pch = (const unsigned char*)In->buf;
 		pche = pch + In->BufUsed;
 		len = In->BufUsed;
 	}
@@ -1836,12 +1840,24 @@ void StrBufHexescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 			pt = OutBuf->buf + OutBuf->BufUsed;
 		}
 
-		*pt = HexList[(unsigned char)*pch][0];
+		*pt = HexList[*pch][0];
 		pt ++;
-		*pt = HexList[(unsigned char)*pch][1];
+		*pt = HexList[*pch][1];
 		pt ++; pch ++; OutBuf->BufUsed += 2;
 	}
 	*pt = '\0';
+}
+
+/** 
+ * @ingroup StrBuf_DeEnCoder
+ * @brief append a string in hex encoding to the buffer
+ * @param OutBuf the output buffer
+ * @param In Buffer to encode
+ * @param PlainIn way in from plain old c strings
+ */
+void StrBufHexescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
+{
+	StrBufHexEscAppend(OutBuf, In, (const unsigned char*) PlainIn, -1);
 }
 
 /**
@@ -4225,7 +4241,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
  * @param Buf BLOB with lines of text...
  * @param Ptr moved arround to keep the next-line across several iterations
  *        has to be &NULL on start; will be &NotNULL on end of buffer
- * @returns size of copied buffer
+ * @returns size of remaining buffer
  */
 int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
 {
