@@ -1,23 +1,30 @@
 <?=("head")>
 <?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <div id="banner">
-	<img src="static/webcit_icons/essen/32x32/account.png">
-	<h1><?_("User profile")></h1>
+	<h1><img src="static/webcit_icons/essen/32x32/account.png" alt="">&nbsp;<?_("User profile")></h1>
+	<div id="actiondiv">
+		<ul class="room_actions"></ul>
+	</div>
+	<div id="navbar"><ul>
+		<li><a href="display_pageWHONAME">
+			<img src="static/webcit_icons/essen/16x16/chat.png" alt="">
+			<span class="navbar_link">chat</span>
+		</a></li>
+		<?!("WHO:ISME", 2)><li><a href="edit_me">
+			<img src="static/webcit_icons/essen/16x16/config.png" alt="">
+			<span class="navbar_link"><?_("edit")></span>
+		</a></li><?!("X", 3)>
+	</ul></div>
 </div>
 <div id="content" class="service">
-	 <a href="display_page?recp=<?WHO:NAME("U")>">
-		<img src="static/webcit_icons/essen/16x16/chat.png" alt="">
-		&nbsp;&nbsp;
-		<?_("Click here to send an instant message to ")>
-	</a>
 	<div id="bio_page">
-		<?WHO:PIC>
-			<div id="bio_pic">
-       				<img src="image?name=_userpic_&parm=<?WHO:NAME("U")>">
-        		</div>
+		<div id="bio_pic">
+       			<img src="image?name=_userpic_&parm=<?WHO:NAME("X")>">
+        	</div>
 		<?!("X", 1)>
 		<div id="bio_title"><h1><?WHO:NAME("X")></h1></div>
 		<div id="bio_text">
 			<?WHO:RBIO("X")>
 		</div>
-</div>
+	</div>
+<?=("trailing")>
