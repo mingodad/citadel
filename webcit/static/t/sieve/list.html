@@ -1,5 +1,10 @@
-<?--("iterate over an empty template, so we have the states already loaded for below")><?ITERATE("SIEVE:SCRIPTS", ="sieve_empty")><script type="text/javascript">
+<?=("head")><?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+
+<?--("iterate over an empty template, so we have the states already loaded for below")><?ITERATE("SIEVE:SCRIPTS", ="sieve_empty")>
+<script type="text/javascript">
+
 var previously_active_script;									
+
 function ToggleSievePanels() {
  d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);
  for (i=0; i<3; ++i) {
@@ -11,7 +16,7 @@ function ToggleSievePanels() {
   }
  }
 }
-									
+
 function ToggleScriptPanels() {
  d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);
  if ($('script_' + previously_active_script)) {
@@ -22,7 +27,7 @@ function ToggleScriptPanels() {
 }
 </script>								
 <div id="banner">
-<img src="static/advanpage2_48x.gif">
+<img src="static/webcit_icons/essen/32x32/config.png">
 <h1><?_("View/edit server-side mail filters")></h1>
 </div>
 
@@ -49,7 +54,8 @@ function ToggleScriptPanels() {
 <?--("The webcit managed scripts div")>
 
 <div id="sievediv1" style="display:none">
-	display_rules_editor_inner_div();
+
+<?=("sieve_display")>
 </div>
 <?--("The I am smart and can write my own Sieve scripts div ")>
 
@@ -75,11 +81,11 @@ function ToggleScriptPanels() {
 <div align="center"><br>
 <input type="submit" name="save_button" value='<?_("Save changes")>'>
 &nbsp;
-<input type="submit" name="cancel_button" value='(?_("Cancel")>'>
+<input type="submit" name="cancel_button" value='<?_("Cancel")>'>
 </div></form>
 
 </td></tr></table>
 
 <script type="text/javascript">ToggleSievePanels();</script>
-
-
+</div> <!-- end of 'content' div -->
+<?=("trailing")>
