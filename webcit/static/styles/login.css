@@ -7,6 +7,12 @@
 	overflow: auto;
 }
 
+/*because our current layout is a little complicated, we need this: */
+#login_screen .box, #logout_screen .box {
+	width: 40em;
+	padding: 1em 0;
+}
+
 #login_screen .login_message, .login_hello, #login_screen #login_form {
 	display: block;
 	margin: 5px auto 5px auto;
@@ -19,7 +25,9 @@
 	margin: 0 auto;
 }
 
-/*#login_screen .login_image img { width: 135px }*/
+#login_screen .login_image img { 
+	margin: 0 auto;
+}
 
 #login_screen #login_form {
 	padding: 10px;
