@@ -1,6 +1,21 @@
 <?=("head")>
 <?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
-<div id="banner"><h1><?_("Files available for download in")> <?ROOMNAME></h1></div>
+<div id="banner">
+	<h1><?_("Files available for download in")>&nbsp;<?ROOMNAME></h1>
+	<?!("COND:THISROOM:FLAG:QR", 2, #"QR_UPLOAD")>
+		<br>
+		<form enctype="multipart/form-data" method="POST" accept-charset="UTF-8" action="upload_file" name="upload_file_form">
+			<input type="hidden" name="nonce" value="<?NONCE>">
+			<?_("Upload a file:")>&nbsp;
+			<div id="navbar">
+				<input name="filename" size="1" type="file">&nbsp;
+				<?_("Description:")>&nbsp;
+				<input type="text" name="description" maxlength="50" size="50">&nbsp;
+				<input type="submit" name="attach_button" value="<?_("Upload")>">
+			</div>
+		</form>
+	<??("X", 2)>
+</div>
 
 <script language="javascript" type="text/javascript">
   document.onkeydown = CtdlMsgListKeyPress;
@@ -10,38 +25,13 @@
 </script>
 
 <div id="content" class="service">
-
-<table class="downloads_background">
-<tr>
-  <th><?_("Filename")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filename")>&SortBy=<?SORT:NEXT("filename")>"><img border="0" src="<?SORT:ICON("filename")>" /></a> </th>
-  <th><?_("Size")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filesize")>&SortBy=<?SORT:NEXT("filesize")>"><img border="0" src="<?SORT:ICON("filesize")>" /></a> </th>
-  <th><?_("Content")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filemime")>&SortBy=<?SORT:NEXT("filemime")>"><img border="0" src="<?SORT:ICON("filemime")>" /></a> </th>
-  <th><?_("Description")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filesubject")>&SortBy=<?SORT:NEXT("filesubject")>"><img border="0" src="<?SORT:ICON("filesubject")>" /></a> </th>
-</tr>
-<?ITERATE("ROOM:FILES", ="files_section_onefile")>
-
-
-
-
-
-
-
-<?!("COND:THISROOM:FLAG:QR", 2, #"QR_UPLOAD")>
-<hr>
-<form enctype="multipart/form-data" method="POST" accept-charset="UTF-8" action="upload_file" name="upload_file_form">
-<input type="hidden" name="nonce" value="<?NONCE>">
-<?_("Upload a file:")>
-&nbsp;
-<input NAME="filename" SIZE=16 TYPE="file">&nbsp;
-<?_("Description:")>&nbsp;
-<input type="text" name="description" maxlength="64" size="64">&nbsp;
-<input type="submit" name="attach_button" value="<?_("Upload")>">
-</form>
-</div>
-<??("X", 2)>
-
-
-</div>
-
-
+	<table class="downloads_background altern">
+	<tr>
+	  <th><?_("Filename")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filename")>&SortBy=<?SORT:NEXT("filename")>"><img border="0" src="<?SORT:ICON("filename")>" /></a> </th>
+	  <th><?_("Size")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filesize")>&SortBy=<?SORT:NEXT("filesize")>"><img border="0" src="<?SORT:ICON("filesize")>" /></a> </th>
+	  <th><?_("Content")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filemime")>&SortBy=<?SORT:NEXT("filemime")>"><img border="0" src="<?SORT:ICON("filemime")>" /></a> </th>
+	  <th><?_("Description")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filesubject")>&SortBy=<?SORT:NEXT("filesubject")>"><img border="0" src="<?SORT:ICON("filesubject")>" /></a> </th>
+	</tr>
+	<?ITERATE("ROOM:FILES", ="files_section_onefile")>
+	</div>
 <?=("trailing")>
