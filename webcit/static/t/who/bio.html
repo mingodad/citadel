@@ -1,0 +1,27 @@
+<?=("head")>
+<?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<div id="banner">
+	<img src="static/webcit_icons/essen/32x32/account.png">
+	<h1><?_("User profile")></h1>
+</div>
+<div id="content" class="service">
+	 <a href="display_page?recp=urlescputs(who);">
+		<img src="static/webcit_icons/essen/16x16/chat.png" alt="">
+		&nbsp;&nbsp;
+		<?_("Click here to send an instant message to %s")>
+	</a>
+	<div id="bio_page">
+		<?!("BIO:PIC", 1)>
+			<div id="bio_pic">
+       				<img src="image?name=_userpic_&parm=urlescputs(who);">                                               
+        		</div>
+		<?!("X", 1)>
+		<div id="bio_title"><h1>escputs(who);</h1></div>
+		<div id="bio_text">
+        		serv_printf("RBIO %s", who);
+        			serv_getln(buf, sizeof buf);
+        			if (buf[0] == '1') {
+                			fmout("JUSTIFY
+        			}
+		</div>
+</div>
