@@ -119,7 +119,7 @@ void showuser(void)
         wc_printf("</h1>");
         wc_printf("</div>");
 
-        wc_printf("<div id=\"content\" class=\"service\">\n");
+        wc_printf("<div id=\"content\" class=\"service bio\">\n");
 
 	wc_printf("<table class=\"userlist_background\"><tr><td>\n");
 

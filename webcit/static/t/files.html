@@ -7,8 +7,8 @@
 		<form enctype="multipart/form-data" method="POST" accept-charset="UTF-8" action="upload_file" name="upload_file_form">
 			<input type="hidden" name="nonce" value="<?NONCE>">
 			<?_("Upload a file:")>&nbsp;
+			<input name="filename" size="60" type="file">&nbsp;
 			<div id="navbar">
-				<input name="filename" size="1" type="file">&nbsp;
 				<?_("Description:")>&nbsp;
 				<input type="text" name="description" maxlength="50" size="50">&nbsp;
 				<input type="submit" name="attach_button" value="<?_("Upload")>">
