@@ -284,22 +284,25 @@ void terminate_idle_sessions(void)
 	session_to_kill = 0;
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if (  (ccptr!=CC)
-	   	&& (config.c_sleeping > 0)
-	   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
+		if (
+			(ccptr != CC)
+	   		&& (config.c_sleeping > 0)
+	   		&& (now - (ccptr->lastcmd) > config.c_sleeping)
+		) {
 			if (!ccptr->dont_term) {
 				ccptr->kill_me = KILLME_IDLE;
 				++killed;
 			}
-			else 
-				longrunners ++;
+			else {
+				++longrunners;
+			}
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
 	if (killed > 0)
 		syslog(LOG_INFO, "Scheduled %d idle sessions for termination\n", killed);
 	if (longrunners > 0)
-		syslog(LOG_INFO, "Didn't terminate %d protected idle sessions;\n", killed);
+		syslog(LOG_INFO, "Didn't terminate %d protected idle sessions", longrunners);
 }
 
 
