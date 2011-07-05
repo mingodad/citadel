@@ -31,6 +31,10 @@
    is licensed to you under the terms of the GNU Lesser General Public
    License.
 
+   Most of our Icons are taken from the "Essen" set by the people on
+   http://pc.de/icons/. We like to thank them for their astonishing work!
+   Their site explicitly states: "Free for commercial use as well."
+
    One or more icons are from Milosz Wlazlo [http://miloszwl.deviantart.com]
    whose license explicitly allows inclusion in open source projects on the
    condition of this attribution.
