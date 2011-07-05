@@ -53,6 +53,9 @@
 #ib_logoff {
     background-image: url("/static/webcit_icons/essen/32x32/logout.png");
 }
+#ib_login {
+    background-image: url("/static/webcit_icons/essen/32x32/login.png");
+}
 #citlogo {
     display: block !important;
 }

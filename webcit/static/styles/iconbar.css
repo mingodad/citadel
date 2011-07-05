@@ -87,7 +87,7 @@ div.iconbar_text select { border: 1px solid 424b5; }
 	text-align: center;
 }
 
-#button li:hover, #ib_logoff:hover {
+#button li:hover, #ib_logoff:hover, #ib_login:hover {
 	background-color: #5c646b;
 }
 
