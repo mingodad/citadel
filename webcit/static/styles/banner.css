@@ -41,14 +41,29 @@
 
 #banner .banner {}
 
-#banner .banner img {
+/* style for the rooom picture */
+#banner td img {
+	padding: 0;
+	margin: 0.5em;
+	max-height: 64px;
 	float: left;
-	margin: 0 0.3em 1em 0;
 }
 
-#banner h1, #banner h2, #banner .banner p {
-	margin: 2px;
+#banner h1, #banner h2 {
 	padding: 0;
+	margin: 0;
+}
+
+#banner .banner p {
+	padding: 0;
+	margin: 0;
+}
+
+/* style for the feed and file picture */
+#banner .banner td * img {
+	clear: both;
+	padding: 0;
+	margin: 0 0.3em;
 }
 
 #banner .infos{ margin: 0.5em }
@@ -91,6 +106,11 @@
 #banner ul.room_actions li select, #banner ul.room_actions li input {
 	margin-top: 2px;
 	margin-right: 2px;
+}
+
+#nummsgs, #numfiles { 
+	font-size: 75%;
+	margin-left: 0.5em;
 }
 
 #selectpage.hidden { display: none !important }
