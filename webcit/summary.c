@@ -50,7 +50,7 @@ void new_messages_section(void) {
 	number_of_rooms_to_check = num_tokens(rooms_to_check, '|');
 	if (number_of_rooms_to_check == 0) return;
 
-	wc_printf("<table border=0 width=100%%>\n");
+	wc_printf("<table border=\"0\" width=\"100%%\">\n");
 	for (i=0; i<number_of_rooms_to_check; ++i) {
 		extract_token(room, rooms_to_check, i, '|', sizeof room);
 
@@ -205,25 +205,25 @@ void summary_inner_div(void) {
 	/*
 	 * Column One
 	 */
-	wc_printf("<td width=33%%>");
-	wc_printf("<div class=\"box\">");	
-	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf("<td width=\"33%%\">");
+	wc_printf("<div class=\"box\">");
+	wc_printf("<div class=\"boxlabel\">");
 	wc_printf(_("Messages"));
-	wc_printf("</div><div class=\"boxcontent\">");	
-	wc_printf("<div id=\"msg_inner\">");	
+	wc_printf("</div><div class=\"boxcontent\">");
+	wc_printf("<div id=\"msg_inner\">");
 	new_messages_section();
 	wc_printf("</div></div></div>");
 	wc_printf("</td>");
 
 	/*
-	 * Column Two 
+	 * Column Two
 	 */
-	wc_printf("<td width=33%%>");
-	wc_printf("<div class=\"box\">");	
-	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf("<td width=\"33%%\">");
+	wc_printf("<div class=\"box\">");
+	wc_printf("<div class=\"boxlabel\">");
 	wc_printf(_("Tasks"));
-	wc_printf("</div><div class=\"boxcontent\">");	
-	wc_printf("<div id=\"tasks_inner\">");	
+	wc_printf("</div><div class=\"boxcontent\">");
+	wc_printf("<div id=\"tasks_inner\">");
 	tasks_section();
 	wc_printf("</div></div></div>");
 	wc_printf("</td>");
@@ -231,12 +231,12 @@ void summary_inner_div(void) {
 	/*
 	 * Column Three
 	 */
-	wc_printf("<td width=33%%>");
-	wc_printf("<div class=\"box\">");	
-	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf("<td width=\"33%%\">");
+	wc_printf("<div class=\"box\">");
+	wc_printf("<div class=\"boxlabel\">");
 	wc_printf(_("Today&nbsp;on&nbsp;your&nbsp;calendar"));
-	wc_printf("</div><div class=\"boxcontent\">");	
-	wc_printf("<div id=\"calendar_inner\">");	
+	wc_printf("</div><div class=\"boxcontent\">");
+	wc_printf("<div id=\"calendar_inner\">");
 	calendar_section();
 	wc_printf("</div></div></div>");
 	wc_printf("</td>");
@@ -247,11 +247,11 @@ void summary_inner_div(void) {
 	 * Row Two - Column One
 	 */
 	wc_printf("<td colspan=2>");
-	wc_printf("<div class=\"box\">");	
-	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf("<div class=\"box\">");
+	wc_printf("<div class=\"boxlabel\">");
 	wc_printf(_("Who's&nbsp;online&nbsp;now"));
-	wc_printf("</div><div class=\"boxcontent\">");	
-	wc_printf("<div id=\"who_inner\">");	
+	wc_printf("</div><div class=\"boxcontent\">");
+	wc_printf("<div id=\"who_inner\">");
 	do_template("who_summary");
 	wc_printf("</div></div></div>");
 	wc_printf("</td>");
@@ -259,12 +259,12 @@ void summary_inner_div(void) {
 	/*
 	 * Row Two - Column Two
 	 */
-	wc_printf("<td width=33%%>");
-	wc_printf("<div class=\"box\">");	
-	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf("<td width=\"33%%\">");
+	wc_printf("<div class=\"box\">");
+	wc_printf("<div class=\"boxlabel\">");
 	wc_printf(_("About&nbsp;this&nbsp;server"));
-	wc_printf("</div><div class=\"boxcontent\">");	
-	wc_printf("<div id=\"info_inner\">");	
+	wc_printf("</div><div class=\"boxcontent\">");
+	wc_printf("<div id=\"info_inner\">");
 	server_info_section();
 	wc_printf("</div></div></div>");
 	wc_printf("</td>");
@@ -286,7 +286,7 @@ void summary(void) {
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\" class=\"banner\">\n");
 	wc_printf("<table border=0><tr>");
-        wc_printf("<td><img src=\"static/webcit_icons/essen/32x32/summary.png\"></td>");
+        wc_printf("<td><img src=\"static/webcit_icons/essen/32x32/summary.png\" alt=\"\"></td>");
         wc_printf("<td><h1>");
         snprintf(title, sizeof title, _("Summary page for %s"),
 		( (WC->logged_in) ?  ChrPtr(WC->wc_fullname) : ChrPtr(WC->serv_info->serv_humannode))
