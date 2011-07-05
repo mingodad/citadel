@@ -11,7 +11,7 @@
 	<?ROOM:INFO:FLOOR:NAME><?=("beginbox_2")>
 <?!("X", 2)>
 &nbsp;<a href="dotgoto?room=<?ROOM:INFO:NAME("U")>"><span class="<?%("COND:ROOM:FLAG:UA", 4, #"UA_HASNEWMSGS", 0, "roomlist_new", "roomlist_old")>">
-<?ROOM:INFO:LEVELNTIMES("&nbsp;&nbsp;&nbsp;")><?ROOM:INFO:BASENAME></span></a>
+<?ROOM:INFO:LEVELNTIMES("&nbsp;&nbsp;&nbsp;")><?ROOM:INFO:BASENAME("X")></span></a>
 <?%("COND:ROOM:INFO:IS_INBOX", 5, 0, 0, _"(INBOX)", "")><br>
 <?!("COND:ITERATE:LASTN", 2)>
 	<?=("endbox")></td></tr>
