@@ -121,9 +121,8 @@ void showuser(void)
 	wc_printf("<ul><li><a href=\"display_page?recp=");
 	urlescputs(who);
         wc_printf("\">"
-                "<img src=\"static/webcit_icons/essen/16x16/chat.png\" "
-                "align=middle border=0>"
-		 "<span class="navbar_link">");
+                "<img src=\"static/webcit_icons/essen/16x16/chat.png\">"
+		"<span class=\"navbar_link\">");
         snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
         escputs(buf);
         wc_printf("</span></li></a>\n");
