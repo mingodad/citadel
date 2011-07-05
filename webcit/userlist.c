@@ -113,7 +113,7 @@ void showuser(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<img src=\"static/webcit_icons/essen/32x32/account.png\">");
+	wc_printf("<img src=\"static/webcit_icons/essen/32x32/account.png\" alt\"\">");
         wc_printf("<h1>");
 	wc_printf(_("User profile"));
         wc_printf("</h1>");
@@ -121,7 +121,7 @@ void showuser(void)
 	wc_printf("<ul><li><a href=\"display_page?recp=");
 	urlescputs(who);
         wc_printf("\">"
-                "<img src=\"static/webcit_icons/essen/16x16/chat.png\">"
+                "<img src=\"static/webcit_icons/essen/16x16/chat.png\" alt=\"\">"
 		"<span class=\"navbar_link\">");
         snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
         escputs(buf);
@@ -145,9 +145,9 @@ void showuser(void)
 
 	wc_printf("<center><table><tr><td>");
 	if (have_pic == 1) {
-		wc_printf("<img src=\"image?name=_userpic_&parm=");
+		wc_printf("<img src=\"image?name=_userpic_&amp;parm=");
 		urlescputs(who);
-		wc_printf("\">");
+		wc_printf("\" alt=\"\">");
 	}
 	wc_printf("</td><td><h1>");
 	escputs(who);
