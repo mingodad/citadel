@@ -276,7 +276,7 @@ void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP)
 	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
 
 	StrBufAppendPrintf(Target, "<a type=\"application/rss+xml\" href=\"/B64%s\">", encoded_link);
-	StrBufAppendPrintf(Target, "<img border=\"0\" src=\"static/rss_16x.png\" alt=\"RSS\">");
+	StrBufAppendPrintf(Target, "<img src=\"static/webcit_icons/essen/16x16/rss.png\" alt=\"RSS\">");
 	StrBufAppendPrintf(Target, "</a>");
 }
 
