@@ -59,11 +59,12 @@
 	margin: 0;
 }
 
-/* style for the feed and file picture */
-#banner .banner td * img {
+/* style for the feed, file, etc picture */
+#banner .banner td  a > img {
 	clear: both;
 	padding: 0;
 	margin: 0 0.3em;
+	border: none;
 }
 
 #banner .infos{ margin: 0.5em }
