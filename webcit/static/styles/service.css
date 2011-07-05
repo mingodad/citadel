@@ -1,5 +1,7 @@
 .service {}
 
+.service .edit_col, .service .host_col { display: none }
+
 .bio table {
 	margin-top: 0.5em;
 	padding: 0 0.5em;
@@ -33,3 +35,30 @@
 }
 
 .bio h1 { float: right; }
+
+.who_is_online tr { 
+	height: 1.5em;
+	padding: 0;
+	margin: 0;
+}
+
+.who_is_online td {
+	padding: 0 0.3em;
+}
+
+.who_is_online td img { 
+	border: none;
+	margin: 0 auto;
+}
+
+.who_is_online .edit_col {}
+
+.who_is_online .host_col { 
+	font-family: monospace;
+	font-size: 90%;
+}
+
+div#who_inner th.host_col { 
+	font-family: sans-serif;
+	font-size: 100%;
+}
