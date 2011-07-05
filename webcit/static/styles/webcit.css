@@ -711,10 +711,6 @@ div.auto_complete ul strong.highlight {
 
 #address_book_inner_div input { margin: 4px 5px 0 5px }
 
-.service .edit_col, .service .host_col { display: none }
-
-.who_is_online .edit_col, .who_is_online .host_col { display: block }
-
 #citlogo { display: none; /* Overriden later */ }
 
 .sort_ascending, .sort_descending {

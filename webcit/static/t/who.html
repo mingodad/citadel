@@ -7,17 +7,22 @@
 	}
 </script>
 
-<div id="banner">
-	<div class="banner">
+<div id="banner" class="banner">
+	<h1>
 		<img alt="" src="static/webcit_icons/essen/32x32/user.png">
-		<h1><?_("Users currently on ")><?SERV:HUMANNODE></h1>
-	</div>
-	<?=("loggedinas")>
+		<?_("Users currently on ")><?SERV:HUMANNODE>
+	</h1>
 	<div id="actiondiv">
 		<ul class="room_actions">
 			<li class="start_page"><?OFFERSTARTPAGE></li>
+			<li><?=("loggedinas")></li>
 		</ul>
 	</div>
+	<div id="navbar"><ul><li>
+		<span class="navbar_link"><?_("Click on a name to read user info.  Click on")></span>
+		<img align="middle" src="static/webcit_icons/essen/16x16/chat.png" alt="(p)">
+		<span class="navbar_link"><?_("to send an instant message to that user.")></span>
+	</li></ul></div>
 </div>
 <div id="content" class="who_is_online">
 	<?DOBOXED(="who_box_list_static", ="who_list_static_header")>
@@ -27,4 +32,3 @@
                             { method: 'get', frequency: 30 }  );
 </script>
 <?=("trailing")>
-
