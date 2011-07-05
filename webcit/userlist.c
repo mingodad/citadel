@@ -117,6 +117,17 @@ void showuser(void)
         wc_printf("<h1>");
 	wc_printf(_("User profile"));
         wc_printf("</h1>");
+	wc_printf("<div id=\"navbar\">\n");
+	wc_printf("<ul><li><a href=\"display_page?recp=");
+	urlescputs(who);
+        wc_printf("\">"
+                "<img src=\"static/webcit_icons/essen/16x16/chat.png\" "
+                "align=middle border=0>"
+		 "<span class="navbar_link">");
+        snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
+        escputs(buf);
+        wc_printf("</span></li></a>\n");
+	wc_printf("</div>");
         wc_printf("</div>");
 
         wc_printf("<div id=\"content\" class=\"service bio\">\n");
@@ -147,20 +158,11 @@ void showuser(void)
 	if (buf[0] == '1') {
 		fmout("JUSTIFY");
 	}
-	wc_printf("<br><a href=\"display_page?recp=");
-	urlescputs(who);
-	wc_printf("\">"
-		"<img src=\"static/webcit_icons/essen/16x16/chat.png\" "
-		"align=middle border=0>&nbsp;&nbsp;");
-	snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
-	escputs(buf);
-	wc_printf("</a>\n");
-
 	wc_printf("</td></tr></table>\n");
 	wDumpContent(1);
 }
 
-void 
+void
 InitModule_USERLIST
 (void)
 {
