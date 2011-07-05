@@ -386,7 +386,6 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		else if (!strncasecmp(ptr, "<a href=\"", 9)) {
 			++alevel;
 			++brak;
-			syslog(LOG_DEBUG, "\033[32mHYPERLINK: %s\033[0m", ptr);
 			if ( ((strchr(ptr, ':') < strchr(ptr, '/')))
 					&&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
 			   ) {

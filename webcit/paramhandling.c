@@ -1,5 +1,21 @@
 /*
  * parse urlparts and post data
+ *
+ * Copyright (c) 1996-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -308,7 +324,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	long keylen;
 
 #ifdef DEBUG_URLSTRINGS
-	syslog(9, "\033[31mupload_handler() name=%s, type=%s, len=%d\033[0m\n", name, cbtype, length);
+	syslog(9, "upload_handler() name=%s, type=%s, len=%d", name, cbtype, length);
 #endif
 	if (WCC->Hdr->urlstrings == NULL)
 		WCC->Hdr->urlstrings = NewHash(1, NULL);
@@ -333,7 +349,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			free_url(u);
 		}
 #ifdef DEBUG_URLSTRINGS
-		syslog(9, "Key: <%s> len: [%d] Data: <%s>\n", 
+		syslog(9, "Key: <%s> len: [%d] Data: <%s>", 
 			u->url_key, 
 			StrLength(u->url_data), 
 			ChrPtr(u->url_data));
@@ -347,7 +363,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		WCC->upload_filename = NewStrBufPlain(filename, -1);
 		safestrncpy(WCC->upload_content_type, cbtype, sizeof(WC->upload_content_type));
 #ifdef DEBUG_URLSTRINGS
-		syslog(9, "File: <%s> len: [%ld]\n", filename, length);
+		syslog(9, "File: <%s> len: [%ld]", filename, length);
 #endif
 		
 	}
