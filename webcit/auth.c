@@ -552,6 +552,41 @@ void do_logout(void)
 }
 
 
+/* 
+ * Special page for monitoring scripts etc
+ */
+void monitor(void)
+{
+	wcsession *WCC = WC;
+	char buf[SIZ];
+
+	FlushStrBuf(WCC->wc_username);
+	FlushStrBuf(WCC->wc_password);
+	FlushStrBuf(WCC->wc_fullname);
+	FlushRoomlist();
+
+	serv_puts("LOUT");
+	serv_getln(buf, sizeof buf);
+	WCC->logged_in = 0;
+
+	FlushStrBuf(WCC->CurRoom.name);
+
+	/* Calling output_headers() this way causes the cookies to be un-set */
+	output_headers(1, 0, 0, 1, 1, 0);
+
+	wc_printf("<html><body><tt>");
+	wc_printf("<strong>WebCit monitoring screen</strong><br>\n");
+	wc_printf("Connection to Citadel server at %s:%s : %s<br>\n",
+		ctdlhost, ctdlport,
+		(WC->connected ? "SUCCESS" : "FAIL")
+	);
+	wc_printf("</body></html>\n");
+
+	wDumpContent(2);
+	end_webcit_session();
+}
+
+
 /*
  * validate new users
  */
@@ -1025,6 +1060,7 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("changepw"), "", 0, changepw, 0);
 	WebcitAddUrlHandler(HKEY("termquit"), "", 0, do_logout, 0);
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("monitor"), "", 0, monitor, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("ajax_login_newuser"), "", 0, ajax_login_newuser, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("switch_language"), "", 0, switch_language, ANONYMOUS);
