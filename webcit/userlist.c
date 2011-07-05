@@ -113,7 +113,7 @@ void showuser(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<img src=\"static/webcit_icons/essen/32x32/account.png\" alt\"\">");
+	wc_printf("<img src=\"static/webcit_icons/essen/32x32/account.png\" alt=\"\">");
         wc_printf("<h1>");
 	wc_printf(_("User profile"));
         wc_printf("</h1>");
