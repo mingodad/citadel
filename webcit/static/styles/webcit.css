@@ -1133,7 +1133,6 @@ a.event_title span, a.event_unread span, a.event_read span {
 
 a.event_title:hover, a.event_unread:hover, a.event_read:hover {
 	z-index:25;
-	background:;
 }
 
 a.event_title:hover span.tooltip, a.event_unread:hover span.tooltip, a.event_read:hover span.tooltip {
@@ -1174,7 +1173,7 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 
 .blog_post_title {
 	font-size: 150%;
-	font-style: bold;
+	font-weight: bold;
 }
 
 .blog_post_title a:link, .blog_post_title a:visited, .blog_post_title a:active {
