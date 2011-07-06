@@ -1175,7 +1175,20 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 
 
 /*
- * Record compare function for SortOnlineUsers()
+ * Session username compare function for SortOnlineUsers()
+ */
+int rwho_username_cmp(const void *rec1, const void *rec2) {
+	char *u1, *u2;
+
+	u1 = strchr(rec1, '|');
+	u2 = strchr(rec2, '|');
+
+	return strcasecmp( (u1?++u1:"") , (u2?++u2:"") );
+}
+
+
+/*
+ * Idle time compare function for SortOnlineUsers()
  */
 int idlecmp(const void *rec1, const void *rec2) {
 	time_t i1, i2;
@@ -1193,8 +1206,11 @@ int idlecmp(const void *rec1, const void *rec2) {
  * Sort the list of online users by idle time.
  * This function frees the supplied buffer, and returns a new one
  * to the caller.  The caller is responsible for freeing the returned buffer.
+ *
+ * If 'condense' is nonzero, multiple sessions for the same user will be
+ * combined into one for brevity.
  */
-char *SortOnlineUsers(char *listing) {
+char *SortOnlineUsers(char *listing, int condense) {
 	int rows;
 	char *sortbuf;
 	char *retbuf;
@@ -1217,17 +1233,37 @@ char *SortOnlineUsers(char *listing) {
 		memcpy(&sortbuf[i*SIZ], buf, (size_t)SIZ);
 	}
 
-	/* Do the sort */
+	/* Sort by idle time */
 	qsort(sortbuf, rows, SIZ, idlecmp);
+
+	/* Combine multiple sessions for the same user */
+	if (condense) {
+		qsort(sortbuf, rows, SIZ, rwho_username_cmp);
+		if (rows > 1) for (i=1; i<rows; ++i) if (i>0) {
+			char u1[USERNAME_SIZE];
+			char u2[USERNAME_SIZE];
+			extract_token(u1, &sortbuf[(i-1)*SIZ], 1, '|', sizeof u1);
+			extract_token(u2, &sortbuf[i*SIZ], 1, '|', sizeof u2);
+			if (!strcasecmp(u1, u2)) {
+				memcpy(&sortbuf[i*SIZ], &sortbuf[(i+1)*SIZ], (rows-i-1)*SIZ);
+				--rows;
+				--i;
+			}
+		}
+
+		qsort(sortbuf, rows, SIZ, idlecmp);	/* idle sort again */
+	}
 
 	/* Copy back to a \n delimited list */
 	strcpy(retbuf, "");
 	for (i=0; i<rows; ++i) {
-		strcat(retbuf, &sortbuf[i*SIZ]);
-		if (i<(rows-1)) strcat(retbuf, "\n");
+		if (!IsEmptyStr(&sortbuf[i*SIZ])) {
+			strcat(retbuf, &sortbuf[i*SIZ]);
+			if (i<(rows-1)) strcat(retbuf, "\n");
+		}
 	}
-    free(listing);
-    free(sortbuf);
+	free(listing);
+	free(sortbuf);
 	return(retbuf);
 }
 
@@ -1265,7 +1301,7 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 		scr_printf("\n");
 	}
 	r = CtdlIPCOnlineUsers(ipc, &listing, &timenow, buf);
-	listing = SortOnlineUsers(listing);
+	listing = SortOnlineUsers(listing, (!longlist));
 	if (r / 100 == 1) {
 		while (!IsEmptyStr(listing)) {
 			int isidle = 0;
