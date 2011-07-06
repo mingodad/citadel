@@ -626,7 +626,7 @@ void GenerateRoomDisplay(char *real_room,
 	if (viewed->room.QRflags & QR_PRIVATE) {
 		CtdlRoomAccess(&viewed->room, &viewer->user, &ra, NULL);
 		if ( (ra & UA_KNOWN) == 0) {
-			strcpy(real_room, "<private room>");
+			strcpy(real_room, " ");
 		}
 	}
 
