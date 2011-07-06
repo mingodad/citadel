@@ -446,19 +446,22 @@ body {
 /* Please avoid setting heights for any of the mailbox view elements (except summary_view
  * and resize). In particular, do NOT set any for message_list_hdr as its not good feng shui
  */
+#message_listview th {
+	border: 1px solid green;
+	border-right: 0.2em solid #fff;
+}
+#message_listview td {
+	padding-left: 1em;
+}
 
 #message_list_hdr {
 	display: block;
-	top: 0;
-	left: 0;
-	width: 100%;
 	padding-bottom: 0;
 	margin-bottom: 0;
 	background-color: #CCCCCC;
 }
 
 #summary_view {
-	height: 100px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 	cursor: pointer;
@@ -466,7 +469,6 @@ body {
 
 #summary_headers {
 	background-color: white;
-	width: 100%;
 	table-layout: fixed;
 }
 
@@ -475,11 +477,11 @@ body {
 	overflow-x: hidden; /* stop long subjects overflowing */
 }
 
-.col1 { width: 50% }
+#message_listview .col1 { width: 66% }
 
-.col2 { width: 30% }
+#message_listview .col2 { width: 22% }
 
-.col3 { width: 20% }
+#message_listview .col3 { width: 12% }
 
 .col1, .col2, .col3 {
 	cursor: pointer;
@@ -724,16 +726,7 @@ div.auto_complete ul strong.highlight {
 
 #message_list_hdr > table { border-collapse: collapse }
 
-#message_list_hdr > table > tbody > tr > th {
-	border-left: 2px solid white;
-	border-right: 2px solid white;
-}
-
 #summary_view > table { border-collapse: collapse }
-
-th.col1 { border-left: none !important }
-
-th.col3 { border-right: none !important }
 
 /* System Administration Menu */
 

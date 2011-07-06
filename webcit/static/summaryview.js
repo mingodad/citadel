@@ -483,7 +483,7 @@ function sizePreviewPane() {
 	var heightOfViewPort = document.viewport.getHeight() // prototypejs method
 		var bannerHeight = banner.offsetHeight;
 	var contentViewPortHeight = heightOfViewPort-banner.offsetHeight-message_list_hdr.offsetHeight;
-	contentViewPortHeight = 0.98 * contentViewPortHeight; // leave some error
+	contentViewPortHeight = 0.95 * contentViewPortHeight; // leave some error (especially for FF3!!)
 	// Set summary_view to 20%;
 	var summary_height = ctdlLocalPrefs.readPref("svheight");
 	if (summary_height == null) {
