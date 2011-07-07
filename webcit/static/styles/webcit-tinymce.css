@@ -5,23 +5,12 @@ blockquote{
 	background-color: #deded0;
 	border: 1px solid #5C646B;
 	border-top: none;
-	border-radius: 8px;
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px; 
-	-webkit-box-shadow: #666 0px 1px 2px;
-	-moz-box-shadow: #666 0px 2px 3px;
-	box-shadow: #666 0px 2px 3px;
-	behavior: url(/static/styles/PIE.htc);
 }
 
 .message_header {
 	font-size: x-small;
 	padding: 0.5em;
         border-top: 1px solid transparent;
-        border-radius: 8px 8px 0 0;
-        -webkit-border-radius: 8px 8px 0 0;
-        -moz-border-radius: 8px 8px 0 0; 
-        behavior: url(/static/styles/PIE.htc);
 }
 
 .message_content {
@@ -29,10 +18,6 @@ blockquote{
 	padding: 0.5em;
 	clear: both;
 	border-bottom: 1px solid transparent;
-	border-radius: 0 0 8px 8px;
-	-webkit-border-radius: 0 0 8px 8px;
-	-moz-border-radius: 0 0 8px 8px; 
-	behavior: url(/static/styles/PIE.htc);
 }
 
 
@@ -117,7 +102,4 @@ blockquote blockquote blockquote blockquote {
 	padding: 10px;
 	background-color: #fff;
 	border: 1px solid #5C646B;
-	box-shadow: #666 0px 2px 3px;
-	-webkit-box-shadow: #666 0px 1px 2px;
-	-moz-box-shadow: #666 0px 2px 3px;
 }
