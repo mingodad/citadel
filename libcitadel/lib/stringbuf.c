@@ -2780,7 +2780,7 @@ void StrBufReplaceChars(StrBuf *buf, char search, char replace)
 
 /**
  * @ingroup StrBuf
- * @brief removes all \r s from the string, or replaces them with \n if its not a combination of both.
+ * @brief removes all \\r s from the string, or replaces them with \n if its not a combination of both.
  * @param buf Buffer to modify
  */
 void StrBufToUnixLF(StrBuf *buf)
