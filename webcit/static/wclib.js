@@ -860,6 +860,7 @@ function ConfirmLogoff() {
 		'do_template?template=confirmlogoff',
 		{
 			method: 'get',
+			evalScripts: true,
 			onSuccess: function(cl_success) {
 				toggleModal(1);
 			}
