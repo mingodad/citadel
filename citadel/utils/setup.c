@@ -261,8 +261,6 @@ void cit_backtrace(void)
 
 struct config config;
 
-
-struct config config;
 int direction;
 
 

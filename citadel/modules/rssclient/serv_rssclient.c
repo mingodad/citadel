@@ -62,6 +62,11 @@
 #define TMP_SHORTER_URL_OFFSET 0xFE
 #define TMP_SHORTER_URLS 0xFD
 
+citthread_mutex_t RSSQueueMutex; /* locks the access to the following vars: */
+HashList *RSSQueueRooms = NULL; /* rss_room_counter */
+HashList *RSSFetchUrls = NULL; /* -> rss_aggregator; ->RefCount access to be locked too. */
+
+
 
 struct rssnetcfg *rnclist = NULL;
 void AppendLink(StrBuf *Message, StrBuf *link, StrBuf *LinkTitle, const char *Title)
@@ -84,14 +89,83 @@ typedef struct __networker_save_message {
 	AsyncIO IO;
 	struct CtdlMessage *Msg;
 	struct recptypes *recp;
+	rss_aggregator *Cfg;
 	StrBuf *MsgGUID;
 	StrBuf *Message;
 	struct UseTable ut;
 } networker_save_message;
 
+
+void DeleteRoomReference(long QRnumber)
+{
+	HashPos *At;
+	long HKLen;
+	const char *HK;
+	void *vData;
+	rss_room_counter *pRoomC;
+
+	At = GetNewHashPos(RSSQueueRooms, 0);
+
+	GetHashPosFromKey(RSSQueueRooms, LKEY(QRnumber), At);
+	GetHashPos(RSSQueueRooms, At, &HKLen, &HK, &vData);
+	pRoomC = (rss_room_counter *) vData;
+	pRoomC->count --;
+	if (pRoomC->count == 0)
+		DeleteEntryFromHash(RSSQueueRooms, At);
+	DeleteHashPos(&At);
+}
+
+void UnlinkRooms(rss_aggregator *Cfg)
+{
+	
+	DeleteRoomReference(Cfg->QRnumber);
+	if (Cfg->OtherQRnumbers != NULL)
+	{
+		long HKLen;
+		const char *HK;
+		HashPos *At;
+		void *vData;
+
+		At = GetNewHashPos(Cfg->OtherQRnumbers, 0);
+		while (GetNextHashPos(Cfg->OtherQRnumbers, At, &HKLen, &HK, &vData) && 
+		       (vData != NULL))
+		{
+			long *lData = (long*) vData;
+			DeleteRoomReference(*lData);
+		}
+
+		DeleteHashPos(&At);
+	}
+
+}
+
+void UnlinkAggregator(rss_aggregator *Cfg)
+{
+	HashPos *At;
+
+	UnlinkRooms(Cfg);
+
+	At = GetNewHashPos(RSSFetchUrls, 0);
+	if (GetHashPosFromKey(RSSFetchUrls, SKEY(Cfg->Url), At) == 0)
+	{
+		DeleteEntryFromHash(RSSFetchUrls, At);
+	}
+	DeleteHashPos(&At);
+}
+
 eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 {
 	networker_save_message *Ctx = (networker_save_message *) IO->Data;
+
+	citthread_mutex_lock(&RSSQueueMutex);
+	Ctx->Cfg->RefCount --;
+
+	if (Ctx->Cfg->RefCount == 0)
+	{
+		UnlinkAggregator(Ctx->Cfg);
+
+	}
+	citthread_mutex_unlock(&RSSQueueMutex);
 
 	CtdlFreeMessage(Ctx->Msg);
 	free_recipients(Ctx->recp);
@@ -150,7 +224,7 @@ eNextState FetchNetworkUsetableEntry(AsyncIO *IO)
 		return eSendMore;
 	}
 }
-void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf *MsgGUID, StrBuf *MessageBody)
+void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf *MsgGUID, StrBuf *MessageBody, rss_aggregator *Cfg)
 {
 	networker_save_message *Ctx;
 
@@ -160,6 +234,7 @@ void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf
 	Ctx->MsgGUID = MsgGUID;
 	Ctx->Message = MessageBody;
 	Ctx->Msg = Msg;
+	Ctx->Cfg = Cfg;
 	Ctx->recp = recp;
 	Ctx->IO.Data = Ctx;
 	Ctx->IO.CitContext = CloneContext(CC);
@@ -172,7 +247,7 @@ void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf
 /*
  * Commit a fetched and parsed RSS item to disk
  */
-void rss_save_item(rss_item *ri)
+void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
 {
 
 	struct MD5Context md5context;
@@ -187,11 +262,12 @@ void rss_save_item(rss_item *ri)
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
 	memset(recp, 0, sizeof(struct recptypes));
-	Buf = NewStrBufDup(ri->roomlist);
+	Buf = NewStrBufDup(Cfg->rooms);
 	recp->recp_room = SmashStrBuf(&Buf);
-	recp->num_room = ri->roomlist_parts;
+	recp->num_room = Cfg->roomlist_parts;
 	recp->recptypes_magic = RECPTYPES_MAGIC;
    
+	Cfg->RefCount ++;
 	/* Construct a GUID to use in the S_USETABLE table.
 	 * If one is not present in the item itself, make one up.
 	 */
@@ -320,7 +396,7 @@ void rss_save_item(rss_item *ri)
 	AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
 	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
 
-	RSSQueueSaveMessage(msg, recp, guid, Message);
+	RSSQueueSaveMessage(msg, recp, guid, Message, Cfg);
 }
 
 
@@ -328,8 +404,8 @@ void rss_save_item(rss_item *ri)
 /*
  * Begin a feed parse
  */
-void rss_do_fetching(rssnetcfg *Cfg) {
-	rsscollection *rssc;
+int rss_do_fetching(rss_aggregator *Cfg)
+{
 	rss_item *ri;
 		
 	time_t now;
@@ -338,19 +414,15 @@ void rss_do_fetching(rssnetcfg *Cfg) {
         now = time(NULL);
 
 	if ((Cfg->next_poll != 0) && (now < Cfg->next_poll))
-		return;
-	Cfg->Attached = 1;
+		return 0;
+	Cfg->RefCount = 1;
 
 	ri = (rss_item*) malloc(sizeof(rss_item));
-	rssc = (rsscollection*) malloc(sizeof(rsscollection));
 	memset(ri, 0, sizeof(rss_item));
-	memset(rssc, 0, sizeof(rsscollection));
-	rssc->Item = ri;
-	rssc->Cfg = Cfg;
-	IO = &rssc->IO;
+	Cfg->Item = ri;
+	IO = &Cfg->IO;
 	IO->CitContext = CloneContext(CC);
-	IO->Data = rssc;
-	ri->roomlist = Cfg->rooms;
+	IO->Data = Cfg;
 
 
 	CtdlLogPrintf(CTDL_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(Cfg->Url));
@@ -364,79 +436,18 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 			  ParseRSSReply))
 	{
 		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
-//		goto abort;
+		return 0;
 	}
 
 	evcurl_handle_start(IO);
+	return 1;
 }
-
-citthread_mutex_t RSSQueueMutex; /* locks the access to the following vars: */
-HashList *RSSQueueRooms = NULL;
-HashList *RSSFetchUrls = NULL;
-
-
-/*
-	while (fgets(buf, sizeof buf, fp) != NULL && !CtdlThreadCheckStop()) {
-		buf[strlen(buf)-1] = 0;
-
-		extract_token(instr, buf, 0, '|', sizeof instr);
-		if (!strcasecmp(instr, "rssclient")) {
-
-			use_this_rncptr = NULL;
-
-			extract_token(feedurl, buf, 1, '|', sizeof feedurl);
-
-			/* If any other rooms have requested the same feed, then we will just add this
-			 * room to the target list for that client request.
-			 * / TODO: how do we do this best?
-			for (rncptr=rnclist; rncptr!=NULL; rncptr=rncptr->next) {
-				if (!strcmp(ChrPtr(rncptr->Url), feedurl)) {
-					use_this_rncptr = rncptr;
-				}
-			}
-			* /
-			/* Otherwise create a new client request * /
-			if (use_this_rncptr == NULL) {
-				rncptr = (rssnetcfg *) malloc(sizeof(rssnetcfg));
-				memset(rncptr, 0, sizeof(rssnetcfg));
-				rncptr->ItemType = RSS_UNSET;
-
-				rncptr->Url = NewStrBufPlain(feedurl, -1);
-				rncptr->rooms = NULL;
-				rnclist = rncptr;
-				use_this_rncptr = rncptr;
-
-			}
-
-			/* Add the room name to the request * /
-			if (use_this_rncptr != NULL) {
-				if (use_this_rncptr->rooms == NULL) {
-					rncptr->rooms = strdup(qrbuf->QRname);
-				}
-				else {
-					len = strlen(use_this_rncptr->rooms) + strlen(qrbuf->QRname) + 5;
-					ptr = realloc(use_this_rncptr->rooms, len);
-					if (ptr != NULL) {
-						strcat(ptr, "|");
-						strcat(ptr, qrbuf->QRname);
-						use_this_rncptr->rooms = ptr;
-					}
-				}
-			}
-		}
-
-	}
-			*/
-typedef struct __RoomCounter {
-	int count;
-	long QRnumber;
-} RoomCounter;
 
 
 
 void DeleteRssCfg(void *vptr)
 {
-	rssnetcfg *rncptr = (rssnetcfg *)vptr;
+	rss_aggregator *rncptr = (rss_aggregator *)vptr;
 
 	FreeStrBuf(&rncptr->Url);
 	FreeStrBuf(&rncptr->rooms);
@@ -452,18 +463,13 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	StrBuf *CfgData;
 	StrBuf *CfgType;
 	StrBuf *Line;
-	RoomCounter *Count = NULL;
+	rss_room_counter *Count = NULL;
 	struct stat statbuf;
 	char filename[PATH_MAX];
-	//char buf[1024];
-	//char instr[32];
 	int  fd;
 	int Done;
-	//char feedurl[256];
-	rssnetcfg *rncptr = NULL;
-	rssnetcfg *use_this_rncptr = NULL;
-	//int len = 0;
-	//char *ptr = NULL;
+	rss_aggregator *rncptr = NULL;
+	rss_aggregator *use_this_rncptr = NULL;
 	void *vptr;
 	const char *CfgPtr, *lPtr;
 	const char *Err;
@@ -524,38 +530,48 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		{
 		    if (Count == NULL)
 		    {
-			Count = malloc(sizeof(RoomCounter));
+			Count = malloc(sizeof(rss_room_counter));
 			Count->count = 0;
 		    }
 		    Count->count ++;
-		    rncptr = (rssnetcfg *) malloc(sizeof(rssnetcfg));
-		    memset (rncptr, 0, sizeof(rssnetcfg));
+		    rncptr = (rss_aggregator *) malloc(sizeof(rss_aggregator));
+		    memset (rncptr, 0, sizeof(rss_room_counter));
 		    rncptr->roomlist_parts = 1;
 		    rncptr->Url = NewStrBuf();
 		    StrBufExtract_NextToken(rncptr->Url, Line, &lPtr, '|');
 
 		    citthread_mutex_lock(&RSSQueueMutex);
 		    GetHash(RSSFetchUrls, SKEY(rncptr->Url), &vptr);
-		    use_this_rncptr = (rssnetcfg *)vptr;
-		    citthread_mutex_unlock(&RSSQueueMutex);
-
+		    use_this_rncptr = (rss_aggregator *)vptr;
 		    if (use_this_rncptr != NULL)
 		    {
-			/* mustn't attach to an active session */
-			if (use_this_rncptr->Attached == 1)
-			{
-			    DeleteRssCfg(rncptr);
-			}
-			else 
-			{
-				StrBufAppendBufPlain(use_this_rncptr->rooms, 
-						     qrbuf->QRname, 
-						     -1, 0);
-				use_this_rncptr->roomlist_parts++;
-			}
-
-			continue;
+			    /* mustn't attach to an active session */
+			    if (use_this_rncptr->RefCount > 0)
+			    {
+				    DeleteRssCfg(rncptr);
+				    Count->count--;
+			    }
+			    else 
+			    {
+				    long *QRnumber;
+				    StrBufAppendBufPlain(use_this_rncptr->rooms, 
+							 qrbuf->QRname, 
+							 -1, 0);
+				    if (use_this_rncptr->roomlist_parts == 1)
+				    {
+					    use_this_rncptr->OtherQRnumbers = NewHash(1, lFlathash);
+					    
+//// TODO add reference here! 
+				    }
+				    QRnumber = (long*)malloc(sizeof(long));
+				    *QRnumber = qrbuf->QRnumber;
+				    Put(use_this_rncptr->OtherQRnumbers, LKEY(qrbuf->QRnumber), QRnumber, NULL);
+				    use_this_rncptr->roomlist_parts++;
+			    }
+			    citthread_mutex_unlock(&RSSQueueMutex);
+			    continue;
 		    }
+		    citthread_mutex_unlock(&RSSQueueMutex);
 
 		    rncptr->ItemType = RSS_UNSET;
 				
@@ -584,7 +600,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
  */
 void rssclient_scan(void) {
 	static int doing_rssclient = 0;
-	rssnetcfg *rptr = NULL;
+	rss_aggregator *rptr = NULL;
 	void *vrptr = NULL;
 	HashPos  *it;
 	long len;
@@ -607,8 +623,12 @@ void rssclient_scan(void) {
 	it = GetNewHashPos(RSSQueueRooms, 0);
 	while (GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) && 
 	       (vrptr != NULL)) {
-		rptr = (rssnetcfg *)vrptr;
-		if (!rptr->Attached) rss_do_fetching(rptr);
+		rptr = (rss_aggregator *)vrptr;
+		if (rptr->RefCount == 0) 
+			if (!rss_do_fetching(rptr))
+			{
+				/// TODO: flush me.
+			}
 	}
 	DeleteHashPos(&it);
 	citthread_mutex_unlock(&RSSQueueMutex);
