@@ -181,6 +181,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	const StrBuf *Mime;
 	int start_index = 0;
 	int end_index = 0;
+	int go_to_the_very_end = 0;
 
 	if (Stat->nummsgs > 0) {
 		syslog(9, "sorting %d messages\n", BBS->num_msgs);
@@ -220,9 +221,26 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	 */
 	if (BBS->requested_page == (-3)) {
 		if (BBS->num_msgs == 0) {
+			/*
+			 * The room is empty; just start at the top and leave it there.
+			 */
 			BBS->requested_page = 0;
 		}
+		else if (
+			(BBS->num_msgs > 0) 
+			&& (BBS->lastseen <= BBS->msgs[0])
+		) {
+			/*
+			 * All messages are new; this is probably the user's first visit to the room,
+			 * so start at the last page instead of showing ancient history.
+			 */
+			BBS->requested_page = BBS->num_pages - 1;
+			go_to_the_very_end = 1;
+		}
 		else {
+			/*
+			 * Some messages are old and some are new.  Go to the start of new messages.
+			 */
 			for (i=0; i<BBS->num_msgs; ++i) {
 				if (
 					(BBS->msgs[i] > BBS->lastseen)
@@ -266,7 +284,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 				) {
 					/* new messages start here */
 					do_template("start_of_new_msgs");
-					StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#newmsgs\";\n");
+					if (!go_to_the_very_end) {
+						StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#newmsgs\";\n");
+					}
 				}
 				if (BBS->msgs[i] > 0L) {
 					read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
@@ -277,7 +297,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 				) {
 					/* no new messages */
 					do_template("no_new_msgs");
-					StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#nonewmsgs\";\n");
+					if (!go_to_the_very_end) {
+						StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#nonewmsgs\";\n");
+					}
 				}
 			}
 		}
@@ -288,7 +310,13 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			/* Display the selecto-bar with the page numbers */
 
 			wc_printf("<div class=\"moreprompt\">");
+			if (seq == 2) {
+				wc_printf("<a name=\"end_of_msgs\">");
+			}
 			wc_printf(_("Go to page: "));
+			if (seq == 2) {
+				wc_printf("</a>");
+			}
 
 			first = 0;
 			last = BBS->num_pages - 1;
@@ -355,6 +383,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		}
 	}
 
+	if (go_to_the_very_end) {
+		StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#end_of_msgs\";\n");
+	}
 	return(0);
 }
 
