@@ -507,15 +507,18 @@ void do_logout(void)
 	serv_getln(buf, sizeof buf);
 	WCC->logged_in = 0;
 
-	if (WC->serv_info->serv_supports_guest) {
-		display_default_landing_page();
-		return;
-	}
-
 	FlushStrBuf(WCC->CurRoom.name);
 
 	/* Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
+
+	/* For sites in guest mode, redirect to the landing page after we're logged out */
+	if (WC->serv_info->serv_supports_guest) {
+		wc_printf("	<script type=\"text/javascript\">	"
+			"	window.location='/';			"
+			"	</script>				"
+		);
+	}
 
 	wc_printf("<div id=\"logout_screen\">");
         wc_printf("<div class=\"box\">");
@@ -547,6 +550,11 @@ void do_logout(void)
 	wc_printf(_("Log in again"));
 	wc_printf("</a></span>");
 	wc_printf("</div></div></div>\n");
+	if (WC->serv_info->serv_supports_guest) {
+		display_default_landing_page();
+		return;
+	}
+
 	wDumpContent(2);
 	end_webcit_session();
 }
