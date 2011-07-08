@@ -364,10 +364,10 @@ function getSortMode(toggleElem) {
 function removeOldSortClass() {
 	if (currentSorterToggle) {
 		var classes = currentSorterToggle.className;
-		/* classes = classes.replace("current_sort_mode","");
-		   classes = classes.replace("sort_ascending","");
-		   classes = classes.replace("sort_descending",""); */
-		currentSorterToggle.className = "";
+		classes = classes.replace("current_sort_mode","");
+		classes = classes.replace("sort_ascending","");
+		classes = classes.replace("sort_descending","");
+		currentSorterToggle.className = classes;
 	}
 }
 function markRow(row) {
