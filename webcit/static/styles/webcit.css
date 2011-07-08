@@ -447,7 +447,6 @@ body {
  * and resize). In particular, do NOT set any for message_list_hdr as its not good feng shui
  */
 #message_listview th {
-	border: 1px solid green;
 	border-right: 0.2em solid #fff;
 }
 #message_listview td {
