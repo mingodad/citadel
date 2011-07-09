@@ -881,13 +881,13 @@ function toggle_roomlist()
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
 	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) == "collapse.gif" ) {
 		$('roomlist').style.display = 'none';
-		$('expand_roomlist').src = 'static/expand.gif';
+		$('expand_roomlist').src = 'static/webcit_icons/expand.gif';
 		wstate=0;
 	}
 
 	else {
 		$('roomlist').style.display = 'block';
-		$('expand_roomlist').src = 'static/collapse.gif';
+		$('expand_roomlist').src = 'static/webcit_icons/collapse.gif';
 		$('roomlist').innerHTML = '';
 		FillRooms(IconBarRoomList);
 		wstate=1;
@@ -906,13 +906,13 @@ function toggle_wholist()
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
 	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) == "collapse.gif" ) {
 		$('online_users').style.display = 'none';
-		$('expand_wholist').src = 'static/expand.gif';
+		$('expand_wholist').src = 'static/webcit_icons/expand.gif';
 		wstate=0;
 	}
 
 	else {
 		$('online_users').style.display = 'block';
-		$('expand_wholist').src = 'static/collapse.gif';
+		$('expand_wholist').src = 'static/webcit_icons/collapse.gif';
 		activate_iconbar_wholist_populat0r();
 		wstate=1;
 	}
