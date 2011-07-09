@@ -397,6 +397,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 				(treat_as_wiki)
 				&& (strncasecmp(ptr, "<a href=\"wiki?", 14))
 				&& (strncasecmp(ptr, "<a href=\"dotgoto?", 17))
+				&& (strncasecmp(ptr, "<a href=\"knrooms?", 17))
 			) {
 				content_length += 64;
 				StrBufAppendPrintf(converted_msg, "<a href=\"wiki?page=");
