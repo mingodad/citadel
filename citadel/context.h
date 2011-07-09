@@ -10,6 +10,26 @@
 
 
 /*
+ * Values for CitContext.state
+ * 
+ * A session that is doing nothing is in CON_IDLE state.  When activity
+ * is detected on the socket, it goes to CON_READY, indicating that it
+ * needs to have a worker thread bound to it.  When a thread binds to
+ * the session, it goes to CON_EXECUTING and does its thing.  When the
+ * transaction is finished, the thread sets it back to CON_IDLE and lets
+ * it go.
+ */
+typedef enum __CCState {
+	CON_IDLE,		/* This context is doing nothing */
+	CON_GREETING,		/* This context needs to output its greeting */
+	CON_STARTING,		/* This context is outputting its greeting */
+	CON_READY,		/* This context needs attention */
+	CON_EXECUTING,		/* This context is bound to a thread */
+	CON_SYS                 /* This is a system context and mustn't be purged */
+} CCState;
+
+
+/*
  * Here's the big one... the Citadel context structure.
  *
  * This structure keeps track of all information relating to a running 
@@ -24,7 +44,7 @@ struct CitContext {
 	int dont_term;          /* for special activities like artv so we don't get killed */
 	time_t lastcmd;		/* time of last command executed */
 	time_t lastidle;	/* For computing idle time */
-	int state;		/* thread state (see CON_ values below) */
+	CCState state;		/* thread state (see CON_ values below) */
 	int kill_me;		/* Set to nonzero to flag for termination */
 
 	IOBuffer SendBuf, /* Our write Buffer */
@@ -123,23 +143,6 @@ struct CitContext {
 
 typedef struct CitContext CitContext;
 
-/*
- * Values for CitContext.state
- * 
- * A session that is doing nothing is in CON_IDLE state.  When activity
- * is detected on the socket, it goes to CON_READY, indicating that it
- * needs to have a worker thread bound to it.  When a thread binds to
- * the session, it goes to CON_EXECUTING and does its thing.  When the
- * transaction is finished, the thread sets it back to CON_IDLE and lets
- * it go.
- */
-enum {
-	CON_IDLE,		/* This context is doing nothing */
-	CON_GREETING,		/* This context needs to output its greeting */
-	CON_STARTING,		/* This context is outputting its greeting */
-	CON_READY,		/* This context needs attention */
-	CON_EXECUTING		/* This context is bound to a thread */
-};
 
 #define CC MyContext()
 

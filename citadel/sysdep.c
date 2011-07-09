@@ -1266,11 +1266,13 @@ do_select:	force_purge = 0;
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			int client_socket;
+			if ((ptr->state == CON_SYS) && (ptr->client_socket == 0))
+			    continue;
 			client_socket = ptr->client_socket;
 			/* Dont select on dead sessions only truly idle ones */
 			if ((ptr->state == CON_IDLE) && 
 			    (CC->kill_me == 0) &&
-			    (client_socket != -1))
+			    (client_socket > 0))
 			{
 				FD_SET(client_socket, &readfds);
 				if (client_socket > highest)

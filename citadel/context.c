@@ -460,7 +460,7 @@ CitContext *CloneContext(CitContext *CloneMe) {
 
 	me->MigrateBuf = NewStrBuf();
 	me->RecvBuf.Buf = NewStrBuf();
-
+	
 	begin_critical_section(S_SESSION_TABLE);
 	{
 		me->cs_pid = ++next_pid;
@@ -523,6 +523,7 @@ void CtdlFillSystemContext(CitContext *context, char *name)
 	len = cutuserkey(sysname);
 	memcpy(context->curr_user, sysname, len + 1);
 	context->client_socket = (-1);
+	context->state = CON_SYS;
 
 	/* internal_create_user has the side effect of loading the user regardless of wether they
 	 * already existed or needed to be created
