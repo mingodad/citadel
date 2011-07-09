@@ -535,7 +535,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		    }
 		    Count->count ++;
 		    rncptr = (rss_aggregator *) malloc(sizeof(rss_aggregator));
-		    memset (rncptr, 0, sizeof(rss_room_counter));
+		    memset (rncptr, 0, sizeof(rss_aggregator));
 		    rncptr->roomlist_parts = 1;
 		    rncptr->Url = NewStrBuf();
 		    StrBufExtract_NextToken(rncptr->Url, Line, &lPtr, '|');
