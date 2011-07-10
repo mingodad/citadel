@@ -679,7 +679,7 @@ shutdown:
 }
 
 
-void rss_cleanup(void)
+void rss_parser_cleanup(void)
 {
         DeleteHash(&StartHandlers);
         DeleteHash(&EndHandlers);
@@ -773,7 +773,7 @@ CTDL_MODULE_INIT(rssparser)
 		/* we don't like these namespaces because of they shadow our usefull parameters. */
 		Put(KnownNameSpaces, HKEY("http://search.yahoo.com/mrss/"), NULL, reference_free_handler);
 #endif
-                CtdlRegisterCleanupHook(rss_cleanup);
+                CtdlRegisterCleanupHook(rss_parser_cleanup);
 	}
 	return "rssparser";
 }

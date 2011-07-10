@@ -144,7 +144,7 @@ gotstatus(evcurl_global_data *global, int nnrun)
 			FreeStrBuf(&IO->HttpReq.ReplyData);
 			FreeURL(&IO->ConnectMe);
 			RemoveContext(IO->CitContext);
-			free(IO);
+			IO->Terminate(IO);
 		}
 	}
 }
@@ -272,7 +272,8 @@ void curl_init_connectionpool(void)
 int evcurl_init(AsyncIO *IO, 
 		void *CustomData, 
 		const char* Desc,
-		IO_CallBack CallBack) 
+		IO_CallBack CallBack, 
+		IO_CallBack Terminate)
 {
 	CURLcode sta;
 	CURL *chnd;
@@ -280,6 +281,7 @@ int evcurl_init(AsyncIO *IO,
 	CtdlLogPrintf(CTDL_DEBUG,"EVCURL: evcurl_init called ms\n");
 	IO->HttpReq.attached = 0;
 	IO->SendDone = CallBack;
+	IO->Terminate = Terminate;
 	chnd = IO->HttpReq.chnd = curl_easy_init();
 	if (!chnd)
 	{
@@ -477,7 +479,7 @@ void *client_event_thread(void *arg)
 	ev_run (event_base, 0);
 
 
-	CtdlClearSystemContext();
+///what todo here?	CtdlClearSystemContext();
 	ev_loop_destroy (EV_DEFAULT_UC);
 	
 	DeleteHash(&QueueEvents);
@@ -505,6 +507,8 @@ HashList *DBInboundEventQueues[2] = { NULL, NULL };
 ev_async DBAddJob;   
 ev_async DBExitEventLoop;
 
+extern void ShutDownDBCLient(AsyncIO *IO);
+
 static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
 	HashList *q;
@@ -530,7 +534,15 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	while (GetNextHashPos(q, It, &len, &Key, &v))
 	{
 		IOAddHandler *h = v;
-		h->EvAttch(h->IO);
+		eNextState rc;
+		rc = h->EvAttch(h->IO);
+		switch (rc)
+		{
+		case eAbort:
+		    ShutDownDBCLient(h->IO);
+		default:
+		    break;
+		}
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
@@ -540,9 +552,8 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 
 static void DBEventExitCallback(EV_P_ ev_async *w, int revents)
 {
-	ev_break(event_db, EVBREAK_ALL);
-
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q exiting.\n");
+	ev_break(event_db, EVBREAK_ALL);
 }
 
 
@@ -590,7 +601,7 @@ void *db_event_thread(void *arg)
 	ev_run (event_db, 0);
 
 
-	CtdlClearSystemContext();
+//// what to do here?	CtdlClearSystemContext();
 	ev_loop_destroy (event_db);
 
 	DeleteHash(&DBQueueEvents);

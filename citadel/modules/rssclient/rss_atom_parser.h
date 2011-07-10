@@ -81,7 +81,7 @@ struct rss_aggregator {
 		   	
 	rss_item   	*Item;
 	
-	rss_xml_handler *Current;
+	const rss_xml_handler *Current;
 };
 
 

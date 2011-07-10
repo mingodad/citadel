@@ -147,6 +147,7 @@ void InitC_ares_dns(AsyncIO *IO);
 int evcurl_init(AsyncIO *IO, 
 		void *CustomData, 
 		const char* Desc,
-		IO_CallBack CallBack);
+		IO_CallBack CallBack, 
+		IO_CallBack Terminate);
 
 void evcurl_handle_start(AsyncIO *IO);
