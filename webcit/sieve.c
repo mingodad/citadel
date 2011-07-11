@@ -1275,7 +1275,7 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 
 	if (num_scripts > have_rules_script)
 	{
-		long rc;
+		long rc = 0;
 		long len;
 		const char *Key;
 		void *vRuleset;

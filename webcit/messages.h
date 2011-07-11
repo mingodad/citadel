@@ -40,7 +40,6 @@ typedef struct _message_summary {
 	StrBuf *subj;		/* the title / subject */
 	StrBuf *reply_inreplyto;
 	StrBuf *reply_references;
-	StrBuf *reply_to;
 	StrBuf *cccc;
 	StrBuf *hnod;
 	StrBuf *AllRcpt;
