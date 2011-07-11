@@ -188,6 +188,14 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 			}
 			break;			     
 		case NO_AUTH:
+			/* Any unbound session is a candidate */
+			if (sptr->wc_session == 0) {
+				/* FIXME -- look for a session that is not only a candidate, but is
+				 * also NOT CURRENTLY LOCKED.  This will cause the proper size pool
+				 * to be created.
+				 */
+				TheSession = sptr;
+			}
 			break;
 		}
 	}
@@ -477,6 +485,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	wcsession *TheSession;
 	struct timeval tx_start;
 	struct timeval tx_finish;
+	int session_may_be_reused = 1;
 	
 	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
 
@@ -533,6 +542,10 @@ void context_loop(ParsedHttpHdrs *Hdr)
 
 	if (Hdr->HR.got_auth == AUTH_BASIC) {
 		CheckAuthBasic(Hdr);
+	}
+
+	if (Hdr->HR.got_auth) {
+		session_may_be_reused = 0;
 	}
 
 	/*
@@ -592,6 +605,16 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	);
 
 	session_detach_modules(TheSession);
+
+	/* If *this* very transaction did not explicitly specify a session cookie,
+	 * and it did not log in, we want to flag the session as a candidate for
+	 * re-use by the next unbound client that comes along.  This keeps our session
+	 * table from getting bombarded with new sessions when, for example, a web
+	 * spider crawls the site without using cookies.
+	 */
+	if ((session_may_be_reused) && (!WC->logged_in)) {
+		WC->wc_session = 0;
+	}
 
 	TheSession->Hdr = NULL;
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
