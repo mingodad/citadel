@@ -275,8 +275,11 @@ void FlushReadBuf (void)
 		pche = pch + len;
 		if (WCC->ReadPos != pche)
 		{
-			syslog(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %ld [%s]\n", 
-				pche - WCC->ReadPos, pche);
+			syslog(1,
+				"ERROR: somebody didn't eat his soup! Remaing Chars: %ld [%s]\n", 
+				(long)(pche - WCC->ReadPos),
+				pche
+			);
 			syslog(1, 
 				"--------------------------------------------------------------------------------\n"
 				"Whole buf: [%s]\n"

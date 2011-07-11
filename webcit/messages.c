@@ -46,7 +46,6 @@ int load_message(message_summary *Msg,
 		 StrBuf *FoundCharset,
 		 StrBuf **Error)
 {
-	wcsession *WCC = WC;
 	StrBuf *Buf;
 	StrBuf *HdrToken;
 	headereval *Hdr;
@@ -161,38 +160,6 @@ int load_message(message_summary *Msg,
 	/* now we put the body mimepart we read above into the mimelist */
 	Put(Msg->AllAttach, SKEY(Msg->MsgBody->PartNum), Msg->MsgBody, DestroyMime);
 	
-	/* Generate a reply-to address */
-	if (StrLength(Msg->Rfca) > 0) {
-		if (Msg->reply_to == NULL)
-			Msg->reply_to = NewStrBuf();
-		if (StrLength(Msg->from) > 0) {
-			StrBufPrintf(Msg->reply_to, "%s <%s>", ChrPtr(Msg->from), ChrPtr(Msg->Rfca));
-		}
-		else {
-			FlushStrBuf(Msg->reply_to);
-			StrBufAppendBuf(Msg->reply_to, Msg->Rfca, 0);
-		}
-	}
-	else 
-	{
-		if ((StrLength(Msg->OtherNode)>0) && 
-		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(WCC->serv_info->serv_nodename))) &&
-		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(WCC->serv_info->serv_humannode)) ))
-		{
-			if (Msg->reply_to == NULL)
-				Msg->reply_to = NewStrBuf();
-			StrBufPrintf(Msg->reply_to, 
-				     "%s @ %s",
-				     ChrPtr(Msg->from), 
-				     ChrPtr(Msg->OtherNode));
-		}
-		else {
-			if (Msg->reply_to == NULL)
-				Msg->reply_to = NewStrBuf();
-			FlushStrBuf(Msg->reply_to);
-			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
-		}
-	}
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&HdrToken);
 	return 1;

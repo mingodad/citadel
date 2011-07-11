@@ -51,9 +51,7 @@ void DestroyMessageSummary(void *vMsg)
 	FreeStrBuf(&Msg->Rfca);
 	FreeStrBuf(&Msg->OtherNode);
 
-	FreeStrBuf(&Msg->reply_to);
-
-	DeleteHash(&Msg->Attachments);  /**< list of Accachments */
+	DeleteHash(&Msg->Attachments);	/* list of Attachments */
 	DeleteHash(&Msg->Submessages);
 	DeleteHash(&Msg->AttachLinks);
 	DeleteHash(&Msg->AllAttach);
