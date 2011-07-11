@@ -204,8 +204,6 @@ int GetConnected (void)
 			return 1;
 		}
 
-		/* 2010jun03: every now and then the connection to Citadel dies before this point.  why? */
-
 		/*
 		 * From what host is our user connecting?  Go with
 		 * the host at the other end of the HTTP socket,

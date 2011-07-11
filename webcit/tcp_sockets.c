@@ -52,7 +52,7 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		syslog(1, "Can't create socket[%s]: %s\n", sockpath, strerror(errno));
+		syslog(1, "Can't create socket [%s]: %s\n", sockpath, strerror(errno));
 		return(-1);
 	}
 
@@ -185,6 +185,7 @@ int StrBuf_ServGetln(StrBuf *buf)
 		syslog(1, "StrBuf_ServGetln(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
+		if (WCC->serv_sock > 0) close(WCC->serv_sock);
 		WCC->serv_sock = (-1);
 		WCC->connected = 0;
 		WCC->logged_in = 0;
@@ -220,6 +221,7 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 		syslog(1, "StrBuf_ServGetBLOBBuffered(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
+		if (WCC->serv_sock > 0) close(WCC->serv_sock);
 		WCC->serv_sock = (-1);
 		WCC->connected = 0;
 		WCC->logged_in = 0;
@@ -245,6 +247,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 		syslog(1, "StrBuf_ServGetBLOB(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
+		if (WCC->serv_sock > 0) close(WCC->serv_sock);
 		WCC->serv_sock = (-1);
 		WCC->connected = 0;
 		WCC->logged_in = 0;
@@ -315,7 +318,7 @@ int serv_write(const char *buf, int nbytes)
 			const char *ErrStr = strerror(errno);
 			syslog(1, "serv_write(): Server connection broken: %s\n",
 				(ErrStr)?ErrStr:"");
-			close(WCC->serv_sock);
+			if (WCC->serv_sock > 0) close(WCC->serv_sock);
 			WCC->serv_sock = (-1);
 			WCC->connected = 0;
 			WCC->logged_in = 0;
@@ -422,6 +425,7 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 			if (rc < 0) {
 				syslog(1, "Server connection broken during download\n");
 				wc_backtrace();
+				if (WCC->serv_sock > 0) close(WCC->serv_sock);
 				WCC->serv_sock = (-1);
 				WCC->connected = 0;
 				WCC->logged_in = 0;
@@ -577,11 +581,13 @@ int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	if (b < 0) {
 		syslog(1, "Can't bind: %s\n", strerror(errno));
+		close(s);
 		return (-WC_EXIT_BIND);
 	}
 
 	if (listen(s, queue_len) < 0) {
 		syslog(1, "Can't listen: %s\n", strerror(errno));
+		close(s);
 		return (-WC_EXIT_BIND);
 	}
 	return (s);
@@ -621,14 +627,14 @@ int webcit_uds_server(char *sockpath, int queue_len)
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		syslog(1, "webcit: Can't bind: %s\n",
-			strerror(errno));
+		syslog(1, "webcit: Can't bind: %s\n", strerror(errno));
+		close(s);
 		return (-WC_EXIT_BIND);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		syslog(1, "webcit: Can't listen: %s\n",
-			strerror(errno));
+		syslog(1, "webcit: Can't listen: %s\n", strerror(errno));
+		close(s);
 		return (-WC_EXIT_BIND);
 	}
 
