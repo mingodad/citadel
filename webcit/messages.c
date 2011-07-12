@@ -1347,6 +1347,62 @@ void display_enter(void)
 		return;
 	}
 
+
+	/*
+	 * If the "replying_to" variable is set, it refers to a message
+	 * number from which we must extract some header fields...
+	 */
+	long replying_to = lbstr("replying_to");
+	if (replying_to > 0) {
+		char wefw[1024] = "";
+		char msgn[1024] = "";
+		serv_printf("MSG0 %ld|1", replying_to);	
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+
+			if ( (!strncasecmp(buf, "subj=", 5)) && (strlen(buf) > 5) ) {
+				StrBuf *subj = NewStrBuf();
+				if (strncasecmp(&buf[5], "Re:", 3)) {
+					StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+				}
+				StrBufAppendBufPlain(subj, &buf[5], -1, 0);
+				PutBstr(HKEY("subject"), subj);
+			}
+
+			else if (!strncasecmp(buf, "wefw=", 5)) {
+				safestrncpy(wefw, &buf[5], sizeof wefw);
+
+				/* Trim down excessively long lists of thread references.  We eliminate the
+				 * second one in the list so that the thread root remains intact.
+				 */
+				int rrtok = num_tokens(wefw, '|');
+				int rrlen = strlen(wefw);
+				if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+					remove_token(wefw, 1, '|');
+				}
+			}
+
+			else if (!strncasecmp(buf, "msgn=", 5)) {
+				safestrncpy(msgn, &buf[5], sizeof msgn);
+			}
+
+		}
+
+		if (strlen(wefw) + strlen(msgn) > 0) {
+			StrBuf *refs = NewStrBuf();
+			if (!IsEmptyStr(wefw)) {
+				StrBufAppendBufPlain(refs, wefw, -1, 0);
+			}
+			if ( (!IsEmptyStr(wefw)) && (!IsEmptyStr(msgn)) ) {
+				StrBufAppendBufPlain(refs, HKEY("|"), 0);
+			}
+			if (!IsEmptyStr(msgn)) {
+				StrBufAppendBufPlain(refs, msgn, -1, 0);
+			}
+			PutBstr(HKEY("references"), refs);
+		}
+	}
+
 	/*
 	 * Otherwise proceed normally.
 	 * Do a custom room banner with no navbar...
