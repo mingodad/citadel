@@ -1428,7 +1428,9 @@ void display_enter(void)
 			PutBstr(HKEY("references"), refs);
 		}
 
-		if (!strcasecmp(bstr("replying_mode"), "reply")) {
+		if (	(!strcasecmp(bstr("replying_mode"), "reply"))
+			|| (!strcasecmp(bstr("replying_mode"), "replyall"))
+		) {
 			StrBuf *to_rcpt = NewStrBuf();
 			if (!IsEmptyStr(rfca)) {
 				StrBufAppendPrintf(to_rcpt, "%s <%s>", from, rfca);
