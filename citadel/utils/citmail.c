@@ -228,12 +228,15 @@ int main(int argc, char **argv) {
 
 	sp = strchr (buf, ' ');
 	if (sp == NULL) {
-		if (debug) fprintf(stderr, "citmail: ould not calculate hostname.\n");
+		if (debug) fprintf(stderr, "citmail: could not calculate hostname.\n");
 		cleanup(2);
 	}
 	sp ++;
 	ep = strchr (sp, ' ');
-	if (ep == NULL) cleanup(3);
+	if (ep == NULL) {
+		if (debug) fprintf(stderr, "citmail: error parsing hostname\n");
+		cleanup(3);
+	}
 	*ep = '\0';
 	strncpy(hostname, sp, sizeof hostname);
 
@@ -296,12 +299,18 @@ int main(int argc, char **argv) {
 		serv_gets(buf);
 		strcat(buf, "    ");
 	} while (buf[3] == '-');
-	if (buf[0] != '2') cleanup(4);
+	if (buf[0] != '2') {
+		if (debug) fprintf(stderr, "citmail: LHLO command failed\n");
+		cleanup(4);
+	}
 
 	snprintf(buf, sizeof buf, "MAIL %s", fromline);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0] != '2') cleanup(5);
+	if (buf[0] != '2') {
+		if (debug) fprintf(stderr, "citmail: MAIL command failed\n");
+		cleanup(5);
+	}
 
 	for (i=0; i<num_recipients; ++i) {
 		snprintf(buf, sizeof buf, "RCPT To: %s", recipients[i]);
@@ -313,7 +322,10 @@ int main(int argc, char **argv) {
 
 	serv_puts("DATA");
 	serv_gets(buf);
-	if (buf[0]!='3') cleanup(6);
+	if (buf[0]!='3') {
+		if (debug) fprintf(stderr, "citmail: DATA command failed\n");
+		cleanup(6);
+	}
 
 	rewind(fp);
 	while (fgets(buf, sizeof buf, fp) != NULL) {
