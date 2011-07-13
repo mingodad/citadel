@@ -254,7 +254,7 @@ virtual host through to WebCit.  The alternative way, which does work but is not
 quite as robust, is to "mount" the WebCit paths as directory aliases to your
 main document root.
 
-Here is how to configure the NameVirtualHost method:
+Here is how to configure the NameVirtualHost method (recommended) :
 
 <VirtualHost mydomain.com:443>
 	#here some of your config stuff like logging, serveradmin...
@@ -269,7 +269,7 @@ Here is how to configure the NameVirtualHost method:
     alias /static /var/lib/citadel/www/static
 </VirtualHost>
 
-Here is how to configure the "subdirectory" method:
+Here is how to configure the "subdirectory" method (not recommended) :
 
 <VirtualHost mydomain.com:443>
 	#here some of your config stuff like logging, serveradmin...
@@ -295,9 +295,6 @@ Here is how to configure the "subdirectory" method:
     ProxyPassReverse /groupdav/ http://127.0.0.1:2000/groupdav/
     ProxyPass /who_inner_html http://127.0.0.1:2000/who_inner_html
     ProxyPassReverse /who_inner_html http://127.0.0.1:2000/who_inner_html
-# The following line is optional.  It allows WebCit's static content
-# such as images to be served directly by Apache.
-    alias /static /var/lib/citadel/www/static
 </VirtualHost>
 
   
@@ -328,5 +325,5 @@ bin: the binaries.
  ----------
  
  That's all you need to know to get started.  If you have any questions or
-comments, please visit UNCENSORED! BBS, the home of Citadel, at
-http://uncensored.citadel.org - and go to the "Citadel Support" room.
+comments, visit the Citadel Support room on UNCENSORED! BBS, the home of Citadel:
+http://uncensored.citadel.org/dotgoto?room=Citadel%20Support
