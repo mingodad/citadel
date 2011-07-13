@@ -1289,6 +1289,7 @@ void display_enter(void)
 	int recipient_bad = 0;
 	int is_anonymous = 0;
       	wcsession *WCC = WC;
+	int i = 0;
 
 	now = time(NULL);
 
@@ -1355,15 +1356,25 @@ void display_enter(void)
 	long replying_to = lbstr("replying_to");
 	if (replying_to > 0) {
 		char wefw[1024] = "";
-		char msgn[1024] = "";
+		char msgn[256] = "";
+		char from[256] = "";
+		char node[256] = "";
+		char rfca[256] = "";
 		serv_printf("MSG0 %ld|1", replying_to);	
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 			if ( (!strncasecmp(buf, "subj=", 5)) && (strlen(buf) > 5) ) {
 				StrBuf *subj = NewStrBuf();
-				if (strncasecmp(&buf[5], "Re:", 3)) {
-					StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+				if (!strcasecmp(bstr("replying_mode"), "forward")) {
+					if (strncasecmp(&buf[5], "Fw:", 3)) {
+						StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
+					}
+				}
+				else {
+					if (strncasecmp(&buf[5], "Re:", 3)) {
+						StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+					}
 				}
 				StrBufAppendBufPlain(subj, &buf[5], -1, 0);
 				PutBstr(HKEY("subject"), subj);
@@ -1386,6 +1397,21 @@ void display_enter(void)
 				safestrncpy(msgn, &buf[5], sizeof msgn);
 			}
 
+			else if (!strncasecmp(buf, "from=", 5)) {
+				safestrncpy(from, &buf[5], sizeof from);
+				for (i=0; i<strlen(from); ++i) {
+					if (from[i] == ',') from[i] = ' ';
+				}
+			}
+
+			else if (!strncasecmp(buf, "node=", 5)) {
+				safestrncpy(node, &buf[5], sizeof node);
+			}
+
+			else if (!strncasecmp(buf, "rfca=", 5)) {
+				safestrncpy(rfca, &buf[5], sizeof rfca);
+			}
+
 		}
 
 		if (strlen(wefw) + strlen(msgn) > 0) {
@@ -1400,6 +1426,22 @@ void display_enter(void)
 				StrBufAppendBufPlain(refs, msgn, -1, 0);
 			}
 			PutBstr(HKEY("references"), refs);
+		}
+
+		if (!strcasecmp(bstr("replying_mode"), "reply")) {
+			StrBuf *to_rcpt = NewStrBuf();
+			if (!IsEmptyStr(rfca)) {
+				StrBufAppendPrintf(to_rcpt, "%s <%s>", from, rfca);
+			}
+			else {
+				StrBufAppendPrintf(to_rcpt, "%s", from);
+				if (	(!IsEmptyStr(node))
+					&& (strcasecmp(node, ChrPtr(WC->serv_info->serv_nodename)))
+				) {
+					StrBufAppendPrintf(to_rcpt, " @ %s", node);
+				}
+			}
+			PutBstr(HKEY("recp"), to_rcpt);
 		}
 	}
 

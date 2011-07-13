@@ -15,20 +15,13 @@
  <p id="msg<?MAIL:SUMM:N>" class="msgbuttons">
  <a href="display_enter?edit=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:TO("U")>?cc=<?MAIL:SUMM:CCCC("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "", "")>?force_room=_MAIL_"><span>[</span><?_("Edit")><span>]</span></a> 
 <?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")>
-   <a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>'));"><span>[</span><?_("Reply")><span>]</span></a> 
-   <a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
+	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>'));"><span>[</span><?_("Reply")><span>]</span></a> 
+	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
 <?!("X", 8)>
 <??("COND:ROOM:TYPE_IS", 9, #"VIEW_BBS")>
-	<?!("COND:MAIL:SUMM:RFCA", 10)>
-		<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re: ", "Re:")>'));"><span>[</span><?_("Reply")><span>]</span></a> 
-		<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E%2C<?MAIL:SUMM:ALLRCPT("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re: ", "Re:")>'));"><span>[</span><?_("ReplyAll")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fw: ", "Fw:")>"><span>[</span><?_("Forward")><span>]</span></a> 
-	<?!("X", 10)>
-	<??("COND:MAIL:SUMM:RFCA", 11)>
-		<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re: ", "Re:")>'));"><span>[</span><?_("Reply")><span>]</span></a> 
-		<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:FROM("U")>%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re: ", "Re:")>'));"><span>[</span><?_("ReplyAll")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fw: ", "Fw:")>"><span>[</span><?_("Forward")><span>]</span></a> 
-	<??("X", 11)>
+	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=reply?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("Reply")><span>]</span></a> 
+	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=replyall?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=forward?replying_to=<?MAIL:SUMM:N>?fwdquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("Forward")><span>]</span></a> 
 <??("X", 9)>
 <?!("COND:ROOM:EDITACCESS", 14)>
    <a href="confirm_move_msg?msgid=<?MAIL:SUMM:N>"><span>[</span><?_("Move")><span>]</span></a> 
