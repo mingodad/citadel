@@ -1360,6 +1360,8 @@ void display_enter(void)
 		char from[256] = "";
 		char node[256] = "";
 		char rfca[256] = "";
+		char rcpt[SIZ] = "";
+		char cccc[SIZ] = "";
 		serv_printf("MSG0 %ld|1", replying_to);	
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -1404,6 +1406,14 @@ void display_enter(void)
 				}
 			}
 
+			else if (!strncasecmp(buf, "rcpt=", 5)) {
+				safestrncpy(rcpt, &buf[5], sizeof rcpt);
+			}
+
+			else if (!strncasecmp(buf, "cccc=", 5)) {
+				safestrncpy(cccc, &buf[5], sizeof cccc);
+			}
+
 			else if (!strncasecmp(buf, "node=", 5)) {
 				safestrncpy(node, &buf[5], sizeof node);
 			}
@@ -1428,6 +1438,9 @@ void display_enter(void)
 			PutBstr(HKEY("references"), refs);
 		}
 
+		/*
+		 * If this is a Reply or a ReplyAll, copy the sender's email into the To: field
+		 */
 		if (	(!strcasecmp(bstr("replying_mode"), "reply"))
 			|| (!strcasecmp(bstr("replying_mode"), "replyall"))
 		) {
@@ -1445,6 +1458,25 @@ void display_enter(void)
 			}
 			PutBstr(HKEY("recp"), to_rcpt);
 		}
+
+		/*
+		 * Only if this is a ReplyAll, copy all recipients into the Cc: field
+		 */
+		if (	(!strcasecmp(bstr("replying_mode"), "replyall"))
+		) {
+			StrBuf *cc_rcpt = NewStrBuf();
+			if (!IsEmptyStr(rcpt)) {
+				StrBufAppendPrintf(cc_rcpt, "%s", rcpt);
+			}
+			if ( (!IsEmptyStr(rcpt)) && (!IsEmptyStr(cccc)) ) {
+				StrBufAppendPrintf(cc_rcpt, ", ");
+			}
+			if (!IsEmptyStr(cccc)) {
+				StrBufAppendPrintf(cc_rcpt, "%s", cccc);
+			}
+			PutBstr(HKEY("cc"), cc_rcpt);
+		}
+
 	}
 
 	/*
