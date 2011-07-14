@@ -144,9 +144,7 @@ void smtp_greeting(int is_msa)
 	/* Otherwise we're either clean or we check later. */
 
 	if (CC->nologin==1) {
-		cprintf("500 Too many users are already online (maximum is %d)\r\n",
-			config.c_maxsessions
-		);
+		cprintf("451 Too many connections are already open; please try again later.\r\n");
 		CC->kill_me = KILLME_MAX_SESSIONS_EXCEEDED;
 		/* no need to free_recipients(valid), it's not allocated yet */
 		return;
