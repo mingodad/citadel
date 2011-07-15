@@ -961,6 +961,12 @@ void tmplput_csslocal(StrBuf *Target, WCTemplputParams *TP)
 			csslocal, 0);
 }
 
+void tmplput_packagestring(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBufAppendBufPlain(Target, 
+			     HKEY(PACKAGE_STRING), 0);
+}
+
 extern char static_local_dir[PATH_MAX];
 
 
@@ -986,6 +992,7 @@ InitModule_WEBCIT
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, NULL, CTX_NONE);
 	RegisterNamespace("URL:DISPLAYNAME", 0, 1, tmplput_HANDLER_DISPLAYNAME, NULL, CTX_NONE);
+	RegisterNamespace("PACKAGESTRING", 0, 1, tmplput_packagestring, NULL, CTX_NONE);
 
 	
 	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
