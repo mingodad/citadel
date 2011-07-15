@@ -45,6 +45,7 @@ typedef struct _UserListEntry {
 	/* Just available for Single users to view: */
 	unsigned int Flags;
 	int DaysTillPurge;
+	int HasBio;
 } UserListEntry;
 
 
@@ -272,9 +273,9 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 	HashList *Hash = NULL;
 	StrBuf *Buf;
 	UserListEntry* ul;
-	char nnn[64];
-	int nUsed;
 	int len;
+	int UID;
+	void *vData;
 	WCTemplputParams SubTP;
 
 	memset(&SubTP, 0, sizeof(WCTemplputParams));	
@@ -282,7 +283,7 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
-		Hash = NewHash(1, NULL);
+		Hash = NewHash(1, Flathash);
 
 		while (!Done) {
 			len = StrBuf_ServGetln(Buf);
@@ -296,9 +297,27 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 			ul = NewUserListEntry(Buf);
 			if (ul == NULL)
 				continue;
-			nUsed = GetCount(Hash);
-			nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
-			Put(Hash, nnn, nUsed, ul, DeleteUserListEntry); 
+
+			Put(Hash, IKEY(ul->UID), ul, DeleteUserListEntry); 
+		}
+
+		serv_puts("LBIO 1");
+		if (GetServerStatus(Buf, NULL) == 1)
+			while (!Done) {
+			len = StrBuf_ServGetln(Buf);
+			if ((len <0) || 
+			    ((len == 3) &&
+			     !strcmp(ChrPtr(Buf), "000")))
+			{
+				Done = 1;
+				break;
+			}
+			UID = atoi(ChrPtr(Buf));
+			if (GetHash(Hash, IKEY(UID), &vData) && vData != 0)
+			{
+				ul = (UserListEntry*)vData;
+				ul->HasBio = 1;
+			}
 		}
 		SubTP.Filter.ContextType = CTX_USERLIST;
 		SortIt = RetrieveSort(&SubTP, HKEY("USER"), HKEY("user:uid"), 0);
@@ -418,6 +437,65 @@ int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
 		==
 		ul->AccessLevel;
 }
+int ConditionalHaveBIO(StrBuf *Target, WCTemplputParams *TP)
+{
+	UserListEntry *ul = (UserListEntry*) CTX;
+	
+	if (ul == NULL)
+		return 0;
+	return ul->HasBio;
+}
+
+void tmplput_USER_BIO(StrBuf *Target, WCTemplputParams *TP)
+{
+	int Done = 0;
+	StrBuf *Buf;
+	const char *who;
+	long len;
+
+	GetTemplateTokenString(Target, TP, 0, &who, &len);
+
+	Buf = NewStrBuf();
+	serv_printf("RBIO %s", who);
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		StrBuf *BioBuf = NewStrBufPlain(NULL, SIZ);
+		while (!Done && StrBuf_ServGetln(Buf)>=0) {
+			if ( (StrLength(Buf)==3) && 
+			     !strcmp(ChrPtr(Buf), "000")) 
+				Done = 1;
+			else
+				StrBufAppendBuf(BioBuf, Buf, 0);
+		}
+		StrBufAppendTemplate(Target, TP, BioBuf, 1);
+		FreeStrBuf(&BioBuf);
+	}
+	FreeStrBuf(&Buf);
+}
+
+int Conditional_USER_HAS_PIC(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBuf *Buf;
+	const char *who;
+	long len;
+
+	GetTemplateTokenString(Target, TP, 2, &who, &len);
+
+	Buf = NewStrBuf();
+	serv_printf("OIMG _userpic_|%s", who);
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		serv_puts("CLOS");
+		StrBuf_ServGetln(Buf);
+		GetServerStatus(Buf, NULL);
+		FreeStrBuf(&Buf);
+		return 1;
+	} else {
+		FreeStrBuf(&Buf);
+		return 0;
+	}
+}
+
 
 /*
  *  Locate the message number of a user's vCard in the current room
@@ -433,7 +511,6 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg, wc_mime_attachment 
 	void *vMsg;
 	message_summary *Msg;
 	wc_mime_attachment *Att;
-	int Done;
 	StrBuf *Buf;
 	long vcard_msgnum = (-1L);
 	int already_tried_creating_one = 0;
@@ -448,7 +525,6 @@ TRYAGAIN:
 	Stat.maxload = 10000;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	Done = 0;
 	/* Search for the user's vCard */
 	if (load_msg_ptrs("MSGS ALL||||1", &Stat, NULL) > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
@@ -744,11 +820,14 @@ void _display_edituser(void) {
 	display_edituser(NULL, 0);
 }
 
+void showuser(void) { do_template("user_show");}
+
 
 void 
 InitModule_USEREDIT
 (void)
 {
+	WebcitAddUrlHandler(HKEY("showuser"), "", 0, showuser, 0);
 	WebcitAddUrlHandler(HKEY("select_user_to_edit"), "", 0, _select_user_to_edit, 0);
 	WebcitAddUrlHandler(HKEY("display_edituser"), "", 0, _display_edituser, 0);
 	WebcitAddUrlHandler(HKEY("edituser"), "", 0, edituser, 0);
@@ -767,9 +846,14 @@ InitModule_USEREDIT
 	RegisterNamespace("USERLIST:FLAGS",         0, 0, tmplput_USERLIST_Flags, NULL, CTX_USERLIST);
 	RegisterNamespace("USERLIST:DAYSTILLPURGE", 0, 0, tmplput_USERLIST_DaysTillPurge, NULL, CTX_USERLIST);
 
+	RegisterNamespace("USER:BIO", 1, 2, tmplput_USER_BIO,  NULL, CTX_NONE);
+
 	RegisterConditional(HKEY("COND:USERNAME"),  0,    ConditionalUser, CTX_USERLIST);
 	RegisterConditional(HKEY("COND:USERACCESS"), 0,   ConditionalUserAccess, CTX_USERLIST);
 	RegisterConditional(HKEY("COND:USERLIST:FLAG:USE_INTERNET"), 0, ConditionalFlagINetEmail, CTX_USERLIST);
+	RegisterConditional(HKEY("COND:USERLIST:HAVEBIO"), 0, ConditionalHaveBIO, CTX_USERLIST);
+
+	RegisterConditional(HKEY("COND:USER:PIC"), 1, Conditional_USER_HAS_PIC,  CTX_NONE);
 
 	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	
