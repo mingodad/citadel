@@ -620,12 +620,14 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  const StrBuf *Source, int FormatTypeIndex)
 {
         wcsession *WCC;
+	const char *pFmt = NULL;
 	char EscapeAs = ' ';
 
 	if ((FormatTypeIndex < TP->Tokens->nParameters) &&
 	    (TP->Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
-	    (TP->Tokens->Params[FormatTypeIndex]->len == 1)) {
-		EscapeAs = *TP->Tokens->Params[FormatTypeIndex]->Start;
+	    (TP->Tokens->Params[FormatTypeIndex]->len >= 1)) {
+		pFmt = TP->Tokens->Params[FormatTypeIndex]->Start;
+		EscapeAs = pFmt;
 	}
 
 	switch(EscapeAs)
@@ -645,6 +647,12 @@ void StrBufAppendTemplate(StrBuf *Target,
 	  break;
 	case 'U':
 		StrBufUrlescAppend(Target, Source, NULL);
+		break;
+	case 'F':
+		if (pFmt != NULL) 	pFmt++;
+		else			pFmt = "JUSTIFY";
+		if (*pFmt == '\0')	pFmt = "JUSTIFY";
+		FmOut(Target, pFmt, Source);
 		break;
 	default:
 		StrBufAppendBuf(Target, Source, 0);
