@@ -712,9 +712,9 @@ void display_add_remove_scripts(char *message)
 
 	wc_printf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
-	do_template("beginbox_1");
+	do_template("box_begin_1");
 	StrBufAppendBufPlain(WC->WBuf, _("Add a new script"), -1, 0);
-	do_template("beginbox_2");
+	do_template("box_begin_2");
 
 	wc_printf(_("To create a new script, enter the desired "
 		"script name in the box below and click 'Create'."));
@@ -727,21 +727,21 @@ void display_add_remove_scripts(char *message)
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
 		"</form></center>\n", _("Create"));
 
-	do_template("endbox");
+	do_template("box_end");
 
-	do_template("beginbox_1");
+	do_template("box_begin_1");
 	StrBufAppendBufPlain(WC->WBuf, _("Edit scripts"), -1, 0);
-	do_template("beginbox_2");
+	do_template("box_begin_2");
 	wc_printf("<br><div align=center><a href=\"display_sieve\">%s</a><br><br>\n",
 		_("Return to the script editing screen")
 	);
-	do_template("endbox");
+	do_template("box_end");
 
 	wc_printf("</td><td>");
 
-	do_template("beginbox_1");
+	do_template("box_begin_1");
 	StrBufAppendBufPlain(WC->WBuf, _("Delete scripts"), -1, 0);
-	do_template("beginbox_2");
+	do_template("box_begin_2");
 
 	wc_printf(_("To delete an existing script, select the script "
 		"name from the list and click 'Delete'."));
@@ -769,7 +769,7 @@ void display_add_remove_scripts(char *message)
         wc_printf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete script"), _("Delete this script?"));
         wc_printf("</form></center>\n");
-	do_template("endbox");
+	do_template("box_end");
 
 	wc_printf("</td></tr></table>\n");
 
