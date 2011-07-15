@@ -69,7 +69,7 @@ void blogpost_render(struct blogpost *bp, int with_comments)
 		for (i=1; i<bp->num_msgs; ++i) {
 			read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
 		}
-		do_template("blog_comment_box");
+		do_template("view_blog_comment_box");
 	}
 
 	else {
