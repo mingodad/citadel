@@ -1,0 +1,16 @@
+<!-- begin summary_header.html -->
+<script language="javascript" type="text/javascript">
+  document.onkeydown = CtdlMsgListKeyPress;
+</script>
+<div id="message_list_hdr">
+<table cellspacing=0 style="width:100%%">
+<tr>
+<th class="col1"><?_("Subject")><a href="readfwd?startmsg=1&amp;maxmsgs=9999999&amp;is_summary=1&amp;SortOrder=<?SORT:ORDER("subject")>&amp;SortBy=<?SORT:NEXT("subject")>"><img src="<?SORT:ICON("subject")>" /></a></th>
+<th class="col2"><?_("Sender")><a href="readfwd?startmsg=1&amp;maxmsgs=9999999&amp;is_summary=1&amp;SortOrder=<?SORT:ORDER("sender")>&amp;SortBy=<?SORT:NEXT("sender")>"><img src="<?SORT:ICON("sender")>" /></a></th>
+<th class="col3"><?_("Date")><a href="readfwd?startmsg=1&amp;maxmsgs=9999999&amp;is_summary=1&amp;SortOrder=<?SORT:ORDER("date")>&amp;SortBy=<?SORT:NEXT("date")>"><img border="0" src="<?SORT:ICON("date")>" /></a></th>
+</tr>
+</table>
+</div>
+<div id="message_list">
+<div id="message_list_body">
+<!-- end summary_header.html -->
