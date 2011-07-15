@@ -610,10 +610,16 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			 * but only if the client fetches the message we just generated immediately
 			 * without first trying to perform other fetch operations.
 			 */
-			if (CC->cached_msglist != NULL) free(CC->cached_msglist);
-			CC->cached_num_msgs = 1;
+			if (CC->cached_msglist != NULL) {
+				free(CC->cached_msglist);
+				CC->cached_msglist = NULL;
+				CC->cached_num_msgs = 0;
+			}
 			CC->cached_msglist = malloc(sizeof(long));
-			CC->cached_msglist[0] = msgnum;
+			if (CC->cached_msglist != NULL) {
+				CC->cached_num_msgs = 1;
+				CC->cached_msglist[0] = msgnum;
+			}
 
 		}
 		else if (!strcasecmp(operation, "revert")) {
