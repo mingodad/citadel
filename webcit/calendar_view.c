@@ -1535,3 +1535,10 @@ int calendar_RenderView_or_Tail(SharedMessageStatus *Stat,
 	DeleteHash(&WC->disp_cal_items);
 	return 0;
 }
+
+void 
+InitModule_CALENDAR_VIEW
+(void)
+{
+	WebcitAddUrlHandler(HKEY("mini_calendar"), "", 0, ajax_mini_calendar, AJAX);
+}

@@ -599,6 +599,14 @@ void tmplput_serv_ip(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendPrintf(Target, "%d", WC->ctdl_pid);
 }
 
+void tmplput_serv_admin(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return;
+	StrBufAppendTemplate(Target, TP, WCC->serv_info->serv_sysadm, 0);
+}
+
 void tmplput_serv_nodename(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -778,6 +786,7 @@ InitModule_SERVFUNC
 	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, NULL, CTX_NONE);
 	RegisterNamespace("SERV:BBS_CITY", 0, 1, tmplput_serv_bbs_city, NULL, CTX_NONE);
 	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, NULL, CTX_NONE);
+	RegisterNamespace("SERV:ADMIN", 1, 2, tmplput_serv_admin, NULL, CTX_NONE);
 }
 
 

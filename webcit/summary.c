@@ -36,10 +36,25 @@ void output_date(void) {
 	wc_printf("%s", buf);
 }
 
+void tmplput_output_date(StrBuf *Target, WCTemplputParams *TP)
+{
+	struct tm tm;
+	time_t now;
+	char buf[128];
+	size_t n;
+
+	time(&now);
+	localtime_r(&now, &tm);
+
+	n = wc_strftime(buf, 32, "%A, %x", &tm);
+	StrBufAppendBufPlain(Target, buf, n, 0);
+}
+
+
 /*
  * New messages section
  */
-void new_messages_section(void) {
+void new_messages_section(StrBuf *Target, WCTemplputParams *TP) {
 	char buf[SIZ];
 	char room[SIZ];
 	int i;
@@ -76,7 +91,7 @@ void new_messages_section(void) {
 /*
  * Task list section
  */
-void tasks_section(void) {
+void tasks_section(StrBuf *Target, WCTemplputParams *TP) {
 	int num_msgs = 0;
 	HashPos *at;
 	const char *HashKey;
@@ -123,7 +138,7 @@ void tasks_section(void) {
 /*
  * Calendar section
  */
-void calendar_section(void) {
+void calendar_section(StrBuf *Target, WCTemplputParams *TP) {
 	char cmd[SIZ];
 	int num_msgs = 0;
 	HashPos *at;
@@ -172,171 +187,13 @@ void calendar_section(void) {
 	__calendar_Cleanup(&v);
 }
 
-/*
- * Server info section (fluff, really)
- */
-void server_info_section(void) {
-	char message[512];
-	wcsession *WCC = WC;
-
-	snprintf(message, sizeof message,
-		_("You are connected to %s, running %s with %s, server build %s and located in %s.  Your system administrator is %s."),
-		 ChrPtr(WCC->serv_info->serv_humannode),
-		 ChrPtr(WCC->serv_info->serv_software),
-		 PACKAGE_STRING,
-		 ChrPtr(WCC->serv_info->serv_svn_revision),
-		 ChrPtr(WCC->serv_info->serv_bbs_city),
-		 ChrPtr(WCC->serv_info->serv_sysadm));
-	escputs(message);
-}
-
-/*
- * Now let's do three columns of crap.  All portals and all groupware
- * clients seem to want to do three columns, so we'll do three
- * columns too.  Conformity is not inherently a virtue, but there are
- * a lot of really shallow people out there, and even though they're
- * not people I consider worthwhile, I still want them to use WebCit.
- */
-void summary_inner_div(void) {
-
-	wc_printf("<table width=\"98%%\" cellspacing=\"3\" cellpadding=\"0\">");
-	wc_printf("<tr valign=top>");
-
-	/*
-	 * Column One
-	 */
-	wc_printf("<td width=\"33%%\">");
-	wc_printf("<div class=\"box\">");
-	wc_printf("<div class=\"boxlabel\">");
-	wc_printf(_("Messages"));
-	wc_printf("</div><div class=\"boxcontent\">");
-	wc_printf("<div id=\"msg_inner\">");
-	new_messages_section();
-	wc_printf("</div></div></div>");
-	wc_printf("</td>");
-
-	/*
-	 * Column Two
-	 */
-	wc_printf("<td width=\"33%%\">");
-	wc_printf("<div class=\"box\">");
-	wc_printf("<div class=\"boxlabel\">");
-	wc_printf(_("Tasks"));
-	wc_printf("</div><div class=\"boxcontent\">");
-	wc_printf("<div id=\"tasks_inner\">");
-	tasks_section();
-	wc_printf("</div></div></div>");
-	wc_printf("</td>");
-
-	/*
-	 * Column Three
-	 */
-	wc_printf("<td width=\"33%%\">");
-	wc_printf("<div class=\"box\">");
-	wc_printf("<div class=\"boxlabel\">");
-	wc_printf(_("Today&nbsp;on&nbsp;your&nbsp;calendar"));
-	wc_printf("</div><div class=\"boxcontent\">");
-	wc_printf("<div id=\"calendar_inner\">");
-	calendar_section();
-	wc_printf("</div></div></div>");
-	wc_printf("</td>");
-
-	wc_printf("</tr><tr valign=top>");
-
-	/*
-	 * Row Two - Column One
-	 */
-	wc_printf("<td colspan=2>");
-	wc_printf("<div class=\"box\">");
-	wc_printf("<div class=\"boxlabel\">");
-	wc_printf(_("Who's&nbsp;online&nbsp;now"));
-	wc_printf("</div><div class=\"boxcontent\">");
-	wc_printf("<div id=\"who_inner\">");
-	do_template("who_summary");
-	wc_printf("</div></div></div>");
-	wc_printf("</td>");
-
-	/*
-	 * Row Two - Column Two
-	 */
-	wc_printf("<td width=\"33%%\">");
-	wc_printf("<div class=\"box\">");
-	wc_printf("<div class=\"boxlabel\">");
-	wc_printf(_("About&nbsp;this&nbsp;server"));
-	wc_printf("</div><div class=\"boxcontent\">");
-	wc_printf("<div id=\"info_inner\">");
-	server_info_section();
-	wc_printf("</div></div></div>");
-	wc_printf("</td>");
-
-
-	/*
-	 * End of columns
-	 */
-	wc_printf("</tr></table>");
-}
-
-
-/*
- * Display this user's summary page
- */
-void summary(void) {
-	char title[256];
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\" class=\"banner\">\n");
-	wc_printf("<table border=0><tr>");
-        wc_printf("<td><img src=\"static/webcit_icons/essen/32x32/summary.png\" alt=\"\"></td>");
-        wc_printf("<td><h1>");
-        snprintf(title, sizeof title, _("Summary page for %s"),
-		( (WC->logged_in) ?  ChrPtr(WC->wc_fullname) : ChrPtr(WC->serv_info->serv_humannode))
-	);
-        escputs(title);
-        wc_printf("</h1><h2>");
-        output_date();
-        wc_printf("</h2></td></tr></table>");
-	wc_printf("<div id=\"actiondiv\">");
-	wc_printf("<ul class=\"room_actions\">\n");
-	wc_printf("<li class=\"start_page\">");
-	offer_start_page(NULL, &NoCtx);
-        wc_printf("</li></ul>");
-        wc_printf("</div>");	/* actiondiv */
-        wc_printf("</div>");	/* banner */
-
-	/*
-	 * You guessed it ... we're going to refresh using ajax.
-	 * In the future we might consider updating individual sections of the summary
-	 * instead of the whole thing.
-	 */
-	wc_printf("<div id=\"content\" class=\"service\">\n");
-	summary_inner_div();
-	wc_printf("</div>\n");
-
-	wc_printf(
-		"<script type=\"text/javascript\">					"
-		" new Ajax.PeriodicalUpdater('msg_inner', 'new_messages_html',		"
-		"                            { method: 'get', frequency: 60 }  );	"
-		" new Ajax.PeriodicalUpdater('tasks_inner', 'tasks_inner_html',		"
-		"                            { method: 'get', frequency: 120 }  );	"
-		" new Ajax.PeriodicalUpdater('calendar_inner', 'calendar_inner_html',		"
-		"                            { method: 'get', frequency: 90 }  );	"
-		" new Ajax.PeriodicalUpdater('do_template', 'template=who_summary',	"
-		"                            { method: 'get', frequency: 30 }  );	"
-		"</script>							 	\n"
-	);
-
-	wDumpContent(1);
-}
-
 void 
 InitModule_SUMMARY
 (void)
 {
-	WebcitAddUrlHandler(HKEY("new_messages_html"), "", 0, new_messages_section, AJAX);
-	WebcitAddUrlHandler(HKEY("tasks_inner_html"), "", 0, tasks_section, AJAX);
-	WebcitAddUrlHandler(HKEY("calendar_inner_html"), "", 0, calendar_section, AJAX);
-	WebcitAddUrlHandler(HKEY("mini_calendar"), "", 0, ajax_mini_calendar, AJAX);
-	WebcitAddUrlHandler(HKEY("summary"), "", 0, summary, 0);
-	WebcitAddUrlHandler(HKEY("summary_inner_div"), "", 0, summary_inner_div, AJAX);
+	RegisterNamespace("TIME:NOW", 0, 0, tmplput_output_date, NULL, CTX_NONE);
+	RegisterNamespace("SUMMARY:NEWMESSAGES_SELECTION", 0, 0, new_messages_section, NULL, CTX_NONE);
+	RegisterNamespace("SUMMARY:TASKSSECTION", 0, 0, tasks_section, NULL, CTX_NONE);
+	RegisterNamespace("SUMMARY:CALENDAR_SECTION", 0, 0, calendar_section, NULL, CTX_NONE);
 }
 
