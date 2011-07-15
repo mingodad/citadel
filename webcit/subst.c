@@ -2166,9 +2166,9 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
 	SubTP.Context = Headline;
 	SubTP.Filter.ContextType = CTX_STRBUF;
-	DoTemplate(HKEY("beginbox"), Target, &SubTP);
+	DoTemplate(HKEY("box_begin"), Target, &SubTP);
 	DoTemplate(TKEY(0), Target, TP);
-	DoTemplate(HKEY("endbox"), Target, TP);
+	DoTemplate(HKEY("box_end"), Target, TP);
 	FreeStrBuf(&Headline);
 }
 

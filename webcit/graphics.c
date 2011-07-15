@@ -43,7 +43,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	SubTP.Filter.ContextType = CTX_STRBUF;
 	SubTP.Context = Buf;
-	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
+	DoTemplate(HKEY("box_begin"), NULL, &SubTP);
 
 	FreeStrBuf(&Buf);
 
@@ -72,7 +72,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	wc_printf("</div>\n");
 	wc_printf("</form>\n");
 
-	do_template("endbox");
+	do_template("box_end");
 
 	wDumpContent(1);
 }

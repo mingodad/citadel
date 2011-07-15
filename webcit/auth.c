@@ -607,9 +607,9 @@ void validate(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-        do_template("beginbox_1");
+        do_template("box_begin_1");
         StrBufAppendBufPlain(WC->WBuf, _("Validate new users"), -1, 0);
-        do_template("beginbox_2");
+        do_template("box_begin_2");
 
 	/* If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
@@ -723,7 +723,7 @@ void validate(void)
 
 	wc_printf("</div>\n");
 	wc_printf("</td></tr></table>\n");
-	do_template("endbox");
+	do_template("box_end");
 	wDumpContent(1);
 }
 
@@ -799,7 +799,7 @@ void display_changepw(void)
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	SubTP.Filter.ContextType = CTX_STRBUF;
 	SubTP.Context = Buf;
-	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
+	DoTemplate(HKEY("box_begin"), NULL, &SubTP);
 
 	FreeStrBuf(&Buf);
 
@@ -835,7 +835,7 @@ void display_changepw(void)
 	wc_printf("</div>\n");
 	wc_printf("</form>\n");
 
-	do_template("endbox");
+	do_template("box_end");
 	wDumpContent(1);
 }
 
