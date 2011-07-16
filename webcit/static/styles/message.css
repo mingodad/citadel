@@ -2,10 +2,15 @@
 	background-color: #deded0;
 	margin: 0.5em 1em;
 /*	border: 1px solid #5C646B; */
-	-webkit-box-shadow: #666 0px 1px 2px;
+	-webkit-box-shadow: #666 0px 2px 3px;
 	-moz-box-shadow: #666 0px 2px 3px;
 	box-shadow: #666 0px 2px 3px;
-	behavior: url(/static/styles/PIE.htc);
+/*	behavior: url(/static/styles/PIE.htc);*/
+}
+
+* .message {
+	border: 1px inset #666;
+	border-width: 1px 2px 3px 1px; 
 }
 
 .entmsg { height: 95%; }
