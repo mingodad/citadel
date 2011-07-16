@@ -645,18 +645,6 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	cdb_free(cdbfr);	/* we own this memory now */
 
 	/*
-	 * We cache the most recent msglist in order to do security checks later
-	 */
-	if (CC->client_socket > 0) {
-		if (CC->cached_msglist != NULL) {
-			free(CC->cached_msglist);
-		}
-	
-		CC->cached_msglist = msglist;
-		CC->cached_num_msgs = num_msgs;
-	}
-
-	/*
 	 * Now begin the traversal.
 	 */
 	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
@@ -787,7 +775,21 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 			}
 		}
 	if (need_to_free_re) regfree(&re);
-	if (CC->client_socket <= 0) free(msglist);
+
+	/*
+	 * We cache the most recent msglist in order to do security checks later
+	 */
+	if (CC->client_socket > 0) {
+		if (CC->cached_msglist != NULL) {
+			free(CC->cached_msglist);
+		}
+		CC->cached_msglist = msglist;
+		CC->cached_num_msgs = num_msgs;
+	}
+	else {
+		free(msglist);
+	}
+
 	return num_processed;
 }
 

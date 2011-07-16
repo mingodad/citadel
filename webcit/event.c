@@ -1206,7 +1206,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 	/* If this was a save or delete, go back to the calendar or summary view. */
 	if (!havebstr("check_button")) {
 		if (!strcasecmp(bstr("calview"), "summary")) {
-			summary();
+			do_template("summary_page");
 		}
 		else {
 			readloop(readfwd, eUseDefault);

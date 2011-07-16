@@ -620,12 +620,14 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  const StrBuf *Source, int FormatTypeIndex)
 {
         wcsession *WCC;
+	const char *pFmt = NULL;
 	char EscapeAs = ' ';
 
 	if ((FormatTypeIndex < TP->Tokens->nParameters) &&
 	    (TP->Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
-	    (TP->Tokens->Params[FormatTypeIndex]->len == 1)) {
-		EscapeAs = *TP->Tokens->Params[FormatTypeIndex]->Start;
+	    (TP->Tokens->Params[FormatTypeIndex]->len >= 1)) {
+		pFmt = TP->Tokens->Params[FormatTypeIndex]->Start;
+		EscapeAs = pFmt;
 	}
 
 	switch(EscapeAs)
@@ -645,6 +647,12 @@ void StrBufAppendTemplate(StrBuf *Target,
 	  break;
 	case 'U':
 		StrBufUrlescAppend(Target, Source, NULL);
+		break;
+	case 'F':
+		if (pFmt != NULL) 	pFmt++;
+		else			pFmt = "JUSTIFY";
+		if (*pFmt == '\0')	pFmt = "JUSTIFY";
+		FmOut(Target, pFmt, Source);
 		break;
 	default:
 		StrBufAppendBuf(Target, Source, 0);
@@ -2166,9 +2174,9 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
 	SubTP.Context = Headline;
 	SubTP.Filter.ContextType = CTX_STRBUF;
-	DoTemplate(HKEY("beginbox"), Target, &SubTP);
+	DoTemplate(HKEY("box_begin"), Target, &SubTP);
 	DoTemplate(TKEY(0), Target, TP);
-	DoTemplate(HKEY("endbox"), Target, TP);
+	DoTemplate(HKEY("box_end"), Target, TP);
 	FreeStrBuf(&Headline);
 }
 

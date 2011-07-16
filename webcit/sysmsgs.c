@@ -47,9 +47,9 @@ void display_edit(char *description, char *check_cmd,
 		output_headers(1, 1, 0, 0, 0, 0);
 	}
 
-	do_template("beginbox_1");
+	do_template("box_begin_1");
 	StrBufAppendPrintf (WC->WBuf, _("Edit %s"), description);
-	do_template("beginbox_2");
+	do_template("box_begin_2");
 
 	wc_printf(_("Enter %s below. Text is formatted to the reader's browser."
 		" A newline is forced by preceding the next line by a blank."), description);
@@ -68,7 +68,7 @@ void display_edit(char *description, char *check_cmd,
 	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br>\n", _("Cancel"));
 	wc_printf("</div></form>\n");
 
-	do_template("endbox");
+	do_template("box_end");
 	wDumpContent(1);
 }
 

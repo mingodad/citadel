@@ -1,0 +1,27 @@
+<?("=head")>
+<div id="banner">
+  <img src="static/webcit_icons/essen/32x32/account.png" alt="">
+  <h1><?_("User profile")></h1>
+  <div id="navbar">
+    <ul><li><a href="display_page?recp=<?BSTR("who", "U")>">
+          <img src="static/webcit_icons/essen/16x16/chat.png" alt="">
+	  <span class="navbar_link">
+        <?_("Click here to send an instant message to")> <?BSTR("who", "X")> </span></li></a>
+  </div>
+</div>
+<div id="content" class="service bio">
+  <table class="userlist_background">
+    <tr><td>
+	<center>
+	  <table>
+	    <tr><td>
+		<??("COND:USER:PIC", 1, B"who")><img src="image?name=_userpic_&amp;parm=<?BSTR("who", "U")>" alt="">
+	      </td><td><h1>
+		  <?BSTR("who", "X")>
+	</h1></td></tr>
+	</table>
+	</center>
+	<?USER:BIO(B"who", "FJUSTIFY")>
+  </td></tr>
+  </table>
+<?=("trailing">

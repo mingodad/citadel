@@ -62,9 +62,9 @@ void do_listsub(void)
 	wc_printf("<div align=center>");
 	wc_printf("<table border=0 width=75%%><tr><td>");
 
-	do_template("beginbox_1");
+	do_template("box_begin_1");
 	StrBufAppendBufPlain(WC->WBuf, _("List subscribe/unsubscribe"), -1, 0);
-	do_template("beginbox_2");
+	do_template("box_begin_2");
 	wc_printf("<div align=center><br>");
 
 	/*
@@ -230,7 +230,7 @@ FORM:		wc_printf("<form method=\"POST\" action=\"listsub\">\n");
 	}
 
 	wc_printf("</div>");
-	do_template("endbox");
+	do_template("box_end");
 	wc_printf("</td></tr></table></div>");
 
 	wc_printf("</BODY></HTML>\n");

@@ -22,6 +22,9 @@
 
 #include "ctdl_module.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 
 /*
@@ -86,27 +89,49 @@ void cmd_rbio(char *cmdbuf)
 /*
  * list of users who have entered bios
  */
-void cmd_lbio(char *cmdbuf) {
-	char buf[256];
-	FILE *ls;
+void cmd_lbio(char *cmdbuf)
+{
+	DIR *filedir = NULL;
+	struct dirent *filedir_entry;
+	struct dirent *d;
+	int dont_resolve_uids;
+	size_t d_namelen;
 	struct ctdluser usbuf;
-	char listbios[256];
 
-	snprintf(listbios, sizeof(listbios),"cd %s; ls",ctdl_bio_dir);
-	ls = popen(listbios, "r");
-	if (ls == NULL) {
+	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 2);
+	if (d == NULL) {
 		cprintf("%d Cannot open listing.\n", ERROR + FILE_NOT_FOUND);
 		return;
 	}
 
-	cprintf("%d\n", LISTING_FOLLOWS);
-	while (fgets(buf, sizeof buf, ls)!=NULL)
-		if (CtdlGetUserByNumber(&usbuf,atol(buf))==0)
+	filedir = opendir (ctdl_bio_dir);
+	if (filedir == NULL) {
+		free(d);
+		cprintf("%d Cannot open listing.\n", ERROR + FILE_NOT_FOUND);
+		return;
+	}
+	dont_resolve_uids = *cmdbuf == '1';
+	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
+	       (filedir_entry != NULL))
+	{
+#ifdef _DIRENT_HAVE_D_NAMELEN
+		d_namelen = filedir_entry->d_namelen;
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+		if (dont_resolve_uids) {
+			filedir_entry->d_name[d_namelen++] = '\n';
+			filedir_entry->d_name[d_namelen] = '\0';
+			client_write(filedir_entry->d_name, d_namelen);
+		}
+		else if (CtdlGetUserByNumber(&usbuf,atol(filedir_entry->d_name))==0)
 			cprintf("%s\n", usbuf.fullname);
-	pclose(ls);
+	}
+	free(d);
+	closedir(filedir);
 	cprintf("000\n");
-}
 
+}
 
 
 

@@ -1,0 +1,17 @@
+<?=("head")>
+<div id="banner">
+  <h1><?_("User list for ")> <?SERV:HUMANNODE("X")></h1>
+</div>
+<div id="content" class="service">
+
+  <table class="userlist_background"><tr><td>
+	<tr>
+	  <th><?_("User Name")></th>
+	  <th><?_("Number")></th>
+	  <th><?_("Access Level")></th>
+	  <th><?_("Last Login")></th>
+	  <th><?_("Total Logins")></th>
+	  <th><?_("Total Posts")></th>
+	</tr>
+	<?ITERATE("USERLIST", ="user_list_section")>
+</table>

@@ -1049,9 +1049,9 @@ void do_edit_vcard(long msgnum, char *partnum,
 	/* Display the form */
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	do_template("beginbox_1");
+	do_template("box_begin_1");
 	StrBufAppendBufPlain(WC->WBuf, _("Edit contact information"), -1, 0);
-	do_template("beginbox_2");
+	do_template("box_begin_2");
 
 	wc_printf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
@@ -1222,7 +1222,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 	);
 	
 	wc_printf("</td></tr></table>\n");
-	do_template("endbox");
+	do_template("box_end");
 	wDumpContent(1);
 	if (Msg != NULL) {
 		DestroyMessageSummary(Msg);

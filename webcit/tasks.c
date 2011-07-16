@@ -573,7 +573,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 
 	/* Go back to wherever we came from */
 	if (ibstr("return_to_summary") == 1) {
-		summary();
+		do_template("summary_page");
 	}
 	else {
 		readloop(readfwd, eUseDefault);

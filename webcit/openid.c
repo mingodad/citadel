@@ -30,9 +30,9 @@ void display_openids(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	do_template("beginbox_1");
+	do_template("box_begin_1");
 	StrBufAppendBufPlain(WCC->WBuf, _("Manage Account/OpenID Associations"), -1, 0);
-	do_template("beginbox_2");
+	do_template("box_begin_2");
 
 	if (WCC->serv_info->serv_supports_openid) {
 
@@ -68,7 +68,7 @@ void display_openids(void)
 		wc_printf(_("%s does not permit authentication via OpenID."), ChrPtr(WCC->serv_info->serv_humannode));
 	}
 
-	do_template("endbox");
+	do_template("box_end");
 	wDumpContent(2);
 }
 
