@@ -80,7 +80,6 @@ div.iconbar_text select { border: 1px solid #424b5; }
 	-khtml-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
-	behavior: url(static/styles/PIE.htc);
  }
 
 .logo, #citlogo, .iconbar_text, #online_users li {
