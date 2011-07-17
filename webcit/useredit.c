@@ -101,6 +101,7 @@ UserListEntry* NewUserListEntry(StrBuf *SerializedUserList)
 	ul->nPosts      = StrBufExtractNext_int( SerializedUserList, &Pos, '|');
 	StrBufExtract_NextToken(ul->Passvoid,    SerializedUserList, &Pos, '|');
 	ul->Flags = 0;
+	ul->HasBio = 0;
 	ul->DaysTillPurge = -1;
 	return ul;
 }
@@ -302,7 +303,9 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 		}
 
 		serv_puts("LBIO 1");
+		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) == 1)
+			Done = 0;
 			while (!Done) {
 			len = StrBuf_ServGetln(Buf);
 			if ((len <0) || 
