@@ -111,6 +111,7 @@ void cmd_lbio(char *cmdbuf)
 		return;
 	}
 	dont_resolve_uids = *cmdbuf == '1';
+        cprintf("%d\n", LISTING_FOLLOWS);
 	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
@@ -119,6 +120,10 @@ void cmd_lbio(char *cmdbuf)
 #else
 		d_namelen = strlen(filedir_entry->d_name);
 #endif
+		if (((d_namelen == 1) && (filedir_entry->d_name[0] == '.')) || 
+		    ((d_namelen == 2) && (filedir_entry->d_name[0] == '.') && (filedir_entry->d_name[1] == '.')))
+			continue;
+		    
 		if (dont_resolve_uids) {
 			filedir_entry->d_name[d_namelen++] = '\n';
 			filedir_entry->d_name[d_namelen] = '\0';
