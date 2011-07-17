@@ -823,7 +823,12 @@ void _display_edituser(void) {
 	display_edituser(NULL, 0);
 }
 
-void showuser(void) { do_template("user_show");}
+void showuser(void)
+{
+	output_headers(1, 0, 0, 0, 1, 0);
+	do_template("user_show");
+	end_burst();
+}
 
 
 void 
