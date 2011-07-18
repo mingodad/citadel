@@ -20,12 +20,9 @@
 
 #include "webcit.h"
 
-void display_graphics_upload(char *description, char *filename, char *uplurl)
+void display_graphics_upload(char *filename)
 {
-	WCTemplputParams SubTP;
-	StrBuf *Buf;
 	char buf[SIZ];
-
 
 	snprintf(buf, SIZ, "UIMG 0||%s", filename);
 	serv_puts(buf);
@@ -35,46 +32,9 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 		display_main_menu();
 		return;
 	}
-	/*output_headers(1, 1, 0, 0, 0, 0); */
-
-	output_headers(1, 1, 1, 0, 0, 0);
-
-	Buf = NewStrBufPlain(_("Image upload"), -1);
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_STRBUF;
-	SubTP.Context = Buf;
-	DoTemplate(HKEY("box_begin"), NULL, &SubTP);
-
-	FreeStrBuf(&Buf);
-
-	wc_printf("<form enctype=\"multipart/form-data\" action=\"%s\" "
-		"method=\"post\" name=\"graphicsupload\">\n", uplurl);
-
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wc_printf("<input type=\"hidden\" name=\"which_room\" value=\"");
-	urlescputs(bstr("which_room"));
-	wc_printf("\">\n");
-
-	wc_printf(_("You can upload an image directly from your computer"));
-	wc_printf("<br><br>\n");
-
-	wc_printf(_("Please select a file to upload:"));
-	wc_printf("<input type=\"file\" name=\"filename\" size=\"35\">\n");
-
-	wc_printf("<div class=\"uploadpic\"><img src=\"image?name=%s\"></div>\n", filename);
-
-	wc_printf("<div class=\"buttons\">");
-	wc_printf("<input type=\"submit\" name=\"upload_button\" value=\"%s\">\n", _("Upload"));
-	wc_printf("&nbsp;");
-	wc_printf("<input type=\"reset\" value=\"%s\">\n", _("Reset form"));
-	wc_printf("&nbsp;");
-	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
-	wc_printf("</div>\n");
-	wc_printf("</form>\n");
-
-	do_template("box_end");
-
-	wDumpContent(1);
+	output_headers(1, 0, 0, 0, 1, 0);
+	do_template("files_graphicsupload");
+	end_burst();
 }
 
 void do_graphics_upload(char *filename)
@@ -143,38 +103,44 @@ void editgoodbuyepic(void) { do_graphics_upload("UIMG 1|%s|goodbuye"); }
 
 /* The users photo display / upload facility */
 void display_editpic(void) {
-	display_graphics_upload(_("your photo"),
-				"_userpic_",
-				"editpic");
+	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("_userpic_")));
+	putbstr("__PICDESC", NewStrBufPlain(_("your photo"), -1));
+	putbstr("__UPLURL", NewStrBufPlain(HKEY("editpic")));
+	display_graphics_upload("editpic");
 }
 /* room picture dispay / upload facility */
 void display_editroompic(void) {
-	display_graphics_upload(_("the icon for this room"),
-				"_roompic_",
-				"editroompic");
+	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("_roompic_")));
+	putbstr("__PICDESC", NewStrBufPlain(_("the icon for this room"), -1));
+	putbstr("__UPLURL", NewStrBufPlain(HKEY("editroompic")));
+	display_graphics_upload("editroompic");
 }
 
 /* the greetingpage hello pic */
 void display_edithello(void) {
-	display_graphics_upload(_("the Greetingpicture for the login prompt"),
-				"hello",
-				"edithellopic");
+	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("hello")));
+	putbstr("__PICDESC", NewStrBufPlain(_("the Greetingpicture for the login prompt"), -1));
+	putbstr("__UPLURL", NewStrBufPlain(HKEY("edithellopic")));
+	display_graphics_upload("edithellopic");
 }
 
 /* the logoff banner */
 void display_editgoodbyepic(void) {
-	display_graphics_upload(_("the Logoff banner picture"),
-				"UIMG 0|%s|goodbuye",
-				"editgoodbuyepic");
+	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("UIMG 0|%s|goodbuye")));
+	putbstr("__PICDESC", NewStrBufPlain(_("the Logoff banner picture"), -1));
+	putbstr("__UPLURL", NewStrBufPlain(HKEY("editgoodbuyepic")));
+	display_graphics_upload("editgoodbuyepic");
 }
 
 void display_editfloorpic(void) {
-	char buf[SIZ];
-	snprintf(buf, SIZ, "_floorpic_|%s",
-		 bstr("which_floor"));
-	display_graphics_upload(_("the icon for this floor"),
-				buf,
-				"editfloorpic");
+	StrBuf *PicAction;
+
+	PicAction = NewStrBuf();
+	StrBufPrintf(PicAction, "_floorpic_|%s", bstr("which_floor"));
+	putbstr("__WHICHPIC", PicAction);
+	putbstr("__PICDESC", NewStrBufPlain(_("the icon for this floor"), -1));
+	putbstr("__UPLURL", NewStrBufPlain(HKEY("editfloorpic")));
+	display_graphics_upload("editfloorpic");
 }
 
 void editroompic(void) {
