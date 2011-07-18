@@ -65,7 +65,7 @@ void do_housekeeping(void)
 	 * Lock the session list, moving any candidates for euthanasia into
 	 * a separate list.
 	 */
-	pthread_mutex_lock(&SessionListMutex);
+	CtdlLogResult(pthread_mutex_lock(&SessionListMutex));
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 
 		/* Kill idle sessions */
@@ -90,7 +90,7 @@ void do_housekeeping(void)
 			sessions_to_kill = sptr;
 		}
 	}
-	pthread_mutex_unlock(&SessionListMutex);
+	CtdlLogResult(pthread_mutex_unlock(&SessionListMutex));
 
 	/*
 	 * Now free up and destroy the culled sessions.
@@ -165,7 +165,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 		GetAuthBasic(Hdr);
 	}
 
-	pthread_mutex_lock(ListMutex);
+	CtdlLogResult(pthread_mutex_lock(ListMutex));
 	for (sptr = *wclist; ((sptr != NULL) && (TheSession == NULL)); sptr = sptr->next) {
 		
 		/* If HTTP-AUTH, look for a session with matching credentials */
@@ -193,7 +193,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 			break;
 		}
 	}
-	pthread_mutex_unlock(ListMutex);
+	CtdlLogResult(pthread_mutex_unlock(ListMutex));
 	if (TheSession == NULL)
 		lprintf(1, "didn't find sessionkey [%ld] for user [%s]\n",
 			Hdr->HR.SessionKey,ChrPtr(Hdr->c_username));
@@ -233,7 +233,7 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 
 		if (ListMutex != NULL)
-			pthread_mutex_lock(ListMutex);
+			CtdlLogResult(pthread_mutex_lock(ListMutex));
 
 		if (wclist != NULL) {
 			TheSession->nonce = rand();
@@ -241,7 +241,7 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 			*wclist = TheSession;
 		}
 		if (ListMutex != NULL)
-			pthread_mutex_unlock(ListMutex);
+			CtdlLogResult(pthread_mutex_unlock(ListMutex));
 	}
 	return TheSession;
 }
@@ -600,7 +600,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * Bind to the session and perform the transaction
 	 */
-	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
+	CtdlLogResult(pthread_mutex_lock(&TheSession->SessionMutex));
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
 	TheSession->lastreq = time(NULL);			/* log */
@@ -628,7 +628,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	session_detach_modules(TheSession);
 
 	TheSession->Hdr = NULL;
-	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
+	CtdlLogResult(pthread_mutex_unlock(&TheSession->SessionMutex));
 }
 
 void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)
