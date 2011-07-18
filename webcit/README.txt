@@ -13,9 +13,10 @@
 	Dave Lindquist
 	Matt Pfleger
 	Martin Mouritzen
+	Stefan Garthe
 
    This program is open source software released under the terms of the GNU
-   General Public License, version 3.  Please read COPYING.txt for more
+   General Public License, version 3. Please read COPYING.txt for more
    licensing information.
  
    WebCit bundles the Prototype JavaScript Framework, writen by Sam

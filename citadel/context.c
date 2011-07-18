@@ -338,15 +338,16 @@ void terminate_all_sessions(void)
 void RemoveContext (CitContext *con)
 {
 	const char *c;
-	if (con==NULL) {
-		syslog(LOG_ERR, "WARNING: RemoveContext() called with NULL!\n");
+	if (con == NULL) {
+		syslog(LOG_ERR, "WARNING: RemoveContext() called with NULL!");
 		return;
 	}
 	c = con->ServiceName;
-	if (c == NULL)
+	if (c == NULL) {
 		c = "WTF?";
-	syslog(LOG_DEBUG, "RemoveContext(%s) session %d\n", c, con->cs_pid);
-	cit_backtrace ();
+	}
+	syslog(LOG_DEBUG, "RemoveContext(%s) session %d", c, con->cs_pid);
+	cit_backtrace();
 
 	/* Run any cleanup routines registered by loadable modules.
 	 * Note: We have to "become_session()" because the cleanup functions
@@ -358,7 +359,7 @@ void RemoveContext (CitContext *con)
 	client_close();				/* If the client is still connected, blow 'em away. */
 	become_session(NULL);
 
-	syslog(LOG_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
+	syslog(LOG_NOTICE, "[%3d] Session ended.", con->cs_pid);
 
 	/* 
 	 * If the client is still connected, blow 'em away. 
@@ -366,7 +367,7 @@ void RemoveContext (CitContext *con)
 	 */
 	if (con->client_socket > 0)
 	{
-		syslog(LOG_NOTICE, "Closing socket %d\n", con->client_socket);
+		syslog(LOG_NOTICE, "Closing socket %d", con->client_socket);
 		close(con->client_socket);
 	}
 
@@ -382,7 +383,7 @@ void RemoveContext (CitContext *con)
 		free(con->cached_msglist);
 	}
 
-	syslog(LOG_DEBUG, "Done with RemoveContext()\n");
+	syslog(LOG_DEBUG, "Done with RemoveContext()");
 }
 
 
