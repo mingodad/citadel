@@ -807,8 +807,6 @@ int ical_ctdl_is_overlap(
 
 extern char *months[];
 extern char *days[];
-void display_graphics_upload(char *, char *, char *);
-void do_graphics_upload(char *upl_cmd);
 int serv_write(const char *buf, int nbytes);
 int serv_putbuf(const StrBuf *string);
 int serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));

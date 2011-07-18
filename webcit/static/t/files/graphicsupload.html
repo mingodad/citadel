@@ -1,0 +1,22 @@
+<?=("head")>
+<?=("box_begin_1")><?_("Image upload")> <?BSTR("__PICDESC")><?=("box_begin_2")>
+<form enctype="multipart/form-data" action='<?BSTR("__UPLURL")>' method="post" name="graphicsupload">
+
+<input type="hidden" name="nonce" value="<?NONCE>">
+<input type="hidden" name="which_room" value="<?ROOMNAME("U")>"><?_("You can upload an image directly from your computer")>
+<br><br>
+<?_("Please select a file to upload:")>
+<input type="file" name="filename" size="35">
+
+<div class="uploadpic"><img src="image?name=<?BSTR("__WHICHPIC")>"></div>
+
+<div class="buttons">
+  <input type="submit" name="upload_button" value="<?_("Upload")>">
+  &nbsp;
+  <input type="reset" value="<?_("Reset form")>" >
+  &nbsp;
+  <input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</div>
+</form>
+<?=("box_end")>
+<?=("trailing")>
