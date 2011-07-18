@@ -41,7 +41,7 @@ ConstStr QR2FlagList[] = {
 	{HKEY("")}
 };
 
-void DBG_QR(long QR)
+void _DBG_QR(long QR)
 {
 	int i = 1;
 	int j=0;
@@ -64,7 +64,7 @@ void DBG_QR(long QR)
 
 
 
-void DBG_QR2(long QR2)
+void _DBG_QR2(long QR2)
 {
 	int i = 1;
 	int j=0;
