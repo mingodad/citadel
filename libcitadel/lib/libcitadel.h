@@ -627,4 +627,7 @@ void WildFireSerializePayload(StrBuf *JsonBuffer, StrBuf *OutBuf, int *MsgCount,
 
 extern ConstStr RoomNetCfgStrs[maxRoomNetCfg];
 
+/* Convenience function to "perform a function and cut a log record if result != 0" */
+#define CtdlLogResult(x) if (x) syslog(LOG_CRIT, "%s:%d %s", __FILE__, __LINE__, strerror(errno))
+
 #endif	// LIBCITADEL_H
