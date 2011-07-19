@@ -627,7 +627,7 @@ void StrBufAppendTemplate(StrBuf *Target,
 	    (TP->Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
 	    (TP->Tokens->Params[FormatTypeIndex]->len >= 1)) {
 		pFmt = TP->Tokens->Params[FormatTypeIndex]->Start;
-		EscapeAs = pFmt;
+		EscapeAs = *pFmt;
 	}
 
 	switch(EscapeAs)
