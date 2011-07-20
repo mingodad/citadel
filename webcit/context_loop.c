@@ -189,12 +189,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 			break;			     
 		case NO_AUTH:
 			/* Any unbound session is a candidate */
-			if (sptr->wc_session == 0) {
-				/* FIXME -- look for a session that is not only a candidate, but is
-				 * also NOT CURRENTLY LOCKED.  This will cause the proper size pool
-				 * to be created.
-				 */
-				syslog(LOG_DEBUG, "\033[32mREUSING A SESSION\033[0m");
+			if ( (sptr->wc_session == 0) && (sptr->inuse == 0) ) {
 				TheSession = sptr;
 			}
 			break;
@@ -584,23 +579,18 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * Bind to the session and perform the transaction
 	 */
-	if (pthread_mutex_lock(&TheSession->SessionMutex)) {
-		syslog(LOG_DEBUG, "\033[31mWAITING FOR SESSION LOCK\033[0m");
-		CtdlLogResult(pthread_mutex_lock(&TheSession->SessionMutex));
-	}
-
+	CtdlLogResult(pthread_mutex_lock(&TheSession->SessionMutex));
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
+	TheSession->inuse = 1;					/* mark the session as bound */
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->Hdr = Hdr;
 
 	session_attach_modules(TheSession);
 	session_loop();				/* do transaction */
 
-
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
-	
 
 	syslog(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
@@ -622,6 +612,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	}
 
 	TheSession->Hdr = NULL;
+	TheSession->inuse = 0;					/* mark the session as unbound */
 	CtdlLogResult(pthread_mutex_unlock(&TheSession->SessionMutex));
 }
 
