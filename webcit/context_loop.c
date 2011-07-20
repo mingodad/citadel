@@ -194,6 +194,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				 * also NOT CURRENTLY LOCKED.  This will cause the proper size pool
 				 * to be created.
 				 */
+				syslog(LOG_DEBUG, "\033[32mREUSING A SESSION\033[0m");
 				TheSession = sptr;
 			}
 			break;
@@ -583,7 +584,11 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * Bind to the session and perform the transaction
 	 */
-	CtdlLogResult(pthread_mutex_lock(&TheSession->SessionMutex));
+	if (pthread_mutex_lock(&TheSession->SessionMutex)) {
+		syslog(LOG_DEBUG, "\033[31mWAITING FOR SESSION LOCK\033[0m");
+		CtdlLogResult(pthread_mutex_lock(&TheSession->SessionMutex));
+	}
+
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
 	TheSession->lastreq = time(NULL);			/* log */
