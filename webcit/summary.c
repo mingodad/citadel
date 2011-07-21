@@ -54,7 +54,7 @@ void tmplput_output_date(StrBuf *Target, WCTemplputParams *TP)
 /*
  * New messages section
  */
-void new_messages_section(StrBuf *Target, WCTemplputParams *TP) {
+void new_messages_section(void) {
 	char buf[SIZ];
 	char room[SIZ];
 	int i;
@@ -91,7 +91,7 @@ void new_messages_section(StrBuf *Target, WCTemplputParams *TP) {
 /*
  * Task list section
  */
-void tasks_section(StrBuf *Target, WCTemplputParams *TP) {
+void tasks_section(void) {
 	int num_msgs = 0;
 	HashPos *at;
 	const char *HashKey;
@@ -138,7 +138,7 @@ void tasks_section(StrBuf *Target, WCTemplputParams *TP) {
 /*
  * Calendar section
  */
-void calendar_section(StrBuf *Target, WCTemplputParams *TP) {
+void calendar_section(void) {
 	char cmd[SIZ];
 	int num_msgs = 0;
 	HashPos *at;
@@ -187,13 +187,29 @@ void calendar_section(StrBuf *Target, WCTemplputParams *TP) {
 	__calendar_Cleanup(&v);
 }
 
+void tmplput_new_messages_section(StrBuf *Target, WCTemplputParams *TP) {
+	new_messages_section();
+}
+void tmplput_tasks_section(StrBuf *Target, WCTemplputParams *TP) {
+	tasks_section();
+}
+void tmplput_calendar_section(StrBuf *Target, WCTemplputParams *TP) {
+	calendar_section();
+}
+
 void 
 InitModule_SUMMARY
 (void)
 {
 	RegisterNamespace("TIME:NOW", 0, 0, tmplput_output_date, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:NEWMESSAGES_SELECTION", 0, 0, new_messages_section, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:TASKSSECTION", 0, 0, tasks_section, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:CALENDAR_SECTION", 0, 0, calendar_section, NULL, CTX_NONE);
+	RegisterNamespace("SUMMARY:NEWMESSAGES_SELECTION", 0, 0, tmplput_new_messages_section, NULL, CTX_NONE);
+	RegisterNamespace("SUMMARY:TASKSSECTION", 0, 0, tmplput_tasks_section, NULL, CTX_NONE);
+	RegisterNamespace("SUMMARY:CALENDAR_SECTION", 0, 0, tmplput_calendar_section, NULL, CTX_NONE);
+
+	WebcitAddUrlHandler(HKEY("new_messages_html"), "", 0, new_messages_section, AJAX);
+	WebcitAddUrlHandler(HKEY("tasks_inner_html"), "", 0, tasks_section, AJAX);
+	WebcitAddUrlHandler(HKEY("calendar_inner_html"), "", 0, calendar_section, AJAX);
+	WebcitAddUrlHandler(HKEY("mini_calendar"), "", 0, ajax_mini_calendar, AJAX);
+
 }
 
