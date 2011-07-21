@@ -786,7 +786,7 @@ InitModule_SERVFUNC
 	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, NULL, CTX_NONE);
 	RegisterNamespace("SERV:BBS_CITY", 0, 1, tmplput_serv_bbs_city, NULL, CTX_NONE);
 	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, NULL, CTX_NONE);
-	RegisterNamespace("SERV:ADMIN", 1, 2, tmplput_serv_admin, NULL, CTX_NONE);
+	RegisterNamespace("SERV:ADMIN", 0, 1, tmplput_serv_admin, NULL, CTX_NONE);
 }
 
 
