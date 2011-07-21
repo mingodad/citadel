@@ -2,7 +2,7 @@
 <div id="banner" class="banner">
   <table border=0><tr>
       <td><img src="static/webcit_icons/essen/32x32/summary.png"></td>
-      <td><h1><?_("Summary page for ")><??("COND:LOGGEDIN", 1)><?CURRENT_USER("X")><??("X", 1)><?!("COND:LOGGEDIN", 2)><?SERV:HUMANNODE("X")><??("X", 2)></h1><h2><?TIME:NOW)></h2></td></tr></table>
+      <td><h1><?_("Summary page for ")><??("COND:LOGGEDIN", 1)><?CURRENT_USER("X")><??("X", 1)><?!("COND:LOGGEDIN", 2)><?SERV:HUMANNODE("X")><??("X", 2)></h1><h2><?TIME:NOW></h2></td></tr></table>
   <div id="actiondiv">
     <ul class="room_actions">
       <li class="start_page"><?OFFERSTARTPAGE></li></ul>
@@ -15,7 +15,61 @@
 * instead of the whole thing.
 ")>
 <div id="content" class="service">
-  summary_inner_div();
+  <table width="98%" cellspacing="3" cellpadding="0">
+    <tr valign=top>
+      <td width=33%>
+	<div class="box">	
+	  <div class="boxlabel">	
+	    <?_("Messages")>
+	  </div><div class="boxcontent">	
+	    <div id="msg_inner">
+	      <?SUMMARY:NEWMESSAGES_SELECTION>
+	</div></div></div>
+      </td>
+      <td width=33%>
+	<div class="box">	
+	  <div class="boxlabel">	
+	    <?_("Tasks")>
+	  </div><div class="boxcontent">	
+	    <div id="tasks_inner">	
+	      <?SUMMARY:TASKSSECTION>
+	</div></div></div>
+      </td>
+      <td width=33%>
+	<div class="box">	
+	  <div class="boxlabel">	
+	    <?_("Today&nbsp;on&nbsp;your&nbsp;calendar")>
+	  </div><div class="boxcontent">	
+	    <div id="calendar_inner">
+	      <?SUMMARY:CALENDAR_SECTION>
+	</div></div></div>
+      </td>
+      
+    </tr><tr valign=top>
+
+      <td colspan=2>
+	<div class="box">	
+	  <div class="boxlabel">	
+	    <?_("Who‘s&nbsp;online&nbsp;now")>
+	  </div><div class="boxcontent">
+	    <div id="who_inner"><?=("who_summary")></div></div></div>
+      </td>
+      <td width=33%>
+	<div class="box">	
+	  <div class="boxlabel">	
+	    <?_("About&nbsp;this&nbsp;server")>
+	  </div><div class="boxcontent">	
+	    <div id="info_inner">	
+	      <?_("You are connected to")> <?SERV:HUMANNODE>,
+	      <?_("running")> <?SERV:SOFTWARE> 
+	      <?_("with")> <?PACKAGESTRING>, 
+	      <?_("server build")> <?SERV:REV_LEVEL>
+	      <?_("and located in")> <?SERV:BBS_CITY>.
+	      <?_("Your system administrator is")> <?SERV:ADMIN>
+	</div></div></div>
+      </td>
+  </tr></table>
+
 </div>
 <script type="text/javascript">
  new Ajax.PeriodicalUpdater('msg_inner', 'new_messages_html',
@@ -27,59 +81,4 @@
  new Ajax.PeriodicalUpdater('do_template', 'template=who_summary',
                             { method: 'get', frequency: 30 }  );
 </script>
-
-<table width="98%%" cellspacing="3" cellpadding="0">
-  <tr valign=top>
-    <td width=33%>
-      <div class="box">	
-	<div class="boxlabel">	
-	  <?_("Messages")>
-	</div><div class="boxcontent">	
-	  <div id="msg_inner">
-	    <?SUMMARY:NEWMESSAGES_SELECTION>
-      </div></div></div>
-    </td>
-    <td width=33%>
-      <div class="box">	
-	<div class="boxlabel">	
-	  <?_("Tasks")>
-	</div><div class="boxcontent">	
-	  <div id="tasks_inner">	
-	    <?SUMMARY:TASKSSECTION)>
-      </div></div></div>
-    </td>
-    <td width=33%>
-      <div class="box">	
-	<div class="boxlabel">	
-	<?_("Today&nbsp;on&nbsp;your&nbsp;calendar")>
-	</div><div class="boxcontent">	
-	  <div id="calendar_inner">
-	    <?SUMMARY:CALENDAR_SECTION)
-	       </div></div></div>
-    </td>
-    
-  </tr><tr valign=top>
-
-    <td colspan=2>
-      <div class="box">	
-	<div class="boxlabel">	
-	  <?_("Who's&nbsp;online&nbsp;now")>
-	</div><div class="boxcontent">
-	  <div id="who_inner"><?=("who_summary")></div></div></div>
-    </td>
-    <td width=33%>
-      <div class="box">	
-	<div class="boxlabel">	
-	  <?_("About&nbsp;this&nbsp;server")>
-	</div><div class="boxcontent">	
-	  <div id="info_inner">	
-		<?_("You are connected to")> <?SERV:HUMANNODE>,
-		<?_("running")> <?SERV:SOFTWARE> 
-		<?_("with")> <?PACKAGESTRING>, 
-		<?("server build")> <?SERV:REV_LEVEL>
-		<?("and located in")> <?SERV:BBS_CITY>.
-		<?("Your system administrator is")> <?SERV:ADMIN>
-      </div></div></div>
-    </td>
-</tr></table>
 <?=("summary_trailer")>

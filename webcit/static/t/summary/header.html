@@ -1,3 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title><?CURRENT_ROOM> - <?SERV:HUMANNODE></title>
+		<meta name="MSSmartTagsPreventParsing" content="TRUE" >
+		<meta name="keywords" content="groupware messaging collaboration" >
+		<link href="static/styles/webcit.css" rel="stylesheet" type="text/css">
+		<link href="static/styles/datepicker.css" rel="stylesheet" type="text/css">
+		<link href="do_template?template=iconbar_user" rel="stylesheet" type="text/css">
+		<link href="static/styles/iconbaricns.css" rel="<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_displayas", "", "alternate ")>stylesheet" type="text/css" id="style_iconbar_icns" title="Default iconbar">
+		<link href="static/styles/iconbarpiconly.css" rel="<?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_displayas", "","alternate ")>stylesheet" type="text/css" id="style_iconbar_piconly" title="Iconbar without text">
+		<?CSSLOCAL> 
+
+		<script type="text/javascript" src="static/prototype.js"></script> 
+		<script type="text/javascript" src="static/scriptaculous.js"></script> 
+		<script type="text/javascript" src="static/datepicker-dev.js"></script>
+		<script type="text/javascript" src="static/wcpref.js"></script>
+		<script type="text/javascript" src="static/table.js"></script>
+		<script type="text/javascript" src="static/wclib.js"></script>
+		<script type="text/javascript" src="static/authmethods.js"></script>
+		<script type="text/javascript" src="static/roomops.js"></script>
+		<script type="text/javascript" src="static/ctdldragdrop.js"></script>
+		<script type="text/javascript" src="static/modal.js"></script>
+	</head>
+<body>
+<div id="is_logged_in" style="display:none"><?%("COND:LOGGEDIN", 1, 1, 1, "no", "yes")></div>
+<?ICONBAR>
+<div id="global">
+
+<?=("paging_anchor")>
+
+<!--("end head.html")-->
+
 <!-- begin summary_header.html -->
 <script language="javascript" type="text/javascript">
   document.onkeydown = CtdlMsgListKeyPress;
