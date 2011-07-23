@@ -1508,6 +1508,11 @@ void tmplput_SieveRule_final(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, Rule->final, 0);
 }
 */
+void tmplput_SieveRule_sizeval(StrBuf *Target, WCTemplputParams *TP) 
+{
+	SieveRule     *Rule = (SieveRule *)CTX;
+	wc_printf("%d", Rule->sizeval);
+}
 void FreeSieveRule(void *vRule)
 {
 	SieveRule *Rule = (SieveRule*) Rule;
@@ -1594,6 +1599,23 @@ HashList *GetSieveRules(StrBuf *Target, WCTemplputParams *TP)
 	return SieveRules;
 }
 
+
+HashList *GetEmptySieveRule(StrBuf *Target, WCTemplputParams *TP)
+{
+	int n = 0;
+	HashList *OneSieveRule;
+	SieveRule *Rule;
+
+	OneSieveRule = NewHash(1, Flathash);
+
+	/* We just care for our encoded header and skip everything else */
+	Rule = (SieveRule*) malloc(sizeof(SieveRule));
+	memset(Rule, 0, sizeof(SieveRule));
+	Put(OneSieveRule, IKEY(n), Rule, FreeSieveRule);
+
+	return OneSieveRule;
+}
+
 void
 SessionDetachModule_SIEVE
 (wcsession *sess)
@@ -1642,16 +1664,17 @@ InitModule_SIEVE
 	RegisterTokenParamDefine(HKEY("continue"), econtinue);
 	RegisterTokenParamDefine(HKEY("stop"), estop);
 
-	RegisterIterator("SIEVE:SCRIPTS", 0, NULL, GetSieveRules, NULL, NULL, CTX_SIEVELIST, CTX_NONE, IT_NOFLAG);
-
-	RegisterIterator("SIEVE:RULES", 0, NULL, GetSieveRules, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("SIEVE:SCRIPTS", 0, NULL, GetSieveScriptListing, NULL, NULL, CTX_SIEVELIST, CTX_NONE, IT_NOFLAG);
 
 	RegisterConditional(HKEY("COND:SIEVE:SCRIPT:ACTIVE"), 0, ConditionalSieveScriptIsActive, CTX_SIEVELIST);
 	RegisterConditional(HKEY("COND:SIEVE:SCRIPT:ISRULES"), 0, ConditionalSieveScriptIsRulesScript, CTX_SIEVELIST);
-	RegisterNamespace("SIEVE:SCRIPT:NAME", 0, 1, tmplput_SieveScriptName, NULL, CTX_ROOMS);
+	RegisterNamespace("SIEVE:SCRIPT:NAME", 0, 1, tmplput_SieveScriptName, NULL, CTX_SIEVELIST);
 	RegisterNamespace("SIEVE:SCRIPT:CONTENT", 0, 1, tmplput_SieveScriptContent, NULL, CTX_SIEVELIST);
 
  
+	RegisterIterator("SIEVE:RULES", 0, NULL, GetSieveRules, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("SIEVE:RULE:EMPTY", 0, NULL, GetEmptySieveRule, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
+
 	RegisterConditional(HKEY("COND:SIEVE:ACTIVE"), 1, ConditionalSieveRule_Active, CTX_SIEVESCRIPT);
 	RegisterConditional(HKEY("COND:SIEVE:HFIELD"), 1, ConditionalSieveRule_hfield, CTX_SIEVESCRIPT);
 	RegisterConditional(HKEY("COND:SIEVE:COMPARE"), 1, ConditionalSieveRule_compare, CTX_SIEVESCRIPT);
@@ -1663,7 +1686,7 @@ InitModule_SIEVE
 	//RegisterNamespace("SIEVE:SCRIPT:HFIELD", 0, 1, tmplput_SieveRule_hfield, NULL, CTX_SIEVESCRIPT);
 	//RegisterNamespace("SIEVE:SCRIPT:COMPARE", 0, 1, tmplput_SieveRule_compare, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:HTEXT", 0, 1, tmplput_SieveRule_htext, NULL, CTX_SIEVESCRIPT);
-	//RegisterNamespace("SIEVE:SCRIPT:SIZECOMP", 0, 1, tmplput_SieveRule_sizecomp, NULL, CTX_SIEVESCRIPT);
+	RegisterNamespace("SIEVE:SCRIPT:SIZE", 0, 1, tmplput_SieveRule_sizeval, NULL, CTX_SIEVESCRIPT);
 	///RegisterNamespace("SIEVE:SCRIPT:ACTION", 0, 1, tmplput_SieveRule_action, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:FILEINTO", 0, 1, tmplput_SieveRule_fileinto, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:REDIRECT", 0, 1, tmplput_SieveRule_redirect, NULL, CTX_SIEVESCRIPT);
