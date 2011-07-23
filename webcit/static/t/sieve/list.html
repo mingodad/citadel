@@ -26,6 +26,9 @@ function ToggleScriptPanels() {
  previously_active_script = d;
 }
 </script>								
+<?ITERATE("SIEVE:RULE:EMPTY", ="sieve_display_one")>
+
+
 <div id="banner">
 <img src="static/webcit_icons/essen/32x32/config.png">
 <h1><?_("View/edit server-side mail filters")></h1>
@@ -70,7 +73,7 @@ function ToggleScriptPanels() {
 &nbsp;&nbsp;&nbsp;
 <a href="display_add_remove_scripts"><?_("Add or delete scripts")></a>
 <br>
-<?ITERATE("SIEVE:SCRIPTS", ="sieve_display_one_script")>
+<?ITERATE("SIEVE:RULES", ="sieve_display_one_script")>
 
 <??("X", 1)>
 
