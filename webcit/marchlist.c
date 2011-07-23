@@ -230,9 +230,6 @@ void _gotonext(void) {
 }
 
 
-void dotskip(void) {
-	smart_goto(sbstr("room"));
-}
 
 
 int ConditionalHaveUngoto(StrBuf *Target, WCTemplputParams *TP)

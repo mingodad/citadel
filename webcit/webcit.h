@@ -97,6 +97,9 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 #undef PACKAGE_BUGREPORT
+
+typedef struct wcsession wcsession;
+
 #include "sysdep.h"
 
 #include "subst.h"
@@ -105,6 +108,8 @@
 #include "roomops.h"
 #include "preferences.h"
 
+#include "tcp_sockets.h"
+#include "utils.h"
 #ifdef HAVE_OPENSSL
 /* Work around RedHat's b0rken OpenSSL includes */
 #define OPENSSL_NO_KRB5
@@ -360,6 +365,14 @@ typedef struct _addrbookent {
 #define PARSE_REST_URL (1<<9)
 #define PROHIBIT_STARTPAGE (1<<10)
 
+
+#define DATEFMT_FULL 0
+#define DATEFMT_BRIEF 1
+#define DATEFMT_RAWDATE 2
+#define DATEFMT_LOCALEDATE 3
+void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
+
+
 typedef enum _RESTDispatchID {
 	ExistsID,
 	PutID,
@@ -469,7 +482,6 @@ typedef struct _ParsedHttpHdrs {
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
  */
-typedef struct wcsession wcsession;
 struct wcsession {
 /* infrastructural members */
 	wcsession *next;			/* Linked list */
@@ -617,25 +629,61 @@ extern char ctdl_key_dir[PATH_MAX];
 extern char file_crpt_file_key[PATH_MAX];
 extern char file_crpt_file_csr[PATH_MAX];
 extern char file_crpt_file_cer[PATH_MAX];
+
+void init_ssl(void);
+void endtls(void);
+void ssl_lock(int mode, int n, const char *file, int line);
+int starttls(int sock);
+extern SSL_CTX *ssl_ctx;  
+int client_read_sslbuffer(StrBuf *buf, int timeout);
+void client_write_ssl(const StrBuf *Buf);
 #endif
 
-extern char floorlist[128][SIZ];
-extern char *axdefs[];
-extern char *ctdlhost, *ctdlport;
-extern int http_port;
-extern char *server_cookie;
 extern int is_https;
-extern int setup_wizard;
-extern char wizard_filename[];
 extern int follow_xff;
+extern char *server_cookie;
+extern char *ctdlhost, *ctdlport;
+extern char *axdefs[];
 extern int num_threads_existing;
 extern int num_threads_executing;
+extern int setup_wizard;
+extern char wizard_filename[];
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
 void end_critical_section(int which_one);
 
-void stuff_to_cookie(int unset_cookie);
+
+extern void do_404(void);
+void http_redirect(const char *);
+
+
+#ifdef UBER_VERBOSE_DEBUGGING
+#define wc_printf(...) wcc_printf(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+void wcc_printf(const char *FILE, const char *FUNCTION, long LINE, const char *format, ...);
+#else 
+void wc_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
+#endif
+
+void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
+
+void CheckAuthBasic(ParsedHttpHdrs *hdr);
+void GetAuthBasic(ParsedHttpHdrs *hdr);
+
+void sleeeeeeeeeep(int);
+
+size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
+void fmt_time(char *buf, size_t siz, time_t thetime);
+void httpdate(char *buf, time_t thetime);
+time_t httpdate_to_timestamp(StrBuf *buf);
+
+
+
+
+void end_webcit_session(void);
+
+
+
 
 void cookie_to_stuff(StrBuf *cookie,
 		int *session,
@@ -646,51 +694,30 @@ void cookie_to_stuff(StrBuf *cookie,
 );
 void locate_host(StrBuf *TBuf, int);
 void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_response);
-void openid_manual_create(void);
+
 void display_login(void);
 void display_openids(void);
 void display_default_landing_page(void);
 void do_welcome(void);
-void do_logout(void);
+
 void display_reg(int during_login);
 void display_main_menu(void);
 void display_aide_menu(void);
-void slrp_highest(void);
-ServInfo *get_serv_info(StrBuf *, StrBuf *);
+
 void RegisterEmbeddableMimeType(const char *MimeType, long MTLen, int Priority);
 void CreateMimeStr(void);
-int GetConnected(void);
-void DeleteServInfo(ServInfo **FreeMe);
-int uds_connectsock(char *);
-int tcp_connectsock(char *, char *);
-int serv_getln(char *strbuf, int bufsize);
-int StrBuf_ServGetln(StrBuf *buf);
-int GetServerStatus(StrBuf *Line, long* FullState);
-int serv_puts(const char *string);
-void who(void);
-void push_destination(void);
-void pop_destination(void);
-void robots_txt(void);
-extern void do_404(void);
 
-void ajax_mini_calendar(void);
+
+void pop_destination(void);
+
 void fmout(char *align);
 void _fmout(StrBuf *Targt, char *align);
 void FmOut(StrBuf *Target, char *align, StrBuf *Source);
-void pullquote_fmout(void);
 void wDumpContent(int);
 
 
 void PutRequestLocalMem(void *Data, DeleteHashDataFunc DeleteIt);
 
-void UrlescPutStrBuf(const StrBuf *strbuf);
-void StrEscPuts(const StrBuf *strbuf);
-void StrEscputs1(const StrBuf *strbuf, int nbsp, int nolinebreaks);
-
-void urlescputs(const char *);
-void hurlescputs(const char *);
-void jsesc(char *, size_t, char *);
-void jsescputs(char *);
 void output_headers(    int do_httpheaders,
 			int do_htmlhead,
 			int do_room_banner,
@@ -700,64 +727,19 @@ void output_headers(    int do_httpheaders,
 void output_custom_content_header(const char *ctype);
 void cdataout(char *rawdata);
 
-#ifdef UBER_VERBOSE_DEBUGGING
-#define wc_printf(...) wcc_printf(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
-void wcc_printf(const char *FILE, const char *FUNCTION, long LINE, const char *format, ...);
-#else 
-void wc_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
-#endif
 
-void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
-void output_static(const char* What);
-
-long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
-void escputs(const char *strbuf);
 void url(char *buf, size_t bufsize);
 void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf);
-void escputs1(const char *strbuf, int nbsp, int nolinebreaks);
-void msgesc(char *target, size_t tlen, char *strbuf);
-void msgescputs(char *strbuf);
-void msgescputs1(char *strbuf);
-void dump_vars(void);
 
-void do_addrbook_view(addrbookent *addrbook, int num_ab);
-void fetch_ab_name(message_summary *Msg, char **namebuf);
+
 void display_vcard(StrBuf *Target, wc_mime_attachment *Mime, char alpha, int full, char **storename, long msgnum);
-void jsonMessageList(void);
-void new_summary_view(void);
-void text_to_server(char *ptr);
-void text_to_server_qp(char *ptr);
+
 void display_success(char *);
-void CheckAuthBasic(ParsedHttpHdrs *hdr);
-void GetAuthBasic(ParsedHttpHdrs *hdr);
-void server_to_text(void);
-void save_edit(char *description, char *enter_cmd, int regoto);
-void display_edit(char *description, char *check_cmd,
-		  char *read_cmd, char *save_cmd, int with_room_banner);
-long gotoroom(const StrBuf *gname);
-void remove_march(const StrBuf *aaa);
-void dotskip(void);
-void validate(void);
+
 void shutdown_sessions(void);
-void do_housekeeping(void);
-void smart_goto(const StrBuf *);
-void worker_entry(void);
-void session_loop(void);
-size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
-void fmt_time(char *buf, size_t siz, time_t thetime);
-void httpdate(char *buf, time_t thetime);
-time_t httpdate_to_timestamp(StrBuf *buf);
-void end_webcit_session(void);
-void page_popup(void);
-void http_redirect(const char *);
-void clear_substs(struct wcsession *wc);
-void clear_local_substs(void);
 
 
 
-int lingering_close(int fd);
-long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
-void remove_token(char *source, int parmnum, char separator);
 StrBuf *load_mimepart(long msgnum, char *partnum);
 void MimeLoadData(wc_mime_attachment *Mime);
 void do_edit_vcard(long msgnum, char *partnum, 
@@ -767,97 +749,46 @@ void do_edit_vcard(long msgnum, char *partnum,
 		   const char *force_room);
 
 void select_user_to_edit(const char *preselect);
-void delete_user(char *);
-void do_change_view(int);
-void folders(void);
 
-
-
-void offer_start_page(StrBuf *Target, WCTemplputParams *TP);
 void convenience_page(const char *titlebarcolor, const char *titlebarmsg, const char *messagetext);
 void output_html(const char *, int, int, StrBuf *, StrBuf *);
-void do_listsub(void);
+
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(wc_mime_attachment *Mime);
-void do_tasks_view(void);
-int calendar_summary_view(void);
-void free_march_list(wcsession *wcf);
-void display_rules_editor_inner_div(void);
+
 void generate_uuid(char *);
-void CtdlMakeTempFileName(char *, int);
+
 void address_book_popup(void);
 void begin_ajax_response(void);
 void end_ajax_response(void);
 
-void display_edit_task(void);
-void display_edit_event(void);
-icaltimezone *get_default_icaltimezone(void);
-void display_icaltimetype_as_webform(struct icaltimetype *, char *, int);
-void icaltime_from_webform(struct icaltimetype *result, char *prefix);
-void icaltime_from_webform_dateonly(struct icaltimetype *result, char *prefix);
-void partstat_as_string(char *buf, icalproperty *attendee);
-icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
-void check_attendee_availability(icalcomponent *supplied_vevent);
-int ical_ctdl_is_overlap(
-                        struct icaltimetype t1start,
-                        struct icaltimetype t1end,
-                        struct icaltimetype t2start,
-                        struct icaltimetype t2end
-);
-
 
 extern char *months[];
 extern char *days[];
-int serv_write(const char *buf, int nbytes);
-int serv_putbuf(const StrBuf *string);
-int serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
-int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
-int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
-int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
-int read_server_text(StrBuf *Buf, long *nLines);
 long locate_user_vcard_in_this_room(message_summary **VCMsg,
 				    wc_mime_attachment **VCAtt);
-void sleeeeeeeeeep(int);
 void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
 void check_thread_pool_size(void);
-void spawn_another_worker_thread(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs, StrBuf **Names);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
 void tabbed_dialog(int num_tabs, char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
-void str_wiki_index(char *s);
-long guess_calhourformat(void);
+
+
 int get_time_format_cached (void);
-const char *get_selected_language(void);
 void display_wiki_pagelist(void);
 HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP);
 
-#define DATEFMT_FULL 0
-#define DATEFMT_BRIEF 1
-#define DATEFMT_RAWDATE 2
-#define DATEFMT_LOCALEDATE 3
-void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
-void summary(void);
-
 /* actual supported locales */
 void TmplGettext(StrBuf *Target, WCTemplputParams *TP);
-void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
+
 void set_selected_language(const char *);
 void go_selected_language(void);
 void stop_selected_language(void);
-
-#ifdef HAVE_OPENSSL
-void init_ssl(void);
-void endtls(void);
-void ssl_lock(int mode, int n, const char *file, int line);
-int starttls(int sock);
-extern SSL_CTX *ssl_ctx;  
-int client_read_sslbuffer(StrBuf *buf, int timeout);
-void client_write_ssl(const StrBuf *Buf);
-#endif
+const char *get_selected_language(void);
 
 void utf8ify_rfc822_string(char **buf);
 
@@ -865,8 +796,6 @@ void begin_burst(void);
 long end_burst(void);
 
 void AppendImportantMessage(const char *pch, long len);
-
-extern char *hourname[];	/* Names of hours (12am, 1am, etc.) */
 
 void http_datestring(char *buf, size_t n, time_t xtime);
 

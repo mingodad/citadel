@@ -21,6 +21,8 @@
 #include "webcit.h"
 #include "calendar.h"
 
+extern int calendar_summary_view(void);
+
 /*
  * Display today's date in a friendly format
  */
@@ -209,7 +211,6 @@ InitModule_SUMMARY
 	WebcitAddUrlHandler(HKEY("new_messages_html"), "", 0, new_messages_section, AJAX);
 	WebcitAddUrlHandler(HKEY("tasks_inner_html"), "", 0, tasks_section, AJAX);
 	WebcitAddUrlHandler(HKEY("calendar_inner_html"), "", 0, calendar_section, AJAX);
-	WebcitAddUrlHandler(HKEY("mini_calendar"), "", 0, ajax_mini_calendar, AJAX);
 
 }
 

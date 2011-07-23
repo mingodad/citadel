@@ -127,6 +127,14 @@ void LoadXRoomPic(void);
 void LoadXRoomInfoText(void);
 void LoadXRoomXCountFiles(void);
 
+long gotoroom(const StrBuf *gname);
+
+void slrp_highest(void);
+void remove_march(const StrBuf *aaa);
+void dotskip(void);
+void smart_goto(const StrBuf *next_room);
+void free_march_list(wcsession *wcf);
+
 /*
  * wrapper around usual sort-comparator; private rooms will allways be prefered, -1 if one of them NULL
  */

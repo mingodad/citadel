@@ -79,4 +79,23 @@ int tasks_LoadMsgFromServer(SharedMessageStatus *Stat,
 			    message_summary* Msg, 
 			    int is_new, 
 			    int i);
+
+void display_edit_task(void);
+void display_edit_event(void);
+
+icaltimezone *get_default_icaltimezone(void);
+void display_icaltimetype_as_webform(struct icaltimetype *, char *, int);
+void icaltime_from_webform(struct icaltimetype *result, char *prefix);
+void icaltime_from_webform_dateonly(struct icaltimetype *result, char *prefix);
+void partstat_as_string(char *buf, icalproperty *attendee);
+icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
+void check_attendee_availability(icalcomponent *supplied_vevent);
+int ical_ctdl_is_overlap(
+                        struct icaltimetype t1start,
+                        struct icaltimetype t1end,
+                        struct icaltimetype t2start,
+                        struct icaltimetype t2end
+);
+
+
 #endif

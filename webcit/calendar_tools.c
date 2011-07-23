@@ -21,6 +21,7 @@
 #include "webcit.h"
 #include "webserver.h"
 #include "time.h"
+#include "calendar.h"
 
 /* Hour strings */
 char *hourname[] = {

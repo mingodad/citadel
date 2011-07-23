@@ -39,6 +39,10 @@ extern HashList *HandlerHash;
 int num_threads_existing = 1;		/* Number of worker threads which exist. */
 int num_threads_executing = 1;		/* Number of worker threads currently executing. */
 
+extern void session_loop(void);
+void spawn_another_worker_thread(void);
+
+
 void DestroyHttpHeaderHandler(void *V)
 {
 	OneHttpHeader *pHdr;

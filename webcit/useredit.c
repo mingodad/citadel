@@ -643,6 +643,24 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 	FreeStrBuf(&roomname);
 }
 
+/*
+ *  burge a user 
+ *  username the name of the user to remove
+ */
+void delete_user(char *username) {
+	wcsession *WCC = WC;
+	StrBuf *Buf;
+	
+	Buf = NewStrBuf();
+	serv_printf("ASUP %s|0|0|0|0|0|", username);
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) 
+		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+
+	select_user_to_edit( bstr("username"));
+	FreeStrBuf(&Buf);
+}
+		
 
 void display_edituser(const char *supplied_username, int is_new) {
 	const char *Pos;
@@ -760,24 +778,6 @@ void edituser(void) {
 	}
 }
 
-/*
- *  burge a user 
- *  username the name of the user to remove
- */
-void delete_user(char *username) {
-	wcsession *WCC = WC;
-	StrBuf *Buf;
-	
-	Buf = NewStrBuf();
-	serv_printf("ASUP %s|0|0|0|0|0|", username);
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) 
-		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
-
-	select_user_to_edit( bstr("username"));
-	FreeStrBuf(&Buf);
-}
-		
 
 
 /*

@@ -437,11 +437,11 @@ void diagnostics(void)
 	wc_printf("Session: %d<hr />\n", WC->wc_session);
 	wc_printf("Command: <br><PRE>\n");
 /*	
-StrEscPuts(WC->UrlFragment1);
+StrEscAppend(WC->WBuf, NULL, WC->UrlFragment1, 0, 0);
 	wc_printf("<br>\n");
-	StrEscPuts(WC->UrlFragment2);
+StrEscAppend(WC->WBuf, NULL, WC->UrlFragment12 0, 0);
 	wc_printf("<br>\n");
-	StrEscPuts(WC->UrlFragment3);
+StrEscAppend(WC->WBuf, NULL, WC->UrlFragment3, 0, 0);
 */
 	wc_printf("</PRE><hr />\n");
 	wc_printf("Variables: <br><PRE>\n");
