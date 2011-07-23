@@ -129,11 +129,11 @@ void sitemap_do_wiki(void) {
  * Entry point for RSS feed generator
  */
 void sitemap(void) {
-	HashList *roomlist;
-	HashPos *it;
-	long HKlen;
-	const char *HashKey;
-	folder *room;
+	HashList *roomlist = NULL;
+	HashPos *it = NULL;
+	long HKlen = 0;
+	const char *HashKey = NULL;
+	folder *room = NULL;
 
 	output_headers(0, 0, 0, 0, 1, 0);
 	hprintf("Content-type: text/xml\r\n");
@@ -149,7 +149,9 @@ void sitemap(void) {
 	wc_printf("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\r\n");
 
 	roomlist = GetRoomListHashLKRA(NULL, NULL);
+	if (!roomlist) syslog(LOG_CRIT, "GetRoomListHashLKRA() FAILED!");
 	it = GetNewHashPos(roomlist, 0);
+	if (!it) syslog(LOG_CRIT, "GetNewHashPos() FAILED!");
 
 	while (GetNextHashPos(roomlist, it, &HKlen, &HashKey, (void *)&room))
 	{
@@ -172,8 +174,7 @@ void sitemap(void) {
 	}
 
 	DeleteHashPos(&it);
-	/* No need to DeleteHash(&roomlist) -- it will be freed when the session closes */
-
+	DeleteHash(&WC->Rooms);		/* roomlist is actually a pointer to WC->Rooms */
 	wc_printf("</urlset>\r\n");
 	wDumpContent(0);
 }
