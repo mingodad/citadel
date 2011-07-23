@@ -25,6 +25,7 @@
  */
 static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 typedef unsigned char byte;	      /* Byte type used by cookie_to_stuff() */
+extern const char *get_selected_language(void);
 
 /*
  * Pack all session info into one easy-to-digest cookie. Healthy and delicious!

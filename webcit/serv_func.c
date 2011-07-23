@@ -379,48 +379,6 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 }
 
 
-/*
- * Read Citadel variformat text and spit it out as HTML in a form
- * suitable for embedding in another message (forward/quote).
- * (NO LINEBREAKS ALLOWED HERE!)
- */
-void pullquote_fmout(void) {
-	int intext = 0;
-	int bq = 0;
-	char buf[SIZ];
-
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-
-		if ((intext == 1) && (isspace(buf[0]))) {
-			wc_printf("<br>");
-		}
-		intext = 1;
-
-		/*
-		 * Quoted text should be displayed in italics and in a
-		 * different colour.  This code understands Citadel-style
-		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
-		 */
-		if ((bq == 0) && (!strncmp(buf, " >", 2))) {
-			wc_printf("<BLOCKQUOTE>");
-			bq = 1;
-		} else if ((bq == 1) && (strncmp(buf, " >", 2))) {
-			wc_printf("</BLOCKQUOTE>");
-			bq = 0;
-		}
-		if ((bq == 1) && (!strncmp(buf, " >", 2))) {
-			strcpy(buf, &buf[2]);
-		}
-
-		msgescputs(buf);
-	}
-	if (bq == 1) {
-		wc_printf("</I>");
-	}
-}
-
-
-
 
 /*
  *  Transmit message text (in memory) to the server.

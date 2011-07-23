@@ -19,6 +19,8 @@
 #include "webcit.h"
 #include "webserver.h"
 
+extern void output_static(const char* What);
+
 extern char* static_dirs[];
 
 typedef struct _FileListStruct {

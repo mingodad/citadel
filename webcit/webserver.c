@@ -37,7 +37,7 @@ extern void graceful_shutdown_watcher(int signum);
 extern void graceful_shutdown(int signum);
 extern void start_daemon(char *pid_file);
 extern void webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdir, char *relhome);
-
+extern void worker_entry(void);
 extern void drop_root(uid_t UID);
 
 char socket_dir[PATH_MAX];			/* where to talk to our citadel server */

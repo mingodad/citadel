@@ -20,6 +20,8 @@
 
 #include "webcit.h"
 
+extern void output_static(const char* What);
+
 void display_graphics_upload(char *filename)
 {
 	char buf[SIZ];

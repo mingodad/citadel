@@ -30,6 +30,10 @@
 StrBuf *csslocal = NULL;
 HashList *HandlerHash = NULL;
 
+void stuff_to_cookie(int unset_cookie);
+int GetConnected(void);
+
+
 void PutRequestLocalMem(void *Data, DeleteHashDataFunc DeleteIt)
 {
         wcsession *WCC = WC;
@@ -456,7 +460,7 @@ void ajax_servcmd(void)
 	 * This is kind of an ugly hack, but this is the only place it can go.
 	 * If the command was GEXP, then the instant messenger window must be
 	 * running, so reset the "last_pager_check" watchdog timer so
-	 * that page_popup() doesn't try to open it a second time.
+	 * that page_popup() doesn't try to open it a second time. TODO: page_popup isn't with us anymore.
 	 */
 	if (!strncasecmp(bstr("g_cmd"), "GEXP", 4)) {
 		WCC->last_pager_check = time(NULL);

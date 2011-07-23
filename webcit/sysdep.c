@@ -83,6 +83,7 @@ int verbosity = 9;		/* Logging level */
 
 extern void *context_loop(ParsedHttpHdrs *Hdr);
 extern void *housekeeping_loop(void);
+extern void do_housekeeping(void);
 
 char ctdl_key_dir[PATH_MAX]=SSL_DIR;
 char file_crpt_file_key[PATH_MAX]="";
