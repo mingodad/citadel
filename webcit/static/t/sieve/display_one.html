@@ -1,75 +1,73 @@
-<?SIEVE:SCRIPT:LOOKUP_FILEINTO><table cellpadding=2 width=100%>
-<tr id="rule<?ITERATE:N>" class="<?ITERATE:ODDEVEN>">
+<?SIEVE:SCRIPT:LOOKUP_FILEINTO><tr id="rule<?ITERATE:N>" class="<?ITERATE:ODDEVEN>">
 <td width=5% align="center">
 <div style="display:none">
 <input type="checkbox" name="active<?ITERATE:N>" id="active<?ITERATE:N>" <?%("COND:SIEVE:ACTIVE", 1, 0, 0, "checked", "")>>
 </div>
-
-<a href="javascript:SwapRules(<?ITERATE:N>,<?ITERATE:N> - 1);UpdateRules();"><img border="0" src="static/up_pointer.gif" title='<?_("Move rule up")>'/></a>
-<a href="javascript:SwapRules(<?ITERATE:N>,<?ITERATE:N> + 1);UpdateRules();"><img id="movedown%d" border="0" src="static/down_pointer.gif" title='<?_("Move rule down")>'/></a>
-<a href="javascript:DeleteRule(<?ITERATE:N>);UpdateRules();"><img id="delete<?ITERATE:N>" border="0" src="static/delete.gif" title='<?_("Delete rule")>'/></a>
+<??("COND:ITERATE:FIRSTN", 1)><a href="javascript:SwapRules(<?ITERATE:N> - 1, <?ITERATE:N>);UpdateRules();"><img border="0" src="static/webcit_icons/up_pointer.gif" title='<?_("Move rule up")>'/></a><??("X", 1)>
+<??("COND:ITERATE:LASTN",  2)><a href="javascript:SwapRules(<?ITERATE:N>,<?ITERATE:N> + 1);UpdateRules();"><img id="movedown<?ITERATE:N>" border="0" src="static/webcit_icons/down_pointer.gif" title='<?_("Move rule down")>'/></a><??("X", 2)>
+<a href="javascript:DeleteRule(<?ITERATE:N>);UpdateRules();"><img id="delete<?ITERATE:N>" border="0" src="static/webcit_icons/delete.gif" title='<?_("Delete rule")>'/></a>
 
 </td>
 
 <td width=5% align="center">
-<font size=+2><script type="text/javascript"> echo '<?ITERATE:N> + 1';</script></font>
+<font size=+2><script type="text/javascript"> $z = <?ITERATE:N> + 1; document.write($z);</script></font>
 </td>
 
 <td width=20%><?_("If")>
 
 <select id="hfield<?ITERATE:N>" name="hfield<?ITERATE:N>" size=1 onChange="UpdateRules();">
 
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"from",		"checked", "")> value="from"		><?_("From")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"tocc",		"checked", "")> value="tocc"		><?_("To or Cc")></option>		
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"subject",	"checked", ""> value="subject",		)><?_("Subject")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"replyto",	"checked", ""> value="replyto"		)><?_("Reply-to")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"sender",		"checked", "")> value="sender"		><?_("Sender")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"resentfrom",	"checked", "")> value="resentfrom"	><?_("Resent-From")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"resentto",	"checked", "")> value="resentto"		><?_("Resent-To")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"envfrom",	"checked", ""> value="envfrom"		)><?_("Envelope From")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"envto",		"checked", "")> value="envto"		><?_("Envelope To")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"xmailer",	"checked", ""> value="xmailer"		)><?_("X-Mailer")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"xspamflag",	"checked", "")> value="xspamflag"	><?_("X-Spam-Flag")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"xspamstatus",	"checked", "")> value="xspamstatus"	><?_("X-Spam-Status")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"listid",		"checked", "")> value="listid"		><?_("List-ID")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"size",		"checked", "")> value="size"		><?_("Message size")></option>
-<option <?%("COND:SIEVE:HFIELD", 1, 0, 0, #"all",		"checked", "")> value="all"		><?_("All")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"from",		"selected", "")> value="from"		><?_("From")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"tocc",		"selected", "")> value="tocc"		><?_("To or Cc")></option>		
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"subject",	"selected", "")> value="subject",	><?_("Subject")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"replyto",	"selected", "")> value="replyto"	><?_("Reply-to")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"sender",	"selected", "")> value="sender"		><?_("Sender")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"resentfrom",	"selected", "")> value="resentfrom"	><?_("Resent-From")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"resentto",	"selected", "")> value="resentto"	><?_("Resent-To")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"envfrom",	"selected", "")> value="envfrom"	><?_("Envelope From")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"envto",	"selected", "")> value="envto"		><?_("Envelope To")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"xmailer",	"selected", "")> value="xmailer"	><?_("X-Mailer")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"xspamflag",	"selected", "")> value="xspamflag"	><?_("X-Spam-Flag")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"xspamstatus",	"selected", "")> value="xspamstatus"	><?_("X-Spam-Status")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"listid",	"selected", "")> value="listid"		><?_("List-ID")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"size",		"selected", "")> value="size"		><?_("Message size")></option>
+<option <?%("COND:SIEVE:HFIELD", 1, 0, #"all",		"selected", "")> value="all"		><?_("All")></option>
 </select>
 </td>
 
 <td width=20%>
 <div id="div_compare<?ITERATE:N>">
 <select id="compare<?ITERATE:N>" name="compare<?ITERATE:N>" size=1 onChange="UpdateRules();">
-<option <?%("COND:SIEVE:COMPARE", 1, 0, 0, #"contains",	"checked", "")>><?_("contains"		)></option>
-<option <?%("COND:SIEVE:COMPARE", 1, 0, 0, #"notcontains",	"checked", "")>><?_("does not contain"	)></option>
-<option <?%("COND:SIEVE:COMPARE", 1, 0, 0, #"is",		"checked", "")>><?_("is"		)></option>
-<option <?%("COND:SIEVE:COMPARE", 1, 0, 0, #"isnot",		"checked", "")>><?_("is not"		)></option>
-<option <?%("COND:SIEVE:COMPARE", 1, 0, 0, #"matches",	"checked", "")>><?_("matches"		)></option>
-<option <?%("COND:SIEVE:COMPARE", 1, 0, 0, #"notmatches",	"checked", "")>><?_("does not match"	)></option>
+<option <?%("COND:SIEVE:COMPARE", 1, 0, #"contains",	"selected", "")> value="contains"><?_(		"contains"		)></option>
+<option <?%("COND:SIEVE:COMPARE", 1, 0, #"notcontains",	"selected", "")> value="notcontains"><?_(	"does not contain"	)></option>
+<option <?%("COND:SIEVE:COMPARE", 1, 0, #"is",		"selected", "")> value="is"><?_(		"is"			)></option>
+<option <?%("COND:SIEVE:COMPARE", 1, 0, #"isnot",	"selected", "")> value="isnot"><?_(		"is not"		)></option>
+<option <?%("COND:SIEVE:COMPARE", 1, 0, #"matches",	"selected", "")> value="matches"><?_(		"matches"		)></option>
+<option <?%("COND:SIEVE:COMPARE", 1, 0, #"notmatches",	"selected", "")> value="notmatches"><?_(	"does not match"	)></option>
 </select>
 
-<input type="text" id="htext<?ITERATE:N>" name="htext<?ITERATE:N>" value="<?SIEVE:SCRIPT:HTEXT("X")>">	escputs(htext);
+<input type="text" id="htext<?ITERATE:N>" name="htext<?ITERATE:N>" value="<?SIEVE:SCRIPT:HTEXT("X")>">
 </div>
 
 <div id="div_nocompare<?ITERATE:N>"><?_("(All messages)")></div>
 
 <div id="div_size<?ITERATE:N>">
 <select id="sizecomp<?ITERATE:N>" name="sizecomp<?ITERATE:N>" size=1 onChange="UpdateRules();">
-<option <?%("COND:SIEVE:SIZECOMP", 1, 0, 0, #"larger", "selected", ""> value="larger"><?_("is larger than")></option>
-<option <?%("COND:SIEVE:SIZECOMP", 1, 0, 0, #"smaller", "selected", ""> value="smaler"><?_("is smaller than")></option>
+<option <?%("COND:SIEVE:SIZECOMP", 1, 0, #"larger", "selected", "")> value="larger"><?_("is larger than")></option>
+<option <?%("COND:SIEVE:SIZECOMP", 1, 0, #"smaller", "selected", "")> value="smaller"><?_("is smaller than")></option>
 </select>
-<input type="text" id="sizeval<?ITERATE:N>" name="sizeval<?ITERATE:N>" value="<?SIEVE:SCRIPT:SIZE>">
+<input type="text" id="sizeval<?ITERATE:N>" name="sizeval<?ITERATE:N>" value="<?SIEVE:SCRIPT:SIZE>"><?_("bytes")>
 </div>
 </td>
 
 <td width=20%>
 <select id="action<?ITERATE:N>" name="action<?ITERATE:N>" size=1 onChange="UpdateRules();">
-<option <?%("COND:SIEVE:ACTION", 1, 0, 0, #"keep",	"selected", "")>><?_("Keep")>		</option>
-<option <?%("COND:SIEVE:ACTION", 1, 0, 0, #"discard",	"selected", "")>><?_("Discard silently")></option>
-<option <?%("COND:SIEVE:ACTION", 1, 0, 0, #"reject",	"selected", "")>><?_("Reject")>		</option>
-<option <?%("COND:SIEVE:ACTION", 1, 0, 0, #"fileinto","selected", "")>><?_("Move message to")></option>
-<option <?%("COND:SIEVE:ACTION", 1, 0, 0, #"redirect","selected", "")>><?_("Forward to")>	</option>
-<option <?%("COND:SIEVE:ACTION", 1, 0, 0, #"vacation","selected", "")>><?_("Vacation")>	</option>
+<option <?%("COND:SIEVE:ACTION", 1, 0, #"keep",	"selected", "")> value="keep"><?_("Keep")>		</option>
+<option <?%("COND:SIEVE:ACTION", 1, 0, #"discard",	"selected", "")> value="discard"><?_("Discard silently")></option>
+<option <?%("COND:SIEVE:ACTION", 1, 0, #"reject",	"selected", "")> value="reject"><?_("Reject")>		</option>
+<option <?%("COND:SIEVE:ACTION", 1, 0, #"fileinto",	"selected", "")> value="fileinto"><?_("Move message to")></option>
+<option <?%("COND:SIEVE:ACTION", 1, 0, #"redirect",	"selected", "")> value="redirect"><?_("Forward to")>	</option>
+<option <?%("COND:SIEVE:ACTION", 1, 0, #"vacation",	"selected", "")> value="vacation"><?_("Vacation")>	</option>
 </select>
 
 <div id="div_fileinto<?ITERATE:N>">
@@ -89,7 +87,7 @@
 
 </td>
 
-<td width=10% align="center">< _("and then")></td>
+<td width=10% align="center"><?_("and then")></td>
 <td width=20%>
 <select name="final<?ITERATE:N>" id="final<?ITERATE:N>" size=1 onChange="UpdateRules();">
 <option <?%("COND:SIEVE:FINAL", 1, 0, 0, #"continue", "select", "")> value="continue"><?_("continue processing")></option>
@@ -97,4 +95,3 @@
 </select>
 </td>
 </tr>
-</table>

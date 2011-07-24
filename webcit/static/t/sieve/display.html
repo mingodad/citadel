@@ -13,7 +13,7 @@ function UpdateRules() {
  * Show only the active rows... /// TODO 255-> we need no limit anymore.
  */
   highest_active_rule = (-1);
-  for (i=0; i< 255; ++i) {
+  for (i=0; i< 50; ++i) {
    if ($('active'+i).checked) {
      $('rule' + i).style.display = 'block';
      highest_active_rule = i;
@@ -36,17 +36,17 @@ function UpdateRules() {
     }
     d = ($('hfield'+i).options[$('hfield'+i).selectedIndex].value);
     if (d == 'all') {
-      $('div_size'+i).style.display = 'none';	 
+      $('div_size'+i).style.display = 'none';
       $('div_compare'+i).style.display = 'none';
       $('div_nocompare'+i).style.display = 'block';
     }
     else if (d == 'size') {
-      $('div_size'+i).style.display = 'block';	 
+      $('div_size'+i).style.display = 'block';
       $('div_compare'+i).style.display = 'none';
       $('div_nocompare'+i).style.display = 'none';
     }
     else {
-      $('div_size'+i).style.display = 'none';	 
+      $('div_size'+i).style.display = 'none';
       $('div_compare'+i).style.display = 'block';
       $('div_nocompare'+i).style.display = 'none';
     }
@@ -68,7 +68,7 @@ function UpdateRules() {
       $('div_redirect'+i).style.display = 'none';
       $('div_automsg'+i).style.display = 'none';
     }/* TODO: we don't have any limits anymore */
-    if (highest_active_rule < 255 - 1) {
+    if (highest_active_rule < 49) {
       $('div_addrule').style.display = 'block';
     } else {
       $('div_addrule').style.display = 'none';
@@ -119,10 +119,3 @@ function DeleteRule(rd) {
   $('active'+highest_active_rule).checked = false;
 }
 </script>
-
-
-<br>
-
-<div id="div_addrule"><a href="javascript:AddRule();"><?_("Add rule")></a><br></div>
-<script type="text/javascript">UpdateRules();</script>
-</div>

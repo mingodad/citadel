@@ -3,7 +3,7 @@
 <?--("iterate over an empty template, so we have the states already loaded for below")><?ITERATE("SIEVE:SCRIPTS", ="sieve_empty")>
 <script type="text/javascript">
 
-var previously_active_script;									
+var previously_active_script;
 
 function ToggleSievePanels() {
  d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);
@@ -25,8 +25,7 @@ function ToggleScriptPanels() {
  $('script_' + d).style.display = 'block';
  previously_active_script = d;
 }
-</script>								
-<?ITERATE("SIEVE:RULE:EMPTY", ="sieve_display_one")>
+</script>
 
 
 <div id="banner">
@@ -59,12 +58,24 @@ function ToggleScriptPanels() {
 <div id="sievediv1" style="display:none">
 
 <?=("sieve_display")>
+
+<br><table cellpadding=2 width=100%>
+<?ITERATE("SIEVE:RULES", ="sieve_display_one")>
+</table>
+
+
+<br>
+
+<div id="div_addrule"><a href="javascript:AddRule();"><?_("Add rule")></a><br></div>
+<script type="text/javascript">UpdateRules();</script>
+</div>
+
 </div>
 <?--("The I am smart and can write my own Sieve scripts div ")>
 
 <div id="sievediv2" style="display:none">
 
-<?!("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1)>
+<??("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1)>
 <?_("The currently active script is: ")>
 <select name="active_script" size=1 onChange="ToggleScriptPanels();">
 <?ITERATE("SIEVE:SCRIPTS", ="sieve_list_select_one")>
@@ -73,9 +84,10 @@ function ToggleScriptPanels() {
 &nbsp;&nbsp;&nbsp;
 <a href="display_add_remove_scripts"><?_("Add or delete scripts")></a>
 <br>
-<?ITERATE("SIEVE:RULES", ="sieve_display_one_script")>
+<?ITERATE("SIEVE:SCRIPTS", ="sieve_display_one_script")>
 
 <??("X", 1)>
+
 
 <script type="text/javascript">ToggleScriptPanels();</script>
 </div>
