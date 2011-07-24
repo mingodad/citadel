@@ -1,0 +1,10 @@
+.message {
+        border: 1px inset #666;
+        border-width: 1px 2px 3px 1px; 
+}
+
+.boxcontent {
+        border: 2px inset #5C646B;
+        border-width: 0 2px 3px 0; 
+}
+
