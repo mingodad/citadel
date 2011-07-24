@@ -303,7 +303,7 @@ void _fmout(StrBuf *Target, const char *align)
 	wc_printf("</div><br>\n");
 }
 
-void FmOut(StrBuf *Target, const char *align, StrBuf *Source)
+void FmOut(StrBuf *Target, const char *align, const StrBuf *Source)
 {
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;
