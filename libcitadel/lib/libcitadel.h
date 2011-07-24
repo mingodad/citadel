@@ -221,8 +221,6 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				      int selectresolution, 
 				      const char **Error);
 
-
-
 typedef enum _eReadState {
 	eReadFail,
 	eReadSuccess,
