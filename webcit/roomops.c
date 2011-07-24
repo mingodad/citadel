@@ -260,7 +260,7 @@ void ParseGoto(folder *room, StrBuf *Line)
 	memset(room, 0, sizeof(folder));
 	room->name = pBuf;
 
-	StrBufExtract_NextToken(room->name, Line, &Pos, '|'); // WC->CurRoom->name
+	StrBufExtract_NextToken(room->name, Line, &Pos, '|');
 
 	room->nNewMessages = StrBufExtractNext_long(Line, &Pos, '|'); 
 	if (room->nNewMessages > 0)
@@ -270,14 +270,14 @@ void ParseGoto(folder *room, StrBuf *Line)
 
 	room->ShowInfo =  StrBufExtractNext_long(Line, &Pos, '|');
 	
-	room->QRFlags = StrBufExtractNext_long(Line, &Pos, '|'); //CurRoom->QRFlags
+	room->QRFlags = StrBufExtractNext_long(Line, &Pos, '|');
 
 	DBG_QR(room->QRFlags);
 
 	room->HighestRead = StrBufExtractNext_long(Line, &Pos, '|');
 	room->LastMessageRead = StrBufExtractNext_long(Line, &Pos, '|');
 
-	room->is_inbox = StrBufExtractNext_long(Line, &Pos, '|'); // is_mailbox
+	room->is_inbox = StrBufExtractNext_long(Line, &Pos, '|');
 
 	flag = StrBufExtractNext_long(Line, &Pos, '|');
 	if (WCC->is_aide || flag) {
@@ -286,17 +286,17 @@ void ParseGoto(folder *room, StrBuf *Line)
 
 	room->UsersNewMAilboxMessages = StrBufExtractNext_long(Line, &Pos, '|');
 
-	room->floorid = StrBufExtractNext_int(Line, &Pos, '|'); // wc_floor
+	room->floorid = StrBufExtractNext_int(Line, &Pos, '|');
 
-	room->view = StrBufExtractNext_long(Line, &Pos, '|'); // CurRoom->view
+	room->view = StrBufExtractNext_long(Line, &Pos, '|');
 
-	room->defview = StrBufExtractNext_long(Line, &Pos, '|'); // CurRoom->defview
+	room->defview = StrBufExtractNext_long(Line, &Pos, '|');
 
 	flag = StrBufExtractNext_long(Line, &Pos, '|');
 	if (flag)
-		room->RAFlags |= UA_ISTRASH; //	wc_is_trash
+		room->RAFlags |= UA_ISTRASH;
 
-	room->QRFlags2 = StrBufExtractNext_long(Line, &Pos, '|'); // CurRoom->QRFlags2
+	room->QRFlags2 = StrBufExtractNext_long(Line, &Pos, '|');
 	DBG_QR2(room->QRFlags2);
 
 	/* find out, whether we are in a sub-room */

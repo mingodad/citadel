@@ -22,7 +22,6 @@ extern int verbosity;		/* Logging level */
 extern char static_icon_dir[PATH_MAX];          /* where should we find our mime icons */
 int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
-int home_specified = 0;		/* did the user specify a homedir? */
 int DisableGzip = 0;
 struct redirector *redir = NULL;
 char *default_landing_page = NULL;
@@ -158,7 +157,6 @@ int main(int argc, char **argv)
 	char ip_addr[256]="*";
 	int relh=0;
 	int home=0;
-	int home_specified=0;
 	char relhome[PATH_MAX]="";
 	char webcitdir[PATH_MAX] = DATADIR;
 	char *pidfile = NULL;
@@ -211,7 +209,6 @@ int main(int argc, char **argv)
 				safestrncpy(relhome, relhome, sizeof relhome);
 			}
 			/* free(hdir); TODO: SHOULD WE DO THIS? */
-			home_specified = 1;
 			home=1;
 			break;
 		case 'd':

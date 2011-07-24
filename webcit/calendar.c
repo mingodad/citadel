@@ -673,7 +673,6 @@ void load_ical_object(long msgnum, int unread,
 	char mime_filename[256];
 	char mime_content_type[256];
 	char mime_disposition[256];
-	int mime_length;
 	char relevant_partnum[256];
 	char *relevant_source = NULL;
 	int phase = 0;				/* 0 = citadel headers, 1 = mime headers, 2 = body */
@@ -703,7 +702,7 @@ void load_ical_object(long msgnum, int unread,
 				extract_token(mime_partnum, &bptr[5], 2, '|', sizeof mime_partnum);
 				extract_token(mime_disposition, &bptr[5], 3, '|', sizeof mime_disposition);
 				extract_token(mime_content_type, &bptr[5], 4, '|', sizeof mime_content_type);
-				mime_length = extract_int(&bptr[5], 5);
+				/* do we care? mime_length = */extract_int(&bptr[5], 5);
 
 				if (  (!strcasecmp(mime_content_type, "text/calendar"))
 				      || (!strcasecmp(mime_content_type, "application/ics"))

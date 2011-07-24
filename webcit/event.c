@@ -44,7 +44,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	char buf[SIZ];
 	int organizer_is_me = 0;
 	int i, j = 0;
+	/************************************************************
+	 * Uncomment this to see the UID in calendar events for debugging
 	int sequence = 0;
+	*/
 	char weekday_labels[7][32];
 	char month_labels[12][32];
 	long weekstart = 0;
@@ -157,10 +160,12 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	/* Learn the sequence */
 	p = icalcomponent_get_first_property(vevent, ICAL_SEQUENCE_PROPERTY);
+	/************************************************************
+	 * Uncomment this to see the UID in calendar events for debugging
 	if (p != NULL) {
 		sequence = icalproperty_get_sequence(p);
 	}
-
+	*/
 	/* Begin output */
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\">\n");

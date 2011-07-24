@@ -392,35 +392,6 @@ void FreeWCTemplate(void *vFreeMe)
 	free(FreeMe);
 }
 
-
-
-/**
- * \brief back end for print_value_of() ... does a server command
- * \param servcmd server command to execute on the citadel server
- */
-void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
-	char buf[SIZ];
-	int len;
-
-	serv_puts(ChrPtr(servcmd));
-	len = serv_getln(buf, sizeof buf);
-
-	switch(buf[0]) {
-		case '2':
-		case '3':
-		case '5':
-			StrBufAppendPrintf(Target, "%s\n", &buf[4]);
-			break;
-		case '1':
-			_fmout(Target, "CENTER");
-			break;
-		case '4':
-			StrBufAppendPrintf(Target, "%s\n", &buf[4]);
-			serv_puts("000");
-			break;
-	}
-}
-
 int HaveTemplateTokenString(StrBuf *Target, 
 			    WCTemplputParams *TP,
 			    int N,
@@ -619,7 +590,6 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  WCTemplputParams *TP,
 			  const StrBuf *Source, int FormatTypeIndex)
 {
-        wcsession *WCC;
 	const char *pFmt = NULL;
 	char EscapeAs = ' ';
 
@@ -633,7 +603,6 @@ void StrBufAppendTemplate(StrBuf *Target,
 	switch(EscapeAs)
 	{
 	case 'H':
-		WCC = WC;
 		StrEscAppend(Target, Source, NULL, 0, 2);
 		break;
 	case 'X':
@@ -1215,7 +1184,6 @@ void *load_template(WCTemplate *NewTemplate)
 	struct stat statbuf;
 	const char *pS, *pE, *pch, *Err;
 	long Line;
-	int pos;
 
 	fd = open(ChrPtr(NewTemplate->FileName), O_RDONLY);
 	if (fd <= 0) {
@@ -1235,7 +1203,6 @@ void *load_template(WCTemplate *NewTemplate)
 		close(fd);
 		syslog(1, "ERROR: reading template '%s' - %s<br>\n",
 			ChrPtr(NewTemplate->FileName), strerror(errno));
-		//FreeWCTemplate(NewTemplate);/////tODO
 		return NULL;
 	}
 	close(fd);
@@ -1252,7 +1219,6 @@ void *load_template(WCTemplate *NewTemplate)
 		void *pv;
 
 		/** Find one <? > */
-		pos = (-1);
 		for (; pch < pE; pch ++) {
 			if ((*pch=='<')&&(*(pch + 1)=='?') &&
 			    !((pch == pS) && /* we must ommit a <?xml */
@@ -1333,7 +1299,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 	       (filedir_entry != NULL))
 	{
 		char *MinorPtr;
-		char *PStart;
+
 #ifdef _DIRENT_HAVE_D_NAMELEN
 		d_namelen = filedir_entry->d_namelen;
 		d_type = filedir_entry->d_type;
@@ -1410,7 +1376,6 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 			    (strcmp(&filedir_entry->d_name[d_without_ext], ".orig") == 0) ||
 			    (strcmp(&filedir_entry->d_name[d_without_ext], ".swp") == 0))
 				continue; /* Ignore backup files... */
-			PStart = filedir_entry->d_name;
 			StrBufPrintf(FileName, "%s/%s", ChrPtr(DirName),  filedir_entry->d_name);
 			MinorPtr = strchr(filedir_entry->d_name, '.');
 			if (MinorPtr != NULL)
@@ -2354,7 +2319,6 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 			 const char *OtherPrefix, long OtherPrefixLen,
 			 const char *Default, long ldefault, long DefaultDirection)
 {
-	int isdefault = 0;
 	const StrBuf *BSort = NULL;
 	SortStruct *SortBy;
 	void *vSortBy;
@@ -2388,7 +2352,6 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 
 	if (!GetHash(SortHash, SKEY(BSort), &vSortBy) || 
 	    (vSortBy == NULL)) {
-		isdefault = 1;
 		if (!GetHash(SortHash, Default, ldefault, &vSortBy) || 
 		    (vSortBy == NULL)) {
 			LogTemplateError(

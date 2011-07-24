@@ -58,7 +58,7 @@ void shutdown_ssl(void)
  */
 void init_ssl(void)
 {
-	SSL_METHOD *ssl_method;
+	const SSL_METHOD *ssl_method;
 	RSA *rsa=NULL;
 	X509_REQ *req = NULL;
 	X509 *cer = NULL;
@@ -391,7 +391,7 @@ void init_ssl(void)
  * starts SSL/TLS encryption for the current session.
  */
 int starttls(int sock) {
-	int retval, bits, alg_bits, r;
+	int retval, bits, alg_bits;/*r; */
 	SSL *newssl;
 
 	pthread_setspecific(ThreadSSL, NULL);
@@ -448,7 +448,7 @@ int starttls(int sock) {
 	else {
 		syslog(15, "SSL_accept success\n");
 	}
-	r = BIO_set_close(newssl->rbio, BIO_NOCLOSE);
+	/*r = */BIO_set_close(newssl->rbio, BIO_NOCLOSE);
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl), &alg_bits);
 	syslog(15, "SSL/TLS using %s on %s (%d of %d bits)\n",
 		SSL_CIPHER_get_name(SSL_get_current_cipher(newssl)),
@@ -470,13 +470,13 @@ int starttls(int sock) {
  */
 void endtls(void)
 {
-	SSL_CTX *ctx = NULL;
+	/*SSL_CTX *ctx;*/
 
 	if (THREADSSL == NULL) return;
 
 	syslog(15, "Ending SSL/TLS\n");
 	SSL_shutdown(THREADSSL);
-	ctx = SSL_get_SSL_CTX(THREADSSL);
+	/*ctx = */SSL_get_SSL_CTX(THREADSSL);
 
 	/* I don't think this is needed, and it crashes the server anyway
 	 *

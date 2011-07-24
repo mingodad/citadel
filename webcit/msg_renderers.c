@@ -1418,9 +1418,9 @@ InitModule_MSGRENDERERS
 	RegisterReadLoopHandlerset(
 		VIEW_MAILBOX,
 		mailview_GetParamsGetServerCall,
-		NULL, /// TODO: is this right?
+		NULL, /* TODO: is this right? */
 		ParseMessageListHeaders_Detail,
-		NULL, //// ""
+		NULL,
 		mailview_RenderView_or_Tail,
 		mailview_Cleanup);
 

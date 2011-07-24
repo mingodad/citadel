@@ -21,6 +21,7 @@
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
+#include "calendar.h"
 
 HashList *MsgHeaderHandler = NULL;
 HashList *MsgEvaluators = NULL;
@@ -246,7 +247,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 }
 
 
-void
+long
 HttpStatus(long CitadelStatus)
 {
 	long httpstatus = 502;
@@ -311,7 +312,7 @@ HttpStatus(long CitadelStatus)
 		break;
 	}
 
-
+	return httpstatus;
 }
 
 /*
@@ -733,7 +734,7 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		GetHash(ReadLoopHandler, IKEY(WCC->CurRoom.view), &vViewMsg);
 	}
 	if (vViewMsg == NULL) {
-		return;			// TODO: print message
+		return;			/* TODO: print message */
 	}
 
 	ViewMsg = (RoomRenderer*) vViewMsg;
@@ -1282,7 +1283,6 @@ void remove_attachment(void) {
 void display_enter(void)
 {
 	char buf[SIZ];
-	long now;
 	const StrBuf *display_name = NULL;
 	int recipient_required = 0;
 	int subject_required = 0;
@@ -1290,8 +1290,7 @@ void display_enter(void)
 	int is_anonymous = 0;
       	wcsession *WCC = WC;
 	int i = 0;
-
-	now = time(NULL);
+	long replying_to;
 
 	if (havebstr("force_room")) {
 		gotoroom(sbstr("force_room"));
@@ -1353,7 +1352,7 @@ void display_enter(void)
 	 * If the "replying_to" variable is set, it refers to a message
 	 * number from which we must extract some header fields...
 	 */
-	long replying_to = lbstr("replying_to");
+	replying_to = lbstr("replying_to");
 	if (replying_to > 0) {
 		char wefw[1024] = "";
 		char msgn[256] = "";
@@ -1383,13 +1382,15 @@ void display_enter(void)
 			}
 
 			else if (!strncasecmp(buf, "wefw=", 5)) {
+				int rrtok;
+				int rrlen;
 				safestrncpy(wefw, &buf[5], sizeof wefw);
 
 				/* Trim down excessively long lists of thread references.  We eliminate the
 				 * second one in the list so that the thread root remains intact.
 				 */
-				int rrtok = num_tokens(wefw, '|');
-				int rrlen = strlen(wefw);
+				rrtok = num_tokens(wefw, '|');
+				rrlen = strlen(wefw);
 				if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
 					remove_token(wefw, 1, '|');
 				}
@@ -1521,7 +1522,7 @@ void display_enter(void)
 			if (havebstr("recp") && 
 			    havebstr("cc"  ) && 
 			    havebstr("bcc" )) {
-				recipient_bad = 1;
+				recipient_bad = 1; /* TODO: and now????? */
 			}
 		}
 		else if (buf[0] != '2') {	/* Any other error means that we cannot continue */
@@ -1593,12 +1594,8 @@ void move_msg(void)
  */
 void confirm_move_msg(void)
 {
-	long msgid;
 	char buf[SIZ];
 	char targ[SIZ];
-
-	msgid = lbstr("msgid");
-
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\">\n");

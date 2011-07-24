@@ -17,17 +17,67 @@
 #include "webcit.h"
 #include "webserver.h"
 
+unsigned char OnePixelGif[37] = {
+		0x47,
+		0x49,
+		0x46,
+		0x38,
+		0x37,
+		0x61,
+		0x01,
+		0x00,
+		0x01,
+		0x00,
+		0x80,
+		0x00,
+		0x00,
+		0xff,
+		0xff,
+		0xff,
+		0xff,
+		0xff,
+		0xff,
+		0x2c,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x01,
+		0x00,
+		0x01,
+		0x00,
+		0x00,
+		0x02,
+		0x02,
+		0x44,
+		0x01,
+		0x00,
+		0x3b 
+};
+
 
 HashList *StaticFilemappings[4] = {NULL, NULL, NULL, NULL};
 /*
-		{
-			syslog(9, "Suspicious request. Ignoring.");
-			hprintf("HTTP/1.1 404 Security check failed\r\n");
-			hprintf("Content-Type: text/plain\r\n\r\n");
-			wc_printf("You have sent a malformed or invalid request.\r\n");
-			end_burst();
-		}
+  {
+  syslog(9, "Suspicious request. Ignoring.");
+  hprintf("HTTP/1.1 404 Security check failed\r\n");
+  hprintf("Content-Type: text/plain\r\n\r\n");
+  wc_printf("You have sent a malformed or invalid request.\r\n");
+  end_burst();
+  }
 */
+
+
+void output_error_pic(const char *ErrMsg1, const char *ErrMsg2)
+{
+	hprintf("HTTP/1.1 200 %s\r\n", ErrMsg1);
+	hprintf("Content-Type: image/gif\r\n");
+	hprintf("x-webcit-errormessage: %s\r\n", ErrMsg2);
+	begin_burst();
+	StrBufPlain(WC->WBuf, (const char *)OnePixelGif, sizeof(OnePixelGif));
+	end_burst();
+}
+
 /*
  * dump out static pages from disk
  */
@@ -36,35 +86,46 @@ void output_static(const char *what)
 	int fd;
 	struct stat statbuf;
 	off_t bytes;
-	off_t count = 0;
 	const char *content_type;
 	int len;
 	const char *Err;
 
+	len = strlen (what);
+	content_type = GuessMimeByFilename(what, len);
 	fd = open(what, O_RDONLY);
 	if (fd <= 0) {
 		syslog(9, "output_static('%s') [%s]  -- NOT FOUND --\n", what, ChrPtr(WC->Hdr->this_page));
-		hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
-		hprintf("Content-Type: text/plain\r\n");
-		begin_burst();
-		wc_printf("Cannot open %s: %s\r\n", what, strerror(errno));
-		end_burst();
-	} else {
-		len = strlen (what);
-		content_type = GuessMimeByFilename(what, len);
-
-		if (fstat(fd, &statbuf) == -1) {
-			syslog(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
+		if (strstr(content_type, "image/") != NULL)
+		{
+			output_error_pic("the file you requsted is gone.", strerror(errno));
+		}
+		else
+		{
 			hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
-			wc_printf("Cannot fstat %s: %s\n", what, strerror(errno));
+			wc_printf("Cannot open %s: %s\r\n", what, strerror(errno));
 			end_burst();
+		}
+	} else {
+		if (fstat(fd, &statbuf) == -1) {
+			syslog(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
+			if (strstr(content_type, "image/") != NULL)
+			{
+				output_error_pic("Stat failed!", strerror(errno));
+			}
+			else
+			{
+				hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
+				hprintf("Content-Type: text/plain\r\n");
+				begin_burst();
+				wc_printf("Cannot fstat %s: %s\n", what, strerror(errno));
+				end_burst();
+			}
 			if (fd > 0) close(fd);
 			return;
 		}
 
-		count = 0;
 		bytes = statbuf.st_size;
 
 		if (StrBufReadBLOB(WC->WBuf, &fd, 1, bytes, &Err) < 0)
@@ -100,7 +161,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	struct dirent *filedir_entry;
 	int d_type = 0;
         int d_namelen;
-	int d_without_ext;
 	int istoplevel;
 		
 	filedir = opendir (DirName);
@@ -121,7 +181,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-		char *PStart;
 #ifdef _DIRENT_HAVE_D_NAMELEN
 		d_namelen = filedir_entry->d_namelen;
 		d_type = filedir_entry->d_type;
@@ -139,8 +198,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 		d_namelen = strlen(filedir_entry->d_name);
 		d_type = DT_UNKNOWN;
 #endif
-		d_without_ext = d_namelen;
-
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
 			continue; /* Ignore backup files... */
 
@@ -184,7 +241,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			break;
 		case DT_LNK: /* TODO: check whether its a file or a directory */
 		case DT_REG:
-			PStart = filedir_entry->d_name;
 			FileName = NewStrBufDup(Dir);
 			if (ChrPtr(FileName) [ StrLength(FileName) - 1] != '/')
 				StrBufAppendBufPlain(FileName, "/", 1, 0);
@@ -227,7 +283,7 @@ void output_flat_static(void)
 	    (vFile != NULL))
 	{
 		File = (StrBuf*) vFile;
-		output_static(ChrPtr(vFile));
+		output_static(ChrPtr(File));
 	}
 }
 
@@ -236,18 +292,26 @@ void output_static_safe(HashList *DirList)
 	wcsession *WCC = WC;
 	void *vFile;
 	StrBuf *File;
+	const char *MimeType;
 
 	if (GetHash(DirList, SKEY(WCC->Hdr->HR.ReqLine), &vFile) &&
 	    (vFile != NULL))
 	{
 		File = (StrBuf*) vFile;
-		output_static(ChrPtr(vFile));
+		output_static(ChrPtr(File));
 	}
 	else {
 		syslog(1, "output_static_safe() file %s not found. \n", 
 			ChrPtr(WCC->Hdr->HR.ReqLine));
-///TODO: detect image & output blank image
-		do_404();
+		MimeType =  GuessMimeByFilename(SKEY(WCC->Hdr->HR.ReqLine));
+		if (strstr(MimeType, "image/") != NULL)
+		{
+			output_error_pic("the file you requested isn't known to our cache", "maybe reload webcit?");
+		}
+		else
+		{		    
+			do_404();
+		}
 	}
 }
 void output_static_0(void)

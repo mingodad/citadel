@@ -658,7 +658,7 @@ void validate(void)
 				int haveChar = 0;
 				int haveNum = 0;
 				int haveOther = 0;
-				int count = 0;
+				int haveLong = 0;
 				pch = buf;
 				while (!IsEmptyStr(pch))
 				{
@@ -670,10 +670,13 @@ void validate(void)
 						haveOther = 1;
 					pch ++;
 				}
-				count = pch - buf;
-				if (count > 7)
-					count = 0;
-				switch (count){
+				if (pch - buf > 7)
+					haveLong = 1;
+				switch (haveLong + 
+					haveChar + 
+					haveNum + 
+					haveOther)
+				{
 				case 0:
 					pch = _("very weak");
 					break;

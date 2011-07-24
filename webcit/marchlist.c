@@ -57,8 +57,6 @@ void remove_march(const StrBuf *aaa)
 char *pop_march(int desired_floor)
 {
 	static char TheRoom[128];
-	int TheFloor = 0;
-	int TheOrder = 32767;
 	int TheWeight = 0;
 	int weight;
 	struct march *mptr = NULL;
@@ -80,8 +78,10 @@ char *pop_march(int desired_floor)
 		if (weight > TheWeight) {
 			TheWeight = weight;
 			strcpy(TheRoom, mptr->march_name);
+/* TODOO: and now????
 			TheFloor = mptr->march_floor;
 			TheOrder = mptr->march_order;
+*/
 		}
 	}
 	return (TheRoom);

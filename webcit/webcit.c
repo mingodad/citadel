@@ -669,7 +669,6 @@ int Conditional_REST_DEPTH(StrBuf *Target, WCTemplputParams *TP)
  */
 void session_loop(void)
 {
-	int Flags = 0;
 	int xhttp;
 	StrBuf *Buf;
 	
@@ -683,8 +682,6 @@ void session_loop(void)
 	WCC->upload_length = 0;
 	WCC->upload = NULL;
 	WCC->Hdr->nWildfireHeaders = 0;
-	if (WCC->Hdr->HR.Handler != NULL)
-		Flags = WCC->Hdr->HR.Handler->Flags; /* so we can temporarily add our own... */
 
 	if (WCC->Hdr->HR.ContentLength > 0) {
 		if (ReadPostData() < 0) {
