@@ -565,33 +565,20 @@ void do_logout(void)
  */
 void monitor(void)
 {
-	wcsession *WCC = WC;
-	char buf[SIZ];
+	output_headers(0, 0, 0, 0, 0, 0);
 
-	FlushStrBuf(WCC->wc_username);
-	FlushStrBuf(WCC->wc_password);
-	FlushStrBuf(WCC->wc_fullname);
-	FlushRoomlist();
+	hprintf("Content-type: text/plain\r\n"
+		"Server: " PACKAGE_STRING "\r\n"
+		"Connection: close\r\n"
+	);
+	begin_burst();
 
-	serv_puts("LOUT");
-	serv_getln(buf, sizeof buf);
-	WCC->logged_in = 0;
-
-	FlushStrBuf(WCC->CurRoom.name);
-
-	/* Calling output_headers() this way causes the cookies to be un-set */
-	output_headers(1, 0, 0, 1, 1, 0);
-
-	wc_printf("<html><body><tt>");
-	wc_printf("<strong>WebCit monitoring screen</strong><br>\n");
-	wc_printf("Connection to Citadel server at %s:%s : %s<br>\n",
+	wc_printf("Connection to Citadel server at %s:%s : %s\r\n",
 		ctdlhost, ctdlport,
 		(WC->connected ? "SUCCESS" : "FAIL")
 	);
-	wc_printf("</body></html>\n");
 
-	wDumpContent(2);
-	end_webcit_session();
+	wDumpContent(0);
 }
 
 
