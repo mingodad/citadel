@@ -566,6 +566,18 @@ void tmplput_ThisRoomX_FileString(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+int ConditionalIsThisThatRoom(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)CTX;
+	wcsession *WCC = WC;
+
+	if (WCC == NULL)
+		return 0;
+
+	return Folder == WCC->ThisRoom;
+}
+
+
 void 
 InitModule_ROOMTOKENS
 (void)
@@ -635,4 +647,5 @@ InitModule_ROOMTOKENS
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_ThisRoomDirectory, NULL, CTX_NONE);
 
 	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, NULL, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:THIS:THAT:ROOM"), 0, ConditionalIsThisThatRoom, CTX_ROOMS);
 }

@@ -1514,9 +1514,21 @@ void tmplput_SieveRule_sizeval(StrBuf *Target, WCTemplputParams *TP)
 	SieveRule     *Rule = (SieveRule *)CTX;
 	wc_printf("%d", Rule->sizeval);
 }
+
+void tmplput_SieveRule_lookup_FileIntoRoom(StrBuf *Target, WCTemplputParams *TP) 
+{
+	void *vRoom;
+	SieveRule     *Rule = (SieveRule *)CTX;
+        wcsession *WCC = WC;
+	HashList *Rooms = GetRoomListHashLKRA(Target, TP);
+
+	GetHash(Rooms, SKEY(Rule->fileinto), &vRoom);
+	WCC->ThisRoom = (folder*) vRoom;
+}
+
 void FreeSieveRule(void *vRule)
 {
-	SieveRule *Rule = (SieveRule*) Rule;
+	SieveRule *Rule = (SieveRule*) vRule;
 
 	FreeStrBuf(&Rule->htext);
 	FreeStrBuf(&Rule->fileinto);
@@ -1693,6 +1705,8 @@ InitModule_SIEVE
 	RegisterNamespace("SIEVE:SCRIPT:REDIRECT", 0, 1, tmplput_SieveRule_redirect, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:AUTOMSG", 0, 1, tmplput_SieveRule_automsg, NULL, CTX_SIEVESCRIPT);
 	///RegisterNamespace("SIEVE:SCRIPT:FINAL", 0, 1, tmplput_SieveRule_final, NULL, CTX_SIEVESCRIPT);
+	/* fetch our room into WCC->ThisRoom, to evaluate while iterating over rooms with COND:THIS:THAT:ROOM */
+	RegisterNamespace("SIEVE:SCRIPT:LOOKUP_FILEINTO", 0, 1, tmplput_SieveRule_lookup_FileIntoRoom, NULL, CTX_SIEVESCRIPT);
 
 #if FOO
 	WebcitAddUrlHandler(HKEY("display_sieve"), "", 0, display_sieve, 0);
