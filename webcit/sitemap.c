@@ -148,8 +148,8 @@ void sitemap(void) {
 	wc_printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
 	wc_printf("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\r\n");
 
-	roomlist = GetRoomListHashLKRA(NULL, NULL);
-	if (!roomlist) syslog(LOG_CRIT, "GetRoomListHashLKRA() FAILED!");
+	roomlist = GetRoomListHash(NULL, NULL);
+	if (!roomlist) syslog(LOG_CRIT, "GetRoomListHash() FAILED!");
 	it = GetNewHashPos(roomlist, 0);
 	if (!it) syslog(LOG_CRIT, "GetNewHashPos() FAILED!");
 
@@ -174,7 +174,7 @@ void sitemap(void) {
 	}
 
 	DeleteHashPos(&it);
-	DeleteHash(&WC->Rooms);		/* roomlist is actually a pointer to WC->Rooms */
+	DeleteHash(&roomlist);
 	wc_printf("</urlset>\r\n");
 	wDumpContent(0);
 }
