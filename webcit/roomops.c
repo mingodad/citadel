@@ -337,8 +337,8 @@ void ParseGoto(folder *room, StrBuf *Line)
 	room->Floor = (const Floor*) vFloor;
 }
 
-/**
- * \brief Delete the current room
+/*
+ * Delete the current room
  */
 void delete_room(void)
 {
@@ -362,8 +362,8 @@ void delete_room(void)
 	}
 }
 
-/**
- * \brief zap a room
+/*
+ * zap a room
  */
 void zap(void)
 {
@@ -982,8 +982,8 @@ void change_view(void) {
 
 
 
-/**
- * \brief Set the message expire policy for this room and/or floor
+/*
+ * Set the message expire policy for this room and/or floor
  */
 void set_room_policy(void) {
 	char buf[SIZ];
@@ -1011,8 +1011,8 @@ void set_room_policy(void) {
 
 
 
-/**
- * \brief Perform changes to a room's network configuration
+/*
+ * Perform changes to a room's network configuration
  */
 void netedit(void) {
 	FILE *fp;
