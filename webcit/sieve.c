@@ -540,33 +540,33 @@ void display_sieve(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 
-	wc_printf("<script type=\"text/javascript\">					\n"
-		"									\n"
-		"var previously_active_script;						\n"
-		"									\n"
-		"function ToggleSievePanels() {						\n"
-		" d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);	\n"
-		" for (i=0; i<3; ++i) {							\n"
-		"  if (i == d) {							\n"
-		"   $('sievediv' + i).style.display = 'block';				\n"
-		"  }									\n"
-		"  else {								\n"
-		"   $('sievediv' + i).style.display = 'none';				\n"
-		"  }									\n"
-		" }									\n"
-		"}									\n"
-		"									\n"
-		"function ToggleScriptPanels() {					\n"
-		" d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);	\n"
-		" if ($('script_' + previously_active_script)) {			\n"
-		"  $('script_' + previously_active_script).style.display = 'none';	\n"
-		" }									\n"
-		" $('script_' + d).style.display = 'block';				\n"
-		" previously_active_script = d;						\n"
-		"}									\n"
-		"									\n"
-		"</script>								\n"
-	);
+	wc_printf("<script type=\"text/javascript\">\n"
+		  "\n"
+		  "var previously_active_script;\n"
+		  "\n"
+		  "function ToggleSievePanels() {\n"
+		  " d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);\n"
+		  " for (i=0; i<3; ++i) {\n"
+		  "  if (i == d) {\n"
+		  "   $('sievediv' + i).style.display = 'block';\n"
+		  "  }\n"
+		  "  else {\n"
+		  "   $('sievediv' + i).style.display = 'none';\n"
+		  "  }\n"
+		  " }\n"
+		  "}\n"
+		  "\n"
+		  "function ToggleScriptPanels() {\n"
+		  " d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);\n"
+		  " if ($('script_' + previously_active_script)) {\n"
+		  "  $('script_' + previously_active_script).style.display = 'none';\n"
+		  " }\n"
+		  " $('script_' + d).style.display = 'block';\n"
+		  " previously_active_script = d;\n"
+		  "}\n"
+		  "\n"
+		  "</script>\n"
+);
 
 	wc_printf("<div id=\"banner\">\n");
 	wc_printf("<img src=\"static/webcit_icons/essen/32x32/config.png\">");
@@ -577,8 +577,8 @@ void display_sieve(void)
 
 	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wc_printf("<table class=\"sieve_background\">"
-		"<tr><td valign=top>\n");
+	wc_printf("<table class=\"sieve_background\">\n"
+		"<tr>\n<td valign=top>\n");
 
 
 	wc_printf("<form id=\"sieveform\" method=\"post\" action=\"save_sieve\">\n");
@@ -600,7 +600,7 @@ void display_sieve(void)
 	wc_printf(_("Filter it through a manually edited script (advanced users only)"));
 	wc_printf("</option>\n");
 
-	wc_printf("</select>");
+	wc_printf("</select>\n\n");
 
 
 
@@ -634,7 +634,7 @@ void display_sieve(void)
 				);
 			}
 		}
-		wc_printf("</select>\n");
+		wc_printf("</select>\n\n");
 	}
 
 	wc_printf("&nbsp;&nbsp;&nbsp;");
@@ -764,7 +764,7 @@ void display_add_remove_scripts(char *message)
 			}
                 }
         }
-        wc_printf("</select><br>\n");
+        wc_printf("</select>\n\n<br>\n");
 
         wc_printf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete script"), _("Delete this script?"));
@@ -836,118 +836,118 @@ void display_rules_editor_inner_div(void) {
  * This script should get called by every onChange event...
  *
  */
-	wc_printf("<script type=\"text/javascript\">					\n"
-		"									\n"
-		"var highest_active_rule = (-1);					\n"
-		"									\n"
-		"function UpdateRules() {						\n");
+	wc_printf("<script type=\"text/javascript\">\n"
+		  "\n"
+		  "var highest_active_rule = (-1);\n"
+		  "\n"
+		  "function UpdateRules() {\n");
 /*
  * Show only the active rows...
  */
-	wc_printf("  highest_active_rule = (-1);						\n");
-	wc_printf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
-	wc_printf("   if ($('active'+i).checked) {					\n"
-		"     $('rule' + i).style.display = 'block';				\n"
-		"     highest_active_rule = i;						\n"
-		"   }									\n"
-		"   else {								\n"
-		"     $('rule' + i).style.display = 'none';				\n"
-		"   }									\n"
-		"  }									\n");
+	wc_printf("  highest_active_rule = (-1);\n");
+	wc_printf("  for (i=0; i<%d; ++i) {\n", MAX_RULES);
+	wc_printf("   if ($('active'+i).checked) {\n"
+		  "     $('rule' + i).style.display = 'block';\n"
+		  "     highest_active_rule = i;\n"
+		  "   }\n"
+		  "   else {\n"
+		  "     $('rule' + i).style.display = 'none';\n"
+		  "   }\n"
+		  "  }\n");
 /*
  * Show only the fields relevant to the rules...
  */
-	wc_printf("  for (i=0; i<=highest_active_rule; ++i) {				\n"
-		"    d = ($('movedown'+i));						\n"
-		"    if (i < highest_active_rule) {					\n"
-		"      d.style.display = 'block';					\n"
-		"    }									\n"
-		"    else {								\n"
-		"      d.style.display = 'none';					\n"
-		"    }									\n"
-		"    d = ($('hfield'+i).options[$('hfield'+i).selectedIndex].value);	\n"
-		"    if (d == 'all') {							\n"
-		"      $('div_size'+i).style.display = 'none';	 			\n"
-		"      $('div_compare'+i).style.display = 'none';			\n"
-		"      $('div_nocompare'+i).style.display = 'block';			\n"
-		"    }									\n"
-		"    else if (d == 'size') {						\n"
-		"      $('div_size'+i).style.display = 'block';	 			\n"
-		"      $('div_compare'+i).style.display = 'none';			\n"
-		"      $('div_nocompare'+i).style.display = 'none';			\n"
-		"    }									\n"
-		"    else {								\n"
-		"      $('div_size'+i).style.display = 'none';	 			\n"
-		"      $('div_compare'+i).style.display = 'block';			\n"
-		"      $('div_nocompare'+i).style.display = 'none';			\n"
-		"    }									\n"
-		"    d = ($('action'+i).options[$('action'+i).selectedIndex].value);	\n"
-		"    if (d == 'fileinto') {						\n"
-		"      $('div_fileinto'+i).style.display = 'block';			\n"
-		"      $('div_redirect'+i).style.display = 'none';			\n"
-		"      $('div_automsg'+i).style.display = 'none';			\n"
-		"    } else if (d == 'redirect') {					\n"
-		"      $('div_fileinto'+i).style.display = 'none';			\n"
-		"      $('div_redirect'+i).style.display = 'block';			\n"
-		"      $('div_automsg'+i).style.display = 'none';			\n"
-		"    } else if ((d == 'reject') || (d == 'vacation'))  {		\n"
-		"      $('div_fileinto'+i).style.display = 'none';			\n"
-		"      $('div_redirect'+i).style.display = 'none';			\n"
-		"      $('div_automsg'+i).style.display = 'block';			\n"
-		"    } else {								\n"
-		"      $('div_fileinto'+i).style.display = 'none';			\n"
-		"      $('div_redirect'+i).style.display = 'none';			\n"
-		"      $('div_automsg'+i).style.display = 'none';			\n"
-		"    }									\n"
-		"    if (highest_active_rule < %d) {					\n", MAX_RULES-1 );
-	wc_printf("      $('div_addrule').style.display = 'block';			\n"
-		"    } else {								\n"
-		"      $('div_addrule').style.display = 'none';				\n"
-		"    }									\n"
-		"  }									\n"
-		"}									\n"
+	wc_printf("  for (i=0; i<=highest_active_rule; ++i) {\n"
+		  "    d = ($('movedown'+i));\n"
+		  "    if (i < highest_active_rule) {\n"
+		  "      d.style.display = 'block';\n"
+		  "    }\n"
+		  "    else {\n"
+		  "      d.style.display = 'none';\n"
+		  "    }\n"
+		  "    d = ($('hfield'+i).options[$('hfield'+i).selectedIndex].value);\n"
+		  "    if (d == 'all') {\n"
+		  "      $('div_size'+i).style.display = 'none'; \n"
+		  "      $('div_compare'+i).style.display = 'none';\n"
+		  "      $('div_nocompare'+i).style.display = 'block';\n"
+		  "    }\n"
+		  "    else if (d == 'size') {\n"
+		  "      $('div_size'+i).style.display = 'block'; \n"
+		  "      $('div_compare'+i).style.display = 'none';\n"
+		  "      $('div_nocompare'+i).style.display = 'none';\n"
+		  "    }\n"
+		  "    else {\n"
+		  "      $('div_size'+i).style.display = 'none'; \n"
+		  "      $('div_compare'+i).style.display = 'block';\n"
+		  "      $('div_nocompare'+i).style.display = 'none';\n"
+		  "    }\n"
+		  "    d = ($('action'+i).options[$('action'+i).selectedIndex].value);\n"
+		  "    if (d == 'fileinto') {\n"
+		  "      $('div_fileinto'+i).style.display = 'block';\n"
+		  "      $('div_redirect'+i).style.display = 'none';\n"
+		  "      $('div_automsg'+i).style.display = 'none';\n"
+		  "    } else if (d == 'redirect') {\n"
+		  "      $('div_fileinto'+i).style.display = 'none';\n"
+		  "      $('div_redirect'+i).style.display = 'block';\n"
+		  "      $('div_automsg'+i).style.display = 'none';\n"
+		  "    } else if ((d == 'reject') || (d == 'vacation'))  {\n"
+		  "      $('div_fileinto'+i).style.display = 'none';\n"
+		  "      $('div_redirect'+i).style.display = 'none';\n"
+		  "      $('div_automsg'+i).style.display = 'block';\n"
+		  "    } else {\n"
+		  "      $('div_fileinto'+i).style.display = 'none';\n"
+		  "      $('div_redirect'+i).style.display = 'none';\n"
+		  "      $('div_automsg'+i).style.display = 'none';\n"
+		  "    }\n"
+		  "    if (highest_active_rule < %d) {\n", MAX_RULES-1 );
+	wc_printf("      $('div_addrule').style.display = 'block';\n"
+		  "    } else {\n"
+		  "      $('div_addrule').style.display = 'none';\n"
+		  "    }\n"
+		  "  }\n"
+		  "}\n"
 /*
  * Add a rule (really, just un-hide it)
  */
-		"function AddRule() {							\n"
-		"  highest_active_rule = highest_active_rule + 1;			\n"
-		"  $('active'+highest_active_rule).checked = true;			\n"
-		"  UpdateRules();							\n"
-		"}									\n"
+		  "function AddRule() {\n"
+		  "  highest_active_rule = highest_active_rule + 1;\n"
+		  "  $('active'+highest_active_rule).checked = true;\n"
+		  "  UpdateRules();\n"
+		  "}\n"
 /*
  * Swap two rules
  */
-		"function SwapRules(ra, rb) {						\n"
-		"									\n"
-		"  var things = new Array();						\n"
-		"  things[0] = 'hfield';						\n"
-		"  things[1] = 'compare';						\n"
-		"  things[2] = 'htext';							\n"
-		"  things[3] = 'action';						\n"
-		"  things[4] = 'fileinto';						\n"
-		"  things[5] = 'redirect';						\n"
-		"  things[6] = 'final';							\n"
-		"  things[7] = 'sizecomp';						\n"
-		"  things[8] = 'sizeval';						\n"
-		"  things[9] = 'automsg';						\n"
-		"									\n"
-		"  for (i=0; i<=9; ++i) {						\n"
-		"    tempval=$(things[i]+ra).value;					\n"
-		"    $(things[i]+ra).value = $(things[i]+rb).value;			\n"
-		"    $(things[i]+rb).value = tempval;					\n"
-		"  }									\n"
-		"}									\n"
+		  "function SwapRules(ra, rb) {\n"
+		  "\n"
+		  "  var things = new Array();\n"
+		  "  things[0] = 'hfield';\n"
+		  "  things[1] = 'compare';\n"
+		  "  things[2] = 'htext';\n"
+		  "  things[3] = 'action';\n"
+		  "  things[4] = 'fileinto';\n"
+		  "  things[5] = 'redirect';\n"
+		  "  things[6] = 'final';\n"
+		  "  things[7] = 'sizecomp';\n"
+		  "  things[8] = 'sizeval';\n"
+		  "  things[9] = 'automsg';\n"
+		  "\n"
+		  "  for (i=0; i<=9; ++i) {\n"
+		  "    tempval=$(things[i]+ra).value;\n"
+		  "    $(things[i]+ra).value = $(things[i]+rb).value;\n"
+		  "    $(things[i]+rb).value = tempval;\n"
+		  "  }\n"
+		  "}\n"
 /*
  * Delete a rule (percolate the deleted rule out to the end, then deactivate it)
  */
-		"function DeleteRule(rd) {						\n"
-		"  for (j=rd; j<=highest_active_rule; ++j) {				\n"
-		"    SwapRules(j, (j+1));						\n"
-		"  }									\n"
-		"  $('active'+highest_active_rule).checked = false;			\n"
-		"}									\n"
-		"</script>								\n"
-	);
+		  "function DeleteRule(rd) {\n"
+		  "  for (j=rd; j<=highest_active_rule; ++j) {\n"
+		  "    SwapRules(j, (j+1));\n"
+		  "  }\n"
+		  "  $('active'+highest_active_rule).checked = false;\n"
+		  "}\n"
+		  "</script>\n"
+		);
 
 
 	wc_printf("<br>");
@@ -971,40 +971,40 @@ void display_rules_editor_inner_div(void) {
 		
 		/* now generate the table row */
 
-		wc_printf("<tr id=\"rule%d\" bgcolor=\"#%s\">",
+		wc_printf("<tr id=\"rule%d\" class=\"%s\">",
 			i,
-			((i%2) ? "DDDDDD" : "FFFFFF")
+			((i%2) ? "odd" : "even")
 		);
 
-		wc_printf("<td width=5%% align=\"center\">");
+		wc_printf("<td width=5%% align=\"center\">\n");
 
-		wc_printf("<div style=\"display:none\">");
-		wc_printf("<input type=\"checkbox\" name=\"active%d\" id=\"active%d\" %s>",
+		wc_printf("<div style=\"display:none\">\n");
+		wc_printf("<input type=\"checkbox\" name=\"active%d\" id=\"active%d\" %s>\n",
 			i, i,
 			(active ? "checked" : "")
 		);
-		wc_printf("</div>");
+		wc_printf("</div>\n");
 
 		if (i>0) wc_printf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
 			"<img border=\"0\" src=\"static/webcit_icons/up_pointer.gif\" "
-			"title=\"%s\"/></a>",
+			"title=\"%s\"/></a>\n",
 			i-1, i, _("Move rule up") );
 
 		wc_printf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
 			"<img id=\"movedown%d\" border=\"0\" src=\"static/webcit_icons/down_pointer.gif\" "
-			"title=\"%s\"/></a>",
+			"title=\"%s\"/></a>\n",
 			i, i+1, i, _("Move rule down") );
 
 		wc_printf("<a href=\"javascript:DeleteRule(%d);UpdateRules();\">"
 			"<img id=\"delete%d\" border=\"0\" src=\"static/webcit_icons/delete.gif\" "
-			"title=\"%s\"/></a>",
+			"title=\"%s\"/></a>\n",
 			i, i, _("Delete rule") );
 
-		wc_printf("</td>");
+		wc_printf("</td>\n\n\n");
 
-		wc_printf("<td width=5%% align=\"center\">");
-		wc_printf("<font size=+2>%d</font>", i+1);
-		wc_printf("</td>");
+		wc_printf("<td width=5%% align=\"center\">\n");
+		wc_printf("<font size=+2>%d</font>\n", i+1);
+		wc_printf("</td>\n");
 
 		wc_printf("<td width=20%%>%s ", _("If") );
 
@@ -1029,14 +1029,14 @@ void display_rules_editor_inner_div(void) {
 		wc_printf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		for (j=0; j<15; ++j) {
-			wc_printf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>\n",
 				( (!strcasecmp(hfield, hfield_values[j][0])) ? "selected" : ""),
 				hfield_values[j][0],
 				hfield_values[j][1]
 			);
 		}
 
-		wc_printf("</select>");
+		wc_printf("</select>\n\n");
 		wc_printf("</td>");
 
 		wc_printf("<td width=20%%>");
@@ -1050,42 +1050,42 @@ void display_rules_editor_inner_div(void) {
 			{	"notmatches",	_("does not match")	}
 		};
 
-		wc_printf("<div id=\"div_compare%d\">", i);
-		wc_printf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<div id=\"div_compare%d\">\n", i);
+		wc_printf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">\n",
 			i, i);
 		for (j=0; j<6; ++j) {
-			wc_printf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>\n",
 				( (!strcasecmp(compare, compare_values[j][0])) ? "selected" : ""),
 				compare_values[j][0],
 				compare_values[j][1]
 			);
 		}
-		wc_printf("</select>");
+		wc_printf("</select>\n\n");
 
 		wc_printf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\" value=\"", i, i);
 		escputs(htext);
-		wc_printf("\"></div>");
+		wc_printf("\">\n</div>\n");
 
 		wc_printf("<div id=\"div_nocompare%d\">", i);
 		wc_printf("%s", _("(All messages)"));
-		wc_printf("</div>");
+		wc_printf("</div>\n");
 
 		char *sizecomp_values[2][2] = {
 			{	"larger",	_("is larger than")	},
 			{	"smaller",	_("is smaller than")	}
 		};
 
-		wc_printf("<div id=\"div_size%d\">", i);
-		wc_printf("<select id=\"sizecomp%d\" name=\"sizecomp%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<div id=\"div_size%d\">\n", i);
+		wc_printf("<select id=\"sizecomp%d\" name=\"sizecomp%d\" size=1 onChange=\"UpdateRules();\">\n",
 			i, i);
 		for (j=0; j<2; ++j) {
-			wc_printf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>\n",
 				( (!strcasecmp(sizecomp, sizecomp_values[j][0])) ? "selected" : ""),
 				sizecomp_values[j][0],
 				sizecomp_values[j][1]
 			);
 		}
-		wc_printf("</select>");
+		wc_printf("</select>\n\n");
 
 		wc_printf("<input type=\"text\" id=\"sizeval%d\" name=\"sizeval%d\" value=\"%d\">",
 			i, i, sizeval);
@@ -1103,20 +1103,20 @@ void display_rules_editor_inner_div(void) {
 			{	"vacation",	_("Vacation")		}
 		};
 
-		wc_printf("<td width=20%%>");
-		wc_printf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<td width=20%%>\n");
+		wc_printf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">\n",
 			i, i);
 		for (j=0; j<6; ++j) {
-			wc_printf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>\n",
 				( (!strcasecmp(action, action_values[j][0])) ? "selected" : ""),
 				action_values[j][0],
 				action_values[j][1]
 			);
 		}
-		wc_printf("</select>");
+		wc_printf("</select>\n\n");
 
-		wc_printf("<div id=\"div_fileinto%d\">", i);
-		wc_printf("<select name=\"fileinto%d\" id=\"fileinto%d\">", i, i);
+		wc_printf("<div id=\"div_fileinto%d\">\n", i);
+		wc_printf("<select name=\"fileinto%d\" id=\"fileinto%d\">\n", i, i);
 		for (j=0; j<num_roomnames; ++j) {
 			wc_printf("<option ");
 			if (!strcasecmp(rooms[j].name, fileinto)) {
@@ -1128,56 +1128,56 @@ void display_rules_editor_inner_div(void) {
 			escputs(rooms[j].name);
 			wc_printf("</option>\n");
 		}
-		wc_printf("</select>\n");
+		wc_printf("</select>\n\n");
 		wc_printf("</div>");
 
-		wc_printf("<div id=\"div_redirect%d\">", i);
+		wc_printf("<div id=\"div_redirect%d\">\n", i);
 		wc_printf("<input type=\"text\" id=\"redirect%d\" name=\"redirect%d\" value=\"", i, i);
 		escputs(redirect);
-		wc_printf("\"></div>");
+		wc_printf("\">\n</div>\n");
 
-		wc_printf("<div id=\"div_automsg%d\">", i);
+		wc_printf("<div id=\"div_automsg%d\">\n", i);
 		wc_printf(_("Message:"));
-		wc_printf("<br>");
+		wc_printf("<br>\n");
 		wc_printf("<textarea name=\"automsg%d\" id=\"automsg%d\" wrap=soft rows=5>\n", i, i);
 		escputs(automsg);
 		wc_printf("</textarea>");
-		wc_printf("</div>");
+		wc_printf("</div>\n");
 
-		wc_printf("</td>");
+		wc_printf("</td>\n");
 
 		char *final_values[2][2] = {
 			{	"continue",	_("continue processing")	},
 			{	"stop",		_("stop")			}
 		};
 
-		wc_printf("<td width=10%% align=\"center\">%s</td>", _("and then") );
+		wc_printf("<td width=10%% align=\"center\">%s</td>\n", _("and then") );
 
-		wc_printf("<td width=20%%>");
-		wc_printf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<td width=20%%>\n");
+		wc_printf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">\n",
 			i, i);
 		for (j=0; j<2; ++j) {
-			wc_printf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>\n",
 				( (!strcasecmp(final, final_values[j][0])) ? "selected" : ""),
 				final_values[j][0],
 				final_values[j][1]
 			);
 		}
-		wc_printf("</select>");
-		wc_printf("</td>");
+		wc_printf("</select>\n\n");
+		wc_printf("</td>\n");
 
 		wc_printf("</tr>\n");
 
 	}
 
-	wc_printf("</table>");
+	wc_printf("</table>\n");
 	wc_printf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">%s</a><br></div>\n",
 		_("Add rule")
 	);
 
-	wc_printf("<script type=\"text/javascript\">					\n");
-	wc_printf("UpdateRules();								\n");
-	wc_printf("</script>								\n");
+	wc_printf("<script type=\"text/javascript\">\n");
+	wc_printf("UpdateRules();\n");
+	wc_printf("</script>\n");
 
 	free(rooms);
 }
@@ -1255,6 +1255,7 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 				Ruleset->Name = NewStrBufPlain(NULL, StrLength(Line));
 				StrBufExtract_NextToken(Ruleset->Name, Line, &pch, '|');
 				Ruleset->IsActive = StrBufExtractNext_int(Line, &pch, '|'); 
+				Ruleset->Content = NULL;
 
 				if (!strcasecmp(ChrPtr(Ruleset->Name), RULES_SCRIPT))
 				{
@@ -1511,7 +1512,7 @@ void tmplput_SieveRule_final(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_SieveRule_sizeval(StrBuf *Target, WCTemplputParams *TP) 
 {
 	SieveRule     *Rule = (SieveRule *)CTX;
-	wc_printf("%d", Rule->sizeval);
+	StrBufAppendPrintf(Target, "%d", Rule->sizeval);
 }
 
 void tmplput_SieveRule_lookup_FileIntoRoom(StrBuf *Target, WCTemplputParams *TP) 
@@ -1602,9 +1603,19 @@ HashList *GetSieveRules(StrBuf *Target, WCTemplputParams *TP)
 					StrBufExtract_NextToken(Line, EncodedRule, &pch, '|');
 					Rule->final = (eSieveFinal) GetTokenDefine(SKEY(Line), econtinue);
 					Put(SieveRules, IKEY(n), Rule, FreeSieveRule);
+					n++;
 				}
 			}
 	}
+
+	while (n < MAX_RULES) {
+		Rule = (SieveRule*) malloc(sizeof(SieveRule));
+		memset(Rule, 0, sizeof(SieveRule));
+		Put(SieveRules, IKEY(n), Rule, FreeSieveRule);
+	    
+		n++;
+	}
+
 
 	FreeStrBuf(&EncodedRule);
 	FreeStrBuf(&Line);
@@ -1686,6 +1697,10 @@ InitModule_SIEVE
  
 	RegisterIterator("SIEVE:RULES", 0, NULL, GetSieveRules, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("SIEVE:RULE:EMPTY", 0, NULL, GetEmptySieveRule, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
+/*
+<?ITERATE("SIEVE:RULE:EMPTY", ="sieve_display_one")>
+*/
+
 
 	RegisterConditional(HKEY("COND:SIEVE:ACTIVE"), 1, ConditionalSieveRule_Active, CTX_SIEVESCRIPT);
 	RegisterConditional(HKEY("COND:SIEVE:HFIELD"), 1, ConditionalSieveRule_hfield, CTX_SIEVESCRIPT);
