@@ -2622,15 +2622,12 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 					   StrBuf *EncBuf)
 {
 	StrBuf *Target;
-	int need_to_encode;
-
 	const char *pch, *pche;
 	const char *UserStart, *UserEnd, *EmailStart, *EmailEnd, *At;
 
 	if ((Recp == NULL) || (StrLength(Recp) == 0))
 		return NULL;
 
-	need_to_encode = 0;
 	pch = ChrPtr(Recp);
 	pche = pch + StrLength(Recp);
 
@@ -2641,8 +2638,6 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 
 	while ((pch != NULL) && (pch < pche))
 	{
-		int ColonOk = 0;
-
 		while (isspace(*pch)) pch++;
 		UserStart = UserEnd = EmailStart = EmailEnd = NULL;
 		
@@ -2672,7 +2667,6 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 			if (EmailEnd == NULL)
 				EmailEnd = pche;
 			pch = EmailEnd + 1;
-			ColonOk = 1;
 		}
 		else {
 			int gt = 0;
@@ -3782,7 +3776,7 @@ static const char *ErrRBLF_BLOBPreConditionFailed="StrBufReadBLOB: Wrong argumen
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error)
 {
 	int fdflags;
-	int len, rlen, slen;
+	int rlen;
 	int nSuccessLess;
 	int nRead = 0;
 	char *ptr;
@@ -3801,8 +3795,6 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 		IncreaseBuf(Buf, 1, Buf->BufUsed + nBytes);
 
 	ptr = Buf->buf + Buf->BufUsed;
-
-	slen = len = Buf->BufUsed;
 
 	fdflags = fcntl(*fd, F_GETFL);
 	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
@@ -3872,17 +3864,15 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 			   int check, 
 			   const char **Error)
 {
-	const char *pche;
 	const char *pos;
 	int fdflags;
 	int len = 0;
-	int rlen, slen;
+	int rlen;
 	int nRead = 0;
 	int nAlreadyRead = 0;
 	int IsNonBlock;
 	char *ptr;
 	fd_set rfds;
-	const char *pch;
 	struct timeval tv;
 	int nSuccessLess = 0;
 	int MaxTries;
@@ -3911,9 +3901,6 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	    (pos != NULL) && 
 	    (pos < IOBuf->buf + IOBuf->BufUsed)) 
 	{
-		pche = IOBuf->buf + IOBuf->BufUsed;
-		pch = pos;
-
 		if (rlen < nBytes) {
 			memcpy(Blob->buf + Blob->BufUsed, pos, rlen);
 			Blob->BufUsed += rlen;
@@ -3941,7 +3928,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 		IncreaseBuf(IOBuf, 0, nBytes - nRead);
 	ptr = IOBuf->buf;
 
-	slen = len = Blob->BufUsed;
+	len = Blob->BufUsed;
 
 	fdflags = fcntl(*fd, F_GETFL);
 	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
@@ -4034,7 +4021,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
  *        has to be &NULL on start; will be &NotNULL on end of buffer
  * @returns size of copied buffer
  */
-int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
+int StrBufSipLine(StrBuf *LineBuf, const StrBuf *Buf, const char **Ptr)
 {
 	const char *aptr, *ptr, *eptr;
 	char *optr, *xptr;

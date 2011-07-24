@@ -219,7 +219,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				      int selectresolution, 
 				      const char **Error);
 
-int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr);
+int StrBufSipLine(StrBuf *LineBuf, const StrBuf *Buf, const char **Ptr);
 int StrBufReplaceToken(StrBuf *Buf, long where, long HowLong, const char *Repl, long ReplLen);
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
 int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t nChars);
