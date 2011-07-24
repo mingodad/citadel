@@ -561,36 +561,31 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 	StrBuf *Swap = NULL;
 	int i, j;
 	char buf[SIZ];
-	char *name;
 	int is_qp = 0;
 	int is_b64 = 0;
 	StrBuf *thisname = NULL;
-	char *thisvalue = NULL;
 	char firsttoken[SIZ];
-	int pass;
-	long len;
 	void *V;
 
 	Swap = NewStrBuf ();
 	thisname = NewStrBuf();
 	for (i=0; i<(v->numprops); ++i) {
-		int len;
 		is_qp = 0;
 		is_b64 = 0;
 		StrBufPlain(thisname, v->prop[i].name, -1);
 		StrBufLowerCase(thisname);
 		
-		len = extract_token(firsttoken, thisname, 0, ';', sizeof firsttoken);
+		/*len = */extract_token(firsttoken, ChrPtr(thisname), 0, ';', sizeof firsttoken);
 		
-		for (j=0; j<num_tokens(thisname, ';'); ++j) {
-			extract_token(buf, thisname, j, ';', sizeof buf);
+		for (j=0; j<num_tokens(ChrPtr(thisname), ';'); ++j) {
+			extract_token(buf, ChrPtr(thisname), j, ';', sizeof buf);
 			if (!strcasecmp(buf, "encoding=quoted-printable")) {
 				is_qp = 1;
-				remove_token(thisname, j, ';');
+/*				remove_token(thisname, j, ';');*/
 			}
 			if (!strcasecmp(buf, "encoding=base64")) {
 				is_b64 = 1;
-				remove_token(thisname, j, ';');
+/*				remove_token(thisname, j, ';');*/
 			}
 		}
 		
@@ -618,7 +613,7 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 		{
 			eVC evc = (eVC) V;
 			Put(VC, IKEY(evc), Val, HFreeStrBuf);
-			syslog(1, "[%ld]\n", evc);
+			syslog(1, "[%ul]\n", evc);
 			Val = NULL;
 		}
 		else

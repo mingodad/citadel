@@ -279,11 +279,11 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	 * which they point are still owned by the hash list.
 	 */
 	if (num_blogposts > 0) {
+		int start_here = 0;
 		/* Sort newest-to-oldest */
 		qsort(blogposts, num_blogposts, sizeof(void *), blogview_sortfunc);
 
 		/* allow the user to select a starting point in the list */
-		int start_here = 0;
 		for (i=0; i<num_blogposts; ++i) {
 			if (blogposts[i]->top_level_id == firstp) {
 				start_here = i;

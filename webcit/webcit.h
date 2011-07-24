@@ -710,9 +710,9 @@ void CreateMimeStr(void);
 
 void pop_destination(void);
 
-void fmout(char *align);
-void _fmout(StrBuf *Targt, char *align);
-void FmOut(StrBuf *Target, char *align, StrBuf *Source);
+void fmout(const char *align);
+void _fmout(StrBuf *Targt, const char *align);
+void FmOut(StrBuf *Target, const char *align, const StrBuf *Source);
 void wDumpContent(int);
 
 

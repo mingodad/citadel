@@ -424,7 +424,6 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	icalproperty *e;
 	struct icaltimetype t;
 	disp_cal *Cal;
-	int month, day, year;
 	int all_day_event = 0;
 	char *timeformat;
 	int time_format;
@@ -435,9 +434,6 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	else timeformat="%I:%M %p";
 
 	localtime_r(&thetime, &today_tm);
-	month = today_tm.tm_mon + 1;
-	day = today_tm.tm_mday;
-	year = today_tm.tm_year + 1900;
 
 	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
@@ -1186,9 +1182,11 @@ void calendar_day_view(int year, int month, int day) {
 		wc_printf("<dt class=\"extrahour\">"
 			"<a href=\"display_edit_event?msgnum=0"
 			"?calview=day?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
+/* TODO: what have these been used for?
 			(hour * extratimeline ),
 			extratimeline,
 			extrahourlabel,
+*/
 			year, month, day, hour
 			);
 
@@ -1211,9 +1209,11 @@ void calendar_day_view(int year, int month, int day) {
                 wc_printf("<dt class=\"hour\">"
                         "<a href=\"display_edit_event?msgnum=0?calview=day"
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
+/*TODO: what have these been used for?
                         gap + ((hour - daystart) * timeline ),
 			timeline,
 			hourlabel,
+*/
                         year, month, day, hour
 			);
 
@@ -1236,9 +1236,11 @@ void calendar_day_view(int year, int month, int day) {
                 wc_printf("<dt class=\"extrahour\">"
                         "<a href=\"display_edit_event?msgnum=0?calview=day"
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
+/*TODO: what have these been used for?
                         gap + ((hour - dayend - 1) * extratimeline ),
 			extratimeline,
 			extrahourlabel,
+*/
                         year, month, day, hour
                 );
 

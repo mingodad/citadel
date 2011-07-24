@@ -109,7 +109,6 @@ void groupdav_get(void)
 	long dav_msgnum = (-1);
 	char buf[1024];
 	int in_body = 0;
-	int found_content_type = 0;
 	char *ptr;
 	char *endptr;
 	char *msgtext = NULL;
@@ -185,7 +184,6 @@ void groupdav_get(void)
 	/* We got it; a message is now arriving from the server.  Read it in. */
 
 	in_body = 0;
-	found_content_type = 0;
 	strcpy(charset, "UTF-8");
 	strcpy(content_type, "text/plain");
 	strcpy(date, "");

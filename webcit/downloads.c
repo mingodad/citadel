@@ -189,7 +189,7 @@ HashList* LoadFileList(StrBuf *Target, WCTemplputParams *TP)
 	int sequence = 0;
 	char buf[1024];
 	CompareFunc SortIt;
-	int HavePic;
+	int HavePic = 0;
 	WCTemplputParams SubTP;
 
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
@@ -227,6 +227,8 @@ HashList* LoadFileList(StrBuf *Target, WCTemplputParams *TP)
 		}
 		Put(Files, SKEY(Entry->Filename), Entry, FreeFiles);
 	}
+	if (HavePic)
+		putbstr("__HAVE_PIC", NewStrBufPlain(HKEY("1")));
 	SubTP.Filter.ContextType = CTX_FILELIST;
 	SortIt = RetrieveSort(&SubTP, NULL, 0, HKEY("fileunsorted"), 0);
 	if (SortIt != NULL)

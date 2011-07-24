@@ -328,7 +328,9 @@ void
 InitModule_GROUPDAV
 (void)
 {
-//	WebcitAddUrlHandler(HKEY("groupdav"), "", 0, groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+/*
+	WebcitAddUrlHandler(HKEY("groupdav"), "", 0, groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+ */
 	RegisterDAVNamespace(HKEY("groupdav"), HKEY("GroupDAV"), 
 			     groupdav_main, GroupdavDispatchREST, 
 			     XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);

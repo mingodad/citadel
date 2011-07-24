@@ -287,8 +287,6 @@ void initialize_locales(void) {
 	int i;
 	char buf[32];
 	char *language = NULL;
-	char *locale;
-
 
 	nLocales = 0; 
 	while (!IsEmptyStr(AvailLang[nLocales]))
@@ -368,7 +366,7 @@ void initialize_locales(void) {
 	}
 
 #ifdef ENABLE_NLS
-	locale = setlocale(LC_ALL, "");
+	/*locale = */setlocale(LC_ALL, "");
 
 	syslog(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
 	syslog(9, "Text domain: %s\n", textdomain("webcit"));

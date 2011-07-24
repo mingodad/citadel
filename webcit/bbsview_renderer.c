@@ -359,7 +359,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 						wc_printf(_("Last"));
 					}
 					else {
-						wc_printf("%d", i + 1);	// change to one-based for display
+						wc_printf("%d", i + 1);	/* change to one-based for display */
 					}
 					if (i == BBS->requested_page) {
 						wc_printf("]");

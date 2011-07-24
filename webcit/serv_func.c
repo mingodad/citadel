@@ -257,12 +257,12 @@ int GetConnected (void)
  *  Read Citadel variformat text and spit it out as HTML.
  *  align html align string
  */
-inline void fmout(char *align)
+inline void fmout(const char *align)
 {
 	_fmout(WC->WBuf, align);
 }
 
-void _fmout(StrBuf *Target, char *align)
+void _fmout(StrBuf *Target, const char *align)
 {
 	int intext = 0;
 	int bq = 0;
@@ -303,7 +303,7 @@ void _fmout(StrBuf *Target, char *align)
 	wc_printf("</div><br>\n");
 }
 
-void FmOut(StrBuf *Target, char *align, StrBuf *Source)
+void FmOut(StrBuf *Target, const char *align, StrBuf *Source)
 {
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;

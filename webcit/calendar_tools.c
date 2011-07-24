@@ -53,7 +53,6 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	int i;
 	time_t now;
 	struct tm tm_now;
-	int this_year;
 	time_t tt;
 	struct tm tm;
 	int all_day_event = 0;
@@ -64,7 +63,6 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 
 	now = time(NULL);
 	localtime_r(&now, &tm_now);
-	this_year = tm_now.tm_year + 1900;
 
 	if (t == NULL) return;
 	if (t->is_date) all_day_event = 1;
