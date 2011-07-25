@@ -1,0 +1,29 @@
+<?=("head")>
+<div id="banner">
+<h1>
+<?_("Confirm move of message")>
+</h1>
+</div>
+
+<div id="content" class="service">
+
+<center>
+
+<?_("Move this message to:")>
+<br>
+
+<form method="POST" action="move_msg">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<input type="hidden" name="msgid" value="<?BSTR('msgid')>">
+
+<select name="target_room" size=5>
+<?ITERATE("LKRA", ="msg_confirm_move_one_targetroom")>
+</select>
+<br>
+
+<input type="submit" name="move_button" value="<?_("Move")>">
+&nbsp;
+<input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</form>
+</center>
+<?=("trailing")>

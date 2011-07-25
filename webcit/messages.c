@@ -1589,55 +1589,6 @@ void move_msg(void)
 }
 
 
-/*
- * Confirm move of a message
- */
-void confirm_move_msg(void)
-{
-	char buf[SIZ];
-	char targ[SIZ];
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<h1>");
-	wc_printf(_("Confirm move of message"));
-	wc_printf("</h1>");
-	wc_printf("</div>\n");
-
-	wc_printf("<div id=\"content\" class=\"service\">\n");
-
-	wc_printf("<CENTER>");
-
-	wc_printf(_("Move this message to:"));
-	wc_printf("<br>\n");
-
-	wc_printf("<form METHOD=\"POST\" action=\"move_msg\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
-
-	wc_printf("<SELECT NAME=\"target_room\" SIZE=5>\n");
-	serv_puts("LKRA");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(targ, buf, 0, '|', sizeof targ);
-			wc_printf("<OPTION>");
-			escputs(targ);
-			wc_printf("\n");
-		}
-	}
-	wc_printf("</SELECT>\n");
-	wc_printf("<br>\n");
-
-	wc_printf("<INPUT TYPE=\"submit\" NAME=\"move_button\" VALUE=\"%s\">", _("Move"));
-	wc_printf("&nbsp;");
-	wc_printf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-	wc_printf("</form></CENTER>\n");
-
-	wc_printf("</CENTER>\n");
-	wDumpContent(1);
-}
-
 
 /*
  * Generic function to output an arbitrary MIME attachment from
@@ -1928,7 +1879,6 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("post"), "", 0, post_message, PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("move_msg"), "", 0, move_msg, PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("delete_msg"), "", 0, delete_msg, PROHIBIT_STARTPAGE);
-	WebcitAddUrlHandler(HKEY("confirm_move_msg"), "", 0, confirm_move_msg, PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("msg"), "", 0, embed_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("message"), "", 0, handle_one_message, NEED_URL|XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("printmsg"), "", 0, print_message, NEED_URL);
