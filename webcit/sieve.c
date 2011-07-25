@@ -22,7 +22,8 @@
 #define MAX_RULES	50
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
 
-#define FOO 1
+/*#define FOO 1*/
+
 /*
  * Helper function for output_sieve_rule() to output strings with quotes escaped
  */
@@ -467,12 +468,20 @@ void create_script(void) {
 		serv_puts("000");
 #if FOO
 		display_add_remove_scripts(_("A new script has been created.  Return to the script editing screen to edit and activate it."));
+#else
+	output_headers(1, 1, 2, 0, 0, 0);
+	do_template("sieve_add");
+	wDumpContent(1);
 #endif
 		return;
 	}
 
 #if FOO
 	display_add_remove_scripts(&buf[4]);
+#else
+	output_headers(1, 1, 2, 0, 0, 0);
+	do_template("sieve_add");
+	wDumpContent(1);
 #endif
 }
 
@@ -489,6 +498,10 @@ void delete_script(void) {
 	serv_getln(buf, sizeof buf);
 #if FOO
 	display_add_remove_scripts(&buf[4]);
+#else
+	output_headers(1, 1, 2, 0, 0, 0);
+	do_template("sieve_add");
+	wDumpContent(1);
 #endif
 }
 		
@@ -1458,36 +1471,11 @@ int ConditionalSieveRule_Active(StrBuf *Target, WCTemplputParams *TP)
 	SieveRule     *Rule = (SieveRule *)CTX;
         return Rule->active;
 }
-
-
-/*
-void tmplput_SieveRule_hfield(StrBuf *Target, WCTemplputParams *TP) 
-{
-	SieveRule     *Rule = (SieveRule *)CTX;
-	StrBufAppendTemplate(Target, TP, Rule->hfield, 0);
-}
-void tmplput_SieveRule_compare(StrBuf *Target, WCTemplputParams *TP) 
-{
-	SieveRule     *Rule = (SieveRule *)CTX;
-	StrBufAppendTemplate(Target, TP, Rule->compare, 0);
-}
-*/
 void tmplput_SieveRule_htext(StrBuf *Target, WCTemplputParams *TP) 
 {
 	SieveRule     *Rule = (SieveRule *)CTX;
 	StrBufAppendTemplate(Target, TP, Rule->htext, 0);
 }
-/*
-void tmplput_SieveRule_sizecomp(StrBuf *Target, WCTemplputParams *TP) 
-{
-	SieveRule     *Rule = (SieveRule *)CTX;
-	StrBufAppendTemplate(Target, TP, Rule->sizecomp, 0);
-}
-void tmplput_SieveRule_action(StrBuf *Target, WCTemplputParams *TP) 
-{
-	SieveRule     *Rule = (SieveRule *)CTX;
-	StrBufAppendTemplate(Target, TP, Rule->action, 0);
-	}*/
 void tmplput_SieveRule_fileinto(StrBuf *Target, WCTemplputParams *TP) 
 {
 	SieveRule     *Rule = (SieveRule *)CTX;
@@ -1503,13 +1491,6 @@ void tmplput_SieveRule_automsg(StrBuf *Target, WCTemplputParams *TP)
 	SieveRule     *Rule = (SieveRule *)CTX;
 	StrBufAppendTemplate(Target, TP, Rule->automsg, 0);
 }
-/*
-void tmplput_SieveRule_final(StrBuf *Target, WCTemplputParams *TP) 
-{
-	SieveRule     *Rule = (SieveRule *)CTX;
-	StrBufAppendTemplate(Target, TP, Rule->final, 0);
-}
-*/
 void tmplput_SieveRule_sizeval(StrBuf *Target, WCTemplputParams *TP) 
 {
 	SieveRule     *Rule = (SieveRule *)CTX;
@@ -1623,23 +1604,6 @@ HashList *GetSieveRules(StrBuf *Target, WCTemplputParams *TP)
 	return SieveRules;
 }
 
-
-HashList *GetEmptySieveRule(StrBuf *Target, WCTemplputParams *TP)
-{
-	int n = 0;
-	HashList *OneSieveRule;
-	SieveRule *Rule;
-
-	OneSieveRule = NewHash(1, Flathash);
-
-	/* We just care for our encoded header and skip everything else */
-	Rule = (SieveRule*) malloc(sizeof(SieveRule));
-	memset(Rule, 0, sizeof(SieveRule));
-	Put(OneSieveRule, IKEY(n), Rule, FreeSieveRule);
-
-	return OneSieveRule;
-}
-
 void
 SessionDetachModule_SIEVE
 (wcsession *sess)
@@ -1697,11 +1661,6 @@ InitModule_SIEVE
 
  
 	RegisterIterator("SIEVE:RULES", 0, NULL, GetSieveRules, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
-	RegisterIterator("SIEVE:RULE:EMPTY", 0, NULL, GetEmptySieveRule, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
-/*
-<?ITERATE("SIEVE:RULE:EMPTY", ="sieve_display_one")>
-*/
-
 
 	RegisterConditional(HKEY("COND:SIEVE:ACTIVE"), 1, ConditionalSieveRule_Active, CTX_SIEVESCRIPT);
 	RegisterConditional(HKEY("COND:SIEVE:HFIELD"), 1, ConditionalSieveRule_hfield, CTX_SIEVESCRIPT);
@@ -1711,15 +1670,12 @@ InitModule_SIEVE
 	RegisterConditional(HKEY("COND:SIEVE:FINAL"), 1, ConditionalSieveRule_final, CTX_SIEVESCRIPT);
 	RegisterConditional(HKEY("COND:SIEVE:THISROOM"), 1, ConditionalSieveRule_ThisRoom, CTX_SIEVESCRIPT);
 
-	//RegisterNamespace("SIEVE:SCRIPT:HFIELD", 0, 1, tmplput_SieveRule_hfield, NULL, CTX_SIEVESCRIPT);
-	//RegisterNamespace("SIEVE:SCRIPT:COMPARE", 0, 1, tmplput_SieveRule_compare, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:HTEXT", 0, 1, tmplput_SieveRule_htext, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:SIZE", 0, 1, tmplput_SieveRule_sizeval, NULL, CTX_SIEVESCRIPT);
-	///RegisterNamespace("SIEVE:SCRIPT:ACTION", 0, 1, tmplput_SieveRule_action, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:FILEINTO", 0, 1, tmplput_SieveRule_fileinto, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:REDIRECT", 0, 1, tmplput_SieveRule_redirect, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:AUTOMSG", 0, 1, tmplput_SieveRule_automsg, NULL, CTX_SIEVESCRIPT);
-	///RegisterNamespace("SIEVE:SCRIPT:FINAL", 0, 1, tmplput_SieveRule_final, NULL, CTX_SIEVESCRIPT);
+
 	/* fetch our room into WCC->ThisRoom, to evaluate while iterating over rooms with COND:THIS:THAT:ROOM */
 	RegisterNamespace("SIEVE:SCRIPT:LOOKUP_FILEINTO", 0, 1, tmplput_SieveRule_lookup_FileIntoRoom, NULL, CTX_SIEVESCRIPT);
 
