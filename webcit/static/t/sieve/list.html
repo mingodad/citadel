@@ -3,104 +3,95 @@
 <?--("iterate over an empty template, so we have the states already loaded for below")><?ITERATE("SIEVE:SCRIPTS", ="sieve_empty")>
 <script type="text/javascript">
 
-var previously_active_script;
+	var previously_active_script;
 
-function ToggleSievePanels() {
- d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);
- for (i=0; i<3; ++i) {
-  if (i == d) {
-   $('sievediv' + i).style.display = 'block';
-  }
-  else {
-   $('sievediv' + i).style.display = 'none';
-  }
- }
-}
+	function ToggleSievePanels() {
+ 		d = ($('sieveform').bigaction.options[$('sieveform').bigaction.selectedIndex].value);
+ 		for (i=0; i<3; ++i) {
+  			if (i == d) {
+   				$('sievediv' + i).style.display = 'block';
+  			}
+  			else {
+   				$('sievediv' + i).style.display = 'none';
+  			}
+ 		}
+	}
 
-function ToggleScriptPanels() {
- d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);
- if ($('script_' + previously_active_script)) {
-  $('script_' + previously_active_script).style.display = 'none';
- }
- $('script_' + d).style.display = 'block';
- previously_active_script = d;
-}
+	function ToggleScriptPanels() {
+ 		d = ($('sieveform').active_script.options[$('sieveform').active_script.selectedIndex].value);
+ 		if ($('script_' + previously_active_script)) {
+  			$('script_' + previously_active_script).style.display = 'none';
+ 		}
+ 		$('script_' + d).style.display = 'block';
+ 		previously_active_script = d;
+	}
 </script>
 
 
 <div id="banner">
-<img src="static/webcit_icons/essen/32x32/config.png">
-<h1><?_("View/edit server-side mail filters")></h1>
+	<img src="static/webcit_icons/essen/32x32/config.png">
+	<h1><?_("View/edit server-side mail filters")></h1>
 </div>
 
 <div id="content" class="service">
 
-<table class="sieve_background">
-<tr><td valign=top>
-<form id="sieveform" method="post" action="save_sieve">
-<input type="hidden" name="nonce" value="<?NONCE>">
+  <table class="sieve_background">
+    <tr><td valign="top"><form id="sieveform" method="post" action="save_sieve">
+	<input type="hidden" name="nonce" value="<?NONCE>">
 
 <?--("The no filtering div")>
-<?_("When new mail arrives: ")>
-<select name="bigaction" size=1 onChange="ToggleSievePanels();">
- <option <?%("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1, "", "selected")> value="0"><?_("Leave it in my inbox without filtering")></option>
- <option <?%("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1, "selected", "")> value="1"><?_("Filter it according to rules selected below")></option>
- <option <?%("COND:BSTR", 1, "__SIEVE:EXTERNAL_SCRIPT", 1, "selected", "")> value="2"><?_("Filter it through a manually edited script (advanced users only)")></option>
-</select>
+	<?_("When new mail arrives: ")>
+	<select name="bigaction" size=1 onChange="ToggleSievePanels();">
+ 	  <option <?%("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1, "", "selected")> value="0"><?_("Leave it in my inbox without filtering")></option>
+ 	  <option <?%("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1, "selected", "")> value="1"><?_("Filter it according to rules selected below")></option>
+ 	  <option <?%("COND:BSTR", 1, "__SIEVE:EXTERNAL_SCRIPT", 1, "selected", "")> value="2"><?_("Filter it through a manually edited script (advanced users only)")></option>
+	</select>
 
-<div id="sievediv0" style="display:none">
-<div align="center"><br><br>
-<?_("Your incoming mail will not be filtered through any scripts.")>
-<br><br></div>
-</div>
+	<div id="sievediv0" style="display:none">
+		<div align="center">
+	    		<br><br>
+	    		<?_("Your incoming mail will not be filtered through any scripts.")>
+	    		<br><br>
+		</div>
+	</div>
+
 <?--("The webcit managed scripts div")>
+	<div id="sievediv1" style="display:none">
+		<?=("sieve_display")><br>
+		<table cellpadding="2" width="100%" class="altern">
+			<?ITERATE("SIEVE:RULES", ="sieve_display_one")>
+		</table>
+		<br>
+		<div id="div_addrule"><a href="javascript:AddRule();"><?_("Add rule")></a><br></div>
+		<script type="text/javascript">UpdateRules();</script>
+	</div>
 
-<div id="sievediv1" style="display:none">
+</div> <!-- one closing div too many? --the_mgt -->
 
-<?=("sieve_display")>
-
-<br><table cellpadding=2 width=100%>
-<?ITERATE("SIEVE:RULES", ="sieve_display_one")>
-</table>
-
-
-<br>
-
-<div id="div_addrule"><a href="javascript:AddRule();"><?_("Add rule")></a><br></div>
-<script type="text/javascript">UpdateRules();</script>
-</div>
-
-</div>
 <?--("The I am smart and can write my own Sieve scripts div ")>
+	<div id="sievediv2" style="display:none">
+		<??("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1)>
+			<?_("The currently active script is: ")>
+			<select name="active_script" size=1 onChange="ToggleScriptPanels();">
+				<?ITERATE("SIEVE:SCRIPTS", ="sieve_list_select_one")>
+			</select>
+			&nbsp;&nbsp;&nbsp;
+			<a href="display_add_remove_scripts"><?_("Add or delete scripts")></a>
+			<br>
+			<?ITERATE("SIEVE:SCRIPTS", ="sieve_display_one_script")>
+		<??("X", 1)>
+		<script type="text/javascript">ToggleScriptPanels();</script>
+     </div>
 
-<div id="sievediv2" style="display:none">
-
-<??("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1)>
-<?_("The currently active script is: ")>
-<select name="active_script" size=1 onChange="ToggleScriptPanels();">
-<?ITERATE("SIEVE:SCRIPTS", ="sieve_list_select_one")>
-</select>
-
-&nbsp;&nbsp;&nbsp;
-<a href="display_add_remove_scripts"><?_("Add or delete scripts")></a>
-<br>
-<?ITERATE("SIEVE:SCRIPTS", ="sieve_display_one_script")>
-
-<??("X", 1)>
-
-
-<script type="text/javascript">ToggleScriptPanels();</script>
-</div>
 <?--("The rest of this is common for all panels... ")>
+	<div align="center"><br>
+		<input type="submit" name="save_button" value='<?_("Save changes")>'>
+		&nbsp;
+		<input type="submit" name="cancel_button" value='<?_("Cancel")>'>
+	</div>
+  </form></td></tr></table>
 
-<div align="center"><br>
-<input type="submit" name="save_button" value='<?_("Save changes")>'>
-&nbsp;
-<input type="submit" name="cancel_button" value='<?_("Cancel")>'>
-</div></form>
+  <script type="text/javascript">ToggleSievePanels();</script>
 
-</td></tr></table>
-
-<script type="text/javascript">ToggleSievePanels();</script>
 </div> <!-- end of 'content' div -->
 <?=("trailing")>
