@@ -1,10 +1,13 @@
-.message {
-        border: 1px inset #666;
-        border-width: 1px 2px 3px 1px; 
-}
+.message, .boxcontent {
+	zoom: 1;
+	filter: progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=0, Strength=1)
+	progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=45, Strength=1)
+	progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=90, Strength=2)
+	progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=135, Strength=2)
+	progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=180, Strength=3)
+	progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=225, Strength=3)
+	progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=260, Strength=2)
+	progid:DXImageTransform.Microsoft.Shadow(color='#666666', Direction=305, Strength=2);
 
-.boxcontent {
-        border: 2px inset #5C646B;
-        border-width: 0 2px 3px 0; 
 }
 
