@@ -90,8 +90,8 @@
 <td width=10% align="center"><?_("and then")></td>
 <td width=20%>
 <select name="final<?ITERATE:N>" id="final<?ITERATE:N>" size=1 onChange="UpdateRules();">
-<option <?%("COND:SIEVE:FINAL", 1, 0, 0, #"continue", "select", "")> value="continue"><?_("continue processing")></option>
-<option <?%("COND:SIEVE:FINAL", 1, 0, 0, #"stop", "select", "")> value="stop"><?_("stop")></option>
+<option <?%("COND:SIEVE:FINAL", 1, 0, #"continue", "selected", "")> value="continue"><?_("continue processing")></option>
+<option <?%("COND:SIEVE:FINAL", 1, 0, #"stop", "selected", "")> value="stop"><?_("stop")></option>
 </select>
 </td>
 </tr>
