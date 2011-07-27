@@ -186,18 +186,30 @@ long gotoroom(const StrBuf *gname)
 	StrBuf *Buf;
 	static long ls = (-1L);
 	long err = 0;
+	int room_name_supplied = 0;
+	int is_baseroom = 0;
 
 	/* store ungoto information */
-	if (StrLength(gname) > 0)
+	if (StrLength(gname) > 0) {
+		room_name_supplied = 1;
+	}
+	if (room_name_supplied) {
 		strcpy(WCC->ugname, ChrPtr(WCC->CurRoom.name));
+		if (!strcasecmp(ChrPtr(gname), "_BASEROOM_")) {
+			is_baseroom = 1;
+		}
+	}
 	WCC->uglsn = ls;
 	Buf = NewStrBuf();
 
 	/* move to the new room */
-	if (StrLength(gname) > 0)
+	if (room_name_supplied) {
 		serv_printf("GOTO %s", ChrPtr(gname));
-	else /* or just refresh the current state... */
+	}
+	else {
+		/* or just refresh the current state... */
 		serv_printf("GOTO 00000000000000000000");
+	}
 	StrBuf_ServGetln(Buf);
 	if  (GetServerStatus(Buf, &err) != 2) {
 		serv_puts("GOTO _BASEROOM_");
@@ -215,11 +227,11 @@ long gotoroom(const StrBuf *gname)
 	FlushFolder(&WCC->CurRoom);
 	ParseGoto(&WCC->CurRoom, Buf);
 
-	if (StrLength(gname) > 0)
-	{
+	if (room_name_supplied) {
 		remove_march(WCC->CurRoom.name);
-		if (!strcasecmp(ChrPtr(gname), "_BASEROOM_"))
+		if (is_baseroom) {
 			remove_march(gname);
+		}
 	}
 	FreeStrBuf(&Buf);
 
