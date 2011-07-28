@@ -267,17 +267,17 @@ void tmplput_rssmeta(StrBuf *Target, WCTemplputParams *TP)
  */
 void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP) 
 {
-	wcsession *WCC = WC;
-	char feed_link[1024];
-	char encoded_link[1024];
+	StrBuf *FeedLink = NULL;
 
-	strcpy(feed_link, "/feed_rss?go=");
-	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
-	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
+	FeedLink = NewStrBufPlain(HKEY("/feed_rss?go="));
+	StrBufUrlescAppend(FeedLink, WC->CurRoom.name, NULL);
 
-	StrBufAppendPrintf(Target, "<a type=\"application/rss+xml\" href=\"/B64%s\">", encoded_link);
-	StrBufAppendPrintf(Target, "<img src=\"static/webcit_icons/essen/16x16/rss.png\" alt=\"RSS\">");
+	StrBufAppendPrintf(Target, "<a type=\"application/rss+xml\" href=\"");
+	StrBufAppendBuf(Target, FeedLink, 0);
+	StrBufAppendPrintf(Target, "\"><img src=\"static/webcit_icons/essen/16x16/rss.png\" alt=\"RSS\">");
 	StrBufAppendPrintf(Target, "</a>");
+
+	FreeStrBuf(&FeedLink);
 }
 
 
