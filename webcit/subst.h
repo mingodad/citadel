@@ -1,3 +1,6 @@
+/**
+ * @defgroup subst Template processing functions
+ */
 
 extern HashList *Conditionals;
 extern HashList *GlobalNS;
@@ -64,6 +67,7 @@ enum {
 
 
 /**
+ * @ingroup subst
  * ContextFilter resembles our RTTI information. With this structure
  * we can make shure a tmplput function can live with the environment
  * we call it in.
@@ -91,6 +95,7 @@ typedef int (*WCPreevalFunc)(WCTemplateToken *Token);
 #define TKEY(a) TP->Tokens->Params[a]->Start, TP->Tokens->Params[a]->len
 
 /**
+ * @ingroup subst
  * this is the signature of a conditional function 
  * Note: Target is just passed in for error messages; don't write onto it in regular cases.
  */
@@ -115,6 +120,7 @@ typedef struct _TemplateParam {
 
 
 /**
+ * @ingroup subst
  * Representation of a token; everything thats inbetween <? and >
  */ 
 struct WCTemplateToken {
@@ -184,7 +190,8 @@ extern WCTemplputParams NoCtx;
 #define ERR_PARM1 1
 #define ERR_PARM2 2
 /**
- * @Brief log an error while evaluating a token; print it to the actual template 
+ * @ingroup subst
+ * @brief log an error while evaluating a token; print it to the actual template 
  * @param Target your Target Buffer to print the error message next to the log
  * @param Type What sort of thing are we talking about? Tokens? Conditionals?
  * @param TP grab our set of default information here
@@ -198,7 +205,8 @@ void LogTemplateError (StrBuf *Target,
 
 
 /**
- * @Brief log an error while in global context; print it to Wildfire / Target
+ * @ingroup subst
+ * @brief log an error while in global context; print it to Wildfire / Target
  * @param Target your Target Buffer to print the error message next to the log
  * @param Type What sort of thing are we talking about? Tokens? Conditionals?
  * @param Format for the custom error message
@@ -206,7 +214,8 @@ void LogTemplateError (StrBuf *Target,
 void LogError (StrBuf *Target, const char *Type, const char *Format, ...);
 
 /**
- * @Brief get the actual value of a token parameter
+ * @ingroup subst
+ * @brief get the actual value of a token parameter
  * in your tmplputs or conditionals use this function to access parameters that can also be 
  * retrieved from dynamic facilities:
  *  _ -> Gettext; retrieve this token from the i18n facilities
@@ -224,6 +233,7 @@ void GetTemplateTokenString(StrBuf *Target,
 			    const char **Value, 
 			    long *len);
 /**
+ * @ingroup subst
  * @return whether @ref GetTemplateTokenString would be able to give you a string
  */
 int HaveTemplateTokenString(StrBuf *Target, 
@@ -235,7 +245,8 @@ int HaveTemplateTokenString(StrBuf *Target,
 
 
 /**
- * @Brief get the actual integer value of a token parameter
+ * @ingroup subst
+ * @brief get the actual integer value of a token parameter
  * in your tmplputs or conditionals use this function to access parameters that can also be 
  * retrieved from dynamic facilities:
  *  _ -> Gettext; retrieve this token from the i18n facilities
@@ -252,7 +263,7 @@ long GetTemplateTokenNumber(StrBuf *Target,
 			    int N, long dflt);
 
 /**
- * @Brief put a token value into the template
+ * @brief put a token value into the template
  * use this function to append your strings into a Template. 
  * it can escape your string according to the token at FormattypeIndex:
  *  H: de-QP and utf8-ify
@@ -272,7 +283,8 @@ void StrBufAppendTemplate(StrBuf *Target,
 
 #define RegisterNamespace(a, b, c, d, e, f) RegisterNS(a, sizeof(a)-1, b, c, d, e, f)
 /**
- * @Brief register a template token handler
+ * @ingroup subst
+ * @brief register a template token handler
  * call this function in your InitModule_MODULENAME which will be called at the server start
  * @param nMinArgs how much parameters does your token require at least?
  * @param nMaxArgs how many parameters does your token accept?
@@ -289,7 +301,8 @@ void RegisterNS(const char *NSName, long len,
 		int ContextRequired);
 
 /**
- * @Brief register a conditional token <pair> handler
+ * @ingroup subst
+ * @brief register a conditional token <pair> handler
  * call this function in your InitModule_MODULENAME which will be called at the server start
  * conditionals can be ? or ! with a pair or % similar to an implicit if
  * @param Name whats the name of your conditional? should start with COND:
@@ -304,6 +317,7 @@ void RegisterConditional(const char *Name, long len,
 			 int ContextRequired);
 
 /**
+ * @ingroup subst
  * @brief register a string that will represent a long value
  * this will allow to resolve <?...(#"Name")> to Value; that way 
  * plain strings can be used an lexed in templates without having the 
@@ -320,6 +334,7 @@ void RegisterTokenParamDefine(const char *Name, long len,
 #define REGISTERTokenParamDefine(a) RegisterTokenParamDefine(#a, sizeof(#a) - 1, a);
 
 /**
+ * @ingroup subst
  * @brief retrieve the long value of a registered string define
  * @param Name The name of the define
  * @param len length of Name
