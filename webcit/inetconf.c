@@ -156,7 +156,7 @@ void new_save_inetconf(void) {
 			GetHash(WCC->InetCfg, CKEY(CfgNames[i]), &vHash);
 			Hash = (HashList*) vHash;
 			if (Hash == NULL) {
-				sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+				AppendImportantMessage(_("Invalid Parameter"), -1);
 				url_do_template();
 				return;
 			}

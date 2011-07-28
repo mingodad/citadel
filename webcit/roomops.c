@@ -354,16 +354,12 @@ void ParseGoto(folder *room, StrBuf *Line)
  */
 void delete_room(void)
 {
-	char buf[SIZ];
-
+	StrBuf *Line;
 	
 	serv_puts("KILL 1");
-	serv_getln(buf, sizeof buf);
-
-	if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
 		display_main_menu();
-		return;
 	} else {
 		StrBuf *Buf;
 		
@@ -372,6 +368,7 @@ void delete_room(void)
 		smart_goto(Buf);
 		FreeStrBuf(&Buf);
 	}
+	FreeStrBuf(&Line);
 }
 
 /*
@@ -706,8 +703,7 @@ void editroom(void)
 	int succ1, succ2;
 
 	if (!havebstr("ok_button")) {
-		strcpy(WC->ImportantMessage,
-		       _("Cancelled.  Changes were not saved."));
+		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
 		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
@@ -914,7 +910,7 @@ void do_invt_kick(void)
  */
 void entroom(void)
 {
-	char buf[SIZ];
+	StrBuf *Line;
 	const StrBuf *er_name;
 	const StrBuf *er_type;
 	const StrBuf *er_password;
@@ -924,8 +920,7 @@ void entroom(void)
 	wcsession *WCC = WC;
 
 	if (!havebstr("ok_button")) {
-		strcpy(WC->ImportantMessage,
-		       _("Cancelled.  No new room was created."));
+		AppendImportantMessage(_("Cancelled.  No new room was created."), -1);
 		display_main_menu();
 		return;
 	}
@@ -953,9 +948,10 @@ void entroom(void)
 		    0, 
 		    er_view);
 
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') {
-		strcpy(WCC->ImportantMessage, &buf[4]);
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
+		FreeStrBuf(&Line);
 		display_main_menu();
 		return;
 	}
@@ -963,7 +959,8 @@ void entroom(void)
 	gotoroom(er_name);
 
 	serv_printf("VIEW %d", er_view);
-	serv_getln(buf, sizeof buf);
+	StrBuf_ServGetln(Line);
+	FreeStrBuf(&Line); /* TODO: should we care about errors? */
 	WCC->CurRoom.view = er_view;
 
 	if ( (WCC != NULL) && ( (WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) )  {
@@ -971,7 +968,7 @@ void entroom(void)
 	} else {
 		smart_goto(WCC->CurRoom.name);
 	}
-
+	FreeStrBuf(&Line);
 }
 
 
@@ -998,25 +995,24 @@ void change_view(void) {
  * Set the message expire policy for this room and/or floor
  */
 void set_room_policy(void) {
-	char buf[SIZ];
+	StrBuf *Line;
 
 	if (!havebstr("ok_button")) {
-		strcpy(WC->ImportantMessage,
-		       _("Cancelled.  Changes were not saved."));
+		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
 		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
+	Line = NewStrBuf();
 
 	serv_printf("SPEX roompolicy|%d|%d", ibstr("roompolicy"), ibstr("roomvalue"));
-	serv_getln(buf, sizeof buf);
-	strcpy(WC->ImportantMessage, &buf[4]);
-
+	StrBuf_ServGetln(Line);
+	GetServerStatusMsg(Line, NULL, 1, 0);
 	if (WC->axlevel >= 6) {
-		strcat(WC->ImportantMessage, "<br>\n");
 		serv_printf("SPEX floorpolicy|%d|%d", ibstr("floorpolicy"), ibstr("floorvalue"));
-		serv_getln(buf, sizeof buf);
-		strcat(WC->ImportantMessage, &buf[4]);
+		StrBuf_ServGetln(Line);
+		GetServerStatusMsg(Line, NULL, 1, 0);
 	}
+	FreeStrBuf(&Line);
 	ReloadCurrentRoom();
 	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 }

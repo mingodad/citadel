@@ -30,13 +30,13 @@
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd, int with_room_banner)
 {
-	char buf[SIZ];
+	StrBuf *Line;
 
 	serv_puts(check_cmd);
-	serv_getln(buf, sizeof buf);
 
-	if (buf[0] != '2') {
-		safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
+		FreeStrBuf(&Line);
 		display_main_menu();
 		return;
 	}
@@ -59,8 +59,8 @@ void display_edit(char *description, char *check_cmd,
 	wc_printf("<textarea name=\"msgtext\" wrap=soft "
 		"rows=10 cols=80 width=80>\n");
 	serv_puts(read_cmd);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1')
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 0, 0) == 1)
 		server_to_text();
 	wc_printf("</textarea><div class=\"buttons\" >\n");
 	wc_printf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
@@ -70,6 +70,7 @@ void display_edit(char *description, char *check_cmd,
 
 	do_template("box_end");
 	wDumpContent(1);
+	FreeStrBuf(&Line);
 }
 
 
@@ -81,31 +82,30 @@ void display_edit(char *description, char *check_cmd,
  */
 void save_edit(char *description, char *enter_cmd, int regoto)
 {
-	char buf[SIZ];
+	StrBuf *Line;
 
 	if (!havebstr("save_button")) {
-		sprintf(WC->ImportantMessage,
-			_("Cancelled.  %s was not saved."),
-			description);
+		AppendImportantMessage(_("Cancelled.  %s was not saved."), -1);
 		display_main_menu();
 		return;
 	}
+	Line = NewStrBuf();
 	serv_puts(enter_cmd);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '4') {
-		safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 0) != 4) {
+		FreeStrBuf(&Line);
 		display_main_menu();
 		return;
 	}
+	FreeStrBuf(&Line);
 	text_to_server(bstr("msgtext"));
 	serv_puts("000");
 
 	if (regoto) {
 		smart_goto(WC->CurRoom.name);
 	} else {
-		sprintf(WC->ImportantMessage,
-			_("%s has been saved."),
-			description);
+		AppendImportantMessage(description, -1);
+		AppendImportantMessage(_(" has been saved."), -1);
 		display_main_menu();
 		return;
 	}

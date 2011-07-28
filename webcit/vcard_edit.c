@@ -1302,10 +1302,7 @@ void submit_vcard(void) {
 	v = VCardLoad(Buf);	/* Start with the extra fields */
 	FreeStrBuf(&Buf);
 	if (v == NULL) {
-		safestrncpy(WCC->ImportantMessage,
-			_("An error has occurred."),
-			sizeof WCC->ImportantMessage
-		);
+		AppendImportantMessage(_("An error has occurred."), -1);
 		edit_vcard();
 		return;
 	}
@@ -1348,10 +1345,7 @@ void submit_vcard(void) {
 	serialized_vcard = vcard_serialize(v);
 	vcard_free(v);
 	if (serialized_vcard == NULL) {
-		safestrncpy(WCC->ImportantMessage,
-			_("An error has occurred."),
-			sizeof WCC->ImportantMessage
-		);
+		AppendImportantMessage(_("An error has occurred."), -1);
 		edit_vcard();
 		return;
 	}

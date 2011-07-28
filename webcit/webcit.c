@@ -202,20 +202,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 		do_template("head");
 
 		/* check for ImportantMessages (these display in a div overlaying the main screen) */
-		if (!IsEmptyStr(WCC->ImportantMessage)) {
-			wc_printf("<div id=\"important_message\">\n"
-				"<span class=\"imsg\">");
-			StrEscAppend(WCC->WBuf, NULL, WCC->ImportantMessage, 0, 0);
-			wc_printf("</span><br>\n"
-				"</div>\n"
-			);
-			StrBufAppendBufPlain(WCC->trailing_javascript,
-					     HKEY("setTimeout('hide_imsg_popup()', 5000);	\n"), 
-					     0
-			);
-			WCC->ImportantMessage[0] = 0;
-		}
-		else if (StrLength(WCC->ImportantMsg) > 0) {
+		if (StrLength(WCC->ImportantMsg) > 0) {
 			wc_printf("<div id=\"important_message\">\n"
 				"<span class=\"imsg\">");
 			StrEscAppend(WCC->WBuf, WCC->ImportantMsg, NULL, 0, 0);
@@ -334,7 +321,7 @@ void url_do_template(void) {
 /*
  * convenience function to indicate success
  */
-void display_success(char *successmessage)
+void display_success(const char *successmessage)
 {
 	convenience_page("007700", "OK", successmessage);
 }
@@ -364,8 +351,6 @@ void authorization_required(void)
 
 	if (WCC->ImportantMsg != NULL)
 		message = ChrPtr(WCC->ImportantMsg);
-	else if (WCC->ImportantMessage != NULL)
-		message = WCC->ImportantMessage;
 
 	wc_printf(_("The resource you requested requires a valid username and password. "
 		"You could not be logged in: %s\n"), message);
@@ -926,8 +911,7 @@ int ConditionalImportantMesage(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	if (WCC != NULL)
-		return ((!IsEmptyStr(WCC->ImportantMessage)) || 
-			(StrLength(WCC->ImportantMsg) > 0));
+		return (StrLength(WCC->ImportantMsg) > 0);
 	else
 		return 0;
 }
@@ -937,11 +921,7 @@ void tmplput_importantmessage(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
-		if (!IsEmptyStr(WCC->ImportantMessage)) {
-			StrEscAppend(Target, NULL, WCC->ImportantMessage, 0, 0);
-			WCC->ImportantMessage[0] = '\0';
-		}
-		else if (StrLength(WCC->ImportantMsg) > 0) {
+		if (StrLength(WCC->ImportantMsg) > 0) {
 			StrEscAppend(Target, WCC->ImportantMsg, NULL, 0, 0);
 			FlushStrBuf(WCC->ImportantMsg);
 		}

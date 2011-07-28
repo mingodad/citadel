@@ -299,20 +299,19 @@ void download_file(void)
 void delete_file(void)
 {
 	const StrBuf *MimeType;
-	StrBuf *Buf;
+	StrBuf *Line;
 	char buf[256];
 	
 	safestrncpy(buf, bstr("file"), sizeof buf);
 	unescape_input(buf);
 	serv_printf("DELF %s", buf);
-	Buf = NewStrBuf();
-	StrBuf_ServGetln(Buf);
-	GetServerStatus(Buf, NULL);
-	StrBufCutLeft(Buf, 4);
-	strcpy(WC->ImportantMessage, ChrPtr(Buf));
+
+	StrBuf_ServGetln(Line);
+	GetServerStatusMsg(Line, NULL, 1, 0);
+
 	MimeType = DoTemplate(HKEY("files"), NULL, &NoCtx);
 	http_transmit_thing(ChrPtr(MimeType), 0);
-	FreeStrBuf(&Buf);
+	FreeStrBuf(&Line);
 }
 
 
@@ -321,7 +320,7 @@ void upload_file(void)
 {
 	const StrBuf *RetMimeType;
 	const char *MimeType;
-	char buf[1024];
+	StrBuf *Line;
 	long bytes_transmitted = 0;
 	long blocksize;
 	const StrBuf *Desc;
@@ -335,13 +334,12 @@ void upload_file(void)
 		    ChrPtr(WCC->upload_filename), 
 		    MimeType, 
 		    ChrPtr(Desc));
-
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2')
-	{
-		strcpy(WCC->ImportantMessage, &buf[4]);
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
 		RetMimeType = DoTemplate(HKEY("files"), NULL, &NoCtx);
 		http_transmit_thing(ChrPtr(RetMimeType), 0);
+		FreeStrBuf(&Line);
 		return;
 	}
 
@@ -353,20 +351,22 @@ void upload_file(void)
 			blocksize = (WCC->upload_length - bytes_transmitted);
 		}
 		serv_printf("WRIT %ld", blocksize);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '7')
-		{
-			blocksize = atoi(&buf[4]);
+		StrBuf_ServGetln(Line);
+		if (GetServerStatusMsg(Line, NULL, 0, 0) == 7) {
+			blocksize = atoi(ChrPtr(Line) + 4);
 			serv_write(&ChrPtr(WCC->upload)[bytes_transmitted], blocksize);
 			bytes_transmitted += blocksize;
 		}
+		else
+			break;
 	}
 
 	serv_puts("UCLS 1");
-	serv_getln(buf, sizeof buf);
-	strcpy(WCC->ImportantMessage, &buf[4]);
+	StrBuf_ServGetln(Line);
+	GetServerStatusMsg(Line, NULL, 1, 0);
 	RetMimeType = DoTemplate(HKEY("files"), NULL, &NoCtx);
 	http_transmit_thing(ChrPtr(RetMimeType), 0);
+	FreeStrBuf(&Line);
 }
 
 

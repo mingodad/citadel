@@ -155,7 +155,7 @@ void edit_node(void) {
 		Index = sbstr("index");
 	        NewNode = HttpGetNewNode();
 		if ((NewNode == NULL) || (Index == NULL)) {
-			sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+			AppendImportantMessage(_("Invalid Parameter"), -1);
 			url_do_template();
 			return;
 		}
@@ -182,7 +182,7 @@ void display_edit_node(void)
 
 	Index = sbstr("index");
 	if (Index == NULL) {
-		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		AppendImportantMessage(_("Invalid Parameter"), -1);
 		url_do_template();
 		return;
 	}
@@ -190,7 +190,7 @@ void display_edit_node(void)
 	NodeConfig = load_netconf(NULL, &NoCtx);
 	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
 	    (vNode == NULL)) {
-		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		AppendImportantMessage(_("Invalid Parameter"), -1);
 		url_do_template();
 		DeleteHash(&NodeConfig);
 		return;
@@ -238,7 +238,7 @@ void delete_node(void)
 
 	Index = sbstr("index");
 	if (Index == NULL) {
-		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		AppendImportantMessage(_("Invalid Parameter"), -1);
 		url_do_template();
 		return;
 	}
@@ -246,7 +246,7 @@ void delete_node(void)
 	NodeConfig = load_netconf(NULL, &NoCtx);
 	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
 	    (vNode == NULL)) {
-		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		AppendImportantMessage(_("Invalid Parameter"), -1);
 		url_do_template();
 		DeleteHash(&NodeConfig);
 		return;

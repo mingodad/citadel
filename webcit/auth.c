@@ -780,6 +780,7 @@ void display_reg(int during_login)
  */
 void display_changepw(void)
 {
+	wcsession *WCC = WC;
 	WCTemplputParams SubTP;
 	char buf[SIZ];
 	StrBuf *Buf;
@@ -793,10 +794,10 @@ void display_changepw(void)
 
 	FreeStrBuf(&Buf);
 
-	if (!IsEmptyStr(WC->ImportantMessage)) {
+	if (StrLength(WCC->ImportantMsg) > 0) {
 		wc_printf("<span class=\"errormsg\">"
-			"%s</span><br>\n", WC->ImportantMessage);
-		safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
+			  "%s</span><br>\n", ChrPtr(WCC->ImportantMsg));
+		FlushStrBuf(WCC->ImportantMsg);
 	}
 
 	serv_puts("MESG changepw");
@@ -835,13 +836,11 @@ void display_changepw(void)
  */
 void changepw(void)
 {
-	char buf[SIZ];
+	StrBuf *Line;
 	char newpass1[32], newpass2[32];
 
 	if (!havebstr("change_action")) {
-		safestrncpy(WC->ImportantMessage, 
-			_("Cancelled.  Password was not changed."),
-			sizeof WC->ImportantMessage);
+		AppendImportantMessage(_("Cancelled.  Password was not changed."), -1);
 		display_main_menu();
 		return;
 	}
@@ -850,36 +849,37 @@ void changepw(void)
 	safestrncpy(newpass2, bstr("newpass2"), sizeof newpass2);
 
 	if (strcasecmp(newpass1, newpass2)) {
-		safestrncpy(WC->ImportantMessage, 
-			_("They don't match.  Password was not changed."),
-			sizeof WC->ImportantMessage);
+		AppendImportantMessage(_("They don't match.  Password was not changed."), -1);
 		display_changepw();
 		return;
 	}
 
 	if (IsEmptyStr(newpass1)) {
-		safestrncpy(WC->ImportantMessage, 
-			_("Blank passwords are not allowed."),
-			sizeof WC->ImportantMessage);
+		AppendImportantMessage(_("Blank passwords are not allowed."), -1);
 		display_changepw();
 		return;
 	}
 
+	Line = NewStrBuf();
 	serv_printf("SETP %s", newpass1);
-	serv_getln(buf, sizeof buf);
-	sprintf(WC->ImportantMessage, "%s", &buf[4]);
-	if (buf[0] == '2') {
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 0) == 2) {
 		if (WC->wc_password == NULL)
-			WC->wc_password = NewStrBufPlain(buf, -1);
+			WC->wc_password = NewStrBufPlain(
+				ChrPtr(Line) + 4, 
+				StrLength(Line) - 4);
 		else {
 			FlushStrBuf(WC->wc_password);
-			StrBufAppendBufPlain(WC->wc_password,  buf, -1, 0);
+			StrBufAppendBufPlain(WC->wc_password,  
+					     ChrPtr(Line) + 4, 
+					     StrLength(Line) - 4, 0);
 		}
 		display_main_menu();
 	}
 	else {
 		display_changepw();
 	}
+	FreeStrBuf(&Line);
 }
 
 

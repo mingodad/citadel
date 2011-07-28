@@ -269,19 +269,22 @@ void siteconfig(void)
 {
 	wcsession *WCC = WC;
 	int i;
-	char buf[256];
+	StrBuf *Line;
 
 	if (strlen(bstr("ok_button")) == 0) {
 		display_aide_menu();
 		return;
 	}
+	Line = NewStrBuf();
 	serv_printf("CONF set");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '4') {
-		safestrncpy(WCC->ImportantMessage, &buf[4], sizeof WCC->ImportantMessage);
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 4) != 4) {
 		display_aide_menu();
+		FreeStrBuf(&Line);
 		return;
 	}
+
+	FreeStrBuf(&Line);
 
 	for (i=0; i < (sizeof(ServerConfig) / sizeof(CfgMapping)); i ++)
 	{
@@ -310,8 +313,7 @@ void siteconfig(void)
 	FreeStrBuf(&WCC->serv_info->serv_default_cal_zone);
 	WCC->serv_info->serv_default_cal_zone = NewStrBufDup(sbstr("c_default_cal_zone"));
 
-	safestrncpy(WCC->ImportantMessage, _("Your system configuration has been updated."),
-		sizeof WCC->ImportantMessage);
+	AppendImportantMessage(_("Your system configuration has been updated."), -1);
 	DeleteHash(&WCC->ServCfg);
 	display_aide_menu();
 }

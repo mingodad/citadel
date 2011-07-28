@@ -860,9 +860,7 @@ void GetPreferences(HashList *Setting)
 void set_preferences(void)
 {	
 	if (!havebstr("change_button")) {
-		safestrncpy(WC->ImportantMessage, 
-			    _("Cancelled.  No settings were changed."),
-			    sizeof WC->ImportantMessage);
+		AppendImportantMessage(_("Cancelled.  No settings were changed."), -1);
 		display_main_menu();
 		return;
 	}

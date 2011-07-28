@@ -513,7 +513,7 @@ struct wcsession {
 	StrBuf *WFBuf;                          /* Wildfire error logging buffer */
 
 	StrBuf *trailing_javascript;		/* extra javascript to be appended to page */
-	char ImportantMessage[SIZ];
+/*	char ImportantMessage[SIZ];*/
 	StrBuf *ImportantMsg;
 	HashList *Directory;			/* Parts of the directory URL in snippets */
 	const Floor *CurrentFloor;              /* when Parsing REST, which floor are we on? */
@@ -734,7 +734,7 @@ void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf);
 
 void display_vcard(StrBuf *Target, wc_mime_attachment *Mime, char alpha, int full, char **storename, long msgnum);
 
-void display_success(char *);
+void display_success(const char *successmessage);
 
 void shutdown_sessions(void);
 

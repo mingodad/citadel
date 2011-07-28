@@ -111,14 +111,14 @@ void openid_attach(void) {
  * Detach an OpenID from the currently logged-in account
  */
 void openid_detach(void) {
-	char buf[1024];
+	StrBuf *Line;
 
 	if (havebstr("id_to_detach")) {
 		serv_printf("OIDD %s", bstr("id_to_detach"));
-		serv_getln(buf, sizeof buf);
-		if (buf[0] != '2') {
-			strcpy(WC->ImportantMessage, &buf[4]);
-		}
+		Line = NewStrBuf();
+		StrBuf_ServGetln(Line);
+		GetServerStatusMsg(Line, NULL, 1, 2);
+		FreeStrBuf(&Line);
 	}
 
 	display_openids();
