@@ -76,32 +76,23 @@ void display_page(void)
 void page_user(void)
 {
 	char recp[256];
-	char buf[256];
+	StrBuf *Line;
 
 	safestrncpy(recp, bstr("recp"), sizeof recp);
 
 	if (!havebstr("send_button")) {
-		safestrncpy(WC->ImportantMessage,
-			_("Message was not sent."),
-			sizeof WC->ImportantMessage
-		);
+		AppendImportantMessage(_("Message was not sent."), -1);
 	} else {
+		Line = NewStrBuf();
 		serv_printf("SEXP %s|-", recp);
-		serv_getln(buf, sizeof buf);
-
-		if (buf[0] == '4') {
+		StrBuf_ServGetln(Line);
+		if (GetServerStatusMsg(Line, NULL, 0, 0) == 4) {
+			char buf[256];
 			text_to_server(bstr("msgtext"));
 			serv_puts("000");
 			stresc(buf, 256, recp, 0, 0);
-			snprintf(WC->ImportantMessage,
-				sizeof WC->ImportantMessage,
-				"%s%s.",
-				_("Message has been sent to "),
-				buf
-			);
-		}
-		else {
-			safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
+			AppendImportantMessage(buf, -1);
+			AppendImportantMessage(_("Message has been sent to "), -1);
 		}
 	}
 

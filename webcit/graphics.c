@@ -24,23 +24,27 @@ extern void output_static(const char* What);
 
 void display_graphics_upload(char *filename)
 {
-	char buf[SIZ];
+	StrBuf *Line;
 
-	snprintf(buf, SIZ, "UIMG 0||%s", filename);
-	serv_puts(buf);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
+	Line = NewStrBuf();
+	serv_printf("UIMG 0||%s", filename);
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
 		display_main_menu();
 		return;
 	}
-	output_headers(1, 0, 0, 0, 1, 0);
-	do_template("files_graphicsupload");
-	end_burst();
+	else
+	{
+		output_headers(1, 0, 0, 0, 1, 0);
+		do_template("files_graphicsupload");
+		end_burst();
+	}
+	FreeStrBuf(&Line);
 }
 
 void do_graphics_upload(char *filename)
 {
+	StrBuf *Line;
 	const char *MimeType;
 	wcsession *WCC = WC;
 	char buf[SIZ];
@@ -50,38 +54,36 @@ void do_graphics_upload(char *filename)
 	bytes_remaining = WCC->upload_length;
 
 	if (havebstr("cancel_button")) {
-		strcpy(WC->ImportantMessage,
-			_("Graphics upload has been cancelled."));
+		AppendImportantMessage(_("Graphics upload has been cancelled."), -1);
 		display_main_menu();
 		return;
 	}
 
 	if (WCC->upload_length == 0) {
-		strcpy(WC->ImportantMessage,
-			_("You didn't upload a file."));
+		AppendImportantMessage(_("You didn't upload a file."), -1);
 		display_main_menu();
 		return;
 	}
 	
 	MimeType = GuessMimeType(ChrPtr(WCC->upload), bytes_remaining);
-	snprintf(buf, SIZ, "UIMG 1|%s|%s", MimeType, filename);
-	serv_puts(buf);
+	serv_printf("UIMG 1|%s|%s", MimeType, filename);
 
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') {
-		strcpy(WCC->ImportantMessage, &buf[4]);
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
 		display_main_menu();
+		FreeStrBuf(&Line);
 		return;
 	}
 	while (bytes_remaining) {
 		thisblock = ((bytes_remaining > 4096) ? 4096 : bytes_remaining);
 		serv_printf("WRIT %d", thisblock);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] != '7') {
-			strcpy(WCC->ImportantMessage, &buf[4]);
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 1, 7) != 7) {
 			serv_puts("UCLS 0");
-			serv_getln(buf, sizeof buf);
+			StrBuf_ServGetln(Line);
 			display_main_menu();
+			FreeStrBuf(&Line);
 			return;
 		}
 		thisblock = extract_int(&buf[4], 0);
@@ -91,11 +93,13 @@ void do_graphics_upload(char *filename)
 	}
 
 	serv_puts("UCLS 1");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != 'x') {
-		display_success(&buf[4]);
-		return;
+	StrBuf_ServGetln(Line);
+	if (*ChrPtr(Line) != 'x') {
+		display_success(ChrPtr(Line) + 4);
+	
 	}
+	FreeStrBuf(&Line);
+
 }
 
 

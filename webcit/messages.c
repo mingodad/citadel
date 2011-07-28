@@ -995,12 +995,11 @@ void post_message(void)
 	}
 
 	if (!strcasecmp(bstr("submit_action"), "cancel")) {
-		sprintf(WCC->ImportantMessage, 
-			_("Cancelled.  Message was not posted."));
+		AppendImportantMessage(_("Cancelled.  Message was not posted."), -1);
 	} else if (lbstr("postseq") == dont_post) {
-		sprintf(WCC->ImportantMessage, 
+		AppendImportantMessage(
 			_("Automatically cancelled because you have already "
-			  "saved this message."));
+			  "saved this message."), -1);
 	} else {
 		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s|%s";
 		StrBuf *Recp = NULL; 
@@ -1277,12 +1276,39 @@ void remove_attachment(void) {
 }
 
 
+long FourHash(const char *key, long length) 
+{
+        int i;
+        long ret = 0;
+        const unsigned char *ptr = (const unsigned char*)key;
+
+        for (i = 0; i < 4; i++, ptr ++) 
+                ret = (ret << 8) | 
+                        ( ((*ptr >= 'a') &&
+                           (*ptr <= 'z'))? 
+                          *ptr - 'a' + 'A': 
+                          *ptr);
+
+        return ret;
+}
+
+long l_subj;
+long l_wefw;
+long l_msgn;
+long l_from;
+long l_rcpt;
+long l_cccc;
+long l_node;
+long l_rfca;
+
 /*
  * display the message entry screen
  */
 void display_enter(void)
 {
-	char buf[SIZ];
+	StrBuf *Line;
+	long Result;
+	int rc;
 	const StrBuf *display_name = NULL;
 	int recipient_required = 0;
 	int subject_required = 0;
@@ -1303,21 +1329,24 @@ void display_enter(void)
 	}
 
 	/* First test to see whether this is a room that requires recipients to be entered */
+	Line = NewStrBuf();
 	serv_puts("ENT0 0");
-	serv_getln(buf, sizeof buf);
+	StrBuf_ServGetln(Line);
+	rc = GetServerStatusMsg(Line, &Result, 0, 2);
 
-	if (!strncmp(buf, "570", 3)) {		/* 570 means that we need a recipient here */
+	if (Result == 570) {		/* 570 means that we need a recipient here */
 		recipient_required = 1;
 	}
-	else if (buf[0] != '2') {		/* Any other error means that we cannot continue */
-		sprintf(WCC->ImportantMessage, "%s", &buf[4]);
+	else if (rc != 2) {		/* Any other error means that we cannot continue */
+		rc = GetServerStatusMsg(Line, &Result, 0, 2);
 		readloop(readnew, eUseDefault);
+		FreeStrBuf(&Line);
 		return;
 	}
 
 	/* Is the server strongly recommending that the user enter a message subject? */
-	if ((buf[3] != '\0') && (buf[4] != '\0')) {
-		subject_required = extract_int(&buf[4], 1);
+	if (StrLength(Line) > 4) {
+		subject_required = extract_int(ChrPtr(Line) + 4, 1);
 	}
 
 	/*
@@ -1326,6 +1355,7 @@ void display_enter(void)
 	 */
 	if (WCC->CurRoom.defview == VIEW_ADDRESSBOOK) {
 		do_edit_vcard(-1, "", NULL, NULL, "",  ChrPtr(WCC->CurRoom.name));
+		FreeStrBuf(&Line);
 		return;
 	}
 
@@ -1335,6 +1365,7 @@ void display_enter(void)
 	 */
 	if (WCC->CurRoom.defview == VIEW_CALENDAR) {
 		display_edit_event();
+		FreeStrBuf(&Line);
 		return;
 	}
 
@@ -1344,6 +1375,7 @@ void display_enter(void)
 	 */
 	if (WCC->CurRoom.defview == VIEW_TASKS) {
 		display_edit_task();
+		FreeStrBuf(&Line);
 		return;
 	}
 
@@ -1354,87 +1386,106 @@ void display_enter(void)
 	 */
 	replying_to = lbstr("replying_to");
 	if (replying_to > 0) {
-		char wefw[1024] = "";
-		char msgn[256] = "";
-		char from[256] = "";
-		char node[256] = "";
-		char rfca[256] = "";
-		char rcpt[SIZ] = "";
-		char cccc[SIZ] = "";
+		long len;
+		StrBuf *wefw = NULL;
+		StrBuf *msgn = NULL;
+		StrBuf *from = NULL;
+		StrBuf *node = NULL;
+		StrBuf *rfca = NULL;
+		StrBuf *rcpt = NULL;
+		StrBuf *cccc = NULL;
 		serv_printf("MSG0 %ld|1", replying_to);	
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
-			if ( (!strncasecmp(buf, "subj=", 5)) && (strlen(buf) > 5) ) {
-				StrBuf *subj = NewStrBuf();
-				if (!strcasecmp(bstr("replying_mode"), "forward")) {
-					if (strncasecmp(&buf[5], "Fw:", 3)) {
-						StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
+		StrBuf_ServGetln(Line);
+		if (GetServerStatusMsg(Line, NULL, 0, 0) == 1)
+			while (len = StrBuf_ServGetln(Line),
+			       (len >= 0) && 
+			       ((len != 3)  ||
+				strcmp(ChrPtr(Line), "000")))
+			{
+				long which = 0;
+				if ((StrLength(Line) > 4) && 
+				    (ChrPtr(Line)[5] == '='))
+					which = FourHash(ChrPtr(Line), 4);
+
+				if (which == l_subj)
+				{
+					StrBuf *subj = NewStrBuf();
+					if (!strcasecmp(bstr("replying_mode"), "forward")) {
+						if (strncasecmp(ChrPtr(Line) + 5, "Fw:", 3)) {
+							StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
+						}
+					}
+					else {
+						if (strncasecmp(ChrPtr(Line) + 5, "Re:", 3)) {
+							StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+						}
+					}
+					StrBufAppendBufPlain(subj, 
+							     ChrPtr(Line) + 5, 
+							     StrLength(Line) - 5, 0);
+					PutBstr(HKEY("subject"), subj);
+				}
+
+				else if (which == l_wefw)
+				{
+					int rrtok;
+					int rrlen;
+
+					wefw = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+					
+					/* Trim down excessively long lists of thread references.  We eliminate the
+					 * second one in the list so that the thread root remains intact.
+					 */
+					rrtok = num_tokens(ChrPtr(wefw), '|');
+					rrlen = StrLength(wefw);
+					if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+						StrBufRemove_token(wefw, 1, '|');
 					}
 				}
-				else {
-					if (strncasecmp(&buf[5], "Re:", 3)) {
-						StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+
+				else if (which == l_msgn) {
+					msgn = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+				}
+
+				else if (which == l_from) {
+					from = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+					for (i=0; i<StrLength(from); ++i) {
+						if (ChrPtr(from)[i] == ',')
+							StrBufPeek(from, NULL, i, ' ');
 					}
 				}
-				StrBufAppendBufPlain(subj, &buf[5], -1, 0);
-				PutBstr(HKEY("subject"), subj);
-			}
-
-			else if (!strncasecmp(buf, "wefw=", 5)) {
-				int rrtok;
-				int rrlen;
-				safestrncpy(wefw, &buf[5], sizeof wefw);
-
-				/* Trim down excessively long lists of thread references.  We eliminate the
-				 * second one in the list so that the thread root remains intact.
-				 */
-				rrtok = num_tokens(wefw, '|');
-				rrlen = strlen(wefw);
-				if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-					remove_token(wefw, 1, '|');
+				
+				else if (which == l_rcpt) {
+					rcpt = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+				}
+				
+				else if (which == l_cccc) {
+					cccc = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+				}
+				
+				else if (which == l_node) {
+					node = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+				}
+				
+				else if (which == l_rfca) {
+					rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
 				}
 			}
 
-			else if (!strncasecmp(buf, "msgn=", 5)) {
-				safestrncpy(msgn, &buf[5], sizeof msgn);
-			}
 
-			else if (!strncasecmp(buf, "from=", 5)) {
-				safestrncpy(from, &buf[5], sizeof from);
-				for (i=0; i<strlen(from); ++i) {
-					if (from[i] == ',') from[i] = ' ';
-				}
-			}
-
-			else if (!strncasecmp(buf, "rcpt=", 5)) {
-				safestrncpy(rcpt, &buf[5], sizeof rcpt);
-			}
-
-			else if (!strncasecmp(buf, "cccc=", 5)) {
-				safestrncpy(cccc, &buf[5], sizeof cccc);
-			}
-
-			else if (!strncasecmp(buf, "node=", 5)) {
-				safestrncpy(node, &buf[5], sizeof node);
-			}
-
-			else if (!strncasecmp(buf, "rfca=", 5)) {
-				safestrncpy(rfca, &buf[5], sizeof rfca);
-			}
-
-		}
-
-		if (strlen(wefw) + strlen(msgn) > 0) {
+		if (StrLength(wefw) + StrLength(msgn) > 0) {
 			StrBuf *refs = NewStrBuf();
-			if (!IsEmptyStr(wefw)) {
-				StrBufAppendBufPlain(refs, wefw, -1, 0);
+			if (StrLength(wefw) > 0) {
+				StrBufAppendBuf(refs, wefw, 0);
 			}
-			if ( (!IsEmptyStr(wefw)) && (!IsEmptyStr(msgn)) ) {
+			if ( (StrLength(wefw) > 0) && 
+			     (StrLength(msgn) > 0) ) 
+			{
 				StrBufAppendBufPlain(refs, HKEY("|"), 0);
 			}
-			if (!IsEmptyStr(msgn)) {
-				StrBufAppendBufPlain(refs, msgn, -1, 0);
+			if (StrLength(msgn) > 0) {
+				StrBufAppendBuf(refs, msgn, 0);
 			}
 			PutBstr(HKEY("references"), refs);
 		}
@@ -1445,16 +1496,22 @@ void display_enter(void)
 		if (	(!strcasecmp(bstr("replying_mode"), "reply"))
 			|| (!strcasecmp(bstr("replying_mode"), "replyall"))
 		) {
-			StrBuf *to_rcpt = NewStrBuf();
-			if (!IsEmptyStr(rfca)) {
-				StrBufAppendPrintf(to_rcpt, "%s <%s>", from, rfca);
+			StrBuf *to_rcpt;
+			if (StrLength(rfca) > 0) {
+				to_rcpt = NewStrBuf();
+				StrBufAppendBuf(to_rcpt, from, 0);
+				StrBufAppendBufPlain(to_rcpt, HKEY(" <"), 0);
+				StrBufAppendBuf(to_rcpt, rfca, 0);
+				StrBufAppendBufPlain(to_rcpt, HKEY(">"), 0);
 			}
 			else {
-				StrBufAppendPrintf(to_rcpt, "%s", from);
-				if (	(!IsEmptyStr(node))
-					&& (strcasecmp(node, ChrPtr(WC->serv_info->serv_nodename)))
+				to_rcpt =  from;
+				from = NULL;
+				if (	(StrLength(node) > 0)
+					&& (strcasecmp(ChrPtr(node), ChrPtr(WC->serv_info->serv_nodename)))
 				) {
-					StrBufAppendPrintf(to_rcpt, " @ %s", node);
+					StrBufAppendBufPlain(to_rcpt, HKEY(" @ "), 0);
+					StrBufAppendBuf(to_rcpt, node, 0);
 				}
 			}
 			PutBstr(HKEY("recp"), to_rcpt);
@@ -1465,21 +1522,29 @@ void display_enter(void)
 		 */
 		if (	(!strcasecmp(bstr("replying_mode"), "replyall"))
 		) {
-			StrBuf *cc_rcpt = NewStrBuf();
-			if (!IsEmptyStr(rcpt)) {
-				StrBufAppendPrintf(cc_rcpt, "%s", rcpt);
+			StrBuf *cc_rcpt = rcpt;
+			rcpt = NULL;
+			if (StrLength(cccc) > 0) {
+				if (cc_rcpt != NULL)  {
+					StrBufAppendPrintf(cc_rcpt, ", ");
+					StrBufAppendBuf(cc_rcpt, cccc, 0);
+				} else {
+					cc_rcpt = cccc;
+					cccc = NULL;
+				}
 			}
-			if ( (!IsEmptyStr(rcpt)) && (!IsEmptyStr(cccc)) ) {
-				StrBufAppendPrintf(cc_rcpt, ", ");
-			}
-			if (!IsEmptyStr(cccc)) {
-				StrBufAppendPrintf(cc_rcpt, "%s", cccc);
-			}
-			PutBstr(HKEY("cc"), cc_rcpt);
+			if (cc_rcpt != NULL)
+				PutBstr(HKEY("cc"), cc_rcpt);
 		}
-
+		FreeStrBuf(&wefw);
+		FreeStrBuf(&msgn);
+		FreeStrBuf(&from);
+		FreeStrBuf(&node);
+		FreeStrBuf(&rfca);
+		FreeStrBuf(&rcpt);
+		FreeStrBuf(&cccc);
 	}
-
+	FreeStrBuf(&Line);
 	/*
 	 * Otherwise proceed normally.
 	 * Do a custom room banner with no navbar...
@@ -1515,20 +1580,23 @@ void display_enter(void)
 			     ChrPtr(Bcc), 
 			     ChrPtr(Wikipage));
 		serv_puts(ChrPtr(CmdBuf));
-		serv_getln(buf, sizeof buf);
-		FreeStrBuf(&CmdBuf);
+		StrBuf_ServGetln(CmdBuf);
 
-		if (!strncmp(buf, "570", 3)) {	/* 570 means we have an invalid recipient listed */
+		rc = GetServerStatusMsg(CmdBuf, &Result, 0, 0);
+
+		if (Result == 570) {	/* 570 means we have an invalid recipient listed */
 			if (havebstr("recp") && 
 			    havebstr("cc"  ) && 
 			    havebstr("bcc" )) {
 				recipient_bad = 1; /* TODO: and now????? */
 			}
 		}
-		else if (buf[0] != '2') {	/* Any other error means that we cannot continue */
-			wc_printf("<em>%s</em><br>\n", &buf[4]);	/* TODO -> important message */
+		else if (rc != 2) {	/* Any other error means that we cannot continue */
+			wc_printf("<em>%s</em><br>\n", ChrPtr(CmdBuf) +4);	/* TODO -> important message */
+			FreeStrBuf(&CmdBuf);
 			return;
 		}
+		FreeStrBuf(&CmdBuf);
 	}
 	if (recipient_required)
 		PutBstr(HKEY("__RCPTREQUIRED"), NewStrBufPlain(HKEY("1")));
@@ -1549,10 +1617,10 @@ void display_enter(void)
 void delete_msg(void)
 {
 	long msgid;
-	char buf[SIZ];
-
+	StrBuf *Line;
+	
 	msgid = lbstr("msgid");
-
+	Line = NewStrBuf();
 	if ((WC->CurRoom.RAFlags & UA_ISTRASH) != 0) {	/* Delete from Trash is a real delete */
 		serv_printf("DELE %ld", msgid);	
 	}
@@ -1560,8 +1628,9 @@ void delete_msg(void)
 		serv_printf("MOVE %ld|_TRASH_|0", msgid);
 	}
 
-	serv_getln(buf, sizeof buf);
-	sprintf(WC->ImportantMessage, "%s", &buf[4]);
+	StrBuf_ServGetln(Line);
+	GetServerStatusMsg(Line, NULL, 1, 0);
+
 	readloop(readnew, eUseDefault);
 }
 
@@ -1572,17 +1641,18 @@ void delete_msg(void)
 void move_msg(void)
 {
 	long msgid;
-	char buf[SIZ];
 
 	msgid = lbstr("msgid");
 
 	if (havebstr("move_button")) {
-		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
-		serv_puts(buf);
-		serv_getln(buf, sizeof buf);
-		sprintf(WC->ImportantMessage, "%s", &buf[4]);
+		StrBuf *Line;
+		serv_printf("MOVE %ld|%s", msgid, bstr("target_room"));
+		Line = NewStrBuf();
+		StrBuf_ServGetln(Line);
+		GetServerStatusMsg(Line, NULL, 1, 0);
+		FreeStrBuf(&Line);
 	} else {
-		sprintf(WC->ImportantMessage, (_("The message was not moved.")));
+		AppendImportantMessage(_("The message was not moved."), -1);
 	}
 
 	readloop(readnew, eUseDefault);
@@ -1894,6 +1964,16 @@ InitModule_MSG
 
 	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
+
+	l_subj = FourHash("subj", 4);
+	l_wefw = FourHash("wefw", 4);
+	l_msgn = FourHash("msgn", 4);
+	l_from = FourHash("from", 4);
+	l_rcpt = FourHash("rcpt", 4);
+	l_cccc = FourHash("cccc", 4);
+	l_node = FourHash("node", 4);
+	l_rfca = FourHash("rfca", 4);
+
 	return ;
 }
 

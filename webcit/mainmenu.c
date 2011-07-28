@@ -106,20 +106,16 @@ void do_generic(void)
  */
 void display_shutdown(void)
 {
-	char buf[SIZ];
+	StrBuf *Line;
 	char *when;
 	
+	Line = NewStrBuf();
 	when=bstr("when");
 	if (strcmp(when, "now") == 0){
 		serv_printf("DOWN 1");
-		serv_getln(buf, sizeof buf);
-		if (atol(buf) == 500)
-		{ /* upsie. maybe the server is not running as daemon? */
-			
-			safestrncpy(WC->ImportantMessage,
-				    &buf[4],
-				    sizeof WC->ImportantMessage);
-		}
+		StrBuf_ServGetln(Line);
+		GetServerStatusMsg(Line, NULL, 1, 5);
+
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		DoTemplate(HKEY("aide_display_serverrestart"), NULL, &NoCtx);
@@ -143,7 +139,9 @@ void display_shutdown(void)
 		else
 		{
 			serv_printf("SEXP broadcast|%s", message);
-			serv_getln(buf, sizeof buf); /* TODO: should we care? */
+			StrBuf_ServGetln(Line);
+			GetServerStatusMsg(Line, NULL, 1, 0);
+
 			begin_burst();
 			output_headers(1, 0, 0, 0, 1, 0);
 			DoTemplate(HKEY("aide_display_serverrestart_page"), NULL, &NoCtx);
@@ -152,19 +150,15 @@ void display_shutdown(void)
 	}
 	else if (!strcmp(when, "idle")) {
 		serv_printf("SCDN 3");
-		serv_getln(buf, sizeof buf);
+		StrBuf_ServGetln(Line);
+		GetServerStatusMsg(Line, NULL, 1, 2);
 
-		if (atol(buf) == 500)
-		{ /* upsie. maybe the server is not running as daemon? */
-			safestrncpy(WC->ImportantMessage,
-				    &buf[4],
-				    sizeof WC->ImportantMessage);
-		}
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		DoTemplate(HKEY("aide_display_menu"), NULL, &NoCtx);
 		end_burst();			
 	}
+	FreeStrBuf(&Line);
 }
 
 void 

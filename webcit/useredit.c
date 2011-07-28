@@ -795,7 +795,7 @@ void create_user(void) {
 	serv_printf("CREU %s", username);
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, &FullState) == 2) {
-		sprintf(WC->ImportantMessage, _("A new user has been created."));
+		AppendImportantMessage(_("A new user has been created."), -1);
 		display_edituser(username, 1);
 	}
 	else if (FullState == 570) {

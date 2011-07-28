@@ -378,8 +378,7 @@ void save_sieve(void) {
 	char buf[256];
 
 	if (!havebstr("save_button")) {
-		strcpy(WC->ImportantMessage,
-			_("Cancelled.  Changes were not saved."));
+		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
 		display_main_menu();
 		return;
 	}
@@ -435,7 +434,7 @@ void save_sieve(void) {
 		}
 	}
 
-	strcpy(WC->ImportantMessage, _("Your changes have been saved."));
+	AppendImportantMessage(_("Your changes have been saved."), -1);
 	display_main_menu();
 	return;
 }
