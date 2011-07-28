@@ -544,11 +544,19 @@ int read_server_text(StrBuf *Buf, long *nLines)
 }
 
 
-int GetServerStatus(StrBuf *Line, long* FullState)
+int GetServerStatusMsg(StrBuf *Line, long* FullState, int PutImportantMessage, int MajorOK)
 {
+	int rc;
 	if (FullState != NULL)
 		*FullState = StrTol(Line);
-	return ChrPtr(Line)[0] - 48;
+	rc = ChrPtr(Line)[0] - 48;
+	if ((!PutImportantMessage) || 
+	    (MajorOK == rc)||
+	    (StrLength(Line) <= 4))
+		return rc;
+
+	AppendImportantMessage(ChrPtr(Line) + 4, StrLength(Line) - 4);
+	return rc;
 }
 
 
