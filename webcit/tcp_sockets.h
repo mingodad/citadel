@@ -4,6 +4,11 @@ int serv_getln(char *strbuf, int bufsize);
 int StrBuf_ServGetln(StrBuf *buf);
 
 /**
+ * @defgroup CoreSrv Core Server Functionality
+ */
+
+/**
+ * @ingroup CoreSrv
  * @brief parse & check the server reply 
  * @param Line the line containing the server reply
  * @param FullState if you need more than just the major number, this is returns it. Ignored if NULL.
@@ -11,9 +16,12 @@ int StrBuf_ServGetln(StrBuf *buf);
  *    the result will be put into the 'Important Message' framework.
  * @param MajorOK in case of which major number not to put the ImportantMessage? 0 for all.
  * @return the most significant digit of the server status
- * /
+ */
 int GetServerStatusMsg(StrBuf *Line, long* FullState, int PutImportantMessage, int MajorOK);
-/* to migrate old calls.... */
+/**
+ * @ingroup CoreSrv
+ * @brief to migrate old calls.... 
+ */
 #define GetServerStatus(a, b) GetServerStatusMsg(a, b, 0, 0)
 
 int serv_puts(const char *string);
