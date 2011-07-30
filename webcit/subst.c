@@ -1233,8 +1233,7 @@ void *load_template(WCTemplate *NewTemplate)
 	pE = pS + StrLength(NewTemplate->Data);
 	while (pch < pE) {
 		const char *pts, *pte;
-		int InQuotes = 0;
-		int InDoubleQuotes = 0;
+		char InQuotes = '\0';
 		void *pv;
 
 		/** Find one <? > */
@@ -1253,13 +1252,24 @@ void *load_template(WCTemplate *NewTemplate)
 
 		/** Found one? parse it. */
 		for (; pch <= pE - 1; pch ++) {
-			if (*pch == '"')
-				InDoubleQuotes = ! InDoubleQuotes;
-			else if (*pch == '\'')
-				InQuotes = ! InQuotes;
-			else if ((!InQuotes  && !InDoubleQuotes) &&
-				 ((*pch!='\\')&&(*(pch + 1)=='>'))) {
-				pch ++;
+			if ((!InQuotes) &&
+			    ((*pch == '\'') || (*pch == '"')))
+			{
+				InQuotes = *pch;
+			}
+			else if (InQuotes && (InQuotes == *pch))
+			{
+				InQuotes = '\0';
+			}
+			else if ((InQuotes) &&
+				 (*pch == '\\') &&
+				 (*(pch + 1) == InQuotes))
+			{
+				pch++;
+			}
+			else if ((!InQuotes) && 
+				 (*pch == '>'))
+			{
 				break;
 			}
 		}
