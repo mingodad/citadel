@@ -1016,6 +1016,25 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	switch (NewToken->Flags) {
 	case 0:
 		/* If we're able to find out more about the token, do it now while its fresh. */
+		pch = NewToken->pName;
+		while (pch <  NewToken->pName + NewToken->NameEnd)
+		{
+			if (((*pch >= 'A') && (*pch <= 'Z')) || 
+			    ((*pch >= '0') && (*pch <= '9')) ||
+			    (*pch == ':') || 
+			    (*pch == '-') ||
+			    (*pch == '_')) 
+				pch ++;
+			else
+			{
+				LogTemplateError(
+					NULL, "Token Name", ERR_NAME, &TP,
+					"contains illegal char: '%c'", 
+					*pch);
+				pch++;
+			}
+
+		}
 		if (GetHash(GlobalNS, NewToken->pName, NewToken->NameEnd, &vVar)) {
 			HashHandler *Handler;
 			Handler = (HashHandler*) vVar;
