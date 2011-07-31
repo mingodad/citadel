@@ -1405,7 +1405,7 @@ void display_enter(void)
 			{
 				long which = 0;
 				if ((StrLength(Line) > 4) && 
-				    (ChrPtr(Line)[5] == '='))
+				    (ChrPtr(Line)[4] == '='))
 					which = FourHash(ChrPtr(Line), 4);
 
 				if (which == l_subj)
