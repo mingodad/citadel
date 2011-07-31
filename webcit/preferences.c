@@ -1111,13 +1111,9 @@ void change_start_page(void)
 				       1, 
 				       NULL);
 		if (ProhibitSave == 1)
-			StrBufAppendBufPlain(WCC->ImportantMsg,
-					     _("This isn't allowed to become the start page."),
-					     -1, 0);
+			AppendImportantMessage(_("This isn't allowed to become the start page."), -1);
 		else
-			StrBufAppendBufPlain(WCC->ImportantMsg,
-					     _("You no longer have a start page selected."),
-					     -1, 0);
+			AppendImportantMessage(_("You no longer have a start page selected."), -1);
 		display_main_menu();
 		return;
 	}

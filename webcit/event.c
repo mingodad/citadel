@@ -1157,20 +1157,22 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 		if ( (encaps != NULL) && (havebstr("save_button")) ) {
 			serv_puts("ENT0 1|||4|||1|");
 			serv_getln(buf, sizeof buf);
-			if (buf[0] == '8') {
+			switch (buf[0]) {
+			case '8':
 				serv_puts("Content-type: text/calendar");
 				serv_puts("Content-Transfer-Encoding: quoted-printable");
 				serv_puts("");
 				text_to_server_qp(icalcomponent_as_ical_string(encaps));
 //				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
-			}
-			if ( (buf[0] == '8') || (buf[0] == '4') ) {
-				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				}
-			}
-			if (buf[0] == '2') {
-				StrBufAppendBufPlain(WC->ImportantMsg, buf, -1, 4);
+			case '4':
+				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {}
+				break;
+			case '2':
+				AppendImportantMessage(buf + 4, - 1);
+				break;
+			default:
+				break;
 			}
 			icalmemory_free_ring ();
 			icalcomponent_free(encaps);

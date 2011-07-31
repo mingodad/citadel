@@ -35,8 +35,7 @@ void LoadExpirePolicy(GPEXWhichPolicy which)
 		WCC->Policy[which].expire_value = StrBufExtractNext_long(Buf, &Pos, '|');
 	}
 	else if (State == 550)
-		StrBufAppendBufPlain(WCC->ImportantMsg,
-				     _("Higher access is required to access this function."), -1, 0);
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
 	FreeStrBuf(&Buf);
 }
 
@@ -54,8 +53,7 @@ void SaveExpirePolicyFromHTTP(GPEXWhichPolicy which)
 	StrBuf_ServGetln(Buf);
 	GetServerStatus(Buf, &State);
 	if (State == 550)
-		StrBufAppendBufPlain(WC->ImportantMsg,
-				     _("Higher access is required to access this function."), -1, 0);
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
 	FreeStrBuf(&Buf);
 }
 

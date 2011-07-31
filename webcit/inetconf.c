@@ -107,7 +107,7 @@ void new_save_inetconf(void) {
 	GetHash(WCC->InetCfg, ChrPtr(eType), StrLength(eType), &vHash);
 	Hash = (HashList*) vHash;
 	if (Hash == NULL) {
-		StrBufPrintf(WCC->ImportantMsg, _("Invalid Parameter"));
+		AppendImportantMessage(_("Invalid Parameter"), -1);
 		url_do_template();
 		return;
 	}
@@ -116,20 +116,21 @@ void new_save_inetconf(void) {
 		eNum = sbstr("ename");
 		if (!GetHash(Hash, ChrPtr(eNum), StrLength(eNum), &vStr) ||
 		    (vStr == NULL)) {
-			StrBufPrintf(WCC->ImportantMsg, _("Invalid Parameter"));
+			AppendImportantMessage(_("Invalid Parameter"), -1);
 			url_do_template();
 			return;
 		}
 
 		Str = (StrBuf*)vStr;
-		StrBufPrintf(WCC->ImportantMsg, _("%s has been deleted."), ChrPtr(Str));
+		AppendImportantMessage(SKEY(Str));
+		AppendImportantMessage(_(" has been deleted."), -1);
 		FlushStrBuf(Str);	
 	}
 	else if (!strcasecmp(bstr("oper"), "add")) {
 		StrBuf *name;
 		eName = sbstr("ename");
 		if (eName == NULL) {
-			StrBufPrintf(WCC->ImportantMsg, _("Invalid Parameter"));
+			AppendImportantMessage(_("Invalid Parameter"), -1);
 			url_do_template();
 			return;
 		}
@@ -139,9 +140,8 @@ void new_save_inetconf(void) {
 		name = NewStrBufDup(eName);
 		StrBufTrim(name);
 		Put(Hash, nnn, nUsed, name, HFreeStrBuf); 
-		StrBufPrintf(WCC->ImportantMsg, "%s %s", 
-			     /*<domain> added status message*/ _("added."), 
-			     ChrPtr(eName));
+		AppendImportantMessage(SKEY(eName));
+		AppendImportantMessage( /*<domain> added status message*/ _(" added."), -1); 
 	}
 
 	Buf = NewStrBuf();

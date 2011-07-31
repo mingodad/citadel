@@ -252,7 +252,7 @@ void fetchname_parsed_vcard(struct vCard *v, char **storename) {
 			}
 		}
 		if (is_qp) {
-			// %ff can become 6 bytes in utf8 
+			/* %ff can become 6 bytes in utf8  */
 			*storename = malloc(len * 2 + 3); 
 			j = CtdlDecodeQuotedPrintable(
 				*storename, name,
@@ -260,7 +260,7 @@ void fetchname_parsed_vcard(struct vCard *v, char **storename) {
 			(*storename)[j] = 0;
 		}
 		else if (is_b64) {
-			// ff will become one byte..
+			/* ff will become one byte.. */
 			*storename = malloc(len + 50);
 			CtdlDecodeBase64(
 				*storename, name,
@@ -1243,11 +1243,11 @@ void edit_vcard(void) {
  *  parse edited vcard from the browser
  */
 void submit_vcard(void) {
-	wcsession *WCC = WC;
 	struct vCard *v;
 	char *serialized_vcard;
 	char buf[SIZ];
 	StrBuf *Buf;
+	const StrBuf *ForceRoom;
 	int i;
 
 	if (!havebstr("ok_button")) { 
@@ -1256,19 +1256,13 @@ void submit_vcard(void) {
 	}
 
 	if (havebstr("force_room")) {
-		if (gotoroom(sbstr("force_room")) != 200) {
-			StrBufAppendBufPlain(WCC->ImportantMsg,
-					     _("Unable to enter the room to save your message"),
-					     -1, 0);
-			StrBufAppendBufPlain(WCC->ImportantMsg,
-					     HKEY(": "), 0);
-			StrBufAppendBuf(WCC->ImportantMsg, sbstr("force_room"), 0);
-			StrBufAppendBufPlain(WCC->ImportantMsg,
-					     HKEY("; "), 0);
-					       
-			StrBufAppendBufPlain(WCC->ImportantMsg,
-					     _("Aborting."),
-					     -1, 0);
+		ForceRoom = sbstr("force_room");
+		if (gotoroom(ForceRoom) != 200) {
+			AppendImportantMessage(_("Unable to enter the room to save your message"), -1);
+			AppendImportantMessage(HKEY(": "));
+			AppendImportantMessage(SKEY(ForceRoom));
+			AppendImportantMessage(HKEY("; "));
+			AppendImportantMessage(_("Aborting."), -1);
 
 			if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
 				select_user_to_edit(NULL);

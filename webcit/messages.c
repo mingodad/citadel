@@ -362,9 +362,7 @@ void handle_one_message(void)
 			serv_printf("MOVE %ld|_TRASH_|0", msgnum);
 		}
 		StrBuf_ServGetln(CmdBuf);
-		FlushStrBuf(WCC->ImportantMsg);
-		StrBufAppendBuf(WCC->ImportantMsg, CmdBuf, 4);
-		GetServerStatus(CmdBuf, &CitStatus);
+		GetServerStatusMsg(CmdBuf, &CitStatus, 1, 0);
 		HttpStatus(CitStatus);
 		break;
 	case eCOPY:
@@ -375,8 +373,7 @@ void handle_one_message(void)
 			Destination = (StrBuf*) vLine;
 			serv_printf("MOVE %ld|%s|%d", msgnum, ChrPtr(Destination), CopyMessage);
 			StrBuf_ServGetln(CmdBuf);
-			FlushStrBuf(WCC->ImportantMsg);
-			StrBufAppendBuf(WCC->ImportantMsg, CmdBuf, 4);
+			GetServerStatusMsg(CmdBuf, NULL, 1, 0);
 			GetServerStatus(CmdBuf, &CitStatus);
 			HttpStatus(CitStatus);
 		}
@@ -422,8 +419,7 @@ void embed_message(void) {
 			serv_printf("MOVE %ld|_TRASH_|0", msgnum);
 		}
 		StrBuf_ServGetln(CmdBuf);
-		FlushStrBuf(WCC->ImportantMsg);
-		StrBufAppendBuf(WCC->ImportantMsg, CmdBuf, 4);
+		GetServerStatusMsg(CmdBuf, NULL, 1, 0);
 		break;
 	default:
 		break;
@@ -1019,12 +1015,10 @@ void post_message(void)
 		        /* temporarily change to the drafts room */
 		        serv_puts("GOTO _DRAFTS_");
 			StrBuf_ServGetln(Buf);
-			if (GetServerStatus(Buf, NULL) != 2) {
+			if (GetServerStatusMsg(Buf, NULL, 1, 2) != 2) {
 				/* You probably don't even have a dumb Drafts folder */
-				StrBufCutLeft(Buf, 4);
-				syslog(9, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
-				StrBufAppendBufPlain(WCC->ImportantMsg, _("Saved to Drafts failed: "), -1, 0);
-				StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
+				syslog(9, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf) + 4);
+				AppendImportantMessage(_("Saved to Drafts failed: "), -1);
 				display_enter();
 				FreeStrBuf(&Buf);
 				return;
@@ -1089,7 +1083,7 @@ void post_message(void)
 
 		if ((HeaderLen + StrLength(sbstr("msgtext")) < 10) && 
 		    (GetCount(WCC->attachments) == 0)){
-			StrBufAppendBufPlain(WCC->ImportantMsg, _("Refusing to post empty message.\n"), -1, 0);
+			AppendImportantMessage(_("Refusing to post empty message.\n"), -1);
 			FreeStrBuf(&CmdBuf);
 				
 		}
@@ -1115,7 +1109,7 @@ void post_message(void)
 				}
 				post_mime_to_server();
 				if (save_to_drafts) {
-					StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been saved to Drafts.\n"), -1, 0);
+					AppendImportantMessage(_("Message has been saved to Drafts.\n"), -1);
 					gotoroom(WCC->CurRoom.name);
 					display_enter();
 					FreeStrBuf(&Buf);
@@ -1124,17 +1118,15 @@ void post_message(void)
 					     || (havebstr("cc"  ))
 					     || (havebstr("bcc" ))
 					) {
-					StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been sent.\n"), -1, 0);
+					AppendImportantMessage(_("Message has been sent.\n"), -1);
 				}
 				else {
-					StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been posted.\n"), -1, 0);
+					AppendImportantMessage(_("Message has been posted.\n"), -1);
 				}
 				dont_post = lbstr("postseq");
 			} else {
-				StrBufCutLeft(Buf, 4);
-
-				syslog(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
-				StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
+				syslog(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf) + 4);
+				AppendImportantMessage(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
 				if (save_to_drafts) gotoroom(WCC->CurRoom.name);
 				display_enter();
 				FreeStrBuf(&Buf);
