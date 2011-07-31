@@ -594,7 +594,6 @@ TRYAGAIN:
  *  usernum the citadel-uid of the user
  */
 void display_edit_address_book_entry(const char *username, long usernum) {
-	wcsession *WCC = WC;
 	message_summary *VCMsg = NULL;
 	wc_mime_attachment *VCAtt = NULL;
 	StrBuf *roomname;
@@ -613,9 +612,7 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 		GetServerStatus(Buf, NULL);
 		serv_printf("GOTO %s||1", ChrPtr(roomname));
 		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) != 2) {
-			FlushStrBuf(WCC->ImportantMsg);
-			StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+		if (GetServerStatusMsg(Buf, NULL, 1, 2) != 2) {
 			select_user_to_edit(username);
 			FreeStrBuf(&Buf);
 			FreeStrBuf(&roomname);
@@ -627,9 +624,7 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 	locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 
 	if (VCMsg == NULL) {
-		StrBufPlain(WCC->ImportantMsg, 
-			    _("An error occurred while trying to create or edit this address book entry."), 
-			    0);
+		AppendImportantMessage(_("An error occurred while trying to create or edit this address book entry."), -1);
 		select_user_to_edit(username);
 		FreeStrBuf(&roomname);
 		return;
@@ -648,14 +643,12 @@ void display_edit_address_book_entry(const char *username, long usernum) {
  *  username the name of the user to remove
  */
 void delete_user(char *username) {
-	wcsession *WCC = WC;
 	StrBuf *Buf;
 	
 	Buf = NewStrBuf();
 	serv_printf("ASUP %s|0|0|0|0|0|", username);
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) 
-		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+	GetServerStatusMsg(Buf, NULL, 1, 2);
 
 	select_user_to_edit( bstr("username"));
 	FreeStrBuf(&Buf);
@@ -664,7 +657,6 @@ void delete_user(char *username) {
 
 void display_edituser(const char *supplied_username, int is_new) {
 	const char *Pos;
-	wcsession *WCC = WC;
 	UserListEntry* UL;
 	StrBuf *Buf;
 	char username[256];
@@ -679,9 +671,7 @@ void display_edituser(const char *supplied_username, int is_new) {
 	Buf = NewStrBuf();
 	serv_printf("AGUP %s", username);
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) {
-		FlushStrBuf(WCC->ImportantMsg);
-		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+	if (GetServerStatusMsg(Buf, NULL, 1, 2) != 2) {
 		select_user_to_edit(username);
 		FreeStrBuf(&Buf);
 		return;
@@ -714,7 +704,6 @@ void display_edituser(const char *supplied_username, int is_new) {
  *  do the backend operation of the user edit on the server
  */
 void edituser(void) {
-	wcsession *WCC = WC;
 	int is_new = 0;
 	unsigned int flags = 0;
 	const char *username;
@@ -723,7 +712,7 @@ void edituser(void) {
 	username = bstr("username");
 
 	if (!havebstr("ok_button")) {
-		StrBufPlain(WCC->ImportantMsg, _("Changes were not saved."), -1);
+		AppendImportantMessage(_("Changes were not saved."), -1);
 	}	
 	else {
 		StrBuf *Buf = NewStrBuf();
@@ -739,11 +728,7 @@ void edituser(void) {
 		if ((havebstr("newname")) && (strcasecmp(bstr("username"), bstr("newname")))) {
 			serv_printf("RENU %s|%s", bstr("username"), bstr("newname"));
 			StrBuf_ServGetln(Buf);
-			if (GetServerStatus(Buf, NULL) == 2) {
-				FlushStrBuf(WCC->ImportantMsg);
-				StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);				
-			}
-			else {
+			if (GetServerStatusMsg(Buf, NULL, 1, 2) != 2) {
 				username = bstr("newname");
 			}
 		}
@@ -760,9 +745,7 @@ void edituser(void) {
 			bstr("purgedays")
 		);
 		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
-		}
+		GetServerStatusMsg(Buf, NULL, 1, 2);
 		FreeStrBuf(&Buf);
 	}
 
@@ -785,7 +768,6 @@ void edituser(void) {
  * take the web environment username and create it on the citadel server
  */
 void create_user(void) {
-	wcsession *WCC = WC;
 	long FullState;
 	StrBuf *Buf;
 	const char *username;
@@ -799,15 +781,14 @@ void create_user(void) {
 		display_edituser(username, 1);
 	}
 	else if (FullState == 570) {
-		StrBufPlain(WCC->ImportantMsg, 
-			    _("You are attempting to create a new user from within Citadel "
-			      "while running in host based authentication mode.  In this mode, "
-			      "you must create new users on the host system, not within Citadel."), 
-			    0);
+		AppendImportantMessage(_("You are attempting to create a new user from within Citadel "
+					 "while running in host based authentication mode.  In this mode, "
+					 "you must create new users on the host system, not within Citadel."), 
+				       -1);
 		select_user_to_edit(NULL);
 	}
 	else {
-		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+		AppendImportantMessage(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
 		select_user_to_edit(NULL);
 	}
 	FreeStrBuf(&Buf);

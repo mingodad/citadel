@@ -7,7 +7,6 @@
 
 HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 {
-	wcsession *WCC = WC;
 	StrBuf *Line;
 	StrBuf *Token;
 	long State;
@@ -42,8 +41,7 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 			}
 	}
 	else if (State == 550)
-		StrBufAppendBufPlain(WCC->ImportantMsg,
-				     _("Higher access is required to access this function."), -1, 0);
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
 
 
 	FreeStrBuf(&Line);
@@ -387,8 +385,7 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 			}
 	}
 	else if (State == 550)
-		StrBufAppendBufPlain(WCC->ImportantMsg,
-				     _("Higher access is required to access this function."), -1, 0);
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
 
 
 	return WCC->CurRoom.IgnetCfgs[WantThisOne];
