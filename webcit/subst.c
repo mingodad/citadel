@@ -1193,6 +1193,45 @@ void *duplicate_template(WCTemplate *OldTemplate)
 	return NewTemplate;
 }
 
+
+void SanityCheckTemplate(WCTemplate *CheckMe)
+{
+	int i = 0;
+	int j;
+	int FoundConditionalEnd;
+
+	for (i = 0; i < CheckMe->nTokensUsed; i++)
+	{
+		switch(CheckMe->Tokens[i]->Flags)
+		{
+		case SV_CONDITIONAL:
+		case SV_NEG_CONDITIONAL:
+			FoundConditionalEnd = 0;
+			if ((CheckMe->Tokens[i]->Params[0]->len == 1) && 
+			    (CheckMe->Tokens[i]->Params[0]->Start[0] == 'X'))
+				break;
+			for (j = i + 1; j < CheckMe->nTokensUsed; j++)
+			{
+				if (((CheckMe->Tokens[j]->Flags == SV_CONDITIONAL) ||
+				     (CheckMe->Tokens[j]->Flags == SV_NEG_CONDITIONAL)) && 
+				    (CheckMe->Tokens[i]->Params[1]->lvalue == 
+				     CheckMe->Tokens[j]->Params[1]->lvalue))
+				{
+					FoundConditionalEnd = 1;
+					break;
+				}
+
+			}
+			if (!FoundConditionalEnd)
+			{
+				syslog(1, "ERROR: Conditional without Endconditional: '%s'\n",
+				       ChrPtr(CheckMe->Tokens[i]->FlatToken));
+			}
+			break;
+		}
+	}
+}
+
 /**
  * \brief Display a variable-substituted template
  * \param templatename template file to load
@@ -1282,6 +1321,8 @@ void *load_template(WCTemplate *NewTemplate)
 			pch ++;
 		}
 	}
+
+	SanityCheckTemplate(NewTemplate);
 	return NewTemplate;
 }
 
