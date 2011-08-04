@@ -71,7 +71,7 @@ typedef struct _HashHandler {
 	WCHandlerFunc HandlerFunc;
 }HashHandler;
 
-void *load_template(WCTemplate *NewTemplate);
+void *load_template(StrBuf *Target, WCTemplate *NewTemplate);
 int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP);
 
 
@@ -1194,7 +1194,7 @@ void *duplicate_template(WCTemplate *OldTemplate)
 }
 
 
-void SanityCheckTemplate(WCTemplate *CheckMe)
+void SanityCheckTemplate(StrBuf *Target, WCTemplate *CheckMe)
 {
 	int i = 0;
 	int j;
@@ -1224,9 +1224,16 @@ void SanityCheckTemplate(WCTemplate *CheckMe)
 			}
 			if (!FoundConditionalEnd)
 			{
-				syslog(1, "ERROR: Conditional without Endconditional: '%s'\n",
-				       ChrPtr(CheckMe->Tokens[i]->FlatToken));
+				WCTemplputParams TP;
+				memset(&TP, 0, sizeof(WCTemplputParams));
+				TP.Tokens = CheckMe->Tokens[i];
+				LogTemplateError(
+					Target, "Token", ERR_PARM1, &TP,
+					"Conditional without Endconditional"
+					);
 			}
+			break;
+		default:
 			break;
 		}
 	}
@@ -1236,7 +1243,7 @@ void SanityCheckTemplate(WCTemplate *CheckMe)
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
-void *load_template(WCTemplate *NewTemplate)
+void *load_template(StrBuf *Target, WCTemplate *NewTemplate)
 {
 	int fd;
 	struct stat statbuf;
@@ -1322,7 +1329,7 @@ void *load_template(WCTemplate *NewTemplate)
 		}
 	}
 
-	SanityCheckTemplate(NewTemplate);
+	SanityCheckTemplate(NULL, NewTemplate);
 	return NewTemplate;
 }
 
@@ -1521,7 +1528,7 @@ void InitTemplateCache(void)
 					      &vTemplate) && 
 			       (vTemplate != NULL))
 			{
-				load_template((WCTemplate *)vTemplate);
+				load_template(NULL, (WCTemplate *)vTemplate);
 			}
 			DeleteHashPos(&At);
 		}
@@ -1640,7 +1647,7 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 			syslog(1, "DBG: ----- loading:  [%s] ------ \n", 
 				ChrPtr(Tmpl->FileName));
 		pTmpl = duplicate_template(Tmpl);
-		if(load_template(pTmpl) == NULL) {
+		if(load_template(Target, pTmpl) == NULL) {
 			StrBufAppendPrintf(
 				Target, 
 				"<pre>\nError loading Template [%s]\n See Logfile for details\n</pre>\n", 
