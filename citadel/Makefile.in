@@ -70,6 +70,8 @@ LOCALEDIR=@LOCALEDIR@
 
 # End configuration section
 
+.SILENT:
+
 
 SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
 	utils/setup.c utils/msgform.c utils/chkpw.c \
@@ -161,7 +163,8 @@ SERV_OBJS = server_main.o utillib/citadel_dirs.o event_client.o \
 citserver$(EXEEXT): $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver$(EXEEXT)
 
-.c.o:
+%.o: %.c ${HEADERS}
+	echo "CC $<"
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
 aidepost$(EXEEXT): utils/aidepost.o config.o

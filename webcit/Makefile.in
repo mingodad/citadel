@@ -18,6 +18,7 @@ PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
 LOCALEDIR=@LOCALEDIR@
 WWWDIR=@WWWDIR@
+HEADERS=calendar.h  groupdav.h  messages.h  modules_init.h  paramhandling.h  preferences.h  roomops.h  subst.h  sysdep.h  tcp_sockets.h  utils.h  webcit.h  webserver.h
 
 # End of configuration section
 
@@ -27,6 +28,7 @@ all: all-progs-recursive webcit setup
 mkdir-init:
 	mkdir locale
 
+.SILENT:
 
 .SUFFIXES: .cpp .c .o
 
@@ -75,11 +77,13 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	paramhandling.o utils.o ical_maps.o ical_subst.o static.o feed_generator.o \
 	$(LIBS)
 
-.c.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) $<
+%.o: %.c ${HEADERS}
+	echo "CC $<"
+	$(CC) $(CFLAGS) $(DEFS) $(PTHREAD_DEFS) -c -o $@ $<
 
-.cpp.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) $<
+%.o: %.cpp ${HEADERS}
+	echo "CC+ $<"
+	$(CC) $(CFLAGS) $(DEFS) $(PTHREAD_DEFS) -c -o $@ $<
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
