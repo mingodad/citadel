@@ -2,9 +2,7 @@
 <?=("head")>
 <?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 
-<div id="banner">
-	<h1><?_("Pictures in")><?ROOM:NAME></h1>
-</div>
+<div id="banner"><h1><?_("Pictures in")> <?ROOM:NAME></h1></div>
 <div id="content" class="service">
 	<table class="downloads_background">
 	<tr><td>
@@ -33,3 +31,4 @@
 	<th></th>
 	</table>
 <?=("trailing")>
+<??("X", 1)>
