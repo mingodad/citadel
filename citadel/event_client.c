@@ -513,6 +513,9 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		return;
 	} else if (nbytes == -1) {
 /// TODO: FD is gone. kick it.        sock_buff_invoke_free(sb, errno);
+		CtdlLogPrintf(CTDL_DEBUG,
+			      "EVENT: Socket Invalid! %s \n",
+			      strerror(errno));
 		return;
 	}
 }
@@ -580,6 +583,9 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	ev_timer_init(&IO->rw_timeout, IO_Timeout_callback, first_rw_timeout, 0);
 	IO->rw_timeout.data = IO;
 
+
+	/*  Bypass it like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
+///	((struct sockaddr_in)IO->ConnectMe->Addr).sin_addr.s_addr = inet_addr("127.0.0.1");
 	if (IO->ConnectMe->IPv6)
 		rc = connect(IO->SendBuf.fd, &IO->ConnectMe->Addr, sizeof(struct sockaddr_in6));
 	else
