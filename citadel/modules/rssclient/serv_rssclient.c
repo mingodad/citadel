@@ -143,7 +143,7 @@ void UnlinkRooms(rss_aggregator *Cfg)
 
 }
 
-void UnlinkAggregator(rss_aggregator *Cfg)
+void UnlinkRSSAggregator(rss_aggregator *Cfg)
 {
 	HashPos *At;
 
@@ -166,7 +166,7 @@ eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 
 	if (Ctx->Cfg->RefCount == 0)
 	{
-		UnlinkAggregator(Ctx->Cfg);
+		UnlinkRSSAggregator(Ctx->Cfg);
 
 	}
 	citthread_mutex_unlock(&RSSQueueMutex);
@@ -493,7 +493,7 @@ eNextState RSSAggregatorTerminate(AsyncIO *IO)
 	rncptr->RefCount --;
 	if (rncptr->RefCount == 0)
 	{
-		UnlinkAggregator(rncptr);
+		UnlinkRSSAggregator(rncptr);
 
 	}
 	citthread_mutex_unlock(&RSSQueueMutex);
@@ -585,7 +585,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	    {
 		lPtr = NULL;
 		StrBufExtract_NextToken(CfgType, Line, &lPtr, '|');
-		if (!strcmp("rssclient", ChrPtr(CfgType)))
+		if (!strcasecmp("rssclient", ChrPtr(CfgType)))
 		{
 		    if (Count == NULL)
 		    {
@@ -679,13 +679,13 @@ void rssclient_scan(void) {
 
 	citthread_mutex_lock(&RSSQueueMutex);
 
-	it = GetNewHashPos(RSSQueueRooms, 0);
+	it = GetNewHashPos(RSSFetchUrls, 0);
 	while (GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) && 
 	       (vrptr != NULL)) {
 		rptr = (rss_aggregator *)vrptr;
 		if (rptr->RefCount == 0) 
 			if (!rss_do_fetching(rptr))
-				UnlinkAggregator(rptr);
+				UnlinkRSSAggregator(rptr);
 	}
 	DeleteHashPos(&it);
 	citthread_mutex_unlock(&RSSQueueMutex);
