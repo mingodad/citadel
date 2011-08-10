@@ -1,3 +1,5 @@
+#ifndef __EVENT_CLIENT_H__
+#define __EVENT_CLIENT_H__
 #define EV_COMPAT3 0
 #include <ev.h>
 #include <sys/types.h>
@@ -16,6 +18,7 @@ typedef enum _eNextState {
 	eSendReply, 
 	eSendMore,
 	eReadMessage, 
+	eReadMore,
 	eTerminateConnection,
 	eAbort
 }eNextState;
@@ -151,3 +154,5 @@ int evcurl_init(AsyncIO *IO,
 		IO_CallBack Terminate);
 
 void evcurl_handle_start(AsyncIO *IO);
+
+#endif /* __EVENT_CLIENT_H__ */
