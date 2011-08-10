@@ -112,7 +112,24 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 	}
 	if (pPort != NULL)
 		url->Port = atol(pPort);
-	url->IsIP = inet_pton(url->af, url->Host, &url->Addr.sin6_addr);
+	if (url->IPv6)
+	{
+	    url->IsIP = inet_pton(AF_INET6, url->Host, &url->Addr.sin6_addr);
+	    if (url->IsIP)
+	    {
+		url->Addr.sin6_port = htons(url->Port);
+		url->Addr.sin6_port = AF_INET6;
+	    }
+	}
+	else
+	{
+	    url->IsIP = inet_pton(AF_INET, url->Host, &((struct sockaddr_in *)&(url->Addr))->sin_addr);
+	    if (url->IsIP)
+	    {
+		((struct sockaddr_in *)&(url->Addr))->sin_port = htons(url->Port);
+		((struct sockaddr_in *)&(url->Addr))->sin_family = AF_INET;
+	    }	
+	}	
 	*Url = url;
 	return 1;
 }
