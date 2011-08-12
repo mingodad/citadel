@@ -1403,6 +1403,8 @@ void display_enter(void)
 				if (which == l_subj)
 				{
 					StrBuf *subj = NewStrBuf();
+					StrBuf *FlatSubject;
+
 					if (!strcasecmp(bstr("replying_mode"), "forward")) {
 						if (strncasecmp(ChrPtr(Line) + 5, "Fw:", 3)) {
 							StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
@@ -1416,7 +1418,10 @@ void display_enter(void)
 					StrBufAppendBufPlain(subj, 
 							     ChrPtr(Line) + 5, 
 							     StrLength(Line) - 5, 0);
-					PutBstr(HKEY("subject"), subj);
+					FlatSubject = NewStrBufPlain(NULL, StrLength(subj));
+					StrBuf_RFC822_to_Utf8(FlatSubject, subj, NULL, NULL);
+
+					PutBstr(HKEY("subject"), FlatSubject);
 				}
 
 				else if (which == l_wefw)
@@ -1441,7 +1446,12 @@ void display_enter(void)
 				}
 
 				else if (which == l_from) {
+					StrBuf *FlatFrom;
 					from = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+					FlatFrom = NewStrBufPlain(NULL, StrLength(from));
+					StrBuf_RFC822_to_Utf8(FlatFrom, from, NULL, NULL);
+					FreeStrBuf(&from);
+					from = FlatFrom;
 					for (i=0; i<StrLength(from); ++i) {
 						if (ChrPtr(from)[i] == ',')
 							StrBufPeek(from, NULL, i, ' ');
@@ -1461,7 +1471,12 @@ void display_enter(void)
 				}
 				
 				else if (which == l_rfca) {
+					StrBuf *FlatRFCA;
 					rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+					FlatRFCA = NewStrBufPlain(NULL, StrLength(rfca));
+					StrBuf_RFC822_to_Utf8(FlatRFCA, rfca, NULL, NULL);
+					FreeStrBuf(&rfca);
+					rfca = FlatRFCA;
 				}
 			}
 
