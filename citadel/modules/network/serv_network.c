@@ -679,8 +679,9 @@ void network_spool_msg(long msgnum, void *userdata) {
 		 */
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
-			int len, rlen;
+			int rlen;
 			char *pCh;
+			StrBuf *Subject, *FlatSubject;
 
 			if (msg->cm_fields['V'] == NULL){
 				/* local message, no enVelope */
@@ -709,27 +710,37 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 			/* Prepend "[List name]" to the subject */
 			if (msg->cm_fields['U'] == NULL) {
-				msg->cm_fields['U'] = strdup("(no subject)");
+				Subject = NewStrBufPlain(HKEY("(no subject)"));
 			}
-			
-			len  = strlen(msg->cm_fields['U']);
+			else {
+				Subject = NewStrBufPlain(msg->cm_fields['U'], -1);
+			}
+			FlatSubject = NewStrBufPlain(NULL, StrLength(Subject));
+			StrBuf_RFC822_to_Utf8(FlatSubject, Subject, NULL, NULL);
+
 			rlen = strlen(CC->room.QRname);
-			pCh  = strstr(msg->cm_fields['U'], CC->room.QRname);
+			pCh  = strstr(ChrPtr(FlatSubject), CC->room.QRname);
 			if ((pCh == NULL) ||
 			    (*(pCh + rlen) != ']') ||
-			    (pCh == msg->cm_fields['U']) ||
+			    (pCh == ChrPtr(FlatSubject)) ||
 			    (*(pCh - 1) != '[')
 				)
 			{
-				char *pBuff;
-
-				rlen += len + 4;
-				pBuff = malloc (rlen * sizeof(char));
-
-				snprintf(pBuff, rlen, "[%s] %s", CC->room.QRname, msg->cm_fields['U']);
-				free(msg->cm_fields['U']);
-				msg->cm_fields['U'] = pBuff;
+				StrBuf *tmp;
+				StrBufPlain(Subject, HKEY("["));
+				StrBufAppendBufPlain(Subject, CC->room.QRname, rlen, 0);
+				StrBufAppendBufPlain(Subject, HKEY("] "), 0);
+				StrBufAppendBuf(Subject, FlatSubject, 0);
+				tmp = Subject;	Subject = FlatSubject;	FlatSubject = tmp; /* so we can free the right one... */
+				StrBufRFC2047encode(&Subject, FlatSubject);
 			}
+			
+			if (msg->cm_fields['U'] != NULL)
+				free (msg->cm_fields['U']);
+			msg->cm_fields['U'] = SmashStrBuf(&Subject);
+
+			FreeStrBuf(&FlatSubject);
+
 			/* else we won't modify the buffer, since the roomname is already here. */
 
 			/* if we don't already have a 'reply to' field, put our roomname in. */
