@@ -163,6 +163,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		 * - User is not validated
 		 * - User has no net privileges and it is a shared network room
 		 * - It is a read-only room
+		 * - It is a blog room (in which case we only allow replies to existing messages)
 		 */
 		int post_allowed = 1;
 		int reply_allowed = 1;
@@ -177,6 +178,9 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		if (roombuf->QRflags & QR_READONLY) {
 			post_allowed = 0;
 			reply_allowed = 0;
+		}
+		if (roombuf->QRdefaultview == VIEW_BLOG) {
+			post_allowed = 0;
 		}
 		if (post_allowed) {
 			retval = retval | UA_POSTALLOWED | UA_REPLYALLOWED;
