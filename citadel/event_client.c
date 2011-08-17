@@ -95,10 +95,10 @@ int QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 	h = (IOAddHandler*)malloc(sizeof(IOAddHandler));
 	h->IO = IO;
 	h->EvAttch = CB;
-	ev_cleanup_init(&IO->abort_by_shutdown, 
+	ev_cleanup_init(&IO->db_abort_by_shutdown, 
 			IO_abort_shutdown_callback);
-	IO->abort_by_shutdown.data = IO;
-	ev_cleanup_start(event_db, &IO->abort_by_shutdown);
+	IO->db_abort_by_shutdown.data = IO;
+	ev_cleanup_start(event_db, &IO->db_abort_by_shutdown);
 
 	citthread_mutex_lock(&DBEventQueueMutex);
 	CtdlLogPrintf(CTDL_DEBUG, "DBEVENT Q\n");
@@ -117,7 +117,7 @@ void ShutDownDBCLient(AsyncIO *IO)
 	become_session(Ctx);
 
 	CtdlLogPrintf(CTDL_DEBUG, "DBEVENT\n");
-	ev_cleanup_stop(event_db, &IO->abort_by_shutdown);
+	ev_cleanup_stop(event_db, &IO->db_abort_by_shutdown);
 
 	assert(IO->Terminate);
 	IO->Terminate(IO);	
@@ -133,25 +133,37 @@ DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
 	CtdlLogPrintf(CTDL_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
 	
-	ev_idle_stop(event_db, &IO->unwind_stack);
+	ev_idle_stop(event_db, &IO->db_unwind_stack);
 
-	assert(IO->ReadDone);
-	switch (IO->ReadDone(IO))
+	assert(IO->NextDBOperation);
+	switch (IO->NextDBOperation(IO))
 	{
+	case eDBQuery:
+		break;
+	case eSendDNSQuery:
+	case eReadDNSReply:
+	case eConnect:
+	case eSendReply: 
+	case eSendMore:
+	case eReadMessage: 
+	case eReadMore:
+	case eReadPayload:
+		ev_cleanup_stop(loop, &IO->db_abort_by_shutdown);
+		break;
+	case eTerminateConnection:
 	case eAbort:
 	    ShutDownDBCLient(IO);
-	default:
-	    break;
 	}
 }
 
-void NextDBOperation(AsyncIO *IO, IO_CallBack CB)
+eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB)
 {
-	IO->ReadDone = CB;
-	ev_idle_init(&IO->unwind_stack,
+	IO->NextDBOperation = CB;
+	ev_idle_init(&IO->db_unwind_stack,
 		     DB_PerformNext);
-	IO->unwind_stack.data = IO;
-	ev_idle_start(event_db, &IO->unwind_stack);
+	IO->db_unwind_stack.data = IO;
+	ev_idle_start(event_db, &IO->db_unwind_stack);
+	return eDBQuery;
 }
 
 /*--------------------------------------------------------------------------------
@@ -255,7 +267,11 @@ eReadState HandleInbound(AsyncIO *IO)
 	
 	become_session(IO->CitContext);
 
-	while ((Finished == eBufferNotEmpty) && (IO->NextState == eReadMessage)){
+	while ((Finished == eBufferNotEmpty) && 
+	       ((IO->NextState == eReadMessage)||
+		(IO->NextState == eReadMore)||
+		(IO->NextState == eReadPayload)))
+	{
 		if (IO->RecvBuf.nBlobBytesWanted != 0) { 
 				
 		}
@@ -288,17 +304,28 @@ eReadState HandleInbound(AsyncIO *IO)
 		}
 	}
 
-
-	if ((IO->NextState == eSendReply) ||
-	    (IO->NextState == eSendMore))
-	{
+	switch (IO->NextState) {
+	case eSendReply:
+	case eSendMore:
 		assert(IO->SendDone);
 		IO->NextState = IO->SendDone(IO);
 		ev_io_start(event_base, &IO->send_event);
-	}
-	else if ((IO->NextState == eTerminateConnection) ||
-		 (IO->NextState == eAbort) )
+		break;
+	case eReadPayload:
+	case eReadMore:
+		ev_io_start(event_base, &IO->recv_event);
+		break;
+	case eTerminateConnection:
+	case eAbort:
 		ShutDownCLient(IO);
+		break;
+	case eSendDNSQuery:
+	case eReadDNSReply:
+	case eDBQuery:
+	case eConnect:
+	case eReadMessage:
+		break;
+	}
 	return Finished;
 }
 
@@ -310,6 +337,34 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	become_session(IO->CitContext);
+#ifdef BIGBAD_IODBG
+	{
+		int rv = 0;
+		char fn [SIZ];
+		FILE *fd;
+		const char *pch = ChrPtr(IO->SendBuf.Buf);
+		const char *pchh = IO->SendBuf.ReadWritePointer;
+		long nbytes;
+		
+		if (pchh == NULL)
+			pchh = pch;
+		
+		nbytes = StrLength(IO->SendBuf.Buf) - (pchh - pch);
+		snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d",
+			 ((CitContext*)(IO->CitContext))->ServiceName,
+			 IO->SendBuf.fd);
+		
+		fd = fopen(fn, "a+");
+		fprintf(fd, "Read: BufSize: %ld BufContent: [",
+			nbytes);
+		rv = fwrite(pchh, nbytes, 1, fd);
+		if (!rv) printf("failed to write debug to %s!\n", fn);
+		fprintf(fd, "]\n");
+		
+		
+		fclose(fd);
+	}
+#endif
 	rc = StrBuf_write_one_chunk_callback(watcher->fd, 0/*TODO*/, &IO->SendBuf);
 
 	if (rc == 0)
@@ -327,13 +382,15 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 				pchh = pch;
 			
 			nbytes = StrLength(IO->SendBuf.Buf) - (pchh - pch);
-			snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d", "smtpev", IO->SendBuf.fd);
+			snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d", 
+				 ((CitContext*)(IO->CitContext))->ServiceName, 
+				 IO->SendBuf.fd);
 		
 			fd = fopen(fn, "a+");
 			fprintf(fd, "Read: BufSize: %ld BufContent: [",
 				nbytes);
 			rv = fwrite(pchh, nbytes, 1, fd);
-			if (!rv) printf("failed to write debug!");
+			if (!rv) printf("failed to write debug to %s!\n", fn);
 			fprintf(fd, "]\n");
 		
 			
@@ -342,8 +399,6 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 #endif
 		ev_io_stop(event_base, &IO->send_event);
 		switch (IO->NextState) {
-		case eSendReply:
-			break;
 		case eSendMore:
 			assert(IO->SendDone);
 			IO->NextState = IO->SendDone(IO);
@@ -355,7 +410,13 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 				ev_io_start(event_base, &IO->send_event);
 			}
 			break;
+		case eSendReply:
+		    if (StrBufCheckBuffer(&IO->SendBuf) != eReadSuccess) 
+			break;
+		    IO->NextState = eReadMore;
+		case eReadMore:
 		case eReadMessage:
+		case eReadPayload:
 			if (StrBufCheckBuffer(&IO->RecvBuf) == eBufferNotEmpty) {
 				HandleInbound(IO);
 			}
@@ -363,6 +424,10 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 				ev_io_start(event_base, &IO->recv_event);
 			}
 
+			break;
+		case eDBQuery:
+			/* we now live in another queue, so we have to unregister. */
+			ev_cleanup_stop(loop, &IO->abort_by_shutdown);
 			break;
 		case eSendDNSQuery:
 		case eReadDNSReply:
@@ -383,14 +448,17 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 {
 	
 	switch(IO->NextState) {
+	case eReadMore:
 	case eReadMessage:
 		ev_io_start(event_base, &IO->recv_event);
 		break;
 	case eSendReply:
 	case eSendMore:
+	case eReadPayload:
 		become_session(IO->CitContext);
 		IO_send_callback(loop, &IO->send_event, revents);
 		break;
+	case eDBQuery:
 	case eSendDNSQuery:
 	case eReadDNSReply:
 	case eConnect:
@@ -498,6 +566,34 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	nbytes = StrBuf_read_one_chunk_callback(watcher->fd, 0 /*TODO */, &IO->RecvBuf);
+#ifdef BIGBAD_IODBG
+	{
+		int rv = 0;
+		char fn [SIZ];
+		FILE *fd;
+		const char *pch = ChrPtr(IO->RecvBuf.Buf);
+		const char *pchh = IO->RecvBuf.ReadWritePointer;
+		long nbytes;
+		
+		if (pchh == NULL)
+			pchh = pch;
+		
+		nbytes = StrLength(IO->RecvBuf.Buf) - (pchh - pch);
+		snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d",
+			 ((CitContext*)(IO->CitContext))->ServiceName, 
+			 IO->SendBuf.fd);
+		
+		fd = fopen(fn, "a+");
+		fprintf(fd, "Read: BufSize: %ld BufContent: [",
+			nbytes);
+		rv = fwrite(pchh, nbytes, 1, fd);
+		if (!rv) printf("failed to write debug to %s!\n", fn);
+		fprintf(fd, "]\n");
+		
+		
+		fclose(fd);
+	}
+#endif
 	if (nbytes > 0) {
 		HandleInbound(IO);
 	} else if (nbytes == 0) {
@@ -642,4 +738,22 @@ eNextState InitEventIO(AsyncIO *IO,
 		IO->NextState = eSendReply;
 	}
 	return event_connect_socket(IO, conn_timeout, first_rw_timeout);
+}
+
+eNextState ReAttachIO(AsyncIO *IO, 
+		      void *pData, 
+		      int ReadFirst)
+{
+	IO->Data = pData;
+	become_session(IO->CitContext);
+	ev_cleanup_start(event_base, &IO->abort_by_shutdown);
+	if (ReadFirst) {
+		IO->NextState = eReadMessage;
+	}
+	else {
+		IO->NextState = eSendReply;
+	}
+	set_start_callback(event_base, IO, 0);
+
+	return IO->NextState;
 }

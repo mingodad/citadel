@@ -14,11 +14,13 @@ typedef struct AsyncIO AsyncIO;
 typedef enum _eNextState {
 	eSendDNSQuery,
 	eReadDNSReply,
+	eDBQuery,
 	eConnect,
 	eSendReply, 
 	eSendMore,
 	eReadMessage, 
 	eReadMore,
+	eReadPayload,
 	eTerminateConnection,
 	eAbort
 }eNextState;
@@ -27,6 +29,21 @@ typedef eNextState (*IO_CallBack)(AsyncIO *IO);
 typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
 typedef void (*ParseDNSAnswerCb)(AsyncIO*, unsigned char*, int);
 typedef void (*FreeDNSReply)(void *DNSData);
+
+
+typedef struct __ReadAsyncMsg {
+	StrBuf *MsgBuf;
+	size_t maxlen;		/* maximum message length */
+
+	const char *terminator;	/* token signalling EOT */
+	long tlen;
+	int dodot;
+
+	int flushing;		/* if we read maxlen, read until nothing more arives and ignore this. */
+
+	int crlf;		/* CRLF newlines instead of LF */
+} ReadAsyncMsg;
+
 
 typedef struct _DNSQueryParts {
 	ParseDNSAnswerCb DNS_CB;
@@ -66,10 +83,12 @@ struct AsyncIO {
 		RecvBuf;
 
 	/* our events... */
-	ev_cleanup abort_by_shutdown; /* server wants to go down... */
+	ev_cleanup abort_by_shutdown, /* server wants to go down... */
+		db_abort_by_shutdown; /* server wants to go down... */
 	ev_timer conn_fail,           /* connection establishing timed out */
 		rw_timeout;           /* timeout while sending data */
 	ev_idle unwind_stack,         /* get c-ares out of the stack */
+		db_unwind_stack,      /* wait for next db operation... */
 		conn_fail_immediate;  /* unwind stack, but fail immediately. */
 	ev_io recv_event,             /* receive data from the client */
 		send_event,           /* send more data to the client */
@@ -83,7 +102,8 @@ struct AsyncIO {
 		Terminate,    /* shutting down... */
 		Timeout,      /* Timeout handler; may also be connection timeout */
 		ConnFail,     /* What to do when one connection failed? */
-		ShutdownAbort;/* we're going down. make your piece. */ 
+		ShutdownAbort,/* we're going down. make your piece. */ 
+		NextDBOperation; /* Perform Database IO */
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 
@@ -97,7 +117,7 @@ struct AsyncIO {
 	evcurl_request_data HttpReq;
 
 	/* Saving / loading a message async from / to disk */
-
+	ReadAsyncMsg *ReadMsg;
 	struct CtdlMessage *AsyncMsg;
 	struct recptypes *AsyncRcp;
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
@@ -112,7 +132,7 @@ typedef struct _IOAddHandler {
 
 void FreeAsyncIOContents(AsyncIO *IO);
 
-void NextDBOperation(AsyncIO *IO, IO_CallBack CB);
+eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
 int QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 int QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 int ShutDownEventQueue(void);
@@ -152,6 +172,10 @@ int evcurl_init(AsyncIO *IO,
 		const char* Desc,
 		IO_CallBack CallBack, 
 		IO_CallBack Terminate);
+
+eNextState ReAttachIO(AsyncIO *IO, 
+		      void *pData, 
+		      int ReadFirst);
 
 void evcurl_handle_start(AsyncIO *IO);
 
