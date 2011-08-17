@@ -2927,7 +2927,7 @@ void ReplicationChecks(struct CtdlMessage *msg) {
  */
 long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		   struct recptypes *recps,	/* recipients (if mail) */
-		   char *force,			/* force a particular room? */
+		   const char *force,		/* force a particular room? */
 		   int flags			/* should the message be exported clean? */
 ) {
 	char submit_filename[128];
@@ -3477,6 +3477,123 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 	} while (!finished);
 	FreeStrBuf(&LineBuf);
 	return Message;
+}
+
+void DeleteAsyncMsg(ReadAsyncMsg **Msg)
+{
+	if (*Msg == NULL)
+		return;
+	FreeStrBuf(&(*Msg)->MsgBuf);
+
+	free(*Msg);
+	*Msg = NULL;
+}
+
+ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
+			  long tlen,
+			  size_t maxlen,		/* maximum message length */
+			  size_t expectlen,             /* if we expect a message, how long should it be? */
+			  char *exist,			/* if non-null, append to it;
+						   	   exist is ALWAYS freed  */
+			  long eLen,            	/* length of exist */
+			  int crlf			/* CRLF newlines instead of LF */
+	)
+{
+	ReadAsyncMsg *NewMsg;
+
+	NewMsg = (ReadAsyncMsg *)malloc(sizeof(ReadAsyncMsg));
+	memset(NewMsg, 0, sizeof(ReadAsyncMsg));
+
+	if (exist == NULL) {
+		long len;
+
+		if (expectlen == 0) {
+			len = 4 * SIZ;
+		}
+		else {
+			len = expectlen + 10;
+		}
+		NewMsg->MsgBuf = NewStrBufPlain(NULL, len);
+	}
+	else {
+		NewMsg->MsgBuf = NewStrBufPlain(exist, eLen);
+		free(exist);
+	}
+	/* Do we need to change leading ".." to "." for SMTP escaping? */
+	if ((tlen == 1) && (*terminator == '.')) {
+		NewMsg->dodot = 1;
+	}
+
+	NewMsg->terminator = terminator;
+	NewMsg->tlen = tlen;
+
+	NewMsg->maxlen = maxlen;
+
+	NewMsg->crlf = crlf;
+
+	return NewMsg;
+}
+
+/*
+ * Back end function used by CtdlMakeMessage() and similar functions
+ */
+eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
+{
+	ReadAsyncMsg *ReadMsg;
+	int MsgFinished = 0;
+	eReadState Finished = eMustReadMore;
+
+	ReadMsg = IO->ReadMsg;
+
+	/* read in the lines of message text one by one */
+	do {
+		Finished = StrBufChunkSipLine(IO->IOBuf, &IO->RecvBuf);
+		
+		switch (Finished) {
+		case eMustReadMore: /// read new from socket... 
+		    return Finished;
+		    break;
+		case eBufferNotEmpty: /* shouldn't happen... */
+		case eReadSuccess: /// done for now...
+		    break;
+		case eReadFail: /// WHUT?
+		    ///todo: shut down! 
+			break;
+		}
+	    
+
+		if ((StrLength(IO->IOBuf) == ReadMsg->tlen) && 
+		    (!strcmp(ChrPtr(IO->IOBuf), ReadMsg->terminator))) {
+			MsgFinished = 1;
+		}
+		else if (!ReadMsg->flushing) {
+			/* Unescape SMTP-style input of two dots at the beginning of the line */
+			if ((ReadMsg->dodot) &&
+			    (StrLength(IO->IOBuf) == 2) &&  /* TODO: do we just unescape lines with two dots or any line? */
+			    (!strcmp(ChrPtr(IO->IOBuf), "..")))
+			{
+				StrBufCutLeft(IO->IOBuf, 1);
+			}
+
+			if (ReadMsg->crlf) {
+				StrBufAppendBufPlain(IO->IOBuf, HKEY("\r\n"), 0);
+			}
+			else {
+				StrBufAppendBufPlain(IO->IOBuf, HKEY("\n"), 0);
+			}
+
+			StrBufAppendBuf(ReadMsg->MsgBuf, IO->IOBuf, 0);
+		}
+
+		/* if we've hit the max msg length, flush the rest */
+		if (StrLength(ReadMsg->MsgBuf) >= ReadMsg->maxlen) ReadMsg->flushing = 1;
+
+	} while (!MsgFinished);
+
+	if (MsgFinished)
+		return eReadSuccess;
+	else 
+		return eAbort;
 }
 
 

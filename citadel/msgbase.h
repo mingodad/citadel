@@ -2,7 +2,7 @@
 #ifndef MSGBASE_H
 #define MSGBASE_H
 
-
+#include "event_client.h"
 enum {
 	MSGS_ALL,
 	MSGS_OLD,
@@ -107,7 +107,7 @@ void cmd_opna (char *cmdbuf);
 void cmd_dlat (char *cmdbuf);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
-long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *, int);
+long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, const char *, int);
 void quickie_message (const char *, const char *, char *, char *, const char *, int, const char *);
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);
@@ -235,6 +235,26 @@ int CtdlIsMe(char *addr, int addr_buf_len);
  * All parameters remain the same.
 */
 void aide_message(char *text, char *subject) __attribute__ ((deprecated));
+
+
+/* 
+ * loading messages async via an FD: 
+ * add IO->ReadMsg = NewAsyncMsg(...)
+ * and then call CtdlReadMessageBodyAsync() from your linreader handler.
+ */
+
+ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
+			  long tlen,
+			  size_t expectlen,             /* if we expect a message, how long should it be? */
+			  size_t maxlen,		/* maximum message length */
+			  char *exist,			/* if non-null, append to it;
+						   	   exist is ALWAYS freed  */
+			  long eLen,            	/* length of exist */
+			  int crlf			/* CRLF newlines instead of LF */
+	);
+
+eReadState CtdlReadMessageBodyAsync(AsyncIO *IO);
+void DeleteAsyncMsg(ReadAsyncMsg **Msg);
 
 
 
