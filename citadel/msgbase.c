@@ -1814,6 +1814,7 @@ void OutputRFC822MsgHeaders(
 	int i, j, k;
 	char *mptr = NULL;
 	char *mpptr = NULL;
+	char *hptr;
 
 	for (i = 0; i < 256; ++i) {
 		if (TheMessage->cm_fields[i]) {
@@ -1839,7 +1840,11 @@ void OutputRFC822MsgHeaders(
 			else if (i == 'V') {
 				if ((flags & QP_EADDR) != 0) 
 					mptr = qp_encode_email_addrs(mptr);
-				cprintf("Envelope-To: %s%s", mptr, nl);
+				hptr = mptr;
+				while ((*hptr != '\0') && isspace(*hptr))
+					hptr ++;
+				if (!IsEmptyStr(hptr))
+					cprintf("Envelope-To: %s%s", hptr, nl);
 			}
 			else if (i == 'U') {
 				cprintf("Subject: %s%s", mptr, nl);
