@@ -3735,30 +3735,36 @@ int CtdlDoIHavePermissionToPostInThisRoom(
 
 	if ((CC->user.axlevel < AxProbU)
 	    && ((CC->room.QRflags & QR_MAILBOX) == 0)) {
-		snprintf(errmsgbuf, n, "Need to be validated to enter "
-				"(except in %s> to sysop)", MAILROOM);
+		snprintf(errmsgbuf, n, "Need to be validated to enter (except in %s> to sysop)", MAILROOM);
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
 	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
 
-	if ( (!(ra & UA_POSTALLOWED)) && (ra & UA_REPLYALLOWED) && (!is_reply) ) {
+	if (ra & UA_POSTALLOWED) {
+		strcpy(errmsgbuf, "OK to post or reply here");
+		return(0);
+	}
+
+	if ( (ra & UA_REPLYALLOWED) && (is_reply) ) {
 		/*
 		 * To be thorough, we ought to check to see if the message they are
 		 * replying to is actually a valid one in this room, but unless this
 		 * actually becomes a problem we'll go with high performance instead.
 		 */
+		strcpy(errmsgbuf, "OK to reply here");
+		return(0);
+	}
+
+	if ( (ra & UA_REPLYALLOWED) && (!is_reply) ) {
+		/* Clarify what happened with a better error message */
 		snprintf(errmsgbuf, n, "You may only reply to existing messages here.");
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
-	else if (!(ra & UA_POSTALLOWED)) {
-		snprintf(errmsgbuf, n, "Higher access is required to post in this room.");
-		return (ERROR + HIGHER_ACCESS_REQUIRED);
-	}
+	snprintf(errmsgbuf, n, "Higher access is required to post in this room.");
+	return (ERROR + HIGHER_ACCESS_REQUIRED);
 
-	strcpy(errmsgbuf, "Ok");
-	return(0);
 }
 
 

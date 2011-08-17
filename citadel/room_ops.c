@@ -111,8 +111,9 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 
 	/* If this is a public room, it's accessible... */
-	if ( ((roombuf->QRflags & QR_PRIVATE) == 0) 
-	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
+	if (	((roombuf->QRflags & QR_PRIVATE) == 0) 
+		&& ((roombuf->QRflags & QR_MAILBOX) == 0)
+	) {
 		retval = retval | UA_KNOWN | UA_GOTOALLOWED;
 	}
 
@@ -124,8 +125,9 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 
 	/* For private rooms, check the generation number matchups */
-	if ( (roombuf->QRflags & QR_PRIVATE) 
-	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
+	if (	(roombuf->QRflags & QR_PRIVATE) 
+		&& ((roombuf->QRflags & QR_MAILBOX) == 0)
+	) {
 
 		/* An explicit match means the user belongs in this room */
 		if (vbuf.v_flags & V_ACCESS) {
@@ -134,8 +136,9 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		/* Otherwise, check if this is a guess-name or passworded
 		 * room.  If it is, a goto may at least be attempted
 		 */
-		else if ((roombuf->QRflags & QR_PRIVATE)
-			 || (roombuf->QRflags & QR_PASSWORDED)) {
+		else if (	(roombuf->QRflags & QR_PRIVATE)
+				|| (roombuf->QRflags & QR_PASSWORDED)
+		) {
 			retval = retval & ~UA_KNOWN;
 			retval = retval | UA_GOTOALLOWED;
 		}
@@ -160,6 +163,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		 * - User is not validated
 		 * - User has no net privileges and it is a shared network room
 		 * - It is a read-only room
+		 * - It is a blog room (in which case we only allow replies to existing messages)
 		 */
 		int post_allowed = 1;
 		int reply_allowed = 1;
@@ -174,6 +178,9 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		if (roombuf->QRflags & QR_READONLY) {
 			post_allowed = 0;
 			reply_allowed = 0;
+		}
+		if (roombuf->QRdefaultview == VIEW_BLOG) {
+			post_allowed = 0;
 		}
 		if (post_allowed) {
 			retval = retval | UA_POSTALLOWED | UA_REPLYALLOWED;
@@ -196,21 +203,24 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	/* Check to see if the user has forgotten this room */
 	if (vbuf.v_flags & V_FORGET) {
 		retval = retval & ~UA_KNOWN;
-		if ( ( ((roombuf->QRflags & QR_PRIVATE) == 0) 
-		      && ((roombuf->QRflags & QR_MAILBOX) == 0) )
-		   || ( (roombuf->QRflags & QR_MAILBOX) 
-		      && (atol(roombuf->QRname) == CC->user.usernum))) {
+		if (	( ((roombuf->QRflags & QR_PRIVATE) == 0) 
+			&& ((roombuf->QRflags & QR_MAILBOX) == 0)
+		) || (	(roombuf->QRflags & QR_MAILBOX) 
+			&& (atol(roombuf->QRname) == CC->user.usernum))
+		) {
 			retval = retval | UA_ZAPPED;
 		}
 	}
+
 	/* If user is explicitly locked out of this room, deny everything */
 	if (vbuf.v_flags & V_LOCKOUT) {
 		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED & ~UA_POSTALLOWED & ~UA_REPLYALLOWED;
 	}
 
 	/* Aides get access to all private rooms */
-	if ( (userbuf->axlevel >= AxAideU)
-	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
+	if (	(userbuf->axlevel >= AxAideU)
+		&& ((roombuf->QRflags & QR_MAILBOX) == 0)
+	) {
 		if (vbuf.v_flags & V_FORGET) {
 			retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED | UA_REPLYALLOWED;
 		}
@@ -222,15 +232,16 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	/* Aides can gain access to mailboxes as well, but they don't show
 	 * by default.
 	 */
-	if ( (userbuf->axlevel >= AxAideU)
-	   && (roombuf->QRflags & QR_MAILBOX) ) {
+	if (	(userbuf->axlevel >= AxAideU)
+		&& (roombuf->QRflags & QR_MAILBOX)
+	) {
 		retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED | UA_REPLYALLOWED;
 	}
 
 	/* Aides and Room Aides have admin privileges */
-	if ( (userbuf->axlevel >= AxAideU)
-	   || (userbuf->usernum == roombuf->QRroomaide)
-	   ) {
+	if (	(userbuf->axlevel >= AxAideU)
+		|| (userbuf->usernum == roombuf->QRroomaide)
+	) {
 		retval = retval | UA_ADMINALLOWED | UA_DELETEALLOWED | UA_POSTALLOWED | UA_REPLYALLOWED;
 	}
 
