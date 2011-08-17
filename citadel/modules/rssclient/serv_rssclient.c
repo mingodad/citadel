@@ -200,7 +200,7 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 // TODO: relink me:	ExpandShortUrls(ri->description);
 
-eNextState FetchNetworkUsetableEntry(AsyncIO *IO)
+eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
 	struct cdbdata *cdbut;
 	networker_save_message *Ctx = (networker_save_message *) IO->Data;
@@ -245,7 +245,7 @@ void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf
 	Ctx->IO.CitContext = CloneContext(CC);
 	Ctx->IO.Terminate = FreeNetworkSaveMessage;
 	Ctx->IO.ShutdownAbort = AbortNetworkSaveMessage;
-	QueueDBOperation(&Ctx->IO, FetchNetworkUsetableEntry);
+	QueueDBOperation(&Ctx->IO, RSS_FetchNetworkUsetableEntry);
 }
 
 
