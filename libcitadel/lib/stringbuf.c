@@ -2566,6 +2566,7 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 		if ((ch  <  32) || 
 		    (ch  > 126) || 
 		    (ch ==  61) ||
+		    (ch == '=') ||
 		    (ch == '[') ||
 		    (ch == ']')   )
 		{
