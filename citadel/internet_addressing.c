@@ -681,6 +681,14 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		processed = 1;
 	}
 
+	else if (!strcasecmp(key, "Reply-To")) {
+		if (msg->cm_fields['K'] != NULL) {
+			free(msg->cm_fields['K']);
+		}
+		msg->cm_fields['K'] = strndup(value, valuelen);
+		processed = 1;
+	}
+
 	else if (!strcasecmp(key, "In-reply-to")) {
 		if (msg->cm_fields['W'] == NULL) {		/* References: supersedes In-reply-to: */
 			msg->cm_fields['W'] = strndup(value, valuelen);
