@@ -2222,83 +2222,126 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 			eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
 			bptr = Target->buf + Target->BufUsed;
 		}
-		if (*aptr == '<') {
-			memcpy(bptr, "&lt;", 4);
+		switch (*aptr) {
+		case '<':
+			memcpy(bptr, HKEY("&lt;"));
 			bptr += 4;
 			Target->BufUsed += 4;
-		}
-		else if (*aptr == '>') {
-			memcpy(bptr, "&gt;", 4);
+			break;
+		case '>':
+			memcpy(bptr, HKEY("&gt;"));
 			bptr += 4;
 			Target->BufUsed += 4;
-		}
-		else if (*aptr == '&') {
-			memcpy(bptr, "&amp;", 5);
+			break;
+		case '&':
+			memcpy(bptr, HKEY("&amp;"));
 			bptr += 5;
 			Target->BufUsed += 5;
-		}
-		else if (*aptr == LB) {
+			break;
+		case LB:
 			*bptr = '<';
 			bptr ++;
 			Target->BufUsed ++;
-		}
-		else if (*aptr == RB) {
+			break;
+		case RB:
 			*bptr = '>';
 			bptr ++;
 			Target->BufUsed ++;
-		}
-		else if ((*aptr == 32) && (nbsp == 1)) {
-			memcpy(bptr, "&nbsp;", 6);
+			break;
+		case  32:
+//) && (nbsp == 1)) {
+			memcpy(bptr, HKEY("&nbsp;"));
 			bptr += 6;
 			Target->BufUsed += 6;
-		}
-		else if ((*aptr == '\n') && (nolinebreaks == 1)) {
-			*bptr='\0';	/* nothing */
-		}
-		else if ((*aptr == '\n') && (nolinebreaks == 2)) {
-			memcpy(bptr, "&lt;br/&gt;", 11);
-			bptr += 11;
-			Target->BufUsed += 11;
-		}
-
-		else if ((*aptr == '\r') && (nolinebreaks != 0)) {
-			*bptr='\0';	/* nothing */
-		}
-
-		else if ((*aptr == '"') || (*aptr == QU)) {
+			break;
+		case '\n':
+			switch (nolinebreaks) {
+			case 1:
+				*bptr='\0';	/* nothing */
+				break;
+			case 2:
+				memcpy(bptr, HKEY("&lt;br/&gt;"));
+				bptr += 11;
+				Target->BufUsed += 11;
+				break;
+			default:
+				memcpy(bptr, HKEY("\\n"));
+				bptr += 2;
+				Target->BufUsed += 2;				
+			}
+			break;
+		case '\r':
+			switch (nolinebreaks) {
+			case 1:
+			case 2:
+				*bptr='\0';	/* nothing */
+				break;
+			default:
+				memcpy(bptr, HKEY("\\r"));
+				bptr += 2;
+				Target->BufUsed += 2;
+				break;
+			}
+			break;
+		case '"':
+		case QU:
 			*bptr = '\\';
 			bptr ++;
 			*bptr = '"';
 			bptr ++;
 			Target->BufUsed += 2;
-		} else if (*aptr == '\\') {
+			break;
+		case '\\':
+			if ((*(aptr + 1) == 'u') &&
+			    isxdigit(*(aptr + 2)) &&
+			    isxdigit(*(aptr + 3)) &&
+			    isxdigit(*(aptr + 4)) &&
+			    isxdigit(*(aptr + 5)))
+			{ /* oh, a unicode escaper. let it pass through. */
+				memcpy(bptr, aptr, 6);
+				aptr += 5;
+				bptr +=6;
+				Target->BufUsed += 6;
+			}
+			else 
+			{
+				*bptr = '\\';
+				bptr ++;
+				*bptr = '\\';
+				bptr ++;
+				Target->BufUsed += 2;
+			}
+			break;
+		case '\b':
 			*bptr = '\\';
 			bptr ++;
-			*bptr = '\\';
+			*bptr = 'b';
 			bptr ++;
 			Target->BufUsed += 2;
-		}
-		else {
-			if (((unsigned char)*aptr) >= 0x20)
-			{
-				IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
-				
+			break;
+		case '\f':
+			*bptr = '\\';
+			bptr ++;
+			*bptr = 'f';
+			bptr ++;
+			Target->BufUsed += 2;
+			break;
+		case '\t':
+			*bptr = '\\';
+			bptr ++;
+			*bptr = 't';
+			bptr ++;
+			Target->BufUsed += 2;
+			break;
+		default:
+			IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
+			while (IsUtf8Sequence > 0){
 				*bptr = *aptr;
 				Target->BufUsed ++;
-				while (IsUtf8Sequence > 1){
-					if(bptr + IsUtf8Sequence >= eptr) {
-						IncreaseBuf(Target, 1, -1);
-						eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
-						bptr = Target->buf + Target->BufUsed - 1;
-					}
-					bptr++; aptr++;
-					IsUtf8Sequence --;
-					*bptr = *aptr;
-					Target->BufUsed ++;
-				}
+				if (--IsUtf8Sequence)
+					aptr++;
 				bptr++;
 			}
-
 		}
 		aptr ++;
 	}
@@ -3212,19 +3255,22 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
  * @ingroup StrBuf
  * @brief evaluate the length of an utf8 special character sequence
  * @param Char the character to examine
- * @returns width of utf8 chars in bytes
+ * @returns width of utf8 chars in bytes; if the sequence is broken 0 is returned; 1 if its simply ASCII.
  */
 static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *CharE)
 {
 	int n = 1;
         char test = (1<<7);
-	
+
+	if ((*CharS & 0xC0) == 0) 
+		return 1;
+
 	while ((n < 8) && ((test & *CharS) != 0)) {
 		test = test << 1;
 		n ++;
 	}
 	if ((n > 6) || ((CharE - CharS) < n))
-		n = 1;
+		n = 0;
 	return n;
 }
 
