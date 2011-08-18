@@ -2563,7 +2563,12 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 		if ((*target)->BufUsed + 4 >= (*target)->BufSize)
 			IncreaseBuf(*target, 1, 0);
 		ch = (unsigned char) source->buf[i];
-		if ((ch < 32) || (ch > 126) || (ch == 61)) {
+		if ((ch  <  32) || 
+		    (ch  > 126) || 
+		    (ch ==  61) ||
+		    (ch == '[') ||
+		    (ch == ']')   )
+		{
 			sprintf(&(*target)->buf[(*target)->BufUsed], "=%02X", ch);
 			(*target)->BufUsed += 3;
 		}
