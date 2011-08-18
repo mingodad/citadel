@@ -2006,7 +2006,11 @@ void OutputRFC822MsgHeaders(
 				}
 			}
 			else if (i == 'K') {
-				cprintf("Reply-To: <%s>%s", mptr, nl);
+				hptr = mptr;
+				while ((*hptr != '\0') && isspace(*hptr))
+					hptr ++;
+				if (!IsEmptyStr(hptr))
+					cprintf("Reply-To: %s%s", mptr, nl);
 			}
 			if (mptr != mpptr)
 				free (mptr);
