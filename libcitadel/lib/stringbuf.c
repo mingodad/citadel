@@ -2015,31 +2015,83 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 		return -1;
 
 	bptr = Target->buf + Target->BufUsed;
-	eptr = Target->buf + Target->BufSize - 3; /* our biggest unit to put in...  */
+	eptr = Target->buf + Target->BufSize - 7; /* our biggest unit to put in...  */
 
 	while (aptr < eiptr){
 		if(bptr >= eptr) {
 			IncreaseBuf(Target, 1, -1);
-			eptr = Target->buf + Target->BufSize - 3; 
+			eptr = Target->buf + Target->BufSize - 7; /* our biggest unit to put in...  */
 			bptr = Target->buf + Target->BufUsed;
 		}
-		if (*aptr == '"') {
+		switch (*aptr) {
+		case '\n':
+			memcpy(bptr, HKEY("\\n"));
+			bptr += 2;
+			Target->BufUsed += 2;				
+			break;
+		case '\r':
+			memcpy(bptr, HKEY("\\r"));
+			bptr += 2;
+			Target->BufUsed += 2;
+			break;
+		case '"':
 			*bptr = '\\';
 			bptr ++;
 			*bptr = '"';
 			bptr ++;
 			Target->BufUsed += 2;
-		} else if (*aptr == '\\') {
+			break;
+		case '\\':
+			if ((*(aptr + 1) == 'u') &&
+			    isxdigit(*(aptr + 2)) &&
+			    isxdigit(*(aptr + 3)) &&
+			    isxdigit(*(aptr + 4)) &&
+			    isxdigit(*(aptr + 5)))
+			{ /* oh, a unicode escaper. let it pass through. */
+				memcpy(bptr, aptr, 6);
+				aptr += 5;
+				bptr +=6;
+				Target->BufUsed += 6;
+			}
+			else 
+			{
+				*bptr = '\\';
+				bptr ++;
+				*bptr = '\\';
+				bptr ++;
+				Target->BufUsed += 2;
+			}
+			break;
+		case '\b':
 			*bptr = '\\';
 			bptr ++;
-			*bptr = '\\';
+			*bptr = 'b';
 			bptr ++;
 			Target->BufUsed += 2;
-		}
-		else{
-			*bptr = *aptr;
-			bptr++;
-			Target->BufUsed ++;
+			break;
+		case '\f':
+			*bptr = '\\';
+			bptr ++;
+			*bptr = 'f';
+			bptr ++;
+			Target->BufUsed += 2;
+			break;
+		case '\t':
+			*bptr = '\\';
+			bptr ++;
+			*bptr = 't';
+			bptr ++;
+			Target->BufUsed += 2;
+			break;
+		default:
+			IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
+			while (IsUtf8Sequence > 0){
+				*bptr = *aptr;
+				Target->BufUsed ++;
+				if (--IsUtf8Sequence)
+					aptr++;
+				bptr++;
+			}
 		}
 		aptr ++;
 	}
@@ -2118,12 +2170,6 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 			*bptr = '>';
 			bptr ++;
 			Target->BufUsed ++;
-			break;
-		case  32:
-//) && (nbsp == 1)) {
-			memcpy(bptr, HKEY("&nbsp;"));
-			bptr += 6;
-			Target->BufUsed += 6;
 			break;
 		case '\n':
 			switch (nolinebreaks) {
@@ -2204,6 +2250,13 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 			bptr ++;
 			Target->BufUsed += 2;
 			break;
+		case  32:
+			if (nbsp == 1) {
+				memcpy(bptr, HKEY("&nbsp;"));
+				bptr += 6;
+				Target->BufUsed += 6;
+				break;
+			}
 		default:
 			IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
 			while (IsUtf8Sequence > 0){
