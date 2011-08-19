@@ -3328,14 +3328,16 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
  */
 static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *CharE)
 {
-	int n = 1;
-        char test = (1<<7);
+	int n = 0;
+        unsigned char test = (1<<7);
 
 	if ((*CharS & 0xC0) == 0) 
 		return 1;
 
-	while ((n < 8) && ((test & *CharS) != 0)) {
-		test = test << 1;
+	while ((n < 8) && 
+	       ((test & ((unsigned char)*CharS)) != 0)) 
+	{
+		test = test >> 1;
 		n ++;
 	}
 	if ((n > 6) || ((CharE - CharS) < n))
