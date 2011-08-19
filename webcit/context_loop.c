@@ -617,6 +617,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 
 	TheSession->Hdr = NULL;
 	TheSession->inuse = 0;					/* mark the session as unbound */
+	TheSession->selected_language = 0;			/* clear any non-default language setting */
 	CtdlLogResult(pthread_mutex_unlock(&TheSession->SessionMutex));
 }
 
