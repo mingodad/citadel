@@ -3184,7 +3184,7 @@ static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *Char
 	int n = 0;
         unsigned char test = (1<<7);
 
-	if ((*CharS & 0xC0) == 0) 
+	if ((*CharS & 0xC0) != 0xC0) 
 		return 1;
 
 	while ((n < 8) && 
@@ -3207,7 +3207,7 @@ static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *Char
 static inline int Ctdl_IsUtf8SequenceStart(const char Char)
 {
 /** 11??.???? indicates an UTF8 Sequence. */
-	return ((Char & 0xC0) != 0);
+	return ((Char & 0xC0) == 0xC0);
 }
 
 /**
