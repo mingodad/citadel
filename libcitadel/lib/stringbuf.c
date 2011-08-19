@@ -2141,6 +2141,7 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 	const char *aptr, *eiptr;
 	char *bptr, *eptr;
 	long len;
+	int IsUtf8Sequence;
 
 	if (((Source == NULL) && (PlainIn == NULL)) || (Target == NULL) )
 		return -1;
