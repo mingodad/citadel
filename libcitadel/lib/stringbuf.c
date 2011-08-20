@@ -2534,6 +2534,7 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 		    (ch  > 126) || 
 		    (ch ==  61) ||
 		    (ch == '=') ||
+                    (ch == '?') ||
 		    (ch == '_') ||
 		    (ch == '[') ||
 		    (ch == ']')   )
