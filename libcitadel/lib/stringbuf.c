@@ -2534,6 +2534,7 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 		    (ch  > 126) || 
 		    (ch ==  61) ||
 		    (ch == '=') ||
+		    (ch == '_') ||
 		    (ch == '[') ||
 		    (ch == ']')   )
 		{
@@ -2541,7 +2542,10 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 			(*target)->BufUsed += 3;
 		}
 		else {
-			(*target)->buf[(*target)->BufUsed] = ch;
+			if (ch == ' ')
+				(*target)->buf[(*target)->BufUsed] = '_';
+			else
+				(*target)->buf[(*target)->BufUsed] = ch;
 			(*target)->BufUsed++;
 		}
 	}
