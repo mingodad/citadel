@@ -103,7 +103,7 @@ typedef struct __pop3aggr {
 	ParsedURL Pop3Host;
 	DNSQueryParts HostLookup;
 
-	StrBuf		*rooms;
+//	StrBuf		*rooms;
 	long		 QRnumber;
 	HashList	*OtherQRnumbers;
 
@@ -125,7 +125,7 @@ void DeletePOP3Aggregator(void *vptr)
 	pop3aggr *ptr = vptr;
 	DeleteHashPos(&ptr->Pos);
 	DeleteHash(&ptr->MsgNumbers);
-	FreeStrBuf(&ptr->rooms);
+//	FreeStrBuf(&ptr->rooms);
 	FreeStrBuf(&ptr->pop3user);
 	FreeStrBuf(&ptr->pop3pass);
 	FreeStrBuf(&ptr->RoomName);
@@ -145,7 +145,19 @@ eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO);
 
 eNextState FinalizePOP3AggrRun(AsyncIO *IO)
 {
+	HashPos  *It;
+	pop3aggr *cptr = (pop3aggr *)IO->Data;
 
+	CtdlLogPrintf(CTDL_DEBUG, "Terminating Aggregator; bye.\n");
+
+	It = GetNewHashPos(POP3FetchUrls, 0);
+	citthread_mutex_lock(&POP3QueueMutex);
+	{
+		GetHashPosFromKey(POP3FetchUrls, SKEY(cptr->Url), It);
+		DeleteEntryFromHash(POP3FetchUrls, It);
+	}
+	citthread_mutex_unlock(&POP3QueueMutex);
+	DeleteHashPos(&It);
 	return eAbort;
 }
 
@@ -484,7 +496,7 @@ eNextState POP3C_SendQuit(pop3aggr *RecvMsg)
 eNextState POP3C_ReadQuitState(pop3aggr *RecvMsg)
 {
 	POP3C_DBG_READ();
-	return eAbort;
+	return eTerminateConnection;
 }
 
 const long POP3_C_ConnTimeout = 1000;
@@ -928,7 +940,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 				cptr = (pop3aggr *) malloc(sizeof(pop3aggr));
 				memset(cptr, 0, sizeof(pop3aggr));
 				/// TODO do we need this? cptr->roomlist_parts = 1;
-				cptr->rooms = NewStrBufPlain(qrbuf->QRname, -1);
+				cptr->RoomName = NewStrBufPlain(qrbuf->QRname, -1);
 				cptr->pop3user = NewStrBufPlain(NULL, StrLength(Line));
 				cptr->pop3pass = NewStrBufPlain(NULL, StrLength(Line));
 				cptr->Url = NewStrBuf();
