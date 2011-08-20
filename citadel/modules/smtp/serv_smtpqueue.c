@@ -117,8 +117,10 @@ int DecreaseQReference(OneQueItem *MyQItem)
 {
 	int IDestructQueItem;
 
+	citthread_mutex_lock(&ActiveQItemsLock);
 	MyQItem->ActiveDeliveries--;
 	IDestructQueItem = MyQItem->ActiveDeliveries == 0;
+	citthread_mutex_unlock(&ActiveQItemsLock);
 	return IDestructQueItem;
 }
 
