@@ -180,9 +180,11 @@ volatile int restart_server = 0;
 volatile int running_as_daemon = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
+	ThreadTSD *Cc;
 
-	if (CT)
-		CT->signal = signum;
+	Cc = CTP;
+	if (Cc && Cc->self)
+		Cc->self->signal = signum;
 	else
 	{
 		CtdlLogPrintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
