@@ -378,7 +378,7 @@ void do_extnotify_queue(void)
 	if (IsEmptyStr(config.c_pager_program) && 
 	    IsEmptyStr(config.c_funambol_host))
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "No external notifiers configured on system/user");
+		CtdlLogPrintf(CTDL_DEBUG, "No external notifiers configured on system/user\n");
 		return;
 	}
 
