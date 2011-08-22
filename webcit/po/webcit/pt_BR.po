@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-06 13:35-0400\n"
+"POT-Creation-Date: 2011-08-22 13:16-0400\n"
 "PO-Revision-Date: 2010-11-25 13:41+0000\n"
 "Last-Translator: Alessandro Cesar <Unknown>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -32,11 +32,11 @@ msgstr ""
 "aceitar nenhum login adicional neste momento. Por favor tente novamente mais "
 "tarde ou contate seu administrador de sistemas."
 
-#: ../../serv_func.c:197 ../../serv_func.c:228
+#: ../../serv_func.c:197 ../../serv_func.c:226
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr "Recebida uma resposta não esperada do servidor Citadel; Salvando."
 
-#: ../../serv_func.c:237
+#: ../../serv_func.c:235
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -84,7 +84,7 @@ msgid "Change host name"
 msgstr "Mudar nome do host"
 
 #: ../../who.c:190 ../../static/t/openid_manual_create.html:9
-#: ../../static/t/get_logged_in.html:45 ../../static/t/get_logged_in.html:60
+#: ../../static/t/get_logged_in.html:47 ../../static/t/get_logged_in.html:62
 #: ../../static/t/aide/edituser/detailview.html:20
 msgid "User name:"
 msgstr "Nome do usuário:"
@@ -93,10 +93,10 @@ msgstr "Nome do usuário:"
 msgid "Change user name"
 msgstr "Mudar nome do usuário"
 
-#: ../../who.c:200 ../../sieve.c:221 ../../tasks.c:356 ../../sysmsgs.c:68
-#: ../../auth.c:791 ../../vcard_edit.c:1221 ../../paging.c:66
-#: ../../event.c:768 ../../graphics.c:71 ../../messages.c:1538
-#: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
+#: ../../who.c:200 ../../sieve.c:686 ../../tasks.c:353 ../../sysmsgs.c:68
+#: ../../auth.c:825 ../../vcard_edit.c:1216 ../../paging.c:66
+#: ../../event.c:773 ../../static/t/edit_message.html:135
+#: ../../static/t/confirmlogoff.html:4
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -123,8 +123,8 @@ msgstr ""
 "Selecione o link 'Editar essa página' no banner da sala se você quiser criar "
 "essa página."
 
-#: ../../wiki.c:181 ../../static/t/msg_listview.html:12
-#: ../../static/t/summary_header.html:10
+#: ../../wiki.c:181 ../../static/t/msg_listview.html:11
+#: ../../static/t/summary/header.html:44
 msgid "Date"
 msgstr "Data"
 
@@ -136,7 +136,7 @@ msgstr "Autor"
 msgid "(show)"
 msgstr "(exibir)"
 
-#: ../../wiki.c:211 ../../static/t/navbar.html:146
+#: ../../wiki.c:211 ../../static/t/navbar.html:145
 msgid "Current version"
 msgstr "Versão atual"
 
@@ -148,26 +148,25 @@ msgstr "(voltar)"
 msgid "Page title"
 msgstr "Título da página"
 
-#: ../../notes.c:345
+#: ../../notes.c:343
 msgid "Click on any note to edit it."
 msgstr "Clique em uma nota para editá-la."
 
-#: ../../useredit.c:552
+#: ../../useredit.c:627
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
 msgstr ""
 "Um erro ocorreu na criação ou edição desta entrada no caderno de endereços."
 
-#: ../../useredit.c:629
+#: ../../useredit.c:715
 msgid "Changes were not saved."
 msgstr "Modificações não foram salvas."
 
-#: ../../useredit.c:719
-#, c-format
+#: ../../useredit.c:780
 msgid "A new user has been created."
 msgstr "Um novo usuário foi criado."
 
-#: ../../useredit.c:724
+#: ../../useredit.c:784
 msgid ""
 "You are attempting to create a new user from within Citadel while running in "
 "host based authentication mode.  In this mode, you must create new users on "
@@ -181,47 +180,47 @@ msgstr ""
 msgid "Iconbar Setting"
 msgstr "Configuração da barra de ícones"
 
-#: ../../calendar_tools.c:101
+#: ../../calendar_tools.c:100
 msgid "Hour: "
 msgstr "Hora: "
 
-#: ../../calendar_tools.c:121
+#: ../../calendar_tools.c:120
 msgid "Minute: "
 msgstr "Minuto: "
 
-#: ../../calendar_tools.c:192
+#: ../../calendar_tools.c:191
 msgid "(status unknown)"
 msgstr "(estado desconhecido)"
 
-#: ../../calendar_tools.c:208
+#: ../../calendar_tools.c:207
 msgid "(needs action)"
 msgstr "(necessita ação)"
 
-#: ../../calendar_tools.c:211
+#: ../../calendar_tools.c:210
 msgid "(accepted)"
 msgstr "(aceitado)"
 
-#: ../../calendar_tools.c:214
+#: ../../calendar_tools.c:213
 msgid "(declined)"
 msgstr "(rejeitado)"
 
-#: ../../calendar_tools.c:217
+#: ../../calendar_tools.c:216
 msgid "(tenative)"
 msgstr "(temporário)"
 
-#: ../../calendar_tools.c:220
+#: ../../calendar_tools.c:219
 msgid "(delegated)"
 msgstr "(delegado)"
 
-#: ../../calendar_tools.c:223
+#: ../../calendar_tools.c:222
 msgid "(completed)"
 msgstr "(completado)"
 
-#: ../../calendar_tools.c:226
+#: ../../calendar_tools.c:225
 msgid "(in process)"
 msgstr "(em processo)"
 
-#: ../../calendar_tools.c:229
+#: ../../calendar_tools.c:228
 msgid "(none)"
 msgstr "(nenhum)"
 
@@ -250,23 +249,23 @@ msgstr "Anexar"
 msgid "%s does not permit authentication via OpenID."
 msgstr "%s não é permitido autenticação via OpenID"
 
-#: ../../preferences.c:864
+#: ../../preferences.c:863
 msgid "Cancelled.  No settings were changed."
 msgstr "Cancelado. Nenhuma configuração foi modificada."
 
-#: ../../preferences.c:1077
+#: ../../preferences.c:1075
 msgid "Make this my start page"
 msgstr "Fazer dessa página minha inicial"
 
-#: ../../preferences.c:1117
+#: ../../preferences.c:1114
 msgid "This isn't allowed to become the start page."
 msgstr "Isto não é permitido como página inicial"
 
-#: ../../preferences.c:1121
+#: ../../preferences.c:1116
 msgid "You no longer have a start page selected."
 msgstr "Você não tem mais uma página inicial selecionada."
 
-#: ../../preferences.c:1172
+#: ../../preferences.c:1166
 msgid "Prefered startpage"
 msgstr "Página Inicial preferencial"
 
@@ -286,132 +285,36 @@ msgstr "livre"
 msgid "BUSY"
 msgstr "OCUPADO"
 
-#: ../../bbsview_renderer.c:291
+#: ../../bbsview_renderer.c:316
 msgid "Go to page: "
 msgstr "Ir para a página: "
 
-#: ../../bbsview_renderer.c:325
+#: ../../bbsview_renderer.c:353
 msgid "First"
 msgstr "Primeiro"
 
-#: ../../bbsview_renderer.c:331
+#: ../../bbsview_renderer.c:359
 msgid "Last"
 msgstr "Último"
 
-#: ../../downloads.c:285
+#: ../../downloads.c:289
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
 msgstr "Ocorreu um erro ao obter esse arquivo: %s\n"
 
-#: ../../sieve.c:36 ../../sieve.c:120 ../../static/t/menu/your_info.html:7
-msgid "View/edit server-side mail filters"
-msgstr "Visualizar/editar filtros de correio do lado do servidor"
-
-#: ../../sieve.c:45
-msgid ""
-"This installation of Citadel was built without support for server-side mail "
-"filtering.<br>Please contact your system administrator if you require this "
-"feature.<br>"
-msgstr ""
-"Essa instalação do Citadel foi criada sem suporte para filtros de email na "
-"parte do servidor (server-side).<br>Contate o administrador do sistema se "
-"você precisa dessa função.<br>"
-
-#: ../../sieve.c:133
-msgid "When new mail arrives: "
-msgstr "Quando novas mensagens chegarem: "
-
-#: ../../sieve.c:137
-msgid "Leave it in my inbox without filtering"
-msgstr "Manter em minha caixa de entrada sem filtragem"
-
-#: ../../sieve.c:141
-msgid "Filter it according to rules selected below"
-msgstr "Filtrar de acordo com as regras abaixo"
-
-#: ../../sieve.c:146
-msgid "Filter it through a manually edited script (advanced users only)"
-msgstr ""
-"Filtrar através de um script editado manualmente (apenas para usuários "
-"avançados)"
-
-#: ../../sieve.c:157
-msgid "Your incoming mail will not be filtered through any scripts."
-msgstr "Mensagens novas não serão filtradas por nenhum script"
-
-#: ../../sieve.c:172
-msgid "The currently active script is: "
-msgstr "O script ativo atualmente é: "
-
-#: ../../sieve.c:187 ../../sieve.c:660
-msgid "Add or delete scripts"
-msgstr "Adicionar ou excluir scripts"
-
-#: ../../sieve.c:219 ../../sysmsgs.c:66 ../../vcard_edit.c:1220
-msgid "Save changes"
-msgstr "Salvar modificações"
-
-#: ../../sieve.c:587 ../../roomops.c:693 ../../roomops.c:988
+#: ../../sieve.c:381 ../../roomops.c:706 ../../roomops.c:1001
 msgid "Cancelled.  Changes were not saved."
 msgstr "Cancelado. Modificações não foram salvas."
 
-#: ../../sieve.c:643 ../../roomops.c:821
+#: ../../sieve.c:437 ../../roomops.c:834
 msgid "Your changes have been saved."
 msgstr "Suas modificações foram salvas"
 
-#: ../../sieve.c:673
-msgid "Add a new script"
-msgstr "Adicionar novo script"
-
-#: ../../sieve.c:676
-msgid ""
-"To create a new script, enter the desired script name in the box below and "
-"click 'Create'."
-msgstr ""
-"Para criar um novo script, digite o nome do script desjado na caixa abaixo e "
-"clique em 'Criar'."
-
-#: ../../sieve.c:682
-msgid "Script name: "
-msgstr "Nome do script: "
-
-#: ../../sieve.c:685
-msgid "Create"
-msgstr "Criar"
-
-#: ../../sieve.c:690
-msgid "Edit scripts"
-msgstr "Editar scripts"
-
-#: ../../sieve.c:693
-msgid "Return to the script editing screen"
-msgstr "Retornar para a tela de edição de scripts"
-
-#: ../../sieve.c:700
-msgid "Delete scripts"
-msgstr "Excluir scripts"
-
-#: ../../sieve.c:703
-msgid ""
-"To delete an existing script, select the script name from the list and click "
-"'Delete'."
-msgstr ""
-"Para excluir um script existente, selecione o nome do script na lista e "
-"clique em 'Excluir script'."
-
-#: ../../sieve.c:727
-msgid "Delete script"
-msgstr "Excluir script"
-
-#: ../../sieve.c:727
-msgid "Delete this script?"
-msgstr "Excluir esse script?"
-
-#: ../../sieve.c:764
+#: ../../sieve.c:456
 msgid "A script by that name already exists."
 msgstr "Um script com esse nome já existe."
 
-#: ../../sieve.c:773
+#: ../../sieve.c:467
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
@@ -419,177 +322,270 @@ msgstr ""
 "Um novo script foi criado. Volte para a tela de edição de scripts para ativá-"
 "lo."
 
-#: ../../sieve.c:990
+#: ../../sieve.c:585 ../../static/t/menu/your_info.html:7
+#: ../../static/t/menu/your_info.html:8 ../../static/t/sieve/list.html:33
+#: ../../static/t/sieve/none.html:6
+msgid "View/edit server-side mail filters"
+msgstr "Visualizar/editar filtros de correio do lado do servidor"
+
+#: ../../sieve.c:598 ../../static/t/sieve/list.html:43
+msgid "When new mail arrives: "
+msgstr "Quando novas mensagens chegarem: "
+
+#: ../../sieve.c:602 ../../static/t/sieve/list.html:45
+msgid "Leave it in my inbox without filtering"
+msgstr "Manter em minha caixa de entrada sem filtragem"
+
+#: ../../sieve.c:606 ../../static/t/sieve/list.html:46
+msgid "Filter it according to rules selected below"
+msgstr "Filtrar de acordo com as regras abaixo"
+
+#: ../../sieve.c:611 ../../static/t/sieve/list.html:47
+msgid "Filter it through a manually edited script (advanced users only)"
+msgstr ""
+"Filtrar através de um script editado manualmente (apenas para usuários "
+"avançados)"
+
+#: ../../sieve.c:622 ../../static/t/sieve/list.html:53
+msgid "Your incoming mail will not be filtered through any scripts."
+msgstr "Mensagens novas não serão filtradas por nenhum script"
+
+#: ../../sieve.c:637 ../../static/t/sieve/list.html:74
+msgid "The currently active script is: "
+msgstr "O script ativo atualmente é: "
+
+#: ../../sieve.c:652 ../../sieve.c:714 ../../static/t/sieve/list.html:79
+#: ../../static/t/sieve/add.html:3
+msgid "Add or delete scripts"
+msgstr "Adicionar ou excluir scripts"
+
+#: ../../sieve.c:684 ../../sysmsgs.c:66 ../../vcard_edit.c:1215
+msgid "Save changes"
+msgstr "Salvar modificações"
+
+#: ../../sieve.c:727 ../../static/t/sieve/add.html:10
+msgid "Add a new script"
+msgstr "Adicionar novo script"
+
+#: ../../sieve.c:730 ../../static/t/sieve/add.html:11
+msgid ""
+"To create a new script, enter the desired script name in the box below and "
+"click 'Create'."
+msgstr ""
+"Para criar um novo script, digite o nome do script desjado na caixa abaixo e "
+"clique em 'Criar'."
+
+#: ../../sieve.c:736 ../../static/t/sieve/add.html:15
+msgid "Script name: "
+msgstr "Nome do script: "
+
+#: ../../sieve.c:739
+msgid "Create"
+msgstr "Criar"
+
+#: ../../sieve.c:744 ../../static/t/sieve/add.html:19
+msgid "Edit scripts"
+msgstr "Editar scripts"
+
+#: ../../sieve.c:747 ../../static/t/sieve/add.html:21
+msgid "Return to the script editing screen"
+msgstr "Retornar para a tela de edição de scripts"
+
+#: ../../sieve.c:754 ../../static/t/sieve/add.html:24
+msgid "Delete scripts"
+msgstr "Excluir scripts"
+
+#: ../../sieve.c:757 ../../static/t/sieve/add.html:25
+msgid ""
+"To delete an existing script, select the script name from the list and click "
+"'Delete'."
+msgstr ""
+"Para excluir um script existente, selecione o nome do script na lista e "
+"clique em 'Excluir script'."
+
+#: ../../sieve.c:781
+msgid "Delete script"
+msgstr "Excluir script"
+
+#: ../../sieve.c:781
+msgid "Delete this script?"
+msgstr "Excluir esse script?"
+
+#: ../../sieve.c:1002
 msgid "Move rule up"
 msgstr "Mover regra para cima"
 
-#: ../../sieve.c:995
+#: ../../sieve.c:1007
 msgid "Move rule down"
 msgstr "Mover regra para baixo"
 
-#: ../../sieve.c:1000
+#: ../../sieve.c:1012
 msgid "Delete rule"
 msgstr "Excluir regra"
 
-#: ../../sieve.c:1008
+#: ../../sieve.c:1020 ../../static/t/sieve/display_one.html:16
 msgid "If"
 msgstr "Se"
 
-#: ../../sieve.c:1011 ../../calendar_view.c:297 ../../calendar_view.c:962
-#: ../../calendar_view.c:1006 ../../calendar_view.c:1087
+#: ../../sieve.c:1023 ../../calendar_view.c:297 ../../calendar_view.c:958
+#: ../../calendar_view.c:1002 ../../calendar_view.c:1083
+#: ../../static/t/sieve/display_one.html:20
 msgid "From"
 msgstr "De"
 
-#: ../../sieve.c:1012
+#: ../../sieve.c:1024 ../../static/t/sieve/display_one.html:21
 msgid "To or Cc"
 msgstr "Para ou Cc"
 
-#: ../../sieve.c:1013 ../../calendar_view.c:763
-#: ../../static/t/msg_listview.html:10 ../../static/t/summary_header.html:8
+#: ../../sieve.c:1025 ../../calendar_view.c:759
+#: ../../static/t/msg_listview.html:9 ../../static/t/summary/header.html:42
+#: ../../static/t/sieve/display_one.html:22
 msgid "Subject"
 msgstr "Assunto"
 
-#: ../../sieve.c:1014
+#: ../../sieve.c:1026 ../../static/t/sieve/display_one.html:23
 msgid "Reply-to"
 msgstr "Responder para (reply-to)"
 
-#: ../../sieve.c:1015 ../../smtpqueue.c:197
-#: ../../static/t/msg_listview.html:11 ../../static/t/summary_header.html:9
+#: ../../sieve.c:1027 ../../smtpqueue.c:197
+#: ../../static/t/msg_listview.html:10 ../../static/t/summary/header.html:43
+#: ../../static/t/sieve/display_one.html:24
 msgid "Sender"
 msgstr "Autor"
 
-#: ../../sieve.c:1016
+#: ../../sieve.c:1028 ../../static/t/sieve/display_one.html:25
 msgid "Resent-From"
 msgstr "Reenviado-De"
 
-#: ../../sieve.c:1017
+#: ../../sieve.c:1029 ../../static/t/sieve/display_one.html:26
 msgid "Resent-To"
 msgstr "Reenviado-Para"
 
-#: ../../sieve.c:1018
+#: ../../sieve.c:1030 ../../static/t/sieve/display_one.html:27
 msgid "Envelope From"
 msgstr "Envelope De"
 
-#: ../../sieve.c:1019
+#: ../../sieve.c:1031 ../../static/t/sieve/display_one.html:28
 msgid "Envelope To"
 msgstr "Envelope Para"
 
-#: ../../sieve.c:1020
+#: ../../sieve.c:1032 ../../static/t/sieve/display_one.html:29
 msgid "X-Mailer"
 msgstr "X-Mailer"
 
-#: ../../sieve.c:1021
+#: ../../sieve.c:1033 ../../static/t/sieve/display_one.html:30
 msgid "X-Spam-Flag"
 msgstr "X-Spam-Flag"
 
-#: ../../sieve.c:1022
+#: ../../sieve.c:1034 ../../static/t/sieve/display_one.html:31
 msgid "X-Spam-Status"
 msgstr "X-Spam-Estatus"
 
-#: ../../sieve.c:1023
+#: ../../sieve.c:1035 ../../static/t/sieve/display_one.html:32
 msgid "List-ID"
 msgstr "List-ID"
 
-#: ../../sieve.c:1024
+#: ../../sieve.c:1036 ../../static/t/sieve/display_one.html:33
 msgid "Message size"
 msgstr "Tamanho da mensagem"
 
-#: ../../sieve.c:1025 ../../static/t/select_messageindex_all.html:1
+#: ../../sieve.c:1037 ../../static/t/select_messageindex_all.html:1
+#: ../../static/t/sieve/display_one.html:34
 msgid "All"
 msgstr "Todas"
 
-#: ../../sieve.c:1044
+#: ../../sieve.c:1056 ../../static/t/sieve/display_one.html:41
 msgid "contains"
 msgstr "contém"
 
-#: ../../sieve.c:1045
+#: ../../sieve.c:1057 ../../static/t/sieve/display_one.html:42
 msgid "does not contain"
 msgstr "não contém"
 
-#: ../../sieve.c:1046
+#: ../../sieve.c:1058 ../../static/t/sieve/display_one.html:43
 msgid "is"
 msgstr "é"
 
-#: ../../sieve.c:1047
+#: ../../sieve.c:1059 ../../static/t/sieve/display_one.html:44
 msgid "is not"
 msgstr "não é"
 
-#: ../../sieve.c:1048
+#: ../../sieve.c:1060 ../../static/t/sieve/display_one.html:45
 msgid "matches"
 msgstr "bate"
 
-#: ../../sieve.c:1049
+#: ../../sieve.c:1061 ../../static/t/sieve/display_one.html:46
 msgid "does not match"
 msgstr "não bate"
 
-#: ../../sieve.c:1069
+#: ../../sieve.c:1081 ../../static/t/sieve/display_one.html:52
 msgid "(All messages)"
 msgstr "(Todas as mensagens)"
 
-#: ../../sieve.c:1073
+#: ../../sieve.c:1085 ../../static/t/sieve/display_one.html:56
 msgid "is larger than"
 msgstr "é maior que"
 
-#: ../../sieve.c:1074
+#: ../../sieve.c:1086 ../../static/t/sieve/display_one.html:57
 msgid "is smaller than"
 msgstr "é menor que"
 
-#: ../../sieve.c:1097
+#: ../../sieve.c:1109 ../../static/t/sieve/display_one.html:65
 msgid "Keep"
 msgstr "Manter"
 
-#: ../../sieve.c:1098
+#: ../../sieve.c:1110 ../../static/t/sieve/display_one.html:66
 msgid "Discard silently"
 msgstr "Descartar silenciosamente"
 
-#: ../../sieve.c:1099
+#: ../../sieve.c:1111 ../../static/t/sieve/display_one.html:67
 msgid "Reject"
 msgstr "Rejeitar"
 
-#: ../../sieve.c:1100
+#: ../../sieve.c:1112 ../../static/t/sieve/display_one.html:68
 msgid "Move message to"
 msgstr "Mover mensagens para"
 
-#: ../../sieve.c:1101
+#: ../../sieve.c:1113 ../../static/t/sieve/display_one.html:69
 msgid "Forward to"
 msgstr "Encaminhar para"
 
-#: ../../sieve.c:1102
+#: ../../sieve.c:1114 ../../static/t/sieve/display_one.html:70
 msgid "Vacation"
 msgstr "Férias"
 
-#: ../../sieve.c:1139
+#: ../../sieve.c:1151 ../../static/t/sieve/display_one.html:82
 msgid "Message:"
 msgstr "Mensagem:"
 
-#: ../../sieve.c:1149
+#: ../../sieve.c:1161 ../../static/t/sieve/display_one.html:93
 msgid "continue processing"
 msgstr "continuar processando"
 
-#: ../../sieve.c:1150
+#: ../../sieve.c:1162 ../../static/t/sieve/display_one.html:94
 msgid "stop"
 msgstr "parar"
 
-#: ../../sieve.c:1153
+#: ../../sieve.c:1165 ../../static/t/sieve/display_one.html:90
 msgid "and then"
 msgstr "e depois"
 
-#: ../../sieve.c:1174
+#: ../../sieve.c:1186 ../../static/t/sieve/list.html:65
 msgid "Add rule"
 msgstr "Adicionar regra"
 
-#: ../../siteconfig.c:39 ../../siteconfig.c:58 ../../roomlist.c:46
-#: ../../roomlist.c:391
+#: ../../siteconfig.c:38 ../../siteconfig.c:56 ../../roomlist.c:44
+#: ../../roomlist.c:388
 msgid "Higher access is required to access this function."
 msgstr "Requer-se acesso privilegiado para acessar essa função."
 
-#: ../../siteconfig.c:254
+#: ../../siteconfig.c:252
 msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 "AVISO: Falha ao analisar a Configuração do Servidor; Você quer executar um  "
 "novo citserver?"
 
-#: ../../siteconfig.c:313
+#: ../../siteconfig.c:314
 msgid "Your system configuration has been updated."
 msgstr "Sua configuração do sistema foi atualizada."
 
@@ -646,7 +642,7 @@ msgstr "Pasta para Correio"
 msgid "Address Book"
 msgstr "Caderno de Endereços"
 
-#: ../../roomviews.c:53 ../../static/t/iconbar/edit.html:54
+#: ../../roomviews.c:53 ../../static/t/iconbar/edit.html:55
 #: ../../static/t/iconbar.html:24
 msgid "Calendar"
 msgstr "Calendário"
@@ -700,58 +696,58 @@ msgstr "Categoria"
 msgid "Show All"
 msgstr "Mostrar Todos"
 
-#: ../../tasks.c:226
+#: ../../tasks.c:223
 msgid "Edit task"
 msgstr "Editar tarefa"
 
-#: ../../tasks.c:245 ../../calendar_view.c:298 ../../calendar_view.c:963
-#: ../../calendar_view.c:1007 ../../calendar_view.c:1088 ../../calendar.c:104
+#: ../../tasks.c:242 ../../calendar_view.c:298 ../../calendar_view.c:959
+#: ../../calendar_view.c:1003 ../../calendar_view.c:1084 ../../calendar.c:104
 msgid "Summary:"
 msgstr "Resumo:"
 
-#: ../../tasks.c:256
+#: ../../tasks.c:253
 msgid "Start date:"
 msgstr "Data de início:"
 
-#: ../../tasks.c:264 ../../tasks.c:294
+#: ../../tasks.c:261 ../../tasks.c:291
 msgid "No date"
 msgstr "Sem data"
 
-#: ../../tasks.c:268 ../../tasks.c:297
+#: ../../tasks.c:265 ../../tasks.c:294
 msgid "or"
 msgstr "ou"
 
-#: ../../tasks.c:282 ../../tasks.c:311
+#: ../../tasks.c:279 ../../tasks.c:308
 msgid "Time associated"
 msgstr "Tempo associado"
 
-#: ../../tasks.c:286
+#: ../../tasks.c:283
 msgid "Due date:"
 msgstr "Data prometida:"
 
-#: ../../tasks.c:315
+#: ../../tasks.c:312
 msgid "Completed:"
 msgstr "Concluído:"
 
-#: ../../tasks.c:326
+#: ../../tasks.c:323
 msgid "Category:"
 msgstr "Categoria:"
 
-#: ../../tasks.c:336 ../../calendar.c:165 ../../static/t/files.html:36
+#: ../../tasks.c:333 ../../calendar.c:165 ../../static/t/files.html:12
 msgid "Description:"
 msgstr "Descrição:"
 
-#: ../../tasks.c:354 ../../event.c:765
+#: ../../tasks.c:351 ../../event.c:770
 msgid "Save"
 msgstr "Salvar"
 
-#: ../../tasks.c:355 ../../event.c:766 ../../static/t/navbar.html:117
-#: ../../static/t/view_message.html:35 ../../static/t/msg_listview.html:30
+#: ../../tasks.c:352 ../../event.c:771 ../../static/t/navbar.html:116
+#: ../../static/t/view_message.html:30 ../../static/t/msg_listview.html:27
 #: ../../static/t/aide/inet/section.html:5
 msgid "Delete"
 msgstr "Excluir"
 
-#: ../../tasks.c:426 ../../calendar_view.c:1377
+#: ../../tasks.c:423 ../../calendar_view.c:1379
 msgid "Untitled Task"
 msgstr "Tarefa Anonima"
 
@@ -774,9 +770,9 @@ msgstr ""
 msgid "Cancelled.  %s was not saved."
 msgstr "Cancelado.  %s não foi salvo"
 
-#: ../../sysmsgs.c:107
-#, c-format
-msgid "%s has been saved."
+#: ../../sysmsgs.c:108
+#, fuzzy
+msgid " has been saved."
 msgstr "%s foi salvo."
 
 #: ../../sysmsgs.c:115 ../../sysmsgs.c:116
@@ -827,7 +823,7 @@ msgid "Deleted"
 msgstr "Excluído"
 
 #. a new user
-#: ../../auth.c:39 ../../static/t/get_logged_in.html:67
+#: ../../auth.c:39 ../../static/t/get_logged_in.html:69
 #: ../../static/t/aide/siteconfig/tab_access.html:41
 #: ../../static/t/aide/siteconfig/tab_access.html:52
 #: ../../static/t/aide/edituser/detailview.html:44
@@ -869,17 +865,17 @@ msgstr "Usuário preferencial"
 msgid "Aide"
 msgstr "Aide"
 
-#: ../../auth.c:373 ../../auth.c:403 ../../vcard_edit.c:1311
-#: ../../vcard_edit.c:1357
+#: ../../auth.c:373 ../../auth.c:403 ../../vcard_edit.c:1299
+#: ../../vcard_edit.c:1342
 msgid "An error has occurred."
 msgstr "Um erro ocorreu."
 
-#: ../../auth.c:523 ../../static/t/menu/basic_commands.html:19
-#: ../../static/t/iconbar.html:80 ../../static/t/confirmlogoff.html:4
+#: ../../auth.c:526 ../../static/t/menu/basic_commands.html:19
+#: ../../static/t/iconbar.html:80 ../../static/t/confirmlogoff.html:3
 msgid "Log off"
 msgstr "Log off"
 
-#: ../../auth.c:536 ../../webcit.c:731
+#: ../../auth.c:539 ../../webcit.c:717
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -888,72 +884,72 @@ msgstr ""
 "Citadel.  Se possível, reporte esse problema para seu administrador de "
 "sistema."
 
-#: ../../auth.c:542 ../../webcit.c:738
+#: ../../auth.c:545 ../../webcit.c:724
 msgid "Read More..."
 msgstr "Continuar..."
 
-#: ../../auth.c:547
+#: ../../auth.c:550
 msgid "Log in again"
 msgstr "Refazer log in"
 
-#: ../../auth.c:568 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:598 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Validar novos usuários"
 
-#: ../../auth.c:588
+#: ../../auth.c:618
 msgid "No users require validation at this time."
 msgstr "Sem usuários para validar no momento"
 
-#: ../../auth.c:635
+#: ../../auth.c:668
 msgid "very weak"
 msgstr "muito fraco"
 
-#: ../../auth.c:638
+#: ../../auth.c:671
 msgid "weak"
 msgstr "fraco"
 
-#: ../../auth.c:641
+#: ../../auth.c:674
 msgid "ok"
 msgstr "bom"
 
-#: ../../auth.c:645
+#: ../../auth.c:678
 msgid "strong"
 msgstr "forte"
 
-#: ../../auth.c:663
+#: ../../auth.c:696
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Nível de acesso atual: %d (%s)\n"
 
-#: ../../auth.c:671
+#: ../../auth.c:704
 msgid "Select access level for this user:"
 msgstr "Selecione o nível de acesso para esse usuário:"
 
-#: ../../auth.c:755 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:789 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Modificar sua senha"
 
-#: ../../auth.c:779
+#: ../../auth.c:813
 msgid "Enter new password:"
 msgstr "Digite nova senha:"
 
-#: ../../auth.c:783
+#: ../../auth.c:817
 msgid "Enter it again to confirm:"
 msgstr "Digite novamente para confirmar:"
 
-#: ../../auth.c:789
+#: ../../auth.c:823
 msgid "Change password"
 msgstr "Modificar senha"
 
-#: ../../auth.c:810
+#: ../../auth.c:843
 msgid "Cancelled.  Password was not changed."
 msgstr "Cancelado.  A senha não foi modificada."
 
-#: ../../auth.c:821
+#: ../../auth.c:852
 msgid "They don't match.  Password was not changed."
 msgstr "Eles não batem.  Senha não foi modificada."
 
-#: ../../auth.c:829
+#: ../../auth.c:858
 msgid "Blank passwords are not allowed."
 msgstr "Senhas em branco não são permitidas."
 
@@ -990,7 +986,7 @@ msgstr " (casa)"
 msgid " (cell)"
 msgstr " (celular)"
 
-#: ../../vcard_edit.c:458 ../../vcard_edit.c:1125
+#: ../../vcard_edit.c:458 ../../vcard_edit.c:1120
 msgid "Address:"
 msgstr "Endereço:"
 
@@ -1002,250 +998,212 @@ msgstr "Telefone:"
 msgid "E-mail:"
 msgstr "E-mail:"
 
-#: ../../vcard_edit.c:784
+#: ../../vcard_edit.c:779
 msgid "This address book is empty."
 msgstr "Esse caderno de endereços está vazio."
 
-#: ../../vcard_edit.c:798
+#: ../../vcard_edit.c:793
 msgid "An internal error has occurred."
 msgstr "Um erro interno ocorreu."
 
-#: ../../vcard_edit.c:949
+#: ../../vcard_edit.c:944
 msgid "Error"
 msgstr "Erro"
 
-#: ../../vcard_edit.c:1053
+#: ../../vcard_edit.c:1048
 msgid "Edit contact information"
 msgstr "Editar informação do contato"
 
-#: ../../vcard_edit.c:1073
+#: ../../vcard_edit.c:1068
 msgid "Prefix"
 msgstr "Prefixo"
 
-#: ../../vcard_edit.c:1073
+#: ../../vcard_edit.c:1068
 msgid "First Name"
 msgstr "Primeiro"
 
-#: ../../vcard_edit.c:1073
+#: ../../vcard_edit.c:1068
 msgid "Middle Name"
 msgstr "Meio"
 
-#: ../../vcard_edit.c:1073
+#: ../../vcard_edit.c:1068
 msgid "Last Name"
 msgstr "Último"
 
-#: ../../vcard_edit.c:1073
+#: ../../vcard_edit.c:1068
 msgid "Suffix"
 msgstr "Sufixo"
 
-#: ../../vcard_edit.c:1094
+#: ../../vcard_edit.c:1089
 msgid "Display name:"
 msgstr "Nome para visualização:"
 
-#: ../../vcard_edit.c:1101
+#: ../../vcard_edit.c:1096
 msgid "Title:"
 msgstr "Título:"
 
-#: ../../vcard_edit.c:1108
+#: ../../vcard_edit.c:1103
 msgid "Organization:"
 msgstr "Organização:"
 
-#: ../../vcard_edit.c:1119
+#: ../../vcard_edit.c:1114
 msgid "PO box:"
 msgstr "Caixa de correio:"
 
-#: ../../vcard_edit.c:1135
+#: ../../vcard_edit.c:1130
 msgid "City:"
 msgstr "Cidade:"
 
-#: ../../vcard_edit.c:1141
+#: ../../vcard_edit.c:1136
 msgid "State:"
 msgstr "Estado:"
 
-#: ../../vcard_edit.c:1147
+#: ../../vcard_edit.c:1142
 msgid "ZIP code:"
 msgstr "Código postal:"
 
-#: ../../vcard_edit.c:1153
+#: ../../vcard_edit.c:1148
 msgid "Country:"
 msgstr "País:"
 
-#: ../../vcard_edit.c:1163
+#: ../../vcard_edit.c:1158
 msgid "Home telephone:"
 msgstr "Telefone em casa:"
 
-#: ../../vcard_edit.c:1169
+#: ../../vcard_edit.c:1164
 msgid "Work telephone:"
 msgstr "Telefone no trabalho:"
 
-#: ../../vcard_edit.c:1175
+#: ../../vcard_edit.c:1170
 msgid "Mobile telephone:"
 msgstr "Telefone móvel:"
 
-#: ../../vcard_edit.c:1181
+#: ../../vcard_edit.c:1176
 msgid "Fax number:"
 msgstr "Número de fax:"
 
-#: ../../vcard_edit.c:1192
+#: ../../vcard_edit.c:1187
 msgid "Primary Internet e-mail address"
 msgstr "Endereço de e-mail primário"
 
-#: ../../vcard_edit.c:1199
+#: ../../vcard_edit.c:1194
 msgid "Internet e-mail aliases"
 msgstr "Nomes alternativos para e-mail de Internet"
 
-#: ../../vcard_edit.c:1266
+#: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
 msgstr "Impossibilidado de entrar na sala para salvar sua mensagem"
 
-#: ../../vcard_edit.c:1275
+#: ../../vcard_edit.c:1265
 msgid "Aborting."
 msgstr "Abortando."
 
-#: ../../vcard_edit.c:1413
+#: ../../vcard_edit.c:1396
 msgid "Could Not decode vcard photo\n"
 msgstr "Não foi possível visualizar a foto do vcard\n"
 
-#: ../../userlist.c:39
-#, c-format
-msgid "User list for %s"
-msgstr "Lista de usuários para %s"
-
-#: ../../userlist.c:56
-msgid "User Name"
-msgstr "Nome de Usuário"
-
-#: ../../userlist.c:57
-msgid "Number"
-msgstr "Número"
-
-#: ../../userlist.c:58
-msgid "Access Level"
-msgstr "Nível de Acesso"
-
-#: ../../userlist.c:59
-msgid "Last Login"
-msgstr "Último Login"
-
-#: ../../userlist.c:60
-msgid "Total Logins"
-msgstr "Número total de Logins"
-
-#: ../../userlist.c:61
-msgid "Total Posts"
-msgstr "Número total de Posts"
-
-#: ../../userlist.c:118
-msgid "User profile"
-msgstr "Perfil do usuário"
-
-#: ../../userlist.c:155
-#, c-format
-msgid "Click here to send an instant message to %s"
-msgstr "Clique aqui para mandar uma mensagem instantânea para %s"
-
-#: ../../roomops.c:864
+#: ../../roomops.c:877
 #, c-format
 msgid "User '%s' kicked out of room '%s'."
 msgstr "Usuário %s foi chutado da sala %s."
 
-#: ../../roomops.c:881
+#: ../../roomops.c:894
 #, c-format
 msgid "User '%s' invited to room '%s'."
 msgstr "Usuário %s foi convidado para a sala %s."
 
-#: ../../roomops.c:911
+#: ../../roomops.c:923
 msgid "Cancelled.  No new room was created."
 msgstr "Cancelado. Nenhuma sala foi criada."
 
-#: ../../roomops.c:1180
+#: ../../roomops.c:1193
 msgid "Floor has been deleted."
 msgstr "Andar foi excluído."
 
-#: ../../roomops.c:1204
+#: ../../roomops.c:1217
 msgid "New floor has been created."
 msgstr "Um novo andar foi criado."
 
-#: ../../roomops.c:1283
+#: ../../roomops.c:1296
 msgid "Room list view"
 msgstr "Visualização lista de salas"
 
-#: ../../roomops.c:1286
+#: ../../roomops.c:1299
 msgid "Show empty floors"
 msgstr "Exibir andares vazios"
 
-#: ../../calendar_view.c:272 ../../calendar_view.c:472
-#: ../../calendar_view.c:941 ../../event.c:859
+#: ../../calendar_view.c:272 ../../calendar_view.c:468
+#: ../../calendar_view.c:937 ../../event.c:864
 msgid "Untitled Event"
 msgstr "Evento sem título"
 
-#: ../../calendar_view.c:306 ../../calendar_view.c:968
-#: ../../calendar_view.c:1012 ../../calendar_view.c:1093 ../../calendar.c:113
+#: ../../calendar_view.c:306 ../../calendar_view.c:964
+#: ../../calendar_view.c:1008 ../../calendar_view.c:1089 ../../calendar.c:113
 msgid "Location:"
 msgstr "Local:"
 
-#: ../../calendar_view.c:351 ../../calendar_view.c:974 ../../calendar.c:138
+#: ../../calendar_view.c:351 ../../calendar_view.c:970 ../../calendar.c:138
 msgid "Date:"
 msgstr "Data:"
 
-#: ../../calendar_view.c:355 ../../calendar_view.c:978
+#: ../../calendar_view.c:355 ../../calendar_view.c:974
 msgid "Starting date:"
 msgstr "Data Inicial"
 
-#: ../../calendar_view.c:361 ../../calendar_view.c:980
+#: ../../calendar_view.c:361 ../../calendar_view.c:976
 msgid "Ending date:"
 msgstr "Data Final"
 
-#: ../../calendar_view.c:369 ../../calendar_view.c:1099
+#: ../../calendar_view.c:369 ../../calendar_view.c:1095
 msgid "Date/time:"
 msgstr "Data/Hora"
 
-#: ../../calendar_view.c:373 ../../calendar_view.c:1017
-#: ../../calendar_view.c:1103 ../../calendar.c:145
+#: ../../calendar_view.c:373 ../../calendar_view.c:1013
+#: ../../calendar_view.c:1099 ../../calendar.c:145
 msgid "Starting date/time:"
 msgstr "Dia/hora de início:"
 
-#: ../../calendar_view.c:376 ../../calendar_view.c:1019
-#: ../../calendar_view.c:1105 ../../calendar.c:156
+#: ../../calendar_view.c:376 ../../calendar_view.c:1015
+#: ../../calendar_view.c:1101 ../../calendar.c:156
 msgid "Ending date/time:"
 msgstr "Dia/hora de término:"
 
-#: ../../calendar_view.c:386 ../../calendar_view.c:984
-#: ../../calendar_view.c:1022 ../../calendar_view.c:1109
+#: ../../calendar_view.c:386 ../../calendar_view.c:980
+#: ../../calendar_view.c:1018 ../../calendar_view.c:1105
 #: ../../static/t/room/edit/tab_share.html:32
 msgid "Notes:"
 msgstr "Notas:"
 
-#: ../../calendar_view.c:589 ../../calendar_view.c:725
+#: ../../calendar_view.c:585 ../../calendar_view.c:721
 msgid "previous"
 msgstr "anterior"
 
-#: ../../calendar_view.c:601 ../../calendar_view.c:737
-#: ../../calendar_view.c:1306
+#: ../../calendar_view.c:597 ../../calendar_view.c:733
+#: ../../calendar_view.c:1308
 msgid "next"
 msgstr "próximo"
 
-#: ../../calendar_view.c:760
+#: ../../calendar_view.c:756
 msgid "Week"
 msgstr "Semana"
 
-#: ../../calendar_view.c:762
+#: ../../calendar_view.c:758
 msgid "Hours"
 msgstr "Horas"
 
-#: ../../calendar_view.c:764 ../../event.c:229
+#: ../../calendar_view.c:760 ../../event.c:234
 msgid "Start"
 msgstr "Início"
 
-#: ../../calendar_view.c:765 ../../event.c:278
+#: ../../calendar_view.c:761 ../../event.c:283
 msgid "End"
 msgstr "Fim"
 
-#: ../../calendar_view.c:961 ../../calendar_view.c:990 ../../event.c:272
+#: ../../calendar_view.c:957 ../../calendar_view.c:986 ../../event.c:277
 msgid "All day event"
 msgstr "Evento ocupando todo o dia"
 
-#: ../../calendar_view.c:1005 ../../calendar_view.c:1028
+#: ../../calendar_view.c:1001 ../../calendar_view.c:1024
 msgid "Ongoing event"
 msgstr "Evento em curso"
 
@@ -1265,18 +1223,17 @@ msgstr "Entrar mensagem de texto:"
 msgid "Send message"
 msgstr "Enviar mensagem"
 
-#: ../../paging.c:85
+#: ../../paging.c:84
 msgid "Message was not sent."
 msgstr "Mensagem não foi enviada."
 
-#: ../../paging.c:99
+#: ../../paging.c:95
 msgid "Message has been sent to "
 msgstr "Mensagem foi enviada para "
 
 #: ../../netconf.c:158 ../../netconf.c:185 ../../netconf.c:193
 #: ../../netconf.c:241 ../../netconf.c:249 ../../inetconf.c:110
-#: ../../inetconf.c:119 ../../inetconf.c:132 ../../inetconf.c:159
-#, c-format
+#: ../../inetconf.c:119 ../../inetconf.c:133 ../../inetconf.c:159
 msgid "Invalid Parameter"
 msgstr "Parâmetro inválido"
 
@@ -1296,11 +1253,11 @@ msgstr "Evento publicado"
 msgid "This is an unknown type of calendar item."
 msgstr "Esse é um tipo desconhecido de item de calendário"
 
-#: ../../calendar.c:174 ../../event.c:93
+#: ../../calendar.c:174 ../../event.c:96
 msgid "Recurrence"
 msgstr "Recorrências"
 
-#: ../../calendar.c:175 ../../event.c:506
+#: ../../calendar.c:175 ../../event.c:511
 msgid "This is a recurring event"
 msgstr "Esse é um evento recorrente"
 
@@ -1402,23 +1359,23 @@ msgid ""
 msgstr ""
 "Você escolheu ignorar esse RSVP. Seu calendário <b>não</b> foi atualizado."
 
-#: ../../calendar.c:934
+#: ../../calendar.c:933
 msgid "Calendar day view begins at:"
 msgstr "Dia da visualização do calendário começa em:"
 
-#: ../../calendar.c:935
+#: ../../calendar.c:934
 msgid "Calendar day view ends at:"
 msgstr "Dia da visualização do calendário termina em:"
 
-#: ../../calendar.c:936
+#: ../../calendar.c:935
 msgid "Week starts on:"
 msgstr "Semana começa em:"
 
-#: ../../webcit.c:357
+#: ../../webcit.c:348
 msgid "Authorization Required"
 msgstr "Autorização Requerida"
 
-#: ../../webcit.c:366
+#: ../../webcit.c:355
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -1427,173 +1384,173 @@ msgstr ""
 "O recurso que você pediu requer um nome de usuário e senha válidos. Você "
 "pode não estar logado: %s\n"
 
-#: ../../event.c:73
+#: ../../event.c:76
 msgid "seconds"
 msgstr "segundos"
 
-#: ../../event.c:74
+#: ../../event.c:77
 msgid "minutes"
 msgstr "minutos"
 
-#: ../../event.c:75
+#: ../../event.c:78
 msgid "hours"
 msgstr "horas"
 
-#: ../../event.c:76
+#: ../../event.c:79
 msgid "days"
 msgstr "dias"
 
-#: ../../event.c:77
+#: ../../event.c:80
 msgid "weeks"
 msgstr "semanas"
 
-#: ../../event.c:78
+#: ../../event.c:81
 msgid "months"
 msgstr "meses"
 
-#: ../../event.c:79
+#: ../../event.c:82
 msgid "years"
 msgstr "anos"
 
-#: ../../event.c:80
+#: ../../event.c:83
 msgid "never"
 msgstr "nunca"
 
-#: ../../event.c:84
+#: ../../event.c:87
 msgid "first"
 msgstr "primeiro"
 
-#: ../../event.c:85
+#: ../../event.c:88
 msgid "second"
 msgstr "segundo"
 
-#: ../../event.c:86
+#: ../../event.c:89
 msgid "third"
 msgstr "terceiro"
 
-#: ../../event.c:87
+#: ../../event.c:90
 msgid "fourth"
 msgstr "quarto"
 
-#: ../../event.c:88
+#: ../../event.c:91
 msgid "fifth"
 msgstr "quinto"
 
-#: ../../event.c:91
+#: ../../event.c:94
 msgid "Event"
 msgstr "Evento"
 
-#: ../../event.c:92 ../../event.c:438 ../../event.c:450
+#: ../../event.c:95 ../../event.c:443 ../../event.c:455
 msgid "Attendees"
 msgstr "Participantes"
 
-#: ../../event.c:168
+#: ../../event.c:173
 msgid "Add or edit an event"
 msgstr "Adicionar ou editar um evento"
 
-#: ../../event.c:207 ../../static/t/iconbar/edit.html:30
+#: ../../event.c:212 ../../static/t/iconbar/edit.html:29
 #: ../../static/t/iconbar.html:13
 msgid "Summary"
 msgstr "Resumo"
 
-#: ../../event.c:218
+#: ../../event.c:223
 msgid "Location"
 msgstr "Local"
 
-#: ../../event.c:328 ../../static/t/iconbar/edit.html:48
+#: ../../event.c:333 ../../static/t/iconbar/edit.html:49
 #: ../../static/t/iconbar.html:34
 msgid "Notes"
 msgstr "Notas"
 
-#: ../../event.c:370
+#: ../../event.c:375
 msgid "Organizer"
 msgstr "Organizador"
 
-#: ../../event.c:375
+#: ../../event.c:380
 msgid "(you are the organizer)"
 msgstr "(você é o organizador)"
 
-#: ../../event.c:393
+#: ../../event.c:398
 msgid "Show time as:"
 msgstr "Mostrar hora como:"
 
-#: ../../event.c:416
+#: ../../event.c:421
 msgid "Free"
 msgstr "Livre"
 
-#: ../../event.c:424
+#: ../../event.c:429
 msgid "Busy"
 msgstr "Ocupado"
 
-#: ../../event.c:441
+#: ../../event.c:446
 msgid "(One per line)"
 msgstr "(Um por linha)"
 
-#: ../../event.c:451 ../../static/t/edit_message.html:143
+#: ../../event.c:456 ../../static/t/edit_message.html:143
 #: ../../static/t/iconbar/edit.html:42 ../../static/t/iconbar.html:29
 msgid "Contacts"
 msgstr "Contatos"
 
-#: ../../event.c:514
+#: ../../event.c:519
 msgid "Recurrence rule"
 msgstr "Regra de recorrência"
 
-#: ../../event.c:518
+#: ../../event.c:523
 msgid "Repeats every"
 msgstr "Repete a cada"
 
 #. begin 'weekday_selector' div
-#: ../../event.c:536
+#: ../../event.c:541
 msgid "on these weekdays:"
 msgstr "Nestes dias da semana"
 
-#: ../../event.c:594
+#: ../../event.c:599
 #, c-format
 msgid "on day %s%d%s of the month"
 msgstr "nos dias %s%d%s do mês"
 
-#: ../../event.c:603 ../../event.c:665
+#: ../../event.c:608 ../../event.c:670
 msgid "on the "
 msgstr "em "
 
-#: ../../event.c:627
+#: ../../event.c:632
 msgid "of the month"
 msgstr "do mês"
 
-#: ../../event.c:656
+#: ../../event.c:661
 msgid "every "
 msgstr "a cada "
 
-#: ../../event.c:657
+#: ../../event.c:662
 msgid "year on this date"
 msgstr "ano desta data"
 
-#: ../../event.c:689 ../../static/t/msg_listselector_bottom.html:7
+#: ../../event.c:694 ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
 msgid "of"
 msgstr "de"
 
-#: ../../event.c:713
+#: ../../event.c:718
 msgid "Recurrence range"
 msgstr "Intervalo de recorrência"
 
-#: ../../event.c:721
+#: ../../event.c:726
 msgid "No ending date"
 msgstr "Nenhuma data de término"
 
-#: ../../event.c:728
+#: ../../event.c:733
 msgid "Repeat this event"
 msgstr "Repetir este evento"
 
-#: ../../event.c:731
+#: ../../event.c:736
 msgid "times"
 msgstr "vezes"
 
-#: ../../event.c:739
+#: ../../event.c:744
 msgid "Repeat this event until "
 msgstr "Repetir este evento até "
 
-#: ../../event.c:767
+#: ../../event.c:772
 msgid "Check attendee availability"
 msgstr "Checar disponibilidade do participante"
 
@@ -1601,63 +1558,43 @@ msgstr "Checar disponibilidade do participante"
 msgid "Time format"
 msgstr "Formato de hora"
 
-#: ../../graphics.c:42
-msgid "Image upload"
-msgstr "Upload de imagem"
-
-#: ../../graphics.c:58
-msgid "You can upload an image directly from your computer"
-msgstr "Você pode fazer upload de uma imagem diretamente do seu computador"
-
-#: ../../graphics.c:61
-msgid "Please select a file to upload:"
-msgstr "Selecione um arquivo para fazer upload:"
-
-#: ../../graphics.c:67 ../../static/t/edit_message/attachments_pane.html:25
-msgid "Upload"
-msgstr "Upload"
-
-#: ../../graphics.c:69
-msgid "Reset form"
-msgstr "Limpar campos"
-
-#: ../../graphics.c:92
+#: ../../graphics.c:57
 msgid "Graphics upload has been cancelled."
 msgstr "Upload de gráficos foi cancelado."
 
-#: ../../graphics.c:99
+#: ../../graphics.c:63
 msgid "You didn't upload a file."
 msgstr "Você não fez upload do arquivo."
 
-#: ../../graphics.c:146
+#: ../../graphics.c:113
 msgid "your photo"
 msgstr "sua foto"
 
-#: ../../graphics.c:152
+#: ../../graphics.c:120
 msgid "the icon for this room"
 msgstr "o ícone para essa sala"
 
-#: ../../graphics.c:159
+#: ../../graphics.c:128
 msgid "the Greetingpicture for the login prompt"
 msgstr "a figura de boas vindas para esse prompt de login"
 
-#: ../../graphics.c:166
+#: ../../graphics.c:136
 msgid "the Logoff banner picture"
 msgstr "a figura para o banner de logoff"
 
-#: ../../graphics.c:175
+#: ../../graphics.c:147
 msgid "the icon for this floor"
 msgstr "o ícone para esse andar"
 
-#: ../../msg_renderers.c:581 ../../static/t/who/section.html:6
+#: ../../msg_renderers.c:579 ../../static/t/who/bio.html:15
 msgid "edit"
 msgstr "editar"
 
-#: ../../msg_renderers.c:1110
+#: ../../msg_renderers.c:1108
 msgid "I don't know how to display "
 msgstr "Eu não sei como exibir "
 
-#: ../../msg_renderers.c:1344
+#: ../../msg_renderers.c:1342
 msgid "(no subject)"
 msgstr "(sem assunto)"
 
@@ -1669,7 +1606,7 @@ msgstr "arquivo"
 msgid "files"
 msgstr "arquivos"
 
-#: ../../roomlist.c:101
+#: ../../roomlist.c:99
 msgid "My Folders"
 msgstr "Minhas Pastas"
 
@@ -1681,89 +1618,73 @@ msgstr "ERRO:"
 msgid "Empty message"
 msgstr "Mensagem vazia"
 
-#: ../../messages.c:1031
-#, c-format
+#: ../../messages.c:994
 msgid "Cancelled.  Message was not posted."
 msgstr "Cancelado.  A mensagem não foi fixada."
 
-#: ../../messages.c:1034
-#, c-format
+#: ../../messages.c:997
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Cancelado automaticamente porque você já salvou essa mensagem."
 
-#: ../../messages.c:1059
+#: ../../messages.c:1021
 msgid "Saved to Drafts failed: "
 msgstr "Gravação para rascunhos falhou: "
 
-#: ../../messages.c:1125
+#: ../../messages.c:1086
 msgid "Refusing to post empty message.\n"
 msgstr "Recusando enviar mensagem vazia\n"
 
-#: ../../messages.c:1151
+#: ../../messages.c:1112
 msgid "Message has been saved to Drafts.\n"
 msgstr "A mensagem foi salva em rascunhos\n"
 
-#: ../../messages.c:1160
+#: ../../messages.c:1121
 msgid "Message has been sent.\n"
 msgstr "A mensagem foi enviada.\n"
 
-#: ../../messages.c:1163
+#: ../../messages.c:1124
 msgid "Message has been posted.\n"
 msgstr "Mensagem foi fixada.\n"
 
-#: ../../messages.c:1485
-#, c-format
+#: ../../messages.c:1662
 msgid "The message was not moved."
 msgstr "A mensagem não foi movida."
 
-#: ../../messages.c:1507
-msgid "Confirm move of message"
-msgstr "Confirmar a movimentação da mensagem"
-
-#: ../../messages.c:1515
-msgid "Move this message to:"
-msgstr "Mover essa mensagem para:"
-
-#: ../../messages.c:1536 ../../static/t/view_message.html:34
-#: ../../static/t/msg_listview.html:28
-msgid "Move"
-msgstr "Mover"
-
-#: ../../messages.c:1578
+#: ../../messages.c:1702
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "Um erro ocorreu ao obter essa parte: %s/%s\n"
 
-#: ../../messages.c:1638
+#: ../../messages.c:1762
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Um erro ocorreu ao obter essa parte: %s\n"
 
-#: ../../messages.c:1805
+#: ../../messages.c:1929
 msgid "Attach signature to email messages?"
 msgstr "Anexar assinatura em mensagens de email?"
 
-#: ../../messages.c:1808
+#: ../../messages.c:1932
 msgid "Use this signature:"
 msgstr "Usar essa assinatura:"
 
-#: ../../messages.c:1810
+#: ../../messages.c:1934
 msgid "Default character set for email headers:"
 msgstr "Codificação padrão para cabeçalhos de email:"
 
-#: ../../messages.c:1813
+#: ../../messages.c:1937
 msgid "Preferred email address"
 msgstr "Endereço de e-mail preferencial"
 
-#: ../../messages.c:1815
+#: ../../messages.c:1939
 msgid "Preferred display name for email messages"
 msgstr "Nome de exibição para mensagens de e-mail preferencial"
 
-#: ../../messages.c:1819
+#: ../../messages.c:1943
 msgid "Preferred display name for bulletin board posts"
 msgstr "Nome de exibição para mensagens de bulletin board preferencial"
 
-#: ../../messages.c:1822
+#: ../../messages.c:1946
 msgid "Mailbox view mode"
 msgstr "Modo de visualização da Caixa de Mensagens"
 
@@ -1771,57 +1692,23 @@ msgstr "Modo de visualização da Caixa de Mensagens"
 msgid "Add"
 msgstr "Adicionar"
 
-#: ../../summary.c:117
+#: ../../summary.c:134
 msgid "(None)"
 msgstr "(Nenhum)"
 
-#: ../../summary.c:169
+#: ../../summary.c:186
 msgid "(Nothing)"
 msgstr "(Nada)"
 
-#: ../../summary.c:183
-#, c-format
-msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
-msgstr ""
-"Você está conectado à %s, rodando %s com %s, server build %s,  e localizado "
-"em %s.  Seu administrador de sistema é %s."
-
-#: ../../summary.c:211
-msgid "Messages"
-msgstr "Mensagens"
-
-#: ../../summary.c:224 ../../static/t/iconbar/edit.html:60
-#: ../../static/t/iconbar.html:39
-msgid "Tasks"
-msgstr "Tarefas"
-
-#: ../../summary.c:237
-msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Hoje&nbsp;no&nbsp;seu&nbsp;calendário"
-
-#: ../../summary.c:252
-msgid "Who's&nbsp;online&nbsp;now"
-msgstr "Quem está&nbsp;online&nbsp;agora"
-
-#: ../../summary.c:265
-msgid "About&nbsp;this&nbsp;server"
-msgstr "Sobre&nbsp;esse&nbsp;servidor"
-
-#: ../../summary.c:291
-#, c-format
-msgid "Summary page for %s"
-msgstr "Página de resumo de %s"
-
-#: ../../inetconf.c:125
-#, c-format
-msgid "%s has been deleted."
+#: ../../inetconf.c:126
+#, fuzzy
+msgid " has been deleted."
 msgstr "%s foi excluído."
 
 #. <domain> added status message
-#: ../../inetconf.c:143
-msgid "added."
+#: ../../inetconf.c:144
+#, fuzzy
+msgid " added."
 msgstr "adicionada"
 
 #: ../../static/t/edit_message/attachments_pane.html:3
@@ -1834,9 +1721,13 @@ msgstr "Fechar janela "
 msgid "Attachments:"
 msgstr "Anexos:"
 
-#: ../../static/t/edit_message/attachments_pane.html:20
+#: ../../static/t/edit_message/attachments_pane.html:16
 msgid "Attach file:"
 msgstr "Anexar arquivo:"
+
+#: ../../static/t/edit_message/attachments_pane.html:21
+msgid "Upload"
+msgstr "Upload"
 
 #: ../../static/t/edit_message/section_attach_select.html:4
 #, fuzzy
@@ -1849,7 +1740,7 @@ msgid "Reading #"
 msgstr "Lendo #"
 
 #: ../../static/t/msg_listselector_bottom.html:7
-#: ../../static/t/roombanner.html:10
+#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 #: ../../static/t/msg_listselector_top.html:7
 msgid "messages"
 msgstr "mensagens"
@@ -1996,7 +1887,7 @@ msgstr "Pessoal (caixa de correio pessoal)"
 #, fuzzy
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
-"to the following list recipients:</i><br /><br />"
+"to the following list recipients:</i><br><br>"
 msgstr ""
 "<i>O conteúdo dessa sala será mandado <b>como mensagens individuais</b> para "
 "os seguintes recipientes:</i><br><br>\n"
@@ -2005,7 +1896,7 @@ msgstr ""
 #, fuzzy
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
-"following list recipients:</i><br /><br />"
+"following list recipients:</i><br><br>"
 msgstr ""
 "<i>O conteúdo dessa sala será mandado <b>de forma resumida</b> para os "
 "seguintes recipientes:</i><br><br>\n"
@@ -2276,9 +2167,21 @@ msgstr "Definir ou modificar o ícone para o banner dessa sala"
 msgid "Edit this rooms Info file"
 msgstr "Editar o arquivo Info dessa sala"
 
-#: ../../static/t/who.html:14
+#: ../../static/t/who.html:13
 msgid "Users currently on "
 msgstr "Usuário atualmente on line "
+
+#: ../../static/t/who.html:22
+#, fuzzy
+msgid "Click on a name to read user info.  Click on"
+msgstr ""
+"Clique num nome para ler as informações do usuário.  Clique em %s para "
+"mandar uma mensagem instantânea para esse usuário."
+
+#: ../../static/t/who.html:24
+#, fuzzy
+msgid "to send an instant message to that user."
+msgstr "Mandar mensagem instantânea para: "
 
 #: ../../static/t/newstartpage.html:4
 msgid "New start page"
@@ -2348,35 +2251,40 @@ msgstr "Adicionar nova tarefa"
 msgid "View notes"
 msgstr "Visualizar notas"
 
-#: ../../static/t/navbar.html:102
+#: ../../static/t/navbar.html:101
 msgid "Add new note"
 msgstr "Adicionar nova nota"
 
-#: ../../static/t/navbar.html:111
+#: ../../static/t/navbar.html:110
 msgid "Refresh message list"
 msgstr "Atualizar lista de mensagens"
 
-#: ../../static/t/navbar.html:123
+#: ../../static/t/navbar.html:122
 msgid "Write mail"
 msgstr "Escrever mensagem"
 
-#: ../../static/t/navbar.html:133
+#: ../../static/t/navbar.html:132
 msgid "Wiki home"
 msgstr "Página inicial do Wiki"
 
-#: ../../static/t/navbar.html:140
+#: ../../static/t/navbar.html:139
 msgid "Edit this page"
 msgstr "Editar essa página"
 
-#: ../../static/t/navbar.html:146
+#: ../../static/t/navbar.html:145
 msgid "History"
 msgstr "Histórico"
 
 #: ../../static/t/navbar.html:154
+#, fuzzy
+msgid "New blog post"
+msgstr "posts recentes"
+
+#: ../../static/t/navbar.html:162
 msgid "Skip this room"
 msgstr "Pular essa sala"
 
-#: ../../static/t/navbar.html:160 ../../static/t/menu/basic_commands.html:4
+#: ../../static/t/navbar.html:168 ../../static/t/menu/basic_commands.html:4
 msgid "Goto next room"
 msgstr "Ir para próxima sala"
 
@@ -2403,7 +2311,7 @@ msgstr "Para:"
 
 #: ../../static/t/edit_message.html:57
 #: ../../static/t/view_message/print.html:15
-#: ../../static/t/view_message.html:13
+#: ../../static/t/view_message.html:15
 msgid "CC:"
 msgstr "CC:"
 
@@ -2416,9 +2324,9 @@ msgid "Subject (optional):"
 msgstr "Assunto (opcional):"
 
 #: ../../static/t/edit_message.html:71
-#: ../../static/t/view_message/replyquote.html:9
+#: ../../static/t/view_message/replyquote.html:8
 #: ../../static/t/view_message/print.html:16
-#: ../../static/t/view_message.html:14
+#: ../../static/t/view_message.html:16
 msgid "Subject:"
 msgstr "Assunto:"
 
@@ -2457,54 +2365,91 @@ msgstr "Visualizar"
 msgid "Download"
 msgstr "Download"
 
-#: ../../static/t/view_message/replyquote.html:4
-#: ../../static/t/view_message/replyquote.html:8
-#: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:5
+#: ../../static/t/view_message/replyquote.html:3
+#: ../../static/t/view_message/replyquote.html:7
+#: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:7
 #: ../../static/t/view_submessage.html:4
 msgid "from "
 msgstr "de "
 
 #: ../../static/t/view_message/print.html:14
-#: ../../static/t/view_message.html:12
+#: ../../static/t/view_message.html:14
 msgid "to"
 msgstr "até"
 
-#: ../../static/t/view_message.html:16
+#: ../../static/t/view_message.html:18
 msgid "Edit"
 msgstr "editar"
 
-#: ../../static/t/view_message.html:18 ../../static/t/view_message.html:23
-#: ../../static/t/view_message.html:28
+#: ../../static/t/view_message.html:20 ../../static/t/view_message.html:24
 msgid "Reply"
 msgstr "Responder"
 
-#: ../../static/t/view_message.html:19
+#: ../../static/t/view_message.html:21
 msgid "ReplyQuoted"
 msgstr "ResponderComCitação"
 
-#: ../../static/t/view_message.html:24 ../../static/t/view_message.html:29
+#: ../../static/t/view_message.html:25
 msgid "ReplyAll"
 msgstr "ResponderTodos"
 
-#: ../../static/t/view_message.html:25 ../../static/t/view_message.html:30
+#: ../../static/t/view_message.html:26
 msgid "Forward"
 msgstr "Encaminhar"
 
-#: ../../static/t/view_message.html:37
+#: ../../static/t/view_message.html:29 ../../static/t/msg_listview.html:25
+msgid "Move"
+msgstr "Mover"
+
+#: ../../static/t/view_message.html:32
 msgid "Headers"
 msgstr "Cabeçalhos"
 
-#: ../../static/t/view_message.html:38 ../../static/t/msg_listview.html:31
+#: ../../static/t/view_message.html:33 ../../static/t/msg_listview.html:28
 msgid "Print"
 msgstr "Imprimir"
+
+#: ../../static/t/user/list.html:3
+#, fuzzy
+msgid "User list for "
+msgstr "Lista de usuários para %s"
+
+#: ../../static/t/user/list.html:9
+msgid "User Name"
+msgstr "Nome de Usuário"
+
+#: ../../static/t/user/list.html:10
+msgid "Number"
+msgstr "Número"
+
+#: ../../static/t/user/list.html:11
+msgid "Access Level"
+msgstr "Nível de Acesso"
+
+#: ../../static/t/user/list.html:12
+msgid "Last Login"
+msgstr "Último Login"
+
+#: ../../static/t/user/list.html:13
+msgid "Total Logins"
+msgstr "Número total de Logins"
+
+#: ../../static/t/user/list.html:14
+msgid "Total Posts"
+msgstr "Número total de Posts"
+
+#: ../../static/t/user/show.html:4 ../../static/t/who/bio.html:4
+msgid "User profile"
+msgstr "Perfil do usuário"
+
+#: ../../static/t/user/show.html:9
+#, fuzzy
+msgid "Click here to send an instant message to"
+msgstr "Clique aqui para mandar uma mensagem instantânea para %s"
 
 #: ../../static/t/searchomatic.html:4
 msgid "Search: "
 msgstr "Pesquisar: "
-
-#: ../../static/t/blog_comment_box.html:8
-msgid "Post a comment"
-msgstr "Postar um comentário"
 
 #: ../../static/t/display_main_menu.html:7
 msgid "Basic commands"
@@ -2518,15 +2463,15 @@ msgstr "Informações sobre você"
 msgid "Advanced room commands"
 msgstr "Comandos avançados de sala"
 
-#: ../../static/t/roombanner.html:10
+#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 msgid "new of"
 msgstr "novo de"
 
-#: ../../static/t/roombanner.html:24
+#: ../../static/t/roombanner.html:28
 msgid "Select page: "
 msgstr "Selecione a página: "
 
-#: ../../static/t/iconbar/edit.html:5 ../../static/t/iconbar/save.html:5
+#: ../../static/t/iconbar/edit.html:4 ../../static/t/iconbar/save.html:4
 msgid "Customize the icon bar"
 msgstr "Personalizar a barra de ícones"
 
@@ -2534,19 +2479,19 @@ msgstr "Personalizar a barra de ícones"
 msgid "Display icons as:"
 msgstr "Exibir ícones como:"
 
-#: ../../static/t/iconbar/edit.html:13
+#: ../../static/t/iconbar/edit.html:12
 msgid "pictures and text"
 msgstr "imagens e texto"
 
-#: ../../static/t/iconbar/edit.html:14
+#: ../../static/t/iconbar/edit.html:13
 msgid "pictures only"
 msgstr "apenas imagens"
 
-#: ../../static/t/iconbar/edit.html:15
+#: ../../static/t/iconbar/edit.html:14
 msgid "text only"
 msgstr "apenas texto"
 
-#: ../../static/t/iconbar/edit.html:17
+#: ../../static/t/iconbar/edit.html:16
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
@@ -2554,37 +2499,37 @@ msgstr ""
 "Selecione os ícones que deseja ver no menu 'barra de ícones' no lado "
 "esquerdo da tela"
 
-#: ../../static/t/iconbar/edit.html:21 ../../static/t/iconbar/edit.html:27
-#: ../../static/t/iconbar/edit.html:33 ../../static/t/iconbar/edit.html:39
-#: ../../static/t/iconbar/edit.html:45 ../../static/t/iconbar/edit.html:51
-#: ../../static/t/iconbar/edit.html:57 ../../static/t/iconbar/edit.html:63
-#: ../../static/t/iconbar/edit.html:69 ../../static/t/iconbar/edit.html:75
-#: ../../static/t/iconbar/edit.html:81 ../../static/t/iconbar/edit.html:87
+#: ../../static/t/iconbar/edit.html:19 ../../static/t/iconbar/edit.html:26
+#: ../../static/t/iconbar/edit.html:32 ../../static/t/iconbar/edit.html:39
+#: ../../static/t/iconbar/edit.html:45 ../../static/t/iconbar/edit.html:52
+#: ../../static/t/iconbar/edit.html:58 ../../static/t/iconbar/edit.html:64
+#: ../../static/t/iconbar/edit.html:70 ../../static/t/iconbar/edit.html:76
+#: ../../static/t/iconbar/edit.html:82 ../../static/t/iconbar/edit.html:88
 #: ../../static/t/prefs/box.html:198
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
 msgid "Yes"
 msgstr "Sim"
 
-#: ../../static/t/iconbar/edit.html:22 ../../static/t/iconbar/edit.html:28
-#: ../../static/t/iconbar/edit.html:34 ../../static/t/iconbar/edit.html:40
-#: ../../static/t/iconbar/edit.html:46 ../../static/t/iconbar/edit.html:52
-#: ../../static/t/iconbar/edit.html:58 ../../static/t/iconbar/edit.html:64
-#: ../../static/t/iconbar/edit.html:70 ../../static/t/iconbar/edit.html:76
-#: ../../static/t/iconbar/edit.html:82 ../../static/t/iconbar/edit.html:88
+#: ../../static/t/iconbar/edit.html:20 ../../static/t/iconbar/edit.html:27
+#: ../../static/t/iconbar/edit.html:33 ../../static/t/iconbar/edit.html:40
+#: ../../static/t/iconbar/edit.html:46 ../../static/t/iconbar/edit.html:53
+#: ../../static/t/iconbar/edit.html:59 ../../static/t/iconbar/edit.html:65
+#: ../../static/t/iconbar/edit.html:71 ../../static/t/iconbar/edit.html:77
+#: ../../static/t/iconbar/edit.html:83 ../../static/t/iconbar/edit.html:89
 #: ../../static/t/prefs/box.html:200
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
 msgid "No"
 msgstr "Não"
 
-#: ../../static/t/iconbar/edit.html:24
+#: ../../static/t/iconbar/edit.html:23
 msgid "Site logo"
 msgstr "Logotipo do site"
 
-#: ../../static/t/iconbar/edit.html:24
+#: ../../static/t/iconbar/edit.html:23
 msgid "An icon describing this site"
 msgstr "Um ícone descrevendo esse site"
 
-#: ../../static/t/iconbar/edit.html:30
+#: ../../static/t/iconbar/edit.html:29
 msgid "Your summary page"
 msgstr "Sua página de resumo"
 
@@ -2600,42 +2545,47 @@ msgstr "Um atalho para sua caixa de entrada"
 msgid "Your personal address book"
 msgstr "Seu caderno de endereços pessoal"
 
-#: ../../static/t/iconbar/edit.html:48
+#: ../../static/t/iconbar/edit.html:49
 msgid "Your personal notes"
 msgstr "Suas notas pessoais"
 
-#: ../../static/t/iconbar/edit.html:54
+#: ../../static/t/iconbar/edit.html:55
 msgid "A shortcut to your personal calendar"
 msgstr "Um atalho para seu calendário pessoal"
 
-#: ../../static/t/iconbar/edit.html:60
+#: ../../static/t/iconbar/edit.html:61 ../../static/t/summary/page.html:32
+#: ../../static/t/iconbar.html:39
+msgid "Tasks"
+msgstr "Tarefas"
+
+#: ../../static/t/iconbar/edit.html:61
 msgid "A shortcut to your personal task list"
 msgstr "Um atalho para sua lista de tarefas pessoal"
 
-#: ../../static/t/iconbar/edit.html:66 ../../static/t/iconbar.html:48
+#: ../../static/t/iconbar/edit.html:67 ../../static/t/iconbar.html:48
 msgid "Rooms"
 msgstr "Salas"
 
-#: ../../static/t/iconbar/edit.html:66
+#: ../../static/t/iconbar/edit.html:67
 msgid ""
 "Clicking this icon displays a list of all accessible rooms (or folders) "
 "available."
 msgstr ""
 "Clicar nesse ícone exibe uma lista de todas as salas (ou pastas) acessíveis."
 
-#: ../../static/t/iconbar/edit.html:72
+#: ../../static/t/iconbar/edit.html:73
 msgid "Who is online?"
 msgstr "Quem está online?"
 
-#: ../../static/t/iconbar/edit.html:72
+#: ../../static/t/iconbar/edit.html:73
 msgid "Clicking this icon displays a list of all users currently logged in."
 msgstr "Clicar nesse ícone exibe uma lista de todos os usuários conectados."
 
-#: ../../static/t/iconbar/edit.html:78 ../../static/t/iconbar.html:62
+#: ../../static/t/iconbar/edit.html:79 ../../static/t/iconbar.html:62
 msgid "Chat"
 msgstr "Bate-papo"
 
-#: ../../static/t/iconbar/edit.html:78
+#: ../../static/t/iconbar/edit.html:79
 msgid ""
 "Clicking this icon enters real-time chat mode with other users in the same "
 "room."
@@ -2643,19 +2593,19 @@ msgstr ""
 "Clicar nesse ícone inicia um bate-papo em tempo real com outros usuários da "
 "mesma sala."
 
-#: ../../static/t/iconbar/edit.html:84
+#: ../../static/t/iconbar/edit.html:85
 msgid "Advanced options"
 msgstr "Opções avançadas"
 
-#: ../../static/t/iconbar/edit.html:84
+#: ../../static/t/iconbar/edit.html:85
 msgid "Access to the complete menu of Citadel functions."
 msgstr "Acesso ao menu completo de funções do Citadel"
 
-#: ../../static/t/iconbar/edit.html:90
+#: ../../static/t/iconbar/edit.html:91
 msgid "Citadel logo"
 msgstr "Logotipo do Citadel"
 
-#: ../../static/t/iconbar/edit.html:90
+#: ../../static/t/iconbar/edit.html:91
 msgid "Displays the 'Powered by Citadel' icon"
 msgstr "Mostra o ícone 'Powered by Citadel'"
 
@@ -2676,8 +2626,8 @@ msgstr ""
 msgid "powered by"
 msgstr "desenvolvido por"
 
-#: ../../static/t/login.html:15 ../../static/t/get_logged_in.html:52
-#: ../../static/t/get_logged_in.html:76 ../../static/t/iconbar.html:88
+#: ../../static/t/login.html:15 ../../static/t/get_logged_in.html:54
+#: ../../static/t/get_logged_in.html:78 ../../static/t/iconbar.html:88
 #, fuzzy
 msgid "Log in"
 msgstr "Último Login"
@@ -2686,17 +2636,79 @@ msgstr "Último Login"
 msgid "View as:"
 msgstr "Visualizar como:"
 
-#: ../../static/t/msg_listview.html:20
+#: ../../static/t/msg_listview.html:18
 msgid "Loading messages from server, please wait"
 msgstr "Carregando mensagens do servidor, por favor aguarde"
 
-#: ../../static/t/msg_listview.html:27
+#: ../../static/t/msg_listview.html:24
 msgid "Open in new window"
 msgstr "Abrir em uma nova janela"
 
-#: ../../static/t/msg_listview.html:29
+#: ../../static/t/msg_listview.html:26
 msgid "Copy"
 msgstr "Copiar"
+
+#: ../../static/t/summary/page.html:5
+#, fuzzy
+msgid "Summary page for "
+msgstr "Página de resumo de %s"
+
+#: ../../static/t/summary/page.html:23
+msgid "Messages"
+msgstr "Mensagens"
+
+#: ../../static/t/summary/page.html:41
+msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
+msgstr "Hoje&nbsp;no&nbsp;seu&nbsp;calendário"
+
+#: ../../static/t/summary/page.html:53
+#, fuzzy
+msgid "Who‘s&nbsp;online&nbsp;now"
+msgstr "Quem está&nbsp;online&nbsp;agora"
+
+#: ../../static/t/summary/page.html:60
+msgid "About&nbsp;this&nbsp;server"
+msgstr "Sobre&nbsp;esse&nbsp;servidor"
+
+#: ../../static/t/summary/page.html:63
+msgid "You are connected to"
+msgstr ""
+
+#: ../../static/t/summary/page.html:64
+#, fuzzy
+msgid "running"
+msgstr "Afinação"
+
+#: ../../static/t/summary/page.html:65
+#, fuzzy
+msgid "with"
+msgstr "quinto"
+
+#: ../../static/t/summary/page.html:66
+msgid "server build"
+msgstr ""
+
+#: ../../static/t/summary/page.html:67
+#, fuzzy
+msgid "and located in"
+msgstr "e depois"
+
+#: ../../static/t/summary/page.html:68
+#, fuzzy
+msgid "Your system administrator is"
+msgstr "Nome do administrador do sistema"
+
+#: ../../static/t/summary/trailer.html:9 ../../static/t/trailing.html:3
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+"AVISO: O JavaScript do seu navegador está desabilitado. Muitas funções deste "
+"sistema não funcionarão adequadamente."
+
+#: ../../static/t/view_blog/comment_box.html:8
+msgid "Post a comment"
+msgstr "Postar um comentário"
 
 #: ../../static/t/menu/advanced_roomcommands.html:3
 msgid "Edit or delete this room"
@@ -2796,11 +2808,11 @@ msgstr "Entre sua 'bio'"
 msgid "Edit your online photo"
 msgstr "Editar sua foto online"
 
-#: ../../static/t/menu/your_info.html:8
+#: ../../static/t/menu/your_info.html:9
 msgid "Edit your push email settings"
 msgstr "Editar suas configurações de 'push email'"
 
-#: ../../static/t/menu/your_info.html:9
+#: ../../static/t/menu/your_info.html:10
 #, fuzzy
 msgid "Manage your OpenIDs"
 msgstr "Sua OpenID"
@@ -2812,18 +2824,6 @@ msgstr "Sala"
 #: ../../static/t/who/box_list_static.html:8
 msgid "From host"
 msgstr "De host"
-
-#: ../../static/t/who/box_list_static.html:14
-#, fuzzy
-msgid "Click on a name to read user info.  Click on"
-msgstr ""
-"Clique num nome para ler as informações do usuário.  Clique em %s para "
-"mandar uma mensagem instantânea para esse usuário."
-
-#: ../../static/t/who/box_list_static.html:16
-#, fuzzy
-msgid "to send an instant message to that user."
-msgstr "Mandar mensagem instantânea para: "
 
 #: ../../static/t/who/section.html:4
 msgid "(kill)"
@@ -2854,29 +2854,29 @@ msgstr "conflito com um usuário existente."
 msgid "Please specify the user name you would like to use."
 msgstr "Por favor especifique o nome do usuário que você gostaria de usar."
 
-#: ../../static/t/files.html:3
+#: ../../static/t/files.html:4
 msgid "Files available for download in"
 msgstr "Arquivos disponíveis para download em"
 
-#: ../../static/t/files.html:16
+#: ../../static/t/files.html:9
+msgid "Upload a file:"
+msgstr "Fazer upload de um arquivo:"
+
+#: ../../static/t/files.html:30
 msgid "Filename"
 msgstr "Nome do arquivo"
 
-#: ../../static/t/files.html:17
+#: ../../static/t/files.html:31
 msgid "Size"
 msgstr "Tamanho"
 
-#: ../../static/t/files.html:18
+#: ../../static/t/files.html:32
 msgid "Content"
 msgstr "Conteúdo"
 
-#: ../../static/t/files.html:19
+#: ../../static/t/files.html:33
 msgid "Description"
 msgstr "Descrição"
-
-#: ../../static/t/files.html:33
-msgid "Upload a file:"
-msgstr "Fazer upload de um arquivo:"
 
 #: ../../static/t/loggedinas.html:3
 #, fuzzy
@@ -2896,34 +2896,49 @@ msgstr "(excluir andar)"
 msgid "(edit graphic)"
 msgstr "(editar gráfico)"
 
+#: ../../static/t/sieve/none.html:11
+msgid ""
+"This installation of Citadel was built without support for server-side mail "
+"filtering.<br>Please contact your system administrator if you require this "
+"feature.<br>"
+msgstr ""
+"Essa instalação do Citadel foi criada sem suporte para filtros de email na "
+"parte do servidor (server-side).<br>Contate o administrador do sistema se "
+"você precisa dessa função.<br>"
+
+#: ../../static/t/sieve/display_one.html:59
+#, fuzzy
+msgid "bytes"
+msgstr "anos"
+
 #: ../../static/t/get_logged_in.html:5
 msgid "You must be logged in to access this page."
 msgstr "Você deve estar logado para acessar esta página."
 
-#: ../../static/t/get_logged_in.html:43
+#: ../../static/t/get_logged_in.html:45
 msgid "Log in using a user name and password"
 msgstr "Log in usando um nome de usuário e senha"
 
-#: ../../static/t/get_logged_in.html:48 ../../static/t/get_logged_in.html:63
+#: ../../static/t/get_logged_in.html:50 ../../static/t/get_logged_in.html:65
 msgid "Password:"
 msgstr "Senha:"
 
-#: ../../static/t/get_logged_in.html:53 ../../static/t/get_logged_in.html:57
+#: ../../static/t/get_logged_in.html:55 ../../static/t/get_logged_in.html:59
 msgid "New user?  Register now"
 msgstr "Novo usuário? Cadastre-se agora"
 
-#: ../../static/t/get_logged_in.html:58
+#: ../../static/t/get_logged_in.html:60
 msgid ""
 "enter the name and password you wish to use, and click &quot;New User.&quot; "
 msgstr ""
 "entre com seu nome e senha que você deseja usar, e clique em &quot;Novo "
 "Usuário.&quot; "
 
-#: ../../static/t/get_logged_in.html:71
+#: ../../static/t/get_logged_in.html:73
 msgid "Log in using OpenID"
 msgstr "Log in usando OpenID"
 
-#: ../../static/t/get_logged_in.html:73
+#: ../../static/t/get_logged_in.html:75
 msgid "OpenID URL:"
 msgstr "URL do OpenID:"
 
@@ -3040,17 +3055,29 @@ msgstr ""
 msgid "No new messages."
 msgstr "Nenhuma nova mensagem."
 
+#: ../../static/t/files/graphicsupload.html:2
+msgid "Image upload"
+msgstr "Upload de imagem"
+
+#: ../../static/t/files/graphicsupload.html:6
+msgid "You can upload an image directly from your computer"
+msgstr "Você pode fazer upload de uma imagem diretamente do seu computador"
+
+#: ../../static/t/files/graphicsupload.html:8
+msgid "Please select a file to upload:"
+msgstr "Selecione um arquivo para fazer upload:"
+
 #: ../../static/t/files/section_onefile.html:20
 msgid "Slideshow"
 msgstr "Apresentação"
 
-#: ../../static/t/trailing.html:3
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-"AVISO: O JavaScript do seu navegador está desabilitado. Muitas funções deste "
-"sistema não funcionarão adequadamente."
+#: ../../static/t/msg/confirm_move.html:4
+msgid "Confirm move of message"
+msgstr "Confirmar a movimentação da mensagem"
+
+#: ../../static/t/msg/confirm_move.html:12
+msgid "Move this message to:"
+msgstr "Mover essa mensagem para:"
 
 #: ../../static/t/iconbar.html:7
 msgid "Language:"
@@ -3386,23 +3413,29 @@ msgstr ""
 "Permitir que criadores de salas privadas tenham status de aide das mesmas."
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
+#, fuzzy
+msgid "Automatically grant room-aide status to users who create BLOG rooms"
+msgstr ""
+"Permitir que criadores de salas BLOG tenham status de aide das mesmas."
+
+#: ../../static/t/aide/siteconfig/tab_access.html:66
 msgid "Restrict access to Internet mail"
 msgstr "Restringir acesso a correio eletrônico da Internet"
 
-#: ../../static/t/aide/siteconfig/tab_access.html:68
+#: ../../static/t/aide/siteconfig/tab_access.html:71
 msgid "Disable self-service user account creation"
 msgstr ""
 "Desabilitar criação de conta por responsabilidade do usuário (self-service)"
 
-#: ../../static/t/aide/siteconfig/tab_access.html:68
+#: ../../static/t/aide/siteconfig/tab_access.html:71
 msgid "Hint: do not select both!"
 msgstr ""
 
-#: ../../static/t/aide/siteconfig/tab_access.html:71
+#: ../../static/t/aide/siteconfig/tab_access.html:74
 msgid "Require registration for new users"
 msgstr "Requerer registro de usuários novos"
 
-#: ../../static/t/aide/siteconfig/tab_access.html:74
+#: ../../static/t/aide/siteconfig/tab_access.html:77
 #, fuzzy
 msgid "Allow anonymous guest access"
 msgstr "Sem mensagens anonimas"
@@ -3730,11 +3763,11 @@ msgstr "Editar ou excluir usuários"
 msgid "You need to be aide to view this."
 msgstr "Você não tem permissão para visualizar esse recurso."
 
-#: ../../static/t/aide/edituser/select.html:16
+#: ../../static/t/aide/edituser/select.html:17
 msgid "Add users"
 msgstr "Adicionar usuários"
 
-#: ../../static/t/aide/edituser/select.html:18
+#: ../../static/t/aide/edituser/select.html:20
 msgid "Edit or Delete users"
 msgstr "Editar ou Remover usuários"
 
@@ -3829,6 +3862,16 @@ msgstr "Mensagens antigas"
 #: ../../static/t/start_of_new_msgs.html:8
 msgid "New messages"
 msgstr "Novas mensagens"
+
+#~ msgid "Reset form"
+#~ msgstr "Limpar campos"
+
+#~ msgid ""
+#~ "You are connected to %s, running %s with %s, server build %s and located "
+#~ "in %s.  Your system administrator is %s."
+#~ msgstr ""
+#~ "Você está conectado à %s, rodando %s com %s, server build %s,  e "
+#~ "localizado em %s.  Seu administrador de sistema é %s."
 
 #~ msgid "Yes with users list"
 #~ msgstr "Sim com lista de usuários"
