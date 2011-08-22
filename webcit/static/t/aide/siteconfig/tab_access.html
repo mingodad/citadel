@@ -60,6 +60,9 @@
 <tr><td><?_("Automatically grant room-aide status to users who create private rooms")></td><td>
 <input type="checkbox" name="c_creataide" value="yes" <?%("COND:SERVCFG", 1, "c_creataide", 1, "CHECKED", "")>></td></tr>
 
+<tr><td><?_("Automatically grant room-aide status to users who create BLOG rooms")></td><td>
+<input DISABLED type="checkbox" name="c_creataide_blog" value="yes" CHECKED></td></tr>
+
 <tr><td><?_("Restrict access to Internet mail")></td><td>
 <input type="checkbox" name="c_restrict" value="yes" <?%("COND:SERVCFG", 1, "c_restrict", 1, "CHECKED", "")>></td></tr>
 
