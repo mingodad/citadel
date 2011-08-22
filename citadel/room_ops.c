@@ -1914,12 +1914,20 @@ unsigned CtdlCreateRoom(char *new_room_name,
 	}
 
 	/* If the room is private, and the system administrator has elected
-	 * to automatically grant room aide privileges, do so now; otherwise,
-	 * set the room aide to undefined.
+	 * to automatically grant room aide privileges, do so now.
 	 */
 	if ((qrbuf.QRflags & QR_PRIVATE) && (CREATAIDE == 1)) {
 		qrbuf.QRroomaide = CC->user.usernum;
-	} else {
+	}
+	/* Blog owners automatically become room aides of their blogs.
+	 * (In the future we will offer a site-wide configuration setting to suppress this behavior.)
+	 */
+	else if (new_room_view == VIEW_BLOG) {
+		qrbuf.QRroomaide = CC->user.usernum;
+	}
+	/* Otherwise, set the room aide to undefined.
+	 */
+	else {
 		qrbuf.QRroomaide = (-1L);
 	}
 
