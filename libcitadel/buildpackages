@@ -56,7 +56,7 @@ case $1 in
 	    find -type f -exec chmod a-x {} \;
 	    chmod a+x configure
 	    cd ..
-	    tar -chzf libcitadel_${LIBCITADEL_VERSION}.orig.tar.gz libcitadel-${LIBCITADEL_VERSION}/ --exclude "debian/*"
+	    tar -chzf libcitadel_${LIBCITADEL_VERSION}.orig.tar.gz libcitadel-${LIBCITADEL_VERSION}/ --exclude "debian/*" --exclude tests/testdata
 	    pwd
 	    cd  libcitadel-${LIBCITADEL_VERSION}; debuild -S -sa -kw.goesgens@outgesourced.org
 	else
@@ -109,6 +109,7 @@ EMAIL=citadel@outgesourced.org
 	    --exclude "*.d" \
 	    --exclude "debian/*" \
 	    --exclude "sysdep.h" \
+	    --exclude "tests/testdata" \
 	    \
 	    -chvzf libcitadel-$LIBCITADEL_VERSION.tar.gz libcitadel-$LIBCITADEL_VERSION/
 	;;
