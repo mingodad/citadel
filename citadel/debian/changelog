@@ -1,19 +1,20 @@
 citadel (7.87-98) stable; urgency=low
+
   * new upstream version:
-	- webcit - fix edgecases in which the mailbox view wouldn't load anymore because of broken json / broken UTF8
-	- webcit - don't close sdtin by accident
-	- webcit - fix possible endless loop condition
-	- webcit - fix undeterministic part in calendaring
-	- webcit - mail composing - create propper multipart mime
-	- webcit - fix compile on BSD Systems
-	- citserver - fix problem encountered with the bynari Imap connector
-	- citserver - fix Wiki
-	- citserver - Mailing lists / Smtp Sending; improve our RFC conformance
-	- don't add the roomname to Subject if its already there [user anoyance]
-	- QP-Encode the subject properly (if) [giving Spam score]
-	- fix RFC inconformance in QP-encoding [giving Spam score]
-	- fix possible output of duplicate headers [giving Spam score]
-	- fix unfolding of long lines
+   * webcit - fix edgecases in which the mailbox view wouldn't load anymore because of broken json / broken UTF8
+   * webcit - don't close sdtin by accident
+   * webcit - fix possible endless loop condition
+   * webcit - fix undeterministic part in calendaring
+   * webcit - mail composing - create propper multipart mime
+   * webcit - fix compile on BSD Systems
+   * citserver - fix problem encountered with the bynari Imap connector
+   * citserver - fix Wiki
+   * citserver - Mailing lists / Smtp Sending; improve our RFC conformance
+   * don't add the roomname to Subject if its already there [user anoyance]
+   * QP-Encode the subject properly (if) [giving Spam score]
+   * fix RFC inconformance in QP-encoding [giving Spam score]
+   * fix possible output of duplicate headers [giving Spam score]
+   * fix unfolding of long lines
 
  -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 23 Aug 2011 18:00:00 +0001
 
