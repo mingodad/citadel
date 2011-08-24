@@ -1127,6 +1127,7 @@ void post_message(void)
 				}
 				dont_post = lbstr("postseq");
 			} else {
+				/* FIXME this does not work!  It just displays an empty screen */
 				syslog(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf) + 4);
 				AppendImportantMessage(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
 				if (save_to_drafts) gotoroom(WCC->CurRoom.name);
