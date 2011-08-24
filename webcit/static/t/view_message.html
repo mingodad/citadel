@@ -15,7 +15,9 @@
 <?!("COND:MAIL:SUMM:CCCC", 6)><br><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
 <?!("COND:MAIL:SUBJ", 7)><br><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
  <p id="msg<?MAIL:SUMM:N>" class="msgbuttons">
+<?!("COND:ROOM:TYPE_IS", 15, #"VIEW_MAILBOX")>
  <a href="display_enter?edit=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:TO("U")>?cc=<?MAIL:SUMM:CCCC("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "", "")>?force_room=_MAIL_"><span>[</span><?_("Edit")><span>]</span></a> 
+<?!("X", 15)>
 <?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")>
 	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>'));"><span>[</span><?_("Reply")><span>]</span></a> 
 	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
