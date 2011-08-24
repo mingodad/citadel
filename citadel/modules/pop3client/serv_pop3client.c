@@ -53,6 +53,7 @@
 #include "event_client.h"
 
 
+struct CitContext pop3_client_CC;
 
 citthread_mutex_t POP3QueueMutex; /* locks the access to the following vars: */
 HashList *POP3QueueRooms = NULL; /* rss_room_counter */
@@ -100,7 +101,7 @@ typedef struct __pop3aggr {
 
 	long n;
 	long RefCount;
-	ParsedURL Pop3Host;
+///	ParsedURL *Pop3Host;
 	DNSQueryParts HostLookup;
 
 //	StrBuf		*rooms;
@@ -129,6 +130,12 @@ void DeletePOP3Aggregator(void *vptr)
 	FreeStrBuf(&ptr->pop3user);
 	FreeStrBuf(&ptr->pop3pass);
 	FreeStrBuf(&ptr->RoomName);
+	FreeURL(&ptr->IO.ConnectMe);
+	FreeStrBuf(&ptr->Url);
+	FreeStrBuf(&ptr->IO.IOBuf);
+	FreeStrBuf(&ptr->IO.SendBuf.Buf);
+	FreeStrBuf(&ptr->IO.RecvBuf.Buf);
+	free(ptr);
 }
 
 
@@ -282,26 +289,28 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 		struct UseTable ut;
 
 		RecvMsg->CurrMsg = (FetchItem*) vData;
+		CtdlLogPrintf(CTDL_DEBUG, "CHECKING: whether %s has already been seen: ", ChrPtr(RecvMsg->CurrMsg->MsgUID));
 		/* Find out if we've already seen this item */
 		safestrncpy(ut.ut_msgid, 
-			    ChrPtr(RecvMsg->CurrMsg->MsgUIDL),
+			    ChrPtr(RecvMsg->CurrMsg->MsgUID),
 			    sizeof(ut.ut_msgid));
 		ut.ut_timestamp = time(NULL);/// TODO: libev timestamp!
 		
-		cdbut = cdb_fetch(CDB_USETABLE, SKEY(RecvMsg->CurrMsg->MsgUIDL));
+		cdbut = cdb_fetch(CDB_USETABLE, SKEY(RecvMsg->CurrMsg->MsgUID));
 		if (cdbut != NULL) {
 			/* Item has already been seen */
-			CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", ChrPtr(RecvMsg->CurrMsg->MsgUIDL));
+			CtdlLogPrintf(CTDL_DEBUG, "YES\n");
 			cdb_free(cdbut);
 		
 			/* rewrite the record anyway, to update the timestamp */
 			cdb_store(CDB_USETABLE, 
-				  SKEY(RecvMsg->CurrMsg->MsgUIDL), 
+				  SKEY(RecvMsg->CurrMsg->MsgUID), 
 				  &ut, sizeof(struct UseTable) );
 			RecvMsg->CurrMsg->NeedFetch = 0;
 		}
 		else
 		{
+			CtdlLogPrintf(CTDL_DEBUG, "NO\n");
 			RecvMsg->CurrMsg->NeedFetch = 1;
 		}
 		return NextDBOperation(&RecvMsg->IO, POP3_FetchNetworkUsetableEntry);
@@ -349,34 +358,15 @@ eNextState POP3C_GetOneMessageIDState(pop3aggr *RecvMsg)
 
 	StrBufExtract_token(RecvMsg->CurrMsg->MsgUIDL, RecvMsg->IO.IOBuf, 2, ' ');
 	StrBufPrintf(RecvMsg->CurrMsg->MsgUID, 
-		     "pop3/%s/%s@%s", 
+		     "pop3/%s/%s:%s@%s", 
 		     ChrPtr(RecvMsg->RoomName), 
 		     ChrPtr(RecvMsg->CurrMsg->MsgUIDL),
-		     RecvMsg->Pop3Host.Host);
+		     RecvMsg->IO.ConnectMe->User,
+		     RecvMsg->IO.ConnectMe->Host);
 	RecvMsg->State --;
 	return eSendReply;
 }
 
-eNextState POP3C_GetOneMessageIDFromUseTable(pop3aggr *RecvMsg)
-{
-
-	struct cdbdata *cdbut;
-	struct UseTable ut;
-
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(RecvMsg->CurrMsg->MsgUID));
-	if (cdbut != NULL) {
-		/* message has already been seen */
-		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", ChrPtr(RecvMsg->CurrMsg->MsgUID));
-		cdb_free(cdbut);
-
-		/* rewrite the record anyway, to update the timestamp */
-		strcpy(ut.ut_msgid, ChrPtr(RecvMsg->CurrMsg->MsgUID));
-		ut.ut_timestamp = time(NULL);
-		cdb_store(CDB_USETABLE, SKEY(RecvMsg->CurrMsg->MsgUID), &ut, sizeof(struct UseTable) );
-	}
-
-	return eReadMessage;
-}
 
 eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 {
@@ -422,6 +412,8 @@ eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 {
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 	struct UseTable ut;
+
+	CtdlLogPrintf(CTDL_DEBUG, "MARKING: %s as seen: ", ChrPtr(RecvMsg->CurrMsg->MsgUID));
 
 	safestrncpy(ut.ut_msgid, 
 		    ChrPtr(RecvMsg->CurrMsg->MsgUID),
@@ -746,17 +738,17 @@ eNextState get_one_host_ip_done(AsyncIO *IO)
 	hostent = cpptr->HostLookup.VParsedDNSReply;
 	if ((cpptr->HostLookup.DNSStatus == ARES_SUCCESS) && 
 	    (hostent != NULL) ) {
-		memset(&cpptr->Pop3Host.Addr, 0, sizeof(struct in6_addr));
-		if (cpptr->Pop3Host.IPv6) {
-			memcpy(&cpptr->Pop3Host.Addr.sin6_addr.s6_addr, 
+		memset(&cpptr->IO.ConnectMe->Addr, 0, sizeof(struct in6_addr));
+		if (cpptr->IO.ConnectMe->IPv6) {
+			memcpy(&cpptr->IO.ConnectMe->Addr.sin6_addr.s6_addr, 
 			       &hostent->h_addr_list[0],
 			       sizeof(struct in6_addr));
 			
-			cpptr->Pop3Host.Addr.sin6_family = hostent->h_addrtype;
-			cpptr->Pop3Host.Addr.sin6_port   = htons(DefaultPOP3Port);
+			cpptr->IO.ConnectMe->Addr.sin6_family = hostent->h_addrtype;
+			cpptr->IO.ConnectMe->Addr.sin6_port   = htons(DefaultPOP3Port);
 		}
 		else {
-			struct sockaddr_in *addr = (struct sockaddr_in*) &cpptr->Pop3Host.Addr;
+			struct sockaddr_in *addr = (struct sockaddr_in*) &cpptr->IO.ConnectMe->Addr;
 			/* Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
 //			addr->sin_addr.s_addr = htonl((uint32_t)&hostent->h_addr_list[0]);
 			memcpy(&addr->sin_addr.s_addr, 
@@ -790,12 +782,12 @@ eNextState get_one_host_ip(AsyncIO *IO)
 	CtdlLogPrintf(CTDL_DEBUG, 
 		      "POP3 client[%ld]: looking up %s-Record %s : %d ...\n", 
 		      cpptr->n, 
-		      (cpptr->Pop3Host.IPv6)? "aaaa": "a",
-		      cpptr->Pop3Host.Host, 
-		      cpptr->Pop3Host.Port);
+		      (cpptr->IO.ConnectMe->IPv6)? "aaaa": "a",
+		      cpptr->IO.ConnectMe->Host, 
+		      cpptr->IO.ConnectMe->Port);
 
-	if (!QueueQuery((cpptr->Pop3Host.IPv6)? ns_t_aaaa : ns_t_a, 
-			cpptr->Pop3Host.Host, 
+	if (!QueueQuery((cpptr->IO.ConnectMe->IPv6)? ns_t_aaaa : ns_t_a, 
+			cpptr->IO.ConnectMe->Host, 
 			&cpptr->IO, 
 			&cpptr->HostLookup, 
 			get_one_host_ip_done))
@@ -836,7 +828,7 @@ int pop3_do_fetching(pop3aggr *cpptr)
    CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
 */
 	
-	SubC = CloneContext (CC);
+	SubC = CloneContext (&pop3_client_CC);
 	SubC->session_specific_data = (char*) cpptr;
 	cpptr->IO.CitContext = SubC;
 
@@ -868,7 +860,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	const char *CfgPtr, *lPtr;
 	const char *Err;
 
-	pop3_room_counter *Count = NULL;
+//	pop3_room_counter *Count = NULL;
 //	pop3aggr *cpptr;
 
 	citthread_mutex_lock(&POP3QueueMutex);
@@ -930,13 +922,15 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 			if (!strcasecmp("pop3client", ChrPtr(CfgType)))
 			{
 				pop3aggr *cptr;
-
+				StrBuf *Tmp;
+/*
 				if (Count == NULL)
 				{
 					Count = malloc(sizeof(pop3_room_counter));
 					Count->count = 0;
 				}
 				Count->count ++;
+*/
 				cptr = (pop3aggr *) malloc(sizeof(pop3aggr));
 				memset(cptr, 0, sizeof(pop3aggr));
 				/// TODO do we need this? cptr->roomlist_parts = 1;
@@ -944,20 +938,21 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 				cptr->pop3user = NewStrBufPlain(NULL, StrLength(Line));
 				cptr->pop3pass = NewStrBufPlain(NULL, StrLength(Line));
 				cptr->Url = NewStrBuf();
+				Tmp = NewStrBuf();
 
-				StrBufExtract_NextToken(cptr->Url, Line, &lPtr, '|');
+				StrBufExtract_NextToken(Tmp, Line, &lPtr, '|');
 				StrBufExtract_NextToken(cptr->pop3user, Line, &lPtr, '|');
 				StrBufExtract_NextToken(cptr->pop3pass, Line, &lPtr, '|');
 				cptr->keep = StrBufExtractNext_long(Line, &lPtr, '|');
 				cptr->interval = StrBufExtractNext_long(Line, &lPtr, '|');
 		    
+				StrBufPrintf(cptr->Url, "pop3://%s:%s@%s/%s", 
+					     ChrPtr(cptr->pop3user),
+					     ChrPtr(cptr->pop3pass), 
+					     ChrPtr(Tmp), 
+					     ChrPtr(cptr->RoomName));
+				FreeStrBuf(&Tmp);
 				ParseURL(&cptr->IO.ConnectMe, cptr->Url, 110);
-
-				cptr->IO.ConnectMe->CurlCreds = cptr->pop3user;
-				cptr->IO.ConnectMe->User = ChrPtr(cptr->IO.ConnectMe->CurlCreds);
-				cptr->IO.ConnectMe->UrlWithoutCred = cptr->pop3pass;
-				cptr->IO.ConnectMe->Pass = ChrPtr(cptr->IO.ConnectMe->UrlWithoutCred);
-
 
 
 #if 0 
@@ -973,7 +968,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 					if (use_this_cptr->RefCount > 0)
 					{
 						DeletePOP3Cfg(cptr);
-						Count->count--;
+///						Count->count--;
 					}
 					else 
 					{
@@ -1007,6 +1002,9 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 		///fclose(fp);
 
 	}
+	FreeStrBuf(&Line);
+	FreeStrBuf(&CfgType);
+	FreeStrBuf(&CfgData);
 }
 
 
@@ -1075,6 +1073,7 @@ CTDL_MODULE_INIT(pop3client)
 {
 	if (!threading)
 	{
+		CtdlFillSystemContext(&pop3_client_CC, "POP3aggr");
 		citthread_mutex_init(&POP3QueueMutex, NULL);
 		POP3QueueRooms = NewHash(1, lFlathash);
 		POP3FetchUrls = NewHash(1, NULL);
