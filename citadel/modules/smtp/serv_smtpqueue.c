@@ -802,7 +802,7 @@ void *smtp_queue_thread(void *arg) {
 
 	CtdlThreadSleep(10);
 
-	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
+	CtdlFillSystemContext(&smtp_queue_CC, "SMTP_Send");
 	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
 	CtdlLogPrintf(CTDL_DEBUG, "smtp_queue_thread() initializing\n");
 
