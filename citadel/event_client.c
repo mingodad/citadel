@@ -227,15 +227,12 @@ void StopClientWatchers(AsyncIO *IO)
 	ev_io_stop(event_base, &IO->conn_event);
 	ev_idle_stop(event_base, &IO->unwind_stack);
 
-	if (IO->SendBuf.fd != 0)
-	{
-		ev_io_stop(event_base, &IO->send_event);
-		ev_io_stop(event_base, &IO->recv_event);
-		ev_timer_stop (event_base, &IO->rw_timeout);
-		close(IO->SendBuf.fd);
-		IO->SendBuf.fd = 0;
-		IO->RecvBuf.fd = 0;
-	}
+	ev_io_stop(event_base, &IO->send_event);
+	ev_io_stop(event_base, &IO->recv_event);
+	ev_timer_stop (event_base, &IO->rw_timeout);
+	close(IO->SendBuf.fd);
+	IO->SendBuf.fd = 0;
+	IO->RecvBuf.fd = 0;
 }
 
 void ShutDownCLient(AsyncIO *IO)
@@ -355,48 +352,21 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			 IO->SendBuf.fd);
 		
 		fd = fopen(fn, "a+");
-		fprintf(fd, "Read: BufSize: %ld BufContent: [",
+		fprintf(fd, "Send: BufSize: %ld BufContent: [",
 			nbytes);
 		rv = fwrite(pchh, nbytes, 1, fd);
 		if (!rv) printf("failed to write debug to %s!\n", fn);
 		fprintf(fd, "]\n");
-		
-		
+#endif
+		rc = StrBuf_write_one_chunk_callback(watcher->fd, 0/*TODO*/, &IO->SendBuf);
+
+#ifdef BIGBAD_IODBG
+		fprintf(fd, "Sent: BufSize: %d bytes.\n", rc);
 		fclose(fd);
 	}
 #endif
-	rc = StrBuf_write_one_chunk_callback(watcher->fd, 0/*TODO*/, &IO->SendBuf);
-
 	if (rc == 0)
-	{		
-#ifdef BIGBAD_IODBG
-		{
-			int rv = 0;
-			char fn [SIZ];
-			FILE *fd;
-			const char *pch = ChrPtr(IO->SendBuf.Buf);
-			const char *pchh = IO->SendBuf.ReadWritePointer;
-			long nbytes;
-
-			if (pchh == NULL)
-				pchh = pch;
-			
-			nbytes = StrLength(IO->SendBuf.Buf) - (pchh - pch);
-			snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d", 
-				 ((CitContext*)(IO->CitContext))->ServiceName, 
-				 IO->SendBuf.fd);
-		
-			fd = fopen(fn, "a+");
-			fprintf(fd, "Read: BufSize: %ld BufContent: [",
-				nbytes);
-			rv = fwrite(pchh, nbytes, 1, fd);
-			if (!rv) printf("failed to write debug to %s!\n", fn);
-			fprintf(fd, "]\n");
-		
-			
-			fclose(fd);
-		}
-#endif
+	{
 		ev_io_stop(event_base, &IO->send_event);
 		switch (IO->NextState) {
 		case eSendMore:
