@@ -3543,6 +3543,24 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 	int MsgFinished = 0;
 	eReadState Finished = eMustReadMore;
 
+#ifdef BIGBAD_IODBG
+	char fn [SIZ];
+	FILE *fd;
+	const char *pch = ChrPtr(IO->SendBuf.Buf);
+	const char *pchh = IO->SendBuf.ReadWritePointer;
+	long nbytes;
+	
+	if (pchh == NULL)
+		pchh = pch;
+	
+	nbytes = StrLength(IO->SendBuf.Buf) - (pchh - pch);
+	snprintf(fn, SIZ, "/tmp/foolog_ev_%s.%d",
+		 ((CitContext*)(IO->CitContext))->ServiceName,
+		 IO->SendBuf.fd);
+	
+	fd = fopen(fn, "a+");
+#endif
+
 	ReadMsg = IO->ReadMsg;
 
 	/* read in the lines of message text one by one */
@@ -3551,7 +3569,20 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 		
 		switch (Finished) {
 		case eMustReadMore: /// read new from socket... 
-		    return Finished;
+#ifdef BIGBAD_IODBG
+			if (IO->RecvBuf.ReadWritePointer != NULL) {
+				nbytes = StrLength(IO->RecvBuf.Buf) - (IO->RecvBuf.ReadWritePointer - ChrPtr(IO->RecvBuf.Buf));
+				fprintf(fd, "Read; Line unfinished: %ld Bytes still in buffer [", nbytes);
+				
+				fwrite(IO->RecvBuf.ReadWritePointer, nbytes, 1, fd);
+			
+				fprintf(fd, "]\n");
+			} else {
+				fprintf(fd, "BufferEmpty! \n");
+			}
+			fclose(fd);
+#endif
+			return Finished;
 		    break;
 		case eBufferNotEmpty: /* shouldn't happen... */
 		case eReadSuccess: /// done for now...
@@ -3565,13 +3596,24 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 		if ((StrLength(IO->IOBuf) == ReadMsg->tlen) && 
 		    (!strcmp(ChrPtr(IO->IOBuf), ReadMsg->terminator))) {
 			MsgFinished = 1;
+#ifdef BIGBAD_IODBG
+			fprintf(fd, "found Terminator; Message Size: %d\n", StrLength(ReadMsg->MsgBuf));
+#endif
 		}
 		else if (!ReadMsg->flushing) {
+
+#ifdef BIGBAD_IODBG
+			fprintf(fd, "Read Line: [%d][%s]\n", StrLength(IO->IOBuf), ChrPtr(IO->IOBuf));
+#endif
+
 			/* Unescape SMTP-style input of two dots at the beginning of the line */
 			if ((ReadMsg->dodot) &&
 			    (StrLength(IO->IOBuf) == 2) &&  /* TODO: do we just unescape lines with two dots or any line? */
 			    (!strcmp(ChrPtr(IO->IOBuf), "..")))
 			{
+#ifdef BIGBAD_IODBG
+				fprintf(fd, "UnEscaped!\n");
+#endif
 				StrBufCutLeft(IO->IOBuf, 1);
 			}
 
@@ -3590,6 +3632,11 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 
 	} while (!MsgFinished);
 
+#ifdef BIGBAD_IODBG
+	fprintf(fd, "Done with reading; %s.\n, ",
+		(MsgFinished)?"Message Finished": "FAILED");
+	fclose(fd);
+#endif
 	if (MsgFinished)
 		return eReadSuccess;
 	else 
