@@ -399,6 +399,8 @@ void embed_message(void) {
 	StrBuf *CmdBuf = NULL;
 
 	msgnum = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 0, '/');
+	if (msgnum <= 0) return;
+
 	switch (WCC->Hdr->HR.eReqType)
 	{
 	case eGET:
