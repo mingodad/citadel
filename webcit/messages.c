@@ -1007,13 +1007,13 @@ void post_message(void)
 		const StrBuf *my_email_addr = NULL;
 		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
-		int save_to_drafts;
+		int saving_to_drafts;
 		long HeaderLen;
 
-		save_to_drafts = !strcasecmp(bstr("submit_action"), "drafts");
+		saving_to_drafts = !strcasecmp(bstr("submit_action"), "drafts");
 		Buf = NewStrBuf();
 
-		if (save_to_drafts) {
+		if (saving_to_drafts) {
 		        /* temporarily change to the drafts room */
 		        serv_puts("GOTO _DRAFTS_");
 			StrBuf_ServGetln(Buf);
@@ -1071,12 +1071,12 @@ void post_message(void)
 		CmdBuf = NewStrBufPlain(NULL, sizeof (CMD) + HeaderLen);
 		StrBufPrintf(CmdBuf, 
 			     CMD,
-			     save_to_drafts?"":ChrPtr(Recp),
+			     saving_to_drafts?"":ChrPtr(Recp),
 			     is_anonymous,
 			     ChrPtr(encoded_subject),
 			     ChrPtr(display_name),
-			     save_to_drafts?"":ChrPtr(Cc),
-			     save_to_drafts?"":ChrPtr(Bcc),
+			     saving_to_drafts?"":ChrPtr(Cc),
+			     saving_to_drafts?"":ChrPtr(Bcc),
 			     ChrPtr(Wikipage),
 			     ChrPtr(my_email_addr),
 			     ChrPtr(references));
@@ -1097,7 +1097,7 @@ void post_message(void)
 
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 4) {
-				if (save_to_drafts) {
+				if (saving_to_drafts) {
 					if (  (havebstr("recp"))
 					      || (havebstr("cc"  ))
 					      || (havebstr("bcc" )) ) {
@@ -1110,7 +1110,7 @@ void post_message(void)
 					}
 				}
 				post_mime_to_server();
-				if (save_to_drafts) {
+				if (saving_to_drafts) {
 					AppendImportantMessage(_("Message has been saved to Drafts.\n"), -1);
 					gotoroom(WCC->CurRoom.name);
 					display_enter();
@@ -1127,11 +1127,12 @@ void post_message(void)
 				}
 				dont_post = lbstr("postseq");
 			} else {
-				/* FIXME this does not work!  It just displays an empty screen */
-				syslog(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf) + 4);
+				/* FIXME */
+				syslog(9, "\033[31m%s:%d: server post error: %s\033[0m", __FILE__, __LINE__, ChrPtr(Buf) + 4);
 				AppendImportantMessage(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
-				if (save_to_drafts) gotoroom(WCC->CurRoom.name);
 				display_enter();
+				if (saving_to_drafts) gotoroom(WCC->CurRoom.name);
+				FreeStrBuf(&Recp);
 				FreeStrBuf(&Buf);
 				FreeStrBuf(&Cc);
 				FreeStrBuf(&Bcc);
