@@ -1007,8 +1007,8 @@ void post_message(void)
 		const StrBuf *my_email_addr = NULL;
 		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
-		int saving_to_drafts;
-		long HeaderLen;
+		int saving_to_drafts = 0;
+		long HeaderLen = 0;
 
 		saving_to_drafts = !strcasecmp(bstr("submit_action"), "drafts");
 		Buf = NewStrBuf();
@@ -1127,8 +1127,7 @@ void post_message(void)
 				}
 				dont_post = lbstr("postseq");
 			} else {
-				/* FIXME */
-				syslog(9, "\033[31m%s:%d: server post error: %s\033[0m", __FILE__, __LINE__, ChrPtr(Buf) + 4);
+				syslog(9, "%s:%d: server post error: %s", __FILE__, __LINE__, ChrPtr(Buf) + 4);
 				AppendImportantMessage(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
 				display_enter();
 				if (saving_to_drafts) gotoroom(WCC->CurRoom.name);
@@ -1595,15 +1594,20 @@ void display_enter(void)
 
 		rc = GetServerStatusMsg(CmdBuf, &Result, 0, 0);
 
-		if (Result == 570) {	/* 570 means we have an invalid recipient listed */
-			if (havebstr("recp") && 
-			    havebstr("cc"  ) && 
-			    havebstr("bcc" )) {
-				recipient_bad = 1; /* TODO: and now????? */
+		if (	(Result == 570)		/* invalid or missing recipient(s) */
+			|| (Result == 550)	/* access control problem */
+		) {
+			if (	havebstr("recp")
+				&& havebstr("cc")
+				&& havebstr("bcc")
+			) {
+				recipient_bad = 1;	/* FIXME ... do something with this? */
 			}
 		}
 		else if (rc != 2) {	/* Any other error means that we cannot continue */
-			wc_printf("<em>%s</em><br>\n", ChrPtr(CmdBuf) +4);	/* TODO -> important message */
+
+			/* FIXME IMMEDIATELY this code results in a blank screen!!! */
+			wc_printf("<em>%s</em><br>\n", ChrPtr(CmdBuf) +4);
 			FreeStrBuf(&CmdBuf);
 			return;
 		}
