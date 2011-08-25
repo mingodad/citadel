@@ -1307,7 +1307,6 @@ void display_enter(void)
 	const StrBuf *display_name = NULL;
 	int recipient_required = 0;
 	int subject_required = 0;
-	int recipient_bad = 0;
 	int is_anonymous = 0;
       	wcsession *WCC = WC;
 	int i = 0;
@@ -1595,20 +1594,14 @@ void display_enter(void)
 		rc = GetServerStatusMsg(CmdBuf, &Result, 0, 0);
 
 		if (	(Result == 570)		/* invalid or missing recipient(s) */
-			|| (Result == 550)	/* access control problem */
+			|| (Result == 550)	/* higher access required to send Internet mail */
 		) {
-			if (	havebstr("recp")
-				&& havebstr("cc")
-				&& havebstr("bcc")
-			) {
-				recipient_bad = 1;	/* FIXME ... do something with this? */
-			}
+			/* These errors will have been displayed and are excusable */
 		}
 		else if (rc != 2) {	/* Any other error means that we cannot continue */
-
-			/* FIXME IMMEDIATELY this code results in a blank screen!!! */
-			wc_printf("<em>%s</em><br>\n", ChrPtr(CmdBuf) +4);
+			AppendImportantMessage(ChrPtr(CmdBuf) + 4, StrLength(CmdBuf) - 4);
 			FreeStrBuf(&CmdBuf);
+			readloop(readnew, eUseDefault);
 			return;
 		}
 		FreeStrBuf(&CmdBuf);
