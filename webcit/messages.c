@@ -1010,7 +1010,7 @@ void post_message(void)
 		int saving_to_drafts = 0;
 		long HeaderLen = 0;
 
-		saving_to_drafts = !strcasecmp(bstr("submit_action"), "drafts");
+		saving_to_drafts = !strcasecmp(bstr("submit_action"), "draft");
 		Buf = NewStrBuf();
 
 		if (saving_to_drafts) {
@@ -1113,7 +1113,7 @@ void post_message(void)
 				if (saving_to_drafts) {
 					AppendImportantMessage(_("Message has been saved to Drafts.\n"), -1);
 					gotoroom(WCC->CurRoom.name);
-					display_enter();
+					readloop(readnew, eUseDefault);
 					FreeStrBuf(&Buf);
 					return;
 				} else if (  (havebstr("recp"))
