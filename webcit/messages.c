@@ -1322,7 +1322,9 @@ void display_enter(void)
 		is_anonymous = 1;
 	}
 
-	/* First test to see whether this is a room that requires recipients to be entered */
+	/*
+	 * First, do we have permission to enter messages in this room at all?
+	 */
 	Line = NewStrBuf();
 	serv_puts("ENT0 0");
 	StrBuf_ServGetln(Line);
