@@ -57,8 +57,8 @@
 #include "ctdl_module.h"
 #include "serv_xmpp.h"
 
-#if XML_MAJOR_VERSION > 0
 /* XML_StopParser is present in expat 2.x */
+#if XML_MAJOR_VERSION > 1
 #define HAVE_XML_STOPPARSER
 #endif
 
