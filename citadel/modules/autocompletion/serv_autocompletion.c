@@ -227,6 +227,6 @@ CTDL_MODULE_INIT(autocompletion) {
 	{
 		CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
 	}
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "autocompletion";
 }

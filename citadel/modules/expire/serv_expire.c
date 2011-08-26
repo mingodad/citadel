@@ -952,6 +952,6 @@ CTDL_MODULE_INIT(expire)
 		CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
 	}
 
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "expire";
 }

@@ -1470,6 +1470,6 @@ CTDL_MODULE_INIT(vcard)
 					CitadelServiceDICT_TCP);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "vcard";
 }

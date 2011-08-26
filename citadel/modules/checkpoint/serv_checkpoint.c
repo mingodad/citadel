@@ -63,6 +63,6 @@ CTDL_MODULE_INIT(checkpoint) {
 	{
 		CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
 	}
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "checkpoint";
 }

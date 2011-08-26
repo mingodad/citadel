@@ -158,7 +158,7 @@ CTDL_MODULE_INIT(inetcfg)
 		CtdlRegisterCleanupHook(clenaup_inetcfg);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "inetcfg";
 }
 

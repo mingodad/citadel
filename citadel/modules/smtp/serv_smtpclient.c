@@ -1000,6 +1000,6 @@ CTDL_MODULE_INIT(smtp_client)
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "smtp";
 }

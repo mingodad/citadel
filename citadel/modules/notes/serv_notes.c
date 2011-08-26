@@ -182,6 +182,6 @@ CTDL_MODULE_INIT(notes)
 		CtdlRegisterMessageHook(serv_notes_beforesave, EVT_BEFORESAVE);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "notes";
 }
