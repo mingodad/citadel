@@ -697,6 +697,6 @@ CTDL_MODULE_INIT(wiki)
 		CtdlRegisterProtoHook(cmd_wiki, "WIKI", "Commands related to Wiki management");
 	}
 
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "wiki";
 }

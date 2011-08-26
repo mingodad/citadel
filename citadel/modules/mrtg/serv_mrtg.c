@@ -181,6 +181,6 @@ CTDL_MODULE_INIT(mrtg)
 	        CtdlRegisterProtoHook(cmd_mrtg, "MRTG", "Supply stats to MRTG");
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
         return "mrtg";
 }

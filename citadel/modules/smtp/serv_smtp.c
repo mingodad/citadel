@@ -989,6 +989,6 @@ CTDL_MODULE_INIT(smtp)
 		CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "smtp";
 }

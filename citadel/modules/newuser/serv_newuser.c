@@ -113,6 +113,6 @@ CTDL_MODULE_INIT(newuser)
 		CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "newuser";
 }

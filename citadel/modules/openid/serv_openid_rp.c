@@ -967,6 +967,6 @@ CTDL_MODULE_INIT(openid_rp)
 		openid_level_supported = 1;	/* This module supports OpenID 1.0 only */
 	}
 
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "openid_rp";
 }

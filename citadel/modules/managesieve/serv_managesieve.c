@@ -670,7 +670,7 @@ CTDL_MODULE_INIT(managesieve)
 		CtdlRegisterSessionHook(managesieve_cleanup_function, EVT_STOP);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "managesieve";
 }
 

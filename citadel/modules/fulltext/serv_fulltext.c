@@ -508,6 +508,6 @@ CTDL_MODULE_INIT(fulltext)
 		CtdlRegisterCleanupHook(noise_word_cleanup);
 		CtdlRegisterSessionHook(do_fulltext_indexing, EVT_TIMER);
 	}
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "fulltext";
 }

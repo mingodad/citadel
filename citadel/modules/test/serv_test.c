@@ -81,6 +81,6 @@ CTDL_MODULE_INIT(test)
 	}
 #endif
 
-   /* return our Subversion id for the Log */
+   /* return our module name for the log */
    return "test";
 }
