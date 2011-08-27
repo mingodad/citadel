@@ -612,12 +612,12 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	 * spider crawls the site without using cookies.
 	 */
 	if ((session_may_be_reused) && (!WC->logged_in)) {
-		WC->wc_session = 0;
+		WC->wc_session = 0;			/* flag as available for re-use */
+		TheSession->selected_language = 0;	/* clear any non-default language setting */
 	}
 
 	TheSession->Hdr = NULL;
 	TheSession->inuse = 0;					/* mark the session as unbound */
-	TheSession->selected_language = 0;			/* clear any non-default language setting */
 	CtdlLogResult(pthread_mutex_unlock(&TheSession->SessionMutex));
 }
 
