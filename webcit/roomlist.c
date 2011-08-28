@@ -164,6 +164,12 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP)
 	return WCC->Rooms;
 }
 
+HashList *GetRoomListHashLPRM(StrBuf *Target, WCTemplputParams *TP) 
+{
+	serv_puts("LPRM");
+	return GetRoomListHash(Target, TP);
+}
+
 
 void FlushIgnetCfgs(folder *room)
 {
@@ -679,6 +685,10 @@ InitModule_ROOMLIST
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	RegisterIterator("LZRM", 0, NULL, GetZappedRoomListHash, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
+	RegisterIterator("LPRM", 0, NULL, GetRoomListHashLPRM, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
+
+
+
 
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBROOM"), 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
 
