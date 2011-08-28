@@ -1083,7 +1083,6 @@ void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
  */
 void change_start_page(void) 
 {
-	wcsession *WCC = WC;
 	const char *pch;
 	void *vHandler;
 	int ProhibitSave = 0;
