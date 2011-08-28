@@ -258,7 +258,7 @@ CTDL_MODULE_INIT(dspam)
 #endif	/* HAVE_LIBDSPAM */
 	}
 	
-        /* return our Subversion id for the Log */
+        /* return our module name for the log */
 	return "dspam";
 }
 

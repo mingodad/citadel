@@ -399,6 +399,8 @@ void embed_message(void) {
 	StrBuf *CmdBuf = NULL;
 
 	msgnum = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 0, '/');
+	if (msgnum <= 0) return;
+
 	switch (WCC->Hdr->HR.eReqType)
 	{
 	case eGET:
@@ -1005,13 +1007,13 @@ void post_message(void)
 		const StrBuf *my_email_addr = NULL;
 		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
-		int save_to_drafts;
-		long HeaderLen;
+		int saving_to_drafts = 0;
+		long HeaderLen = 0;
 
-		save_to_drafts = !strcasecmp(bstr("submit_action"), "drafts");
+		saving_to_drafts = !strcasecmp(bstr("submit_action"), "draft");
 		Buf = NewStrBuf();
 
-		if (save_to_drafts) {
+		if (saving_to_drafts) {
 		        /* temporarily change to the drafts room */
 		        serv_puts("GOTO _DRAFTS_");
 			StrBuf_ServGetln(Buf);
@@ -1069,12 +1071,12 @@ void post_message(void)
 		CmdBuf = NewStrBufPlain(NULL, sizeof (CMD) + HeaderLen);
 		StrBufPrintf(CmdBuf, 
 			     CMD,
-			     save_to_drafts?"":ChrPtr(Recp),
+			     saving_to_drafts?"":ChrPtr(Recp),
 			     is_anonymous,
 			     ChrPtr(encoded_subject),
 			     ChrPtr(display_name),
-			     save_to_drafts?"":ChrPtr(Cc),
-			     save_to_drafts?"":ChrPtr(Bcc),
+			     saving_to_drafts?"":ChrPtr(Cc),
+			     saving_to_drafts?"":ChrPtr(Bcc),
 			     ChrPtr(Wikipage),
 			     ChrPtr(my_email_addr),
 			     ChrPtr(references));
@@ -1095,7 +1097,7 @@ void post_message(void)
 
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 4) {
-				if (save_to_drafts) {
+				if (saving_to_drafts) {
 					if (  (havebstr("recp"))
 					      || (havebstr("cc"  ))
 					      || (havebstr("bcc" )) ) {
@@ -1108,10 +1110,10 @@ void post_message(void)
 					}
 				}
 				post_mime_to_server();
-				if (save_to_drafts) {
+				if (saving_to_drafts) {
 					AppendImportantMessage(_("Message has been saved to Drafts.\n"), -1);
 					gotoroom(WCC->CurRoom.name);
-					display_enter();
+					readloop(readnew, eUseDefault);
 					FreeStrBuf(&Buf);
 					return;
 				} else if (  (havebstr("recp"))
@@ -1125,10 +1127,11 @@ void post_message(void)
 				}
 				dont_post = lbstr("postseq");
 			} else {
-				syslog(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf) + 4);
+				syslog(9, "%s:%d: server post error: %s", __FILE__, __LINE__, ChrPtr(Buf) + 4);
 				AppendImportantMessage(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
-				if (save_to_drafts) gotoroom(WCC->CurRoom.name);
 				display_enter();
+				if (saving_to_drafts) gotoroom(WCC->CurRoom.name);
+				FreeStrBuf(&Recp);
 				FreeStrBuf(&Buf);
 				FreeStrBuf(&Cc);
 				FreeStrBuf(&Bcc);
@@ -1304,7 +1307,6 @@ void display_enter(void)
 	const StrBuf *display_name = NULL;
 	int recipient_required = 0;
 	int subject_required = 0;
-	int recipient_bad = 0;
 	int is_anonymous = 0;
       	wcsession *WCC = WC;
 	int i = 0;
@@ -1320,7 +1322,9 @@ void display_enter(void)
 		is_anonymous = 1;
 	}
 
-	/* First test to see whether this is a room that requires recipients to be entered */
+	/*
+	 * First, do we have permission to enter messages in this room at all?
+	 */
 	Line = NewStrBuf();
 	serv_puts("ENT0 0");
 	StrBuf_ServGetln(Line);
@@ -1591,16 +1595,15 @@ void display_enter(void)
 
 		rc = GetServerStatusMsg(CmdBuf, &Result, 0, 0);
 
-		if (Result == 570) {	/* 570 means we have an invalid recipient listed */
-			if (havebstr("recp") && 
-			    havebstr("cc"  ) && 
-			    havebstr("bcc" )) {
-				recipient_bad = 1; /* TODO: and now????? */
-			}
+		if (	(Result == 570)		/* invalid or missing recipient(s) */
+			|| (Result == 550)	/* higher access required to send Internet mail */
+		) {
+			/* These errors will have been displayed and are excusable */
 		}
 		else if (rc != 2) {	/* Any other error means that we cannot continue */
-			wc_printf("<em>%s</em><br>\n", ChrPtr(CmdBuf) +4);	/* TODO -> important message */
+			AppendImportantMessage(ChrPtr(CmdBuf) + 4, StrLength(CmdBuf) - 4);
 			FreeStrBuf(&CmdBuf);
+			readloop(readnew, eUseDefault);
 			return;
 		}
 		FreeStrBuf(&CmdBuf);

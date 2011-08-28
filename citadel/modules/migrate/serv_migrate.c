@@ -1017,6 +1017,6 @@ CTDL_MODULE_INIT(migrate)
 		CtdlRegisterProtoHook(cmd_migr, "ARTV", "Across-the-wire migration (legacy syntax)");
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "migrate";
 }

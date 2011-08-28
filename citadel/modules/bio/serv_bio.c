@@ -148,7 +148,7 @@ CTDL_MODULE_INIT(bio)
         	CtdlRegisterProtoHook(cmd_rbio, "RBIO", "Read a user's bio");
 	        CtdlRegisterProtoHook(cmd_lbio, "LBIO", "List users with bios");
 	}
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
         return "bio";
 }
 

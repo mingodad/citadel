@@ -1718,6 +1718,6 @@ CTDL_MODULE_INIT(imap)
 		CtdlRegisterCleanupHook(imap_cleanup);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "imap";
 }

@@ -1323,7 +1323,7 @@ CTDL_MODULE_INIT(sieve)
 		CtdlRegisterCleanupHook(cleanup_sieve);
 	}
 	
-        /* return our Subversion id for the Log */
+        /* return our module name for the log */
 	return "sieve";
 }
 

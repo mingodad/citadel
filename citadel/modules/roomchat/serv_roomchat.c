@@ -271,6 +271,6 @@ CTDL_MODULE_INIT(roomchat)
 		CtdlRegisterSessionHook(roomchat_shutdown, EVT_SHUTDOWN);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "roomchat";
 }

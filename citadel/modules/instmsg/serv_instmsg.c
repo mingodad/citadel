@@ -606,6 +606,6 @@ CTDL_MODULE_INIT(instmsg)
 		CtdlRegisterSessionHook(instmsg_shutdown, EVT_SHUTDOWN);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "instmsg";
 }

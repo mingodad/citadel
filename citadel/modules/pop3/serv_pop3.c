@@ -682,6 +682,6 @@ CTDL_MODULE_INIT(pop3)
 		CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
 	}
 	
-	/* return our Subversion id for the Log */
+	/* return our module name for the log */
 	return "pop3";
 }
