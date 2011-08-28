@@ -749,9 +749,8 @@ msgid "Cancelled.  %s was not saved."
 msgstr "取消。%s 是不会保存。 "
 
 #: ../../sysmsgs.c:108
-#, fuzzy
 msgid " has been saved."
-msgstr "%s 已被保存。 "
+msgstr "已被保存。 "
 
 #: ../../sysmsgs.c:115 ../../sysmsgs.c:116
 msgid "Room info"
@@ -1418,7 +1417,7 @@ msgstr "添加或编辑事件 "
 #: ../../event.c:212 ../../static/t/iconbar/edit.html:29
 #: ../../static/t/iconbar.html:13
 msgid "Summary"
-msgstr "%S 的摘要页 "
+msgstr "的摘要页 "
 
 #: ../../event.c:223
 msgid "Location"
@@ -1474,7 +1473,7 @@ msgstr "这些平日： "
 #: ../../event.c:599
 #, c-format
 msgid "on day %s%d%s of the month"
-msgstr "天的 d %s 的月 "
+msgstr "天的 %s%d%s 的月 "
 
 #: ../../event.c:608 ../../event.c:670
 msgid "on the "
@@ -1668,9 +1667,8 @@ msgid "(Nothing)"
 msgstr "(无) "
 
 #: ../../inetconf.c:126
-#, fuzzy
 msgid " has been deleted."
-msgstr "%s 已被删除。 "
+msgstr "已被删除。 "
 
 #. <domain> added status message
 #: ../../inetconf.c:144
@@ -2344,9 +2342,8 @@ msgid "Print"
 msgstr "打印 "
 
 #: ../../static/t/user/list.html:3
-#, fuzzy
 msgid "User list for "
-msgstr "%S 的用户列表 "
+msgstr "的用户列表 "
 
 #: ../../static/t/user/list.html:9
 msgid "User Name"
@@ -2379,7 +2376,7 @@ msgstr "用户配置文件 "
 #: ../../static/t/user/show.html:9
 #, fuzzy
 msgid "Click here to send an instant message to"
-msgstr "单击此处以发送到 %s 的即时消息 "
+msgstr "单击此处以发送到 的即时消息 "
 
 #: ../../static/t/searchomatic.html:4
 msgid "Search: "
@@ -2574,9 +2571,8 @@ msgid "Copy"
 msgstr "副本 "
 
 #: ../../static/t/summary/page.html:5
-#, fuzzy
 msgid "Summary page for "
-msgstr "%S 的摘要页 "
+msgstr "的摘要页 "
 
 #: ../../static/t/summary/page.html:23
 msgid "Messages"
@@ -2706,7 +2702,7 @@ msgstr "我的账户的摘要 "
 
 #: ../../static/t/menu/basic_commands.html:18
 msgid "User list"
-msgstr "%S 的用户列表 "
+msgstr "的用户列表 "
 
 #: ../../static/t/menu/basic_commands.html:18
 msgid "(all registered users)"
@@ -3740,7 +3736,7 @@ msgstr "新邮件 "
 #~ "You are connected to %s, running %s with %s, server build %s and located "
 #~ "in %s.  Your system administrator is %s."
 #~ msgstr ""
-#~ "您连接到 %s，运行服务器生成 %s%s %s 与位于 %s。%S 您的系统管理员联系。 "
+#~ "您连接到 %s，运行服务器生成 %s%s %s 与位于 %s。%s 您的系统管理员联系。 "
 
 #~ msgid "Reset form"
 #~ msgstr "重置表单 "
