@@ -528,6 +528,7 @@ wcsubst *NewSubstVar(const char *keyname, int keylen, int type)
 	switch(ptr->wcs_type) {
 	case WCS_STRING:
 	case WCS_STRBUF:
+		ptr->wcs_value = NewStrBuf();
 	case WCS_FUNCTION:
 	case WCS_STRBUF_REF:
 	case WCS_LONG:
