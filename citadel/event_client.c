@@ -281,7 +281,6 @@ eReadState HandleInbound(AsyncIO *IO)
 				
 			switch (Finished) {
 			case eMustReadMore: /// read new from socket... 
-				return Finished;
 				break;
 			case eBufferNotEmpty: /* shouldn't happen... */
 			case eReadSuccess: /// done for now...
