@@ -301,7 +301,7 @@ void terminate_idle_sessions(void)
 	}
 	end_critical_section(S_SESSION_TABLE);
 	if (killed > 0)
-		CtdlLogPrintf(CTDL_INFO, "Terminated %d idle sessions\n", killed);
+		CtdlLogPrintf(CTDL_INFO, "Scheduled %d idle sessions for termination\n", killed);
 	if (longrunners > 0)
 		CtdlLogPrintf(CTDL_INFO, "Didn't terminate %d protected idle sessions;\n", killed);
 }
@@ -579,7 +579,7 @@ void context_cleanup(void)
 		rem = ptr->next;
 		--num_sessions;
 		
-		CtdlLogPrintf(CTDL_DEBUG, "Purging session %d\n", ptr->cs_pid);
+		CtdlLogPrintf(CTDL_DEBUG, "Purging session #%d %s\n", ptr->cs_pid, ptr->ServiceName);
 		RemoveContext(ptr);
 		free (ptr);
 		ptr = rem;
