@@ -243,6 +243,7 @@ eNextState POP3C_GetListCommandState(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 {
+	int rc;
 	const char *pch;
 	FetchItem *OneMsg = NULL;
 	POP3C_DBG_READ();
@@ -270,8 +271,16 @@ eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 	{
 		OneMsg->MSGSize = atol(pch + 1);
 	}
+
+	rc = TestValidateHash(RecvMsg->MsgNumbers);
+	if (rc != 0) 
+		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
+		
 	Put(RecvMsg->MsgNumbers, LKEY(OneMsg->MSGID), OneMsg, HfreeFetchItem);
 
+	rc = TestValidateHash(RecvMsg->MsgNumbers);
+	if (rc != 0) 
+		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
 	//RecvMsg->State --; /* read next Line */
 	return eReadMore;
 }
@@ -306,7 +315,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 			cdb_store(CDB_USETABLE, 
 				  SKEY(RecvMsg->CurrMsg->MsgUID), 
 				  &ut, sizeof(struct UseTable) );
-			RecvMsg->CurrMsg->NeedFetch = 0;
+			RecvMsg->CurrMsg->NeedFetch = 1; ////TODO0;
 		}
 		else
 		{
@@ -329,6 +338,11 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 	long HKLen;
 	const char *HKey;
 	void *vData;
+	int rc;
+
+	rc = TestValidateHash(RecvMsg->MsgNumbers);
+	if (rc != 0) 
+		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
 
 	if(GetNextHashPos(RecvMsg->MsgNumbers, RecvMsg->Pos, &HKLen, &HKey, &vData))
 	{
@@ -351,6 +365,11 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetOneMessageIDState(pop3aggr *RecvMsg)
 {
+	int rc;
+	rc = TestValidateHash(RecvMsg->MsgNumbers);
+	if (rc != 0) 
+		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
+
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
 	RecvMsg->CurrMsg->MsgUIDL = NewStrBufPlain(NULL, StrLength(RecvMsg->IO.IOBuf));
