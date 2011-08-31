@@ -3705,7 +3705,18 @@ eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB)
 			optr --;
 		if ((*(ptr - 1) != '\r') && (*(ptr - 1) != '\n')) {
 			LineBuf->BufUsed = optr - LineBuf->buf;
-			*optr = '\0';       
+			*optr = '\0';
+			if ((FB->ReadWritePointer != NULL) && 
+			    (FB->ReadWritePointer != FB->Buf->buf))
+			{
+				/* Ok, the client application read all the data 
+				   it was interested in so far. Since there is more to read, 
+				   we now shrink the buffer, and move the rest over.
+				*/
+				StrBufCutLeft(FB->Buf, 
+					      FB->ReadWritePointer - FB->Buf->buf);
+				FB->ReadWritePointer = NULL;
+			}
 			return eMustReadMore;
 		}
 	}
