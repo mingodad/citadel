@@ -938,9 +938,17 @@ void memfmout(
 	while (ch=*(mptr++), ch != 0) {
 
 		if (ch == '\n') {
-			client_write(outbuf, len);
+			if (client_write(outbuf, len) == -1)
+			{
+				CtdlLogPrintf(CTDL_ERR, "memfmout(): aborting due to write failure.\n");
+				return;
+			}
 			len = 0;
-			client_write(nl, nllen);
+			if (client_write(nl, nllen) == -1)
+			{
+				CtdlLogPrintf(CTDL_ERR, "memfmout(): aborting due to write failure.\n");
+				return;
+			}
 			column = 0;
 		}
 		else if (ch == '\r') {
@@ -948,9 +956,17 @@ void memfmout(
 		}
 		else if (isspace(ch)) {
 			if (column > 72) {		/* Beyond 72 columns, break on the next space */
-				client_write(outbuf, len);
+				if (client_write(outbuf, len) == -1)
+				{
+					CtdlLogPrintf(CTDL_ERR, "memfmout(): aborting due to write failure.\n");
+					return;
+				}
 				len = 0;
-				client_write(nl, nllen);
+				if (client_write(nl, nllen) == -1)
+				{
+					CtdlLogPrintf(CTDL_ERR, "memfmout(): aborting due to write failure.\n");
+					return;
+				}
 				column = 0;
 			}
 			else {
@@ -962,15 +978,27 @@ void memfmout(
 			outbuf[len++] = ch;
 			++column;
 			if (column > 1000) {		/* Beyond 1000 columns, break anywhere */
-				client_write(outbuf, len);
+				if (client_write(outbuf, len) == -1)
+				{
+					CtdlLogPrintf(CTDL_ERR, "memfmout(): aborting due to write failure.\n");
+					return;
+				}
 				len = 0;
-				client_write(nl, nllen);
+				if (client_write(nl, nllen) == -1)
+				{
+					CtdlLogPrintf(CTDL_ERR, "memfmout(): aborting due to write failure.\n");
+					return;
+				}
 				column = 0;
 			}
 		}
 	}
 	if (len) {
-		client_write(outbuf, len);
+		if (client_write(outbuf, len) == -1)
+		{
+			CtdlLogPrintf(CTDL_ERR, "memfmout(): aborting due to write failure.\n");
+			return;
+		}
 		len = 0;
 		client_write(nl, nllen);
 		column = 0;
@@ -1492,7 +1520,11 @@ void output_preferred(char *name,
 			}
 			cprintf("X-Citadel-MSG4-Partnum: %s\n", partnum);
 			cprintf("\n");
-			client_write(text_content, length);
+			if (client_write(text_content, length) == -1)
+			{
+				CtdlLogPrintf(CTDL_ERR, "output_preferred(): aborting due to write failure.\n");
+				return;
+			}
 			if (add_newline) cprintf("\n");
 			if (decoded != NULL) free(decoded);
 			return;
@@ -2013,6 +2045,7 @@ void Dump_RFC822HeadersBody(
 	int outlen = 0;
 	int nllen = strlen(nl);
 	char *mptr;
+	int rc;
 
 	mptr = TheMessage->cm_fields['M'];
 
@@ -2063,12 +2096,16 @@ void Dump_RFC822HeadersBody(
 		}
 		++mptr;
 		if (outlen > 1000) {
-			client_write(outbuf, outlen);
+			if (client_write(outbuf, outlen) == -1)
+			{
+				CtdlLogPrintf(CTDL_ERR, "Dump_RFC822HeadersBody(): aborting due to write failure.\n");
+				return;
+			}
 			outlen = 0;
 		}
 	}
 	if (outlen > 0) {
-		client_write(outbuf, outlen);
+		rc = client_write(outbuf, outlen);
 		outlen = 0;
 	}
 }
@@ -2130,7 +2167,11 @@ void DumpFormatFixed(
 			buflen += nllen;
 			buf[buflen] = '\0';
 
-			client_write(buf, buflen);
+			if (client_write(buf, buflen) == -1)
+			{
+				CtdlLogPrintf(CTDL_ERR, "DumpFormatFixed(): aborting due to write failure.\n");
+				return;
+			}
 			*buf = '\0';
 			buflen = 0;
 			xlline = 0;
@@ -2886,7 +2927,11 @@ void dump_message(struct CtdlMessage *msg,	/* unserialized msg */
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
 			snprintf (buf, Siz, " msg[%c] = %s ...\n", (char) forder[i], 
 				   msg->cm_fields[(int)forder[i]]);
-			client_write (buf, strlen(buf));
+			if (client_write (buf, strlen(buf)) == -1)
+			{
+				CtdlLogPrintf(CTDL_ERR, "dump_message(): aborting due to write failure.\n");
+				return;
+			}
 		}
 
 	return;
