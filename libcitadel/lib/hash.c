@@ -203,6 +203,30 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 }
 
 
+int TestValidateHash(HashList *TestHash)
+{
+	long i;
+
+	if (TestHash->nMembersUsed != TestHash->nLookupTableItems)
+		return 1;
+
+	if (TestHash->nMembersUsed > TestHash->MemberSize)
+		return 2;
+
+	for (i=0; i < TestHash->nMembersUsed; i++)
+	{
+
+		if (TestHash->LookupTable[i]->Position > TestHash->nMembersUsed)
+			return 3;
+		
+		if (TestHash->Members[TestHash->LookupTable[i]->Position] == NULL)
+			return 4;
+		if (TestHash->Members[TestHash->LookupTable[i]->Position]->Data == NULL)
+			return 5;
+	}
+	return 0;
+}
+
 /**
  * @ingroup HashListAccess
  * @brief instanciate a new hashlist

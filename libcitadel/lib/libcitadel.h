@@ -479,6 +479,8 @@ long lFlathash(const char *str, long len);
 #define IKEY(a) (const char*) &a, sizeof(a)
 #define LKEY(a) (const char*) &a, sizeof(a)
 
+int TestValidateHash(HashList *TestHash);
+
 HashList *NewHash(int Uniq, HashFunc F);
 void DeleteHash(HashList **Hash);
 void DeleteHashContent(HashList **Hash);
