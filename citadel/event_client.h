@@ -133,8 +133,8 @@ typedef struct _IOAddHandler {
 void FreeAsyncIOContents(AsyncIO *IO);
 
 eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
-int QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
-int QueueEventContext(AsyncIO *IO, IO_CallBack CB);
+eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
+eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 int ShutDownEventQueue(void);
 
 eNextState InitEventIO(AsyncIO *IO, 

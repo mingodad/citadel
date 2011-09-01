@@ -87,7 +87,7 @@ extern struct ev_loop *event_db;
 extern ev_async DBAddJob;   
 extern ev_async DBExitEventLoop;
 
-int QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
+eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 {
 	IOAddHandler *h;
 	int i;
@@ -108,7 +108,7 @@ int QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 
 	ev_async_send (event_db, &DBAddJob);
 	CtdlLogPrintf(CTDL_DEBUG, "DBEVENT Q Done.\n");
-	return 0;
+	return eDBQuery;
 }
 
 void ShutDownDBCLient(AsyncIO *IO)
@@ -177,7 +177,7 @@ extern ev_async AddJob;
 extern ev_async ExitEventLoop;
 
 
-int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
+eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 {
 	IOAddHandler *h;
 	int i;
@@ -198,7 +198,7 @@ int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 
 	ev_async_send (event_base, &AddJob);
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q Done.\n");
-	return 0;
+	return eSendReply;
 }
 
 int ShutDownEventQueue(void)
