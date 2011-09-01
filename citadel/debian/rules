@@ -13,10 +13,13 @@ DEB_DESTDIR = $(CURDIR)/debian/tmp
 
 CFLAGS = -Wall -g
 
-
+COMPILER=
 EXTRA_ARGS=
 PROFILE_ARGS=
-#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss gcov"
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss gcov clang"
+ifneq (,$(findstring clang,$(DEB_BUILD_OPTIONS)))
+        COMPILER="clang" 
+endif
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
 endif
@@ -57,7 +60,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	LDFLAGS="$(LDFLAGS)"; CFLAGS="$(CFLAGS)" ./configure \
+	CC=$(COMPILER); LDFLAGS="$(LDFLAGS)"; CFLAGS="$(CFLAGS)" ./configure \
 		--prefix=/var/lib/citadel/ \
 		--with-datadir=/var/lib/citadel/ \
 		--with-helpdir=/usr/share/citadel-server/ \
