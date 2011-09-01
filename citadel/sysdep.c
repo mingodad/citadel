@@ -1324,7 +1324,9 @@ do_select:	force_purge = 0;
 				CtdlThreadStopAll();
 				continue;
 			} else {
+#if 0
 				CtdlLogPrintf(CTDL_DEBUG, "Interrupted CtdlThreadSelect.\n");
+#endif
 				if (CtdlThreadCheckStop()) return(NULL);
 				goto do_select;
 			}
@@ -1465,7 +1467,9 @@ void *select_on_master (void *arg)
 				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
 			} else {
+#if 0
 				CtdlLogPrintf(CTDL_DEBUG, "Interrupted CtdlThreadSelect.\n");
+#endif
 				if (CtdlThreadCheckStop()) return(NULL);
 				continue;
 			}
