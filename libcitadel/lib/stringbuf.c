@@ -3715,7 +3715,7 @@ eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB)
 				*/
 				StrBufCutLeft(FB->Buf, 
 					      FB->ReadWritePointer - FB->Buf->buf);
-				FB->ReadWritePointer = NULL;
+				FB->ReadWritePointer = FB->Buf->buf;
 			}
 			return eMustReadMore;
 		}
