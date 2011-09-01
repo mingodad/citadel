@@ -135,6 +135,7 @@ void DeletePOP3Aggregator(void *vptr)
 	FreeStrBuf(&ptr->IO.IOBuf);
 	FreeStrBuf(&ptr->IO.SendBuf.Buf);
 	FreeStrBuf(&ptr->IO.RecvBuf.Buf);
+	DeleteAsyncMsg(&ptr->IO.ReadMsg);
 	free(ptr);
 }
 
@@ -243,7 +244,9 @@ eNextState POP3C_GetListCommandState(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 {
+#if 0
 	int rc;
+#endif
 	const char *pch;
 	FetchItem *OneMsg = NULL;
 	POP3C_DBG_READ();
@@ -271,16 +274,18 @@ eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 	{
 		OneMsg->MSGSize = atol(pch + 1);
 	}
-
+#if 0
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0) 
 		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
+#endif
 		
 	Put(RecvMsg->MsgNumbers, LKEY(OneMsg->MSGID), OneMsg, HfreeFetchItem);
-
+#if 0
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0) 
 		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
+#endif
 	//RecvMsg->State --; /* read next Line */
 	return eReadMore;
 }
@@ -338,12 +343,13 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 	long HKLen;
 	const char *HKey;
 	void *vData;
-	int rc;
 
+#if 0
+	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0) 
 		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
-
+#endif
 	if(GetNextHashPos(RecvMsg->MsgNumbers, RecvMsg->Pos, &HKLen, &HKey, &vData))
 	{
 		RecvMsg->CurrMsg = (FetchItem*) vData;
@@ -365,10 +371,12 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetOneMessageIDState(pop3aggr *RecvMsg)
 {
+#if 0
 	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0) 
 		CtdlLogPrintf(CTDL_DEBUG, "Hash Invalid: %d\n", rc);
+#endif
 
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
@@ -463,7 +471,6 @@ eNextState POP3C_SaveMsg(AsyncIO *IO)
 	CtdlFreeMessage(RecvMsg->CurrMsg->Msg);
 
 	return NextDBOperation(&RecvMsg->IO, POP3C_StoreMsgRead);
-	return eReadMessage;
 }
 
 eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
@@ -805,18 +812,11 @@ eNextState get_one_host_ip(AsyncIO *IO)
 		      cpptr->IO.ConnectMe->Host, 
 		      cpptr->IO.ConnectMe->Port);
 
-	if (!QueueQuery((cpptr->IO.ConnectMe->IPv6)? ns_t_aaaa : ns_t_a, 
-			cpptr->IO.ConnectMe->Host, 
-			&cpptr->IO, 
-			&cpptr->HostLookup, 
-			get_one_host_ip_done))
-	{
-//		cpptr->MyQEntry->Status = 5;
-//		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-//			     "No MX hosts found for <%s>", SendMsg->node);
-		cpptr->IO.NextState = eTerminateConnection;
-		return IO->NextState;
-	}
+	QueueQuery((cpptr->IO.ConnectMe->IPv6)? ns_t_aaaa : ns_t_a, 
+		   cpptr->IO.ConnectMe->Host, 
+		   &cpptr->IO, 
+		   &cpptr->HostLookup, 
+		   get_one_host_ip_done);
 	IO->NextState = eReadDNSReply;
 	return IO->NextState;
 }
