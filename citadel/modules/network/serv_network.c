@@ -732,15 +732,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 			}
 			/* else we won't modify the buffer, since the roomname is already here. */
 
-				rlen += len + 4;
-				pBuff = malloc (rlen * sizeof(char));
-
-				snprintf(pBuff, rlen, "[%s] %s", CC->room.QRname, msg->cm_fields['U']);
-				free(msg->cm_fields['U']);
-				msg->cm_fields['U'] = pBuff;
-			}
-			/* else we won't modify the buffer, since the roomname is already here. */
-
 			/* if we don't already have a 'reply to' field, put our roomname in. */
 			if (msg->cm_fields['K'] == NULL) {
 				msg->cm_fields['K'] = malloc(256);
