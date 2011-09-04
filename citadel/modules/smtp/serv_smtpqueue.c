@@ -113,7 +113,6 @@ void smtp_evq_cleanup(void)
 	DeleteHash(&ActiveQItems);
 	pthread_mutex_unlock(&ActiveQItemsLock);
 	pthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	CtdlClearSystemContext();
 /*	citthread_mutex_destroy(&ActiveQItemsLock); TODO */
 }
 
