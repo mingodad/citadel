@@ -1327,9 +1327,6 @@ void *select_on_master(void *blah)
 	int i;
 	int retval;
 
-	CtdlFillSystemContext(&select_on_master_CC, "select_on_master");
-	pthread_setspecific(MyConKey, (void *)&select_on_master_CC);
-
 	while (!server_shutting_down) {
 		/* Initialize the fdset. */
 		FD_ZERO(&master_fds);
