@@ -1001,9 +1001,8 @@ CTDL_MODULE_INIT(smtp_client)
 		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	}
-	
 #endif
-	/* return our Subversion id for the Log */
-	return "smtpclient";
+	/* return our module name for the log */
+	return "smtp";
 }
 

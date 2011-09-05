@@ -588,7 +588,7 @@ void context_cleanup(void)
 		rem = ptr->next;
 		--num_sessions;
 
-		syslog(LOG_DEBUG, "context_cleanup(): Purging session #%d %s\n", ptr->cs_pid, ptr->ServiceName);
+		syslog(LOG_DEBUG, "context_cleanup(): purging session %d\n", ptr->cs_pid);
 		RemoveContext(ptr);
 		free (ptr);
 		ptr = rem;
