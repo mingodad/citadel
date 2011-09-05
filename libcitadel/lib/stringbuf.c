@@ -1536,6 +1536,8 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 	    (Source->BufUsed == 0)      ) 
 	{
 		*pStart = StrBufNOTNULL;
+		if (dest != NULL)
+			FlushStrBuf(dest);
 		return -1;
 	}
 	 
@@ -2898,7 +2900,7 @@ void StrBufReplaceChars(StrBuf *buf, char search, char replace)
 
 /**
  * @ingroup StrBuf
- * @brief removes all \r s from the string, or replaces them with \n if its not a combination of both.
+ * @brief removes all \\r s from the string, or replaces them with \n if its not a combination of both.
  * @param buf Buffer to modify
  */
 void StrBufToUnixLF(StrBuf *buf)
@@ -3550,7 +3552,227 @@ int CompressBuffer(StrBuf *Buf)
 	return 0;
 }
 
+/*******************************************************************************
+ *           File I/O; Callbacks to libevent                                   *
+ *******************************************************************************/
 
+long StrBuf_read_one_chunk_callback (int fd, short event, IOBuffer *FB)
+{
+	long bufremain = 0;
+	int n;
+	
+	if ((FB == NULL) || (FB->Buf == NULL))
+		return -1;
+
+	/*
+	 * check whether the read pointer is somewhere in a range 
+	 * where a cut left is inexpensive
+	 */
+
+	if (FB->ReadWritePointer != NULL)
+	{
+		long already_read;
+		
+		already_read = FB->ReadWritePointer - FB->Buf->buf;
+		bufremain = FB->Buf->BufSize - FB->Buf->BufUsed - 1;
+
+		if (already_read != 0) {
+			long unread;
+			
+			unread = FB->Buf->BufUsed - already_read;
+
+			/* else nothing to compact... */
+			if (unread == 0) {
+				FB->ReadWritePointer = FB->Buf->buf;
+				bufremain = FB->Buf->BufSize;			
+			}
+			else if ((unread < 64) || 
+				 (bufremain < already_read))
+			{
+				/* 
+				 * if its just a tiny bit remaining, or we run out of space... 
+				 * lets tidy up.
+				 */
+				FB->Buf->BufUsed = unread;
+				if (unread < already_read)
+					memcpy(FB->Buf->buf, FB->ReadWritePointer, unread);
+				else
+					memmove(FB->Buf->buf, FB->ReadWritePointer, unread);
+				FB->ReadWritePointer = FB->Buf->buf;
+				bufremain = FB->Buf->BufSize - unread - 1;
+			}
+			else if (bufremain < (FB->Buf->BufSize / 10))
+			{
+				/* get a bigger buffer */ 
+
+				IncreaseBuf(FB->Buf, 0, FB->Buf->BufUsed + 1);
+
+				FB->ReadWritePointer = FB->Buf->buf + unread;
+
+				bufremain = FB->Buf->BufSize - unread - 1;
+/*TODO: special increase function that won't copy the already read! */
+			}
+		}
+		else if (bufremain < 10) {
+			IncreaseBuf(FB->Buf, 1, FB->Buf->BufUsed + 10);
+			
+			FB->ReadWritePointer = FB->Buf->buf;
+			
+			bufremain = FB->Buf->BufSize - FB->Buf->BufUsed - 1;
+		}
+		
+	}
+	else {
+		FB->ReadWritePointer = FB->Buf->buf;
+		bufremain = FB->Buf->BufSize - 1;
+	}
+
+	n = read(fd, FB->Buf->buf + FB->Buf->BufUsed, bufremain);
+
+	if (n > 0) {
+		FB->Buf->BufUsed += n;
+		FB->Buf->buf[FB->Buf->BufUsed] = '\0';
+	}
+	return n;
+}
+
+int StrBuf_write_one_chunk_callback(int fd, short event, IOBuffer *FB)
+{
+	long WriteRemain;
+	int n;
+
+	if ((FB == NULL) || (FB->Buf == NULL))
+		return -1;
+
+	if (FB->ReadWritePointer != NULL)
+	{
+		WriteRemain = FB->Buf->BufUsed - 
+			(FB->ReadWritePointer - 
+			 FB->Buf->buf);
+	}
+	else {
+		FB->ReadWritePointer = FB->Buf->buf;
+		WriteRemain = FB->Buf->BufUsed;
+	}
+
+	n = write(fd, FB->ReadWritePointer, WriteRemain);
+	if (n > 0) {
+		FB->ReadWritePointer += n;
+
+		if (FB->ReadWritePointer == 
+		    FB->Buf->buf + FB->Buf->BufUsed)
+		{
+			FlushStrBuf(FB->Buf);
+			FB->ReadWritePointer = NULL;
+			return 0;
+		}
+	// check whether we've got something to write
+	// get the maximum chunk plus the pointer we can send
+	// write whats there
+	// if not all was sent, remember the send pointer for the next time
+		return FB->ReadWritePointer - FB->Buf->buf + FB->Buf->BufUsed;
+	}
+	return n;
+}
+
+/**
+ * @ingroup StrBuf_IO
+ * @brief extract a "next line" from Buf; Ptr to persist across several iterations
+ * @param LineBuf your line will be copied here.
+ * @param FB BLOB with lines of text...
+ * @param Ptr moved arround to keep the next-line across several iterations
+ *        has to be &NULL on start; will be &NotNULL on end of buffer
+ * @returns size of copied buffer
+ */
+eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB)
+{
+	const char *aptr, *ptr, *eptr;
+	char *optr, *xptr;
+
+	if ((FB->Buf == NULL) || (FB->ReadWritePointer == StrBufNOTNULL)) {
+		FB->ReadWritePointer = StrBufNOTNULL;
+		return eReadFail;
+	}
+
+	FlushStrBuf(LineBuf);
+	if (FB->ReadWritePointer == NULL)
+		ptr = aptr = FB->Buf->buf;
+	else
+		ptr = aptr = FB->ReadWritePointer;
+
+	optr = LineBuf->buf;
+	eptr = FB->Buf->buf + FB->Buf->BufUsed;
+	xptr = LineBuf->buf + LineBuf->BufSize - 1;
+
+	while ((ptr <= eptr) && 
+	       (*ptr != '\n') &&
+	       (*ptr != '\r') )
+	{
+		*optr = *ptr;
+		optr++; ptr++;
+		if (optr == xptr) {
+			LineBuf->BufUsed = optr - LineBuf->buf;
+			IncreaseBuf(LineBuf,  1, LineBuf->BufUsed + 1);
+			optr = LineBuf->buf + LineBuf->BufUsed;
+			xptr = LineBuf->buf + LineBuf->BufSize - 1;
+		}
+	}
+
+	if (ptr >= eptr) {
+		if (optr > LineBuf->buf)
+			optr --;
+		if ((*(ptr - 1) != '\r') && (*(ptr - 1) != '\n')) {
+			LineBuf->BufUsed = optr - LineBuf->buf;
+			*optr = '\0';
+			if ((FB->ReadWritePointer != NULL) && 
+			    (FB->ReadWritePointer != FB->Buf->buf))
+			{
+				/* Ok, the client application read all the data 
+				   it was interested in so far. Since there is more to read, 
+				   we now shrink the buffer, and move the rest over.
+				*/
+				StrBufCutLeft(FB->Buf, 
+					      FB->ReadWritePointer - FB->Buf->buf);
+				FB->ReadWritePointer = FB->Buf->buf;
+			}
+			return eMustReadMore;
+		}
+	}
+	LineBuf->BufUsed = optr - LineBuf->buf;
+	*optr = '\0';       
+	if ((ptr <= eptr) && (*ptr == '\r'))
+		ptr ++;
+	if ((ptr <= eptr) && (*ptr == '\n'))
+		ptr ++;
+	
+	if (ptr < eptr) {
+		FB->ReadWritePointer = ptr;
+	}
+	else {
+		FlushStrBuf(FB->Buf);
+		FB->ReadWritePointer = NULL;
+	}
+
+	return eReadSuccess;
+}
+
+/**
+ * @ingroup StrBuf_CHUNKED_IO
+ * @brief check whether the chunk-buffer has more data waiting or not.
+ * @param FB Chunk-Buffer to inspect
+ */
+eReadState StrBufCheckBuffer(IOBuffer *FB)
+{
+	if (FB == NULL)
+		return eReadFail;
+	if (FB->Buf->BufUsed == 0)
+		return eReadSuccess;
+	if (FB->ReadWritePointer == NULL)
+		return eBufferNotEmpty;
+	if (FB->Buf->buf + FB->Buf->BufUsed > FB->ReadWritePointer)
+		return eBufferNotEmpty;
+	return eReadSuccess;
+}
 
 /*******************************************************************************
  *           File I/O; Prefer buffered read since its faster!                  *

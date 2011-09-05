@@ -113,6 +113,7 @@ LIB_OBJS = lib/libcitadel.lo \
 	lib/stringbuf.lo \
 	lib/json.lo \
 	lib/wildfire.lo \
+	lib/urlhandling.lo \
 	lib/xdgmime/xdgmime.lo \
 	lib/xdgmime/xdgmimeglob.lo \
 	lib/xdgmime/xdgmimeint.lo \

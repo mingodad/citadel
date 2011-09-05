@@ -28,6 +28,50 @@
 typedef struct Payload Payload;
 
 /**
+ * @defgroup HashList Hashlist Key Value list implementation; 
+ * Hashlist is a simple implementation of key value pairs. It doesn't implement collision handling.
+ * the Hashingalgorythm is pluggeable on creation. 
+ * items are added with a functionpointer destructs them; that way complex structures can be added.
+ * if no pointer is given, simply free is used. Use @ref reference_free_handler if you don't want us to free you rmemory.
+ */
+
+/**
+ * @defgroup HashListData Datastructures used for the internals of HashList
+ * @ingroup HashList
+ */
+
+/**
+ * @defgroup HashListDebug Hashlist debugging functions
+ * @ingroup HashList
+ */
+
+/**
+ * @defgroup HashListPrivate Hashlist internal functions
+ * @ingroup HashList
+ */
+
+/**
+ * @defgroup HashListSort Hashlist sorting functions
+ * @ingroup HashList
+ */
+
+/**
+ * @defgroup HashListAccess Hashlist functions to access / put / delete items in(to) the list
+ * @ingroup HashList
+ */
+
+/**
+ * @defgroup HashListAlgorithm functions to condense Key to an integer.
+ * @ingroup HashList
+ */
+
+/**
+ * @defgroup HashListMset MSet is sort of a derived hashlist, its special for treating Messagesets as Citadel uses them to store access rangesx
+ * @ingroup HashList
+ */
+
+/**
+ * @ingroup HashListData
  * @brief Hash Payload storage Structure; filled in linear.
  */
 struct Payload {
@@ -37,6 +81,7 @@ struct Payload {
 
 
 /**
+ * @ingroup HashListData
  * @brief Hash key element; sorted by key
  */
 struct HashKey {
@@ -48,6 +93,7 @@ struct HashKey {
 };
 
 /**
+ * @ingroup HashListData
  * @brief Hash structure; holds arrays of Hashkey and Payload. 
  */
 struct HashList {
@@ -63,6 +109,7 @@ struct HashList {
 };
 
 /**
+ * @ingroup HashListData
  * @brief Anonymous Hash Iterator Object. used for traversing the whole array from outside 
  */
 struct HashPos {
@@ -72,12 +119,13 @@ struct HashPos {
 
 
 /**
+ * @ingroup HashListDebug
  * @brief Iterate over the hash and call PrintEntry. 
  * @param Hash your Hashlist structure
  * @param Trans is called so you could for example print 'A:' if the next entries are like that.
  *        Must be aware to receive NULL in both pointers.
  * @param PrintEntry print entry one by one
- * \returns the number of items printed
+ * @return the number of items printed
  */
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry)
 {
@@ -116,11 +164,12 @@ int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry
 
 
 /**
+ * @ingroup HashListDebug
  * @brief verify the contents of a hash list; here for debugging purposes.
  * @param Hash your Hashlist structure
  * @param First Functionpointer to allow you to print your payload
  * @param Second Functionpointer to allow you to print your payload
- * \returns 0
+ * @return 0
  */
 int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Second)
 {
@@ -172,9 +221,34 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 }
 
 
+int TestValidateHash(HashList *TestHash)
+{
+	long i;
+
+	if (TestHash->nMembersUsed != TestHash->nLookupTableItems)
+		return 1;
+
+	if (TestHash->nMembersUsed > TestHash->MemberSize)
+		return 2;
+
+	for (i=0; i < TestHash->nMembersUsed; i++)
+	{
+
+		if (TestHash->LookupTable[i]->Position > TestHash->nMembersUsed)
+			return 3;
+		
+		if (TestHash->Members[TestHash->LookupTable[i]->Position] == NULL)
+			return 4;
+		if (TestHash->Members[TestHash->LookupTable[i]->Position]->Data == NULL)
+			return 5;
+	}
+	return 0;
+}
+
 /**
+ * @ingroup HashListAccess
  * @brief instanciate a new hashlist
- * \returns the newly allocated list. 
+ * @return the newly allocated list. 
  */
 HashList *NewHash(int Uniq, HashFunc F)
 {
@@ -204,6 +278,7 @@ int GetCount(HashList *Hash)
 
 
 /**
+ * @ingroup HashListPrivate
  * @brief private destructor for one hash element.
  * Crashing? go one frame up and do 'print *FreeMe->LookupTable[i]'
  * @param Data an element to free using the user provided destructor, or just plain free
@@ -218,6 +293,7 @@ static void DeleteHashPayload (Payload *Data)
 }
 
 /**
+ * @ingroup HashListPrivate
  * @brief Destructor for nested hashes
  */
 void HDeleteHash(void *vHash)
@@ -227,11 +303,12 @@ void HDeleteHash(void *vHash)
 }
 
 /**
- * @brief destroy a hashlist and all of its members
+ * @ingroup HashListAccess
+ * @brief flush the members of a hashlist 
  * Crashing? do 'print *FreeMe->LookupTable[i]'
  * @param Hash Hash to destroy. Is NULL'ed so you are shure its done.
  */
-void DeleteHash(HashList **Hash)
+void DeleteHashContent(HashList **Hash)
 {
 	int i;
 	HashList *FreeMe;
@@ -255,18 +332,42 @@ void DeleteHash(HashList **Hash)
 			free(FreeMe->LookupTable[i]);
 		}
 	}
-	/** now, free our arrays... */
-	free(FreeMe->LookupTable);
-	free(FreeMe->Members);
+	FreeMe->nMembersUsed = 0;
+	FreeMe->tainted = 0;
+	FreeMe->nLookupTableItems = 0;
+	memset(FreeMe->Members, 0, sizeof(Payload*) * FreeMe->MemberSize);
+	memset(FreeMe->LookupTable, 0, sizeof(HashKey*) * FreeMe->MemberSize);
+
 	/** did s.b. want an array of our keys? free them. */
 	if (FreeMe->MyKeys != NULL)
 		free(FreeMe->MyKeys);
+}
+
+/**
+ * @ingroup HashListAccess
+ * @brief destroy a hashlist and all of its members
+ * Crashing? do 'print *FreeMe->LookupTable[i]'
+ * @param Hash Hash to destroy. Is NULL'ed so you are shure its done.
+ */
+void DeleteHash(HashList **Hash)
+{
+	HashList *FreeMe;
+
+	FreeMe = *Hash;
+	if (FreeMe == NULL)
+		return;
+	DeleteHashContent(Hash);
+	/** now, free our arrays... */
+	free(FreeMe->LookupTable);
+	free(FreeMe->Members);
+
 	/** buye bye cruel world. */	
 	free (FreeMe);
 	*Hash = NULL;
 }
 
 /**
+ * @ingroup HashListPrivate
  * @brief Private function to increase the hash size.
  * @param Hash the Hasharray to increase
  */
@@ -308,9 +409,10 @@ static void IncreaseHashSize(HashList *Hash)
 
 
 /**
+ * @ingroup HashListPrivate
  * @brief private function to add a new item to / replace an existing in -  the hashlist
  * if the hash list is full, its re-alloced with double size.
- * \parame Hash our hashlist to manipulate
+ * @param Hash our hashlist to manipulate
  * @param HashPos where should we insert / replace?
  * @param HashKeyStr the Hash-String
  * @param HKLen length of HashKeyStr
@@ -369,11 +471,12 @@ static void InsertHashItem(HashList *Hash,
 }
 
 /**
+ * @ingroup HashListSort
  * @brief if the user has tainted the hash, but wants to insert / search items by their key
  *  we need to search linear through the array. You have been warned that this will take more time!
  * @param Hash Our Hash to manipulate
  * @param HashBinKey the Hash-Number to lookup. 
- * \returns the position (most closely) matching HashBinKey (-> Caller needs to compare! )
+ * @return the position (most closely) matching HashBinKey (-> Caller needs to compare! )
  */
 static long FindInTaintedHash(HashList *Hash, long HashBinKey)
 {
@@ -391,10 +494,11 @@ static long FindInTaintedHash(HashList *Hash, long HashBinKey)
 }
 
 /**
+ * @ingroup HashListPrivate
  * @brief Private function to lookup the Item / the closest position to put it in
  * @param Hash Our Hash to manipulate
  * @param HashBinKey the Hash-Number to lookup. 
- * \returns the position (most closely) matching HashBinKey (-> Caller needs to compare! )
+ * @return the position (most closely) matching HashBinKey (-> Caller needs to compare! )
  */
 static long FindInHash(HashList *Hash, long HashBinKey)
 {
@@ -445,10 +549,11 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 
 
 /**
+ * @ingroup HashListAlgorithm
  * @brief another hashing algorithm; treat it as just a pointer to int.
  * @param str Our pointer to the int value
  * @param len the length of the data pointed to; needs to be sizeof int, else we won't use it!
- * \returns the calculated hash value
+ * @return the calculated hash value
  */
 long Flathash(const char *str, long len)
 {
@@ -458,10 +563,11 @@ long Flathash(const char *str, long len)
 }
 
 /**
+ * @ingroup HashListAlgorithm
  * @brief another hashing algorithm; treat it as just a pointer to long.
  * @param str Our pointer to the long value
  * @param len the length of the data pointed to; needs to be sizeof long, else we won't use it!
- * \returns the calculated hash value
+ * @return the calculated hash value
  */
 long lFlathash(const char *str, long len)
 {
@@ -471,10 +577,11 @@ long lFlathash(const char *str, long len)
 }
 
 /**
+ * @ingroup HashListPrivate
  * @brief private abstract wrapper around the hashing algorithm
  * @param HKey the hash string
  * @param HKLen length of HKey
- * \returns the calculated hash value
+ * @return the calculated hash value
  */
 inline static long CalcHashKey (HashList *Hash, const char *HKey, long HKLen)
 {
@@ -489,10 +596,11 @@ inline static long CalcHashKey (HashList *Hash, const char *HKey, long HKLen)
 
 
 /**
+ * @ingroup HashListAccess
  * @brief Add a new / Replace an existing item in the Hash
- * @param HashList the list to manipulate
+ * @param Hash the list to manipulate
  * @param HKey the hash-string to store Data under
- * @param HKeyLen Length of HKey
+ * @param HKLen Length of HKey
  * @param Data the payload you want to associate with HKey
  * @param DeleteIt if not free() should be used to delete Data set to NULL, else DeleteIt is used.
  */
@@ -537,12 +645,13 @@ void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDat
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief Lookup the Data associated with HKey
  * @param Hash the Hashlist to search in
  * @param HKey the hashkey to look up
  * @param HKLen length of HKey
  * @param Data returns the Data associated with HKey
- * \returns 0 if not found, 1 if.
+ * @return 0 if not found, 1 if.
  */
 int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data)
 {
@@ -581,6 +690,7 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Payload)
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief get the Keys present in this hash, simila to array_keys() in PHP
  *  Attention: List remains to Hash! don't modify or free it!
  * @param Hash Your Hashlist to extract the keys from
@@ -604,12 +714,13 @@ int GetHashKeys(HashList *Hash, char ***List)
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief creates a hash-linear iterator object
  * @param Hash the list we reference
- * @param in which step width should we iterate?
+ * @param StepWidth in which step width should we iterate?
  *  If negative, the last position matching the 
  *  step-raster is provided.
- * \returns the hash iterator
+ * @return the hash iterator
  */
 HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 {
@@ -630,12 +741,13 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief Set iterator object to point to key. If not found, don't change iterator
  * @param Hash the list we reference
  * @param HKey key to search for
  * @param HKLen length of key
  * @param At HashPos to update
- * \returns 0 if not found
+ * @return 0 if not found
  */
 int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
 {
@@ -662,10 +774,11 @@ int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief Delete from the Hash the entry at Position
  * @param Hash the list we reference
  * @param At the position within the Hash
- * \returns 0 if not found
+ * @return 0 if not found
  */
 int DeleteEntryFromHash(HashList *Hash, HashPos *At)
 {
@@ -718,9 +831,11 @@ int DeleteEntryFromHash(HashList *Hash, HashPos *At)
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief retrieve the counter from the itteratoor
- * @param the Iterator to analyze
- * \returns the n'th hashposition we point at
+ * @param Hash which 
+ * @param At the Iterator to analyze
+ * @return the n'th hashposition we point at
  */
 int GetHashPosCounter(HashList *Hash, HashPos *At)
 {
@@ -733,6 +848,7 @@ int GetHashPosCounter(HashList *Hash, HashPos *At)
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief frees a linear hash iterator
  */
 void DeleteHashPos(HashPos **DelMe)
@@ -746,13 +862,14 @@ void DeleteHashPos(HashPos **DelMe)
 
 
 /**
+ * @ingroup HashListAccess
  * @brief Get the data located where HashPos Iterator points at, and Move HashPos one forward
  * @param Hash your Hashlist to follow
  * @param At the position to retrieve the Item from and move forward afterwards
  * @param HKLen returns Length of Hashkey Returned
  * @param HashKey returns the Hashkey corrosponding to HashPos
  * @param Data returns the Data found at HashPos
- * \returns whether the item was found or not.
+ * @return whether the item was found or not.
  */
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
 {
@@ -778,13 +895,14 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief Get the data located where HashPos Iterator points at
  * @param Hash your Hashlist to follow
  * @param At the position retrieve the data from
  * @param HKLen returns Length of Hashkey Returned
  * @param HashKey returns the Hashkey corrosponding to HashPos
  * @param Data returns the Data found at HashPos
- * \returns whether the item was found or not.
+ * @return whether the item was found or not.
  */
 int GetHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
 {
@@ -804,10 +922,11 @@ int GetHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, v
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief Move HashPos one forward
  * @param Hash your Hashlist to follow
  * @param At the position to move forward
- * \returns whether there is a next item or not.
+ * @return whether there is a next item or not.
  */
 int NextHashPos(HashList *Hash, HashPos *At)
 {
@@ -829,13 +948,15 @@ int NextHashPos(HashList *Hash, HashPos *At)
 }
 
 /**
+ * @ingroup HashListAccess
  * @brief Get the data located where At points to
  * note: you should prefer iterator operations instead of using me.
  * @param Hash your Hashlist peek from
+ * @param At get the item in the position At.
  * @param HKLen returns Length of Hashkey Returned
  * @param HashKey returns the Hashkey corrosponding to HashPos
  * @param Data returns the Data found at HashPos
- * \returns whether the item was found or not.
+ * @return whether the item was found or not.
  */
 int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **Data)
 {
@@ -853,13 +974,14 @@ int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **
 }
 
 /**
+ * @ingroup HashListSort
  * @brief Get the data located where At points to
  * note: you should prefer iterator operations instead of using me.
  * @param Hash your Hashlist peek from
  * @param HKLen returns Length of Hashkey Returned
  * @param HashKey returns the Hashkey corrosponding to HashPos
  * @param Data returns the Data found at HashPos
- * \returns whether the item was found or not.
+ * @return whether the item was found or not.
  */
 /*
 long GetHashIDAt(HashList *Hash,long At)
@@ -875,6 +997,7 @@ long GetHashIDAt(HashList *Hash,long At)
 
 
 /**
+ * @ingroup HashListSort
  * @brief sorting function for sorting the Hash alphabeticaly by their strings
  * @param Key1 first item
  * @param Key2 second item
@@ -889,6 +1012,7 @@ static int SortByKeys(const void *Key1, const void* Key2)
 }
 
 /**
+ * @ingroup HashListSort
  * @brief sorting function for sorting the Hash alphabeticaly reverse by their strings
  * @param Key1 first item
  * @param Key2 second item
@@ -903,6 +1027,7 @@ static int SortByKeysRev(const void *Key1, const void* Key2)
 }
 
 /**
+ * @ingroup HashListSort
  * @brief sorting function to regain hash-sequence and revert tainted status
  * @param Key1 first item
  * @param Key2 second item
@@ -918,6 +1043,7 @@ static int SortByHashKeys(const void *Key1, const void* Key2)
 
 
 /**
+ * @ingroup HashListSort
  * @brief sort the hash alphabeticaly by their keys.
  * Caution: This taints the hashlist, so accessing it later 
  * will be significantly slower! You can un-taint it by SortByHashKeyStr
@@ -934,6 +1060,7 @@ void SortByHashKey(HashList *Hash, int Order)
 }
 
 /**
+ * @ingroup HashListSort
  * @brief sort the hash by their keys (so it regains untainted state).
  * this will result in the sequence the hashing allgorithm produces it by default.
  * @param Hash the list to sort
@@ -948,9 +1075,10 @@ void SortByHashKeyStr(HashList *Hash)
 
 
 /**
+ * @ingroup HashListSort
  * @brief gives user sort routines access to the hash payload
- * @param Searchentry to retrieve Data to
- * \returns Data belonging to HashVoid
+ * @param HashVoid to retrieve Data to
+ * @return Data belonging to HashVoid
  */
 const void *GetSearchPayload(const void *HashVoid)
 {
@@ -958,6 +1086,7 @@ const void *GetSearchPayload(const void *HashVoid)
 }
 
 /**
+ * @ingroup HashListSort
  * @brief sort the hash by your sort function. see the following sample.
  * this will result in the sequence the hashing allgorithm produces it by default.
  * @param Hash the list to sort
@@ -987,8 +1116,9 @@ void SortByPayload(HashList *Hash, CompareFunc SortBy)
  */
 
 
-/*
- * Generic function to free a reference.  
+/**
+ * @ingroup HashListAccess
+ * @brief Generic function to free a reference.  
  * since a reference actualy isn't needed to be freed, do nothing.
  */
 void reference_free_handler(void *ptr) 
@@ -997,7 +1127,8 @@ void reference_free_handler(void *ptr)
 }
 
 
-/*
+/**
+ * @ingroup HashListAlgorithm
  * This exposes the hashlittle() function to consumers.
  */
 int HashLittle(const void *key, size_t length) {
@@ -1006,9 +1137,10 @@ int HashLittle(const void *key, size_t length) {
 
 
 /**
- * \brief parses an MSet string into a list for later use
- * \param MSetList List to be read from MSetStr
- * \param MSetStr String containing the list
+ * @ingroup HashListMset
+ * @brief parses an MSet string into a list for later use
+ * @param MSetList List to be read from MSetStr
+ * @param MSetStr String containing the list
  */
 int ParseMSet(MSet **MSetList, StrBuf *MSetStr)
 {
@@ -1061,9 +1193,10 @@ int ParseMSet(MSet **MSetList, StrBuf *MSetStr)
 }
 
 /**
- * \brief checks whether a message is inside a mset
- * \param MSetList List to search for MsgNo
- * \param MsgNo number to search in mset
+ * @ingroup HashListMset
+ * @brief checks whether a message is inside a mset
+ * @param MSetList List to search for MsgNo
+ * @param MsgNo number to search in mset
  */
 int IsInMSetList(MSet *MSetList, long MsgNo)
 {
@@ -1112,8 +1245,9 @@ int IsInMSetList(MSet *MSetList, long MsgNo)
 
 
 /**
- * \brief frees a mset [redirects to @ref DeleteHash
- * \param FreeMe to be free'd
+ * @ingroup HashListMset
+ * @brief frees a mset [redirects to @ref DeleteHash
+ * @param FreeMe to be free'd
  */
 void DeleteMSet(MSet **FreeMe)
 {

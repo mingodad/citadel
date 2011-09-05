@@ -14,6 +14,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <arpa/inet.h>
+
 #define LIBCITADEL_VERSION_NUMBER	800
 
 /*
@@ -219,6 +221,27 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				      int selectresolution, 
 				      const char **Error);
 
+typedef enum _eReadState {
+	eReadFail,
+	eReadSuccess,
+	eMustReadMore, 
+	eBufferNotEmpty
+} eReadState;
+
+typedef struct _file_buffer {
+	StrBuf *Buf;
+	const char *ReadWritePointer;
+	int fd;
+	int LineCompleted;
+	int nBlobBytesWanted;
+} IOBuffer;
+
+long StrBuf_read_one_chunk_callback (int fd, short event, IOBuffer *FB);
+int StrBuf_write_one_chunk_callback(int fd, short event, IOBuffer *FB);
+
+eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB);
+eReadState StrBufCheckBuffer(IOBuffer *FB);
+
 int StrBufSipLine(StrBuf *LineBuf, const StrBuf *Buf, const char **Ptr);
 int StrBufReplaceToken(StrBuf *Buf, long where, long HowLong, const char *Repl, long ReplLen);
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
@@ -309,6 +332,30 @@ int LoadIconDir(const char *DirName);
 /* Select the icon for a given MIME type */
 const char *GetIconFilename(char *MimeType, size_t len);
 
+
+/* URL parsing & connection data */
+typedef struct ParsedURL ParsedURL;
+struct ParsedURL {
+	StrBuf *URL;
+	StrBuf *UrlWithoutCred;
+	StrBuf *CurlCreds;
+	unsigned Port;
+	const char *Host;
+	const char *User;
+	const char *Pass;
+	const char *LocalPart;
+	const char *PlainUrl;
+	int IsIP;
+	int IPv6;
+	int af;
+	struct hostent *HEnt;
+	struct sockaddr_in6 Addr;
+	ParsedURL *Next;
+};
+
+void FreeURL(ParsedURL** Url);
+int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort);
+void CurlPrepareURL(ParsedURL *Url);
 
 /* tools */
 
@@ -410,8 +457,11 @@ long lFlathash(const char *str, long len);
 #define IKEY(a) (const char*) &a, sizeof(a)
 #define LKEY(a) (const char*) &a, sizeof(a)
 
+int TestValidateHash(HashList *TestHash);
+
 HashList *NewHash(int Uniq, HashFunc F);
 void DeleteHash(HashList **Hash);
+void DeleteHashContent(HashList **Hash);
 void HDeleteHash(void *vHash);
 int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data);
 void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
