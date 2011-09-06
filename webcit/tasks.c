@@ -383,7 +383,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 
 	if (supplied_vtodo != NULL) {
 		vtodo = supplied_vtodo;
-		/**
+		/*
 		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VTODO component, attempt to use the first
 		 * relevant VTODO subcomponent.  If there is none, the
@@ -407,7 +407,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 
 	if (havebstr("save_button")) {
 
-		/** Replace values in the component with ones from the form */
+		/* Replace values in the component with ones from the form */
 
 		while (prop = icalcomponent_get_first_property(vtodo,
 							       ICAL_SUMMARY_PROPERTY), prop != NULL) {
@@ -497,7 +497,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 						   icalproperty_new_due(t)
 				);
 		}
-		/** Give this task a UID if it doesn't have one. */
+		/* Give this task a UID if it doesn't have one. */
 		syslog(9, "Give this task a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vtodo,
 						     ICAL_UID_PROPERTY) == NULL) {
@@ -552,7 +552,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		icalcomponent_free(encaps);
 	}
 
-	/**
+	/*
 	 * If the user clicked 'Delete' then explicitly delete the message.
 	 */
 	if (havebstr("delete_button")) {
