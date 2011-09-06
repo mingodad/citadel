@@ -302,17 +302,26 @@ function addRoomToList(floorUL,room, roomToEmphasize) {
 
 function roomListDropHandler(target, dropped) {
   if (dropped.getAttribute("citadel:msgid")) {
-    var room = getTextContent(target);
-    var msgIds = "";
-    for(msgId in currentlyMarkedRows) { //defined in summaryview.js
-      msgIds += ","+msgId;
-    }
-    var mvCommand = encodeURI("g_cmd=MOVE " + msgIds + "|"+room+"|0");
-    new Ajax.Request('ajax_servcmd', {
-      method: 'post',
+      var room = getTextContent(target);
+      var msgIds = "";
+      for(msgId in currentlyMarkedRows) { //defined in summaryview.js
+	  msgIds += ","+msgId;
+	  if (msgIds.length > 800) {
+	      var mvCommand = encodeURI("g_cmd=MOVE " + msgIds + "|"+room+"|0");
+	      new Ajax.Request("ajax_servcmd", {
+		  parameters: mvCommand,
+		  method: 'post',
+	      });
+	      msgIds = "";
+	  }
+
+      }
+      var mvCommand = encodeURI("g_cmd=MOVE " + msgIds + "|"+room+"|0");
+      new Ajax.Request('ajax_servcmd', {
+	  method: 'post',
 	  parameters: mvCommand,
 	  onComplete: deleteAllMarkedRows()});
-    } 
+  }
 }
 function expandFloorEvent(event) {
   expandFloor(event.target);

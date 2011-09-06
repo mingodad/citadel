@@ -413,6 +413,23 @@ function deleteAllSelectedMessages() {
     var msgIds = "";
     for(msgId in currentlyMarkedRows) {
 	msgIds += ","+msgId;
+
+	if (msgIds.length > 800) {
+	    if (!room_is_trash) {
+		mvCommand = encodeURI("g_cmd=MOVE " + msgIds + "|_TRASH_|0");
+	    }
+	    else {
+		mvCommand = encodeURI("g_cmd=DELE " + msgIds);
+	    }
+	    new Ajax.Request("ajax_servcmd", {
+		parameters: mvCommand,
+		method: 'post',
+		onSuccess: function(transport) {
+		    WCLog(transport.responseText);
+		}
+	    });
+	    msgIds = "";
+	}
     }
 
     if (!room_is_trash) {
