@@ -490,11 +490,12 @@ void DeleteRssCfg(void *vptr)
 eNextState RSSAggregatorTerminate(AsyncIO *IO)
 {
 	rss_aggregator *rncptr = (rss_aggregator *)IO->Data;
-	HashPos *At;
-	long HKLen;
-	const char *HK;
-	void *vData;
-
+	/*
+	  HashPos *At;
+	  long HKLen;
+	  const char *HK;
+	  void *vData;
+	*/
 	pthread_mutex_lock(&RSSQueueMutex);
 	rncptr->RefCount --;
 	if (rncptr->RefCount == 0)
@@ -522,7 +523,7 @@ eNextState RSSAggregatorTerminate(AsyncIO *IO)
  */
 void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 {
-	StrBuf *CfgData;
+	StrBuf *CfgData=NULL;
 	StrBuf *CfgType;
 	StrBuf *Line;
 	rss_room_counter *Count = NULL;
@@ -561,9 +562,19 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	}
 
 	if (server_shutting_down)
-		return
+		return;
+
+	if (fstat(fd, &statbuf) == -1) {
+		syslog(LOG_DEBUG, "ERROR: could not stat configfile '%s' - %s\n",
+		       filename, strerror(errno));
+		return;
+	}
+
+	if (server_shutting_down)
+		return;
 
 	CfgData = NewStrBufPlain(NULL, statbuf.st_size + 1);
+
 	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
 		FreeStrBuf(&CfgData);

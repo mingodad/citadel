@@ -1097,7 +1097,7 @@ void pop3client_scan(void) {
 void pop3_cleanup(void)
 {
 	/* citthread_mutex_destroy(&POP3QueueMutex); TODO */
-	DeleteHash(&POP3FetchUrls);
+//	DeleteHash(&POP3FetchUrls);
 	DeleteHash(&POP3QueueRooms);
 }
 
