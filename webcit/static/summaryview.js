@@ -408,26 +408,29 @@ function deleteAllMarkedRows() {
 	msgs = newMsgs;
 	resortAndDisplay(null);
 }
-
 function deleteAllSelectedMessages() {
-	var pa = "";
-	for(msgId in currentlyMarkedRows) {
-		if (!room_is_trash) {
-			pa = encodeURI("g_cmd=MOVE " + msgId + "|_TRASH_|0");
-		}
-		else {
-			pa = encodeURI("g_cmd=DELE " + msgId);
-		}
-		new Ajax.Request("ajax_servcmd", {
-			parameters: pa,
-			method: 'post',
-			onSuccess: function(transport) {
-				WCLog(transport.responseText);
-			}
-		});
+    var mvCommand = "";
+    var msgIds = "";
+    for(msgId in currentlyMarkedRows) {
+	msgIds += ","+msgId;
+    }
+
+    if (!room_is_trash) {
+	mvCommand = encodeURI("g_cmd=MOVE " + msgIds + "|_TRASH_|0");
+    }
+    else {
+	mvCommand = encodeURI("g_cmd=DELE " + msgIds);
+    }
+    new Ajax.Request("ajax_servcmd", {
+	parameters: mvCommand,
+	method: 'post',
+	onSuccess: function(transport) {
+	    WCLog(transport.responseText);
 	}
-	document.getElementById("preview_pane").innerHTML = "";
-	deleteAllMarkedRows();
+    });
+
+    document.getElementById("preview_pane").innerHTML = "";
+    deleteAllMarkedRows();
 }
 
 function CtdlMessageListKeyUp(event) {
