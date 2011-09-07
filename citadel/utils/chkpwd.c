@@ -37,13 +37,12 @@
 int main(void)
 {
 	uid_t uid;
-	size_t siz;
 	char buf[SIZ];
 
 	while (1) {
 		buf[0] = '\0';
-		siz = read(0, &uid, sizeof(uid_t));	/* uid */
-		siz = read(0, buf, 256);	/* password */
+		read(0, &uid, sizeof(uid_t));	/* uid */
+		read(0, buf, 256);	/* password */
 
 		if (buf[0] == '\0') 
 			return (0);
