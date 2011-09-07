@@ -100,11 +100,9 @@ int main(int argc, char **argv)
 	struct passwd pw, *pwp = NULL;
 	char pwbuf[SIZ];
 	int drop_root_perms = 1;
-	size_t size;
 	int relh=0;
 	int home=0;
 	int dbg=0;
-	int have_log=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	int syslog_facility = LOG_DAEMON;
@@ -156,7 +154,6 @@ int main(int argc, char **argv)
 					      strerror(errno));
 				exit(1);
 			}
-			have_log = 1;
 		}
 
 		else if (!strncmp(argv[a], "-D", 2)) {
@@ -320,11 +317,8 @@ int main(int argc, char **argv)
 	 * Load any server-side extensions available here.
 	 */
 	syslog(LOG_INFO, "Initializing server extensions\n");
-	size = strlen(ctdl_home_directory) + 9;
 	
 	initialise_modules(0);
-	
-	
 
 	/*
 	 * If we need host auth, start our chkpwd daemon.
