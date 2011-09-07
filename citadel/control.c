@@ -176,17 +176,34 @@ void get_control(void)
 		if (control_fp != NULL) {
 			lock_control();
 			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
+			if (rv == -1)
+				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
+				       file_citadel_control, strerror(errno));
 			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
+			if (rv == -1)
+				syslog(LOG_EMERG, "Failed to adjust accessrights of: %s [%s]\n", 
+				       file_citadel_control, strerror(errno));
 		}
 	}
 	if (control_fp == NULL) {
 		control_fp = fopen(file_citadel_control, "wb+");
 		if (control_fp != NULL) {
 			lock_control();
-			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
-			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
 			memset(&CitControl, 0, sizeof(struct CitControl));
+
+			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
+			if (rv == -1)
+				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
+				       file_citadel_control, strerror(errno));
+
+			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
+			if (rv == -1)
+				syslog(LOG_EMERG, "Failed to adjust accessrights of: %s [%s]\n", 
+				       file_citadel_control, strerror(errno));
 			rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
+			if (rv == -1)
+				syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
+				       file_citadel_control, strerror(errno));
 			rewind(control_fp);
 		}
 	}
@@ -197,9 +214,14 @@ void get_control(void)
 
 	rewind(control_fp);
 	rv = fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
+	if (rv == -1)
+		syslog(LOG_EMERG, "Failed to read Controlfile: %s [%s]\n", 
+		       file_citadel_control, strerror(errno));
 	already_have_control = 1;
 	rv = chown(file_citadel_control, config.c_ctdluid, (-1));
-	
+	if (rv == -1)
+		syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
+		       file_citadel_control, strerror(errno));	
 }
 
 /*
@@ -212,6 +234,9 @@ void put_control(void)
 	if (control_fp != NULL) {
 		rewind(control_fp);
 		rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
+		if (rv == -1)
+			syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
+			       file_citadel_control, strerror(errno));
 		fflush(control_fp);
 	}
 }
