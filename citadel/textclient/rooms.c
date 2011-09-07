@@ -852,7 +852,7 @@ void download(CtdlIPC *ipc, int proto)
 	char tempname[PATH_MAX];
 	char transmit_cmd[SIZ];
 	FILE *tpipe = NULL;
-	int broken = 0;
+/*	int broken = 0;*/
 	int r;
 	int rv = 0;
 	void *file = NULL;	/* The downloaded file */
@@ -891,8 +891,8 @@ void download(CtdlIPC *ipc, int proto)
 	snprintf(tempname, sizeof tempname, "%s/%s", tempdir, filename);
 	tpipe = fopen(tempname, "wb");
 	if (fwrite(file, filelen, 1, tpipe) < filelen) {
-		/* FIXME: restart syscall on EINTR */
-		broken = 1;
+		/* FIXME: restart syscall on EINTR 
+		   broken = 1;*/
 	}
 	fclose(tpipe);
 	if (file) free(file);
@@ -915,6 +915,8 @@ void download(CtdlIPC *ipc, int proto)
 
 	stty_ctdl(SB_RESTORE);
 	rv = system(transmit_cmd);
+	if (rv != 0)
+		scr_printf("failed to download '%s': %d\n", transmit_cmd, rv);
 	stty_ctdl(SB_NO_INTR);
 
 	/* clean up the temporary directory */
@@ -971,13 +973,12 @@ void invite(CtdlIPC *ipc)
 {
 	char username[USERNAME_SIZE];
 	char buf[SIZ];
-	int r;				/* IPC response code */
 
 	newprompt("Name of user? ", username, USERNAME_SIZE);
 	if (username[0] == 0)
 		return;
 
-	r = CtdlIPCInviteUserToRoom(ipc, username, buf);
+	CtdlIPCInviteUserToRoom(ipc, username, buf);
 	scr_printf("%s\n", buf);
 }
 
@@ -989,13 +990,12 @@ void kickout(CtdlIPC *ipc)
 {
 	char username[USERNAME_SIZE];
 	char buf[SIZ];
-	int r;				/* IPC response code */
 
 	newprompt("Name of user? ", username, USERNAME_SIZE);
 	if (username[0] == 0)
 		return;
 
-	r = CtdlIPCKickoutUserFromRoom(ipc, username, buf);
+	CtdlIPCKickoutUserFromRoom(ipc, username, buf);
 	scr_printf("%s\n", buf);
 }
 
@@ -1324,14 +1324,13 @@ void edit_floor(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 	struct ExpirePolicy *ep = NULL;
-	int r;				/* IPC response code */
 
 	load_floorlist(ipc);
 
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
 	 */
-	r = CtdlIPCGetMessageExpirationPolicy(ipc, 1, &ep, buf);
+	CtdlIPCGetMessageExpirationPolicy(ipc, 1, &ep, buf);
 
 	/* Interact with the user */
 	scr_printf("You are editing the floor called \"%s\"\n", 
@@ -1368,8 +1367,8 @@ void edit_floor(CtdlIPC *ipc)
 	}
 
 	/* Save it */
-	r = CtdlIPCSetMessageExpirationPolicy(ipc, 1, ep, buf);
-	r = CtdlIPCEditFloor(ipc, curr_floor, &floorlist[(int)curr_floor][0], buf);
+	CtdlIPCSetMessageExpirationPolicy(ipc, 1, ep, buf);
+	CtdlIPCEditFloor(ipc, curr_floor, &floorlist[(int)curr_floor][0], buf);
 	scr_printf("%s\n", buf);
 	load_floorlist(ipc);
 }
