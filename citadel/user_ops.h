@@ -70,7 +70,7 @@ static INLINE long cutuserkey(char *username) {
 		syslog(LOG_EMERG, "Username to long: %s", username);
 		cit_backtrace ();
 		len = USERNAME_SIZE - 1; 
-		username[63]='\0';
+		username[len]='\0';
 	}
 	return len;
 }
