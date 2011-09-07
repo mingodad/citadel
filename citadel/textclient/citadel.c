@@ -320,8 +320,6 @@ void remove_march(char *roomname, int floornum)
 char *pop_march(int desired_floor, struct march *_march)
 {
 	static char TheRoom[ROOMNAMELEN];
-	int TheFloor = 0;
-	int TheOrder = 32767;
 	int TheWeight = 0;
 	int weight;
 	struct march *mptr = NULL;
@@ -343,8 +341,6 @@ char *pop_march(int desired_floor, struct march *_march)
 		if (weight > TheWeight) {
 			TheWeight = weight;
 			strcpy(TheRoom, mptr->march_name);
-			TheFloor = mptr->march_floor;
-			TheOrder = mptr->march_order;
 		}
 	}
 	return (TheRoom);
@@ -514,6 +510,9 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 		color(DIM_WHITE);
 		if (!IsEmptyStr(rc_gotmail_cmd)) {
 			rv = system(rc_gotmail_cmd);
+			if (rv) 
+				scr_printf("*** failed to check for mail calling %s Reason %d.\n",
+					   rc_gotmail_cmd, rv);
 		}
 	}
 	free(room);
@@ -537,14 +536,13 @@ void gotonext(CtdlIPC *ipc)
 	char buf[SIZ];
 	struct march *mptr, *mptr2;
 	char next_room[ROOMNAMELEN];
-	int r;				/* IPC response code */
 
 	/* Check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
 	if (marchptr == NULL) {
-		r = CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages,
-					AllFloors, &marchptr, buf);
+		CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages,
+				  AllFloors, &marchptr, buf);
 
 /* add _BASEROOM_ to the end of the march list, so the user will end up
  * in the system base room (usually the Lobby>) at the end of the loop
@@ -1000,10 +998,9 @@ void system_info(CtdlIPC *ipc)
 	int mrtg_users, mrtg_active_users; 
 	char mrtg_server_uptime[40];
 	long mrtg_himessage;
-	int ret;			/* IPC response code */
 
 	/* get #users, #active & server uptime */
-	ret = CtdlIPCGenericCommand(ipc, "MRTG|users", NULL, 0, &resp, &bytes, buf);
+	CtdlIPCGenericCommand(ipc, "MRTG|users", NULL, 0, &resp, &bytes, buf);
 	mrtg_users = extract_int(resp, 0);
 	remove_token(resp, 0, '\n');
 	mrtg_active_users = extract_int(resp, 0);
@@ -1013,7 +1010,7 @@ void system_info(CtdlIPC *ipc)
 	resp = NULL;
 
 	/* get high message# */
-	ret = CtdlIPCGenericCommand(ipc, "MRTG|messages", NULL, 0, &resp, &bytes, buf);
+	CtdlIPCGenericCommand(ipc, "MRTG|messages", NULL, 0, &resp, &bytes, buf);
 	mrtg_himessage = extract_long(resp, 0);
 	free(resp);
 	resp = NULL;
@@ -1442,7 +1439,6 @@ int main(int argc, char **argv)
 	char *telnet_client_host = NULL;
 	char *sptr, *sptr2;	/* USed to extract the nonce */
 	char hexstring[MD5_HEXSTRING_SIZE];
-	int stored_password = 0;
 	char password[SIZ];
 	struct ctdlipcmisc chek;
 	struct ctdluser *myself = NULL;
@@ -1652,7 +1648,6 @@ int main(int argc, char **argv)
 
 			if (r / 100 == 2) {
 				load_user_info(aaa);
-				stored_password = 1;
 				goto PWOK;
 			} else {
 				set_stored_password(hostbuf, portbuf, "", "");
@@ -1781,6 +1776,10 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 			color(DIM_WHITE);
 			if (!IsEmptyStr(rc_gotmail_cmd)) {
 				rv = system(rc_gotmail_cmd);
+				if (rv)
+					scr_printf("*** failed to check for mail calling %s Reason %d.\n",
+						   rc_gotmail_cmd, rv);
+
 			}
 		}
 		if ((axlevel >= AxAideU) && (chek.needvalid > 0)) {
