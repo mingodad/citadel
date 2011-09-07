@@ -276,12 +276,10 @@ void terminate_idle_sessions(void)
 {
 	CitContext *ccptr;
 	time_t now;
-	int session_to_kill;
 	int killed = 0;
 	int longrunners = 0;
 
 	now = time(NULL);
-	session_to_kill = 0;
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (

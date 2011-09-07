@@ -494,7 +494,6 @@ void network_deliver_digest(SpoolControl *sc) {
 	long msglen;
 	char *recps = NULL;
 	size_t recps_len = SIZ;
-	size_t siz;
 	struct recptypes *valid;
 	namelist *nptr;
 	char bounce_to[256];
@@ -541,7 +540,7 @@ void network_deliver_digest(SpoolControl *sc) {
 
 	msg->cm_fields['M'] = malloc(msglen + 1);
 	fseek(sc->digestfp, 0L, SEEK_SET);
-	siz = fread(msg->cm_fields['M'], (size_t)msglen, 1, sc->digestfp);
+	fread(msg->cm_fields['M'], (size_t)msglen, 1, sc->digestfp);
 	msg->cm_fields['M'][msglen] = '\0';
 
 	fclose(sc->digestfp);
@@ -653,7 +652,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 	SpoolControl *sc;
 	int i;
 	char *newpath = NULL;
-	size_t instr_len = SIZ;
 	struct CtdlMessage *msg = NULL;
 	namelist *nptr;
 	maplist *mptr;
@@ -672,7 +670,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 	/*
 	 * Process mailing list recipients
 	 */
-	instr_len = SIZ;
 	if (sc->listrecps != NULL) {
 		/* Fetch the message.  We're going to need to modify it
 		 * in order to insert the [list name] in it, etc.
@@ -810,7 +807,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 	/*
 	 * Process client-side list participations for this room
 	 */
-	instr_len = SIZ;
 	if (sc->participates != NULL) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {

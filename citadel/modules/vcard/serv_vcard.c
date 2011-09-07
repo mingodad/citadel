@@ -1315,7 +1315,6 @@ void strip_addresses_already_have(long msgnum, void *userdata) {
  */
 void store_this_ha(struct addresses_to_be_filed *aptr) {
 	struct CtdlMessage *vmsg = NULL;
-	long vmsgnum = (-1L);
 	char *ser = NULL;
 	struct vCard *v = NULL;
 	char recipient[256];
@@ -1352,7 +1351,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			vcard_free(v);
 
 			syslog(LOG_DEBUG, "Adding contact: %s\n", recipient);
-			vmsgnum = CtdlSubmitMsg(vmsg, NULL, aptr->roomname, QP_EADDR);
+			CtdlSubmitMsg(vmsg, NULL, aptr->roomname, QP_EADDR);
 			CtdlFreeMessage(vmsg);
 		}
 	}
@@ -1459,6 +1458,9 @@ CTDL_MODULE_INIT(vcard)
 			fp = fopen(filename, "a");
 			if (fp != NULL) fclose(fp);
 			rv = chown(filename, CTDLUID, (-1));
+			if (rv == -1)
+				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
+				       filename, strerror(errno));
 		}
 
 		/* for postfix tcpdict */

@@ -179,6 +179,9 @@ void put_config(void)
 		perror(file_citadel_config);
 	else {
 		rv = fwrite((char *) &config, sizeof(struct config), 1, cfp);
+		if (rv == -1)
+			syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
+			       file_citadel_config, strerror(errno));
 		fclose(cfp);
 	}
 }

@@ -390,24 +390,39 @@ int create_dir(char *which, long ACCESS, long UID, long GID)
 {
 	int rv;
 	rv = mkdir(which, ACCESS);
+	if ((rv == -1) && (errno == EEXIST))
+		return rv;
 	rv = chmod(which, ACCESS);
+	if (rv == -1)
+		return rv;
 	rv = chown(which, UID, GID);
 	return rv;
 }
 
-void create_run_directories(long UID, long GID)
+int create_run_directories(long UID, long GID)
 {
 	int rv;
 
 	rv = create_dir(ctdl_info_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_bio_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_usrpic_dir  , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_message_dir , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_hlp_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_image_dir   , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_bb_dir      , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_file_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_netcfg_dir  , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_key_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv = create_dir(ctdl_run_dir     , S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, UID, GID);
+	if (rv != -1)
+		rv = create_dir(ctdl_bio_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_usrpic_dir  , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_message_dir , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_hlp_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_image_dir   , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_bb_dir      , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_file_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_netcfg_dir  , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_key_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_run_dir     , S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, UID, GID);
+	return rv;
 }

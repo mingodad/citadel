@@ -1078,6 +1078,10 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 			return;
 	
 		rv = fwrite(content, length, 1, CC->download_fp);
+		if (rv == -1) {
+			syslog(LOG_EMERG, "mime_download(): Couldn't write: %s\n",
+			       strerror(errno));
+		}
 		fflush(CC->download_fp);
 		rewind(CC->download_fp);
 	
@@ -2893,7 +2897,6 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 void dump_message(struct CtdlMessage *msg,	/* unserialized msg */
 		  long Siz)                     /* how many chars ? */
 {
-	size_t wlen;
 	int i;
 	static char *forder = FORDER;
 	char *buf;
@@ -2908,8 +2911,6 @@ void dump_message(struct CtdlMessage *msg,	/* unserialized msg */
 
 	buf = (char*) malloc (Siz + 1);
 
-	wlen = 3;
-	
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
 			snprintf (buf, Siz, " msg[%c] = %s ...\n", (char) forder[i], 
 				   msg->cm_fields[(int)forder[i]]);
@@ -3263,6 +3264,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			network_fp = fopen(submit_filename, "wb+");
 			if (network_fp != NULL) {
 				rv = fwrite(smr.ser, smr.len, 1, network_fp);
+				if (rv == -1) {
+					syslog(LOG_EMERG, "CtdlSubmitMsg(): Couldn't write network spool file: %s\n",
+					       strerror(errno));
+				}
 				fclose(network_fp);
 			}
 			free(smr.ser);
@@ -4759,6 +4764,11 @@ void AdjRefCount(long msgnum, int incr)
 	new_arcq.arcq_msgnum = msgnum;
 	new_arcq.arcq_delta = incr;
 	rv = fwrite(&new_arcq, sizeof(struct arcq), 1, arcfp);
+	if (rv == -1) {
+		syslog(LOG_EMERG, "Couldn't write Refcount Queue File %s: %s\n",
+		       file_arcq,
+		       strerror(errno));
+	}
 	fflush(arcfp);
 
 	return;
