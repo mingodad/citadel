@@ -1275,7 +1275,7 @@ void cmd_newu(char *cmdbuf)
 {
 	int a;
 	long len;
-	char username[26];
+	char username[SIZ];
 
 	if (config.c_auth_mode != AUTHMODE_NATIVE) {
 		cprintf("%d This system does not use native mode authentication.\n",
@@ -1397,26 +1397,16 @@ void cmd_creu(char *cmdbuf)
 	}
 
 	extract_token(username, cmdbuf, 0, '|', sizeof username);
-	extract_token(password, cmdbuf, 1, '|', sizeof password);
-	////username[25] = 0;
-	//password[31] = 0;
 	strproc(username);
 	strproc(password);
-	len = strlen(username);
-	if (len >= USERNAME_SIZE)
-	{
-		syslog(LOG_EMERG, "Username to long: %s", username);
-		cit_backtrace ();
-		len = USERNAME_SIZE - 1; 
-		username[63]='\0';
-	}
-
-	len = cutuserkey(username);
-
 	if (IsEmptyStr(username)) {
 		cprintf("%d You must supply a user name.\n", ERROR + USERNAME_REQUIRED);
 		return;
 	}
+	len = cutuserkey(username);
+
+
+	extract_token(password, cmdbuf, 1, '|', sizeof password);
 
 	a = create_user(username, len, 0);
 
