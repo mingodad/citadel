@@ -313,7 +313,6 @@ void upload(CtdlIPC *ipc, int c)
 	int xfer_pid;
 	int a, b;
 	FILE *fp, *lsfp;
-	int r;
 	int rv;
 
 	if ((room_flags & QR_UPLOAD) == 0) {
@@ -342,6 +341,13 @@ void upload(CtdlIPC *ipc, int c)
 	xfer_pid = fork();
 	if (xfer_pid == 0) {
 		rv = chdir(tempdir);
+		if (rv < 0) {
+			scr_printf("failed to change into %s Reason %s\nAborting now.\n", 
+				   tempdir, 
+				   strerror(errno));
+			nukedir(tempdir);
+			return;
+		}
 		switch (c) {
 		case 0:
 			stty_ctdl(0);
@@ -394,7 +400,7 @@ void upload(CtdlIPC *ipc, int c)
 				 flnm);
 			newprompt(buf, desc, 150);
 			snprintf(buf, sizeof buf, "%s/%s", tempdir, flnm);
-			r = CtdlIPCFileUpload(ipc, flnm, desc, buf, progress, tbuf);
+			CtdlIPCFileUpload(ipc, flnm, desc, buf, progress, tbuf);
 			scr_printf("%s\n", tbuf);
 		}
 		pclose(lsfp);

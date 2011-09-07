@@ -108,6 +108,13 @@ void chatmode(CtdlIPC *ipc)
 		tv.tv_usec = 0;
 		retval = select(1, &rfds, NULL, NULL, &tv);
 
+		if (retval < 0) {
+			color(BRIGHT_WHITE);
+			scr_printf("Server gone Exiting chat mode\n");
+			scr_flush();
+			return;
+		}
+
 		/* If there's data from the keyboard... */
 		if (FD_ISSET(0, &rfds)) {
 			ch = scr_getc(SCR_BLOCK);

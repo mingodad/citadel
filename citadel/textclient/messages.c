@@ -363,7 +363,10 @@ void citedit(FILE *fp)
 	putc(10, fp);
 	fflush(fp);
 	rv = ftruncate(fileno(fp), ftell(fp));
+	if (rv < 0)
+		scr_printf("failed to set message buffer: %s\n", strerror(errno));
 
+	
 	/* and deallocate the memory we used */
 	while (textlist != NULL) {
 		ptr = textlist->next;
@@ -801,6 +804,10 @@ void replace_string(char *filename, long int startpos)
 			rpos = ftell(fp);
 			fseek(fp, wpos, 0);
 			rv = fwrite((char *) buf, 128, 1, fp);
+			if (rv < 0) {
+				scr_printf("failed to replace string: %s\n", strerror(errno));
+				break; /*whoopsi! */
+			}
 			strcpy(buf, &buf[128]);
 			wpos = ftell(fp);
 			fseek(fp, rpos, 0);
@@ -877,8 +884,6 @@ int client_make_message(CtdlIPC *ipc,
 		newprompt("Subject: ", subject, 70);
 	}
 
-	beg = 0L;
-
 	if (mode == 1) {
 		scr_printf("(Press ctrl-d when finished)\n");
 	}
@@ -888,6 +893,9 @@ int client_make_message(CtdlIPC *ipc,
 		if (fp != NULL) {
 			fmout(screenwidth, fp, NULL, NULL, 0);
 			beg = ftell(fp);
+			if (beg < 0)
+				scr_printf("failed to get stream position %s\n", 
+					   strerror(errno));
 			fclose(fp);
 		} else {
 			fp = fopen(filename, "w");
@@ -1000,7 +1008,11 @@ MECR:	if (mode >= 2) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
 			fmout(screenwidth, fp, NULL, NULL, 0);
+			/* TODO: why ftell if we ignore the result? */
 			beg = ftell(fp);
+			if (beg < 0)
+				scr_printf("failed to get stream position %s\n", 
+					   strerror(errno));
 			fclose(fp);
 		}
 		goto MECR;
@@ -1362,6 +1374,8 @@ void list_urls(CtdlIPC *ipc)
 
 	snprintf(cmd, sizeof cmd, rc_url_cmd, urls[i - 1]);
 	rv = system(cmd);
+	if (rv != 0) 
+		scr_printf("failed to '%s' by %d\n", cmd, rv);
 	scr_printf("\n");
 }
 
@@ -1497,7 +1511,7 @@ void readmsgs(CtdlIPC *ipc,
 	enum MessageDirection rdir,	/* 1=Forward (-1)=Reverse */
 	int q		/* Number of msgs to read (if c==3) */
 ) {
-	int a, b, e, f, g, start;
+	int a, e, f, g, start;
 	int savedpos;
 	int hold_sw = 0;
 	char arcflag = 0;
@@ -1514,11 +1528,6 @@ void readmsgs(CtdlIPC *ipc,
 	int r;				/* IPC response code */
 	static int att_seq = 0;		/* Attachment download sequence number */
 	int rv = 0;			/* silence the stupid warn_unused_result warnings */
-
-	if (c < 0)
-		b = (num_msgs - 1);
-	else
-		b = 0;
 
 	CtdlMakeTempFileName(prtfile, sizeof prtfile);
 
@@ -1826,6 +1835,8 @@ DONE_QUOTING:	switch (e) {
 					save_buffer(attachment, extract_unsigned_long(cmd, 0), save_to);
 					snprintf(cmd, sizeof cmd, rc_open_cmd, save_to);
 					rv = system(cmd);
+					if (rv != 0)
+						scr_printf("failed to save %s Reason %d\n", cmd, rv);
 				}
 				else {			/* save attachment to disk */
 					destination_directory(save_to, filename);

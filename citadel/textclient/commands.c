@@ -135,7 +135,7 @@ char was_a_key_pressed(void) {
 	 * in the middle of a data transfer from the server, in which case
 	 * sending a NOOP would throw the client protocol out of sync.
 	 */
-	if (FD_ISSET(0, &rfds)) {
+	if ((retval > 0) && FD_ISSET(0, &rfds)) {
 		set_keepalives(KA_NO);
 		the_character = inkey();
 		set_keepalives(KA_YES);
@@ -284,7 +284,6 @@ void set_keepalives(int s)
 
 static time_t idlet = 0;
 static void really_do_keepalive(void) {
-	int r;				/* IPC response code */
 
 	time(&idlet);
 
@@ -298,7 +297,7 @@ static void really_do_keepalive(void) {
 	 * wait for a response.
 	 */
 	if (keepalives_enabled == KA_YES) {
-		r = CtdlIPCNoop(ipc_for_signal_handlers);
+		CtdlIPCNoop(ipc_for_signal_handlers);
 		if (instant_msgs > 0) {
 			if (ok_to_interrupt == 1) {
 				scr_printf("\r%64s\r", "");
@@ -1476,6 +1475,11 @@ void look_for_ansi(void)
 			if (FD_ISSET(0, &rfds)) {
 				abuf[strlen(abuf) + 1] = 0;
 				rv = read(0, &abuf[strlen(abuf)], 1);
+				if (rv < 0) {
+					scr_printf("failed to read after select: %s", 
+						   strerror(errno));
+					break;
+				}
 			}
 		} while (FD_ISSET(0, &rfds));
 

@@ -434,7 +434,6 @@ void do_internet_configuration(CtdlIPC *ipc)
 	int num_recs = 0;
 	char **recs = NULL;
 	char ch;
-	int badkey;
 	int i, j;
 	int quitting = 0;
 	int modified = 0;
@@ -527,7 +526,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 					"Quit without saving", 0);
 				break;
 			default:
-				badkey = 1;
+				break;
 		}
 	} while (!quitting);
 
@@ -687,7 +686,6 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 	int num_recs = 0;
 	char **recs = NULL;
 	char ch;
-	int badkey;
 	int i, j;
 	int quitting = 0;
 	int modified = 0;
@@ -797,7 +795,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 					"Quit without saving", 0);
 				break;
 			default:
-				badkey = 1;
+				break;
 		}
 	} while (!quitting);
 
@@ -817,7 +815,6 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 	int num_recs = 0;
 	char **recs = NULL;
 	char ch;
-	int badkey;
 	int i, j;
 	int quitting = 0;
 	int modified = 0;
@@ -922,7 +919,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 					"Quit without saving", 0);
 				break;
 			default:
-				badkey = 1;
+				break;
 		}
 	} while (!quitting);
 
@@ -944,7 +941,6 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 	int num_recs = 0;
 	char **recs = NULL;
 	char ch;
-	int badkey;
 	int i, j;
 	int quitting = 0;
 	int modified = 0;
@@ -1090,7 +1086,7 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 					"Quit without saving", 0);
 				break;
 			default:
-				badkey = 1;
+				break;
 		}
 	} while (!quitting);
 
@@ -1114,7 +1110,6 @@ void do_rssclient_configuration(CtdlIPC *ipc)
 	int num_recs = 0;
 	char **recs = NULL;
 	char ch;
-	int badkey;
 	int i, j;
 	int quitting = 0;
 	int modified = 0;
@@ -1235,7 +1230,7 @@ void do_rssclient_configuration(CtdlIPC *ipc)
 					"Quit without saving", 0);
 				break;
 			default:
-				badkey = 1;
+				break;
 		}
 	} while (!quitting);
 
