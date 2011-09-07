@@ -170,6 +170,9 @@ void master_startup(void) {
 	urandom = fopen("/dev/urandom", "r");
 	if (urandom != NULL) {
 		rv = fread(&seed, sizeof seed, 1, urandom);
+		if (rv == -1)
+			syslog(LOG_EMERG, "failed to read random seed: %s\n", 
+			       strerror(errno));
 		fclose(urandom);
 	}
 	else {
@@ -861,9 +864,6 @@ void cmd_asyn(char *argbuf)
  */
 void begin_session(CitContext *con)
 {
-	socklen_t len;
-	struct sockaddr_in sin;
-
 	/* 
 	 * Initialize some variables specific to our context.
 	 */
@@ -888,7 +888,6 @@ void begin_session(CitContext *con)
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
 	con->cs_UDSclientUID = -1;
 	con->cs_host[sizeof con->cs_host - 1] = 0;
-	len = sizeof sin;
 	if (!CC->is_local_socket) {
 		locate_host(con->cs_host, sizeof con->cs_host,
 			con->cs_addr, sizeof con->cs_addr,
