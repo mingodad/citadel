@@ -530,6 +530,9 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 		break;
 	case eSendDNSQuery:
 	case eReadDNSReply:
+	case eDBQuery:
+	case eReadMore:
+	case eReadPayload:
 	case eConnect:
 	case eTerminateConnection:
 	case eAbort:

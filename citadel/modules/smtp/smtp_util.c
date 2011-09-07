@@ -116,7 +116,6 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	StrBuf *boundary;
 	int num_bounces = 0;
 	int bounce_this = 0;
-	long bounce_msgid = (-1);
 	time_t submitted = 0L;
 	struct CtdlMessage *bmsg = NULL;
 	int give_up = 0;
@@ -258,12 +257,10 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	if (num_bounces > 0) {
 
 		/* First try the user who sent the message */
-		syslog(LOG_DEBUG, "bounce to user? <%s>\n", bounceto);
-		if (IsEmptyStr(bounceto)) {
+		if (IsEmptyStr(bounceto)) 
 			syslog(LOG_ERR, "No bounce address specified\n");
-			bounce_msgid = (-1L);
-		}
-
+		else
+			syslog(LOG_DEBUG, "bounce to user <%s>\n", bounceto);
 		/* Can we deliver the bounce to the original sender? */
 		valid = validate_recipients(bounceto, smtp_get_Recipients (), 0);
 		if (valid != NULL) {

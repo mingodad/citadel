@@ -96,6 +96,7 @@ size_t GetLocationString( void *ptr, size_t size, size_t nmemb, void *userdata)
 eNextState TerminateLookupUrl(AsyncIO *IO)
 {
 //TOOD
+	return eAbort;
 }
 eNextState LookupUrlResult(AsyncIO *IO)
 {
