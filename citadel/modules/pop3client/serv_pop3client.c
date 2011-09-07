@@ -322,7 +322,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 			cdb_store(CDB_USETABLE, 
 				  SKEY(RecvMsg->CurrMsg->MsgUID), 
 				  &ut, sizeof(struct UseTable) );
-			RecvMsg->CurrMsg->NeedFetch = 1; ////TODO0;
+			RecvMsg->CurrMsg->NeedFetch = 0; ////TODO0;
 		}
 		else
 		{
