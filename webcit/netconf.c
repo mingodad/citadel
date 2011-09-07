@@ -88,14 +88,13 @@ HashList *load_netconf(StrBuf *Target, WCTemplputParams *TP)
 		Hash = NewHash(1, NULL);
 
 		Buf = NewStrBuf();
-		while ((len = StrBuf_ServGetln(Buf),
-			(len != 3) || !strcmp(ChrPtr(Buf), "000"))) {
+		while (len = StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			Node = NewNode(Buf);
-			if (Node == NULL)
-				continue;
-			nUsed = GetCount(Hash);
-			nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
-			Put(Hash, nnn, nUsed, Node, DeleteNodeConf); 
+			if (Node != NULL) {
+				nUsed = GetCount(Hash);
+				nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
+				Put(Hash, nnn, nUsed, Node, DeleteNodeConf); 
+			}
 		}
 		FreeStrBuf(&Buf);
 		return Hash;
