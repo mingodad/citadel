@@ -54,32 +54,6 @@
 static CtdlIPC *ipc = NULL;
 
 /*
- * make sure only one copy of sendcommand runs at a time, using lock files
- */
-int set_lockfile(void)
-{
-	FILE *lfp;
-	int onppid;
-	int rv;
-
-	if ((lfp = fopen(LOCKFILE, "r")) != NULL) {
-		rv = fscanf(lfp, "%d", &onppid);
-		fclose(lfp);
-		if (!kill(onppid, 0) || errno == EPERM)
-			return 1;
-	}
-	lfp = fopen(LOCKFILE, "w");
-	fprintf(lfp, "%ld\n", (long) getpid());
-	fclose(lfp);
-	return (0);
-}
-
-void remove_lockfile(void)
-{
-	unlink(LOCKFILE);
-}
-
-/*
  * Why both cleanup() and nq_cleanup() ?  Notice the alarm() call in
  * cleanup() .  If for some reason sendcommand hangs waiting for the server
  * to clean up, the alarm clock goes off and the program exits anyway.
@@ -88,7 +62,6 @@ void remove_lockfile(void)
  */
 void nq_cleanup(int e)
 {
-	remove_lockfile();
 	exit(e);
 }
 

@@ -51,9 +51,21 @@ static int validpw(uid_t uid, const char *pass)
 	int rv;
 
 	rv = write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
-	rv = write(chkpwd_write_pipe[1], pass, 256);
-	rv = read(chkpwd_read_pipe[0], buf, 4);
+	if (rv == -1) {
+		printf( "Communicatino with chkpwd broken: %s\n", strerror(errno));
+		return 0;
+	}
 
+	rv = write(chkpwd_write_pipe[1], pass, 256);
+	if (rv == -1) {
+		printf( "Communicatino with chkpwd broken: %s\n", strerror(errno));
+		return 0;
+	}
+	rv = read(chkpwd_read_pipe[0], buf, 4);
+	if (rv == -1) {
+		printf( "Communicatino with chkpwd broken: %s\n", strerror(errno));
+		return 0;
+	}
 	if (!strncmp(buf, "PASS", 4)) {
 		printf("pass\n");
 		return(1);
