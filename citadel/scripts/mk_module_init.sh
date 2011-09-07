@@ -115,7 +115,6 @@ extern long DetailErrorFlags;
 void initialise_modules (int threading)
 {
     long filter;
-    nSizErrmsg = 0;
 
     if (threading)
         syslog(LOG_INFO, "Initialize modules, CtdlThreads enabled.\n");

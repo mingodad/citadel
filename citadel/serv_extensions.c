@@ -70,126 +70,101 @@ HashList *ProtoHookList = NULL;
 #define ERR_PORT (1 << 1)
 
 
-static char *portlist = NULL;
-static size_t nSizPort = 0;
+static StrBuf *portlist = NULL;
 
-static char *errormessages = NULL;
-size_t nSizErrmsg = 0;
+static StrBuf *errormessages = NULL;
 
 
 long   DetailErrorFlags;
-
+ConstStr Empty = {HKEY("")};
 char *ErrSubject = "Startup Problems";
-char *ErrGeneral = "Citadel had trouble on starting up. %s This means, citadel won't be the service provider for a specific service you configured it to.\n\n"
-"If you don't want citadel to provide these services, turn them off in WebCit via %s%s\n\n%s\n\n"
-"To make both ways actualy take place restart the citserver with \"sendcommand down\"\n\n"
-"The errors returned by the system were:\n%s\n"
-"You can recheck the above if you follow this faq item:\n"
-"http://www.citadel.org/doku.php/faq:mastering_your_os:net#netstat";
+ConstStr ErrGeneral[] = {
+	{HKEY("Citadel had trouble on starting up. ")},
+	{HKEY(" This means, citadel won't be the service provider for a specific service you configured it to.\n\n"
+	      "If you don't want citadel to provide these services, turn them off in WebCit via: ")},
+	{HKEY("To make both ways actualy take place restart the citserver with \"sendcommand down\"\n\n"
+	      "The errors returned by the system were:\n")},
+	{HKEY("You can recheck the above if you follow this faq item:\n"
+	      "http://www.citadel.org/doku.php/faq:mastering_your_os:net#netstat")}
+};
 
-
-char *ErrPortShort = "We couldn't bind all ports you configured to be provided by citadel server.";
-char *ErrPortWhere = "Admin->System Preferences->Network.\n\nThe failed ports and sockets are: ";
-char *ErrPortHint = "If you want citadel to provide you with that functionality, "
-"check the output of \"netstat -lnp\" on linux Servers or \"netstat -na\" on *BSD"
-" and stop the programm, that binds these ports.\n You should eventually remove "
-" their initscripts in /etc/init.d so that you won't get this trouble once more.\n"
-" After that goto Administration -> Shutdown Citadel to make Citadel retry to bind this port.\n";
+ConstStr ErrPortShort = { HKEY("We couldn't bind all ports you configured to be provided by citadel server.\n")};
+ConstStr ErrPortWhere = { HKEY("\"Admin->System Preferences->Network\".\n\nThe failed ports and sockets are: ")};
+ConstStr ErrPortHint  = { HKEY("If you want citadel to provide you with that functionality, "
+			       "check the output of \"netstat -lnp\" on linux Servers or \"netstat -na\" on *BSD"
+			       " and stop the program that binds these ports.\n You should eventually remove "
+			       " their initscripts in /etc/init.d so that you won't get this trouble once more.\n"
+			       " After that goto \"Administration -> Shutdown Citadel\" to make Citadel restart & retry to bind this port.\n")};
 
 
 void LogPrintMessages(long err)
 {
-	char *List, *DetailList, *Short, *Where, *Hint, *Message; 
-	int n = nSizPort + nSizErrmsg + 5;
+	StrBuf *Message;
+	StrBuf *List, *DetailList;
+	ConstStr *Short, *Where, *Hint; 
 
-	Message = (char*) malloc(n * SIZ);
+	
+	Message = NewStrBufPlain(NULL, 
+				 StrLength(portlist) + StrLength(errormessages));
 	
 	DetailErrorFlags = DetailErrorFlags & ~err;
 
 	switch (err)
 	{
 	case ERR_PORT:
-		Short = ErrPortShort;
-		Where = ErrPortWhere;
-		Hint  = ErrPortHint;
+		Short = &ErrPortShort;
+		Where = &ErrPortWhere;
+		Hint  = &ErrPortHint;
 		List  = portlist;
 		DetailList = errormessages;
 		break;
 	default:
-		Short = "";
-		Where = "";
-		Hint  = "";
-		List  = "";
-		DetailList = "";
+		Short = &Empty;
+		Where = &Empty;
+		Hint  = &Empty;
+		List  = NULL;
+		DetailList = NULL;
 	}
 
+	StrBufAppendBufPlain(Message, CKEY(ErrGeneral[0]), 0);
+	StrBufAppendBufPlain(Message, CKEY(*Short), 0);	
+	StrBufAppendBufPlain(Message, CKEY(ErrGeneral[1]), 0);
+	StrBufAppendBufPlain(Message, CKEY(*Where), 0);
+	StrBufAppendBuf(Message, List, 0);
+	StrBufAppendBufPlain(Message, HKEY("\n\n"), 0);
+	StrBufAppendBufPlain(Message, CKEY(*Hint), 0);
+	StrBufAppendBufPlain(Message, HKEY("\n\n"), 0);
+	StrBufAppendBufPlain(Message, CKEY(ErrGeneral[2]), 0);
+	StrBufAppendBuf(Message, DetailList, 0);
+	StrBufAppendBufPlain(Message, HKEY("\n\n"), 0);
+	StrBufAppendBufPlain(Message, CKEY(ErrGeneral[3]), 0);
 
-	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
-
-	syslog(LOG_EMERG, "%s", Message);
+	syslog(LOG_EMERG, "%s", ChrPtr(Message));
 	syslog(LOG_EMERG, "%s", ErrSubject);
-	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
-	if (errormessages!=NULL) free (errormessages);
-	errormessages = NULL;
-	if (portlist!=NULL) free (portlist);
-	portlist = NULL;
-	free(Message);
+	quickie_message("Citadel", NULL, NULL, AIDEROOM, ChrPtr(Message), FMT_FIXED, ErrSubject);
+
+	FreeStrBuf(&Message);
+	FreeStrBuf(&List);
+	FreeStrBuf(&DetailList);
 }
 
-
-
-void AppendString(char **target, char *append, size_t *len, size_t rate)
-{
-	size_t oLen = 0;
-	long AddLen;
-	long RelPtr = 0;
-
-	AddLen = strlen(append);
-
-	if (*len == 0)
-	{
-		*len = rate;
-
-		*target = (char*)malloc (*len * SIZ);
-	}
-	else 
-	{
-		oLen = strlen(*target);
-		RelPtr = strlen(*target);
-		if (oLen + AddLen + 2 > *len * SIZ)
-		{
-			char *Buff = *target;
-			size_t NewSiz = *len + 10;
-			*target = malloc (NewSiz * SIZ);
-			memcpy (*target, Buff, NewSiz * SIZ);
-			*len = NewSiz;
-		}
-	}
-	memcpy (*target + oLen, append, AddLen);
-	(*target)[oLen + AddLen + 1] = '\n';
-	(*target)[oLen + AddLen + 2] = '\0';
-}
 
 void AddPortError(char *Port, char *ErrorMessage)
 {
-	char *pos;
 	long len;
 
 	DetailErrorFlags |= ERR_PORT;
 
-	AppendString(&errormessages, ErrorMessage, &nSizErrmsg, 10);
-	AppendString(&portlist, Port, &nSizPort, 2);
+	len = StrLength(errormessages);
+	if (len > 0) StrBufAppendBufPlain(errormessages, HKEY("; "), 0);
+	else errormessages = NewStrBuf();
+	StrBufAppendBufPlain(errormessages, ErrorMessage, -1, 0);
 
-	pos = strchr (portlist, ':');
-	if (pos != NULL) *pos = ';';
-	
-	len = strlen (errormessages);
-	if (nSizErrmsg * SIZ > len + 3)
-	{
-		errormessages[len] = ';';
-		errormessages[len+1] = ' ';
-		errormessages[len+2] = '\0';
-	}	
+
+	len = StrLength(portlist);
+	if (len > 0) StrBufAppendBufPlain(portlist, HKEY(";"), 0);
+	else portlist = NewStrBuf();
+	StrBufAppendBufPlain(portlist, Port, -1, 0);
 }
 
 
