@@ -2493,14 +2493,9 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc,
 {
 	char buf[SIZ];
 	register int ret;
-	int watch_ssl = 0;
 
 	if (!command) return -2;
 	if (!proto_response) return -2;
-
-#ifdef HAVE_OPENSSL
-	if (ipc->ssl) watch_ssl = 1;
-#endif
 
 	CtdlIPC_lock(ipc);
 	CtdlIPC_putline(ipc, command);
@@ -2866,7 +2861,7 @@ static void ssl_lock(int mode, int n, const char *file, int line)
 static void CtdlIPC_init_OpenSSL(void)
 {
 	int a;
-	SSL_METHOD *ssl_method;
+	const SSL_METHOD *ssl_method;
 	DH *dh;
 	
 	/* already done init */
@@ -2956,7 +2951,7 @@ int
 ReadNetworkChunk(CtdlIPC* ipc)
 {
 	fd_set read_fd;
-	int tries;
+/*	int tries;*/
 	int ret = 0;
 	int err = 0;
 	struct timeval tv;
@@ -2964,7 +2959,7 @@ ReadNetworkChunk(CtdlIPC* ipc)
 
 	tv.tv_sec = 1;
 	tv.tv_usec = 1000;
-	tries = 0;
+	/*tries = 0; */
 	n = 0;
 	while (1)
 	{
