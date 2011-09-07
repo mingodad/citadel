@@ -102,7 +102,6 @@ const char *setup_text[eMaxQuestions];
 
 void SetTitles(void)
 {
-	char *locale;
 	int have_run_dir;
 #ifndef HAVE_RUN_DIR
 	have_run_dir = 1;
@@ -110,7 +109,7 @@ void SetTitles(void)
 	have_run_dir = 0;
 #endif
 
-	locale = setlocale(LC_MESSAGES, getenv("LANG"));
+	setlocale(LC_MESSAGES, getenv("LANG"));
 
 	bindtextdomain("citadel-setup", LOCALEDIR"/locale");
 	textdomain("citadel-setup");
@@ -350,6 +349,8 @@ void important_message(const char *title, const char *msgtext)
 			getenv("CTDL_DIALOG"),
 			msgtext);
 		rv = system(buf);
+		if (rv != 0)
+			fprintf(stderr, _("failed to run the dialog command\n"));
 		break;
 	case UI_SILENT:
 		fprintf(stderr, "%s\n", msgtext);
@@ -522,9 +523,21 @@ void delete_inittab_entry(void)
 	while (fgets(buf, sizeof buf, infp) != NULL) {
 		if (strstr(buf, looking_for) != NULL) {
 			rv = fwrite("#", 1, 1, outfp);
+			if (rv == -1)
+			{
+				display_error("%s %s\n",
+					      _("failed to modify inittab"), 
+					      strerror(errno));
+			}
 			++changes_made;
 		}
 		rv = fwrite(buf, strlen(buf), 1, outfp);
+		if (rv == -1)
+		{
+			display_error("%s %s\n",
+				      _("failed to modify inittab"), 
+				      strerror(errno));
+		}
 	}
 
 	fclose(infp);
@@ -640,11 +653,18 @@ void install_init_scripts(void)
 
 	/* Set up the run levels. */
 	rv = system("/bin/rm -f /etc/rc?.d/[SK]??citadel 2>/dev/null");
+	if (rv != 0)
+		display_error(_("failed to remove system V init links \n"));
+
 	snprintf(command, sizeof(command), "for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/S79citadel ; done 2>/dev/null", initfile);
 	rv = system(command);
+	if (rv != 0)
+		display_error(_("failed to set system V init links \n"));
+
 	snprintf(command, sizeof(command),"for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/K30citadel ; done 2>/dev/null", initfile);
 	rv = system(command);
-
+	if (rv != 0)
+		display_error(_("failed to set system V init links \n"));
 }
 
 
@@ -705,6 +725,8 @@ void check_xinetd_entry(void) {
 
 	/* Now try to restart the service */
 	rv = system("/etc/init.d/xinetd restart >/dev/null 2>&1");
+	if (rv != 0)
+		display_error(_("failed to restart xinetd.\n"));
 }
 
 
@@ -758,8 +780,13 @@ void disable_other_mta(const char *mta) {
 
 	sprintf(buf, "for x in /etc/rc*.d/S*%s; do mv $x `echo $x |sed s/S/K/g`; done >/dev/null 2>&1", mta);
 	rv = system(buf);
+	if (rv != 0)
+		display_error("%s %s.\n", _("failed to disable other mta"), mta);
+
 	sprintf(buf, "/etc/init.d/%s stop >/dev/null 2>&1", mta);
 	rv = system(buf);
+	if (rv != 0)
+		display_error(" %s.\n", _("failed to disable other mta"), mta);
 }
 
 const char *other_mtas[] = {
@@ -875,6 +902,9 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 			Target,
 			dialog_result);
 		rv = system(buf);
+		if (rv != 0)
+			fprintf(stderr, "failed to run Dialog.\n");
+		
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
 			if (fgets(Target, sizeof buf, fp)) {
@@ -1069,8 +1099,13 @@ void write_config_to_disk(void)
 	if (fp == NULL) {
 		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
 		cleanup(1);
+		return;
 	}
 	rv = fwrite((char *) &config, sizeof(struct config), 1, fp);
+
+	if (rv == -1)
+		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot write"), file_citadel_config, strerror(errno));
+
 	fclose(fp);
 }
 
@@ -1097,6 +1132,8 @@ void migrate_old_installs(void)
 {
 	int rv;
 	rv = system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
+	if (rv != 0)
+		fprintf(stderr, _("failed to remove old style directories.\n"));
 	unlink("citadel.log");
 	unlink("weekly");
 }
@@ -1112,7 +1149,6 @@ void fixnss(void) {
 	char buf_nc[256];
 	char question[512];
 	int i;
-	int changed = 0;
 	int file_changed = 0;
 	char new_filename[64];
 	int rv;
@@ -1130,7 +1166,6 @@ void fixnss(void) {
 	}
 
 	while (fgets(buf, sizeof buf, fp_read) != NULL) {
-		changed = 0;
 		strcpy(buf_nc, buf);
 		for (i=0; i<strlen(buf_nc); ++i) {
 			if (buf_nc[i] == '#') {
@@ -1141,7 +1176,6 @@ void fixnss(void) {
 			if (!strncasecmp(&buf_nc[i], "db", 2)) {
 				if (i > 0) {
 					if ((isspace(buf_nc[i+2])) || (buf_nc[i+2]==0)) {
-						changed = 1;
 						file_changed = 1;
 						strcpy(&buf_nc[i], &buf_nc[i+2]);
 						strcpy(&buf[i], &buf[i+2]);
@@ -1184,6 +1218,9 @@ void fixnss(void) {
 	if (yesno(question, 1)) {
 		sprintf(buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
 		rv = system(buf);
+		if (rv != 0)
+			fprintf(stderr, "failed to edit %s.\n", NSSCONF);
+
 		chmod(NSSCONF, 0644);
 	}
 	unlink(new_filename);
@@ -1205,6 +1242,8 @@ void check_init_script (char *relhome)
 
 		if (!access("/etc/init.d/citadel", X_OK)) {
 			rv = system("/etc/init.d/citadel start");
+			if (rv != 0)
+				fprintf(stderr, "failed to call our initscript.");
 			sleep(3);
 		}
 
@@ -1414,8 +1453,11 @@ void get_config (void)
 	if (fp == NULL) {
 		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
 		cleanup(errno);
+		return;
 	}
 	rv = fread((char *) &config, sizeof(struct config), 1, fp);
+	if (rv == -1)
+		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot write"), file_citadel_config, strerror(errno));
 	fclose(fp);
 
 }
@@ -1496,6 +1538,8 @@ int main(int argc, char *argv[])
 	/* Try to stop Citadel if we can */
 	if (!access("/etc/init.d/citadel", X_OK)) {
 		rv = system("/etc/init.d/citadel stop");
+		if (rv != 0)
+			fprintf(stderr, _("failed to stop us using the initscript.\n"));
 	}
 
 	/* Make sure Citadel is not running. */
