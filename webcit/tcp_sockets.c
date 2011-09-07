@@ -18,8 +18,8 @@
 
 /*
  * Uncomment this to log all communications with the Citadel server
- */
 #define SERV_TRACE 1
+ */
 
 
 #include "webcit.h"
