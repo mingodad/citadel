@@ -856,8 +856,23 @@ static int validpw(uid_t uid, const char *pass)
 
 	begin_critical_section(S_CHKPWD);
 	rv = write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
+	if (rv == -1) {
+		syslog(LOG_EMERG, "Communicatino with chkpwd broken: %s\n", strerror(errno));
+		end_critical_section(S_CHKPWD);
+		return 0;
+	}
 	rv = write(chkpwd_write_pipe[1], pass, 256);
+	if (rv == -1) {
+		syslog(LOG_EMERG, "Communicatino with chkpwd broken: %s\n", strerror(errno));
+		end_critical_section(S_CHKPWD);
+		return 0;
+	}
 	rv = read(chkpwd_read_pipe[0], buf, 4);
+	if (rv == -1) {
+		syslog(LOG_EMERG, "Communicatino with chkpwd broken: %s\n", strerror(errno));
+		end_critical_section(S_CHKPWD);
+		return 0;
+	}
 	end_critical_section(S_CHKPWD);
 
 	if (!strncmp(buf, "PASS", 4)) {
@@ -1335,8 +1350,6 @@ void CtdlSetPassword(char *new_pw)
  */
 void cmd_setp(char *new_pw)
 {
-	int generate_random_password = 0;
-
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
 	}
@@ -1352,7 +1365,6 @@ void cmd_setp(char *new_pw)
 
 	if (!strcasecmp(new_pw, "GENERATE_RANDOM_PASSWORD")) {
 		char random_password[17];
-		generate_random_password = 1;
 		snprintf(random_password, sizeof random_password, "%08lx%08lx", random(), random());
 		CtdlSetPassword(random_password);
 		cprintf("%d %s\n", CIT_OK, random_password);
@@ -1390,6 +1402,15 @@ void cmd_creu(char *cmdbuf)
 	//password[31] = 0;
 	strproc(username);
 	strproc(password);
+	len = strlen(username);
+	if (len >= USERNAME_SIZE)
+	{
+		syslog(LOG_EMERG, "Username to long: %s", username);
+		cit_backtrace ();
+		len = USERNAME_SIZE - 1; 
+		username[63]='\0';
+	}
+
 	len = cutuserkey(username);
 
 	if (IsEmptyStr(username)) {

@@ -243,13 +243,11 @@ int rbl_check(char *message_to_spammer)
 	int num_rbl;
 	char rbl_domains[SIZ];
 	char txt_answer[1024];
-	int ip_version = 4;
 
 	strcpy(message_to_spammer, "ok");
 
 	if ((strchr(CC->cs_addr, '.')) && (!strchr(CC->cs_addr, ':'))) {
 		int a1, a2, a3, a4;
-		ip_version = 4;
 
 		sscanf(CC->cs_addr, "%d.%d.%d.%d", &a1, &a2, &a3, &a4);
 		snprintf(tbuf, sizeof tbuf, "%d.%d.%d.%d.", a4, a3, a2, a1);
@@ -260,8 +258,6 @@ int rbl_check(char *message_to_spammer)
 		int i = 0;
 		char workbuf[sizeof tbuf];
 		char *ptr;
-
-		ip_version = 6;
 
 		/* tedious code to expand and reverse an IPv6 address */
 		safestrncpy(tbuf, CC->cs_addr, sizeof tbuf);

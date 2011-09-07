@@ -193,7 +193,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		fclose(fp);
 	}
 
-	syslog(LOG_DEBUG, "diff length is %d bytes", diffbuf_len);
+	syslog(LOG_DEBUG, "diff length is "SIZE_T_FMT" bytes", diffbuf_len);
 
 	unlink(diff_old_filename);
 	unlink(diff_new_filename);

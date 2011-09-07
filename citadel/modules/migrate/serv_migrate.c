@@ -394,8 +394,6 @@ void migr_export_messages(void) {
 
 
 void migr_do_export(void) {
-	struct config *buf;
-	buf = &config;
 	CitContext *Ctx;
 
 	Ctx = CC;

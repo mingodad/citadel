@@ -373,6 +373,12 @@ void cmd_oimg(char *cmdbuf)
 		return;
 	}
 	rv = fread(&MimeTestBuf[0], 1, 32, CC->download_fp);
+	if (rv == -1) {
+		cprintf("%d Cannot access %s: %s\n",
+			ERROR + FILE_NOT_FOUND, pathname, strerror(errno));
+		return;
+	}
+
 	rewind (CC->download_fp);
 	OpenCmdResult(pathname, GuessMimeType(&MimeTestBuf[0], 32));
 }
@@ -706,6 +712,10 @@ void cmd_writ(char *cmdbuf)
 	buf = malloc(bytes + 1);
 	client_read(buf, bytes);
 	rv = fwrite(buf, bytes, 1, CC->upload_fp);
+	if (rv == -1) {
+		syslog(LOG_EMERG, "Couldn't write: %s\n",
+		       strerror(errno));
+	}
 	free(buf);
 }
 

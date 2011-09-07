@@ -94,7 +94,6 @@ void xmpp_output_incoming_messages(void) {
  */
 void xmpp_send_message(char *message_to, char *message_body) {
 	char *recp = NULL;
-	int message_sent = 0;
 	struct CitContext *cptr;
 
 	if (message_body == NULL) return;
@@ -112,7 +111,7 @@ void xmpp_send_message(char *message_to, char *message_body) {
 	}
 
 	if (recp) {
-		message_sent = PerformXmsgHooks(CC->user.fullname, CC->cs_inet_email, recp, message_body);
+		PerformXmsgHooks(CC->user.fullname, CC->cs_inet_email, recp, message_body);
 	}
 
 	free(XMPP->message_body);

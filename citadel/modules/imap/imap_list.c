@@ -195,7 +195,6 @@ void imap_list(int num_parms, ConstStr *Params)
 	int selection_left = (-1);
 	int selection_right = (-1);
 	int return_left = (-1);
-	int return_right = (-1);
 	int root_pos = 2;
 	int patterns_left = 3;
 	int patterns_right = 3;
@@ -388,7 +387,6 @@ void imap_list(int num_parms, ConstStr *Params)
 			}
 
 			if (paren_nest == 0) {
-				return_right = i;	/* found end of patterns */
 				i = num_parms + 1;	/* break out of the loop */
 			}
 		}

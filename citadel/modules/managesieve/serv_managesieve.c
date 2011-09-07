@@ -279,7 +279,6 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 		/* todo, check length*/
 	{
 		char auth[SIZ];
-		int retval;
 		char *message;
 		char *username;
 
@@ -289,10 +288,10 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 			message = ReadString(GetSizeToken(parms[2]), parms[0]);
 		
 		if (message != NULL) {/**< do we have tokenized login? */
-			retval = CtdlDecodeBase64(auth, MGSVE->transmitted_message, SIZ);
+			CtdlDecodeBase64(auth, MGSVE->transmitted_message, SIZ);
 		}
 		else 
-			retval = CtdlDecodeBase64(auth, parms[2], SIZ);
+			CtdlDecodeBase64(auth, parms[2], SIZ);
 		username = auth;
 		if ((*username == '\0') && (*(username + 1) != '\0'))
 			username ++;

@@ -79,7 +79,7 @@ void destruct_ssl(void)
 
 void init_ssl(void)
 {
-	SSL_METHOD *ssl_method;
+	const SSL_METHOD *ssl_method;
 	DH *dh;
 	RSA *rsa=NULL;
 	X509_REQ *req = NULL;
@@ -471,11 +471,10 @@ int client_readline_sslbuffer(StrBuf *Line, StrBuf *IOBuf, const char **Pos, int
 	CitContext *CCC = CC;
 	const char *pos = NULL;
 	const char *pLF;
-	int len, rlen, retlen;
+	int len, rlen;
 	int nSuccessLess = 0;
 	const char *pch = NULL;
 	
-	retlen = 0;
 	if ((Line == NULL) ||
 	    (Pos == NULL) ||
 	    (IOBuf == NULL))

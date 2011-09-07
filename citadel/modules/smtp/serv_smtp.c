@@ -181,10 +181,8 @@ void smtp_msa_greeting(void) {
  * LMTP is like SMTP but with some extra bonus footage added.
  */
 void lmtp_greeting(void) {
-	citsmtp *sSMTP;
 
 	smtp_greeting(0);
-	sSMTP = SMTP;
 	SMTP->is_lmtp = 1;
 }
 

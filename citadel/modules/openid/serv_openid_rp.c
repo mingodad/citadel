@@ -485,7 +485,7 @@ int login_via_openid(StrBuf *claimed_id)
  */
 void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *source_buf)
 {
-	int len, i;
+	int i;
 	const char *ptr;
 	const char *href_start = NULL;
 	const char *href_end = NULL;
@@ -508,8 +508,6 @@ void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *sou
 		if (link_tag_end == NULL)
 			break;
 		for (i=0; i < 1; i++ ){
-			len = link_tag_end - link_tag_start;
-
 			rel_start = cbmstrcasestr(link_tag_start, "rel=");
 			if ((rel_start == NULL) ||
 			    (rel_start > link_tag_end)) 
@@ -744,7 +742,7 @@ void cmd_oidf(char *argbuf) {
 		if (len < 0)
 			len = sizeof(thiskey) - 1;
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
-		syslog(LOG_DEBUG, "%s: [%d] %s\n", thiskey, strlen(thisdata), thisdata);
+		syslog(LOG_DEBUG, "%s: ["SIZE_T_FMT"] %s\n", thiskey, strlen(thisdata), thisdata);
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 

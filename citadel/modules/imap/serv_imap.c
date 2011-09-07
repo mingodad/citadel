@@ -821,8 +821,6 @@ void imap_select(int num_parms, ConstStr *Params)
 	int ra = 0;
 	struct ctdlroom QRscratch;
 	int msgs, new;
-	int floornum;
-	int roomflags;
 	int i;
 
 	/* Convert the supplied folder name to a roomname */
@@ -832,8 +830,6 @@ void imap_select(int num_parms, ConstStr *Params)
 		Imap->selected = 0;
 		return;
 	}
-	floornum = (i & 0x00ff);
-	roomflags = (i & 0xff00);
 
 	/* First try a regular match */
 	c = CtdlGetRoom(&QRscratch, towhere);
@@ -1385,7 +1381,7 @@ void imap_rename(int num_parms, ConstStr *Params)
 {
 	char old_room[ROOMNAMELEN];
 	char new_room[ROOMNAMELEN];
-	int oldr, newr;
+	int newr;
 	int new_floor;
 	int r;
 	struct irl *irl = NULL;	/* the list */
@@ -1398,7 +1394,7 @@ void imap_rename(int num_parms, ConstStr *Params)
 		return;
 	}
 
-	oldr = imap_roomname(old_room, sizeof old_room, Params[2].Key);
+	imap_roomname(old_room, sizeof old_room, Params[2].Key);
 	newr = imap_roomname(new_room, sizeof new_room, Params[3].Key);
 	new_floor = (newr & 0xFF);
 
@@ -1477,7 +1473,6 @@ void imap_command_loop(void)
 {
 	struct timeval tv1, tv2;
 	suseconds_t total_time = 0;
-	int untagged_ok = 1;
 	citimap *Imap;
 	const char *pchs, *pche;
 	const imap_handler_hook *h;
@@ -1554,10 +1549,6 @@ void imap_command_loop(void)
 	 * If the command just submitted does not contain a literal, we
 	 * might think about delivering some untagged stuff...
 	 */
-	if (*(ChrPtr(Imap->Cmd.CmdBuf) + StrLength(Imap->Cmd.CmdBuf) - 1)
-	    == '}') {
-		untagged_ok = 0;
-	}
 
 	/* Grab the tag, command, and parameters. */
 	imap_parameterize(&Imap->Cmd);

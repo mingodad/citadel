@@ -281,7 +281,6 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
  */
 void imap_append(int num_parms, ConstStr *Params) {
 	long literal_length;
-	long bytes_transferred;
 	struct CtdlMessage *msg = NULL;
 	long new_msgnum = (-1L);
 	int ret = 0;
@@ -340,7 +339,6 @@ void imap_append(int num_parms, ConstStr *Params) {
 	
 	IUnbuffer ();
 
-	bytes_transferred = 0;
 	client_read_blob(Imap->TransmittedMessage, literal_length, config.c_sleeping);
 
 	if ((ret < 0) || (StrLength(Imap->TransmittedMessage) < literal_length)) {

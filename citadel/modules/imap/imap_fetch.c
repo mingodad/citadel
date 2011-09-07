@@ -1258,7 +1258,6 @@ int imap_extract_data_items(citimap_command *Cmd)
 	int nArgs;
 	int nest = 0;
 	const char *pch, *end;
-	long initial_len;
 
 	/* Convert all whitespace to ordinary space characters. */
 	pch = ChrPtr(Cmd->CmdBuf);
@@ -1293,7 +1292,6 @@ int imap_extract_data_items(citimap_command *Cmd)
 	 */
 	nArgs = StrLength(Cmd->CmdBuf) / 10 + 10;
 	nArgs = CmdAdjust(Cmd, nArgs, 0);
-	initial_len = StrLength(Cmd->CmdBuf);
 	Cmd->num_parms = 0;
 	Cmd->Params[Cmd->num_parms].Key = pch = ChrPtr(Cmd->CmdBuf);
 	end = Cmd->Params[Cmd->num_parms].Key + StrLength(Cmd->CmdBuf);
