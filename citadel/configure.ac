@@ -367,7 +367,7 @@ if test "$GCC" = yes; then
 				CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wno-char-subscripts $PTHREAD_DEFS"
 			;;
 			*)
-			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wstrict-prototypes $PTHREAD_DEFS"
+			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wstrict-prototypes -Wno-strict-aliasing $PTHREAD_DEFS"
 			;;
 		esac
 	fi
