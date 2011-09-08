@@ -78,7 +78,6 @@
 #include "msgbase.h"
 #include "user_ops.h"
 #include "control.h"
-#include "serv_network.h"	/* Needed for definition of UseTable */
 #include "threads.h"
 #include "context.h"
 

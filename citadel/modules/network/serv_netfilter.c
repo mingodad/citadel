@@ -52,10 +52,80 @@
 #include "user_ops.h"
 #include "database.h"
 #include "msgbase.h"
-#include "serv_network.h"	/* Needed for defenition of FilterList */
 
 
 #include "ctdl_module.h"
+
+typedef struct FilterList FilterList;
+
+struct FilterList {
+	FilterList *next;
+	char fl_user[SIZ];
+	char fl_room[SIZ];
+	char fl_node[SIZ];
+};
+
+struct FilterList *filterlist = NULL;
+
+/*
+ * Keep track of what messages to reject
+ */
+FilterList *load_filter_list(void) {
+	char *serialized_list = NULL;
+	int i;
+	char buf[SIZ];
+	FilterList *newlist = NULL;
+	FilterList *nptr;
+
+	serialized_list = CtdlGetSysConfig(FILTERLIST);
+	if (serialized_list == NULL) return(NULL); /* if null, no entries */
+
+	/* Use the string tokenizer to grab one line at a time */
+	for (i=0; i<num_tokens(serialized_list, '\n'); ++i) {
+		extract_token(buf, serialized_list, i, '\n', sizeof buf);
+		nptr = (FilterList *) malloc(sizeof(FilterList));
+		extract_token(nptr->fl_user, buf, 0, '|', sizeof nptr->fl_user);
+		striplt(nptr->fl_user);
+		extract_token(nptr->fl_room, buf, 1, '|', sizeof nptr->fl_room);
+		striplt(nptr->fl_room);
+		extract_token(nptr->fl_node, buf, 2, '|', sizeof nptr->fl_node);
+		striplt(nptr->fl_node);
+
+		/* Cowardly refuse to add an any/any/any entry that would
+		 * end up filtering every single message.
+		 */
+		if (IsEmptyStr(nptr->fl_user) && 
+		    IsEmptyStr(nptr->fl_room) &&
+		    IsEmptyStr(nptr->fl_node)) {
+			free(nptr);
+		}
+		else {
+			nptr->next = newlist;
+			newlist = nptr;
+		}
+	}
+
+	free(serialized_list);
+	return newlist;
+}
+
+
+void free_filter_list(FilterList *fl) {
+	if (fl == NULL) return;
+	free_filter_list(fl->next);
+	free(fl);
+}
+
+void free_netfilter_list(void)
+{
+	free_filter_list(filterlist);
+	filterlist = NULL;
+}
+
+void load_network_filter_list(void)
+{
+	filterlist = load_filter_list();
+}
 
 
 /*

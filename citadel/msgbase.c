@@ -64,7 +64,6 @@
 #include "journaling.h"
 #include "citadel_dirs.h"
 #include "clientsocket.h"
-#include "serv_network.h"
 #include "threads.h"
 
 #include "ctdl_module.h"
@@ -74,13 +73,6 @@ struct addresses_to_be_filed *atbf = NULL;
 
 /* This temp file holds the queue of operations for AdjRefCount() */
 static FILE *arcfp = NULL;
-
-/* 
- * This really belongs in serv_network.c, but I don't know how to export
- * symbols between modules.
- */
-struct FilterList *filterlist = NULL;
-
 
 /*
  * These are the four-character field headers we use when outputting
@@ -3673,6 +3665,10 @@ struct CtdlMessage *CtdlMakeMessage(
 	return(msg);
 }
 
+extern int netconfig_check_roomaccess(
+	char *errmsgbuf, 
+	size_t n,
+	const char* RemoteIdentifier); /* TODO: find a smarter way */
 
 /*
  * Check to see whether we have permission to post a message in the current
@@ -3707,36 +3703,8 @@ int CtdlDoIHavePermissionToPostInThisRoom(
 			return (ERROR + NOT_LOGGED_IN);
 		}
 		if ((PostPublic!=POST_LMTP) &&(CC->room.QRflags2 & QR2_SMTP_PUBLIC) == 0) {
-			SpoolControl *sc;
-			char filename[SIZ];
-			int found;
 
-			if (RemoteIdentifier == NULL)
-			{
-				snprintf(errmsgbuf, n, "Need sender to permit access.");
-				return (ERROR + USERNAME_REQUIRED);
-			}
-
-			assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-			begin_critical_section(S_NETCONFIGS);
-			if (!read_spoolcontrol_file(&sc, filename))
-			{
-				end_critical_section(S_NETCONFIGS);
-				snprintf(errmsgbuf, n,
-					"This mailing list only accepts posts from subscribers.");
-				return (ERROR + NO_SUCH_USER);
-			}
-			end_critical_section(S_NETCONFIGS);
-			found = is_recipient (sc, RemoteIdentifier);
-			free_spoolcontrol_struct(&sc);
-			if (found) {
-				return (0);
-			}
-			else {
-				snprintf(errmsgbuf, n,
-					"This mailing list only accepts posts from subscribers.");
-				return (ERROR + NO_SUCH_USER);
-			}
+			return netconfig_check_roomaccess(errmsgbuf, n, RemoteIdentifier);
 		}
 		return (0);
 

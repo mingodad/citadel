@@ -88,6 +88,7 @@
 
 #include "context.h"
 #include "netconfig.h"
+#include "netspool.h"
 #include "ctdl_module.h"
 
 
