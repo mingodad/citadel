@@ -22,8 +22,8 @@ struct SpoolControl {
 
 
 void network_spoolout_room(char *room_to_spool);
-void network_do_spoolin(void);
-void network_consolidate_spoolout(void);
+void network_do_spoolin(char *working_ignetcfg, NetMap *the_netmap, int *netmap_changed);
+void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap);
 void free_spoolcontrol_struct(SpoolControl **scc);
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename);
 int read_spoolcontrol_file(SpoolControl **scc, char *filename);

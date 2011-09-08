@@ -93,42 +93,25 @@
 
 
 /*
- * We build a map of network nodes during processing.
- */
-NetMap *the_netmap = NULL;
-int netmap_changed = 0;
-char *working_ignetcfg = NULL;
-
-/*
  * Load or refresh the Citadel network (IGnet) configuration for this node.
  */
-void load_working_ignetcfg(void) {
-	char *cfg;
-	char *oldcfg;
-
-	cfg = CtdlGetSysConfig(IGNETCFG);
-	if (cfg == NULL) {
-		cfg = strdup("");
-	}
-
-	oldcfg = working_ignetcfg;
-	working_ignetcfg = cfg;
-	if (oldcfg != NULL) {
-		free(oldcfg);
-	}
+char* load_working_ignetcfg(void) {
+	return CtdlGetSysConfig(IGNETCFG);
 }
+
 
 /* 
  * Read the network map from its configuration file into memory.
  */
-void read_network_map(void) {
+NetMap *read_network_map(void) {
 	char *serialized_map = NULL;
 	int i;
 	char buf[SIZ];
-	NetMap *nmptr;
+	NetMap *nmptr, *the_netmap;
 
+	the_netmap = NULL;
 	serialized_map = CtdlGetSysConfig(IGNETMAP);
-	if (serialized_map == NULL) return;	/* if null, no entries */
+	if (serialized_map == NULL) return NULL;	/* if null, no entries */
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_map, '\n'); ++i) {
@@ -142,14 +125,14 @@ void read_network_map(void) {
 	}
 
 	free(serialized_map);
-	netmap_changed = 0;
+	return the_netmap;
 }
 
 
 /*
  * Write the network map from memory back to the configuration file.
  */
-void write_network_map(void) {
+void write_network_map(NetMap *the_netmap, int netmap_changed) {
 	char *serialized_map = NULL;
 	NetMap *nmptr;
 
@@ -186,13 +169,19 @@ void write_network_map(void) {
 }
 
 
+
 /* 
  * Check the network map and determine whether the supplied node name is
  * valid.  If it is not a neighbor node, supply the name of a neighbor node
  * which is the next hop.  If it *is* a neighbor node, we also fill in the
  * shared secret.
  */
-int is_valid_node(char *nexthop, char *secret, char *node) {
+int is_valid_node(char *nexthop, 
+		  char *secret, 
+		  char *node, 
+		  char *working_ignetcfg, 
+		  NetMap *the_netmap)
+{
 	int i;
 	char linebuf[SIZ];
 	char buf[SIZ];
@@ -206,8 +195,8 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	/*
 	 * First try the neighbor nodes
 	 */
-	if (working_ignetcfg == NULL) {
-		syslog(LOG_ERR, "working_ignetcfg is NULL!\n");
+	if ((working_ignetcfg == NULL) || (*working_ignetcfg == '\0')) {
+		syslog(LOG_ERR, "working_ignetcfg is empty!\n");
 		if (nexthop != NULL) {
 			strcpy(nexthop, "");
 		}
@@ -374,6 +363,7 @@ void cmd_snet(char *argbuf) {
  */
 void cmd_netp(char *cmdbuf)
 {
+	char *working_ignetcfg;
 	char node[256];
 	char pass[256];
 	int v;
@@ -387,8 +377,8 @@ void cmd_netp(char *cmdbuf)
 	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
 
 	/* load the IGnet Configuration to check node validity */
-	load_working_ignetcfg();
-	v = is_valid_node(nexthop, secret, node);
+	working_ignetcfg = load_working_ignetcfg();
+	v = is_valid_node(nexthop, secret, node, working_ignetcfg, NULL); //// TODO do we need the netmap?
 
 	if (v != 0) {
 		snprintf(err_buf, sizeof err_buf,
@@ -398,6 +388,7 @@ void cmd_netp(char *cmdbuf)
 		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
+		free(working_ignetcfg);
 		return;
 	}
 
@@ -409,12 +400,14 @@ void cmd_netp(char *cmdbuf)
 		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
+		free(working_ignetcfg);
 		return;
 	}
 
 	if (network_talking_to(node, NTT_CHECK)) {
 		syslog(LOG_WARNING, "Duplicate session for network node <%s>", node);
 		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
+		free(working_ignetcfg);
 		return;
 	}
 
@@ -424,6 +417,7 @@ void cmd_netp(char *cmdbuf)
 		CC->net_node, CC->cs_host, CC->cs_addr
 	);
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CC->net_node);
+	free(working_ignetcfg);
 }
 
 int netconfig_check_roomaccess(

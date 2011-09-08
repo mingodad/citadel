@@ -269,7 +269,6 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 void destroy_network_queue_room(void)
 {
 	struct RoomProcList *cur, *p;
-	NetMap *nmcur, *nmp;
 
 	cur = rplist;
 	begin_critical_section(S_RPLIST);
@@ -281,18 +280,6 @@ void destroy_network_queue_room(void)
 	}
 	rplist = NULL;
 	end_critical_section(S_RPLIST);
-
-	nmcur = the_netmap;
-	while (nmcur != NULL)
-	{
-		nmp = nmcur->next;
-		free (nmcur);
-		nmcur = nmp;		
-	}
-	the_netmap = NULL;
-	if (working_ignetcfg != NULL)
-		free (working_ignetcfg);
-	working_ignetcfg = NULL;
 }
 
 
@@ -420,6 +407,9 @@ void network_do_queue(void) {
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 	int full_processing = 1;
+	char *working_ignetcfg;
+	NetMap *the_netmap = NULL;
+	int netmap_changed = 0;
 
 	/*
 	 * Run the full set of processing tasks no more frequently
@@ -444,12 +434,12 @@ void network_do_queue(void) {
 	doing_queue = 1;
 
 	/* Load the IGnet Configuration into memory */
-	load_working_ignetcfg();
+	working_ignetcfg = load_working_ignetcfg();
 
 	/*
 	 * Load the network map and filter list into memory.
 	 */
-	read_network_map();
+	the_netmap = read_network_map();
 	load_network_filter_list();
 
 	/* 
@@ -488,16 +478,19 @@ void network_do_queue(void) {
 
 	/* If there is anything in the inbound queue, process it */
 	if (!server_shutting_down) {
-		network_do_spoolin();
+		network_do_spoolin(working_ignetcfg, 
+				   the_netmap,
+				   &netmap_changed);
 	}
 
 	/* Save the network map back to disk */
-	write_network_map();
+	write_network_map(the_netmap, netmap_changed);
 
 	/* Free the filter list in memory */
 	free_netfilter_list();
 
-	network_consolidate_spoolout();
+	network_consolidate_spoolout(working_ignetcfg, the_netmap);
+	free(working_ignetcfg);
 
 	syslog(LOG_DEBUG, "network: queue run completed\n");
 

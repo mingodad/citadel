@@ -86,6 +86,7 @@
 #include "netconfig.h"
 #include "ctdl_module.h"
 
+
 /*
  * receive network spool from the remote system
  */
@@ -381,7 +382,8 @@ bail:
  * Set "full" to nonzero to force a poll of every node, or to zero to poll
  * only nodes to which we have data to send.
  */
-void network_poll_other_citadel_nodes(int full_poll) {
+void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
+{
 	int i;
 	char linebuf[256];
 	char node[SIZ];
@@ -430,6 +432,7 @@ void network_poll_other_citadel_nodes(int full_poll) {
 
 void network_do_clientqueue(void)
 {
+	char *working_ignetcfg;
 	int full_processing = 1;
 	static time_t last_run = 0L;
 
@@ -444,13 +447,15 @@ void network_do_clientqueue(void)
 		);
 	}
 
-
+	working_ignetcfg = load_working_ignetcfg();
 	/*
 	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
 	 * then we poll everyone.  Otherwise we only poll nodes we have stuff
 	 * to send to.
 	 */
-	network_poll_other_citadel_nodes(full_processing);
+	network_poll_other_citadel_nodes(full_processing, working_ignetcfg);
+	if (working_ignetcfg)
+		free(working_ignetcfg);
 }
 
 
