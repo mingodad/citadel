@@ -88,6 +88,7 @@
 
 #include "context.h"
 #include "netconfig.h"
+#include "netspool.h"
 #include "netmail.h"
 #include "ctdl_module.h"
 
@@ -99,7 +100,6 @@
  * is global; we have a mutex that keeps it safe.
  */
 struct RoomProcList *rplist = NULL;
-
 
 
 
@@ -446,12 +446,11 @@ void network_do_queue(void) {
 	/* Load the IGnet Configuration into memory */
 	load_working_ignetcfg();
 
-
 	/*
 	 * Load the network map and filter list into memory.
 	 */
 	read_network_map();
-	filterlist = load_filter_list();
+	load_network_filter_list();
 
 	/* 
 	 * Go ahead and run the queue
@@ -496,8 +495,7 @@ void network_do_queue(void) {
 	write_network_map();
 
 	/* Free the filter list in memory */
-	free_filter_list(filterlist);
-	filterlist = NULL;
+	free_netfilter_list();
 
 	network_consolidate_spoolout();
 

@@ -88,6 +88,7 @@
 
 #include "context.h"
 #include "netconfig.h"
+#include "netspool.h"
 #include "ctdl_module.h"
 
 
@@ -184,56 +185,6 @@ void write_network_map(void) {
 	netmap_changed = 0;
 }
 
-
-
-/*
- * Keep track of what messages to reject
- */
-FilterList *load_filter_list(void) {
-	char *serialized_list = NULL;
-	int i;
-	char buf[SIZ];
-	FilterList *newlist = NULL;
-	FilterList *nptr;
-
-	serialized_list = CtdlGetSysConfig(FILTERLIST);
-	if (serialized_list == NULL) return(NULL); /* if null, no entries */
-
-	/* Use the string tokenizer to grab one line at a time */
-	for (i=0; i<num_tokens(serialized_list, '\n'); ++i) {
-		extract_token(buf, serialized_list, i, '\n', sizeof buf);
-		nptr = (FilterList *) malloc(sizeof(FilterList));
-		extract_token(nptr->fl_user, buf, 0, '|', sizeof nptr->fl_user);
-		striplt(nptr->fl_user);
-		extract_token(nptr->fl_room, buf, 1, '|', sizeof nptr->fl_room);
-		striplt(nptr->fl_room);
-		extract_token(nptr->fl_node, buf, 2, '|', sizeof nptr->fl_node);
-		striplt(nptr->fl_node);
-
-		/* Cowardly refuse to add an any/any/any entry that would
-		 * end up filtering every single message.
-		 */
-		if (IsEmptyStr(nptr->fl_user) && 
-		    IsEmptyStr(nptr->fl_room) &&
-		    IsEmptyStr(nptr->fl_node)) {
-			free(nptr);
-		}
-		else {
-			nptr->next = newlist;
-			newlist = nptr;
-		}
-	}
-
-	free(serialized_list);
-	return newlist;
-}
-
-
-void free_filter_list(FilterList *fl) {
-	if (fl == NULL) return;
-	free_filter_list(fl->next);
-	free(fl);
-}
 
 /* 
  * Check the network map and determine whether the supplied node name is
@@ -475,6 +426,42 @@ void cmd_netp(char *cmdbuf)
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CC->net_node);
 }
 
+int netconfig_check_roomaccess(
+	char *errmsgbuf, 
+	size_t n,
+	const char* RemoteIdentifier)
+{
+	SpoolControl *sc;
+	char filename[SIZ];
+	int found;
+
+	if (RemoteIdentifier == NULL)
+	{
+		snprintf(errmsgbuf, n, "Need sender to permit access.");
+		return (ERROR + USERNAME_REQUIRED);
+	}
+
+	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+	begin_critical_section(S_NETCONFIGS);
+	if (!read_spoolcontrol_file(&sc, filename))
+	{
+		end_critical_section(S_NETCONFIGS);
+		snprintf(errmsgbuf, n,
+			 "This mailing list only accepts posts from subscribers.");
+		return (ERROR + NO_SUCH_USER);
+	}
+	end_critical_section(S_NETCONFIGS);
+	found = is_recipient (sc, RemoteIdentifier);
+	free_spoolcontrol_struct(&sc);
+	if (found) {
+		return (0);
+	}
+	else {
+		snprintf(errmsgbuf, n,
+			 "This mailing list only accepts posts from subscribers.");
+		return (ERROR + NO_SUCH_USER);
+	}
+}
 /*
  * Module entry point
  */
