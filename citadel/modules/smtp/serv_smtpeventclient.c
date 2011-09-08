@@ -90,7 +90,6 @@
 #include "smtpqueue.h"
 #include "smtp_clienthandlers.h"
 
-#ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
 const unsigned short DefaultMXPort = 25;
 void DeleteSmtpOutMsg(void *v)
 {
@@ -633,7 +632,6 @@ eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 	return Finished;
 }
 
-#endif
 CTDL_MODULE_INIT(smtp_eventclient)
 {
 	return "smtpeventclient";
