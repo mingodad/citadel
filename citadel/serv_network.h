@@ -56,3 +56,9 @@ int is_recipient(SpoolControl *sc, const char *Name);
 
 void network_queue_room(struct ctdlroom *, void *);
 void destroy_network_queue_room(void);
+void network_bounce(struct CtdlMessage *msg, char *reason);
+int network_usetable(struct CtdlMessage *msg);
+void network_do_spoolin(void);
+void network_consolidate_spoolout(void);
+void network_spoolout_room(char *room_to_spool);
+
