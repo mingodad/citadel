@@ -712,40 +712,42 @@ void cmd_user(char *cmdbuf)
  */
 void do_login(void)
 {
-	CC->logged_in = 1;
-	syslog(LOG_NOTICE, "<%s> logged in\n", CC->curr_user);
+	struct CitContext *CCC = CC;
 
-	CtdlGetUserLock(&CC->user, CC->curr_user);
-	++(CC->user.timescalled);
-	CC->previous_login = CC->user.lastcall;
-	time(&CC->user.lastcall);
+	CCC->logged_in = 1;
+	syslog(LOG_NOTICE, "<%s> logged in\n", CCC->curr_user);
+
+	CtdlGetUserLock(&CCC->user, CCC->curr_user);
+	++(CCC->user.timescalled);
+	CCC->previous_login = CCC->user.lastcall;
+	time(&CCC->user.lastcall);
 
 	/* If this user's name is the name of the system administrator
 	 * (as specified in setup), automatically assign access level 6.
 	 */
-	if (!strcasecmp(CC->user.fullname, config.c_sysadm)) {
-		CC->user.axlevel = AxAideU;
+	if (!strcasecmp(CCC->user.fullname, config.c_sysadm)) {
+		CCC->user.axlevel = AxAideU;
 	}
 
 	/* If we're authenticating off the host system, automatically give
 	 * root the highest level of access.
 	 */
 	if (config.c_auth_mode == AUTHMODE_HOST) {
-		if (CC->user.uid == 0) {
-			CC->user.axlevel = AxAideU;
+		if (CCC->user.uid == 0) {
+			CCC->user.axlevel = AxAideU;
 		}
 	}
 
-	CtdlPutUserLock(&CC->user);
+	CtdlPutUserLock(&CCC->user);
 
 	/*
-	 * Populate CC->cs_inet_email with a default address.  This will be
+	 * Populate CCC->cs_inet_email with a default address.  This will be
 	 * overwritten with the user's directory address, if one exists, when
 	 * the vCard module's login hook runs.
 	 */
-	snprintf(CC->cs_inet_email, sizeof CC->cs_inet_email, "%s@%s",
-		CC->user.fullname, config.c_fqdn);
-	convert_spaces_to_underscores(CC->cs_inet_email);
+	snprintf(CCC->cs_inet_email, sizeof CCC->cs_inet_email, "%s@%s",
+		CCC->user.fullname, config.c_fqdn);
+	convert_spaces_to_underscores(CCC->cs_inet_email);
 
 	/* Create any personal rooms required by the system.
 	 * (Technically, MAILROOM should be there already, but just in case...)
