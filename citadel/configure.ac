@@ -992,7 +992,6 @@ STRUCT_UCRED
 
 
 dnl Done! Now write the Makefile and sysdep.h
-AC_SUBST(AUTH)
 AC_SUBST(RESOLV)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)

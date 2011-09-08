@@ -47,7 +47,6 @@ UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
 
 
 ACLOCAL=@ACLOCAL@
-AUTH=@AUTH@
 AUTOCONF=@AUTOCONF@
 chkpwd_LIBS=@chkpwd_LIBS@
 CC=@CC@
@@ -157,7 +156,7 @@ SERV_OBJS = server_main.o utillib/citadel_dirs.o\
 	locate_host.o housekeeping.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o threads.o context.o \
-	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES) \
+	clientsocket.o modules_init.o modules_upgrade.o $(SERV_MODULES) \
 	svn_revision.o ldap.o
 
 citserver$(EXEEXT): $(SERV_OBJS)
