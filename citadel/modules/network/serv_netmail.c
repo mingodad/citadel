@@ -256,7 +256,11 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 /*
  * Spools out one message from the list.
  */
-void network_spool_msg(long msgnum, void *userdata) {
+void network_spool_msg(long msgnum, 
+		       void *userdata, 
+		       char *working_ignetcfg,
+		       NetMap *the_netmap)
+{
 	SpoolControl *sc;
 	int i;
 	char *newpath = NULL;
@@ -428,7 +432,12 @@ void network_spool_msg(long msgnum, void *userdata) {
 				if (!strcasecmp(msg->cm_fields['N'], config.c_nodename)) {
 					ok_to_participate = 1;
 				}
-				if (is_valid_node(NULL, NULL, msg->cm_fields['N']) == 0) {
+				if (is_valid_node(NULL, 
+						  NULL, 
+						  msg->cm_fields['N'], 
+						  working_ignetcfg, 
+						  the_netmap) == 0)
+				{
 					ok_to_participate = 1;
 				}
 			}
@@ -510,7 +519,12 @@ void network_spool_msg(long msgnum, void *userdata) {
 			send = 1;
 
 			/* Check for valid node name */
-			if (is_valid_node(NULL, NULL, mptr->remote_nodename) != 0) {
+			if (is_valid_node(NULL, 
+					  NULL, 
+					  mptr->remote_nodename, 
+					  working_ignetcfg, 
+					  the_netmap) != 0)
+			{
 				syslog(LOG_ERR, "Invalid node <%s>\n", mptr->remote_nodename);
 				send = 0;
 			}

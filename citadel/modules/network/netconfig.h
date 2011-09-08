@@ -7,12 +7,7 @@ struct  NetMap {
 	char nexthop[SIZ];
 };
 
-
-NetMap *the_netmap;
-int netmap_changed;
-char *working_ignetcfg;
-
-void load_working_ignetcfg(void);
-void read_network_map(void);
-void write_network_map(void);
-int is_valid_node(char *nexthop, char *secret, char *node);
+char* load_working_ignetcfg(void);
+NetMap *read_network_map(void);
+void write_network_map(NetMap *the_netmap, int netmap_changed);
+int is_valid_node(char *nexthop, char *secret, char *node, char *working_ignetcfg, NetMap *the_netmap);

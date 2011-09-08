@@ -95,7 +95,7 @@
 /*
  * Learn topology from path fields
  */
-void network_learn_topology(char *node, char *path) {
+void network_learn_topology(char *node, char *path, NetMap *the_netmap, int *netmap_changed) {
 	char nexthop[256];
 	NetMap *nmptr;
 
@@ -106,7 +106,7 @@ void network_learn_topology(char *node, char *path) {
 		if (!strcasecmp(nmptr->nodename, node)) {
 			extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 			nmptr->lastcontact = time(NULL);
-			++netmap_changed;
+			(*netmap_changed) ++;
 			return;
 		}
 	}
@@ -118,7 +118,7 @@ void network_learn_topology(char *node, char *path) {
 	extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 	nmptr->next = the_netmap;
 	the_netmap = nmptr;
-	++netmap_changed;
+	(*netmap_changed) ++;
 }
 
 
@@ -445,7 +445,8 @@ void network_spoolout_room(char *room_to_spool) {
  * Process a buffer containing a single message from a single file
  * from the inbound queue 
  */
-void network_process_buffer(char *buffer, long size) {
+void network_process_buffer(char *buffer, long size, char *working_ignetcfg, NetMap *the_netmap, int *netmap_changed)
+{
 	struct CtdlMessage *msg = NULL;
 	long pos;
 	int field;
@@ -492,7 +493,12 @@ void network_process_buffer(char *buffer, long size) {
 
 			/* route the message */
 			strcpy(nexthop, "");
-			if (is_valid_node(nexthop, NULL, msg->cm_fields['D']) == 0) {
+			if (is_valid_node(nexthop, 
+					  NULL, 
+					  msg->cm_fields['D'], 
+					  working_ignetcfg, 
+					  the_netmap) == 0) 
+			{
 				/* prepend our node to the path */
 				if (msg->cm_fields['P'] != NULL) {
 					oldpath = msg->cm_fields['P'];
@@ -561,7 +567,10 @@ void network_process_buffer(char *buffer, long size) {
 
 	/* Learn network topology from the path */
 	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
-		network_learn_topology(msg->cm_fields['N'], msg->cm_fields['P']);
+		network_learn_topology(msg->cm_fields['N'], 
+				       msg->cm_fields['P'], 
+				       the_netmap, 
+				       netmap_changed);
 	}
 
 	/* Is the sending node giving us a very persuasive suggestion about
@@ -616,7 +625,13 @@ void network_process_buffer(char *buffer, long size) {
 /*
  * Process a single message from a single file from the inbound queue 
  */
-void network_process_message(FILE *fp, long msgstart, long msgend) {
+void network_process_message(FILE *fp, 
+			     long msgstart, 
+			     long msgend,
+			     char *working_ignetcfg,
+			     NetMap *the_netmap, 
+			     int *netmap_changed)
+{
 	long hold_pos;
 	long size;
 	char *buffer;
@@ -627,7 +642,11 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 	if (buffer != NULL) {
 		fseek(fp, msgstart, SEEK_SET);
 		if (fread(buffer, size, 1, fp) > 0) {
-			network_process_buffer(buffer, size);
+			network_process_buffer(buffer, 
+					       size, 
+					       working_ignetcfg, 
+					       the_netmap, 
+					       netmap_changed);
 		}
 		free(buffer);
 	}
@@ -639,7 +658,11 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 /*
  * Process a single file from the inbound queue 
  */
-void network_process_file(char *filename) {
+void network_process_file(char *filename,
+			  char *working_ignetcfg,
+			  NetMap *the_netmap, 
+			  int *netmap_changed)
+{
 	FILE *fp;
 	long msgstart = (-1L);
 	long msgend = (-1L);
@@ -663,7 +686,12 @@ void network_process_file(char *filename) {
 		if (ch == 255) {
 			if (msgstart >= 0L) {
 				msgend = msgcur - 1;
-				network_process_message(fp, msgstart, msgend);
+				network_process_message(fp,
+							msgstart,
+							msgend,
+							working_ignetcfg,
+							the_netmap,
+							netmap_changed);
 			}
 			msgstart = msgcur;
 		}
@@ -673,7 +701,12 @@ void network_process_file(char *filename) {
 
 	msgend = msgcur - 1;
 	if (msgstart >= 0L) {
-		network_process_message(fp, msgstart, msgend);
+		network_process_message(fp,
+					msgstart,
+					msgend,
+					working_ignetcfg,
+					the_netmap,
+					netmap_changed);
 	}
 
 	fclose(fp);
@@ -684,7 +717,8 @@ void network_process_file(char *filename) {
 /*
  * Process anything in the inbound queue
  */
-void network_do_spoolin(void) {
+void network_do_spoolin(char *working_ignetcfg, NetMap *the_netmap, int *netmap_changed)
+{
 	DIR *dp;
 	struct dirent *d;
 	struct stat statbuf;
@@ -717,7 +751,10 @@ void network_do_spoolin(void) {
 				ctdl_netin_dir,
 				d->d_name
 			);
-			network_process_file(filename);
+			network_process_file(filename,
+					     working_ignetcfg,
+					     the_netmap,
+					     netmap_changed);
 		}
 	}
 
@@ -728,7 +765,8 @@ void network_do_spoolin(void) {
  * Step 1: consolidate files in the outbound queue into one file per neighbor node
  * Step 2: delete any files in the outbound queue that were for neighbors who no longer exist.
  */
-void network_consolidate_spoolout(void) {
+void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap)
+{
 	DIR *dp;
 	struct dirent *d;
 	char filename[PATH_MAX];
@@ -797,7 +835,11 @@ void network_consolidate_spoolout(void) {
 		);
 
 		strcpy(nexthop, "");
-		i = is_valid_node(nexthop, NULL, d->d_name);
+		i = is_valid_node(nexthop,
+				  NULL,
+				  d->d_name,
+				  working_ignetcfg,
+				  the_netmap);
 	
 		if ( (i != 0) || !IsEmptyStr(nexthop) ) {
 			unlink(filename);
