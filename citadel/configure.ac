@@ -568,20 +568,13 @@ AC_CHECK_HEADER(libcitadel.h,
 CFLAGS="$saved_CFLAGS"
 
 
-dnl experimental libev smtp client remove this to...
-AC_DEFINE(EXPERIMENTAL_SMTP_EVENT_CLIENT, [], [should we use the experimental libevent smtp client?])
-dnl here...
-
-
-
-
-                AC_CHECK_LIB(cares, ares_init,
-                  [
+AC_CHECK_LIB(cares, ares_init,
+            [
                     C_ARES_LIBS=-lcares
-                AC_DEFINE(HAVE_C_ARES, 1, [Define to use c-ares library])
-                have_good_c_ares=yes
-                  ],, $SOCKET_LIBS $NSL_LIBS
-                )
+		    AC_DEFINE(HAVE_C_ARES, 1, [Define to use c-ares library])
+                    have_good_c_ares=yes
+            ],, $SOCKET_LIBS $NSL_LIBS
+)
 
 
 

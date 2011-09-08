@@ -55,8 +55,6 @@
 
 #include "ctdl_module.h"
 
-#ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
-
 #include "event_client.h"
 #include "serv_curl.h"
 
@@ -613,11 +611,8 @@ void *db_event_thread(void *arg)
 	return(NULL);
 }
 
-#endif
-
 CTDL_MODULE_INIT(event_client)
 {
-#ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
 	if (!threading)
 	{
 		InitEventQueue();
@@ -626,6 +621,5 @@ CTDL_MODULE_INIT(event_client)
 		CtdlThreadCreate(/*"DB event", */db_event_thread);
 /// todo register shutdown callback.
 	}
-#endif
 	return "event";
 }
