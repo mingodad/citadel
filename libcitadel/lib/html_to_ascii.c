@@ -469,6 +469,16 @@ char *html_to_ascii(const char *inputmsg, int msglen, int screenwidth, int do_ci
 				strcpy(&outbuf[i+1], &outbuf[i+7]);
 			}
 
+			else if (!strncasecmp(&outbuf[i], "&#8217;", 7)) {
+				outbuf[i] = '\'';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
+			else if (!strncasecmp(&outbuf[i], "&#8211;", 7)) {
+				outbuf[i] = '-';
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
+			}
+
 			/* two-digit decimal equivalents */
 			else if (outbuf[i] == '&'       &&
 				 outbuf[i + 1] == '#'   &&
@@ -508,7 +518,7 @@ char *html_to_ascii(const char *inputmsg, int msglen, int screenwidth, int do_ci
 				scanch = 0;
 				sscanf(&outbuf[i+2], "%04d", &scanch);
 				outbuf[i] = scanch;
-				strcpy(&outbuf[i+1], &outbuf[i+6]);
+				strcpy(&outbuf[i+1], &outbuf[i+7]);
 			}
 
 		}
