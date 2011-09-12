@@ -168,7 +168,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	fclose(fp);
 
 	snprintf(diff_cmd, sizeof diff_cmd,
-		"diff -u %s %s >%s",
+		DIFF " -u %s %s >%s",
 		diff_new_filename,
 		((old_msg != NULL) ? diff_old_filename : "/dev/null"),
 		diff_out_filename
@@ -434,7 +434,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 	syslog(LOG_DEBUG, "callback found rev: %s\n", this_rev);
 
 	/* Perform the patch */
-	fp = popen("patch -f -s -p0 -r /dev/null >/dev/null 2>/dev/null", "w");
+	fp = popen(PATCH " -f -s -p0 -r /dev/null >/dev/null 2>/dev/null", "w");
 	if (fp) {
 		/* Replace the filenames in the patch with the tempfilename we're actually tweaking */
 		fprintf(fp, "--- %s\n", hecbd->tempfilename);

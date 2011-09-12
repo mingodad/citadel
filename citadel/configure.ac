@@ -398,6 +398,8 @@ AC_SUBST(DEPEND_FLAG)
 
 AC_PROG_INSTALL
 AC_PROG_YACC
+AC_PATH_PROG(DIFF,diff)
+AC_PATH_PROG(PATCH,patch)
 missing_dir=`cd $ac_aux_dir && pwd`
 AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
 AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
@@ -1035,8 +1037,6 @@ AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
 
 STRUCT_UCRED
 
-
-
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(RESOLV)
 AC_SUBST(chkpwd_LIBS)
@@ -1045,6 +1045,8 @@ AC_SUBST(DATABASE)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
+AC_SUBST(DIFF)
+AC_SUBST(PATCH)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT(database_cleanup.sh po/citadel-setup/Makefile)
 
