@@ -21,7 +21,7 @@
 			<ul class="room_actions">
 				<li class="start_page"><?OFFERSTARTPAGE></li>
 				<li class="logstatus"><?=("loggedinas")></li>
-				<li class="search" id="searchomatic"><?=("searchomatic")></li>
+				<?!("COND:ROOM:TYPE_IS", 12, #"VIEW_MAILBOX")><li class="search" id="searchomatic"><?=("searchomatic")></li><?!("X", 12)>
 				<li class="view"><?=("viewomatic")></li>
 				<?!("COND:THISROOM:CURR_VIEW", 1, #"VIEW_MAILBOX")>
 					<li class="hidden" id="selectpage">
