@@ -1,4 +1,4 @@
-<div class="blog_comment">
+<div class="blog_comment" id="blog_comment_<?MAIL:SUMM:N>">
 <div class="blog_comment_header">
 <span>
  <??("COND:MAIL:ANON",1)>
@@ -8,6 +8,9 @@
  <??("X", 1)>
 </span>
  <span><?MAIL:SUMM:DATEFULL></span>
+<?!("COND:ROOM:EDITACCESS", 16)>
+   <a href="#" onclick="if (confirm('<?_("Delete this message?")>')) { DeleteBlogComment(<?MAIL:SUMM:N>); }"><span>[</span><?_("Delete")><span>]</span> </a> 
+<??("X", 16)>
 </div>
 <div class="blog_comment_content">
 <?MAIL:BODY>

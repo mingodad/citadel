@@ -76,3 +76,17 @@ function GetMailboxRooms() {
   }
   return roomsForFloor;
 }
+
+/*
+ * function to delete a comment from a blog post
+ */
+function DeleteBlogComment(msgnum) {
+	cmd = encodeURI("g_cmd=DELE " + msgnum);
+	new Ajax.Request("ajax_servcmd", { 
+		parameters: cmd,
+		method: 'post',
+		onSuccess: function(transport) {
+		Effect.BlindUp('blog_comment_' + msgnum);
+		}
+	});
+}
