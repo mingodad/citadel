@@ -739,7 +739,7 @@ eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO)
 	return IO->NextState;
 }
 
-eNextState connect_ip(AsyncIO *IO)
+eNextState pop3_connect_ip(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
 
@@ -756,7 +756,7 @@ eNextState connect_ip(AsyncIO *IO)
 			   1);
 }
 
-eNextState get_one_host_ip_done(AsyncIO *IO)
+eNextState pop3_get_one_host_ip_done(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
 	struct hostent *hostent;
@@ -787,13 +787,13 @@ eNextState get_one_host_ip_done(AsyncIO *IO)
 			addr->sin_port   = htons(DefaultPOP3Port);
 			
 		}
-		return connect_ip(IO);
+		return pop3_connect_ip(IO);
 	}
 	else
 		return eAbort;
 }
 
-eNextState get_one_host_ip(AsyncIO *IO)
+eNextState pop3_get_one_host_ip(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
 	/* 
@@ -818,7 +818,7 @@ eNextState get_one_host_ip(AsyncIO *IO)
 		   cpptr->IO.ConnectMe->Host, 
 		   &cpptr->IO, 
 		   &cpptr->HostLookup, 
-		   get_one_host_ip_done);
+		   pop3_get_one_host_ip_done);
 	IO->NextState = eReadDNSReply;
 	return IO->NextState;
 }
@@ -855,11 +855,11 @@ int pop3_do_fetching(pop3aggr *cpptr)
 
 	if (cpptr->IO.ConnectMe->IsIP) {
 		QueueEventContext(&cpptr->IO,
-				  connect_ip);
+				  pop3_connect_ip);
 	}
 	else { /* uneducated admin has chosen to add DNS to the equation... */
 		QueueEventContext(&cpptr->IO,
-				  get_one_host_ip);
+				  pop3_get_one_host_ip);
 	}
 	return 1;
 }
