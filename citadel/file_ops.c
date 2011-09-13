@@ -49,7 +49,7 @@
  * network_talking_to()  --  concurrency checker
  */
 static char *nttlist = NULL;
-int network_talking_to(char *nodename, int operation) {
+int network_talking_to(const char *nodename, int operation) {
 
 	char *ptr = NULL;
 	int i;
