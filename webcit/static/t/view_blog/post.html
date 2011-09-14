@@ -11,6 +11,9 @@
  <??("X", 1)>
 </span>
  <span><?MAIL:SUMM:DATEFULL></span>
+<?!("COND:ROOM:EDITACCESS", 16)>
+   <a href="delete_msg?msgid=<?MAIL:SUMM:N>" onclick="return confirm('<?_("Delete this message?")>');"><span>[</span><?_("Delete")><span>]</span> </a> 
+<??("X", 16)>
 </div>
 <div class="blog_post_content"><div>
 <?MAIL:BODY>
