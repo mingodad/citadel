@@ -214,6 +214,9 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		}
 		bp->msgs[bp->num_msgs++] = Msg->msgnum;
 	}
+	else {
+		syslog(LOG_DEBUG, "** comment %ld is unparented", Msg->msgnum);
+	}
 
 	return 200;
 }
