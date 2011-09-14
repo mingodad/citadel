@@ -89,6 +89,7 @@
 #include "context.h"
 #include "netconfig.h"
 #include "netspool.h"
+#include "netmail.h"
 #include "ctdl_module.h"
 
 
@@ -257,9 +258,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
  * Spools out one message from the list.
  */
 void network_spool_msg(long msgnum, 
-		       void *userdata, 
-		       char *working_ignetcfg,
-		       NetMap *the_netmap)
+		       void *userdata)
 {
 	SpoolControl *sc;
 	int i;
@@ -435,8 +434,8 @@ void network_spool_msg(long msgnum,
 				if (is_valid_node(NULL, 
 						  NULL, 
 						  msg->cm_fields['N'], 
-						  working_ignetcfg, 
-						  the_netmap) == 0)
+						  sc->working_ignetcfg, 
+						  sc->the_netmap) == 0)
 				{
 					ok_to_participate = 1;
 				}
@@ -522,8 +521,8 @@ void network_spool_msg(long msgnum,
 			if (is_valid_node(NULL, 
 					  NULL, 
 					  mptr->remote_nodename, 
-					  working_ignetcfg, 
-					  the_netmap) != 0)
+					  sc->working_ignetcfg, 
+					  sc->the_netmap) != 0)
 			{
 				syslog(LOG_ERR, "Invalid node <%s>\n", mptr->remote_nodename);
 				send = 0;
