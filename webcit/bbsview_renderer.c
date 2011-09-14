@@ -343,7 +343,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 						wc_printf("[");
 					}
 					else {
-						wc_printf("<a href=\"readfwd?page=%d\">", i);
+						wc_printf("<a href=\"readfwd?go=");
+						urlescputs(ChrPtr(WC->CurRoom.name));
+						wc_printf("?page=%d\">", i);
 						wc_printf("<span class=\"moreprompt_link\">");
 					}
 					if (

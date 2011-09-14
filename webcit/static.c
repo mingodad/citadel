@@ -354,6 +354,7 @@ void robots_txt(void) {
 		"Disallow: /readnew\r\n"
 		"Disallow: /display_enter\r\n"
 		"Disallow: /skip\r\n"
+		"Disallow: /ungoto\r\n"
 		"Sitemap: %s/sitemap.xml\r\n"
 		"\r\n"
 		,
