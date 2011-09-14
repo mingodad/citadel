@@ -481,6 +481,7 @@ int Conditional_USER_HAS_PIC(StrBuf *Target, WCTemplputParams *TP)
 	StrBuf *Buf;
 	const char *who;
 	long len;
+	int r = 0;
 
 	GetTemplateTokenString(Target, TP, 2, &who, &len);
 
@@ -488,15 +489,16 @@ int Conditional_USER_HAS_PIC(StrBuf *Target, WCTemplputParams *TP)
 	serv_printf("OIMG _userpic_|%s", who);
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		serv_puts("CLOS");
-		StrBuf_ServGetln(Buf);
-		GetServerStatus(Buf, NULL);
-		FreeStrBuf(&Buf);
-		return 1;
-	} else {
-		FreeStrBuf(&Buf);
-		return 0;
+		r = 1;
 	}
+	else {
+		r = 0;
+	}
+	serv_puts("CLOS");
+	StrBuf_ServGetln(Buf);
+	GetServerStatus(Buf, NULL);
+	FreeStrBuf(&Buf);
+	return(r);
 }
 
 

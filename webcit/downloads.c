@@ -407,7 +407,10 @@ void output_image(void)
 			}
 		}
 		/* hm... unknown mimetype? fallback to blank gif */
-	} 
+	}
+	else { 
+		syslog(LOG_DEBUG, "OIMG failed: %s", ChrPtr(Buf));
+	}
 
 	
 	/*
