@@ -471,7 +471,9 @@ void network_do_queue(void) {
 
 			end_critical_section(S_RPLIST);
 			if (spoolroomname[0] != 0) {
-				network_spoolout_room(spoolroomname);
+				network_spoolout_room(spoolroomname, 
+						      working_ignetcfg,
+						      the_netmap);
 			}
 		}
 	}

@@ -18,10 +18,15 @@ struct SpoolControl {
 	char *misc;
 	FILE *digestfp;
 	int num_msgs_spooled;
+
+	char *working_ignetcfg;
+	NetMap *the_netmap;
 };
 
 
-void network_spoolout_room(char *room_to_spool);
+void network_spoolout_room(char *room_to_spool, 		       
+			   char *working_ignetcfg,
+			   NetMap *the_netmap);
 void network_do_spoolin(char *working_ignetcfg, NetMap *the_netmap, int *netmap_changed);
 void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap);
 void free_spoolcontrol_struct(SpoolControl **scc);

@@ -380,7 +380,10 @@ int is_recipient(SpoolControl *sc, const char *Name)
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_spoolout_room(char *room_to_spool) {
+void network_spoolout_room(char *room_to_spool, 		       
+			   char *working_ignetcfg,
+			   NetMap *the_netmap)
+{
 	char buf[SIZ];
 	char filename[PATH_MAX];
 	SpoolControl *sc;
@@ -406,6 +409,9 @@ void network_spoolout_room(char *room_to_spool) {
 		return;
 	}
 	syslog(LOG_INFO, "Networking started for <%s>\n", CC->room.QRname);
+
+	sc->working_ignetcfg = working_ignetcfg;
+	sc->the_netmap = the_netmap;
 
 	/* If there are digest recipients, we have to build a digest */
 	if (sc->digestrecps != NULL) {
