@@ -241,6 +241,7 @@ int StrBuf_write_one_chunk_callback(int fd, short event, IOBuffer *FB);
 
 eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB);
 eReadState StrBufCheckBuffer(IOBuffer *FB);
+long IOBufferStrLength(IOBuffer *FB);
 
 int StrBufSipLine(StrBuf *LineBuf, const StrBuf *Buf, const char **Ptr);
 int StrBufReplaceToken(StrBuf *Buf, long where, long HowLong, const char *Repl, long ReplLen);

@@ -3774,6 +3774,14 @@ eReadState StrBufCheckBuffer(IOBuffer *FB)
 	return eReadSuccess;
 }
 
+long IOBufferStrLength(IOBuffer *FB)
+{
+	if (FB->ReadWritePointer == NULL)
+		return StrLength(FB->Buf);
+	
+	return StrLength(FB->Buf) - (FB->ReadWritePointer - FB->Buf->buf);
+}
+
 /*******************************************************************************
  *           File I/O; Prefer buffered read since its faster!                  *
  *******************************************************************************/
