@@ -110,6 +110,7 @@ eNextState SMTP_C_Timeout(AsyncIO *IO);
 eNextState SMTP_C_ConnFail(AsyncIO *IO);
 eNextState SMTP_C_DispatchReadDone(AsyncIO *IO);
 eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO);
+eNextState SMTP_C_DNSFail(AsyncIO *IO);
 eNextState SMTP_C_Terminate(AsyncIO *IO);
 eReadState SMTP_C_ReadServerStatus(AsyncIO *IO);
 
@@ -435,6 +436,7 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 	SendMsg->IO.Terminate     = SMTP_C_Terminate;
 	SendMsg->IO.LineReader    = SMTP_C_ReadServerStatus;
 	SendMsg->IO.ConnFail      = SMTP_C_ConnFail;
+	SendMsg->IO.DNSFail       = SMTP_C_DNSFail;
 	SendMsg->IO.Timeout       = SMTP_C_Timeout;
 	SendMsg->IO.ShutdownAbort = SMTP_C_Shutdown;
 
@@ -582,6 +584,14 @@ eNextState SMTP_C_Timeout(AsyncIO *IO)
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_ConnFail(AsyncIO *IO)
+{
+	SmtpOutMsg *pMsg = IO->Data;
+
+	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
+	return FailOneAttempt(IO);
+}
+eNextState SMTP_C_DNSFail(AsyncIO *IO)
 {
 	SmtpOutMsg *pMsg = IO->Data;
 

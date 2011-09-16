@@ -145,6 +145,7 @@ typedef eNextState(*Pop3ClientHandler)(pop3aggr* RecvMsg);
 eNextState POP3_C_Shutdown(AsyncIO *IO);
 eNextState POP3_C_Timeout(AsyncIO *IO);
 eNextState POP3_C_ConnFail(AsyncIO *IO);
+eNextState POP3_C_DNSFail(AsyncIO *IO);
 eNextState POP3_C_DispatchReadDone(AsyncIO *IO);
 eNextState POP3_C_DispatchWriteDone(AsyncIO *IO);
 eNextState POP3_C_Terminate(AsyncIO *IO);
@@ -680,6 +681,14 @@ eNextState POP3_C_ConnFail(AsyncIO *IO)
 	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State]));
 	return FailAggregationRun(IO);
 }
+eNextState POP3_C_DNSFail(AsyncIO *IO)
+{
+	pop3aggr *pMsg = (pop3aggr *)IO->Data;
+
+	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State]));
+	return FailAggregationRun(IO);
+}
 eNextState POP3_C_Shutdown(AsyncIO *IO)
 {
 	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
@@ -836,6 +845,7 @@ int pop3_do_fetching(pop3aggr *cpptr)
 	cpptr->IO.Terminate     = POP3_C_Terminate;
 	cpptr->IO.LineReader    = POP3_C_ReadServerStatus;
 	cpptr->IO.ConnFail      = POP3_C_ConnFail;
+	cpptr->IO.DNSFail       = POP3_C_DNSFail;
 	cpptr->IO.Timeout       = POP3_C_Timeout;
 	cpptr->IO.ShutdownAbort = POP3_C_Shutdown;
 	

@@ -102,6 +102,7 @@ struct AsyncIO {
 		Terminate,    /* shutting down... */
 		Timeout,      /* Timeout handler; may also be connection timeout */
 		ConnFail,     /* What to do when one connection failed? */
+		DNSFail,      /* the dns lookup didn't work out. */
 		ShutdownAbort,/* we're going down. make your piece. */ 
 		NextDBOperation; /* Perform Database IO */
 

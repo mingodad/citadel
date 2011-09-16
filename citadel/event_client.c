@@ -591,11 +591,11 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 	syslog(LOG_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
-
+	assert(IO->DNSFail);
 	switch (IO->DNSQuery->PostDNS(IO))
 	{
 	case eAbort:
-	    ShutDownCLient(IO);
+		IO->DNSFail(IO);
 	default:
 	    break;
 	}
