@@ -10,7 +10,7 @@ Standards-Version: 3.8.0
 
 Package: citadel-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common, openssl, locales
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common, openssl, locales, patch
 Recommends: db4.4-util | db4.3-util, shared-mime-info
 Suggests: postfix | exim4 | citadel-mta | mail-transport-agent, localepurge
 Conflicts: pop3-server, imap-server
