@@ -120,7 +120,7 @@ typedef struct _async_networker {
 	StrBuf		*Url;
 
 	long download_len;
-	long BlobReadSize;
+	int BlobReadSize;
 	long bytes_written;
 	long bytes_to_write;
 } AsyncNetworker;
@@ -220,8 +220,21 @@ eNextState NWC_ReadNDOPReply(AsyncNetworker *NW)
 	{
 		NW->download_len = atol (ChrPtr(NW->IO.IOBuf) + 4);
 		syslog(LOG_DEBUG, "Expecting to transfer %ld bytes\n", NW->download_len);
-		if (NW->download_len <= 0)
+		if (NW->download_len <= 0) {
 			NW->State = eNUOP - 1;
+		}
+		else {
+			NW->TmpFile = fopen(ChrPtr(NW->SpoolFileName), "w");
+			if (NW->TmpFile == NULL)
+			{
+				syslog(LOG_CRIT,
+				       "cannot open %s: %s\n", 
+				       ChrPtr(NW->SpoolFileName), 
+				       strerror(errno));
+
+				NW->State = eQUIT - 1;
+			}
+		}
 		return eSendReply;
 	}
 	else
@@ -241,7 +254,7 @@ eNextState NWC_SendREAD(AsyncNetworker *NW)
 		if (server_shutting_down)
 		{
 			fclose(NW->TmpFile);
-			unlink(ChrPtr(NW->tempFileName));
+//////			unlink(ChrPtr(NW->tempFileName));
 			return eAbort;
 		}
 		StrBufPrintf(NW->IO.SendBuf.Buf, "READ %ld|%ld\n",
@@ -265,6 +278,7 @@ eNextState NWC_ReadREADState(AsyncNetworker *NW)
 	if (ChrPtr(NW->IO.IOBuf)[0] == '6')
 	{
 		NW->BlobReadSize = atol(ChrPtr(NW->IO.IOBuf)+4);
+		NW->bytes_received += NW->BlobReadSize;
 /// TODO		StrBufReadjustIOBuffer(NW->IO.RecvBuf, NW->BlobReadSize);
 		return eReadPayload;
 	}
@@ -272,18 +286,21 @@ eNextState NWC_ReadREADState(AsyncNetworker *NW)
 }
 eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 {
-	fwrite(ChrPtr(NW->IO.RecvBuf.Buf), NW->BlobReadSize, 1, NW->TmpFile);
-	NW->bytes_received += NW->BlobReadSize;
 	/// FlushIOBuffer(NW->IO.RecvBuf); /// TODO
+	fwrite(NW->IO.RecvBuf.ReadWritePointer,
+	       1, 
+	       NW->BlobReadSize, 
+	       NW->TmpFile);
 	if (NW->bytes_received < NW->download_len)
 	{
+		NW->State = eREAD - 1;
 		return eSendReply;/* now fetch next chunk*/
 	}
 	else 
 	{
 		fclose(NW->TmpFile);
 		
-		if (link(ChrPtr(NW->tempFileName), ChrPtr(NW->SpoolFileName)) != 0) {
+		if (link(ChrPtr(NW->SpoolFileName), ChrPtr(NW->tempFileName)) != 0) {
 			syslog(LOG_ALERT, 
 			       "Could not link %s to %s: %s\n",
 			       ChrPtr(NW->tempFileName), 
@@ -291,7 +308,7 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 			       strerror(errno));
 		}
 	
-		unlink(ChrPtr(NW->tempFileName));
+/////		unlink(ChrPtr(NW->tempFileName));
 		return eSendReply; //// TODO: step forward.
 	}
 }
@@ -300,14 +317,16 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 eNextState NWC_SendCLOS(AsyncNetworker *NW)
 {
 	StrBufPlain(NW->IO.SendBuf.Buf, HKEY("CLOS\n"));
-	unlink(ChrPtr(NW->tempFileName));
+////	unlink(ChrPtr(NW->tempFileName));
 	return eReadMessage;
 }
 
 eNextState NWC_ReadCLOSReply(AsyncNetworker *NW)
 {
 /// todo
-	return eTerminateConnection;
+	if (ChrPtr(NW->IO.IOBuf)[0] != '2')
+		return eTerminateConnection;
+	return eSendReply;
 }
 
 
@@ -356,8 +375,9 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 eNextState NWC_ReadNUOPReply(AsyncNetworker *NW)
 {
 	NWC_DBG_READ();
-///	if (ChrPtr(NW->IO.IOBuf)[0] == '2');;;; //// todo
-	return eReadMessage;
+	if (ChrPtr(NW->IO.IOBuf)[0] != '2')
+		return eAbort;
+	return eSendReply;
 }
 
 eNextState NWC_SendWRIT(AsyncNetworker *NW)
@@ -401,7 +421,7 @@ eNextState NWC_ReadUCLS(AsyncNetworker *NW)
 ///	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (ChrPtr(NW->IO.IOBuf)[0] == '2') {
 		syslog(LOG_DEBUG, "Removing <%s>\n", ChrPtr(NW->tempFileName));
-		unlink(ChrPtr(NW->tempFileName));
+///		unlink(ChrPtr(NW->tempFileName));
 	}
 	return eSendReply;
 }
@@ -559,6 +579,7 @@ eNextState nwc_get_one_host_ip(AsyncIO *IO)
  */
 eReadState NWC_ReadServerStatus(AsyncIO *IO)
 {
+	AsyncNetworker *NW = IO->Data;
 	eReadState Finished = eBufferNotEmpty; 
 
 	switch (IO->NextState) {
@@ -577,6 +598,7 @@ eReadState NWC_ReadServerStatus(AsyncIO *IO)
 		Finished = StrBufChunkSipLine(IO->IOBuf, &IO->RecvBuf);
 		break;
 	case eReadPayload:
+		Finished = IOBufferStrLength(&IO->RecvBuf) >= NW->BlobReadSize;
 		break;
 	}
 	return Finished;
@@ -639,6 +661,14 @@ eNextState NWC_ConnFail(AsyncIO *IO)
 ////	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State])); todo
 	return NWC_FailNetworkConnection(IO);
 }
+eNextState NWC_DNSFail(AsyncIO *IO)
+{
+///	AsyncNetworker *NW = IO->Data;
+
+	syslog(LOG_DEBUG, "NW: %s\n", __FUNCTION__);
+////	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State])); todo
+	return NWC_FailNetworkConnection(IO);
+}
 eNextState NWC_Shutdown(AsyncIO *IO)
 {
 	syslog(LOG_DEBUG, "NW: %s\n", __FUNCTION__);
@@ -685,6 +715,7 @@ void RunNetworker(AsyncNetworker *NW)
 	NW->IO.Terminate     = NWC_Terminate;
 	NW->IO.LineReader    = NWC_ReadServerStatus;
 	NW->IO.ConnFail      = NWC_ConnFail;
+	NW->IO.DNSFail       = NWC_DNSFail;
 	NW->IO.Timeout       = NWC_Timeout;
 	NW->IO.ShutdownAbort = NWC_Shutdown;
 	
