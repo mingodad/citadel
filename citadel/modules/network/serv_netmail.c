@@ -291,6 +291,8 @@ void network_spool_msg(long msgnum,
 			char *pCh;
 			StrBuf *Subject, *FlatSubject;
 
+			if (msg->cm_fields['K'] != NULL)
+				free(msg->cm_fields['K']);
 			if (msg->cm_fields['V'] == NULL){
 				/* local message, no enVelope */
 				StrBuf *Buf;
@@ -464,7 +466,7 @@ void network_spool_msg(long msgnum,
 			 	 */
 				for (nptr = sc->participates; nptr != NULL; nptr = nptr->next) {
 
-					if (msg->cm_fields['R'] == NULL) {
+					if (msg->cm_fields['R'] != NULL) {
 						free(msg->cm_fields['R']);
 					}
 					msg->cm_fields['R'] = strdup(nptr->name);
