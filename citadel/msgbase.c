@@ -3186,8 +3186,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			syslog(LOG_DEBUG, "Delivering private local mail to <%s>\n",
 			       recipient);
 			if (CtdlGetUser(&userbuf, recipient) == 0) {
-				// Add a flag so the Funambol module knows its mail
-				msg->cm_fields['W'] = strdup(recipient);
 				CtdlMailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 				CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
 				CtdlBumpNewMailCounter(userbuf.usernum);
@@ -3650,10 +3648,10 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['E'] = strdup(supplied_euid);
 	}
 
-	if (references != NULL) {
-		if (!IsEmptyStr(references)) {
-			msg->cm_fields['W'] = strdup(references);
-		}
+	if ((references != NULL) && (!IsEmptyStr(references))) {
+		if (msg->cm_fields['W'] != NULL)
+			free(msg->cm_fields['W']);
+		msg->cm_fields['W'] = strdup(references);
 	}
 
 	if (preformatted_text != NULL) {
