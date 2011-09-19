@@ -283,6 +283,8 @@ V	enVelope-to	The recipient specified in incoming SMTP messages.
 W	Wefewences	Previous message ID's for conversation threading.  When
 			converting from RFC822 we use References: if present, or
 			In-Reply-To: otherwise.
+			(Who in extnotify spool messages which don't need to know
+			other message ids)
 Y	carbon copY	Optional, and only in Mail messages.
 0	Error		This field is typically never found in a message on
 			disk or in transit.  Message scanning modules are
