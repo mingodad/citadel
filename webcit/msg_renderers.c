@@ -865,6 +865,21 @@ void tmplput_MAIL_SUMM_N(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+void tmplput_MAIL_SUMM_PERMALINK(StrBuf *Target, WCTemplputParams *TP)
+{
+	message_summary *Msg = (message_summary*) CTX;
+	char perma_link[1024];
+	char encoded_link[1024];
+
+	strcpy(perma_link, "/readfwd?go=");
+	urlesc(&perma_link[12], sizeof(perma_link) - 12, (char *)ChrPtr(WC->CurRoom.name) );
+	sprintf(&perma_link[strlen(perma_link)], "?start_reading_at=%ld#%ld", Msg->msgnum, Msg->msgnum);
+
+
+	CtdlEncodeBase64(encoded_link, perma_link, strlen(perma_link), 0);
+	StrBufAppendPrintf(Target, "/B64%s", encoded_link);
+}
+
 
 int Conditional_MAIL_MIME_ALL(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -1453,6 +1468,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:DATEFULL", 0, 0, tmplput_MAIL_SUMM_DATE_FULL, NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:N",       0, 0, tmplput_MAIL_SUMM_N,        NULL, CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:PERMALINK", 0, 0, tmplput_MAIL_SUMM_PERMALINK, NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:FROM",    0, 2, tmplput_MAIL_SUMM_FROM,     NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:TO",      0, 2, tmplput_MAIL_SUMM_TO,       NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:SUBJECT", 0, 4, tmplput_MAIL_SUMM_SUBJECT,  NULL, CTX_MAILSUM);
