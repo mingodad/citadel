@@ -274,9 +274,8 @@ S       Special field   Only meaningful for messages being spooled over a
 			-> "S" followed by "CANCEL" means that this message
 			   should be deleted from the local message base once
 			   it has been replicated to all network systems.
-T	date/Time	A 32-bit integer containing the date and time of
-                        the message in standard UNIX format (the number
-                        of seconds since January 1, 1970 GMT).
+T	date/Time	Unix timestamp containing the creation date/time of
+			the message.
 U       sUbject         Optional.  Developers may choose whether they wish to
                         generate or display subject fields.
 V	enVelope-to	The recipient specified in incoming SMTP messages.
@@ -293,6 +292,7 @@ Y	carbon copY	Optional, and only in Mail messages.
 			message looks like spam, etc.)
 1	suppress index	The presence of this field indicates that the message is
 			disqualified from being added to the full text index.
+2	extnotify	Used internally by the serv_extnotify module.
   
 			EXAMPLE
 

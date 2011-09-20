@@ -3210,7 +3210,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					imsg->cm_fields['A'] = strdup("Citadel");
 					imsg->cm_fields['J'] = strdup("do not journal");
 					imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
-					imsg->cm_fields['W'] = strdup(recipient);
+					imsg->cm_fields['2'] = strdup(recipient);
 					CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM, 0);
 					CtdlFreeMessage(imsg);
 				}
