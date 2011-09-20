@@ -688,7 +688,10 @@ void rss_save_item(rss_item *ri)
 		}
 		if (ri->link == NULL) 
 			ri->link = NewStrBufPlain(HKEY(""));
+#ifdef EXPERIMENTAL_SHORTER_URLS
+/* its rather hard to implement this libevent compatible, so we don't ship it. */
 		ExpandShortUrls(ri->description);
+#endif
 		msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
 
 		Message = NewStrBufPlain(NULL, StrLength(ri->description));
