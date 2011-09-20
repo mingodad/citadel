@@ -629,4 +629,8 @@ extern ConstStr RoomNetCfgStrs[maxRoomNetCfg];
 /* Convenience function to "perform a function and cut a log record if result != 0" */
 #define CtdlLogResult(x) if (x) syslog(LOG_CRIT, "%s:%d %s", __FILE__, __LINE__, strerror(errno))
 
+/* a nice consistent place to define how we turn a message id into a thread id hash */
+#define ThreadIdHash(Buf) abs(HashLittle(ChrPtr(Buf), StrLength(Buf)))
+
+
 #endif	// LIBCITADEL_H
