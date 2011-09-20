@@ -8,7 +8,6 @@ fi
 
 export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;LIBCITADEL;"`
 
-PACKAGE_VERSION=`cat packageversion`
 DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
 ACTUAL_DIR=`pwd`
 
