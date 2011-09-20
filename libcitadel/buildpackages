@@ -113,6 +113,6 @@ EMAIL=citadel@outgesourced.org
 	    -chvzf libcitadel-$LIBCITADEL_VERSION.tar.gz libcitadel-$LIBCITADEL_VERSION/
 	;;
 	*)
-		echo "Not yet implemented. we have: debian "
+		echo "Not yet implemented. we have: debian, sourcedist "
 		;;
 esac
