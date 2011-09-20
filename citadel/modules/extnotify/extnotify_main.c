@@ -267,9 +267,9 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	Ctx = (NotifyContext*) usrdata;
 
 	msg = CtdlFetchMessage(NotifyMsgnum, 1);
-	if ( msg->cm_fields['W'] != NULL) 
+	if ( msg->cm_fields['2'] != NULL) 
 	{
-    		Type = extNotify_getConfigMessage(msg->cm_fields['W'], &PagerNo, &FreeMe);
+    		Type = extNotify_getConfigMessage(msg->cm_fields['2'], &PagerNo, &FreeMe);
 	
 		pch = strstr(msg->cm_fields['M'], "msgid|");
 		if (pch != NULL) 
@@ -290,7 +290,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 			notify_http_server(remoteurl, 
 					   file_funambol_msg,
 					   strlen(file_funambol_msg),/*GNA*/
-					   msg->cm_fields['W'], 
+					   msg->cm_fields['2'], 
 					   msg->cm_fields['I'],
 					   msgnum, 
 					   NULL);
@@ -324,7 +324,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 				notify_http_server(URLBuf, 
 						   ChrPtr(FileBuf),
 						   StrLength(FileBuf),
-						   msg->cm_fields['W'], 
+						   msg->cm_fields['2'], 
 						   msg->cm_fields['I'],
 						   msgnum, 
 						   NULL);
@@ -337,9 +337,9 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 			int commandSiz;
 			char *command;
 
-			commandSiz = sizeof(config.c_pager_program) + strlen(PagerNo) + strlen(msg->cm_fields['W']) + 5;
+			commandSiz = sizeof(config.c_pager_program) + strlen(PagerNo) + strlen(msg->cm_fields['2']) + 5;
 			command = malloc(commandSiz);
-			snprintf(command, commandSiz, "%s %s -u %s", config.c_pager_program, PagerNo, msg->cm_fields['W']);
+			snprintf(command, commandSiz, "%s %s -u %s", config.c_pager_program, PagerNo, msg->cm_fields['2']);
 			system(command);
 			free(command);
 		}
