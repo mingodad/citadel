@@ -133,7 +133,7 @@ void LoadIconSettings(StrBuf *iconbar, long lvalue)
 	{
 		WCC->IBSettingsVec = (long*) malloc (nIBV * sizeof(long));
 	}
-	/**
+	/*
 	 * The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
 	 * their iconbars.  These should probably be set in a master

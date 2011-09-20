@@ -433,16 +433,10 @@ void do_welcome(void)
 		if (!setup_wizard) {
 			int len;
 			sprintf(wizard_filename, "setupwiz.%s.%s",
-				ctdlhost, ctdlport);
-			len = strlen(wizard_filename);
-			for (i=0; i<len; ++i) {
-				if (	(wizard_filename[i]==' ')
-					|| (wizard_filename[i] == '/')
-				) {
-					wizard_filename[i] = '_';
-				}
-			}
-	
+				abs(HashLittle(ctdlhost, strlen(ctdlhost))),
+				abs(HashLittle(ctdlport, strlen(ctdlport)))
+			);
+
 			fp = fopen(wizard_filename, "r");
 			if (fp != NULL) {
 				fgets(buf, sizeof buf, fp);

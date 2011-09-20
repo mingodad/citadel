@@ -818,9 +818,6 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 
 extern int time_to_die;			/* Nonzero if server is shutting down */
 
-/* a nice consistent place to define how we turn a message id into a thread id hash */
-#define ThreadIdHash(Buf) abs(HashLittle(ChrPtr(Buf), StrLength(Buf)))
-
 /* 
  * Array type for a blog post.  The first message is the post; the rest are comments
  */
