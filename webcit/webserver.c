@@ -39,16 +39,14 @@ extern void webcit_calc_dirs_n_files(int relh, const char *basedir, int home, ch
 extern void worker_entry(void);
 extern void drop_root(uid_t UID);
 
-char socket_dir[PATH_MAX];			/* where to talk to our citadel server */
-
+char socket_dir[PATH_MAX];	/* where to talk to our citadel server */
 char *server_cookie = NULL;	/* our Cookie connection to the client */
 int http_port = PORT_NUM;	/* Port to listen on */
-char *ctdlhost = DEFAULT_HOST;	/* our name */
-char *ctdlport = DEFAULT_PORT;	/* our Port */
-int setup_wizard = 0;		/* should we run the setup wizard? \todo */
-char wizard_filename[PATH_MAX];	/* where's the setup wizard? */
+char *ctdlhost = DEFAULT_HOST;	/* Host name or IP address of Citadel server */
+char *ctdlport = DEFAULT_PORT;	/* Port number of Citadel server */
+int setup_wizard = 0;		/* should we run the setup wizard? */
+char wizard_filename[PATH_MAX];	/* location of file containing the last webcit version against which we ran setup wizard */
 int running_as_daemon = 0;	/* should we deamonize on startup? */
-
 
 
 /* #define DBG_PRINNT_HOOKS_AT_START */
@@ -436,7 +434,7 @@ int main(int argc, char **argv)
 
 	/* Become a worker thread.  More worker threads will be spawned as they are needed. */
 	worker_entry();
-	ShutDownLibCitadel ();
+	ShutDownLibCitadel();
 	return 0;
 }
 
