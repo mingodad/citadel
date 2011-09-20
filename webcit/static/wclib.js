@@ -270,7 +270,7 @@ function addRoomToList(floorUL,room, roomToEmphasize) {
   var hasNewMsgs = ((raflags & UA_HASNEWMSGS) == UA_HASNEWMSGS);
   var roomLI = document.createElement("li");
   var roomA = document.createElement("a");
-  roomA.setAttribute("href","dotgoto?room="+roomName);
+  roomA.setAttribute("href","dotgoto?room="+encodeURIComponent(roomName));
   roomA.appendChild(document.createTextNode(roomName));
   roomLI.appendChild(roomA);
   floorUL.appendChild(roomLI);
