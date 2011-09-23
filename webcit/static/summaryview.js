@@ -276,7 +276,7 @@ function CtdlMessageListClick(evt) {
 		markRow(parent);
 		new Ajax.Request('ajax_servcmd', {
 			method: 'post',
-					parameters: 'g_cmd=SEEN ' + msgId + '|1',
+					parameters: 'g_cmd=SEEN%20' + msgId + '|1',
 					onComplete: CtdlMarkRowAsRead(parent)});
 		// If the shift key modifier is used, mark a range...
 	} else if (event.button != 2 && event.shiftKey) {
@@ -407,11 +407,11 @@ function deleteAllSelectedMessages() {
 		if (!room_is_trash) {
 			new Ajax.Request('ajax_servcmd', 
 					 {method: 'post',
-							 parameters: 'g_cmd=MOVE ' + msgId + '|_TRASH_|0'
+							 parameters: 'g_cmd=MOVE%20' + msgId + '|_TRASH_|0'
 							 });
 		} else {
 			new Ajax.Request('ajax_servcmd', {method: 'post',
-						parameters: 'g_cmd=DELE '+msgId});
+						parameters: 'g_cmd=DELE%20'+msgId});
 		}
 	}
 	document.getElementById("preview_pane").innerHTML = "";

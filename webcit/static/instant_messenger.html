@@ -55,7 +55,7 @@ function SendSomething(which_div, sendform, recipient) {
 
 	// Send the text to the server
 	parms = 'r=' + Math.random()
-		+ '&recp=' + recipient
+		+ '&recp=' + encodeURIComponent(recipient)
 		+ '&msg=' + encodeURIComponent(thetext);
 	new Ajax.Request('../ajax_send_instant_message',
 		{
@@ -182,7 +182,7 @@ function FetchNewMsgs() {
 }
 
 // Perform some initialization.
-parms = 'g_cmd=GREG _SELF_&r=' + Math.random();
+parms = 'g_cmd=GREG%20_SELF_&r=' + Math.random();
 new Ajax.Request('../ajax_servcmd',
 	{
 		method: 'get',
