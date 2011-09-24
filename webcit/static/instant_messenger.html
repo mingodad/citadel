@@ -55,7 +55,7 @@ function SendSomething(which_div, sendform, recipient) {
 
 	// Send the text to the server
 	parms = 'r=' + Math.random()
-		+ '&recp=' + recipient
+		+ '&recp=' + encodeURIComponent(recipient)
 		+ '&msg=' + encodeURIComponent(thetext);
 	new Ajax.Request('../ajax_send_instant_message',
 		{
