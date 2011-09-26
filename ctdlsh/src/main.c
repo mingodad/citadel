@@ -1,5 +1,5 @@
 /*
- * (c) 2009 by Art Cancro and citadel.org
+ * (c) 2009-2011 by Art Cancro and citadel.org
  * This program is released under the terms of the GNU General Public License v3.
  */
 
@@ -12,7 +12,32 @@
 #include <readline/readline.h>
 #include "ctdlsh.h"
 
-#define CTDLDIR	"/root/ctdl/trunk/citadel"
+#define CTDLDIR	"/appl/citadel"
+
+
+
+int com_quit(char *cmdbuf) {
+	abort();
+}
+
+
+
+
+/*
+ * Commands understood by ctdlsh
+ */
+typedef struct {
+	char *name;
+	rl_icpfunc_t *func;
+	char *doc;
+} COMMAND;
+
+COMMAND commands[] = {
+	{	"quit",		com_quit,	"Quit using ctdlsh"	},
+	{	"exit",		com_quit,	"Quit using ctdlsh"	},
+	{	NULL,		NULL,		NULL			}
+};
+
 
 int discover_ipgm_secret(char *dirname) {
 	int fd;
@@ -71,7 +96,8 @@ void do_main_loop(int server_socket) {
 			printf("%s\n", server_reply);
 
 			if ((server_reply[0] == '4') || (server_reply[0] == '8')) {
-				// FIXME
+				/* we might consider putting something here */
+				sock_puts(server_socket, "000");
 			}
 
 			if ((server_reply[0] == '1') || (server_reply[0] == '8')) {
@@ -95,7 +121,7 @@ int main(int argc, char **argv)
 	char *ctdldir = CTDLDIR;
 
 	printf("\nCitadel administration shell v" PACKAGE_VERSION "\n");
-	printf("(c) 2009 citadel.org GPLv3\n");
+	printf("(c) 2009-2011 citadel.org GPLv3\n");
 
 	opterr = 0;
 	while ((c = getopt (argc, argv, "h:")) != -1) {
@@ -120,14 +146,12 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	printf("Attaching to server...\r");
-	fflush(stdout);
+	printf("Trying %s...\n", ctdldir);
 	sprintf(buf, "%s/citadel.socket", ctdldir);
 	server_socket = uds_connectsock(buf);
 	if (server_socket < 0) {
 		exit(1);
 	}
-	printf("                      \r");
 
 	sock_getln(server_socket, buf, sizeof buf);
 	printf("%s\n", buf);
