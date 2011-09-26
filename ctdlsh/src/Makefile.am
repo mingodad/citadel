@@ -4,4 +4,4 @@
 ##/
 
 bin_PROGRAMS = ctdlsh
-ctdlsh_SOURCES = main.c sockets.c ctdlsh.h
+ctdlsh_SOURCES = main.c sockets.c ctdlsh.h datetime.c

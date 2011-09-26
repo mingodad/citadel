@@ -1,3 +1,26 @@
+#include <config.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <string.h>
+#include <pwd.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <readline/readline.h>
+
+/*
+ * Set to the location of Citadel
+ * FIXME this needs to be configurable
+ */
+#define CTDLDIR	"/appl/citadel"
+
 /*
  * This is a small subset of 'struct config' ... don't worry about the rest; we
  * only need to snarf the c_ipgm_secret.
@@ -26,3 +49,6 @@ struct partial_config {
 	int c_port_number;		/* Cit listener port (usually 504)  */
 	int c_ipgm_secret;		/* Internal program authentication  */
 };
+
+int cmd_quit(char *);
+int cmd_datetime(char *);

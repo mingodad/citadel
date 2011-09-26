@@ -2,19 +2,6 @@
  *
  */
 
-#include <config.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
 #include "ctdlsh.h"
 
 #ifndef INADDR_NONE
