@@ -12,6 +12,8 @@
 #include <string.h>
 #include "ctdlsalearn.h"
 
+int verbose = 0;
+
 int discover_ipgm_secret(char *dirname) {
 	int fd;
 	struct partial_config ccc;
@@ -20,16 +22,16 @@ int discover_ipgm_secret(char *dirname) {
 	sprintf(configfile, "%s/citadel.config", dirname);
 	fd = open(configfile, O_RDONLY);
 	if (fd < 0) {
-		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
+		if (verbose) fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
 		return(-1);
 	}
 
 	if (read(fd, &ccc, sizeof(struct partial_config)) != sizeof(struct partial_config)) {
-		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
+		if (verbose) fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
 		return(-1);
 	}
 	if (close(fd) != 0) {
-		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
+		if (verbose) fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
 		return(-1);
 	}
 	return(ccc.c_ipgm_secret);
@@ -45,12 +47,12 @@ void do_room(int sock, char *roomname, char *salearnargs)
 	FILE *fp;
 	int i;
 
-	printf("%s: ", roomname);
+	if (verbose) printf("%s: ", roomname);
 	fflush(stdout);
 	sock_printf(sock, "GOTO %s\n", roomname);
 	sock_getln(sock, buf, sizeof buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		if (verbose) printf("%s\n", &buf[4]);
 		return;
 	}
 
@@ -60,20 +62,21 @@ void do_room(int sock, char *roomname, char *salearnargs)
 	sock_printf(sock, "MSGS LAST|%d\n", MAXMSGS);
 	sock_getln(sock, buf, sizeof buf);
 	if (buf[0] != '1') {
-		printf("%s\n", &buf[4]);
+		if (verbose) printf("%s\n", &buf[4]);
 		return;
 	}
 	while (sock_getln(sock, buf, sizeof buf), strcmp(buf, "000")) {
 		msgs[num_msgs++] = atol(buf);
 	}
-	printf("%d messages\n", num_msgs);
+	if (verbose) printf("%d messages\n", num_msgs);
 
 	if (num_msgs == 0) return;
 	for (i=0; i<num_msgs; ++i) {
 		snprintf(buf, sizeof buf, "sa-learn %s", salearnargs);
+		if (!verbose) strcat(buf, " >/dev/null");
 		fp = popen(buf, "w");
 		if (fp == NULL) return;
-		printf("Submitting message %ld\n", msgs[i]);
+		if (verbose) printf("Submitting message %ld\n", msgs[i]);
 		sock_printf(sock, "MSG2 %ld\n", msgs[i]);
 		sock_getln(sock, buf, sizeof buf);
 		if (buf[0] == '1') {
@@ -84,7 +87,7 @@ void do_room(int sock, char *roomname, char *salearnargs)
 		if (pclose(fp) == 0) {
 			sock_printf(sock, "DELE %ld\n", msgs[i]);
 			sock_getln(sock, buf, sizeof buf);
-			printf("%s\n", &buf[4]);
+			if (verbose) printf("%s\n", &buf[4]);
 		}
 	}
 }
@@ -98,8 +101,14 @@ int main(int argc, char **argv)
 	int c;
 	char ctdldir[256];
 
-	printf("\nAuto-submit spam and ham to sa-learn for Citadel " PACKAGE_VERSION "\n");
-	printf("(c) 2009 citadel.org GPLv3\n");
+	if ( (argc >= 2) && (!strcmp(argv[1], "-v")) ) {
+		verbose = 1;
+	}
+
+	if (verbose) {
+		printf("\nAuto-submit spam and ham to sa-learn for Citadel " PACKAGE_VERSION "\n");
+		printf("(c) 2009-2011 citadel.org GPLv3\n");
+	}
 
 	strcpy(ctdldir, "/usr/local/citadel");
 	ipgm_secret = discover_ipgm_secret(ctdldir);
@@ -115,7 +124,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	printf("Connecting to Citadel server...\n");
+	if (verbose) printf("Connecting to Citadel server...\n");
 	fflush(stdout);
 	sprintf(buf, "%s/citadel.socket", ctdldir);
 	server_socket = uds_connectsock(buf);
@@ -124,11 +133,11 @@ int main(int argc, char **argv)
 	}
 
 	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", &buf[4]);
+	if (verbose) printf("%s\n", &buf[4]);
 
 	sock_printf(server_socket, "IPGM %d\n", ipgm_secret);
 	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", &buf[4]);
+	if (verbose) printf("%s\n", &buf[4]);
 
 	if (buf[0] == '2') {
 		do_room(server_socket, "0000000001.spam", "--spam");
@@ -137,7 +146,7 @@ int main(int argc, char **argv)
 
 	sock_puts(server_socket, "QUIT");
 	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", &buf[4]);
+	if (verbose) printf("%s\n", &buf[4]);
 	close(server_socket);
 	exit(0);
 }

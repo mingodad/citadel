@@ -48,5 +48,6 @@ Still with us?  Ok, here's how to make it work.
   adding more do_room() calls.
 
 * Compile the program and run it.  If it works, great; if not, re-read
-  the warning at the top of this document.
+  the warning at the top of this document.  Note that you can also use
+  the "-v" (verbose) command line option.
 
