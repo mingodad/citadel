@@ -3,20 +3,12 @@
  * This program is released under the terms of the GNU General Public License v3.
  */
 
-#include <config.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <readline/readline.h>
 #include "ctdlsh.h"
 
-#define CTDLDIR	"/appl/citadel"
 
 
 
-int com_quit(char *cmdbuf) {
+int cmd_quit(char *cmdbuf) {
 	abort();
 }
 
@@ -32,10 +24,11 @@ typedef struct {
 	char *doc;
 } COMMAND;
 
+
 COMMAND commands[] = {
-	{	"quit",		com_quit,	"Quit using ctdlsh"	},
-	{	"exit",		com_quit,	"Quit using ctdlsh"	},
-	{	NULL,		NULL,		NULL			}
+	{	"quit",		cmd_quit,	"Quit using ctdlsh"			},
+	{	"date",		cmd_datetime,	"Print the server's date and time"	},
+	{	NULL,		NULL,		NULL					}
 };
 
 
@@ -63,6 +56,45 @@ int discover_ipgm_secret(char *dirname) {
 }
 
 
+/* Auto-completer function */
+char *command_generator(const char *text, int state) {
+	static int list_index;
+	static int len;
+	char *name;
+
+	if (!state) {
+		list_index = 0;
+		len = strlen(text);
+	}
+
+	while (name = commands[list_index].name) {
+		++list_index;
+
+		if (!strncmp(name, text, len)) {
+			return(strdup(name));
+		}
+	}
+
+	return(NULL);
+}
+
+
+/* Auto-completer function */
+char **ctdlsh_completion(const char *text, int start, int end) {
+	char **matches = (char **) NULL;
+
+	if (start == 0) {
+		matches = rl_completion_matches(text, command_generator);
+	}
+	else {
+		rl_bind_key('\t', rl_abort);
+	}
+
+	return (matches);
+}
+
+
+
 void do_main_loop(int server_socket) {
 	char *cmd = NULL;
 	char prompt[1024];
@@ -85,27 +117,15 @@ void do_main_loop(int server_socket) {
 		}
 	}
 
+	/* Tell libreadline how we will help with auto-completion of commands */
+	rl_attempted_completion_function = ctdlsh_completion;
+
 	/* Here we go ... main command loop */
 	while (cmd = readline(prompt)) {
 
 		if ((cmd) && (*cmd)) {
 			add_history(cmd);
-
-			sock_puts(server_socket, cmd);
-			sock_getln(server_socket, server_reply, sizeof server_reply);
-			printf("%s\n", server_reply);
-
-			if ((server_reply[0] == '4') || (server_reply[0] == '8')) {
-				/* we might consider putting something here */
-				sock_puts(server_socket, "000");
-			}
-
-			if ((server_reply[0] == '1') || (server_reply[0] == '8')) {
-				while(sock_getln(server_socket, buf, sizeof buf), strcmp(buf, "000")) {
-					printf("%s\n", buf);
-				}
-			}
-
+			/* FIXME put something here */
 		}
 
 		free(cmd);
