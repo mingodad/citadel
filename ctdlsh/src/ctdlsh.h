@@ -9,6 +9,7 @@
 #include <sys/un.h>
 #include <string.h>
 #include <pwd.h>
+#include <time.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <fcntl.h>
@@ -50,5 +51,15 @@ struct partial_config {
 	int c_ipgm_secret;		/* Internal program authentication  */
 };
 
-int cmd_quit(char *);
-int cmd_datetime(char *);
+typedef int ctdlsh_cmdfunc_t(int, char *);
+
+enum ctdlsh_cmdfunc_return_values {
+	cmdret_ok,
+	cmdret_exit,
+	cmdret_error
+};
+
+int cmd_help(int, char *);
+int cmd_quit(int, char *);
+int cmd_datetime(int, char *);
+int cmd_passwd(int, char *);
