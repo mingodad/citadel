@@ -484,12 +484,14 @@ ServerShutdownModule_GETTEXT
 (void)
 {
 #ifdef ENABLE_NLS
+#ifdef HAVE_USELOCALE
 	int i;
 	for (i = 0; i < nLocalesLoaded; ++i) {
 		if (Empty_Locale != wc_locales[i])
 			freelocale(wc_locales[i]);
 	}
 	free(wc_locales);
+#endif
 	if (!AvailLangLoaded) free(AvailLangLoaded);
 #endif
 }
