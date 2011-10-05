@@ -191,7 +191,6 @@ body {
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
-	/* behavior: url(/static/styles/PIE.htc); disabled for now; see http://github.com/lojjic/PIE/issues#issue/21 */
 }
 
 .selectbox {
@@ -206,7 +205,6 @@ body {
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
-	/* behavior: url(/static/styles/PIE.htc); disabled for now; see http://github.com/lojjic/PIE/issues#issue/21 */
 }
 
 .tabcontent {
@@ -695,7 +693,6 @@ div.auto_complete ul strong.highlight {
 	-webkit-box-shadow: #666 0px 2px 3px;
 	-moz-box-shadow: #666 0px 2px 3px;
 	box-shadow: #666 0px 2px 3px;
-	behavior: url(/static/styles/PIE.htc);
 }
 
 #address_book_popup_container_div {
@@ -1236,9 +1233,7 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	-webkit-box-shadow: #666 0px 2px 3px;
 	-moz-box-shadow: #666 0px 2px 3px;
 	box-shadow: #666 0px 2px 3px;
-	behavior: url(/static/styles/PIE.htc);
 }
-
 
 /*---------- styles for the login modal box -----------*/
 
