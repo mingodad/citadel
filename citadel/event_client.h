@@ -14,13 +14,19 @@ typedef struct AsyncIO AsyncIO;
 typedef enum _eNextState {
 	eSendDNSQuery,
 	eReadDNSReply,
+
 	eDBQuery,
+
 	eConnect,
 	eSendReply, 
 	eSendMore,
+	eSendFile,
+
 	eReadMessage, 
 	eReadMore,
 	eReadPayload,
+	eReadFile,
+
 	eTerminateConnection,
 	eAbort
 }eNextState;
@@ -81,6 +87,8 @@ struct AsyncIO {
 	StrBuf *IOBuf;
 	IOBuffer SendBuf, 
 		RecvBuf;
+
+	FDIOBuffer IOB; /* when sending from / reading into files, this is used. */
 
 	/* our events... */
 	ev_cleanup abort_by_shutdown, /* server wants to go down... */
