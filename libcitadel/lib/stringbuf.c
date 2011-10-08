@@ -28,6 +28,9 @@
 #include <sys/types.h>
 #define SHOW_ME_VAPPEND_PRINTF
 #include <stdarg.h>
+#ifndef LINUX_SENDFILE
+#include <sys/sendfile.h>
+#endif
 #include "libcitadel.h"
 
 #ifdef HAVE_ICONV
@@ -36,6 +39,10 @@
 
 #ifdef HAVE_BACKTRACE
 #include <execinfo.h>
+#endif
+
+#ifdef LINUX_SENDFILE
+#include <sys/sendfile.h>
 #endif
 
 #ifdef HAVE_ZLIB
@@ -3780,6 +3787,117 @@ long IOBufferStrLength(IOBuffer *FB)
 		return StrLength(FB->Buf);
 	
 	return StrLength(FB->Buf) - (FB->ReadWritePointer - FB->Buf->buf);
+}
+
+
+
+void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
+{
+	memset(FDB, 0, sizeof(FDIOBuffer));
+	FDB->ChunkSize = 
+		FDB->TotalSendSize = TotalSendSize;
+	FDB->IOB = IO;
+#ifndef LINUX_SENDFILE
+	FDB->ChunkBuffer = NewStrBuf();
+#endif
+	FDB->OtherFD = FD;
+}
+
+int FileSendChunked(FDIOBuffer *FDB, const char **Err)
+{
+
+#ifdef LINUX_SENDFILE
+	ssize_t sent;
+	sent = sendfile(FDB->IOB->fd, FDB->OtherFD, &FDB->TotalSentAlready, FDB->ChunkSendRemain);
+	if (sent == -1)
+	{
+		*Err = strerror(errno);
+		return sent;
+	}
+	FDB->ChunkSendRemain -= sent;
+	return FDB->ChunkSendRemain;
+#else
+#endif
+	return 0;
+}
+
+int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
+{
+
+#ifdef LINUX_SENDFILE
+	ssize_t sent;
+	sent = sendfile(FDB->OtherFD, FDB->IOB->fd, &FDB->TotalSentAlready, FDB->ChunkSendRemain);
+	if (sent == -1)
+	{
+		*Err = strerror(errno);
+		return sent;
+	}
+	FDB->ChunkSendRemain -= sent;
+	return FDB->ChunkSendRemain;
+#else
+#endif
+	return 0;
+}
+
+eReadState WriteIOBAlreadyRead(FDIOBuffer *FDB, const char **Error)
+{
+	int IsNonBlock;
+	int fdflags;
+	long rlen;
+	long should_write;
+	int nSuccessLess = 0;
+	struct timeval tv;
+	fd_set rfds;
+
+	fdflags = fcntl(FDB->OtherFD, F_GETFL);
+	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
+
+	while ((FDB->IOB->ReadWritePointer - FDB->IOB->Buf->buf < FDB->IOB->Buf->BufUsed) &&
+	       (FDB->ChunkSendRemain > 0))
+	{
+		if (IsNonBlock){
+			tv.tv_sec = 1; /* selectresolution; */
+			tv.tv_usec = 0;
+			
+			FD_ZERO(&rfds);
+			FD_SET(FDB->OtherFD, &rfds);
+			if (select(FDB->OtherFD + 1, NULL, &rfds, NULL, &tv) == -1) {
+				*Error = strerror(errno);
+				return eReadFail;
+			}
+		}
+		if (IsNonBlock && !  FD_ISSET(FDB->OtherFD, &rfds)) {
+			nSuccessLess ++;
+			continue;
+		}
+
+		should_write = FDB->IOB->Buf->BufUsed - 
+			(FDB->IOB->ReadWritePointer - FDB->IOB->Buf->buf);
+		if (should_write > FDB->ChunkSendRemain)
+			should_write = FDB->ChunkSendRemain;
+
+		rlen = write(FDB->OtherFD, 
+			     FDB->IOB->ReadWritePointer, 
+			     should_write);
+		if (rlen < 1) {
+			*Error = strerror(errno);
+						
+			return eReadFail;
+		}
+		FDB->TotalSentAlready += rlen;
+		FDB->IOB->ReadWritePointer += rlen;
+		FDB->ChunkSendRemain -= rlen;
+	}
+	if (FDB->IOB->ReadWritePointer >= FDB->IOB->Buf->buf + FDB->IOB->Buf->BufUsed)
+	{
+		FlushStrBuf(FDB->IOB->Buf);
+		FDB->IOB->ReadWritePointer = NULL;
+	}
+
+	if (FDB->ChunkSendRemain == 0)
+		return eReadSuccess;
+	else 
+		return eMustReadMore;
 }
 
 /*******************************************************************************

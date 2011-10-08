@@ -74,6 +74,8 @@ fi
 
 AC_CHECK_HEADER(CUnit/CUnit.h, [AC_DEFINE(ENABLE_TESTS, [], [whether we should compile the test-suite])])
 
+AC_CHECK_HEADER(sys/sendfile.h, [AC_DEFINE(LINUX_SENDFILE, [], [whether we have the linux sendfile api])])
+dnl TODO: we might need to check for the actual syntax....  
 
 
 AC_CHECK_HEADERS(iconv.h)
