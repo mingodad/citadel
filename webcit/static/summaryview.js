@@ -225,7 +225,7 @@ function resortAndDisplay(sortMode) {
 	var compile = compiled.join("");
 	start = new Date();
 	$(message_view_parent).update(compile);
-	message_view_parent.onclick = CtdlMessageListClick;
+	message_view_parent.observe('click', CtdlMessageListClick);
 	message_view = message_view_parent.firstChild;
 	end = new Date();
 	var delta = end.getTime() - start.getTime();
@@ -269,11 +269,23 @@ function CtdlMessageListClick(evt) {
 	var target = event.target ? event.target: event.srcElement; // and again..
 	var parent = target.parentNode;
 	var msgId = parent.getAttribute("citadel:msgid");
-	var is_shift_pressed = 0;
-	var is_ctrl_pressed = 0;
+	var is_shift_pressed = event.shiftKey;
+	var is_ctrl_pressed = event.ctrlKey;
+
+/* debugging
+	str = '.';
+	if (is_shift_pressed) {
+		str = str + 'S';
+	}
+	str = str + '.';
+	if (is_ctrl_pressed) {
+		str = str + 'C';
+	}
+	str = str + '.';
+	$('ib_summary').innerHTML = str;
+*/
+
 	// If the ctrl key modifier wasn't used, unmark all rows and load the message
-	is_shift_pressed = event.shiftKey;
-	is_ctrl_pressed = event.ctrlKey;
 	if (!is_shift_pressed && !is_ctrl_pressed) {
 		previousFinish = 0;
 		markedFrom = 0;
