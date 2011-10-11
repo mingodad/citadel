@@ -109,9 +109,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:g:dD:G:cfsS:Z")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:g:dD:G:cfZ")) != EOF)
 #endif
 		switch (a) {
 		case 'u':
@@ -135,6 +135,9 @@ int main(int argc, char **argv)
 		case 'D':
 			pidfile = strdup(optarg);
 			running_as_daemon = 1;
+			break;
+		case 'g':
+			default_landing_page = strdup(optarg);
 			break;
 		case 'B': /* Basesize */
 			basesize = atoi(optarg);
