@@ -35,6 +35,9 @@ var currentlyHasRowsSelected = false;
 var mouseDownEvent = null;
 var exitedMouseDown = false;
 
+var is_shift_pressed = false;
+var is_ctrl_pressed = false;
+
 var originalMarkedRow = null;
 var previousFinish = 0;
 var markedFrom = 0;
@@ -79,6 +82,7 @@ function createMessageView() {
 	mlh_date.observe('click',ApplySort);
 	mlh_subject.observe('click',ApplySort);
 	mlh_from.observe('click',ApplySort);
+	$(document).observe('keydown',CtdlMessageListKeyDown,false);
 	$(document).observe('keyup',CtdlMessageListKeyUp,false);
 	$('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
 	$('m_refresh').observe('click', getMessages);
@@ -270,7 +274,7 @@ function CtdlMessageListClick(evt) {
 	var parent = target.parentNode;
 	var msgId = parent.getAttribute("citadel:msgid");
 	// If the ctrl key modifier wasn't used, unmark all rows and load the message
-	if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
+	if (!is_shift_pressed && !is_ctrl_pressed) {
 		previousFinish = 0;
 		markedFrom = 0;
 		unmarkAllRows();
@@ -286,7 +290,7 @@ function CtdlMessageListClick(evt) {
 			onComplete: CtdlMarkRowAsRead(parent)
 		});
 		// If the shift key modifier is used, mark a range...
-	} else if (event.button != 2 && event.shiftKey) {
+	} else if (event.button != 2 && is_shift_pressed) {
 		if (originalMarkedRow == null) {
 			originalMarkedRow = parent;
 			markRow(parent);
@@ -315,7 +319,7 @@ function CtdlMessageListClick(evt) {
 			markRow(parent.parentNode.rows[x]);
 		}
 		// If the ctrl key modifier is used, toggle one message
-	} else if (event.button != 2 && (event.ctrlKey || event.altKey)) {
+	} else if (event.button != 2 && is_ctrl_pressed) {
 		if (parent.getAttribute("citadel:marked")) {
 			unmarkRow(parent);
 		}
@@ -450,10 +454,31 @@ function deleteAllSelectedMessages() {
     deleteAllMarkedRows();
 }
 
+function CtdlMessageListKeyDown(event) {
+	var key = event.which || event.keyCode;
+
+	if (key == 16) {				/* SHIFT */
+		is_shift_pressed = true;
+		$('ib_summary').innerHTML = 'SHIFT';
+	}
+	else if ( (key == 17) || (key == 18) ) {	/* CTRL or ALT */
+		$('ib_summary').innerHTML = 'CTRL';
+		is_ctrl_pressed = true;
+	}
+}
+
 function CtdlMessageListKeyUp(event) {
 	var key = event.which || event.keyCode;
 
-	if (key == 46) {			/* DELETE */
+	if (key == 16) {				/* SHIFT */
+		is_shift_pressed = false;
+		$('ib_summary').innerHTML = ' ';
+	}
+	else if ( (key == 17) || (key == 18) ) {	/* CTRL or ALT */
+		is_ctrl_pressed = false;
+		$('ib_summary').innerHTML = ' ';
+	}
+	else if (key == 46) {				/* DELETE */
 		deleteAllSelectedMessages();
 	}
 }
