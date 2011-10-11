@@ -35,9 +35,6 @@ var currentlyHasRowsSelected = false;
 var mouseDownEvent = null;
 var exitedMouseDown = false;
 
-var is_shift_pressed = false;
-var is_ctrl_pressed = false;
-
 var originalMarkedRow = null;
 var previousFinish = 0;
 var markedFrom = 0;
@@ -82,7 +79,6 @@ function createMessageView() {
 	mlh_date.observe('click',ApplySort);
 	mlh_subject.observe('click',ApplySort);
 	mlh_from.observe('click',ApplySort);
-	$(document).observe('keydown',CtdlMessageListKeyDown,false);
 	$(document).observe('keyup',CtdlMessageListKeyUp,false);
 	$('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
 	$('m_refresh').observe('click', getMessages);
@@ -273,7 +269,11 @@ function CtdlMessageListClick(evt) {
 	var target = event.target ? event.target: event.srcElement; // and again..
 	var parent = target.parentNode;
 	var msgId = parent.getAttribute("citadel:msgid");
+	var is_shift_pressed = 0;
+	var is_ctrl_pressed = 0;
 	// If the ctrl key modifier wasn't used, unmark all rows and load the message
+	is_shift_pressed = event.shiftKey;
+	is_ctrl_pressed = event.ctrlKey;
 	if (!is_shift_pressed && !is_ctrl_pressed) {
 		previousFinish = 0;
 		markedFrom = 0;
@@ -455,45 +455,12 @@ function deleteAllSelectedMessages() {
 }
 
 
-function arrgggh() {
-	s = '.';
-	if (is_shift_pressed) {
-		s = s + 'S';
-	}
-	s = s + '.';
-	if (is_ctrl_pressed) {
-		s = s + 'C';
-	}
-	s = s + '.';
-	$('ib_summary').innerHTML = s;
-		
-}
-
-function CtdlMessageListKeyDown(event) {
-	var key = event.which || event.keyCode;
-
-	if (key == 16) {				/* SHIFT */
-		is_shift_pressed = true;
-	}
-	else if ( (key == 17) || (key == 18) ) {	/* CTRL or ALT */
-		is_ctrl_pressed = true;
-	}
-	arrgggh();
-}
-
 function CtdlMessageListKeyUp(event) {
 	var key = event.which || event.keyCode;
 
-	if (key == 16) {				/* SHIFT */
-		is_shift_pressed = false;
-	}
-	else if ( (key == 17) || (key == 18) ) {	/* CTRL or ALT */
-		is_ctrl_pressed = false;
-	}
-	else if (key == 46) {				/* DELETE */
+	if (key == 46) {				/* DELETE */
 		deleteAllSelectedMessages();
 	}
-	arrgggh();
 }
 
 function clearMessage(msgId) {
