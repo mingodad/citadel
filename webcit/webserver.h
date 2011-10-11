@@ -3,13 +3,6 @@ extern char *static_dirs[PATH_MAX];          /**< Web representation */
 extern int ndirs;
 extern char socket_dir[PATH_MAX];
 
-struct redirector {
-	char urlpart[256];
-	char redirect_to[256];
-};
-	
-extern struct redirector *redir;
-extern int num_redir;
 extern char *default_landing_page;
 
 int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target);

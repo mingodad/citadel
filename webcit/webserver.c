@@ -17,15 +17,13 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
 
 
-extern int msock;			/* master listening socket */
-extern int verbosity;		/* Logging level */
+extern int msock;				/* master listening socket */
+extern int verbosity;				/* Logging level */
 extern char static_icon_dir[PATH_MAX];          /* where should we find our mime icons */
-int is_https = 0;		/* Nonzero if I am an HTTPS service */
-int follow_xff = 0;		/* Follow X-Forwarded-For: header */
+int is_https = 0;				/* Nonzero if I am an HTTPS service */
+int follow_xff = 0;				/* Follow X-Forwarded-For: header? */
 int DisableGzip = 0;
-struct redirector *redir = NULL;
-char *default_landing_page = NULL;
-int num_redir = 0;
+char *default_landing_page = NULL;		/* FIXME we need to populate this somehow */
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
@@ -63,81 +61,6 @@ void InitTemplateCache(void);
 extern int LoadTemplates;
 
 
-
-
-
-/*
- * Handle redirects to legacy web servers
- */
-void handle_redir(void) {
-	if (num_redir > 0) {
-		int i;
-		const char *req = ChrPtr(WC->Hdr->this_page);
-		if (!req) {
-			do_404();
-			return;
-		}
-		if (req[0] == '/') ++req;
-		syslog(9, "handle_redir() called; redirect this: %s", req);
-		for (i=0; i<num_redir; ++i) {
-			if (!strncmp(redir[i].urlpart, req, strlen(redir[i].urlpart))) {
-				char go_here[1024];
-				snprintf(go_here, sizeof go_here, redir[i].redirect_to, req);
-				syslog(9, "redirecting to: %s", go_here);
-				http_redirect(go_here);
-				return;
-			}
-		}
-	}
-	do_404();
-}
-
-
-
-/*
- * load redirect strings (for supporting transition of legacy web servers to citadel on the same host)
- */
-void load_redirs(char *filename) {
-	char buf[1024];
-	int num_redir_alloc = num_redir;
-	FILE *fp = fopen(filename, "r");
-	if (!fp) {
-		syslog(1, "Cannot open %s: %s", filename, strerror(errno));
-		return;
-	}
-
-	while (fgets(buf, sizeof buf, fp) != NULL) {
-		char *ch;
-
-		buf[strlen(buf)-1] = 0;
-
-		ch = strchr(buf, '#');
-		if (ch) strcpy(ch, "");
-		striplt(buf);
-		if (!IsEmptyStr(buf)) {
-
-			if (num_redir >= num_redir_alloc) {
-				if (num_redir_alloc == 0) {
-					num_redir_alloc = 10;
-				}
-				else {
-					num_redir_alloc = num_redir_alloc * 2;
-				}
-				redir = realloc(redir, sizeof(struct redirector) * num_redir_alloc );
-			}
-	
-			extract_token(redir[num_redir].urlpart, buf, 0, '|', sizeof(redir[num_redir].urlpart));
-			extract_token(redir[num_redir].redirect_to, buf, 1, '|', sizeof(redir[num_redir].redirect_to));
-			WebcitAddUrlHandler(redir[num_redir].urlpart, strlen(redir[num_redir].urlpart), "", 0, handle_redir, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-			if (!strcasecmp(redir[num_redir].urlpart, "home")) {
-				default_landing_page = redir[num_redir].redirect_to ;
-			}
-			++num_redir;
-		}
-
-	}
-	fclose(fp);
-}
 
 
 
@@ -186,16 +109,13 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:r:cfsS:Z")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:r:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
 #endif
 		switch (a) {
 		case 'u':
 			UID = atol(optarg);
-			break;
-		case 'r':
-			load_redirs(optarg);
 			break;
 		case 'h':
 			hdir = strdup(optarg);
