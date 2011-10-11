@@ -109,11 +109,13 @@ something like this:
 the "webcit" program:
   
  webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite] [-t tracefile]
+           [-g guest_landing_page ]
            [-c] [-f] [remotehost [remoteport]]
  
    *or*
  
  webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite] [-t tracefile]
+           [-g guest_landing_page ]
            [-c] [-f] uds /your/citadel/directory
  
  Explained: 
@@ -134,6 +136,12 @@ the "webcit" program:
      
   -> tracefile: where you want WebCit to log to.  This can be a file, a
      virtual console, or /dev/null to suppress logging altogether.
+
+  -> The "guest landing page" is a location on your WebCit installation where
+     unauthenticated guest users are taken when they first enter the root of
+     your site.  If guest mode is not enabled on your Citadel server, they will
+     be taken to a login page instead.  If guest mode is enabled but no landing
+     page is defined, they will be taken to the Lobby.
  
   -> The "-c" option causes WebCit to output an extra cookie containing the
      identity of the WebCit server.  The cookie will look like this:
