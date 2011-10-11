@@ -451,8 +451,9 @@ function deleteAllSelectedMessages() {
 }
 
 function CtdlMessageListKeyUp(event) {
-	var key = event.which;
-	if (key == 46) { // DELETE
+	var key = event.which || event.keyCode;
+
+	if (key == 46) {			/* DELETE */
 		deleteAllSelectedMessages();
 	}
 }
