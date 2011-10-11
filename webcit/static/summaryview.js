@@ -454,17 +454,31 @@ function deleteAllSelectedMessages() {
     deleteAllMarkedRows();
 }
 
+
+function arrgggh() {
+	s = '.';
+	if (is_shift_pressed) {
+		s = s + 'S';
+	}
+	s = s + '.';
+	if (is_ctrl_pressed) {
+		s = s + 'C';
+	}
+	s = s + '.';
+	$('ib_summary').innerHTML = s;
+		
+}
+
 function CtdlMessageListKeyDown(event) {
 	var key = event.which || event.keyCode;
 
 	if (key == 16) {				/* SHIFT */
 		is_shift_pressed = true;
-		$('ib_summary').innerHTML = 'SHIFT';
 	}
 	else if ( (key == 17) || (key == 18) ) {	/* CTRL or ALT */
-		$('ib_summary').innerHTML = 'CTRL';
 		is_ctrl_pressed = true;
 	}
+	arrgggh();
 }
 
 function CtdlMessageListKeyUp(event) {
@@ -472,15 +486,14 @@ function CtdlMessageListKeyUp(event) {
 
 	if (key == 16) {				/* SHIFT */
 		is_shift_pressed = false;
-		$('ib_summary').innerHTML = ' ';
 	}
 	else if ( (key == 17) || (key == 18) ) {	/* CTRL or ALT */
 		is_ctrl_pressed = false;
-		$('ib_summary').innerHTML = ' ';
 	}
 	else if (key == 46) {				/* DELETE */
 		deleteAllSelectedMessages();
 	}
+	arrgggh();
 }
 
 function clearMessage(msgId) {
