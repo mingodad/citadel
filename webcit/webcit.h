@@ -144,9 +144,9 @@ extern char *ssl_cipher_list;
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		800		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	800		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		800		/* min required libcitadel ver */
+#define CLIENT_VERSION		801		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	801		/* min required Citadel ver */
+#define	LIBCITADEL_MIN		801		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Target for inline URL's */
@@ -199,14 +199,14 @@ extern char *ssl_cipher_list;
 /*
  * user/room access
  */
-#define UA_KNOWN	2
-#define UA_GOTOALLOWED	4
-#define UA_HASNEWMSGS	8
-#define UA_ZAPPED	16
+#define UA_KNOWN		2
+#define UA_GOTOALLOWED		4
+#define UA_HASNEWMSGS		8
+#define UA_ZAPPED		16
 #define UA_POSTALLOWED          32
 #define UA_ADMINALLOWED         64
 #define UA_DELETEALLOWED        128
-#define UA_ISTRASH              256 /* Only available in room view... */
+#define UA_ISTRASH              256	/* Only available in room view... */
 
 
 /*
