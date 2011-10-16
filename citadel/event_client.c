@@ -270,6 +270,7 @@ eReadState HandleInbound(AsyncIO *IO)
 	while ((Finished == eBufferNotEmpty) && 
 	       ((IO->NextState == eReadMessage)||
 		(IO->NextState == eReadMore)||
+		(IO->NextState == eReadFile)||
 		(IO->NextState == eReadPayload)))
 	{
 		if (IO->RecvBuf.nBlobBytesWanted != 0) { 
@@ -277,7 +278,16 @@ eReadState HandleInbound(AsyncIO *IO)
 		}
 		else { /* Reading lines... */
 //// lex line reply in callback, or do it ourselves. as nnn-blabla means continue reading in SMTP
-			if (IO->LineReader)
+			if ((IO->NextState == eReadFile) && 
+			    (Finished == eBufferNotEmpty))
+			{
+				Finished = WriteIOBAlreadyRead(&IO->IOB, &Err);
+				if (Finished == eReadSuccess)
+				{
+					IO->NextState = eSendReply;				
+				}
+			}
+			else if (IO->LineReader)
 				Finished = IO->LineReader(IO);
 			else 
 				Finished = StrBufChunkSipLine(IO->IOBuf, &IO->RecvBuf);
@@ -300,15 +310,6 @@ eReadState HandleInbound(AsyncIO *IO)
 			ev_io_stop(event_base, &IO->recv_event);
 			IO->NextState = IO->ReadDone(IO);
 			Finished = StrBufCheckBuffer(&IO->RecvBuf);
-			if ((IO->NextState == eReadFile) && 
-			    (Finished == eBufferNotEmpty))
-			{
-				Finished = WriteIOBAlreadyRead(&IO->IOB, &Err);
-				if (Finished == eReadSuccess)
-				{
-					IO->NextState = eSendReply;				
-				}
-			}
 		}
 	}
 
@@ -590,20 +591,32 @@ static void
 IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	const char *errmsg;
-	long rc;
 	ssize_t nbytes;
 	AsyncIO *IO = watcher->data;
 
 	switch (IO->NextState) {
 	case eReadFile:
-		rc = FileRecvChunked(&IO->IOB, &errmsg);
-		if (rc < 0)
+		nbytes = FileRecvChunked(&IO->IOB, &errmsg);
+		syslog(LOG_DEBUG, "****************nbytes: %ld ChunkRemain: %ldx.\n", 
+		       nbytes, IO->IOB.ChunkSendRemain);
+		if (nbytes < 0)
 			StrBufPlain(IO->ErrMsg, errmsg, -1);
+		else 
+		{
+			if (IO->IOB.ChunkSendRemain == 0)
+			{
+				IO->NextState = eSendReply;
+				syslog(LOG_DEBUG, "***********************************xxxx.\n");
+			}
+			else
+				return;
+		}
 		break;
 	default:
 		nbytes = StrBuf_read_one_chunk_callback(watcher->fd, 0 /*TODO */, &IO->RecvBuf);
 		break;
 	}
+
 #ifdef BIGBAD_IODBG
 	{
 		int rv = 0;
@@ -650,6 +663,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		syslog(LOG_DEBUG, 
 		       "EVENT: Socket Invalid! %s \n",
 		       strerror(errno));
+		ShutDownCLient(IO);
 		return;
 	}
 }
@@ -661,6 +675,7 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	syslog(LOG_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
 	assert(IO->DNSFail);
+	assert(IO->DNSQuery->PostDNS);
 	switch (IO->DNSQuery->PostDNS(IO))
 	{
 	case eAbort:

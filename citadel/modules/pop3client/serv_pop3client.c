@@ -136,6 +136,7 @@ void DeletePOP3Aggregator(void *vptr)
 	FreeStrBuf(&ptr->IO.SendBuf.Buf);
 	FreeStrBuf(&ptr->IO.RecvBuf.Buf);
 	DeleteAsyncMsg(&ptr->IO.ReadMsg);
+	FreeAsyncIOContents(&ptr->IO);
 	free(ptr);
 }
 

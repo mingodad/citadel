@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#define _GNU_SOURCE
 #include "sysdep.h"
 #include <ctype.h>
 #include <errno.h>
@@ -29,6 +30,7 @@
 #define SHOW_ME_VAPPEND_PRINTF
 #include <stdarg.h>
 #ifndef LINUX_SENDFILE
+#include <bits/fcntl.h>
 #include <sys/sendfile.h>
 #endif
 #include "libcitadel.h"
@@ -3799,6 +3801,8 @@ void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
 	FDB->IOB = IO;
 #ifndef LINUX_SENDFILE
 	FDB->ChunkBuffer = NewStrBuf();
+#else
+	pipe(FDB->SplicePipe);
 #endif
 	FDB->OtherFD = FD;
 }
@@ -3825,15 +3829,29 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 {
 
 #ifdef LINUX_SENDFILE
-	ssize_t sent;
-	sent = sendfile(FDB->OtherFD, FDB->IOB->fd, &FDB->TotalSentAlready, FDB->ChunkSendRemain);
+	ssize_t sent, pipesize;
+	long foo = 0;
+
+	pipesize = splice(FDB->IOB->fd, NULL, 
+			  FDB->SplicePipe[1], NULL, 
+			  FDB->ChunkSendRemain, 
+			  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
+	if (pipesize == -1)
+	{
+		*Err = strerror(errno);
+		return pipesize;
+	}
+	
+	sent = splice(FDB->SplicePipe[0], NULL, 
+		      FDB->OtherFD, &FDB->TotalSentAlready, 
+		      pipesize, SPLICE_F_MORE | SPLICE_F_MOVE);
 	if (sent == -1)
 	{
 		*Err = strerror(errno);
 		return sent;
 	}
 	FDB->ChunkSendRemain -= sent;
-	return FDB->ChunkSendRemain;
+	return sent;
 #else
 #endif
 	return 0;

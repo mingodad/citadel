@@ -240,6 +240,7 @@ typedef struct _file_buffer {
 typedef struct __fd_iobuffer {
 	IOBuffer *IOB;
 	int OtherFD;
+	int SplicePipe[2];
 	long TotalSendSize;
 	long TotalSentAlready;
 	long ChunkSize;
