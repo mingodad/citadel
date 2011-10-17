@@ -250,6 +250,7 @@ typedef struct __fd_iobuffer {
 
 
 void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize);
+void FDIOBufferDelete(FDIOBuffer *FDB);
 int FileSendChunked(FDIOBuffer *FDB, const char **Err);
 int FileRecvChunked(FDIOBuffer *FDB, const char **Err);
 eReadState WriteIOBAlreadyRead(FDIOBuffer *FDB, const char **Error);

@@ -3807,6 +3807,18 @@ void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
 	FDB->OtherFD = FD;
 }
 
+void FDIOBufferDelete(FDIOBuffer *FDB)
+{
+#ifndef LINUX_SENDFILE
+	FreeStrBuf(&FDB->ChunkBuffer);
+#else
+	close(FDB->SplicePipe[0]);
+	close(FDB->SplicePipe[1]);
+#endif
+	close(FDB->OtherFD);
+	memset(FDB, 0, sizeof(FDIOBuffer));	
+}
+
 int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 {
 
