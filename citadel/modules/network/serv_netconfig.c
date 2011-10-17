@@ -365,6 +365,7 @@ void cmd_netp(char *cmdbuf)
 {
 	char *working_ignetcfg;
 	char node[256];
+	long nodelen;
 	char pass[256];
 	int v;
 
@@ -373,7 +374,7 @@ void cmd_netp(char *cmdbuf)
 	char err_buf[SIZ];
 
 	/* Authenticate */
-	extract_token(node, cmdbuf, 0, '|', sizeof node);
+	nodelen = extract_token(node, cmdbuf, 0, '|', sizeof node);
 	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
 
 	/* load the IGnet Configuration to check node validity */
@@ -404,7 +405,7 @@ void cmd_netp(char *cmdbuf)
 		return;
 	}
 
-	if (network_talking_to(node, NTT_CHECK)) {
+	if (network_talking_to(node, nodelen, NTT_CHECK)) {
 		syslog(LOG_WARNING, "Duplicate session for network node <%s>", node);
 		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
 		free(working_ignetcfg);
@@ -412,7 +413,7 @@ void cmd_netp(char *cmdbuf)
 	}
 
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
-	network_talking_to(node, NTT_ADD);
+	network_talking_to(node, nodelen, NTT_ADD);
 	syslog(LOG_NOTICE, "Network node <%s> logged in from %s [%s]\n",
 		CC->net_node, CC->cs_host, CC->cs_addr
 	);

@@ -6,7 +6,7 @@
 void OpenCmdResult (char *, const char *);
 void abort_upl (CitContext *who);
 
-int network_talking_to(const char *nodename, int operation);
+int network_talking_to(const char *nodename, long len, int operation);
 
 /*
  * Operations that can be performed by network_talking_to()

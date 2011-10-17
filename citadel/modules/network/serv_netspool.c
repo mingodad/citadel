@@ -778,6 +778,7 @@ void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap)
 	char filename[PATH_MAX];
 	char cmd[PATH_MAX];
 	char nexthop[256];
+	long nexthoplen;
 	int i;
 	char *ptr;
 
@@ -790,9 +791,12 @@ void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap)
 			&& (strcmp(d->d_name, ".."))
 			&& (strchr(d->d_name, '@') != NULL)
 		) {
-			safestrncpy(nexthop, d->d_name, sizeof nexthop);
+			nexthoplen = safestrncpy(nexthop, d->d_name, sizeof nexthop);
 			ptr = strchr(nexthop, '@');
-			if (ptr) *ptr = 0;
+			if (ptr) {
+				*ptr = 0;
+				nexthoplen = ptr - nexthop;
+			}				
 	
 			snprintf(filename, 
 				sizeof filename,
@@ -802,21 +806,21 @@ void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap)
 			);
 	
 			syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, nexthop);
-			if (network_talking_to(nexthop, NTT_CHECK)) {
+			if (network_talking_to(nexthop, nexthoplen, NTT_CHECK)) {
 				syslog(LOG_DEBUG,
 					"Currently online with %s - skipping for now\n",
 					nexthop
 				);
 			}
 			else {
-				network_talking_to(nexthop, NTT_ADD);
+				network_talking_to(nexthop, nexthoplen, NTT_ADD);
 				snprintf(cmd, sizeof cmd, "/bin/cat %s >>%s/%s && /bin/rm -f %s",
 					filename,
 					ctdl_netout_dir, nexthop,
 					filename
 				);
 				system(cmd);
-				network_talking_to(nexthop, NTT_REMOVE);
+				network_talking_to(nexthop, nexthoplen, NTT_REMOVE);
 			}
 		}
 	}

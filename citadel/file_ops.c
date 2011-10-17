@@ -48,56 +48,46 @@
 /*
  * network_talking_to()  --  concurrency checker
  */
-static char *nttlist = NULL;
-int network_talking_to(const char *nodename, int operation) {
+static HashList *nttlist = NULL;
+int network_talking_to(const char *nodename, long len, int operation) {
 
-	char *ptr = NULL;
-	int i;
-	char buf[SIZ];
 	int retval = 0;
+	HashPos *Pos = NULL;
+	void *vdata;
 
 	begin_critical_section(S_NTTLIST);
 
 	switch(operation) {
 
 		case NTT_ADD:
-			if (nttlist == NULL) nttlist = strdup("");
-			if (nttlist == NULL) break;
-			nttlist = (char *)realloc(nttlist,
-				(strlen(nttlist) + strlen(nodename) + 3) );
-			strcat(nttlist, "|");
-			strcat(nttlist, nodename);
+			if (nttlist == NULL) 
+				nttlist = NewHash(1, NULL);
+			Put(nttlist, nodename, len, NewStrBufPlain(nodename, len), HFreeStrBuf);
+			syslog(LOG_DEBUG, "nttlist: added <%s>\n", nodename);
 			break;
-
 		case NTT_REMOVE:
-			if (nttlist == NULL) break;
-			if (IsEmptyStr(nttlist)) break;
-			ptr = malloc(strlen(nttlist));
-			if (ptr == NULL) break;
-			strcpy(ptr, "");
-			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
-				extract_token(buf, nttlist, i, '|', sizeof buf);
-				if ( (!IsEmptyStr(buf))
-				     && (strcasecmp(buf, nodename)) ) {
-						strcat(ptr, buf);
-						strcat(ptr, "|");
-				}
-			}
-			free(nttlist);
-			nttlist = ptr;
+			if ((nttlist == NULL) ||
+			    (GetCount(nttlist) == 0))
+				break;
+			Pos = GetNewHashPos(nttlist, 1);
+			GetHashPosFromKey (nttlist, nodename, len, Pos);
+
+			DeleteEntryFromHash(nttlist, Pos);
+			DeleteHashPos(&Pos);
+			syslog(LOG_DEBUG, "nttlist: removed <%s>\n", nodename);
+
 			break;
 
 		case NTT_CHECK:
-			if (nttlist == NULL) break;
-			if (IsEmptyStr(nttlist)) break;
-			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
-				extract_token(buf, nttlist, i, '|', sizeof buf);
-				if (!strcasecmp(buf, nodename)) ++retval;
-			}
+			if ((nttlist == NULL) ||
+			    (GetCount(nttlist) == 0))
+				break;
+			if (!GetHash(nttlist, nodename, len, &vdata))
+				retval ++;
+			syslog(LOG_DEBUG, "nttlist: have [%d] <%s>\n", retval, nodename);
 			break;
 	}
 
-	if (nttlist != NULL) syslog(LOG_DEBUG, "nttlist=<%s>\n", nttlist);
 	end_critical_section(S_NTTLIST);
 	return(retval);
 }
@@ -105,9 +95,7 @@ int network_talking_to(const char *nodename, int operation) {
 void cleanup_nttlist(void)
 {
         begin_critical_section(S_NTTLIST);
-	if (nttlist != NULL)
-		free(nttlist);
-	nttlist = NULL;
+	DeleteHash(&nttlist);
         end_critical_section(S_NTTLIST);
 }
 
