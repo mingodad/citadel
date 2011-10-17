@@ -99,6 +99,7 @@ int CtdlTryUserLDAP(char *username,
 	}
 
 	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
+	ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
 
 	striplt(config.c_ldap_bind_dn);
 	striplt(config.c_ldap_bind_pw);
@@ -242,6 +243,7 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 		else {
 			syslog(LOG_DEBUG, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
 		}
+		ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
 		ldap_unbind(ldserver);
 	}
 
