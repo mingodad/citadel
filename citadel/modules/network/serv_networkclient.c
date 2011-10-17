@@ -147,7 +147,7 @@ eNextState FinalizeNetworker(AsyncIO *IO)
 {
 	AsyncNetworker *NW = (AsyncNetworker *)IO->Data;
 
-	network_talking_to(ChrPtr(NW->node), NTT_REMOVE);
+	network_talking_to(SKEY(NW->node), NTT_REMOVE);
 
 	DeleteNetworker(IO->Data);
 	return eAbort;
@@ -274,7 +274,7 @@ eNextState NWC_SendREAD(AsyncNetworker *NW)
 		 */
 		if (server_shutting_down)
 		{
-			close(NW->IO.IOB.OtherFD);
+			FDIOBufferDelete(&NW->IO.IOB);
 			unlink(ChrPtr(NW->tempFileName));
 			return eAbort;
 		}
@@ -319,7 +319,7 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 	{
 		NW->State ++;
 
-		close(NW->IO.IOB.OtherFD);
+		FDIOBufferDelete(&NW->IO.IOB);
 		
 		if (link(ChrPtr(NW->SpoolFileName), ChrPtr(NW->tempFileName)) != 0) {
 			syslog(LOG_ALERT, 
@@ -346,7 +346,7 @@ eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 	{
 		NW->State ++;
 
-		close(NW->IO.IOB.OtherFD);
+		FDIOBufferDelete(&NW->IO.IOB);
 		
 		if (link(ChrPtr(NW->SpoolFileName), ChrPtr(NW->tempFileName)) != 0) {
 			syslog(LOG_ALERT, 
@@ -463,7 +463,7 @@ eNextState NWC_SendBlobDone(AsyncNetworker *NW)
 	{
 		NW->State ++;
 
-		close(NW->IO.IOB.OtherFD);
+		FDIOBufferDelete(&NW->IO.IOB);
 		rc =  NWC_DispatchWriteDone(&NW->IO);
 		NW->State --;
 		return rc;
@@ -897,9 +897,9 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 					     ChrPtr(NW->secret),
 					     ChrPtr(NW->host),
 					     ChrPtr(NW->port));
-				if (!network_talking_to(ChrPtr(NW->node), NTT_CHECK))
+				if (!network_talking_to(SKEY(NW->node), NTT_CHECK))
 				{
-					network_talking_to(ChrPtr(NW->node), NTT_ADD);
+					network_talking_to(SKEY(NW->node), NTT_ADD);
 					RunNetworker(NW);
 					continue;
 				}

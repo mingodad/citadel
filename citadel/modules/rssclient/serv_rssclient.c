@@ -68,6 +68,7 @@ HashList *RSSFetchUrls = NULL; /* -> rss_aggregator; ->RefCount access to be loc
 
 eNextState RSSAggregatorTerminate(AsyncIO *IO);
 
+struct CitContext rss_CC;
 
 struct rssnetcfg *rnclist = NULL;
 void AppendLink(StrBuf *Message, StrBuf *link, StrBuf *LinkTitle, const char *Title)
@@ -242,7 +243,7 @@ void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf
 	Ctx->Cfg = Cfg;
 	Ctx->recp = recp;
 	Ctx->IO.Data = Ctx;
-	Ctx->IO.CitContext = CloneContext(CC);
+	Ctx->IO.CitContext = CloneContext(&rss_CC);
 	Ctx->IO.Terminate = FreeNetworkSaveMessage;
 	Ctx->IO.ShutdownAbort = AbortNetworkSaveMessage;
 	QueueDBOperation(&Ctx->IO, RSS_FetchNetworkUsetableEntry);
@@ -433,7 +434,7 @@ int rss_do_fetching(rss_aggregator *Cfg)
 	memset(ri, 0, sizeof(rss_item));
 	Cfg->Item = ri;
 	IO = &Cfg->IO;
-	IO->CitContext = CloneContext(CC);
+	IO->CitContext = CloneContext(&rss_CC);
 	IO->Data = Cfg;
 
 
@@ -465,8 +466,9 @@ void DeleteRssCfg(void *vptr)
 	FreeStrBuf(&rncptr->rooms);
 	FreeStrBuf(&rncptr->CData);
 	FreeStrBuf(&rncptr->Key);
-
+	FreeStrBuf(&rncptr->IO.HttpReq.ReplyData);
 	DeleteHash(&rncptr->OtherQRnumbers);
+	FreeURL(&rncptr->IO.ConnectMe);
 
 	if (rncptr->Item != NULL)
 	{
@@ -638,6 +640,11 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 				    use_this_rncptr->roomlist_parts++;
 			    }
 			    pthread_mutex_unlock(&RSSQueueMutex);
+
+
+			    FreeStrBuf(&rncptr->Url);	    
+			    free(rncptr);
+			    rncptr = NULL;
 			    continue;
 		    }
 		    pthread_mutex_unlock(&RSSQueueMutex);
@@ -725,6 +732,7 @@ CTDL_MODULE_INIT(rssclient)
 {
 	if (threading)
 	{
+		CtdlFillSystemContext(&rss_CC, "rssclient");
 		pthread_mutex_init(&RSSQueueMutex, NULL);
 		RSSQueueRooms = NewHash(1, lFlathash);
 		RSSFetchUrls = NewHash(1, NULL);
