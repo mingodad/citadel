@@ -62,6 +62,8 @@
 #define TMP_SHORTER_URL_OFFSET 0xFE
 #define TMP_SHORTER_URLS 0xFD
 
+time_t last_run = 0L;
+
 pthread_mutex_t RSSQueueMutex; /* locks the access to the following vars: */
 HashList *RSSQueueRooms = NULL; /* rss_room_counter */
 HashList *RSSFetchUrls = NULL; /* -> rss_aggregator; ->RefCount access to be locked too. */
@@ -140,7 +142,7 @@ void UnlinkRooms(rss_aggregator *Cfg)
 		}
 /*
 		if (server_shutting_down)
-			break; /* TODO */
+			break; / * TODO */
 
 		DeleteHashPos(&At);
 	}
@@ -158,6 +160,7 @@ void UnlinkRSSAggregator(rss_aggregator *Cfg)
 		DeleteEntryFromHash(RSSFetchUrls, At);
 	}
 	DeleteHashPos(&At);
+	last_run = time(NULL);
 }
 
 eNextState FreeNetworkSaveMessage (AsyncIO *IO)
@@ -179,6 +182,7 @@ eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 	FreeStrBuf(&Ctx->Message);
 	FreeStrBuf(&Ctx->MsgGUID);
 	free(Ctx);
+	last_run = time(NULL);
 	return eAbort;
 }
 
