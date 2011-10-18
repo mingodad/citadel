@@ -597,8 +597,6 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	switch (IO->NextState) {
 	case eReadFile:
 		nbytes = FileRecvChunked(&IO->IOB, &errmsg);
-		syslog(LOG_DEBUG, "****************nbytes: %ld ChunkRemain: %ldx.\n", 
-		       nbytes, IO->IOB.ChunkSendRemain);
 		if (nbytes < 0)
 			StrBufPlain(IO->ErrMsg, errmsg, -1);
 		else 
@@ -606,7 +604,6 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			if (IO->IOB.ChunkSendRemain == 0)
 			{
 				IO->NextState = eSendReply;
-				syslog(LOG_DEBUG, "***********************************xxxx.\n");
 			}
 			else
 				return;
