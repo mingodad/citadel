@@ -30,7 +30,6 @@
 #define SHOW_ME_VAPPEND_PRINTF
 #include <stdarg.h>
 #ifndef LINUX_SENDFILE
-#include <bits/fcntl.h>
 #include <sys/sendfile.h>
 #endif
 #include "libcitadel.h"
@@ -3842,7 +3841,6 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 
 #ifdef LINUX_SENDFILE
 	ssize_t sent, pipesize;
-	long foo = 0;
 
 	pipesize = splice(FDB->IOB->fd, NULL, 
 			  FDB->SplicePipe[1], NULL, 
