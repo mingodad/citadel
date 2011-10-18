@@ -70,9 +70,8 @@ int network_talking_to(const char *nodename, long len, int operation) {
 			    (GetCount(nttlist) == 0))
 				break;
 			Pos = GetNewHashPos(nttlist, 1);
-			GetHashPosFromKey (nttlist, nodename, len, Pos);
-
-			DeleteEntryFromHash(nttlist, Pos);
+			if (GetHashPosFromKey (nttlist, nodename, len, Pos))
+				DeleteEntryFromHash(nttlist, Pos);
 			DeleteHashPos(&Pos);
 			syslog(LOG_DEBUG, "nttlist: removed <%s>\n", nodename);
 
