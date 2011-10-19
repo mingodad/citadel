@@ -67,6 +67,7 @@ char *html_to_ascii(const char *inputmsg, int msglen, int screenwidth, int do_ci
 	int bytes_processed = 0;
 	char nl[128];
 
+	tag[0] = '\0';
 	strcpy(nl, "\n");
 	inptr = inputmsg;
 	strcpy(inbuf, "");
