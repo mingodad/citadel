@@ -135,6 +135,8 @@ void DeleteNetworker(void *vptr)
 	FreeStrBuf(&NW->port);
 	FreeStrBuf(&NW->secret);
 	FreeStrBuf(&NW->Url);
+	((struct CitContext*)NW->IO.CitContext)->state = CON_IDLE;
+	((struct CitContext*)NW->IO.CitContext)->kill_me = 1;
 	FreeAsyncIOContents(&NW->IO);
 	free(NW);
 }

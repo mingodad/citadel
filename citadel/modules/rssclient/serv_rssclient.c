@@ -181,6 +181,8 @@ eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 	free_recipients(Ctx->recp);
 	FreeStrBuf(&Ctx->Message);
 	FreeStrBuf(&Ctx->MsgGUID);
+	((struct CitContext*)IO->CitContext)->state = CON_IDLE;
+	((struct CitContext*)IO->CitContext)->kill_me = 1;
 	free(Ctx);
 	last_run = time(NULL);
 	return eAbort;
