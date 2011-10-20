@@ -144,6 +144,7 @@ void FreeAsyncIOContents(AsyncIO *IO);
 eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
+eNextState QueueCurlContext(AsyncIO *IO);
 int ShutDownEventQueue(void);
 
 eNextState InitEventIO(AsyncIO *IO, 
@@ -185,7 +186,5 @@ int evcurl_init(AsyncIO *IO,
 eNextState ReAttachIO(AsyncIO *IO, 
 		      void *pData, 
 		      int ReadFirst);
-
-void evcurl_handle_start(AsyncIO *IO);
 
 #endif /* __EVENT_CLIENT_H__ */

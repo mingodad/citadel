@@ -178,7 +178,7 @@ int notify_http_server(char *remoteurl,
 		OPT(INTERFACE, config.c_ip_addr);
 	}
 
-	evcurl_handle_start(IO);
+	QueueCurlContext(IO);
 
 	return 0;
 abort:

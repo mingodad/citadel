@@ -203,6 +203,28 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	return eSendReply;
 }
 
+extern eNextState evcurl_handle_start(AsyncIO *IO);
+
+eNextState QueueCurlContext(AsyncIO *IO)
+{
+	IOAddHandler *h;
+	int i;
+
+	h = (IOAddHandler*)malloc(sizeof(IOAddHandler));
+	h->IO = IO;
+	h->EvAttch = evcurl_handle_start;
+
+	pthread_mutex_lock(&EventQueueMutex);
+	syslog(LOG_DEBUG, "EVENT Q\n");
+	i = ++evbase_count;
+	Put(InboundEventQueue, IKEY(i), h, NULL);
+	pthread_mutex_unlock(&EventQueueMutex);
+
+	ev_async_send (event_base, &AddJob);
+	syslog(LOG_DEBUG, "EVENT Q Done.\n");
+	return eSendReply;
+}
+
 int ShutDownEventQueue(void)
 {
 	pthread_mutex_lock(&DBEventQueueMutex);

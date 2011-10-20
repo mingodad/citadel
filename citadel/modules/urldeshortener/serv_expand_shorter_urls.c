@@ -1,3 +1,4 @@
+
 /*
  *
  * Copyright (c) 1998-2009 by the citadel.org team
@@ -143,7 +144,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 	if (server_shutting_down)
 		goto shutdown ;
 
-	evcurl_handle_start(IO);
+	QueueCurlContext(IO);
 
 shutdown:
 

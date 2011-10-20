@@ -459,7 +459,7 @@ int rss_do_fetching(rss_aggregator *Cfg)
 		return 0;
 	}
 
-	evcurl_handle_start(IO);
+	QueueCurlContext(IO);
 	return 1;
 }
 
@@ -498,12 +498,12 @@ void DeleteRssCfg(void *vptr)
 eNextState RSSAggregatorTerminate(AsyncIO *IO)
 {
 	rss_aggregator *rncptr = (rss_aggregator *)IO->Data;
-	/*
-	  HashPos *At;
-	  long HKLen;
-	  const char *HK;
-	  void *vData;
-	*/
+	
+	HashPos *At;
+	long HKLen;
+	const char *HK;
+	void *vData;
+
 	pthread_mutex_lock(&RSSQueueMutex);
 	rncptr->RefCount --;
 	if (rncptr->RefCount == 0)
@@ -512,7 +512,7 @@ eNextState RSSAggregatorTerminate(AsyncIO *IO)
 
 	}
 	pthread_mutex_unlock(&RSSQueueMutex);
-/*
+
 	At = GetNewHashPos(RSSFetchUrls, 0);
 
 	pthread_mutex_lock(&RSSQueueMutex);
@@ -522,7 +522,6 @@ eNextState RSSAggregatorTerminate(AsyncIO *IO)
 	pthread_mutex_unlock(&RSSQueueMutex);
 
 	DeleteHashPos(&At);
-*/
 	return eAbort;
 }
 
@@ -648,7 +647,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 			    pthread_mutex_unlock(&RSSQueueMutex);
 
 
-			    FreeStrBuf(&rncptr->Url);	    
+			    FreeStrBuf(&rncptr->Url);
 			    free(rncptr);
 			    rncptr = NULL;
 			    continue;
