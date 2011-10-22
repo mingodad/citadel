@@ -1530,14 +1530,13 @@ HashList *GetSieveRules(StrBuf *Target, WCTemplputParams *TP)
 	int Done = 0;
 	SieveRule *Rule;
 
+	SieveRules = NewHash(1, Flathash);
 	serv_printf("MSIV getscript|"RULES_SCRIPT);
 	Line = NewStrBuf();
 	EncodedRule = NewStrBuf();
 	StrBuf_ServGetln(Line);
 	if (GetServerStatus(Line, NULL) == 1) 
 	{
-		SieveRules = NewHash(1, Flathash);
-
 		while(!Done && (StrBuf_ServGetln(Line) >= 0) )
 			if ( (StrLength(Line)==3) && 
 			     !strcmp(ChrPtr(Line), "000")) 
