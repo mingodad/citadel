@@ -511,6 +511,7 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	switch (NextTCPState) {
+	case eSendFile:
 	case eSendReply:
 	case eSendMore:
 		Timeout = SMTP_C_SendTimeouts[pMsg->State];
@@ -532,6 +533,7 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 	case eSendDNSQuery:
 	case eReadDNSReply:
 	case eDBQuery:
+	case eReadFile:
 	case eReadMore:
 	case eReadPayload:
 	case eConnect:

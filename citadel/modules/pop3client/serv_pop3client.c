@@ -596,6 +596,7 @@ void POP3SetTimeout(eNextState NextTCPState, pop3aggr *pMsg)
 	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 
 	switch (NextTCPState) {
+	case eSendFile:
 	case eSendReply:
 	case eSendMore:
 		Timeout = POP3_C_SendTimeouts[pMsg->State];
@@ -606,6 +607,7 @@ void POP3SetTimeout(eNextState NextTCPState, pop3aggr *pMsg)
   }
 */
 		break;
+	case eReadFile:
 	case eReadMessage:
 		Timeout = POP3_C_ReadTimeouts[pMsg->State];
 /*
@@ -720,12 +722,14 @@ eReadState POP3_C_ReadServerStatus(AsyncIO *IO)
 	case eAbort:
 		Finished = eReadFail;
 		break;
+	case eSendFile:
 	case eSendReply: 
 	case eSendMore:
 	case eReadMore:
 	case eReadMessage: 
 		Finished = StrBufChunkSipLine(IO->IOBuf, &IO->RecvBuf);
 		break;
+	case eReadFile:
 	case eReadPayload:
 		Finished = CtdlReadMessageBodyAsync(IO);
 		break;
