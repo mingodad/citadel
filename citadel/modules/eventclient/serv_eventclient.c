@@ -121,25 +121,23 @@ gotstatus(evcurl_global_data *global, int nnrun)
                         if (sta)
                                 syslog(LOG_ERR, "EVCURL: error asking curl for response code from request: %s\n", curl_easy_strerror(sta));
                         syslog(LOG_ERR, "EVCURL: http response code was %ld\n", (long)IO->HttpReq.httpcode);
-///                     syslog(LOG_ERR, "EVCURL: disconnecting [%s]\nn", ChrPtr(IO->ConnectMe->URL));
+
+
+                        curl_slist_free_all(IO->HttpReq.headers);
                         msta = curl_multi_remove_handle(mhnd, chnd);
                         if (msta)
                                 syslog(LOG_ERR, "EVCURL: warning problem detaching completed handle from curl multi: %s\n", curl_multi_strerror(msta));
-///                     syslog(LOG_ERR, "EVCURL: disconnection done [%s]\nn", ChrPtr(IO->ConnectMe->URL));
+
+                        curl_easy_cleanup(IO->HttpReq.chnd);
+			IO->HttpReq.chnd = NULL;
 
                         IO->HttpReq.attached = 0;
                         IO->SendDone(IO);
-////                    syslog(LOG_ERR, "EVCURL: done with [%s]\nn", ChrPtr(IO->ConnectMe->URL));
 
-
-                        curl_easy_cleanup(IO->HttpReq.chnd);
-                        curl_slist_free_all(IO->HttpReq.headers);
-/*
                         FreeStrBuf(&IO->HttpReq.ReplyData);
                         FreeURL(&IO->ConnectMe);
                         RemoveContext(IO->CitContext);
                         IO->Terminate(IO);
-*/
                 }
         }
 }
@@ -177,8 +175,6 @@ gotio(struct ev_loop *loop, ev_io *ioev, int events) {
 static size_t
 gotdata(void *data, size_t size, size_t nmemb, void *cglobal) {
         AsyncIO *IO = (AsyncIO*) cglobal;
-        //evcurl_request_data *D = (evcurl_request_data*) data;
-///        syslog(LOG_DEBUG, "EVCURL: gotdata(): calling CurlFillStrBuf_callback()\n");
 
         if (IO->HttpReq.ReplyData == NULL)
         {
@@ -224,10 +220,6 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vio)
         if (action == CURL_POLL_REMOVE) {
                 syslog(LOG_ERR,"EVCURL: called last time to unregister this sockwatcher\n");
                 ev_io_stop(event_base, &IO->recv_event);
-                FreeStrBuf(&IO->HttpReq.ReplyData);
-                FreeURL(&IO->ConnectMe);
-                RemoveContext(IO->CitContext);
-                IO->Terminate(IO);
         } else {
                 int events = (action & CURL_POLL_IN ? EV_READ : 0) | (action & CURL_POLL_OUT ? EV_WRITE : 0);
                 ev_io_stop(event_base, &IO->recv_event);
