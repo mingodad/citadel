@@ -240,6 +240,11 @@ void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf
 {
 	networker_save_message *Ctx;
 
+	pthread_mutex_lock(&RSSQueueMutex);
+	Cfg->RefCount ++;
+	pthread_mutex_unlock(&RSSQueueMutex);
+
+
 	Ctx = (networker_save_message *) malloc(sizeof(networker_save_message));
 	memset(Ctx, 0, sizeof(networker_save_message));
 	
@@ -434,7 +439,7 @@ int rss_do_fetching(rss_aggregator *Cfg)
 
 	if ((Cfg->next_poll != 0) && (now < Cfg->next_poll))
 		return 0;
-	Cfg->RefCount = 1;
+	Cfg->RefCount++;
 
 	ri = (rss_item*) malloc(sizeof(rss_item));
 	memset(ri, 0, sizeof(rss_item));

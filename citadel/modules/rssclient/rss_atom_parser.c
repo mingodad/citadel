@@ -58,6 +58,8 @@
 #include "event_client.h"
 #include "rss_atom_parser.h"
 
+extern pthread_mutex_t RSSQueueMutex;
+
 HashList *StartHandlers = NULL;
 HashList *EndHandlers = NULL;
 HashList *KnownNameSpaces = NULL;
@@ -614,6 +616,9 @@ eNextState ParseRSSReply(AsyncIO *IO)
 	long len;
 
 	rssc = IO->Data;
+	pthread_mutex_lock(&RSSQueueMutex);
+	rssc->RefCount ++;
+	pthread_mutex_unlock(&RSSQueueMutex);
 	ri = rssc->Item;
 	rssc->CData = NewStrBufPlain(NULL, SIZ);
 	rssc->Key = NewStrBuf();
@@ -675,6 +680,9 @@ shutdown:
 
         ///Cfg->next_poll = time(NULL) + config.c_net_freq; 
 
+	pthread_mutex_lock(&RSSQueueMutex);
+	rssc->RefCount --;
+	pthread_mutex_unlock(&RSSQueueMutex);
 	return eTerminateConnection;
 }
 
