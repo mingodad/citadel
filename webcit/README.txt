@@ -108,14 +108,14 @@ something like this:
  Several command-line options are also available.  Here's the usage for
 the "webcit" program:
   
- webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite] [-t tracefile]
-           [-g guest_landing_page ]
+ webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite]
+           [-g guest_landing_page]
            [-c] [-f] [remotehost [remoteport]]
  
    *or*
  
- webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite] [-t tracefile]
-           [-g guest_landing_page ]
+ webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite]
+           [-g guest_landing_page]
            [-c] [-f] uds /your/citadel/directory
  
  Explained: 
@@ -134,9 +134,6 @@ the "webcit" program:
      different port.  If you do not specify a port number, WebCit will attempt
      to use port 80.
      
-  -> tracefile: where you want WebCit to log to.  This can be a file, a
-     virtual console, or /dev/null to suppress logging altogether.
-
   -> The "guest landing page" is a location on your WebCit installation where
      unauthenticated guest users are taken when they first enter the root of
      your site.  If guest mode is not enabled on your Citadel server, they will

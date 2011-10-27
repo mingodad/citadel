@@ -18,7 +18,6 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 
 
 extern int msock;				/* master listening socket */
-extern int verbosity;				/* Logging level */
 extern char static_icon_dir[PATH_MAX];          /* where should we find our mime icons */
 int is_https = 0;				/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;				/* Follow X-Forwarded-For: header? */
@@ -74,7 +73,6 @@ int main(int argc, char **argv)
 	pthread_t SessThread;		/* Thread descriptor */
 	pthread_attr_t attr;		/* Thread attributes */
 	int a;		        	/* General-purpose variable */
-	char tracefile[PATH_MAX];
 	char ip_addr[256]="*";
 	int relh=0;
 	int home=0;
@@ -85,7 +83,6 @@ int main(int argc, char **argv)
 	const char *basedir = NULL;
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
 	const char *I18nDumpFile = NULL;
-	FILE *rvfp = NULL;
 	int rv = 0;
 
 	WildFireInitBacktrace(argv[0], 2);
@@ -154,10 +151,7 @@ int main(int argc, char **argv)
 			}
 			break;
 		case 't':
-			safestrncpy(tracefile, optarg, sizeof tracefile);
-			rvfp = freopen(tracefile, "w", stdout);
-			rvfp = freopen(tracefile, "w", stderr);
-			rvfp = freopen(tracefile, "r", stdin);
+			/* no longer used, but ignored so old scripts don't break */
 			break;
 		case 'T':
 			LoadTemplates = atoi(optarg);
@@ -168,7 +162,7 @@ int main(int argc, char **argv)
 			DisableGzip = 1;
 			break;
 		case 'x':
-			verbosity = atoi(optarg);
+			/* no longer used, but ignored so old scripts don't break */
 			break;
 		case 'f':
 			follow_xff = 1;
@@ -204,7 +198,7 @@ int main(int argc, char **argv)
 		default:
 			fprintf(stderr, "usage: webcit "
 				"[-i ip_addr] [-p http_port] "
-				"[-t tracefile] [-c] [-f] "
+				"[-c] [-f] "
 				"[-T Templatedebuglevel] "
 				"[-d] [-Z] [-G i18ndumpfile] "
 #ifdef HAVE_OPENSSL

@@ -79,7 +79,6 @@ pthread_key_t MyConKey;				/* TSD key for MyContext() */
 pthread_key_t MyReq;				/* TSD key for MyReq() */
 int msock;			/* master listening socket */
 int time_to_die = 0;            /* Nonzero if server is shutting down */
-int verbosity = 9;		/* Logging level */
 
 extern void *context_loop(ParsedHttpHdrs *Hdr);
 extern void *housekeeping_loop(void);
