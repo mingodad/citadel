@@ -33,11 +33,12 @@ void display_edit(char *description, char *check_cmd,
 	StrBuf *Line;
 
 	serv_puts(check_cmd);
-
+	Line = NewStrBuf();
 	StrBuf_ServGetln(Line);
 	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
 		FreeStrBuf(&Line);
 		display_main_menu();
+		FreeStrBuf(&Line);
 		return;
 	}
 	if (with_room_banner) {
