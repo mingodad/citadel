@@ -78,6 +78,7 @@ typedef struct _evcurl_request_data
 } evcurl_request_data;
 
 struct AsyncIO {
+	long ID;
        	eNextState NextState;
 
 	/* connection related */
@@ -138,6 +139,9 @@ typedef struct _IOAddHandler {
 	AsyncIO *IO;
 	IO_CallBack EvAttch;
 }IOAddHandler; 
+
+#define EV_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
+#define EVM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
 
 void FreeAsyncIOContents(AsyncIO *IO);
 

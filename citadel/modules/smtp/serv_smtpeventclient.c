@@ -125,7 +125,8 @@ eNextState get_one_mx_host_ip(AsyncIO *IO);
  ******************************************************************************/
 void FinalizeMessageSend(SmtpOutMsg *Msg)
 {
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	AsyncIO *IO = &Msg->IO;
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	
 	if (DecreaseQReference(Msg->MyQItem)) 
 	{
@@ -168,6 +169,10 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 eNextState FailOneAttempt(AsyncIO *IO)
 {
 	SmtpOutMsg *SendMsg = IO->Data;
+
+	if (SendMsg->MyQEntry->Status == 2)
+		return eAbort;
+
 	/* 
 	 * possible ways here: 
 	 * - connection timeout 
@@ -213,12 +218,12 @@ void SetConnectStatus(AsyncIO *IO)
 	if (SendMsg->mx_host == NULL)
 		SendMsg->mx_host = "<no MX-Record>";
 
-	syslog(LOG_DEBUG,
-	       "SMTP client[%ld]: connecting to %s [%s]:%d ...\n", 
-	       SendMsg->n, 
-	       SendMsg->mx_host, 
-	       buf,
-	       SendMsg->IO.ConnectMe->Port);
+	EV_syslog(LOG_DEBUG,
+		  "SMTP client[%ld]: connecting to %s [%s]:%d ...\n", 
+		  SendMsg->n, 
+		  SendMsg->mx_host, 
+		  buf,
+		  SendMsg->IO.ConnectMe->Port);
 
 	SendMsg->MyQEntry->Status = 5; 
 	StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
@@ -236,7 +241,7 @@ eNextState mx_connect_ip(AsyncIO *IO)
 {
 	SmtpOutMsg *SendMsg = IO->Data;
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	
 	IO->ConnectMe = SendMsg->pCurrRelay;
 	/*  Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
@@ -299,14 +304,14 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 
 	InitC_ares_dns(IO);
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
-	syslog(LOG_DEBUG, 
-	       "SMTP client[%ld]: looking up %s-Record %s : %d ...\n", 
-	       SendMsg->n, 
-	       (SendMsg->pCurrRelay->IPv6)? "aaaa": "a",
-	       SendMsg->pCurrRelay->Host, 
-	       SendMsg->pCurrRelay->Port);
+	EV_syslog(LOG_DEBUG, 
+		  "SMTP client[%ld]: looking up %s-Record %s : %d ...\n", 
+		  SendMsg->n, 
+		  (SendMsg->pCurrRelay->IPv6)? "aaaa": "a",
+		  SendMsg->pCurrRelay->Host, 
+		  SendMsg->pCurrRelay->Port);
 
 	if (!QueueQuery((SendMsg->pCurrRelay->IPv6)? ns_t_aaaa : ns_t_a, 
 			SendMsg->pCurrRelay->Host, 
@@ -335,7 +340,7 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 
 	QueryCbDone(IO);
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	pp = &SendMsg->Relay;
 	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
 		pp = &(*pp)->Next;
@@ -392,7 +397,7 @@ eNextState resolve_mx_records(AsyncIO *IO)
 {
 	SmtpOutMsg * SendMsg = IO->Data;
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	/* start resolving MX records here. */
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
@@ -507,8 +512,9 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 {
 	double Timeout = 0.0;
+	AsyncIO *IO = &pMsg->IO;
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	switch (NextTCPState) {
 	case eSendFile:
@@ -545,7 +551,7 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 }
 eNextState SMTP_C_DispatchReadDone(AsyncIO *IO)
 {
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
 	eNextState rc;
 
@@ -556,7 +562,7 @@ eNextState SMTP_C_DispatchReadDone(AsyncIO *IO)
 }
 eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO)
 {
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
 	eNextState rc;
 
@@ -573,7 +579,7 @@ eNextState SMTP_C_Terminate(AsyncIO *IO)
 {
 	SmtpOutMsg *pMsg = IO->Data;
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	FinalizeMessageSend(pMsg);
 	return eAbort;
 }
@@ -581,7 +587,7 @@ eNextState SMTP_C_Timeout(AsyncIO *IO)
 {
 	SmtpOutMsg *pMsg = IO->Data;
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	return FailOneAttempt(IO);
 }
@@ -597,13 +603,13 @@ eNextState SMTP_C_DNSFail(AsyncIO *IO)
 {
 	SmtpOutMsg *pMsg = IO->Data;
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_Shutdown(AsyncIO *IO)
 {
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
 
 	pMsg->MyQEntry->Status = 3;

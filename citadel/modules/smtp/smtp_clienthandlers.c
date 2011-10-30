@@ -107,8 +107,8 @@
 
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
-#define SMTP_DBG_SEND() syslog(LOG_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.SendBuf.Buf))
-#define SMTP_DBG_READ() syslog(LOG_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
+#define SMTP_DBG_SEND() EV_syslog(LOG_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.SendBuf.Buf))
+#define SMTP_DBG_READ() EV_syslog(LOG_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 
 
 /*****************************************************************************/
@@ -117,6 +117,7 @@
 eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
 {
 	/* Process the SMTP greeting from the server */
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -130,6 +131,7 @@ eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_send_EHLO(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	/* At this point we know we are talking to a real SMTP server */
 
 	/* Do a EHLO command.  If it fails, try the HELO command. */
@@ -142,6 +144,7 @@ eNextState SMTPC_send_EHLO(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
 	if (SMTP_IS_STATE('2')) {
@@ -157,6 +160,7 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *SendMsg)
 
 eNextState STMPC_send_HELO(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
 		     "HELO %s\r\n", config.c_fqdn);
 
@@ -166,6 +170,7 @@ eNextState STMPC_send_HELO(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -182,6 +187,7 @@ eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_send_auth(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	char buf[SIZ];
 	char encoded[1024];
 
@@ -206,6 +212,7 @@ eNextState SMTPC_send_auth(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_auth_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	/* Do an AUTH command if necessary */
 	
 	SMTP_DBG_READ();
@@ -221,6 +228,7 @@ eNextState SMTPC_read_auth_reply(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_send_FROM(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	/* previous command succeeded, now try the MAIL FROM: command */
 	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
 		     "MAIL FROM:<%s>\r\n", 
@@ -232,6 +240,7 @@ eNextState SMTPC_send_FROM(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_FROM_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -246,6 +255,7 @@ eNextState SMTPC_read_FROM_reply(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_send_RCPT(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	/* MAIL succeeded, now try the RCPT To: command */
 	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
 		     "RCPT TO:<%s@%s>\r\n", 
@@ -258,6 +268,7 @@ eNextState SMTPC_send_RCPT(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -271,6 +282,7 @@ eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_send_DATAcmd(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	/* RCPT succeeded, now try the DATA command */
 	StrBufPlain(SendMsg->IO.SendBuf.Buf,
 		    HKEY("DATA\r\n"));
@@ -281,6 +293,7 @@ eNextState SMTPC_send_DATAcmd(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('3')) {
@@ -322,6 +335,7 @@ eNextState SMTPC_send_terminate_data_body(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -341,6 +355,7 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_send_QUIT(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	StrBufPlain(SendMsg->IO.SendBuf.Buf,
 		    HKEY("QUIT\r\n"));
 
@@ -350,10 +365,11 @@ eNextState SMTPC_send_QUIT(SmtpOutMsg *SendMsg)
 
 eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
-	syslog(LOG_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
-		      SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
+	EV_syslog(LOG_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
+		  SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	return eTerminateConnection;
 }
 
@@ -440,13 +456,14 @@ const ConstStr ReadErrors[eMaxSMTPC] = {
 
 int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 {
+	AsyncIO *IO = &SendMsg->IO;
 	const char *ptr;
 	char buf[1024];
 	int scan_done;
 	int lp, rp;
 	int i;
 
-	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	if ((SendMsg==NULL) || 
 	    (SendMsg->MyQEntry == NULL) || 
@@ -460,8 +477,8 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 			    SendMsg->node, 
 			    SendMsg->name);
 
-	syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
-	       SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
+	EV_syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
+		  SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	/* If no envelope_from is supplied, extract one from the message */
 	SendMsg->envelope_from = ChrPtr(SendMsg->MyQItem->EnvelopeFrom);
 	if ( (SendMsg->envelope_from == NULL) || 

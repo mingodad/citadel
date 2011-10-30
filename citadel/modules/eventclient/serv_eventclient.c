@@ -60,6 +60,7 @@
 
 ev_loop *event_base;
 
+long EvIDSource = 0;
 /*****************************************************************************
  *                   libevent / curl integration                             *
  *****************************************************************************/
@@ -115,19 +116,19 @@ gotstatus(int nnrun)
 
                         sta = msg->data.result;
                         if (sta) {
-                                syslog(LOG_ERR, "EVCURL: error description: %s\n", IO->HttpReq.errdesc);
-                                syslog(LOG_ERR, "EVCURL: error performing request: %s\n", curl_easy_strerror(sta));
+                                EV_syslog(LOG_ERR, "EVCURL: error description: %s\n", IO->HttpReq.errdesc);
+                                EV_syslog(LOG_ERR, "EVCURL: error performing request: %s\n", curl_easy_strerror(sta));
                         }
                         sta = curl_easy_getinfo(chnd, CURLINFO_RESPONSE_CODE, &IO->HttpReq.httpcode);
                         if (sta)
-                                syslog(LOG_ERR, "EVCURL: error asking curl for response code from request: %s\n", curl_easy_strerror(sta));
-                        syslog(LOG_ERR, "EVCURL: http response code was %ld\n", (long)IO->HttpReq.httpcode);
+                                EV_syslog(LOG_ERR, "EVCURL: error asking curl for response code from request: %s\n", curl_easy_strerror(sta));
+                        EV_syslog(LOG_ERR, "EVCURL: http response code was %ld\n", (long)IO->HttpReq.httpcode);
 
 
                         curl_slist_free_all(IO->HttpReq.headers);
                         msta = curl_multi_remove_handle(mhnd, chnd);
                         if (msta)
-                                syslog(LOG_ERR, "EVCURL: warning problem detaching completed handle from curl multi: %s\n", curl_multi_strerror(msta));
+                                EV_syslog(LOG_ERR, "EVCURL: warning problem detaching completed handle from curl multi: %s\n", curl_multi_strerror(msta));
 
                         curl_easy_cleanup(IO->HttpReq.chnd);
 			IO->HttpReq.chnd = NULL;
@@ -207,11 +208,11 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
         AsyncIO *IO = (AsyncIO*) vIO;
         CURLcode sta;
 
-        syslog(LOG_DEBUG, "EVCURL: gotwatchsock called fd=%d action=%d\n", (int)fd, action);
+        EV_syslog(LOG_DEBUG, "EVCURL: gotwatchsock called fd=%d action=%d\n", (int)fd, action);
 	if (IO == NULL) {
                 sta = curl_easy_getinfo(easy, CURLINFO_PRIVATE, &f);
                 if (sta) {
-                        syslog(LOG_ERR, "EVCURL: error asking curl for private cookie of curl handle: %s\n", curl_easy_strerror(sta));
+                        EV_syslog(LOG_ERR, "EVCURL: error asking curl for private cookie of curl handle: %s\n", curl_easy_strerror(sta));
                         return -1;
                 }
                 IO = (AsyncIO *) f;
@@ -230,10 +231,10 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
 	switch (action)
 	{
 	case CURL_POLL_NONE:
-                syslog(LOG_ERR,"EVCURL: called first time to register this sockwatcker\n");
+                EVM_syslog(LOG_ERR,"EVCURL: called first time to register this sockwatcker\n");
 		break;
 	case CURL_POLL_REMOVE:
-                syslog(LOG_ERR,"EVCURL: called last time to unregister this sockwatcher\n");
+                EVM_syslog(LOG_ERR,"EVCURL: called last time to unregister this sockwatcher\n");
                 ev_io_stop(event_base, &IO->recv_event);
                 ev_io_stop(event_base, &IO->send_event);
 		break;
@@ -294,14 +295,14 @@ int evcurl_init(AsyncIO *IO,
         CURLcode sta;
         CURL *chnd;
 
-        syslog(LOG_DEBUG, "EVCURL: evcurl_init called ms\n");
+        EVM_syslog(LOG_DEBUG, "EVCURL: evcurl_init called ms\n");
         IO->HttpReq.attached = 0;
         IO->SendDone = CallBack;
         IO->Terminate = Terminate;
         chnd = IO->HttpReq.chnd = curl_easy_init();
         if (!chnd)
         {
-                syslog(LOG_ERR, "EVCURL: error initializing curl handle\n");
+                EVM_syslog(LOG_ERR, "EVCURL: error initializing curl handle\n");
                 return 1;
         }
 
@@ -337,7 +338,7 @@ int evcurl_init(AsyncIO *IO,
 		OPT(INTERFACE, config.c_ip_addr);
 	}
 		/* point to a structure that points back to the perl structure and stuff */
-	syslog(LOG_DEBUG, "EVCURL: Loading URL: %s\n", IO->ConnectMe->PlainUrl);
+	EV_syslog(LOG_DEBUG, "EVCURL: Loading URL: %s\n", IO->ConnectMe->PlainUrl);
 	OPT(URL, IO->ConnectMe->PlainUrl);
 	if (StrLength(IO->ConnectMe->CurlCreds))
 	{
@@ -371,10 +372,10 @@ evcurl_handle_start(AsyncIO *IO)
 {
 	CURLMcode msta;
 	IO->NextState = eConnect;
-	syslog(LOG_DEBUG, "EVCURL: attaching to curl multi handle\n");
+	EVM_syslog(LOG_DEBUG, "EVCURL: attaching to curl multi handle\n");
 	msta = curl_multi_add_handle(global.mhnd, IO->HttpReq.chnd);
 	if (msta)
-		syslog(LOG_ERR, "EVCURL: error attaching to curl multi handle: %s\n", curl_multi_strerror(msta));
+		EV_syslog(LOG_ERR, "EVCURL: error attaching to curl multi handle: %s\n", curl_multi_strerror(msta));
 	IO->HttpReq.attached = 1;
 	ev_async_send (event_base, &WakeupCurl);
 	return eReadMessage;
@@ -433,6 +434,8 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	while (GetNextHashPos(q, It, &len, &Key, &v))
 	{
 		IOAddHandler *h = v;
+		if (h->IO->ID == 0)
+			h->IO->ID = EvIDSource++;
 		h->EvAttch(h->IO);
 	}
 	DeleteHashPos(&It);
@@ -552,6 +555,8 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	{
 		IOAddHandler *h = v;
 		eNextState rc;
+		if (h->IO->ID == 0)
+			h->IO->ID = EvIDSource++;
 		rc = h->EvAttch(h->IO);
 		switch (rc)
 		{
