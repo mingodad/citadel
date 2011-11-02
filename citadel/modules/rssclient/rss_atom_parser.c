@@ -609,11 +609,13 @@ size_t rss_libcurl_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
 eNextState ParseRSSReply(AsyncIO *IO)
 {
+	StrBuf *Buf;
 	rss_aggregator *rssc;
 	rss_item *ri;
 	const char *at;
 	char *ptr;
 	long len;
+	const char *Key;
 
 	rssc = IO->Data;
 	pthread_mutex_lock(&RSSQueueMutex);
@@ -647,10 +649,14 @@ eNextState ParseRSSReply(AsyncIO *IO)
 	rssc->xp = XML_ParserCreateNS(ptr, ':');
 	if (!rssc->xp) {
 		syslog(LOG_DEBUG, "Cannot create XML parser!\n");
-		goto shutdown;
+		pthread_mutex_lock(&RSSQueueMutex);
+		rssc->RefCount --;
+		pthread_mutex_unlock(&RSSQueueMutex);
+		return eTerminateConnection;
 	}
 	FlushStrBuf(rssc->Key);
 
+	rssc->Messages = NewHash(1, Flathash);
 	XML_SetElementHandler(rssc->xp, rss_xml_start, rss_xml_end);
 	XML_SetCharacterDataHandler(rssc->xp, rss_xml_chardata);
 	XML_SetUserData(rssc->xp, rssc);
@@ -671,19 +677,23 @@ eNextState ParseRSSReply(AsyncIO *IO)
 		      XML_ErrorString(
 			      XML_GetErrorCode(rssc->xp)));
 
-shutdown:
 	XML_ParserFree(rssc->xp);
-
 	flush_rss_item(ri);
 	FreeStrBuf(&rssc->CData);
 	FreeStrBuf(&rssc->Key);
 
-        ///Cfg->next_poll = time(NULL) + config.c_net_freq; 
+	Buf = NewStrBufDup(rssc->rooms);
+	rssc->recp.recp_room = SmashStrBuf(&Buf);
+	rssc->recp.num_room = rssc->roomlist_parts;
+	rssc->recp.recptypes_magic = RECPTYPES_MAGIC;
 
-	pthread_mutex_lock(&RSSQueueMutex);
-	rssc->RefCount --;
-	pthread_mutex_unlock(&RSSQueueMutex);
-	return eTerminateConnection;
+	rssc->Pos = GetNewHashPos(rssc->Messages, 1);
+
+        ///Cfg->next_poll = time(NULL) + config.c_net_freq; 
+	if (GetNextHashPos(rssc->Messages, rssc->Pos, &len, &Key, (void**) &rssc->ThisMsg))
+		return QueueDBOperation(IO, RSS_FetchNetworkUsetableEntry);
+	else
+		return eAbort;
 }
 
 

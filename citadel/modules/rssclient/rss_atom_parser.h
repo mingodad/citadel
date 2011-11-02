@@ -61,6 +61,13 @@ struct rss_room_counter {
 	long QRnumber;
 };
 
+typedef struct __networker_save_message {
+	struct CtdlMessage *Msg;
+	StrBuf *MsgGUID;
+	StrBuf *Message;
+	struct UseTable ut;
+} networker_save_message;
+
 struct rss_aggregator {
 	AsyncIO    	 IO;
 	XML_Parser 	 xp;
@@ -78,16 +85,19 @@ struct rss_aggregator {
 		   	
 	StrBuf		*CData;
 	StrBuf		*Key;
-		   	
+
 	rss_item   	*Item;
-	
+	struct recptypes recp;
+	HashPos         *Pos;
+	HashList        *Messages;
+	networker_save_message *ThisMsg;
 	const rss_xml_handler *Current;
 };
-
-
 
 
 
 eNextState ParseRSSReply(AsyncIO *IO);
 
 void rss_save_item(rss_item *ri, rss_aggregator *Cfg);
+
+eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO);

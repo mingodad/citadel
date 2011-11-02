@@ -89,15 +89,6 @@ void AppendLink(StrBuf *Message, StrBuf *link, StrBuf *LinkTitle, const char *Ti
 		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
 	}
 }
-typedef struct __networker_save_message {
-	AsyncIO IO;
-	struct CtdlMessage *Msg;
-	struct recptypes *recp;
-	rss_aggregator *Cfg;
-	StrBuf *MsgGUID;
-	StrBuf *Message;
-	struct UseTable ut;
-} networker_save_message;
 
 
 void DeleteRoomReference(long QRnumber)
@@ -162,7 +153,7 @@ void UnlinkRSSAggregator(rss_aggregator *Cfg)
 	DeleteHashPos(&At);
 	last_run = time(NULL);
 }
-
+/*
 eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 {
 	networker_save_message *Ctx = (networker_save_message *) IO->Data;
@@ -187,6 +178,16 @@ eNextState FreeNetworkSaveMessage (AsyncIO *IO)
 	last_run = time(NULL);
 	return eAbort;
 }
+*/
+void FreeNetworkSaveMessage (void *vMsg)
+{
+	networker_save_message *Msg = (networker_save_message *) vMsg;
+
+	CtdlFreeMessage(Msg->Msg);
+	FreeStrBuf(&Msg->Message);
+	FreeStrBuf(&Msg->MsgGUID);
+	free(Msg);
+}
 
 eNextState AbortNetworkSaveMessage (AsyncIO *IO)
 {
@@ -195,39 +196,51 @@ eNextState AbortNetworkSaveMessage (AsyncIO *IO)
 
 eNextState RSSSaveMessage(AsyncIO *IO)
 {
-	networker_save_message *Ctx = (networker_save_message *) IO->Data;
+	long len;
+	const char *Key;
+	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
-	Ctx->Msg->cm_fields['M'] = SmashStrBuf(&Ctx->Message);
+	Ctx->ThisMsg->Msg->cm_fields['M'] = SmashStrBuf(&Ctx->ThisMsg->Message);
 
-	CtdlSubmitMsg(Ctx->Msg, Ctx->recp, NULL, 0);
+	CtdlSubmitMsg(Ctx->ThisMsg->Msg, &Ctx->recp, NULL, 0);
 
 	/* write the uidl to the use table so we don't store this item again */
-	cdb_store(CDB_USETABLE, SKEY(Ctx->MsgGUID), &Ctx->ut, sizeof(struct UseTable) );
-
-	return eTerminateConnection;
+	cdb_store(CDB_USETABLE, SKEY(Ctx->ThisMsg->MsgGUID), &Ctx->ThisMsg->ut, sizeof(struct UseTable) );
+	
+	if (GetNextHashPos(Ctx->Messages, Ctx->Pos, &len, &Key, (void**) &Ctx->ThisMsg))
+		return QueueDBOperation(IO, RSS_FetchNetworkUsetableEntry);
+	else
+		return eAbort;
 }
 
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
+	const char *Key;
+	long len;
 	struct cdbdata *cdbut;
-	networker_save_message *Ctx = (networker_save_message *) IO->Data;
+	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
+
 
 	/* Find out if we've already seen this item */
-	strcpy(Ctx->ut.ut_msgid, ChrPtr(Ctx->MsgGUID)); /// TODO
-	Ctx->ut.ut_timestamp = time(NULL);
+	strcpy(Ctx->ThisMsg->ut.ut_msgid, ChrPtr(Ctx->ThisMsg->MsgGUID)); /// TODO
+	Ctx->ThisMsg->ut.ut_timestamp = time(NULL);
 
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(Ctx->MsgGUID));
+	cdbut = cdb_fetch(CDB_USETABLE, SKEY(Ctx->ThisMsg->MsgGUID));
 #ifndef DEBUG_RSS
 	if (cdbut != NULL) {
 		/* Item has already been seen */
-		syslog(LOG_DEBUG, "%s has already been seen\n", ChrPtr(Ctx->MsgGUID));
+		syslog(LOG_DEBUG, "%s has already been seen\n", ChrPtr(Ctx->ThisMsg->MsgGUID));
 		cdb_free(cdbut);
 
 		/* rewrite the record anyway, to update the timestamp */
 		cdb_store(CDB_USETABLE, 
-			  SKEY(Ctx->MsgGUID), 
-			  &Ctx->ut, sizeof(struct UseTable) );
-		return eAbort;
+			  SKEY(Ctx->ThisMsg->MsgGUID), 
+			  &Ctx->ThisMsg->ut, sizeof(struct UseTable) );
+
+		if (GetNextHashPos(Ctx->Messages, Ctx->Pos, &len, &Key, (void**) &Ctx->ThisMsg))
+			return QueueDBOperation(IO, RSS_FetchNetworkUsetableEntry);
+		else
+			return eAbort;
 	}
 	else
 #endif
@@ -236,7 +249,8 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 		return eSendMore;
 	}
 }
-void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf *MsgGUID, StrBuf *MessageBody, rss_aggregator *Cfg)
+/*
+void RSSAddSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf *MsgGUID, StrBuf *MessageBody, rss_aggregat *Cfg)
 {
 	networker_save_message *Ctx;
 
@@ -259,7 +273,7 @@ void RSSQueueSaveMessage(struct CtdlMessage *Msg, struct recptypes *recp, StrBuf
 	Ctx->IO.ShutdownAbort = AbortNetworkSaveMessage;
 	QueueDBOperation(&Ctx->IO, RSS_FetchNetworkUsetableEntry);
 }
-
+*/
 
 /*
  * Commit a fetched and parsed RSS item to disk
@@ -270,21 +284,12 @@ void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
 	struct MD5Context md5context;
 	u_char rawdigest[MD5_DIGEST_LEN];
 	struct CtdlMessage *msg;
-	struct recptypes *recp = NULL;
 	int msglen = 0;
 	StrBuf *Message;
 	StrBuf *guid;
-	StrBuf *Buf;
 
-	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
-	if (recp == NULL) return;
-	memset(recp, 0, sizeof(struct recptypes));
-	Buf = NewStrBufDup(Cfg->rooms);
-	recp->recp_room = SmashStrBuf(&Buf);
-	recp->num_room = Cfg->roomlist_parts;
-	recp->recptypes_magic = RECPTYPES_MAGIC;
+	int n;
    
-	Cfg->RefCount ++;
 	/* Construct a GUID to use in the S_USETABLE table.
 	 * If one is not present in the item itself, make one up.
 	 */
@@ -420,7 +425,19 @@ void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
 	AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
 	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
 
-	RSSQueueSaveMessage(msg, recp, guid, Message, Cfg);
+
+
+	networker_save_message *SaveMsg;
+
+	SaveMsg = (networker_save_message *) malloc(sizeof(networker_save_message));
+	memset(SaveMsg, 0, sizeof(networker_save_message));
+	
+	SaveMsg->MsgGUID = guid;
+	SaveMsg->Message = Message;
+	SaveMsg->Msg = msg;
+
+	n = GetCount(Cfg->Messages) + 1;
+	Put(Cfg->Messages, IKEY(n), SaveMsg, FreeNetworkSaveMessage);
 }
 
 
@@ -525,7 +542,10 @@ eNextState RSSAggregatorTerminate(AsyncIO *IO)
 	GetHashPos(RSSFetchUrls, At, &HKLen, &HK, &vData);
 	DeleteEntryFromHash(RSSFetchUrls, At);
 	pthread_mutex_unlock(&RSSQueueMutex);
-
+	DeleteHashPos (&rncptr->Pos);
+	DeleteHash (&rncptr->Messages);
+	if (rncptr->recp.recp_room != NULL)
+		free(rncptr->recp.recp_room);
 	DeleteHashPos(&At);
 	return eAbort;
 }

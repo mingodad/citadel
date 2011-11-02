@@ -134,12 +134,28 @@ gotstatus(int nnrun)
 			IO->HttpReq.chnd = NULL;
 
                         IO->HttpReq.attached = 0;
-                        IO->SendDone(IO);
-
-                        FreeStrBuf(&IO->HttpReq.ReplyData);
-                        FreeURL(&IO->ConnectMe);
-                        RemoveContext(IO->CitContext);
-                        IO->Terminate(IO);
+                        switch(IO->SendDone(IO))
+			{
+			case eDBQuery:
+				break;
+			case eSendDNSQuery:
+			case eReadDNSReply:
+			case eConnect:
+			case eSendReply: 
+			case eSendMore:
+			case eSendFile:
+			case eReadMessage: 
+			case eReadMore:
+			case eReadPayload:
+			case eReadFile:
+				break;
+			case eTerminateConnection:
+			case eAbort:
+				FreeStrBuf(&IO->HttpReq.ReplyData);
+				FreeURL(&IO->ConnectMe);
+				RemoveContext(IO->CitContext);
+				IO->Terminate(IO);
+			}
                 }
         }
 }
@@ -208,7 +224,6 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
         AsyncIO *IO = (AsyncIO*) vIO;
         CURLcode sta;
 
-        EV_syslog(LOG_DEBUG, "EVCURL: gotwatchsock called fd=%d action=%d\n", (int)fd, action);
 	if (IO == NULL) {
                 sta = curl_easy_getinfo(easy, CURLINFO_PRIVATE, &f);
                 if (sta) {
@@ -225,8 +240,8 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
 		ev_io_init(&IO->recv_event, &got_in, fd, EV_READ);
 		ev_io_init(&IO->send_event, &got_out, fd, EV_WRITE);
 		curl_multi_assign(mhnd, fd, IO);
-
 	}
+        EV_syslog(LOG_DEBUG, "EVCURL: gotwatchsock called fd=%d action=%d\n", (int)fd, action);
 
 	switch (action)
 	{
@@ -239,12 +254,12 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
                 ev_io_stop(event_base, &IO->send_event);
 		break;
 	case CURL_POLL_IN:
-                ev_io_stop(event_base, &IO->recv_event);
-                ev_io_start(event_base, &IO->send_event);
+                ev_io_start(event_base, &IO->recv_event);
+                ev_io_stop(event_base, &IO->send_event);
 		break;
 	case CURL_POLL_OUT:
-                ev_io_stop(event_base, &IO->send_event);
-                ev_io_start(event_base, &IO->recv_event);
+                ev_io_start(event_base, &IO->send_event);
+                ev_io_stop(event_base, &IO->recv_event);
 		break;
 	case CURL_POLL_INOUT:
                 ev_io_start(event_base, &IO->send_event);
