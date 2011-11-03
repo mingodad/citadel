@@ -345,7 +345,7 @@ void RemoveContext (CitContext *con)
 		c = "WTF?";
 	}
 	syslog(LOG_DEBUG, "RemoveContext(%s) session %d", c, con->cs_pid);
-	cit_backtrace();
+///	cit_backtrace();
 
 	/* Run any cleanup routines registered by loadable modules.
 	 * Note: We have to "become_session()" because the cleanup functions

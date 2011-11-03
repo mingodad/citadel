@@ -72,7 +72,6 @@ struct rss_aggregator {
 	AsyncIO    	 IO;
 	XML_Parser 	 xp;
 
-	int		 RefCount;
 	int		 ItemType;
 	int		 roomlist_parts;
 

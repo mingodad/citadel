@@ -60,7 +60,7 @@
 
 ev_loop *event_base;
 
-long EvIDSource = 0;
+long EvIDSource = 1;
 /*****************************************************************************
  *                   libevent / curl integration                             *
  *****************************************************************************/
@@ -223,6 +223,7 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
         char *f;
         AsyncIO *IO = (AsyncIO*) vIO;
         CURLcode sta;
+	const char *Action;
 
 	if (IO == NULL) {
                 sta = curl_easy_getinfo(easy, CURLINFO_PRIVATE, &f);
@@ -231,6 +232,7 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
                         return -1;
                 }
                 IO = (AsyncIO *) f;
+		EV_syslog(LOG_DEBUG, "EVCURL: got socket for URL: %s\n", IO->ConnectMe->PlainUrl);
 		if (IO->SendBuf.fd != 0)
 		{
 			ev_io_stop(event_base, &IO->recv_event);
@@ -241,7 +243,29 @@ gotwatchsock(CURL *easy, curl_socket_t fd, int action, void *cglobal, void *vIO)
 		ev_io_init(&IO->send_event, &got_out, fd, EV_WRITE);
 		curl_multi_assign(mhnd, fd, IO);
 	}
-        EV_syslog(LOG_DEBUG, "EVCURL: gotwatchsock called fd=%d action=%d\n", (int)fd, action);
+
+	Action = "";
+	switch (action)
+	{
+	case CURL_POLL_NONE:
+                Action = "CURL_POLL_NONE";
+		break;
+	case CURL_POLL_REMOVE:
+                Action = "CURL_POLL_REMOVE";
+		break;
+	case CURL_POLL_IN:
+                Action = "CURL_POLL_IN";
+		break;
+	case CURL_POLL_OUT:
+                Action = "CURL_POLL_OUT";
+		break;
+	case CURL_POLL_INOUT:
+                Action = "CURL_POLL_INOUT";
+		break;
+        }
+
+
+        EV_syslog(LOG_DEBUG, "EVCURL: gotwatchsock called fd=%d action=%s[%d]\n", (int)fd, Action, action);
 
 	switch (action)
 	{
@@ -329,7 +353,7 @@ int evcurl_init(AsyncIO *IO,
         OPT(NOSIGNAL, (long)1);
         OPT(FAILONERROR, (long)1);
         OPT(ENCODING, "");
-        OPT(FOLLOWLOCATION, (long)1);
+        OPT(FOLLOWLOCATION, (long)0);
         OPT(MAXREDIRS, (long)7);
         OPT(USERAGENT, CITADEL);
 
@@ -455,7 +479,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	syslog(LOG_DEBUG, "EVENT Q Read done.\n");
+	syslog(LOG_DEBUG, "EVENT Q Add done.\n");
 }
 
 
@@ -583,7 +607,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	syslog(LOG_DEBUG, "DBEVENT Q Read done.\n");
+	syslog(LOG_DEBUG, "DBEVENT Q Add done.\n");
 }
 
 

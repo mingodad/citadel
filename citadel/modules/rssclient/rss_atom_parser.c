@@ -617,10 +617,17 @@ eNextState ParseRSSReply(AsyncIO *IO)
 	long len;
 	const char *Key;
 
+
+	if (IO->HttpReq.httpcode != 200)
+	{
+
+		EV_syslog(LOG_DEBUG, "need a 200, got a %ld !\n",
+			  IO->HttpReq.httpcode);
+// TODO: aide error message with rate limit
+		return eAbort;
+	}
+
 	rssc = IO->Data;
-	pthread_mutex_lock(&RSSQueueMutex);
-	rssc->RefCount ++;
-	pthread_mutex_unlock(&RSSQueueMutex);
 	ri = rssc->Item;
 	rssc->CData = NewStrBufPlain(NULL, SIZ);
 	rssc->Key = NewStrBuf();
@@ -649,10 +656,7 @@ eNextState ParseRSSReply(AsyncIO *IO)
 	rssc->xp = XML_ParserCreateNS(ptr, ':');
 	if (!rssc->xp) {
 		syslog(LOG_DEBUG, "Cannot create XML parser!\n");
-		pthread_mutex_lock(&RSSQueueMutex);
-		rssc->RefCount --;
-		pthread_mutex_unlock(&RSSQueueMutex);
-		return eTerminateConnection;
+		return eAbort;
 	}
 	FlushStrBuf(rssc->Key);
 

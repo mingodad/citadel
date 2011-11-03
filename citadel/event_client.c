@@ -116,7 +116,7 @@ void ShutDownDBCLient(AsyncIO *IO)
 	CitContext *Ctx =IO->CitContext;
 	become_session(Ctx);
 
-	EVM_syslog(LOG_DEBUG, "DBEVENT\n");
+	EVM_syslog(LOG_DEBUG, "DBEVENT Terminating.\n");
 	ev_cleanup_stop(event_db, &IO->db_abort_by_shutdown);
 
 	assert(IO->Terminate);
@@ -154,7 +154,9 @@ DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
 		break;
 	case eTerminateConnection:
 	case eAbort:
-	    ShutDownDBCLient(IO);
+		ev_idle_stop(event_db, &IO->db_unwind_stack);
+		ev_cleanup_stop(loop, &IO->db_abort_by_shutdown);
+		ShutDownDBCLient(IO);
 	}
 }
 
