@@ -20,7 +20,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
-#include "groupdav.h"
+#include "dav.h"
 
 extern HashList *HandlerHash;
 
@@ -194,7 +194,7 @@ void groupdav_identify_host(void) {
 }
 
 
-void tmplput_GROUPDAV_HOSTNAME(StrBuf *Target, WCTemplputParams *TP) 
+void tmplput_dav.hOSTNAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	StrBufAppendPrintf(Target, "%s", ChrPtr(site_prefix));
 }
@@ -335,7 +335,7 @@ InitModule_GROUPDAV
 			     groupdav_main, GroupdavDispatchREST, 
 			     XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 
-	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_GROUPDAV_HOSTNAME, NULL, CTX_NONE);
+	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_dav.hOSTNAME, NULL, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:DAV:NS"), 0, Conditional_DAV_NS,  CTX_NONE);
 

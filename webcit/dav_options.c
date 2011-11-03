@@ -20,7 +20,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
-#include "groupdav.h"
+#include "dav.h"
 
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num

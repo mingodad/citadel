@@ -1,6 +1,6 @@
 
 #include "webcit.h"
-#include "groupdav.h"
+#include "dav.h"
 #include "webserver.h"
 
 int pastel_palette[9][3] = {
