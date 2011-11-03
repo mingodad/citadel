@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "webcit.h"
-#include "groupdav.h"
+#include "dav.h"
 #include "webserver.h"
 
 StrBuf *csslocal = NULL;

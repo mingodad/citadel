@@ -19,7 +19,7 @@
  */
 
 #include "webcit.h"
-#include "groupdav.h"
+#include "dav.h"
 
 /* 
  * Convert a string to something suitable as a wiki index
