@@ -194,7 +194,7 @@ void groupdav_identify_host(void) {
 }
 
 
-void tmplput_groupdav_HOSTNAME(StrBuf *Target, WCTemplputParams *TP) 
+void tmplput_dav.hOSTNAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	StrBufAppendPrintf(Target, "%s", ChrPtr(site_prefix));
 }
@@ -335,7 +335,11 @@ InitModule_GROUPDAV
 			     groupdav_main, GroupdavDispatchREST, 
 			     XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 
+<<<<<<< HEAD:webcit/dav_main.c
 	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_groupdav_HOSTNAME, NULL, CTX_NONE);
+=======
+	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_dav.hOSTNAME, NULL, CTX_NONE);
+>>>>>>> c380e59... Renamed 'groupdav' to 'dav' in filenames:webcit/dav_main.c
 
 	RegisterConditional(HKEY("COND:DAV:NS"), 0, Conditional_DAV_NS,  CTX_NONE);
 
