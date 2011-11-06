@@ -626,16 +626,14 @@ static void recurseable_mime_parser(char *partnum,
 		/* Figure out where the boundaries are */
 		m->b[startary].len = snprintf(m->b[startary].Key, SIZ, "--%s", m->b[boundary].Key);
 		SubMimeHeaders = InitInterestingMimes ();
-		if (*ptr == '\r')
-			ptr ++;
-		if (*ptr == '\n')
-			ptr ++;
+
+		while ((*ptr == '\r') || (*ptr == '\n')) ptr ++;
+
 		if (strncmp(ptr, m->b[startary].Key, m->b[startary].len) == 0)
 			ptr += m->b[startary].len;
-		if (*ptr == '\r')
-			ptr ++;
-		if (*ptr == '\n')
-			ptr ++;
+
+		while ((*ptr == '\r') || (*ptr == '\n')) ptr ++;
+
 		part_start = NULL;
 		do {
 			char *optr;
