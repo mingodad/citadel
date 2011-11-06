@@ -294,42 +294,42 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 	);
 
 	if (!strcasecmp(partnum, desired_section)) {
-		iaputs(content, length);
+		client_write(content, length);
 	}
 
 	snprintf(mimebuf2, sizeof mimebuf2, "%s.MIME", partnum);
 
 	if (!strcasecmp(desired_section, mimebuf2)) {
-		IAPuts("Content-type: ");
-	 	_iaputs(cbtype);
+		client_write(HKEY("Content-type: "));
+	 	client_write(cbtype, strlen(cbtype));
 		if (!IsEmptyStr(cbcharset)) {
-			IAPuts("; charset=\"");
-			_iaputs(cbcharset);
-			IAPuts("\"");
+			client_write(HKEY("; charset=\""));
+			client_write(cbcharset, strlen(cbcharset));
+			client_write(HKEY("\""));
 		}
 		if (!IsEmptyStr(name)) {
-			IAPuts("; name=\"");
-			_iaputs(name);
-			IAPuts("\"");
+			client_write(HKEY("; name=\""));
+			client_write(name, strlen(name));
+			client_write(HKEY("\""));
 		}
-		IAPuts("\r\n");
+		client_write(HKEY("\r\n"));
 		if (!IsEmptyStr(encoding)) {
-			IAPuts("Content-Transfer-Encoding: ");
-			_iaputs(encoding);
-			IAPuts("\r\n");
+			client_write(HKEY("Content-Transfer-Encoding: "));
+			client_write(encoding, strlen(encoding));
+			client_write(HKEY("\r\n"));
 		}
 		if (!IsEmptyStr(encoding)) {
-			IAPuts("Content-Disposition: ");
-			_iaputs(disp);
+			client_write(HKEY("Content-Disposition: "));
+			client_write(disp, strlen(disp));
 		
 			if (!IsEmptyStr(filename)) {
-				IAPuts("; filename=\"");
-				_iaputs(filename);
-				IAPuts("\"");
+				client_write(HKEY("; filename=\""));
+				client_write(filename, strlen(filename));
+				client_write(HKEY("\""));
 			}
-			IAPuts("\r\n");
+			client_write(HKEY("\r\n"));
 		}
-		IAPrintf("Content-Length: %ld\r\n\r\n", (long)length);
+		cprintf("Content-Length: %ld\r\n\r\n", (long)length);
 	}
 }
 
