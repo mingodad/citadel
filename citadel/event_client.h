@@ -180,12 +180,12 @@ void InitC_ares_dns(AsyncIO *IO);
 			syslog(LOG_ERR, "error setting option " #s " on curl handle: %s", curl_easy_strerror(sta)); \
 	} } while (0)
 
-
-int evcurl_init(AsyncIO *IO, 
-		void *CustomData, 
-		const char* Desc,
-		IO_CallBack CallBack, 
-		IO_CallBack Terminate);
+int evcurl_init(AsyncIO *IO,
+                void *CustomData,
+                const char* Desc,
+                IO_CallBack CallBack,
+                IO_CallBack Terminate, 
+		IO_CallBack ShutdownAbort);
 
 eNextState ReAttachIO(AsyncIO *IO, 
 		      void *pData, 

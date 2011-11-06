@@ -44,6 +44,7 @@
 #include <limits.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <assert.h>
 #include <arpa/inet.h>
 #include <libcitadel.h>
 #include <curl/curl.h>
@@ -86,15 +87,13 @@ evcurl_global_data global;
 static void
 gotstatus(int nnrun) 
 {
-        CURLM *mhnd;
         CURLMsg *msg;
         int nmsg;
 
         global.nrun = nnrun;
-        mhnd = global.mhnd;
 
         syslog(LOG_DEBUG, "CURLEV: gotstatus(): about to call curl_multi_info_read\n");
-        while ((msg = curl_multi_info_read(mhnd, &nmsg))) {
+        while ((msg = curl_multi_info_read(global.mhnd, &nmsg))) {
                 syslog(LOG_ERR, "EVCURL: got curl multi_info message msg=%d\n", msg->msg);
                 if (CURLMSG_DONE == msg->msg) {
                         CURL *chnd;
@@ -126,17 +125,18 @@ gotstatus(int nnrun)
 
 
                         curl_slist_free_all(IO->HttpReq.headers);
-                        msta = curl_multi_remove_handle(mhnd, chnd);
+                        msta = curl_multi_remove_handle(global.mhnd, chnd);
                         if (msta)
                                 EV_syslog(LOG_ERR, "EVCURL: warning problem detaching completed handle from curl multi: %s\n", curl_multi_strerror(msta));
 
-                        curl_easy_cleanup(IO->HttpReq.chnd);
-			IO->HttpReq.chnd = NULL;
+			ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 
                         IO->HttpReq.attached = 0;
                         switch(IO->SendDone(IO))
 			{
 			case eDBQuery:
+				curl_easy_cleanup(IO->HttpReq.chnd);
+				IO->HttpReq.chnd = NULL;
 				break;
 			case eSendDNSQuery:
 			case eReadDNSReply:
@@ -148,9 +148,13 @@ gotstatus(int nnrun)
 			case eReadMore:
 			case eReadPayload:
 			case eReadFile:
+				curl_easy_cleanup(IO->HttpReq.chnd);
+				IO->HttpReq.chnd = NULL;
 				break;
 			case eTerminateConnection:
 			case eAbort:
+				curl_easy_cleanup(IO->HttpReq.chnd);
+				IO->HttpReq.chnd = NULL;
 				FreeStrBuf(&IO->HttpReq.ReplyData);
 				FreeURL(&IO->ConnectMe);
 				RemoveContext(IO->CitContext);
@@ -325,11 +329,12 @@ void curl_init_connectionpool(void)
 
 
 
-int evcurl_init(AsyncIO *IO, 
-                void *CustomData, 
+int evcurl_init(AsyncIO *IO,
+                void *CustomData,
                 const char* Desc,
-                IO_CallBack CallBack, 
-                IO_CallBack Terminate)
+                IO_CallBack CallBack,
+                IO_CallBack Terminate, 
+		IO_CallBack ShutdownAbort)
 {
         CURLcode sta;
         CURL *chnd;
@@ -338,6 +343,7 @@ int evcurl_init(AsyncIO *IO,
         IO->HttpReq.attached = 0;
         IO->SendDone = CallBack;
         IO->Terminate = Terminate;
+	IO->ShutdownAbort = ShutdownAbort;
         chnd = IO->HttpReq.chnd = curl_easy_init();
         if (!chnd)
         {
@@ -353,7 +359,7 @@ int evcurl_init(AsyncIO *IO,
         OPT(NOSIGNAL, (long)1);
         OPT(FAILONERROR, (long)1);
         OPT(ENCODING, "");
-        OPT(FOLLOWLOCATION, (long)0);
+        OPT(FOLLOWLOCATION, (long)1);
         OPT(MAXREDIRS, (long)7);
         OPT(USERAGENT, CITADEL);
 
@@ -406,6 +412,26 @@ int evcurl_init(AsyncIO *IO,
 	return 1;
 }
 
+
+static void IOcurl_abort_shutdown_callback(struct ev_loop *loop, ev_cleanup *watcher, int revents)
+{
+        CURLMcode msta;
+	AsyncIO *IO = watcher->data;
+	EV_syslog(LOG_DEBUG, "EVENT Curl: %s\n", __FUNCTION__);
+
+	curl_slist_free_all(IO->HttpReq.headers);
+	msta = curl_multi_remove_handle(global.mhnd, IO->HttpReq.chnd);
+	if (msta)
+		EV_syslog(LOG_ERR, "EVCURL: warning problem detaching completed handle from curl multi: %s\n", curl_multi_strerror(msta));
+	
+	curl_easy_cleanup(IO->HttpReq.chnd);
+	IO->HttpReq.chnd = NULL;
+	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
+	ev_io_stop(event_base, &IO->recv_event);
+	ev_io_stop(event_base, &IO->send_event);
+	assert(IO->ShutdownAbort);
+	IO->ShutdownAbort(IO);
+}
 eNextState
 evcurl_handle_start(AsyncIO *IO) 
 {
@@ -417,6 +443,9 @@ evcurl_handle_start(AsyncIO *IO)
 		EV_syslog(LOG_ERR, "EVCURL: error attaching to curl multi handle: %s\n", curl_multi_strerror(msta));
 	IO->HttpReq.attached = 1;
 	ev_async_send (event_base, &WakeupCurl);
+	ev_cleanup_init(&IO->abort_by_shutdown, 
+			IOcurl_abort_shutdown_callback);
+	ev_cleanup_start(event_base, &IO->abort_by_shutdown);
 	return eReadMessage;
 }
 
@@ -525,7 +554,6 @@ void *client_event_thread(void *arg)
 	syslog(LOG_DEBUG, "client_ev_thread() initializing\n");
 
 	event_base = ev_default_loop (EVFLAG_AUTO);
-
 	ev_async_init(&AddJob, QueueEventAddCallback);
 	ev_async_start(event_base, &AddJob);
 	ev_async_init(&ExitEventLoop, EventExitCallback);
@@ -540,7 +568,8 @@ void *client_event_thread(void *arg)
 
 ///what todo here?	CtdlClearSystemContext();
 	ev_loop_destroy (EV_DEFAULT_UC);
-	
+	curl_global_cleanup();
+	curl_multi_cleanup(global.mhnd);
 	DeleteHash(&QueueEvents);
 	InboundEventQueue = NULL;
 	DeleteHash(&InboundEventQueues[0]);

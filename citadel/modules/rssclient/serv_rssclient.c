@@ -69,7 +69,7 @@ HashList *RSSQueueRooms = NULL; /* rss_room_counter */
 HashList *RSSFetchUrls = NULL; /* -> rss_aggregator; ->RefCount access to be locked too. */
 
 eNextState RSSAggregatorTerminate(AsyncIO *IO);
-
+eNextState RSSAggregatorShutdownAbort(AsyncIO *IO);
 struct CitContext rss_CC;
 
 struct rssnetcfg *rnclist = NULL;
@@ -475,7 +475,8 @@ int rss_do_fetching(rss_aggregator *Cfg)
 			  NULL,
 			  "Citadel RSS Client",
 			  ParseRSSReply, 
-			  RSSAggregatorTerminate))
+			  RSSAggregatorTerminate,
+			  RSSAggregatorShutdownAbort))
 	{
 		syslog(LOG_DEBUG, "Unable to initialize libcurl.\n");
 		return 0;
@@ -530,6 +531,21 @@ eNextState RSSAggregatorTerminate(AsyncIO *IO)
 	rss_aggregator *rncptr = (rss_aggregator *)IO->Data;
 
 	EVM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
+
+
+	UnlinkRSSAggregator(rncptr);
+	return eAbort;
+}
+eNextState RSSAggregatorShutdownAbort(AsyncIO *IO)
+{
+	const char *pUrl;
+	rss_aggregator *rncptr = (rss_aggregator *)IO->Data;
+
+	pUrl = IO->ConnectMe->PlainUrl;
+	if (pUrl == NULL)
+		pUrl = "";
+
+	EV_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.\n", pUrl);
 
 
 	UnlinkRSSAggregator(rncptr);

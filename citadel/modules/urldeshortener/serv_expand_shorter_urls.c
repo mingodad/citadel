@@ -93,7 +93,11 @@ size_t GetLocationString( void *ptr, size_t size, size_t nmemb, void *userdata)
 	}
 	return size * nmemb;
 }
-
+eNextState ShutdownLookuUrl(AsyncIO *IO)
+{
+//TOOD
+	return eAbort;
+}
 eNextState TerminateLookupUrl(AsyncIO *IO)
 {
 //TOOD
@@ -123,7 +127,8 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 			  NULL,
 			  "Citadel RSS ShorterURL Expander",
 			  LookupUrlResult, 
-			  TerminateLookupUrl))
+			  TerminateLookupUrl, 
+			  ShutdownLookuUrl))
 	{
 		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		goto shutdown;

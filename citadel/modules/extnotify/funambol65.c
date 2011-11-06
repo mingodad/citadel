@@ -49,6 +49,7 @@
 
 eNextState EvaluateResult(AsyncIO *IO);
 eNextState ExtNotifyTerminate(AsyncIO *IO);
+eNextState ExtNotifyShutdownAbort(AsyncIO *IO);
 
 /*
 * \brief Sends a message to the Funambol server notifying 
@@ -156,7 +157,8 @@ int notify_http_server(char *remoteurl,
 			  NULL,
 			  "Citadel ExtNotify",
 			  EvaluateResult, 
-			  ExtNotifyTerminate))
+			  ExtNotifyTerminate,
+			  ExtNotifyShutdownAbort))
 	{
 		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		goto abort;
@@ -261,6 +263,11 @@ eNextState EvaluateResult(AsyncIO *IO)
 }
 
 eNextState ExtNotifyTerminate(AsyncIO *IO)
+{
+	free(IO);
+	return eAbort;
+}
+eNextState ExtNotifyShutdownAbort(AsyncIO *IO)
 {
 	free(IO);
 	return eAbort;
