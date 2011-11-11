@@ -1,7 +1,7 @@
 /*
  * Main Citadel header file
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,10 +51,10 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	801		/* This version */
+#define REV_LEVEL	802		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	760		/* Oldest compatible export files */
-#define LIBCITADEL_MIN	801		/* Minimum required version of libcitadel */
+#define LIBCITADEL_MIN	802		/* Minimum required version of libcitadel */
 
 #define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
 					   obtain SERVER_TYPE codes for your implementations */

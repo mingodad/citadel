@@ -144,9 +144,9 @@ extern char *ssl_cipher_list;
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		801		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	801		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		801		/* min required libcitadel ver */
+#define CLIENT_VERSION		802		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	802		/* min required Citadel ver */
+#define	LIBCITADEL_MIN		802		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Target for inline URL's */
@@ -170,31 +170,31 @@ extern char *ssl_cipher_list;
  *
  * bucket one...
  */
-#define QR_PERMANENT	1		/* Room does not purge		*/
+#define QR_PERMANENT	1		/* Room does not purge			*/
 #define QR_INUSE	2		/* Set if in use, clear if avail	*/
 #define QR_PRIVATE	4		/* Set for any type of private room	*/
 #define QR_PASSWORDED	8		/* Set if there's a password too	*/
-#define QR_GUESSNAME	16		/* Set if it's a guessname room	*/
+#define QR_GUESSNAME	16		/* Set if it's a guessname room		*/
 #define QR_DIRECTORY	32		/* Directory room			*/
 #define QR_UPLOAD	64	    	/* Allowed to upload			*/
-#define QR_DOWNLOAD	128		/* Allowed to download		*/
+#define QR_DOWNLOAD	128		/* Allowed to download			*/
 #define QR_VISDIR	256		/* Visible directory			*/
-#define QR_ANONONLY	512		/* Anonymous-Only room		*/
+#define QR_ANONONLY	512		/* Anonymous-Only room			*/
 #define QR_ANONOPT	1024		/* Anonymous-Option room		*/
-#define QR_NETWORK	2048		/* Shared network room		*/
+#define QR_NETWORK	2048		/* Shared network room			*/
 #define QR_PREFONLY	4096		/* Preferred status needed to enter	*/
-#define QR_READONLY	8192		/* Aide status required to post	*/
+#define QR_READONLY	8192		/* Aide status required to post		*/
 #define QR_MAILBOX	16384		/* Set if this is a private mailbox	*/
 
 /*
  * bucket two...
  */
-#define QR2_SYSTEM	1		/* System room; hide by default	*/
+#define QR2_SYSTEM	1		/* System room; hide by default		*/
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt	*/
-#define QR2_COLLABDEL	4		/* Anyone who can post can also delete*/
-#define QR2_SUBJECTREQ  8               /* Subject strongly recommended */
-#define QR2_SMTP_PUBLIC 16              /* smtp public postable room */
-#define QR2_MODERATED	32		/* Listservice aide has to permit posts  */
+#define QR2_COLLABDEL	4		/* Anyone who can post can also delete	*/
+#define QR2_SUBJECTREQ  8               /* Subject strongly recommended		*/
+#define QR2_SMTP_PUBLIC 16              /* smtp public postable room		*/
+#define QR2_MODERATED	32		/* Listservice aide has to permit posts	*/
 
 /*
  * user/room access
