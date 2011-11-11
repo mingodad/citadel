@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <arpa/inet.h>
 
-#define LIBCITADEL_VERSION_NUMBER	801
+#define LIBCITADEL_VERSION_NUMBER	802
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
