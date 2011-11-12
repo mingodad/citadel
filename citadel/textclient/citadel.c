@@ -1,9 +1,9 @@
 /*
  * Main source module for the client program.
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
+ *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -1025,7 +1025,7 @@ void system_info(CtdlIPC *ipc)
     scr_printf("Connected users %d / Active users %d / Highest message #%ld\n", mrtg_users, mrtg_active_users, mrtg_himessage);
     scr_printf("Server uptime: %s\n", mrtg_server_uptime);
     scr_printf("Your system administrator is %s.\n", ipc->ServInfo.sysadm);
-    scr_printf("Copyright (C)1987-2009 by the Citadel development team\n");
+    scr_printf("Copyright (C)1987-2011 by the Citadel development team\n");
 }
 
 /*

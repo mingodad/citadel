@@ -2,9 +2,9 @@
  * These functions implement the portions of AUTHMODE_LDAP and AUTHMODE_LDAP_AD which
  * actually speak to the LDAP server.
  *
- * Copyright (c) 2010 by Art Cancro and the citadel.org development team.
+ * Copyright (c) 2011 by Art Cancro and the citadel.org development team.
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
