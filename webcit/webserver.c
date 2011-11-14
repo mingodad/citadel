@@ -1,11 +1,19 @@
 /*
- * This contains a simple multithreaded TCP server manager.  It sits around
- * waiting on the specified port for incoming HTTP connections.  When a
- * connection is established, it calls context_loop() from context_loop.c.
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
- * Copyright (c) 1996-2011 by the citadel.org developers.
- * This program is released under the terms of the GNU General Public License v3.
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -15,7 +23,6 @@
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
-
 
 extern int msock;				/* master listening socket */
 extern char static_icon_dir[PATH_MAX];          /* where should we find our mime icons */
@@ -45,7 +52,6 @@ int setup_wizard = 0;		/* should we run the setup wizard? */
 char wizard_filename[PATH_MAX];	/* location of file containing the last webcit version against which we ran setup wizard */
 int running_as_daemon = 0;	/* should we deamonize on startup? */
 
-
 /* #define DBG_PRINNT_HOOKS_AT_START */
 #ifdef DBG_PRINNT_HOOKS_AT_START
 extern HashList *HandlerHash;
@@ -58,9 +64,6 @@ extern int DumpTemplateI18NStrings;
 extern StrBuf *I18nDump;
 void InitTemplateCache(void);
 extern int LoadTemplates;
-
-
-
 
 
 /*
@@ -87,7 +90,7 @@ int main(int argc, char **argv)
 
 	WildFireInitBacktrace(argv[0], 2);
 
-	start_modules ();
+	start_modules();
 
 #ifdef DBG_PRINNT_HOOKS_AT_START
 /*	dbg_PrintHash(HandlerHash, nix, NULL);*/
@@ -259,23 +262,22 @@ int main(int argc, char **argv)
 		FILE *fd;
 		StrBufAppendBufPlain(I18nDump, HKEY("}\n"), 0);
 	        if (StrLength(I18nDump) < 50) {
-			syslog(1, "********************************************************************************\n");
-			syslog(1, "*        No strings found in templates!  Are you sure they're there?           *\n");
-			syslog(1, "********************************************************************************\n");
+			syslog(1, "*******************************************************************\n");
+			syslog(1, "*   No strings found in templates!  Are you sure they're there?   *\n");
+			syslog(1, "*******************************************************************\n");
 			return -1;
 		}
 		fd = fopen(I18nDumpFile, "w");
 	        if (fd == NULL) {
-			syslog(1, "********************************************************************************\n");
-			syslog(1, "*                  unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
-			syslog(1, "********************************************************************************\n");
+			syslog(1, "***********************************************\n");
+			syslog(1, "*   unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
+			syslog(1, "***********************************************\n");
 			return -1;
 		}
 		rv = fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
 		fclose(fd);
 		return 0;
 	}
-
 
 	/* Tell libical to return an error instead of aborting if it sees badly formed iCalendar data. */
 	icalerror_errors_are_fatal = 0;
@@ -289,9 +291,9 @@ int main(int argc, char **argv)
 	 * wcsession struct to which the thread is currently bound.
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
-		syslog(1, "Can't create TSD key: %s\n", strerror(errno));
+		syslog(1, "Can't create TSD key: %s", strerror(errno));
 	}
-	InitialiseSemaphores ();
+	InitialiseSemaphores();
 
 	/*
 	 * Set up a place to put thread-specific SSL data.
@@ -301,7 +303,7 @@ int main(int argc, char **argv)
 	 */
 #ifdef HAVE_OPENSSL
 	if (pthread_key_create(&ThreadSSL, NULL) != 0) {
-		syslog(1, "Can't create TSD key: %s\n", strerror(errno));
+		syslog(1, "Can't create TSD key: %s", strerror(errno));
 	}
 #endif
 
@@ -312,11 +314,11 @@ int main(int argc, char **argv)
 	 */
 
 	if (!IsEmptyStr(uds_listen_path)) {
-		syslog(2, "Attempting to create listener socket at %s...\n", uds_listen_path);
+		syslog(2, "Attempting to create listener socket at %s...", uds_listen_path);
 		msock = webcit_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
 	}
 	else {
-		syslog(2, "Attempting to bind to port %d...\n", http_port);
+		syslog(2, "Attempting to bind to port %d...", http_port);
 		msock = webcit_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
 	}
 	if (msock < 0)
@@ -325,7 +327,7 @@ int main(int argc, char **argv)
 		return -msock;
 	}
 
-	syslog(2, "Listening on socket %d\n", msock);
+	syslog(2, "Listening on socket %d", msock);
 	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&SessionListMutex, NULL);
@@ -335,9 +337,7 @@ int main(int argc, char **argv)
 	 */
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	pthread_create(&SessThread, &attr,
-		       (void *(*)(void *)) housekeeping_loop, NULL);
-
+	pthread_create(&SessThread, &attr, (void *(*)(void *)) housekeeping_loop, NULL);
 
 	/*
 	 * If this is an HTTPS server, fire up SSL
