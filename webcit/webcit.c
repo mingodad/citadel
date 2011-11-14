@@ -842,7 +842,7 @@ void session_loop(void)
 		 */
 		else {
 			if (xhttp)
-				groupdav_main();
+				dav_main();
 			else
 				display_main_menu();
 		}

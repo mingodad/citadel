@@ -758,8 +758,10 @@ int GetNextParameter(StrBuf *Buf,
 		else {
 			StrBufPeek(Buf, pch, -1, '\0');		
 			if (LoadTemplates > 1) {			
-				syslog(1, "DBG: got param [%s] %ld %ld\n", 
-					pchs, pche - pchs, strlen(pchs));
+				syslog(1,
+					"DBG: got param [%s] %d %d\n", 
+					pchs, pche - pchs, strlen(pchs)
+				);
 			}
 			Parm->Start = pchs;
 			Parm->len = pche - pchs;

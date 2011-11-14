@@ -257,7 +257,7 @@ long GotoRestRoom(HashList *SubRooms)
  * List rooms (or "collections" in DAV terminology) which contain
  * interesting groupware objects.
  */
-void groupdav_collection_list(void)
+void dav_collection_list(void)
 {
 	wcsession *WCC = WC;
 	char buf[256];
@@ -287,7 +287,7 @@ void groupdav_collection_list(void)
 	 * everything we know about.  Let the client sort it out.
 	 */
 	hprintf("HTTP/1.0 207 Multi-Status\r\n");
-	groupdav_common_headers();
+	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("Content-type: text/xml\r\n");
 	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
@@ -305,7 +305,7 @@ void groupdav_collection_list(void)
 	if (starting_point == 0) {
 		wc_printf("<response>");
 			wc_printf("<href>");
-				groupdav_identify_host();
+				dav_identify_host();
 				wc_printf("/");
 			wc_printf("</href>");
 			wc_printf("<propstat>");
@@ -327,7 +327,7 @@ void groupdav_collection_list(void)
 	if ((starting_point + WCC->Hdr->HR.dav_depth) >= 1) {
 		wc_printf("<response>");
 			wc_printf("<href>");
-				groupdav_identify_host();
+				dav_identify_host();
 				wc_printf("/groupdav");
 			wc_printf("</href>");
 			wc_printf("<propstat>");
@@ -383,7 +383,7 @@ void groupdav_collection_list(void)
 			wc_printf("<response>");
 
 			wc_printf("<href>");
-			groupdav_identify_host();
+			dav_identify_host();
 			wc_printf("/groupdav/");
 			urlescputs(roomname);
 			wc_printf("/</href>");
@@ -436,12 +436,8 @@ void groupdav_collection_list(void)
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_propfind(void) 
+void dav_propfind(void) 
 {
-#ifdef DEV_RESTDAV
-	HashList *SubRooms = NULL;
-	long State;
-#endif
 	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
@@ -463,64 +459,13 @@ void groupdav_propfind(void)
 	dav_uid = NewStrBuf();
 	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
 	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
-#ifdef DEV_RESTDAV
-	/*
-	 * If the room name is blank, the client is requesting a
-	 * folder list.
-	 */
-	SubRooms = NewHash(1, Flathash);
-	State = GotoRestRoom(SubRooms);
-	if (((State & REST_IN_ROOM) == 0) ||
-	    (((State & (REST_GOT_LOCAL_PART)) == 0) &&
-	     (WCC->Hdr->HR.dav_depth == 0)))
-	{
-		now = time(NULL);
-		http_datestring(datestring, sizeof datestring, now);
-
-		/*
-		 * Be rude.  Completely ignore the XML request and simply send them
-		 * everything we know about.  Let the client sort it out.
-		 */
-		hprintf("HTTP/1.0 207 Multi-Status\r\n");
-		groupdav_common_headers();
-		hprintf("Date: %s\r\n", datestring);
-		hprintf("Content-type: text/xml\r\n");
-		if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
-			hprintf("Content-encoding: identity\r\n");
-
-		begin_burst();
-
-
-		/*
-		 * If the client is requesting the root, show a root node.
-		 */
-		do_template("dav_propfind_top");
-		end_burst();
-		FreeStrBuf(&dav_roomname);
-		FreeStrBuf(&dav_uid);
-		FreeHashList(&SubRooms);
-		return;
-	}
-
-	if ((State & (REST_GOT_LOCAL_PART)) == 0) {
-		readloop(headers, eReadEUIDS);
-		FreeHashList(&SubRooms);
-		return;
-
-	}
-
-
-	
-	FreeHashList(&SubRooms);
-
-#endif
 
 	/*
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
 	if (StrLength(dav_roomname) == 0) {
-		groupdav_collection_list();
+		dav_collection_list();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
 		return;
@@ -532,7 +477,7 @@ void groupdav_propfind(void)
 	}
 	if (strcasecmp(ChrPtr(WCC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-Type: text/plain\r\n");
 		wc_printf("There is no folder called \"%s\" on this server.\r\n",
@@ -553,7 +498,7 @@ void groupdav_propfind(void)
 		dav_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		if (dav_msgnum < 0) {
 			hprintf("HTTP/1.1 404 not found\r\n");
-			groupdav_common_headers();
+			dav_common_headers();
 			hprintf("Content-Type: text/plain\r\n");
 			wc_printf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
 				ChrPtr(dav_uid),
@@ -570,7 +515,7 @@ void groupdav_propfind(void)
 		 * nothing else).  Let the client-side parser sort it out.
 		 */
 		hprintf("HTTP/1.0 207 Multi-Status\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-type: text/xml\r\n");
 		if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
@@ -585,7 +530,7 @@ void groupdav_propfind(void)
 		wc_printf("<response>");
 		
 		wc_printf("<href>");
-		groupdav_identify_host();
+		dav_identify_host();
 		wc_printf("/groupdav/");
 		urlescputs(ChrPtr(WCC->CurRoom.name));
 		euid_escapize(encoded_uid, ChrPtr(dav_uid));
@@ -621,7 +566,7 @@ void groupdav_propfind(void)
 	 * nothing else).  Let the client-side parser sort it out.
 	 */
 	hprintf("HTTP/1.0 207 Multi-Status\r\n");
-	groupdav_common_headers();
+	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("Content-type: text/xml\r\n");
 	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
@@ -638,7 +583,7 @@ void groupdav_propfind(void)
 	wc_printf("<response>");
 
 	wc_printf("<href>");
-	groupdav_identify_host();
+	dav_identify_host();
 	wc_printf("/groupdav/");
 	urlescputs(ChrPtr(WCC->CurRoom.name));
 	wc_printf("</href>");
@@ -710,7 +655,7 @@ void groupdav_propfind(void)
 		if (!IsEmptyStr(uid)) {
 			wc_printf("<response>");
 				wc_printf("<href>");
-					groupdav_identify_host();
+					dav_identify_host();
 					wc_printf("/groupdav/");
 					urlescputs(ChrPtr(WCC->CurRoom.name));
 					euid_escapize(encoded_uid, uid);

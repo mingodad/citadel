@@ -28,7 +28,7 @@
  * component.  This would be for webcal:// 'publish' operations, not
  * for GroupDAV.
  */
-void groupdav_put_bigics(void)
+void dav_put_bigics(void)
 {
 	wcsession *WCC = WC;
 	char buf[1024];
@@ -44,7 +44,7 @@ void groupdav_put_bigics(void)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
 		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
 		begin_burst();
 		wc_printf("%s\r\n", &buf[4]);
@@ -58,7 +58,7 @@ void groupdav_put_bigics(void)
 	/* Report success and not much else. */
 	hprintf("HTTP/1.1 204 No Content\r\n");
 	syslog(9, "HTTP/1.1 204 No Content\r\n");
-	groupdav_common_headers();
+	dav_common_headers();
 	begin_burst();
 	end_burst();
 }
@@ -70,7 +70,7 @@ void groupdav_put_bigics(void)
  * [/groupdav/]room_name/euid	(GroupDAV)
  * [/groupdav/]room_name		(webcal)
  */
-void groupdav_put(void) 
+void dav_put(void) 
 {
 	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
@@ -82,7 +82,7 @@ void groupdav_put(void)
 
 	if (StrBufNum_tokens(WCC->Hdr->HR.ReqLine, '/') < 2) {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
 		wc_printf("The object you requested was not found.\r\n");
@@ -105,7 +105,7 @@ void groupdav_put(void)
 	}
 	if (strcasecmp(ChrPtr(WC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
 		wc_printf("There is no folder called \"%s\" on this server.\r\n",
@@ -131,7 +131,7 @@ void groupdav_put(void)
 			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			syslog(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
 				StrTol(WCC->Hdr->HR.dav_ifmatch), old_msgnum);
-			groupdav_common_headers();
+			dav_common_headers();
 			
 			end_burst();
 			FreeStrBuf(&dav_roomname);
@@ -143,7 +143,7 @@ void groupdav_put(void)
 	/** PUT on the collection itself uploads an ICS of the entire collection.
 	 */
 	if (StrLength(dav_uid) == 0) {
-		groupdav_put_bigics();
+		dav_put_bigics();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
 		return;
@@ -158,7 +158,7 @@ void groupdav_put(void)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '8') {
 		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
 		begin_burst();
 		wc_printf("%s\r\n", &buf[4]);
@@ -195,7 +195,7 @@ void groupdav_put(void)
 	/* Citadel failed in some way? */
 	if (new_msgnum < 0L) {
 		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
 		begin_burst();
 		wc_printf("new_msgnum is %ld\r\n"
@@ -211,10 +211,10 @@ void groupdav_put(void)
 	        char escaped_uid[1024];
 		hprintf("HTTP/1.1 201 Created\r\n");
 		syslog(9, "HTTP/1.1 201 Created\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("etag: \"%ld\"\r\n", new_msgnum);
 		hprintf("Location: ");
-		groupdav_identify_hosthdr();
+		dav_identify_hosthdr();
 		hprintf("/groupdav/");/* TODO */
 		hurlescputs(ChrPtr(dav_roomname));
 	        euid_escapize(escaped_uid, ChrPtr(dav_uid));
@@ -228,7 +228,7 @@ void groupdav_put(void)
 	/* We modified an existing item. */
 	hprintf("HTTP/1.1 204 No Content\r\n");
 	syslog(9, "HTTP/1.1 204 No Content\r\n");
-	groupdav_common_headers();
+	dav_common_headers();
 	hprintf("Etag: \"%ld\"\r\n", new_msgnum);
 	/* The item we replaced has probably already been deleted by
 	 * the Citadel server, but we'll do this anyway, just in case.
