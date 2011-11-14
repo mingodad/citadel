@@ -511,9 +511,7 @@ struct wcsession {
 	StrBuf *WBuf;                           /* Our output buffer */
 	StrBuf *HBuf;                           /* Our HeaderBuffer */
 	StrBuf *WFBuf;                          /* Wildfire error logging buffer */
-
 	StrBuf *trailing_javascript;		/* extra javascript to be appended to page */
-/*	char ImportantMessage[SIZ];*/
 	StrBuf *ImportantMsg;
 	HashList *Directory;			/* Parts of the directory URL in snippets */
 	const Floor *CurrentFloor;              /* when Parsing REST, which floor are we on? */

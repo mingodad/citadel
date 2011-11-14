@@ -584,7 +584,7 @@ int ReadPostData(void)
 	return 1;
 }
 
-
+#if 0
 void ParseREST_URL(void)
 {
 	StrBuf *Buf;
@@ -626,6 +626,7 @@ void ParseREST_URL(void)
 		}
 	}
 }
+#endif
 
 int Conditional_REST_DEPTH(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -812,10 +813,10 @@ void session_loop(void)
 			display_login();
 		}
 		else {
-/*
+#if 0
 			if ((WCC->Hdr->HR.Handler->Flags & PARSE_REST_URL) != 0)
 				ParseREST_URL();
-*/
+#endif
 			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0)
 				begin_ajax_response();
 			WCC->Hdr->HR.Handler->F();
