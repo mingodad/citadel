@@ -105,6 +105,8 @@ void dav_main(void)
 	wcsession *WCC = WC;
 	int i, len;
 
+	syslog(LOG_DEBUG, "dav_main() called, logged_in=%d", WCC->logged_in );
+
 	StrBufUnescape(WCC->Hdr->HR.ReqLine, 0);
 	StrBufStripSlashes(WCC->Hdr->HR.ReqLine, 0);
 
@@ -133,14 +135,12 @@ void dav_main(void)
 	switch (WCC->Hdr->HR.eReqType)
 	{
 	/*
-	 * The OPTIONS method is not required by GroupDAV.  This is an
-	 * experiment to determine what might be involved in supporting
-	 * other variants of DAV in the future.
+	 * The OPTIONS method is not required by GroupDAV but it will be
+	 * needed for future implementations of other DAV-based protocols.
 	 */
 	case eOPTIONS:
 		dav_options();
 		break;
-
 
 	/*
 	 * The PROPFIND method is basically used to list all objects in a
@@ -211,6 +211,7 @@ void Header_HandleIfMatch(StrBuf *Line, ParsedHttpHdrs *hdr)
 	hdr->HR.dav_ifmatch = Line;
 }
 	
+
 void Header_HandleDepth(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
 	if (!strcasecmp(ChrPtr(Line), "infinity")) {
@@ -223,6 +224,8 @@ void Header_HandleDepth(StrBuf *Line, ParsedHttpHdrs *hdr)
 		hdr->HR.dav_depth = 1;
 	}
 }
+
+
 int Conditional_DAV_DEPTH(StrBuf *Target, WCTemplputParams *TP)
 {
 	return WC->Hdr->HR.dav_depth == GetTemplateTokenNumber(Target, TP, 2, 0);
@@ -248,6 +251,7 @@ void RegisterDAVNamespace(const char * UrlString,
 	Put(DavNamespaces, UrlString, UrlSLen, vHandler, reference_free_handler);
 }
 
+
 int Conditional_DAV_NS(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -270,6 +274,7 @@ int Conditional_DAV_NSCURRENT(StrBuf *Target, WCTemplputParams *TP)
 	return WCC->Hdr->HR.Handler == vHandler;
 }
 
+
 void tmplput_DAV_NAMESPACE(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -283,6 +288,7 @@ void tmplput_DAV_NAMESPACE(StrBuf *Target, WCTemplputParams *TP)
 		StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.Handler->Name, 0);
 	}
 }
+
 
 int GroupdavDispatchREST(RESTDispatchID WhichAction, int IgnoreFloor)
 {
@@ -310,8 +316,8 @@ ServerStartModule_DAV
 {
 
 	DavNamespaces = NewHash(1, NULL);
-
 }
+
 
 void 
 ServerShutdownModule_DAV
@@ -319,8 +325,6 @@ ServerShutdownModule_DAV
 {
 	DeleteHash(&DavNamespaces);
 }
-
-
 
 
 void 
@@ -346,5 +350,4 @@ InitModule_GROUPDAV
 	RegisterHeaderHandler(HKEY("IF-MATCH"), Header_HandleIfMatch);
 	RegisterHeaderHandler(HKEY("DEPTH"), Header_HandleDepth);
 	RegisterConditional(HKEY("COND:DAV:DEPTH"), 1, Conditional_DAV_DEPTH,  CTX_NONE);
-
 }
