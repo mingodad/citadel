@@ -178,31 +178,40 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				continue;
 			if ((!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username))) &&
 			    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) {
+				syslog(LOG_DEBUG, "-- matched a session with the same http-auth");
 				TheSession = sptr;
 			}
 			if (TheSession == NULL)
-				syslog(1, "found sessionkey [%d], but credentials for [%s|%s] didn't match\n",
-					Hdr->HR.SessionKey,ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username));
+				syslog(1, "found sessionkey [%d], but credentials for [%s|%s] didn't match",
+					Hdr->HR.SessionKey,
+					ChrPtr(Hdr->c_username),
+					ChrPtr(sptr->wc_username)
+				);
 			break;
 		case AUTH_COOKIE:
 			/* If cookie-session, look for a session with matching session ID */
 			if ( (Hdr->HR.desired_session != 0) && 
-			     (sptr->wc_session == Hdr->HR.desired_session)) {
+			     (sptr->wc_session == Hdr->HR.desired_session))
+			{
+				syslog(LOG_DEBUG, "-- matched a session with the same cookie");
 				TheSession = sptr;
 			}
 			break;			     
 		case NO_AUTH:
 			/* Any unbound session is a candidate */
 			if ( (sptr->wc_session == 0) && (sptr->inuse == 0) ) {
+				syslog(LOG_DEBUG, "-- reusing an unbound session");
 				TheSession = sptr;
 			}
 			break;
 		}
 	}
 	CtdlLogResult(pthread_mutex_unlock(ListMutex));
-	if (TheSession == NULL)
-		syslog(1, "didn't find sessionkey [%d] for user [%s]\n",
-			Hdr->HR.SessionKey, ChrPtr(Hdr->c_username));
+	if (TheSession == NULL) {
+		syslog(1, "didn't find sessionkey [%d] for user [%s]",
+			Hdr->HR.SessionKey, ChrPtr(Hdr->c_username)
+		);
+	}
 	return TheSession;
 }
 
