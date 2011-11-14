@@ -27,14 +27,14 @@
  * Fetch the entire contents of the room as one big ics file.
  * This is for "webcal://" type access.
  */	
-void groupdav_get_big_ics(void) {
+void dav_get_big_ics(void) {
 	char buf[1024];
 
 	serv_puts("ICAL getics");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
 		wc_printf("%s\r\n",
@@ -45,7 +45,7 @@ void groupdav_get_big_ics(void) {
 	}
 
 	hprintf("HTTP/1.1 200 OK\r\n");
-	groupdav_common_headers();
+	dav_common_headers();
 	hprintf("Content-type: text/calendar; charset=UTF-8\r\n");
 	begin_burst();
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -56,7 +56,7 @@ void groupdav_get_big_ics(void) {
 
 
 /* 
- * MIME parser callback function for groupdav_get()
+ * MIME parser callback function for dav_get()
  * Helps identify the relevant section of a multipart message
  */
 void extract_preferred(char *name, char *filename, char *partnum, char *disp,
@@ -101,7 +101,7 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
  * /groupdav/room_name/euid	(GroupDAV)
  * /groupdav/room_name		(webcal)
  */
-void groupdav_get(void)
+void dav_get(void)
 {
 	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
@@ -122,7 +122,7 @@ void groupdav_get(void)
 
 	if (StrBufNum_tokens(WCC->Hdr->HR.ReqLine, '/') < 2) {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wc_printf("The object you requested was not found.\r\n");
 		end_burst();
@@ -144,7 +144,7 @@ void groupdav_get(void)
 	}
 	if (strcasecmp(ChrPtr(WCC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wc_printf("There is no folder called \"%s\" on this server.\r\n",
 			ChrPtr(dav_roomname));
@@ -157,7 +157,7 @@ void groupdav_get(void)
 	/** GET on the collection itself returns an ICS of the entire collection.
 	 */
 	if (StrLength(dav_uid) == 0) {
-		groupdav_get_big_ics();
+		dav_get_big_ics();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
 		return;
@@ -168,7 +168,7 @@ void groupdav_get(void)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wc_printf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
 			ChrPtr(dav_uid),
@@ -229,7 +229,7 @@ void groupdav_get(void)
 	/* Output headers common to single or multi part messages */
 
 	hprintf("HTTP/1.1 200 OK\r\n");
-	groupdav_common_headers();
+	dav_common_headers();
 	hprintf("etag: \"%ld\"\r\n", dav_msgnum);
 	hprintf("Date: %s\r\n", date);
 

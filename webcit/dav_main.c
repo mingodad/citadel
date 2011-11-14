@@ -1,7 +1,7 @@
 /*
  * Entry point for GroupDAV functions
  *
- * Copyright (c) 2005-2010 by the citadel.org team
+ * Copyright (c) 2005-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ HashList *DavNamespaces = NULL;
  * do our own header stuff here.
  *
  */
-void groupdav_common_headers(void) {
+void dav_common_headers(void) {
 	hprintf(
 		"Server: %s / %s\r\n"
 		"Connection: close\r\n",
@@ -100,13 +100,12 @@ void euid_unescapize(char *target, const char *source) {
 /*
  * Main entry point for GroupDAV requests
  */
-void groupdav_main(void)
+void dav_main(void)
 {
 	wcsession *WCC = WC;
 	int i, len;
 
 	StrBufUnescape(WCC->Hdr->HR.ReqLine, 0);
-
 	StrBufStripSlashes(WCC->Hdr->HR.ReqLine, 0);
 
 	/*
@@ -139,7 +138,7 @@ void groupdav_main(void)
 	 * other variants of DAV in the future.
 	 */
 	case eOPTIONS:
-		groupdav_options();
+		dav_options();
 		break;
 
 
@@ -148,28 +147,28 @@ void groupdav_main(void)
 	 * room, or to list all relevant rooms on the server.
 	 */
 	case ePROPFIND:
-		groupdav_propfind();
+		dav_propfind();
 		break;
 
 	/*
 	 * The GET method is used for fetching individual items.
 	 */
 	case eGET:
-		groupdav_get();
+		dav_get();
 		break;
 	
 	/*
 	 * The PUT method is used to add or modify items.
 	 */
 	case ePUT:
-		groupdav_put();
+		dav_put();
 		break;
 	
 	/*
 	 * The DELETE method kills, maims, and destroys.
 	 */
 	case eDELETE:
-		groupdav_delete();
+		dav_delete();
 		break;
 	default:
 
@@ -177,7 +176,7 @@ void groupdav_main(void)
 	 * Couldn't find what we were looking for.  Die in a car fire.
 	 */
 		hprintf("HTTP/1.1 501 Method not implemented\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wc_printf("GroupDAV method \"%s\" is not implemented.\r\n",
 			ReqStrs[WCC->Hdr->HR.eReqType]);
@@ -189,7 +188,7 @@ void groupdav_main(void)
 /*
  * Output our host prefix for globally absolute URL's.
  */  
-void groupdav_identify_host(void) {
+void dav_identify_host(void) {
 	wc_printf("%s", ChrPtr(site_prefix));
 }
 
@@ -202,7 +201,7 @@ void tmplput_dav_HOSTNAME(StrBuf *Target, WCTemplputParams *TP)
 /*
  * Output our host prefix for globally absolute URL's.
  */  
-void groupdav_identify_hosthdr(void) {
+void dav_identify_hosthdr(void) {
 	hprintf("%s", ChrPtr(site_prefix));
 }
 
@@ -328,20 +327,18 @@ void
 InitModule_GROUPDAV
 (void)
 {
-/*
-	WebcitAddUrlHandler(HKEY("groupdav"), "", 0, groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
- */
 	RegisterDAVNamespace(HKEY("groupdav"), HKEY("GroupDAV"), 
-			     groupdav_main, GroupdavDispatchREST, 
-			     XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+			     dav_main, GroupdavDispatchREST, 
+			     XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE
+	);
 
-	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_davHOSTNAME, NULL, CTX_NONE);
+	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_dav_HOSTNAME, NULL, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:DAV:NS"), 0, Conditional_DAV_NS,  CTX_NONE);
 
 	RegisterIterator("DAV:NS", 0, DavNamespaces, NULL, 
-			 NULL, NULL, CTX_DAVNS, CTX_NONE, IT_NOFLAG);
-
+			 NULL, NULL, CTX_DAVNS, CTX_NONE, IT_NOFLAG
+	);
 
 	RegisterConditional(HKEY("COND:DAV:NSCURRENT"), 0, Conditional_DAV_NSCURRENT,  CTX_DAVNS);
 	RegisterNamespace("DAV:NAMESPACE", 0, 1, tmplput_DAV_NAMESPACE, NULL, CTX_NONE);

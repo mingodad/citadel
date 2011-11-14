@@ -25,7 +25,7 @@
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_options(void)
+void dav_options(void)
 {
 	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
@@ -47,7 +47,7 @@ void groupdav_options(void)
 	 */
 	if (StrLength(dav_roomname) == 0) {
 		hprintf("HTTP/1.1 200 OK\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("DAV: 1\r\n");
 		hprintf("Allow: OPTIONS, PROPFIND\r\n");
@@ -66,7 +66,7 @@ void groupdav_options(void)
 
 	if (strcasecmp(ChrPtr(WC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf(
 			"Content-Type: text/plain\r\n");
@@ -89,7 +89,7 @@ void groupdav_options(void)
 		dav_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		if (dav_msgnum < 0) {
 			hprintf("HTTP/1.1 404 not found\r\n");
-			groupdav_common_headers();
+			dav_common_headers();
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
 			wc_printf(
@@ -103,7 +103,7 @@ void groupdav_options(void)
 		}
 
 		hprintf("HTTP/1.1 200 OK\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("DAV: 1\r\n");
 		hprintf("Allow: OPTIONS, PROPFIND, GET, PUT, DELETE\r\n");
@@ -123,7 +123,7 @@ void groupdav_options(void)
 	 * an OPTIONS on the room itself.
 	 */
 	hprintf("HTTP/1.1 200 OK\r\n");
-	groupdav_common_headers();
+	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("DAV: 1\r\n");
 	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");

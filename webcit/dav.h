@@ -1,5 +1,5 @@
 /*
- * Data passed back and forth between groupdav_get() and its
+ * Data passed back and forth between dav_get() and its
  * callback functions called by the MIME parser
  */
 struct epdata {
@@ -10,20 +10,20 @@ struct epdata {
 };
 
 
-void groupdav_common_headers(void);
-void groupdav_main(void);
-void groupdav_get(void);
-void groupdav_put(void);
-void groupdav_delete(void);
-void groupdav_propfind(void);
-void groupdav_options(void);
+void dav_common_headers(void);
+void dav_main(void);
+void dav_get(void);
+void dav_put(void);
+void dav_delete(void);
+void dav_propfind(void);
+void dav_options(void);
 
 long locate_message_by_uid(const char *);
-void groupdav_folder_list(void);
+void dav_folder_list(void);
 void euid_escapize(char *, const char *);
 void euid_unescapize(char *, const char *);
-void groupdav_identify_host(void);
-void groupdav_identify_hosthdr(void);
+void dav_identify_host(void);
+void dav_identify_hosthdr(void);
 
 void RegisterDAVNamespace(const char * UrlString, 
 			  long UrlSLen, 

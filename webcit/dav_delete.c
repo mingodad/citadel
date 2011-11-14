@@ -26,7 +26,7 @@
 /*
  * The pathname is always going to be /groupdav/room_name/euid
  */
-void groupdav_delete(void) 
+void dav_delete(void) 
 {
 	wcsession *WCC = WC;
 	char dav_uid[SIZ];
@@ -53,7 +53,7 @@ void groupdav_delete(void)
 	}
 	if (strcasecmp(ChrPtr(WC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
 		begin_burst();
 		end_burst();
@@ -68,7 +68,7 @@ void groupdav_delete(void)
 	 */
 	if (dav_msgnum < 0L) {
 		hprintf("HTTP/1.1 404 Not Found\r\n");
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
 		begin_burst();
 		end_burst();
@@ -83,7 +83,7 @@ void groupdav_delete(void)
 	if (StrLength(WCC->Hdr->HR.dav_ifmatch) > 0) {
 		if (StrTol(WCC->Hdr->HR.dav_ifmatch) != dav_msgnum) {
 			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
-			groupdav_common_headers();
+			dav_common_headers();
 			hprintf("Content-Length: 0\r\n\r\n");
 			begin_burst();
 			end_burst();
@@ -99,14 +99,14 @@ void groupdav_delete(void)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		hprintf("HTTP/1.1 204 No Content\r\n");	/* success */
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
 		begin_burst();
 		end_burst();
 	}
 	else {
 		hprintf("HTTP/1.1 403 Forbidden\r\n");	/* access denied */
-		groupdav_common_headers();
+		dav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
 		begin_burst();
 		end_burst();
