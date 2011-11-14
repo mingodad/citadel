@@ -1023,7 +1023,6 @@ void set_room_policy(void) {
  * Perform changes to a room's network configuration
  */
 void netedit(void) {
-	FILE *fp;
 	char buf[SIZ];
 	char line[SIZ];
 	char cmpa0[SIZ];
@@ -1032,6 +1031,7 @@ void netedit(void) {
 	char cmpb1[SIZ];
 	int i, num_addrs;
 	StrBuf *Line;
+	StrBuf *TmpBuf;
 	int Done;
 
 	/*/ TODO: do line dynamic! */
@@ -1058,18 +1058,11 @@ void netedit(void) {
 		return;
 	}
 
-
-	fp = tmpfile();
-	if (fp == NULL) {
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
-		return;
-	}
-
 	Line = NewStrBuf();
+	TmpBuf = NewStrBuf();
 	serv_puts("GNET");
 	StrBuf_ServGetln(Line);
 	if  (GetServerStatus(Line, NULL) != 1) {
-		fclose(fp);
 		AppendImportantMessage(SRV_STATUS_MSG(Line));	
 		FreeStrBuf(&Line);
 		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
@@ -1093,26 +1086,24 @@ void netedit(void) {
 			if ( (strcasecmp(cmpa0, cmpb0)) 
 			     || (strcasecmp(cmpa1, cmpb1)) ) {
 				StrBufAppendBufPlain(Line, HKEY("\n"), 0);
-				fwrite(SKEY(Line), 1, fp);
+				StrBufAppendBuf(TmpBuf, Line, 0);
 			}
 		}
 	}
 
-	rewind(fp);
 	serv_puts("SNET");
 	StrBuf_ServGetln(Line);
 	if  (GetServerStatus(Line, NULL) != 4) {
-		fclose(fp);
+
 		AppendImportantMessage(SRV_STATUS_MSG(Line));	
 		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		FreeStrBuf(&Line);
+		FreeStrBuf(&TmpBuf);
 		return;
 	}
 
-	while (fgets(buf, sizeof buf, fp) != NULL) {
-		buf[strlen(buf)-1] = 0;
-		serv_puts(buf);
-	}
+	serv_putbuf(TmpBuf);
+	FreeStrBuf(&TmpBuf);
 
 	if (havebstr("add_button")) {
 		num_addrs = num_tokens(bstr("line"), ',');
@@ -1134,7 +1125,6 @@ void netedit(void) {
 	}
 
 	serv_puts("000");
-	fclose(fp);
 	FlushIgnetCfgs(&WC->CurRoom);
 	FreeStrBuf(&Line);
 
