@@ -504,19 +504,18 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	isbogus = ReadHTTPRequest(Hdr);
 
 	Hdr->HR.dav_depth = 32767; /* TODO: find a general way to have non-0 defaults */
-	if (!isbogus)
+
+	if (!isbogus) {
 		isbogus = AnalyseHeaders(Hdr);
+	}
 
-	if ((isbogus) ||
-	    ((Hdr->HR.Handler != NULL) &&
-	     ((Hdr->HR.Handler->Flags & BOGUS) != 0)))
-	{
+	if (	(isbogus)
+		|| ((Hdr->HR.Handler != NULL)
+		&& ((Hdr->HR.Handler->Flags & BOGUS) != 0))
+	) {
 		wcsession *Bogus;
-
 		Bogus = CreateSession(0, 1, NULL, Hdr, NULL);
-
 		do_404();
-
 		syslog(9, "HTTP: 404 [%ld.%06ld] %s %s \n",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
