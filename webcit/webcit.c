@@ -347,13 +347,16 @@ void authorization_required(void)
 	wc_printf("<h1>");
 	wc_printf(_("Authorization Required"));
 	wc_printf("</h1>\r\n");
-	
 
-	if (WCC->ImportantMsg != NULL)
+	if (WCC->ImportantMsg != NULL) {
 		message = ChrPtr(WCC->ImportantMsg);
+	}
 
-	wc_printf(_("The resource you requested requires a valid username and password. "
-		"You could not be logged in: %s\n"), message);
+	wc_printf(
+		_("The resource you requested requires a valid username and password. "
+		"You could not be logged in: %s\n"),
+		message
+	);
 	wDumpContent(0);
 	end_webcit_session();
 }
