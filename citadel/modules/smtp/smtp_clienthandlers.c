@@ -438,7 +438,7 @@ const double SMTP_C_SendTimeouts[eMaxSMTPC] = {
 	30.  /* QUIT */
 };
 
-const ConstStr ReadErrors[eMaxSMTPC] = {
+const ConstStr ReadErrors[eMaxSMTPC + 1] = {
 	{HKEY("Connection broken during SMTP conversation")},
 	{HKEY("Connection broken during SMTP EHLO")},
 	{HKEY("Connection broken during SMTP HELO")},
@@ -447,6 +447,8 @@ const ConstStr ReadErrors[eMaxSMTPC] = {
 	{HKEY("Connection broken during SMTP RCPT")},
 	{HKEY("Connection broken during SMTP DATA")},
 	{HKEY("Connection broken during SMTP message transmit")},
+        {HKEY("")},/* quit reply, don't care. */
+        {HKEY("")},/* quit reply, don't care. */
 	{HKEY("")}/* quit reply, don't care. */
 };
 

@@ -52,7 +52,7 @@ typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
 
 SMTPReadHandler ReadHandlers[eMaxSMTPC];
 SMTPSendHandler SendHandlers[eMaxSMTPC];
-const ConstStr ReadErrors[eMaxSMTPC];
+const ConstStr ReadErrors[eMaxSMTPC+1];
 const double SMTP_C_ReadTimeouts[eMaxSMTPC];
 const double SMTP_C_SendTimeouts[eMaxSMTPC];
 const double SMTP_C_ConnTimeout;
