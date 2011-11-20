@@ -107,8 +107,8 @@
 
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
-#define SMTP_DBG_SEND() EV_syslog(LOG_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.SendBuf.Buf))
-#define SMTP_DBG_READ() EV_syslog(LOG_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
+#define SMTP_DBG_SEND() EVS_syslog(LOG_DEBUG, "SMTP: > %s\n", ChrPtr(SendMsg->IO.SendBuf.Buf))
+#define SMTP_DBG_READ() EVS_syslog(LOG_DEBUG, "SMTP: < %s\n", ChrPtr(SendMsg->IO.IOBuf))
 
 
 /*****************************************************************************/
@@ -368,7 +368,7 @@ eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *SendMsg)
 	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
-	EV_syslog(LOG_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
+	EVS_syslog(LOG_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
 		  SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	return eTerminateConnection;
 }
@@ -465,7 +465,7 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 	int lp, rp;
 	int i;
 
-	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	if ((SendMsg==NULL) || 
 	    (SendMsg->MyQEntry == NULL) || 
@@ -479,7 +479,7 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 			    SendMsg->node, 
 			    SendMsg->name);
 
-	EV_syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
+	EVS_syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
 		  SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	/* If no envelope_from is supplied, extract one from the message */
 	SendMsg->envelope_from = ChrPtr(SendMsg->MyQItem->EnvelopeFrom);

@@ -65,3 +65,8 @@ const double SMTP_C_ConnTimeout;
 
 
 int smtp_resolve_recipients(SmtpOutMsg *SendMsg);
+
+#define QID ((SmtpOutMsg*)IO->Data)->MyQItem->MessageID
+#define N ((SmtpOutMsg*)IO->Data)->n
+#define EVS_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, IO->ID, QID, N, __VA_ARGS__)
+#define EVSM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, IO->ID, QID, N)
