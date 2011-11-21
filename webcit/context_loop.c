@@ -56,7 +56,7 @@ void shutdown_sessions(void)
 	wcsession *sptr;
 	
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-			sptr->killthis = 1;
+		sptr->killthis = 1;
 	}
 }
 
@@ -74,7 +74,7 @@ void do_housekeeping(void)
 
 		/* Kill idle sessions */
 		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
-			syslog(3, "Timeout session %d\n", sptr->wc_session);
+			syslog(3, "Timeout session %d", sptr->wc_session);
 			sptr->killthis = 1;
 		}
 
@@ -101,7 +101,7 @@ void do_housekeeping(void)
 	 * Now free up and destroy the culled sessions.
 	 */
 	while (sessions_to_kill != NULL) {
-		syslog(3, "Destroying session %d\n", sessions_to_kill->wc_session);
+		syslog(3, "Destroying session %d", sessions_to_kill->wc_session);
 		sptr = sessions_to_kill->next;
 		session_destroy_modules(&sessions_to_kill);
 		sessions_to_kill = sptr;
@@ -120,7 +120,7 @@ void check_thread_pool_size(void)
 		(num_threads_executing >= num_threads_existing)
 		&& (num_threads_existing < MAX_WORKER_THREADS)
 	) {
-		syslog(3, "%d of %d threads are executing.  Adding another worker thread.\n",
+		syslog(3, "%d of %d threads are executing.  Adding another worker thread.",
 			num_threads_executing,
 			num_threads_existing
 		);
@@ -174,33 +174,27 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 		switch (Hdr->HR.got_auth)
 		{
 		case AUTH_BASIC:
-			if ( (Hdr->HR.SessionKey != sptr->SessionKey))
-				continue;
-			if ((!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username))) &&
-			    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) {
-				syslog(LOG_DEBUG, "-- matched a session with the same http-auth");
+			if (	(!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username)))
+				&& (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password)))
+				&& (sptr->killthis == 0)
+			) {
+				syslog(LOG_DEBUG, "\033[32m-- matched a session with the same http-auth\033[0m");
 				TheSession = sptr;
 			}
-			if (TheSession == NULL)
-				syslog(1, "found sessionkey [%d], but credentials for [%s|%s] didn't match",
-					Hdr->HR.SessionKey,
-					ChrPtr(Hdr->c_username),
-					ChrPtr(sptr->wc_username)
-				);
 			break;
 		case AUTH_COOKIE:
 			/* If cookie-session, look for a session with matching session ID */
-			if ( (Hdr->HR.desired_session != 0) && 
-			     (sptr->wc_session == Hdr->HR.desired_session))
-			{
-				syslog(LOG_DEBUG, "-- matched a session with the same cookie");
+			if (	(Hdr->HR.desired_session != 0)
+				&& (sptr->wc_session == Hdr->HR.desired_session)
+			) {
+				syslog(LOG_DEBUG, "\033[32m-- matched a session with the same cookie\033[0m");
 				TheSession = sptr;
 			}
 			break;			     
 		case NO_AUTH:
 			/* Any unbound session is a candidate */
 			if ( (sptr->wc_session == 0) && (sptr->inuse == 0) ) {
-				syslog(LOG_DEBUG, "-- reusing an unbound session");
+				syslog(LOG_DEBUG, "\033[32m-- reusing an unbound session\033[0m");
 				TheSession = sptr;
 			}
 			break;
@@ -208,9 +202,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 	}
 	CtdlLogResult(pthread_mutex_unlock(ListMutex));
 	if (TheSession == NULL) {
-		syslog(1, "didn't find sessionkey [%d] for user [%s]",
-			Hdr->HR.SessionKey, ChrPtr(Hdr->c_username)
-		);
+		syslog(LOG_DEBUG, "\033[32m-- no existing session was matched\033[0m");
 	}
 	return TheSession;
 }
@@ -221,7 +213,6 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	TheSession = (wcsession *) malloc(sizeof(wcsession));
 	memset(TheSession, 0, sizeof(wcsession));
 	TheSession->Hdr = Hdr;
-	TheSession->SessionKey = Hdr->HR.SessionKey;
 	TheSession->serv_sock = (-1);
 
 	pthread_setspecific(MyConKey, (void *)TheSession);
@@ -406,7 +397,7 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 			memset(pHdr, 0, sizeof(OneHttpHeader));
 			pHdr->Val = Line;
 			Put(Hdr->HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
-			syslog(9, "%s\n", ChrPtr(Line));
+			syslog(9, "%s", ChrPtr(Line));
 			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
 			if (isbogus) break;
 			continue;
@@ -516,7 +507,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		wcsession *Bogus;
 		Bogus = CreateSession(0, 1, NULL, Hdr, NULL);
 		do_404();
-		syslog(9, "HTTP: 404 [%ld.%06ld] %s %s \n",
+		syslog(9, "HTTP: 404 [%ld.%06ld] %s %s",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -537,7 +528,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
-		syslog(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
+		syslog(9, "HTTP: 200 [%ld.%06ld] %s %s",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -557,30 +548,40 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	}
 
 	/*
-	 * See if there's an existing session open with the desired ID or user/pass
+	 * See if there's an existing session open with any of:
+	 * - The desired Session ID
+	 * - A matching http-auth username and password
+	 * - An unbound session flagged as reusable
 	 */
 	TheSession = FindSession(&SessionList, Hdr, &SessionListMutex);
 
 	/*
-	 * Create a new session if we have to
+	 * If there were no qualifying sessions, then create a new one.
 	 */
 	if (TheSession == NULL) {
 		TheSession = CreateSession(1, 0, &SessionList, Hdr, &SessionListMutex);
+	}
 
-		if (	(StrLength(Hdr->c_username) == 0)
-			&& (!Hdr->HR.DontNeedAuth)
-			&& (Hdr->HR.Handler != NULL)
-			&& ((XHTTP_COMMANDS & Hdr->HR.Handler->Flags) == XHTTP_COMMANDS)
-		) {
-			OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
-			Hdr->HR.prohibit_caching = 1;				
-		}
-		
-		if (StrLength(Hdr->c_language) > 0) {
-			syslog(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr->c_language));
-			set_selected_language(ChrPtr(Hdr->c_language));
-			go_selected_language();
-		}
+	/*
+	 * If a language was requested via a cookie, select that language now.
+	 */
+	if (StrLength(Hdr->c_language) > 0) {
+		syslog(9, "Session cookie requests language '%s'", ChrPtr(Hdr->c_language));
+		set_selected_language(ChrPtr(Hdr->c_language));
+		go_selected_language();
+	}
+
+	/*
+	 * Reject transactions which require http-auth, if http-auth was not provided
+	 */
+	if (	(StrLength(Hdr->c_username) == 0)
+		&& (!Hdr->HR.DontNeedAuth)
+		&& (Hdr->HR.Handler != NULL)
+		&& ((XHTTP_COMMANDS & Hdr->HR.Handler->Flags) == XHTTP_COMMANDS)
+	) {
+		syslog(LOG_DEBUG, "\033[35m -- http-auth required but not provided\033[0m");
+		OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
+		Hdr->HR.prohibit_caching = 1;				
 	}
 
 	/*
@@ -604,7 +605,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
 
-	syslog(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
+	syslog(9, "HTTP: 200 [%ld.%06ld] %s %s",
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 		ReqStrs[Hdr->HR.eReqType],
