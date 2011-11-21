@@ -358,8 +358,8 @@ void authorization_required(void)
 		message
 	);
 	wDumpContent(0);
-	end_webcit_session();
 }
+
 
 /*
  * Convenience functions to wrap around asynchronous ajax responses
@@ -378,13 +378,13 @@ void begin_ajax_response(void) {
 	begin_burst();
 }
 
+
 /*
  * print ajax response footer 
  */
 void end_ajax_response(void) {
 	wDumpContent(0);
 }
-
 
 
 /*
@@ -499,6 +499,7 @@ void push_destination(void) {
 	wc_printf("OK");
 }
 
+
 /*
  * Go to the URL saved by push_destination()
  */
@@ -587,49 +588,6 @@ int ReadPostData(void)
 	return 1;
 }
 
-#if 0
-void ParseREST_URL(void)
-{
-	StrBuf *Buf;
-	StrBuf *pFloor = NULL;
-	wcsession *WCC = WC;
-	long i = 0;
-	const char *pCh = NULL;
-	HashList *Floors;
-	void *vFloor;
-
-	syslog(1, "parsing rest URL: %s", ChrPtr(WCC->Hdr->HR.ReqLine));
-
-	WCC->Directory = NewHash(1, Flathash);
-	WCC->CurrentFloor = NULL;
-
-	Buf = NewStrBuf();
-	while (StrBufExtract_NextToken(Buf, WCC->Hdr->HR.ReqLine, &pCh,  '/') >= 0)
-	{
-		if (StrLength(Buf) != 0) {
-			/* ignore empty path segments */
-			StrBufUnescape(Buf, 1);
-			Put(WCC->Directory, IKEY(i), Buf, HFreeStrBuf);
-			if (i==0)
-				pFloor = Buf;
-			Buf = NewStrBuf();
-		}
-		i++;
-	}
-
-	FreeStrBuf(&Buf);
-	if (pFloor != NULL)
-	{
-		Floors = GetFloorListHash(NULL, NULL);
-		
-		if (Floors != NULL)
-		{
-			if (GetHash(WCC->FloorsByName, SKEY(pFloor), &vFloor))
-				WCC->CurrentFloor = (Floor*) vFloor;
-		}
-	}
-}
-#endif
 
 int Conditional_REST_DEPTH(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -737,10 +695,10 @@ void session_loop(void)
 	 * If we're not logged in, but we have authentication data (either from
 	 * a cookie or from http-auth), try logging in to Citadel using that.
 	 */
-	if ((!WCC->logged_in)
-	    && (StrLength(WCC->Hdr->c_username) > 0)
-	    && (StrLength(WCC->Hdr->c_password) > 0))
-	{
+	if (	(!WCC->logged_in)
+		&& (StrLength(WCC->Hdr->c_username) > 0)
+		&& (StrLength(WCC->Hdr->c_password) > 0)
+	) {
 		long Status;
 
 		FlushStrBuf(Buf);
@@ -816,15 +774,13 @@ void session_loop(void)
 			display_login();
 		}
 		else {
-#if 0
-			if ((WCC->Hdr->HR.Handler->Flags & PARSE_REST_URL) != 0)
-				ParseREST_URL();
-#endif
-			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0)
+			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0) {
 				begin_ajax_response();
+			}
 			WCC->Hdr->HR.Handler->F();
-			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0)
+			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0) {
 				end_ajax_response();
+			}
 		}
 	}
 	/* When all else fails, display the default landing page or a main menu. */
@@ -845,10 +801,12 @@ void session_loop(void)
 		 * Toplevel dav requests? or just a flat browser request? 
 		 */
 		else {
-			if (xhttp)
+			if (xhttp) {
 				dav_main();
-			else
+			}
+			else {
 				display_main_menu();
+			}
 		}
 	}
 

@@ -477,7 +477,6 @@ void do_welcome(void)
  * Disconnect from the Citadel server, and end this WebCit session
  */
 void end_webcit_session(void) {
-	
 	serv_puts("QUIT");
 	WC->killthis = 1;
 	/* close() of citadel socket will be done by do_housekeeping() */
@@ -950,11 +949,6 @@ void CheckAuthBasic(ParsedHttpHdrs *hdr)
 */
 	StrBufAppendBufPlain(hdr->HR.plainauth, HKEY(":"), 0);
 	StrBufAppendBuf(hdr->HR.plainauth, hdr->HR.user_agent, 0);
-	hdr->HR.SessionKey = hashlittle(SKEY(hdr->HR.plainauth), 89479832);
-/*
-	syslog(1, "CheckAuthBasic: calculated sessionkey %ld\n", 
-		hdr->HR.SessionKey);
-*/
 }
 
 
