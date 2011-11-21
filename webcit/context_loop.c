@@ -582,6 +582,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		syslog(LOG_DEBUG, "\033[35m -- http-auth required but not provided\033[0m");
 		OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
 		Hdr->HR.prohibit_caching = 1;				
+		/* FIXME -- we have to clear the cookie here */
 	}
 
 	/*
