@@ -67,7 +67,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	CC=$(COMPILER); LDFLAGS="$(LDFLAGS)"; CFLAGS="$(CFLAGS)" ./configure \
+	export CC=$(COMPILER); export LDFLAGS="$(LDFLAGS)"; export CFLAGS="$(CFLAGS)"; ./configure \
 		--prefix=/var/lib/citadel/ \
 		--with-datadir=/var/lib/citadel/ \
 		--with-helpdir=/usr/share/citadel-server/ \
