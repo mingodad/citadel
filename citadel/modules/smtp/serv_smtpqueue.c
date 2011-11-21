@@ -129,13 +129,24 @@ int DecreaseQReference(OneQueItem *MyQItem)
 
 void RemoveQItem(OneQueItem *MyQItem)
 {
+	long len;
+	const char* Key;
+	void *VData;
 	HashPos  *It;
 
-	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	pthread_mutex_lock(&ActiveQItemsLock);
-	{
-		GetHashPosFromKey(ActiveQItems, IKEY(MyQItem->MessageID), It);
+	It = GetNewHashPos(ActiveQItems, 0);
+	if (GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It))
 		DeleteEntryFromHash(ActiveQItems, It);
+	else
+	{
+		syslog(LOG_WARNING, 
+		       "SMTP cleanup: unable to find QItem with ID[%ld]",
+		       MyQItem->MessageID);
+		while (GetNextHashPos(ActiveQItems, It, &len, &Key, &VData))
+			syslog(LOG_WARNING, 
+			       "SMTP cleanup: have_: ID[%ld]",
+			       ((OneQueItem *)VData)->MessageID);				
 	}
 	pthread_mutex_unlock(&ActiveQItemsLock);
 	DeleteHashPos(&It);
@@ -208,25 +219,6 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 	Item->MessageID = -1;
 	Item->QueMsgID = QueMsgID;
 
-	pthread_mutex_lock(&ActiveQItemsLock);
-	if (GetHash(ActiveQItems, 
-		    IKEY(QueMsgID), 
-		    &v))
-	{
-		/* WHOOPS. somebody else is already working on this. */
-		pthread_mutex_unlock(&ActiveQItemsLock);
-		FreeQueItem(&Item);
-		return NULL;
-	}
-	else {
-		/* mark our claim on this. */
-		Put(ActiveQItems, 
-		    IKEY(Item->QueMsgID),
-		    Item,
-		    HFreeQueItem);
-		pthread_mutex_unlock(&ActiveQItemsLock);
-	}
-
 	Token = NewStrBuf();
 	Line = NewStrBufPlain(NULL, 128);
 	while (pLine != StrBufNOTNULL) {
@@ -245,6 +237,26 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 	}
 	FreeStrBuf(&Line);
 	FreeStrBuf(&Token);
+
+	pthread_mutex_lock(&ActiveQItemsLock);
+	if (GetHash(ActiveQItems, 
+		    LKEY(Item->MessageID),
+		    &v))
+	{
+		/* WHOOPS. somebody else is already working on this. */
+		pthread_mutex_unlock(&ActiveQItemsLock);
+		FreeQueItem(&Item);
+		return NULL;
+	}
+	else {
+		/* mark our claim on this. */
+		Put(ActiveQItems, 
+		    LKEY(Item->MessageID),
+		    Item,
+		    HFreeQueItem);
+		pthread_mutex_unlock(&ActiveQItemsLock);
+	}
+
 	return Item;
 }
 
@@ -325,7 +337,7 @@ void NewMailQEntry(OneQueItem *Item)
 
 void QItem_Handle_MsgID(OneQueItem *Item, StrBuf *Line, const char **Pos)
 {
-	Item->MessageID = StrBufExtractNext_int(Line, Pos, '|');
+	Item->MessageID = StrBufExtractNext_long(Line, Pos, '|');
 }
 
 void QItem_Handle_EnvelopeFrom(OneQueItem *Item, StrBuf *Line, const char **Pos)
@@ -659,7 +671,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			GetHashPosFromKey(ActiveQItems, IKEY(MyQItem->MessageID), It);
+			GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It);
 			DeleteEntryFromHash(ActiveQItems, It);
 		}
 		pthread_mutex_unlock(&ActiveQItemsLock);
@@ -676,7 +688,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			GetHashPosFromKey(ActiveQItems, IKEY(MyQItem->MessageID), It);
+			GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It);
 			DeleteEntryFromHash(ActiveQItems, It);
 		}
 		pthread_mutex_unlock(&ActiveQItemsLock);
@@ -755,7 +767,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				int KeepBuffers = (i == m);
 				if (i > 1) n = MsgCount++;
 				syslog(LOG_DEBUG, 
-				       "SMTP Queue: Trying <%s> %d / %d \n", 
+				       "SMTP Queue: Trying <%ld> <%s> %d / %d \n", 
+				       MyQItem->MessageID,
 				       ChrPtr(ThisItem->Recipient), 
 				       i, 
 				       m);
@@ -776,8 +789,22 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			GetHashPosFromKey(ActiveQItems, IKEY(MyQItem->MessageID), It);
-			DeleteEntryFromHash(ActiveQItems, It);
+			if (GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It))
+				DeleteEntryFromHash(ActiveQItems, It);
+			else
+			{
+				long len;
+				const char* Key;
+				void *VData;
+				syslog(LOG_WARNING, 
+				       "SMTP cleanup: unable to find QItem with ID[%ld]",
+				       MyQItem->MessageID);
+				while (GetNextHashPos(ActiveQItems, It, &len, &Key, &VData))
+					syslog(LOG_WARNING, 
+					       "SMTP cleanup: have: ID[%ld]",
+					       ((OneQueItem *)VData)->MessageID);
+			}
+
 		}
 		pthread_mutex_unlock(&ActiveQItemsLock);
 		DeleteHashPos(&It);

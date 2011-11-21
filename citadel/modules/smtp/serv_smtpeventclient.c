@@ -129,7 +129,7 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 	int nRemain;
 	StrBuf *MsgData;
 	AsyncIO *IO = &Msg->IO;
-	EV_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	IDestructQueItem = DecreaseQReference(Msg->MyQItem);
 
@@ -486,6 +486,9 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		SubC->session_specific_data = (char*) SendMsg;
 		SendMsg->IO.CitContext = SubC;
 
+		syslog(LOG_DEBUG, "SMTP Starting: [%ld] \n",
+		       SendMsg->MyQItem->MessageID, 
+		       ChrPtr(SendMsg->MyQEntry->Recipient));
 		if (SendMsg->pCurrRelay == NULL)
 			QueueEventContext(&SendMsg->IO,
 					  resolve_mx_records);
@@ -568,8 +571,11 @@ eNextState SMTP_C_DispatchReadDone(AsyncIO *IO)
 	eNextState rc;
 
 	rc = ReadHandlers[pMsg->State](pMsg);
-	pMsg->State++;
-	SMTPSetTimeout(rc, pMsg);
+	if (rc != eAbort)
+	{
+		pMsg->State++;
+		SMTPSetTimeout(rc, pMsg);
+	}
 	return rc;
 }
 eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO)
