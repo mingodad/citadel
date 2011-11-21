@@ -101,14 +101,16 @@ void DeleteRoomReference(long QRnumber)
 
 	At = GetNewHashPos(RSSQueueRooms, 0);
 
-	GetHashPosFromKey(RSSQueueRooms, LKEY(QRnumber), At);
-	GetHashPos(RSSQueueRooms, At, &HKLen, &HK, &vData);
-	if (vData != NULL)
+	if (GetHashPosFromKey(RSSQueueRooms, LKEY(QRnumber), At))
 	{
-		pRoomC = (rss_room_counter *) vData;
-		pRoomC->count --;
-		if (pRoomC->count == 0)
-			DeleteEntryFromHash(RSSQueueRooms, At);
+		GetHashPos(RSSQueueRooms, At, &HKLen, &HK, &vData);
+		if (vData != NULL)
+		{
+			pRoomC = (rss_room_counter *) vData;
+			pRoomC->count --;
+			if (pRoomC->count == 0)
+				DeleteEntryFromHash(RSSQueueRooms, At);
+		}
 	}
 	DeleteHashPos(&At);
 }
@@ -146,7 +148,7 @@ void UnlinkRSSAggregator(rss_aggregator *Cfg)
 	UnlinkRooms(Cfg);
 
 	At = GetNewHashPos(RSSFetchUrls, 0);
-	if (GetHashPosFromKey(RSSFetchUrls, SKEY(Cfg->Url), At) == 0)
+	if (GetHashPosFromKey(RSSFetchUrls, SKEY(Cfg->Url), At))
 	{
 		DeleteEntryFromHash(RSSFetchUrls, At);
 	}

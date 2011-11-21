@@ -165,8 +165,8 @@ eNextState FinalizePOP3AggrRun(AsyncIO *IO)
 	It = GetNewHashPos(POP3FetchUrls, 0);
 	pthread_mutex_lock(&POP3QueueMutex);
 	{
-		GetHashPosFromKey(POP3FetchUrls, SKEY(cptr->Url), It);
-		DeleteEntryFromHash(POP3FetchUrls, It);
+		if (GetHashPosFromKey(POP3FetchUrls, SKEY(cptr->Url), It))
+			DeleteEntryFromHash(POP3FetchUrls, It);
 	}
 	pthread_mutex_unlock(&POP3QueueMutex);
 	DeleteHashPos(&It);

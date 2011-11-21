@@ -671,8 +671,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It);
-			DeleteEntryFromHash(ActiveQItems, It);
+			if (GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It))
+				DeleteEntryFromHash(ActiveQItems, It);
 		}
 		pthread_mutex_unlock(&ActiveQItemsLock);
 		////FreeQueItem(&MyQItem); TODO: DeleteEntryFromHash frees this?
@@ -688,8 +688,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It);
-			DeleteEntryFromHash(ActiveQItems, It);
+			if (GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It))
+				DeleteEntryFromHash(ActiveQItems, It);
 		}
 		pthread_mutex_unlock(&ActiveQItemsLock);
 		DeleteHashPos(&It);
