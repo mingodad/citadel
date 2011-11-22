@@ -183,10 +183,11 @@ int CountActiveQueueEntries(OneQueItem *MyQItem)
 {
 	HashPos  *It;
 	long len;
+	long ActiveDeliveries;
 	const char *Key;
 	void *vQE;
 
-	MyQItem->ActiveDeliveries = 0;
+	ActiveDeliveries = 0;
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
@@ -195,14 +196,14 @@ int CountActiveQueueEntries(OneQueItem *MyQItem)
 		    (ThisItem->Status == 3) ||
 		    (ThisItem->Status == 4))
 		{
-			MyQItem->ActiveDeliveries++;
+			ActiveDeliveries++;
 			ThisItem->Active = 1;
 		}
 		else 
 			ThisItem->Active = 0;
 	}
 	DeleteHashPos(&It);
-	return MyQItem->ActiveDeliveries;
+	return ActiveDeliveries;
 }
 
 OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
@@ -747,11 +748,13 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		syslog(LOG_DEBUG, "SMTP Queue: Task: <%s> %d\n", ChrPtr(ThisItem->Recipient), ThisItem->Active);
+		syslog(LOG_DEBUG, "SMTP Queue: Task: <%s> %d\n", 
+		       ChrPtr(ThisItem->Recipient), 
+		       ThisItem->Active);
 	}
 	DeleteHashPos(&It);
 
-	CountActiveQueueEntries(MyQItem);
+	MyQItem->ActiveDeliveries = CountActiveQueueEntries(MyQItem);
 	if (MyQItem->ActiveDeliveries > 0)
 	{
 		int n = MsgCount++;
