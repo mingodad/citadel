@@ -4255,6 +4255,7 @@ void free_recipients(struct recptypes *valid) {
  */
 void cmd_ent0(char *entargs)
 {
+	struct CitContext *CCC = CC;
 	int post = 0;
 	char recp[SIZ];
 	char cc[SIZ];
@@ -4275,6 +4276,7 @@ void cmd_ent0(char *entargs)
 	char subject[SIZ];
 	int subject_required = 0;
 	int do_confirm = 0;
+	int verbose_reply = 0;
 	long msgnum;
 	int i, j;
 	char buf[256];
@@ -4293,6 +4295,7 @@ void cmd_ent0(char *entargs)
 	do_confirm = extract_int(entargs, 6);
 	extract_token(cc, entargs, 7, '|', sizeof cc);
 	extract_token(bcc, entargs, 8, '|', sizeof bcc);
+	verbose_reply = extract_int(entargs, 9);
 	switch(CC->room.QRdefaultview) {
 	case VIEW_NOTES:
 	case VIEW_WIKI:
@@ -4326,11 +4329,11 @@ void cmd_ent0(char *entargs)
 	/* Check some other permission type things. */
 
 	if (IsEmptyStr(newusername)) {
-		strcpy(newusername, CC->user.fullname);
+		strcpy(newusername, CCC->user.fullname);
 	}
-	if (  (CC->user.axlevel < AxAideU)
-	      && (strcasecmp(newusername, CC->user.fullname))
-	      && (strcasecmp(newusername, CC->cs_inet_fn))
+	if (  (CCC->user.axlevel < AxAideU)
+	      && (strcasecmp(newusername, CCC->user.fullname))
+	      && (strcasecmp(newusername, CCC->cs_inet_fn))
 		) {	
 		cprintf("%d You don't have permission to author messages as '%s'.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED,
@@ -4345,13 +4348,13 @@ void cmd_ent0(char *entargs)
 	}
 
 	if (!IsEmptyStr(newuseremail)) {
-		if (!strcasecmp(newuseremail, CC->cs_inet_email)) {
+		if (!strcasecmp(newuseremail, CCC->cs_inet_email)) {
 			newuseremail_ok = 1;
 		}
-		else if (!IsEmptyStr(CC->cs_inet_other_emails)) {
-			j = num_tokens(CC->cs_inet_other_emails, '|');
+		else if (!IsEmptyStr(CCC->cs_inet_other_emails)) {
+			j = num_tokens(CCC->cs_inet_other_emails, '|');
 			for (i=0; i<j; ++i) {
-				extract_token(buf, CC->cs_inet_other_emails, i, '|', sizeof buf);
+				extract_token(buf, CCC->cs_inet_other_emails, i, '|', sizeof buf);
 				if (!strcasecmp(newuseremail, buf)) {
 					newuseremail_ok = 1;
 				}
@@ -4367,7 +4370,7 @@ void cmd_ent0(char *entargs)
 		return;
 	}
 
-	CC->cs_flags |= CS_POSTING;
+	CCC->cs_flags |= CS_POSTING;
 
 	/* In mailbox rooms we have to behave a little differently --
 	 * make sure the user has specified at least one recipient.  Then
@@ -4376,10 +4379,10 @@ void cmd_ent0(char *entargs)
 	 * is the DRAFTS room which does not require recipients
 	 */
 
-	if ( (  ( (CC->room.QRflags & QR_MAILBOX) && (!strcasecmp(&CC->room.QRname[11], MAILROOM)) )
-		|| ( (CC->room.QRflags & QR_MAILBOX) && (CC->curr_view == VIEW_MAILBOX) )
-		     ) && (strcasecmp(&CC->room.QRname[11], USERDRAFTROOM)) !=0 ) {
-		if (CC->user.axlevel < AxProbU) {
+	if ( (  ( (CCC->room.QRflags & QR_MAILBOX) && (!strcasecmp(&CCC->room.QRname[11], MAILROOM)) )
+		|| ( (CCC->room.QRflags & QR_MAILBOX) && (CCC->curr_view == VIEW_MAILBOX) )
+		     ) && (strcasecmp(&CCC->room.QRname[11], USERDRAFTROOM)) !=0 ) {
+		if (CCC->user.axlevel < AxProbU) {
 			strcpy(recp, "sysop");
 			strcpy(cc, "");
 			strcpy(bcc, "");
@@ -4419,7 +4422,7 @@ void cmd_ent0(char *entargs)
 		}
 
 		if (valid_to->num_internet + valid_cc->num_internet + valid_bcc->num_internet > 0) {
-			if (CtdlCheckInternetMailPermission(&CC->user)==0) {
+			if (CtdlCheckInternetMailPermission(&CCC->user)==0) {
 				cprintf("%d You do not have permission "
 					"to send Internet mail.\n",
 					ERROR + HIGHER_ACCESS_REQUIRED);
@@ -4431,7 +4434,7 @@ void cmd_ent0(char *entargs)
 		}
 
 		if ( ( (valid_to->num_internet + valid_to->num_ignet + valid_cc->num_internet + valid_cc->num_ignet + valid_bcc->num_internet + valid_bcc->num_ignet) > 0)
-		     && (CC->user.axlevel < AxNetU) ) {
+		     && (CCC->user.axlevel < AxNetU) ) {
 			cprintf("%d Higher access required for network mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			free_recipients(valid_to);
@@ -4442,8 +4445,8 @@ void cmd_ent0(char *entargs)
 	
 		if ((RESTRICT_INTERNET == 1)
 		    && (valid_to->num_internet + valid_cc->num_internet + valid_bcc->num_internet > 0)
-		    && ((CC->user.flags & US_INTERNET) == 0)
-		    && (!CC->internal_pgm)) {
+		    && ((CCC->user.flags & US_INTERNET) == 0)
+		    && (!CCC->internal_pgm)) {
 			cprintf("%d You don't have access to Internet mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			free_recipients(valid_to);
@@ -4456,16 +4459,16 @@ void cmd_ent0(char *entargs)
 
 	/* Is this a room which has anonymous-only or anonymous-option? */
 	anonymous = MES_NORMAL;
-	if (CC->room.QRflags & QR_ANONONLY) {
+	if (CCC->room.QRflags & QR_ANONONLY) {
 		anonymous = MES_ANONONLY;
 	}
-	if (CC->room.QRflags & QR_ANONOPT) {
+	if (CCC->room.QRflags & QR_ANONOPT) {
 		if (anon_flag == 1) {	/* only if the user requested it */
 			anonymous = MES_ANONOPT;
 		}
 	}
 
-	if ((CC->room.QRflags & QR_MAILBOX) == 0) {
+	if ((CCC->room.QRflags & QR_MAILBOX) == 0) {
 		recp[0] = 0;
 	}
 
@@ -4473,7 +4476,7 @@ void cmd_ent0(char *entargs)
 	 * strongly recommended in this room, if either the SUBJECTREQ flag
 	 * is set, or if there is one or more Internet email recipients.
 	 */
-	if (CC->room.QRflags2 & QR2_SUBJECTREQ) subject_required = 1;
+	if (CCC->room.QRflags2 & QR2_SUBJECTREQ) subject_required = 1;
 	if ((valid_to)	&& (valid_to->num_internet > 0))	subject_required = 1;
 	if ((valid_cc)	&& (valid_cc->num_internet > 0))	subject_required = 1;
 	if ((valid_bcc)	&& (valid_bcc->num_internet > 0))	subject_required = 1;
@@ -4503,8 +4506,8 @@ void cmd_ent0(char *entargs)
 		cprintf("%d send message\n", SEND_LISTING);
 	}
 
-	msg = CtdlMakeMessage(&CC->user, recp, cc,
-			      CC->room.QRname, anonymous, format_type,
+	msg = CtdlMakeMessage(&CCC->user, recp, cc,
+			      CCC->room.QRname, anonymous, format_type,
 			      newusername, newuseremail, subject,
 			      ((!IsEmptyStr(supplied_euid)) ? supplied_euid : NULL),
 			      NULL, references);
@@ -4536,14 +4539,24 @@ void cmd_ent0(char *entargs)
 
 	if (msg != NULL) {
 		msgnum = CtdlSubmitMsg(msg, valid, "", QP_EADDR);
+		if (verbose_reply)
+		{
+			if (StrLength(CCC->StatusMessage)>0)
+			{
+				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("\n"), 0);
+				cputbuf(CCC->StatusMessage);
+			}
+			else
+				client_write(HKEY("\n"));
+		}
 
 		if (do_confirm) {
 			cprintf("%ld\n", msgnum);
 			if (msgnum >= 0L) {
-				cprintf("Message accepted.\n");
+				client_write(HKEY("Message accepted.\n"));
 			}
 			else {
-				cprintf("Internal error.\n");
+				client_write(HKEY("Internal error.\n"));
 			}
 			if (msg->cm_fields['E'] != NULL) {
 				cprintf("%s\n", msg->cm_fields['E']);

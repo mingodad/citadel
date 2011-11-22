@@ -91,7 +91,7 @@ void set_mm_valid(void) {
  * Extract Internet e-mail addresses from a message containing a vCard, and
  * perform a callback for any found.
  */
-void vcard_extract_internet_addresses(struct CtdlMessage *msg, void (*callback)(char *, char *) ) {
+void vcard_extract_internet_addresses(struct CtdlMessage *msg, int (*callback)(char *, char *) ) {
 	struct vCard *v;
 	char *s;
 	char *k;
@@ -132,20 +132,21 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg, void (*callback)(
 
 	vcard_free(v);
 }
-
-
+///TODO: gettext!
+#define _(a) a
 /*
  * Callback for vcard_add_to_directory()
  * (Lotsa ugly nested callbacks.  Oh well.)
  */
-void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
+int vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
+	struct CitContext *CCC = CC;
 	char buf[SIZ];
 
 	/* We have to validate that we're not stepping on someone else's
 	 * email address ... but only if we're logged in.  Otherwise it's
 	 * probably just the networker or something.
 	 */
-	if (CC->logged_in) {
+	if (CCC->logged_in) {
 		syslog(LOG_DEBUG, "Checking for <%s>...\n", internet_addr);
 		if (CtdlDirectoryLookup(buf, internet_addr, sizeof buf) == 0) {
 			if (strcasecmp(buf, citadel_addr)) {
@@ -153,12 +154,31 @@ void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 				 * Bail out silently without saving.
 				 */
 				syslog(LOG_DEBUG, "DOOP!\n");
-				return;
+				StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress again."), -1, 0);
+				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+				StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
+				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+				return 0;
 			}
 		}
 	}
 	syslog(LOG_INFO, "Adding %s (%s) to directory\n", citadel_addr, internet_addr);
-	CtdlDirectoryAddUser(internet_addr, citadel_addr);
+	if (CtdlDirectoryAddUser(internet_addr, citadel_addr))
+	{
+		StrBufAppendBufPlain(CCC->StatusMessage, _("successfully addded emailaddress."), -1, 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		return 1;
+	}
+	else
+	{
+		StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress; its not matching our domain."), -1, 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		return 0;
+	}
 }
 
 
@@ -198,6 +218,7 @@ void cmd_igab(char *argbuf) {
 	CtdlDirectoryInit();
 
 	/* We want *all* vCards in this room */
+	NewStrBufDupAppendFlush(&CC->StatusMessage, NULL, NULL, 0);
 	CtdlForEachMessage(MSGS_ALL, 0, NULL, "[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$",
 		NULL, vcard_add_to_directory, NULL);
 
@@ -213,10 +234,14 @@ void cmd_igab(char *argbuf) {
  * Internet messages.  If there is, stick it in the buffer.
  */
 void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
-				char *secemailaddrbuf, size_t secemailaddrbuf_len,
-				struct vCard *v, int local_addrs_only) {
+			      char *secemailaddrbuf, size_t secemailaddrbuf_len,
+			      struct vCard *v,
+			      int local_addrs_only)
+{
+	struct CitContext *CCC = CC;		/* put this on the stack, just for speed */
 	char *s, *k, *addr;
 	int instance = 0;
+	int IsDirectoryAddress;
 	int saved_instance = 0;
 
 	/* Go through the vCard searching for *all* Internet email addresses
@@ -227,8 +252,9 @@ void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 			addr = strdup(s);
 			striplt(addr);
 			if (!IsEmptyStr(addr)) {
-				if ( (IsDirectory(addr, 1)) || 
-			     	(!local_addrs_only) ) {
+				IsDirectoryAddress = IsDirectory(addr, 1);
+				if ( IsDirectoryAddress || !local_addrs_only)
+				{
 					++saved_instance;
 					if ((saved_instance == 1) && (emailaddrbuf != NULL)) {
 						safestrncpy(emailaddrbuf, addr, emailaddrbuf_len);
@@ -243,6 +269,14 @@ void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 							strcat(secemailaddrbuf, addr);
 						}
 					}
+				}
+				if (!IsDirectoryAddress && local_addrs_only)
+				{
+					StrBufAppendBufPlain(CCC->StatusMessage, 
+							     _("unable to add this emailaddress; its not matching our domain."), -1, 0);
+					StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+					StrBufAppendBufPlain(CCC->StatusMessage, addr, -1, 0);
+					StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
 				}
 			}
 			free(addr);
@@ -510,6 +544,9 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 	ptr = msg->cm_fields['M'];
 	if (ptr == NULL) return(0);
+
+	NewStrBufDupAppendFlush(&CC->StatusMessage, NULL, NULL, 0);
+
 	while (ptr != NULL) {
 	
 		linelen = strcspn(ptr, "\n");

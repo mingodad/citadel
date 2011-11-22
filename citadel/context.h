@@ -58,6 +58,7 @@ struct CitContext {
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 	/* Redirect this session's output to a memory buffer? */
 	StrBuf *redirect_buffer;		/* the buffer */
+	StrBuf *StatusMessage;
 #ifdef HAVE_OPENSSL
 	SSL *ssl;
 	int redirect_ssl;

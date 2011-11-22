@@ -1280,24 +1280,23 @@ void submit_vcard(void) {
 		}
 	}
 
-	sprintf(buf, "ENT0 1|||4||");
-	serv_puts(buf);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '4') {
+	Buf = NewStrBuf();
+	serv_write(HKEY("ENT0 1|||4||||||1\n"));
+	if (!StrBuf_ServGetln(Buf) && (GetServerStatus(Buf, NULL) != 4))
+	{
 		edit_vcard();
 		return;
 	}
 
 	/* Make a vCard structure out of the data supplied in the form */
-	Buf = NewStrBuf();
 	StrBufPrintf(Buf, "begin:vcard\r\n%s\r\nend:vcard\r\n",
 		     bstr("extrafields")
 	);
 	v = VCardLoad(Buf);	/* Start with the extra fields */
-	FreeStrBuf(&Buf);
 	if (v == NULL) {
 		AppendImportantMessage(_("An error has occurred."), -1);
 		edit_vcard();
+		FreeStrBuf(&Buf);
 		return;
 	}
 
@@ -1341,14 +1340,17 @@ void submit_vcard(void) {
 	if (serialized_vcard == NULL) {
 		AppendImportantMessage(_("An error has occurred."), -1);
 		edit_vcard();
+		FreeStrBuf(&Buf);
 		return;
 	}
 
-	serv_puts("Content-type: text/x-vcard; charset=UTF-8");
-	serv_puts("");
+	serv_write(HKEY("Content-type: text/x-vcard; charset=UTF-8\n"));
+	serv_write(HKEY("\n"));
 	serv_printf("%s\r\n", serialized_vcard);
-	serv_puts("000");
+	serv_write(HKEY("000\n"));
 	free(serialized_vcard);
+
+	StrBuf_ServGetln(Buf);
 
 	if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
 		select_user_to_edit(NULL);
@@ -1362,6 +1364,7 @@ void submit_vcard(void) {
 	else {
 		readloop(readnew, eUseDefault);
 	}
+	FreeStrBuf(&Buf);
 }
 
 

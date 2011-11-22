@@ -15,8 +15,8 @@ char *rfc822_fetch_field(const char *rfc822, const char *fieldname);
 
 int IsDirectory(char *addr, int allow_masq_domains);
 void CtdlDirectoryInit(void);
-void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr);
-void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr);
+int CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr);
+int CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr);
 int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen);
 struct CtdlMessage *convert_internet_message(char *rfc822);
 struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822);

@@ -959,13 +959,15 @@ void CtdlDirectoryInit(void) {
 /*
  * Add an Internet e-mail address to the directory for a user
  */
-void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
+int CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
-	if (IsDirectory(internet_addr, 0) == 0) return;
+	if (IsDirectory(internet_addr, 0) == 0) 
+		return 0;
 	syslog(LOG_DEBUG, "Create directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
 	cdb_store(CDB_DIRECTORY, key, strlen(key), citadel_addr, strlen(citadel_addr)+1 );
+	return 1;
 }
 
 
@@ -975,12 +977,12 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
  * (NOTE: we don't actually use or need the citadel_addr variable; it's merely
  * here because the callback API expects to be able to send it.)
  */
-void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr) {
+int CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
 	syslog(LOG_DEBUG, "Delete directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
-	cdb_delete(CDB_DIRECTORY, key, strlen(key) );
+	return cdb_delete(CDB_DIRECTORY, key, strlen(key) ) == 0;
 }
 
 

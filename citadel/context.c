@@ -374,7 +374,7 @@ void RemoveContext (CitContext *con)
 		free(con->ldap_dn);
 		con->ldap_dn = NULL;
 	}
-
+	FreeStrBuf(&con->StatusMessage);
 	FreeStrBuf(&con->MigrateBuf);
 	FreeStrBuf(&con->RecvBuf.Buf);
 	if (con->cached_msglist) {
