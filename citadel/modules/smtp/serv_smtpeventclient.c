@@ -486,7 +486,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		SubC->session_specific_data = (char*) SendMsg;
 		SendMsg->IO.CitContext = SubC;
 
-		syslog(LOG_DEBUG, "SMTP Starting: [%ld] \n",
+		syslog(LOG_DEBUG, "SMTP Starting: [%ld] <%s> \n",
 		       SendMsg->MyQItem->MessageID, 
 		       ChrPtr(SendMsg->MyQEntry->Recipient));
 		if (SendMsg->pCurrRelay == NULL)
