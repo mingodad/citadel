@@ -29,7 +29,7 @@ extern char static_icon_dir[PATH_MAX];          /* where should we find our mime
 int is_https = 0;				/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;				/* Follow X-Forwarded-For: header? */
 int DisableGzip = 0;
-char *default_landing_page = NULL;		/* FIXME we need to populate this somehow */
+char *default_landing_page = NULL;
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 

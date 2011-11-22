@@ -690,11 +690,6 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 				retval = client_read_sslbuffer(Hdr->ReadBuf, timeout);
 			if (retval >= 0) {
 				StrBufAppendBuf(Target, Hdr->ReadBuf, 0); /* todo: Buf > bytes? */
-#ifdef HTTP_TRACING
-				write(2, "\033[32m", 5);
-				write(2, buf, bytes);
-				write(2, "\033[30m", 5);
-#endif
 				return 1;
 			}
 			else {
@@ -722,11 +717,6 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 		return retval;
 	}
 
-#ifdef HTTP_TRACING
-	write(2, "\033[32m", 5);
-	write(2, buf, bytes);
-	write(2, "\033[30m", 5);
-#endif
 	return 1;
 }
 
@@ -785,13 +775,6 @@ long end_burst(void)
 	}
 #endif
 
-	
-#ifdef HTTP_TRACING
-	
-	write(2, "\033[34m", 5);
-	write(2, ptr, StrLength(WCC->WBuf));
-	write(2, "\033[30m", 5);
-#endif
 	if (WCC->Hdr->http_sock == -1)
 		return -1;
 	fdflags = fcntl(WC->Hdr->http_sock, F_GETFL);
@@ -821,13 +804,6 @@ long end_burst(void)
 	ptr = ChrPtr(WCC->WBuf);
 	count = StrLength(WCC->WBuf);
 	eptr = ptr + count;
-
-#ifdef HTTP_TRACING
-	
-	write(2, "\033[34m", 5);
-	write(2, ptr, StrLength(WCC->WBuf));
-	write(2, "\033[30m", 5);
-#endif
 
         while ((ptr < eptr) && (WCC->Hdr->http_sock != -1)) {
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
