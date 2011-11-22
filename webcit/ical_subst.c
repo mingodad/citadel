@@ -1,11 +1,28 @@
-#include "webcit.h"
+/*
+ * Copyright (c) 1996-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 
+#include "webcit.h"
 
 extern IcalEnumMap icalproperty_kind_map[];
 
-
 HashList *IcalComponentMap = NULL;
 
+#if 0
 void SortPregetMatter(HashList *Cals)
 {
 	disp_cal *Cal;
@@ -46,7 +63,6 @@ void SortPregetMatter(HashList *Cals)
 		break;
 	}
 
-
 	It = GetNewHashPos(Cals, 0);
 	while (GetNextHashPos(Cals, It, &KLen, &Key, &vCal)) {
 		i = 0;
@@ -61,9 +77,8 @@ void SortPregetMatter(HashList *Cals)
 			/****Cal->SortBy = icalcomponent_get_first_property(Cal->SortBy, SortMap[i++]->map); */
 		}
 	}
-	
-		
 }
+#endif
 
 
 void tmplput_ICalItem(StrBuf *Target, WCTemplputParams *TP)
