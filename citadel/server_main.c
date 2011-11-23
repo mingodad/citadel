@@ -133,11 +133,12 @@ int main(int argc, char **argv)
 
 		else if (!strncmp(argv[a], "-h", 2)) {
 			relh=argv[a][2]!='/';
-			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2],
-								   sizeof ctdl_home_directory);
-			else
-				safestrncpy(relhome, &argv[a][2],
-							sizeof relhome);
+			if (!relh) {
+				safestrncpy(ctdl_home_directory, &argv[a][2], sizeof ctdl_home_directory);
+			}
+			else {
+				safestrncpy(relhome, &argv[a][2], sizeof relhome);
+			}
 			home=1;
 		}
 
@@ -146,14 +147,7 @@ int main(int argc, char **argv)
 		}
 
 		else if (!strncmp(argv[a], "-t", 2)) {
-			if (freopen(&argv[a][2], "w", stderr) != stderr)
-			{
-				syslog(LOG_EMERG, 
-					      "unable to open your trace log [%s]: %s", 
-					      &argv[a][2], 
-					      strerror(errno));
-				exit(1);
-			}
+			/* deprecated */
 		}
 
 		else if (!strncmp(argv[a], "-D", 2)) {
@@ -163,8 +157,9 @@ int main(int argc, char **argv)
 		/* -r tells the server not to drop root permissions. don't use
 		 * this unless you know what you're doing. this should be
 		 * removed in the next release if it proves unnecessary. */
-		else if (!strcmp(argv[a], "-r"))
+		else if (!strcmp(argv[a], "-r")) {
 			drop_root_perms = 0;
+		}
 
 		/* any other parameter makes it crash and burn */
 		else {
@@ -172,7 +167,6 @@ int main(int argc, char **argv)
 					"citserver "
 					"[-lLogFacility] "
 					"[-d] [-D] [-s] "
-					"[-tTraceFile] "
 					"[-hHomeDir]\n"
 			);
 			exit(1);
@@ -316,7 +310,7 @@ int main(int argc, char **argv)
 	/*
 	 * Load any server-side extensions available here.
 	 */
-	syslog(LOG_INFO, "Initializing server extensions\n");
+	syslog(LOG_INFO, "Initializing server extensions");
 	
 	initialise_modules(0);
 
@@ -353,18 +347,18 @@ int main(int argc, char **argv)
 #endif // HAVE_GETPWUID_R
 
 		if (pwp == NULL)
-			syslog(LOG_CRIT, "WARNING: getpwuid(%ld): %s\n"
+			syslog(LOG_CRIT, "WARNING: getpwuid(%ld): %s"
 				   "Group IDs will be incorrect.\n", (long)CTDLUID,
 				strerror(errno));
 		else {
 			initgroups(pw.pw_name, pw.pw_gid);
 			if (setgid(pw.pw_gid))
-				syslog(LOG_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
+				syslog(LOG_CRIT, "setgid(%ld): %s", (long)pw.pw_gid,
 					strerror(errno));
 		}
-		syslog(LOG_INFO, "Changing uid to %ld\n", (long)CTDLUID);
+		syslog(LOG_INFO, "Changing uid to %ld", (long)CTDLUID);
 		if (setuid(CTDLUID) != 0) {
-			syslog(LOG_CRIT, "setuid() failed: %s\n", strerror(errno));
+			syslog(LOG_CRIT, "setuid() failed: %s", strerror(errno));
 		}
 #if defined (HAVE_SYS_PRCTL_H) && defined (PR_SET_DUMPABLE)
 		prctl(PR_SET_DUMPABLE, 1);
