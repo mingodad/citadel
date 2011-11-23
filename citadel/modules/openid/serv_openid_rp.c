@@ -1,9 +1,9 @@
 /*
  * This is an implementation of OpenID 1.1 Relying Party support, in stateless mode.
  *
- * Copyright (c) 2007-2010 by the citadel.org team
+ * Copyright (c) 2007-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -74,7 +74,7 @@ void openid_cleanup_function(void) {
 	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 
 	if (CCC->openid_data != NULL) {
-		syslog(LOG_DEBUG, "Clearing OpenID session state\n");
+		syslog(LOG_DEBUG, "Clearing OpenID session state");
 		Free_ctdl_openid((ctdl_openid **) &CCC->openid_data);
 	}
 }
@@ -125,11 +125,11 @@ int attach_openid(struct ctdluser *who, StrBuf *claimed_id)
 		cdb_free(cdboi);
 
 		if (fetched_usernum == who->usernum) {
-			syslog(LOG_INFO, "%s already associated; no action is taken\n", ChrPtr(claimed_id));
+			syslog(LOG_INFO, "%s already associated; no action is taken", ChrPtr(claimed_id));
 			return(0);
 		}
 		else {
-			syslog(LOG_INFO, "%s already belongs to another user\n", ChrPtr(claimed_id));
+			syslog(LOG_INFO, "%s already belongs to another user", ChrPtr(claimed_id));
 			return(3);
 		}
 	}
@@ -170,7 +170,6 @@ void openid_purge(struct ctdluser *usbuf) {
 	keys = NewHash(1, NULL);
 	if (!keys) return;
 
-
 	cdb_rewind(CDB_OPENID);
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
@@ -188,14 +187,13 @@ void openid_purge(struct ctdluser *usbuf) {
 	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
-		syslog(LOG_DEBUG, "Deleting associated OpenID <%s>\n", (char*)Value);
+		syslog(LOG_DEBUG, "Deleting associated OpenID <%s>", (char*)Value);
 		cdb_delete(CDB_OPENID, Value, strlen(Value));
 		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 	}
 	DeleteHashPos(&HashPos);
 	DeleteHash(&keys);
 }
-
 
 
 /*
@@ -367,8 +365,6 @@ void cmd_oidc(char *argbuf) {
 }
 
 
-
-
 /*
  * Detach an OpenID from the currently logged in account
  */
@@ -421,11 +417,11 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 	if (CC->logged_in) return(3);
 	if (!GetHash(sreg_keys, "sreg.nickname", 13, (void *) &desired_name)) return(4);
 
-	syslog(LOG_DEBUG, "The desired account name is <%s>\n", desired_name);
+	syslog(LOG_DEBUG, "The desired account name is <%s>", desired_name);
 
 	len = cutuserkey(desired_name);
 	if (!CtdlGetUser(&CC->user, desired_name)) {
-		syslog(LOG_DEBUG, "<%s> is already taken by another user.\n", desired_name);
+		syslog(LOG_DEBUG, "<%s> is already taken by another user.", desired_name);
 		memset(&CC->user, 0, sizeof(struct ctdluser));
 		return(5);
 	}
@@ -567,7 +563,7 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 
 	curl = curl_easy_init();
 	if (!curl) {
-		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
+		syslog(LOG_ALERT, "Unable to initialize libcurl.");
 		return(-1);
 	}
 
@@ -596,7 +592,7 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 	}
 	res = curl_easy_perform(curl);
 	if (res) {
-		syslog(LOG_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
+		syslog(LOG_DEBUG, "fetch_http() libcurl error %d: %s", res, errmsg);
 	}
 	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
 	StrBufPlain(url, effective_url, -1);
@@ -644,8 +640,7 @@ void cmd_oids(char *argbuf) {
 	oiddata->verified = 0;
 
 	i = fetch_http(oiddata->claimed_id, &ReplyBuf);
-	syslog(LOG_DEBUG, "Normalized URL and Claimed ID is: %s\n", 
-		      ChrPtr(oiddata->claimed_id));
+	syslog(LOG_DEBUG, "Normalized URL and Claimed ID is: %s", ChrPtr(oiddata->claimed_id));
 	if ((StrLength(ReplyBuf) > 0) && (i > 0)) {
 
 		openid_delegate = NewStrBuf();
@@ -742,13 +737,13 @@ void cmd_oidf(char *argbuf) {
 		if (len < 0)
 			len = sizeof(thiskey) - 1;
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
-		syslog(LOG_DEBUG, "%s: ["SIZE_T_FMT"] %s\n", thiskey, strlen(thisdata), thisdata);
+		syslog(LOG_DEBUG, "%s: ["SIZE_T_FMT"] %s", thiskey, strlen(thisdata), thisdata);
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
 
 	/* Now that we have all of the parameters, we have to validate the signature against the server */
-	syslog(LOG_DEBUG, "About to validate the signature...\n");
+	syslog(LOG_DEBUG, "About to validate the signature...");
 
 	CURL *curl;
 	CURLcode res;
@@ -769,14 +764,14 @@ void cmd_oidf(char *argbuf) {
 		CURLFORM_COPYNAME,	"openid.mode",
 		CURLFORM_COPYCONTENTS,	"check_authentication",
 		CURLFORM_END);
-	syslog(LOG_DEBUG, "%25s : %s\n", "openid.mode", "check_authentication");
+	syslog(LOG_DEBUG, "%25s : %s", "openid.mode", "check_authentication");
 
 	if (GetHash(keys, "assoc_handle", 12, (void *) &o_assoc_handle)) {
 		curl_formadd(&formpost, &lastptr,
 			CURLFORM_COPYNAME,	"openid.assoc_handle",
 			CURLFORM_COPYCONTENTS,	o_assoc_handle,
 			CURLFORM_END);
-		syslog(LOG_DEBUG, "%25s : %s\n", "openid.assoc_handle", o_assoc_handle);
+		syslog(LOG_DEBUG, "%25s : %s", "openid.assoc_handle", o_assoc_handle);
 	}
 
 	if (GetHash(keys, "sig", 3, (void *) &o_sig)) {
@@ -784,7 +779,7 @@ void cmd_oidf(char *argbuf) {
 			CURLFORM_COPYNAME,	"openid.sig",
 			CURLFORM_COPYCONTENTS,	o_sig,
 			CURLFORM_END);
-			syslog(LOG_DEBUG, "%25s : %s\n", "openid.sig", o_sig);
+			syslog(LOG_DEBUG, "%25s : %s", "openid.sig", o_sig);
 	}
 
 	if (GetHash(keys, "signed", 6, (void *) &o_signed)) {
@@ -792,7 +787,7 @@ void cmd_oidf(char *argbuf) {
 			CURLFORM_COPYNAME,	"openid.signed",
 			CURLFORM_COPYCONTENTS,	o_signed,
 			CURLFORM_END);
-		syslog(LOG_DEBUG, "%25s : %s\n", "openid.signed", o_signed);
+		syslog(LOG_DEBUG, "%25s : %s", "openid.signed", o_signed);
 
 		num_signed_values = num_tokens(o_signed, ',');
 		for (i=0; i<num_signed_values; ++i) {
@@ -804,10 +799,10 @@ void cmd_oidf(char *argbuf) {
 						CURLFORM_COPYNAME,	k_o_keyname,
 						CURLFORM_COPYCONTENTS,	k_value,
 						CURLFORM_END);
-					syslog(LOG_DEBUG, "%25s : %s\n", k_o_keyname, k_value);
+					syslog(LOG_DEBUG, "%25s : %s", k_o_keyname, k_value);
 				}
 				else {
-					syslog(LOG_INFO, "OpenID: signed field '%s' is missing\n",
+					syslog(LOG_INFO, "OpenID: signed field '%s' is missing",
 						k_keyname);
 				}
 			}
@@ -843,7 +838,7 @@ void cmd_oidf(char *argbuf) {
 
 	res = curl_easy_perform(curl);
 	if (res) {
-		syslog(LOG_DEBUG, "cmd_oidf() libcurl error %d: %s\n", res, errmsg);
+		syslog(LOG_DEBUG, "cmd_oidf() libcurl error %d: %s", res, errmsg);
 	}
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
@@ -853,7 +848,7 @@ void cmd_oidf(char *argbuf) {
 	}
 	FreeStrBuf(&ReplyBuf);
 
-	syslog(LOG_DEBUG, "Authentication %s.\n", (oiddata->verified ? "succeeded" : "failed") );
+	syslog(LOG_DEBUG, "Authentication %s.", (oiddata->verified ? "succeeded" : "failed") );
 
 	/* Respond to the client */
 
@@ -863,11 +858,11 @@ void cmd_oidf(char *argbuf) {
 		if (CC->logged_in) {
 			if (attach_openid(&CC->user, oiddata->claimed_id) == 0) {
 				cprintf("attach\n");
-				syslog(LOG_DEBUG, "OpenID attach succeeded\n");
+				syslog(LOG_DEBUG, "OpenID attach succeeded");
 			}
 			else {
 				cprintf("fail\n");
-				syslog(LOG_DEBUG, "OpenID attach failed\n");
+				syslog(LOG_DEBUG, "OpenID attach failed");
 			}
 		}
 
@@ -884,7 +879,7 @@ void cmd_oidf(char *argbuf) {
 			if (login_via_openid(oiddata->claimed_id) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
-				syslog(LOG_DEBUG, "Logged in using previously claimed OpenID\n");
+				syslog(LOG_DEBUG, "Logged in using previously claimed OpenID");
 			}
 
 			/*
@@ -893,7 +888,7 @@ void cmd_oidf(char *argbuf) {
 			 */
 			else if (config.c_disable_newu) {
 				cprintf("fail\n");
-				syslog(LOG_DEBUG, "Creating user failed due to local policy\n");
+				syslog(LOG_DEBUG, "Creating user failed due to local policy");
 			}
 
 			/*
@@ -902,7 +897,7 @@ void cmd_oidf(char *argbuf) {
 			else if (openid_create_user_via_sreg(oiddata->claimed_id, keys) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
-				syslog(LOG_DEBUG, "Successfully auto-created new user\n");
+				syslog(LOG_DEBUG, "Successfully auto-created new user");
 			}
 
 			/*
@@ -919,7 +914,7 @@ void cmd_oidf(char *argbuf) {
 				else {
 					cprintf("\n");
 				}
-				syslog(LOG_DEBUG, "The desired Simple Registration name is already taken.\n");
+				syslog(LOG_DEBUG, "The desired Simple Registration name is already taken.");
 			}
 		}
 	}
