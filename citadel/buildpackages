@@ -100,7 +100,7 @@ EMAIL=citadel@outgesourced.org
 
 	;;
     sourcedist)
-	cd ..; tar --exclude .svn --exclude "debian/*" -chvzf citadel-$CITADEL_VERSION.tar.gz citadel-$CITADEL_VERSION/
+	cd ..; tar --exclude .gitignore --exclude "debian/*" -chvzf citadel-$CITADEL_VERSION.tar.gz citadel-$CITADEL_VERSION/
 	;;
 	*)
 		echo "Not yet implemented. we have: debian "

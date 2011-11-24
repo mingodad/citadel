@@ -101,7 +101,7 @@ EMAIL=citadel@outgesourced.org
 	;;
     sourcedist)
 	cd ..; tar --exclude .svn \
-	    --exclude "*svn*" \
+	    --exclude ".gitignore" \
 	    --exclude .libs \
 	    --exclude "*.lo" \
 	    --exclude "*.o" \
