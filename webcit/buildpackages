@@ -62,7 +62,7 @@ case $1 in
 	if test "$2" == "dfsg"; then
 	    NONDFSG=-"-exclude static/webcit_icons/openid-small.gif"
 	fi
-	cd ..; tar --exclude .svn --exclude "debian/*" $NONDFSG -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
+	cd ..; tar --exclude .gitignore --exclude "debian/*" $NONDFSG -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
 	;;
     i18n)
 	./webcit -G `pwd`/i18n_templatelist.c
