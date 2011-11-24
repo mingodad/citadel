@@ -622,10 +622,10 @@ void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDat
 	/** oh, we're brand new... */
 	if (Hash->LookupTable[HashAt] == NULL) {
 		InsertHashItem(Hash, HashAt, HashBinKey, HKey, HKLen, Data, DeleteIt);
-	}/** Insert After? */
+	}/** Insert Before? */
 	else if (Hash->LookupTable[HashAt]->Key > HashBinKey) {
 		InsertHashItem(Hash, HashAt, HashBinKey, HKey, HKLen, Data, DeleteIt);
-	}/** Insert before? */
+	}/** Insert After? */
 	else if (Hash->LookupTable[HashAt]->Key < HashBinKey) {
 		InsertHashItem(Hash, HashAt + 1, HashBinKey, HKey, HKLen, Data, DeleteIt);
 	}
@@ -769,7 +769,7 @@ int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
 		return 0;
 	}
 	/** GOTCHA! */
-	At->Position = Hash->LookupTable[HashAt]->Position;
+	At->Position = HashAt;
 	return 1;
 }
 

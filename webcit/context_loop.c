@@ -178,7 +178,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				&& (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password)))
 				&& (sptr->killthis == 0)
 			) {
-				syslog(LOG_DEBUG, "\033[32m-- matched a session with the same http-auth\033[0m");
+				syslog(LOG_DEBUG, "Matched a session with the same http-auth");
 				TheSession = sptr;
 			}
 			break;
@@ -187,14 +187,14 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 			if (	(Hdr->HR.desired_session != 0)
 				&& (sptr->wc_session == Hdr->HR.desired_session)
 			) {
-				syslog(LOG_DEBUG, "\033[32m-- matched a session with the same cookie\033[0m");
+				syslog(LOG_DEBUG, "Matched a session with the same cookie");
 				TheSession = sptr;
 			}
 			break;			     
 		case NO_AUTH:
 			/* Any unbound session is a candidate */
 			if ( (sptr->wc_session == 0) && (sptr->inuse == 0) ) {
-				syslog(LOG_DEBUG, "\033[32m-- reusing an unbound session\033[0m");
+				syslog(LOG_DEBUG, "Reusing an unbound session");
 				TheSession = sptr;
 			}
 			break;
@@ -202,7 +202,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 	}
 	CtdlLogResult(pthread_mutex_unlock(ListMutex));
 	if (TheSession == NULL) {
-		syslog(LOG_DEBUG, "\033[32m-- no existing session was matched\033[0m");
+		syslog(LOG_DEBUG, "No existing session was matched");
 	}
 	return TheSession;
 }
@@ -563,15 +563,6 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	}
 
 	/*
-	 * If a language was requested via a cookie, select that language now.
-	 */
-	if (StrLength(Hdr->c_language) > 0) {
-		syslog(9, "Session cookie requests language '%s'", ChrPtr(Hdr->c_language));
-		set_selected_language(ChrPtr(Hdr->c_language));
-		go_selected_language();
-	}
-
-	/*
 	 * Reject transactions which require http-auth, if http-auth was not provided
 	 */
 	if (	(StrLength(Hdr->c_username) == 0)
@@ -579,10 +570,9 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		&& (Hdr->HR.Handler != NULL)
 		&& ((XHTTP_COMMANDS & Hdr->HR.Handler->Flags) == XHTTP_COMMANDS)
 	) {
-		syslog(LOG_DEBUG, "\033[35m -- http-auth required but not provided\033[0m");
+		syslog(LOG_DEBUG, "http-auth required but not provided");
 		OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
 		Hdr->HR.prohibit_caching = 1;				
-		/* FIXME -- we have to clear the cookie here */
 	}
 
 	/*
@@ -600,8 +590,20 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->Hdr = Hdr;
 
+	/*
+	 * If a language was requested via a cookie, select that language now.
+	 */
+	if (StrLength(Hdr->c_language) > 0) {
+		syslog(LOG_DEBUG, "Session cookie requests language '%s'", ChrPtr(Hdr->c_language));
+		set_selected_language(ChrPtr(Hdr->c_language));
+		go_selected_language();
+	}
+
+	/*
+	 * do the transaction
+	 */
 	session_attach_modules(TheSession);
-	session_loop();				/* do transaction */
+	session_loop();
 
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
