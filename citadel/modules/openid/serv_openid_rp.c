@@ -698,9 +698,9 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 
 
 /*
- * Attempt to perform YADIS discovery.
+ * Attempt to perform Yadis discovery.
  * If successful, returns nonzero and fills the session's claimed ID blah FIXME this comment
- * If YADIS fails, returns 0 and does nothing else.
+ * If Yadis fails, returns 0 and does nothing else.
  */
 int perform_yadis_discovery(StrBuf *YadisURL) {
 	int docbytes = (-1);
@@ -708,8 +708,9 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	int r;
 	CURL *curl;
 	CURLcode result;
-	/*char *effective_url = NULL;*/
 	char errmsg[1024] = "";
+	struct curl_slist *my_headers = NULL;
+	/*char *effective_url = NULL;*/
 
 	if (YadisURL == NULL) return(0);
 	if (StrLength(YadisURL) == 0) return(0);
@@ -724,12 +725,17 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 
+	my_headers = curl_slist_append(my_headers, "Accept:");	/* disable the default Accept: header */
+	my_headers = curl_slist_append(my_headers, "Accept: application/xrds+xml");
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_headers);
+
 	result = curl_easy_perform(curl);
 	if (result) {
 		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
 	}
 	/*curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
 	StrBufPlain(YadisURL, effective_url, -1);*/
+	curl_slist_free_all(my_headers);
 	curl_easy_cleanup(curl);
 
 	docbytes = StrLength(ReplyBuf);
@@ -811,7 +817,7 @@ void cmd_oids(char *argbuf) {
 	 * So we're not even going to bother attempting this mode.
 	 */
 
-	/* Second we attempt YADIS.
+	/* Second we attempt Yadis.
 	 * Google uses this so we'd better do our best to implement it.
 	 */
 	int yadis_succeeded = perform_yadis_discovery(oiddata->claimed_id);
