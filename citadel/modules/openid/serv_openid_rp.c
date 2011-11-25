@@ -702,7 +702,7 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 
 /*
  * Callback function for perform_yadis_discovery()
- * We're interested in HTTP headers returned from the server.
+ * We're interested in the X-XRDS-Location: header.
  */
 size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata) {
 	char hdr[1024];
@@ -711,9 +711,6 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
 	memcpy(hdr, ptr, (size*nmemb));
 	hdr[size*nmemb] = 0;
 
-	/* We are looking for a header like this:
-	 * X-XRDS-Location: https://api.screenname.aol.com/auth/openid/xrds
-	 */
 	if (!strncasecmp(hdr, "X-XRDS-Location:", 16)) {
 		*x_xrds_location = NewStrBufPlain(&hdr[16], ((size*nmemb)-16));
 		StrBufTrim(*x_xrds_location);
@@ -731,7 +728,7 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
 int perform_yadis_discovery(StrBuf *YadisURL) {
 	int docbytes = (-1);
 	StrBuf *ReplyBuf = NULL;
-	int r;
+	int return_value = 0;
 	CURL *curl;
 	CURLcode result;
 	char errmsg[1024] = "";
@@ -739,6 +736,7 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	StrBuf *x_xrds_location = NULL;
 
 	if (YadisURL == NULL) return(0);
+	syslog(LOG_DEBUG, "perform_yadis_discovery(%s)", ChrPtr(YadisURL));
 	if (StrLength(YadisURL) == 0) return(0);
 
 	ReplyBuf = NewStrBuf ();
@@ -783,21 +781,25 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	 *
 	 * If the X-XRDS-Location header was delivered, we know about it at this point...
 	 */
-	if (x_xrds_location) {
-		syslog(LOG_DEBUG, "\033[31m FIXME \033[32m'%s'\033[0m", ChrPtr(x_xrds_location));
+	if (	(x_xrds_location)
+		&& (strcmp(ChrPtr(x_xrds_location), ChrPtr(YadisURL)))
+	) {
+		syslog(LOG_DEBUG, "X-XRDS-Location: %s ... recursing!", ChrPtr(x_xrds_location));
+		return_value = perform_yadis_discovery(x_xrds_location);
 		FreeStrBuf(&x_xrds_location);
 	}
 
 	/*
 	 * Option 4: the returned web page may *be* an XRDS document.  Try to parse it.
 	 */
-	r = 0;
-	if (docbytes >= 0) {
-		r = parse_xrds_document(ReplyBuf);
-		FreeStrBuf(&ReplyBuf);
+	else if (docbytes >= 0) {
+		return_value = parse_xrds_document(ReplyBuf);
 	}
 
-	return(r);
+	if (ReplyBuf != NULL) {
+		FreeStrBuf(&ReplyBuf);
+	}
+	return(return_value);
 }
 
 
