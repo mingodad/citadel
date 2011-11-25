@@ -599,6 +599,34 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 }
 
 
+
+struct xrds {
+	int foo;
+};
+
+
+void xrds_xml_start(void *data, const char *supplied_el, const char **attr) {
+	struct xrds *xrds = (struct xrds *) data;
+
+	syslog(LOG_DEBUG, "xrds_xml_start(%s) data=0x%x", supplied_el, (int)xrds);
+}
+
+
+void xrds_xml_end(void *data, const char *supplied_el) {
+	struct xrds *xrds = (struct xrds *) data;
+
+	syslog(LOG_DEBUG, "xrds_xml_end(%s) data=0x%x", supplied_el, (int)xrds);
+}
+
+
+void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
+	struct xrds *xrds = (struct xrds *) data;
+	
+	syslog(LOG_DEBUG, "xrds_xml_chardata() data=0x%x", (int)xrds);
+	/* StrBufAppendBufPlain (xrds->CData, s, len, 0); */
+}
+
+
 /*
  * Attempt to perform YADIS discovery.
  * If successful, returns nonzero and fills the session's claimed ID blah FIXME this comment
@@ -607,6 +635,9 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 int perform_yadis_discovery(StrBuf *YadisURL) {
 	int docbytes = (-1);
 	StrBuf *ReplyBuf = NULL;
+	struct xrds xrds;
+
+	memset(&xrds, 0, sizeof (struct xrds));
 
 	docbytes = fetch_http(YadisURL, &ReplyBuf);
 	if (docbytes < 0) {
@@ -622,6 +653,9 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	 */
 	XML_Parser xp = XML_ParserCreateNS(NULL, ':');
 	if (xp) {
+		XML_SetUserData(xp, &xrds);
+		XML_SetElementHandler(xp, xrds_xml_start, xrds_xml_end);
+		XML_SetCharacterDataHandler(xp, xrds_xml_chardata);
 		XML_Parse(xp, ChrPtr(ReplyBuf), docbytes, 0);
 		XML_Parse(xp, "", 0, 1);
 		XML_ParserFree(xp);
