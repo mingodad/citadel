@@ -706,6 +706,7 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
  */
 size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata) {
 	char hdr[1024];
+	char *x_xrds_location = (char *) userdata;
 
 	memcpy(hdr, ptr, (size*nmemb));
 	hdr[size*nmemb] = 0;
@@ -714,10 +715,8 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
 	 * X-XRDS-Location: https://api.screenname.aol.com/auth/openid/xrds
 	 */
 	if (!strncasecmp(hdr, "X-XRDS-Location:", 16)) {
-		safestrncpy(hdr, &hdr[16], sizeof(hdr));
-		striplt(hdr);
-		syslog(LOG_DEBUG, "\033[32m%s\033[0m", hdr);
-		/* FIXME now do something with it */
+		safestrncpy(x_xrds_location, &hdr[16], 1024);
+		striplt(x_xrds_location);
 	}
 
 	return(size * nmemb);
@@ -737,6 +736,7 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	CURLcode result;
 	char errmsg[1024] = "";
 	struct curl_slist *my_headers = NULL;
+	char x_xrds_location[1024] = "";
 
 	if (YadisURL == NULL) return(0);
 	if (StrLength(YadisURL) == 0) return(0);
@@ -755,7 +755,7 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	my_headers = curl_slist_append(my_headers, "Accept: application/xrds+xml");
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_headers);
 
-	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, NULL);
+	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, &x_xrds_location);
 	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, yadis_headerfunction);
 
 	result = curl_easy_perform(curl);
@@ -764,8 +764,8 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	}
 	curl_slist_free_all(my_headers);
 	curl_easy_cleanup(curl);
-
 	docbytes = StrLength(ReplyBuf);
+
 
 	/* FIXME here we need to handle Yadis 1.0 section 6.2.5.
 	 *
@@ -773,14 +773,20 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	 * 
 	 * Option 1: An HTML document with a <head> element that includes a <meta> element with http-equiv
 	 * attribute, X-XRDS-Location,
-	 * 
+	 */
+
+	/*
 	 * Option 2: HTTP response-headers that include an X-XRDS-Location response-header, together with a
 	 * document (NOTE: we can probably recurse for this)
 	 * 
 	 * Option 3:. HTTP response-headers only, which MAY include an X-XRDS-Location response-header,
 	 * a contenttype response-header specifying MIME media type, application/xrds+xml, or both.
-	 * 
+	 *
+	 * If the X-XRDS-Location was set, we know about it at this point...
 	 */
+	if (!IsEmptyStr(x_xrds_location)) {
+		syslog(LOG_DEBUG, "\033[31m FIXME \033[32m %s \033[0m", x_xrds_location);
+	}
 
 	/*
 	 * Option 4: the returned web page may *be* an XRDS document.  Try to parse it.
