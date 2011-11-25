@@ -699,6 +699,32 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 }
 
 
+
+/*
+ * Callback function for perform_yadis_discovery()
+ * We're interested in HTTP headers returned from the server.
+ */
+size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata) {
+	char hdr[1024];
+
+	memcpy(hdr, ptr, (size*nmemb));
+	hdr[size*nmemb] = 0;
+
+	/* We are looking for a header like this:
+	 * X-XRDS-Location: https://api.screenname.aol.com/auth/openid/xrds
+	 */
+	if (!strncasecmp(hdr, "X-XRDS-Location:", 16)) {
+		safestrncpy(hdr, &hdr[16], sizeof(hdr));
+		striplt(hdr);
+		syslog(LOG_DEBUG, "\033[32m%s\033[0m", hdr);
+		/* FIXME now do something with it */
+	}
+
+	return(size * nmemb);
+}
+
+
+
 /* Attempt to perform Yadis discovery as specified in Yadis 1.0 section 6.2.5.
  * If successful, returns nonzero and calls parse_xrds_document() to act upon the received data.
  * If Yadis fails, returns 0 and does nothing else.
@@ -728,6 +754,9 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	my_headers = curl_slist_append(my_headers, "Accept:");	/* disable the default Accept: header */
 	my_headers = curl_slist_append(my_headers, "Accept: application/xrds+xml");
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_headers);
+
+	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, NULL);
+	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, yadis_headerfunction);
 
 	result = curl_easy_perform(curl);
 	if (result) {
