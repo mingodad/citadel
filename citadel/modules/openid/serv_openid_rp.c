@@ -589,7 +589,7 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 {
 	StrBuf *ReplyBuf;
 	CURL *curl;
-	CURLcode res;
+	CURLcode result;
 	char *effective_url = NULL;
 	char errmsg[1024] = "";
 
@@ -598,18 +598,15 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 	if (ReplyBuf == 0) return(-1);
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
-	if (!curl) {
-		syslog(LOG_ALERT, "Unable to initialize libcurl.");
-		return(-1);
-	}
+	if (!curl) return(-1);
 
 	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 
-	res = curl_easy_perform(curl);
-	if (res) {
-		syslog(LOG_DEBUG, "libcurl error %d: %s", res, errmsg);
+	result = curl_easy_perform(curl);
+	if (result) {
+		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
 	}
 	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
 	StrBufPlain(url, effective_url, -1);
