@@ -666,6 +666,8 @@ void xrds_xml_end(void *data, const char *supplied_el) {
 
 void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
 	struct xrds *xrds = (struct xrds *) data;
+
+	if (xrds) ;	/* this is only here to silence the warning for now */
 	
 	/* StrBufAppendBufPlain (xrds->CData, s, len, 0); */
 }
@@ -693,13 +695,12 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 		syslog(LOG_ALERT, "Cannot create XML parser");
 	}
 
-	return(0);
+	return(0);	/* FIXME return nonzero if something wonderful happened */
 }
 
 
-/*
- * Attempt to perform Yadis discovery.
- * If successful, returns nonzero and fills the session's claimed ID blah FIXME this comment
+/* Attempt to perform Yadis discovery as specified in Yadis 1.0 section 6.2.5.
+ * If successful, returns nonzero and calls parse_xrds_document() to act upon the received data.
  * If Yadis fails, returns 0 and does nothing else.
  */
 int perform_yadis_discovery(StrBuf *YadisURL) {
@@ -710,7 +711,6 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	CURLcode result;
 	char errmsg[1024] = "";
 	struct curl_slist *my_headers = NULL;
-	/*char *effective_url = NULL;*/
 
 	if (YadisURL == NULL) return(0);
 	if (StrLength(YadisURL) == 0) return(0);
@@ -733,41 +733,35 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	if (result) {
 		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
 	}
-	/*curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
-	StrBufPlain(YadisURL, effective_url, -1);*/
 	curl_slist_free_all(my_headers);
 	curl_easy_cleanup(curl);
 
 	docbytes = StrLength(ReplyBuf);
-	if (docbytes < 0) {
-		return(0);
-	}
-	if (docbytes == 0) {
-		FreeStrBuf(&ReplyBuf);
-		return(0);
-	}
 
 	/* FIXME here we need to handle Yadis 1.0 section 6.2.5.
 	 *
 	 * The response from the server will be one of:
 	 * 
-	 * 1. An HTML document with a <head> element that includes a <meta> element with http-equiv
+	 * Option 1: An HTML document with a <head> element that includes a <meta> element with http-equiv
 	 * attribute, X-XRDS-Location,
 	 * 
-	 * 2. HTTP response-headers that include an X-XRDS-Location response-header, together with a
-	 * document
+	 * Option 2: HTTP response-headers that include an X-XRDS-Location response-header, together with a
+	 * document (NOTE: we can probably recurse for this)
 	 * 
-	 * 3. HTTP response-headers only, which MAY include an X-XRDS-Location response-header,
+	 * Option 3:. HTTP response-headers only, which MAY include an X-XRDS-Location response-header,
 	 * a contenttype response-header specifying MIME media type, application/xrds+xml, or both.
 	 * 
-	 * 4. A document of MIME media type, application/xrds+xml
-	 *
-	 * We are only handling case #4 here and assuming that the server returned an XRDS document.
 	 */
 
-	/* Parse the XRDS document. */ 
-	r = parse_xrds_document(ReplyBuf);
-	FreeStrBuf(&ReplyBuf);
+	/*
+	 * Option 4: the returned web page may *be* an XRDS document.  Try to parse it.
+	 */
+	r = 0;
+	if (docbytes >= 0) {
+		r = parse_xrds_document(ReplyBuf);
+		FreeStrBuf(&ReplyBuf);
+	}
+
 	return(r);
 }
 
