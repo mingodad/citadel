@@ -1,5 +1,5 @@
 /*
- * This is an implementation of OpenID 1.1 Relying Party support, in stateless mode.
+ * This is an implementation of OpenID 2.0 RELYING PARTY SUPPORT CURRENTLY B0RKEN AND BEING DEVEL0PZ0RED
  *
  * Copyright (c) 2007-2011 by the citadel.org team
  *
@@ -14,8 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "sysdep.h"
@@ -545,9 +544,6 @@ void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *sou
 
 /*
  * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
- *
- * If 'normalize_len' is nonzero, the caller is specifying the buffer size of 'url', and is
- * requesting that the effective (normalized) URL be copied back to it.
  */
 int fetch_http(StrBuf *url, StrBuf **target_buf)
 {
@@ -592,13 +588,40 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 	}
 	res = curl_easy_perform(curl);
 	if (res) {
-		syslog(LOG_DEBUG, "fetch_http() libcurl error %d: %s", res, errmsg);
+		syslog(LOG_DEBUG, "libcurl error %d: %s", res, errmsg);
 	}
 	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
 	StrBufPlain(url, effective_url, -1);
 	
 	curl_easy_cleanup(curl);
 	return StrLength(ReplyBuf);
+}
+
+
+/*
+ * Attempt to perform YADIS discovery.
+ * If successful, returns nonzero and fills the session's claimed ID blah FIXME this comment
+ * If YADIS fails, returns 0 and does nothing else.
+ */
+int perform_yadis_discovery(StrBuf *YadisURL) {
+	int docbytes = (-1);
+	StrBuf *ReplyBuf = NULL;
+
+	docbytes = fetch_http(YadisURL, &ReplyBuf);
+	if (docbytes < 0) {
+		return(0);
+	}
+	if (docbytes == 0) {
+		FreeStrBuf(&ReplyBuf);
+		return(0);
+	}
+
+	/* ok we have something here.  is it an XRDS document? */
+
+	/* FIXME finish this */
+
+	FreeStrBuf(&ReplyBuf);
+	return(0);
 }
 
 
@@ -613,7 +636,6 @@ void cmd_oids(char *argbuf) {
 	StrBuf *trust_root = NULL;
 	StrBuf *openid_delegate = NULL;
 	StrBuf *RedirectUrl = NULL;
-	int i;
 	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	ctdl_openid *oiddata;
 
@@ -629,6 +651,7 @@ void cmd_oids(char *argbuf) {
 
 	ArgBuf = NewStrBufPlain(argbuf, -1);
 
+	oiddata->verified = 0;
 	oiddata->claimed_id = NewStrBufPlain(NULL, StrLength(ArgBuf));
 	trust_root = NewStrBufPlain(NULL, StrLength(ArgBuf));
 	return_to = NewStrBufPlain(NULL, StrLength(ArgBuf));
@@ -636,13 +659,22 @@ void cmd_oids(char *argbuf) {
 	StrBufExtract_NextToken(oiddata->claimed_id, ArgBuf, &Pos, '|');
 	StrBufExtract_NextToken(return_to, ArgBuf, &Pos, '|');
 	StrBufExtract_NextToken(trust_root, ArgBuf, &Pos, '|');
-	
-	oiddata->verified = 0;
 
-	i = fetch_http(oiddata->claimed_id, &ReplyBuf);
-	syslog(LOG_DEBUG, "Normalized URL and Claimed ID is: %s", ChrPtr(oiddata->claimed_id));
-	if ((StrLength(ReplyBuf) > 0) && (i > 0)) {
+	syslog(LOG_DEBUG, "User-Supplied Identifier is: %s", ChrPtr(oiddata->claimed_id));
 
+
+	/********** OpenID 2.0 section 7.3 - Discovery **********/
+
+	/* First we're supposed to attempt XRI.  What the fuck is XRI and why do I care about it? */
+
+	/* Second we attempt YADIS.  Google uses this so we'd better do our best to implement it. */
+	int yadis_succeeded = perform_yadis_discovery(oiddata->claimed_id);
+
+	/* Third we attempt HTML-based discovery.  Here we go! */
+	if (	(yadis_succeeded == 0)
+		&& (fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
+		&& (StrLength(ReplyBuf) > 0)
+	) {
 		openid_delegate = NewStrBuf();
 		oiddata->server = NewStrBuf();
 		extract_link(oiddata->server, HKEY("openid.server"), ReplyBuf);
@@ -692,6 +724,7 @@ void cmd_oids(char *argbuf) {
 
 		return;
 	}
+
 	FreeStrBuf(&ArgBuf);
 	FreeStrBuf(&ReplyBuf);
 	FreeStrBuf(&return_to);
