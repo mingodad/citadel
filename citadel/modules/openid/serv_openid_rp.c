@@ -667,7 +667,6 @@ void xrds_xml_end(void *data, const char *supplied_el) {
 void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
 	struct xrds *xrds = (struct xrds *) data;
 	
-	syslog(LOG_DEBUG, "%2d xrds_xml_chardata()", xrds->nesting_level);
 	/* StrBufAppendBufPlain (xrds->CData, s, len, 0); */
 }
 
@@ -707,16 +706,33 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	int docbytes = (-1);
 	StrBuf *ReplyBuf = NULL;
 	int r;
+	CURL *curl;
+	CURLcode result;
+	/*char *effective_url = NULL;*/
+	char errmsg[1024] = "";
 
 	if (YadisURL == NULL) return(0);
 	if (StrLength(YadisURL) == 0) return(0);
 
+	ReplyBuf = NewStrBuf ();
+	if (ReplyBuf == 0) return(0);
 
+	curl = ctdl_openid_curl_easy_init(errmsg);
+	if (!curl) return(0);
 
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(YadisURL));
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 
+	result = curl_easy_perform(curl);
+	if (result) {
+		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
+	}
+	/*curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
+	StrBufPlain(YadisURL, effective_url, -1);*/
+	curl_easy_cleanup(curl);
 
-
-	docbytes = fetch_http(YadisURL, &ReplyBuf);
+	docbytes = StrLength(ReplyBuf);
 	if (docbytes < 0) {
 		return(0);
 	}
