@@ -42,6 +42,7 @@
 #include <string.h>
 #include <limits.h>
 #include <curl/curl.h>
+#include <expat.h>
 #include "ctdl_module.h"
 #include "config.h"
 #include "citserver.h"
@@ -616,9 +617,18 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 		return(0);
 	}
 
-	/* ok we have something here.  is it an XRDS document? */
-
-	/* FIXME finish this */
+	/* If we get to this point, something was retrieved.
+	 * Feed it to the XML parser to see if it's an XRDS document.
+	 */
+	XML_Parser xp = XML_ParserCreateNS(NULL, ':');
+	if (xp) {
+		XML_Parse(xp, ChrPtr(ReplyBuf), docbytes, 0);
+		XML_Parse(xp, "", 0, 1);
+		XML_ParserFree(xp);
+	}
+	else {
+		syslog(LOG_ALERT, "Cannot create XML parser");
+	}
 
 	FreeStrBuf(&ReplyBuf);
 	return(0);
@@ -665,9 +675,14 @@ void cmd_oids(char *argbuf) {
 
 	/********** OpenID 2.0 section 7.3 - Discovery **********/
 
-	/* First we're supposed to attempt XRI.  What the fuck is XRI and why do I care about it? */
+	/* First we're supposed to attempt XRI based resolution.
+	 * No one is using this, no one is asking for it, no one wants it.
+	 * So we're not even going to bother attempting this mode.
+	 */
 
-	/* Second we attempt YADIS.  Google uses this so we'd better do our best to implement it. */
+	/* Second we attempt YADIS.
+	 * Google uses this so we'd better do our best to implement it.
+	 */
 	int yadis_succeeded = perform_yadis_discovery(oiddata->claimed_id);
 
 	/* Third we attempt HTML-based discovery.  Here we go! */
