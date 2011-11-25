@@ -544,34 +544,23 @@ void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *sou
 
 
 /*
- * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
+ * Wrapper for curl_easy_init() that includes the options common to all calls
+ * used in this module. 
  */
-int fetch_http(StrBuf *url, StrBuf **target_buf)
-{
-	StrBuf *ReplyBuf;
+CURL *ctdl_openid_curl_easy_init(char *errmsg) {
 	CURL *curl;
-	CURLcode res;
-	char errmsg[1024] = "";
-	char *effective_url = NULL;
-
-	if (StrLength(url) <=0 ) return(-1);
-	ReplyBuf = *target_buf = NewStrBuf ();
-	if (ReplyBuf == 0) return(-1);
 
 	curl = curl_easy_init();
 	if (!curl) {
-		syslog(LOG_ALERT, "Unable to initialize libcurl.");
-		return(-1);
+		return(curl);
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
 
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
-
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+	if (errmsg) {
+		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+	}
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 #ifdef CURLOPT_HTTP_CONTENT_DECODING
 	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
@@ -579,6 +568,7 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 #endif
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
+
 	if (
 		(!IsEmptyStr(config.c_ip_addr))
 		&& (strcmp(config.c_ip_addr, "*"))
@@ -587,6 +577,36 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 	) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
+
+	return(curl);
+}
+
+
+/*
+ * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
+ */
+int fetch_http(StrBuf *url, StrBuf **target_buf)
+{
+	StrBuf *ReplyBuf;
+	CURL *curl;
+	CURLcode res;
+	char *effective_url = NULL;
+	char errmsg[1024] = "";
+
+	if (StrLength(url) <=0 ) return(-1);
+	ReplyBuf = *target_buf = NewStrBuf ();
+	if (ReplyBuf == 0) return(-1);
+
+	curl = ctdl_openid_curl_easy_init(errmsg);
+	if (!curl) {
+		syslog(LOG_ALERT, "Unable to initialize libcurl.");
+		return(-1);
+	}
+
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
+
 	res = curl_easy_perform(curl);
 	if (res) {
 		syslog(LOG_DEBUG, "libcurl error %d: %s", res, errmsg);
@@ -603,17 +623,29 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 struct xrds {
 	int nesting_level;
 	int in_xrd;
+	int current_service_priority;
+	int selected_service_priority;	/* more here later */
 };
 
 
 void xrds_xml_start(void *data, const char *supplied_el, const char **attr) {
 	struct xrds *xrds = (struct xrds *) data;
+	int i;
 
 	++xrds->nesting_level;
 
 	if (!strcasecmp(supplied_el, "XRD")) {
 		++xrds->in_xrd;
-		syslog(LOG_DEBUG, "*** XRD DOCUMENT BEGIN ***");
+		syslog(LOG_DEBUG, "*** XRD CONTAINER BEGIN ***");
+	}
+
+	else if (!strcasecmp(supplied_el, "service")) {
+		xrds->current_service_priority = 0;
+		for (i=0; attr[i] != NULL; i+=2) {
+			if (!strcasecmp(attr[i], "priority")) {
+				xrds->current_service_priority = atoi(attr[i+1]);
+			}
+		}
 	}
 }
 
@@ -625,7 +657,12 @@ void xrds_xml_end(void *data, const char *supplied_el) {
 
 	if (!strcasecmp(supplied_el, "XRD")) {
 		--xrds->in_xrd;
-		syslog(LOG_DEBUG, "*** XRD DOCUMENT END ***");
+		syslog(LOG_DEBUG, "*** XRD CONTAINER END ***");
+	}
+
+	else if (!strcasecmp(supplied_el, "service")) {
+		/* this is where we should evaluate the service and do stuff */
+		xrds->current_service_priority = 0;
 	}
 }
 
@@ -674,6 +711,13 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	StrBuf *ReplyBuf = NULL;
 	int r;
 
+	if (YadisURL == NULL) return(0);
+	if (StrLength(YadisURL) == 0) return(0);
+
+
+
+
+
 
 	docbytes = fetch_http(YadisURL, &ReplyBuf);
 	if (docbytes < 0) {
@@ -684,6 +728,25 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 		return(0);
 	}
 
+	/* FIXME here we need to handle Yadis 1.0 section 6.2.5.
+	 *
+	 * The response from the server will be one of:
+	 * 
+	 * 1. An HTML document with a <head> element that includes a <meta> element with http-equiv
+	 * attribute, X-XRDS-Location,
+	 * 
+	 * 2. HTTP response-headers that include an X-XRDS-Location response-header, together with a
+	 * document
+	 * 
+	 * 3. HTTP response-headers only, which MAY include an X-XRDS-Location response-header,
+	 * a contenttype response-header specifying MIME media type, application/xrds+xml, or both.
+	 * 
+	 * 4. A document of MIME media type, application/xrds+xml
+	 *
+	 * We are only handling case #4 here and assuming that the server returned an XRDS document.
+	 */
+
+	/* Parse the XRDS document. */ 
 	r = parse_xrds_document(ReplyBuf);
 	FreeStrBuf(&ReplyBuf);
 	return(r);
@@ -914,30 +977,11 @@ void cmd_oidf(char *argbuf) {
 	
 	ReplyBuf = NewStrBuf();
 
-	curl = curl_easy_init();
+	curl = ctdl_openid_curl_easy_init(errmsg);
 	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->server));
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
-	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-#ifdef CURLOPT_HTTP_CONTENT_DECODING
-	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
-	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
-#endif
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
-	if (
-		(!IsEmptyStr(config.c_ip_addr))
-		&& (strcmp(config.c_ip_addr, "*"))
-		&& (strcmp(config.c_ip_addr, "::"))
-		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
-	) {
-		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
-	}
 
 	res = curl_easy_perform(curl);
 	if (res) {
