@@ -635,8 +635,6 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 
 	CtdlFreeMessage(msg);
-
-	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
 	syslog(LOG_DEBUG, "Calling sieve2_execute()\n");
 	res = sieve2_execute(sieve2_context, &my);
