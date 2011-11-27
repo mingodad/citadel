@@ -396,7 +396,7 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 			p->Host = SendMsg->node;
 				
 			*pp = p;
-			pp = &p;
+			pp = &p->Next;
 		}
 		SendMsg->CXFlags   = SendMsg->CXFlags & F_DIRECT;
 	}
