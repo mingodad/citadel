@@ -1,5 +1,5 @@
 /*
- * This is an implementation of OpenID 1.1 Relying Party support, in stateless mode.
+ * This is an implementation of OpenID 2.0 RELYING PARTY SUPPORT CURRENTLY B0RKEN AND BEING DEVEL0PZ0RED
  *
  * Copyright (c) 2007-2011 by the citadel.org team
  *
@@ -14,8 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "sysdep.h"
@@ -43,6 +42,7 @@
 #include <string.h>
 #include <limits.h>
 #include <curl/curl.h>
+#include <expat.h>
 #include "ctdl_module.h"
 #include "config.h"
 #include "citserver.h"
@@ -544,44 +544,31 @@ void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *sou
 
 
 /*
- * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
- *
- * If 'normalize_len' is nonzero, the caller is specifying the buffer size of 'url', and is
- * requesting that the effective (normalized) URL be copied back to it.
+ * Wrapper for curl_easy_init() that includes the options common to all calls
+ * used in this module. 
  */
-int fetch_http(StrBuf *url, StrBuf **target_buf)
-{
-	StrBuf *ReplyBuf;
+CURL *ctdl_openid_curl_easy_init(char *errmsg) {
 	CURL *curl;
-	CURLcode res;
-	char errmsg[1024] = "";
-	char *effective_url = NULL;
-
-	if (StrLength(url) <=0 ) return(-1);
-	ReplyBuf = *target_buf = NewStrBuf ();
-	if (ReplyBuf == 0) return(-1);
 
 	curl = curl_easy_init();
 	if (!curl) {
-		syslog(LOG_ALERT, "Unable to initialize libcurl.");
-		return(-1);
+		return(curl);
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
 
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
-
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+	if (errmsg) {
+		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+	}
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 #ifdef CURLOPT_HTTP_CONTENT_DECODING
 	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
 	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
 #endif
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30);		/* die after 30 seconds */
+
 	if (
 		(!IsEmptyStr(config.c_ip_addr))
 		&& (strcmp(config.c_ip_addr, "*"))
@@ -590,15 +577,229 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 	) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
-	res = curl_easy_perform(curl);
-	if (res) {
-		syslog(LOG_DEBUG, "fetch_http() libcurl error %d: %s", res, errmsg);
+
+	return(curl);
+}
+
+
+/*
+ * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
+ */
+int fetch_http(StrBuf *url, StrBuf **target_buf)
+{
+	StrBuf *ReplyBuf;
+	CURL *curl;
+	CURLcode result;
+	char *effective_url = NULL;
+	char errmsg[1024] = "";
+
+	if (StrLength(url) <=0 ) return(-1);
+	ReplyBuf = *target_buf = NewStrBuf ();
+	if (ReplyBuf == 0) return(-1);
+
+	curl = ctdl_openid_curl_easy_init(errmsg);
+	if (!curl) return(-1);
+
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
+
+	result = curl_easy_perform(curl);
+	if (result) {
+		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
 	}
 	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
 	StrBufPlain(url, effective_url, -1);
 	
 	curl_easy_cleanup(curl);
 	return StrLength(ReplyBuf);
+}
+
+
+
+struct xrds {
+	int nesting_level;
+	int in_xrd;
+	int current_service_priority;
+	int selected_service_priority;	/* more here later */
+};
+
+
+void xrds_xml_start(void *data, const char *supplied_el, const char **attr) {
+	struct xrds *xrds = (struct xrds *) data;
+	int i;
+
+	++xrds->nesting_level;
+
+	if (!strcasecmp(supplied_el, "XRD")) {
+		++xrds->in_xrd;
+		syslog(LOG_DEBUG, "*** XRD CONTAINER BEGIN ***");
+	}
+
+	else if (!strcasecmp(supplied_el, "service")) {
+		xrds->current_service_priority = 0;
+		for (i=0; attr[i] != NULL; i+=2) {
+			if (!strcasecmp(attr[i], "priority")) {
+				xrds->current_service_priority = atoi(attr[i+1]);
+			}
+		}
+	}
+}
+
+
+void xrds_xml_end(void *data, const char *supplied_el) {
+	struct xrds *xrds = (struct xrds *) data;
+
+	--xrds->nesting_level;
+
+	if (!strcasecmp(supplied_el, "XRD")) {
+		--xrds->in_xrd;
+		syslog(LOG_DEBUG, "*** XRD CONTAINER END ***");
+	}
+
+	else if (!strcasecmp(supplied_el, "service")) {
+		/* this is where we should evaluate the service and do stuff */
+		xrds->current_service_priority = 0;
+	}
+}
+
+
+void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
+	struct xrds *xrds = (struct xrds *) data;
+
+	if (xrds) ;	/* this is only here to silence the warning for now */
+	
+	/* StrBufAppendBufPlain (xrds->CData, s, len, 0); */
+}
+
+
+/*
+ * Parse an XRDS document.
+ * If OpenID stuff is discovered, populate FIXME something and return nonzero
+ * If nothing useful happened, return 0.
+ */
+int parse_xrds_document(StrBuf *ReplyBuf) {
+	struct xrds xrds;
+
+	memset(&xrds, 0, sizeof (struct xrds));
+	XML_Parser xp = XML_ParserCreate(NULL);
+	if (xp) {
+		XML_SetUserData(xp, &xrds);
+		XML_SetElementHandler(xp, xrds_xml_start, xrds_xml_end);
+		XML_SetCharacterDataHandler(xp, xrds_xml_chardata);
+		XML_Parse(xp, ChrPtr(ReplyBuf), StrLength(ReplyBuf), 0);
+		XML_Parse(xp, "", 0, 1);
+		XML_ParserFree(xp);
+	}
+	else {
+		syslog(LOG_ALERT, "Cannot create XML parser");
+	}
+
+	return(0);	/* FIXME return nonzero if something wonderful happened */
+}
+
+
+
+/*
+ * Callback function for perform_yadis_discovery()
+ * We're interested in the X-XRDS-Location: header.
+ */
+size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata) {
+	char hdr[1024];
+	StrBuf **x_xrds_location = (StrBuf **) userdata;
+
+	memcpy(hdr, ptr, (size*nmemb));
+	hdr[size*nmemb] = 0;
+
+	if (!strncasecmp(hdr, "X-XRDS-Location:", 16)) {
+		*x_xrds_location = NewStrBufPlain(&hdr[16], ((size*nmemb)-16));
+		StrBufTrim(*x_xrds_location);
+	}
+
+	return(size * nmemb);
+}
+
+
+
+/* Attempt to perform Yadis discovery as specified in Yadis 1.0 section 6.2.5.
+ * If successful, returns nonzero and calls parse_xrds_document() to act upon the received data.
+ * If Yadis fails, returns 0 and does nothing else.
+ */
+int perform_yadis_discovery(StrBuf *YadisURL) {
+	int docbytes = (-1);
+	StrBuf *ReplyBuf = NULL;
+	int return_value = 0;
+	CURL *curl;
+	CURLcode result;
+	char errmsg[1024] = "";
+	struct curl_slist *my_headers = NULL;
+	StrBuf *x_xrds_location = NULL;
+
+	if (YadisURL == NULL) return(0);
+	syslog(LOG_DEBUG, "perform_yadis_discovery(%s)", ChrPtr(YadisURL));
+	if (StrLength(YadisURL) == 0) return(0);
+
+	ReplyBuf = NewStrBuf ();
+	if (ReplyBuf == 0) return(0);
+
+	curl = ctdl_openid_curl_easy_init(errmsg);
+	if (!curl) return(0);
+
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(YadisURL));
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
+
+	my_headers = curl_slist_append(my_headers, "Accept:");	/* disable the default Accept: header */
+	my_headers = curl_slist_append(my_headers, "Accept: application/xrds+xml");
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_headers);
+
+	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, &x_xrds_location);
+	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, yadis_headerfunction);
+
+	result = curl_easy_perform(curl);
+	if (result) {
+		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
+	}
+	curl_slist_free_all(my_headers);
+	curl_easy_cleanup(curl);
+	docbytes = StrLength(ReplyBuf);
+
+	/*
+	 * The response from the server will be one of:
+	 * 
+	 * Option 1: An HTML document with a <head> element that includes a <meta> element with http-equiv
+	 * attribute, X-XRDS-Location,
+	 */
+	/* FIXME handle this somehow */
+
+	/*
+	 * Option 2: HTTP response-headers that include an X-XRDS-Location response-header,
+	 *           together with a document.
+	 * Option 3: HTTP response-headers only, which MAY include an X-XRDS-Location response-header,
+	 *           a contenttype response-header specifying MIME media type,
+	 *           application/xrds+xml, or both.
+	 *
+	 * If the X-XRDS-Location header was delivered, we know about it at this point...
+	 */
+	if (	(x_xrds_location)
+		&& (strcmp(ChrPtr(x_xrds_location), ChrPtr(YadisURL)))
+	) {
+		syslog(LOG_DEBUG, "X-XRDS-Location: %s ... recursing!", ChrPtr(x_xrds_location));
+		return_value = perform_yadis_discovery(x_xrds_location);
+		FreeStrBuf(&x_xrds_location);
+	}
+
+	/*
+	 * Option 4: the returned web page may *be* an XRDS document.  Try to parse it.
+	 */
+	else if (docbytes >= 0) {
+		return_value = parse_xrds_document(ReplyBuf);
+	}
+
+	if (ReplyBuf != NULL) {
+		FreeStrBuf(&ReplyBuf);
+	}
+	return(return_value);
 }
 
 
@@ -613,7 +814,6 @@ void cmd_oids(char *argbuf) {
 	StrBuf *trust_root = NULL;
 	StrBuf *openid_delegate = NULL;
 	StrBuf *RedirectUrl = NULL;
-	int i;
 	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	ctdl_openid *oiddata;
 
@@ -629,6 +829,7 @@ void cmd_oids(char *argbuf) {
 
 	ArgBuf = NewStrBufPlain(argbuf, -1);
 
+	oiddata->verified = 0;
 	oiddata->claimed_id = NewStrBufPlain(NULL, StrLength(ArgBuf));
 	trust_root = NewStrBufPlain(NULL, StrLength(ArgBuf));
 	return_to = NewStrBufPlain(NULL, StrLength(ArgBuf));
@@ -636,13 +837,27 @@ void cmd_oids(char *argbuf) {
 	StrBufExtract_NextToken(oiddata->claimed_id, ArgBuf, &Pos, '|');
 	StrBufExtract_NextToken(return_to, ArgBuf, &Pos, '|');
 	StrBufExtract_NextToken(trust_root, ArgBuf, &Pos, '|');
-	
-	oiddata->verified = 0;
 
-	i = fetch_http(oiddata->claimed_id, &ReplyBuf);
-	syslog(LOG_DEBUG, "Normalized URL and Claimed ID is: %s", ChrPtr(oiddata->claimed_id));
-	if ((StrLength(ReplyBuf) > 0) && (i > 0)) {
+	syslog(LOG_DEBUG, "User-Supplied Identifier is: %s", ChrPtr(oiddata->claimed_id));
 
+
+	/********** OpenID 2.0 section 7.3 - Discovery **********/
+
+	/* First we're supposed to attempt XRI based resolution.
+	 * No one is using this, no one is asking for it, no one wants it.
+	 * So we're not even going to bother attempting this mode.
+	 */
+
+	/* Second we attempt Yadis.
+	 * Google uses this so we'd better do our best to implement it.
+	 */
+	int yadis_succeeded = perform_yadis_discovery(oiddata->claimed_id);
+
+	/* Third we attempt HTML-based discovery.  Here we go! */
+	if (	(yadis_succeeded == 0)
+		&& (fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
+		&& (StrLength(ReplyBuf) > 0)
+	) {
 		openid_delegate = NewStrBuf();
 		oiddata->server = NewStrBuf();
 		extract_link(oiddata->server, HKEY("openid.server"), ReplyBuf);
@@ -692,6 +907,7 @@ void cmd_oids(char *argbuf) {
 
 		return;
 	}
+
 	FreeStrBuf(&ArgBuf);
 	FreeStrBuf(&ReplyBuf);
 	FreeStrBuf(&return_to);
@@ -811,30 +1027,11 @@ void cmd_oidf(char *argbuf) {
 	
 	ReplyBuf = NewStrBuf();
 
-	curl = curl_easy_init();
+	curl = ctdl_openid_curl_easy_init(errmsg);
 	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->server));
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
-	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-#ifdef CURLOPT_HTTP_CONTENT_DECODING
-	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
-	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
-#endif
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
-	if (
-		(!IsEmptyStr(config.c_ip_addr))
-		&& (strcmp(config.c_ip_addr, "*"))
-		&& (strcmp(config.c_ip_addr, "::"))
-		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
-	) {
-		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
-	}
 
 	res = curl_easy_perform(curl);
 	if (res) {
