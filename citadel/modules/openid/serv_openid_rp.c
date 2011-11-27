@@ -843,17 +843,18 @@ void cmd_oids(char *argbuf) {
 
 	/********** OpenID 2.0 section 7.3 - Discovery **********/
 
-	/* First we're supposed to attempt XRI based resolution.
+	/* Section 7.3.1 says we have to attempt XRI based discovery.
 	 * No one is using this, no one is asking for it, no one wants it.
 	 * So we're not even going to bother attempting this mode.
 	 */
 
-	/* Second we attempt Yadis.
+	/* Section 7.3.2 specifies Yadis discovery.
 	 * Google uses this so we'd better do our best to implement it.
 	 */
 	int yadis_succeeded = perform_yadis_discovery(oiddata->claimed_id);
 
-	/* Third we attempt HTML-based discovery.  Here we go! */
+	/* Section 7.3.3 specifies HTML-based discovery which is similar to what we did in OpenID 1.1
+	 */
 	if (	(yadis_succeeded == 0)
 		&& (fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
 		&& (StrLength(ReplyBuf) > 0)
