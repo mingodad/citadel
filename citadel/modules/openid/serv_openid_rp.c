@@ -2,7 +2,7 @@
  * This is an implementation of OpenID 2.0 RELYING PARTY SUPPORT CURRENTLY B0RKEN AND BEING DEVEL0PZ0RED
 
 
-			OPENID2 BRANCH
+			OPENID2 BRANCH -- NEEDS TO BE MERGEZ0RED !!!!!!111
 
  *
  * Copyright (c) 2007-2011 by the citadel.org team
@@ -53,18 +53,19 @@
 #include "user_ops.h"
 
 typedef struct _ctdl_openid {
-	StrBuf *claimed_id;
-	StrBuf *server;
+	StrBuf *op_url;			/* OpenID Provider Endpoint URL */
+	StrBuf *claimed_id;		/* Claimed Identifier */
 	int verified;
 	HashList *sreg_keys;
 } ctdl_openid;
 
 void Free_ctdl_openid(ctdl_openid **FreeMe)
 {
-	if (*FreeMe == NULL)
+	if (*FreeMe == NULL) {
 		return;
+	}
+	FreeStrBuf(&(*FreeMe)->op_url);
 	FreeStrBuf(&(*FreeMe)->claimed_id);
-	FreeStrBuf(&(*FreeMe)->server);
 	DeleteHash(&(*FreeMe)->sreg_keys);
 	free(*FreeMe);
 	*FreeMe = NULL;
@@ -586,41 +587,6 @@ CURL *ctdl_openid_curl_easy_init(char *errmsg) {
 }
 
 
-/*
- * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
- */
-int fetch_http(StrBuf *url, StrBuf **target_buf)
-{
-	StrBuf *ReplyBuf;
-	CURL *curl;
-	CURLcode result;
-	char *effective_url = NULL;
-	char errmsg[1024] = "";
-
-	if (StrLength(url) <=0 ) return(-1);
-	ReplyBuf = *target_buf = NewStrBuf ();
-	if (ReplyBuf == 0) return(-1);
-
-	curl = ctdl_openid_curl_easy_init(errmsg);
-	if (!curl) return(-1);
-
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
-
-	result = curl_easy_perform(curl);
-	if (result) {
-		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
-	}
-	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
-	StrBufPlain(url, effective_url, -1);
-	
-	curl_easy_cleanup(curl);
-	return StrLength(ReplyBuf);
-}
-
-
-
 struct xrds {
 	int nesting_level;
 	int in_xrd;
@@ -735,6 +701,7 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
  * If fails, returns 0 and does nothing else.
  */
 int perform_openid2_discovery(StrBuf *YadisURL) {
+	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 	int docbytes = (-1);
 	StrBuf *ReplyBuf = NULL;
 	int return_value = 0;
@@ -810,12 +777,14 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	 */
 	if (return_value == 0) {
 		syslog(LOG_DEBUG, "Attempting HTML discovery");
-		StrBuf *foo = NewStrBuf();
-		extract_link(foo, HKEY("openid2.provider"), ReplyBuf);
-		if (StrLength(foo) > 0) {
-			syslog(LOG_DEBUG, "\033[31mHTML DISCO PROVIDER: %s\033[0m", ChrPtr(foo));
+		if (oiddata->op_url == NULL) {
+			oiddata->op_url = NewStrBuf();
 		}
-		FreeStrBuf(&foo);
+		extract_link(oiddata->op_url, HKEY("openid2.provider"), ReplyBuf);
+		if (StrLength(oiddata->op_url) > 0) {
+			syslog(LOG_DEBUG, "\033[31mHTML DISCO PROVIDER: %s\033[0m", ChrPtr(oiddata->op_url));
+			return_value = 1;
+		}
 	}
 
 	if (ReplyBuf != NULL) {
@@ -844,6 +813,7 @@ void cmd_oids(char *argbuf) {
 
 	CCC->openid_data = oiddata = malloc(sizeof(ctdl_openid));
 	if (oiddata == NULL) {
+		syslog(LOG_ALERT, "malloc() failed: %s", strerror(errno));
 		cprintf("%d malloc failed\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
@@ -875,71 +845,43 @@ void cmd_oids(char *argbuf) {
 	 */
 	discovery_succeeded = perform_openid2_discovery(oiddata->claimed_id);
 
-
-
-	/************ OPENID 1.1 **********/
-
-	if (	(fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
-		&& (StrLength(ReplyBuf) > 0)
-	) {
-		openid_delegate = NewStrBuf();
-		oiddata->server = NewStrBuf();
-		extract_link(oiddata->server, HKEY("openid.server"), ReplyBuf);
-		extract_link(openid_delegate, HKEY("openid.delegate"), ReplyBuf);
-
-		if (StrLength(oiddata->server) == 0) {
-			cprintf("%d There is no OpenID identity provider at this URL.\n", ERROR);
-			FreeStrBuf(&ArgBuf);
-			FreeStrBuf(&ReplyBuf);
-			FreeStrBuf(&return_to);
-			FreeStrBuf(&trust_root);
-			FreeStrBuf(&openid_delegate);
-			FreeStrBuf(&RedirectUrl);
-			return;
-		}
-
-		/* Empty delegate is legal; we just use the openid_url instead */
-		if (StrLength(openid_delegate) == 0) {
-			StrBufPlain(openid_delegate, SKEY(oiddata->claimed_id));
-		}
-
-		/* Assemble a URL to which the user-agent will be redirected. */
-
-		RedirectUrl = NewStrBufDup(oiddata->server);
-
-		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.mode=checkid_setup"
-						       "&openid.identity="), 0);
-		StrBufUrlescAppend(RedirectUrl, openid_delegate, NULL);
-
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
-		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
-
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.trust_root="), 0);
-		StrBufUrlescAppend(RedirectUrl, trust_root, NULL);
-
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.sreg.optional="), 0);
-		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
-
-		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
-		
-		FreeStrBuf(&ArgBuf);
-		FreeStrBuf(&ReplyBuf);
-		FreeStrBuf(&return_to);
-		FreeStrBuf(&trust_root);
-		FreeStrBuf(&openid_delegate);
-		FreeStrBuf(&RedirectUrl);
-
-		return;
+	/* Empty delegate is legal; we just use the openid_url instead */
+	if (StrLength(openid_delegate) == 0) {
+		StrBufPlain(openid_delegate, SKEY(oiddata->claimed_id));
 	}
 
+	if (StrLength(oiddata->op_url) == 0) {
+		cprintf("%d There is no OpenID identity provider at this URL.\n", ERROR);
+	}
+
+	else {
+
+		/* Assemble a URL to which the user-agent will be redirected. */
+	
+		RedirectUrl = NewStrBufDup(oiddata->op_url);
+	
+		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.mode=checkid_setup"
+					       	"&openid.identity="), 0);
+		StrBufUrlescAppend(RedirectUrl, openid_delegate, NULL);
+	
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
+		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
+	
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.trust_root="), 0);
+		StrBufUrlescAppend(RedirectUrl, trust_root, NULL);
+	
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.sreg.optional="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
+	
+		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
+	}
+	
 	FreeStrBuf(&ArgBuf);
 	FreeStrBuf(&ReplyBuf);
 	FreeStrBuf(&return_to);
 	FreeStrBuf(&trust_root);
 	FreeStrBuf(&openid_delegate);
 	FreeStrBuf(&RedirectUrl);
-
-	cprintf("%d Unable to fetch OpenID URL\n", ERROR);
 }
 
 
@@ -961,7 +903,7 @@ void cmd_oidf(char *argbuf) {
 		cprintf("%d run OIDS first.\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
-	if (StrLength(oiddata->server) == 0){
+	if (StrLength(oiddata->op_url) == 0){
 		cprintf("%d need a remote server to authenticate against\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
@@ -1052,7 +994,7 @@ void cmd_oidf(char *argbuf) {
 	ReplyBuf = NewStrBuf();
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->server));
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->op_url));
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
