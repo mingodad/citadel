@@ -1,5 +1,9 @@
 /*
  * This is an implementation of OpenID 2.0 RELYING PARTY SUPPORT CURRENTLY B0RKEN AND BEING DEVEL0PZ0RED
+
+
+			OPENID2 BRANCH
+
  *
  * Copyright (c) 2007-2011 by the citadel.org team
  *
