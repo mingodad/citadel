@@ -2368,9 +2368,8 @@ msgid "Select page: "
 msgstr ""
 
 #: ../../static/t/iconbar/edit.html:4 ../../static/t/iconbar/save.html:4
-#, fuzzy
 msgid "Customize the icon bar"
-msgstr "customise this menu"
+msgstr "Customise the icon bar"
 
 #: ../../static/t/iconbar/edit.html:11
 msgid "Display icons as:"
@@ -2703,9 +2702,8 @@ msgid "From host"
 msgstr ""
 
 #: ../../static/t/who/section.html:4
-#, fuzzy
 msgid "(kill)"
-msgstr " (mobile)"
+msgstr ""
 
 #: ../../static/t/who/list_static_header.html:1
 msgid "Users currently on"

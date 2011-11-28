@@ -223,7 +223,7 @@ msgstr ""
 #. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
-msgstr ""
+msgstr "Ошибка открытия"
 
 #: ../utils/setup.c:569
 msgid ""
@@ -233,7 +233,7 @@ msgstr ""
 
 #: ../utils/setup.c:577
 msgid "Would you like to automatically start Citadel at boot?\n"
-msgstr ""
+msgstr "Запускать автоматически Citadel при загрузке системы?\n"
 
 #: ../utils/setup.c:583
 msgid "Cannot create"
@@ -332,11 +332,11 @@ msgstr "Установка закончена. Можете перезагруз
 
 #: ../utils/setup.c:1279
 msgid "My System"
-msgstr ""
+msgstr "Моя система"
 
 #: ../utils/setup.c:1282
 msgid "US 800 555 1212"
-msgstr ""
+msgstr "US 800 555 1212"
 
 #: ../utils/setup.c:1368 ../utils/setup.c:1373
 msgid "setup: cannot append"
@@ -345,21 +345,23 @@ msgstr ""
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
 msgid "Citadel Setup"
-msgstr ""
+msgstr "Установка Citadel"
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
-msgstr ""
+msgstr "Указанная директория не существует"
 
 #: ../utils/setup.c:1473
 msgid ""
 "The Citadel service is still running.\n"
 "Please stop the service manually and run setup again."
 msgstr ""
+"Сервис Citadel запущен.\n"
+"Остановите сервис самостоятельно и запустите установку снова."
 
 #: ../utils/setup.c:1485
 msgid "Citadel setup program"
-msgstr ""
+msgstr "Программа установки Citadel"
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -367,7 +369,7 @@ msgstr ""
 
 #: ../utils/setup.c:1552 ../utils/setup.c:1554 ../utils/setup.c:1556
 msgid "Setting file permissions"
-msgstr ""
+msgstr "Установка разрешений файла"
 
 #~ msgid ""
 #~ "Please specify the IP address which the server should be listening to. If "

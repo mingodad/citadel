@@ -3126,7 +3126,7 @@ msgstr "Godkend sletning"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
 msgid "Are you sure you want to delete "
-msgstr "Er du sikker på du vil slette?"
+msgstr "Er du sikker på du vil slette? "
 
 #: ../../static/t/aide/display_ignetconf.html:4
 msgid "Network configuration"

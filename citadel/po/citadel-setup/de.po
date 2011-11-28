@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../utils/setup.c:119
 msgid "Citadel Home Directory"
-msgstr "Citadel Basis Directory"
+msgstr "Citadel Basis Verzeichnis"
 
 #: ../utils/setup.c:122
 msgid ""
@@ -28,6 +28,9 @@ msgid ""
 "specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n"
 msgstr ""
+"Geben Sie den vollen Pfad Ihrer Citadel Installation / Update an.\n"
+"Wenn Sie ein anderes Verzeichnis anstelle des Default-Werts\n"
+"angeben, starten Sie den Citadel-Server mit der Option '-h'.\n"
 
 #: ../utils/setup.c:128
 msgid ""
@@ -37,6 +40,11 @@ msgid ""
 "specify the -h flag to the server when you start it up.\n"
 "note that it may not have a leading /"
 msgstr ""
+"Geben Sie einen Unterordner für eine alternative Installation von Citadel "
+"an. Um den Default-Wert zu verwenden, lassen Sie das Feld leer.\n"
+"Wenn Sie ein anderes Verzeichnis als das Default angeben, müssen Sie den "
+"Server mit der Option '-h' starten.\n"
+"Den Pfad bitte ohne führendes '/' angeben."
 
 #: ../utils/setup.c:135
 msgid "Citadel administrator username:"
@@ -57,7 +65,7 @@ msgstr ""
 
 #: ../utils/setup.c:143
 msgid "Administrator password:"
-msgstr "Administrator-Passwort:"
+msgstr "Administrator Passwort:"
 
 #: ../utils/setup.c:145
 msgid ""
@@ -65,11 +73,14 @@ msgid ""
 "completes it will attempt to create the administrator user\n"
 "and set the password specified here.\n"
 msgstr ""
+"Bitte geben Sie ein Passwort für den System-Administrator an.\n"
+"Wennn das Setup abgeschlossen ist, wird der System-Administrator\n"
+"mit diesem Passwort angelegt.\n"
 
 #
 #: ../utils/setup.c:149
 msgid "Citadel User ID:"
-msgstr "Citadel Benutzer ID:"
+msgstr "Citadel Benutzer Kennung"
 
 #: ../utils/setup.c:151
 msgid ""
@@ -80,6 +91,12 @@ msgid ""
 "user ID here.  You may specify either a user name or a numeric\n"
 "UID.\n"
 msgstr ""
+"Citadel muss unter einer eigenen Benutzer-ID laufen. Üblicherweise\n"
+"lautet diese 'citadel', wenn Sie Citadel aber als öffentlicher BBS laufen "
+"lassen,\n"
+"nennen Sie die ID 'bbs' oder 'guest'. Der Server wird unter dieser ID "
+"ausgeführt.\n"
+"Geben Sie nun den Benutzernamen oder UID an.\n"
 
 #: ../utils/setup.c:158
 msgid "Listening address for the Citadel server:"
@@ -208,51 +225,51 @@ msgstr ""
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
-msgstr ""
+msgstr "Ja/Nein"
 
 #: ../utils/setup.c:300
 msgid "Yes"
-msgstr ""
+msgstr "Erlauben"
 
 #: ../utils/setup.c:300
 msgid "No"
-msgstr ""
+msgstr "Keine"
 
 #: ../utils/setup.c:346
 msgid "Press return to continue..."
-msgstr ""
+msgstr "Drücken Sie die Eingabetaste, um fortzufahren"
 
 #: ../utils/setup.c:364
 msgid "Important Message"
-msgstr ""
+msgstr "Wichtige Nachricht"
 
 #: ../utils/setup.c:379
 msgid "Error"
-msgstr ""
+msgstr "Fehler"
 
 #: ../utils/setup.c:459
 msgid "Adding service entry..."
-msgstr ""
+msgstr "Füge Serviceeintrag hinzu"
 
 #. Other errors might mean something really did go wrong.
 #. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
-msgstr ""
+msgstr "Kann nicht öffnen"
 
 #: ../utils/setup.c:569
 msgid ""
 "Citadel already appears to be configured to start at boot.\n"
 "Would you like to keep your boot configuration as is?\n"
-msgstr ""
+msgstr "Übersetzung überprüfen\n"
 
 #: ../utils/setup.c:577
 msgid "Would you like to automatically start Citadel at boot?\n"
-msgstr ""
+msgstr "Soll Citadel automatisch beim Systemstart gestartet werden?\n"
 
 #: ../utils/setup.c:583
 msgid "Cannot create"
-msgstr ""
+msgstr "Erstellen fehlgeschlagen"
 
 #: ../utils/setup.c:682
 #, c-format
@@ -261,10 +278,13 @@ msgid ""
 "connect incoming telnet sessions to Citadel, bypassing the\n"
 "host system login: prompt.  Would you like to do this?\n"
 msgstr ""
+"Setup kann den \"xinetd\" Dämon so konfigurieren,\n"
+"dass einkommende telnet-Verbindungen an dem\n"
+"Host System login vorbei zu Citadel durchgereicht werden.\n"
 
 #: ../utils/setup.c:740
 msgid "You appear to have the "
-msgstr ""
+msgstr "zur Zeit nicht übersetzt "
 
 #: ../utils/setup.c:742
 msgid ""
@@ -272,12 +292,17 @@ msgid ""
 "running on your system.  If you want Citadel mail\n"
 "connected with "
 msgstr ""
+" Email Programm\n"
+"läuft auf Ihrem System. Wenn Sie möchten das Citdael Mail\n"
+"sich zu %s "
 
 #: ../utils/setup.c:746
 msgid ""
 " you will have to manually integrate\n"
 "them.  It is preferable to disable "
 msgstr ""
+" verbindet, muss dies per Hand eingerichtet werden.\n"
+"Es wird empfohlen %s zu deaktivieren "
 
 #: ../utils/setup.c:749
 msgid ""
@@ -286,24 +311,30 @@ msgid ""
 "\n"
 "May we disable "
 msgstr ""
+"und Citadel's\n"
+"SMTP, POP3 und IMAP Dämon zu nutzen.\n"
+"\n"
+"Soll nun %s abgeschaltet werden? "
 
 #: ../utils/setup.c:753
 msgid ""
 "so that Citadel has access to ports\n"
 "25, 110, and 143?\n"
 msgstr ""
+"hat Citadel Zugriff auf Port\n"
+"25, 110 and 143?\n"
 
 #: ../utils/setup.c:863
 msgid "This is currently set to:"
-msgstr ""
+msgstr "Dies ist momentan eingestellt auf:"
 
 #: ../utils/setup.c:864
 msgid "Enter new value or press return to leave unchanged:"
-msgstr ""
+msgstr "Geben Sie einen neuen Wert ein oder drücken sie Enter:"
 
 #: ../utils/setup.c:1067 ../utils/setup.c:1072 ../utils/setup.c:1384
 msgid "setup: cannot open"
-msgstr ""
+msgstr "Setup: Kann nicht geöffnet werden."
 
 #: ../utils/setup.c:1175
 #, c-format
@@ -317,10 +348,18 @@ msgid ""
 "Do you want this module to be automatically disabled?\n"
 "\n"
 msgstr ""
+"\n"
+"/etc/nsswitch.conf ist so konfiguriert, dass das Modul 'db' für\n"
+"ein oder mehrere Dämonen zu nutzen. Dies ist auf den meisten Systemen\n"
+"nicht notwendig und kann zu einem Absturz des Citadel Servers führen,\n"
+"wenn dieser Emails in das Internet versendet.\n"
+"\n"
+"Möchten Sie dieses Modul automatisch deaktivieren?\n"
+"\n"
 
 #: ../utils/setup.c:1236 ../utils/setup.c:1252
 msgid "Setup finished"
-msgstr ""
+msgstr "Installation beendet."
 
 #: ../utils/setup.c:1237
 msgid ""
@@ -329,32 +368,38 @@ msgid ""
 "setup program now; otherwise, run './citadel'\n"
 "to log in.\n"
 msgstr ""
+"Die Installation von Citadel-Server ist abgeschlossen.\n"
+"Wenn Sie die WebCit Oberfläche nutzen wollen,\n"
+"starten Sie nun die Installation.\n"
+"Anderenfalls starten Sie './citadel' und loggen Sie sich ein.\n"
 
 #: ../utils/setup.c:1243
 msgid "Setup failed"
-msgstr ""
+msgstr "Installation fehlgeschlagen"
 
 #: ../utils/setup.c:1244
 msgid ""
 "Setup is finished, but the Citadel server failed to start.\n"
 "Go back and check your configuration.\n"
 msgstr ""
+"Installation beendet konnte aber Citadel server nicht starten.\n"
+"Bitte überprüfen sie ihre Einstellungen.\n"
 
 #: ../utils/setup.c:1253
 msgid "Setup is finished.  You may now start the server."
-msgstr ""
+msgstr "Installation beendet. Sie können den Server jetzt starten."
 
 #: ../utils/setup.c:1279
 msgid "My System"
-msgstr ""
+msgstr "Mein System"
 
 #: ../utils/setup.c:1282
 msgid "US 800 555 1212"
-msgstr ""
+msgstr "US 800 555 1212"
 
 #: ../utils/setup.c:1368 ../utils/setup.c:1373
 msgid "setup: cannot append"
-msgstr ""
+msgstr "Installation: kann nicht fortfahren"
 
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
@@ -363,13 +408,15 @@ msgstr "Citadel Setup"
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
-msgstr ""
+msgstr "Das Verzeichniss existiert nicht."
 
 #: ../utils/setup.c:1473
 msgid ""
 "The Citadel service is still running.\n"
 "Please stop the service manually and run setup again."
 msgstr ""
+"Der Citadel Dämon läuft bereits.\n"
+"Bitte stoppen Sie in per Hand und starten das Setup erneut."
 
 #: ../utils/setup.c:1485
 msgid "Citadel setup program"
@@ -377,11 +424,11 @@ msgstr "Citadel Setup Programm"
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
-msgstr ""
+msgstr "Diese Citadelinstallation ist zu alt um upgegradet zu werden."
 
 #: ../utils/setup.c:1552 ../utils/setup.c:1554 ../utils/setup.c:1556
 msgid "Setting file permissions"
-msgstr ""
+msgstr "Setze Datei Zugriffsrechte"
 
 #~ msgid ""
 #~ "Please specify the IP address which the server should be listening to. If "
@@ -408,8 +455,8 @@ msgstr ""
 #~ msgstr "LDAP"
 
 #~ msgid ""
-#~ "Do not change this option unless you are sure it is required, since "
-#~ "changing back requires a full reinstall of Citadel."
+#~ "Do not change this option unless you are sure it is required, since changing "
+#~ "back requires a full reinstall of Citadel."
 #~ msgstr ""
 #~ "Ändern Sie diese Option nur, falls Sie sich sicher sind, dass Sie sie "
 #~ "benötigen. Das Zurücksetzen dieser Option benötigt eine komplette "

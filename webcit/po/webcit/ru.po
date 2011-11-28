@@ -74,7 +74,7 @@ msgstr "Изменить имя хоста"
 #: ../../static/t/get_logged_in.html:47 ../../static/t/get_logged_in.html:62
 #: ../../static/t/aide/edituser/detailview.html:20
 msgid "User name:"
-msgstr "Имя:"
+msgstr "Имя пользователя:"
 
 #: ../../who.c:195
 msgid "Change user name"
@@ -159,15 +159,15 @@ msgstr ""
 
 #: ../../iconbar.c:328
 msgid "Iconbar Setting"
-msgstr ""
+msgstr "Настройка панели иконок"
 
 #: ../../calendar_tools.c:100
 msgid "Hour: "
-msgstr ""
+msgstr "Часы: "
 
 #: ../../calendar_tools.c:120
 msgid "Minute: "
-msgstr ""
+msgstr "Минуты: "
 
 #: ../../calendar_tools.c:191
 msgid "(status unknown)"
@@ -191,7 +191,7 @@ msgstr ""
 
 #: ../../calendar_tools.c:219
 msgid "(delegated)"
-msgstr ""
+msgstr "(делегировано)"
 
 #: ../../calendar_tools.c:222
 msgid "(completed)"
@@ -250,13 +250,13 @@ msgstr ""
 msgid "Prefered startpage"
 msgstr "Предпочитаемая стартовая странице"
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:154
 msgid "availability unknown"
-msgstr ""
+msgstr "доступность не известна"
 
 #: ../../availability.c:175
 msgid "free"
@@ -639,9 +639,8 @@ msgid "Journal"
 msgstr "Журнал"
 
 #: ../../roomviews.c:59
-#, fuzzy
 msgid "Drafts"
-msgstr "Дата"
+msgstr "Черновики"
 
 #: ../../roomviews.c:60
 msgid "Blog"
@@ -921,7 +920,7 @@ msgstr "Пароль не должен быть пустым"
 #: ../../blogview_renderer.c:64 ../../blogview_renderer.c:80
 #, c-format
 msgid "%d comments"
-msgstr ""
+msgstr "%d комментариев"
 
 #: ../../blogview_renderer.c:67 ../../blogview_renderer.c:83
 msgid "permalink"
@@ -1686,14 +1685,13 @@ msgid "Upload"
 msgstr "Загрузить"
 
 #: ../../static/t/edit_message/section_attach_select.html:4
-#, fuzzy
 msgid "Remove"
-msgstr "Переместить"
+msgstr "Удалить"
 
 #: ../../static/t/msg_listselector_bottom.html:2
 #: ../../static/t/msg_listselector_top.html:2
 msgid "Reading #"
-msgstr ""
+msgstr "Чтение #"
 
 #: ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
@@ -1724,14 +1722,12 @@ msgid ""
 msgstr ""
 
 #: ../../static/t/room/display_private.html:14
-#, fuzzy
 msgid "Enter room name:"
-msgstr "Изменить название комнаты"
+msgstr "Введите название комнаты:"
 
 #: ../../static/t/room/display_private.html:21
-#, fuzzy
 msgid "Enter room password:"
-msgstr "Введите новый пароль:"
+msgstr "Введите пароль комнаты:"
 
 #: ../../static/t/room/zap_this.html:3
 msgid "Zap (forget/unsubscribe) the current room"
@@ -1760,7 +1756,7 @@ msgstr "Администрация"
 
 #: ../../static/t/room/edit.html:6 ../../static/t/room/edit/editroom.html:5
 msgid "Configuration"
-msgstr ""
+msgstr "Конфигурация"
 
 #: ../../static/t/room/edit.html:7 ../../static/t/room/edit/editroom.html:6
 #, fuzzy
@@ -1786,12 +1782,11 @@ msgstr ""
 #: ../../static/t/room/create.html:11
 #: ../../static/t/menu/advanced_roomcommands.html:6
 msgid "Create a new room"
-msgstr ""
+msgstr "Создать комнату"
 
 #: ../../static/t/room/create.html:18
-#, fuzzy
 msgid "Name of room: "
-msgstr "Количество комнат"
+msgstr "Имя комнаты: "
 
 #: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
@@ -1804,9 +1799,8 @@ msgstr ""
 
 #: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
-#, fuzzy
 msgid "Type of room:"
-msgstr "Количество комнат"
+msgstr "Тип комнаты:"
 
 #: ../../static/t/room/create.html:73
 #: ../../static/t/room/edit/tab_config.html:22
@@ -1871,12 +1865,11 @@ msgstr ""
 #: ../../static/t/room/edit/digestrecp_removal.html:1
 #: ../../static/t/room/edit/rssclient_removal.html:5
 msgid "(remove)"
-msgstr ""
+msgstr "(удалить)"
 
 #: ../../static/t/room/edit/tab_config.html:6
-#, fuzzy
 msgid "name of room: "
-msgstr "Количество комнат"
+msgstr "имя комнаты: "
 
 #: ../../static/t/room/edit/tab_config.html:55
 msgid "If private, cause current users to forget room"
@@ -1910,7 +1903,7 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_config.html:91
 msgid "Downloading allowed"
-msgstr ""
+msgstr "Загрузка разрешена"
 
 #: ../../static/t/room/edit/tab_config.html:96
 msgid "Visible directory"
@@ -1965,24 +1958,22 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_feed.html:13
 #: ../../static/t/who/box_list_static.html:6 ../../static/t/who/summary.html:5
-#, fuzzy
 msgid "User name"
-msgstr "Имя:"
+msgstr "Имя пользователя"
 
 #: ../../static/t/room/edit/tab_feed.html:14
 #: ../../static/t/aide/edituser/detailview.html:24
-#, fuzzy
 msgid "Password"
-msgstr "Пароль:"
+msgstr "Пароль"
 
 #: ../../static/t/room/edit/tab_feed.html:15
-#, fuzzy
+
 msgid "Keep messages on server?"
-msgstr "Сообщение небыло перемещено."
+msgstr "Сохранять сообщения на сервере?"
 
 #: ../../static/t/room/edit/tab_feed.html:16
 msgid "Interval"
-msgstr ""
+msgstr "Интервал"
 
 #: ../../static/t/room/edit/tab_feed.html:31
 msgid "Fetch the following RSS feeds and store them in this room:"
@@ -2006,12 +1997,11 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_access.html:26
 msgid "Invite:"
-msgstr ""
+msgstr "Приглашение:"
 
 #: ../../static/t/room/edit/tab_access.html:35
-#, fuzzy
 msgid "Users"
-msgstr "Новый пользователь"
+msgstr "Пользователи"
 
 #: ../../static/t/room/edit/tab_expire.html:8
 msgid "Message expire policy for this room"
@@ -2057,7 +2047,7 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_expire.html:42
 msgid "Use the system default"
-msgstr ""
+msgstr "Использовать значения по умолчанию"
 
 #: ../../static/t/room/edit/tab_share.html:5
 msgid "Shared with"
@@ -2081,9 +2071,8 @@ msgstr "Название комнаты:"
 
 #: ../../static/t/room/edit/tab_share.html:13
 #: ../../static/t/room/edit/tab_share.html:23
-#, fuzzy
 msgid "Actions"
-msgstr "содержит"
+msgstr "Действия"
 
 #: ../../static/t/room/edit/tab_share.html:35
 msgid ""
@@ -2096,9 +2085,8 @@ msgid ""
 msgstr ""
 
 #: ../../static/t/room/edit/tab_admin.html:5
-#, fuzzy
 msgid "Delete this room"
-msgstr "Удалить скрипт:"
+msgstr "Удалить комнату"
 
 #: ../../static/t/room/edit/tab_admin.html:10
 msgid "Set or change the icon for this rooms banner"
@@ -2298,7 +2286,7 @@ msgstr ""
 #: ../../static/t/view_message/list_attach.html:4
 #: ../../static/t/view_message/inline_attach.html:5
 msgid "Download"
-msgstr ""
+msgstr "Скачать"
 
 #: ../../static/t/view_message/replyquote.html:3
 #: ../../static/t/view_message/replyquote.html:7
@@ -2416,15 +2404,15 @@ msgstr "Отображаемое имя:"
 
 #: ../../static/t/iconbar/edit.html:12
 msgid "pictures and text"
-msgstr ""
+msgstr "картинки и текст"
 
 #: ../../static/t/iconbar/edit.html:13
 msgid "pictures only"
-msgstr ""
+msgstr "только картинки"
 
 #: ../../static/t/iconbar/edit.html:14
 msgid "text only"
-msgstr ""
+msgstr "только текст"
 
 #: ../../static/t/iconbar/edit.html:16
 msgid ""
@@ -2441,7 +2429,7 @@ msgstr ""
 #: ../../static/t/prefs/box.html:198
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: ../../static/t/iconbar/edit.html:20 ../../static/t/iconbar/edit.html:27
 #: ../../static/t/iconbar/edit.html:33 ../../static/t/iconbar/edit.html:40
@@ -2452,11 +2440,11 @@ msgstr ""
 #: ../../static/t/prefs/box.html:200
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
 msgid "No"
-msgstr ""
+msgstr "Нет"
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "Site logo"
-msgstr ""
+msgstr "Логотип сайта"
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "An icon describing this site"
@@ -2507,7 +2495,7 @@ msgstr ""
 
 #: ../../static/t/iconbar/edit.html:73
 msgid "Who is online?"
-msgstr ""
+msgstr "Кто онлайн?"
 
 #: ../../static/t/iconbar/edit.html:73
 msgid "Clicking this icon displays a list of all users currently logged in."
@@ -2525,7 +2513,7 @@ msgstr ""
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Advanced options"
-msgstr ""
+msgstr "Расширенные настройки"
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Access to the complete menu of Citadel functions."
@@ -2555,9 +2543,8 @@ msgstr ""
 
 #: ../../static/t/login.html:15 ../../static/t/get_logged_in.html:54
 #: ../../static/t/get_logged_in.html:78 ../../static/t/iconbar.html:88
-#, fuzzy
 msgid "Log in"
-msgstr "Войти снова"
+msgstr "Вход"
 
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
@@ -2707,9 +2694,8 @@ msgid "Summary of my account"
 msgstr ""
 
 #: ../../static/t/menu/basic_commands.html:18
-#, fuzzy
 msgid "User list"
-msgstr "Список папок"
+msgstr "Список пользователей"
 
 #: ../../static/t/menu/basic_commands.html:18
 #, fuzzy
@@ -2747,9 +2733,8 @@ msgid "Manage your OpenIDs"
 msgstr "Ваш OpenID"
 
 #: ../../static/t/who/box_list_static.html:7 ../../static/t/who/summary.html:6
-#, fuzzy
 msgid "Room"
-msgstr "Комнаты"
+msgstr "Комната"
 
 #: ../../static/t/who/box_list_static.html:8
 #, fuzzy
@@ -2810,13 +2795,12 @@ msgid "Description"
 msgstr "Описание"
 
 #: ../../static/t/loggedinas.html:3
-#, fuzzy
 msgid "Logged in as"
-msgstr "Войти снова"
+msgstr "Вы вошли как"
 
 #: ../../static/t/loggedinas.html:6
 msgid "Not logged in."
-msgstr ""
+msgstr "Вход не выполнен."
 
 #: ../../static/t/floors_edit_one.html:11
 msgid "(delete floor)"
@@ -2949,14 +2933,12 @@ msgid "24 hour"
 msgstr "часа(ов)"
 
 #: ../../static/t/prefs/box.html:152
-#, fuzzy
 msgid "Sunday"
-msgstr "дня(ей)"
+msgstr "Воскресенье"
 
 #: ../../static/t/prefs/box.html:153
-#, fuzzy
 msgid "Monday"
-msgstr "дня(ей)"
+msgstr "Понедельник"
 
 #: ../../static/t/prefs/box.html:174
 #, fuzzy
@@ -2994,7 +2976,7 @@ msgstr "Выберите файл для загрузки:"
 
 #: ../../static/t/files/section_onefile.html:20
 msgid "Slideshow"
-msgstr ""
+msgstr "Слайд-шоу"
 
 #: ../../static/t/msg/confirm_move.html:4
 msgid "Confirm move of message"
@@ -3067,23 +3049,20 @@ msgid "Port number"
 msgstr "Номер этажа"
 
 #: ../../static/t/aide/ignetconf/section.html:4
-#, fuzzy
 msgid "(Edit)"
-msgstr "Выход"
+msgstr "(редактировать)"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
-#, fuzzy
 msgid "Confirm delete"
-msgstr "Запрос на подтверждение послан"
+msgstr "Подтвердить удаление"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
-#, fuzzy
 msgid "Are you sure you want to delete "
-msgstr "Вы действительно хотите удалить OpenID?"
+msgstr "Вы действительно хотите удалить "
 
 #: ../../static/t/aide/display_ignetconf.html:4
 msgid "Network configuration"
-msgstr ""
+msgstr "Настройка сети"
 
 #: ../../static/t/aide/display_ignetconf.html:14
 msgid "Currently configured nodes"
@@ -3102,9 +3081,8 @@ msgid "Return to menu"
 msgstr ""
 
 #: ../../static/t/aide/restart.html:2
-#, fuzzy
 msgid "Restart Now"
-msgstr "Неделя начинается с:"
+msgstr "Перезагрузить сейчас"
 
 #: ../../static/t/aide/restart.html:3
 msgid "Restart after paging users"

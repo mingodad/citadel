@@ -1798,12 +1798,12 @@ msgstr "Új szoba létrehozása"
 
 #: ../../static/t/room/create.html:18
 msgid "Name of room: "
-msgstr "Szoba neve:"
+msgstr "Szoba neve: "
 
 #: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
-msgstr "Ezen a szinten van:"
+msgstr "Ezen a szinten van: "
 
 #: ../../static/t/room/create.html:32
 msgid "Default view for room: "
@@ -1827,7 +1827,7 @@ msgstr "Privát - rejtett (elérhető mindenkinek, aki tudja a nevét)"
 #: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
-msgstr "Privát - jelszót igényel:"
+msgstr "Privát - jelszót igényel: "
 
 #: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
@@ -1875,7 +1875,7 @@ msgstr "Önkiszolgáló előfizetés/lemondás engedélyezése."
 
 #: ../../static/t/room/edit/tab_listserv.html:65
 msgid "The URL for subscribe/unsubscribe is: "
-msgstr "Az előfizetés/lemondás URL:"
+msgstr "Az előfizetés/lemondás URL: "
 
 #: ../../static/t/room/edit/listrecp_removal.html:1
 #: ../../static/t/room/edit/pop3client_removal.html:9
@@ -1911,7 +1911,7 @@ msgstr "Fájl mappa szoba"
 
 #: ../../static/t/room/edit/tab_config.html:80
 msgid "Directory name: "
-msgstr "Könyvtár neve:"
+msgstr "Könyvtár neve: "
 
 #: ../../static/t/room/edit/tab_config.html:86
 msgid "Uploading allowed"

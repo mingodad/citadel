@@ -20,7 +20,7 @@ msgstr ""
 
 #: ../utils/setup.c:119
 msgid "Citadel Home Directory"
-msgstr ""
+msgstr "Hlavní adresář Citadely"
 
 #: ../utils/setup.c:122
 msgid ""
@@ -29,6 +29,10 @@ msgid ""
 "specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n"
 msgstr ""
+"Napište prosím celou cestu k adresáři, ve kterém chcete instalaci\n"
+"Citadely vytvořit nebo aktualizovat. Pokud nastavíte jiný adresář,\n"
+"než je výchozí, musíte nastavit i flag -h na serveru, kde budete vše "
+"spouštět.\n"
 
 #: ../utils/setup.c:128
 msgid ""
@@ -38,10 +42,15 @@ msgid ""
 "specify the -h flag to the server when you start it up.\n"
 "note that it may not have a leading /"
 msgstr ""
+"Zadejte podadresář pro alternativní instalaci Citadely. Pro porvedení "
+"výchozí instalace, toto pole nevyplňujte. Pokud zvolíte jiný adresář než "
+"výchozí, budete muset\n"
+"zadat volbu -h při spouštění serveru.\n"
+"Toto pole nemusí obsahovat úvodní lomítko"
 
 #: ../utils/setup.c:135
 msgid "Citadel administrator username:"
-msgstr "Uživatelské jméno správce Citadel:"
+msgstr "Uživatelské jméno správce Citadely:"
 
 #: ../utils/setup.c:137
 msgid ""
@@ -50,9 +59,9 @@ msgid ""
 "this user account will be created if it does not exist. For external "
 "authentication this user account has to exist."
 msgstr ""
-"Zadejte jméno uživatelského účtu Citadel, který bude mít správcovská "
-"oprávnění. Používáte-li interní autentizaci Citadel, bude uživatelský účet v "
-"případě potřeby vytvořen. Pokud používáte externí autentizaci, musí již "
+"Zadejte jméno uživatelského účtu Citadely, který bude mít správcovská "
+"oprávnění. Používáte-li interní autentizaci Citadely, bude uživatelský účet "
+"v případě potřeby vytvořen. Pokud používáte externí autentizaci, musí již "
 "uživatelský účet existovat."
 
 #: ../utils/setup.c:143
@@ -65,10 +74,13 @@ msgid ""
 "completes it will attempt to create the administrator user\n"
 "and set the password specified here.\n"
 msgstr ""
+"Zadejte heslo pro systémového administrátora. Až bude\n"
+"instalace hotová, Citadela vytvoří účet správce\n"
+"a přidělí mu heslo zde zadané.\n"
 
 #: ../utils/setup.c:149
 msgid "Citadel User ID:"
-msgstr ""
+msgstr "ID uživatele Citadely:"
 
 #: ../utils/setup.c:151
 msgid ""
@@ -79,10 +91,16 @@ msgid ""
 "user ID here.  You may specify either a user name or a numeric\n"
 "UID.\n"
 msgstr ""
+"Citadela musí běžet pod svým vlastním uživatelským ID. To je\n"
+"obvykle nazváno \"citadel\", avšak provozujete-li Citadelu\n"
+"jako veřejné BBS, můžete jej nazvat také \"bbs\" nebo \"guest\".\n"
+"Server bude běžet pod tímto ID. Upřesněte zde prosím toto\n"
+"uživatelské ID. Můžete napsat uživatelské jméno nebo použít\n"
+"číselné UID.\n"
 
 #: ../utils/setup.c:158
 msgid "Listening address for the Citadel server:"
-msgstr "IP adresa, na které má Citadel naslouchat:"
+msgstr "IP adresa, na které má Citadela naslouchat:"
 
 #: ../utils/setup.c:160
 msgid ""
@@ -93,10 +111,18 @@ msgid ""
 "listen on all addresses. This can usually be left to the default unless "
 "multiple instances of Citadel are running on the same computer."
 msgstr ""
+"Upřesněte prosím adresu, na které by měl server naslouchat. Můžete zadat "
+"IPv4 nebo IPv6 adresu, nebo můžete\n"
+"použít '*' pro jakoukoli adresu, '::' pro libovolnou IPv6 adresu, nebo "
+"'0.0.0.0'\n"
+"pro libovolnou IPv4 adresu. Pokud toto pole zanecháte prázdné, bude "
+"Citadela\n"
+"naslouchat na všech adresách. Toto pole může být obvykle přeskočeno, ledaže "
+"by na stejném počítači běželo více instancí Citadely."
 
 #: ../utils/setup.c:168
 msgid "Server port number:"
-msgstr ""
+msgstr "Serverové číslo portu:"
 
 #: ../utils/setup.c:170
 msgid ""
@@ -107,10 +133,15 @@ msgid ""
 "of Citadel on the same computer and there is something else\n"
 "already using port 504.\n"
 msgstr ""
+"Upřesněte číslo TCP portu, na kterém server poběží.\n"
+"Obvykle je jím port 504, který IANA oficiálně přidělila\n"
+"Citadelím serverům. Jiný port budete muset zadat\n"
+"pouze, pokud na stejném počítači běží více instancí\n"
+"Citadely a některý z nich již port 504 používá.\n"
 
 #: ../utils/setup.c:177
 msgid "Authentication method to use:"
-msgstr ""
+msgstr "Použitá metoda ověření:"
 
 #: ../utils/setup.c:179
 msgid ""
@@ -130,6 +161,22 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
+"Zvolte prosím způsob ověření uživatele. Obyčejně Citadela používá vlastní "
+"vnitří databázi uživatelských účtů. Pokud zvolíte Hostitele, uživatelé "
+"Citadely budou mít účet na hostitelském systému, ověřováni přes /etc/passwd "
+"nebo zdroj PAM. LDAP vybírá RFC 2307 kompatibilní server, poslední volba "
+"vybírá nestandardní MS Active Directory LDAP.\n"
+"Neměňte tuto volbu, nejste-li si jisti, že je to nutné, jelikož zpětná změna "
+"vyžaduje přeinstalování Citadely.\n"
+" 0. Vlastní ověřování\n"
+" 1. Ověřování u hostitele\n"
+" 2. Vnější LDAP (RFC 2307)\n"
+" 3. Vnější LDAM (nestandardní MS Active Directory)\n"
+"\n"
+"Nápovědu naleznete na "
+"http://www.citadel.org/doku.php/faq:installation:authmodes\n"
+"\n"
+"Odpovězte \"0\", ledaže otázce zcela rozumíte\n"
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -137,15 +184,15 @@ msgstr "LDAP server:"
 
 #: ../utils/setup.c:199
 msgid "Please enter the host name or IP address of your LDAP server.\n"
-msgstr ""
+msgstr "Vložte prosím jméno hostitele nebo IP adresu Vašeho LDAP serveru.\n"
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
-msgstr "LDAP port:"
+msgstr "Číslo LDAP portu:"
 
 #: ../utils/setup.c:203
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
-msgstr ""
+msgstr "Zadejte prosím číslo portu LDAP (obvykle 389)\n"
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
@@ -156,6 +203,8 @@ msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
+"Zadejte prosím Základní DN (Base DN) k vyhledávání ověření\n"
+"(Např.: dc=example,dc=com)\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
@@ -171,6 +220,9 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
+"Zadejte prosím DN účtu k připojení k LDAP serveru při zasílání dotazů. Tento "
+"účet nemusí mít žádná jiná práva. Pokud Váš LDAP server povoluje anonymní "
+"dotazy, můžete nechat toto pole nevyplněné.\n"
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
@@ -182,54 +234,59 @@ msgid ""
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
+"Pokud jste v předchozí otázce zadali DN účtu, musíte nyní zadat\n"
+"heslo k tomuto účtu. V opačném případě můžete necat toto pole\n"
+"prázdné.\n"
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
-msgstr ""
+msgstr "Ano/Ne"
 
 #: ../utils/setup.c:300
 msgid "Yes"
-msgstr ""
+msgstr "Ano"
 
 #: ../utils/setup.c:300
 msgid "No"
-msgstr ""
+msgstr "Ne"
 
 #: ../utils/setup.c:346
 msgid "Press return to continue..."
-msgstr ""
+msgstr "Pro pokračování stiskněte Enter..."
 
 #: ../utils/setup.c:364
 msgid "Important Message"
-msgstr ""
+msgstr "Důležitá zpráva"
 
 #: ../utils/setup.c:379
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
 
 #: ../utils/setup.c:459
 msgid "Adding service entry..."
-msgstr ""
+msgstr "Přidávám zápis služby..."
 
 #. Other errors might mean something really did go wrong.
 #. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
-msgstr ""
+msgstr "Nelze otevřít"
 
 #: ../utils/setup.c:569
 msgid ""
 "Citadel already appears to be configured to start at boot.\n"
 "Would you like to keep your boot configuration as is?\n"
 msgstr ""
+"Zdá se, že Citadela je již nastavena, aby se při načtení systému spustila.\n"
+"Přejete si ponechat toto nastavení nezměněno?\n"
 
 #: ../utils/setup.c:577
 msgid "Would you like to automatically start Citadel at boot?\n"
-msgstr ""
+msgstr "Přejete si spouštět Citadelu automaticky při spuštění systému?\n"
 
 #: ../utils/setup.c:583
 msgid "Cannot create"
-msgstr ""
+msgstr "Nelze vytvořit"
 
 #: ../utils/setup.c:682
 #, c-format
@@ -238,10 +295,13 @@ msgid ""
 "connect incoming telnet sessions to Citadel, bypassing the\n"
 "host system login: prompt.  Would you like to do this?\n"
 msgstr ""
+"Instalátor může nastavit službu \"xinetd\", aby automaticky\n"
+"spojovala příchozí spojení telnetu s Citadelou bez výzvy\n"
+"k přihlášení na hostitelském systému. Přejete si to provést?\n"
 
 #: ../utils/setup.c:740
 msgid "You appear to have the "
-msgstr ""
+msgstr "Zdá se, že emailový program "
 
 #: ../utils/setup.c:742
 msgid ""
@@ -249,12 +309,17 @@ msgid ""
 "running on your system.  If you want Citadel mail\n"
 "connected with "
 msgstr ""
+" běží\n"
+"na vašem systému. Chcete-li mail Citadely\n"
+"spojit s "
 
 #: ../utils/setup.c:746
 msgid ""
 " you will have to manually integrate\n"
 "them.  It is preferable to disable "
 msgstr ""
+" , budete to muset provést\n"
+"ručně. Výhodnější je zakázat "
 
 #: ../utils/setup.c:749
 msgid ""
@@ -263,24 +328,30 @@ msgid ""
 "\n"
 "May we disable "
 msgstr ""
+"a použít Citadelí\n"
+"SMTP, POP3 a IMAP služby.\n"
+"\n"
+"Má Citadela zakázat "
 
 #: ../utils/setup.c:753
 msgid ""
 "so that Citadel has access to ports\n"
 "25, 110, and 143?\n"
 msgstr ""
+", aby mohla přistupovat k portům\n"
+"25, 110 a 143?\n"
 
 #: ../utils/setup.c:863
 msgid "This is currently set to:"
-msgstr ""
+msgstr "Toto je nyní nastaveno na:"
 
 #: ../utils/setup.c:864
 msgid "Enter new value or press return to leave unchanged:"
-msgstr ""
+msgstr "Zadejte novou hodnotu, nebo stiskněte Enter (a nic neměňte):"
 
 #: ../utils/setup.c:1067 ../utils/setup.c:1072 ../utils/setup.c:1384
 msgid "setup: cannot open"
-msgstr ""
+msgstr "instalace: nelze otevřít"
 
 #: ../utils/setup.c:1175
 #, c-format
@@ -294,10 +365,18 @@ msgid ""
 "Do you want this module to be automatically disabled?\n"
 "\n"
 msgstr ""
+"\n"
+"/etc/nsswitch.conf je nastaven, aby používal modul 'db' pro\n"
+"jednu nebo více služeb. To není na většině systémů potřeba\n"
+"a je známo, že Citadela spadne při doručování\n"
+"mailů na internet\n"
+"\n"
+"Chcete tento modul zakázat?\n"
+"\n"
 
 #: ../utils/setup.c:1236 ../utils/setup.c:1252
 msgid "Setup finished"
-msgstr ""
+msgstr "Instalace dokončena"
 
 #: ../utils/setup.c:1237
 msgid ""
@@ -306,59 +385,67 @@ msgid ""
 "setup program now; otherwise, run './citadel'\n"
 "to log in.\n"
 msgstr ""
+"Instalace Citadelího serveru je hotova.\n"
+"Pokud budete používat WebCit, spusťte\n"
+"jeho nastavení nyní, v opačném případě\n"
+"spusťte ./citadel k přihlášení.\n"
 
 #: ../utils/setup.c:1243
 msgid "Setup failed"
-msgstr ""
+msgstr "Instalace selhala"
 
 #: ../utils/setup.c:1244
 msgid ""
 "Setup is finished, but the Citadel server failed to start.\n"
 "Go back and check your configuration.\n"
 msgstr ""
+"Instalace je dokončena, ale nepodařilo se spustit Citadelí server.\n"
+"Jděte zpět a zkontrolujte svou konfiguraci.\n"
 
 #: ../utils/setup.c:1253
 msgid "Setup is finished.  You may now start the server."
-msgstr ""
+msgstr "Instalace je dokončena. Nyní můžete spustit Citadelí server"
 
 #: ../utils/setup.c:1279
 msgid "My System"
-msgstr ""
+msgstr "Můj Systém"
 
 #: ../utils/setup.c:1282
 msgid "US 800 555 1212"
-msgstr ""
+msgstr "US 800 555 1212"
 
 #: ../utils/setup.c:1368 ../utils/setup.c:1373
 msgid "setup: cannot append"
-msgstr ""
+msgstr "instalace: nelze připojit"
 
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
 msgid "Citadel Setup"
-msgstr ""
+msgstr "Instalace Citadely"
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
-msgstr ""
+msgstr "Zadaný adresář neexistuje"
 
 #: ../utils/setup.c:1473
 msgid ""
 "The Citadel service is still running.\n"
 "Please stop the service manually and run setup again."
 msgstr ""
+"Citadelí server stále běží.\n"
+"Zastavte jej prosím ručně a spusťte instalaci znovu."
 
 #: ../utils/setup.c:1485
 msgid "Citadel setup program"
-msgstr ""
+msgstr "Program pro instalaci Citadely"
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
-msgstr ""
+msgstr "Tato instalace Citadely je příliš stará na povýšení."
 
 #: ../utils/setup.c:1552 ../utils/setup.c:1554 ../utils/setup.c:1556
 msgid "Setting file permissions"
-msgstr ""
+msgstr "Nastavuji oprávnění souborů"
 
 #~ msgid ""
 #~ "Please specify the IP address which the server should be listening to. If "
