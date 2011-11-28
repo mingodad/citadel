@@ -739,7 +739,6 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	char errmsg[1024] = "";
 	struct curl_slist *my_headers = NULL;
 	StrBuf *x_xrds_location = NULL;
-	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
 	if (YadisURL == NULL) return(0);
 	syslog(LOG_DEBUG, "perform_openid2_discovery(%s)", ChrPtr(YadisURL));
@@ -807,10 +806,12 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	 */
 	if (return_value == 0) {
 		syslog(LOG_DEBUG, "Attempting HTML discovery");
-		extract_link(oiddata->server, HKEY("openid2.provider"), ReplyBuf);
-		if (StrLength(oiddata->server) > 0) {
-			syslog(LOG_DEBUG, "\033[31mHTML DISCO PROVIDER: %s\033[0m", ChrPtr(oiddata->server));
+		StrBuf *foo = NewStrBuf();
+		extract_link(foo, HKEY("openid2.provider"), ReplyBuf);
+		if (StrLength(foo) > 0) {
+			syslog(LOG_DEBUG, "\033[31mHTML DISCO PROVIDER: %s\033[0m", ChrPtr(foo));
 		}
+		FreeStrBuf(&foo);
 	}
 
 	if (ReplyBuf != NULL) {
@@ -824,6 +825,7 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
  * Setup an OpenID authentication
  */
 void cmd_oids(char *argbuf) {
+	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	const char *Pos = NULL;
 	StrBuf *ArgBuf = NULL;
 	StrBuf *ReplyBuf = NULL;
@@ -831,8 +833,8 @@ void cmd_oids(char *argbuf) {
 	StrBuf *trust_root = NULL;
 	StrBuf *openid_delegate = NULL;
 	StrBuf *RedirectUrl = NULL;
-	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	ctdl_openid *oiddata;
+	int discovery_succeeded = 0;
 
 	Free_ctdl_openid ((ctdl_openid**)&CCC->openid_data);
 
@@ -858,7 +860,6 @@ void cmd_oids(char *argbuf) {
 	syslog(LOG_DEBUG, "User-Supplied Identifier is: %s", ChrPtr(oiddata->claimed_id));
 
 
-#if 0
 	/********** OpenID 2.0 section 7.3 - Discovery **********/
 
 	/* Section 7.3.1 says we have to attempt XRI based discovery.
@@ -868,8 +869,7 @@ void cmd_oids(char *argbuf) {
 
 	/* Attempt section 7.3.2 (Yadis discovery) and section 7.3.3 (HTML discovery);
 	 */
-	int yadis_succeeded = perform_openid2_discovery(oiddata->claimed_id);
-#endif
+	discovery_succeeded = perform_openid2_discovery(oiddata->claimed_id);
 
 
 
