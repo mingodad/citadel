@@ -681,6 +681,8 @@ void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
 int parse_xrds_document(StrBuf *ReplyBuf) {
 	struct xrds xrds;
 
+	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
+
 	memset(&xrds, 0, sizeof (struct xrds));
 	XML_Parser xp = XML_ParserCreate(NULL);
 	if (xp) {
@@ -701,7 +703,7 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 
 
 /*
- * Callback function for perform_yadis_discovery()
+ * Callback function for perform_openid2_discovery()
  * We're interested in the X-XRDS-Location: header.
  */
 size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata) {
@@ -722,10 +724,13 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
 
 
 /* Attempt to perform Yadis discovery as specified in Yadis 1.0 section 6.2.5.
+ * 
+ * If Yadis fails, we then attempt HTML discovery using the same document.
+ *
  * If successful, returns nonzero and calls parse_xrds_document() to act upon the received data.
- * If Yadis fails, returns 0 and does nothing else.
+ * If fails, returns 0 and does nothing else.
  */
-int perform_yadis_discovery(StrBuf *YadisURL) {
+int perform_openid2_discovery(StrBuf *YadisURL) {
 	int docbytes = (-1);
 	StrBuf *ReplyBuf = NULL;
 	int return_value = 0;
@@ -734,9 +739,10 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	char errmsg[1024] = "";
 	struct curl_slist *my_headers = NULL;
 	StrBuf *x_xrds_location = NULL;
+	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
 	if (YadisURL == NULL) return(0);
-	syslog(LOG_DEBUG, "perform_yadis_discovery(%s)", ChrPtr(YadisURL));
+	syslog(LOG_DEBUG, "perform_openid2_discovery(%s)", ChrPtr(YadisURL));
 	if (StrLength(YadisURL) == 0) return(0);
 
 	ReplyBuf = NewStrBuf ();
@@ -785,7 +791,7 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 		&& (strcmp(ChrPtr(x_xrds_location), ChrPtr(YadisURL)))
 	) {
 		syslog(LOG_DEBUG, "X-XRDS-Location: %s ... recursing!", ChrPtr(x_xrds_location));
-		return_value = perform_yadis_discovery(x_xrds_location);
+		return_value = perform_openid2_discovery(x_xrds_location);
 		FreeStrBuf(&x_xrds_location);
 	}
 
@@ -794,6 +800,17 @@ int perform_yadis_discovery(StrBuf *YadisURL) {
 	 */
 	else if (docbytes >= 0) {
 		return_value = parse_xrds_document(ReplyBuf);
+	}
+
+	/*
+	 * Option 5: if all else fails, attempt HTML based discovery.
+	 */
+	if (return_value == 0) {
+		syslog(LOG_DEBUG, "Attempting HTML discovery");
+		extract_link(oiddata->server, HKEY("openid2.provider"), ReplyBuf);
+		if (StrLength(oiddata->server) > 0) {
+			syslog(LOG_DEBUG, "\033[31mHTML DISCO PROVIDER: %s\033[0m", ChrPtr(oiddata->server));
+		}
 	}
 
 	if (ReplyBuf != NULL) {
@@ -848,13 +865,15 @@ void cmd_oids(char *argbuf) {
 	 * So we're not even going to bother attempting this mode.
 	 */
 
-	/* Section 7.3.2 specifies Yadis discovery.
-	 * Google uses this so we'd better do our best to implement it.
+	/* Attempt section 7.3.2 (Yadis discovery) and section 7.3.3 (HTML discovery);
 	 */
-	int yadis_succeeded = perform_yadis_discovery(oiddata->claimed_id);
+	int yadis_succeeded = perform_openid2_discovery(oiddata->claimed_id);
 
-	/* Section 7.3.3 specifies HTML-based discovery which is similar to what we did in OpenID 1.1
-	 */
+
+
+
+#if 0
+	/* old openid 1.1 implementation ... not ready to break things yet */
 	if (	(yadis_succeeded == 0)
 		&& (fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
 		&& (StrLength(ReplyBuf) > 0)
@@ -908,6 +927,7 @@ void cmd_oids(char *argbuf) {
 
 		return;
 	}
+#endif /* 0 */
 
 	FreeStrBuf(&ArgBuf);
 	FreeStrBuf(&ReplyBuf);
