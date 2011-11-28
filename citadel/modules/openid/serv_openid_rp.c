@@ -858,6 +858,7 @@ void cmd_oids(char *argbuf) {
 	syslog(LOG_DEBUG, "User-Supplied Identifier is: %s", ChrPtr(oiddata->claimed_id));
 
 
+#if 0
 	/********** OpenID 2.0 section 7.3 - Discovery **********/
 
 	/* Section 7.3.1 says we have to attempt XRI based discovery.
@@ -868,14 +869,13 @@ void cmd_oids(char *argbuf) {
 	/* Attempt section 7.3.2 (Yadis discovery) and section 7.3.3 (HTML discovery);
 	 */
 	int yadis_succeeded = perform_openid2_discovery(oiddata->claimed_id);
+#endif
 
 
 
+	/************ OPENID 1.1 **********/
 
-#if 0
-	/* old openid 1.1 implementation ... not ready to break things yet */
-	if (	(yadis_succeeded == 0)
-		&& (fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
+	if (	(fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
 		&& (StrLength(ReplyBuf) > 0)
 	) {
 		openid_delegate = NewStrBuf();
@@ -927,7 +927,6 @@ void cmd_oids(char *argbuf) {
 
 		return;
 	}
-#endif /* 0 */
 
 	FreeStrBuf(&ArgBuf);
 	FreeStrBuf(&ReplyBuf);
