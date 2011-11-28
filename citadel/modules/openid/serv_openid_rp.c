@@ -649,7 +649,9 @@ void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
  * If nothing useful happened, return 0.
  */
 int parse_xrds_document(StrBuf *ReplyBuf) {
+	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 	struct xrds xrds;
+	int return_value = 0;
 
 	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
 
@@ -667,7 +669,11 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 		syslog(LOG_ALERT, "Cannot create XML parser");
 	}
 
-	return(0);	/* FIXME return nonzero if something wonderful happened */
+	if (StrLength(oiddata->op_url) > 0) {
+		syslog(LOG_DEBUG, "\033[31mOP VIA XRDS DISCO: %s\033[0m", ChrPtr(oiddata->op_url));
+		return_value = 1;
+	}
+	return(return_value);
 }
 
 
@@ -782,7 +788,7 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 		}
 		extract_link(oiddata->op_url, HKEY("openid2.provider"), ReplyBuf);
 		if (StrLength(oiddata->op_url) > 0) {
-			syslog(LOG_DEBUG, "\033[31mHTML DISCO PROVIDER: %s\033[0m", ChrPtr(oiddata->op_url));
+			syslog(LOG_DEBUG, "\033[31mOP VIA HTML DISCO: %s\033[0m", ChrPtr(oiddata->op_url));
 			return_value = 1;
 		}
 	}
