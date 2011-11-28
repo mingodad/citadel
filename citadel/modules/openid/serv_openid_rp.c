@@ -588,10 +588,11 @@ CURL *ctdl_openid_curl_easy_init(char *errmsg) {
 
 
 struct xrds {
+	StrBuf *CharData;
 	int nesting_level;
 	int in_xrd;
 	int current_service_priority;
-	int selected_service_priority;	/* more here later */
+	int selected_service_priority;	/* FIXME more here later */
 };
 
 
@@ -614,6 +615,8 @@ void xrds_xml_start(void *data, const char *supplied_el, const char **attr) {
 			}
 		}
 	}
+
+	FlushStrBuf(xrds->CharData);
 }
 
 
@@ -631,21 +634,21 @@ void xrds_xml_end(void *data, const char *supplied_el) {
 		/* this is where we should evaluate the service and do stuff */
 		xrds->current_service_priority = 0;
 	}
+
+	FlushStrBuf(xrds->CharData);
 }
 
 
 void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
 	struct xrds *xrds = (struct xrds *) data;
 
-	if (xrds) ;	/* this is only here to silence the warning for now */
-	
-	/* StrBufAppendBufPlain (xrds->CData, s, len, 0); */
+	StrBufAppendBufPlain (xrds->CharData, s, len, 0);
 }
 
 
 /*
  * Parse an XRDS document.
- * If OpenID stuff is discovered, populate FIXME something and return nonzero
+ * If an OpenID Provider URL is discovered, op_url to that value and return nonzero.
  * If nothing useful happened, return 0.
  */
 int parse_xrds_document(StrBuf *ReplyBuf) {
@@ -656,6 +659,7 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
 
 	memset(&xrds, 0, sizeof (struct xrds));
+	xrds.CharData = NewStrBuf();
 	XML_Parser xp = XML_ParserCreate(NULL);
 	if (xp) {
 		XML_SetUserData(xp, &xrds);
@@ -668,6 +672,7 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	else {
 		syslog(LOG_ALERT, "Cannot create XML parser");
 	}
+	FreeStrBuf(&xrds.CharData);
 
 	if (StrLength(oiddata->op_url) > 0) {
 		syslog(LOG_DEBUG, "\033[31mOP VIA XRDS DISCO: %s\033[0m", ChrPtr(oiddata->op_url));
@@ -717,12 +722,12 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	struct curl_slist *my_headers = NULL;
 	StrBuf *x_xrds_location = NULL;
 
-	if (YadisURL == NULL) return(0);
+	if (!YadisURL) return(0);
 	syslog(LOG_DEBUG, "perform_openid2_discovery(%s)", ChrPtr(YadisURL));
 	if (StrLength(YadisURL) == 0) return(0);
 
-	ReplyBuf = NewStrBuf ();
-	if (ReplyBuf == 0) return(0);
+	ReplyBuf = NewStrBuf();
+	if (!ReplyBuf) return(0);
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
 	if (!curl) return(0);
@@ -851,23 +856,25 @@ void cmd_oids(char *argbuf) {
 	 */
 	discovery_succeeded = perform_openid2_discovery(oiddata->claimed_id);
 
-	/* Empty delegate is legal; we just use the openid_url instead */
-	if (StrLength(openid_delegate) == 0) {
-		StrBufPlain(openid_delegate, SKEY(oiddata->claimed_id));
-	}
-
 	if (StrLength(oiddata->op_url) == 0) {
-		cprintf("%d There is no OpenID identity provider at this URL.\n", ERROR);
+		cprintf("%d There is no OpenID identity provider at this location.\n", ERROR);
 	}
 
 	else {
+		/*
+		 * If we get to this point we are in possession of a valid OpenID Provider URL.
+		 */
+
+		/* Empty delegate is legal; we just use the openid_url instead */
+		if (StrLength(openid_delegate) == 0) {
+			StrBufPlain(openid_delegate, SKEY(oiddata->claimed_id));
+		}
 
 		/* Assemble a URL to which the user-agent will be redirected. */
 	
 		RedirectUrl = NewStrBufDup(oiddata->op_url);
 	
-		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.mode=checkid_setup"
-					       	"&openid.identity="), 0);
+		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.mode=checkid_setup&openid.identity="), 0);
 		StrBufUrlescAppend(RedirectUrl, openid_delegate, NULL);
 	
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
