@@ -59,6 +59,14 @@ typedef struct _ctdl_openid {
 	HashList *sreg_keys;
 } ctdl_openid;
 
+enum {
+	openid_disco_none,
+	openid_disco_xrds,
+	openid_disco_html
+};
+
+
+
 void Free_ctdl_openid(ctdl_openid **FreeMe)
 {
 	if (*FreeMe == NULL) {
@@ -592,7 +600,10 @@ struct xrds {
 	int nesting_level;
 	int in_xrd;
 	int current_service_priority;
-	int selected_service_priority;	/* FIXME more here later */
+	int selected_service_priority;
+	StrBuf *current_service_uri;
+	StrBuf *selected_service_uri;
+	int current_service_is_oid2auth;
 };
 
 
@@ -604,11 +615,11 @@ void xrds_xml_start(void *data, const char *supplied_el, const char **attr) {
 
 	if (!strcasecmp(supplied_el, "XRD")) {
 		++xrds->in_xrd;
-		syslog(LOG_DEBUG, "*** XRD CONTAINER BEGIN ***");
 	}
 
 	else if (!strcasecmp(supplied_el, "service")) {
 		xrds->current_service_priority = 0;
+		xrds->current_service_is_oid2auth = 0;
 		for (i=0; attr[i] != NULL; i+=2) {
 			if (!strcasecmp(attr[i], "priority")) {
 				xrds->current_service_priority = atoi(attr[i+1]);
@@ -627,12 +638,33 @@ void xrds_xml_end(void *data, const char *supplied_el) {
 
 	if (!strcasecmp(supplied_el, "XRD")) {
 		--xrds->in_xrd;
-		syslog(LOG_DEBUG, "*** XRD CONTAINER END ***");
+	}
+
+	else if (!strcasecmp(supplied_el, "type")) {
+		if (	(xrds->in_xrd)
+			&& (!strcasecmp(ChrPtr(xrds->CharData), "http://specs.openid.net/auth/2.0/server"))
+		) {
+			xrds->current_service_is_oid2auth = 1;
+		}
+	}
+
+	else if (!strcasecmp(supplied_el, "uri")) {
+		if (xrds->in_xrd) {
+			FlushStrBuf(xrds->current_service_uri);
+			StrBufAppendBuf(xrds->current_service_uri, xrds->CharData, 0);
+		}
 	}
 
 	else if (!strcasecmp(supplied_el, "service")) {
-		/* this is where we should evaluate the service and do stuff */
-		xrds->current_service_priority = 0;
+		if (	(xrds->in_xrd)
+			&& (xrds->current_service_priority < xrds->selected_service_priority)
+			&& (xrds->current_service_is_oid2auth)
+		) {
+			xrds->selected_service_priority = xrds->current_service_priority;
+			FlushStrBuf(xrds->selected_service_uri);
+			StrBufAppendBuf(xrds->selected_service_uri, xrds->current_service_uri, 0);
+		}
+
 	}
 
 	FlushStrBuf(xrds->CharData);
@@ -656,10 +688,13 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	struct xrds xrds;
 	int return_value = 0;
 
-	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
+	//	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
 
 	memset(&xrds, 0, sizeof (struct xrds));
+	xrds.selected_service_priority = INT_MAX;
 	xrds.CharData = NewStrBuf();
+	xrds.current_service_uri = NewStrBuf();
+	xrds.selected_service_uri = NewStrBuf();
 	XML_Parser xp = XML_ParserCreate(NULL);
 	if (xp) {
 		XML_SetUserData(xp, &xrds);
@@ -672,12 +707,20 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	else {
 		syslog(LOG_ALERT, "Cannot create XML parser");
 	}
-	FreeStrBuf(&xrds.CharData);
 
-	if (StrLength(oiddata->op_url) > 0) {
-		syslog(LOG_DEBUG, "\033[31mOP VIA XRDS DISCO: %s\033[0m", ChrPtr(oiddata->op_url));
-		return_value = 1;
+	if (xrds.selected_service_priority < INT_MAX) {
+		if (oiddata->op_url == NULL) {
+			oiddata->op_url = NewStrBuf();
+		}
+		FlushStrBuf(oiddata->op_url);
+		StrBufAppendBuf(oiddata->op_url, xrds.selected_service_uri, 0);
+		return_value = openid_disco_xrds;
 	}
+
+	FreeStrBuf(&xrds.CharData);
+	FreeStrBuf(&xrds.current_service_uri);
+	FreeStrBuf(&xrds.selected_service_uri);
+
 	return(return_value);
 }
 
@@ -701,7 +744,6 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
 
 	return(size * nmemb);
 }
-
 
 
 /* Attempt to perform Yadis discovery as specified in Yadis 1.0 section 6.2.5.
@@ -793,8 +835,7 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 		}
 		extract_link(oiddata->op_url, HKEY("openid2.provider"), ReplyBuf);
 		if (StrLength(oiddata->op_url) > 0) {
-			syslog(LOG_DEBUG, "\033[31mOP VIA HTML DISCO: %s\033[0m", ChrPtr(oiddata->op_url));
-			return_value = 1;
+			return_value = openid_disco_html;
 		}
 	}
 
@@ -856,7 +897,7 @@ void cmd_oids(char *argbuf) {
 	 */
 	discovery_succeeded = perform_openid2_discovery(oiddata->claimed_id);
 
-	if (StrLength(oiddata->op_url) == 0) {
+	if (discovery_succeeded == 0) {
 		cprintf("%d There is no OpenID identity provider at this location.\n", ERROR);
 	}
 
@@ -864,6 +905,10 @@ void cmd_oids(char *argbuf) {
 		/*
 		 * If we get to this point we are in possession of a valid OpenID Provider URL.
 		 */
+		syslog(LOG_DEBUG, "OP URI '%s' discovered using method %d",
+			ChrPtr(oiddata->claimed_id),
+			discovery_succeeded
+		);
 
 		/* Empty delegate is legal; we just use the openid_url instead */
 		if (StrLength(openid_delegate) == 0) {
