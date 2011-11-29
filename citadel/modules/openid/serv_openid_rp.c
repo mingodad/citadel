@@ -855,8 +855,6 @@ void cmd_oids(char *argbuf) {
 	StrBuf *ArgBuf = NULL;
 	StrBuf *ReplyBuf = NULL;
 	StrBuf *return_to = NULL;
-	StrBuf *trust_root = NULL;
-	StrBuf *openid_delegate = NULL;
 	StrBuf *RedirectUrl = NULL;
 	ctdl_openid *oiddata;
 	int discovery_succeeded = 0;
@@ -876,12 +874,10 @@ void cmd_oids(char *argbuf) {
 
 	oiddata->verified = 0;
 	oiddata->claimed_id = NewStrBufPlain(NULL, StrLength(ArgBuf));
-	trust_root = NewStrBufPlain(NULL, StrLength(ArgBuf));
 	return_to = NewStrBufPlain(NULL, StrLength(ArgBuf));
 
 	StrBufExtract_NextToken(oiddata->claimed_id, ArgBuf, &Pos, '|');
 	StrBufExtract_NextToken(return_to, ArgBuf, &Pos, '|');
-	StrBufExtract_NextToken(trust_root, ArgBuf, &Pos, '|');
 
 	syslog(LOG_DEBUG, "User-Supplied Identifier is: %s", ChrPtr(oiddata->claimed_id));
 
@@ -906,39 +902,39 @@ void cmd_oids(char *argbuf) {
 		 * If we get to this point we are in possession of a valid OpenID Provider URL.
 		 */
 		syslog(LOG_DEBUG, "OP URI '%s' discovered using method %d",
-			ChrPtr(oiddata->claimed_id),
+			ChrPtr(oiddata->op_url),
 			discovery_succeeded
 		);
-
-		/* Empty delegate is legal; we just use the openid_url instead */
-		if (StrLength(openid_delegate) == 0) {
-			StrBufPlain(openid_delegate, SKEY(oiddata->claimed_id));
-		}
 
 		/* Assemble a URL to which the user-agent will be redirected. */
 	
 		RedirectUrl = NewStrBufDup(oiddata->op_url);
 	
-		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.mode=checkid_setup&openid.identity="), 0);
-		StrBufUrlescAppend(RedirectUrl, openid_delegate, NULL);
+		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.ns=http:%2F%2Fspecs.openid.net%2Fauth%2F2.0"), 0);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.mode=checkid_setup"), 0);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.claimed_id="), 0);
+		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
+	
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.identity="), 0);
+		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
 	
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
 		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
-	
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.trust_root="), 0);
-		StrBufUrlescAppend(RedirectUrl, trust_root, NULL);
-	
+
+/*	
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.sreg.optional="), 0);
 		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
+*/
 	
+		syslog(LOG_DEBUG, "\033[36m%s\033[0m", ChrPtr(RedirectUrl));
 		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
 	}
 	
 	FreeStrBuf(&ArgBuf);
 	FreeStrBuf(&ReplyBuf);
 	FreeStrBuf(&return_to);
-	FreeStrBuf(&trust_root);
-	FreeStrBuf(&openid_delegate);
 	FreeStrBuf(&RedirectUrl);
 }
 
