@@ -66,7 +66,6 @@ enum {
 };
 
 
-
 void Free_ctdl_openid(ctdl_openid **FreeMe)
 {
 	if (*FreeMe == NULL) {
@@ -352,12 +351,7 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
 void cmd_oidc(char *argbuf) {
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
-	if (!oiddata) {
-		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
-		return;
-	}
-
-	if (!oiddata->verified) {
+	if ( (!oiddata) || (!oiddata->verified) ) {
 		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
 		return;
 	}
@@ -413,7 +407,6 @@ void cmd_oidd(char *argbuf) {
 	cdb_delete(CDB_OPENID, id_to_detach, strlen(id_to_detach));
 	cprintf("%d %s detached from your account.\n", CIT_OK, id_to_detach);
 }
-
 
 
 /*
@@ -881,7 +874,6 @@ void cmd_oids(char *argbuf) {
 
 	syslog(LOG_DEBUG, "User-Supplied Identifier is: %s", ChrPtr(oiddata->claimed_id));
 
-
 	/********** OpenID 2.0 section 7.3 - Discovery **********/
 
 	/* Section 7.3.1 says we have to attempt XRI based discovery.
@@ -906,20 +898,31 @@ void cmd_oids(char *argbuf) {
 			discovery_succeeded
 		);
 
-		/* Assemble a URL to which the user-agent will be redirected. */
+		/* We have to "normalize" our Claimed ID otherwise it will cause some OP's to barf */
+		if (cbmstrcasestr(ChrPtr(oiddata->claimed_id), "://") == NULL) {
+			StrBuf *cid = oiddata->claimed_id;
+			oiddata->claimed_id = NewStrBufPlain(HKEY("http://"));
+			StrBufAppendBuf(oiddata->claimed_id, cid, 0);
+			FreeStrBuf(&cid);
+		}
+
+		/*
+		 * OpenID 2.0 section 9: request authentication
+		 * Assemble a URL to which the user-agent will be redirected.
+		 */
 	
 		RedirectUrl = NewStrBufDup(oiddata->op_url);
-	
+
 		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.ns=http:%2F%2Fspecs.openid.net%2Fauth%2F2.0"), 0);
 
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.mode=checkid_setup"), 0);
 
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.claimed_id="), 0);
 		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
-	
+
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.identity="), 0);
 		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
-	
+
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
 		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
 
@@ -939,9 +942,6 @@ void cmd_oids(char *argbuf) {
 }
 
 
-
-
-
 /*
  * Finalize an OpenID authentication
  */
@@ -958,7 +958,7 @@ void cmd_oidf(char *argbuf) {
 		return;
 	}
 	if (StrLength(oiddata->op_url) == 0){
-		cprintf("%d need a remote server to authenticate against\n", ERROR + ILLEGAL_VALUE);
+		cprintf("%d No OpenID Endpoint URL has been obtained.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 	keys = NewHash(1, NULL);
@@ -977,9 +977,8 @@ void cmd_oidf(char *argbuf) {
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
-
 	/* Now that we have all of the parameters, we have to validate the signature against the server */
-	syslog(LOG_DEBUG, "About to validate the signature...");
+	syslog(LOG_DEBUG, "Validating signature...");
 
 	CURL *curl;
 	CURLcode res;
@@ -1059,6 +1058,10 @@ void cmd_oidf(char *argbuf) {
 	}
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
+
+
+	syslog(LOG_DEBUG, "\033[36m --- VALIDATION REPLY ---\n%s\033[0m", ChrPtr(ReplyBuf));
+
 
 	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true")) {
 		oiddata->verified = 1;
