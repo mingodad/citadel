@@ -937,7 +937,7 @@ void cmd_oids(char *argbuf) {
 		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
 */
 
-		syslog(LOG_DEBUG, "\033[36m%s\033[0m", ChrPtr(RedirectUrl));
+		syslog(LOG_DEBUG, "OpenID: redirecting client to %s", ChrPtr(RedirectUrl));
 		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
 	}
 	
@@ -957,6 +957,8 @@ void cmd_oidf(char *argbuf) {
 	char thiskey[1024];
 	char thisdata[1024];
 	HashList *keys = NULL;
+	const char *Key;
+	void *Value;
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
 	if (oiddata == NULL) {
@@ -980,7 +982,6 @@ void cmd_oidf(char *argbuf) {
 			len = sizeof(thiskey) - 1;
 		}
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
-		syslog(LOG_DEBUG, "%s: ["SIZE_T_FMT"] %s", thiskey, strlen(thisdata), thisdata);
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
@@ -1027,19 +1028,19 @@ void cmd_oidf(char *argbuf) {
 		CURLFORM_END
 	);
 
-/*
-
-FIXME put the rest of this crap in here
-
-				if (GetHash(keys, k_keyname, strlen(k_keyname), (void *) &k_value)) {
-					snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", k_keyname);
-					curl_formadd(&formpost, &lastptr,
-						CURLFORM_COPYNAME,	k_o_keyname,
-						CURLFORM_COPYCONTENTS,	k_value,
-						CURLFORM_END);
-					syslog(LOG_DEBUG, "%25s : %s", k_o_keyname, k_value);
-				}
-*/
+	HashPos *HashPos = GetNewHashPos(keys, 0);
+	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value) != 0) {
+		syslog(LOG_DEBUG, "%s = %s", Key, (char *)Value);
+		if (strcasecmp(Key, "mode")) {
+			char k_o_keyname[1024];
+			snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", (const char *)Key);
+			curl_formadd(&formpost, &lastptr,
+				CURLFORM_COPYNAME,	k_o_keyname,
+				CURLFORM_COPYCONTENTS,	(char *)Value,
+				CURLFORM_END
+			);
+		}
+	}
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
 	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->op_url));
@@ -1055,8 +1056,7 @@ FIXME put the rest of this crap in here
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
 
-	/* syslog(LOG_DEBUG, "\033[36m --- VALIDATION REPLY ---\n%s\033[0m", ChrPtr(ReplyBuf)); */
-
+	/* syslog(LOG_DEBUG, "Validation reply: \n%s", ChrPtr(ReplyBuf)); */
 	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true") == NULL) {
 		oiddata->verified = 0;
 	}
