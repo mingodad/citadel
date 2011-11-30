@@ -1062,7 +1062,7 @@ FIXME put the rest of this crap in here
 	}
 	FreeStrBuf(&ReplyBuf);
 
-	syslog(LOG_DEBUG, "Authentication %s.", (oiddata->verified ? "succeeded" : "failed") );
+	syslog(LOG_DEBUG, "OpenID authentication %s", (oiddata->verified ? "succeeded" : "failed") );
 
 	/* Respond to the client */
 
