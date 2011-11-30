@@ -681,7 +681,7 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	struct xrds xrds;
 	int return_value = 0;
 
-	//	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
+	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
 
 	memset(&xrds, 0, sizeof (struct xrds));
 	xrds.selected_service_priority = INT_MAX;
@@ -970,13 +970,42 @@ void cmd_oidf(char *argbuf) {
 
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		len = extract_token(thiskey, buf, 0, '|', sizeof thiskey);
-		if (len < 0)
+		if (len < 0) {
 			len = sizeof(thiskey) - 1;
+		}
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
 		syslog(LOG_DEBUG, "%s: ["SIZE_T_FMT"] %s", thiskey, strlen(thisdata), thisdata);
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
+	/* Check to see if this is a correct response */
+
+	/* oooh, really bad juju here.  we're just accepting the assertion without validating it. */
+	oiddata->verified = 1;
+
+	char *openid_ns = NULL;
+	if (	(!GetHash(keys, "ns", 2, (void *) &openid_ns))
+		|| (strcasecmp(openid_ns, "http://specs.openid.net/auth/2.0"))
+	) {
+		syslog(LOG_DEBUG, "This is not an an OpenID assertion");
+		oiddata->verified = 0;
+	}
+
+	char *openid_mode = NULL;
+	if (	(!GetHash(keys, "mode", 4, (void *) &openid_mode))
+		|| (strcasecmp(openid_mode, "id_res"))
+	) {
+		oiddata->verified = 0;
+	}
+
+	char *openid_claimed_id = NULL;
+	if (GetHash(keys, "claimed_id", 10, (void *) &openid_claimed_id)) {
+		FreeStrBuf(&oiddata->claimed_id);
+		oiddata->claimed_id = NewStrBufPlain(openid_claimed_id, -1);
+		syslog(LOG_DEBUG, "Provider is asserting the Claimed ID '%s'", ChrPtr(oiddata->claimed_id));
+	}
+
+#if 0
 	/* Now that we have all of the parameters, we have to validate the signature against the server */
 	syslog(LOG_DEBUG, "Validating signature...");
 
@@ -1060,7 +1089,7 @@ void cmd_oidf(char *argbuf) {
 	curl_formfree(formpost);
 
 
-	syslog(LOG_DEBUG, "\033[36m --- VALIDATION REPLY ---\n%s\033[0m", ChrPtr(ReplyBuf));
+	// syslog(LOG_DEBUG, "\033[36m --- VALIDATION REPLY ---\n%s\033[0m", ChrPtr(ReplyBuf));
 
 
 	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true")) {
@@ -1069,6 +1098,7 @@ void cmd_oidf(char *argbuf) {
 	FreeStrBuf(&ReplyBuf);
 
 	syslog(LOG_DEBUG, "Authentication %s.", (oiddata->verified ? "succeeded" : "failed") );
+#endif
 
 	/* Respond to the client */
 
