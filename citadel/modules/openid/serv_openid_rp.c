@@ -1,9 +1,5 @@
 /*
- * This is an implementation of OpenID 2.0 RELYING PARTY SUPPORT CURRENTLY B0RKEN AND BEING DEVEL0PZ0RED
-
-
-			OPENID2 BRANCH -- NEEDS TO BE MERGEZ0RED !!!!!!111
-
+ * This is an implementation of OpenID 2.0 relying party support in stateless mode.
  *
  * Copyright (c) 2007-2011 by the citadel.org team
  *
@@ -639,6 +635,12 @@ void xrds_xml_end(void *data, const char *supplied_el) {
 		) {
 			xrds->current_service_is_oid2auth = 1;
 		}
+		if (	(xrds->in_xrd)
+			&& (!strcasecmp(ChrPtr(xrds->CharData), "http://specs.openid.net/auth/2.0/signon"))
+		) {
+			xrds->current_service_is_oid2auth = 1;
+			/* FIXME in this case, the Claimed ID should be considered immutable */
+		}
 	}
 
 	else if (!strcasecmp(supplied_el, "uri")) {
@@ -681,7 +683,10 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	struct xrds xrds;
 	int return_value = 0;
 
-	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
+	syslog(LOG_DEBUG,
+		" --- XRDS DOCUMENT BEGIN --- \n%s\n --- XRDS DOCUMENT END ---",
+		ChrPtr(ReplyBuf)
+	);
 
 	memset(&xrds, 0, sizeof (struct xrds));
 	xrds.selected_service_priority = INT_MAX;
@@ -746,7 +751,7 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
  * If successful, returns nonzero and calls parse_xrds_document() to act upon the received data.
  * If fails, returns 0 and does nothing else.
  */
-int perform_openid2_discovery(StrBuf *YadisURL) {
+int perform_openid2_discovery(StrBuf *SuppliedURL) {
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 	int docbytes = (-1);
 	StrBuf *ReplyBuf = NULL;
@@ -757,9 +762,9 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	struct curl_slist *my_headers = NULL;
 	StrBuf *x_xrds_location = NULL;
 
-	if (!YadisURL) return(0);
-	syslog(LOG_DEBUG, "perform_openid2_discovery(%s)", ChrPtr(YadisURL));
-	if (StrLength(YadisURL) == 0) return(0);
+	if (!SuppliedURL) return(0);
+	syslog(LOG_DEBUG, "perform_openid2_discovery(%s)", ChrPtr(SuppliedURL));
+	if (StrLength(SuppliedURL) == 0) return(0);
 
 	ReplyBuf = NewStrBuf();
 	if (!ReplyBuf) return(0);
@@ -767,7 +772,7 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	curl = ctdl_openid_curl_easy_init(errmsg);
 	if (!curl) return(0);
 
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(YadisURL));
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(SuppliedURL));
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 
@@ -791,8 +796,9 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	 * 
 	 * Option 1: An HTML document with a <head> element that includes a <meta> element with http-equiv
 	 * attribute, X-XRDS-Location,
+	 *
+	 * Does any provider actually do this?  If so then we will implement it in the future.
 	 */
-	/* FIXME handle this somehow */
 
 	/*
 	 * Option 2: HTTP response-headers that include an X-XRDS-Location response-header,
@@ -804,7 +810,7 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	 * If the X-XRDS-Location header was delivered, we know about it at this point...
 	 */
 	if (	(x_xrds_location)
-		&& (strcmp(ChrPtr(x_xrds_location), ChrPtr(YadisURL)))
+		&& (strcmp(ChrPtr(x_xrds_location), ChrPtr(SuppliedURL)))
 	) {
 		syslog(LOG_DEBUG, "X-XRDS-Location: %s ... recursing!", ChrPtr(x_xrds_location));
 		return_value = perform_openid2_discovery(x_xrds_location);
@@ -814,15 +820,14 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	/*
 	 * Option 4: the returned web page may *be* an XRDS document.  Try to parse it.
 	 */
-	else if (docbytes >= 0) {
+	if ( (return_value == 0) && (docbytes >= 0)) {
 		return_value = parse_xrds_document(ReplyBuf);
 	}
 
 	/*
 	 * Option 5: if all else fails, attempt HTML based discovery.
 	 */
-	if (return_value == 0) {
-		syslog(LOG_DEBUG, "Attempting HTML discovery");
+	if ( (return_value == 0) && (docbytes >= 0)) {
 		if (oiddata->op_url == NULL) {
 			oiddata->op_url = NewStrBuf();
 		}
@@ -926,11 +931,12 @@ void cmd_oids(char *argbuf) {
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
 		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
 
-/*	
+/*
+		We probably have to do something here to set up Simple Registration
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.sreg.optional="), 0);
 		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
 */
-	
+
 		syslog(LOG_DEBUG, "\033[36m%s\033[0m", ChrPtr(RedirectUrl));
 		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
 	}
@@ -978,9 +984,9 @@ void cmd_oidf(char *argbuf) {
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
-	/* Check to see if this is a correct response */
-
-	/* oooh, really bad juju here.  we're just accepting the assertion without validating it. */
+	/* Check to see if this is a correct response.
+	 * Start with verified=1 but then set it to 0 if anything looks wrong.
+	 */
 	oiddata->verified = 1;
 
 	char *openid_ns = NULL;
@@ -1005,58 +1011,26 @@ void cmd_oidf(char *argbuf) {
 		syslog(LOG_DEBUG, "Provider is asserting the Claimed ID '%s'", ChrPtr(oiddata->claimed_id));
 	}
 
-#if 0
-	/* Now that we have all of the parameters, we have to validate the signature against the server */
-	syslog(LOG_DEBUG, "Validating signature...");
+	/* Validate the assertion against the server */
+	syslog(LOG_DEBUG, "Validating...");
 
 	CURL *curl;
 	CURLcode res;
 	struct curl_httppost *formpost = NULL;
 	struct curl_httppost *lastptr = NULL;
 	char errmsg[1024] = "";
-	char *o_assoc_handle = NULL;
-	char *o_sig = NULL;
-	char *o_signed = NULL;
-	int num_signed_values;
-	int i;
-	char k_keyname[128];
-	char k_o_keyname[128];
-	char *k_value = NULL;
-	StrBuf *ReplyBuf;
+	StrBuf *ReplyBuf = NewStrBuf();
 
 	curl_formadd(&formpost, &lastptr,
 		CURLFORM_COPYNAME,	"openid.mode",
 		CURLFORM_COPYCONTENTS,	"check_authentication",
-		CURLFORM_END);
-	syslog(LOG_DEBUG, "%25s : %s", "openid.mode", "check_authentication");
+		CURLFORM_END
+	);
 
-	if (GetHash(keys, "assoc_handle", 12, (void *) &o_assoc_handle)) {
-		curl_formadd(&formpost, &lastptr,
-			CURLFORM_COPYNAME,	"openid.assoc_handle",
-			CURLFORM_COPYCONTENTS,	o_assoc_handle,
-			CURLFORM_END);
-		syslog(LOG_DEBUG, "%25s : %s", "openid.assoc_handle", o_assoc_handle);
-	}
+/*
 
-	if (GetHash(keys, "sig", 3, (void *) &o_sig)) {
-		curl_formadd(&formpost, &lastptr,
-			CURLFORM_COPYNAME,	"openid.sig",
-			CURLFORM_COPYCONTENTS,	o_sig,
-			CURLFORM_END);
-			syslog(LOG_DEBUG, "%25s : %s", "openid.sig", o_sig);
-	}
+FIXME put the rest of this crap in here
 
-	if (GetHash(keys, "signed", 6, (void *) &o_signed)) {
-		curl_formadd(&formpost, &lastptr,
-			CURLFORM_COPYNAME,	"openid.signed",
-			CURLFORM_COPYCONTENTS,	o_signed,
-			CURLFORM_END);
-		syslog(LOG_DEBUG, "%25s : %s", "openid.signed", o_signed);
-
-		num_signed_values = num_tokens(o_signed, ',');
-		for (i=0; i<num_signed_values; ++i) {
-			extract_token(k_keyname, o_signed, i, ',', sizeof k_keyname);
-			if (strcasecmp(k_keyname, "mode")) {	// work around phpMyID bug
 				if (GetHash(keys, k_keyname, strlen(k_keyname), (void *) &k_value)) {
 					snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", k_keyname);
 					curl_formadd(&formpost, &lastptr,
@@ -1065,15 +1039,7 @@ void cmd_oidf(char *argbuf) {
 						CURLFORM_END);
 					syslog(LOG_DEBUG, "%25s : %s", k_o_keyname, k_value);
 				}
-				else {
-					syslog(LOG_INFO, "OpenID: signed field '%s' is missing",
-						k_keyname);
-				}
-			}
-		}
-	}
-	
-	ReplyBuf = NewStrBuf();
+*/
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
 	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->op_url));
@@ -1084,21 +1050,19 @@ void cmd_oidf(char *argbuf) {
 	res = curl_easy_perform(curl);
 	if (res) {
 		syslog(LOG_DEBUG, "cmd_oidf() libcurl error %d: %s", res, errmsg);
+		oiddata->verified = 0;
 	}
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
 
+	/* syslog(LOG_DEBUG, "\033[36m --- VALIDATION REPLY ---\n%s\033[0m", ChrPtr(ReplyBuf)); */
 
-	// syslog(LOG_DEBUG, "\033[36m --- VALIDATION REPLY ---\n%s\033[0m", ChrPtr(ReplyBuf));
-
-
-	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true")) {
-		oiddata->verified = 1;
+	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true") == NULL) {
+		oiddata->verified = 0;
 	}
 	FreeStrBuf(&ReplyBuf);
 
 	syslog(LOG_DEBUG, "Authentication %s.", (oiddata->verified ? "succeeded" : "failed") );
-#endif
 
 	/* Respond to the client */
 
