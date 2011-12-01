@@ -1,5 +1,5 @@
 /*
- * This is an implementation of OpenID 2.0 RELYING PARTY SUPPORT CURRENTLY B0RKEN AND BEING DEVEL0PZ0RED
+ * This is an implementation of OpenID 2.0 relying party support in stateless mode.
  *
  * Copyright (c) 2007-2011 by the citadel.org team
  *
@@ -49,18 +49,26 @@
 #include "user_ops.h"
 
 typedef struct _ctdl_openid {
-	StrBuf *claimed_id;
-	StrBuf *server;
+	StrBuf *op_url;			/* OpenID Provider Endpoint URL */
+	StrBuf *claimed_id;		/* Claimed Identifier */
 	int verified;
 	HashList *sreg_keys;
 } ctdl_openid;
 
+enum {
+	openid_disco_none,
+	openid_disco_xrds,
+	openid_disco_html
+};
+
+
 void Free_ctdl_openid(ctdl_openid **FreeMe)
 {
-	if (*FreeMe == NULL)
+	if (*FreeMe == NULL) {
 		return;
+	}
+	FreeStrBuf(&(*FreeMe)->op_url);
 	FreeStrBuf(&(*FreeMe)->claimed_id);
-	FreeStrBuf(&(*FreeMe)->server);
 	DeleteHash(&(*FreeMe)->sreg_keys);
 	free(*FreeMe);
 	*FreeMe = NULL;
@@ -249,7 +257,7 @@ void cmd_oida(char *argbuf) {
 	cprintf("000\n");
 }
 
-
+#if 0
 /*
  * Attempt to register (populate the vCard) the currently-logged-in user
  * using the data from Simple Registration Extension, if present.
@@ -330,6 +338,7 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
 	}
 	vcard_free(v);
 }
+#endif
 
 
 /*
@@ -339,12 +348,7 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
 void cmd_oidc(char *argbuf) {
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
-	if (!oiddata) {
-		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
-		return;
-	}
-
-	if (!oiddata->verified) {
+	if ( (!oiddata) || (!oiddata->verified) ) {
 		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
 		return;
 	}
@@ -358,7 +362,7 @@ void cmd_oidc(char *argbuf) {
 	if (CC->logged_in) {
 		attach_openid(&CC->user, oiddata->claimed_id);
 		if (oiddata->sreg_keys != NULL) {
-			populate_vcard_from_sreg(oiddata->sreg_keys);
+			/* populate_vcard_from_sreg(oiddata->sreg_keys); */
 		}
 	}
 
@@ -402,7 +406,6 @@ void cmd_oidd(char *argbuf) {
 }
 
 
-
 /*
  * Attempt to auto-create a new Citadel account using the nickname from Simple Registration Extension
  */
@@ -432,7 +435,7 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 	snprintf(new_password, sizeof new_password, "%08lx%08lx", random(), random());
 	CtdlSetPassword(new_password);
 	attach_openid(&CC->user, claimed_id);
-	populate_vcard_from_sreg(sreg_keys);
+	/* populate_vcard_from_sreg(sreg_keys); */
 	return(0);
 }
 
@@ -582,46 +585,15 @@ CURL *ctdl_openid_curl_easy_init(char *errmsg) {
 }
 
 
-/*
- * Begin an HTTP fetch (returns number of bytes actually fetched, or -1 for error) using libcurl.
- */
-int fetch_http(StrBuf *url, StrBuf **target_buf)
-{
-	StrBuf *ReplyBuf;
-	CURL *curl;
-	CURLcode result;
-	char *effective_url = NULL;
-	char errmsg[1024] = "";
-
-	if (StrLength(url) <=0 ) return(-1);
-	ReplyBuf = *target_buf = NewStrBuf ();
-	if (ReplyBuf == 0) return(-1);
-
-	curl = ctdl_openid_curl_easy_init(errmsg);
-	if (!curl) return(-1);
-
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
-
-	result = curl_easy_perform(curl);
-	if (result) {
-		syslog(LOG_DEBUG, "libcurl error %d: %s", result, errmsg);
-	}
-	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
-	StrBufPlain(url, effective_url, -1);
-	
-	curl_easy_cleanup(curl);
-	return StrLength(ReplyBuf);
-}
-
-
-
 struct xrds {
+	StrBuf *CharData;
 	int nesting_level;
 	int in_xrd;
 	int current_service_priority;
-	int selected_service_priority;	/* more here later */
+	int selected_service_priority;
+	StrBuf *current_service_uri;
+	StrBuf *selected_service_uri;
+	int current_service_is_oid2auth;
 };
 
 
@@ -633,17 +605,19 @@ void xrds_xml_start(void *data, const char *supplied_el, const char **attr) {
 
 	if (!strcasecmp(supplied_el, "XRD")) {
 		++xrds->in_xrd;
-		syslog(LOG_DEBUG, "*** XRD CONTAINER BEGIN ***");
 	}
 
 	else if (!strcasecmp(supplied_el, "service")) {
 		xrds->current_service_priority = 0;
+		xrds->current_service_is_oid2auth = 0;
 		for (i=0; attr[i] != NULL; i+=2) {
 			if (!strcasecmp(attr[i], "priority")) {
 				xrds->current_service_priority = atoi(attr[i+1]);
 			}
 		}
 	}
+
+	FlushStrBuf(xrds->CharData);
 }
 
 
@@ -654,36 +628,69 @@ void xrds_xml_end(void *data, const char *supplied_el) {
 
 	if (!strcasecmp(supplied_el, "XRD")) {
 		--xrds->in_xrd;
-		syslog(LOG_DEBUG, "*** XRD CONTAINER END ***");
+	}
+
+	else if (!strcasecmp(supplied_el, "type")) {
+		if (	(xrds->in_xrd)
+			&& (!strcasecmp(ChrPtr(xrds->CharData), "http://specs.openid.net/auth/2.0/server"))
+		) {
+			xrds->current_service_is_oid2auth = 1;
+		}
+		if (	(xrds->in_xrd)
+			&& (!strcasecmp(ChrPtr(xrds->CharData), "http://specs.openid.net/auth/2.0/signon"))
+		) {
+			xrds->current_service_is_oid2auth = 1;
+			/* FIXME in this case, the Claimed ID should be considered immutable */
+		}
+	}
+
+	else if (!strcasecmp(supplied_el, "uri")) {
+		if (xrds->in_xrd) {
+			FlushStrBuf(xrds->current_service_uri);
+			StrBufAppendBuf(xrds->current_service_uri, xrds->CharData, 0);
+		}
 	}
 
 	else if (!strcasecmp(supplied_el, "service")) {
-		/* this is where we should evaluate the service and do stuff */
-		xrds->current_service_priority = 0;
+		if (	(xrds->in_xrd)
+			&& (xrds->current_service_priority < xrds->selected_service_priority)
+			&& (xrds->current_service_is_oid2auth)
+		) {
+			xrds->selected_service_priority = xrds->current_service_priority;
+			FlushStrBuf(xrds->selected_service_uri);
+			StrBufAppendBuf(xrds->selected_service_uri, xrds->current_service_uri, 0);
+		}
+
 	}
+
+	FlushStrBuf(xrds->CharData);
 }
 
 
 void xrds_xml_chardata(void *data, const XML_Char *s, int len) {
 	struct xrds *xrds = (struct xrds *) data;
 
-	if (xrds) ;	/* this is only here to silence the warning for now */
-	
-	/* StrBufAppendBufPlain (xrds->CData, s, len, 0); */
+	StrBufAppendBufPlain (xrds->CharData, s, len, 0);
 }
 
 
 /*
  * Parse an XRDS document.
- * If OpenID stuff is discovered, populate FIXME something and return nonzero
+ * If an OpenID Provider URL is discovered, op_url to that value and return nonzero.
  * If nothing useful happened, return 0.
  */
 int parse_xrds_document(StrBuf *ReplyBuf) {
+	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 	struct xrds xrds;
+	int return_value = 0;
 
-	syslog(LOG_DEBUG, "\033[32m --- XRDS DOCUMENT --- \n%s\033[0m", ChrPtr(ReplyBuf));
+	/* syslog(LOG_DEBUG, "XRDS document:\n%s\n", ChrPtr(ReplyBuf)); */
 
 	memset(&xrds, 0, sizeof (struct xrds));
+	xrds.selected_service_priority = INT_MAX;
+	xrds.CharData = NewStrBuf();
+	xrds.current_service_uri = NewStrBuf();
+	xrds.selected_service_uri = NewStrBuf();
 	XML_Parser xp = XML_ParserCreate(NULL);
 	if (xp) {
 		XML_SetUserData(xp, &xrds);
@@ -697,7 +704,20 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 		syslog(LOG_ALERT, "Cannot create XML parser");
 	}
 
-	return(0);	/* FIXME return nonzero if something wonderful happened */
+	if (xrds.selected_service_priority < INT_MAX) {
+		if (oiddata->op_url == NULL) {
+			oiddata->op_url = NewStrBuf();
+		}
+		FlushStrBuf(oiddata->op_url);
+		StrBufAppendBuf(oiddata->op_url, xrds.selected_service_uri, 0);
+		return_value = openid_disco_xrds;
+	}
+
+	FreeStrBuf(&xrds.CharData);
+	FreeStrBuf(&xrds.current_service_uri);
+	FreeStrBuf(&xrds.selected_service_uri);
+
+	return(return_value);
 }
 
 
@@ -722,7 +742,6 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
 }
 
 
-
 /* Attempt to perform Yadis discovery as specified in Yadis 1.0 section 6.2.5.
  * 
  * If Yadis fails, we then attempt HTML discovery using the same document.
@@ -730,7 +749,8 @@ size_t yadis_headerfunction(void *ptr, size_t size, size_t nmemb, void *userdata
  * If successful, returns nonzero and calls parse_xrds_document() to act upon the received data.
  * If fails, returns 0 and does nothing else.
  */
-int perform_openid2_discovery(StrBuf *YadisURL) {
+int perform_openid2_discovery(StrBuf *SuppliedURL) {
+	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 	int docbytes = (-1);
 	StrBuf *ReplyBuf = NULL;
 	int return_value = 0;
@@ -740,17 +760,17 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	struct curl_slist *my_headers = NULL;
 	StrBuf *x_xrds_location = NULL;
 
-	if (YadisURL == NULL) return(0);
-	syslog(LOG_DEBUG, "perform_openid2_discovery(%s)", ChrPtr(YadisURL));
-	if (StrLength(YadisURL) == 0) return(0);
+	if (!SuppliedURL) return(0);
+	syslog(LOG_DEBUG, "perform_openid2_discovery(%s)", ChrPtr(SuppliedURL));
+	if (StrLength(SuppliedURL) == 0) return(0);
 
-	ReplyBuf = NewStrBuf ();
-	if (ReplyBuf == 0) return(0);
+	ReplyBuf = NewStrBuf();
+	if (!ReplyBuf) return(0);
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
 	if (!curl) return(0);
 
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(YadisURL));
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(SuppliedURL));
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 
@@ -774,8 +794,9 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	 * 
 	 * Option 1: An HTML document with a <head> element that includes a <meta> element with http-equiv
 	 * attribute, X-XRDS-Location,
+	 *
+	 * Does any provider actually do this?  If so then we will implement it in the future.
 	 */
-	/* FIXME handle this somehow */
 
 	/*
 	 * Option 2: HTTP response-headers that include an X-XRDS-Location response-header,
@@ -787,7 +808,7 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	 * If the X-XRDS-Location header was delivered, we know about it at this point...
 	 */
 	if (	(x_xrds_location)
-		&& (strcmp(ChrPtr(x_xrds_location), ChrPtr(YadisURL)))
+		&& (strcmp(ChrPtr(x_xrds_location), ChrPtr(SuppliedURL)))
 	) {
 		syslog(LOG_DEBUG, "X-XRDS-Location: %s ... recursing!", ChrPtr(x_xrds_location));
 		return_value = perform_openid2_discovery(x_xrds_location);
@@ -797,21 +818,21 @@ int perform_openid2_discovery(StrBuf *YadisURL) {
 	/*
 	 * Option 4: the returned web page may *be* an XRDS document.  Try to parse it.
 	 */
-	else if (docbytes >= 0) {
+	if ( (return_value == 0) && (docbytes >= 0)) {
 		return_value = parse_xrds_document(ReplyBuf);
 	}
 
 	/*
 	 * Option 5: if all else fails, attempt HTML based discovery.
 	 */
-	if (return_value == 0) {
-		syslog(LOG_DEBUG, "Attempting HTML discovery");
-		StrBuf *foo = NewStrBuf();
-		extract_link(foo, HKEY("openid2.provider"), ReplyBuf);
-		if (StrLength(foo) > 0) {
-			syslog(LOG_DEBUG, "\033[31mHTML DISCO PROVIDER: %s\033[0m", ChrPtr(foo));
+	if ( (return_value == 0) && (docbytes >= 0)) {
+		if (oiddata->op_url == NULL) {
+			oiddata->op_url = NewStrBuf();
 		}
-		FreeStrBuf(&foo);
+		extract_link(oiddata->op_url, HKEY("openid2.provider"), ReplyBuf);
+		if (StrLength(oiddata->op_url) > 0) {
+			return_value = openid_disco_html;
+		}
 	}
 
 	if (ReplyBuf != NULL) {
@@ -830,8 +851,6 @@ void cmd_oids(char *argbuf) {
 	StrBuf *ArgBuf = NULL;
 	StrBuf *ReplyBuf = NULL;
 	StrBuf *return_to = NULL;
-	StrBuf *trust_root = NULL;
-	StrBuf *openid_delegate = NULL;
 	StrBuf *RedirectUrl = NULL;
 	ctdl_openid *oiddata;
 	int discovery_succeeded = 0;
@@ -840,6 +859,7 @@ void cmd_oids(char *argbuf) {
 
 	CCC->openid_data = oiddata = malloc(sizeof(ctdl_openid));
 	if (oiddata == NULL) {
+		syslog(LOG_ALERT, "malloc() failed: %s", strerror(errno));
 		cprintf("%d malloc failed\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
@@ -850,15 +870,12 @@ void cmd_oids(char *argbuf) {
 
 	oiddata->verified = 0;
 	oiddata->claimed_id = NewStrBufPlain(NULL, StrLength(ArgBuf));
-	trust_root = NewStrBufPlain(NULL, StrLength(ArgBuf));
 	return_to = NewStrBufPlain(NULL, StrLength(ArgBuf));
 
 	StrBufExtract_NextToken(oiddata->claimed_id, ArgBuf, &Pos, '|');
 	StrBufExtract_NextToken(return_to, ArgBuf, &Pos, '|');
-	StrBufExtract_NextToken(trust_root, ArgBuf, &Pos, '|');
 
 	syslog(LOG_DEBUG, "User-Supplied Identifier is: %s", ChrPtr(oiddata->claimed_id));
-
 
 	/********** OpenID 2.0 section 7.3 - Discovery **********/
 
@@ -871,75 +888,84 @@ void cmd_oids(char *argbuf) {
 	 */
 	discovery_succeeded = perform_openid2_discovery(oiddata->claimed_id);
 
+	if (discovery_succeeded == 0) {
+		cprintf("%d There is no OpenID identity provider at this location.\n", ERROR);
+	}
 
+	else {
+		/*
+		 * If we get to this point we are in possession of a valid OpenID Provider URL.
+		 */
+		syslog(LOG_DEBUG, "OP URI '%s' discovered using method %d",
+			ChrPtr(oiddata->op_url),
+			discovery_succeeded
+		);
 
-	/************ OPENID 1.1 **********/
-
-	if (	(fetch_http(oiddata->claimed_id, &ReplyBuf) > 0)
-		&& (StrLength(ReplyBuf) > 0)
-	) {
-		openid_delegate = NewStrBuf();
-		oiddata->server = NewStrBuf();
-		extract_link(oiddata->server, HKEY("openid.server"), ReplyBuf);
-		extract_link(openid_delegate, HKEY("openid.delegate"), ReplyBuf);
-
-		if (StrLength(oiddata->server) == 0) {
-			cprintf("%d There is no OpenID identity provider at this URL.\n", ERROR);
-			FreeStrBuf(&ArgBuf);
-			FreeStrBuf(&ReplyBuf);
-			FreeStrBuf(&return_to);
-			FreeStrBuf(&trust_root);
-			FreeStrBuf(&openid_delegate);
-			FreeStrBuf(&RedirectUrl);
-			return;
+		/* We have to "normalize" our Claimed ID otherwise it will cause some OP's to barf */
+		if (cbmstrcasestr(ChrPtr(oiddata->claimed_id), "://") == NULL) {
+			StrBuf *cid = oiddata->claimed_id;
+			oiddata->claimed_id = NewStrBufPlain(HKEY("http://"));
+			StrBufAppendBuf(oiddata->claimed_id, cid, 0);
+			FreeStrBuf(&cid);
 		}
 
-		/* Empty delegate is legal; we just use the openid_url instead */
-		if (StrLength(openid_delegate) == 0) {
-			StrBufPlain(openid_delegate, SKEY(oiddata->claimed_id));
-		}
+		/*
+		 * OpenID 2.0 section 9: request authentication
+		 * Assemble a URL to which the user-agent will be redirected.
+		 */
+	
+		RedirectUrl = NewStrBufDup(oiddata->op_url);
 
-		/* Assemble a URL to which the user-agent will be redirected. */
+		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.ns="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://specs.openid.net/auth/2.0");
 
-		RedirectUrl = NewStrBufDup(oiddata->server);
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.mode=checkid_setup"), 0);
 
-		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.mode=checkid_setup"
-						       "&openid.identity="), 0);
-		StrBufUrlescAppend(RedirectUrl, openid_delegate, NULL);
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.claimed_id="), 0);
+		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
 
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.identity="), 0);
+		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
+
+		/* return_to completes the round trip */
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
 		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
 
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.trust_root="), 0);
-		StrBufUrlescAppend(RedirectUrl, trust_root, NULL);
+		/* Attribute Exchange
+		 * See:
+		 *	http://openid.net/specs/openid-attribute-exchange-1_0.html
+		 *	http://code.google.com/apis/accounts/docs/OpenID.html#endpoint
+		 * 	http://test-id.net/OP/AXFetch.aspx
+		 */
 
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.sreg.optional="), 0);
-		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ns.ax="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://openid.net/srv/ax/1.0");
 
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.mode=fetch_request"), 0);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.required=firstname,lastname,friendly,nickname"), 0);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.firstname="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/first");
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.lastname="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/last");
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.friendly="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/friendly");
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.nickname="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/nickname");
+
+		syslog(LOG_DEBUG, "OpenID: redirecting client to %s", ChrPtr(RedirectUrl));
 		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
-		
-		FreeStrBuf(&ArgBuf);
-		FreeStrBuf(&ReplyBuf);
-		FreeStrBuf(&return_to);
-		FreeStrBuf(&trust_root);
-		FreeStrBuf(&openid_delegate);
-		FreeStrBuf(&RedirectUrl);
-
-		return;
 	}
-
+	
 	FreeStrBuf(&ArgBuf);
 	FreeStrBuf(&ReplyBuf);
 	FreeStrBuf(&return_to);
-	FreeStrBuf(&trust_root);
-	FreeStrBuf(&openid_delegate);
 	FreeStrBuf(&RedirectUrl);
-
-	cprintf("%d Unable to fetch OpenID URL\n", ERROR);
 }
-
-
-
 
 
 /*
@@ -951,14 +977,16 @@ void cmd_oidf(char *argbuf) {
 	char thiskey[1024];
 	char thisdata[1024];
 	HashList *keys = NULL;
+	const char *Key;
+	void *Value;
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
 	if (oiddata == NULL) {
 		cprintf("%d run OIDS first.\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
-	if (StrLength(oiddata->server) == 0){
-		cprintf("%d need a remote server to authenticate against\n", ERROR + ILLEGAL_VALUE);
+	if (StrLength(oiddata->op_url) == 0){
+		cprintf("%d No OpenID Endpoint URL has been obtained.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 	keys = NewHash(1, NULL);
@@ -970,85 +998,72 @@ void cmd_oidf(char *argbuf) {
 
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		len = extract_token(thiskey, buf, 0, '|', sizeof thiskey);
-		if (len < 0)
+		if (len < 0) {
 			len = sizeof(thiskey) - 1;
+		}
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
-		syslog(LOG_DEBUG, "%s: ["SIZE_T_FMT"] %s", thiskey, strlen(thisdata), thisdata);
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
+	/* Check to see if this is a correct response.
+	 * Start with verified=1 but then set it to 0 if anything looks wrong.
+	 */
+	oiddata->verified = 1;
 
-	/* Now that we have all of the parameters, we have to validate the signature against the server */
-	syslog(LOG_DEBUG, "About to validate the signature...");
+	char *openid_ns = NULL;
+	if (	(!GetHash(keys, "ns", 2, (void *) &openid_ns))
+		|| (strcasecmp(openid_ns, "http://specs.openid.net/auth/2.0"))
+	) {
+		syslog(LOG_DEBUG, "This is not an an OpenID assertion");
+		oiddata->verified = 0;
+	}
+
+	char *openid_mode = NULL;
+	if (	(!GetHash(keys, "mode", 4, (void *) &openid_mode))
+		|| (strcasecmp(openid_mode, "id_res"))
+	) {
+		oiddata->verified = 0;
+	}
+
+	char *openid_claimed_id = NULL;
+	if (GetHash(keys, "claimed_id", 10, (void *) &openid_claimed_id)) {
+		FreeStrBuf(&oiddata->claimed_id);
+		oiddata->claimed_id = NewStrBufPlain(openid_claimed_id, -1);
+		syslog(LOG_DEBUG, "Provider is asserting the Claimed ID '%s'", ChrPtr(oiddata->claimed_id));
+	}
+
+	/* Validate the assertion against the server */
+	syslog(LOG_DEBUG, "Validating...");
 
 	CURL *curl;
 	CURLcode res;
 	struct curl_httppost *formpost = NULL;
 	struct curl_httppost *lastptr = NULL;
 	char errmsg[1024] = "";
-	char *o_assoc_handle = NULL;
-	char *o_sig = NULL;
-	char *o_signed = NULL;
-	int num_signed_values;
-	int i;
-	char k_keyname[128];
-	char k_o_keyname[128];
-	char *k_value = NULL;
-	StrBuf *ReplyBuf;
+	StrBuf *ReplyBuf = NewStrBuf();
 
 	curl_formadd(&formpost, &lastptr,
 		CURLFORM_COPYNAME,	"openid.mode",
 		CURLFORM_COPYCONTENTS,	"check_authentication",
-		CURLFORM_END);
-	syslog(LOG_DEBUG, "%25s : %s", "openid.mode", "check_authentication");
+		CURLFORM_END
+	);
 
-	if (GetHash(keys, "assoc_handle", 12, (void *) &o_assoc_handle)) {
-		curl_formadd(&formpost, &lastptr,
-			CURLFORM_COPYNAME,	"openid.assoc_handle",
-			CURLFORM_COPYCONTENTS,	o_assoc_handle,
-			CURLFORM_END);
-		syslog(LOG_DEBUG, "%25s : %s", "openid.assoc_handle", o_assoc_handle);
-	}
-
-	if (GetHash(keys, "sig", 3, (void *) &o_sig)) {
-		curl_formadd(&formpost, &lastptr,
-			CURLFORM_COPYNAME,	"openid.sig",
-			CURLFORM_COPYCONTENTS,	o_sig,
-			CURLFORM_END);
-			syslog(LOG_DEBUG, "%25s : %s", "openid.sig", o_sig);
-	}
-
-	if (GetHash(keys, "signed", 6, (void *) &o_signed)) {
-		curl_formadd(&formpost, &lastptr,
-			CURLFORM_COPYNAME,	"openid.signed",
-			CURLFORM_COPYCONTENTS,	o_signed,
-			CURLFORM_END);
-		syslog(LOG_DEBUG, "%25s : %s", "openid.signed", o_signed);
-
-		num_signed_values = num_tokens(o_signed, ',');
-		for (i=0; i<num_signed_values; ++i) {
-			extract_token(k_keyname, o_signed, i, ',', sizeof k_keyname);
-			if (strcasecmp(k_keyname, "mode")) {	// work around phpMyID bug
-				if (GetHash(keys, k_keyname, strlen(k_keyname), (void *) &k_value)) {
-					snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", k_keyname);
-					curl_formadd(&formpost, &lastptr,
-						CURLFORM_COPYNAME,	k_o_keyname,
-						CURLFORM_COPYCONTENTS,	k_value,
-						CURLFORM_END);
-					syslog(LOG_DEBUG, "%25s : %s", k_o_keyname, k_value);
-				}
-				else {
-					syslog(LOG_INFO, "OpenID: signed field '%s' is missing",
-						k_keyname);
-				}
-			}
+	HashPos *HashPos = GetNewHashPos(keys, 0);
+	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value) != 0) {
+		syslog(LOG_DEBUG, "%s = %s", Key, (char *)Value);
+		if (strcasecmp(Key, "mode")) {
+			char k_o_keyname[1024];
+			snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", (const char *)Key);
+			curl_formadd(&formpost, &lastptr,
+				CURLFORM_COPYNAME,	k_o_keyname,
+				CURLFORM_COPYCONTENTS,	(char *)Value,
+				CURLFORM_END
+			);
 		}
 	}
-	
-	ReplyBuf = NewStrBuf();
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
-	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->server));
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->op_url));
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
@@ -1056,16 +1071,18 @@ void cmd_oidf(char *argbuf) {
 	res = curl_easy_perform(curl);
 	if (res) {
 		syslog(LOG_DEBUG, "cmd_oidf() libcurl error %d: %s", res, errmsg);
+		oiddata->verified = 0;
 	}
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
 
-	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true")) {
-		oiddata->verified = 1;
+	/* syslog(LOG_DEBUG, "Validation reply: \n%s", ChrPtr(ReplyBuf)); */
+	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true") == NULL) {
+		oiddata->verified = 0;
 	}
 	FreeStrBuf(&ReplyBuf);
 
-	syslog(LOG_DEBUG, "Authentication %s.", (oiddata->verified ? "succeeded" : "failed") );
+	syslog(LOG_DEBUG, "OpenID authentication %s", (oiddata->verified ? "succeeded" : "failed") );
 
 	/* Respond to the client */
 
@@ -1131,7 +1148,7 @@ void cmd_oidf(char *argbuf) {
 				else {
 					cprintf("\n");
 				}
-				syslog(LOG_DEBUG, "The desired Simple Registration name is already taken.");
+				syslog(LOG_DEBUG, "The desired display name is already taken.");
 			}
 		}
 	}
