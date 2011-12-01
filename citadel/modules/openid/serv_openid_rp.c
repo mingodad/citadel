@@ -926,7 +926,17 @@ void cmd_oids(char *argbuf) {
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.identity="), 0);
 		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
 
-		/* Attribute Exchange */
+		/* return_to completes the round trip */
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
+		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
+
+		/* Attribute Exchange
+		 * See:
+		 *	http://openid.net/specs/openid-attribute-exchange-1_0.html
+		 *	http://code.google.com/apis/accounts/docs/OpenID.html#endpoint
+		 * 	http://test-id.net/OP/AXFetch.aspx
+		 */
+
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ns.ax="), 0);
 		StrBufUrlescAppend(RedirectUrl, NULL, "http://openid.net/srv/ax/1.0");
 
@@ -945,10 +955,6 @@ void cmd_oids(char *argbuf) {
 
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.nickname="), 0);
 		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/nickname");
-
-		/* return_to completes the round trip */
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
-		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
 
 		syslog(LOG_DEBUG, "OpenID: redirecting client to %s", ChrPtr(RedirectUrl));
 		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
