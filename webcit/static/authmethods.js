@@ -176,7 +176,9 @@ function openid_onkeypress(e) {
 	}
 	if (keynum == 13) {		/* enter/return key */
 		ajax_try_openid();
+		return false;
 	}
+	return true;
 }
 
 

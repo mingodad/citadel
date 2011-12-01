@@ -73,7 +73,7 @@
 <h2><?_("Log in using OpenID")></h2>
 <form id="ajax_openid_form" method="POST" action="ajax_login_openid">
 <?_("OpenID URL:")>
-<input type="text" name="openid_url" id="openid_url" class="openid_urlarea" onKeyPress="openid_onkeypress(event);">
+<input type="text" name="openid_url" id="openid_url" class="openid_urlarea" onKeyPress="return openid_onkeypress(event);">
 </form>
 <div class="logbuttons"><a href="javascript:ajax_try_openid();"><?_("Log in")></a></div>
 </div>
