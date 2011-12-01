@@ -58,6 +58,8 @@ function authtoggle(show_which_div) {
 	$('authbox_userpass').style.display = 'none';
 	$('authbox_newuser').style.display = 'none';
 	$('authbox_openid').style.display = 'none';
+	$('authbox_google').style.display = 'none';
+	$('authbox_yahoo').style.display = 'none';
 	$(show_which_div).style.display = 'block';
 }
 
@@ -179,6 +181,30 @@ function openid_onkeypress(e) {
 		return false;
 	}
 	return true;
+}
+
+
+/****************** GOOGLE ***********************/
+
+/*
+ * Attempt login with Google, called from modal dialog
+ */
+function ajax_try_google() {
+	$('login_errmsg').innerHTML = "";
+	openid_url = encodeURI("https://www.google.com/accounts/o8/id");
+	do_auth_popout("openid_login?openid_url=" + openid_url);
+}
+
+
+/****************** GOOGLE ***********************/
+
+/*
+ * Attempt login with Google, called from modal dialog
+ */
+function ajax_try_yahoo() {
+	$('login_errmsg').innerHTML = "";
+	openid_url = encodeURI("http://yahoo.com");
+	do_auth_popout("openid_login?openid_url=" + openid_url);
 }
 
 

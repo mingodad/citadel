@@ -23,13 +23,18 @@
     <a class="ib_button_link" href="javascript:authtoggle('authbox_openid');" title="OpenID"><span>
         OpenID
     </span></a>
+
 </li><??("X", 1)>
-<??("COND:SERV:OPENID",2)>
-<li class="ib_button">
-</li>
+<?!("COND:SERV:OPENID",2)><li class="ib_button" style='background-image: url("/static/webcit_icons/openid-32x32.gif");'>
+    <a class="ib_button_link" href="javascript:authtoggle('authbox_google');" title="Google"><span>
+        Google
+    </span></a>
 </li><??("X", 2)>
-<li class="ib_button">
-</li>
+<?!("COND:SERV:OPENID",3)><li class="ib_button" style='background-image: url("/static/webcit_icons/openid-32x32.gif");'>
+    <a class="ib_button_link" href="javascript:authtoggle('authbox_yahoo');" title="Yahoo"><span>
+        Yahoo
+    </span></a>
+</li><??("X", 3)>
 <li class="ib_button">
 </li>
 <li class="ib_button">
@@ -76,6 +81,16 @@
 <input type="text" name="openid_url" id="openid_url" class="openid_urlarea" onKeyPress="return openid_onkeypress(event);">
 </form>
 <div class="logbuttons"><a href="javascript:ajax_try_openid();"><?_("Log in")></a></div>
+</div>
+
+<div class="authbox" id="authbox_google" style="display: none">
+<h2><?_("Log in using Google")></h2>
+<div class="logbuttons"><a href="javascript:ajax_try_google();"><?_("Log in")></a></div>
+</div>
+
+<div class="authbox" id="authbox_yahoo" style="display: none">
+<h2><?_("Log in using Yahoo")></h2>
+<div class="logbuttons"><a href="javascript:ajax_try_yahoo();"><?_("Log in")></a></div>
 </div>
 
 </div>
