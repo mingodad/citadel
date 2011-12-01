@@ -138,10 +138,10 @@ function ajax_try_newuser() {
  */
 function newuser_onkeypress(e) {
 	if (window.event) {		/* IE */
-		keynum = e.keyCode
+		keynum = e.keyCode;
 	}
 	else if (e.which) {		/* real browsers */
-		keynum = e.which
+		keynum = e.which;
 	}
 	if (keynum == 13) {		/* enter/return key */
 		ajax_try_newuser();
@@ -162,5 +162,21 @@ function ajax_try_openid() {
 	do_auth_popout("openid_login?openid_url=" + openid_url);
 }
 
+
+/*
+ * The user pressed a key while in the openid login box.
+ * Is it the enter/return key?  Submit the form.
+ */
+function openid_onkeypress(e) {
+	if (window.event) {		/* IE */
+		keynum = e.keyCode;
+	}
+	else if (e.which) {		/* real browsers */
+		keynum = e.which;
+	}
+	if (keynum == 13) {		/* enter/return key */
+		ajax_try_openid();
+	}
+}
 
 
