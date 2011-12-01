@@ -257,89 +257,6 @@ void cmd_oida(char *argbuf) {
 	cprintf("000\n");
 }
 
-#if 0
-/*
- * Attempt to register (populate the vCard) the currently-logged-in user
- * using the data from Simple Registration Extension, if present.
- */
-void populate_vcard_from_sreg(HashList *sreg_keys) {
-
-	struct vCard *v;
-	int pop = 0;			/* number of fields populated */
-	char *data = NULL;
-	char *postcode = NULL;
-	char *country = NULL;
-
-	if (!sreg_keys) return;
-	v = vcard_new();
-	if (!v) return;
-
-	if (GetHash(sreg_keys, "identity", 8, (void *) &data)) {
-		vcard_add_prop(v, "url;type=openid", data);
-		++pop;
-	}
-
-	if (GetHash(sreg_keys, "sreg.email", 10, (void *) &data)) {
-		vcard_add_prop(v, "email;internet", data);
-		++pop;
-	}
-
-	if (GetHash(sreg_keys, "sreg.nickname", 13, (void *) &data)) {
-		vcard_add_prop(v, "nickname", data);
-		++pop;
-	}
-
-	if (GetHash(sreg_keys, "sreg.fullname", 13, (void *) &data)) {
-		char n[256];
-		vcard_add_prop(v, "fn", data);
-		vcard_fn_to_n(n, data, sizeof n);
-		vcard_add_prop(v, "n", n);
-		++pop;
-	}
-
-	if (!GetHash(sreg_keys, "sreg.postcode", 13, (void *) &postcode)) {
-		postcode = NULL;
-	}
-
-	if (!GetHash(sreg_keys, "sreg.country", 12, (void *) &country)) {
-		country = NULL;
-	}
-
-	if (postcode || country) {
-		char adr[256];
-		snprintf(adr, sizeof adr, ";;;;;%s;%s",
-			(postcode ? postcode : ""),
-			(country ? country : "")
-		);
-		vcard_add_prop(v, "adr", adr);
-		++pop;
-	}
-
-	if (GetHash(sreg_keys, "sreg.dob", 8, (void *) &data)) {
-		vcard_add_prop(v, "bday", data);
-		++pop;
-	}
-
-	if (GetHash(sreg_keys, "sreg.gender", 11, (void *) &data)) {
-		vcard_add_prop(v, "x-funambol-gender", data);
-		++pop;
-	}
-
-	/* Only save the vCard if there is some useful data in it */
-	if (pop > 0) {
-		char *ser;
-		ser = vcard_serialize(v);
-		if (ser) {
-			CtdlWriteObject(USERCONFIGROOM,	"text/x-vcard",
-				ser, strlen(ser)+1, &CC->user, 0, 0, 0
-			);
-			free(ser);
-		}
-	}
-	vcard_free(v);
-}
-#endif
-
 
 /*
  * Create a new user account, manually specifying the name, after successfully
@@ -361,9 +278,6 @@ void cmd_oidc(char *argbuf) {
 	/* Now, if this logged us in, we have to attach the OpenID */
 	if (CC->logged_in) {
 		attach_openid(&CC->user, oiddata->claimed_id);
-		if (oiddata->sreg_keys != NULL) {
-			/* populate_vcard_from_sreg(oiddata->sreg_keys); */
-		}
 	}
 
 }
@@ -407,9 +321,9 @@ void cmd_oidd(char *argbuf) {
 
 
 /*
- * Attempt to auto-create a new Citadel account using the nickname from Simple Registration Extension
+ * Attempt to auto-create a new Citadel account using the nickname from Attribute Exchange
  */
-int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
+int openid_create_user_via_ax(StrBuf *claimed_id, HashList *sreg_keys)
 {
 	char *desired_name = NULL;
 	char new_password[32];
@@ -432,10 +346,15 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 	/* The desired account name is available.  Create the account and log it in! */
 	if (create_user(desired_name, len, 1)) return(6);
 
+	/* Generate a random password.
+	 * The user doesn't care what the password is since he's using OpenID.
+	 */
 	snprintf(new_password, sizeof new_password, "%08lx%08lx", random(), random());
 	CtdlSetPassword(new_password);
+
+	/* Now attach the verified OpenID to this account. */
 	attach_openid(&CC->user, claimed_id);
-	/* populate_vcard_from_sreg(sreg_keys); */
+
 	return(0);
 }
 
@@ -684,8 +603,6 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	struct xrds xrds;
 	int return_value = 0;
 
-	/* syslog(LOG_DEBUG, "XRDS document:\n%s\n", ChrPtr(ReplyBuf)); */
-
 	memset(&xrds, 0, sizeof (struct xrds));
 	xrds.selected_service_priority = INT_MAX;
 	xrds.CharData = NewStrBuf();
@@ -719,7 +636,6 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 
 	return(return_value);
 }
-
 
 
 /*
@@ -927,7 +843,7 @@ void cmd_oids(char *argbuf) {
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.identity="), 0);
 		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
 
-		/* return_to completes the round trip */
+		/* return_to tells the provider how to complete the round trip back to our site */
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
 		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
 
@@ -1126,9 +1042,9 @@ void cmd_oidf(char *argbuf) {
 			}
 
 			/*
-			 * New user whose OpenID is verified and Simple Registration Extension is in use?
+			 * New user whose OpenID is verified and Attribute Exchange gave us a name?
 			 */
-			else if (openid_create_user_via_sreg(oiddata->claimed_id, keys) == 0) {
+			else if (openid_create_user_via_ax(oiddata->claimed_id, keys) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
 				syslog(LOG_DEBUG, "Successfully auto-created new user");
