@@ -257,7 +257,7 @@ void cmd_oida(char *argbuf) {
 	cprintf("000\n");
 }
 
-
+#if 0
 /*
  * Attempt to register (populate the vCard) the currently-logged-in user
  * using the data from Simple Registration Extension, if present.
@@ -338,6 +338,7 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
 	}
 	vcard_free(v);
 }
+#endif
 
 
 /*
@@ -361,7 +362,7 @@ void cmd_oidc(char *argbuf) {
 	if (CC->logged_in) {
 		attach_openid(&CC->user, oiddata->claimed_id);
 		if (oiddata->sreg_keys != NULL) {
-			populate_vcard_from_sreg(oiddata->sreg_keys);
+			/* populate_vcard_from_sreg(oiddata->sreg_keys); */
 		}
 	}
 
@@ -434,7 +435,7 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 	snprintf(new_password, sizeof new_password, "%08lx%08lx", random(), random());
 	CtdlSetPassword(new_password);
 	attach_openid(&CC->user, claimed_id);
-	populate_vcard_from_sreg(sreg_keys);
+	/* populate_vcard_from_sreg(sreg_keys); */
 	return(0);
 }
 
