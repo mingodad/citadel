@@ -35,8 +35,11 @@
         Yahoo
     </span></a>
 </li><??("X", 3)>
-<li class="ib_button">
-</li>
+<?!("COND:SERV:OPENID",4)><li class="ib_button" style='background-image: url("/static/webcit_icons/openid-32x32.gif");'>
+    <a class="ib_button_link" href="javascript:authtoggle('authbox_aol');" title="AOL"><span>
+        AOL/AIM
+    </span></a>
+</li><??("X", 4)>
 <li class="ib_button">
 </li>
 <li class="ib_button">
@@ -91,6 +94,15 @@
 <div class="authbox" id="authbox_yahoo" style="display: none">
 <h2><?_("Log in using Yahoo")></h2>
 <div class="logbuttons"><a href="javascript:ajax_try_yahoo();"><?_("Log in")></a></div>
+</div>
+
+<div class="authbox" id="authbox_aol" style="display: none">
+<h2><?_("Log in using AOL or AIM")></h2>
+<form id="ajax_aol_form" method="POST" action="ajax_login_aol">
+<?_("Enter your AOL or AIM screen name:")>
+<input type="text" name="aol_screenname" id="aol_screenname" class="openid_urlarea" onKeyPress="return aol_onkeypress(event);">
+</form>
+<div class="logbuttons"><a href="javascript:ajax_try_aol();"><?_("Log in")></a></div>
 </div>
 
 </div>
