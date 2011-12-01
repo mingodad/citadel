@@ -60,6 +60,7 @@ function authtoggle(show_which_div) {
 	$('authbox_openid').style.display = 'none';
 	$('authbox_google').style.display = 'none';
 	$('authbox_yahoo').style.display = 'none';
+	$('authbox_aol').style.display = 'none';
 	$(show_which_div).style.display = 'block';
 }
 
@@ -199,12 +200,43 @@ function ajax_try_google() {
 /****************** GOOGLE ***********************/
 
 /*
- * Attempt login with Google, called from modal dialog
+ * Attempt login with Yahoo, called from modal dialog
  */
 function ajax_try_yahoo() {
 	$('login_errmsg').innerHTML = "";
 	openid_url = encodeURI("http://yahoo.com");
 	do_auth_popout("openid_login?openid_url=" + openid_url);
+}
+
+
+/****************** AOL ***********************/
+
+/*
+ * Attempt login with AOL, called from modal dialog
+ */
+function ajax_try_aol() {
+	$('login_errmsg').innerHTML = "";
+	openid_url = encodeURI($('ajax_aol_form').elements["aol_screenname"].value);
+	do_auth_popout("openid_login?openid_url=http://openid.aol.com/" + openid_url);
+}
+
+
+/*
+ * The user pressed a key while in the AOL login box.
+ * Is it the enter/return key?  Submit the form.
+ */
+function aol_onkeypress(e) {
+	if (window.event) {		/* IE */
+		keynum = e.keyCode;
+	}
+	else if (e.which) {		/* real browsers */
+		keynum = e.which;
+	}
+	if (keynum == 13) {		/* enter/return key */
+		ajax_try_aol();
+		return false;
+	}
+	return true;
 }
 
 
