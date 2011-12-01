@@ -683,10 +683,7 @@ int parse_xrds_document(StrBuf *ReplyBuf) {
 	struct xrds xrds;
 	int return_value = 0;
 
-	syslog(LOG_DEBUG,
-		" --- XRDS DOCUMENT BEGIN --- \n%s\n --- XRDS DOCUMENT END ---",
-		ChrPtr(ReplyBuf)
-	);
+	/* syslog(LOG_DEBUG, "XRDS document:\n%s\n", ChrPtr(ReplyBuf)); */
 
 	memset(&xrds, 0, sizeof (struct xrds));
 	xrds.selected_service_priority = INT_MAX;
@@ -918,7 +915,8 @@ void cmd_oids(char *argbuf) {
 	
 		RedirectUrl = NewStrBufDup(oiddata->op_url);
 
-		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.ns=http:%2F%2Fspecs.openid.net%2Fauth%2F2.0"), 0);
+		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.ns="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://specs.openid.net/auth/2.0");
 
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.mode=checkid_setup"), 0);
 
@@ -928,14 +926,29 @@ void cmd_oids(char *argbuf) {
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.identity="), 0);
 		StrBufUrlescAppend(RedirectUrl, oiddata->claimed_id, NULL);
 
+		/* Attribute Exchange */
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ns.ax="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://openid.net/srv/ax/1.0");
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.mode=fetch_request"), 0);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.required=firstname,lastname,friendly,nickname"), 0);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.firstname="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/first");
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.lastname="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/last");
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.friendly="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/friendly");
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.ax.type.nickname="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "http://axschema.org/namePerson/nickname");
+
+		/* return_to completes the round trip */
 		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
 		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
-
-/*
-		We probably have to do something here to set up Simple Registration
-		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.sreg.optional="), 0);
-		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
-*/
 
 		syslog(LOG_DEBUG, "OpenID: redirecting client to %s", ChrPtr(RedirectUrl));
 		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
@@ -1128,7 +1141,7 @@ void cmd_oidf(char *argbuf) {
 				else {
 					cprintf("\n");
 				}
-				syslog(LOG_DEBUG, "The desired Simple Registration name is already taken.");
+				syslog(LOG_DEBUG, "The desired display name is already taken.");
 			}
 		}
 	}
