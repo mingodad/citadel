@@ -325,29 +325,65 @@ void cmd_oidd(char *argbuf) {
  */
 int openid_create_user_via_ax(StrBuf *claimed_id, HashList *sreg_keys)
 {
-	char *desired_name = NULL;
+	char *nickname = NULL;
+	char *firstname = NULL;
+	char *lastname = NULL;
 	char new_password[32];
 	long len;
+	const char *Key;
+	void *Value;
 
 	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
 	if (config.c_disable_newu) return(2);
 	if (CC->logged_in) return(3);
-	if (!GetHash(sreg_keys, "sreg.nickname", 13, (void *) &desired_name)) return(4);
 
-	syslog(LOG_DEBUG, "The desired account name is <%s>", desired_name);
+	HashPos *HashPos = GetNewHashPos(sreg_keys, 0);
+	while (GetNextHashPos(sreg_keys, HashPos, &len, &Key, &Value) != 0) {
+		syslog(LOG_DEBUG, "%s = %s", Key, (char *)Value);
 
-	len = cutuserkey(desired_name);
-	if (!CtdlGetUser(&CC->user, desired_name)) {
-		syslog(LOG_DEBUG, "<%s> is already taken by another user.", desired_name);
+		if (cbmstrcasestr(Key, "value.nickname") != NULL) {
+			nickname = (char *)Value;
+		}
+		else if ( (nickname == NULL) && (cbmstrcasestr(Key, "value.nickname") != NULL)) {
+			nickname = (char *)Value;
+		}
+		else if (cbmstrcasestr(Key, "value.firstname") != NULL) {
+			firstname = (char *)Value;
+		}
+		else if (cbmstrcasestr(Key, "value.lastname") != NULL) {
+			lastname = (char *)Value;
+		}
+
+	}
+	DeleteHashPos(&HashPos);
+
+	if (nickname == NULL) {
+		if ((firstname != NULL) || (lastname != NULL)) {
+			char fullname[1024] = "";
+			if (firstname) strcpy(fullname, firstname);
+			if (firstname && lastname) strcat(fullname, " ");
+			if (lastname) strcat(fullname, lastname);
+			nickname = fullname;
+		}
+	}
+
+	if (nickname == NULL) {
+		return(4);
+	}
+	syslog(LOG_DEBUG, "The desired account name is <%s>", nickname);
+
+	len = cutuserkey(nickname);
+	if (!CtdlGetUser(&CC->user, nickname)) {
+		syslog(LOG_DEBUG, "<%s> is already taken by another user.", nickname);
 		memset(&CC->user, 0, sizeof(struct ctdluser));
 		return(5);
 	}
 
 	/* The desired account name is available.  Create the account and log it in! */
-	if (create_user(desired_name, len, 1)) return(6);
+	if (create_user(nickname, len, 1)) return(6);
 
 	/* Generate a random password.
-	 * The user doesn't care what the password is since he's using OpenID.
+	 * The user doesn't care what the password is since he is using OpenID.
 	 */
 	snprintf(new_password, sizeof new_password, "%08lx%08lx", random(), random());
 	CtdlSetPassword(new_password);
@@ -966,7 +1002,6 @@ void cmd_oidf(char *argbuf) {
 
 	HashPos *HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value) != 0) {
-		syslog(LOG_DEBUG, "%s = %s", Key, (char *)Value);
 		if (strcasecmp(Key, "mode")) {
 			char k_o_keyname[1024];
 			snprintf(k_o_keyname, sizeof k_o_keyname, "openid.%s", (const char *)Key);
@@ -977,6 +1012,7 @@ void cmd_oidf(char *argbuf) {
 			);
 		}
 	}
+	DeleteHashPos(&HashPos);
 
 	curl = ctdl_openid_curl_easy_init(errmsg);
 	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->op_url));
