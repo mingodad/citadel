@@ -1354,7 +1354,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		ptr = html_to_ascii(content, length, 80, 0);
 		wlen = strlen(ptr);
 		client_write(ptr, wlen);
-		if (ptr[wlen-1] != '\n') {
+		if ((wlen > 0) && (ptr[wlen-1] != '\n')) {
 			cprintf("\n");
 		}
 		free(ptr);
@@ -4543,11 +4543,11 @@ void cmd_ent0(char *entargs)
 		{
 			if (StrLength(CCC->StatusMessage)>0)
 			{
-				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("\n"), 0);
+				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("\n000\n"), 0);
 				cputbuf(CCC->StatusMessage);
 			}
 			else
-				client_write(HKEY("\n"));
+				client_write(HKEY("\n000\n"));
 		}
 
 		if (do_confirm) {
