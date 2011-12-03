@@ -366,7 +366,7 @@ void imap_rescan_msgids(void)
 	 */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		msglist = malloc(cdbfr->len);
+		msglist = malloc(cdbfr->len + 1);
 		if (msglist == NULL) {
 			syslog(LOG_CRIT, "IMAP: malloc() failed");
 			CC->kill_me = KILLME_MALLOC_FAILED;
@@ -460,7 +460,7 @@ void imap_rescan_msgids(void)
 		IAPrintf("* %d RECENT\r\n", num_recent);
 	}
 
-	if (num_msgs != 0) {
+	if (msglist != NULL) {
 		free(msglist);
 	}
 	Imap->last_mtime = CC->room.QRmtime;
