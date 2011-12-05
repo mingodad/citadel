@@ -154,10 +154,12 @@ int vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 				 * Bail out silently without saving.
 				 */
 				syslog(LOG_DEBUG, "DOOP!\n");
-				StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress again."), -1, 0);
-				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+				
+				StrBufAppendPrintf(CCC->StatusMessage, "\n%d|", ERROR+ALREADY_EXISTS);
 				StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
 				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+				StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress again."), -1, 0);
+				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("\n"), 0);
 				return 0;
 			}
 		}
@@ -165,18 +167,18 @@ int vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 	syslog(LOG_INFO, "Adding %s (%s) to directory\n", citadel_addr, internet_addr);
 	if (CtdlDirectoryAddUser(internet_addr, citadel_addr))
 	{
-		StrBufAppendBufPlain(CCC->StatusMessage, _("successfully addded emailaddress."), -1, 0);
-		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		StrBufAppendPrintf(CCC->StatusMessage, "\n%d|", CIT_OK);
 		StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
 		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, _("successfully addded emailaddress."), -1, 0);
 		return 1;
 	}
 	else
 	{
-		StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress; its not matching our domain."), -1, 0);
-		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		StrBufAppendPrintf(CCC->StatusMessage, "\n%d|", ERROR+ ILLEGAL_VALUE);
 		StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
 		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress; its not matching our domain."), -1, 0);
 		return 0;
 	}
 }
@@ -272,11 +274,10 @@ void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 				}
 				if (!IsDirectoryAddress && local_addrs_only)
 				{
-					StrBufAppendBufPlain(CCC->StatusMessage, 
-							     _("unable to add this emailaddress; its not matching our domain."), -1, 0);
-					StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+					StrBufAppendPrintf(CCC->StatusMessage, "\n%d|", ERROR+ ILLEGAL_VALUE);
 					StrBufAppendBufPlain(CCC->StatusMessage, addr, -1, 0);
 					StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
+					StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress; its not matching our domain."), -1, 0);
 				}
 			}
 			free(addr);
@@ -546,6 +547,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	if (ptr == NULL) return(0);
 
 	NewStrBufDupAppendFlush(&CC->StatusMessage, NULL, NULL, 0);
+
+	StrBufPrintf(CC->StatusMessage, "%d\n", LISTING_FOLLOWS);
 
 	while (ptr != NULL) {
 	
