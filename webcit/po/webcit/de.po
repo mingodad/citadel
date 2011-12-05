@@ -765,7 +765,7 @@ msgstr "Abgebrochen.   %s wurde nicht gespeichert."
 
 #: ../../sysmsgs.c:108
 msgid " has been saved."
-msgstr  wurde gespeichert."
+msgstr " wurde gespeichert."
 
 #: ../../sysmsgs.c:115 ../../sysmsgs.c:116
 msgid "Room info"
