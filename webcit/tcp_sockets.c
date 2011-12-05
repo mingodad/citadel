@@ -448,7 +448,8 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 
 	if (is_https) {
 		int ntries = 0;
-		if (StrLength(Hdr->ReadBuf) > 0) {
+		if (StrLength(Hdr->ReadBuf) > 0)
+		{
 			pchs = ChrPtr(Hdr->ReadBuf);
 			pch = strchr(pchs, '\n');
 			if (pch != NULL) {
@@ -471,6 +472,8 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 					retval = client_read_sslbuffer(Hdr->ReadBuf, SLEEPING);
 					pchs = ChrPtr(Hdr->ReadBuf);
 					pch = strchr(pchs, '\n');
+					if (pch == NULL)
+						retval = 0;
 				}
 				if (retval == 0) {
 					sleeeeeeeeeep(1);
