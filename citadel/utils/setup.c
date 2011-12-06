@@ -109,11 +109,13 @@ void SetTitles(void)
 	have_run_dir = 0;
 #endif
 
+#ifdef ENABLE_NLS
 	setlocale(LC_MESSAGES, getenv("LANG"));
 
 	bindtextdomain("citadel-setup", LOCALEDIR"/locale");
 	textdomain("citadel-setup");
 	bind_textdomain_codeset("citadel-setup","UTF8");
+#endif
 
 	setup_titles[eCitadelHomeDir] = _("Citadel Home Directory");
 	if (have_run_dir)
