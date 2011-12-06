@@ -530,6 +530,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 */
 
 			I = atol(msg->cm_fields['I']);
+			syslog(LOG_DEBUG, "GAB: \033[35m%s\033[0m", msg->cm_fields['I']);
 			if (I < 0L) return(0);
 
 			/* Store our Internet return address in memory */
