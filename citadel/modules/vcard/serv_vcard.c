@@ -318,7 +318,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	   && (!strcasecmp(&CC->room.QRname[11], USERCONFIGROOM)) ) {
 		/* Yes, we want to do this */
 		yes_my_citadel_config = 1;
-		syslog(LOG_DEBUG, "GAB: user config room detected");
 
 #ifdef VCARD_SAVES_BY_AIDES_ONLY
 		/* Prevent non-aides from performing registration changes */
@@ -332,7 +331,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	/* Is this a room with an address book in it? */
 	if (CC->room.QRdefaultview == VIEW_ADDRESSBOOK) {
 		yes_any_vcard_room = 1;
-		syslog(LOG_DEBUG, "GAB: address book room detected");
 	}
 
 	/* If neither condition exists, don't run this hook. */
@@ -364,7 +362,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	s = vcard_get_prop(v, "fn", 1, 0, 0);
-	if (s) syslog(LOG_DEBUG, "GAB: vCard beforesave hook running for <%s>\n", s);
 
 	if (yes_my_citadel_config) {
 		/* Bingo!  The user is uploading a new vCard, so
@@ -395,7 +392,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		 * vCard in the user's config room at all times.
 		 *
 		 */
-		syslog(LOG_DEBUG, "GAB: deleting old vCard for user");
 		CtdlDeleteMessages(CC->room.QRname, NULL, 0, "[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$");
 
 		/* Make the author of the message the name of the user. */
@@ -471,7 +467,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* Now allow the save to complete. */
 	vcard_free(v);
-	syslog(LOG_DEBUG, "GAB: save will proceed");
 	return(0);
 }
 
@@ -500,17 +495,14 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 	if ( (strlen(CC->room.QRname) >= 12) && (!strcasecmp(&CC->room.QRname[11], USERCONFIGROOM)) ) {
 		is_UserConf = 1;	/* It's someone's config room */
-		syslog(LOG_DEBUG, "GAB: this is someone's config room");
 	}
 	CtdlMailboxName(roomname, sizeof roomname, &CC->user, USERCONFIGROOM);
 	if (!strcasecmp(CC->room.QRname, roomname)) {
 		is_UserConf = 1;
 		is_MY_UserConf = 1;	/* It's MY config room */
-		syslog(LOG_DEBUG, "GAB: this is MY config room");
 	}
 	if (!strcasecmp(CC->room.QRname, ADDRESS_BOOK_ROOM)) {
 		is_GAB = 1;		/* It's the Global Address Book */
-		syslog(LOG_DEBUG, "GAB: this is the Global Address Book");
 	}
 
 	if (!is_UserConf && !is_GAB) return(0);
@@ -529,9 +521,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 * copy it to the Global Address Book room.
 			 */
 
-			I = atol(msg->cm_fields['I']);
-			syslog(LOG_DEBUG, "GAB: \033[35m%s\033[0m", msg->cm_fields['I']);
-			if (I < 0L) return(0);
+			I = atol(msg->cm_fields['3']);
+			if (I <= 0L) return(0);
 
 			/* Store our Internet return address in memory */
 			if (is_MY_UserConf) {
@@ -546,7 +537,6 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			if (!is_GAB)
 			{	// This is not the GAB
 				/* Put it in the Global Address Book room... */
-				syslog(LOG_DEBUG, "GAB: copying to Global Address Book");
 				CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I, 1, msg);
 			}
 

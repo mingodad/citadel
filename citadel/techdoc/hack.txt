@@ -291,6 +291,8 @@ Y	carbon copY	Optional, and only in Mail messages.
 1	suppress index	The presence of this field indicates that the message is
 			disqualified from being added to the full text index.
 2	extnotify	Used internally by the serv_extnotify module.
+3	msgnum		Used internally to pass the local message number in the
+			database to after-save hooks.  Discarded afterwards.
   
 			EXAMPLE
 
