@@ -2635,6 +2635,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 		"CtdlSaveMsgPointersInRoom(room=%s, num_msgs=%d, repl=%d, suppress_rca=%d)\n",
 		roomname, num_newmsgs, do_repl_check, suppress_refcount_adj
 	);
+	if (num_newmsgs > 0) for (i=0; i<num_newmsgs; ++i) syslog(LOG_DEBUG, "\033[33mmerge %ld\033[0m", newmsgidlist[i]);
 
 	strcpy(hold_rm, CC->room.QRname);
 
@@ -2681,6 +2682,10 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 		}
 		if (unique) {
 			msgs_to_be_merged[num_msgs_to_be_merged++] = newmsgidlist[i];
+			syslog(LOG_DEBUG, "\033[32mmsg %ld is being merged\033[0m", newmsgidlist[i]);
+		}
+		else {
+			syslog(LOG_DEBUG, "\033[31mmsg %ld is not unique\033[0m", newmsgidlist[i]);
 		}
 	}
 
