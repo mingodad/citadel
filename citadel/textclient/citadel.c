@@ -86,8 +86,6 @@ char editor_paths[MAX_EDITORS][SIZ];	/* paths to external editors */
 char printcmd[SIZ];		/* print command */
 int editor_pid = (-1);
 char fullname[USERNAME_SIZE];
-int screenwidth;
-int screenheight;
 unsigned room_flags;
 unsigned room_flags2;
 int entmsg_ok = 0;
@@ -107,7 +105,6 @@ char newnow;
 long highest_msg_read;		/* used for <A>bandon room cmd */
 long maxmsgnum;			/* used for <G>oto */
 char sigcaught = 0;
-char have_xterm = 0;		/* are we running on an xterm? */
 char rc_username[USERNAME_SIZE];
 char rc_password[32];
 char hostbuf[SIZ];
@@ -1050,32 +1047,6 @@ void forget_this_floor(CtdlIPC *ipc)
 }
 
 
-/* 
- * Figure out the physical screen dimensions, if we can
- * WARNING:  this is now called from a signal handler!
- */
-void check_screen_dims(void)
-{
-#ifdef TIOCGWINSZ
-	struct {
-		unsigned short height;	/* rows */
-		unsigned short width;	/* columns */
-		unsigned short xpixels;
-		unsigned short ypixels;		/* pixels */
-	} xwinsz;
-
-	if (have_xterm) {	/* dynamically size screen if on an xterm */
-		if (ioctl(0, TIOCGWINSZ, &xwinsz) == 0) {
-			if (xwinsz.height)
-				screenheight = (int) xwinsz.height;
-			if (xwinsz.width)
-				screenwidth = (int) xwinsz.width;
-		}
-	}
-#endif
-}
-
-
 /*
  * set floor mode depending on client, server, and user settings
  */
@@ -1562,6 +1533,11 @@ int main(int argc, char **argv)
 	
 
 	screen_new();
+	/* Get screen dimensions.  First we go to a default of 80x24.
+	 * Then attempt to read the actual screen size from the terminal.
+	 */
+	check_screen_dims();
+
 
 #ifdef __CYGWIN__
 	newprompt("Connect to (return for local server): ", hostbuf, 64);
@@ -1625,9 +1601,6 @@ int main(int argc, char **argv)
 	scr_printf("%-24s\n%s\n%s\n", ipc->ServInfo.software, ipc->ServInfo.humannode,
 		   ipc->ServInfo.site_location);
 
-	screenwidth = 80;	/* default screen dimensions */
-	screenheight = 24;
-	
 	scr_printf(" pause    next    stop\n");
 	scr_printf(" ctrl-s  ctrl-o  ctrl-c\n\n");
 	formout(ipc, "hello");	/* print the opening greeting */
@@ -1799,21 +1772,7 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 	CtdlMakeTempFileName(temp2, sizeof temp2);
 	CtdlMakeTempFileName(tempdir, sizeof tempdir);
 
-	/* Get screen dimensions.  First we go to a default of 80x24.  Then
-	 * we try to get the user's actual screen dimensions off the server.
-	 * However, if we're running on an xterm, all this stuff is
-	 * irrelevant because we're going to dynamically size the screen
-	 * during the session.
-	 */
-	screenwidth = 80;
-	screenheight = 24;
 	r = CtdlIPCGetConfig(ipc, &myself, aaa);
-	if (getenv("TERM") != NULL)
-		if (!strcmp(getenv("TERM"), "xterm")) {
-			have_xterm = 1;
-		}
-	check_screen_dims();
-
 	set_floor_mode(ipc);
 
 	/* Enter the lobby */
@@ -1833,7 +1792,7 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 		mcmd = getcmd(ipc, argbuf);	/* Get keyboard command */
 
 #ifdef TIOCGWINSZ
-		check_screen_dims();		/* if xterm, get screen size */
+		check_screen_dims();		/* get screen size */
 #endif
 
 		if (termn8 == 0)
