@@ -27,6 +27,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include "sysdep.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -44,16 +45,38 @@ char status_line[1024] = "     ";
 /* the default paginator prompt will be replaced by the server's prompt when we learn it */
 char *moreprompt = " -- more -- ";
 
-extern int screenheight;
-extern int screenwidth;
+int screenheight = 24;
+int screenwidth = 80;
 int lines_printed = 0;
 int cols_printed = 0;
 
 extern int rc_ansi_color;
 extern int rc_prompt_control;
-extern void check_screen_dims(void);
-
 void do_keepalive(void);
+
+/*
+ * Attempt to discover the screen dimensions. 
+ * WARNING: This is sometimes called from a signal handler.
+ */
+void check_screen_dims(void)
+{
+#ifdef TIOCGWINSZ
+	struct {
+		unsigned short height;	/* rows */
+		unsigned short width;	/* columns */
+		unsigned short xpixels;
+		unsigned short ypixels;	/* pixels */
+	} xwinsz;
+
+	if (ioctl(0, TIOCGWINSZ, &xwinsz) == 0) {
+		if (xwinsz.height)
+			screenheight = (int) xwinsz.height;
+		if (xwinsz.width)
+			screenwidth = (int) xwinsz.width;
+	}
+#endif
+}
+
 
 /*
  * Initialize the screen
@@ -222,7 +245,6 @@ RETSIGTYPE scr_winch(int signum)
 	/* if we receive this signal, we must be running
 	 * in a terminal that supports resizing.
 	 */
-	have_xterm = 1;
 	caught_sigwinch = 1;
 	check_screen_dims();
 	signal(SIGWINCH, scr_winch);

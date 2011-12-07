@@ -755,9 +755,6 @@ void load_command_set(void)
 		if (!strncasecmp(buf, "expcmd=", 7))
 			strcpy(rc_exp_cmd, &buf[7]);
 
-		if (!strncasecmp(buf, "local_screen_dimensions=", 24))
-			have_xterm = (char) atoi(&buf[24]);
-
 		if (!strncasecmp(buf, "use_floors=", 11)) {
 			if (!strcasecmp(&buf[11], "yes"))
 				rc_floor_mode = RC_YES;

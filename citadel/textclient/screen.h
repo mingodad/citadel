@@ -14,3 +14,7 @@ void wait_indicator(int state);
 void ctdl_beep(void);
 void scr_wait_indicator(int);
 extern char status_line[];
+extern void check_screen_dims(void);
+
+extern int screenwidth;
+extern int screenheight;
