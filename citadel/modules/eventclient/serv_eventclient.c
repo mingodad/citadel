@@ -216,7 +216,7 @@ gotwatchtime(CURLM *multi, long tblock_ms, void *cglobal) {
                 tblock_ms = 14000;
         ev_timer_set(&global->timeev, 0.5e-3 + 1.0e-3 * tblock_ms, 14.0);
         ev_timer_start(EV_DEFAULT_UC, &global->timeev);
-        curl_multi_perform(global, CURL_POLL_NONE);
+        curl_multi_perform(global, &global->nrun);
         return 0;
 }
 
@@ -355,8 +355,8 @@ int evcurl_init(AsyncIO *IO,
 
         OPT(VERBOSE, (long)1);
                 /* unset in production */
-        OPT(NOPROGRESS, (long)1); 
-        OPT(NOSIGNAL, (long)1);
+        OPT(NOPROGRESS, 1L); 
+        OPT(NOSIGNAL, 1L);
         OPT(FAILONERROR, (long)1);
         OPT(ENCODING, "");
         OPT(FOLLOWLOCATION, (long)1);
