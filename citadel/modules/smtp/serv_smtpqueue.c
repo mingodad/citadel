@@ -665,7 +665,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 	/*
 	 * Postpone delivery if we've already tried recently.
-	 * /
+	 */
 	if (((time(NULL) - MyQItem->LastAttempt.when) < MyQItem->LastAttempt.retry) && (run_queue_now == 0)) {
 		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
 
@@ -679,7 +679,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		////FreeQueItem(&MyQItem); TODO: DeleteEntryFromHash frees this?
 		DeleteHashPos(&It);
 		return;
-	}// TODO: reenable me.*/
+	}
 
 	/*
 	 * Bail out if there's no actual message associated with this
