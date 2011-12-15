@@ -42,10 +42,12 @@ void dav_options(void)
 	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
 	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 
+	syslog(LOG_DEBUG, "\033[35m%s (logged_in=%d)\033[0m", ChrPtr(WCC->Hdr->HR.ReqLine), WC->logged_in);
 	/*
 	 * If the room name is blank, the client is doing an OPTIONS on the root.
 	 */
 	if (StrLength(dav_roomname) == 0) {
+		syslog(LOG_DEBUG, "\033[36mOPTIONS requested for root\033[0m");
 		hprintf("HTTP/1.1 200 OK\r\n");
 		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
@@ -65,6 +67,7 @@ void dav_options(void)
 	}
 
 	if (strcasecmp(ChrPtr(WC->CurRoom.name), ChrPtr(dav_roomname))) {
+		syslog(LOG_DEBUG, "\033[36mOPTIONS requested for invalid item\033[0m");
 		hprintf("HTTP/1.1 404 not found\r\n");
 		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
@@ -85,6 +88,7 @@ void dav_options(void)
 	 * a specific item in the room.
 	 */
 	if (StrLength(dav_uid) != 0) {
+		syslog(LOG_DEBUG, "\033[36mOPTIONS requested for specific item\033[0m");
 		dav_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		if (dav_msgnum < 0) {
 			hprintf("HTTP/1.1 404 not found\r\n");
@@ -121,6 +125,7 @@ void dav_options(void)
 	 * We got to this point, which means that the client is requesting
 	 * an OPTIONS on the room itself.
 	 */
+	syslog(LOG_DEBUG, "\033[36mOPTIONS requested for room\033[0m");
 	hprintf("HTTP/1.1 200 OK\r\n");
 	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);

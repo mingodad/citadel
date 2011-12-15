@@ -452,6 +452,8 @@ void dav_propfind(void)
 	char datestring[256];
 	time_t now;
 
+	syslog(LOG_DEBUG, "PROPFIND\n\033[31m%s\033[0m", ChrPtr(WCC->upload));
+
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
 
@@ -491,7 +493,7 @@ void dav_propfind(void)
 
 	/* If dav_uid is non-empty, client is requesting a PROPFIND on
 	 * a specific item in the room.  This is not valid GroupDAV, but
-	 * it is valid WebDAV.
+	 * it is valid WebDAV (and probably CalDAV too).
 	 */
 	if (StrLength(dav_uid) != 0) {
 
