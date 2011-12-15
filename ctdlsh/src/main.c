@@ -30,6 +30,7 @@ COMMAND commands[] = {
 	{	"date",		cmd_datetime,	"Print the server's date and time"	},
 	{	"time",		cmd_datetime,	"Print the server's date and time"	},
 	{	"passwd",	cmd_passwd,	"Set or change an account password"	},
+	{	"shutdown",	cmd_shutdown,	"Shut down the Citadel server"		},
 	{	NULL,		NULL,		NULL					}
 };
 

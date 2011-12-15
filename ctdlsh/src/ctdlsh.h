@@ -63,3 +63,4 @@ int cmd_help(int, char *);
 int cmd_quit(int, char *);
 int cmd_datetime(int, char *);
 int cmd_passwd(int, char *);
+int cmd_shutdown(int, char *);
