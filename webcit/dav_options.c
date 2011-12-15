@@ -43,7 +43,7 @@ void dav_options(void)
 	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 
 	/*
-	 * If the room name is blank, the client is doing an OPTIONS on the root.
+	 * If the room name is blank, the client is doing a top-level OPTIONS.
 	 */
 	if (StrLength(dav_roomname) == 0) {
 		hprintf("HTTP/1.1 200 OK\r\n");
@@ -85,6 +85,7 @@ void dav_options(void)
 	 * a specific item in the room.
 	 */
 	if (StrLength(dav_uid) != 0) {
+
 		dav_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		if (dav_msgnum < 0) {
 			hprintf("HTTP/1.1 404 not found\r\n");
@@ -124,17 +125,7 @@ void dav_options(void)
 	hprintf("HTTP/1.1 200 OK\r\n");
 	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
-
-	/*
-	 * Offer CalDAV (RFC 4791) if this is a calendar room
-	 */
-	if ( (WC->CurRoom.view == VIEW_CALENDAR) || (WC->CurRoom.view == VIEW_CALBRIEF) ) {
-		hprintf("DAV: 1, calendar-access\r\n");
-	}
-	else {
-		hprintf("DAV: 1\r\n");
-	}
-
+	hprintf("DAV: 1\r\n");
 	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
 	begin_burst();
 	wc_printf("\r\n");
