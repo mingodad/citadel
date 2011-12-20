@@ -467,6 +467,9 @@ int rss_do_fetching(rss_aggregator *Cfg)
 	IO->CitContext = CloneContext(&rss_CC);
 	IO->Data = Cfg;
 
+	safestrncpy(((CitContext*)IO->CitContext)->cs_host, 
+		    ChrPtr(Cfg->Url),
+		    sizeof(((CitContext*)IO->CitContext)->cs_host)); 
 
 	syslog(LOG_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(Cfg->Url));
 	ParseURL(&IO->ConnectMe, Cfg->Url, 80);

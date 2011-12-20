@@ -820,6 +820,10 @@ void RunNetworker(AsyncNetworker *NW)
 	SubC->session_specific_data = (char*) NW;
 	NW->IO.CitContext = SubC;
 
+	safestrncpy(SubC->cs_host, 
+		    ChrPtr(NW->host),
+		    sizeof(SubC->cs_host)); 
+
 	if (NW->IO.ConnectMe->IsIP) {
 		QueueEventContext(&NW->IO,
 				  nwc_connect_ip);

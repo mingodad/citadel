@@ -869,6 +869,9 @@ int pop3_do_fetching(pop3aggr *cpptr)
 	SubC = CloneContext (&pop3_client_CC);
 	SubC->session_specific_data = (char*) cpptr;
 	cpptr->IO.CitContext = SubC;
+	safestrncpy(SubC->cs_host, 
+		    ChrPtr(cpptr->Url),
+		    sizeof(SubC->cs_host)); 
 
 	if (cpptr->IO.ConnectMe->IsIP) {
 		QueueEventContext(&cpptr->IO,

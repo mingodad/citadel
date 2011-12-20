@@ -486,10 +486,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		SubC->session_specific_data = (char*) SendMsg;
 		SendMsg->IO.CitContext = SubC;
 		
-		EVS_syslog(LOG_DEBUG, 
-			   "SMTP: %s new context %s - %p\n", __FUNCTION__, 
-			   ChrPtr(SendMsg->MyQEntry->Recipient),
-			   SendMsg);
+		safestrncpy(SubC->cs_host, SendMsg->node, sizeof(SubC->cs_host));
 		syslog(LOG_DEBUG, "SMTP Starting: [%ld] <%s> CC <%d> \n",
 		       SendMsg->MyQItem->MessageID, 
 		       ChrPtr(SendMsg->MyQEntry->Recipient),
