@@ -625,7 +625,7 @@ AC_TRY_RUN([
 		if (ev_version_major() >= 4) {
  			exit(0);
 		}
-	exit(1);
+		exit(1);
  	}
  ],
 		[
