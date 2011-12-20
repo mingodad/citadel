@@ -465,7 +465,7 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 	int lp, rp;
 	int i;
 
-	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EVNCS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	if ((SendMsg==NULL) || 
 	    (SendMsg->MyQEntry == NULL) || 
@@ -479,7 +479,7 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 			    SendMsg->node, 
 			    SendMsg->name);
 
-	EVS_syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
+	EVNCS_syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
 		  SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	/* If no envelope_from is supplied, extract one from the message */
 	SendMsg->envelope_from = ChrPtr(SendMsg->MyQItem->EnvelopeFrom);

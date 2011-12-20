@@ -69,6 +69,9 @@ static void HostByAddrCb(void *data,
                          struct hostent *hostent) 
 {
 	AsyncIO *IO = data;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 	IO->DNSQuery->DNSStatus = status;
 	if  (status != ARES_SUCCESS) {
 //		ResolveError(*cb, status);
@@ -81,6 +84,9 @@ static void HostByAddrCb(void *data,
 static void ParseAnswerA(AsyncIO *IO, unsigned char* abuf, int alen) 
 {
 	struct hostent* host;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	if (IO->DNSQuery->VParsedDNSReply != NULL)
 		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
@@ -99,6 +105,9 @@ static void ParseAnswerA(AsyncIO *IO, unsigned char* abuf, int alen)
 static void ParseAnswerAAAA(AsyncIO *IO, unsigned char* abuf, int alen) 
 {
 	struct hostent* host;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	if (IO->DNSQuery->VParsedDNSReply != NULL)
 		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
@@ -117,6 +126,10 @@ static void ParseAnswerAAAA(AsyncIO *IO, unsigned char* abuf, int alen)
 static void ParseAnswerCNAME(AsyncIO *IO, unsigned char* abuf, int alen) 
 {
 	struct hostent* host;
+
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	if (IO->DNSQuery->VParsedDNSReply != NULL)
 		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
@@ -137,6 +150,9 @@ static void ParseAnswerCNAME(AsyncIO *IO, unsigned char* abuf, int alen)
 static void ParseAnswerMX(AsyncIO *IO, unsigned char* abuf, int alen) 
 {
 	struct ares_mx_reply *mx_out;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	if (IO->DNSQuery->VParsedDNSReply != NULL)
 		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
@@ -156,6 +172,9 @@ static void ParseAnswerMX(AsyncIO *IO, unsigned char* abuf, int alen)
 static void ParseAnswerNS(AsyncIO *IO, unsigned char* abuf, int alen) 
 {
 	struct hostent* host;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	if (IO->DNSQuery->VParsedDNSReply != NULL)
 		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
@@ -174,6 +193,9 @@ static void ParseAnswerNS(AsyncIO *IO, unsigned char* abuf, int alen)
 static void ParseAnswerSRV(AsyncIO *IO, unsigned char* abuf, int alen) 
 {
 	struct ares_srv_reply *srv_out;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	if (IO->DNSQuery->VParsedDNSReply != NULL)
 		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
@@ -193,6 +215,9 @@ static void ParseAnswerSRV(AsyncIO *IO, unsigned char* abuf, int alen)
 static void ParseAnswerTXT(AsyncIO *IO, unsigned char* abuf, int alen) 
 {
 	struct ares_txt_reply *txt_out;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	if (IO->DNSQuery->VParsedDNSReply != NULL)
 		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
@@ -214,6 +239,9 @@ void QueryCb(void *arg,
 	     int alen) 
 {
 	AsyncIO *IO = arg;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	IO->DNSQuery->DNSStatus = status;
 	if (status == ARES_SUCCESS)
@@ -226,11 +254,14 @@ void QueryCb(void *arg,
 		     IO_postdns_callback);
 	IO->unwind_stack.data = IO;
 	ev_idle_start(event_base, &IO->unwind_stack);
-	syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 }
 
 void QueryCbDone(AsyncIO *IO)
 {
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
+
 	ev_idle_stop(event_base, &IO->unwind_stack);
 }
 
@@ -238,6 +269,10 @@ void QueryCbDone(AsyncIO *IO)
 void InitC_ares_dns(AsyncIO *IO)
 {
 	int optmask = 0;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
+
 	if (IO->DNSChannel == NULL) {
 		optmask |= ARES_OPT_SOCK_STATE_CB;
 		IO->DNSOptions.sock_state_cb = SockStateCb;
@@ -252,6 +287,9 @@ void QueueGetHostByNameDone(void *Ctx,
 			    struct hostent *hostent)
 {
 	AsyncIO *IO = (AsyncIO *) Ctx;
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 
 	IO->DNSQuery->DNSStatus = status;
 	IO->DNSQuery->VParsedDNSReply = hostent;
@@ -261,11 +299,14 @@ void QueueGetHostByNameDone(void *Ctx,
 		     IO_postdns_callback);
 	IO->unwind_stack.data = IO;
 	ev_idle_start(event_base, &IO->unwind_stack);
-	syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 }
 
 void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryParts, IO_CallBack PostDNS)
 {
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
+
 	IO->DNSQuery = QueryParts;
 	IO->DNSQuery->PostDNS = PostDNS;
 
@@ -332,11 +373,20 @@ int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *Query
 
 		ares_gethostbyaddr(IO->DNSChannel, address_b, length, family, HostByAddrCb, IO);
 
+#ifdef DEBUG_CARES
+		EV_syslog(LOG_DEBUG, "C-ARES: %s X1\n", __FUNCTION__);
+#endif
 		return 1;
 
 	default:
+#ifdef DEBUG_CARES
+		EV_syslog(LOG_DEBUG, "C-ARES: %sX2\n", __FUNCTION__);
+#endif
 		return 0;
 	}
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
 	ares_query(IO->DNSChannel, name, ns_c_in, Type, QueryCb, IO);
 	return 1;
 }
@@ -352,24 +402,50 @@ static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 	
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
+
 	ares_process_fd(IO->DNSChannel, ARES_SOCKET_BAD, IO->dns_send_event.fd);
 }
 static void DNS_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 	
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+#endif
+
 	ares_process_fd(IO->DNSChannel, IO->dns_recv_event.fd, ARES_SOCKET_BAD);
 }
 
 void SockStateCb(void *data, int sock, int read, int write) 
 {
-/*
+	/*
 	struct timeval tvbuf, maxtv, *ret;
 	
 	int64_t time = 10;
 */
 	AsyncIO *IO = data;
-/* already inside of the event queue. */	
+/* already inside of the event queue. */
+#ifdef DEBUG_CARES
+{
+	struct sockaddr_in sin = {};
+	socklen_t slen;
+	slen = sizeof(sin);	
+	if ((IO->DnsSourcePort == 0) && 
+	    (getsockname(sock, &sin, &slen) == 0))
+	{
+		IO->DnsSourcePort = ntohs(sin.sin_port);
+	}
+	EV_syslog(LOG_DEBUG, "C-ARES: %s %d|%d Sock %d port %hu\n",
+		  __FUNCTION__,
+		  read,
+		  write,
+		  sock,
+		  IO->DnsSourcePort);
+}
+#endif
 
 	if (read) {
 		if ((IO->dns_recv_event.fd != sock) &&

@@ -129,7 +129,6 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 	int nRemain;
 	StrBuf *MsgData;
 	AsyncIO *IO = &Msg->IO;
-	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	IDestructQueItem = DecreaseQReference(Msg->MyQItem);
 
@@ -171,10 +170,9 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 				   "");
 		FreeStrBuf(&MsgData);
 	}
+	RemoveContext(Msg->IO.CitContext);
 	if (IDestructQueItem)
 		RemoveQItem(Msg->MyQItem);
-
-	RemoveContext(Msg->IO.CitContext);
 	DeleteSmtpOutMsg(Msg);
 }
 
@@ -462,7 +460,7 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 	SendMsg->IO.IOBuf         = NewStrBuf();
 
 	SendMsg->IO.NextState     = eReadMessage;
-	
+
 	return SendMsg;
 }
 
@@ -472,11 +470,13 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 			      int KeepMsgText,  /* KeepMsgText allows us to use MsgText as ours. */
 			      int MsgCount)
 {
+	AsyncIO *IO;
 	SmtpOutMsg *SendMsg;
 
 	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	SendMsg = new_smtp_outmsg(MyQItem, MyQEntry, MsgCount);
+	IO = &SendMsg->IO;
 	if (KeepMsgText) SendMsg->msgtext = MsgText;
 	else 		 SendMsg->msgtext = NewStrBufDup(MsgText);
 	
@@ -485,10 +485,15 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		SubC = CloneContext (CC);
 		SubC->session_specific_data = (char*) SendMsg;
 		SendMsg->IO.CitContext = SubC;
-
-		syslog(LOG_DEBUG, "SMTP Starting: [%ld] <%s> \n",
+		
+		EVS_syslog(LOG_DEBUG, 
+			   "SMTP: %s new context %s - %p\n", __FUNCTION__, 
+			   ChrPtr(SendMsg->MyQEntry->Recipient),
+			   SendMsg);
+		syslog(LOG_DEBUG, "SMTP Starting: [%ld] <%s> CC <%d> \n",
 		       SendMsg->MyQItem->MessageID, 
-		       ChrPtr(SendMsg->MyQEntry->Recipient));
+		       ChrPtr(SendMsg->MyQEntry->Recipient),
+		       ((CitContext*)SendMsg->IO.CitContext)->cs_pid);
 		if (SendMsg->pCurrRelay == NULL)
 			QueueEventContext(&SendMsg->IO,
 					  resolve_mx_records);

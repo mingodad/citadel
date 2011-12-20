@@ -120,6 +120,9 @@ struct AsyncIO {
 	/* DNS Related */
 	ev_io dns_recv_event, 
 		dns_send_event;
+#ifdef DEBUG_CARES
+	short int DnsSourcePort;
+#endif
 	struct ares_options DNSOptions;
 	ares_channel DNSChannel;
 	DNSQueryParts *DNSQuery;
@@ -140,8 +143,12 @@ typedef struct _IOAddHandler {
 	IO_CallBack EvAttch;
 }IOAddHandler; 
 
-#define EV_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
-#define EVM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
+#define CCID ((CitContext*)IO->CitContext)->cs_pid
+#define EV_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID, __VA_ARGS__)
+#define EVM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID)
+
+#define EVNC_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
+#define EVNCM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
 
 void FreeAsyncIOContents(AsyncIO *IO);
 
