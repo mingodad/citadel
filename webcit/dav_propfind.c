@@ -12,19 +12,14 @@
  *
  * Copyright (c) 2005-2011 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "webcit.h"
@@ -463,8 +458,7 @@ void dav_propfind(void)
 	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 
 	/*
-	 * If the room name is blank, the client is requesting a
-	 * folder list.
+	 * If the room name is blank, the client is requesting a folder list.
 	 */
 	if (StrLength(dav_roomname) == 0) {
 		dav_collection_list();
@@ -482,9 +476,7 @@ void dav_propfind(void)
 		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-Type: text/plain\r\n");
-		wc_printf("There is no folder called \"%s\" on this server.\r\n",
-			ChrPtr(dav_roomname)
-		);
+		wc_printf("There is no folder called \"%s\" on this server.\r\n", ChrPtr(dav_roomname));
 		end_burst();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
@@ -571,9 +563,9 @@ void dav_propfind(void)
 	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("Content-type: text/xml\r\n");
-	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
+	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok)) {
 		hprintf("Content-encoding: identity\r\n");
-
+	}
 	begin_burst();
 
 	wc_printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"

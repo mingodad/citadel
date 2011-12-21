@@ -248,6 +248,23 @@ AC_CHECK_HEADER(libcitadel.h,
 )
 
 
+dnl Checks for the Expat XML parser.
+AC_CHECK_HEADER(expat.h,
+	[AC_CHECK_LIB(expat, XML_ParserCreateNS,
+		[
+			SERVER_LIBS="-lexpat $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(The Expat XML parser was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(expat.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
+
+
 
 found_ssl=no
 # The big search for OpenSSL
