@@ -252,7 +252,7 @@ dnl Checks for the Expat XML parser.
 AC_CHECK_HEADER(expat.h,
 	[AC_CHECK_LIB(expat, XML_ParserCreateNS,
 		[
-			SERVER_LIBS="-lexpat $SERVER_LIBS"
+			LIBS="-lexpat $LIBS"
 		],
 		[
 			AC_MSG_ERROR(The Expat XML parser was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
