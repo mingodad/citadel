@@ -144,7 +144,7 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 	char            *sep = NULL;
 
 	/* Axe the namespace, we don't care about it */
-///	CtdlLogPrintf(0, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
+///	syslog(LOG_DEBUG, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
 	pel = supplied_el;
 	while (sep = strchr(pel, ':'), sep) {
 		pel = sep + 1;
@@ -160,7 +160,7 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 			     &v))
 		{
 #ifdef DEBUG_RSS
-			CtdlLogPrintf(0, "RSS: START ignoring because of wrong namespace [%s] = [%s]\n", 
+			syslog(LOG_DEBUG, "RSS: START ignoring because of wrong namespace [%s]\n", 
 				      supplied_el);
 #endif
 			return;
@@ -190,12 +190,12 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 		}
 #ifdef DEBUG_RSS
 		else 
-			CtdlLogPrintf(0, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
+			syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
 #endif
 	}
 #ifdef DEBUG_RSS
 	else 
-		CtdlLogPrintf(0, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
+		syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
 #endif
 }
 
@@ -213,7 +213,7 @@ void rss_xml_end(void *data, const char *supplied_el)
 	while (sep = strchr(pel, ':'), sep) {
 		pel = sep + 1;
 	}
-//	CtdlLogPrintf(0, "RSS: END %s...\n", el);
+//	syslog(LOG_DEBUG, "RSS: END %s...\n", el);
 	if (pel != supplied_el)
 	{
 		void *v;
@@ -224,7 +224,7 @@ void rss_xml_end(void *data, const char *supplied_el)
 			     &v))
 		{
 #ifdef DEBUG_RSS
-			CtdlLogPrintf(0, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
+			syslog(LOG_DEBUG, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
 				      supplied_el, ChrPtr(rssc->CData));
 #endif
 			FlushStrBuf(rssc->CData);
@@ -255,12 +255,12 @@ void rss_xml_end(void *data, const char *supplied_el)
 		}
 #ifdef DEBUG_RSS
 		else 
-			CtdlLogPrintf(0, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
+			syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
 #endif
 	}
 #ifdef DEBUG_RSS
 	else 
-		CtdlLogPrintf(0, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
+		syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
 #endif
 	FlushStrBuf(rssc->CData);
 	rssc->Current = NULL;
