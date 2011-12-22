@@ -72,9 +72,11 @@ static void HostByAddrCb(void *data,
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
+	ev_timer_stop (event_base, &IO->dns_timeout);
+
 	IO->DNSQuery->DNSStatus = status;
 	if  (status != ARES_SUCCESS) {
-//		ResolveError(*cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(status), -1);
 		return;
 	}
 	IO->DNSQuery->Data = hostent;
@@ -94,7 +96,7 @@ static void ParseAnswerA(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNSQuery->DNSStatus = ares_parse_a_reply(abuf, alen, &host, NULL, NULL);
 	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
-//    ResolveError(arg->js_cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(IO->DNSQuery->DNSStatus), -1);
 		return;
 	}
 	IO->DNSQuery->VParsedDNSReply = host;
@@ -115,7 +117,7 @@ static void ParseAnswerAAAA(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNSQuery->DNSStatus = ares_parse_aaaa_reply(abuf, alen, &host, NULL, NULL);
 	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
-//    ResolveError(arg->js_cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(IO->DNSQuery->DNSStatus), -1);
 		return;
 	}
 	IO->DNSQuery->VParsedDNSReply = host;
@@ -137,7 +139,7 @@ static void ParseAnswerCNAME(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNSQuery->DNSStatus = ares_parse_a_reply(abuf, alen, &host, NULL, NULL);
 	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
-//    ResolveError(arg->js_cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(IO->DNSQuery->DNSStatus), -1);
 		return;
 	}
 
@@ -160,7 +162,7 @@ static void ParseAnswerMX(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNSQuery->DNSStatus = ares_parse_mx_reply(abuf, alen, &mx_out);
 	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
-//    ResolveError(arg->js_cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(IO->DNSQuery->DNSStatus), -1);
 		return;
 	}
 
@@ -182,7 +184,7 @@ static void ParseAnswerNS(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNSQuery->DNSStatus = ares_parse_ns_reply(abuf, alen, &host);
 	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
-//    ResolveError(arg->js_cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(IO->DNSQuery->DNSStatus), -1);
 		return;
 	}
 	IO->DNSQuery->VParsedDNSReply = host;
@@ -203,7 +205,7 @@ static void ParseAnswerSRV(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNSQuery->DNSStatus = ares_parse_srv_reply(abuf, alen, &srv_out);
 	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
-//    ResolveError(arg->js_cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(IO->DNSQuery->DNSStatus), -1);
 		return;
 	}
 
@@ -225,7 +227,7 @@ static void ParseAnswerTXT(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNSQuery->DNSStatus = ares_parse_txt_reply(abuf, alen, &txt_out);
 	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
-//    ResolveError(arg->js_cb, status);
+		StrBufPlain(IO->ErrMsg, ares_strerror(IO->DNSQuery->DNSStatus), -1);
 		return;
 	}
 	IO->DNSQuery->VParsedDNSReply = txt_out;
@@ -242,13 +244,18 @@ void QueryCb(void *arg,
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
+	ev_timer_stop (event_base, &IO->dns_timeout);
 
 	IO->DNSQuery->DNSStatus = status;
 	if (status == ARES_SUCCESS)
 		IO->DNSQuery->DNS_CB(arg, abuf, alen);
-	else
+	else {
+		EV_syslog(LOG_DEBUG, "C-ARES: Failed by: %s error %s\n",
+			  __FUNCTION__,
+			  ares_strerror(status));
+		StrBufPlain(IO->ErrMsg, ares_strerror(status), -1);
 		IO->DNSQuery->DNSStatus = status;
-///	ev_io_stop(event_base, &IO->DNSQuery->dns_io_event);
+	}
 	
 	ev_idle_init(&IO->unwind_stack,
 		     IO_postdns_callback);
@@ -270,7 +277,7 @@ void InitC_ares_dns(AsyncIO *IO)
 {
 	int optmask = 0;
 #ifdef DEBUG_CARES
-	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "C-ARES: %s %p\n", __FUNCTION__, IO->DNSChannel);
 #endif
 
 	if (IO->DNSChannel == NULL) {
@@ -278,6 +285,33 @@ void InitC_ares_dns(AsyncIO *IO)
 		IO->DNSOptions.sock_state_cb = SockStateCb;
 		IO->DNSOptions.sock_state_cb_data = IO;
 		ares_init_options(&IO->DNSChannel, &IO->DNSOptions, optmask);
+	}
+	IO->DNSQuery->DNSStatus = 0;
+}
+
+static void
+DNS_timeouttrigger_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
+	struct timeval tv, MaxTV;
+	struct timeval *NextTV;
+
+	memset(&MaxTV, 0, sizeof(MaxTV));
+	memset(&tv, 0, sizeof(tv));
+	MaxTV.tv_sec = 30;
+	NextTV = ares_timeout(IO->DNSChannel, &MaxTV, &tv);
+
+	if ((NextTV->tv_sec != MaxTV.tv_sec) ||
+	    (NextTV->tv_usec != MaxTV.tv_usec))
+	{
+		fd_set readers, writers;
+#ifdef DEBUG_CARES
+		EV_syslog(LOG_DEBUG, "C-ARES: %s Timeout!\n", __FUNCTION__);
+#endif
+		FD_ZERO(&readers);
+		FD_ZERO(&writers);
+		ares_fds(IO->DNSChannel, &readers, &writers);
+		ares_process(IO->DNSChannel, &readers, &writers);
 	}
 }
 
@@ -305,6 +339,7 @@ void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryP
 {
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	IO->DnsSourcePort = 0;
 #endif
 
 	IO->DNSQuery = QueryParts;
@@ -312,22 +347,32 @@ void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryP
 
 	InitC_ares_dns(IO);
 
+	ev_timer_init(&IO->dns_timeout, DNS_timeouttrigger_callback, 10, 1);
+	IO->dns_timeout.data = IO;
 	ares_gethostbyname(IO->DNSChannel,
 			   Hostname,   
 			   AF_INET6, /* it falls back to ipv4 in doubt... */
 			   QueueGetHostByNameDone,
 			   IO);
-//get_one_mx_host_ip_done);
+	ev_timer_start(event_base, &IO->dns_timeout);
+
 }
 int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *QueryParts, IO_CallBack PostDNS)
 {
 	int length, family;
 	char address_b[sizeof(struct in6_addr)];
 
+#ifdef DEBUG_CARES
+	IO->DnsSourcePort = 0;
+#endif
+
 	IO->DNSQuery = QueryParts;
 	IO->DNSQuery->PostDNS = PostDNS;
 
 	InitC_ares_dns(IO);
+
+	ev_timer_init(&IO->dns_timeout, DNS_timeouttrigger_callback, 10, 1);
+	IO->dns_timeout.data = IO;
 
 	switch(Type) {
 	case ns_t_a:
@@ -372,7 +417,7 @@ int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *Query
 		}
 
 		ares_gethostbyaddr(IO->DNSChannel, address_b, length, family, HostByAddrCb, IO);
-
+		ev_timer_start(event_base, &IO->dns_timeout);
 #ifdef DEBUG_CARES
 		EV_syslog(LOG_DEBUG, "C-ARES: %s X1\n", __FUNCTION__);
 #endif
@@ -388,6 +433,7 @@ int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *Query
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
 	ares_query(IO->DNSChannel, name, ns_c_in, Type, QueryCb, IO);
+	ev_timer_start(event_base, &IO->dns_timeout);
 	return 1;
 }
 
@@ -396,7 +442,7 @@ int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *Query
 
 
 /*****************************************************************************
- *                   libevent / c-ares integration                           *
+ *                      libev / c-ares integration                           *
  *****************************************************************************/
 static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
@@ -421,11 +467,6 @@ static void DNS_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 
 void SockStateCb(void *data, int sock, int read, int write) 
 {
-	/*
-	struct timeval tvbuf, maxtv, *ret;
-	
-	int64_t time = 10;
-*/
 	AsyncIO *IO = data;
 /* already inside of the event queue. */
 #ifdef DEBUG_CARES
@@ -467,16 +508,6 @@ void SockStateCb(void *data, int sock, int read, int write)
 		IO->dns_send_event.data = IO;
 		ev_io_start(event_base, &IO->dns_send_event);
 	}
-/*
-
-		ev_io_start(event_base, &IO->dns_io_event);
-	
-		maxtv.tv_sec = time/1000;
-		maxtv.tv_usec = (time % 1000) * 1000;
-		
-		ret = ares_timeout(IO->DNSChannel, &maxtv, &tvbuf);
-	}
-*/
 	if ((read == 0) && (write == 0)) {
 		ev_io_stop(event_base, &IO->dns_recv_event);
 		ev_io_stop(event_base, &IO->dns_send_event);

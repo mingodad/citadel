@@ -630,7 +630,6 @@ eNextState SMTP_C_DNSFail(AsyncIO *IO)
 	SmtpOutMsg *pMsg = IO->Data;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_Shutdown(AsyncIO *IO)
