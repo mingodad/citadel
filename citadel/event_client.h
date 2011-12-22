@@ -1,6 +1,7 @@
 #ifndef __EVENT_CLIENT_H__
 #define __EVENT_CLIENT_H__
 #define EV_COMPAT3 0
+#include "sysconfig.h"
 #include <ev.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -120,6 +121,7 @@ struct AsyncIO {
 	/* DNS Related */
 	ev_io dns_recv_event, 
 		dns_send_event;
+	ev_timer dns_timeout;           /* timeout while requesting ips */
 #ifdef DEBUG_CARES
 	short int DnsSourcePort;
 #endif
@@ -133,6 +135,7 @@ struct AsyncIO {
 	ReadAsyncMsg *ReadMsg;
 	struct CtdlMessage *AsyncMsg;
 	struct recptypes *AsyncRcp;
+
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
 	void *Data;        /* application specific data */
 	void *CitContext;  /* Citadel Session context... */

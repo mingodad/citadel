@@ -700,9 +700,15 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	switch (IO->DNSQuery->PostDNS(IO))
 	{
 	case eAbort:
-		IO->DNSFail(IO);
+		switch (IO->DNSFail(IO)) {
+		case eAbort:
+			ShutDownCLient(IO);
+		default:
+			break;
+			
+		}
 	default:
-	    break;
+		break;
 	}
 }
 

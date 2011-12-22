@@ -359,8 +359,8 @@ int evcurl_init(AsyncIO *IO,
         OPT(NOSIGNAL, 1L);
         OPT(FAILONERROR, (long)1);
         OPT(ENCODING, "");
-        OPT(FOLLOWLOCATION, (long)1);
-        OPT(MAXREDIRS, (long)7);
+        OPT(FOLLOWLOCATION, (long)0);
+        OPT(MAXREDIRS, (long)0);
         OPT(USERAGENT, CITADEL);
 
         OPT(TIMEOUT, (long)1800);

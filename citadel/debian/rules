@@ -16,7 +16,7 @@ CFLAGS = -Wall -g -Werror=format-security
 COMPILER=
 EXTRA_ARGS=
 PROFILE_ARGS=
-#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss gcov clang"
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss gcov clang cares"
 ifneq (,$(findstring clang,$(DEB_BUILD_OPTIONS)))
         COMPILER="clang" 
 endif
@@ -52,6 +52,10 @@ endif
 
 ifneq (,$(findstring rss,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -D DEBUG_RSS
+endif
+
+ifneq (,$(findstring cares,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -D DEBUG_CARES
 endif
 
 ifneq (,$(findstring iodbg,$(DEB_BUILD_OPTIONS)))

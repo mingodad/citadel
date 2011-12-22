@@ -186,19 +186,25 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	/* 
 	 * possible ways here: 
 	 * - connection timeout 
-	 * - 
+	 * - dns lookup failed
 	 */
 	StopClientWatchers(IO);
 
 	if (SendMsg->pCurrRelay != NULL)
 		SendMsg->pCurrRelay = SendMsg->pCurrRelay->Next;
 
-	if (SendMsg->pCurrRelay == NULL)
+	if (SendMsg->pCurrRelay == NULL) {
+		EVS_syslog(LOG_DEBUG, "SMTP: %s Aborting\n", __FUNCTION__);
 		return eAbort;
-	if (SendMsg->pCurrRelay->IsIP)
+	}
+	if (SendMsg->pCurrRelay->IsIP) {
+		EVS_syslog(LOG_DEBUG, "SMTP: %s connecting IP\n", __FUNCTION__);
 		return mx_connect_ip(IO);
-	else
+	}
+	else {
+		EVS_syslog(LOG_DEBUG, "SMTP: %s resolving next MX Record\n", __FUNCTION__);
 		return get_one_mx_host_ip(IO);
+	}
 }
 
 
@@ -624,7 +630,6 @@ eNextState SMTP_C_DNSFail(AsyncIO *IO)
 	SmtpOutMsg *pMsg = IO->Data;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_Shutdown(AsyncIO *IO)
