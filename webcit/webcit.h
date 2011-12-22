@@ -52,6 +52,7 @@
 #include <signal.h>
 #include <syslog.h>
 #include <sys/utsname.h>
+#include <expat.h>
 #include <libcitadel.h>
 
 #ifdef HAVE_ICONV

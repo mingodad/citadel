@@ -12,19 +12,14 @@
  *
  * Copyright (c) 2005-2011 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "webcit.h"
@@ -80,7 +75,8 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 
 /*
  * Guess room: if the full URL matches a room, list thats it. We also need to remember direct sub rooms.
- * if the URL is longer, we need to find the "best guess" so we can find the room we're in, and the rest of the URL will be uids and so on.
+ * if the URL is longer, we need to find the "best guess" so we can find the room we're in, and the rest
+ * of the URL will be uids and so on.
  */
 	itfl = GetNewHashPos(WCC->Floors, 0);
 	urlp = GetCount(WCC->Directory);
@@ -92,7 +88,6 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 		if (!IgnoreFloor && /* so we can handle legacy URLS... */
 		    (ThisFolder->Floor != WCC->CurrentFloor))
 			continue;
-
 
 		if (ThisFolder->nRoomNameParts > 1) 
 		{
@@ -432,6 +427,15 @@ void dav_collection_list(void)
 }
 
 
+void propfind_xml_start(void *data, const char *supplied_el, const char **attr) {
+	syslog(LOG_DEBUG, "<%s>", supplied_el);
+}
+
+void propfind_xml_end(void *data, const char *supplied_el) {
+	syslog(LOG_DEBUG, "</%s>", supplied_el);
+}
+
+
 
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
@@ -452,10 +456,44 @@ void dav_propfind(void)
 	char datestring[256];
 	time_t now;
 
-	syslog(LOG_DEBUG, "PROPFIND\n\033[31m%s\033[0m", ChrPtr(WCC->upload));
-
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
+
+	int parse_success = 0;
+	XML_Parser xp = XML_ParserCreateNS(NULL, '|');
+	if (xp) {
+		// XML_SetUserData(xp, XXX);
+		XML_SetElementHandler(xp, propfind_xml_start, propfind_xml_end);
+		// XML_SetCharacterDataHandler(xp, xrds_xml_chardata);
+
+		const char *req = ChrPtr(WCC->upload);
+		if (req) {
+			req = strchr(req, '<');			/* hunt for the first tag */
+		}
+		if (!req) {
+			req = "ERROR";				/* force it to barf */
+		}
+
+		i = XML_Parse(xp, req, strlen(req), 1);
+		if (!i) {
+			syslog(LOG_DEBUG, "XML_Parse() failed: %s", XML_ErrorString(XML_GetErrorCode(xp)));
+			XML_ParserFree(xp);
+			parse_success = 0;
+		}
+		else {
+			parse_success = 1;
+		}
+	}
+
+	if (!parse_success) {
+		hprintf("HTTP/1.1 500 Internal Server Error\r\n");
+		dav_common_headers();
+		hprintf("Date: %s\r\n", datestring);
+		hprintf("Content-Type: text/plain\r\n");
+		wc_printf("An internal error has occurred at %s:%d.\r\n", __FILE__ , __LINE__ );
+		end_burst();
+		return;
+	}
 
 	dav_roomname = NewStrBuf();
 	dav_uid = NewStrBuf();
@@ -463,8 +501,7 @@ void dav_propfind(void)
 	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 
 	/*
-	 * If the room name is blank, the client is requesting a
-	 * folder list.
+	 * If the room name is blank, the client is requesting a folder list.
 	 */
 	if (StrLength(dav_roomname) == 0) {
 		dav_collection_list();
@@ -482,9 +519,7 @@ void dav_propfind(void)
 		dav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-Type: text/plain\r\n");
-		wc_printf("There is no folder called \"%s\" on this server.\r\n",
-			ChrPtr(dav_roomname)
-		);
+		wc_printf("There is no folder called \"%s\" on this server.\r\n", ChrPtr(dav_roomname));
 		end_burst();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
@@ -571,15 +606,18 @@ void dav_propfind(void)
 	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("Content-type: text/xml\r\n");
-	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
+	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok)) {
 		hprintf("Content-encoding: identity\r\n");
-
+	}
 	begin_burst();
 
 	wc_printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
+     		"<multistatus "
+			"xmlns=\"DAV:\" "
+			"xmlns:G=\"http://groupdav.org/\" "
+			"xmlns:CALDAV=\"urn:ietf:params:xml:ns:caldav\""
+		">"
 	);
-
 
 	/* Transmit the collection resource (FIXME check depth and starting point) */
 	wc_printf("<response>");
@@ -596,11 +634,14 @@ void dav_propfind(void)
 	wc_printf("<displayname>");
 	escputs(ChrPtr(WCC->CurRoom.name));
 	wc_printf("</displayname>");
-	wc_printf("<resourcetype><collection/>");
 
+	wc_printf("<owner/>");		/* empty owner ought to be legal; see rfc3744 section 5.1 */
+
+	wc_printf("<resourcetype><collection/>");
 	switch(WCC->CurRoom.defview) {
 		case VIEW_CALENDAR:
 			wc_printf("<G:vevent-collection />");
+			wc_printf("<CALDAV:calendar />");
 			break;
 		case VIEW_TASKS:
 			wc_printf("<G:vtodo-collection />");
@@ -609,8 +650,8 @@ void dav_propfind(void)
 			wc_printf("<G:vcard-collection />");
 			break;
 	}
-
 	wc_printf("</resourcetype>");
+
 	/* FIXME get the mtime
 	wc_printf("<getlastmodified>");
 		escputs(datestring);
@@ -637,6 +678,7 @@ void dav_propfind(void)
 
 	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
 
+		syslog(LOG_DEBUG, "PROPFIND enumerating message # %ld", msgs[i]);
 		strcpy(uid, "");
 		now = (-1);
 		serv_printf("MSG0 %ld|3", msgs[i]);

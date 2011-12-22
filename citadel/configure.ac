@@ -582,7 +582,7 @@ AC_CHECK_LIB(cares, ares_init,
 
 saved_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS $SERVER_LIBS"
-dnl Check for libevent
+dnl Check for c-ares
 AC_CHECK_HEADER(ares.h,
 	[AC_CHECK_LIB(cares, ares_init,
 		[
@@ -600,7 +600,7 @@ CFLAGS="$saved_CFLAGS"
 
 saved_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS $SERVER_LIBS"
-dnl Check for libevent
+dnl Check for libev
 AC_CHECK_HEADER(ev.h,
 	[AC_CHECK_LIB(ev, libcitadel_version_string,
 		[
@@ -616,6 +616,26 @@ AC_CHECK_HEADER(ev.h,
 	]
 )
 CFLAGS="$saved_CFLAGS"
+
+AC_MSG_CHECKING(Checking version of libev)
+AC_TRY_RUN([
+ 	#include <ev.h>
+ 	main() {
+		printf("libev is version %d.%d\n", ev_version_major(), ev_version_minor());
+		if (ev_version_major() >= 4) {
+ 			exit(0);
+		}
+		exit(1);
+ 	}
+ ],
+		[
+			AC_MSG_RESULT(This will do just fine, thank you)
+		],
+		[ 
+			AC_MSG_ERROR(Citadel requires a newer version of libev.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+)
+
 
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
