@@ -570,7 +570,7 @@ AC_CHECK_HEADER(libcitadel.h,
 CFLAGS="$saved_CFLAGS"
 
 
-AC_CHECK_LIB(cares, ares_init,
+AC_CHECK_LIB(cares, ares_parse_mx_reply,
             [
                     C_ARES_LIBS=-lcares
 		    AC_DEFINE(HAVE_C_ARES, 1, [Define to use c-ares library])
@@ -584,7 +584,7 @@ saved_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS $SERVER_LIBS"
 dnl Check for c-ares
 AC_CHECK_HEADER(ares.h,
-	[AC_CHECK_LIB(cares, ares_init,
+	[AC_CHECK_LIB(cares, ares_parse_mx_reply,
 		[
 			LIBS="-lcares $LIBS $SERVER_LIBS"
 		],
