@@ -1049,10 +1049,10 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	FreeStrBuf(&CfgData);
 }
 
+static int doing_pop3client = 0;
 
 void pop3client_scan(void) {
 	static time_t last_run = 0L;
-	static int doing_pop3client = 0;
 ///	struct pop3aggr *pptr;
 	time_t fastest_scan;
 	HashPos *it;
@@ -1117,7 +1117,8 @@ void pop3client_scan(void) {
 void pop3_cleanup(void)
 {
 	/* citthread_mutex_destroy(&POP3QueueMutex); TODO */
-//	DeleteHash(&POP3FetchUrls);
+	while (doing_pop3client != 0) ;
+	DeleteHash(&POP3FetchUrls);
 	DeleteHash(&POP3QueueRooms);
 }
 

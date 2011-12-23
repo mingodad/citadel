@@ -458,7 +458,9 @@ static void WakeupCurlCallback(EV_P_ ev_async *w, int revents)
 
 static void evcurl_shutdown (void)
 {
+	curl_global_cleanup();
 	curl_multi_cleanup(global.mhnd);
+	syslog(LOG_DEBUG, "client_event_thread() initializing\n");
 }
 /*****************************************************************************
  *                       libevent integration                                *
@@ -551,7 +553,7 @@ void *client_event_thread(void *arg)
 
 	CtdlFillSystemContext(&libev_client_CC, "LibEv Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	syslog(LOG_DEBUG, "client_ev_thread() initializing\n");
+	syslog(LOG_DEBUG, "client_event_thread() initializing\n");
 
 	event_base = ev_default_loop (EVFLAG_AUTO);
 	ev_async_init(&AddJob, QueueEventAddCallback);
@@ -565,11 +567,10 @@ void *client_event_thread(void *arg)
 
 	ev_run (event_base, 0);
 
+	syslog(LOG_DEBUG, "client_event_thread() exiting\n");
 
 ///what todo here?	CtdlClearSystemContext();
 	ev_loop_destroy (EV_DEFAULT_UC);
-	curl_global_cleanup();
-	curl_multi_cleanup(global.mhnd);
 	DeleteHash(&QueueEvents);
 	InboundEventQueue = NULL;
 	DeleteHash(&InboundEventQueues[0]);
@@ -642,7 +643,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 
 static void DBEventExitCallback(EV_P_ ev_async *w, int revents)
 {
-	syslog(LOG_DEBUG, "EVENT Q exiting.\n");
+	syslog(LOG_DEBUG, "DB EVENT Q exiting.\n");
 	ev_break(event_db, EVBREAK_ALL);
 }
 
@@ -679,7 +680,7 @@ void *db_event_thread(void *arg)
 
 	CtdlFillSystemContext(&libev_msg_CC, "LibEv DB IO Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	syslog(LOG_DEBUG, "client_msgev_thread() initializing\n");
+	syslog(LOG_DEBUG, "dbevent_thread() initializing\n");
 
 	event_db = ev_loop_new (EVFLAG_AUTO);
 
@@ -690,6 +691,7 @@ void *db_event_thread(void *arg)
 
 	ev_run (event_db, 0);
 
+	syslog(LOG_DEBUG, "dbevent_thread() exiting\n");
 
 //// what to do here?	CtdlClearSystemContext();
 	ev_loop_destroy (event_db);
@@ -703,10 +705,24 @@ void *db_event_thread(void *arg)
 	return(NULL);
 }
 
+void ShutDownEventQueues(void)
+{
+	syslog(LOG_DEBUG, "EVENT Qs triggering exits.\n");
+
+	pthread_mutex_lock(&DBEventQueueMutex);
+	ev_async_send (event_db, &DBExitEventLoop);
+	pthread_mutex_unlock(&DBEventQueueMutex);
+
+	pthread_mutex_lock(&EventQueueMutex);
+	ev_async_send (EV_DEFAULT_ &ExitEventLoop);
+	pthread_mutex_unlock(&EventQueueMutex);
+}
+
 CTDL_MODULE_INIT(event_client)
 {
 	if (!threading)
 	{
+		CtdlRegisterCleanupHook(ShutDownEventQueues);
 		InitEventQueue();
 		DBInitEventQueue();
 		CtdlThreadCreate(/*"Client event", */ client_event_thread);

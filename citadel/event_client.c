@@ -227,18 +227,6 @@ eNextState QueueCurlContext(AsyncIO *IO)
 	return eSendReply;
 }
 
-int ShutDownEventQueue(void)
-{
-	pthread_mutex_lock(&DBEventQueueMutex);
-	ev_async_send (event_db, &DBExitEventLoop);
-	pthread_mutex_unlock(&DBEventQueueMutex);
-
-	pthread_mutex_lock(&EventQueueMutex);
-	ev_async_send (EV_DEFAULT_ &ExitEventLoop);
-	pthread_mutex_unlock(&EventQueueMutex);
-	return 0;
-}
-
 void FreeAsyncIOContents(AsyncIO *IO)
 {
 	FreeStrBuf(&IO->IOBuf);

@@ -159,7 +159,6 @@ eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueCurlContext(AsyncIO *IO);
-int ShutDownEventQueue(void);
 
 eNextState InitEventIO(AsyncIO *IO, 
 		       void *pData, 
