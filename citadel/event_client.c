@@ -700,10 +700,25 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	}
 }
 
-eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_rw_timeout)
+
+eNextState EvConnectSock(AsyncIO *IO, 
+			 void *pData, 
+			 double conn_timeout, 
+			 double first_rw_timeout,
+			 int ReadFirst)
 {
 	int fdflags; 
 	int rc = -1;
+
+	IO->Data = pData;
+	become_session(IO->CitContext);
+	
+	if (ReadFirst) {
+		IO->NextState = eReadMessage;
+	}
+	else {
+		IO->NextState = eSendReply;
+	}
 
 	IO->SendBuf.fd = IO->RecvBuf.fd = 
 		socket(
@@ -790,23 +805,6 @@ void SetNextTimeout(AsyncIO *IO, double timeout)
 	ev_timer_again (event_base,  &IO->rw_timeout);
 }
 
-eNextState InitEventIO(AsyncIO *IO, 
-		       void *pData, 
-		       double conn_timeout, 
-		       double first_rw_timeout,
-		       int ReadFirst)
-{
-	IO->Data = pData;
-	become_session(IO->CitContext);
-	
-	if (ReadFirst) {
-		IO->NextState = eReadMessage;
-	}
-	else {
-		IO->NextState = eSendReply;
-	}
-	return event_connect_socket(IO, conn_timeout, first_rw_timeout);
-}
 
 eNextState ReAttachIO(AsyncIO *IO, 
 		      void *pData, 

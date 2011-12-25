@@ -766,10 +766,10 @@ eNextState pop3_connect_ip(AsyncIO *IO)
 
 	/////// SetConnectStatus(IO);
 
-	return InitEventIO(IO, cpptr, 
-			   POP3_C_ConnTimeout, 
-			   POP3_C_ReadTimeouts[0],
-			   1);
+	return EvConnectSock(IO, cpptr, 
+			     POP3_C_ConnTimeout, 
+			     POP3_C_ReadTimeouts[0],
+			     1);
 }
 
 eNextState pop3_get_one_host_ip_done(AsyncIO *IO)

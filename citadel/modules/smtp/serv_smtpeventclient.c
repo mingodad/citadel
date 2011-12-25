@@ -264,10 +264,10 @@ eNextState mx_connect_ip(AsyncIO *IO)
 
 	SetConnectStatus(IO);
 
-	return InitEventIO(IO, SendMsg, 
-			   SMTP_C_ConnTimeout, 
-			   SMTP_C_ReadTimeouts[0],
-			   1);
+	return EvConnectSock(IO, SendMsg, 
+			     SMTP_C_ConnTimeout, 
+			     SMTP_C_ReadTimeouts[0],
+			     1);
 }
 
 eNextState get_one_mx_host_ip_done(AsyncIO *IO)

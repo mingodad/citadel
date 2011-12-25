@@ -789,10 +789,10 @@ eNextState nwc_connect_ip(AsyncIO *IO)
 	       ChrPtr(NW->host),
 	       ChrPtr(NW->port));
 	
-	return InitEventIO(IO, NW, 
-			   NWC_ConnTimeout, 
-			   NWC_ReadTimeouts[0],
-			   1);
+	return EvConnectSock(IO, NW, 
+			     NWC_ConnTimeout, 
+			     NWC_ReadTimeouts[0],
+			     1);
 }
 
 void RunNetworker(AsyncNetworker *NW)

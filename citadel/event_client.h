@@ -165,11 +165,11 @@ eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueCurlContext(AsyncIO *IO);
 
-eNextState InitEventIO(AsyncIO *IO, 
-		       void *pData, 
-		       double conn_timeout, 
-		       double first_rw_timeout,
-		       int ReadFirst);
+eNextState EvConnectSock(AsyncIO *IO, 
+			 void *pData, 
+			 double conn_timeout, 
+			 double first_rw_timeout,
+			 int ReadFirst);
 void IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents);
 
 int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *QueryParts, IO_CallBack PostDNS);
