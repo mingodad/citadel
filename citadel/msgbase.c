@@ -1239,19 +1239,9 @@ int is_valid_message(struct CtdlMessage *msg) {
 	return 1;
 }
 
-
-/*
- * 'Destructor' for struct CtdlMessage
- */
-void CtdlFreeMessage(struct CtdlMessage *msg)
+void CtdlFreeMessageContents(struct CtdlMessage *msg)
 {
 	int i;
-
-	if (is_valid_message(msg) == 0) 
-	{
-		if (msg != NULL) free (msg);
-		return;
-	}
 
 	for (i = 0; i < 256; ++i)
 		if (msg->cm_fields[i] != NULL) {
@@ -1259,6 +1249,18 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 		}
 
 	msg->cm_magic = 0;	/* just in case */
+}
+/*
+ * 'Destructor' for struct CtdlMessage
+ */
+void CtdlFreeMessage(struct CtdlMessage *msg)
+{
+	if (is_valid_message(msg) == 0) 
+	{
+		if (msg != NULL) free (msg);
+		return;
+	}
+	CtdlFreeMessageContents(msg);
 	free(msg);
 }
 

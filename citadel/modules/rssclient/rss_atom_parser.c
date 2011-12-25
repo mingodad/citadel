@@ -607,7 +607,7 @@ size_t rss_libcurl_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 
 
 
-eNextState ParseRSSReply(AsyncIO *IO)
+eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 {
 	StrBuf *Buf;
 	rss_aggregator *rssc;

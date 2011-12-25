@@ -52,16 +52,16 @@ eNextState ExtNotifyTerminate(AsyncIO *IO);
 eNextState ExtNotifyShutdownAbort(AsyncIO *IO);
 
 /*
-* \brief Sends a message to the Funambol server notifying 
+* \brief Sends a message to the Funambol server notifying
 * of new mail for a user
 * Returns 0 if unsuccessful
 */
-int notify_http_server(char *remoteurl, 
-		       const char* template, long tlen, 
+int notify_http_server(char *remoteurl,
+		       const char* template, long tlen,
 		       char *user,
-		       char *msgid, 
-		       long MsgNum, 
-		       NotifyContext *Ctx) 
+		       char *msgid,
+		       long MsgNum,
+		       NotifyContext *Ctx)
 {
 	CURLcode sta;
 	char msgnumstr[128];
@@ -75,7 +75,17 @@ int notify_http_server(char *remoteurl,
 
 	IO = (AsyncIO*) malloc(sizeof(AsyncIO));
 	memset(IO, 0, sizeof(AsyncIO));
-	IO->CitContext = CloneContext(CC);
+
+	if (! InitcURLIOStruct(IO,
+			       NULL, /* we don't have personal data anymore. */
+			       "Citadel ExtNotify",
+			       EvaluateResult,
+			       ExtNotifyTerminate,
+			       ExtNotifyShutdownAbort))
+	{
+		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
+		goto abort;
+	}
 
 	snprintf(msgnumstr, 128, "%ld", MsgNum);
 
@@ -88,12 +98,17 @@ int notify_http_server(char *remoteurl,
 		if (Ftemplate == NULL) {
 			char buf[SIZ];
 
-			snprintf(buf, SIZ, 
-				 "Cannot load template file %s [%s]won't send notification\r\n", 
-				 file_funambol_msg, strerror(errno));
+			snprintf(buf, SIZ,
+				 "Cannot load template file %s [%s] "
+				 "won't send notification\r\n",
+				 file_funambol_msg,
+				 strerror(errno));
 			syslog(LOG_ERR, "%s", buf);
-
-			CtdlAideMessage(buf, "External notifier unable to find message template!");
+			// TODO: once an hour!
+			CtdlAideMessage(
+				buf,
+				"External notifier: "
+				"unable to find message template!");
 			goto abort;
 		}
 		mimetype = GuessMimeByFilename(template, tlen);
@@ -102,38 +117,55 @@ int notify_http_server(char *remoteurl,
 		memset(buf, 0, SIZ);
 		SOAPMessage = malloc(3072);
 		memset(SOAPMessage, 0, 3072);
-	
+
 		while(fgets(buf, SIZ, Ftemplate) != NULL) {
 			strcat(SOAPMessage, buf);
 		}
 		fclose(Ftemplate);
-	
+
 		if (strlen(SOAPMessage) < 0) {
 			char buf[SIZ];
 
-			snprintf(buf, SIZ, 
-				 "Cannot load template file %s; won't send notification\r\n", 
+			snprintf(buf, SIZ,
+				 "Cannot load template file %s;"
+				 " won't send notification\r\n",
 				 file_funambol_msg);
 			syslog(LOG_ERR, "%s", buf);
 
-			CtdlAideMessage(buf, "External notifier unable to load message template!");
+			CtdlAideMessage(buf, "External notifier: "
+					"unable to load message template!");
 			goto abort;
 		}
 		// Do substitutions
 		help_subst(SOAPMessage, "^notifyuser", user);
-		help_subst(SOAPMessage, "^syncsource", config.c_funambol_source);
+		help_subst(SOAPMessage, "^syncsource",
+			   config.c_funambol_source);
 		help_subst(SOAPMessage, "^msgid", msgid);
 		help_subst(SOAPMessage, "^msgnum", msgnumstr);
 
 		/* pass our list of custom made headers */
 
 		contenttype=(char*) malloc(40+strlen(mimetype));
-		sprintf(contenttype,"Content-Type: %s; charset=utf-8", mimetype);
+		sprintf(contenttype,
+			"Content-Type: %s; charset=utf-8",
+			mimetype);
 
-		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "SOAPAction: \"\"");
-		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, contenttype);
-		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
-		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Pragma: no-cache");
+		IO->HttpReq.headers = curl_slist_append(
+			IO->HttpReq.headers,
+			"SOAPAction: \"\"");
+
+		IO->HttpReq.headers = curl_slist_append(
+			IO->HttpReq.headers,
+			contenttype);
+
+		IO->HttpReq.headers = curl_slist_append(
+			IO->HttpReq.headers,
+			"Accept: application/soap+xml, "
+			"application/mime, multipart/related, text/*");
+
+		IO->HttpReq.headers = curl_slist_append(
+			IO->HttpReq.headers,
+			"Pragma: no-cache");
 
 		/* Now specify the POST binary data */
 		IO->HttpReq.PlainPostData = SOAPMessage;
@@ -144,48 +176,31 @@ int notify_http_server(char *remoteurl,
 		help_subst(remoteurl, "^syncsource", config.c_funambol_source);
 		help_subst(remoteurl, "^msgid", msgid);
 		help_subst(remoteurl, "^msgnum", msgnumstr);
-		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Accept: application/soap+xml, application/mime, multipart/related, text/*");
-		IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Pragma: no-cache");
+
+		IO->HttpReq.headers = curl_slist_append(
+			IO->HttpReq.headers,
+			"Accept: application/soap+xml, "
+			"application/mime, multipart/related, text/*");
+
+		IO->HttpReq.headers = curl_slist_append(
+			IO->HttpReq.headers,
+			"Pragma: no-cache");
 	}
 
 	Buf = NewStrBufPlain (remoteurl, -1);
 	ParseURL(&IO->ConnectMe, Buf, 80);
 	FreeStrBuf(&Buf); /* TODO: this is uncool... */
 	CurlPrepareURL(IO->ConnectMe);
-	if (! evcurl_init(IO, 
-//			  Ctx, 
-			  NULL,
-			  "Citadel ExtNotify",
-			  EvaluateResult, 
-			  ExtNotifyTerminate,
-			  ExtNotifyShutdownAbort))
-	{
-		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
-		goto abort;
-	}
+
 	chnd = IO->HttpReq.chnd;
 	OPT(SSL_VERIFYPEER, 0);
 	OPT(SSL_VERIFYHOST, 0);
-/*
-	ReplyBuf = NewStrBuf();
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
-*/
-	if (
-		(!IsEmptyStr(config.c_ip_addr))
-		&& (strcmp(config.c_ip_addr, "*"))
-		&& (strcmp(config.c_ip_addr, "::"))
-		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
-	) {
-		OPT(INTERFACE, config.c_ip_addr);
-	}
 
 	QueueCurlContext(IO);
 
 	return 0;
 abort:
-///	curl_slist_free_all (headers);
-///	curl_easy_cleanup(curl);
+
 	if (contenttype) free(contenttype);
 	if (SOAPMessage != NULL) free(SOAPMessage);
 	if (buf != NULL) free(buf);
@@ -200,31 +215,47 @@ eNextState EvaluateResult(AsyncIO *IO)
 	if (IO->HttpReq.httpcode != 200) {
 		StrBuf *ErrMsg;
 
-		syslog(LOG_ALERT, "libcurl error %ld: %s\n", 
-			      IO->HttpReq.httpcode, 
+		syslog(LOG_ALERT, "libcurl error %ld: %s\n",
+			      IO->HttpReq.httpcode,
 			      IO->HttpReq.errdesc);
 
-		ErrMsg = NewStrBufPlain(HKEY("Error sending your Notification\n"));
-		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %ld: \n\t\t%s\n", 
-				   IO->HttpReq.httpcode, 
+		ErrMsg = NewStrBufPlain(
+			HKEY("Error sending your Notification\n"));
+		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %ld: \n\t\t%s\n",
+				   IO->HttpReq.httpcode,
 				   IO->HttpReq.errdesc);
-		StrBufAppendBufPlain(ErrMsg, HKEY("\nWas Trying to send: \n"), 0);
+
+		StrBufAppendBufPlain(ErrMsg,
+				     HKEY("\nWas Trying to send: \n"),
+				     0);
+
 		StrBufAppendBufPlain(ErrMsg, IO->ConnectMe->PlainUrl, -1, 0);
 		if (IO->HttpReq.PlainPostDataLen > 0) {
-			StrBufAppendBufPlain(ErrMsg, HKEY("\nThe Post document was: \n"), 0);
-			StrBufAppendBufPlain(ErrMsg, 
-					     IO->HttpReq.PlainPostData, 
+			StrBufAppendBufPlain(
+				ErrMsg,
+				HKEY("\nThe Post document was: \n"),
+				0);
+			StrBufAppendBufPlain(ErrMsg,
+					     IO->HttpReq.PlainPostData,
 					     IO->HttpReq.PlainPostDataLen, 0);
-			StrBufAppendBufPlain(ErrMsg, HKEY("\n\n"), 0);			
+			StrBufAppendBufPlain(ErrMsg, HKEY("\n\n"), 0);
 		}
-		if (StrLength(IO->HttpReq.ReplyData) > 0) {			
-			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThe Serverreply was: \n\n"), 0);
+		if (StrLength(IO->HttpReq.ReplyData) > 0) {
+			StrBufAppendBufPlain(
+				ErrMsg,
+				HKEY("\n\nThe Serverreply was: \n\n"),
+				0);
 			StrBufAppendBuf(ErrMsg, IO->HttpReq.ReplyData, 0);
 		}
-		else 
-			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThere was no Serverreply.\n\n"), 0);
+		else
+			StrBufAppendBufPlain(
+				ErrMsg,
+				HKEY("\n\nThere was no Serverreply.\n\n"),
+				0);
 		///ExtNotify_PutErrorMessage(Ctx, ErrMsg);
-		CtdlAideMessage(ChrPtr(ErrMsg), "External notifier unable to load message template!");
+		CtdlAideMessage(ChrPtr(ErrMsg),
+				"External notifier: "
+				"unable to contact notification host!");
 	}
 
 	syslog(LOG_DEBUG, "Funambol notified\n");
@@ -241,11 +272,13 @@ eNextState EvaluateResult(AsyncIO *IO)
 		StrBuf *ErrMsg;
 
 		It = GetNewHashPos(Ctx.NotifyErrors, 0);
-		while (GetNextHashPos(Ctx.NotifyErrors, It, &len, &Key, &vErr) && 
+		while (GetNextHashPos(Ctx.NotifyErrors,
+		It, &len, &Key, &vErr) &&
 		       (vErr != NULL)) {
 			ErrMsg = (StrBuf*) vErr;
-			quickie_message("Citadel", NULL, NULL, AIDEROOM, ChrPtr(ErrMsg), FMT_FIXED, 
-					"Failed to notify external service about inbound mail");
+			quickie_message("Citadel", NULL, NULL,
+			AIDEROOM, ChrPtr(ErrMsg), FMT_FIXED,
+			"Failed to notify external service about inbound mail");
 		}
 
 		DeleteHashPos(&It);

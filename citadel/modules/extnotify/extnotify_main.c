@@ -284,9 +284,6 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 				 config.c_funambol_port,
 				 FUNAMBOL_WS);
 
-			SubC = CloneContext (CC);
-			SubC->session_specific_data = NULL;// (char*) DupNotifyContext(Ctx);
-			
 			notify_http_server(remoteurl, 
 					   file_funambol_msg,
 					   strlen(file_funambol_msg),/*GNA*/
@@ -319,8 +316,6 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 					FlushStrBuf(FileBuf);
 				memcpy(URLBuf, ChrPtr(URL), StrLength(URL) + 1);
 
-				SubC = CloneContext (CC);
-				SubC->session_specific_data = NULL;// (char*) DupNotifyContext(Ctx);
 				notify_http_server(URLBuf, 
 						   ChrPtr(FileBuf),
 						   StrLength(FileBuf),
@@ -371,7 +366,6 @@ void do_extnotify_queue(void)
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-
 	if (IsEmptyStr(config.c_pager_program) && 
 	    IsEmptyStr(config.c_funambol_host))
 	{
@@ -381,6 +375,8 @@ void do_extnotify_queue(void)
 
 	if (doing_queue) return;
 	doing_queue = 1;
+
+	become_session(&extnotify_queue_CC);
 
 	pthread_setspecific(MyConKey, (void *)&extnotify_queue_CC);
 

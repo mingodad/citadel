@@ -693,7 +693,6 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 			ShutDownCLient(IO);
 		default:
 			break;
-			
 		}
 	default:
 		break;
@@ -874,5 +873,30 @@ void InitIOStruct(AsyncIO *IO,
 	IO->SendBuf.Buf   = NewStrBufPlain(NULL, 1024);
 	IO->RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
 	IO->IOBuf         = NewStrBuf();
+
+}
+
+extern int evcurl_init(AsyncIO *IO);
+
+int InitcURLIOStruct(AsyncIO *IO,
+		     void *Data,
+		     const char* Desc,
+		     IO_CallBack SendDone,
+		     IO_CallBack Terminate,
+		     IO_CallBack ShutdownAbort)
+{
+	IO->Data          = Data;
+
+	IO->CitContext    = CloneContext(CC);
+	((CitContext *)IO->CitContext)->session_specific_data = (char*) Data;
+
+	IO->SendDone = SendDone;
+	IO->Terminate = Terminate;
+	IO->ShutdownAbort = ShutdownAbort;
+
+	strcpy(IO->HttpReq.errdesc, Desc);
+
+
+	return  evcurl_init(IO);
 
 }

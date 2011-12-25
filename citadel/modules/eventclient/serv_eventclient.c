@@ -326,32 +326,19 @@ void curl_init_connectionpool(void)
         return;
 }
 
-
-
-
-int evcurl_init(AsyncIO *IO,
-                void *CustomData,
-                const char* Desc,
-                IO_CallBack CallBack,
-                IO_CallBack Terminate, 
-		IO_CallBack ShutdownAbort)
+int evcurl_init(AsyncIO *IO)
 {
         CURLcode sta;
         CURL *chnd;
 
         EVM_syslog(LOG_DEBUG, "EVCURL: evcurl_init called ms\n");
         IO->HttpReq.attached = 0;
-        IO->SendDone = CallBack;
-        IO->Terminate = Terminate;
-	IO->ShutdownAbort = ShutdownAbort;
         chnd = IO->HttpReq.chnd = curl_easy_init();
         if (!chnd)
         {
                 EVM_syslog(LOG_ERR, "EVCURL: error initializing curl handle\n");
-                return 1;
+                return 0;
         }
-
-        strcpy(IO->HttpReq.errdesc, Desc);
 
         OPT(VERBOSE, (long)1);
                 /* unset in production */
@@ -382,32 +369,13 @@ int evcurl_init(AsyncIO *IO,
 	) {
 		OPT(INTERFACE, config.c_ip_addr);
 	}
-		/* point to a structure that points back to the perl structure and stuff */
-	EV_syslog(LOG_DEBUG, "EVCURL: Loading URL: %s\n", IO->ConnectMe->PlainUrl);
-	OPT(URL, IO->ConnectMe->PlainUrl);
-	if (StrLength(IO->ConnectMe->CurlCreds))
-	{
-		OPT(HTTPAUTH, (long)CURLAUTH_BASIC);
-		OPT(USERPWD, ChrPtr(IO->ConnectMe->CurlCreds));
-	}
+
 #ifdef CURLOPT_HTTP_CONTENT_DECODING
 	OPT(HTTP_CONTENT_DECODING, 1);
 	OPT(ENCODING, "");
 #endif
-	if (StrLength(IO->HttpReq.PostData) > 0)
-	{ 
-		OPT(POSTFIELDS, ChrPtr(IO->HttpReq.PostData));
-		OPT(POSTFIELDSIZE, StrLength(IO->HttpReq.PostData));
-
-	}
-	else if ((IO->HttpReq.PlainPostDataLen != 0) && (IO->HttpReq.PlainPostData != NULL))
-	{
-		OPT(POSTFIELDS, IO->HttpReq.PlainPostData);
-		OPT(POSTFIELDSIZE, IO->HttpReq.PlainPostDataLen);
-	}
 
 	IO->HttpReq.headers = curl_slist_append(IO->HttpReq.headers, "Connection: close");
-	OPT(HTTPHEADER, IO->HttpReq.headers);
 
 	return 1;
 }
@@ -436,6 +404,30 @@ eNextState
 evcurl_handle_start(AsyncIO *IO) 
 {
 	CURLMcode msta;
+        CURLcode sta;
+        CURL *chnd;
+
+        chnd = IO->HttpReq.chnd;
+	EV_syslog(LOG_DEBUG, "EVCURL: Loading URL: %s\n", IO->ConnectMe->PlainUrl);
+	OPT(URL, IO->ConnectMe->PlainUrl);
+	if (StrLength(IO->ConnectMe->CurlCreds))
+	{
+		OPT(HTTPAUTH, (long)CURLAUTH_BASIC);
+		OPT(USERPWD, ChrPtr(IO->ConnectMe->CurlCreds));
+	}
+	if (StrLength(IO->HttpReq.PostData) > 0)
+	{ 
+		OPT(POSTFIELDS, ChrPtr(IO->HttpReq.PostData));
+		OPT(POSTFIELDSIZE, StrLength(IO->HttpReq.PostData));
+
+	}
+	else if ((IO->HttpReq.PlainPostDataLen != 0) && (IO->HttpReq.PlainPostData != NULL))
+	{
+		OPT(POSTFIELDS, IO->HttpReq.PlainPostData);
+		OPT(POSTFIELDSIZE, IO->HttpReq.PlainPostDataLen);
+	}
+	OPT(HTTPHEADER, IO->HttpReq.headers);
+
 	IO->NextState = eConnect;
 	EVM_syslog(LOG_DEBUG, "EVCURL: attaching to curl multi handle\n");
 	msta = curl_multi_add_handle(global.mhnd, IO->HttpReq.chnd);

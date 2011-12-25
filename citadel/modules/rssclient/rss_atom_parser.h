@@ -62,7 +62,7 @@ struct rss_room_counter {
 };
 
 typedef struct __networker_save_message {
-	struct CtdlMessage *Msg;
+	struct CtdlMessage Msg;
 	StrBuf *MsgGUID;
 	StrBuf *Message;
 	struct UseTable ut;
@@ -95,7 +95,7 @@ struct rss_aggregator {
 
 
 
-eNextState ParseRSSReply(AsyncIO *IO);
+eNextState RSSAggregator_ParseReply(AsyncIO *IO);
 
 void rss_save_item(rss_item *ri, rss_aggregator *Cfg);
 

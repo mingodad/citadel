@@ -140,6 +140,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 );
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
 void CtdlFreeMessage(struct CtdlMessage *msg);
+void CtdlFreeMessageContents(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
 void dump_message(struct CtdlMessage *msg, long Siz);
 int is_valid_message(struct CtdlMessage *);
