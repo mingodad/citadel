@@ -852,7 +852,7 @@ int pop3_do_fetching(pop3aggr *cpptr)
 	cpptr->IO.Terminate     = POP3_C_Terminate;
 	cpptr->IO.LineReader    = POP3_C_ReadServerStatus;
 	cpptr->IO.ConnFail      = POP3_C_ConnFail;
-	cpptr->IO.DNSFail       = POP3_C_DNSFail;
+	cpptr->IO.DNS.Fail      = POP3_C_DNSFail;
 	cpptr->IO.Timeout       = POP3_C_Timeout;
 	cpptr->IO.ShutdownAbort = POP3_C_Shutdown;
 	

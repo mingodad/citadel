@@ -259,11 +259,11 @@ void ShutDownCLient(AsyncIO *IO)
 	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 	StopClientWatchers(IO);
 
-	if (IO->DNSChannel != NULL) {
-		ares_destroy(IO->DNSChannel);
-		ev_io_stop(event_base, &IO->dns_recv_event);
-		ev_io_stop(event_base, &IO->dns_send_event);
-		IO->DNSChannel = NULL;
+	if (IO->DNS.Channel != NULL) {
+		ares_destroy(IO->DNS.Channel);
+		ev_io_stop(event_base, &IO->DNS.recv_event);
+		ev_io_stop(event_base, &IO->DNS.send_event);
+		IO->DNS.Channel = NULL;
 	}
 	assert(IO->Terminate);
 	IO->Terminate(IO);
@@ -683,12 +683,12 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 	EV_syslog(LOG_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
-	assert(IO->DNSFail);
-	assert(IO->DNSQuery->PostDNS);
-	switch (IO->DNSQuery->PostDNS(IO))
+	assert(IO->DNS.Fail);
+	assert(IO->DNS.Query->PostDNS);
+	switch (IO->DNS.Query->PostDNS(IO))
 	{
 	case eAbort:
-		switch (IO->DNSFail(IO)) {
+		switch (IO->DNS.Fail(IO)) {
 		case eAbort:
 			ShutDownCLient(IO);
 		default:

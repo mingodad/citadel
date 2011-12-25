@@ -807,7 +807,7 @@ void RunNetworker(AsyncNetworker *NW)
 	NW->IO.Terminate     = NWC_Terminate;
 	NW->IO.LineReader    = NWC_ReadServerStatus;
 	NW->IO.ConnFail      = NWC_ConnFail;
-	NW->IO.DNSFail       = NWC_DNSFail;
+	NW->IO.DNS.Fail      = NWC_DNSFail;
 	NW->IO.Timeout       = NWC_Timeout;
 	NW->IO.ShutdownAbort = NWC_Shutdown;
 	

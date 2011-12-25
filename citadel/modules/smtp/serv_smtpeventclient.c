@@ -361,13 +361,13 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
 		pp = &(*pp)->Next;
 
-	if ((IO->DNSQuery->DNSStatus == ARES_SUCCESS) && 
-	    (IO->DNSQuery->VParsedDNSReply != NULL))
+	if ((IO->DNS.Query->DNSStatus == ARES_SUCCESS) && 
+	    (IO->DNS.Query->VParsedDNSReply != NULL))
 	{ /* ok, we found mx records. */
 		SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
 		
 		SendMsg->CurrMX    = SendMsg->AllMX 
-			           = IO->DNSQuery->VParsedDNSReply;
+			           = IO->DNS.Query->VParsedDNSReply;
 		while (SendMsg->CurrMX) {
 			int i;
 			for (i = 0; i < 2; i++) {
@@ -457,7 +457,7 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 	SendMsg->IO.Terminate     = SMTP_C_Terminate;
 	SendMsg->IO.LineReader    = SMTP_C_ReadServerStatus;
 	SendMsg->IO.ConnFail      = SMTP_C_ConnFail;
-	SendMsg->IO.DNSFail       = SMTP_C_DNSFail;
+	SendMsg->IO.DNS.Fail      = SMTP_C_DNSFail;
 	SendMsg->IO.Timeout       = SMTP_C_Timeout;
 	SendMsg->IO.ShutdownAbort = SMTP_C_Shutdown;
 

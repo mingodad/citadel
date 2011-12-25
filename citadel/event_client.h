@@ -78,6 +78,21 @@ typedef struct _evcurl_request_data
 	long   		   httpcode;
 } evcurl_request_data;
 
+/* DNS Related */
+typedef struct __evcares_data {
+	ev_io recv_event, 
+		send_event;
+	ev_timer timeout;           /* timeout while requesting ips */
+#ifdef DEBUG_CARES
+	short int SourcePort;
+#endif
+	struct ares_options Options;
+	ares_channel Channel;
+	DNSQueryParts *Query;
+	
+	IO_CallBack Fail;      /* the dns lookup didn't work out. */
+} evcares_data;
+
 struct AsyncIO {
 	long ID;
        	eNextState NextState;
@@ -112,23 +127,13 @@ struct AsyncIO {
 		Terminate,    /* shutting down... */
 		Timeout,      /* Timeout handler; may also be connection timeout */
 		ConnFail,     /* What to do when one connection failed? */
-		DNSFail,      /* the dns lookup didn't work out. */
 		ShutdownAbort,/* we're going down. make your piece. */ 
 		NextDBOperation; /* Perform Database IO */
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 
-	/* DNS Related */
-	ev_io dns_recv_event, 
-		dns_send_event;
-	ev_timer dns_timeout;           /* timeout while requesting ips */
-#ifdef DEBUG_CARES
-	short int DnsSourcePort;
-#endif
-	struct ares_options DNSOptions;
-	ares_channel DNSChannel;
-	DNSQueryParts *DNSQuery;
-	
+	evcares_data DNS;
+
 	evcurl_request_data HttpReq;
 
 	/* Saving / loading a message async from / to disk */
