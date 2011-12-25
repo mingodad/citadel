@@ -757,17 +757,10 @@ eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO)
 
 eNextState pop3_connect_ip(AsyncIO *IO)
 {
-	pop3aggr *cpptr = IO->Data;
-
 	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
-	
-////	IO->ConnectMe = &cpptr->Pop3Host;
-	/*  Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
 
-	/////// SetConnectStatus(IO);
-
-	return EvConnectSock(IO, cpptr, 
-			     POP3_C_ConnTimeout, 
+	return EvConnectSock(IO,
+			     POP3_C_ConnTimeout,
 			     POP3_C_ReadTimeouts[0],
 			     1);
 }
@@ -843,41 +836,27 @@ eNextState pop3_get_one_host_ip(AsyncIO *IO)
 
 int pop3_do_fetching(pop3aggr *cpptr)
 {
-	CitContext *SubC;
+	InitIOStruct(&cpptr->IO,
+		     cpptr,
+		     eReadMessage,
+		     POP3_C_ReadServerStatus,
+		     POP3_C_DNSFail,
+		     POP3_C_DispatchWriteDone,
+		     POP3_C_DispatchReadDone,
+		     POP3_C_Terminate,
+		     POP3_C_ConnFail,
+		     POP3_C_Timeout,
+		     POP3_C_Shutdown);
 
-	cpptr->IO.Data          = cpptr;
-
-	cpptr->IO.SendDone      = POP3_C_DispatchWriteDone;
-	cpptr->IO.ReadDone      = POP3_C_DispatchReadDone;
-	cpptr->IO.Terminate     = POP3_C_Terminate;
-	cpptr->IO.LineReader    = POP3_C_ReadServerStatus;
-	cpptr->IO.ConnFail      = POP3_C_ConnFail;
-	cpptr->IO.DNS.Fail      = POP3_C_DNSFail;
-	cpptr->IO.Timeout       = POP3_C_Timeout;
-	cpptr->IO.ShutdownAbort = POP3_C_Shutdown;
-	
-	cpptr->IO.SendBuf.Buf   = NewStrBufPlain(NULL, 1024);
-	cpptr->IO.RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
-	cpptr->IO.IOBuf         = NewStrBuf();
-	
-	cpptr->IO.NextState     = eReadMessage;
-/* TODO
-   syslog(LOG_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
-   syslog(LOG_DEBUG, "Connecting to <%s>\n", pop3host);
-*/
-	
-	SubC = CloneContext (&pop3_client_CC);
-	SubC->session_specific_data = (char*) cpptr;
-	cpptr->IO.CitContext = SubC;
-	safestrncpy(SubC->cs_host, 
+	safestrncpy(((CitContext *)cpptr->IO.CitContext)->cs_host,
 		    ChrPtr(cpptr->Url),
-		    sizeof(SubC->cs_host)); 
+		    sizeof(((CitContext *)cpptr->IO.CitContext)->cs_host));
 
 	if (cpptr->IO.ConnectMe->IsIP) {
 		QueueEventContext(&cpptr->IO,
 				  pop3_connect_ip);
 	}
-	else { /* uneducated admin has chosen to add DNS to the equation... */
+	else {
 		QueueEventContext(&cpptr->IO,
 				  pop3_get_one_host_ip);
 	}
@@ -1053,13 +1032,14 @@ static int doing_pop3client = 0;
 
 void pop3client_scan(void) {
 	static time_t last_run = 0L;
-///	struct pop3aggr *pptr;
 	time_t fastest_scan;
 	HashPos *it;
 	long len;
 	const char *Key;
 	void *vrptr;
 	pop3aggr *cptr;
+
+	become_session(&pop3_client_CC);
 
 	if (config.c_pop3_fastest < config.c_pop3_fetch)
 		fastest_scan = config.c_pop3_fastest;

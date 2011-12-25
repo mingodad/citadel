@@ -166,7 +166,6 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueCurlContext(AsyncIO *IO);
 
 eNextState EvConnectSock(AsyncIO *IO, 
-			 void *pData, 
 			 double conn_timeout, 
 			 double first_rw_timeout,
 			 int ReadFirst);
@@ -200,6 +199,18 @@ int evcurl_init(AsyncIO *IO,
                 IO_CallBack CallBack,
                 IO_CallBack Terminate, 
 		IO_CallBack ShutdownAbort);
+
+void InitIOStruct(AsyncIO *IO,
+		  void *Data,
+		  eNextState NextState,
+		  IO_LineReaderCallback LineReader,
+		  IO_CallBack DNS_Fail,
+		  IO_CallBack SendDone,
+		  IO_CallBack ReadDone,
+		  IO_CallBack Terminate,
+		  IO_CallBack ConnFail,
+		  IO_CallBack Timeout,
+		  IO_CallBack ShutdownAbort);
 
 eNextState ReAttachIO(AsyncIO *IO, 
 		      void *pData, 

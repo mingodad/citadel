@@ -210,7 +210,6 @@ eNextState FailOneAttempt(AsyncIO *IO)
 
 void SetConnectStatus(AsyncIO *IO)
 {
-	
 	SmtpOutMsg *SendMsg = IO->Data;
 	char buf[256];
 	void *src;
@@ -258,14 +257,13 @@ eNextState mx_connect_ip(AsyncIO *IO)
 	SmtpOutMsg *SendMsg = IO->Data;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	
+
 	IO->ConnectMe = SendMsg->pCurrRelay;
-	/*  Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
 
 	SetConnectStatus(IO);
 
-	return EvConnectSock(IO, SendMsg, 
-			     SMTP_C_ConnTimeout, 
+	return EvConnectSock(IO,
+			     SMTP_C_ConnTimeout,
 			     SMTP_C_ReadTimeouts[0],
 			     1);
 }
@@ -437,7 +435,7 @@ eNextState resolve_mx_records(AsyncIO *IO)
  ******************************************************************************/
 
 SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem, 
-			    MailQEntry *MyQEntry, 
+			    MailQEntry *MyQEntry,
 			    int MsgCount)
 {
 	SmtpOutMsg * SendMsg;
@@ -450,51 +448,44 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 	SendMsg->MyQItem          = MyQItem;
 	SendMsg->pCurrRelay       = MyQItem->URL;
 
-	SendMsg->IO.Data          = SendMsg;
-
-	SendMsg->IO.SendDone      = SMTP_C_DispatchWriteDone;
-	SendMsg->IO.ReadDone      = SMTP_C_DispatchReadDone;
-	SendMsg->IO.Terminate     = SMTP_C_Terminate;
-	SendMsg->IO.LineReader    = SMTP_C_ReadServerStatus;
-	SendMsg->IO.ConnFail      = SMTP_C_ConnFail;
-	SendMsg->IO.DNS.Fail      = SMTP_C_DNSFail;
-	SendMsg->IO.Timeout       = SMTP_C_Timeout;
-	SendMsg->IO.ShutdownAbort = SMTP_C_Shutdown;
-
-	SendMsg->IO.SendBuf.Buf   = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.IOBuf         = NewStrBuf();
-
-	SendMsg->IO.NextState     = eReadMessage;
+	InitIOStruct(&SendMsg->IO,
+		     SendMsg,
+		     eReadMessage,
+		     SMTP_C_ReadServerStatus,
+		     SMTP_C_DNSFail,
+		     SMTP_C_DispatchWriteDone,
+		     SMTP_C_DispatchReadDone,
+		     SMTP_C_Terminate,
+		     SMTP_C_ConnFail,
+		     SMTP_C_Timeout,
+		     SMTP_C_Shutdown);
 
 	return SendMsg;
 }
 
 void smtp_try_one_queue_entry(OneQueItem *MyQItem, 
-			      MailQEntry *MyQEntry, 
-			      StrBuf *MsgText, 
+			      MailQEntry *MyQEntry,
+			      StrBuf *MsgText,
 			      int KeepMsgText,  /* KeepMsgText allows us to use MsgText as ours. */
 			      int MsgCount)
 {
-	AsyncIO *IO;
 	SmtpOutMsg *SendMsg;
 
 	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	SendMsg = new_smtp_outmsg(MyQItem, MyQEntry, MsgCount);
-	IO = &SendMsg->IO;
 	if (KeepMsgText) SendMsg->msgtext = MsgText;
-	else 		 SendMsg->msgtext = NewStrBufDup(MsgText);
-	
+	else		 SendMsg->msgtext = NewStrBufDup(MsgText);
+
 	if (smtp_resolve_recipients(SendMsg)) {
-		CitContext *SubC;
-		SubC = CloneContext (CC);
-		SubC->session_specific_data = (char*) SendMsg;
-		SendMsg->IO.CitContext = SubC;
-		
-		safestrncpy(SubC->cs_host, SendMsg->node, sizeof(SubC->cs_host));
+
+		safestrncpy(
+			((CitContext *)SendMsg->IO.CitContext)->cs_host,
+			SendMsg->node,
+			sizeof(((CitContext *)SendMsg->IO.CitContext)->cs_host));
+
 		syslog(LOG_DEBUG, "SMTP Starting: [%ld] <%s> CC <%d> \n",
-		       SendMsg->MyQItem->MessageID, 
+		       SendMsg->MyQItem->MessageID,
 		       ChrPtr(SendMsg->MyQEntry->Recipient),
 		       ((CitContext*)SendMsg->IO.CitContext)->cs_pid);
 		if (SendMsg->pCurrRelay == NULL)
@@ -513,10 +504,10 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 	}
 	else {
 		/* No recipients? well fail then. */
-		if ((SendMsg==NULL) || 
+		if ((SendMsg==NULL) ||
 		    (SendMsg->MyQEntry == NULL)) {
 			SendMsg->MyQEntry->Status = 5;
-			StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
+			StrBufPlain(SendMsg->MyQEntry->StatusMessage,
 				    HKEY("Invalid Recipient!"));
 		}
 		FinalizeMessageSend(SendMsg);
@@ -627,8 +618,6 @@ eNextState SMTP_C_ConnFail(AsyncIO *IO)
 }
 eNextState SMTP_C_DNSFail(AsyncIO *IO)
 {
-	SmtpOutMsg *pMsg = IO->Data;
-
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	return FailOneAttempt(IO);
 }

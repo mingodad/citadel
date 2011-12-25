@@ -789,40 +789,31 @@ eNextState nwc_connect_ip(AsyncIO *IO)
 	       ChrPtr(NW->host),
 	       ChrPtr(NW->port));
 	
-	return EvConnectSock(IO, NW, 
-			     NWC_ConnTimeout, 
+	return EvConnectSock(IO,
+			     NWC_ConnTimeout,
 			     NWC_ReadTimeouts[0],
 			     1);
 }
 
 void RunNetworker(AsyncNetworker *NW)
 {
-	CitContext *SubC;
-
 	ParseURL(&NW->IO.ConnectMe, NW->Url, 504);
 
-	NW->IO.Data          = NW;
-	NW->IO.SendDone      = NWC_DispatchWriteDone;
-	NW->IO.ReadDone      = NWC_DispatchReadDone;
-	NW->IO.Terminate     = NWC_Terminate;
-	NW->IO.LineReader    = NWC_ReadServerStatus;
-	NW->IO.ConnFail      = NWC_ConnFail;
-	NW->IO.DNS.Fail      = NWC_DNSFail;
-	NW->IO.Timeout       = NWC_Timeout;
-	NW->IO.ShutdownAbort = NWC_Shutdown;
-	
-	NW->IO.SendBuf.Buf   = NewStrBufPlain(NULL, 1024);
-	NW->IO.RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
-	NW->IO.IOBuf         = NewStrBuf();
-	
-	NW->IO.NextState     = eReadMessage;
-	SubC = CloneContext (&networker_client_CC);
-	SubC->session_specific_data = (char*) NW;
-	NW->IO.CitContext = SubC;
+	InitIOStruct(&NW->IO,
+		     NW,
+		     eReadMessage,
+		     NWC_ReadServerStatus,
+		     NWC_DNSFail,
+		     NWC_DispatchWriteDone,
+		     NWC_DispatchReadDone,
+		     NWC_Terminate,
+		     NWC_ConnFail,
+		     NWC_Timeout,
+		     NWC_Shutdown);
 
-	safestrncpy(SubC->cs_host, 
+	safestrncpy(((CitContext *)NW->IO.CitContext)->cs_host, 
 		    ChrPtr(NW->host),
-		    sizeof(SubC->cs_host)); 
+		    sizeof(((CitContext *)NW->IO.CitContext)->cs_host)); 
 
 	if (NW->IO.ConnectMe->IsIP) {
 		QueueEventContext(&NW->IO,
@@ -854,6 +845,8 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 		syslog(LOG_DEBUG, "network: no neighbor nodes are configured - not polling.\n");
 		return;
 	}
+	become_session(&networker_client_CC);
+
 	CfgData = NewStrBufPlain(working_ignetcfg, -1);
 	Line = NewStrBufPlain(NULL, StrLength(CfgData));
 	Done = 0;

@@ -701,18 +701,16 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 }
 
 
-eNextState EvConnectSock(AsyncIO *IO, 
-			 void *pData, 
-			 double conn_timeout, 
+eNextState EvConnectSock(AsyncIO *IO,
+			 double conn_timeout,
 			 double first_rw_timeout,
 			 int ReadFirst)
 {
-	int fdflags; 
+	int fdflags;
 	int rc = -1;
 
-	IO->Data = pData;
 	become_session(IO->CitContext);
-	
+
 	if (ReadFirst) {
 		IO->NextState = eReadMessage;
 	}
@@ -720,36 +718,46 @@ eNextState EvConnectSock(AsyncIO *IO,
 		IO->NextState = eSendReply;
 	}
 
-	IO->SendBuf.fd = IO->RecvBuf.fd = 
+	IO->SendBuf.fd = IO->RecvBuf.fd =
 		socket(
-			(IO->ConnectMe->IPv6)?PF_INET6:PF_INET, 
-			SOCK_STREAM, 
+			(IO->ConnectMe->IPv6)?PF_INET6:PF_INET,
+			SOCK_STREAM,
 			IPPROTO_TCP);
 
 	if (IO->SendBuf.fd < 0) {
-		EV_syslog(LOG_ERR, "EVENT: socket() failed: %s\n", strerror(errno));
-		StrBufPrintf(IO->ErrMsg, "Failed to create socket: %s", strerror(errno));
+		EV_syslog(LOG_ERR,
+			  "EVENT: socket() failed: %s\n",
+			  strerror(errno));
+
+		StrBufPrintf(IO->ErrMsg,
+			     "Failed to create socket: %s",
+			     strerror(errno));
 		return eAbort;
 	}
 	fdflags = fcntl(IO->SendBuf.fd, F_GETFL);
 	if (fdflags < 0) {
-		EV_syslog(LOG_DEBUG, 
+		EV_syslog(LOG_DEBUG,
 			  "EVENT: unable to get socket flags! %s \n",
 			  strerror(errno));
-		StrBufPrintf(IO->ErrMsg, "Failed to get socket flags: %s", strerror(errno));
+		StrBufPrintf(IO->ErrMsg,
+			     "Failed to get socket flags: %s",
+			     strerror(errno));
 		return eAbort;
 	}
 	fdflags = fdflags | O_NONBLOCK;
 	if (fcntl(IO->SendBuf.fd, F_SETFL, fdflags) < 0) {
-		EV_syslog(LOG_DEBUG, 
-			  "EVENT: unable to set socket nonblocking flags! %s \n",
-			  strerror(errno));
-		StrBufPrintf(IO->ErrMsg, "Failed to set socket flags: %s", strerror(errno));
+		EV_syslog(
+			LOG_DEBUG,
+			"EVENT: unable to set socket nonblocking flags! %s \n",
+			strerror(errno));
+		StrBufPrintf(IO->ErrMsg,
+			     "Failed to set socket flags: %s",
+			     strerror(errno));
 		close(IO->SendBuf.fd);
 		IO->SendBuf.fd = IO->RecvBuf.fd = -1;
 		return eAbort;
 	}
-/* TODO: maye we could use offsetof() to calc the position of data... 
+/* TODO: maye we could use offsetof() to calc the position of data...
  * http://doc.dvgu.ru/devel/ev.html#associating_custom_data_with_a_watcher
  */
 	ev_io_init(&IO->recv_event, IO_recv_callback, IO->RecvBuf.fd, EV_READ);
@@ -759,16 +767,20 @@ eNextState EvConnectSock(AsyncIO *IO,
 
 	ev_timer_init(&IO->conn_fail, IO_connfail_callback, conn_timeout, 0);
 	IO->conn_fail.data = IO;
-	ev_timer_init(&IO->rw_timeout, IO_Timeout_callback, first_rw_timeout, 0);
+	ev_timer_init(&IO->rw_timeout, IO_Timeout_callback, first_rw_timeout,0);
 	IO->rw_timeout.data = IO;
 
 
 	/*  Bypass it like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
 ///	((struct sockaddr_in)IO->ConnectMe->Addr).sin_addr.s_addr = inet_addr("127.0.0.1");
 	if (IO->ConnectMe->IPv6)
-		rc = connect(IO->SendBuf.fd, &IO->ConnectMe->Addr, sizeof(struct sockaddr_in6));
+		rc = connect(IO->SendBuf.fd,
+			     &IO->ConnectMe->Addr,
+			     sizeof(struct sockaddr_in6));
 	else
-		rc = connect(IO->SendBuf.fd, (struct sockaddr_in *)&IO->ConnectMe->Addr, sizeof(struct sockaddr_in));
+		rc = connect(IO->SendBuf.fd,
+			     (struct sockaddr_in *)&IO->ConnectMe->Addr,
+			     sizeof(struct sockaddr_in));
 
 	if (rc >= 0){
 		EVM_syslog(LOG_DEBUG, "connect() immediate success.\n");
@@ -779,7 +791,11 @@ eNextState EvConnectSock(AsyncIO *IO,
 	else if (errno == EINPROGRESS) {
 		EVM_syslog(LOG_DEBUG, "connect() have to wait now.\n");
 
-		ev_io_init(&IO->conn_event, IO_connestd_callback, IO->SendBuf.fd, EV_READ|EV_WRITE);
+		ev_io_init(&IO->conn_event,
+			   IO_connestd_callback,
+			   IO->SendBuf.fd,
+			   EV_READ|EV_WRITE);
+
 		IO->conn_event.data = IO;
 
 		ev_io_start(event_base, &IO->conn_event);
@@ -791,9 +807,11 @@ eNextState EvConnectSock(AsyncIO *IO,
 			     IO_connfailimmediate_callback);
 		IO->conn_fail_immediate.data = IO;
 		ev_idle_start(event_base, &IO->conn_fail_immediate);
-		
+
 		EV_syslog(LOG_ERR, "connect() failed: %s\n", strerror(errno));
-		StrBufPrintf(IO->ErrMsg, "Failed to connect: %s", strerror(errno));
+		StrBufPrintf(IO->ErrMsg,
+			     "Failed to connect: %s",
+			     strerror(errno));
 		return IO->NextState;
 	}
 	return IO->NextState;
@@ -806,8 +824,8 @@ void SetNextTimeout(AsyncIO *IO, double timeout)
 }
 
 
-eNextState ReAttachIO(AsyncIO *IO, 
-		      void *pData, 
+eNextState ReAttachIO(AsyncIO *IO,
+		      void *pData,
 		      int ReadFirst)
 {
 	IO->Data = pData;
@@ -822,4 +840,39 @@ eNextState ReAttachIO(AsyncIO *IO,
 	set_start_callback(event_base, IO, 0);
 
 	return IO->NextState;
+}
+
+void InitIOStruct(AsyncIO *IO,
+		  void *Data,
+		  eNextState NextState,
+		  IO_LineReaderCallback LineReader,
+		  IO_CallBack DNS_Fail,
+		  IO_CallBack SendDone,
+		  IO_CallBack ReadDone,
+		  IO_CallBack Terminate,
+		  IO_CallBack ConnFail,
+		  IO_CallBack Timeout,
+		  IO_CallBack ShutdownAbort)
+{
+	IO->Data          = Data;
+
+	IO->CitContext    = CloneContext(CC);
+	((CitContext *)IO->CitContext)->session_specific_data = (char*) Data;
+
+	IO->NextState     = NextState;
+
+	IO->SendDone      = SendDone;
+	IO->ReadDone      = ReadDone;
+	IO->Terminate     = Terminate;
+	IO->LineReader    = LineReader;
+	IO->ConnFail      = ConnFail;
+	IO->Timeout       = Timeout;
+	IO->ShutdownAbort = ShutdownAbort;
+
+	IO->DNS.Fail      = DNS_Fail;
+
+	IO->SendBuf.Buf   = NewStrBufPlain(NULL, 1024);
+	IO->RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
+	IO->IOBuf         = NewStrBuf();
+
 }
