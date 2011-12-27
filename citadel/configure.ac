@@ -171,20 +171,23 @@ AC_SUBST(LOCALEDIR)
 
 
 dnl Checks for the zlib compression library.
-if test "x$with_zlib" != xno ; then
-       AC_CHECK_HEADERS(zlib.h,
-               [AC_CHECK_LIB(z, zlibVersion,
-                       [ok_zlib=yes],,
-       )])
-fi
-
-if test "x$ok_zlib" = xyes ; then
-       LDFLAGS="-lz $LDFLAGS" 
-       AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
-fi
-
-
-
+saved_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS $SERVER_LIBS"
+AC_CHECK_HEADER(zlib.h,
+	[AC_CHECK_LIB(z, zlibVersion,
+		[
+			LIBS="-lz $LIBS $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(zlib was not found or is not usable.  Please install zlib.)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(zlib.h was not found or is not usable.  Please install zlib.)
+	]
+)
+CFLAGS="$saved_CFLAGS"
 
 dnl Here is the check for a libc integrated iconv
 AC_ARG_ENABLE(iconv,
