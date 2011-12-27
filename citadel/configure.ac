@@ -602,7 +602,7 @@ saved_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS $SERVER_LIBS"
 dnl Check for libev
 AC_CHECK_HEADER(ev.h,
-	[AC_CHECK_LIB(ev, libcitadel_version_string,
+	[AC_CHECK_LIB(ev, ev_cleanup_start,
 		[
 			LIBS="-lev -lm $LIBS $SERVER_LIBS"
 		],
@@ -616,25 +616,6 @@ AC_CHECK_HEADER(ev.h,
 	]
 )
 CFLAGS="$saved_CFLAGS"
-
-AC_MSG_CHECKING(Checking version of libev)
-AC_TRY_RUN([
- 	#include <ev.h>
- 	main() {
-		printf("libev is version %d.%d\n", ev_version_major(), ev_version_minor());
-		if (ev_version_major() >= 4) {
- 			exit(0);
-		}
-		exit(1);
- 	}
- ],
-		[
-			AC_MSG_RESULT(This will do just fine, thank you)
-		],
-		[ 
-			AC_MSG_ERROR(Citadel requires a newer version of libev.  More info: http://www.citadel.org/doku.php/installation:start)
-		]
-)
 
 
 # The big search for OpenSSL
