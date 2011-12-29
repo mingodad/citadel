@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <netinet/in.h>
 
 #define LIBCITADEL_VERSION_NUMBER	802
 
