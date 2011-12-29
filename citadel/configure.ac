@@ -611,7 +611,10 @@ AC_CHECK_HEADER(ev.h,
 			 ev_cleanup abort_by_shutdown;
 			 struct ev_loop *event_base;
 			 ev_cleanup_start(event_base, &abort_by_shutdown);
-			],[],
+			],
+			[
+			LIBS="-lev -lm $LIBS $SERVER_LIBS"
+			],
 		[
 			AC_MSG_ERROR(libev was not found or is not usable.  Please install libev.)
 		])
