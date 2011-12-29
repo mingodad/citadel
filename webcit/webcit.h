@@ -76,9 +76,7 @@
 #define DBG_QR(x) if(DO_DBG_QR) _DBG_QR(x)
 #define DBG_QR2(x) if(DO_DBG_QR) _DBG_QR2(x)
 
-#ifdef HAVE_ZLIB_H
 #include <zlib.h>
-#endif
 
 #include <libical/ical.h>
 

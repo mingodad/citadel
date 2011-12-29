@@ -140,18 +140,23 @@ AC_CHECK_HEADER(CUnit/CUnit.h, [AC_DEFINE(ENABLE_TESTS, [], [whether we should c
 AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h iconv.h xlocale.h)
 
 dnl Checks for the zlib compression library.
-if test "x$with_zlib" != xno ; then
-       AC_CHECK_HEADERS(zlib.h,
-               [AC_CHECK_LIB(z, zlibVersion,
-                       [ok_zlib=yes],,
-       )])
-fi
-
-if test "x$ok_zlib" = xyes ; then
-dnl  libcitadel will bring libz, so we don't need it here.     LDFLAGS="-lz $LDFLAGS" 
-       AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
-fi
-
+saved_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS $SERVER_LIBS"
+AC_CHECK_HEADER(zlib.h,
+	[AC_CHECK_LIB(z, zlibVersion,
+		[
+			LIBS="-lz $LIBS $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(zlib was not found or is not usable.  Please install zlib.)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(zlib.h was not found or is not usable.  Please install zlib.)
+	]
+)
+CFLAGS="$saved_CFLAGS"
 
 dnl Here is the check for a libc integrated iconv
 AC_ARG_ENABLE(iconv,
@@ -547,5 +552,4 @@ fi
 echo ------------------------------------------------------------------------
 echo 'Character set conversion support:' $ok_iconv
 echo 'National language support:       ' $ok_nls
-echo 'Compression support:             ' $ok_zlib
 echo 

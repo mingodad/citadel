@@ -1,21 +1,15 @@
 /*
  * This is a data store backend for the Citadel server which uses Berkeley DB.
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  */
 
@@ -43,6 +37,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <syslog.h>
+#include <zlib.h>
 
 #ifdef HAVE_DB_H
 #include <db.h>
@@ -75,10 +70,6 @@
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 static DB_ENV *dbenv;		/* The DB environment (global) */
 
-
-#ifdef HAVE_ZLIB
-#include <zlib.h>
-#endif
 
 
 /* Verbose logging callback */
@@ -283,9 +274,7 @@ void open_databases(void)
 	CitControl.MMdbversion = current_dbversion;
 	put_control();
 
-#ifdef HAVE_ZLIB
 	syslog(LOG_INFO, "Linked zlib: %s\n", zlibVersion());
-#endif
 
 	/*
 	 * Silently try to create the database subdirectory.  If it's
@@ -473,7 +462,7 @@ void close_databases(void)
 
 
 /*
- * Compression functions only used if we have zlib
+ * Decompress a database item if it was compressed on disk
  */
 void cdb_decompress_if_necessary(struct cdbdata *cdb)
 {
@@ -485,7 +474,6 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 	    (memcmp(cdb->ptr, &magic, sizeof(magic))))
 	    return;
 
-#ifdef HAVE_ZLIB
 	/* At this point we know we're looking at a compressed item. */
 
 	struct CtdlCompressHeader zheader;
@@ -518,11 +506,6 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 	free(cdb->ptr);
 	cdb->len = (size_t) destLen;
 	cdb->ptr = uncompressed_data;
-#else				/* HAVE_ZLIB */
-	syslog(LOG_EMERG, "Database contains compressed data, but this citserver was built without compression support.");
-	syslog(LOG_EMERG, "Please see http://www.citadel.org/doku.php/faq:installation:zlib for more information.");
-	exit(CTDLEXIT_DB);
-#endif				/* HAVE_ZLIB */
 }
 
 
@@ -538,13 +521,11 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 	DB_TXN *tid;
 	int ret = 0;
 
-#ifdef HAVE_ZLIB
 	struct CtdlCompressHeader zheader;
 	char *compressed_data = NULL;
 	int compressing = 0;
 	size_t buffer_len = 0;
 	uLongf destLen = 0;
-#endif
 
 	memset(&dkey, 0, sizeof(DBT));
 	memset(&ddata, 0, sizeof(DBT));
@@ -553,7 +534,6 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 	ddata.size = cdatalen;
 	ddata.data = cdata;
 
-#ifdef HAVE_ZLIB
 	/* Only compress Visit records.  Everything else is uncompressed. */
 	if (cdb == CDB_VISIT) {
 		compressing = 1;
@@ -574,7 +554,6 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 		ddata.size = (size_t) (sizeof(struct CtdlCompressHeader) + zheader.compressed_len);
 		ddata.data = compressed_data;
 	}
-#endif
 
 	if (TSD->tid != NULL) {
 		ret = dbp[cdb]->put(dbp[cdb],	/* db */
@@ -586,10 +565,8 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 			syslog(LOG_EMERG, "cdb_store(%d): %s", cdb, db_strerror(ret));
 			abort();
 		}
-#ifdef HAVE_ZLIB
 		if (compressing)
 			free(compressed_data);
-#endif
 		return ret;
 
 	} else {
@@ -612,11 +589,9 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 			}
 		} else {
 			txcommit(tid);
-#ifdef HAVE_ZLIB
 			if (compressing) {
 				free(compressed_data);
 			}
-#endif
 			return ret;
 		}
 	}

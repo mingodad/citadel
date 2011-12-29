@@ -171,20 +171,23 @@ AC_SUBST(LOCALEDIR)
 
 
 dnl Checks for the zlib compression library.
-if test "x$with_zlib" != xno ; then
-       AC_CHECK_HEADERS(zlib.h,
-               [AC_CHECK_LIB(z, zlibVersion,
-                       [ok_zlib=yes],,
-       )])
-fi
-
-if test "x$ok_zlib" = xyes ; then
-       LDFLAGS="-lz $LDFLAGS" 
-       AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
-fi
-
-
-
+saved_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS $SERVER_LIBS"
+AC_CHECK_HEADER(zlib.h,
+	[AC_CHECK_LIB(z, zlibVersion,
+		[
+			LIBS="-lz $LIBS $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(zlib was not found or is not usable.  Please install zlib.)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(zlib.h was not found or is not usable.  Please install zlib.)
+	]
+)
+CFLAGS="$saved_CFLAGS"
 
 dnl Here is the check for a libc integrated iconv
 AC_ARG_ENABLE(iconv,
@@ -602,7 +605,7 @@ saved_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS $SERVER_LIBS"
 dnl Check for libev
 AC_CHECK_HEADER(ev.h,
-	[AC_CHECK_LIB(ev, libcitadel_version_string,
+	[AC_CHECK_LIB(ev, ev_cleanup_start,
 		[
 			LIBS="-lev -lm $LIBS $SERVER_LIBS"
 		],
@@ -616,25 +619,6 @@ AC_CHECK_HEADER(ev.h,
 	]
 )
 CFLAGS="$saved_CFLAGS"
-
-AC_MSG_CHECKING(Checking version of libev)
-AC_TRY_RUN([
- 	#include <ev.h>
- 	main() {
-		printf("libev is version %d.%d\n", ev_version_major(), ev_version_minor());
-		if (ev_version_major() >= 4) {
- 			exit(0);
-		}
-		exit(1);
- 	}
- ],
-		[
-			AC_MSG_RESULT(This will do just fine, thank you)
-		],
-		[ 
-			AC_MSG_ERROR(Citadel requires a newer version of libev.  More info: http://www.citadel.org/doku.php/installation:start)
-		]
-)
 
 
 # The big search for OpenSSL
