@@ -605,20 +605,39 @@ saved_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS $SERVER_LIBS"
 dnl Check for libev
 AC_CHECK_HEADER(ev.h,
-	[AC_CHECK_LIB(ev, ev_cleanup_start,
-		[
-			LIBS="-lev -lm $LIBS $SERVER_LIBS"
-		],
+	[AC_TRY_COMPILE([#include <math.h>
+#include <ev.h>], 
+                         [
+			 ev_cleanup abort_by_shutdown;
+			 struct ev_loop *event_base;
+			 ev_cleanup_start(event_base, &abort_by_shutdown);
+			],[],
 		[
 			AC_MSG_ERROR(libev was not found or is not usable.  Please install libev.)
-		]
-	,
-	)],
+		])
+	],
 	[
 		AC_MSG_ERROR(ev.h was not found or is not usable.  Please install libev.)
 	]
 )
 CFLAGS="$saved_CFLAGS"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # The big search for OpenSSL
