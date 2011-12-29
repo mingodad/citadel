@@ -58,28 +58,7 @@
 #include "event_client.h"
 #include "rss_atom_parser.h"
 
-extern pthread_mutex_t RSSQueueMutex;
-
-HashList *StartHandlers = NULL;
-HashList *EndHandlers = NULL;
-HashList *KnownNameSpaces = NULL;
-void AddRSSStartHandler(rss_handler_func Handler, int Flags, const char *key, long len)
-{
-	rss_xml_handler *h;
-	h = (rss_xml_handler*) malloc(sizeof (rss_xml_handler));
-	h->Flags = Flags;
-	h->Handler = Handler;
-	Put(StartHandlers, key, len, h, NULL);
-}
-void AddRSSEndHandler(rss_handler_func Handler, int Flags, const char *key, long len)
-{
-	rss_xml_handler *h;
-	h = (rss_xml_handler*) malloc(sizeof (rss_xml_handler));
-	h->Flags = Flags;
-	h->Handler = Handler;
-	Put(EndHandlers, key, len, h, NULL);
-}
-
+void rss_save_item(rss_item *ri, rss_aggregator *Cfg);
 
 
 /*
@@ -132,142 +111,17 @@ void flush_rss_item(rss_item *ri)
 	FreeStrBuf(&ri->author_email);
 	FreeStrBuf(&ri->author_url);
 	FreeStrBuf(&ri->description);
-}
 
-void rss_xml_start(void *data, const char *supplied_el, const char **attr)
-{
-	rss_xml_handler *h;
-	rss_aggregator  *rssc = (rss_aggregator*) data;
-	rss_item        *ri = rssc->Item;
-	void            *pv;
-	const char      *pel;
-	char            *sep = NULL;
-
-	/* Axe the namespace, we don't care about it */
-///	syslog(LOG_DEBUG, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
-	pel = supplied_el;
-	while (sep = strchr(pel, ':'), sep) {
-		pel = sep + 1;
-	}
-
-	if (pel != supplied_el)
-	{
-		void *v;
-		
-		if (!GetHash(KnownNameSpaces, 
-			     supplied_el, 
-			     pel - supplied_el - 1,
-			     &v))
-		{
-#ifdef DEBUG_RSS
-			syslog(LOG_DEBUG, "RSS: START ignoring because of wrong namespace [%s]\n", 
-				      supplied_el);
-#endif
-			return;
-		}
-	}
-
-	StrBufPlain(rssc->Key, pel, -1);
-	StrBufLowerCase(rssc->Key);
-	if (GetHash(StartHandlers, SKEY(rssc->Key), &pv))
-	{
-		rssc->Current = h = (rss_xml_handler*) pv;
-
-		if (((h->Flags & RSS_UNSET) != 0) && 
-		    (rssc->ItemType == RSS_UNSET))
-		{
-			h->Handler(rssc->CData, ri, rssc, attr);
-		}
-		else if (((h->Flags & RSS_RSS) != 0) &&
-		    (rssc->ItemType == RSS_RSS))
-		{
-			h->Handler(rssc->CData, ri, rssc, attr);
-		}
-		else if (((h->Flags & RSS_ATOM) != 0) &&
-			 (rssc->ItemType == RSS_ATOM))
-		{
-			h->Handler(rssc->CData, ri, rssc, attr);			
-		}
-#ifdef DEBUG_RSS
-		else 
-			syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
-#endif
-	}
-#ifdef DEBUG_RSS
-	else 
-		syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
-#endif
-}
-
-void rss_xml_end(void *data, const char *supplied_el)
-{
-	rss_xml_handler *h;
-	rss_aggregator  *rssc = (rss_aggregator*) data;
-	rss_item        *ri = rssc->Item;
-	const char      *pel;
-	char            *sep = NULL;
-	void            *pv;
-
-	/* Axe the namespace, we don't care about it */
-	pel = supplied_el;
-	while (sep = strchr(pel, ':'), sep) {
-		pel = sep + 1;
-	}
-//	syslog(LOG_DEBUG, "RSS: END %s...\n", el);
-	if (pel != supplied_el)
-	{
-		void *v;
-		
-		if (!GetHash(KnownNameSpaces, 
-			     supplied_el, 
-			     pel - supplied_el - 1,
-			     &v))
-		{
-#ifdef DEBUG_RSS
-			syslog(LOG_DEBUG, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
-				      supplied_el, ChrPtr(rssc->CData));
-#endif
-			FlushStrBuf(rssc->CData);
-			return;
-		}
-	}
-
-	StrBufPlain(rssc->Key, pel, -1);
-	StrBufLowerCase(rssc->Key);
-	if (GetHash(EndHandlers, SKEY(rssc->Key), &pv))
-	{
-		h = (rss_xml_handler*) pv;
-
-		if (((h->Flags & RSS_UNSET) != 0) && 
-		    (rssc->ItemType == RSS_UNSET))
-		{
-			h->Handler(rssc->CData, ri, rssc, NULL);
-		}
-		else if (((h->Flags & RSS_RSS) != 0) &&
-		    (rssc->ItemType == RSS_RSS))
-		{
-			h->Handler(rssc->CData, ri, rssc, NULL);
-		}
-		else if (((h->Flags & RSS_ATOM) != 0) &&
-			 (rssc->ItemType == RSS_ATOM))
-		{
-			h->Handler(rssc->CData, ri, rssc, NULL);
-		}
-#ifdef DEBUG_RSS
-		else 
-			syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
-#endif
-	}
-#ifdef DEBUG_RSS
-	else 
-		syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
-#endif
-	FlushStrBuf(rssc->CData);
-	rssc->Current = NULL;
+	FreeStrBuf(&ri->linkTitle);
+	FreeStrBuf(&ri->reLink);
+	FreeStrBuf(&ri->reLinkTitle);
+	FreeStrBuf(&ri->channel_title);
 }
 
 
-
+/*******************************************************************************
+ *                               XML-Handler                                   *
+ *******************************************************************************/
 
 
 void RSS_item_rss_start (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
@@ -581,9 +435,9 @@ void RSSATOM_item_ignore(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const
  */
 void rss_xml_cdata_start(void *data) 
 {
-	rss_aggregator *rssc = (rss_aggregator*) data;
+	rss_aggregator *RSSAggr = (rss_aggregator*) data;
 
-	FlushStrBuf(rssc->CData);
+	FlushStrBuf(RSSAggr->CData);
 }
 
 void rss_xml_cdata_end(void *data) 
@@ -591,26 +445,369 @@ void rss_xml_cdata_end(void *data)
 }
 void rss_xml_chardata(void *data, const XML_Char *s, int len) 
 {
-	rss_aggregator *rssc = (rss_aggregator*) data;
+	rss_aggregator *RSSAggr = (rss_aggregator*) data;
 
-	StrBufAppendBufPlain (rssc->CData, s, len, 0);
+	StrBufAppendBufPlain (RSSAggr->CData, s, len, 0);
+}
+
+
+/*******************************************************************************
+ *                            RSS parser logic                                 *
+ *******************************************************************************/
+
+extern pthread_mutex_t RSSQueueMutex;
+
+HashList *StartHandlers = NULL;
+HashList *EndHandlers = NULL;
+HashList *KnownNameSpaces = NULL;
+
+void FreeNetworkSaveMessage (void *vMsg)
+{
+	networker_save_message *Msg = (networker_save_message *) vMsg;
+
+	CtdlFreeMessageContents(&Msg->Msg);
+	FreeStrBuf(&Msg->Message);
+	FreeStrBuf(&Msg->MsgGUID);
+	free(Msg);
+}
+
+
+void AppendLink(StrBuf *Message,
+		StrBuf *link,
+		StrBuf *LinkTitle,
+		const char *Title)
+{
+	if (StrLength(link) > 0)
+	{
+		StrBufAppendBufPlain(Message, HKEY("<a href=\""), 0);
+		StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("\">"), 0);
+		if (StrLength(LinkTitle) > 0)
+			StrBufAppendBuf(Message, LinkTitle, 0);
+		else if ((Title != NULL) && !IsEmptyStr(Title))
+			StrBufAppendBufPlain(Message, Title, -1, 0);
+		else
+			StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
+	}
+}
+
+/*
+ * Commit a fetched and parsed RSS item to disk
+ */
+void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
+{
+	networker_save_message *SaveMsg;
+	struct MD5Context md5context;
+	u_char rawdigest[MD5_DIGEST_LEN];
+	int msglen = 0;
+	StrBuf *Message;
+	StrBuf *guid;
+	AsyncIO *IO = &Cfg->IO;
+	int n;
+
+
+	SaveMsg = (networker_save_message *) malloc(
+		sizeof(networker_save_message));
+	memset(SaveMsg, 0, sizeof(networker_save_message));
+
+	/* Construct a GUID to use in the S_USETABLE table.
+	 * If one is not present in the item itself, make one up.
+	 */
+	if (ri->guid != NULL) {
+		StrBufSpaceToBlank(ri->guid);
+		StrBufTrim(ri->guid);
+		guid = NewStrBufPlain(HKEY("rss/"));
+		StrBufAppendBuf(guid, ri->guid, 0);
+	}
+	else {
+		MD5Init(&md5context);
+		if (ri->title != NULL) {
+			MD5Update(&md5context,
+				  (const unsigned char*)SKEY(ri->title));
+		}
+		if (ri->link != NULL) {
+			MD5Update(&md5context,
+				  (const unsigned char*)SKEY(ri->link));
+		}
+		MD5Final(rawdigest, &md5context);
+		guid = NewStrBufPlain(NULL,
+				      MD5_DIGEST_LEN * 2 + 12 /* _rss2ctdl*/);
+		StrBufHexEscAppend(guid, NULL, rawdigest, MD5_DIGEST_LEN);
+		StrBufAppendBufPlain(guid, HKEY("_rss2ctdl"), 0);
+	}
+
+	/* translate Item into message. */
+	EVM_syslog(LOG_DEBUG, "RSS: translating item...\n");
+	if (ri->description == NULL) ri->description = NewStrBufPlain(HKEY(""));
+	StrBufSpaceToBlank(ri->description);
+	SaveMsg->Msg.cm_magic = CTDLMESSAGE_MAGIC;
+	SaveMsg->Msg.cm_anon_type = MES_NORMAL;
+	SaveMsg->Msg.cm_format_type = FMT_RFC822;
+
+	if (ri->guid != NULL) {
+		SaveMsg->Msg.cm_fields['E'] = strdup(ChrPtr(ri->guid));
+	}
+
+	if (ri->author_or_creator != NULL) {
+		char *From;
+		StrBuf *Encoded = NULL;
+		int FromAt;
+
+		From = html_to_ascii(ChrPtr(ri->author_or_creator),
+				     StrLength(ri->author_or_creator),
+				     512, 0);
+		StrBufPlain(ri->author_or_creator, From, -1);
+		StrBufTrim(ri->author_or_creator);
+		free(From);
+
+		FromAt = strchr(ChrPtr(ri->author_or_creator), '@') != NULL;
+		if (!FromAt && StrLength (ri->author_email) > 0)
+		{
+			StrBufRFC2047encode(&Encoded, ri->author_or_creator);
+			SaveMsg->Msg.cm_fields['A'] = SmashStrBuf(&Encoded);
+			SaveMsg->Msg.cm_fields['P'] =
+				SmashStrBuf(&ri->author_email);
+		}
+		else
+		{
+			if (FromAt)
+			{
+				SaveMsg->Msg.cm_fields['A'] =
+					SmashStrBuf(&ri->author_or_creator);
+				SaveMsg->Msg.cm_fields['P'] =
+					strdup(SaveMsg->Msg.cm_fields['A']);
+			}
+			else
+			{
+				StrBufRFC2047encode(&Encoded,
+						    ri->author_or_creator);
+				SaveMsg->Msg.cm_fields['A'] =
+					SmashStrBuf(&Encoded);
+				SaveMsg->Msg.cm_fields['P'] =
+					strdup("rss@localhost");
+
+			}
+			if (ri->pubdate <= 0) {
+				ri->pubdate = time(NULL);
+			}
+		}
+	}
+	else {
+		SaveMsg->Msg.cm_fields['A'] = strdup("rss");
+	}
+
+	SaveMsg->Msg.cm_fields['N'] = strdup(NODENAME);
+	if (ri->title != NULL) {
+		long len;
+		char *Sbj;
+		StrBuf *Encoded, *QPEncoded;
+
+		QPEncoded = NULL;
+		StrBufSpaceToBlank(ri->title);
+		len = StrLength(ri->title);
+		Sbj = html_to_ascii(ChrPtr(ri->title), len, 512, 0);
+		len = strlen(Sbj);
+		if (Sbj[len - 1] == '\n')
+		{
+			len --;
+			Sbj[len] = '\0';
+		}
+		Encoded = NewStrBufPlain(Sbj, len);
+		free(Sbj);
+
+		StrBufTrim(Encoded);
+		StrBufRFC2047encode(&QPEncoded, Encoded);
+
+		SaveMsg->Msg.cm_fields['U'] = SmashStrBuf(&QPEncoded);
+		FreeStrBuf(&Encoded);
+	}
+	SaveMsg->Msg.cm_fields['T'] = malloc(64);
+	snprintf(SaveMsg->Msg.cm_fields['T'], 64, "%ld", ri->pubdate);
+	if (ri->channel_title != NULL) {
+		if (StrLength(ri->channel_title) > 0) {
+			SaveMsg->Msg.cm_fields['O'] =
+				strdup(ChrPtr(ri->channel_title));
+		}
+	}
+	if (ri->link == NULL)
+		ri->link = NewStrBufPlain(HKEY(""));
+
+#if 0 /* temporarily disable shorter urls. */
+	SaveMsg->Msg.cm_fields[TMP_SHORTER_URLS] =
+		GetShorterUrls(ri->description);
+#endif
+
+	msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
+
+	Message = NewStrBufPlain(NULL, StrLength(ri->description));
+
+	StrBufPlain(Message, HKEY(
+			    "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
+			    "<html><body>\n"));
+#if 0 /* disable shorter url for now. */
+	SaveMsg->Msg.cm_fields[TMP_SHORTER_URL_OFFSET] = StrLength(Message);
+#endif
+	StrBufAppendBuf(Message, ri->description, 0);
+	StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
+
+	AppendLink(Message, ri->link, ri->linkTitle, NULL);
+	AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
+	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
+
+	SaveMsg->MsgGUID = guid;
+	SaveMsg->Message = Message;
+
+	n = GetCount(Cfg->Messages) + 1;
+	Put(Cfg->Messages, IKEY(n), SaveMsg, FreeNetworkSaveMessage);
+}
+
+
+void rss_xml_start(void *data, const char *supplied_el, const char **attr)
+{
+	rss_xml_handler *h;
+	rss_aggregator  *RSSAggr = (rss_aggregator*) data;
+	rss_item        *ri = RSSAggr->Item;
+	void            *pv;
+	const char      *pel;
+	char            *sep = NULL;
+
+	/* Axe the namespace, we don't care about it */
+///	syslog(LOG_DEBUG, "RSS: supplied el %d: %s...\n", RSSAggr->Cfg->ItemType, supplied_el);
+	pel = supplied_el;
+	while (sep = strchr(pel, ':'), sep) {
+		pel = sep + 1;
+	}
+
+	if (pel != supplied_el)
+	{
+		void *v;
+		
+		if (!GetHash(KnownNameSpaces, 
+			     supplied_el, 
+			     pel - supplied_el - 1,
+			     &v))
+		{
+#ifdef DEBUG_RSS
+			syslog(LOG_DEBUG, "RSS: START ignoring because of wrong namespace [%s]\n", 
+				      supplied_el);
+#endif
+			return;
+		}
+	}
+
+	StrBufPlain(RSSAggr->Key, pel, -1);
+	StrBufLowerCase(RSSAggr->Key);
+	if (GetHash(StartHandlers, SKEY(RSSAggr->Key), &pv))
+	{
+		h = (rss_xml_handler*) pv;
+
+		if (((h->Flags & RSS_UNSET) != 0) && 
+		    (RSSAggr->ItemType == RSS_UNSET))
+		{
+			h->Handler(RSSAggr->CData, ri, RSSAggr, attr);
+		}
+		else if (((h->Flags & RSS_RSS) != 0) &&
+		    (RSSAggr->ItemType == RSS_RSS))
+		{
+			h->Handler(RSSAggr->CData, ri, RSSAggr, attr);
+		}
+		else if (((h->Flags & RSS_ATOM) != 0) &&
+			 (RSSAggr->ItemType == RSS_ATOM))
+		{
+			h->Handler(RSSAggr->CData, ri, RSSAggr, attr);			
+		}
+#ifdef DEBUG_RSS
+		else 
+			syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
+#endif
+	}
+#ifdef DEBUG_RSS
+	else 
+		syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
+#endif
+}
+
+void rss_xml_end(void *data, const char *supplied_el)
+{
+	rss_xml_handler *h;
+	rss_aggregator  *RSSAggr = (rss_aggregator*) data;
+	rss_item        *ri = RSSAggr->Item;
+	const char      *pel;
+	char            *sep = NULL;
+	void            *pv;
+
+	/* Axe the namespace, we don't care about it */
+	pel = supplied_el;
+	while (sep = strchr(pel, ':'), sep) {
+		pel = sep + 1;
+	}
+//	syslog(LOG_DEBUG, "RSS: END %s...\n", el);
+	if (pel != supplied_el)
+	{
+		void *v;
+		
+		if (!GetHash(KnownNameSpaces, 
+			     supplied_el, 
+			     pel - supplied_el - 1,
+			     &v))
+		{
+#ifdef DEBUG_RSS
+			syslog(LOG_DEBUG, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
+				      supplied_el, ChrPtr(RSSAggr->CData));
+#endif
+			FlushStrBuf(RSSAggr->CData);
+			return;
+		}
+	}
+
+	StrBufPlain(RSSAggr->Key, pel, -1);
+	StrBufLowerCase(RSSAggr->Key);
+	if (GetHash(EndHandlers, SKEY(RSSAggr->Key), &pv))
+	{
+		h = (rss_xml_handler*) pv;
+
+		if (((h->Flags & RSS_UNSET) != 0) && 
+		    (RSSAggr->ItemType == RSS_UNSET))
+		{
+			h->Handler(RSSAggr->CData, ri, RSSAggr, NULL);
+		}
+		else if (((h->Flags & RSS_RSS) != 0) &&
+		    (RSSAggr->ItemType == RSS_RSS))
+		{
+			h->Handler(RSSAggr->CData, ri, RSSAggr, NULL);
+		}
+		else if (((h->Flags & RSS_ATOM) != 0) &&
+			 (RSSAggr->ItemType == RSS_ATOM))
+		{
+			h->Handler(RSSAggr->CData, ri, RSSAggr, NULL);
+		}
+#ifdef DEBUG_RSS
+		else 
+			syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(RSSAggr->CData));
+#endif
+	}
+#ifdef DEBUG_RSS
+	else 
+		syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(RSSAggr->CData));
+#endif
+	FlushStrBuf(RSSAggr->CData);
 }
 
 /*
  * Callback function for passing libcurl's output to expat for parsing
- */
+ * we don't do streamed parsing so expat can handle non-utf8 documents
 size_t rss_libcurl_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 {
 	XML_Parse((XML_Parser)stream, ptr, (size * nmemb), 0);
 	return (size*nmemb);
 }
-
-
+ */
 
 eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 {
 	StrBuf *Buf;
-	rss_aggregator *rssc;
+	rss_aggregator *RSSAggr;
 	rss_item *ri;
 	const char *at;
 	char *ptr;
@@ -627,16 +824,16 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 		return eAbort;
 	}
 
-	rssc = IO->Data;
-	ri = rssc->Item;
-	rssc->CData = NewStrBufPlain(NULL, SIZ);
-	rssc->Key = NewStrBuf();
+	RSSAggr = IO->Data;
+	ri = RSSAggr->Item;
+	RSSAggr->CData = NewStrBufPlain(NULL, SIZ);
+	RSSAggr->Key = NewStrBuf();
 	at = NULL;
-	StrBufSipLine(rssc->Key, IO->HttpReq.ReplyData, &at);
+	StrBufSipLine(RSSAggr->Key, IO->HttpReq.ReplyData, &at);
 	ptr = NULL;
 
 #define encoding "encoding=\""
-	ptr = strstr(ChrPtr(rssc->Key), encoding);
+	ptr = strstr(ChrPtr(RSSAggr->Key), encoding);
 	if (ptr != NULL)
 	{
 		char *pche;
@@ -644,62 +841,81 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 		ptr += sizeof (encoding) - 1;
 		pche = strchr(ptr, '"');
 		if (pche != NULL)
-			StrBufCutAt(rssc->Key, -1, pche);
+			StrBufCutAt(RSSAggr->Key, -1, pche);
 		else 
 			ptr = "UTF-8";
 	}
 	else
 		ptr = "UTF-8";
 
-	syslog(LOG_DEBUG, "RSS: Now parsing [%s] \n", ChrPtr(rssc->Url));
+	syslog(LOG_DEBUG, "RSS: Now parsing [%s] \n", ChrPtr(RSSAggr->Url));
 
-	rssc->xp = XML_ParserCreateNS(ptr, ':');
-	if (!rssc->xp) {
+	RSSAggr->xp = XML_ParserCreateNS(ptr, ':');
+	if (!RSSAggr->xp) {
 		syslog(LOG_DEBUG, "Cannot create XML parser!\n");
 		return eAbort;
 	}
-	FlushStrBuf(rssc->Key);
+	FlushStrBuf(RSSAggr->Key);
 
-	rssc->Messages = NewHash(1, Flathash);
-	XML_SetElementHandler(rssc->xp, rss_xml_start, rss_xml_end);
-	XML_SetCharacterDataHandler(rssc->xp, rss_xml_chardata);
-	XML_SetUserData(rssc->xp, rssc);
-	XML_SetCdataSectionHandler(rssc->xp,
+	RSSAggr->Messages = NewHash(1, Flathash);
+	XML_SetElementHandler(RSSAggr->xp, rss_xml_start, rss_xml_end);
+	XML_SetCharacterDataHandler(RSSAggr->xp, rss_xml_chardata);
+	XML_SetUserData(RSSAggr->xp, RSSAggr);
+	XML_SetCdataSectionHandler(RSSAggr->xp,
 				   rss_xml_cdata_start,
 				   rss_xml_cdata_end);
 
 
 	len = StrLength(IO->HttpReq.ReplyData);
 	ptr = SmashStrBuf(&IO->HttpReq.ReplyData);
-	XML_Parse(rssc->xp, ptr, len, 0);
+	XML_Parse(RSSAggr->xp, ptr, len, 0);
 	free (ptr);
 	if (ri->done_parsing == 0)
-		XML_Parse(rssc->xp, "", 0, 1);
+		XML_Parse(RSSAggr->xp, "", 0, 1);
 
 
 	syslog(LOG_DEBUG, "RSS: XML Status [%s] \n", 
 		      XML_ErrorString(
-			      XML_GetErrorCode(rssc->xp)));
+			      XML_GetErrorCode(RSSAggr->xp)));
 
-	XML_ParserFree(rssc->xp);
+	XML_ParserFree(RSSAggr->xp);
 	flush_rss_item(ri);
-	FreeStrBuf(&rssc->CData);
-	FreeStrBuf(&rssc->Key);
 
-	Buf = NewStrBufDup(rssc->rooms);
-	rssc->recp.recp_room = SmashStrBuf(&Buf);
-	rssc->recp.num_room = rssc->roomlist_parts;
-	rssc->recp.recptypes_magic = RECPTYPES_MAGIC;
+	Buf = NewStrBufDup(RSSAggr->rooms);
+	RSSAggr->recp.recp_room = SmashStrBuf(&Buf);
+	RSSAggr->recp.num_room = RSSAggr->roomlist_parts;
+	RSSAggr->recp.recptypes_magic = RECPTYPES_MAGIC;
 
-	rssc->Pos = GetNewHashPos(rssc->Messages, 1);
+	RSSAggr->Pos = GetNewHashPos(RSSAggr->Messages, 1);
 
         ///Cfg->next_poll = time(NULL) + config.c_net_freq; 
-	if (GetNextHashPos(rssc->Messages, rssc->Pos, &len, &Key, (void**) &rssc->ThisMsg))
+	if (GetNextHashPos(RSSAggr->Messages, RSSAggr->Pos, &len, &Key, (void**) &RSSAggr->ThisMsg))
 		return QueueDBOperation(IO, RSS_FetchNetworkUsetableEntry);
 	else
 		return eAbort;
 }
 
+
+/*******************************************************************************
+ *                     RSS handler registering logic                           *
+ *******************************************************************************/
+
+void AddRSSStartHandler(rss_handler_func Handler, int Flags, const char *key, long len)
+{
+	rss_xml_handler *h;
+	h = (rss_xml_handler*) malloc(sizeof (rss_xml_handler));
+	h->Flags = Flags;
+	h->Handler = Handler;
+	Put(StartHandlers, key, len, h, NULL);
+}
+void AddRSSEndHandler(rss_handler_func Handler, int Flags, const char *key, long len)
+{
+	rss_xml_handler *h;
+	h = (rss_xml_handler*) malloc(sizeof (rss_xml_handler));
+	h->Flags = Flags;
+	h->Handler = Handler;
+	Put(EndHandlers, key, len, h, NULL);
+}
 
 void rss_parser_cleanup(void)
 {
@@ -718,7 +934,7 @@ CTDL_MODULE_INIT(rssparser)
 
 		AddRSSStartHandler(RSS_item_rss_start,     RSS_UNSET, HKEY("rss"));
 		AddRSSStartHandler(RSS_item_rdf_start,     RSS_UNSET, HKEY("rdf"));
-		AddRSSStartHandler(ATOM_item_feed_start,    RSS_UNSET, HKEY("feed"));
+		AddRSSStartHandler(ATOM_item_feed_start,   RSS_UNSET, HKEY("feed"));
 		AddRSSStartHandler(RSS_item_item_start,    RSS_RSS, HKEY("item"));
 		AddRSSStartHandler(ATOM_item_entry_start,  RSS_ATOM, HKEY("entry"));
 		AddRSSStartHandler(ATOM_item_link_start,   RSS_ATOM, HKEY("link"));

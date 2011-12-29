@@ -55,6 +55,7 @@ struct rss_item {
 	StrBuf *author_url;
 	StrBuf *author_email;
 };
+void flush_rss_item(rss_item *ri);
 
 struct rss_room_counter {
 	int count;
@@ -90,13 +91,10 @@ struct rss_aggregator {
 	HashPos         *Pos;
 	HashList        *Messages;
 	networker_save_message *ThisMsg;
-	const rss_xml_handler *Current;
 };
 
 
 
 eNextState RSSAggregator_ParseReply(AsyncIO *IO);
-
-void rss_save_item(rss_item *ri, rss_aggregator *Cfg);
 
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO);

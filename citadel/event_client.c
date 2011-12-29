@@ -121,9 +121,6 @@ void ShutDownDBCLient(AsyncIO *IO)
 
 	assert(IO->Terminate);
 	IO->Terminate(IO);	
-
-	Ctx->state = CON_IDLE;
-	Ctx->kill_me = 1;
 }
 
 void
@@ -227,23 +224,34 @@ eNextState QueueCurlContext(AsyncIO *IO)
 	return eSendReply;
 }
 
+void DestructCAres(AsyncIO *IO);
 void FreeAsyncIOContents(AsyncIO *IO)
 {
+	CitContext *Ctx = IO->CitContext;
+
 	FreeStrBuf(&IO->IOBuf);
 	FreeStrBuf(&IO->SendBuf.Buf);
 	FreeStrBuf(&IO->RecvBuf.Buf);
+
+	DestructCAres(IO);
+
+	FreeURL(&IO->ConnectMe);
+	FreeStrBuf(&IO->HttpReq.ReplyData);
+
+	Ctx->state = CON_IDLE;
+	Ctx->kill_me = 1;
 }
 
 
 void StopClientWatchers(AsyncIO *IO)
 {
+	ev_timer_stop (event_base, &IO->rw_timeout);
 	ev_timer_stop(event_base, &IO->conn_fail);
-	ev_io_stop(event_base, &IO->conn_event);
 	ev_idle_stop(event_base, &IO->unwind_stack);
 
+	ev_io_stop(event_base, &IO->conn_event);
 	ev_io_stop(event_base, &IO->send_event);
 	ev_io_stop(event_base, &IO->recv_event);
-	ev_timer_stop (event_base, &IO->rw_timeout);
 	close(IO->SendBuf.fd);
 	IO->SendBuf.fd = 0;
 	IO->RecvBuf.fd = 0;
@@ -267,8 +275,6 @@ void ShutDownCLient(AsyncIO *IO)
 	}
 	assert(IO->Terminate);
 	IO->Terminate(IO);
-	Ctx->state = CON_IDLE;
-	Ctx->kill_me = 1;
 }
 
 

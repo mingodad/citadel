@@ -569,6 +569,8 @@ void *client_event_thread(void *arg)
 	DeleteHash(&InboundEventQueues[1]);
 /*	citthread_mutex_destroy(&EventQueueMutex); TODO */
 	evcurl_shutdown();
+	close(event_add_pipe[0]);
+	close(event_add_pipe[1]);
 
 	return(NULL);
 }
@@ -692,6 +694,9 @@ void *db_event_thread(void *arg)
 	DBInboundEventQueue = NULL;
 	DeleteHash(&DBInboundEventQueues[0]);
 	DeleteHash(&DBInboundEventQueues[1]);
+
+	close(evdb_add_pipe[0]);
+	close(evdb_add_pipe[1]);
 /*	citthread_mutex_destroy(&DBEventQueueMutex); TODO */
 
 	return(NULL);
@@ -717,9 +722,8 @@ CTDL_MODULE_INIT(event_client)
 		CtdlRegisterCleanupHook(ShutDownEventQueues);
 		InitEventQueue();
 		DBInitEventQueue();
-		CtdlThreadCreate(/*"Client event", */ client_event_thread);
-		CtdlThreadCreate(/*"DB event", */db_event_thread);
-/// todo register shutdown callback.
+		CtdlThreadCreate(client_event_thread);
+		CtdlThreadCreate(db_event_thread);
 	}
 	return "event";
 }

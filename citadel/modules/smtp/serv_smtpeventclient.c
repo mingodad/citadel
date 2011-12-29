@@ -95,6 +95,9 @@ void DeleteSmtpOutMsg(void *v)
 {
 	SmtpOutMsg *Msg = v;
 
+	/* these are kept in our own space and free'd below */
+	Msg->IO.ConnectMe = NULL;
+
 	ares_free_data(Msg->AllMX);
 	if (Msg->HostLookup.VParsedDNSReply != NULL)
 		Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);

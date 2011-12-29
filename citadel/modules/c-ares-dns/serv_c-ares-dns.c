@@ -272,6 +272,11 @@ void QueryCbDone(AsyncIO *IO)
 	ev_idle_stop(event_base, &IO->unwind_stack);
 }
 
+void DestructCAres(AsyncIO *IO)
+{
+	ares_destroy_options(&IO->DNS.Options);
+}
+
 
 void InitC_ares_dns(AsyncIO *IO)
 {

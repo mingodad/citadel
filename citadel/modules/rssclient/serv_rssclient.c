@@ -73,25 +73,6 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO);
 struct CitContext rss_CC;
 
 struct rssnetcfg *rnclist = NULL;
-void AppendLink(StrBuf *Message,
-		StrBuf *link,
-		StrBuf *LinkTitle,
-		const char *Title)
-{
-	if (StrLength(link) > 0)
-	{
-		StrBufAppendBufPlain(Message, HKEY("<a href=\""), 0);
-		StrBufAppendBuf(Message, link, 0);
-		StrBufAppendBufPlain(Message, HKEY("\">"), 0);
-		if (StrLength(LinkTitle) > 0)
-			StrBufAppendBuf(Message, LinkTitle, 0);
-		else if ((Title != NULL) && !IsEmptyStr(Title))
-			StrBufAppendBufPlain(Message, Title, -1, 0);
-		else
-			StrBufAppendBuf(Message, link, 0);
-		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
-	}
-}
 
 
 void DeleteRoomReference(long QRnumber)
@@ -159,15 +140,62 @@ void UnlinkRSSAggregator(rss_aggregator *Cfg)
 	last_run = time(NULL);
 }
 
-void FreeNetworkSaveMessage (void *vMsg)
-{
-	networker_save_message *Msg = (networker_save_message *) vMsg;
 
-	CtdlFreeMessageContents(&Msg->Msg);
-	FreeStrBuf(&Msg->Message);
-	FreeStrBuf(&Msg->MsgGUID);
-	free(Msg);
+void DeleteRssCfg(void *vptr)
+{
+	rss_aggregator *RSSAggr = (rss_aggregator *)vptr;
+	AsyncIO *IO = &RSSAggr->IO;
+	EVM_syslog(LOG_DEBUG, "RSS: destroying\n");
+
+	FreeStrBuf(&RSSAggr->Url);
+	FreeStrBuf(&RSSAggr->rooms);
+	FreeStrBuf(&RSSAggr->CData);
+	FreeStrBuf(&RSSAggr->Key);
+	DeleteHash(&RSSAggr->OtherQRnumbers);
+
+	DeleteHashPos (&RSSAggr->Pos);
+	DeleteHash (&RSSAggr->Messages);
+	if (RSSAggr->recp.recp_room != NULL)
+		free(RSSAggr->recp.recp_room);
+
+
+	if (RSSAggr->Item != NULL)
+	{
+		flush_rss_item(RSSAggr->Item);
+
+		free(RSSAggr->Item);
+	}
+
+	FreeAsyncIOContents(&RSSAggr->IO);
+	free(RSSAggr);
 }
+
+eNextState RSSAggregator_Terminate(AsyncIO *IO)
+{
+	rss_aggregator *RSSAggr = (rss_aggregator *)IO->Data;
+
+	EVM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
+
+
+	UnlinkRSSAggregator(RSSAggr);
+	return eAbort;
+}
+eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
+{
+	const char *pUrl;
+	rss_aggregator *RSSAggr = (rss_aggregator *)IO->Data;
+
+	pUrl = IO->ConnectMe->PlainUrl;
+	if (pUrl == NULL)
+		pUrl = "";
+
+	EV_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.\n", pUrl);
+
+
+	UnlinkRSSAggregator(RSSAggr);
+	return eAbort;
+}
+
 
 eNextState AbortNetworkSaveMessage (AsyncIO *IO)
 {
@@ -178,22 +206,22 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 {
 	long len;
 	const char *Key;
-	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
+	rss_aggregator *RSSAggr = (rss_aggregator *) IO->Data;
 
-	Ctx->ThisMsg->Msg.cm_fields['M'] = SmashStrBuf(&Ctx->ThisMsg->Message);
+	RSSAggr->ThisMsg->Msg.cm_fields['M'] = SmashStrBuf(&RSSAggr->ThisMsg->Message);
 
-	CtdlSubmitMsg(&Ctx->ThisMsg->Msg, &Ctx->recp, NULL, 0);
+	CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
 
 	/* write the uidl to the use table so we don't store this item again */
 	cdb_store(CDB_USETABLE,
-		  SKEY(Ctx->ThisMsg->MsgGUID),
-		  &Ctx->ThisMsg->ut,
+		  SKEY(RSSAggr->ThisMsg->MsgGUID),
+		  &RSSAggr->ThisMsg->ut,
 		  sizeof(struct UseTable) );
 
-	if (GetNextHashPos(Ctx->Messages,
-			   Ctx->Pos,
+	if (GetNextHashPos(RSSAggr->Messages,
+			   RSSAggr->Pos,
 			   &len, &Key,
-			   (void**) &Ctx->ThisMsg))
+			   (void**) &RSSAggr->ThisMsg))
 		return NextDBOperation(IO, RSS_FetchNetworkUsetableEntry);
 	else
 		return eAbort;
@@ -243,176 +271,6 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	}
 }
 
-/*
- * Commit a fetched and parsed RSS item to disk
- */
-void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
-{
-	networker_save_message *SaveMsg;
-	struct MD5Context md5context;
-	u_char rawdigest[MD5_DIGEST_LEN];
-	int msglen = 0;
-	StrBuf *Message;
-	StrBuf *guid;
-	AsyncIO *IO = &Cfg->IO;
-	int n;
-
-
-	SaveMsg = (networker_save_message *) malloc(
-		sizeof(networker_save_message));
-	memset(SaveMsg, 0, sizeof(networker_save_message));
-
-	/* Construct a GUID to use in the S_USETABLE table.
-	 * If one is not present in the item itself, make one up.
-	 */
-	if (ri->guid != NULL) {
-		StrBufSpaceToBlank(ri->guid);
-		StrBufTrim(ri->guid);
-		guid = NewStrBufPlain(HKEY("rss/"));
-		StrBufAppendBuf(guid, ri->guid, 0);
-	}
-	else {
-		MD5Init(&md5context);
-		if (ri->title != NULL) {
-			MD5Update(&md5context,
-				  (const unsigned char*)SKEY(ri->title));
-		}
-		if (ri->link != NULL) {
-			MD5Update(&md5context,
-				  (const unsigned char*)SKEY(ri->link));
-		}
-		MD5Final(rawdigest, &md5context);
-		guid = NewStrBufPlain(NULL,
-				      MD5_DIGEST_LEN * 2 + 12 /* _rss2ctdl*/);
-		StrBufHexEscAppend(guid, NULL, rawdigest, MD5_DIGEST_LEN);
-		StrBufAppendBufPlain(guid, HKEY("_rss2ctdl"), 0);
-	}
-
-	/* translate Item into message. */
-	EVM_syslog(LOG_DEBUG, "RSS: translating item...\n");
-	if (ri->description == NULL) ri->description = NewStrBufPlain(HKEY(""));
-	StrBufSpaceToBlank(ri->description);
-	SaveMsg->Msg.cm_magic = CTDLMESSAGE_MAGIC;
-	SaveMsg->Msg.cm_anon_type = MES_NORMAL;
-	SaveMsg->Msg.cm_format_type = FMT_RFC822;
-
-	if (ri->guid != NULL) {
-		SaveMsg->Msg.cm_fields['E'] = strdup(ChrPtr(ri->guid));
-	}
-
-	if (ri->author_or_creator != NULL) {
-		char *From;
-		StrBuf *Encoded = NULL;
-		int FromAt;
-
-		From = html_to_ascii(ChrPtr(ri->author_or_creator),
-				     StrLength(ri->author_or_creator),
-				     512, 0);
-		StrBufPlain(ri->author_or_creator, From, -1);
-		StrBufTrim(ri->author_or_creator);
-		free(From);
-
-		FromAt = strchr(ChrPtr(ri->author_or_creator), '@') != NULL;
-		if (!FromAt && StrLength (ri->author_email) > 0)
-		{
-			StrBufRFC2047encode(&Encoded, ri->author_or_creator);
-			SaveMsg->Msg.cm_fields['A'] = SmashStrBuf(&Encoded);
-			SaveMsg->Msg.cm_fields['P'] =
-				SmashStrBuf(&ri->author_email);
-		}
-		else
-		{
-			if (FromAt)
-			{
-				SaveMsg->Msg.cm_fields['A'] =
-					SmashStrBuf(&ri->author_or_creator);
-				SaveMsg->Msg.cm_fields['P'] =
-					strdup(SaveMsg->Msg.cm_fields['A']);
-			}
-			else
-			{
-				StrBufRFC2047encode(&Encoded,
-						    ri->author_or_creator);
-				SaveMsg->Msg.cm_fields['A'] =
-					SmashStrBuf(&Encoded);
-				SaveMsg->Msg.cm_fields['P'] =
-					strdup("rss@localhost");
-
-			}
-			if (ri->pubdate <= 0) {
-				ri->pubdate = time(NULL);
-			}
-		}
-	}
-	else {
-		SaveMsg->Msg.cm_fields['A'] = strdup("rss");
-	}
-
-	SaveMsg->Msg.cm_fields['N'] = strdup(NODENAME);
-	if (ri->title != NULL) {
-		long len;
-		char *Sbj;
-		StrBuf *Encoded, *QPEncoded;
-
-		QPEncoded = NULL;
-		StrBufSpaceToBlank(ri->title);
-		len = StrLength(ri->title);
-		Sbj = html_to_ascii(ChrPtr(ri->title), len, 512, 0);
-		len = strlen(Sbj);
-		if (Sbj[len - 1] == '\n')
-		{
-			len --;
-			Sbj[len] = '\0';
-		}
-		Encoded = NewStrBufPlain(Sbj, len);
-		free(Sbj);
-
-		StrBufTrim(Encoded);
-		StrBufRFC2047encode(&QPEncoded, Encoded);
-
-		SaveMsg->Msg.cm_fields['U'] = SmashStrBuf(&QPEncoded);
-		FreeStrBuf(&Encoded);
-	}
-	SaveMsg->Msg.cm_fields['T'] = malloc(64);
-	snprintf(SaveMsg->Msg.cm_fields['T'], 64, "%ld", ri->pubdate);
-	if (ri->channel_title != NULL) {
-		if (StrLength(ri->channel_title) > 0) {
-			SaveMsg->Msg.cm_fields['O'] =
-				strdup(ChrPtr(ri->channel_title));
-		}
-	}
-	if (ri->link == NULL)
-		ri->link = NewStrBufPlain(HKEY(""));
-
-#if 0 /* temporarily disable shorter urls. */
-	SaveMsg->Msg.cm_fields[TMP_SHORTER_URLS] =
-		GetShorterUrls(ri->description);
-#endif
-
-	msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
-
-	Message = NewStrBufPlain(NULL, StrLength(ri->description));
-
-	StrBufPlain(Message, HKEY(
-			    "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
-			    "<html><body>\n"));
-#if 0 /* disable shorter url for now. */
-	SaveMsg->Msg.cm_fields[TMP_SHORTER_URL_OFFSET] = StrLength(Message);
-#endif
-	StrBufAppendBuf(Message, ri->description, 0);
-	StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
-
-	AppendLink(Message, ri->link, ri->linkTitle, NULL);
-	AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
-	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
-
-	SaveMsg->MsgGUID = guid;
-	SaveMsg->Message = Message;
-
-	n = GetCount(Cfg->Messages) + 1;
-	Put(Cfg->Messages, IKEY(n), SaveMsg, FreeNetworkSaveMessage);
-}
-
 
 
 /*
@@ -455,72 +313,6 @@ int rss_do_fetching(rss_aggregator *Cfg)
 	return 1;
 }
 
-
-void DeleteRssCfg(void *vptr)
-{
-	rss_aggregator *rncptr = (rss_aggregator *)vptr;
-	AsyncIO *IO = &rncptr->IO;
-	EVM_syslog(LOG_DEBUG, "RSS: destroying\n");
-
-	FreeStrBuf(&rncptr->Url);
-	FreeStrBuf(&rncptr->rooms);
-	FreeStrBuf(&rncptr->CData);
-	FreeStrBuf(&rncptr->Key);
-	FreeStrBuf(&rncptr->IO.HttpReq.ReplyData);
-	DeleteHash(&rncptr->OtherQRnumbers);
-	FreeURL(&rncptr->IO.ConnectMe);
-
-	DeleteHashPos (&rncptr->Pos);
-	DeleteHash (&rncptr->Messages);
-	if (rncptr->recp.recp_room != NULL)
-		free(rncptr->recp.recp_room);
-
-
-	if (rncptr->Item != NULL)
-	{
-		FreeStrBuf(&rncptr->Item->guid);
-		FreeStrBuf(&rncptr->Item->title);
-		FreeStrBuf(&rncptr->Item->link);
-		FreeStrBuf(&rncptr->Item->linkTitle);
-		FreeStrBuf(&rncptr->Item->reLink);
-		FreeStrBuf(&rncptr->Item->reLinkTitle);
-		FreeStrBuf(&rncptr->Item->description);
-		FreeStrBuf(&rncptr->Item->channel_title);
-		FreeStrBuf(&rncptr->Item->author_or_creator);
-		FreeStrBuf(&rncptr->Item->author_url);
-		FreeStrBuf(&rncptr->Item->author_email);
-
-		free(rncptr->Item);
-	}
-	free(rncptr);
-}
-
-eNextState RSSAggregator_Terminate(AsyncIO *IO)
-{
-	rss_aggregator *rncptr = (rss_aggregator *)IO->Data;
-
-	EVM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
-
-
-	UnlinkRSSAggregator(rncptr);
-	return eAbort;
-}
-eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
-{
-	const char *pUrl;
-	rss_aggregator *rncptr = (rss_aggregator *)IO->Data;
-
-	pUrl = IO->ConnectMe->PlainUrl;
-	if (pUrl == NULL)
-		pUrl = "";
-
-	EV_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.\n", pUrl);
-
-
-	UnlinkRSSAggregator(rncptr);
-	return eAbort;
-}
-
 /*
  * Scan a room's netconfig to determine whether it is requesting any RSS feeds
  */
@@ -534,8 +326,8 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	char filename[PATH_MAX];
 	int  fd;
 	int Done;
-	rss_aggregator *rncptr = NULL;
-	rss_aggregator *use_this_rncptr = NULL;
+	rss_aggregator *RSSAggr = NULL;
+	rss_aggregator *use_this_RSSAggr = NULL;
 	void *vptr;
 	const char *CfgPtr, *lPtr;
 	const char *Err;
@@ -612,49 +404,49 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 			Count->count = 0;
 		    }
 		    Count->count ++;
-		    rncptr = (rss_aggregator *) malloc(sizeof(rss_aggregator));
-		    memset (rncptr, 0, sizeof(rss_aggregator));
-		    rncptr->roomlist_parts = 1;
-		    rncptr->Url = NewStrBuf();
-		    StrBufExtract_NextToken(rncptr->Url, Line, &lPtr, '|');
+		    RSSAggr = (rss_aggregator *) malloc(sizeof(rss_aggregator));
+		    memset (RSSAggr, 0, sizeof(rss_aggregator));
+		    RSSAggr->roomlist_parts = 1;
+		    RSSAggr->Url = NewStrBuf();
+		    StrBufExtract_NextToken(RSSAggr->Url, Line, &lPtr, '|');
 
 		    pthread_mutex_lock(&RSSQueueMutex);
-		    GetHash(RSSFetchUrls, SKEY(rncptr->Url), &vptr);
-		    use_this_rncptr = (rss_aggregator *)vptr;
-		    if (use_this_rncptr != NULL)
+		    GetHash(RSSFetchUrls, SKEY(RSSAggr->Url), &vptr);
+		    use_this_RSSAggr = (rss_aggregator *)vptr;
+		    if (use_this_RSSAggr != NULL)
 		    {
 			    long *QRnumber;
-			    StrBufAppendBufPlain(use_this_rncptr->rooms,
+			    StrBufAppendBufPlain(use_this_RSSAggr->rooms,
 						 qrbuf->QRname,
 						 -1, 0);
-			    if (use_this_rncptr->roomlist_parts == 1)
+			    if (use_this_RSSAggr->roomlist_parts == 1)
 			    {
-				    use_this_rncptr->OtherQRnumbers =
+				    use_this_RSSAggr->OtherQRnumbers =
 					    NewHash(1, lFlathash);
 			    }
 			    QRnumber = (long*)malloc(sizeof(long));
 			    *QRnumber = qrbuf->QRnumber;
-			    Put(use_this_rncptr->OtherQRnumbers,
+			    Put(use_this_RSSAggr->OtherQRnumbers,
 				LKEY(qrbuf->QRnumber),
 				QRnumber,
 				NULL);
-			    use_this_rncptr->roomlist_parts++;
+			    use_this_RSSAggr->roomlist_parts++;
 
 			    pthread_mutex_unlock(&RSSQueueMutex);
 
-			    FreeStrBuf(&rncptr->Url);
-			    free(rncptr);
-			    rncptr = NULL;
+			    FreeStrBuf(&RSSAggr->Url);
+			    free(RSSAggr);
+			    RSSAggr = NULL;
 			    continue;
 		    }
 		    pthread_mutex_unlock(&RSSQueueMutex);
 
-		    rncptr->ItemType = RSS_UNSET;
+		    RSSAggr->ItemType = RSS_UNSET;
 
-		    rncptr->rooms = NewStrBufPlain(qrbuf->QRname, -1);
+		    RSSAggr->rooms = NewStrBufPlain(qrbuf->QRname, -1);
 
 		    pthread_mutex_lock(&RSSQueueMutex);
-		    Put(RSSFetchUrls, SKEY(rncptr->Url), rncptr, DeleteRssCfg);
+		    Put(RSSFetchUrls, SKEY(RSSAggr->Url), RSSAggr, DeleteRssCfg);
 		    pthread_mutex_unlock(&RSSQueueMutex);
 		}
 	    }
