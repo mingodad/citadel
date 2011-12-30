@@ -53,11 +53,38 @@
 #include "event_client.h"
 
 
+#define POP3C_OK (strncasecmp(ChrPtr(RecvMsg->IO.IOBuf), "+OK", 3) == 0)
+
+#define POP3C_DBG_SEND()					\
+	syslog(LOG_DEBUG,					\
+	       "POP3 client[%ld]: > %s\n",			\
+	       RecvMsg->n, ChrPtr(RecvMsg->IO.SendBuf.Buf))
+
+#define POP3C_DBG_READ()				\
+	syslog(LOG_DEBUG,				\
+	       "POP3 client[%ld]: < %s\n",		\
+	       RecvMsg->n,				\
+	       ChrPtr(RecvMsg->IO.IOBuf))
+
+
 struct CitContext pop3_client_CC;
 
 pthread_mutex_t POP3QueueMutex; /* locks the access to the following vars: */
-HashList *POP3QueueRooms = NULL; /* rss_room_counter */
-HashList *POP3FetchUrls = NULL; /* -> rss_aggregator; ->RefCount access to be locked too. */
+HashList *POP3QueueRooms = NULL;
+HashList *POP3FetchUrls = NULL;
+
+typedef struct pop3aggr pop3aggr;
+typedef eNextState(*Pop3ClientHandler)(pop3aggr* RecvMsg);
+
+eNextState POP3_C_Shutdown(AsyncIO *IO);
+eNextState POP3_C_Timeout(AsyncIO *IO);
+eNextState POP3_C_ConnFail(AsyncIO *IO);
+eNextState POP3_C_DNSFail(AsyncIO *IO);
+eNextState POP3_C_DispatchReadDone(AsyncIO *IO);
+eNextState POP3_C_DispatchWriteDone(AsyncIO *IO);
+eNextState POP3_C_Terminate(AsyncIO *IO);
+eReadState POP3_C_ReadServerStatus(AsyncIO *IO);
+eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO);
 
 typedef struct __pop3_room_counter {
 	int count;
@@ -96,20 +123,17 @@ void HfreeFetchItem(void *vItem)
 	free(Item);
 }
 
-typedef struct __pop3aggr {
-	AsyncIO    	 IO;
+struct pop3aggr {
+	AsyncIO	 IO;
 
 	long n;
 	long RefCount;
-///	ParsedURL *Pop3Host;
 	DNSQueryParts HostLookup;
 
-//	StrBuf		*rooms;
 	long		 QRnumber;
 	HashList	*OtherQRnumbers;
 
 	StrBuf		*Url;
-///	StrBuf *pop3host; -> URL
 	StrBuf *pop3user;
 	StrBuf *pop3pass;
 	StrBuf *RoomName; // TODO: fill me
@@ -119,7 +143,7 @@ typedef struct __pop3aggr {
 	HashList *MsgNumbers;
 	HashPos *Pos;
 	FetchItem *CurrMsg;
-} pop3aggr;
+};
 
 void DeletePOP3Aggregator(void *vptr)
 {
@@ -141,19 +165,6 @@ void DeletePOP3Aggregator(void *vptr)
 	FreeAsyncIOContents(&ptr->IO);
 	free(ptr);
 }
-
-
-typedef eNextState(*Pop3ClientHandler)(pop3aggr* RecvMsg);
-
-eNextState POP3_C_Shutdown(AsyncIO *IO);
-eNextState POP3_C_Timeout(AsyncIO *IO);
-eNextState POP3_C_ConnFail(AsyncIO *IO);
-eNextState POP3_C_DNSFail(AsyncIO *IO);
-eNextState POP3_C_DispatchReadDone(AsyncIO *IO);
-eNextState POP3_C_DispatchWriteDone(AsyncIO *IO);
-eNextState POP3_C_Terminate(AsyncIO *IO);
-eReadState POP3_C_ReadServerStatus(AsyncIO *IO);
-eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO);
 
 eNextState FinalizePOP3AggrRun(AsyncIO *IO)
 {
@@ -178,11 +189,6 @@ eNextState FailAggregationRun(AsyncIO *IO)
 	return eAbort;
 }
 
-
-#define POP3C_DBG_SEND() syslog(LOG_DEBUG, "POP3 client[%ld]: > %s\n", RecvMsg->n, ChrPtr(RecvMsg->IO.SendBuf.Buf))
-#define POP3C_DBG_READ() syslog(LOG_DEBUG, "POP3 client[%ld]: < %s\n", RecvMsg->n, ChrPtr(RecvMsg->IO.IOBuf))
-#define POP3C_OK (strncasecmp(ChrPtr(RecvMsg->IO.IOBuf), "+OK", 3) == 0)
-
 eNextState POP3C_ReadGreeting(pop3aggr *RecvMsg)
 {
 	POP3C_DBG_READ();
@@ -193,10 +199,11 @@ eNextState POP3C_ReadGreeting(pop3aggr *RecvMsg)
 
 eNextState POP3C_SendUser(pop3aggr *RecvMsg)
 {
-	/* Identify ourselves.  NOTE: we have to append a CR to each command.  The LF will
-	 * automatically be appended by sock_puts().  Believe it or not, leaving out the CR
-	 * will cause problems if the server happens to be Exchange, which is so b0rken it
-	 * actually barfs on LF-terminated newlines.
+	/* Identify ourselves.  NOTE: we have to append a CR to each command.
+	 *  The LF will automatically be appended by sock_puts().  Believe it
+	 * or not, leaving out the CR will cause problems if the server happens
+	 * to be Exchange, which is so b0rken it actually barfs on
+	 * LF-terminated newlines.
 	 */
 	StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 		     "USER %s\r\n", ChrPtr(RecvMsg->pop3user));
@@ -217,7 +224,7 @@ eNextState POP3C_SendPassword(pop3aggr *RecvMsg)
 	StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 		     "PASS %s\r\n", ChrPtr(RecvMsg->pop3pass));
 	syslog(LOG_DEBUG, "<PASS <password>\n");
-//	POP3C_DBG_SEND();
+//	POP3C_DBG_SEND(); No, we won't write the passvoid to syslog...
 	return eReadMessage;
 }
 
@@ -241,7 +248,7 @@ eNextState POP3C_GetListCommandState(pop3aggr *RecvMsg)
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
 	RecvMsg->MsgNumbers = NewHash(1, NULL);
-	RecvMsg->State++;	
+	RecvMsg->State++;
 	return eReadMore;
 }
 
@@ -255,7 +262,7 @@ eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 	FetchItem *OneMsg = NULL;
 	POP3C_DBG_READ();
 
-	if ((StrLength(RecvMsg->IO.IOBuf) == 1) && 
+	if ((StrLength(RecvMsg->IO.IOBuf) == 1) &&
 	    (ChrPtr(RecvMsg->IO.IOBuf)[0] == '.'))
 	{
 		if (GetCount(RecvMsg->MsgNumbers) == 0)
@@ -280,14 +287,14 @@ eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 	}
 #if 0
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
-	if (rc != 0) 
+	if (rc != 0)
 		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
-		
+
 	Put(RecvMsg->MsgNumbers, LKEY(OneMsg->MSGID), OneMsg, HfreeFetchItem);
 #if 0
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
-	if (rc != 0) 
+	if (rc != 0)
 		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
 	//RecvMsg->State --; /* read next Line */
@@ -302,29 +309,36 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 	struct cdbdata *cdbut;
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 
-	if(GetNextHashPos(RecvMsg->MsgNumbers, RecvMsg->Pos, &HKLen, &HKey, &vData))
+	if(GetNextHashPos(RecvMsg->MsgNumbers,
+			  RecvMsg->Pos,
+			  &HKLen,
+			  &HKey,
+			  &vData))
 	{
 		struct UseTable ut;
 		if (server_shutting_down)
 			return eAbort;
-			
+
 		RecvMsg->CurrMsg = (FetchItem*) vData;
-		syslog(LOG_DEBUG, "CHECKING: whether %s has already been seen: ", ChrPtr(RecvMsg->CurrMsg->MsgUID));
+		syslog(LOG_DEBUG,
+		       "CHECKING: whether %s has already been seen: ",
+		       ChrPtr(RecvMsg->CurrMsg->MsgUID));
+
 		/* Find out if we've already seen this item */
-		safestrncpy(ut.ut_msgid, 
+		safestrncpy(ut.ut_msgid,
 			    ChrPtr(RecvMsg->CurrMsg->MsgUID),
 			    sizeof(ut.ut_msgid));
 		ut.ut_timestamp = time(NULL);/// TODO: libev timestamp!
-		
+
 		cdbut = cdb_fetch(CDB_USETABLE, SKEY(RecvMsg->CurrMsg->MsgUID));
 		if (cdbut != NULL) {
 			/* Item has already been seen */
 			syslog(LOG_DEBUG, "YES\n");
 			cdb_free(cdbut);
-		
+
 			/* rewrite the record anyway, to update the timestamp */
-			cdb_store(CDB_USETABLE, 
-				  SKEY(RecvMsg->CurrMsg->MsgUID), 
+			cdb_store(CDB_USETABLE,
+				  SKEY(RecvMsg->CurrMsg->MsgUID),
 				  &ut, sizeof(struct UseTable) );
 			RecvMsg->CurrMsg->NeedFetch = 0; ////TODO0;
 		}
@@ -333,11 +347,13 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 			syslog(LOG_DEBUG, "NO\n");
 			RecvMsg->CurrMsg->NeedFetch = 1;
 		}
-		return NextDBOperation(&RecvMsg->IO, POP3_FetchNetworkUsetableEntry);
+		return NextDBOperation(&RecvMsg->IO,
+				       POP3_FetchNetworkUsetableEntry);
 	}
 	else
 	{
-		/* ok, now we know them all, continue with reading the actual messages. */
+		/* ok, now we know them all,
+		 * continue with reading the actual messages. */
 		DeleteHashPos(&RecvMsg->Pos);
 
 		return QueueEventContext(IO, POP3_C_ReAttachToFetchMessages);
@@ -353,13 +369,17 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 #if 0
 	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
-	if (rc != 0) 
+	if (rc != 0)
 		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
-	if(GetNextHashPos(RecvMsg->MsgNumbers, RecvMsg->Pos, &HKLen, &HKey, &vData))
+	if(GetNextHashPos(RecvMsg->MsgNumbers,
+			  RecvMsg->Pos,
+			  &HKLen, &HKey,
+			  &vData))
 	{
 		RecvMsg->CurrMsg = (FetchItem*) vData;
-		/* Find out the UIDL of the message, to determine whether we've already downloaded it */
+		/* Find out the UIDL of the message,
+		 * to determine whether we've already downloaded it */
 		StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 			     "UIDL %ld\r\n", RecvMsg->CurrMsg->MSGID);
 		POP3C_DBG_SEND();
@@ -370,7 +390,8 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 		DeleteHashPos(&RecvMsg->Pos);
 		/// done receiving uidls.. start looking them up now.
 		RecvMsg->Pos = GetNewHashPos(RecvMsg->MsgNumbers, 0);
-		return QueueDBOperation(&RecvMsg->IO, POP3_FetchNetworkUsetableEntry);
+		return QueueDBOperation(&RecvMsg->IO,
+					POP3_FetchNetworkUsetableEntry);
 	}
 	return eReadMore; /* TODO */
 }
@@ -380,19 +401,23 @@ eNextState POP3C_GetOneMessageIDState(pop3aggr *RecvMsg)
 #if 0
 	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
-	if (rc != 0) 
+	if (rc != 0)
 		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
 
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
-	RecvMsg->CurrMsg->MsgUIDL = NewStrBufPlain(NULL, StrLength(RecvMsg->IO.IOBuf));
-	RecvMsg->CurrMsg->MsgUID = NewStrBufPlain(NULL, StrLength(RecvMsg->IO.IOBuf) * 2);
+	RecvMsg->CurrMsg->MsgUIDL =
+		NewStrBufPlain(NULL, StrLength(RecvMsg->IO.IOBuf));
+	RecvMsg->CurrMsg->MsgUID =
+		NewStrBufPlain(NULL, StrLength(RecvMsg->IO.IOBuf) * 2);
 
-	StrBufExtract_token(RecvMsg->CurrMsg->MsgUIDL, RecvMsg->IO.IOBuf, 2, ' ');
-	StrBufPrintf(RecvMsg->CurrMsg->MsgUID, 
-		     "pop3/%s/%s:%s@%s", 
-		     ChrPtr(RecvMsg->RoomName), 
+	StrBufExtract_token(RecvMsg->CurrMsg->MsgUIDL,
+			    RecvMsg->IO.IOBuf, 2, ' ');
+
+	StrBufPrintf(RecvMsg->CurrMsg->MsgUID,
+		     "pop3/%s/%s:%s@%s",
+		     ChrPtr(RecvMsg->RoomName),
 		     ChrPtr(RecvMsg->CurrMsg->MsgUIDL),
 		     RecvMsg->IO.ConnectMe->User,
 		     RecvMsg->IO.ConnectMe->Host);
@@ -408,13 +433,18 @@ eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 	void *vData;
 
 	RecvMsg->CurrMsg = NULL;
-	while (GetNextHashPos(RecvMsg->MsgNumbers, RecvMsg->Pos, &HKLen, &HKey, &vData) && 
-	       (RecvMsg->CurrMsg = (FetchItem*) vData, RecvMsg->CurrMsg->NeedFetch == 0))
+	while (GetNextHashPos(RecvMsg->MsgNumbers,
+			      RecvMsg->Pos,
+			      &HKLen, &HKey,
+			      &vData) &&
+	       (RecvMsg->CurrMsg = (FetchItem*) vData,
+		RecvMsg->CurrMsg->NeedFetch == 0))
 	{}
 
 	if ((RecvMsg->CurrMsg != NULL ) && (RecvMsg->CurrMsg->NeedFetch == 1))
 	{
-		/* Message has not been seen. Tell the server to fetch the message... */
+		/* Message has not been seen.
+		 * Tell the server to fetch the message... */
 		StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 			     "RETR %ld\r\n", RecvMsg->CurrMsg->MSGID);
 		POP3C_DBG_SEND();
@@ -431,14 +461,14 @@ eNextState POP3C_ReadMessageBodyFollowing(pop3aggr *RecvMsg)
 {
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
-	RecvMsg->IO.ReadMsg = NewAsyncMsg(HKEY("."), 
+	RecvMsg->IO.ReadMsg = NewAsyncMsg(HKEY("."),
 					  RecvMsg->CurrMsg->MSGSize,
-					  config.c_maxmsglen, 
+					  config.c_maxmsglen,
 					  NULL, -1,
 					  1);
 
 	return eReadPayload;
-}	
+}
 
 
 eNextState POP3C_StoreMsgRead(AsyncIO *IO)
@@ -446,16 +476,18 @@ eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 	struct UseTable ut;
 
-	syslog(LOG_DEBUG, "MARKING: %s as seen: ", ChrPtr(RecvMsg->CurrMsg->MsgUID));
+	syslog(LOG_DEBUG,
+	       "MARKING: %s as seen: ",
+	       ChrPtr(RecvMsg->CurrMsg->MsgUID));
 
-	safestrncpy(ut.ut_msgid, 
+	safestrncpy(ut.ut_msgid,
 		    ChrPtr(RecvMsg->CurrMsg->MsgUID),
 		    sizeof(ut.ut_msgid));
 	ut.ut_timestamp = time(NULL); /* TODO: use libev time */
-	cdb_store(CDB_USETABLE, 
-		  ChrPtr(RecvMsg->CurrMsg->MsgUID), 
+	cdb_store(CDB_USETABLE,
+		  ChrPtr(RecvMsg->CurrMsg->MsgUID),
 		  StrLength(RecvMsg->CurrMsg->MsgUID),
-		  &ut, 
+		  &ut,
 		  sizeof(struct UseTable) );
 
 	return QueueEventContext(&RecvMsg->IO, POP3_C_ReAttachToFetchMessages);
@@ -466,13 +498,16 @@ eNextState POP3C_SaveMsg(AsyncIO *IO)
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 
 	/* Do Something With It (tm) */
-	msgnum = CtdlSubmitMsg(RecvMsg->CurrMsg->Msg, 
-			       NULL, 
-			       ChrPtr(RecvMsg->RoomName), 
+	msgnum = CtdlSubmitMsg(RecvMsg->CurrMsg->Msg,
+			       NULL,
+			       ChrPtr(RecvMsg->RoomName),
 			       0);
-	if (msgnum > 0L) {
-		/* Message has been committed to the store */
-		/* write the uidl to the use table so we don't fetch this message again */
+	if (msgnum > 0L)
+	{
+		/* Message has been committed to the store
+		 * write the uidl to the use table
+		 * so we don't fetch this message again
+		 */
 	}
 	CtdlFreeMessage(RecvMsg->CurrMsg->Msg);
 
@@ -482,7 +517,8 @@ eNextState POP3C_SaveMsg(AsyncIO *IO)
 eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 {
 	syslog(LOG_DEBUG, "Converting message...\n");
-	RecvMsg->CurrMsg->Msg = convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
+	RecvMsg->CurrMsg->Msg =
+		convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
 
 	return QueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg);
 }
@@ -612,7 +648,7 @@ void POP3SetTimeout(eNextState NextTCPState, pop3aggr *pMsg)
 		Timeout = POP3_C_ReadTimeouts[pMsg->State];
 /*
   if (pMsg->State == eDATATerminateBody) {
-  / * 
+  / *
   * some mailservers take a nap before accepting the message
   * content inspection and such.
   * /
@@ -699,19 +735,20 @@ eNextState POP3_C_Shutdown(AsyncIO *IO)
 	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 ////	pop3aggr *pMsg = IO->Data;
 
-	////pMsg->MyQEntry->Status = 3;
-	///StrBufPlain(pMsg->MyQEntry->StatusMessage, HKEY("server shutdown during message retrieval."));
+////pMsg->MyQEntry->Status = 3;
+///StrBufPlain(pMsg->MyQEntry->StatusMessage, HKEY("server shutdown during message retrieval."));
 	FinalizePOP3AggrRun(IO);
 	return eAbort;
 }
 
 
 /**
- * @brief lineread Handler; understands when to read more POP3 lines, and when this is a one-lined reply.
+ * @brief lineread Handler; understands when to read more POP3 lines,
+ *   and when this is a one-lined reply.
  */
 eReadState POP3_C_ReadServerStatus(AsyncIO *IO)
 {
-	eReadState Finished = eBufferNotEmpty; 
+	eReadState Finished = eBufferNotEmpty;
 
 	switch (IO->NextState) {
 	case eSendDNSQuery:
@@ -723,10 +760,10 @@ eReadState POP3_C_ReadServerStatus(AsyncIO *IO)
 		Finished = eReadFail;
 		break;
 	case eSendFile:
-	case eSendReply: 
+	case eSendReply:
 	case eSendMore:
 	case eReadMore:
-	case eReadMessage: 
+	case eReadMessage:
 		Finished = StrBufChunkSipLine(IO->IOBuf, &IO->RecvBuf);
 		break;
 	case eReadFile:
@@ -780,21 +817,23 @@ eNextState pop3_get_one_host_ip_done(AsyncIO *IO)
 			memcpy(&cpptr->IO.ConnectMe->Addr.sin6_addr.s6_addr, 
 			       &hostent->h_addr_list[0],
 			       sizeof(struct in6_addr));
-			
-			cpptr->IO.ConnectMe->Addr.sin6_family = hostent->h_addrtype;
-			cpptr->IO.ConnectMe->Addr.sin6_port   = htons(DefaultPOP3Port);
+
+			cpptr->IO.ConnectMe->Addr.sin6_family =
+				hostent->h_addrtype;
+			cpptr->IO.ConnectMe->Addr.sin6_port   =
+				htons(DefaultPOP3Port);
 		}
 		else {
-			struct sockaddr_in *addr = (struct sockaddr_in*) &cpptr->IO.ConnectMe->Addr;
-			/* Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
-//			addr->sin_addr.s_addr = htonl((uint32_t)&hostent->h_addr_list[0]);
-			memcpy(&addr->sin_addr.s_addr, 
-			       hostent->h_addr_list[0], 
+			struct sockaddr_in *addr =
+				(struct sockaddr_in*)
+				&cpptr->IO.ConnectMe->Addr;
+
+			memcpy(&addr->sin_addr.s_addr,
+			       hostent->h_addr_list[0],
 			       sizeof(uint32_t));
-			
+
 			addr->sin_family = hostent->h_addrtype;
 			addr->sin_port   = htons(DefaultPOP3Port);
-			
 		}
 		return pop3_connect_ip(IO);
 	}
@@ -805,28 +844,28 @@ eNextState pop3_get_one_host_ip_done(AsyncIO *IO)
 eNextState pop3_get_one_host_ip(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
-	/* 
+	/*
 	 * here we start with the lookup of one host. it might be...
 	 * - the relay host *sigh*
 	 * - the direct hostname if there was no mx record
 	 * - one of the mx'es
-	 */ 
+	 */
 
 	InitC_ares_dns(IO);
 
 	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 
 	syslog(LOG_DEBUG, 
-		      "POP3 client[%ld]: looking up %s-Record %s : %d ...\n", 
-		      cpptr->n, 
+		      "POP3 client[%ld]: looking up %s-Record %s : %d ...\n",
+		      cpptr->n,
 		      (cpptr->IO.ConnectMe->IPv6)? "aaaa": "a",
-		      cpptr->IO.ConnectMe->Host, 
+		      cpptr->IO.ConnectMe->Host,
 		      cpptr->IO.ConnectMe->Port);
 
-	QueueQuery((cpptr->IO.ConnectMe->IPv6)? ns_t_aaaa : ns_t_a, 
-		   cpptr->IO.ConnectMe->Host, 
-		   &cpptr->IO, 
-		   &cpptr->HostLookup, 
+	QueueQuery((cpptr->IO.ConnectMe->IPv6)? ns_t_aaaa : ns_t_a,
+		   cpptr->IO.ConnectMe->Host,
+		   &cpptr->IO,
+		   &cpptr->HostLookup,
 		   pop3_get_one_host_ip_done);
 	IO->NextState = eReadDNSReply;
 	return IO->NextState;
@@ -886,9 +925,9 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	pthread_mutex_lock(&POP3QueueMutex);
 	if (GetHash(POP3QueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
-		syslog(LOG_DEBUG, 
-			      "pop3client: [%ld] %s already in progress.\n", 
-			      qrbuf->QRnumber, 
+		syslog(LOG_DEBUG,
+			      "pop3client: [%ld] %s already in progress.\n",
+			      qrbuf->QRnumber,
 			      qrbuf->QRname);
 		pthread_mutex_unlock(&POP3QueueMutex);
 	}
@@ -900,18 +939,19 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 
 	if (server_shutting_down)
 		return;
-		
+
 	/* Only do net processing for rooms that have netconfigs */
 	fd = open(filename, 0);
 	if (fd <= 0) {
-		//syslog(LOG_DEBUG, "rssclient: %s no config.\n", qrbuf->QRname);
 		return;
 	}
 	if (server_shutting_down)
 		return;
 	if (fstat(fd, &statbuf) == -1) {
-		syslog(LOG_DEBUG, "ERROR: could not stat configfile '%s' - %s\n",
-			      filename, strerror(errno));
+		syslog(LOG_DEBUG,
+		       "ERROR: could not stat configfile '%s' - %s\n",
+		       filename,
+		       strerror(errno));
 		return;
 	}
 	if (server_shutting_down)
@@ -927,7 +967,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	close(fd);
 	if (server_shutting_down)
 		return;
-	
+
 	CfgPtr = NULL;
 	CfgType = NewStrBuf();
 	Line = NewStrBufPlain(NULL, StrLength(CfgData));
@@ -947,42 +987,58 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 /*
 				if (Count == NULL)
 				{
-					Count = malloc(sizeof(pop3_room_counter));
+				Count = malloc(sizeof(pop3_room_counter));
 					Count->count = 0;
 				}
 				Count->count ++;
 */
 				cptr = (pop3aggr *) malloc(sizeof(pop3aggr));
 				memset(cptr, 0, sizeof(pop3aggr));
-				/// TODO do we need this? cptr->roomlist_parts = 1;
-				cptr->RoomName = NewStrBufPlain(qrbuf->QRname, -1);
-				cptr->pop3user = NewStrBufPlain(NULL, StrLength(Line));
-				cptr->pop3pass = NewStrBufPlain(NULL, StrLength(Line));
+				///TODO do we need this? cptr->roomlist_parts=1;
+				cptr->RoomName =
+					NewStrBufPlain(qrbuf->QRname, -1);
+				cptr->pop3user =
+					NewStrBufPlain(NULL, StrLength(Line));
+				cptr->pop3pass =
+					NewStrBufPlain(NULL, StrLength(Line));
 				cptr->Url = NewStrBuf();
 				Tmp = NewStrBuf();
 
 				StrBufExtract_NextToken(Tmp, Line, &lPtr, '|');
-				StrBufExtract_NextToken(cptr->pop3user, Line, &lPtr, '|');
-				StrBufExtract_NextToken(cptr->pop3pass, Line, &lPtr, '|');
-				cptr->keep = StrBufExtractNext_long(Line, &lPtr, '|');
-				cptr->interval = StrBufExtractNext_long(Line, &lPtr, '|');
-		    
-				StrBufPrintf(cptr->Url, "pop3://%s:%s@%s/%s", 
+				StrBufExtract_NextToken(cptr->pop3user,
+							Line,
+							&lPtr,
+							'|');
+
+				StrBufExtract_NextToken(cptr->pop3pass,
+							Line,
+							&lPtr,
+							'|');
+
+				cptr->keep = StrBufExtractNext_long(Line,
+								    &lPtr,
+								    '|');
+
+				cptr->interval = StrBufExtractNext_long(Line,
+									&lPtr,
+									'|');
+
+				StrBufPrintf(cptr->Url, "pop3://%s:%s@%s/%s",
 					     ChrPtr(cptr->pop3user),
-					     ChrPtr(cptr->pop3pass), 
-					     ChrPtr(Tmp), 
+					     ChrPtr(cptr->pop3pass),
+					     ChrPtr(Tmp),
 					     ChrPtr(cptr->RoomName));
 				FreeStrBuf(&Tmp);
 				ParseURL(&cptr->IO.ConnectMe, cptr->Url, 110);
 
 
-#if 0 
+#if 0
 /* todo: we need to reunite the url to be shure. */
-				
+
 				pthread_mutex_lock(&POP3ueueMutex);
 				GetHash(POP3FetchUrls, SKEY(ptr->Url), &vptr);
 				use_this_cptr = (pop3aggr *)vptr;
-				
+
 				if (use_this_rncptr != NULL)
 				{
 					/* mustn't attach to an active session */
@@ -991,19 +1047,25 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 						DeletePOP3Cfg(cptr);
 ///						Count->count--;
 					}
-					else 
+					else
 					{
 						long *QRnumber;
-						StrBufAppendBufPlain(use_this_cptr->rooms, 
-								     qrbuf->QRname, 
-								     -1, 0);
+						StrBufAppendBufPlain(
+							use_this_cptr->rooms,
+							qrbuf->QRname,
+							-1, 0);
 						if (use_this_cptr->roomlist_parts == 1)
 						{
-							use_this_cptr->OtherQRnumbers = NewHash(1, lFlathash);
+							use_this_cptr->OtherQRnumbers
+								= NewHash(1, lFlathash);
 						}
 						QRnumber = (long*)malloc(sizeof(long));
 						*QRnumber = qrbuf->QRnumber;
-						Put(use_this_cptr->OtherQRnumbers, LKEY(qrbuf->QRnumber), QRnumber, NULL);
+						Put(use_this_cptr->OtherQRnumbers,
+						    LKEY(qrbuf->QRnumber),
+						    QRnumber,
+						    NULL);
+
 						use_this_cptr->roomlist_parts++;
 					}
 					pthread_mutex_unlock(&POP3QueueMutex);
@@ -1013,7 +1075,11 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 #endif
 
 				pthread_mutex_lock(&POP3QueueMutex);
-				Put(POP3FetchUrls, SKEY(cptr->Url), cptr, DeletePOP3Aggregator);
+				Put(POP3FetchUrls,
+				    SKEY(cptr->Url),
+				    cptr,
+				    DeletePOP3Aggregator);
+
 				pthread_mutex_unlock(&POP3QueueMutex);
 
 			}
@@ -1054,8 +1120,8 @@ void pop3client_scan(void) {
 	}
 
 	/*
-	 * This is a simple concurrency check to make sure only one pop3client run
-	 * is done at a time.  We could do this with a mutex, but since we
+	 * This is a simple concurrency check to make sure only one pop3client
+	 * run is done at a time.  We could do this with a mutex, but since we
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
@@ -1067,19 +1133,19 @@ void pop3client_scan(void) {
 
 	pthread_mutex_lock(&POP3QueueMutex);
 	it = GetNewHashPos(POP3FetchUrls, 0);
-	while (!server_shutting_down && 
-	       GetNextHashPos(POP3FetchUrls, it, &len, &Key, &vrptr) && 
+	while (!server_shutting_down &&
+	       GetNextHashPos(POP3FetchUrls, it, &len, &Key, &vrptr) &&
 	       (vrptr != NULL)) {
 		cptr = (pop3aggr *)vrptr;
-		if (cptr->RefCount == 0) 
+		if (cptr->RefCount == 0)
 			if (!pop3_do_fetching(cptr))
 				DeletePOP3Aggregator(cptr);////TODO
 
 /*
-		if ((palist->interval && time(NULL) > (last_run + palist->interval))
+	if ((palist->interval && time(NULL) > (last_run + palist->interval))
 			|| (time(NULL) > last_run + config.c_pop3_fetch))
-				pop3_do_fetching(palist->roomname, palist->pop3host,
-					palist->pop3user, palist->pop3pass, palist->keep);
+			pop3_do_fetching(palist->roomname, palist->pop3host,
+			palist->pop3user, palist->pop3pass, palist->keep);
 		pptr = palist;
 		palist = palist->next;
 		free(pptr);
@@ -1111,9 +1177,9 @@ CTDL_MODULE_INIT(pop3client)
 		POP3QueueRooms = NewHash(1, lFlathash);
 		POP3FetchUrls = NewHash(1, NULL);
 		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
-                CtdlRegisterCleanupHook(pop3_cleanup);
+		CtdlRegisterCleanupHook(pop3_cleanup);
 	}
 
 	/* return our module id for the log */
-        return "pop3client";
+ 	return "pop3client";
 }

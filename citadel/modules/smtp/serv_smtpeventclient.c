@@ -186,9 +186,9 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	if (SendMsg->MyQEntry->Status == 2)
 		return eAbort;
 
-	/* 
-	 * possible ways here: 
-	 * - connection timeout 
+	/*
+	 * possible ways here:
+	 * - connection timeout
 	 * - dns lookup failed
 	 */
 	StopClientWatchers(IO);
@@ -205,7 +205,9 @@ eNextState FailOneAttempt(AsyncIO *IO)
 		return mx_connect_ip(IO);
 	}
 	else {
-		EVS_syslog(LOG_DEBUG, "SMTP: %s resolving next MX Record\n", __FUNCTION__);
+		EVS_syslog(LOG_DEBUG,
+			   "SMTP: %s resolving next MX Record\n",
+			   __FUNCTION__);
 		return get_one_mx_host_ip(IO);
 	}
 }
@@ -223,29 +225,30 @@ void SetConnectStatus(AsyncIO *IO)
 		src = &IO->ConnectMe->Addr.sin6_addr;
 	}
 	else {
-		struct sockaddr_in *addr = (struct sockaddr_in *)&IO->ConnectMe->Addr;
+		struct sockaddr_in *addr;
 
+		addr = (struct sockaddr_in *)&IO->ConnectMe->Addr;
 		src = &addr->sin_addr.s_addr;
 	}
 
 	inet_ntop((IO->ConnectMe->IPv6)?AF_INET6:AF_INET,
 		  src,
-		  buf, 
+		  buf,
 		  sizeof(buf));
 
 	if (SendMsg->mx_host == NULL)
 		SendMsg->mx_host = "<no MX-Record>";
 
 	EVS_syslog(LOG_DEBUG,
-		  "SMTP client[%ld]: connecting to %s [%s]:%d ...\n", 
-		  SendMsg->n, 
-		  SendMsg->mx_host, 
+		  "SMTP client[%ld]: connecting to %s [%s]:%d ...\n",
+		  SendMsg->n,
+		  SendMsg->mx_host,
 		  buf,
 		  SendMsg->IO.ConnectMe->Port);
 
-	SendMsg->MyQEntry->Status = 5; 
-	StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-		     "Timeout while connecting %s [%s]:%d ", 
+	SendMsg->MyQEntry->Status = 5;
+	StrBufPrintf(SendMsg->MyQEntry->StatusMessage,
+		     "Timeout while connecting %s [%s]:%d ",
 		     SendMsg->mx_host,
 		     buf,
 		     SendMsg->IO.ConnectMe->Port);
@@ -279,65 +282,73 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 	QueryCbDone(IO);
 
 	hostent = SendMsg->HostLookup.VParsedDNSReply;
-	if ((SendMsg->HostLookup.DNSStatus == ARES_SUCCESS) && 
+	if ((SendMsg->HostLookup.DNSStatus == ARES_SUCCESS) &&
 	    (hostent != NULL) ) {
 		memset(&SendMsg->pCurrRelay->Addr, 0, sizeof(struct in6_addr));
 		if (SendMsg->pCurrRelay->IPv6) {
-			memcpy(&SendMsg->pCurrRelay->Addr.sin6_addr.s6_addr, 
+			memcpy(&SendMsg->pCurrRelay->Addr.sin6_addr.s6_addr,
 			       &hostent->h_addr_list[0],
 			       sizeof(struct in6_addr));
-			
-			SendMsg->pCurrRelay->Addr.sin6_family = hostent->h_addrtype;
-			SendMsg->pCurrRelay->Addr.sin6_port   = htons(DefaultMXPort);
+
+			SendMsg->pCurrRelay->Addr.sin6_family =
+				hostent->h_addrtype;
+			SendMsg->pCurrRelay->Addr.sin6_port =
+				htons(DefaultMXPort);
 		}
 		else {
-			struct sockaddr_in *addr = (struct sockaddr_in*) &SendMsg->pCurrRelay->Addr;
-			/* Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
-//			addr->sin_addr.s_addr = htonl((uint32_t)&hostent->h_addr_list[0]);
-			memcpy(&addr->sin_addr.s_addr, 
-			       hostent->h_addr_list[0], 
+			struct sockaddr_in *addr;
+			/*
+			 * Bypass the ns lookup result like this:
+			 * IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+			 * addr->sin_addr.s_addr =
+			 *   htonl((uint32_t)&hostent->h_addr_list[0]);
+			 */
+
+			addr = (struct sockaddr_in*) &SendMsg->pCurrRelay->Addr;
+
+			memcpy(&addr->sin_addr.s_addr,
+			       hostent->h_addr_list[0],
 			       sizeof(uint32_t));
-			
+
 			addr->sin_family = hostent->h_addrtype;
 			addr->sin_port   = htons(DefaultMXPort);
-			
 		}
 		SendMsg->mx_host = SendMsg->pCurrRelay->Host;
 		return mx_connect_ip(IO);
 	}
-	else // TODO: here we need to find out whether there are more mx'es, backup relay, and so on
+	else
 		return FailOneAttempt(IO);
 }
 
 eNextState get_one_mx_host_ip(AsyncIO *IO)
 {
 	SmtpOutMsg * SendMsg = IO->Data;
-	/* 
+	/*
 	 * here we start with the lookup of one host. it might be...
 	 * - the relay host *sigh*
 	 * - the direct hostname if there was no mx record
 	 * - one of the mx'es
-	 */ 
+	 */
 
 	InitC_ares_dns(IO);
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
-	EVS_syslog(LOG_DEBUG, 
-		  "SMTP client[%ld]: looking up %s-Record %s : %d ...\n", 
-		  SendMsg->n, 
+	EVS_syslog(LOG_DEBUG,
+		  "SMTP client[%ld]: looking up %s-Record %s : %d ...\n",
+		  SendMsg->n,
 		  (SendMsg->pCurrRelay->IPv6)? "aaaa": "a",
-		  SendMsg->pCurrRelay->Host, 
+		  SendMsg->pCurrRelay->Host,
 		  SendMsg->pCurrRelay->Port);
 
-	if (!QueueQuery((SendMsg->pCurrRelay->IPv6)? ns_t_aaaa : ns_t_a, 
-			SendMsg->pCurrRelay->Host, 
-			&SendMsg->IO, 
-			&SendMsg->HostLookup, 
+	if (!QueueQuery((SendMsg->pCurrRelay->IPv6)? ns_t_aaaa : ns_t_a,
+			SendMsg->pCurrRelay->Host,
+			&SendMsg->IO,
+			&SendMsg->HostLookup,
 			get_one_mx_host_ip_done))
 	{
 		SendMsg->MyQEntry->Status = 5;
-		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+		StrBufPrintf(SendMsg->MyQEntry->StatusMessage,
 			     "No MX hosts found for <%s>", SendMsg->node);
 		SendMsg->IO.NextState = eTerminateConnection;
 		return IO->NextState;
@@ -362,13 +373,14 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
 		pp = &(*pp)->Next;
 
-	if ((IO->DNS.Query->DNSStatus == ARES_SUCCESS) && 
+	if ((IO->DNS.Query->DNSStatus == ARES_SUCCESS) &&
 	    (IO->DNS.Query->VParsedDNSReply != NULL))
 	{ /* ok, we found mx records. */
 		SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
-		
-		SendMsg->CurrMX    = SendMsg->AllMX 
-			           = IO->DNS.Query->VParsedDNSReply;
+
+		SendMsg->CurrMX
+			= SendMsg->AllMX
+			= IO->DNS.Query->VParsedDNSReply;
 		while (SendMsg->CurrMX) {
 			int i;
 			for (i = 0; i < 2; i++) {
@@ -380,7 +392,7 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 				p->Port = DefaultMXPort;
 				p->IPv6 = i == 1;
 				p->Host = SendMsg->CurrMX->host;
-				
+
 				*pp = p;
 				pp = &p->Next;
 			}
@@ -399,7 +411,7 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 			p->Port = DefaultMXPort;
 			p->IPv6 = i == 1;
 			p->Host = SendMsg->node;
-				
+
 			*pp = p;
 			pp = &p->Next;
 		}
@@ -416,14 +428,14 @@ eNextState resolve_mx_records(AsyncIO *IO)
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	/* start resolving MX records here. */
-	if (!QueueQuery(ns_t_mx, 
-			SendMsg->node, 
-			&SendMsg->IO, 
-			&SendMsg->MxLookup, 
+	if (!QueueQuery(ns_t_mx,
+			SendMsg->node,
+			&SendMsg->IO,
+			&SendMsg->MxLookup,
 			smtp_resolve_mx_record_done))
 	{
 		SendMsg->MyQEntry->Status = 5;
-		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+		StrBufPrintf(SendMsg->MyQEntry->StatusMessage,
 			     "No MX hosts found for <%s>", SendMsg->node);
 		return IO->NextState;
 	}
@@ -437,7 +449,7 @@ eNextState resolve_mx_records(AsyncIO *IO)
  *  so, we're going to start a SMTP delivery.  lets get it on.                *
  ******************************************************************************/
 
-SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem, 
+SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 			    MailQEntry *MyQEntry,
 			    int MsgCount)
 {
@@ -466,10 +478,11 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 	return SendMsg;
 }
 
-void smtp_try_one_queue_entry(OneQueItem *MyQItem, 
+void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 			      MailQEntry *MyQEntry,
 			      StrBuf *MsgText,
-			      int KeepMsgText,  /* KeepMsgText allows us to use MsgText as ours. */
+			/*KeepMsgText allows us to use MsgText as ours.*/
+			      int KeepMsgText,
 			      int MsgCount)
 {
 	SmtpOutMsg *SendMsg;
@@ -485,7 +498,8 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		safestrncpy(
 			((CitContext *)SendMsg->IO.CitContext)->cs_host,
 			SendMsg->node,
-			sizeof(((CitContext *)SendMsg->IO.CitContext)->cs_host));
+			sizeof(((CitContext *)
+				SendMsg->IO.CitContext)->cs_host));
 
 		syslog(LOG_DEBUG, "SMTP Starting: [%ld] <%s> CC <%d> \n",
 		       SendMsg->MyQItem->MessageID,
@@ -499,7 +513,9 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 				QueueEventContext(&SendMsg->IO,
 						  mx_connect_ip);
 			}
-			else { /* uneducated admin has chosen to add DNS to the equation... */
+			else {
+				/* uneducated admin has chosen to
+				   add DNS to the equation... */
 				QueueEventContext(&SendMsg->IO,
 						  get_one_mx_host_ip);
 			}
@@ -539,16 +555,18 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 	case eSendMore:
 		Timeout = SMTP_C_SendTimeouts[pMsg->State];
 		if (pMsg->State == eDATABody) {
-			/* if we're sending a huge message, we need more time. */
+			/* if we're sending a huge message,
+			 * we need more time.
+			 */
 			Timeout += StrLength(pMsg->msgtext) / 1024;
 		}
 		break;
 	case eReadMessage:
 		Timeout = SMTP_C_ReadTimeouts[pMsg->State];
 		if (pMsg->State == eDATATerminateBody) {
-			/* 
-			 * some mailservers take a nap before accepting the message
-			 * content inspection and such.
+			/*
+			 * some mailservers take a nap before accepting
+			 * the message content inspection and such.
 			 */
 			Timeout += StrLength(pMsg->msgtext) / 1024;
 		}
@@ -630,24 +648,26 @@ eNextState SMTP_C_Shutdown(AsyncIO *IO)
 	SmtpOutMsg *pMsg = IO->Data;
 
 	pMsg->MyQEntry->Status = 3;
-	StrBufPlain(pMsg->MyQEntry->StatusMessage, HKEY("server shutdown during message submit."));
+	StrBufPlain(pMsg->MyQEntry->StatusMessage,
+		    HKEY("server shutdown during message submit."));
 	FinalizeMessageSend(pMsg);
 	return eAbort;
 }
 
 
 /**
- * @brief lineread Handler; understands when to read more SMTP lines, and when this is a one-lined reply.
+ * @brief lineread Handler;
+ * understands when to read more SMTP lines, and when this is a one-lined reply.
  */
 eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 {
-	eReadState Finished = eBufferNotEmpty; 
+	eReadState Finished = eBufferNotEmpty;
 
 	while (Finished == eBufferNotEmpty) {
 		Finished = StrBufChunkSipLine(IO->IOBuf, &IO->RecvBuf);
-		
+
 		switch (Finished) {
-		case eMustReadMore: /// read new from socket... 
+		case eMustReadMore: /// read new from socket...
 			return Finished;
 			break;
 		case eBufferNotEmpty: /* shouldn't happen... */
@@ -656,11 +676,11 @@ eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 				continue;
 			if (ChrPtr(IO->IOBuf)[3] == '-')
 				Finished = eBufferNotEmpty;
-			else 
+			else
 				return Finished;
 			break;
 		case eReadFail: /// WHUT?
-			///todo: shut down! 
+			///todo: shut down!
 			break;
 		}
 	}

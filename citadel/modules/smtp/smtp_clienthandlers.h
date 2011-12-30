@@ -1,5 +1,24 @@
+/*
+ *
+ * Copyright (c) 1998-2012 by the citadel.org team
+ *
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 typedef enum _eSMTP_C_States {
-	eConnectMX, 
+	eConnectMX,
 	eEHLO,
 	eHELO,
 	eSMTPAuth,
@@ -60,7 +79,7 @@ const double SMTP_C_ConnTimeout;
 #define F_RELAY          (1<<0) /* we have a Relay    host configuration */
 #define F_HAVE_FALLBACK  (1<<1) /* we have a fallback host configuration */
 #define F_FALLBACK       (1<<2)
-#define F_HAVE_MX        (1<<3) /* we have a list of mx records to go through. */
+#define F_HAVE_MX        (1<<3) /* we have a list of mx records to go through.*/
 #define F_DIRECT         (1<<4) /* no mx record found, trying direct connect. */
 
 
@@ -68,7 +87,21 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg);
 
 #define QID ((SmtpOutMsg*)IO->Data)->MyQItem->MessageID
 #define N ((SmtpOutMsg*)IO->Data)->n
-#define EVS_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, IO->ID, CCID, QID, N, __VA_ARGS__)
-#define EVSM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, IO->ID, CCID, QID, N)
-#define EVNCS_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, IO->ID, QID, N, __VA_ARGS__)
-#define EVNCSM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, IO->ID, QID, N)
+
+#define EVS_syslog(LEVEL, FORMAT, ...) \
+	syslog(LEVEL, \
+	       "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, \
+	       IO->ID, CCID, QID, N, __VA_ARGS__)
+
+#define EVSM_syslog(LEVEL, FORMAT) \
+	syslog(LEVEL, \
+	       "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, \
+	       IO->ID, CCID, QID, N)
+
+#define EVNCS_syslog(LEVEL, FORMAT, ...) \
+	syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
+	       IO->ID, QID, N, __VA_ARGS__)
+
+#define EVNCSM_syslog(LEVEL, FORMAT) \
+	syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
+	       IO->ID, QID, N)

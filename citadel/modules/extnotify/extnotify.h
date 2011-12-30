@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   extnotify.h
  * Author: Mathew McBride <matt@mcbridematt.dhs.org> / <matt@comalies>
  * Copyright (c) 2008-2009
@@ -21,12 +21,11 @@
 #include "../eventclient/serv_curl.h"
 #define PAGER_CONFIG_MESSAGE "__ Push email settings __"
 #define FUNAMBOL_CONFIG_TEXT "funambol"
-#define PAGER_CONFIG_SYSTEM  "textmessage"    
-#define PAGER_CONFIG_HTTP  "httpmessage"    
-
+#define PAGER_CONFIG_SYSTEM  "textmessage"
+#define PAGER_CONFIG_HTTP  "httpmessage"
 typedef enum _eNotifyType {
-	eNone, 
-	eFunambol, 
+	eNone,
+	eFunambol,
 	eHttpMessages,
 	eTextMessage
 }eNotifyType;
@@ -41,17 +40,14 @@ typedef struct _NotifyContext {
 	AsyncIO IO;
 } NotifyContext;
 
-int notify_http_server(char *remoteurl, 
-		       const char* template, 
-		       long tlen, 
+int notify_http_server(char *remoteurl,
+		       const char* template,
+		       long tlen,
 		       char *user,
-		       char *msgid, 
-		       long MsgNum, 
+		       char *msgid,
+		       long MsgNum,
 		       NotifyContext *Ctx);
 
 void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg);
 
 ///void process_notify(long msgnum, void *usrdata);
-
-
-

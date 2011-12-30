@@ -1,3 +1,22 @@
+/*
+ *
+ * Copyright (c) 1998-2012 by the citadel.org team
+ *
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #ifndef __EVENT_CLIENT_H__
 #define __EVENT_CLIENT_H__
 #define EV_COMPAT3 0
@@ -19,11 +38,11 @@ typedef enum _eNextState {
 	eDBQuery,
 
 	eConnect,
-	eSendReply, 
+	eSendReply,
 	eSendMore,
 	eSendFile,
 
-	eReadMessage, 
+	eReadMessage,
 	eReadMore,
 	eReadPayload,
 	eReadFile,
@@ -46,7 +65,8 @@ typedef struct __ReadAsyncMsg {
 	long tlen;
 	int dodot;
 
-	int flushing;		/* if we read maxlen, read until nothing more arives and ignore this. */
+	int flushing;
+/* if we read maxlen, read until nothing more arives and ignore this. */
 
 	int crlf;		/* CRLF newlines instead of LF */
 } ReadAsyncMsg;
@@ -62,25 +82,25 @@ typedef struct _DNSQueryParts {
 	void *Data;
 } DNSQueryParts;
 
-typedef struct _evcurl_request_data 
+typedef struct _evcurl_request_data
 {
-	CURL   		  *chnd;
-	struct curl_slist *headers;
-	char   		   errdesc[CURL_ERROR_SIZE];
+	CURL			*chnd;
+	struct curl_slist	*headers;
+	char			 errdesc[CURL_ERROR_SIZE];
 
-	int    		   attached;
+	int			 attached;
 
-	char   		  *PlainPostData;
-	long   		   PlainPostDataLen;
-	StrBuf 		  *PostData;
+	char			*PlainPostData;
+	long			 PlainPostDataLen;
+	StrBuf			*PostData;
 
-	StrBuf 		  *ReplyData;
-	long   		   httpcode;
+	StrBuf			*ReplyData;
+	long			 httpcode;
 } evcurl_request_data;
 
 /* DNS Related */
 typedef struct __evcares_data {
-	ev_io recv_event, 
+	ev_io recv_event,
 		send_event;
 	ev_timer timeout;           /* timeout while requesting ips */
 #ifdef DEBUG_CARES
@@ -89,23 +109,24 @@ typedef struct __evcares_data {
 	struct ares_options Options;
 	ares_channel Channel;
 	DNSQueryParts *Query;
-	
+
 	IO_CallBack Fail;      /* the dns lookup didn't work out. */
 } evcares_data;
 
 struct AsyncIO {
 	long ID;
-       	eNextState NextState;
+	eNextState NextState;
 
 	/* connection related */
 	ParsedURL *ConnectMe;
-	
+
 	/* read/send related... */
 	StrBuf *IOBuf;
-	IOBuffer SendBuf, 
+	IOBuffer SendBuf,
 		RecvBuf;
 
-	FDIOBuffer IOB; /* when sending from / reading into files, this is used. */
+	FDIOBuffer IOB;
+	/* when sending from / reading into files, this is used. */
 
 	/* our events... */
 	ev_cleanup abort_by_shutdown, /* server wants to go down... */
@@ -125,12 +146,14 @@ struct AsyncIO {
 	IO_CallBack ReadDone, /* Theres new data to read... */
 		SendDone,     /* we may send more data */
 		Terminate,    /* shutting down... */
-		Timeout,      /* Timeout handler; may also be connection timeout */
+		Timeout,      /* Timeout handler;may also be conn. timeout */
 		ConnFail,     /* What to do when one connection failed? */
-		ShutdownAbort,/* we're going down. make your piece. */ 
+		ShutdownAbort,/* we're going down. make your piece. */
 		NextDBOperation; /* Perform Database IO */
 
-	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
+	/* if we have linereaders, maybe we want to read more lines before
+	 * the real application logic is called? */
+	IO_LineReaderCallback LineReader;
 
 	evcares_data DNS;
 
@@ -141,7 +164,7 @@ struct AsyncIO {
 	struct CtdlMessage *AsyncMsg;
 	struct recptypes *AsyncRcp;
 
-	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
+	/* Context specific data; Hint: put AsyncIO in there */
 	void *Data;        /* application specific data */
 	void *CitContext;  /* Citadel Session context... */
 };
@@ -149,13 +172,19 @@ struct AsyncIO {
 typedef struct _IOAddHandler {
 	AsyncIO *IO;
 	IO_CallBack EvAttch;
-}IOAddHandler; 
+} IOAddHandler;
 
 #define CCID ((CitContext*)IO->CitContext)->cs_pid
-#define EV_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID, __VA_ARGS__)
-#define EVM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID)
 
-#define EVNC_syslog(LEVEL, FORMAT, ...) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
+#define EV_syslog(LEVEL, FORMAT, ...) \
+	syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID, __VA_ARGS__)
+
+#define EVM_syslog(LEVEL, FORMAT) \
+	syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID)
+
+#define EVNC_syslog(LEVEL, FORMAT, ...) \
+	syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
+
 #define EVNCM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
 
 void FreeAsyncIOContents(AsyncIO *IO);
@@ -165,14 +194,22 @@ eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueCurlContext(AsyncIO *IO);
 
-eNextState EvConnectSock(AsyncIO *IO, 
-			 double conn_timeout, 
+eNextState EvConnectSock(AsyncIO *IO,
+			 double conn_timeout,
 			 double first_rw_timeout,
 			 int ReadFirst);
 void IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents);
 
-int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *QueryParts, IO_CallBack PostDNS);
-void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryParts, IO_CallBack PostDNS);
+int QueueQuery(ns_type Type,
+	       const char *name,
+	       AsyncIO *IO,
+	       DNSQueryParts *QueryParts,
+	       IO_CallBack PostDNS);
+
+void QueueGetHostByName(AsyncIO *IO,
+			const char *Hostname,
+			DNSQueryParts *QueryParts,
+			IO_CallBack PostDNS);
 
 void QueryCbDone(AsyncIO *IO);
 
@@ -188,9 +225,12 @@ void InitC_ares_dns(AsyncIO *IO);
 
 #define OPT(s, v) \
 	do { \
-		sta = curl_easy_setopt(chnd, (CURLOPT_##s), (v)); \
+		sta = curl_easy_setopt(chnd, (CURLOPT_##s), (v));	\
 		if (sta)  {						\
-			syslog(LOG_ERR, "error setting option " #s " on curl handle: %s", curl_easy_strerror(sta)); \
+			syslog(LOG_ERR,				\
+			       "error setting option " #s		\
+			       " on curl handle: %s",			\
+			       curl_easy_strerror(sta));		\
 	} } while (0)
 
 void InitIOStruct(AsyncIO *IO,
@@ -212,8 +252,8 @@ int InitcURLIOStruct(AsyncIO *IO,
 		     IO_CallBack Terminate,
 		     IO_CallBack ShutdownAbort);
 
-eNextState ReAttachIO(AsyncIO *IO, 
-		      void *pData, 
+eNextState ReAttachIO(AsyncIO *IO,
+		      void *pData,
 		      int ReadFirst);
 
 #endif /* __EVENT_CLIENT_H__ */

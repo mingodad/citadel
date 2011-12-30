@@ -1,7 +1,7 @@
-/* 
+/*
  * funambol65.c
  * Author: Mathew McBride
- * 
+ *
  * This module facilitates notifications to a Funambol server
  * for push email
  *

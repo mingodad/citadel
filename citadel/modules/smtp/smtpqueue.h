@@ -1,3 +1,22 @@
+/*
+ *
+ * Copyright (c) 1998-2012 by the citadel.org team
+ *
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 /*****************************************************************************/
 /*               SMTP CLIENT (Queue Management) STUFF                        */
 /*****************************************************************************/
@@ -21,7 +40,7 @@ typedef struct _mailq_entry {
 	 * 2 = Delivery was successful
 	 * 4 = A transient error was experienced ... try again later
 	 * 5 = Delivery to this address failed permanently.  The error message
-         *     should be placed in the fourth field so that a bounce message may
+	 *     should be placed in the fourth field so that a bounce message may
 	 *     be generated.
 	 */
 
@@ -35,7 +54,10 @@ typedef struct queueitem {
 	long Submitted;
 	int FailNow;
 	HashList *MailQEntries;
-	MailQEntry *Current; /* copy of the currently parsed item in the MailQEntries list; if null add a new one. */
+/* copy of the currently parsed item in the MailQEntries list;
+ * if null add a new one.
+ */
+	MailQEntry *Current;
 	DeliveryAttempt LastAttempt;
 	long ActiveDeliveries;
 	StrBuf *EnvelopeFrom;
@@ -43,11 +65,11 @@ typedef struct queueitem {
 	ParsedURL *URL;
 	ParsedURL *FallBackHost;
 } OneQueItem;
+
 typedef void (*QItemHandler)(OneQueItem *Item, StrBuf *Line, const char **Pos);
 
-int DecreaseQReference(OneQueItem *MyQItem);
-void RemoveQItem(OneQueItem *MyQItem);
-int CountActiveQueueEntries(OneQueItem *MyQItem);
+int     DecreaseQReference(OneQueItem *MyQItem);
+void    RemoveQItem(OneQueItem *MyQItem);
+int     CountActiveQueueEntries(OneQueItem *MyQItem);
 StrBuf *SerializeQueueItem(OneQueItem *MyQItem);
-
-void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt);
+void    smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt);

@@ -626,23 +626,6 @@ AC_CHECK_HEADER(ev.h,
 CFLAGS="$saved_CFLAGS"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
 	saved_LIBS="$LIBS"

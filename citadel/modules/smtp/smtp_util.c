@@ -103,7 +103,7 @@ const char *smtp_get_Recipients(void)
  * instructions for "5" codes (permanent fatal errors) and produce/deliver
  * a "bounce" message (delivery status notification).
  */
-void smtp_do_bounce(char *instr, StrBuf *OMsgTxt) 
+void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 {
 	int i;
 	int lines;
@@ -128,7 +128,13 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
-	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
+
+	StrBufAppendPrintf(boundary,
+			   "%s_%04x%04x",
+			   config.c_fqdn,
+			   getpid(),
+			   ++seq);
+
 	lines = num_tokens(instr, '\n');
 
 	/* See if it's time to give up on delivery of this message */
@@ -152,34 +158,50 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	memset(bmsg, 0, sizeof(struct CtdlMessage));
 	BounceMB = NewStrBufPlain(NULL, 1024);
 
-        bmsg->cm_magic = CTDLMESSAGE_MAGIC;
-        bmsg->cm_anon_type = MES_NORMAL;
-        bmsg->cm_format_type = FMT_RFC822;
-        bmsg->cm_fields['A'] = strdup("Citadel");
-        bmsg->cm_fields['O'] = strdup(MAILROOM);
-        bmsg->cm_fields['N'] = strdup(config.c_nodename);
-        bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
-	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: multipart/mixed; boundary=\""), 0);
+	bmsg->cm_magic = CTDLMESSAGE_MAGIC;
+	bmsg->cm_anon_type = MES_NORMAL;
+	bmsg->cm_format_type = FMT_RFC822;
+	bmsg->cm_fields['A'] = strdup("Citadel");
+	bmsg->cm_fields['O'] = strdup(MAILROOM);
+	bmsg->cm_fields['N'] = strdup(config.c_nodename);
+	bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
+	StrBufAppendBufPlain(
+		BounceMB,
+		HKEY("Content-type: multipart/mixed; boundary=\""), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("\"\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\"\r\n"), 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("MIME-Version: 1.0\r\n"), 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("X-Mailer: " CITADEL "\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("\r\nThis is a multipart message in MIME format.\r\n\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
-        StrBufAppendBuf(BounceMB, boundary, 0);
+
+	StrBufAppendBufPlain(
+		BounceMB,
+		HKEY("\r\nThis is a multipart message in MIME format."
+		     "\r\n\r\n"), 0);
+
+	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("Content-type: text/plain\r\n\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB,
+			     HKEY("Content-type: text/plain\r\n\r\n"), 0);
 
-	if (give_up) StrBufAppendBufPlain(BounceMB, HKEY(
-"A message you sent could not be delivered to some or all of its recipients\n"
-"due to prolonged unavailability of its destination(s).\n"
-"Giving up on the following addresses:\n\n"
-						  ), 0);
-
-        else StrBufAppendBufPlain(BounceMB, HKEY(
-"A message you sent could not be delivered to some or all of its recipients.\n"
-"The following addresses were undeliverable:\n\n"
-					  ), 0);
+	if (give_up)
+	{
+		StrBufAppendBufPlain(
+			BounceMB,
+			HKEY("A message you sent could not be delivered "
+			     "to some or all of its recipients\ndue to "
+			     "prolonged unavailability of its destination(s).\n"
+			     "Giving up on the following addresses:\n\n"), 0);
+	}
+	else
+	{
+		StrBufAppendBufPlain(
+			BounceMB,
+			HKEY("A message you sent could not be delivered "
+			     "to some or all of its recipients.\n"
+			     "The following addresses were undeliverable:\n\n"
+				), 0);
+	}
 
 	/*
 	 * Now go through the instructions checking for stuff.
@@ -226,17 +248,31 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 
 	/* Attach the original message */
 	if (omsgid >= 0) {
-        	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+		StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
 		StrBufAppendBuf(BounceMB, boundary, 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-		StrBufAppendBufPlain(BounceMB, HKEY("Content-type: message/rfc822\r\n"), 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("Content-Transfer-Encoding: 7bit\r\n"), 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("Content-Disposition: inline\r\n"), 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-	
+		StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
+
+		StrBufAppendBufPlain(
+			BounceMB,
+			HKEY("Content-type: message/rfc822\r\n"), 0);
+
+		StrBufAppendBufPlain(
+			BounceMB,
+			HKEY("Content-Transfer-Encoding: 7bit\r\n"), 0);
+
+		StrBufAppendBufPlain(
+			BounceMB,
+			HKEY("Content-Disposition: inline\r\n"), 0);
+
+		StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
+
 		if (OMsgTxt == NULL) {
 			CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-			CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
+			CtdlOutputMsg(omsgid,
+				      MT_RFC822,
+				      HEADERS_ALL,
+				      0, 1, NULL, 0);
+
 			StrBufAppendBuf(BounceMB, CC->redirect_buffer, 0);
 			FreeStrBuf(&CC->redirect_buffer);
 		}
@@ -246,7 +282,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	}
 
 	/* Close the multipart MIME scope */
-        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
 	if (bmsg->cm_fields['A'] != NULL)
@@ -257,12 +293,14 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	if (num_bounces > 0) {
 
 		/* First try the user who sent the message */
-		if (IsEmptyStr(bounceto)) 
+		if (IsEmptyStr(bounceto))
 			syslog(LOG_ERR, "No bounce address specified\n");
 		else
 			syslog(LOG_DEBUG, "bounce to user <%s>\n", bounceto);
 		/* Can we deliver the bounce to the original sender? */
-		valid = validate_recipients(bounceto, smtp_get_Recipients (), 0);
+		valid = validate_recipients(bounceto,
+					    smtp_get_Recipients (),
+					    0);
 		if (valid != NULL) {
 			if (valid->num_error == 0) {
 				CtdlSubmitMsg(bmsg, valid, "", QP_EADDR);

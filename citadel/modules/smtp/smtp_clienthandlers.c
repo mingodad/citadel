@@ -16,11 +16,8 @@
  * RFC 2821 - Simple Mail Transfer Protocol
  * RFC 2822 - Internet Message Format
  * RFC 2920 - SMTP Service Extension for Command Pipelining
- *  
- * The VRFY and EXPN commands have been removed from this implementation
- * because nobody uses these commands anymore, except for spammers.
  *
- * Copyright (c) 1998-2009 by the citadel.org team
+ * Copyright (c) 1998-2012 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -91,24 +88,28 @@
 #include "smtp_clienthandlers.h"
 
 
-#define SMTP_ERROR(WHICH_ERR, ERRSTR) do {\
-		SendMsg->MyQEntry->Status = WHICH_ERR; \
-		StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); \
-		return eAbort; } \
+#define SMTP_ERROR(WHICH_ERR, ERRSTR) do {			       \
+		SendMsg->MyQEntry->Status = WHICH_ERR;		       \
+		StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, \
+				     HKEY(ERRSTR), 0);		       \
+		return eAbort; }				       \
 	while (0)
 
-#define SMTP_VERROR(WHICH_ERR) do {\
-		SendMsg->MyQEntry->Status = WHICH_ERR; \
-		StrBufPlain(SendMsg->MyQEntry->StatusMessage, \
-			    ChrPtr(SendMsg->IO.IOBuf) + 4, \
+#define SMTP_VERROR(WHICH_ERR) do {			       \
+		SendMsg->MyQEntry->Status = WHICH_ERR;	       \
+		StrBufPlain(SendMsg->MyQEntry->StatusMessage,  \
+			    ChrPtr(SendMsg->IO.IOBuf) + 4,     \
 			    StrLength(SendMsg->IO.IOBuf) - 4); \
-		return eAbort; } \
+		return eAbort; }			       \
 	while (0)
 
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
-#define SMTP_DBG_SEND() EVS_syslog(LOG_DEBUG, "SMTP: > %s\n", ChrPtr(SendMsg->IO.SendBuf.Buf))
-#define SMTP_DBG_READ() EVS_syslog(LOG_DEBUG, "SMTP: < %s\n", ChrPtr(SendMsg->IO.IOBuf))
+#define SMTP_DBG_SEND() \
+	EVS_syslog(LOG_DEBUG, "SMTP: > %s\n", ChrPtr(SendMsg->IO.SendBuf.Buf))
+
+#define SMTP_DBG_READ() \
+	EVS_syslog(LOG_DEBUG, "SMTP: < %s\n", ChrPtr(SendMsg->IO.IOBuf))
 
 
 /*****************************************************************************/
@@ -121,9 +122,9 @@ eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
-		if (SMTP_IS_STATE('4')) 
+		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(4);
-		else 
+		else
 			SMTP_VERROR(5);
 	}
 	return eSendReply;
@@ -150,7 +151,7 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *SendMsg)
 	if (SMTP_IS_STATE('2')) {
 		SendMsg->State ++;
 
-		if ((SendMsg->pCurrRelay == NULL) || 
+		if ((SendMsg->pCurrRelay == NULL) ||
 		    (SendMsg->pCurrRelay->User == NULL))
 			SendMsg->State ++; /* Skip auth... */
 	}
@@ -173,15 +174,17 @@ eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
 	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
-	if (!SMTP_IS_STATE('2')) {
+	if (!SMTP_IS_STATE('2'))
+	{
 		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(4);
-		else 
+		else
 			SMTP_VERROR(5);
 	}
-		if ((SendMsg->pCurrRelay == NULL) || 
-		    (SendMsg->pCurrRelay->User == NULL))
+	if ((SendMsg->pCurrRelay == NULL) ||
+	    (SendMsg->pCurrRelay->User == NULL))
 		SendMsg->State ++; /* Skip auth... */
+
 	return eSendReply;
 }
 
@@ -191,20 +194,22 @@ eNextState SMTPC_send_auth(SmtpOutMsg *SendMsg)
 	char buf[SIZ];
 	char encoded[1024];
 
-	if ((SendMsg->pCurrRelay == NULL) || 
+	if ((SendMsg->pCurrRelay == NULL) ||
 	    (SendMsg->pCurrRelay->User == NULL))
 		SendMsg->State ++; /* Skip auth, shouldn't even come here!... */
 	else {
-	/* Do an AUTH command if necessary */
-	sprintf(buf, "%s%c%s%c%s", 
-		SendMsg->pCurrRelay->User, '\0', 
-		SendMsg->pCurrRelay->User, '\0', 
-		SendMsg->pCurrRelay->Pass);
-	CtdlEncodeBase64(encoded, buf, 
-			 strlen(SendMsg->pCurrRelay->User) * 2 +
-			 strlen(SendMsg->pCurrRelay->Pass) + 2, 0);
-	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
-		     "AUTH PLAIN %s\r\n", encoded);
+		/* Do an AUTH command if necessary */
+		sprintf(buf, "%s%c%s%c%s",
+			SendMsg->pCurrRelay->User, '\0',
+			SendMsg->pCurrRelay->User, '\0',
+			SendMsg->pCurrRelay->Pass);
+
+		CtdlEncodeBase64(encoded, buf,
+				 strlen(SendMsg->pCurrRelay->User) * 2 +
+				 strlen(SendMsg->pCurrRelay->Pass) + 2, 0);
+
+		StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+			     "AUTH PLAIN %s\r\n", encoded);
 	}
 	SMTP_DBG_SEND();
 	return eReadMessage;
@@ -214,13 +219,13 @@ eNextState SMTPC_read_auth_reply(SmtpOutMsg *SendMsg)
 {
 	AsyncIO *IO = &SendMsg->IO;
 	/* Do an AUTH command if necessary */
-	
+
 	SMTP_DBG_READ();
-	
+
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(4);
-		else 
+		else
 			SMTP_VERROR(5);
 	}
 	return eSendReply;
@@ -231,7 +236,7 @@ eNextState SMTPC_send_FROM(SmtpOutMsg *SendMsg)
 	AsyncIO *IO = &SendMsg->IO;
 	/* previous command succeeded, now try the MAIL FROM: command */
 	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
-		     "MAIL FROM:<%s>\r\n", 
+		     "MAIL FROM:<%s>\r\n",
 		     SendMsg->envelope_from);
 
 	SMTP_DBG_SEND();
@@ -246,7 +251,7 @@ eNextState SMTPC_read_FROM_reply(SmtpOutMsg *SendMsg)
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(4);
-		else 
+		else
 			SMTP_VERROR(5);
 	}
 	return eSendReply;
@@ -258,8 +263,8 @@ eNextState SMTPC_send_RCPT(SmtpOutMsg *SendMsg)
 	AsyncIO *IO = &SendMsg->IO;
 	/* MAIL succeeded, now try the RCPT To: command */
 	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
-		     "RCPT TO:<%s@%s>\r\n", 
-		     SendMsg->user, 
+		     "RCPT TO:<%s@%s>\r\n",
+		     SendMsg->user,
 		     SendMsg->node);
 
 	SMTP_DBG_SEND();
@@ -272,9 +277,9 @@ eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *SendMsg)
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
-		if (SMTP_IS_STATE('4')) 
+		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(4);
-		else 
+		else
 			SMTP_VERROR(5);
 	}
 	return eSendReply;
@@ -297,9 +302,9 @@ eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *SendMsg)
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('3')) {
-		if (SMTP_IS_STATE('4')) 
+		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(3);
-		else 
+		else
 			SMTP_VERROR(5);
 	}
 	return eSendReply;
@@ -341,12 +346,12 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(4);
-		else 
+		else
 			SMTP_VERROR(5);
 	}
 
 	/* We did it! */
-	StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
+	StrBufPlain(SendMsg->MyQEntry->StatusMessage,
 		    &ChrPtr(SendMsg->IO.RecvBuf.Buf)[4],
 		    StrLength(SendMsg->IO.RecvBuf.Buf) - 4);
 	SendMsg->MyQEntry->Status = 2;
@@ -368,8 +373,13 @@ eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *SendMsg)
 	AsyncIO *IO = &SendMsg->IO;
 	SMTP_DBG_READ();
 
-	EVS_syslog(LOG_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
-		  SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
+	EVS_syslog(LOG_INFO,
+		   "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
+		   SendMsg->n,
+		   SendMsg->user,
+		   SendMsg->node,
+		   SendMsg->name);
+
 	return eTerminateConnection;
 }
 
@@ -447,8 +457,8 @@ const ConstStr ReadErrors[eMaxSMTPC + 1] = {
 	{HKEY("Connection broken during SMTP RCPT")},
 	{HKEY("Connection broken during SMTP DATA")},
 	{HKEY("Connection broken during SMTP message transmit")},
-        {HKEY("")},/* quit reply, don't care. */
-        {HKEY("")},/* quit reply, don't care. */
+	{HKEY("")},/* quit reply, don't care. */
+	{HKEY("")},/* quit reply, don't care. */
 	{HKEY("")}/* quit reply, don't care. */
 };
 
@@ -467,70 +477,93 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 
 	EVNCS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
-	if ((SendMsg==NULL) || 
-	    (SendMsg->MyQEntry == NULL) || 
+	if ((SendMsg==NULL) ||
+	    (SendMsg->MyQEntry == NULL) ||
 	    (StrLength(SendMsg->MyQEntry->Recipient) == 0)) {
 		return 0;
 	}
 
 	/* Parse out the host portion of the recipient address */
-	process_rfc822_addr(ChrPtr(SendMsg->MyQEntry->Recipient), 
-			    SendMsg->user, 
-			    SendMsg->node, 
+	process_rfc822_addr(ChrPtr(SendMsg->MyQEntry->Recipient),
+			    SendMsg->user,
+			    SendMsg->node,
 			    SendMsg->name);
 
-	EVNCS_syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
-		  SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
+	EVNCS_syslog(LOG_DEBUG,
+		     "SMTP client[%ld]: Attempting delivery to "
+		     "<%s> @ <%s> (%s)\n",
+		     SendMsg->n,
+		     SendMsg->user,
+		     SendMsg->node,
+		     SendMsg->name);
+
 	/* If no envelope_from is supplied, extract one from the message */
 	SendMsg->envelope_from = ChrPtr(SendMsg->MyQItem->EnvelopeFrom);
-	if ( (SendMsg->envelope_from == NULL) || 
+	if ( (SendMsg->envelope_from == NULL) ||
 	     (IsEmptyStr(SendMsg->envelope_from)) ) {
 		SendMsg->mailfrom[0] = '\0';
 		scan_done = 0;
 		ptr = ChrPtr(SendMsg->msgtext);
 		do {
-			if (ptr = cmemreadline(ptr, buf, sizeof buf), *ptr == 0) {
+			if (ptr = cmemreadline(ptr, buf, sizeof buf), *ptr == 0)
+			{
 				scan_done = 1;
 			}
-			if (!strncasecmp(buf, "From:", 5)) {
-				safestrncpy(SendMsg->mailfrom, &buf[5], sizeof SendMsg->mailfrom);
+			if (!strncasecmp(buf, "From:", 5))
+			{
+				safestrncpy(SendMsg->mailfrom,
+					    &buf[5],
+					    sizeof SendMsg->mailfrom);
+
 				striplt(SendMsg->mailfrom);
 				for (i=0; SendMsg->mailfrom[i]; ++i) {
-					if (!isprint(SendMsg->mailfrom[i])) {
-						strcpy(&SendMsg->mailfrom[i], &SendMsg->mailfrom[i+1]);
+					if (!isprint(SendMsg->mailfrom[i]))
+					{
+						strcpy(&SendMsg->mailfrom[i],
+						       &SendMsg->mailfrom[i+1]);
 						i=0;
 					}
 				}
-	
+
 				/* Strip out parenthesized names */
 				lp = (-1);
 				rp = (-1);
-				for (i=0; !IsEmptyStr(SendMsg->mailfrom + i); ++i) {
+				for (i=0;
+				     !IsEmptyStr(SendMsg->mailfrom + i);
+				     ++i)
+				{
 					if (SendMsg->mailfrom[i] == '(') lp = i;
 					if (SendMsg->mailfrom[i] == ')') rp = i;
 				}
-				if ((lp>0)&&(rp>lp)) {
-					strcpy(&SendMsg->mailfrom[lp-1], &SendMsg->mailfrom[rp+1]);
+				if ((lp>0)&&(rp>lp))
+				{
+					strcpy(&SendMsg->mailfrom[lp-1],
+					       &SendMsg->mailfrom[rp+1]);
 				}
-	
+
 				/* Prefer brokketized names */
 				lp = (-1);
 				rp = (-1);
-				for (i=0; !IsEmptyStr(SendMsg->mailfrom + i); ++i) {
+				for (i=0;
+				     !IsEmptyStr(SendMsg->mailfrom + i);
+				     ++i)
+				{
 					if (SendMsg->mailfrom[i] == '<') lp = i;
 					if (SendMsg->mailfrom[i] == '>') rp = i;
 				}
 				if ( (lp>=0) && (rp>lp) ) {
 					SendMsg->mailfrom[rp] = 0;
-					memmove(SendMsg->mailfrom, 
-						&SendMsg->mailfrom[lp + 1], 
+					memmove(SendMsg->mailfrom,
+						&SendMsg->mailfrom[lp + 1],
 						rp - lp);
 				}
-	
+
 				scan_done = 1;
 			}
 		} while (scan_done == 0);
-		if (IsEmptyStr(SendMsg->mailfrom)) strcpy(SendMsg->mailfrom, "someone@somewhere.org");
+		if (IsEmptyStr(SendMsg->mailfrom))
+			strcpy(SendMsg->mailfrom, "someone@somewhere.org");
+
 		stripallbut(SendMsg->mailfrom, '<', '>');
 		SendMsg->envelope_from = SendMsg->mailfrom;
 	}

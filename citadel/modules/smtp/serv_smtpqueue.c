@@ -97,11 +97,12 @@ HashList *QItemHandlers = NULL;
 int MsgCount            = 0;
 int run_queue_now       = 0;	/* Set to 1 to ignore SMTP send retry times */
 
-void smtp_try_one_queue_entry(OneQueItem *MyQItem, 
-			      MailQEntry *MyQEntry, 
-			      StrBuf *MsgText, 
-			      int KeepMsgText, /* KeepMsgText allows us to use MsgText as ours. */
-			      int MsgCount, 
+void smtp_try_one_queue_entry(OneQueItem *MyQItem,
+			      MailQEntry *MyQEntry,
+			      StrBuf *MsgText,
+/* KeepMsgText allows us to use MsgText as ours. */
+			      int KeepMsgText,
+			      int MsgCount,
 			      ParsedURL *RelayUrls);
 
 
@@ -140,13 +141,13 @@ void RemoveQItem(OneQueItem *MyQItem)
 		DeleteEntryFromHash(ActiveQItems, It);
 	else
 	{
-		syslog(LOG_WARNING, 
+		syslog(LOG_WARNING,
 		       "SMTP cleanup: unable to find QItem with ID[%ld]",
 		       MyQItem->MessageID);
 		while (GetNextHashPos(ActiveQItems, It, &len, &Key, &VData))
-			syslog(LOG_WARNING, 
+			syslog(LOG_WARNING,
 			       "SMTP cleanup: have_: ID[%ld]",
-			       ((OneQueItem *)VData)->MessageID);				
+			       ((OneQueItem *)VData)->MessageID);
 	}
 	pthread_mutex_unlock(&ActiveQItemsLock);
 	DeleteHashPos(&It);
@@ -174,8 +175,8 @@ void HFreeQueItem(void *Item)
 	FreeQueItem((OneQueItem**)&Item);
 }
 
-/* inspect recipients with a status of: 
- * - 0 (no delivery yet attempted) 
+/* inspect recipients with a status of:
+ * - 0 (no delivery yet attempted)
  * - 3/4 (transient errors
  *        were experienced and it's time to try again)
  */
@@ -192,14 +193,14 @@ int CountActiveQueueEntries(OneQueItem *MyQItem)
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		if ((ThisItem->Status == 0) || 
+		if ((ThisItem->Status == 0) ||
 		    (ThisItem->Status == 3) ||
 		    (ThisItem->Status == 4))
 		{
 			ActiveDeliveries++;
 			ThisItem->Active = 1;
 		}
-		else 
+		else
 			ThisItem->Active = 0;
 	}
 	DeleteHashPos(&It);
@@ -240,7 +241,7 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 	FreeStrBuf(&Token);
 
 	pthread_mutex_lock(&ActiveQItemsLock);
-	if (GetHash(ActiveQItems, 
+	if (GetHash(ActiveQItems,
 		    LKEY(Item->MessageID),
 		    &v))
 	{
@@ -251,7 +252,7 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 	}
 	else {
 		/* mark our claim on this. */
-		Put(ActiveQItems, 
+		Put(ActiveQItems,
 		    LKEY(Item->MessageID),
 		    Item,
 		    HFreeQueItem);
@@ -271,8 +272,7 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 
 	QMessage = NewStrBufPlain(NULL, SIZ);
 	StrBufPrintf(QMessage, "Content-type: %s\n", SPOOLMIME);
-
-//		   "attempted|%ld\n"  "retry|%ld\n",, (long)time(NULL), (long)retry );
+//	"attempted|%ld\n"  "retry|%ld\n",, (long)time(NULL), (long)retry );
 	StrBufAppendBufPlain(QMessage, HKEY("\nmsgid|"), 0);
 	StrBufAppendPrintf(QMessage, "%ld", MyQItem->MessageID);
 
@@ -296,16 +296,21 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 		int i;
 
 		if (!ThisItem->Active)
-			continue; /* skip already sent ones from the spoolfile. */
+		{
+			/* skip already sent ones from the spoolfile. */
+			continue;
+		}
 
 		for (i=0; i < ThisItem->nAttempts; i++) {
-			/* TODO: most probably there is just one retry/attempted per message! */
+			/* TODO: most probably
+			 * there is just one retry/attempted per message!
+			 */
 			StrBufAppendBufPlain(QMessage, HKEY("\nretry|"), 0);
-			StrBufAppendPrintf(QMessage, "%ld", 
+			StrBufAppendPrintf(QMessage, "%ld",
 					   ThisItem->Attempts[i].retry);
 
 			StrBufAppendBufPlain(QMessage, HKEY("\nattempted|"), 0);
-			StrBufAppendPrintf(QMessage, "%ld", 
+			StrBufAppendPrintf(QMessage, "%ld",
 					   ThisItem->Attempts[i].when);
 		}
 		StrBufAppendBufPlain(QMessage, HKEY("\nremote|"), 0);
@@ -316,7 +321,7 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 		StrBufAppendBuf(QMessage, ThisItem->StatusMessage, 0);
 	}
 	DeleteHashPos(&It);
-	StrBufAppendBufPlain(QMessage, HKEY("\n"), 0);	
+	StrBufAppendBufPlain(QMessage, HKEY("\n"), 0);
 	return QMessage;
 }
 
@@ -333,7 +338,10 @@ void NewMailQEntry(OneQueItem *Item)
 		Item->MailQEntries = NewHash(1, Flathash);
 	Item->Current->StatusMessage = NewStrBuf();
 	Item->Current->n = GetCount(Item->MailQEntries);
-	Put(Item->MailQEntries, IKEY(Item->Current->n), Item->Current, FreeMailQEntry);
+	Put(Item->MailQEntries,
+	    IKEY(Item->Current->n),
+	    Item->Current,
+	    FreeMailQEntry);
 }
 
 void QItem_Handle_MsgID(OneQueItem *Item, StrBuf *Line, const char **Pos)
@@ -360,7 +368,7 @@ void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
 	if (Item->Current == NULL)
 		NewMailQEntry(Item);
 	if (Item->Current->Recipient == NULL)
-		Item->Current->Recipient =  NewStrBufPlain(NULL, StrLength(Line));
+		Item->Current->Recipient=NewStrBufPlain(NULL, StrLength(Line));
 	StrBufExtract_NextToken(Item->Current->Recipient, Line, Pos, '|');
 	Item->Current->Status = StrBufExtractNext_int(Line, Pos, '|');
 	StrBufExtract_NextToken(Item->Current->StatusMessage, Line, Pos, '|');
@@ -378,7 +386,8 @@ void QItem_Handle_retry(OneQueItem *Item, StrBuf *Line, const char **Pos)
 		Item->FailNow = 1;
 		return;
 	}
-	Item->Current->Attempts[Item->Current->nAttempts].retry = StrBufExtractNext_int(Line, Pos, '|');
+	Item->Current->Attempts[Item->Current->nAttempts].retry =
+		StrBufExtractNext_int(Line, Pos, '|');
 }
 
 
@@ -398,12 +407,20 @@ void QItem_Handle_Attempted(OneQueItem *Item, StrBuf *Line, const char **Pos)
 		Item->FailNow = 1;
 		return;
 	}
-		
-	Item->Current->Attempts[Item->Current->nAttempts].when = StrBufExtractNext_int(Line, Pos, '|');
-	if (Item->Current->Attempts[Item->Current->nAttempts].when > Item->LastAttempt.when)
+
+	Item->Current->Attempts[Item->Current->nAttempts].when =
+		StrBufExtractNext_int(Line, Pos, '|');
+	if (Item->Current->Attempts[Item->Current->nAttempts].when >
+	    Item->LastAttempt.when)
 	{
-		Item->LastAttempt.when = Item->Current->Attempts[Item->Current->nAttempts].when;
-		Item->LastAttempt.retry = Item->Current->Attempts[Item->Current->nAttempts].retry * 2;
+		Item->LastAttempt.when =
+			Item->Current->Attempts[Item->Current->nAttempts].when;
+
+		Item->LastAttempt.retry =
+			Item->Current->Attempts[
+				Item->Current->nAttempts
+				].retry * 2;
+
 		if (Item->LastAttempt.retry > SMTP_RETRY_MAX)
 			Item->LastAttempt.retry = SMTP_RETRY_MAX;
 	}
@@ -418,17 +435,21 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
 {
 	CitContext *CCC=CC;
 	StrBuf *SendMsg;
-	
+
 	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-	CtdlOutputMsg(MyQItem->MessageID, MT_RFC822, HEADERS_ALL, 0, 1, NULL, (ESC_DOT|SUPPRESS_ENV_TO) );
+	CtdlOutputMsg(MyQItem->MessageID,
+		      MT_RFC822, HEADERS_ALL,
+		      0, 1, NULL,
+		      (ESC_DOT|SUPPRESS_ENV_TO) );
+
 	SendMsg = CCC->redirect_buffer;
 	CCC->redirect_buffer = NULL;
-	if ((StrLength(SendMsg) > 0) && 
+	if ((StrLength(SendMsg) > 0) &&
 	    ChrPtr(SendMsg)[StrLength(SendMsg) - 1] != '\n') {
-		syslog(LOG_WARNING, 
+		syslog(LOG_WARNING,
 		       "SMTP client[%d]: Possible problem: message did not "
 		       "correctly terminate. (expecting 0x10, got 0x%02x)\n",
-		       MsgCount, //yes uncool, but best choice here... 
+		       MsgCount, //yes uncool, but best choice here...
 		       ChrPtr(SendMsg)[StrLength(SendMsg) - 1] );
 		StrBufAppendBufPlain(SendMsg, HKEY("\r\n"), 0);
 	}
@@ -442,16 +463,16 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
  * instructions for "5" codes (permanent fatal errors) and produce/deliver
  * a "bounce" message (delivery status notification).
  */
-void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt) 
+void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 {
 	static int seq = 0;
 
 	struct CtdlMessage *bmsg = NULL;
 	StrBuf *boundary;
-	StrBuf *Msg = NULL; 
+	StrBuf *Msg = NULL;
 	StrBuf *BounceMB;
 	struct recptypes *valid;
-	
+
 	HashPos *It;
 	void *vQE;
 	long len;
@@ -475,12 +496,14 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	{
 		MailQEntry *ThisItem = vQE;
 		if ((ThisItem->Status == 5) || /* failed now? */
-		    ((give_up == 1) && (ThisItem->Status != 2))) /* giving up after failed attempts... */
+		    ((give_up == 1) &&
+		     (ThisItem->Status != 2)))
+			/* giving up after failed attempts... */
 		{
 			if (num_bounces == 0)
 				Msg = NewStrBufPlain(NULL, 1024);
 			++num_bounces;
-	
+
 			StrBufAppendBuf(Msg, ThisItem->Recipient, 0);
 			StrBufAppendBufPlain(Msg, HKEY(": "), 0);
 			StrBufAppendBuf(Msg, ThisItem->StatusMessage, 0);
@@ -498,13 +521,18 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	}
 
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
-	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
+	StrBufAppendPrintf(boundary,
+			   "%s_%04x%04x",
+			   config.c_fqdn,
+			   getpid(),
+			   ++seq);
 
 	/* Start building our bounce message; go shopping for memory first. */
-	BounceMB = NewStrBufPlain(NULL, 
-				  1024 + /* mime stuff.... */
-				  StrLength(Msg) +  /* the bounce information... */
-				  StrLength(OMsgTxt)); /* the original message */
+	BounceMB = NewStrBufPlain(
+		NULL,
+		1024 + /* mime stuff.... */
+		StrLength(Msg) +  /* the bounce information... */
+		StrLength(OMsgTxt)); /* the original message */
 	if (BounceMB == NULL) {
 		FreeStrBuf(&boundary);
 		syslog(LOG_ERR, "Failed to alloc() bounce message.\n");
@@ -525,29 +553,33 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 
 	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: multipart/mixed; boundary=\""), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("\"\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\"\r\n"), 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("MIME-Version: 1.0\r\n"), 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("X-Mailer: " CITADEL "\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("\r\nThis is a multipart message in MIME format.\r\n\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
-        StrBufAppendBuf(BounceMB, boundary, 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\r\nThis is a multipart message in MIME format.\r\n\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("Content-type: text/plain\r\n\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: text/plain\r\n\r\n"), 0);
 
-	if (give_up) 
+	if (give_up)
 		StrBufAppendBufPlain(
-			BounceMB, 
+			BounceMB,
 			HKEY(
-				"A message you sent could not be delivered to some or all of its recipients\n"
-				"due to prolonged unavailability of its destination(s).\n"
+				"A message you sent could not be delivered "
+				"to some or all of its recipients\n"
+				"due to prolonged unavailability "
+				"of its destination(s).\n"
 				"Giving up on the following addresses:\n\n"
 				), 0);
-	else 
+	else
 		StrBufAppendBufPlain(
-			BounceMB, 
+			BounceMB,
 			HKEY(
-				"A message you sent could not be delivered to some or all of its recipients.\n"
-				"The following addresses were undeliverable:\n\n"
+				"A message you sent could not be delivered "
+				"to some or all of its recipients.\n"
+				"The following addresses "
+				"were undeliverable:\n\n"
 				), 0);
 
 	StrBufAppendBuf(BounceMB, Msg, 0);
@@ -557,34 +589,36 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: message/rfc822\r\n"), 0);
-	StrBufAppendBufPlain(BounceMB, HKEY("Content-Transfer-Encoding: 7bit\r\n"), 0);
-	StrBufAppendBufPlain(BounceMB, HKEY("Content-Disposition: inline\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB,
+			     HKEY("Content-type: message/rfc822\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB,
+			     HKEY("Content-Transfer-Encoding: 7bit\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB,
+			     HKEY("Content-Disposition: inline\r\n"), 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
 	StrBufAppendBuf(BounceMB, OMsgTxt, 0);
 
 	/* Close the multipart MIME scope */
-        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
 
+	bmsg->cm_magic = CTDLMESSAGE_MAGIC;
+	bmsg->cm_anon_type = MES_NORMAL;
+	bmsg->cm_format_type = FMT_RFC822;
 
-
-        bmsg->cm_magic = CTDLMESSAGE_MAGIC;
-        bmsg->cm_anon_type = MES_NORMAL;
-        bmsg->cm_format_type = FMT_RFC822;
-
-        bmsg->cm_fields['O'] = strdup(MAILROOM);
-        bmsg->cm_fields['A'] = strdup("Citadel");
-        bmsg->cm_fields['N'] = strdup(config.c_nodename);
-        bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
+	bmsg->cm_fields['O'] = strdup(MAILROOM);
+	bmsg->cm_fields['A'] = strdup("Citadel");
+	bmsg->cm_fields['N'] = strdup(config.c_nodename);
+	bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
 	bmsg->cm_fields['M'] = SmashStrBuf(&BounceMB);
 
 	/* First try the user who sent the message */
-	if (StrLength(MyQItem->BounceTo) == 0) 
+	if (StrLength(MyQItem->BounceTo) == 0)
 		syslog(LOG_ERR, "No bounce address specified\n");
 	else
-		syslog(LOG_DEBUG, "bounce to user? <%s>\n", ChrPtr(MyQItem->BounceTo));
+		syslog(LOG_DEBUG, "bounce to user? <%s>\n",
+		       ChrPtr(MyQItem->BounceTo));
 
 	/* Can we deliver the bounce to the original sender? */
 	valid = validate_recipients(ChrPtr(MyQItem->BounceTo), NULL, 0);
@@ -605,15 +639,6 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	syslog(LOG_DEBUG, "Done processing bounces\n");
 }
 
-
-
-/*
-{
-
-	if (threadding)
-		n_smarthosts =  get_hosts(char *mxbuf, char *rectype);
-}
-*/
 /*
  * smtp_do_procmsg()
  *
@@ -621,7 +646,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
  */
 void smtp_do_procmsg(long msgnum, void *userdata) {
 	struct CtdlMessage *msg = NULL;
-	char *instr = NULL;	
+	char *instr = NULL;
 	StrBuf *PlainQItem;
 	OneQueItem *MyQItem;
 	char *pch;
@@ -633,13 +658,14 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	ParsedURL *RelayUrls = NULL;
 	int HaveBuffers = 0;
 	StrBuf *Msg =NULL;
-	
+
 	syslog(LOG_DEBUG, "SMTP Queue: smtp_do_procmsg(%ld)\n", msgnum);
 	///strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		syslog(LOG_ERR, "SMTP Queue: tried %ld but no such message!\n", msgnum);
+		syslog(LOG_ERR, "SMTP Queue: tried %ld but no such message!\n",
+		       msgnum);
 		return;
 	}
 
@@ -659,21 +685,30 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	FreeStrBuf(&PlainQItem);
 
 	if (MyQItem == NULL) {
-		syslog(LOG_ERR, "SMTP Queue: Msg No %ld: already in progress!\n", msgnum);		
+		syslog(LOG_ERR,
+		       "SMTP Queue: Msg No %ld: already in progress!\n",
+		       msgnum);
 		return; /* s.b. else is already processing... */
 	}
 
 	/*
 	 * Postpone delivery if we've already tried recently.
 	 */
-	if (((time(NULL) - MyQItem->LastAttempt.when) < MyQItem->LastAttempt.retry) && (run_queue_now == 0)) {
+	if (((time(NULL) - MyQItem->LastAttempt.when) <
+	     MyQItem->LastAttempt.retry) &&
+	    (run_queue_now == 0))
+	{
 		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
 
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			if (GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It))
+			if (GetHashPosFromKey(ActiveQItems,
+					      LKEY(MyQItem->MessageID),
+					      It))
+			{
 				DeleteEntryFromHash(ActiveQItems, It);
+			}
 		}
 		pthread_mutex_unlock(&ActiveQItemsLock);
 		////FreeQueItem(&MyQItem); TODO: DeleteEntryFromHash frees this?
@@ -689,8 +724,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			if (GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It))
+			if (GetHashPosFromKey(ActiveQItems,
+					      LKEY(MyQItem->MessageID),
+					      It))
+			{
 				DeleteEntryFromHash(ActiveQItems, It);
+			}
 		}
 		pthread_mutex_unlock(&ActiveQItemsLock);
 		DeleteHashPos(&It);
@@ -708,15 +747,19 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			const char *Pos = NULL;
 			All = NewStrBufPlain(mxbuf, -1);
 			One = NewStrBufPlain(NULL, StrLength(All) + 1);
-			
-			while ((Pos != StrBufNOTNULL) && ((Pos == NULL) || !IsEmptyStr(Pos))) {
+
+			while ((Pos != StrBufNOTNULL) &&
+			       ((Pos == NULL) ||
+				!IsEmptyStr(Pos)))
+			{
 				StrBufExtract_NextToken(One, All, &Pos, '|');
 				if (!ParseURL(Url, One, 25))
-					syslog(LOG_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
+					syslog(LOG_DEBUG,
+					       "Failed to parse: %s\n",
+					       ChrPtr(One));
 				else {
-					///if (!Url->IsIP)) /// todo dupe me fork ipv6
+					///if (!Url->IsIP)) // todo dupe me fork ipv6
 					Url = &(*Url)->Next;
-					
 				}
 			}
 			FreeStrBuf(&All);
@@ -731,12 +774,17 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			const char *Pos = NULL;
 			All = NewStrBufPlain(mxbuf, -1);
 			One = NewStrBufPlain(NULL, StrLength(All) + 1);
-			
-			while ((Pos != StrBufNOTNULL) && ((Pos == NULL) || !IsEmptyStr(Pos))) {
+
+			while ((Pos != StrBufNOTNULL) &&
+			       ((Pos == NULL) ||
+				!IsEmptyStr(Pos)))
+			{
 				StrBufExtract_NextToken(One, All, &Pos, '|');
 				if (!ParseURL(Url, One, 25))
-					syslog(LOG_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
-				else 
+					syslog(LOG_DEBUG,
+					       "Failed to parse: %s\n",
+					       ChrPtr(One));
+				else
 					Url = &(*Url)->Next;
 			}
 			FreeStrBuf(&All);
@@ -748,8 +796,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		syslog(LOG_DEBUG, "SMTP Queue: Task: <%s> %d\n", 
-		       ChrPtr(ThisItem->Recipient), 
+		syslog(LOG_DEBUG, "SMTP Queue: Task: <%s> %d\n",
+		       ChrPtr(ThisItem->Recipient),
 		       ThisItem->Active);
 	}
 	DeleteHashPos(&It);
@@ -762,50 +810,67 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		int i = 1;
 		Msg = smtp_load_msg(MyQItem, n);
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
-		while ((i <= m) && 
-		       (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE)))
+		while ((i <= m) &&
+		       (GetNextHashPos(MyQItem->MailQEntries,
+				       It, &len, &Key, &vQE)))
 		{
 			MailQEntry *ThisItem = vQE;
-			if (ThisItem->Active == 1) {
+
+			if (ThisItem->Active == 1)
+			{
 				int KeepBuffers = (i == m);
 				if (i > 1) n = MsgCount++;
-				syslog(LOG_DEBUG, 
-				       "SMTP Queue: Trying <%ld> <%s> %d / %d \n", 
+				syslog(LOG_DEBUG,
+				       "SMTPQ: Trying <%ld> <%s> %d / %d \n",
 				       MyQItem->MessageID,
-				       ChrPtr(ThisItem->Recipient), 
-				       i, 
+				       ChrPtr(ThisItem->Recipient),
+				       i,
 				       m);
-				smtp_try_one_queue_entry(MyQItem, 
-							 ThisItem, 
-							 Msg, 
-							 KeepBuffers, 
-							 n, 
+				smtp_try_one_queue_entry(MyQItem,
+							 ThisItem,
+							 Msg,
+							 KeepBuffers,
+							 n,
 							 RelayUrls);
+
 				if (KeepBuffers) HaveBuffers = 1;
+
 				i++;
 			}
 		}
 		DeleteHashPos(&It);
 	}
-	else 
+	else
 	{
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
-			if (GetHashPosFromKey(ActiveQItems, LKEY(MyQItem->MessageID), It))
+			if (GetHashPosFromKey(ActiveQItems,
+					      LKEY(MyQItem->MessageID),
+					      It))
+			{
 				DeleteEntryFromHash(ActiveQItems, It);
+			}
 			else
 			{
 				long len;
 				const char* Key;
 				void *VData;
-				syslog(LOG_WARNING, 
-				       "SMTP cleanup: unable to find QItem with ID[%ld]",
+
+				syslog(LOG_WARNING,
+				       "SMTP cleanup: unable to find "
+				       "QItem with ID[%ld]",
 				       MyQItem->MessageID);
-				while (GetNextHashPos(ActiveQItems, It, &len, &Key, &VData))
-					syslog(LOG_WARNING, 
+				while (GetNextHashPos(ActiveQItems,
+						      It,
+						      &len,
+						      &Key,
+						      &VData))
+				{
+					syslog(LOG_WARNING,
 					       "SMTP cleanup: have: ID[%ld]",
-					       ((OneQueItem *)VData)->MessageID);
+					      ((OneQueItem *)VData)->MessageID);
+				}
 			}
 
 		}
@@ -826,14 +891,15 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 /*
  * smtp_queue_thread()
- * 
+ *
  * Run through the queue sending out messages.
  */
 void smtp_do_queue(void) {
 	static int is_running = 0;
 	int num_processed = 0;
 
-	if (is_running) return;		/* Concurrency check - only one can run */
+	if (is_running)
+		return;	/* Concurrency check - only one can run */
 	is_running = 1;
 
 	pthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
@@ -843,9 +909,18 @@ void smtp_do_queue(void) {
 		syslog(LOG_ERR, "Cannot find room <%s>", SMTP_SPOOLOUT_ROOM);
 	}
 	else {
-		num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
+		num_processed = CtdlForEachMessage(MSGS_ALL,
+						   0L,
+						   NULL,
+						   SPOOLMIME,
+						   NULL,
+						   smtp_do_procmsg,
+						   NULL);
 	}
-	syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed", num_processed);
+	syslog(LOG_INFO,
+	       "SMTP client: queue run completed; %d messages processed",
+	       num_processed);
+
 	run_queue_now = 0;
 	is_running = 0;
 }
@@ -935,7 +1010,7 @@ CTDL_MODULE_INIT(smtp_queu)
 		Put(QItemHandlers, HKEY("remote"), QItem_Handle_Recipient, reference_free_handler);
 		Put(QItemHandlers, HKEY("bounceto"), QItem_Handle_BounceTo, reference_free_handler);
 		Put(QItemHandlers, HKEY("submitted"), QItem_Handle_Submitted, reference_free_handler);
-////TODO: flush qitemhandlers on exit
+
 		smtp_init_spoolout();
 
 		CtdlRegisterCleanupHook(smtp_evq_cleanup);
@@ -943,7 +1018,7 @@ CTDL_MODULE_INIT(smtp_queu)
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	}
-	
+
 	/* return our Subversion id for the Log */
 	return "smtpeventclient";
 }

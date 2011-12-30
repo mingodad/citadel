@@ -119,44 +119,62 @@ void flush_rss_item(rss_item *ri)
 }
 
 
-/*******************************************************************************
- *                               XML-Handler                                   *
- *******************************************************************************/
+/******************************************************************************
+ *                              XML-Handler                                   *
+ ******************************************************************************/
 
 
-void RSS_item_rss_start (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_rss_start (StrBuf *CData,
+			 rss_item *ri,
+			 rss_aggregator *Cfg,
+			 const char** Attr)
 {
 	syslog(LOG_DEBUG, "RSS: This is an RSS feed.\n");
 	Cfg->ItemType = RSS_RSS;
 }
 
-void RSS_item_rdf_start(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_rdf_start(StrBuf *CData,
+			rss_item *ri,
+			rss_aggregator *Cfg,
+			const char** Attr)
 {
 	syslog(LOG_DEBUG, "RSS: This is an RDF feed.\n");
 	Cfg->ItemType = RSS_RSS;
 }
 
-void ATOM_item_feed_start(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_feed_start(StrBuf *CData,
+			  rss_item *ri,
+			  rss_aggregator *Cfg,
+			  const char** Attr)
 {
 	syslog(LOG_DEBUG, "RSS: This is an ATOM feed.\n");
 	Cfg->ItemType = RSS_ATOM;
 }
 
 
-void RSS_item_item_start(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_item_start(StrBuf *CData,
+			 rss_item *ri,
+			 rss_aggregator *Cfg,
+			 const char** Attr)
 {
 	ri->item_tag_nesting ++;
 	flush_rss_item(ri);
 }
 
-void ATOM_item_entry_start(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_entry_start(StrBuf *CData,
+			   rss_item *ri,
+			   rss_aggregator *Cfg,
+			   const char** Attr)
 {
 /* Atom feed... */
 	ri->item_tag_nesting ++;
 	flush_rss_item(ri);
 }
 
-void ATOM_item_link_start (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_link_start (StrBuf *CData,
+			   rss_item *ri,
+			   rss_aggregator *Cfg,
+			   const char** Attr)
 {
 	int i;
 	const char *pHref = NULL;
@@ -186,20 +204,28 @@ void ATOM_item_link_start (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, con
 	if (pHref == NULL)
 		return; /* WHUT? Pointing... where? */
 	if ((pType != NULL) && !strcasecmp(pType, "application/atom+xml"))
-		return; /* these just point to other rss resources, we're not interested in them. */
+		return;
+	/* these just point to other rss resources,
+	   we're not interested in them. */
 	if (pRel != NULL)
 	{
 		if (!strcasecmp (pRel, "replies"))
 		{
 			NewStrBufDupAppendFlush(&ri->reLink, NULL, pHref, -1);
 			StrBufTrim(ri->link);
-			NewStrBufDupAppendFlush(&ri->reLinkTitle, NULL, pTitle, -1);
+			NewStrBufDupAppendFlush(&ri->reLinkTitle,
+						NULL,
+						pTitle,
+						-1);
 		}
-		else if (!strcasecmp(pRel, "alternate")) /* Alternative representation of this Item... */
-		{
+		else if (!strcasecmp(pRel, "alternate"))
+		{ /* Alternative representation of this Item... */
 			NewStrBufDupAppendFlush(&ri->link, NULL, pHref, -1);
 			StrBufTrim(ri->link);
-			NewStrBufDupAppendFlush(&ri->linkTitle, NULL, pTitle, -1);
+			NewStrBufDupAppendFlush(&ri->linkTitle,
+						NULL,
+						pTitle,
+						-1);
 
 		}
 #if 0 /* these are also defined, but dunno what to do with them.. */
@@ -210,7 +236,7 @@ void ATOM_item_link_start (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, con
 		{
 		}
 		else if (!strcasecmp(pRel, "enclosure"))
-		{/* this reference can get big, and is probably the full article... */
+		{/*...reference can get big, and is probably the full article*/
 		}
 		else if (!strcasecmp(pRel, "via"))
 		{/* this article was provided via... */
@@ -228,7 +254,10 @@ void ATOM_item_link_start (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, con
 
 
 
-void ATOMRSS_item_title_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOMRSS_item_title_end(StrBuf *CData,
+			    rss_item *ri,
+			    rss_aggregator *Cfg,
+			    const char** Attr)
 {
 	if ((ri->item_tag_nesting == 0) && (StrLength(CData) > 0)) {
 		NewStrBufDupAppendFlush(&ri->channel_title, CData, NULL, 0);
@@ -236,14 +265,18 @@ void ATOMRSS_item_title_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, co
 	}
 }
 
-void RSS_item_guid_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_guid_end(StrBuf *CData,
+		       rss_item *ri,
+		       rss_aggregator *Cfg,
+		       const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->guid, CData, NULL, 0);
 	}
 }
 
-void ATOM_item_id_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_id_end(StrBuf *CData,
+		      rss_item *ri, rss_aggregator *Cfg, const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->guid, CData, NULL, 0);
@@ -251,14 +284,20 @@ void ATOM_item_id_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const ch
 }
 
 
-void RSS_item_link_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_link_end (StrBuf *CData,
+			rss_item *ri,
+			rss_aggregator *Cfg,
+			const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->link, CData, NULL, 0);
 		StrBufTrim(ri->link);
 	}
 }
-void RSS_item_relink_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_relink_end(StrBuf *CData,
+			 rss_item *ri,
+			 rss_aggregator *Cfg,
+			 const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->reLink, CData, NULL, 0);
@@ -266,7 +305,10 @@ void RSS_item_relink_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const
 	}
 }
 
-void RSSATOM_item_title_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSSATOM_item_title_end (StrBuf *CData,
+			     rss_item *ri,
+			     rss_aggregator *Cfg,
+			     const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->title, CData, NULL, 0);
@@ -274,26 +316,42 @@ void RSSATOM_item_title_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, c
 	}
 }
 
-void ATOM_item_content_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_content_end (StrBuf *CData,
+			    rss_item *ri,
+			    rss_aggregator *Cfg,
+			    const char** Attr)
 {
 	long olen = StrLength (ri->description);
 	long clen = StrLength (CData);
-	if (clen > 0) 
+	if (clen > 0)
 	{
 		if (olen == 0) {
-			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			NewStrBufDupAppendFlush(&ri->description,
+						CData,
+						NULL,
+						0);
 			StrBufTrim(ri->description);
 		}
 		else if (olen < clen) {
 			FlushStrBuf(ri->description);
-			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			NewStrBufDupAppendFlush(&ri->description,
+						CData,
+						NULL,
+						0);
+
 			StrBufTrim(ri->description);
 		}
 	}
 }
-void ATOM_item_summary_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_summary_end (StrBuf *CData,
+			    rss_item *ri,
+			    rss_aggregator *Cfg,
+			    const char** Attr)
 {
-	/* this can contain an abstract of the article. but we don't want to verwrite a full document if we already have it. */
+	/*
+	 * this can contain an abstract of the article.
+	 * but we don't want to verwrite a full document if we already have it.
+	 */
 	if ((StrLength(CData) > 0) && (StrLength(ri->description) == 0))
 	{
 		NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
@@ -301,33 +359,37 @@ void ATOM_item_summary_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, co
 	}
 }
 
-void RSS_item_description_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_description_end (StrBuf *CData,
+			       rss_item *ri,
+			       rss_aggregator *Cfg,
+			       const char** Attr)
 {
 	long olen = StrLength (ri->description);
 	long clen = StrLength (CData);
-	if (clen > 0) 
+	if (clen > 0)
 	{
 		if (olen == 0) {
-			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			NewStrBufDupAppendFlush(&ri->description,
+						CData,
+						NULL,
+						0);
 			StrBufTrim(ri->description);
 		}
 		else if (olen < clen) {
 			FlushStrBuf(ri->description);
-			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			NewStrBufDupAppendFlush(&ri->description,
+						CData,
+						NULL,
+						0);
 			StrBufTrim(ri->description);
 		}
 	}
 }
 
-void ATOM_item_published_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
-{		  
-	if (StrLength(CData) > 0) {
-		StrBufTrim(CData);
-		ri->pubdate = rdf_parsedate(ChrPtr(CData));
-	}
-}
-
-void ATOM_item_updated_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_published_end (StrBuf *CData,
+			      rss_item *ri,
+			      rss_aggregator *Cfg,
+			      const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		StrBufTrim(CData);
@@ -335,7 +397,21 @@ void ATOM_item_updated_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, co
 	}
 }
 
-void RSS_item_pubdate_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_updated_end (StrBuf *CData,
+			    rss_item *ri,
+			    rss_aggregator *Cfg,
+			    const char** Attr)
+{
+	if (StrLength(CData) > 0) {
+		StrBufTrim(CData);
+		ri->pubdate = rdf_parsedate(ChrPtr(CData));
+	}
+}
+
+void RSS_item_pubdate_end (StrBuf *CData,
+			   rss_item *ri,
+			   rss_aggregator *Cfg,
+			   const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		StrBufTrim(CData);
@@ -344,7 +420,10 @@ void RSS_item_pubdate_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, con
 }
 
 
-void RSS_item_date_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_date_end (StrBuf *CData,
+			rss_item *ri,
+			rss_aggregator *Cfg,
+			const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		StrBufTrim(CData);
@@ -354,7 +433,10 @@ void RSS_item_date_end (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const 
 
 
 
-void RSS_item_author_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_author_end(StrBuf *CData,
+			 rss_item *ri,
+			 rss_aggregator *Cfg,
+			 const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->author_or_creator, CData, NULL, 0);
@@ -363,7 +445,10 @@ void RSS_item_author_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const
 }
 
 
-void ATOM_item_name_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_name_end(StrBuf *CData,
+			rss_item *ri,
+			rss_aggregator *Cfg,
+			const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->author_or_creator, CData, NULL, 0);
@@ -371,7 +456,10 @@ void ATOM_item_name_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const 
 	}
 }
 
-void ATOM_item_email_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_email_end(StrBuf *CData,
+			 rss_item *ri,
+			 rss_aggregator *Cfg,
+			 const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->author_email, CData, NULL, 0);
@@ -379,9 +467,12 @@ void ATOM_item_email_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const
 	}
 }
 
-void RSS_item_creator_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_creator_end(StrBuf *CData,
+			  rss_item *ri,
+			  rss_aggregator *Cfg,
+			  const char** Attr)
 {
-	if ((StrLength(CData) > 0) && 
+	if ((StrLength(CData) > 0) &&
 	    (StrLength(ri->author_or_creator) == 0))
 	{
 		NewStrBufDupAppendFlush(&ri->author_or_creator, CData, NULL, 0);
@@ -390,7 +481,10 @@ void RSS_item_creator_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, cons
 }
 
 
-void ATOM_item_uri_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_uri_end(StrBuf *CData,
+		       rss_item *ri,
+		       rss_aggregator *Cfg,
+		       const char** Attr)
 {
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->author_url, CData, NULL, 0);
@@ -398,33 +492,48 @@ void ATOM_item_uri_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const c
 	}
 }
 
-void RSS_item_item_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_item_end(StrBuf *CData,
+		       rss_item *ri,
+		       rss_aggregator *Cfg,
+		       const char** Attr)
 {
 	--ri->item_tag_nesting;
 	rss_save_item(ri, Cfg);
 }
 
 
-void ATOM_item_entry_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void ATOM_item_entry_end(StrBuf *CData,
+			 rss_item *ri,
+			 rss_aggregator *Cfg,
+			 const char** Attr)
 {
 	--ri->item_tag_nesting;
 	rss_save_item(ri, Cfg);
 }
 
-void RSS_item_rss_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSS_item_rss_end(StrBuf *CData,
+		      rss_item *ri,
+		      rss_aggregator *Cfg,
+		      const char** Attr)
 {
 //		syslog(LOG_DEBUG, "End of feed detected.  Closing parser.\n");
 	ri->done_parsing = 1;
-	
 }
-void RSS_item_rdf_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+
+void RSS_item_rdf_end(StrBuf *CData,
+		      rss_item *ri,
+		      rss_aggregator *Cfg,
+		      const char** Attr)
 {
 //		syslog(LOG_DEBUG, "End of feed detected.  Closing parser.\n");
 	ri->done_parsing = 1;
 }
 
 
-void RSSATOM_item_ignore(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
+void RSSATOM_item_ignore(StrBuf *CData,
+			 rss_item *ri,
+			 rss_aggregator *Cfg,
+			 const char** Attr)
 {
 }
 
@@ -433,17 +542,17 @@ void RSSATOM_item_ignore(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const
 /*
  * This callback stores up the data which appears in between tags.
  */
-void rss_xml_cdata_start(void *data) 
+void rss_xml_cdata_start(void *data)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator*) data;
 
 	FlushStrBuf(RSSAggr->CData);
 }
 
-void rss_xml_cdata_end(void *data) 
+void rss_xml_cdata_end(void *data)
 {
 }
-void rss_xml_chardata(void *data, const XML_Char *s, int len) 
+void rss_xml_chardata(void *data, const XML_Char *s, int len)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator*) data;
 
@@ -451,9 +560,9 @@ void rss_xml_chardata(void *data, const XML_Char *s, int len)
 }
 
 
-/*******************************************************************************
- *                            RSS parser logic                                 *
- *******************************************************************************/
+/******************************************************************************
+ *                            RSS parser logic                                *
+ ******************************************************************************/
 
 extern pthread_mutex_t RSSQueueMutex;
 
@@ -673,7 +782,10 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 	char            *sep = NULL;
 
 	/* Axe the namespace, we don't care about it */
-///	syslog(LOG_DEBUG, "RSS: supplied el %d: %s...\n", RSSAggr->Cfg->ItemType, supplied_el);
+	/*
+	  syslog(LOG_DEBUG,
+	  "RSS: supplied el %d: %s\n", RSSAggr->Cfg->ItemType, supplied_el);
+	*/
 	pel = supplied_el;
 	while (sep = strchr(pel, ':'), sep) {
 		pel = sep + 1;
@@ -682,15 +794,17 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 	if (pel != supplied_el)
 	{
 		void *v;
-		
-		if (!GetHash(KnownNameSpaces, 
-			     supplied_el, 
+
+		if (!GetHash(KnownNameSpaces,
+			     supplied_el,
 			     pel - supplied_el - 1,
 			     &v))
 		{
 #ifdef DEBUG_RSS
-			syslog(LOG_DEBUG, "RSS: START ignoring because of wrong namespace [%s]\n", 
-				      supplied_el);
+			syslog(LOG_DEBUG,
+			       "RSS: START ignoring "
+			       "because of wrong namespace [%s]\n",
+			       supplied_el);
 #endif
 			return;
 		}
@@ -702,7 +816,7 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 	{
 		h = (rss_xml_handler*) pv;
 
-		if (((h->Flags & RSS_UNSET) != 0) && 
+		if (((h->Flags & RSS_UNSET) != 0) &&
 		    (RSSAggr->ItemType == RSS_UNSET))
 		{
 			h->Handler(RSSAggr->CData, ri, RSSAggr, attr);
@@ -715,16 +829,25 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 		else if (((h->Flags & RSS_ATOM) != 0) &&
 			 (RSSAggr->ItemType == RSS_ATOM))
 		{
-			h->Handler(RSSAggr->CData, ri, RSSAggr, attr);			
+			h->Handler(RSSAggr->CData,
+				   ri,
+				   RSSAggr,
+				   attr);
 		}
 #ifdef DEBUG_RSS
-		else 
-			syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
+		else
+			syslog(LOG_DEBUG,
+			       "RSS: START unhandled: [%s] [%s]...\n",
+			       pel,
+			       supplied_el);
 #endif
 	}
 #ifdef DEBUG_RSS
-	else 
-		syslog(LOG_DEBUG, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
+	else
+		syslog(LOG_DEBUG,
+		       "RSS: START unhandled: [%s] [%s]...\n",
+		       pel,
+		       supplied_el);
 #endif
 }
 
@@ -746,15 +869,18 @@ void rss_xml_end(void *data, const char *supplied_el)
 	if (pel != supplied_el)
 	{
 		void *v;
-		
-		if (!GetHash(KnownNameSpaces, 
-			     supplied_el, 
+
+		if (!GetHash(KnownNameSpaces,
+			     supplied_el,
 			     pel - supplied_el - 1,
 			     &v))
 		{
 #ifdef DEBUG_RSS
-			syslog(LOG_DEBUG, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
-				      supplied_el, ChrPtr(RSSAggr->CData));
+			syslog(LOG_DEBUG,
+			       "RSS: END ignoring because of wrong namespace"
+			       "[%s] = [%s]\n",
+			       supplied_el,
+			       ChrPtr(RSSAggr->CData));
 #endif
 			FlushStrBuf(RSSAggr->CData);
 			return;
@@ -767,7 +893,7 @@ void rss_xml_end(void *data, const char *supplied_el)
 	{
 		h = (rss_xml_handler*) pv;
 
-		if (((h->Flags & RSS_UNSET) != 0) && 
+		if (((h->Flags & RSS_UNSET) != 0) &&
 		    (RSSAggr->ItemType == RSS_UNSET))
 		{
 			h->Handler(RSSAggr->CData, ri, RSSAggr, NULL);
@@ -783,13 +909,21 @@ void rss_xml_end(void *data, const char *supplied_el)
 			h->Handler(RSSAggr->CData, ri, RSSAggr, NULL);
 		}
 #ifdef DEBUG_RSS
-		else 
-			syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(RSSAggr->CData));
+		else
+			syslog(LOG_DEBUG,
+			       "RSS: END   unhandled: [%s]  [%s] = [%s]...\n",
+			       pel,
+			       supplied_el,
+			       ChrPtr(RSSAggr->CData));
 #endif
 	}
 #ifdef DEBUG_RSS
-	else 
-		syslog(LOG_DEBUG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(RSSAggr->CData));
+	else
+		syslog(LOG_DEBUG,
+		       "RSS: END   unhandled: [%s]  [%s] = [%s]...\n",
+		       pel,
+		       supplied_el,
+		       ChrPtr(RSSAggr->CData));
 #endif
 	FlushStrBuf(RSSAggr->CData);
 }
@@ -842,7 +976,7 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 		pche = strchr(ptr, '"');
 		if (pche != NULL)
 			StrBufCutAt(RSSAggr->Key, -1, pche);
-		else 
+		else
 			ptr = "UTF-8";
 	}
 	else
@@ -874,9 +1008,8 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 		XML_Parse(RSSAggr->xp, "", 0, 1);
 
 
-	syslog(LOG_DEBUG, "RSS: XML Status [%s] \n", 
-		      XML_ErrorString(
-			      XML_GetErrorCode(RSSAggr->xp)));
+	syslog(LOG_DEBUG, "RSS: XML Status [%s] \n",
+	       XML_ErrorString(XML_GetErrorCode(RSSAggr->xp)));
 
 	XML_ParserFree(RSSAggr->xp);
 	flush_rss_item(ri);
@@ -888,19 +1021,26 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 
 	RSSAggr->Pos = GetNewHashPos(RSSAggr->Messages, 1);
 
-        ///Cfg->next_poll = time(NULL) + config.c_net_freq; 
-	if (GetNextHashPos(RSSAggr->Messages, RSSAggr->Pos, &len, &Key, (void**) &RSSAggr->ThisMsg))
+//Cfg->next_poll = time(NULL) + config.c_net_freq;
+	if (GetNextHashPos(RSSAggr->Messages,
+			   RSSAggr->Pos,
+			   &len,
+			   &Key,
+			   (void**) &RSSAggr->ThisMsg))
 		return QueueDBOperation(IO, RSS_FetchNetworkUsetableEntry);
 	else
 		return eAbort;
 }
 
 
-/*******************************************************************************
- *                     RSS handler registering logic                           *
- *******************************************************************************/
+/******************************************************************************
+ *                    RSS handler registering logic                           *
+ ******************************************************************************/
 
-void AddRSSStartHandler(rss_handler_func Handler, int Flags, const char *key, long len)
+void AddRSSStartHandler(rss_handler_func Handler,
+			int Flags,
+			const char *key,
+			long len)
 {
 	rss_xml_handler *h;
 	h = (rss_xml_handler*) malloc(sizeof (rss_xml_handler));
@@ -908,7 +1048,11 @@ void AddRSSStartHandler(rss_handler_func Handler, int Flags, const char *key, lo
 	h->Handler = Handler;
 	Put(StartHandlers, key, len, h, NULL);
 }
-void AddRSSEndHandler(rss_handler_func Handler, int Flags, const char *key, long len)
+
+void AddRSSEndHandler(rss_handler_func Handler,
+		      int Flags,
+		      const char *key,
+		      long len)
 {
 	rss_xml_handler *h;
 	h = (rss_xml_handler*) malloc(sizeof (rss_xml_handler));
@@ -919,8 +1063,8 @@ void AddRSSEndHandler(rss_handler_func Handler, int Flags, const char *key, long
 
 void rss_parser_cleanup(void)
 {
-        DeleteHash(&StartHandlers);
-        DeleteHash(&EndHandlers);
+	DeleteHash(&StartHandlers);
+	DeleteHash(&EndHandlers);
 	DeleteHash(&KnownNameSpaces);
 }
 
@@ -943,8 +1087,8 @@ CTDL_MODULE_INIT(rssparser)
 		AddRSSEndHandler(RSS_item_guid_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("guid"));
 		AddRSSEndHandler(ATOM_item_id_end,         RSS_ATOM|RSS_REQUIRE_BUF, HKEY("id"));
 		AddRSSEndHandler(RSS_item_link_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("link"));
-#if 0 
-// hm, rss to the comments of that blog, might be interesting in future, but... 
+#if 0
+// hm, rss to the comments of that blog, might be interesting in future, but...
 		AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("commentrss"));
 // comment count...
 		AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("comments"));
@@ -1011,7 +1155,7 @@ CTDL_MODULE_INIT(rssparser)
 		/* we don't like these namespaces because of they shadow our usefull parameters. */
 		Put(KnownNameSpaces, HKEY("http://search.yahoo.com/mrss/"), NULL, reference_free_handler);
 #endif
-                CtdlRegisterCleanupHook(rss_parser_cleanup);
+		CtdlRegisterCleanupHook(rss_parser_cleanup);
 	}
 	return "rssparser";
 }
