@@ -57,7 +57,7 @@
 #endif
 #ifdef HAVE_SYSCALL_H
 # include <syscall.h>
-#else 
+#else
 # if HAVE_SYS_SYSCALL_H
 #  include <sys/syscall.h>
 # endif
@@ -157,17 +157,19 @@ void network_deliver_digest(SpoolControl *sc) {
 
 	/* Now generate the delivery instructions */
 
-	/* 
+	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
 	for (nptr = sc->digestrecps; nptr != NULL; nptr = nptr->next) {
 		recps_len = recps_len + strlen(nptr->name) + 2;
 	}
-	
+
 	recps = malloc(recps_len);
 
 	if (recps == NULL) {
-		syslog(LOG_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
+		syslog(LOG_EMERG,
+		       "Cannot allocate %ld bytes for recps...\n",
+		       (long)recps_len);
 		abort();
 	}
 
@@ -181,7 +183,8 @@ void network_deliver_digest(SpoolControl *sc) {
 		strcat(recps, nptr->name);
 	}
 
-	/* Where do we want bounces and other noise to be heard?  Surely not the list members! */
+	/* Where do we want bounces and other noise to be heard?
+	 *Surely not the list members! */
 	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
 
 	/* Now submit the message */
@@ -212,17 +215,19 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 
 	/* Now generate the delivery instructions */
 
-	/* 
+	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
 		recps_len = recps_len + strlen(nptr->name) + 2;
 	}
-	
+
 	recps = malloc(recps_len);
 
 	if (recps == NULL) {
-		syslog(LOG_EMERG, "Cannot allocate %ld bytes for recps...\n", (long)recps_len);
+		syslog(LOG_EMERG,
+		       "Cannot allocate %ld bytes for recps...\n",
+		       (long)recps_len);
 		abort();
 	}
 
@@ -236,7 +241,8 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 		strcat(recps, nptr->name);
 	}
 
-	/* Where do we want bounces and other noise to be heard?  Surely not the list members! */
+	/* Where do we want bounces and other noise to be heard?
+	 *  Surely not the list members! */
 	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
 
 	/* Now submit the message */
@@ -252,12 +258,10 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 }
 
 
-
-
 /*
  * Spools out one message from the list.
  */
-void network_spool_msg(long msgnum, 
+void network_spool_msg(long msgnum,
 		       void *userdata)
 {
 	SpoolControl *sc;
@@ -297,14 +301,17 @@ void network_spool_msg(long msgnum,
 				/* local message, no enVelope */
 				StrBuf *Buf;
 				Buf = NewStrBuf();
-				StrBufAppendBufPlain(Buf, msg->cm_fields['O'], -1, 0);
+				StrBufAppendBufPlain(Buf,
+						     msg->cm_fields['O']
+						     , -1, 0);
 				StrBufAppendBufPlain(Buf, HKEY("@"), 0);
 				StrBufAppendBufPlain(Buf, config.c_fqdn, -1, 0);
-				
+
 				msg->cm_fields['K'] = SmashStrBuf(&Buf);
 			}
 			else {
-				msg->cm_fields['K'] = strdup (msg->cm_fields['V']);
+				msg->cm_fields['K'] =
+					strdup (msg->cm_fields['V']);
 			}
 			/* Set the 'List-ID' header */
 			if (msg->cm_fields['L'] != NULL) {
@@ -323,7 +330,8 @@ void network_spool_msg(long msgnum,
 				Subject = NewStrBufPlain(HKEY("(no subject)"));
 			}
 			else {
-				Subject = NewStrBufPlain(msg->cm_fields['U'], -1);
+				Subject = NewStrBufPlain(
+					msg->cm_fields['U'], -1);
 			}
 			FlatSubject = NewStrBufPlain(NULL, StrLength(Subject));
 			StrBuf_RFC822_to_Utf8(FlatSubject, Subject, NULL, NULL);
@@ -338,35 +346,46 @@ void network_spool_msg(long msgnum,
 			{
 				StrBuf *tmp;
 				StrBufPlain(Subject, HKEY("["));
-				StrBufAppendBufPlain(Subject, CC->room.QRname, rlen, 0);
+				StrBufAppendBufPlain(Subject,
+						     CC->room.QRname,
+						     rlen, 0);
 				StrBufAppendBufPlain(Subject, HKEY("] "), 0);
 				StrBufAppendBuf(Subject, FlatSubject, 0);
-				tmp = Subject;	Subject = FlatSubject;	FlatSubject = tmp; /* so we can free the right one... */
+				 /* so we can free the right one swap them */
+				tmp = Subject;
+				Subject = FlatSubject;
+				FlatSubject = tmp;
 				StrBufRFC2047encode(&Subject, FlatSubject);
 			}
-			
+
 			if (msg->cm_fields['U'] != NULL)
 				free (msg->cm_fields['U']);
 			msg->cm_fields['U'] = SmashStrBuf(&Subject);
 
 			FreeStrBuf(&FlatSubject);
 
-			/* else we won't modify the buffer, since the roomname is already here. */
-
-			/* Set the recipient of the list message to the
-			 * email address of the room itself.
-			 * FIXME ... I want to be able to pick any address
+			/* else we won't modify the buffer, since the
+			 * roomname is already here.
 			 */
-			if (msg->cm_fields['R'] != NULL) {
-				free(msg->cm_fields['R']);
-			}
-			msg->cm_fields['R'] = malloc(256);
-			snprintf(msg->cm_fields['R'], 256,
-				"room_%s@%s", CC->room.QRname,
-				config.c_fqdn);
-			for (i=0; msg->cm_fields['R'][i]; ++i) {
-				if (isspace(msg->cm_fields['R'][i])) {
-					msg->cm_fields['R'][i] = '_';
+
+			/* if there is no other recipient, Set the recipient
+			 * of the list message to the email address of the
+			 * room itself.
+			 */
+			if ((msg->cm_fields['R'] == NULL) ||
+			    IsEmptyStr(msg->cm_fields['R']))
+			{
+				if (msg->cm_fields['R'] != NULL)
+					free(msg->cm_fields['R']);
+
+				msg->cm_fields['R'] = malloc(256);
+				snprintf(msg->cm_fields['R'], 256,
+					 "room_%s@%s", CC->room.QRname,
+					 config.c_fqdn);
+				for (i=0; msg->cm_fields['R'][i]; ++i) {
+					if (isspace(msg->cm_fields['R'][i])) {
+						msg->cm_fields['R'][i] = '_';
+					}
 				}
 			}
 
@@ -382,28 +401,43 @@ void network_spool_msg(long msgnum,
 	if ((sc->digestrecps != NULL) && (sc->digestfp != NULL)) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
-			fprintf(sc->digestfp,	" -----------------------------------"
-						"------------------------------------"
-						"-------\n");
+			fprintf(sc->digestfp,
+				" -----------------------------------"
+				"------------------------------------"
+				"-------\n");
 			fprintf(sc->digestfp, "From: ");
 			if (msg->cm_fields['A'] != NULL) {
-				fprintf(sc->digestfp, "%s ", msg->cm_fields['A']);
+				fprintf(sc->digestfp,
+					"%s ",
+					msg->cm_fields['A']);
 			}
 			if (msg->cm_fields['F'] != NULL) {
-				fprintf(sc->digestfp, "<%s> ", msg->cm_fields['F']);
+				fprintf(sc->digestfp,
+					"<%s> ",
+					msg->cm_fields['F']);
 			}
 			else if (msg->cm_fields['N'] != NULL) {
-				fprintf(sc->digestfp, "@%s ", msg->cm_fields['N']);
+				fprintf(sc->digestfp,
+					"@%s ",
+					msg->cm_fields['N']);
 			}
 			fprintf(sc->digestfp, "\n");
 			if (msg->cm_fields['U'] != NULL) {
-				fprintf(sc->digestfp, "Subject: %s\n", msg->cm_fields['U']);
+				fprintf(sc->digestfp,
+					"Subject: %s\n",
+					msg->cm_fields['U']);
 			}
 
 			CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-			
-			safestrncpy(CC->preferred_formats, "text/plain", sizeof CC->preferred_formats);
-			CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0, 0);
+
+			safestrncpy(CC->preferred_formats,
+				    "text/plain",
+				    sizeof CC->preferred_formats);
+
+			CtdlOutputPreLoadedMsg(msg,
+					       MT_CITADEL,
+					       HEADERS_NONE,
+					       0, 0, 0);
 
 			StrBufTrim(CC->redirect_buffer);
 			fwrite(HKEY("\n"), 1, sc->digestfp);
@@ -424,19 +458,21 @@ void network_spool_msg(long msgnum,
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 
-			/* Only send messages which originated on our own Citadel
-			 * network, otherwise we'll end up sending the remote
-			 * mailing list's messages back to it, which is rude...
+			/* Only send messages which originated on our own
+			 * Citadel network, otherwise we'll end up sending the
+			 * remote mailing list's messages back to it, which
+			 * is rude...
 			 */
 			ok_to_participate = 0;
 			if (msg->cm_fields['N'] != NULL) {
-				if (!strcasecmp(msg->cm_fields['N'], config.c_nodename)) {
+				if (!strcasecmp(msg->cm_fields['N'],
+						config.c_nodename)) {
 					ok_to_participate = 1;
 				}
-				if (is_valid_node(NULL, 
-						  NULL, 
-						  msg->cm_fields['N'], 
-						  sc->working_ignetcfg, 
+				if (is_valid_node(NULL,
+						  NULL,
+						  msg->cm_fields['N'],
+						  sc->working_ignetcfg,
 						  sc->the_netmap) == 0)
 				{
 					ok_to_participate = 1;
@@ -447,11 +483,12 @@ void network_spool_msg(long msgnum,
 					free(msg->cm_fields['F']);
 				}
 				msg->cm_fields['F'] = malloc(SIZ);
-				/* Replace the Internet email address of the actual
-			 	* author with the email address of the room itself,
-			 	* so the remote listserv doesn't reject us.
-			 	* FIXME ... I want to be able to pick any address
-			 	*/
+				/* Replace the Internet email address of the
+				 * actual author with the email address of the
+				 * room itself, so the remote listserv doesn't
+				 * reject us.
+				 * FIXME  I want to be able to pick any address
+				*/
 				snprintf(msg->cm_fields['F'], SIZ,
 					"room_%s@%s", CC->room.QRname,
 					config.c_fqdn);
@@ -461,26 +498,30 @@ void network_spool_msg(long msgnum,
 					}
 				}
 
-				/* 
-				 * Figure out how big a buffer we need to allocate
-			 	 */
-				for (nptr = sc->participates; nptr != NULL; nptr = nptr->next) {
-
+				/*
+				 * Figure out how big a buffer we need to alloc
+				 */
+				for (nptr = sc->participates;
+				     nptr != NULL;
+				     nptr = nptr->next)
+				{
 					if (msg->cm_fields['R'] != NULL) {
 						free(msg->cm_fields['R']);
 					}
-					msg->cm_fields['R'] = strdup(nptr->name);
-	
-					valid = validate_recipients(nptr->name, NULL, 0);
+					msg->cm_fields['R'] =
+						strdup(nptr->name);
+
+					valid = validate_recipients(nptr->name,
+								    NULL, 0);
+
 					CtdlSubmitMsg(msg, valid, "", 0);
 					free_recipients(valid);
 				}
-			
 			}
 			CtdlFreeMessage(msg);
 		}
 	}
-	
+
 	/*
 	 * Process IGnet push shares
 	 */
@@ -520,13 +561,16 @@ void network_spool_msg(long msgnum,
 			send = 1;
 
 			/* Check for valid node name */
-			if (is_valid_node(NULL, 
-					  NULL, 
-					  mptr->remote_nodename, 
-					  sc->working_ignetcfg, 
+			if (is_valid_node(NULL,
+					  NULL,
+					  mptr->remote_nodename,
+					  sc->working_ignetcfg,
 					  sc->the_netmap) != 0)
 			{
-				syslog(LOG_ERR, "Invalid node <%s>\n", mptr->remote_nodename);
+				syslog(LOG_ERR,
+				       "Invalid node <%s>\n",
+				       mptr->remote_nodename);
+
 				send = 0;
 			}
 
@@ -534,7 +578,11 @@ void network_spool_msg(long msgnum,
 			syslog(LOG_DEBUG, "Path is %s\n", msg->cm_fields['P']);
 			bang = num_tokens(msg->cm_fields['P'], '!');
 			if (bang > 1) for (i=0; i<(bang-1); ++i) {
-				extract_token(buf, msg->cm_fields['P'], i, '!', sizeof buf);
+				extract_token(buf,
+					      msg->cm_fields['P'],
+					      i, '!',
+					      sizeof buf);
+
 				syslog(LOG_DEBUG, "Compare <%s> to <%s>\n",
 					buf, mptr->remote_nodename) ;
 				if (!strcasecmp(buf, mptr->remote_nodename)) {
@@ -543,25 +591,30 @@ void network_spool_msg(long msgnum,
 						mptr->remote_nodename);
 				}
 				else {
-					syslog(LOG_DEBUG, "Sending to %s\n", mptr->remote_nodename);
+					syslog(LOG_DEBUG,
+					       "Sending to %s\n",
+					       mptr->remote_nodename);
 				}
 			}
 
 			/* Send the message */
-			if (send == 1) {
-
+			if (send == 1)
+			{
 				/*
-				 * Force the message to appear in the correct room
-				 * on the far end by setting the C field correctly
+				 * Force the message to appear in the correct
+				 * room on the far end by setting the C field
+				 * correctly
 				 */
 				if (msg->cm_fields['C'] != NULL) {
 					free(msg->cm_fields['C']);
 				}
 				if (!IsEmptyStr(mptr->remote_roomname)) {
-					msg->cm_fields['C'] = strdup(mptr->remote_roomname);
+					msg->cm_fields['C'] =
+						strdup(mptr->remote_roomname);
 				}
 				else {
-					msg->cm_fields['C'] = strdup(CC->room.QRname);
+					msg->cm_fields['C'] =
+						strdup(CC->room.QRname);
 				}
 
 				/* serialize it for transmission */
@@ -569,13 +622,19 @@ void network_spool_msg(long msgnum,
 				if (sermsg.len > 0) {
 
 					/* write it to a spool file */
-					snprintf(filename, sizeof filename,"%s/%s@%lx%x",
-					 	ctdl_netout_dir,
-					 	mptr->remote_nodename,
-						time(NULL),
-						rand()
+					snprintf(filename,
+						 sizeof(filename),
+						 "%s/%s@%lx%x",
+						 ctdl_netout_dir,
+						 mptr->remote_nodename,
+						 time(NULL),
+						 rand()
 					);
-					syslog(LOG_DEBUG, "Appending to %s\n", filename);
+
+					syslog(LOG_DEBUG,
+					       "Appending to %s\n",
+					       filename);
+
 					fp = fopen(filename, "ab");
 					if (fp != NULL) {
 						fwrite(sermsg.ser,
@@ -583,9 +642,12 @@ void network_spool_msg(long msgnum,
 						fclose(fp);
 					}
 					else {
-						syslog(LOG_ERR, "%s: %s\n", filename, strerror(errno));
+						syslog(LOG_ERR,
+						       "%s: %s\n",
+						       filename,
+						       strerror(errno));
 					}
-	
+
 					/* free the serialized version */
 					free(sermsg.ser);
 				}
