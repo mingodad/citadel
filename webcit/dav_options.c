@@ -125,7 +125,10 @@ void dav_options(void)
 	 * We got to this point, which means that the client is requesting
 	 * an OPTIONS on the room itself.
 	 */
-	syslog(LOG_DEBUG, "\033[36mOPTIONS requested for room\033[0m");
+	syslog(LOG_DEBUG, "\033[36mOPTIONS requested for room '%s' (%slogged in)\033[0m",
+		ChrPtr(WC->CurRoom.name),
+		((WC->logged_in) ? "" : "not ")
+	);
 	hprintf("HTTP/1.1 200 OK\r\n");
 	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
@@ -135,13 +138,14 @@ void dav_options(void)
 	 */
 	if ( (WC->CurRoom.view == VIEW_CALENDAR) || (WC->CurRoom.view == VIEW_CALBRIEF) ) {
 		hprintf("DAV: 1, calendar-access\r\n");
+		syslog(LOG_DEBUG, "\033[36mDAV: 1, calendar-access\033[0m");
 	}
 	else {
 		hprintf("DAV: 1\r\n");
+		syslog(LOG_DEBUG, "\033[36mDAV: 1\033[0m");
 	}
 
 	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
 	begin_burst();
-	wc_printf("\r\n");
 	end_burst();
 }
