@@ -1,7 +1,7 @@
 /*
  * Handles DAV OPTIONS requests (experimental -- not required by GroupDAV)
  *
- * Copyright (c) 2005-2010 by the citadel.org team
+ * Copyright (c) 2005-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ void dav_options(void)
 		syslog(LOG_DEBUG, "\033[36mDAV: 1\033[0m");
 	}
 
-	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
+	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT, REPORT\r\n");
 	begin_burst();
 	end_burst();
 }

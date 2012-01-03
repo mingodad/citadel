@@ -714,7 +714,8 @@ const char *ReqStrs[eNONE] = {
 	"DELETE",
 	"HEAD",
 	"MOVE",
-	"COPY"
+	"COPY",
+	"REPORT"
 };
 
 void
@@ -760,6 +761,10 @@ ServerStartModule_CONTEXT
 	v = malloc(sizeof(long));
 	*v = eCOPY;
 	Put(HttpReqTypes, HKEY("COPY"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = eREPORT;
+	Put(HttpReqTypes, HKEY("REPORT"), v, NULL);
 }
 
 void 

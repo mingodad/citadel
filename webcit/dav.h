@@ -17,6 +17,7 @@ void dav_put(void);
 void dav_delete(void);
 void dav_propfind(void);
 void dav_options(void);
+void dav_report(void);
 
 long locate_message_by_uid(const char *);
 void dav_folder_list(void);
