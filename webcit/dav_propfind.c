@@ -10,6 +10,26 @@
  *     This makes it difficult to read, but we have discovered clients which
  *     crash when you try to pretty it up.
  *
+ * References:
+ * http://www.ietf.org/rfc/rfc4791.txt
+ * http://blogs.nologin.es/rickyepoderi/index.php?/archives/14-Introducing-CalDAV-Part-I.html
+
+Sample query:
+
+PROPFIND /groupdav/calendar/ HTTP/1.1
+Content-type: text/xml; charset=utf-8
+Content-length: 166
+
+<?xml version="1.0" encoding="UTF-8"?>
+<D:propfind xmlns:D="DAV:">
+  <D:prop>
+    <D:getcontenttype/>
+    <D:resourcetype/>
+    <D:getetag/>
+  </D:prop>
+</D:propfind>
+
+ *
  * Copyright (c) 2005-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
@@ -425,11 +445,11 @@ void dav_collection_list(void)
 
 
 void propfind_xml_start(void *data, const char *supplied_el, const char **attr) {
-	syslog(LOG_DEBUG, "<%s>", supplied_el);
+	// syslog(LOG_DEBUG, "<%s>", supplied_el);
 }
 
 void propfind_xml_end(void *data, const char *supplied_el) {
-	syslog(LOG_DEBUG, "</%s>", supplied_el);
+	// syslog(LOG_DEBUG, "</%s>", supplied_el);
 }
 
 
@@ -496,6 +516,10 @@ void dav_propfind(void)
 	dav_uid = NewStrBuf();
 	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
 	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
+
+	syslog(LOG_DEBUG, "PROPFIND requested for '%s' at depth %d",
+		ChrPtr(dav_roomname), WCC->Hdr->HR.dav_depth
+	);
 
 	/*
 	 * If the room name is blank, the client is requesting a folder list.
@@ -592,13 +616,16 @@ void dav_propfind(void)
 
 
 	/*
-	 * We got to this point, which means that the client is requesting
-	 * a 'collection' (i.e. a list of all items in the room).
+	 * If we get to this point the client is performing a PROPFIND on the room itself.
+	 *
+	 * We call it a room; DAV calls it a "collection."  We have to give it some properties
+	 * of the room itself and then offer a list of all items contained therein.
 	 *
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about (which is going to simply be the ETag and
 	 * nothing else).  Let the client-side parser sort it out.
 	 */
+	//syslog(LOG_DEBUG, "BE RUDE AND IGNORE: \033[31m%s\033[0m", ChrPtr(WC->upload) );
 	hprintf("HTTP/1.0 207 Multi-Status\r\n");
 	dav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
@@ -609,36 +636,36 @@ void dav_propfind(void)
 	begin_burst();
 
 	wc_printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     		"<multistatus "
-			"xmlns=\"DAV:\" "
+     		"<D:multistatus "
+			"xmlns:D=\"DAV:\" "
 			"xmlns:G=\"http://groupdav.org/\" "
-			"xmlns:CALDAV=\"urn:ietf:params:xml:ns:caldav\""
+			"xmlns:C=\"urn:ietf:params:xml:ns:caldav\""
 		">"
 	);
 
-	/* Transmit the collection resource (FIXME check depth and starting point) */
-	wc_printf("<response>");
+	/* Transmit the collection resource */
+	wc_printf("<D:response>");
 
-	wc_printf("<href>");
+	wc_printf("<D:href>");
 	dav_identify_host();
 	wc_printf("/groupdav/");
 	urlescputs(ChrPtr(WCC->CurRoom.name));
-	wc_printf("</href>");
+	wc_printf("</D:href>");
 
-	wc_printf("<propstat>");
-	wc_printf("<status>HTTP/1.1 200 OK</status>");
-	wc_printf("<prop>");
-	wc_printf("<displayname>");
+	wc_printf("<D:propstat>");
+	wc_printf("<D:status>HTTP/1.1 200 OK</D:status>");
+	wc_printf("<D:prop>");
+	wc_printf("<D:displayname>");
 	escputs(ChrPtr(WCC->CurRoom.name));
-	wc_printf("</displayname>");
+	wc_printf("</D:displayname>");
 
-	wc_printf("<owner/>");		/* empty owner ought to be legal; see rfc3744 section 5.1 */
+	wc_printf("<D:owner/>");		/* empty owner ought to be legal; see rfc3744 section 5.1 */
 
-	wc_printf("<resourcetype><collection/>");
+	wc_printf("<D:resourcetype><D:collection/>");
 	switch(WCC->CurRoom.defview) {
 		case VIEW_CALENDAR:
 			wc_printf("<G:vevent-collection />");
-			wc_printf("<CALDAV:calendar />");
+			wc_printf("<C:calendar />");
 			break;
 		case VIEW_TASKS:
 			wc_printf("<G:vtodo-collection />");
@@ -647,90 +674,92 @@ void dav_propfind(void)
 			wc_printf("<G:vcard-collection />");
 			break;
 	}
-	wc_printf("</resourcetype>");
+	wc_printf("</D:resourcetype>");
 
 	/* FIXME get the mtime
-	wc_printf("<getlastmodified>");
+	wc_printf("<D:getlastmodified>");
 		escputs(datestring);
-	wc_printf("</getlastmodified>");
+	wc_printf("</D:getlastmodified>");
 	*/
-	wc_printf("</prop>");
-	wc_printf("</propstat>");
-	wc_printf("</response>");
+	wc_printf("</D:prop>");
+	wc_printf("</D:propstat>");
+	wc_printf("</D:response>");
 
-	/* Transmit the collection listing (FIXME check depth and starting point) */
+	/* If a depth greater than zero was specified, transmit the collection listing */
 
-	MsgNum = NewStrBuf();
-	serv_puts("MSGS ALL");
-
-	StrBuf_ServGetln(MsgNum);
-	if (GetServerStatus(MsgNum, NULL) == 1)
-		while (BufLen = StrBuf_ServGetln(MsgNum), 
-		       ((BufLen >= 0) && 
-			((BufLen != 3) || strcmp(ChrPtr(MsgNum), "000"))  ))
-		{
-			msgs = realloc(msgs, ++num_msgs * sizeof(long));
-			msgs[num_msgs-1] = StrTol(MsgNum);
-		}
-
-	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
-
-		syslog(LOG_DEBUG, "PROPFIND enumerating message # %ld", msgs[i]);
-		strcpy(uid, "");
-		now = (-1);
-		serv_printf("MSG0 %ld|3", msgs[i]);
+	if (WCC->Hdr->HR.dav_depth > 0) {
+		MsgNum = NewStrBuf();
+		serv_puts("MSGS ALL");
+	
 		StrBuf_ServGetln(MsgNum);
 		if (GetServerStatus(MsgNum, NULL) == 1)
 			while (BufLen = StrBuf_ServGetln(MsgNum), 
-			       ((BufLen >= 0) && 
-				((BufLen != 3) || strcmp(ChrPtr(MsgNum), "000")) ))
+		       	((BufLen >= 0) && 
+				((BufLen != 3) || strcmp(ChrPtr(MsgNum), "000"))  ))
 			{
-				if (!strncasecmp(ChrPtr(MsgNum), "exti=", 5)) {
-					strcpy(uid, &ChrPtr(MsgNum)[5]);
+				msgs = realloc(msgs, ++num_msgs * sizeof(long));
+				msgs[num_msgs-1] = StrTol(MsgNum);
+			}
+	
+		if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
+	
+			syslog(LOG_DEBUG, "PROPFIND enumerating message # %ld", msgs[i]);
+			strcpy(uid, "");
+			now = (-1);
+			serv_printf("MSG0 %ld|3", msgs[i]);
+			StrBuf_ServGetln(MsgNum);
+			if (GetServerStatus(MsgNum, NULL) == 1)
+				while (BufLen = StrBuf_ServGetln(MsgNum), 
+			       	((BufLen >= 0) && 
+					((BufLen != 3) || strcmp(ChrPtr(MsgNum), "000")) ))
+				{
+					if (!strncasecmp(ChrPtr(MsgNum), "exti=", 5)) {
+						strcpy(uid, &ChrPtr(MsgNum)[5]);
+					}
+					else if (!strncasecmp(ChrPtr(MsgNum), "time=", 5)) {
+						now = atol(&ChrPtr(MsgNum)[5]);
 				}
-				else if (!strncasecmp(ChrPtr(MsgNum), "time=", 5)) {
-					now = atol(&ChrPtr(MsgNum)[5]);
+			}
+	
+			if (!IsEmptyStr(uid)) {
+				wc_printf("<D:response>");
+					wc_printf("<D:href>");
+						dav_identify_host();
+						wc_printf("/groupdav/");
+						urlescputs(ChrPtr(WCC->CurRoom.name));
+						euid_escapize(encoded_uid, uid);
+						wc_printf("/%s", encoded_uid);
+					wc_printf("</D:href>");
+					switch(WCC->CurRoom.defview) {
+					case VIEW_CALENDAR:
+						wc_printf("<D:getcontenttype>text/x-ical</D:getcontenttype>");
+						break;
+					case VIEW_TASKS:
+						wc_printf("<D:getcontenttype>text/x-ical</D:getcontenttype>");
+						break;
+					case VIEW_ADDRESSBOOK:
+						wc_printf("<D:getcontenttype>text/x-vcard</D:getcontenttype>");
+						break;
+					}
+					wc_printf("<D:propstat>");
+						wc_printf("<D:status>HTTP/1.1 200 OK</D:status>");
+						wc_printf("<D:prop>");
+							wc_printf("<D:getetag>\"%ld\"</D:getetag>", msgs[i]);
+						if (now > 0L) {
+							http_datestring(datestring, sizeof datestring, now);
+							wc_printf("<D:getlastmodified>");
+							escputs(datestring);
+							wc_printf("</D:getlastmodified>");
+						}
+						wc_printf("</D:prop>");
+					wc_printf("</D:propstat>");
+				wc_printf("</D:response>");
 			}
 		}
-
-		if (!IsEmptyStr(uid)) {
-			wc_printf("<response>");
-				wc_printf("<href>");
-					dav_identify_host();
-					wc_printf("/groupdav/");
-					urlescputs(ChrPtr(WCC->CurRoom.name));
-					euid_escapize(encoded_uid, uid);
-					wc_printf("/%s", encoded_uid);
-				wc_printf("</href>");
-				switch(WCC->CurRoom.defview) {
-				case VIEW_CALENDAR:
-					wc_printf("<getcontenttype>text/x-ical</getcontenttype>");
-					break;
-				case VIEW_TASKS:
-					wc_printf("<getcontenttype>text/x-ical</getcontenttype>");
-					break;
-				case VIEW_ADDRESSBOOK:
-					wc_printf("<getcontenttype>text/x-vcard</getcontenttype>");
-					break;
-				}
-				wc_printf("<propstat>");
-					wc_printf("<status>HTTP/1.1 200 OK</status>");
-					wc_printf("<prop>");
-						wc_printf("<getetag>\"%ld\"</getetag>", msgs[i]);
-					if (now > 0L) {
-						http_datestring(datestring, sizeof datestring, now);
-						wc_printf("<getlastmodified>");
-						escputs(datestring);
-						wc_printf("</getlastmodified>");
-					}
-					wc_printf("</prop>");
-				wc_printf("</propstat>");
-			wc_printf("</response>");
-		}
+		FreeStrBuf(&MsgNum);
 	}
-	FreeStrBuf(&MsgNum);
 
-	wc_printf("</multistatus>\n");
+	wc_printf("</D:multistatus>\n");
 	end_burst();
 
 	if (msgs != NULL) {
