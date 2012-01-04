@@ -98,8 +98,12 @@ void cleanup(int e)
 
 	alarm(30);
 	signal(SIGALRM, nq_cleanup);
-	serv_write(ipc, "\n", 1);
-	if (nested++ < 1)
+	if ((ipc != NULL) && 
+	    (ipc->sock > 0))
+		serv_write(ipc, "\n", 1);
+	if ((nested++ < 1) &&
+	    (ipc != NULL) &&
+	    (ipc->sock > 0))
 		CtdlIPCQuit(ipc);
 	nq_cleanup(e);
 }
