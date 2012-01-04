@@ -52,7 +52,6 @@ void delete_init_entry(char *which_entry)
 	char levels[SIZ];
 	char state[SIZ];
 	char prog[SIZ];
-	int rv;
 
 	inittab = strdup("");
 	if (inittab == NULL) return;
@@ -84,7 +83,7 @@ void delete_init_entry(char *which_entry)
 	fclose(fp);
 	fp = fopen("/etc/inittab", "w");
 	if (fp != NULL) {
-		rv = fwrite(inittab, strlen(inittab), 1, fp);
+		fwrite(inittab, strlen(inittab), 1, fp);
 		fclose(fp);
 		kill(1, SIGHUP);	/* Tell init to re-read /etc/inittab */
 	}
@@ -213,7 +212,6 @@ void set_value(char *prompt, char str[])
 	char dialog_result[PATH_MAX];
 	char setupmsg[SIZ];
 	FILE *fp;
-	int rv;
 
 	strcpy(setupmsg, "");
 
@@ -236,7 +234,7 @@ void set_value(char *prompt, char str[])
 			prompt,
 			str,
 			dialog_result);
-		rv = system(buf);
+		system(buf);
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
 			if (fgets(str, sizeof buf, fp)){
@@ -263,8 +261,6 @@ int GetLocalePrefs(void)
 	FILE *fp;
 	int i = 0;
 	int offs = 0;
-	int rv;
-
 
 	nLocales = 0; 
 	while (!IsEmptyStr(AvailLang[nLocales]))
@@ -299,7 +295,7 @@ int GetLocalePrefs(void)
 			ChrPtr(Buf),
 			0L,
 			dialog_result);
-		rv = system(buf);
+		system(buf);
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
 			char *str = &buf[0];
@@ -321,7 +317,6 @@ int GetLocalePrefs(void)
 void important_message(char *title, char *msgtext)
 {
 	char buf[SIZ];
-	int rv;
 
 	switch (setup_type) {
 
@@ -336,7 +331,7 @@ void important_message(char *title, char *msgtext)
 		sprintf(buf, "exec %s --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
 			msgtext);
-		rv = system(buf);
+		system(buf);
 		break;
 	}
 }
@@ -432,7 +427,6 @@ void install_init_scripts(void)
 	struct stat etcinitd;
 	FILE *fp;
 	char *initfile = "/etc/init.d/webcit";
-	int rv;
 
 	fp = fopen(initfile, "r");
 	if (fp != NULL) {
@@ -634,11 +628,11 @@ void install_init_scripts(void)
 	chmod(initfile, 0755);
 
 	/* Set up the run levels. */
-	rv = system("/bin/rm -f /etc/rc?.d/[SK]??webcit 2>/dev/null");
+	system("/bin/rm -f /etc/rc?.d/[SK]??webcit 2>/dev/null");
 	snprintf(command, sizeof(command), "for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/S84webcit ; done 2>/dev/null", initfile);
-	rv = system(command);
+	system(command);
 	snprintf(command, sizeof(command), "for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/K15webcit ; done 2>/dev/null", initfile);
-	rv = system(command);
+	system(command);
 
 }
 
@@ -668,7 +662,6 @@ int main(int argc, char *argv[])
 	int a;
 	char aaa[256];
 	int info_only = 0;
-	int rv;
 
 	strcpy(suggested_url, "http://<your_host_name>:<port>/");
 
@@ -747,8 +740,8 @@ int main(int argc, char *argv[])
 		install_init_scripts();
 
 		if (!access("/etc/init.d/webcit", X_OK)) {
-			rv = system("/etc/init.d/webcit stop");
-			rv = system("/etc/init.d/webcit start");
+			system("/etc/init.d/webcit stop");
+			system("/etc/init.d/webcit start");
 		}
 
 		sprintf(aaa,

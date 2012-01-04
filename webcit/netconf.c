@@ -79,7 +79,6 @@ HashList *load_netconf(StrBuf *Target, WCTemplputParams *TP)
 	char nnn[64];
 	char buf[SIZ];
 	int nUsed;
-	long len;
 	NodeConf *Node;
 
 	serv_puts("CONF getsys|application/x-citadel-ignet-config");
@@ -88,7 +87,7 @@ HashList *load_netconf(StrBuf *Target, WCTemplputParams *TP)
 		Hash = NewHash(1, NULL);
 
 		Buf = NewStrBuf();
-		while (len = StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			Node = NewNode(Buf);
 			if (Node != NULL) {
 				nUsed = GetCount(Hash);

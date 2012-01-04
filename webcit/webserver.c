@@ -86,7 +86,6 @@ int main(int argc, char **argv)
 	const char *basedir = NULL;
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
 	const char *I18nDumpFile = NULL;
-	int rv = 0;
 
 	WildFireInitBacktrace(argv[0], 2);
 
@@ -274,7 +273,7 @@ int main(int argc, char **argv)
 			syslog(1, "***********************************************\n");
 			return -1;
 		}
-		rv = fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
+		fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
 		fclose(fd);
 		return 0;
 	}

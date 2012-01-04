@@ -331,8 +331,6 @@ void start_daemon(char *pid_file)
 	pid_t child = 0;
 	FILE *fp;
 	int do_restart = 0;
-	int rv;
-	FILE *rvfp = NULL;
 
 	current_child = 0;
 
@@ -340,7 +338,7 @@ void start_daemon(char *pid_file)
 	 * We don't just call close() because we don't want these fd's
 	 * to be reused for other files.
 	 */
-	rv = chdir("/");
+	chdir("/");
 
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
@@ -353,9 +351,9 @@ void start_daemon(char *pid_file)
 
 	setsid();
 	umask(0);
-	rvfp = freopen("/dev/null", "r", stdin);
-	rvfp = freopen("/dev/null", "w", stdout);
-	rvfp = freopen("/dev/null", "w", stderr);
+	freopen("/dev/null", "r", stdin);
+	freopen("/dev/null", "w", stdout);
+	freopen("/dev/null", "w", stderr);
 	signal(SIGTERM, graceful_shutdown_watcher);
 	signal(SIGHUP, graceful_shutdown_watcher);
 

@@ -170,8 +170,15 @@ void dav_main(void)
 	case eDELETE:
 		dav_delete();
 		break;
-	default:
 
+	/*
+	 * The REPORT method tells us that Mike Shaver is a self-righteous asshole.
+	 */
+	case eREPORT:
+		dav_report();
+		break;
+
+	default:
 	/*
 	 * Couldn't find what we were looking for.  Die in a car fire.
 	 */
