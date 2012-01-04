@@ -25,7 +25,6 @@
 #include "webcit.h"
 #include "webserver.h"
 
-extern int DisableGzip;
 long MaxRead = -1; /* should we do READ scattered or all at once? */
 
 /*

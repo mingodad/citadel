@@ -1,5 +1,5 @@
 /*
- * Handles GroupDAV PROPFIND requests.
+ * Handles GroupDAV and CalDAV PROPFIND requests.
  *
  * A few notes about our XML output:
  *
@@ -10,7 +10,7 @@
  *     This makes it difficult to read, but we have discovered clients which
  *     crash when you try to pretty it up.
  *
- * Copyright (c) 2005-2011 by the citadel.org team
+ * Copyright (c) 2005-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -19,14 +19,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
  */
 
 #include "webcit.h"
 #include "webserver.h"
 #include "dav.h"
-
-extern int DisableGzip;
 
 /*
  * Given an encoded UID, translate that to an unencoded Citadel EUID and
