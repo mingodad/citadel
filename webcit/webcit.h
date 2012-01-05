@@ -799,6 +799,7 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 #define WC_TIMEFORMAT_24 2
 
 extern int time_to_die;			/* Nonzero if server is shutting down */
+extern int DisableGzip;
 
 /* 
  * Array type for a blog post.  The first message is the post; the rest are comments

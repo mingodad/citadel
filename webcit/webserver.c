@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -236,7 +230,7 @@ int main(int argc, char **argv)
 
 	/* Tell 'em who's in da house */
 	syslog(1, "%s", PACKAGE_STRING);
-	syslog(1, "Copyright (C) 1996-2011 by the citadel.org team");
+	syslog(1, "Copyright (C) 1996-2012 by the citadel.org team");
 	syslog(1, " ");
 	syslog(1, "This program is open source software: you can redistribute it and/or");
 	syslog(1, "modify it under the terms of the GNU General Public License as published");
