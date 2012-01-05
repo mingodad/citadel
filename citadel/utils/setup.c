@@ -919,7 +919,8 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 		}
 		break;
 	case UI_SILENT:
-		strcpy(Target, DefValue);
+		if (*DefValue != '\0')
+			strcpy(Target, DefValue);
 		break;
 	}
 }
