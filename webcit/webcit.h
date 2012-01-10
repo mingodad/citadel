@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -135,9 +133,9 @@ extern char *ssl_cipher_list;
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		802		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	802		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		802		/* min required libcitadel ver */
+#define CLIENT_VERSION		804		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	804		/* min required Citadel ver */
+#define	LIBCITADEL_MIN		804		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Target for inline URL's */
