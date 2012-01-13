@@ -276,7 +276,6 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	char remoteurl[SIZ];
 	char *FreeMe = NULL;
 	char *PagerNo;
-	CitContext *SubC;
 
 	Ctx = (NotifyContext*) usrdata;
 

@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
 	struct passwd *p;
 	int uid;
 	char ctdldir[PATH_MAX]=CTDLDIR;
-	char *ptr;
+	char *ptr = NULL;
 	
 	calc_dirs_n_files(0,0,"", ctdldir, 0);
 	

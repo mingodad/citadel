@@ -1,21 +1,15 @@
 /*
  * Command-line utility to transmit a server command.
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "ctdl_module.h"
@@ -71,15 +65,8 @@ void nq_cleanup(int e)
 void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 {
 	unsigned int bytes_written = 0;
-	int retval;
-/*
-#if defined(HAVE_OPENSSL)
-	if (ipc->ssl) {
-		serv_write_ssl(ipc, buf, nbytes);
-		return;
-	}
-#endif
-*/
+	int retval = 0;
+
 	while (bytes_written < nbytes) {
 		retval = write(ipc->sock, &buf[bytes_written],
 			       nbytes - bytes_written);
@@ -179,19 +166,19 @@ int main(int argc, char **argv)
 	for (a = 1; a < argc; ++a) {
 		if (!strncmp(argv[a], "-h", 2)) {
 			relh=argv[a][2]!='/';
-			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2],
-								   sizeof ctdl_home_directory);
-			else
-				safestrncpy(relhome, &argv[a][2],
-							sizeof relhome);
+			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2], sizeof ctdl_home_directory);
+			else {
+				safestrncpy(relhome, &argv[a][2], sizeof relhome);
+			}
 			home=1;
 		} else if (!strncmp(argv[a], "-w", 2)) {
 			watchdog = atoi(&argv[a][2]);
 			if (watchdog<1)
 				watchdog=1;
 		} else {
-			if (!IsEmptyStr(cmd))
+			if (!IsEmptyStr(cmd)) {
 				strcat(cmd, " ");
+			}
 			strcat(cmd, argv[a]);
 		}
 	}

@@ -1,21 +1,15 @@
 /*
  * citadel_dirs.c : calculate pathnames for various files used in the Citadel system
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 3.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <unistd.h>
 #include <stdio.h>
@@ -23,7 +17,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
-
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -79,6 +72,7 @@ char file_lmtp_socket[PATH_MAX]="";
 char file_lmtp_unfiltered_socket[PATH_MAX]="";
 char file_arcq[PATH_MAX]="";
 char file_citadel_socket[PATH_MAX]="";
+char file_citadel_admin_socket[PATH_MAX]="";
 char file_mail_aliases[PATH_MAX]="";
 char file_pid_file[PATH_MAX]="";
 char file_pid_paniclog[PATH_MAX]="";
@@ -264,6 +258,11 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 				"%scitadel.socket",
 			 ctdl_run_dir);
 	StripSlashes(file_citadel_socket, 0);
+	snprintf(file_citadel_admin_socket, 
+			 sizeof file_citadel_admin_socket,
+				"%scitadel-admin.socket",
+			 ctdl_run_dir);
+	StripSlashes(file_citadel_admin_socket, 0);
 	snprintf(file_pid_file, 
 		 sizeof file_pid_file,
 		 "%scitadel.pid",
