@@ -1721,6 +1721,7 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 void mimepart(int force_download)
 {
 	long msgnum;
+	long ErrorDetail;
 	StrBuf *att;
 	wcsession *WCC = WC;
 	StrBuf *Buf;
@@ -1734,7 +1735,7 @@ void mimepart(int force_download)
 
 	serv_printf("OPNA %ld|%s", msgnum, ChrPtr(att));
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 2) {
+	if (GetServerStatus(Buf, &ErrorDetail) == 2) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
 		if (!force_download) {
@@ -1758,7 +1759,23 @@ void mimepart(int force_download)
 		http_transmit_thing(CT, 0);
 	} else {
 		StrBufCutLeft(Buf, 4);
-		hprintf("HTTP/1.1 404 %s\n", ChrPtr(Buf));
+		switch (ErrorDetail) {
+		default:
+		case ERROR + MESSAGE_NOT_FOUND:
+			hprintf("HTTP/1.1 404 %s\n", ChrPtr(Buf));
+			break;
+		case ERROR + NOT_LOGGED_IN:
+			hprintf("HTTP/1.1 401 %s\n", ChrPtr(Buf));
+			break;
+
+		case ERROR + HIGHER_ACCESS_REQUIRED:
+			hprintf("HTTP/1.1 403 %s\n", ChrPtr(Buf));
+			break;
+		case ERROR + INTERNAL_ERROR:
+		case ERROR + TOO_BIG:
+			hprintf("HTTP/1.1 500 %s\n", ChrPtr(Buf));
+			break;
+		}
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
