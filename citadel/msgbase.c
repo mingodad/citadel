@@ -1084,26 +1084,37 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 		   char *encoding, char *cbid, void *cbuserdata)
 {
 	int rv = 0;
+	CitContext *CCC = MyContext();
 
 	/* Silently go away if there's already a download open. */
-	if (CC->download_fp != NULL)
+	if (CCC->download_fp != NULL)
 		return;
 
 	if (
-		(!IsEmptyStr(partnum) && (!strcasecmp(CC->download_desired_section, partnum)))
-	||	(!IsEmptyStr(cbid) && (!strcasecmp(CC->download_desired_section, cbid)))
+		(!IsEmptyStr(partnum) && (!strcasecmp(CCC->download_desired_section, partnum)))
+	||	(!IsEmptyStr(cbid) && (!strcasecmp(CCC->download_desired_section, cbid)))
 	) {
-		CC->download_fp = tmpfile();
-		if (CC->download_fp == NULL)
-			return;
-	
-		rv = fwrite(content, length, 1, CC->download_fp);
-		if (rv == -1) {
+		CCC->download_fp = tmpfile();
+		if (CCC->download_fp == NULL) {
 			syslog(LOG_EMERG, "mime_download(): Couldn't write: %s\n",
 			       strerror(errno));
+			cprintf("%d cannot open temporary file: %s\n",
+				ERROR + INTERNAL_ERROR, strerror(errno));
+			return;
 		}
-		fflush(CC->download_fp);
-		rewind(CC->download_fp);
+	
+		rv = fwrite(content, length, 1, CC->download_fp);
+		if (rv <= 0) {
+			syslog(LOG_EMERG, "mime_download(): Couldn't write: %s\n",
+			       strerror(errno));
+			cprintf("%d unable to write tempfile.\n",
+				ERROR + TOO_BIG);
+			fclose(CCC->download_fp);
+			CCC->download_fp = NULL;
+			return;
+		}
+		fflush(CCC->download_fp);
+		rewind(CCC->download_fp);
 	
 		OpenCmdResult(filename, cbtype);
 	}
