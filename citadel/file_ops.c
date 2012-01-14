@@ -156,7 +156,6 @@ void cmd_movf(char *cmdbuf)
 	char buf[PATH_MAX];
 	int a;
 	struct ctdlroom qrbuf;
-	int rv = 0;
 
 	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
 	extract_token(newroom, cmdbuf, 1, '|', sizeof newroom);
@@ -210,7 +209,7 @@ void cmd_movf(char *cmdbuf)
 	snprintf(buf, sizeof buf,
 		 "cat ./files/%s/filedir |grep \"%s\" >>./files/%s/filedir",
 		 CC->room.QRdirname, filename, qrbuf.QRdirname);
-	rv = system(buf);
+	system(buf);
 	cprintf("%d File '%s' has been moved.\n", CIT_OK, filename);
 }
 

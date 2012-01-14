@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 	}
 	
 	/*
-	 * Bind the server to a Unix-domain socket.
+	 * Bind the server to a Unix-domain socket (user client access)
 	 */
 	CtdlRegisterServiceHook(0,
 				file_citadel_socket,
@@ -287,6 +287,17 @@ int main(int argc, char **argv)
 				do_command_loop,
 				do_async_loop,
 				CitadelServiceUDS);
+
+	/*
+	 * Bind the server to a Unix-domain socket (admin client access)
+	 */
+	CtdlRegisterServiceHook(0,
+				file_citadel_admin_socket,
+				citproto_begin_session,
+				do_command_loop,
+				do_async_loop,
+				CitadelServiceUDS);
+	chmod(file_citadel_admin_socket, S_IRWXU);	/* for your eyes only */
 
 	/*
 	 * Bind the server to our favorite TCP port (usually 504).
