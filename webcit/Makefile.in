@@ -22,7 +22,13 @@ HEADERS=calendar.h  dav.h  messages.h  modules_init.h  paramhandling.h  preferen
 
 # End of configuration section
 
-all: all-progs-recursive webcit setup
+all: buildinfo all-progs-recursive webcit setup
+
+buildinfo:
+	echo
+	echo Compiler: 	$(CC) $(CFLAGS) $(DEFS) $(PTHREAD_DEFS) -c -o $@
+	echo Linker: 	$(CC) $(LDFLAGS) $(LIBOBJS) 	$(LIBS)
+	echo
 
 # for VPATH builds (invoked by configure)
 mkdir-init:
@@ -61,6 +67,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	decode.o modules_init.o paramhandling.o utils.o \
 	ical_maps.o ical_subst.o static.o feed_generator.o \
 	$(LIBOBJS)
+	echo LD: webcit
 	$(CC) $(LDFLAGS) -o webcit $(LIBOBJS) \
 	webserver.o context_loop.o cookie_conversion.o marchlist.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \

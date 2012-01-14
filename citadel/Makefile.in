@@ -24,7 +24,7 @@ HELP_DIR=@MAKE_HELP_DIR@
 DOC_DIR=@MAKE_DOC_DIR@
 UTILBIN_DIR=@MAKE_UTILBIN_DIR@
 DEPEND_FLAG=@DEPEND_FLAG@
-all: $(TARGETS)
+all: buildinfo $(TARGETS)
 
 .SUFFIXES: .o .d .c
 
@@ -450,5 +450,12 @@ $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 
 $(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
+
+buildinfo:
+	echo
+	echo "Dependencies: $(CC) $(DEPEND_FLAG) $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*/.o $@!' > $@"
+	echo "Complie: $(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@ "
+	echo "LDFLAGS: $(LDFLAGS)"
+	echo
 
 -include $(DEP_FILES)

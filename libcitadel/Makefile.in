@@ -35,11 +35,17 @@ LIBRARY = libcitadel.la
 
 DESTDIR = $(INSTALL_ROOT)
 
-default:  buildlib
+default: buildinfo buildlib
 
 buildlib: $(LIBRARY)
 
-all: $(LIBRARY)
+all: buildinfo $(LIBRARY)
+
+buildinfo:
+	echo
+	echo LTCompile:	$(LTCOMPILE) -o $@ -c
+	echo
+
 
 libcitadel.pc: $(top_builddir)/config.status libcitadel.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -57,7 +63,9 @@ install-pkgconfigDATA: $(pkgconfig_DATA)
 
 
 clean:
+	echo "Cleaning: $(LIBRARY) *.o *.lo *.gcda *.gcov *.gcno"
 	cd lib && rm -f $(LIBRARY) *.o *.lo *.gcda *.gcov *.gcno
+	echo "Cleaning: $(LIBRARY) .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs xdgmime/*.gcda xdgmime/*.gcov xdgmime/*.gcno"
 	cd lib && rm -rf .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs xdgmime/*.gcda xdgmime/*.gcov xdgmime/*.gcno
 	rm -rf .libs libcitadel.la
 
@@ -147,10 +155,13 @@ lib/html_to_ascii.lo: lib/html_to_ascii.c
 .SUFFIXES: .c .cpp .lo .o
 
 .cpp.o:
+	echo "CC+ $<"
 	$(CXXCOMPILE) -o $@ -c $<
 .c.o:
+	echo "CC $<"
 	$(COMPILE) -o $@ -c $<
 .c.lo:
+	echo "CC: $<"
 	$(LTCOMPILE) -o $@ -c $<
 
 .PHONY: buildlib all \
@@ -158,7 +169,7 @@ lib/html_to_ascii.lo: lib/html_to_ascii.c
 	dist distdir \
 	install uninstall
 
-
+.SILENT:
 
 
 #
