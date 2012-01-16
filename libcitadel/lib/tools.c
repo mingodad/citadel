@@ -875,6 +875,24 @@ char *strcpy(char *dest, const char *src) {
  */
 void generate_uuid(char *buf) {
 	static int seq = (-1);
+	static int no_kernel_uuid = 0;
+
+	/* If we are running on Linux then we have a kernelspace uuid generator available */
+
+	if (no_kernel_uuid == 0) {
+		FILE *fp;
+		fp = fopen("/proc/sys/kernel/random/uuid", "rb");
+		if (fp) {
+			int rv;
+			rv = fread(buf, 36, 1, fp);
+			fclose(fp);
+			if (rv == 1) return;
+		}
+	}
+
+	/* If the kernel didn't provide us with a uuid, we generate a pseudo-random one */
+
+	no_kernel_uuid = 1;
 
 	if (seq == (-1)) {
 		seq = (int)rand();
