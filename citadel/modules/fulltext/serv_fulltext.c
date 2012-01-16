@@ -143,7 +143,7 @@ void ft_index_message(long msgnum, int op) {
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	syslog(LOG_DEBUG, "Wordbreaking message %ld...", msgnum);
-	if (StrLength(CC->redirect_buffer) == 0) {
+	if ((msgtext == NULL) || (StrLength(msgtext) == 0)) {
 		syslog(LOG_ALERT, "This message has a zero length.  Probable data corruption.");
 	}
 	txt = SmashStrBuf(&msgtext);
