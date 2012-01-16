@@ -71,6 +71,17 @@ static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 static DB_ENV *dbenv;		/* The DB environment (global) */
 
 
+void cdb_abort(void) {
+	syslog(LOG_DEBUG,
+		"citserver is stopping in order to prevent data loss. uid=%d gid=%d euid=%d egid=%d",
+		getuid(),
+		getgid(),
+		geteuid(),
+		getegid()
+	);
+	exit(CTDLEXIT_DB);
+}
+
 
 /* Verbose logging callback */
 void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
@@ -97,7 +108,7 @@ static void txabort(DB_TXN * tid)
 
 	if (ret) {
 		syslog(LOG_EMERG, "bdb(): txn_abort: %s", db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 }
 
@@ -110,7 +121,7 @@ static void txcommit(DB_TXN * tid)
 
 	if (ret) {
 		syslog(LOG_EMERG, "bdb(): txn_commit: %s", db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 }
 
@@ -123,7 +134,7 @@ static void txbegin(DB_TXN ** tid)
 
 	if (ret) {
 		syslog(LOG_EMERG, "bdb(): txn_begin: %s", db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 }
 
@@ -138,7 +149,7 @@ static void cclose(DBC * cursor)
 
 	if ((ret = cursor->c_close(cursor))) {
 		syslog(LOG_EMERG, "bdb(): c_close: %s", db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 }
 
@@ -149,7 +160,7 @@ static void bailIfCursor(DBC ** cursors, const char *msg)
 	for (i = 0; i < MAXCDB; i++)
 		if (cursors[i] != NULL) {
 			syslog(LOG_EMERG, "bdb(): cursor still in progress on cdb %02x: %s", i, msg);
-			abort();
+			cdb_abort();
 		}
 }
 
@@ -160,7 +171,7 @@ void cdb_check_handles(void)
 
 	if (TSD->tid != NULL) {
 		syslog(LOG_EMERG, "bdb(): transaction still in progress!");
-		abort();
+		cdb_abort();
 	}
 }
 
@@ -226,7 +237,7 @@ void cdb_checkpoint(void)
 
 	if (ret != 0) {
 		syslog(LOG_EMERG, "cdb_checkpoint: txn_checkpoint: %s", db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 
 	/* After a successful checkpoint, we can cull the unused logs */
@@ -500,7 +511,7 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 		       (const Bytef *) compressed_data,
 		       (uLong) sourceLen) != Z_OK) {
 		syslog(LOG_EMERG, "uncompress() error\n");
-		abort();
+		cdb_abort();
 	}
 
 	free(cdb->ptr);
@@ -547,7 +558,7 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 			&destLen, (Bytef *) cdata, (uLongf) cdatalen, 1) != Z_OK)
 		{
 			syslog(LOG_EMERG, "compress2() error\n");
-			abort();
+			cdb_abort();
 		}
 		zheader.compressed_len = (size_t) destLen;
 		memcpy(compressed_data, &zheader, sizeof(struct CtdlCompressHeader));
@@ -563,7 +574,7 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 				    0);	/* flags */
 		if (ret) {
 			syslog(LOG_EMERG, "cdb_store(%d): %s", cdb, db_strerror(ret));
-			abort();
+			cdb_abort();
 		}
 		if (compressing)
 			free(compressed_data);
@@ -585,7 +596,7 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 				goto retry;
 			} else {
 				syslog(LOG_EMERG, "cdb_store(%d): %s", cdb, db_strerror(ret));
-				abort();
+				cdb_abort();
 			}
 		} else {
 			txcommit(tid);
@@ -595,6 +606,7 @@ int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 			return ret;
 		}
 	}
+	return ret;
 }
 
 
@@ -617,7 +629,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 		if (ret) {
 			syslog(LOG_EMERG, "cdb_delete(%d): %s\n", cdb, db_strerror(ret));
 			if (ret != DB_NOTFOUND) {
-				abort();
+				cdb_abort();
 			}
 		}
 	} else {
@@ -634,7 +646,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 			} else {
 				syslog(LOG_EMERG, "cdb_delete(%d): %s\n",
 					cdb, db_strerror(ret));
-				abort();
+				cdb_abort();
 			}
 		} else {
 			txcommit(tid);
@@ -655,7 +667,7 @@ static DBC *localcursor(int cdb)
 
 	if (ret) {
 		syslog(LOG_EMERG, "localcursor: %s\n", db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 
 	return curs;
@@ -700,7 +712,7 @@ struct cdbdata *cdb_fetch(int cdb, const void *key, int keylen)
 
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
 		syslog(LOG_EMERG, "cdb_fetch(%d): %s\n", cdb, db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 
 	if (ret != 0)
@@ -709,7 +721,7 @@ struct cdbdata *cdb_fetch(int cdb, const void *key, int keylen)
 
 	if (tempcdb == NULL) {
 		syslog(LOG_EMERG, "cdb_fetch: Cannot allocate memory for tempcdb\n");
-		abort();
+		cdb_abort();
 	}
 
 	tempcdb->len = dret.size;
@@ -756,7 +768,7 @@ void cdb_rewind(int cdb)
 	if (TSD->cursors[cdb] != NULL) {
 		syslog(LOG_EMERG,
 			"cdb_rewind: must close cursor on database %d before reopening.\n", cdb);
-		abort();
+		cdb_abort();
 		/* cclose(TSD->cursors[cdb]); */
 	}
 
@@ -766,7 +778,7 @@ void cdb_rewind(int cdb)
 	ret = dbp[cdb]->cursor(dbp[cdb], TSD->tid, &TSD->cursors[cdb], 0);
 	if (ret) {
 		syslog(LOG_EMERG, "cdb_rewind: db_cursor: %s\n", db_strerror(ret));
-		abort();
+		cdb_abort();
 	}
 }
 
@@ -791,7 +803,7 @@ struct cdbdata *cdb_next_item(int cdb)
 	if (ret) {
 		if (ret != DB_NOTFOUND) {
 			syslog(LOG_EMERG, "cdb_next_item(%d): %s\n", cdb, db_strerror(ret));
-			abort();
+			cdb_abort();
 		}
 		cdb_close_cursor(cdb);
 		return NULL;	/* presumably, end of file */
@@ -818,7 +830,7 @@ void cdb_begin_transaction(void)
 
 	if (TSD->tid != NULL) {
 		syslog(LOG_EMERG, "cdb_begin_transaction: ERROR: nested transaction\n");
-		abort();
+		cdb_abort();
 	}
 
 	txbegin(&TSD->tid);
@@ -840,7 +852,7 @@ void cdb_end_transaction(void)
 	if (TSD->tid == NULL) {
 		syslog(LOG_EMERG,
 			"cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
-		abort();
+		cdb_abort();
 	} else {
 		txcommit(TSD->tid);
 	}
@@ -859,7 +871,7 @@ void cdb_trunc(int cdb)
 
 	if (TSD->tid != NULL) {
 		syslog(LOG_EMERG, "cdb_trunc must not be called in a transaction.");
-		abort();
+		cdb_abort();
 	} else {
 		bailIfCursor(TSD->cursors, "attempt to write during r/o cursor");
 
