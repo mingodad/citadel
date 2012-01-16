@@ -1,21 +1,15 @@
 /*
  * Transparently handle the upgrading of server data formats.
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -263,7 +257,10 @@ void guess_time_zone(void) {
 
 
 /*
- * Do various things to our configuration file
+ * Perform any upgrades that can be done automatically based on our knowledge of the previous
+ * version of Citadel server that was running here.
+ *
+ * Note that if the previous version was 0 then this is a new installation running for the first time.
  */
 void update_config(void) {
 	get_config();
@@ -285,7 +282,7 @@ void update_config(void) {
 	}
 
 	if (CitControl.version < 650) {
-		config.c_enable_fulltext = 0;
+		config.c_enable_fulltext = 1;
 	}
 
 	if (CitControl.version < 652) {
