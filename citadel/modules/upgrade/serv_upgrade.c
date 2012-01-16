@@ -265,6 +265,10 @@ void guess_time_zone(void) {
 void update_config(void) {
 	get_config();
 
+	if (CitControl.version == 0) {
+		config.c_instant_expunge = 1;
+	}
+
 	if (CitControl.version < 606) {
 		config.c_rfc822_strict_from = 0;
 	}
