@@ -408,6 +408,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 					sizeof(rss_aggregator));
 
 				memset (RSSAggr, 0, sizeof(rss_aggregator));
+				RSSAggr->QRnumber = qrbuf->QRnumber;
 				RSSAggr->roomlist_parts = 1;
 				RSSAggr->Url = NewStrBuf();
 
@@ -485,15 +486,15 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
  * Scan for rooms that have RSS client requests configured
  */
 void rssclient_scan(void) {
-	static int doing_rssclient = 0;
 	rss_aggregator *rptr = NULL;
 	void *vrptr = NULL;
 	HashPos *it;
 	long len;
 	const char *Key;
+	time_t now = time(NULL);
 
 	/* Run no more than once every 15 minutes. */
-	if ((time(NULL) - last_run) < 900) {
+	if ((now - last_run) < 900) {
 		return;
 	}
 
@@ -503,8 +504,7 @@ void rssclient_scan(void) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_rssclient) return;
-	doing_rssclient = 1;
+
 	if ((GetCount(RSSQueueRooms) > 0) || (GetCount(RSSFetchUrls) > 0))
 		return;
 
@@ -526,7 +526,6 @@ void rssclient_scan(void) {
 	pthread_mutex_unlock(&RSSQueueMutex);
 
 	syslog(LOG_DEBUG, "rssclient ended\n");
-	doing_rssclient = 0;
 	return;
 }
 
