@@ -79,6 +79,7 @@ void cdb_abort(void) {
 		geteuid(),
 		getegid()
 	);
+	cit_backtrace();
 	exit(CTDLEXIT_DB);
 }
 
