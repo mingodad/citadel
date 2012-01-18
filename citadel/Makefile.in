@@ -168,8 +168,8 @@ citserver$(EXEEXT): $(SERV_OBJS)
 	echo "CC $<"
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
-aidepost$(EXEEXT): utils/aidepost.o config.o
-	$(CC) utils/aidepost.o config.o utillib/citadel_dirs.o \
+aidepost$(EXEEXT): utils/aidepost.o utillib/citadel_dirs.o
+	$(CC) utils/aidepost.o utillib/citadel_dirs.o \
 		$(LDFLAGS) -o aidepost$(EXEEXT) $(LIBS)
 
 citmail$(EXEEXT): utils/citmail.o utillib/citadel_dirs.o

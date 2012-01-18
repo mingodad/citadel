@@ -1,46 +1,26 @@
 /*
  * This is just a little hack to copy standard input to a message in Aide>
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
-
-#include "ctdl_module.h"
 
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
 #include <limits.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
 #include "citadel.h"
 #include "citadel_dirs.h"
-#include "config.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -70,8 +50,6 @@ static void ap_make_message(FILE *fp, char *target_room, char *author, char *sub
 	if (strlen(subject) > 0) {
 		fprintf(fp, "U%s%c", subject, 0);
 	}
-	fprintf(fp, "N%s", NODENAME);
-	putc(0, fp);
 	putc('M', fp);
 	bb = ftell(fp);
 	while (a = getc(stdin), a > 0) {
@@ -88,6 +66,7 @@ static void ap_make_message(FILE *fp, char *target_room, char *author, char *sub
 	putc(0, fp);
 }
 
+
 int main(int argc, char **argv)
 {
 	char tempspool[64];
@@ -97,17 +76,12 @@ int main(int argc, char **argv)
 	FILE *tempfp, *spoolfp;
 	int ch;
 	int i;
-
 	int relh=0;
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 
-	/* TODO: should we be able to calculate relative dirs? */
 	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
-
-
-	get_config();
 
 	strcpy(target_room, "Aide");
 	strcpy(author, "Citadel");
@@ -132,12 +106,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	snprintf(tempspool, sizeof tempspool,
-			 "%s/ap.%04lx",
-			 ctdl_netin_dir,
-		(long)getpid());
-
-	unlink(tempspool);
+	snprintf(tempspool, sizeof tempspool, "%s/ap.%04x.%08lx", ctdl_netin_dir, getpid(), time(NULL));
+	unlink(tempspool);	/* unlinking it for now, keeps it from being posted prematurely */
 
 	tempfp = fopen(tempspool, "w+b");
 	unlink(tempspool);
@@ -162,7 +132,5 @@ int main(int argc, char **argv)
 	}
 
 	fclose(tempfp);
-	fclose(spoolfp);
-
-	exit(0);
+	return(fclose(spoolfp));
 }
