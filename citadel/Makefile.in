@@ -42,7 +42,7 @@ UTIL_TARGETS=citmail$(EXEEXT) sendcommand$(EXEEXT)
 
 UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
 	chkpw$(EXEEXT) chkpwd$(EXEEXT) userlist$(EXEEXT) \
-	getmail$(EXEEXT) aidepost$(EXEEXT) msgform$(EXEEXT) \
+	aidepost$(EXEEXT) msgform$(EXEEXT) \
 	ctdlmigrate$(EXEEXT)
 
 
@@ -76,7 +76,7 @@ LOCALEDIR=@LOCALEDIR@
 
 SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
 	utils/setup.c utils/msgform.c utils/chkpw.c \
-	utils/sendcommand.c utils/getmail.c utils/userlist.c \
+	utils/sendcommand.c utils/userlist.c \
 	utils/ctdlmigrate.c utils/base64.c utils/chkpwd.c \
 	utillib/citadel_ipc.c utillib/citadel_dirs.c utillib/ipc_c_tcp.c \
 	textclient/client_chat.c textclient/client_passwords.c \
@@ -207,12 +207,6 @@ stress$(EXEEXT): utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
 sendcommand$(EXEEXT): utils/sendcommand.o $(LIBOBJS)
 	$(CC) utils/sendcommand.o \
 		$(LIBOBJS) $(LDFLAGS) -o sendcommand$(EXEEXT) $(LIBS)
-
-getmail$(EXEEXT): utils/getmail.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		config.o  $(LIBOBJS)
-	$(CC) utils/getmail.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		config.o utillib/citadel_dirs.o \
-		$(LIBOBJS) $(LDFLAGS) -o getmail$(EXEEXT) $(LIBS)
 
 base64$(EXEEXT): utils/base64.o
 	$(CC) utils/base64.o $(LDFLAGS) -o base64$(EXEEXT)
