@@ -12,8 +12,6 @@
  * GNU General Public License for more details.
  */
 
-#include "ctdl_module.h"
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -22,264 +20,221 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <ctype.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
 #include <signal.h>
 #include <errno.h>
 #include <limits.h>
-#include <libcitadel.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include "citadel.h"
-#include "citadel_ipc.h"
-#include "server.h"
-#include "config.h"
 
-static CtdlIPC *ipc = NULL;
+
+
+int serv_sock = (-1);
+
+
+int uds_connectsock(char *sockpath)
+{
+	int s;
+	struct sockaddr_un addr;
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		fprintf(stderr, "sendcommand: Can't create socket: %s\n", strerror(errno));
+		exit(3);
+	}
+
+	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		fprintf(stderr, "sendcommand: can't connect: %s\n", strerror(errno));
+		close(s);
+		exit(3);
+	}
+
+	return s;
+}
+
 
 /*
- * Why both cleanup() and nq_cleanup() ?  Notice the alarm() call in
- * cleanup() .  If for some reason sendcommand hangs waiting for the server
- * to clean up, the alarm clock goes off and the program exits anyway.
- * The cleanup() routine makes a check to ensure it's not reentering, in
- * case the ipc module looped it somehow.
+ * input binary data from socket
  */
-void nq_cleanup(int e)
+void serv_read(char *buf, int bytes)
 {
-	if (e == SIGALRM)
-		fprintf(stderr, "\nWatch dog time out.\n");
-	exit(e);
+	int len, rlen;
+
+	len = 0;
+	while (len < bytes) {
+		rlen = read(serv_sock, &buf[len], bytes - len);
+		if (rlen < 1) {
+			return;
+		}
+		len = len + rlen;
+	}
 }
+
 
 /*
  * send binary to server
  */
-void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
+void serv_write(char *buf, int nbytes)
 {
-	unsigned int bytes_written = 0;
-	int retval = 0;
-
+	int bytes_written = 0;
+	int retval;
 	while (bytes_written < nbytes) {
-		retval = write(ipc->sock, &buf[bytes_written],
-			       nbytes - bytes_written);
+		retval = write(serv_sock, &buf[bytes_written], nbytes - bytes_written);
 		if (retval < 1) {
-			connection_died(ipc, 0);
 			return;
 		}
-		bytes_written += retval;
+		bytes_written = bytes_written + retval;
 	}
 }
 
 
-void cleanup(int e)
-{
-	static int nested = 0;
-
-	alarm(30);
-	signal(SIGALRM, nq_cleanup);
-	if ((ipc != NULL) && 
-	    (ipc->sock > 0))
-		serv_write(ipc, "\n", 1);
-	if ((nested++ < 1) &&
-	    (ipc != NULL) &&
-	    (ipc->sock > 0))
-		CtdlIPCQuit(ipc);
-	nq_cleanup(e);
-}
 
 /*
- * This is implemented as a function rather than as a macro because the
- * client-side IPC modules expect logoff() to be defined.  They call logoff()
- * when a problem connecting or staying connected to the server occurs.
+ * input string from socket - implemented in terms of serv_read()
  */
-void logoff(int e)
+void serv_gets(char *buf)
 {
-	cleanup(e);
+	int i;
+
+	/* Read one character at a time.
+	 */
+	for (i = 0;; i++) {
+		serv_read(&buf[i], 1);
+		if (buf[i] == '\n' || i == (SIZ-1))
+			break;
+	}
+
+	/* If we got a long line, discard characters until the newline.
+	 */
+	if (i == (SIZ-1)) {
+		while (buf[i] != '\n') {
+			serv_read(&buf[i], 1);
+		}
+	}
+
+	/* Strip all trailing nonprintables (crlf)
+	 */
+	buf[i] = 0;
 }
+
 
 /*
- * Connect sendcommand to the Citadel server running on this computer.
+ * send line to server - implemented in terms of serv_write()
  */
-void np_attach_to_server(char *host, char *port)
+void serv_puts(char *buf)
 {
-	char buf[SIZ];
-	char hostbuf[256], portbuf[256];
-	char *args[] =
-	{"sendcommand", NULL};
-	int r;
-
-	fprintf(stderr, "Attaching to server...\n");
-	strcpy(hostbuf, host);
-	strcpy(portbuf, port);
-	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
-	if (!ipc) {
-		fprintf(stderr, "Can't connect: %s\n", strerror(errno));
-		exit(3);
-	}
-	CtdlIPC_chat_recv(ipc, buf);
-	fprintf(stderr, "%s\n", &buf[4]);
-	snprintf(buf, sizeof buf, "IPGM %d", config.c_ipgm_secret);
-	r = CtdlIPCInternalProgram(ipc, config.c_ipgm_secret, buf);
-	fprintf(stderr, "%s\n", buf);
-	if (r / 100 != 2) {
-		cleanup(2);
-	}
-}
-
-
-void sendcommand_die(void) {
-	exit(0);
+	serv_write(buf, strlen(buf));
+	serv_write("\n", 1);
 }
 
 
 
+
+/*
+ * Main loop.  Do things and have fun.
+ */
 int main(int argc, char **argv)
 {
 	int a;
-	char cmd[SIZ];
-	char buf[SIZ];
 	int watchdog = 60;
+	char *ctdl_home_directory = CTDLDIR;
+	char buf[SIZ];
+	int xfermode = 0;
 
-	int relh=0;
-	int home=0;
-	char relhome[PATH_MAX]="";
-	char ctdldir[PATH_MAX]=CTDLDIR;
-	fd_set read_fd;
-	struct timeval tv;
-	int ret;
-	int server_shutting_down = 0;
-	
-	strcpy(ctdl_home_directory, DEFAULT_PORT);
-
-	strcpy(cmd, "");
-	/*
-	 * Change directories if specified
-	 */
-	for (a = 1; a < argc; ++a) {
-		if (!strncmp(argv[a], "-h", 2)) {
-			relh=argv[a][2]!='/';
-			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2], sizeof ctdl_home_directory);
-			else {
-				safestrncpy(relhome, &argv[a][2], sizeof relhome);
-			}
-			home=1;
-		} else if (!strncmp(argv[a], "-w", 2)) {
-			watchdog = atoi(&argv[a][2]);
-			if (watchdog<1)
-				watchdog=1;
-		} else {
-			if (!IsEmptyStr(cmd)) {
-				strcat(cmd, " ");
-			}
-			strcat(cmd, argv[a]);
+	/* Parse command line */
+	while ((a = getopt(argc, argv, "h:w:")) != EOF) {
+		switch (a) {
+		case 'h':
+			ctdl_home_directory = strdup(optarg);
+			break;
+		case 'w':
+			watchdog = atoi(optarg);
+		default:
+			fprintf(stderr, "sendcommand: usage: sendcommand [-h server_dir] [-w watchdog_timeout]\n");
+			return(1);
 		}
 	}
 
-	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
-	get_config();
-
-	signal(SIGINT, cleanup);
-	signal(SIGQUIT, cleanup);
-	signal(SIGHUP, cleanup);
-	signal(SIGTERM, cleanup);
-
-	fprintf(stderr, "sendcommand: started (pid=%d) "
-			"running in %s\n",
-			(int) getpid(),
-			ctdl_home_directory);
+	fprintf(stderr, "sendcommand: started (pid=%d) connecting to Citadel server in %s\n",
+		(int) getpid(),
+		ctdl_home_directory
+	);
 	fflush(stderr);
 
 	alarm(watchdog);
-	signal(SIGALRM, nq_cleanup); /* Set up a watchdog type timer in case we hang */
-	
-	np_attach_to_server(UDS, ctdl_home_directory);
-	fflush(stderr);
-	setIPCDeathHook(sendcommand_die);
+	snprintf(buf, sizeof buf, "%s/citadel-admin.socket", ctdl_home_directory);
+	serv_sock = uds_connectsock(buf);
 
-	fprintf(stderr, "%s\n", cmd);
-	CtdlIPC_chat_send(ipc, cmd);
-	CtdlIPC_chat_recv(ipc, buf);
+	serv_gets(buf);
 	fprintf(stderr, "%s\n", buf);
 
-	tv.tv_sec = 0;
-	tv.tv_usec = 1000;
-
-	if (!strncasecmp(&buf[1], "31", 2)) {
-		server_shutting_down = 1;
-	}
-
-	if (buf[0] == '1') {
-		while (CtdlIPC_chat_recv(ipc, buf), strcmp(buf, "000")) {
-			printf("%s\n", buf);
-			alarm(watchdog); /* Kick the watchdog timer */
+	strcpy(buf, "");
+	for (a=optind; a<argc; ++a) {
+		if (a != optind) {
+			strcat(buf, " ");
 		}
-	} else if (buf[0] == '4') {
-		do {
-			if (fgets(buf, sizeof buf, stdin) == NULL)
-				strcpy(buf, "000");
-			if (!IsEmptyStr(buf))
-				if (buf[strlen(buf) - 1] == '\n')
-					buf[strlen(buf) - 1] = 0;
-			if (!IsEmptyStr(buf))
-				if (buf[strlen(buf) - 1] == '\r')
-					buf[strlen(buf) - 1] = 0;
-			if (strcmp(buf, "000"))
-				CtdlIPC_chat_send(ipc, buf);
-			
-			FD_ZERO(&read_fd);
-			FD_SET(ipc->sock, &read_fd);
-			ret = select(ipc->sock+1, &read_fd, NULL, NULL,  &tv);
-			if (ret == -1) {
-				if (!(errno == EINTR || errno == EAGAIN))
-					fprintf(stderr, "select() failed: %s", strerror(errno));
-				return(1);
-			}
-
-			if (ret != 0) {
-				size_t n;
-				char rbuf[SIZ];
-
-				rbuf[0] = '\0';
-				n = read(ipc->sock, rbuf, SIZ);
-				if (n>0) {
-					rbuf[n]='\0';
-					fprintf(stderr, "%s", rbuf);
-					fflush (stdout);
-				}
-			}
-			alarm(watchdog); /* Kick the watchdog timer */
-		} while (strcmp(buf, "000"));
-		CtdlIPC_chat_send(ipc, "\n");
-		CtdlIPC_chat_send(ipc, "000");
+		strcat(buf, argv[a]);
 	}
-	alarm(0);	/* Shutdown the watchdog timer */
+
+	fprintf(stderr, "%s\n", buf);
+	serv_puts(buf);
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+
+	xfermode = buf[0];
+
+	if ((xfermode == '4') || (xfermode == '8')) {		/* send text */
+		while (fgets(buf, sizeof buf, stdin)) {
+			buf[strlen(buf)-1] = 0;
+			serv_puts(buf);
+			alarm(watchdog);			/* reset the watchdog timer */
+		}
+		serv_puts("000");
+	}
+
+	if ((xfermode == '1') || (xfermode == '8')) {		/* receive text */
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			printf("%s\n", buf);
+			alarm(watchdog);			/* reset the watchdog timer */
+		}
+	}
+	
+	if (xfermode == '6') {					/* receive binary */
+		size_t len = atoi(&buf[4]);
+		size_t bytes_remaining = len;
+
+		while (bytes_remaining > 0) {
+			size_t this_block = bytes_remaining;
+			if (this_block > SIZ) this_block = SIZ;
+			serv_read(buf, this_block);
+			fwrite(buf, this_block, 1, stdout);
+			bytes_remaining -= this_block;
+		}
+	}
+
+	close(serv_sock);
+	alarm(0);						/* cancel the watchdog timer */
 	fprintf(stderr, "sendcommand: processing ended.\n");
-
-	/* Clean up and log off ... unless the server indicated that the command
-	 * we sent is shutting it down, in which case we want to just cut the
-	 * connection and exit.
-	 */
-	if (server_shutting_down) {
-		nq_cleanup(0);
+	if (xfermode == '5') {
+		return(1);
 	}
-	else {
-		cleanup(0);
-	}
-	return 0;
+	return(0);
 }
 
-/*
- * Stub function
- */
-void stty_ctdl(int cmd) {
-}
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -204,10 +204,8 @@ stress$(EXEEXT): utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
 		utillib/citadel_dirs.o $(LIBOBJS) \
 		$(LDFLAGS) -o stress$(EXEEXT) $(LIBS)
 
-sendcommand$(EXEEXT): utils/sendcommand.o utillib/ipc_c_tcp.o \
-		utillib/citadel_ipc.o config.o  $(LIBOBJS)
-	$(CC) utils/sendcommand.o utillib/ipc_c_tcp.o \
-		utillib/citadel_ipc.o config.o utillib/citadel_dirs.o \
+sendcommand$(EXEEXT): utils/sendcommand.o $(LIBOBJS)
+	$(CC) utils/sendcommand.o \
 		$(LIBOBJS) $(LDFLAGS) -o sendcommand$(EXEEXT) $(LIBS)
 
 getmail$(EXEEXT): utils/getmail.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \

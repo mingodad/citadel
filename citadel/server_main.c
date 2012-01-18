@@ -293,7 +293,7 @@ int main(int argc, char **argv)
 	 */
 	CtdlRegisterServiceHook(0,
 				file_citadel_admin_socket,
-				citproto_begin_session,
+				citproto_begin_admin_session,
 				do_command_loop,
 				do_async_loop,
 				CitadelServiceUDS);

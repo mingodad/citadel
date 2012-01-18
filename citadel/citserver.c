@@ -993,6 +993,12 @@ void citproto_begin_session() {
 }
 
 
+void citproto_begin_admin_session() {
+	CC->internal_pgm = 1;
+	cprintf("%d %s Citadel server ADMIN CONNECTION ready.\n", CIT_OK, config.c_nodename);
+}
+
+
 void cmd_noop(char *argbuf)
 {
 	cprintf("%d%cok\n", CIT_OK, CtdlCheckExpress() );
