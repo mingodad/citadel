@@ -98,6 +98,12 @@ void cmd_rwho(char *argbuf) {
 		room_spoofed = 0;
 		host_spoofed = 0;
 		
+		if (!aide && nptr[i].state == CON_SYS)
+			continue;
+
+		if (!aide && nptr[i].kill_me != 0)
+			continue;
+
 		if (nptr[i].cs_flags & CS_POSTING)
 		   strcat(flags, "*");
 		else
