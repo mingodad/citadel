@@ -888,7 +888,7 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 			}
 			if (poll) {
 				NW->Url = NewStrBufPlain(NULL, StrLength(Line));
-				if ((StrLength (NW->host) > NULL) && (!strcmp(NW->host, "0.0.0.0")))
+				if ((StrLength (NW->host) > NULL) && (!strcmp(ChrPtr(NW->host), "0.0.0.0")))
 					StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
 						     ChrPtr(NW->secret),
 						     ChrPtr(NW->host),
