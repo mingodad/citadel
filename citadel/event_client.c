@@ -240,8 +240,10 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	FreeURL(&IO->ConnectMe);
 	FreeStrBuf(&IO->HttpReq.ReplyData);
 
-	Ctx->state = CON_IDLE;
-	Ctx->kill_me = 1;
+	if (Ctx) {
+		Ctx->state = CON_IDLE;
+		Ctx->kill_me = 1;
+	}
 }
 
 
@@ -278,7 +280,6 @@ void ShutDownCLient(AsyncIO *IO)
 	assert(IO->Terminate);
 	IO->Terminate(IO);
 }
-
 
 eReadState HandleInbound(AsyncIO *IO)
 {
