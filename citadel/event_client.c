@@ -684,7 +684,8 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		}
 		return;
 	} else if (nbytes == -1) {
-/// TODO: FD is gone. kick it.        sock_buff_invoke_free(sb, errno);
+		// FD is gone. kick it. 
+		StopClientWatchers(IO);
 		EV_syslog(LOG_DEBUG,
 			  "EVENT: Socket Invalid! %s \n",
 			  strerror(errno));
