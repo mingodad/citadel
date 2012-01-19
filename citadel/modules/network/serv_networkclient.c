@@ -822,7 +822,6 @@ eNextState nwc_connect_ip(AsyncIO *IO)
 	AsyncNetworker *NW = IO->Data;
 
 	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
-	EVN_syslog(LOG_DEBUG, "network: polling <%s>\n", ChrPtr(NW->node));
 	EVN_syslog(LOG_NOTICE, "Connecting to <%s> at %s:%s\n", 
 		   ChrPtr(NW->node), 
 		   ChrPtr(NW->host),
@@ -834,8 +833,14 @@ eNextState nwc_connect_ip(AsyncIO *IO)
 			     1);
 }
 
+static int NetworkerCount = 0;
 void RunNetworker(AsyncNetworker *NW)
 {
+	AsyncIO *IO = &NW->IO;
+
+	NW->n = NetworkerCount++;
+	network_talking_to(SKEY(NW->node), NTT_ADD);
+	EVN_syslog(LOG_DEBUG, "network: polling <%s>\n", ChrPtr(NW->node));
 	ParseURL(&NW->IO.ConnectMe, NW->Url, 504);
 
 	InitIOStruct(&NW->IO,
@@ -938,7 +943,6 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 					     ChrPtr(NW->port));
 				if (!network_talking_to(SKEY(NW->node), NTT_CHECK))
 				{
-					network_talking_to(SKEY(NW->node), NTT_ADD);
 					RunNetworker(NW);
 					continue;
 				}
