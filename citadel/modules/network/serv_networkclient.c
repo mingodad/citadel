@@ -888,10 +888,17 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 			}
 			if (poll) {
 				NW->Url = NewStrBufPlain(NULL, StrLength(Line));
-				StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
-					     ChrPtr(NW->secret),
-					     ChrPtr(NW->host),
-					     ChrPtr(NW->port));
+				if ((StrLength (NW->host) > NULL) && (!strcmp(NW->host, "0.0.0.0")))
+					StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
+						     ChrPtr(NW->secret),
+						     ChrPtr(NW->host),
+						     ChrPtr(NW->port));
+				else
+					StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
+						     ChrPtr(NW->secret),
+						     ChrPtr(NW->node),
+						     ChrPtr(NW->port));
+
 				if (!network_talking_to(SKEY(NW->node), NTT_CHECK))
 				{
 					network_talking_to(SKEY(NW->node), NTT_ADD);
