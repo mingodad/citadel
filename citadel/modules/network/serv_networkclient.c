@@ -497,19 +497,19 @@ eNextState NWC_SendBlobDone(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
 	eNextState rc;
-	if (NW->IO.IOB.TotalSendSize == NW->IO.IOB.TotalSentAlready)
+	if (IO->IOB.TotalSendSize == NW->IO.IOB.TotalSentAlready)
 	{
 		NW->State ++;
 
-		FDIOBufferDelete(&NW->IO.IOB);
-		rc =  NWC_DispatchWriteDone(&NW->IO);
+		FDIOBufferDelete(&IO->IOB);
+		rc =  NWC_DispatchWriteDone(IO);
 		NW->State --;
 		return rc;
 	}
 	else {
 		NW->State --;
-		NW->IO.IOB.ChunkSendRemain = NW->IO.IOB.ChunkSize;
-		return NWC_DispatchWriteDone(&NW->IO);
+		IO->IOB.ChunkSendRemain = IO->IOB.ChunkSize;
+		return NWC_DispatchWriteDone(IO);
 	}
 }
 
@@ -840,7 +840,7 @@ void RunNetworker(AsyncNetworker *NW)
 
 	NW->n = NetworkerCount++;
 	network_talking_to(SKEY(NW->node), NTT_ADD);
-	EVN_syslog(LOG_DEBUG, "network: polling <%s>\n", ChrPtr(NW->node));
+	syslog(LOG_DEBUG, "NW[%s][%ld]: polling\n", ChrPtr(NW->node), NW->n);
 	ParseURL(&NW->IO.ConnectMe, NW->Url, 504);
 
 	InitIOStruct(&NW->IO,
@@ -934,7 +934,9 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 					}
 				}
 			}
-			if (poll && (StrLength (NW->host) > 0) && (!strcmp(ChrPtr(NW->host), "0.0.0.0")))
+			if (poll && 
+			    (StrLength(NW->host) > 0) && 
+			    strcmp("0.0.0.0", ChrPtr(NW->host)))
 			{
 				NW->Url = NewStrBufPlain(NULL, StrLength(Line));
 				StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
