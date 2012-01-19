@@ -621,8 +621,6 @@ eNextState nwc_get_one_host_ip(AsyncIO *IO)
 	 * here we start with the lookup of one host.
 	 */ 
 
-	InitC_ares_dns(IO);
-
 	syslog(LOG_DEBUG, "NWC: %s\n", __FUNCTION__);
 
 	syslog(LOG_DEBUG, 
