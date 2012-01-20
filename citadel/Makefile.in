@@ -30,7 +30,7 @@ all: buildinfo $(TARGETS)
 
 EXEEXT=@EXEEXT@
 
-CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) 
+CLIENT_TARGETS=citadel$(EXEEXT)
 NOINST_TARGETS=stress$(EXEEXT)
 SERVER_TARGETS=citserver$(EXEEXT)
 SERV_MODULES= md5.o \
@@ -41,7 +41,7 @@ include Make_modules
 UTIL_TARGETS=citmail$(EXEEXT) sendcommand$(EXEEXT)
 
 UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
-	chkpw$(EXEEXT) chkpwd$(EXEEXT) userlist$(EXEEXT) \
+	chkpw$(EXEEXT) chkpwd$(EXEEXT) \
 	aidepost$(EXEEXT) msgform$(EXEEXT) \
 	ctdlmigrate$(EXEEXT)
 
@@ -74,9 +74,9 @@ LOCALEDIR=@LOCALEDIR@
 .SILENT:
 
 
-SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
+SOURCES=utils/aidepost.c utils/stress.c utils/citmail.c \
 	utils/setup.c utils/msgform.c utils/chkpw.c \
-	utils/sendcommand.c utils/userlist.c \
+	utils/sendcommand.c \
 	utils/ctdlmigrate.c utils/base64.c utils/chkpwd.c \
 	utillib/citadel_ipc.c utillib/citadel_dirs.c utillib/ipc_c_tcp.c \
 	textclient/client_chat.c textclient/client_passwords.c \
@@ -192,12 +192,6 @@ chkpw$(EXEEXT): utils/chkpw.o auth.o utillib/citadel_dirs.o
 	$(CC) utils/chkpw.o auth.o utillib/citadel_dirs.o \
 		$(LDFLAGS) -o chkpw$(EXEEXT) $(chkpwd_LIBS)
 
-whobbs$(EXEEXT): utils/whobbs.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		utillib/citadel_dirs.o $(LIBOBJS)
-	$(CC) utils/whobbs.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		utillib/citadel_dirs.o $(LIBOBJS) \
-		$(LDFLAGS) -o whobbs$(EXEEXT) $(LIBS)
-
 stress$(EXEEXT): utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
 		utillib/citadel_dirs.o $(LIBOBJS)
 	$(CC) utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
@@ -210,12 +204,6 @@ sendcommand$(EXEEXT): utils/sendcommand.o utillib/citadel_dirs.o $(LIBOBJS)
 
 base64$(EXEEXT): utils/base64.o
 	$(CC) utils/base64.o $(LDFLAGS) -o base64$(EXEEXT)
-
-userlist$(EXEEXT): utils/userlist.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		utillib/citadel_dirs.o $(LIBOBJS)
-	$(CC) utils/userlist.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		utillib/citadel_dirs.o \
-		$(LIBOBJS) $(LDFLAGS) -o userlist$(EXEEXT) $(LIBS)
 
 msgform$(EXEEXT): utils/msgform.o
 	$(CC) utils/msgform.o $(LDFLAGS) -o msgform$(EXEEXT)
