@@ -1131,17 +1131,6 @@ int discover_ui(void)
 
 
 
-void migrate_old_installs(void)
-{
-	int rv;
-	rv = system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
-	if (rv != 0)
-		fprintf(stderr, _("failed to remove old style directories.\n"));
-	unlink("citadel.log");
-	unlink("weekly");
-}
-
-
 /*
  * Strip "db" entries out of /etc/nsswitch.conf
  */
@@ -1610,8 +1599,6 @@ NEW_INST:
 	create_run_directories(config.c_ctdluid, gid);
 
 	write_config_to_disk();
-
-        migrate_old_installs();	/* Delete files and directories used by older Citadel versions */
 
 	if (	((setup_type == UI_SILENT)
 		&& (getenv("ALTER_ETC_SERVICES")!=NULL))
