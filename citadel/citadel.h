@@ -215,11 +215,6 @@ struct floor {
 #define	NEXT_KEY	15
 #define STOP_KEY	3
 
-/* server exit codes */
-#define EXIT_NORMAL	0		/* server terminated normally */
-					/* 1 through 63 reserved for signals */
-#define EXIT_NULL	64		/* EOF on server command input */
-
 /* citadel.rc stuff */
 #define RC_NO		0		/* always no */
 #define RC_YES		1		/* always yes */
