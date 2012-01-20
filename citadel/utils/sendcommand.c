@@ -153,7 +153,13 @@ int main(int argc, char **argv)
 	while ((a = getopt(argc, argv, "h:w:")) != EOF) {
 		switch (a) {
 		case 'h':
-			strcpy(relhome, optarg);
+			relh=optarg[0]!='/';
+			if (!relh) {
+				strncpy(ctdl_home_directory, optarg, sizeof ctdl_home_directory);
+			} else {
+				strncpy(relhome, optarg, sizeof relhome);
+			}
+			home = 1;
 			break;
 		case 'w':
 			watchdog = atoi(optarg);
