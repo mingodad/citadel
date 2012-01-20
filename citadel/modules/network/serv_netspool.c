@@ -95,14 +95,14 @@
 /*
  * Learn topology from path fields
  */
-void network_learn_topology(char *node, char *path, NetMap *the_netmap, int *netmap_changed) {
+void network_learn_topology(char *node, char *path, NetMap **the_netmap, int *netmap_changed) {
 	char nexthop[256];
 	NetMap *nmptr;
 
-	strcpy(nexthop, "");
+	*nexthop = '\0';
 
 	if (num_tokens(path, '!') < 3) return;
-	for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
+	for (nmptr = *the_netmap; nmptr != NULL; nmptr = nmptr->next) {
 		if (!strcasecmp(nmptr->nodename, node)) {
 			extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 			nmptr->lastcontact = time(NULL);
@@ -116,8 +116,8 @@ void network_learn_topology(char *node, char *path, NetMap *the_netmap, int *net
 	strcpy(nmptr->nodename, node);
 	nmptr->lastcontact = time(NULL);
 	extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
-	nmptr->next = the_netmap;
-	the_netmap = nmptr;
+	nmptr->next = *the_netmap;
+	the_netmap = &nmptr;
 	(*netmap_changed) ++;
 }
 
@@ -451,7 +451,7 @@ void network_spoolout_room(char *room_to_spool,
  * Process a buffer containing a single message from a single file
  * from the inbound queue 
  */
-void network_process_buffer(char *buffer, long size, char *working_ignetcfg, NetMap *the_netmap, int *netmap_changed)
+void network_process_buffer(char *buffer, long size, char *working_ignetcfg, NetMap **the_netmap, int *netmap_changed)
 {
 	struct CtdlMessage *msg = NULL;
 	long pos;
@@ -503,7 +503,7 @@ void network_process_buffer(char *buffer, long size, char *working_ignetcfg, Net
 					  NULL, 
 					  msg->cm_fields['D'], 
 					  working_ignetcfg, 
-					  the_netmap) == 0) 
+					  *the_netmap) == 0) 
 			{
 				/* prepend our node to the path */
 				if (msg->cm_fields['P'] != NULL) {
@@ -635,7 +635,7 @@ void network_process_message(FILE *fp,
 			     long msgstart, 
 			     long msgend,
 			     char *working_ignetcfg,
-			     NetMap *the_netmap, 
+			     NetMap **the_netmap, 
 			     int *netmap_changed)
 {
 	long hold_pos;
@@ -666,7 +666,7 @@ void network_process_message(FILE *fp,
  */
 void network_process_file(char *filename,
 			  char *working_ignetcfg,
-			  NetMap *the_netmap, 
+			  NetMap **the_netmap, 
 			  int *netmap_changed)
 {
 	FILE *fp;
@@ -723,7 +723,7 @@ void network_process_file(char *filename,
 /*
  * Process anything in the inbound queue
  */
-void network_do_spoolin(char *working_ignetcfg, NetMap *the_netmap, int *netmap_changed)
+void network_do_spoolin(char *working_ignetcfg, NetMap **the_netmap, int *netmap_changed)
 {
 	DIR *dp;
 	struct dirent *d;
