@@ -1,21 +1,15 @@
 /*
  * Main Citadel header file
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* system customizations are in sysconfig.h */
@@ -51,10 +45,10 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	803		/* This version */
+#define REV_LEVEL	810		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	760		/* Oldest compatible export files */
-#define LIBCITADEL_MIN	802		/* Minimum required version of libcitadel */
+#define LIBCITADEL_MIN	810		/* Minimum required version of libcitadel */
 
 #define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
 					   obtain SERVER_TYPE codes for your implementations */
@@ -83,11 +77,6 @@ extern "C" {
  */
 typedef struct ExpirePolicy ExpirePolicy;
 struct ExpirePolicy {
-/*
-#include "datadefinitions.h"
-#include "dtds/expirepolicy-defs.h"
-#include "undef_data.h"
-*/
 	int expire_mode;
 	int expire_value;
 };
@@ -105,11 +94,6 @@ struct ExpirePolicy {
  */
 typedef struct march march;
 struct march {
-/*
-#include "datadefinitions.h"
-#include "dtds/march-defs.h"
-#include "undef_data.h"
-*/
 	struct march *next;
 	char march_name[ROOMNAMELEN];
 	unsigned int march_flags;
@@ -135,11 +119,6 @@ struct march {
  */
 typedef struct ctdluser ctdluser;
 struct ctdluser {			/* User record                      */
-/*
-#include "datadefinitions.h"
-#include "dtds/user-defs.h"
-#include "undef_data.h"
-*/
 	int version;			/* Cit vers. which created this rec  */
 	uid_t uid;			/* Associate with a unix account?    */
 	char password[32];		/* password                          */
@@ -165,11 +144,6 @@ struct ctdluser {			/* User record                      */
  */
 typedef struct ctdlroom ctdlroom;
 struct ctdlroom {
-/*
-#include "datadefinitions.h"
-#include "dtds/room-defs.h"
-#include "undef_data.h"
-*/
  	char QRname[ROOMNAMELEN];	/* Name of room                     */
  	char QRpasswd[10];		/* Only valid if it's a private rm  */
  	long QRroomaide;		/* User number of room aide         */
@@ -212,11 +186,6 @@ struct ctdlroom {
  */
 typedef struct floor floor;
 struct floor {
-/*
-#include "datadefinitions.h"
-#include "dtds/floor-defs.h"
-#include "undef_data.h"
-*/
 	unsigned short f_flags;		/* flags */
 	char f_name[256];		/* name of floor */
 	int f_ref_count;		/* reference count */
@@ -245,11 +214,6 @@ struct floor {
 
 #define	NEXT_KEY	15
 #define STOP_KEY	3
-
-/* server exit codes */
-#define EXIT_NORMAL	0		/* server terminated normally */
-					/* 1 through 63 reserved for signals */
-#define EXIT_NULL	64		/* EOF on server command input */
 
 /* citadel.rc stuff */
 #define RC_NO		0		/* always no */

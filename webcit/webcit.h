@@ -128,12 +128,12 @@ extern char *ssl_cipher_list;
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		802		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	802		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		802		/* min required libcitadel ver */
+#define CLIENT_VERSION		810		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	810		/* Minimum required version of Citadel server */
+#define	LIBCITADEL_MIN		810		/* Minimum required version of libcitadel */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
-#define TARGET			"webcit01"	/* Target for inline URL's */
+#define TARGET			"webcit01"	/* Window target for inline URL's */
 #define HOUSEKEEPING		15		/* Housekeeping frequency */
 #define MAX_WORKER_THREADS	250
 #define LISTEN_QUEUE_LENGTH	100		/* listen() backlog queue */
@@ -265,11 +265,12 @@ extern char *ssl_cipher_list;
 #define EXPIRE_MANUAL           1       /* Don't expire messages at all */
 #define EXPIRE_NUMMSGS          2       /* Keep only latest n messages  */
 #define EXPIRE_AGE              3       /* Expire messages after n days */
+
 typedef struct __ExpirePolicy {
 	int loaded; /* has this been loaded from the server? */
         int expire_mode;
         int expire_value;
-}ExpirePolicy;
+} ExpirePolicy;
 void LoadExpirePolicy(GPEXWhichPolicy which);
 void SaveExpirePolicyFromHTTP(GPEXWhichPolicy which);
 
@@ -566,7 +567,7 @@ struct wcsession {
 	StrBuf *ConvertBuf1;
 	StrBuf *ConvertBuf2;
 
-/* cache stuff for templates. TODO: find a smartrer way */
+/* cache stuff for templates. TODO: find a smarter way */
 	HashList *ServCfg;                      /* cache our server config for editing */
 	HashList *InetCfg;                      /* Our inet server config for editing */
 	ExpirePolicy Policy[maxpolicy];
@@ -738,12 +739,9 @@ void output_html(const char *, int, int, StrBuf *, StrBuf *);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(wc_mime_attachment *Mime);
 
-void generate_uuid(char *);
-
 void address_book_popup(void);
 void begin_ajax_response(void);
 void end_ajax_response(void);
-
 
 extern char *months[];
 extern char *days[];
@@ -758,7 +756,6 @@ void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
 void tabbed_dialog(int num_tabs, char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
-
 
 int get_time_format_cached (void);
 void display_wiki_pagelist(void);

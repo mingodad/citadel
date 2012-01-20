@@ -26,6 +26,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include "citadel.h"
+#include "include/citadel_dirs.h"
 
 
 
@@ -141,15 +142,24 @@ int main(int argc, char **argv)
 {
 	int a;
 	int watchdog = 60;
-	char *ctdl_home_directory = CTDLDIR;
 	char buf[SIZ];
 	int xfermode = 0;
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
 
 	/* Parse command line */
 	while ((a = getopt(argc, argv, "h:w:")) != EOF) {
 		switch (a) {
 		case 'h':
-			ctdl_home_directory = strdup(optarg);
+			relh=optarg[0]!='/';
+			if (!relh) {
+				strncpy(ctdl_home_directory, optarg, sizeof ctdl_home_directory);
+			} else {
+				strncpy(relhome, optarg, sizeof relhome);
+			}
+			home = 1;
 			break;
 		case 'w':
 			watchdog = atoi(optarg);
@@ -159,15 +169,16 @@ int main(int argc, char **argv)
 		}
 	}
 
-	fprintf(stderr, "sendcommand: started (pid=%d) connecting to Citadel server in %s\n",
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
+
+	fprintf(stderr, "sendcommand: started (pid=%d) connecting to Citadel server at %s\n",
 		(int) getpid(),
-		ctdl_home_directory
+		file_citadel_admin_socket
 	);
 	fflush(stderr);
 
 	alarm(watchdog);
-	snprintf(buf, sizeof buf, "%s/citadel-admin.socket", ctdl_home_directory);
-	serv_sock = uds_connectsock(buf);
+	serv_sock = uds_connectsock(file_citadel_admin_socket);
 
 	serv_gets(buf);
 	fprintf(stderr, "%s\n", buf);
