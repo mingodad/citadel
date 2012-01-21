@@ -122,7 +122,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 
 	ParseURL(&IO->ConnectMe, ShorterUrlStr, 80);
 	CurlPrepareURL(IO->ConnectMe);
-	if (! evcurl_init(IO, 
+	if (! InitcURLIOStruct(IO, 
 //			  Ctx, 
 			  NULL,
 			  "Citadel RSS ShorterURL Expander",
