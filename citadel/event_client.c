@@ -47,6 +47,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+#endif
 
 #include <libcitadel.h>
 #include "citadel.h"
@@ -256,7 +259,10 @@ void StopClientWatchers(AsyncIO *IO)
 	ev_io_stop(event_base, &IO->conn_event);
 	ev_io_stop(event_base, &IO->send_event);
 	ev_io_stop(event_base, &IO->recv_event);
-	close(IO->SendBuf.fd);
+
+	if (IO->SendBuf.fd != 0) {
+		close(IO->SendBuf.fd);
+	}
 	IO->SendBuf.fd = 0;
 	IO->RecvBuf.fd = 0;
 }
@@ -273,6 +279,8 @@ void ShutDownCLient(AsyncIO *IO)
 
 	if (IO->DNS.Channel != NULL) {
 		ares_destroy(IO->DNS.Channel);
+		EV_DNS_LOG_STOP(DNS.recv_event);
+		EV_DNS_LOG_STOP(DNS.send_event);
 		ev_io_stop(event_base, &IO->DNS.recv_event);
 		ev_io_stop(event_base, &IO->DNS.send_event);
 		IO->DNS.Channel = NULL;
@@ -707,6 +715,7 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	case eAbort:
 		switch (IO->DNS.Fail(IO)) {
 		case eAbort:
+////			StopClientWatchers(IO);
 			ShutDownCLient(IO);
 		default:
 			break;
@@ -748,6 +757,7 @@ eNextState EvConnectSock(AsyncIO *IO,
 		StrBufPrintf(IO->ErrMsg,
 			     "Failed to create socket: %s",
 			     strerror(errno));
+		IO->SendBuf.fd = IO->RecvBuf.fd = 0;
 		return eAbort;
 	}
 	fdflags = fcntl(IO->SendBuf.fd, F_GETFL);
@@ -758,6 +768,8 @@ eNextState EvConnectSock(AsyncIO *IO,
 		StrBufPrintf(IO->ErrMsg,
 			     "Failed to get socket flags: %s",
 			     strerror(errno));
+		close(IO->SendBuf.fd);
+		IO->SendBuf.fd = IO->RecvBuf.fd = 0;
 		return eAbort;
 	}
 	fdflags = fdflags | O_NONBLOCK;
@@ -770,7 +782,7 @@ eNextState EvConnectSock(AsyncIO *IO,
 			     "Failed to set socket flags: %s",
 			     strerror(errno));
 		close(IO->SendBuf.fd);
-		IO->SendBuf.fd = IO->RecvBuf.fd = -1;
+		IO->SendBuf.fd = IO->RecvBuf.fd = 0;
 		return eAbort;
 	}
 /* TODO: maye we could use offsetof() to calc the position of data...
@@ -893,6 +905,9 @@ void InitIOStruct(AsyncIO *IO,
 	IO->SendBuf.Buf   = NewStrBufPlain(NULL, 1024);
 	IO->RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
 	IO->IOBuf         = NewStrBuf();
+	EV_syslog(LOG_DEBUG,
+		  "EVENT: Session lives at %p IO at %p \n",
+		  Data, IO);
 
 }
 
@@ -919,4 +934,24 @@ int InitcURLIOStruct(AsyncIO *IO,
 
 	return  evcurl_init(IO);
 
+}
+
+void EV_backtrace(AsyncIO *IO)
+{
+#ifdef HAVE_BACKTRACE
+	void *stack_frames[50];
+	size_t size, i;
+	char **strings;
+
+
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	strings = backtrace_symbols(stack_frames, size);
+	for (i = 0; i < size; i++) {
+		if (strings != NULL)
+			EV_syslog(LOG_ALERT, " BT %s\n", strings[i]);
+		else
+			EV_syslog(LOG_ALERT, " BT %p\n", stack_frames[i]);
+	}
+	free(strings);
+#endif
 }

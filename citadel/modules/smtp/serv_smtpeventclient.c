@@ -94,6 +94,8 @@ const unsigned short DefaultMXPort = 25;
 void DeleteSmtpOutMsg(void *v)
 {
 	SmtpOutMsg *Msg = v;
+	AsyncIO *IO = &Msg->IO;
+	EV_syslog(LOG_DEBUG, "SMTP: %s Aborting\n", __FUNCTION__);
 
 	/* these are kept in our own space and free'd below */
 	Msg->IO.ConnectMe = NULL;
@@ -104,7 +106,7 @@ void DeleteSmtpOutMsg(void *v)
 	FreeURL(&Msg->Relay);
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
-	memset (Msg, 0, sizeof(SmtpOutMsg)); /* just to be shure... */
+///	memset (Msg, 0, sizeof(SmtpOutMsg)); /* just to be shure... */
 	free(Msg);
 }
 
@@ -329,6 +331,8 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 	 * - the direct hostname if there was no mx record
 	 * - one of the mx'es
 	 */
+
+	InitC_ares_dns(IO);
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 

@@ -71,6 +71,7 @@ static void HostByAddrCb(void *data,
 	AsyncIO *IO = data;
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	EV_DNS_LOGT_STOP(DNS.timeout);
 #endif
 	ev_timer_stop (event_base, &IO->DNS.timeout);
 
@@ -261,6 +262,7 @@ void QueryCb(void *arg,
 	AsyncIO *IO = arg;
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	EV_DNS_LOGT_STOP(DNS.timeout);
 #endif
 	ev_timer_stop (event_base, &IO->DNS.timeout);
 
@@ -278,6 +280,8 @@ void QueryCb(void *arg,
 	ev_idle_init(&IO->unwind_stack,
 		     IO_postdns_callback);
 	IO->unwind_stack.data = IO;
+	EV_DNS_LOGT_INIT(unwind_stack);
+	EV_DNS_LOGT_START(unwind_stack);
 	ev_idle_start(event_base, &IO->unwind_stack);
 }
 
@@ -285,6 +289,7 @@ void QueryCbDone(AsyncIO *IO)
 {
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	EV_DNS_LOGT_STOP(DNS.timeout);
 #endif
 
 	ev_idle_stop(event_base, &IO->unwind_stack);
@@ -355,6 +360,8 @@ void QueueGetHostByNameDone(void *Ctx,
 	ev_idle_init(&IO->unwind_stack,
 		     IO_postdns_callback);
 	IO->unwind_stack.data = IO;
+	EV_DNS_LOGT_INIT(unwind_stack);
+	EV_DNS_LOGT_START(unwind_stack);
 	ev_idle_start(event_base, &IO->unwind_stack);
 }
 
@@ -374,12 +381,14 @@ void QueueGetHostByName(AsyncIO *IO,
 	InitC_ares_dns(IO);
 
 	ev_timer_init(&IO->DNS.timeout, DNStimeouttrigger_callback, 10, 1);
+	EV_DNS_LOGT_INIT(DNS.timeout);
 	IO->DNS.timeout.data = IO;
 	ares_gethostbyname(IO->DNS.Channel,
 			   Hostname,
 			   AF_INET6, /* it falls back to ipv4 in doubt... */
 			   QueueGetHostByNameDone,
 			   IO);
+	EV_DNS_LOGT_START(DNS.timeout);
 	ev_timer_start(event_base, &IO->DNS.timeout);
 
 }
@@ -404,6 +413,7 @@ int QueueQuery(ns_type Type,
 
 	ev_timer_init(&IO->DNS.timeout, DNStimeouttrigger_callback, 10, 1);
 	IO->DNS.timeout.data = IO;
+	EV_DNS_LOGT_INIT(DNS.timeout);
 
 	switch(Type) {
 	case ns_t_a:
@@ -453,6 +463,7 @@ int QueueQuery(ns_type Type,
 				   family,
 				   HostByAddrCb,
 				   IO);
+		EV_DNS_LOGT_START(DNS.timeout);
 		ev_timer_start(event_base, &IO->DNS.timeout);
 #ifdef DEBUG_CARES
 		EV_syslog(LOG_DEBUG, "C-ARES: %s X1\n", __FUNCTION__);
@@ -469,6 +480,7 @@ int QueueQuery(ns_type Type,
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
 	ares_query(IO->DNS.Channel, name, ns_c_in, Type, QueryCb, IO);
+	EV_DNS_LOGT_START(DNS.timeout);
 	ev_timer_start(event_base, &IO->DNS.timeout);
 	return 1;
 }
@@ -531,6 +543,7 @@ void SockStateCb(void *data, int sock, int read, int write)
 	if (read) {
 		if ((IO->DNS.recv_event.fd != sock) &&
 		    (IO->DNS.recv_event.fd != 0)) {
+			EV_DNS_LOG_STOP(DNS.recv_event);
 			ev_io_stop(event_base, &IO->DNS.recv_event);
 		}
 		IO->DNS.recv_event.fd = sock;
@@ -538,12 +551,15 @@ void SockStateCb(void *data, int sock, int read, int write)
 			   DNS_recv_callback,
 			   IO->DNS.recv_event.fd,
 			   EV_READ);
+		EV_DNS_LOG_INIT(DNS.recv_event);
 		IO->DNS.recv_event.data = IO;
+		EV_DNS_LOG_START(DNS.recv_event);
 		ev_io_start(event_base, &IO->DNS.recv_event);
 	}
 	if (write) {
 		if ((IO->DNS.send_event.fd != sock) &&
 		    (IO->DNS.send_event.fd != 0)) {
+			EV_DNS_LOG_STOP(DNS.send_event);
 			ev_io_stop(event_base, &IO->DNS.send_event);
 		}
 		IO->DNS.send_event.fd = sock;
@@ -552,9 +568,13 @@ void SockStateCb(void *data, int sock, int read, int write)
 			   IO->DNS.send_event.fd,
 			   EV_WRITE);
 		IO->DNS.send_event.data = IO;
+		EV_DNS_LOG_INIT(DNS.send_event);
+		EV_DNS_LOG_START(DNS.send_event);
 		ev_io_start(event_base, &IO->DNS.send_event);
 	}
 	if ((read == 0) && (write == 0)) {
+		EV_DNS_LOG_STOP(DNS.recv_event);
+		EV_DNS_LOG_STOP(DNS.send_event);
 		ev_io_stop(event_base, &IO->DNS.recv_event);
 		ev_io_stop(event_base, &IO->DNS.send_event);
 	}

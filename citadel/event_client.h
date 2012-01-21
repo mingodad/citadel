@@ -187,6 +187,39 @@ typedef struct _IOAddHandler {
 
 #define EVNCM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
 
+#ifdef DEBUG_CARES
+#define EV_DNS_LOG_START(a)							\
+	syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
+	EV_backtrace(IO);
+
+#define EV_DNS_LOG_STOP(a)							\
+	syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
+	EV_backtrace(IO);
+
+#define EV_DNS_LOG_INIT(a)							\
+	syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
+	EV_backtrace(IO);
+
+#define EV_DNS_LOGT_START(a)							\
+	syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %p", IO->ID, CCID, &IO->a); \
+	EV_backtrace(IO);
+
+#define EV_DNS_LOGT_STOP(a)							\
+	syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %p", IO->ID, CCID, &IO->a); \
+	EV_backtrace(IO);
+
+#define EV_DNS_LOGT_INIT(a)							\
+	syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %p", IO->ID, CCID, &IO->a); \
+	EV_backtrace(IO);
+#else
+#define EV_DNS_LOG_START(a)
+#define EV_DNS_LOG_STOP(a)
+#define EV_DNS_LOG_INIT(a)
+#define EV_DNS_LOGT_START(a)
+#define EV_DNS_LOGT_STOP(a)
+#define EV_DNS_LOGT_INIT(a)
+#endif
+
 void FreeAsyncIOContents(AsyncIO *IO);
 
 eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
@@ -255,5 +288,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 eNextState ReAttachIO(AsyncIO *IO,
 		      void *pData,
 		      int ReadFirst);
+
+void EV_backtrace(AsyncIO *IO);
 
 #endif /* __EVENT_CLIENT_H__ */

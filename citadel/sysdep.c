@@ -927,16 +927,18 @@ void close_masters (void)
 
 		if (serviceptr->tcp_port > 0)
 		{
-			syslog(LOG_INFO, "Closing listener on port %d\n",
-				serviceptr->tcp_port);
+			syslog(LOG_INFO, "Closing %d listener on port %d\n",
+			       serviceptr->msock,
+			       serviceptr->tcp_port);
 			serviceptr->tcp_port = 0;
 		}
 		
 		if (serviceptr->sockpath != NULL)
-			syslog(LOG_INFO, "Closing listener on '%s'\n",
-				serviceptr->sockpath);
-
-		close(serviceptr->msock);
+			syslog(LOG_INFO, "Closing %d listener on '%s'\n",
+			       serviceptr->msock,
+			       serviceptr->sockpath);
+                if (serviceptr->msock != -1)
+			close(serviceptr->msock);
 		/* If it's a Unix domain socket, remove the file. */
 		if (serviceptr->sockpath != NULL) {
 			unlink(serviceptr->sockpath);
