@@ -105,10 +105,6 @@ char admin_cmd[SIZ];
 const char *setup_titles[eMaxQuestions];
 const char *setup_text[eMaxQuestions];
 
-/* calculate all our path on a central place */
-/* where to keep our config */
-	
-
 
 void SetTitles(void)
 {
@@ -161,7 +157,7 @@ void SetTitles(void)
 	setup_text[eUID] = _(
 "Citadel needs to run under its own user ID.  This would\n"
 "typically be called \"citadel\", but if you are running Citadel\n"
-"as a public BBS, you might also call it \"bbs\" or \"guest\".\n"
+"as a public site, you might also call it \"bbs\" or \"guest\".\n"
 "The server will run under this user ID.  Please specify that\n"
 "user ID here.  You may specify either a user name or a numeric\n"
 "UID.\n");
@@ -249,7 +245,7 @@ void SetTitles(void)
 }
 
 /*
- * print the actual stack frame.
+ * Print the stack frame for a backtrace
  */
 void cit_backtrace(void)
 {
@@ -271,7 +267,6 @@ void cit_backtrace(void)
 }
 
 struct config config;
-
 int direction;
 
 
@@ -382,9 +377,7 @@ void display_error(char *error_message_format, ...)
 
 	Msg = NewStrBuf();
 	va_start(arg_ptr, error_message_format);
-	StrBufVAppendPrintf(Msg, 
-			    error_message_format, 
-			    arg_ptr);
+	StrBufVAppendPrintf(Msg, error_message_format, arg_ptr);
 	va_end(arg_ptr);
 
 	important_message(_("Error"), ChrPtr(Msg));
@@ -499,11 +492,7 @@ void delete_inittab_entry(void)
 	int rv;
 
 	/* Determine the fully qualified path name of citserver */
-	snprintf(looking_for, 
-		 sizeof looking_for,
-		 "%s/citserver", 
-		 ctdl_sbin_dir
-		);
+	snprintf(looking_for, sizeof looking_for, "%s/citserver", ctdl_sbin_dir);
 
 	/* Now tweak /etc/inittab */
 	infp = fopen("/etc/inittab", "r");
@@ -546,9 +535,7 @@ void delete_inittab_entry(void)
 		rv = fwrite(buf, strlen(buf), 1, outfp);
 		if (rv == -1)
 		{
-			display_error("%s %s\n",
-				      _("failed to modify inittab"), 
-				      strerror(errno));
+			display_error("%s %s\n", _("failed to modify inittab"), strerror(errno));
 		}
 	}
 
@@ -577,14 +564,17 @@ void install_init_scripts(void)
 	char command[SIZ];
 	int rv;
 
-	if ((stat("/etc/init.d/", &etcinitd) == -1) && 
-	    (errno == ENOENT))
-	{
-		if ((stat("/etc/rc.d/init.d/", &etcinitd) == -1) &&
-		    (errno == ENOENT))
+	if (	(stat("/etc/init.d/", &etcinitd) == -1)
+		&& (errno == ENOENT)
+	) {
+		if (	(stat("/etc/rc.d/init.d/", &etcinitd) == -1)
+			&& (errno == ENOENT)
+		) {
 			initfile = CTDLDIR"/citadel.init";
-		else
+		}
+		else {
 			initfile = "/etc/rc.d/init.d/citadel";
+		}
 	}
 
 	fp = fopen(initfile, "r");
@@ -665,18 +655,21 @@ void install_init_scripts(void)
 
 	/* Set up the run levels. */
 	rv = system("/bin/rm -f /etc/rc?.d/[SK]??citadel 2>/dev/null");
-	if (rv != 0)
-		display_error(_("failed to remove system V init links \n"));
+	if (rv != 0) {
+		display_error(_("failed to remove system V init links\n"));
+	}
 
 	snprintf(command, sizeof(command), "for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/S79citadel ; done 2>/dev/null", initfile);
 	rv = system(command);
-	if (rv != 0)
-		display_error(_("failed to set system V init links \n"));
+	if (rv != 0) {
+		display_error(_("failed to set system V init links\n"));
+	}
 
 	snprintf(command, sizeof(command),"for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/K30citadel ; done 2>/dev/null", initfile);
 	rv = system(command);
-	if (rv != 0)
-		display_error(_("failed to set system V init links \n"));
+	if (rv != 0) {
+		display_error(_("failed to set system V init links\n"));
+	}
 }
 
 
@@ -712,7 +705,8 @@ void check_xinetd_entry(void) {
 			 _("Setup can configure the \"xinetd\" service to automatically\n"
 			   "connect incoming telnet sessions to Citadel, bypassing the\n"
 			   "host system login: prompt.  Would you like to do this?\n"
-				 ));
+			 )
+		);
 		if (yesno(buf, 1) == 0) {
 			return;
 		}
@@ -854,17 +848,21 @@ int test_server(char *relhomestr, int relhome) {
 	 * to the server and try to get it back.  The cookie does not
 	 * have to be secret ... just unique.
 	 */
-	sprintf(cookie, "--test--%d--", getpid());
+	generate_uuid(cookie);
 
-	if (relhome)
+	if (relhome) {
 		sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
 			ctdl_sbin_dir,
 			relhomestr,
-			cookie);
-	else
+			cookie
+		);
+	}
+	else {
 		sprintf(cmd, "%s/sendcommand ECHO %s 2>&1",
 			ctdl_sbin_dir,
-			cookie);
+			cookie
+		);
+	}
 
 	fp = popen(cmd, "r");
 	if (fp == NULL) return(errno);
@@ -914,8 +912,9 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 			Target,
 			dialog_result);
 		rv = system(buf);
-		if (rv != 0)
-			fprintf(stderr, "failed to run Dialog.\n");
+		if (rv != 0) {
+			fprintf(stderr, "failed to run whiptail or dialog\n");
+		}
 		
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
@@ -946,7 +945,8 @@ void set_str_val(int msgpos, char *Target, char *DefValue)
 	strprompt(setup_titles[msgpos], 
 		  setup_text[msgpos], 
 		  Target, 
-		  DefValue);
+		  DefValue
+	);
 }
 
 void set_int_val(int msgpos, int *ip, char *DefValue)
@@ -987,9 +987,9 @@ void edit_value(int curr)
 	{
 		Value = getenv(EnvNames[curr]);
 	}
-	if (Value == NULL)
+	if (Value == NULL) {
 		Value = "";
-
+	}
 
 	switch (curr) {
 
@@ -1011,7 +1011,7 @@ void edit_value(int curr)
 		else
 		{
 #ifdef __CYGWIN__
-			config.c_ctdluid = 0;	/* XXX Windows hack, prob. insecure */
+			config.c_ctdluid = 0;	/* work-around for Windows */
 #else
 			i = config.c_ctdluid;
 			pw = getpwuid(i);
@@ -1131,7 +1131,7 @@ void write_config_to_disk(void)
 int discover_ui(void)
 {
 
-	/* Use "dialog" if we have it */
+	/* Use "whiptail" or "dialog" if we have it */
 	if (getenv("CTDL_DIALOG") != NULL) {
 		return UI_DIALOG;
 	}
@@ -1564,8 +1564,7 @@ int main(int argc, char *argv[])
 
 	}
 
-	get_config ();
-
+	get_config();
 	set_default_values();
 
 	/* Go through a series of dialogs prompting for config info */
@@ -1634,5 +1633,3 @@ NEW_INST:
 	cleanup(0);
 	return 0;
 }
-
-

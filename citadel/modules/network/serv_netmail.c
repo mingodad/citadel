@@ -447,7 +447,7 @@ void network_spool_msg(long msgnum,
 			FreeStrBuf(&CC->redirect_buffer);
 
 			sc->num_msgs_spooled += 1;
-			free(msg);
+			CtdlFreeMessage(msg);
 		}
 	}
 

@@ -481,7 +481,7 @@ void network_do_queue(void) {
 	/* If there is anything in the inbound queue, process it */
 	if (!server_shutting_down) {
 		network_do_spoolin(working_ignetcfg, 
-				   the_netmap,
+				   &the_netmap,
 				   &netmap_changed);
 	}
 
