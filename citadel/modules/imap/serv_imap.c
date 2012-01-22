@@ -406,14 +406,14 @@ void imap_rescan_msgids(void)
 				 * array.
 				 */
 				--Imap->num_msgs;
-				memcpy(&Imap->msgids[i],
-				       &Imap->msgids[i + 1],
-				       (sizeof(long) *
-					(Imap->num_msgs - i)));
-				memcpy(&Imap->flags[i],
-				       &Imap->flags[i + 1],
-				       (sizeof(long) *
-					(Imap->num_msgs - i)));
+				memmove(&Imap->msgids[i],
+					&Imap->msgids[i + 1],
+					(sizeof(long) *
+					 (Imap->num_msgs - i)));
+				memmove(&Imap->flags[i],
+					&Imap->flags[i + 1],
+					(sizeof(long) *
+					 (Imap->num_msgs - i)));
 
 				--i;
 			}
