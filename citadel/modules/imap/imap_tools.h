@@ -35,7 +35,7 @@ int imap_datecmp(const char *datestr, time_t msgtime);
 
 
 /* Imap Append Printf, send to the outbuffer */
-void IAPrintf(const char *Format, ...);
+void IAPrintf(const char *Format, ...) __attribute__((__format__(__printf__,1,2)));
 
 void iaputs(const char *Str, long Len);
 #define IAPuts(Msg) iaputs(HKEY(Msg))
