@@ -285,21 +285,21 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		    char *cbid, void *cbuserdata)
 {
 	char mimebuf2[SIZ];
-	char *desired_section;
+	StrBuf *desired_section;
 
-	desired_section = (char *)cbuserdata;
+	desired_section = (StrBuf *)cbuserdata;
 	syslog(LOG_DEBUG, "imap_load_part() looking for %s, found %s",
-		desired_section,
-		partnum
+	       ChrPtr(desired_section),
+	       partnum
 	);
 
-	if (!strcasecmp(partnum, desired_section)) {
+	if (!strcasecmp(partnum, ChrPtr(desired_section))) {
 		client_write(content, length);
 	}
 
 	snprintf(mimebuf2, sizeof mimebuf2, "%s.MIME", partnum);
 
-	if (!strcasecmp(desired_section, mimebuf2)) {
+	if (!strcasecmp(ChrPtr(desired_section), mimebuf2)) {
 		client_write(HKEY("Content-type: "));
 	 	client_write(cbtype, strlen(cbtype));
 		if (!IsEmptyStr(cbcharset)) {
@@ -754,10 +754,10 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	 */
 	else {
 		mime_parser(msg->cm_fields['M'], NULL,
-				*imap_load_part, NULL, NULL,
-				ChrPtr(section),
-				1
-		);
+			    *imap_load_part, NULL, NULL,
+			    section,
+			    1
+			);
 	}
 
 	if (loading_body_now) {
