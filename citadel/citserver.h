@@ -14,9 +14,14 @@
 #include "context.h"
 
 /* Simple linked list structures ... used in a bunch of different places. */
+typedef struct RoomProcList RoomProcList;
 struct RoomProcList {
         struct RoomProcList *next;
         char name[ROOMNAMELEN];
+        char lcname[ROOMNAMELEN];
+	long namelen;
+	long key;
+	long QRNum;
 };
 struct UserProcList {
 	struct UserProcList *next;

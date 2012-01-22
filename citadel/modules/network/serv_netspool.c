@@ -380,7 +380,7 @@ int is_recipient(SpoolControl *sc, const char *Name)
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_spoolout_room(char *room_to_spool, 		       
+void network_spoolout_room(RoomProcList *room_to_spool, 		       
 			   char *working_ignetcfg,
 			   NetMap *the_netmap)
 {
@@ -394,8 +394,8 @@ void network_spoolout_room(char *room_to_spool,
 	 * Normally this should never happen, but once in a while maybe a room gets
 	 * queued for networking and then deleted before it can happen.
 	 */
-	if (CtdlGetRoom(&CC->room, room_to_spool) != 0) {
-		syslog(LOG_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
+	if (CtdlGetRoom(&CC->room, room_to_spool->name) != 0) {
+		syslog(LOG_CRIT, "ERROR: cannot load <%s>\n", room_to_spool->name);
 		return;
 	}
 
@@ -893,7 +893,7 @@ CTDL_MODULE_INIT(network_spool)
 	if (!threading)
 	{
 		create_spool_dirs();
-		CtdlRegisterCleanupHook(destroy_network_queue_room);
+//////todo		CtdlRegisterCleanupHook(destroy_network_queue_room);
 	}
 	return "network_spool";
 }

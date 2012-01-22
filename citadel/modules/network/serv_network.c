@@ -92,8 +92,13 @@
 #include "netmail.h"
 #include "ctdl_module.h"
 
+/* comes from lookup3.c from libcitadel... */
+extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
-
+typedef struct __roomlists {
+	RoomProcList *rplist;
+	HashList *RoomsInterestedIn;
+}roomlists;
 /*
  * When we do network processing, it's accomplished in two passes; one to
  * gather a list of rooms and one to actually do them.  It's ok that rplist
@@ -101,7 +106,37 @@
  */
 struct RoomProcList *rplist = NULL;
 
+int GetNetworkedRoomNumbers(const char *DirName, HashList *DirList)
+{
+	DIR *filedir = NULL;
+	struct dirent *d;
+	struct dirent *filedir_entry;
+	long RoomNR;
+	long Count;
+		
+	filedir = opendir (DirName);
+	if (filedir == NULL) {
+		return 0;
+	}
 
+	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
+	if (d == NULL) {
+		return 0;
+	}
+
+	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
+	       (filedir_entry != NULL))
+	{
+		RoomNR = atol(filedir_entry->d_name);
+		if (RoomNR != 0) {
+			Count++;
+			Put(DirList, LKEY(RoomNR), &Count, reference_free_handler);
+		}
+	}
+	free(d);
+	closedir(filedir);
+	return Count;
+}
 
 
 
@@ -253,36 +288,86 @@ void cmd_nsyn(char *argbuf) {
 /*
  * Batch up and send all outbound traffic from the current room
  */
+void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
+	int i;
+	struct RoomProcList *ptr;
+	long QRNum = qrbuf->QRnumber;
+	void *v;
+	roomlists *RP = (roomlists*) data;
+
+	if (!GetHash(RP->RoomsInterestedIn, LKEY(QRNum), &v))
+		return;
+
+	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
+	if (ptr == NULL) return;
+
+	ptr->namelen = strlen(qrbuf->QRname);
+	if (ptr->namelen > ROOMNAMELEN)
+		ptr->namelen = ROOMNAMELEN - 1;
+
+	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
+	ptr->name[ptr->namelen] = 0;
+	ptr->QRNum = qrbuf->QRnumber;
+
+	for (i = 0; i < ptr->namelen; i++)
+	{
+		ptr->lcname[i] = tolower(ptr->name[i]);
+	}
+
+	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
+	ptr->next = RP->rplist;
+	RP->rplist = ptr;
+}
+
+/*
+ * Batch up and send all outbound traffic from the current room
+ */
 void network_queue_room(struct ctdlroom *qrbuf, void *data) {
+	int i;
 	struct RoomProcList *ptr;
 
 	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
 	if (ptr == NULL) return;
 
-	safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
+	ptr->namelen = strlen(qrbuf->QRname);
+	if (ptr->namelen > ROOMNAMELEN)
+		ptr->namelen = ROOMNAMELEN - 1;
+
+	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
+	ptr->name[ptr->namelen] = 0;
+	ptr->QRNum = qrbuf->QRnumber;
+
+	for (i = 0; i < ptr->namelen; i++)
+	{
+		ptr->lcname[i] = tolower(ptr->name[i]);
+	}
+
+	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
 	end_critical_section(S_RPLIST);
 }
 
-void destroy_network_queue_room(void)
+void destroy_network_queue_room(RoomProcList *rplist)
 {
 	struct RoomProcList *cur, *p;
 
 	cur = rplist;
-	begin_critical_section(S_RPLIST);
 	while (cur != NULL)
 	{
 		p = cur->next;
 		free (cur);
 		cur = p;		
 	}
-	rplist = NULL;
-	end_critical_section(S_RPLIST);
 }
 
-
+void destroy_network_queue_room_locked (void)
+{
+	begin_critical_section(S_RPLIST);
+	destroy_network_queue_room(rplist);
+	end_critical_section(S_RPLIST);
+}
 
 
 
@@ -405,11 +490,11 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 void network_do_queue(void) {
 	static int doing_queue = 0;
 	static time_t last_run = 0L;
-	struct RoomProcList *ptr;
 	int full_processing = 1;
 	char *working_ignetcfg;
 	NetMap *the_netmap = NULL;
 	int netmap_changed = 0;
+	roomlists RL;
 
 	/*
 	 * Run the full set of processing tasks no more frequently
@@ -433,6 +518,19 @@ void network_do_queue(void) {
 	}
 	doing_queue = 1;
 
+	begin_critical_section(S_RPLIST);
+	RL.rplist = rplist;
+	rplist = NULL;
+	end_critical_section(S_RPLIST);
+
+	RL.RoomsInterestedIn = NewHash(1, lFlathash);
+	if (!GetNetworkedRoomNumbers(ctdl_netcfg_dir, RL.RoomsInterestedIn))
+	{
+		doing_queue = 0;
+		DeleteHash(&RL.RoomsInterestedIn);
+		if (RL.rplist == NULL)
+			return;
+	}
 	/* Load the IGnet Configuration into memory */
 	working_ignetcfg = load_working_ignetcfg();
 
@@ -447,34 +545,34 @@ void network_do_queue(void) {
 	 */
 	if (full_processing && !server_shutting_down) {
 		syslog(LOG_DEBUG, "network: loading outbound queue\n");
-		CtdlForEachRoom(network_queue_room, NULL);
+		CtdlForEachRoom(network_queue_interesting_rooms, &RL);
 	}
 
-	if (rplist != NULL) {
+	if (RL.rplist != NULL) {
+		RoomProcList *ptr, *cmp;
+		ptr = RL.rplist;
 		syslog(LOG_DEBUG, "network: running outbound queue\n");
-		while (rplist != NULL && !server_shutting_down) {
-			char spoolroomname[ROOMNAMELEN];
-			safestrncpy(spoolroomname, rplist->name, sizeof spoolroomname);
-			begin_critical_section(S_RPLIST);
+		while (ptr != NULL && !server_shutting_down) {
+			
+			cmp = ptr->next;
 
-			/* pop this record off the list */
-			ptr = rplist;
-			rplist = rplist->next;
-			free(ptr);
-
-			/* invalidate any duplicate entries to prevent double processing */
-			for (ptr=rplist; ptr!=NULL; ptr=ptr->next) {
-				if (!strcasecmp(ptr->name, spoolroomname)) {
-					ptr->name[0] = 0;
+			while (cmp != NULL) {
+				if ((cmp->namelen > 0) &&
+				    (cmp->key == ptr->key) &&
+				    (cmp->namelen == ptr->namelen) &&
+				    (strcmp(cmp->lcname, ptr->lcname) == 0))
+				{
+					cmp->namelen = 0;
 				}
+				cmp = cmp->next;
 			}
 
-			end_critical_section(S_RPLIST);
-			if (spoolroomname[0] != 0) {
-				network_spoolout_room(spoolroomname, 
+			if (ptr->namelen > 0) {
+				network_spoolout_room(ptr, 
 						      working_ignetcfg,
 						      the_netmap);
 			}
+			ptr = ptr->next;
 		}
 	}
 
@@ -499,7 +597,7 @@ void network_do_queue(void) {
 	if (full_processing) {
 		last_run = time(NULL);
 	}
-
+	destroy_network_queue_room(RL.rplist);
 	doing_queue = 0;
 }
 
@@ -522,7 +620,7 @@ CTDL_MODULE_INIT(network)
 	{
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 		CtdlRegisterRoomHook(network_room_handler);
-		CtdlRegisterCleanupHook(destroy_network_queue_room);
+		CtdlRegisterCleanupHook(destroy_network_queue_room_locked);
 		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	}
 	return "network";
