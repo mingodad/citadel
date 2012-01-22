@@ -152,11 +152,13 @@ struct irl {
 };
 
 /* Data which is passed between imap_rename() and imap_rename_backend() */
-struct irlparms {
-	char *oldname;
-	char *newname;
+typedef struct __irlparms {
+	const char *oldname;
+	long oldnamelen;
+	const char *newname;
+	long newnamelen;
 	struct irl **irl;
-};
+}irlparms;
 
 
 /*
@@ -1344,19 +1346,19 @@ void imap_rename_backend(struct ctdlroom *qrbuf, void *data)
 	char newroomname[ROOMNAMELEN];
 	int newfloor = 0;
 	struct irl *irlp = NULL;	/* scratch pointer */
-	struct irlparms *irlparms;
+	irlparms *myirlparms;
 
-	irlparms = (struct irlparms *) data;
+	myirlparms = (irlparms *) data;
 	imap_mailboxname(foldername, sizeof foldername, qrbuf);
 
 	/* Rename subfolders */
-	if ((!strncasecmp(foldername, irlparms->oldname,
-			  strlen(irlparms->oldname))
-	     && (foldername[strlen(irlparms->oldname)] == '/'))) {
+	if ((!strncasecmp(foldername, myirlparms->oldname,
+			  myirlparms->oldnamelen)
+	    && (foldername[myirlparms->oldnamelen] == '/'))) {
 
 		sprintf(newfoldername, "%s/%s",
-			irlparms->newname,
-			&foldername[strlen(irlparms->oldname) + 1]
+			myirlparms->newname,
+			&foldername[myirlparms->oldnamelen + 1]
 		    );
 
 		newfloor = imap_roomname(newroomname,
@@ -1367,8 +1369,8 @@ void imap_rename_backend(struct ctdlroom *qrbuf, void *data)
 		strcpy(irlp->irl_newroom, newroomname);
 		strcpy(irlp->irl_oldroom, qrbuf->QRname);
 		irlp->irl_newfloor = newfloor;
-		irlp->next = *(irlparms->irl);
-		*(irlparms->irl) = irlp;
+		irlp->next = *(myirlparms->irl);
+		*(myirlparms->irl) = irlp;
 	}
 }
 
@@ -1386,7 +1388,7 @@ void imap_rename(int num_parms, ConstStr *Params)
 	int r;
 	struct irl *irl = NULL;	/* the list */
 	struct irl *irlp = NULL;	/* scratch pointer */
-	struct irlparms irlparms;
+	irlparms irlparms;
 	char aidemsg[1024];
 
 	if (strchr(Params[3].Key, '\\') != NULL) {
@@ -1436,7 +1438,9 @@ void imap_rename(int num_parms, ConstStr *Params)
 	/* Otherwise, do the subfolders.  Build a list of rooms to rename... */
 	else {
 		irlparms.oldname = Params[2].Key;
+		irlparms.oldnamelen = Params[2].len;
 		irlparms.newname = Params[3].Key;
+		irlparms.newnamelen = Params[3].len;
 		irlparms.irl = &irl;
 		CtdlForEachRoom(imap_rename_backend, (void *) &irlparms);
 
