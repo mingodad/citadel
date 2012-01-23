@@ -47,7 +47,6 @@ void do_graphics_upload(char *filename)
 	StrBuf *Line;
 	const char *MimeType;
 	wcsession *WCC = WC;
-	char buf[SIZ];
 	int bytes_remaining;
 	int pos = 0;
 	int thisblock;
@@ -78,18 +77,18 @@ void do_graphics_upload(char *filename)
 	while (bytes_remaining) {
 		thisblock = ((bytes_remaining > 4096) ? 4096 : bytes_remaining);
 		serv_printf("WRIT %d", thisblock);
-	StrBuf_ServGetln(Line);
-	if (GetServerStatusMsg(Line, NULL, 1, 7) != 7) {
+		StrBuf_ServGetln(Line);
+		if (GetServerStatusMsg(Line, NULL, 1, 7) != 7) {
 			serv_puts("UCLS 0");
 			StrBuf_ServGetln(Line);
 			display_main_menu();
 			FreeStrBuf(&Line);
 			return;
 		}
-		thisblock = extract_int(&buf[4], 0);
+		thisblock = extract_int(ChrPtr(Line) +4, 0);
 		serv_write(&ChrPtr(WCC->upload)[pos], thisblock);
-		pos = pos + thisblock;
-		bytes_remaining = bytes_remaining - thisblock;
+		pos += thisblock;
+		bytes_remaining -= thisblock;
 	}
 
 	serv_puts("UCLS 1");
