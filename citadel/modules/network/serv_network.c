@@ -597,6 +597,7 @@ void network_do_queue(void) {
 	if (full_processing) {
 		last_run = time(NULL);
 	}
+	DeleteHash(&RL.RoomsInterestedIn);
 	destroy_network_queue_room(RL.rplist);
 	doing_queue = 0;
 }
