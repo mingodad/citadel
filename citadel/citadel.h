@@ -232,6 +232,9 @@ enum {
 #define GF_SKIP		1		/* <;S>kip floor mode */
 #define GF_ZAP		2		/* <;Z>ap floor mode */
 
+/* number of items which may be handled by the CONF command */
+#define NUM_CONFIGS 70
+
 /*
  * MIME types used in Citadel for configuration stuff
  */

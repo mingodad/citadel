@@ -1,21 +1,15 @@
 /*
  * This module handles states which are global to the entire server.
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ *  it under the terms of the GNU General Public License version 3.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -427,6 +421,8 @@ void cmd_conf(char *argbuf)
 		cprintf("%ld\n", config.c_pop3_fastest);
 		cprintf("%d\n", config.c_spam_flag_only);
 		cprintf("%d\n", config.c_guest_logins);
+		cprintf("%d\n", config.c_port_number);
+		cprintf("%d\n", config.c_ctdluid);
 		cprintf("000\n");
 	}
 
@@ -685,6 +681,12 @@ void cmd_conf(char *argbuf)
 				break;
 			case 67:
 				config.c_guest_logins = atoi(buf);
+				break;
+			case 68:
+				config.c_port_number = atoi(buf);
+				break;
+			case 69:
+				config.c_ctdluid = atoi(buf);
 				break;
 			}
 			++a;

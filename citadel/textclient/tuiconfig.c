@@ -1,6 +1,15 @@
 /*
  * Configuration screens that are part of the text mode client.
  *
+ * Copyright (c) 1987-2012 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include <stdlib.h>
@@ -62,7 +71,7 @@ extern int screenwidth;
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 68
+	/* NUM_CONFIGS is now defined in citadel.h */
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -355,8 +364,9 @@ void do_system_configuration(CtdlIPC *ipc)
 	scr_printf("Save this configuration? ");
 	if (yesno()) {
 		r = 1;
-		for (a = 0; a < NUM_CONFIGS; a++)
+		for (a = 0; a < NUM_CONFIGS; a++) {
 			r += 1 + strlen(sc[a]);
+		}
 		resp = (char *)calloc(1, r);
 		if (!resp) {
 			scr_printf("Can't save config - out of memory!\n");
