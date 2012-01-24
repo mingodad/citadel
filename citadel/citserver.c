@@ -346,9 +346,9 @@ void cmd_time(char *argbuf)
    
    /* timezone and daylight global variables are not portable. */
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
-   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, tmp.tm_gmtoff, tmp.tm_isdst);
+   cprintf("%d %ld|%ld|%d|%ld\n", CIT_OK, (long)tv, tmp.tm_gmtoff, tmp.tm_isdst, server_startup_time);
 #else
-   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, timezone, tmp.tm_isdst);
+   cprintf("%d %ld|%ld|%d|%ld\n", CIT_OK, (long)tv, timezone, tmp.tm_isdst, server_startup_time);
 #endif
 }
 
