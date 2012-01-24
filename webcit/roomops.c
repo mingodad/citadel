@@ -481,7 +481,7 @@ int SaveRoomAide(folder *Room)
 }
 
 
-int GetCurrentRoomFlags(folder *Room)
+int GetCurrentRoomFlags(folder *Room, int CareForStatusMessage)
 {
 	StrBuf *Buf;
 
@@ -492,8 +492,10 @@ int GetCurrentRoomFlags(folder *Room)
 		FlushStrBuf(Room->XAPass);
 		FlushStrBuf(Room->Directory);
 		StrBufCutLeft(Buf, 4);
-		AppendImportantMessage (SKEY(Buf));
+		if (CareForStatusMessage)
+			AppendImportantMessage (SKEY(Buf));
 		FreeStrBuf(&Buf);
+		Room->XALoaded = 2;
 		return 0;
 	} else {
 		const char *Pos;
@@ -560,10 +562,10 @@ void LoadRoomXA (void)
 {
 	wcsession *WCC = WC;
 		
-	if (WCC->CurRoom.XALoaded)
+	if (WCC->CurRoom.XALoaded > 0)
 		return;
 
-	GetCurrentRoomFlags(&WCC->CurRoom);
+	GetCurrentRoomFlags(&WCC->CurRoom, 0);
 }
 
 
@@ -658,7 +660,7 @@ void LoadXRoomXCountFiles(void)
 void toggle_self_service(void) {
 	wcsession *WCC = WC;
 
-	if (GetCurrentRoomFlags (&WCC->CurRoom) == 0)
+	if (GetCurrentRoomFlags (&WCC->CurRoom, 1) == 0)
 		return;
 
 	if (yesbstr("QR2_SelfList")) 
@@ -707,8 +709,10 @@ void editroom(void)
 		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
 	}
-	if (GetCurrentRoomFlags (&WCC->CurRoom) == 0)
+	if (GetCurrentRoomFlags (&WCC->CurRoom, 1) == 0) {
+		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
 		return;
+	}
 
 	LoadRoomAide();
 
@@ -849,7 +853,7 @@ void do_invt_kick(void)
 	wcsession *WCC = WC;
 
 
-	if (GetCurrentRoomFlags(&WCC->CurRoom) == 1)
+	if (GetCurrentRoomFlags(&WCC->CurRoom, 1) == 1)
 	{
 		const char *Pos;
 		UserNames = sbstr("username");
