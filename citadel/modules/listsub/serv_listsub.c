@@ -379,17 +379,15 @@ void do_confirm(char *room, char *token) {
 	int line_length;
 	char buf[512];
 	char cmd[256];
-	char email[256];
+	char email[256] = "";
 	char subtype[128];
 	int success = 0;
-	char address_to_unsubscribe[256];
+	char address_to_unsubscribe[256] = "";
 	char scancmd[256];
 	char scanemail[256];
 	char *holdbuf = NULL;
 	int linelen = 0;
 	int buflen = 0;
-
-	strcpy(address_to_unsubscribe, "");
 
 	if (CtdlGetRoom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
