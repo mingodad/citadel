@@ -3,8 +3,8 @@
  *
  * Copyright (c) 1987-2012 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,6 @@
  */
 
 #define SHOW_ME_VAPPEND_PRINTF
-#include "ctdl_module.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -30,11 +29,13 @@
 #include <limits.h>
 #include <pwd.h>
 #include <time.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <assert.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "axdefs.h"
 #include "sysdep.h"
-#include "config.h"
 #include "citadel_dirs.h"
 #if HAVE_BACKTRACE
 #include <execinfo.h>
@@ -51,17 +52,13 @@
 #define _(string)	(string)
 #endif
 
-
-#define MAXSETUP 11	/* How many setup questions to ask */
-
 #define UI_TEXT		0	/* Default setup type -- text only */
-#define UI_DIALOG	2	/* Use the 'dialog' program */
+#define UI_DIALOG	2	/* Use the 'whiptail' or 'dialog' program */
 #define UI_SILENT	3	/* Silent running, for use in scripts */
 
 #define SERVICE_NAME	"citadel"
 #define PROTO_NAME	"tcp"
 #define NSSCONF		"/etc/nsswitch.conf"
-
 
 typedef enum _SetupStep {
 	eCitadelHomeDir = 0,
@@ -96,11 +93,13 @@ const char *EnvNames [eMaxQuestions] = {
 	"LDAP_BIND_PW"
 };
 
-int setup_type;
+int setup_type = (-1);
 int using_web_installer = 0;
 int enable_home = 1;
 char admin_pass[SIZ];
 char admin_cmd[SIZ];
+int serv_sock = (-1) ;
+char configs[NUM_CONFIGS][1024];
 
 const char *setup_titles[eMaxQuestions];
 const char *setup_text[eMaxQuestions];
@@ -218,11 +217,7 @@ void SetTitles(void)
 	setup_text[eLDAP_Bind_DN] = _(
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
-"your LDAP server allows anonymous queries, you can leave this blank."
-"Please enter the DN of an account to use for binding to the LDAP server\n"
-"for performing queries.  The account does not require any other\n"
-"privileges.  If your LDAP server allows anonymous queries, you can\n"
-"leave this blank.\n");
+"your LDAP server allows anonymous queries, you can leave this blank.\n");
 
 	setup_titles[eLDAP_Bind_PW] = _("LDAP bind password:");
 	setup_text[eLDAP_Bind_PW] = _(
@@ -266,16 +261,7 @@ void cit_backtrace(void)
 #endif
 }
 
-struct config config;
 int direction;
-
-
-void cleanup(int exitcode)
-{
-//	printf("Exitcode: %d\n", exitcode);
-//	cit_backtrace();
-	exit(exitcode);
-}
 
 
 
@@ -306,12 +292,15 @@ int yesno(const char *question, int default_value)
 			if (fgets(buf, sizeof buf, stdin))
 			{
 				answer = tolower(buf[0]);
-				if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
+				if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10)) {
 					answer = default_value;
-				else if (answer == 'y')
+				}
+				else if (answer == 'y') {
 					answer = 1;
-				else if (answer == 'n')
+				}
+				else if (answer == 'n') {
 					answer = 0;
+				}
 			}
 		} while ((answer < 0) || (answer > 1));
 		break;
@@ -331,7 +320,6 @@ int yesno(const char *question, int default_value)
 		break;
 	case UI_SILENT:
 		break;
-
 	}
 	return (answer);
 }
@@ -340,7 +328,6 @@ int yesno(const char *question, int default_value)
 void important_message(const char *title, const char *msgtext)
 {
 	char buf[SIZ];
-	int rv;
 
 	switch (setup_type) {
 
@@ -355,9 +342,10 @@ void important_message(const char *title, const char *msgtext)
 		sprintf(buf, "exec %s --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
 			msgtext);
-		rv = system(buf);
-		if (rv != 0)
+		int rv = system(buf);
+		if (rv != 0) {
 			fprintf(stderr, _("failed to run the dialog command\n"));
+		}
 		break;
 	case UI_SILENT:
 		fprintf(stderr, "%s\n", msgtext);
@@ -398,7 +386,6 @@ void progress(char *text, long int curr, long int cmax)
 			printf("%s\n", text);
 			printf("....................................................");
 			printf("..........................\r");
-			fflush(stdout);
 			dots_printed = 0;
 		} else if (curr == cmax) {
 			printf("\r%79s\n", "");
@@ -409,9 +396,9 @@ void progress(char *text, long int curr, long int cmax)
 			while (dots_printed < a) {
 				printf("*");
 				++dots_printed;
-				fflush(stdout);
 			}
 		}
+		fflush(stdout);
 		break;
 
 	case UI_DIALOG:
@@ -443,235 +430,109 @@ void progress(char *text, long int curr, long int cmax)
 	case UI_SILENT:
 		break;
 
+	default:
+		assert(1==0);	/* If we got here then the developer is a moron */
+	}
+}
+
+
+
+int uds_connectsock(char *sockpath)
+{
+	int s;
+	struct sockaddr_un addr;
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		return(-1);
+	}
+
+	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		close(s);
+		return(-1);
+	}
+
+	return s;
+}
+
+
+/*
+ * input binary data from socket
+ */
+void serv_read(char *buf, int bytes)
+{
+	int len, rlen;
+
+	len = 0;
+	while (len < bytes) {
+		rlen = read(serv_sock, &buf[len], bytes - len);
+		if (rlen < 1) {
+			return;
+		}
+		len = len + rlen;
+	}
+}
+
+
+/*
+ * send binary to server
+ */
+void serv_write(char *buf, int nbytes)
+{
+	int bytes_written = 0;
+	int retval;
+	while (bytes_written < nbytes) {
+		retval = write(serv_sock, &buf[bytes_written], nbytes - bytes_written);
+		if (retval < 1) {
+			return;
+		}
+		bytes_written = bytes_written + retval;
 	}
 }
 
 
 
 /*
- * check_services_entry()  -- Make sure "citadel" is in /etc/services
- *
+ * input string from socket - implemented in terms of serv_read()
  */
-void check_services_entry(void)
+void serv_gets(char *buf)
 {
 	int i;
-	FILE *sfp;
-	char errmsg[256];
 
-	if (getservbyname(SERVICE_NAME, PROTO_NAME) == NULL) {
-		for (i=0; i<=2; ++i) {
-			progress(_("Adding service entry..."), i, 2);
-			if (i == 0) {
-				sfp = fopen("/etc/services", "a");
-				if (sfp == NULL) {
-					sprintf(errmsg, "%s /etc/services: %s", _("Cannot open"), strerror(errno));
-					display_error(errmsg);
-				} else {
-					fprintf(sfp, "%s		504/tcp\n", SERVICE_NAME);
-					fclose(sfp);
-				}
-			}
-		}
-	}
-}
-
-
-
-
-/*
- * delete_inittab_entry()  -- Remove obsolete /etc/inittab entry for Citadel
- */
-void delete_inittab_entry(void)
-{
-	FILE *infp;
-	FILE *outfp;
-	char looking_for[256];
-	char buf[1024];
-	char outfilename[32];
-	int changes_made = 0;
-	int rv;
-
-	/* Determine the fully qualified path name of citserver */
-	snprintf(looking_for, sizeof looking_for, "%s/citserver", ctdl_sbin_dir);
-
-	/* Now tweak /etc/inittab */
-	infp = fopen("/etc/inittab", "r");
-	if (infp == NULL) {
-
-		/* If /etc/inittab does not exist, return quietly.
-		 * Not all host platforms have it.
-		 */
-		if (errno == ENOENT) {
-			return;
-		}
-
-		/* Other errors might mean something really did go wrong.
-		 */
-		sprintf(buf, "%s /etc/inittab: %s", _("Cannot open"), strerror(errno));
-		display_error(buf);
-		return;
+	/* Read one character at a time.
+	 */
+	for (i = 0;; i++) {
+		serv_read(&buf[i], 1);
+		if (buf[i] == '\n' || i == (SIZ-1))
+			break;
 	}
 
-	strcpy(outfilename, "/tmp/ctdlsetup.XXXXXX");
-	outfp = fdopen(mkstemp(outfilename), "w+");
-	if (outfp == NULL) {
-		sprintf(buf, "%s %s: %s", _("Cannot open"), outfilename, strerror(errno));
-		display_error(buf);
-		fclose(infp);
-		return;
-	}
-
-	while (fgets(buf, sizeof buf, infp) != NULL) {
-		if (strstr(buf, looking_for) != NULL) {
-			rv = fwrite("#", 1, 1, outfp);
-			if (rv == -1)
-			{
-				display_error("%s %s\n",
-					      _("failed to modify inittab"), 
-					      strerror(errno));
-			}
-			++changes_made;
-		}
-		rv = fwrite(buf, strlen(buf), 1, outfp);
-		if (rv == -1)
-		{
-			display_error("%s %s\n", _("failed to modify inittab"), strerror(errno));
+	/* If we got a long line, discard characters until the newline.
+	 */
+	if (i == (SIZ-1)) {
+		while (buf[i] != '\n') {
+			serv_read(&buf[i], 1);
 		}
 	}
 
-	fclose(infp);
-	fclose(outfp);
-
-	if (changes_made) {
-		sprintf(buf, "/bin/mv -f %s /etc/inittab 2>/dev/null", outfilename);
-		rv = system(buf);
-		rv = system("/sbin/init q 2>/dev/null");
-	}
-	else {
-		unlink(outfilename);
-	}
+	/* Strip all trailing nonprintables (crlf)
+	 */
+	buf[i] = 0;
 }
 
 
 /*
- * install_init_scripts()  -- Try to configure to start Citadel at boot
+ * send line to server - implemented in terms of serv_write()
  */
-void install_init_scripts(void)
+void serv_puts(char *buf)
 {
-	struct stat etcinitd;
-	FILE *fp;
-	char *initfile = "/etc/init.d/citadel";
-	char command[SIZ];
-	int rv;
-
-	if (	(stat("/etc/init.d/", &etcinitd) == -1)
-		&& (errno == ENOENT)
-	) {
-		if (	(stat("/etc/rc.d/init.d/", &etcinitd) == -1)
-			&& (errno == ENOENT)
-		) {
-			initfile = CTDLDIR"/citadel.init";
-		}
-		else {
-			initfile = "/etc/rc.d/init.d/citadel";
-		}
-	}
-
-	fp = fopen(initfile, "r");
-	if (fp != NULL) {
-		if (yesno(_("Citadel already appears to be configured to start at boot.\n"
-			    "Would you like to keep your boot configuration as is?\n"), 1) == 1) {
-			return;
-		}
-		fclose(fp);
-		
-	}
-
-	if (yesno(_("Would you like to automatically start Citadel at boot?\n"), 1) == 0) {
-		return;
-	}
-
-	fp = fopen(initfile, "w");
-	if (fp == NULL) {
-		display_error("%s /etc/init.d/citadel", _("Cannot create"));
-		return;
-	}
-
-	fprintf(fp,	"#!/bin/sh\n"
-		"#\n"
-		"# Init file for Citadel\n"
-		"#\n"
-		"# chkconfig: - 79 30\n"
-		"# description: Citadel service\n"
-		"# processname: citserver\n"
-		"# pidfile: %s/citadel.pid\n\n"
-		"# uncomment this to create coredumps as described in\n"
-		"# http://www.citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files\n"
-		"# ulimit -c unlimited\n"
-		"\n"
-		"CITADEL_DIR=%s\n"
-		,
-		ctdl_run_dir,
-		ctdl_sbin_dir
-		);
-	fprintf(fp,	"\n"
-		"test -d /var/run || exit 0\n"
-		"\n"
-		"case \"$1\" in\n"
-		"\n"
-		"start)		echo -n \"Starting Citadel... \"\n"
-		"		if $CITADEL_DIR/citserver -lmail -d\n"
-		"		then\n"
-		"			echo \"ok\"\n"
-		"		else\n"
-		"			echo \"failed\"\n"
-		"		fi\n");
-	fprintf(fp,	"		;;\n"
-		"stop)		echo -n \"Stopping Citadel... \"\n"
-		"		if $CITADEL_DIR/sendcommand DOWN >/dev/null 2>&1 ; then\n"
-		"			echo \"ok\"\n"
-		"		else\n"
-		"			echo \"failed\"\n"
-		"		fi\n"
-		"		rm -f %s/citadel.pid 2>/dev/null\n"
-		,
-		ctdl_run_dir
-		);
-	fprintf(fp,	"		;;\n"
-		"restart)	if $CITADEL_DIR/sendcommand DOWN 1 >/dev/null 2>&1 ; then\n"
-		"			echo \"ok\"\n"
-		"		else\n"
-		"			echo \"failed\"\n"
-		"		fi\n"
-		"               ;;\n"
-		"*)		echo \"Usage: $0 {start|stop|restart}\"\n"
-		"		exit 1\n"
-		"		;;\n"
-		"esac\n"
-		);
-
-	fclose(fp);
-	chmod(initfile, 0755);
-
-	/* Set up the run levels. */
-	rv = system("/bin/rm -f /etc/rc?.d/[SK]??citadel 2>/dev/null");
-	if (rv != 0) {
-		display_error(_("failed to remove system V init links\n"));
-	}
-
-	snprintf(command, sizeof(command), "for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/S79citadel ; done 2>/dev/null", initfile);
-	rv = system(command);
-	if (rv != 0) {
-		display_error(_("failed to set system V init links\n"));
-	}
-
-	snprintf(command, sizeof(command),"for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/K30citadel ; done 2>/dev/null", initfile);
-	rv = system(command);
-	if (rv != 0) {
-		display_error(_("failed to set system V init links\n"));
-	}
+	serv_write(buf, strlen(buf));
+	serv_write("\n", 1);
 }
-
 
 
 /*
@@ -689,7 +550,9 @@ void check_xinetd_entry(void) {
 	if (fp == NULL) return;		/* Not there.  Oh well... */
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
-		if (strstr(buf, "/citadel") != NULL) already_citadel = 1;
+		if (strstr(buf, "/citadel") != NULL) {
+			already_citadel = 1;
+		}
 	}
 	fclose(fp);
 	if (already_citadel) return;	/* Already set up this way. */
@@ -731,8 +594,9 @@ void check_xinetd_entry(void) {
 
 	/* Now try to restart the service */
 	rv = system("/etc/init.d/xinetd restart >/dev/null 2>&1");
-	if (rv != 0)
+	if (rv != 0) {
 		display_error(_("failed to restart xinetd.\n"));
+	}
 }
 
 
@@ -746,9 +610,11 @@ void disable_other_mta(const char *mta) {
 	int lines = 0;
 	int rv;
 
-	sprintf(buf, "/bin/ls -l /etc/rc*.d/S*%s 2>/dev/null; "
+	sprintf(buf,
+		"/bin/ls -l /etc/rc*.d/S*%s 2>/dev/null; "
 		"/bin/ls -l /etc/rc.d/rc*.d/S*%s 2>/dev/null",
-		mta, mta);
+		mta, mta
+	);
 	fp = popen(buf, "r");
 	if (fp == NULL) return;
 
@@ -757,7 +623,6 @@ void disable_other_mta(const char *mta) {
 	}
 	fclose(fp);
 	if (lines == 0) return;		/* Nothing to do. */
-
 
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
 
@@ -834,53 +699,6 @@ void disable_other_mtas(void)
 	}
 }
 
-/* 
- * Check to see if our server really works.  Returns 0 on success.
- */
-int test_server(char *relhomestr, int relhome) {
-	char cmd[256];
-	char cookie[256];
-	FILE *fp;
-	char buf[4096];
-	int found_it = 0;
-
-	/* Generate a silly little cookie.  We're going to write it out
-	 * to the server and try to get it back.  The cookie does not
-	 * have to be secret ... just unique.
-	 */
-	generate_uuid(cookie);
-
-	if (relhome) {
-		sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
-			ctdl_sbin_dir,
-			relhomestr,
-			cookie
-		);
-	}
-	else {
-		sprintf(cmd, "%s/sendcommand ECHO %s 2>&1",
-			ctdl_sbin_dir,
-			cookie
-		);
-	}
-
-	fp = popen(cmd, "r");
-	if (fp == NULL) return(errno);
-
-	while (fgets(buf, sizeof buf, fp) != NULL) {
-		if ( (buf[0]=='2')
-		     && (strstr(buf, cookie) != NULL) ) {
-			++found_it;
-		}
-	}
-	pclose(fp);
-
-	if (found_it) {
-		return(0);
-	}
-	return(-1);
-}
-
 void strprompt(const char *prompt_title, const char *prompt_text, char *Target, char *DefValue)
 {
 	char buf[SIZ] = "";
@@ -906,7 +724,7 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 
 	case UI_DIALOG:
 		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
-		sprintf(buf, "exec %s --inputbox '%s' 19 72 '%s' 2>%s",
+		sprintf(buf, "exec %s --nocancel --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
 			prompt_text,
 			Target,
@@ -949,30 +767,14 @@ void set_str_val(int msgpos, char *Target, char *DefValue)
 	);
 }
 
-void set_int_val(int msgpos, int *ip, char *DefValue)
+/* like set_str_val() but make sure we ended up with a numeric value */
+void set_int_val(int msgpos, char *target, char *DefValue)
 {
-	char buf[16];
-	snprintf(buf, sizeof buf, "%d", (int) *ip);
-	set_str_val(msgpos, buf, DefValue);
-	*ip = atoi(buf);
-}
-
-
-void set_char_val(int msgpos, char *ip, char *DefValue)
-{
-	char buf[16];
-	snprintf(buf, sizeof buf, "%d", (int) *ip);
-	set_str_val(msgpos, buf, DefValue);
-	*ip = (char) atoi(buf);
-}
-
-
-void set_long_val(int msgpos, long int *ip, char *DefValue)
-{
-	char buf[16];
-	snprintf(buf, sizeof buf, "%ld", *ip);
-	set_str_val(msgpos, buf, DefValue);
-	*ip = atol(buf);
+	while(1) {
+		set_str_val(msgpos, target, DefValue);
+		if (!strcmp(target, "0")) return;
+		if (atoi(target) != 0) return;
+	}
 }
 
 
@@ -994,7 +796,7 @@ void edit_value(int curr)
 	switch (curr) {
 
 	case eSysAdminName:
-		set_str_val(curr, config.c_sysadm, Value);
+		set_str_val(curr, configs[13], Value);
 		break;
 
 	case eSysAdminPW:
@@ -1005,29 +807,29 @@ void edit_value(int curr)
 		if (setup_type == UI_SILENT)
 		{		
 			if (Value) {
-				config.c_ctdluid = atoi(Value);
+				sprintf(configs[69], "%d", atoi(Value));
 			}					
 		}
 		else
 		{
 #ifdef __CYGWIN__
-			config.c_ctdluid = 0;	/* work-around for Windows */
+			strcpy(configs[69], "0");	/* work-around for Windows */
 #else
-			i = config.c_ctdluid;
+			i = atoi(configs[69]);
 			pw = getpwuid(i);
 			if (pw == NULL) {
-				set_int_val(curr, &i, Value);
-				config.c_ctdluid = i;
+				set_int_val(curr, configs[69], Value);
+				sprintf(configs[69], "%d", i);
 			}
 			else {
 				strcpy(ctdluidname, pw->pw_name);
 				set_str_val(curr, ctdluidname, Value);
 				pw = getpwnam(ctdluidname);
 				if (pw != NULL) {
-					config.c_ctdluid = pw->pw_uid;
+					sprintf(configs[69], "%d", pw->pw_uid);
 				}
 				else if (atoi(ctdluidname) > 0) {
-					config.c_ctdluid = atoi(ctdluidname);
+					sprintf(configs[69], "%d", atoi(ctdluidname));
 				}
 			}
 #endif
@@ -1035,93 +837,68 @@ void edit_value(int curr)
 		break;
 
 	case eIP_ADDR:
-		set_str_val(curr, config.c_ip_addr, Value);
+		set_str_val(curr, configs[37], Value);
 		break;
 
 	case eCTDL_Port:
-		set_int_val(curr, &config.c_port_number, Value);
+		set_int_val(curr, configs[68], Value);
 		break;
 
 	case eAuthType:
 		if (setup_type == UI_SILENT)
 		{
 			const char *auth;
-			config.c_auth_mode = AUTHMODE_NATIVE;
+			//config.c_auth_mode = AUTHMODE_NATIVE;
 			auth = Value;
 			if (auth != NULL)
 			{
 				if ((strcasecmp(auth, "yes") == 0) ||
 				    (strcasecmp(auth, "host") == 0))
 				{
-					config.c_auth_mode = AUTHMODE_HOST;
+					//config.c_auth_mode = AUTHMODE_HOST;
 				}
 				else if (strcasecmp(auth, "ldap") == 0){
-					config.c_auth_mode = AUTHMODE_LDAP;
+					//config.c_auth_mode = AUTHMODE_LDAP;
 				}
 				else if ((strcasecmp(auth, "ldap_ad") == 0) ||
 					 (strcasecmp(auth, "active directory") == 0)){
-					config.c_auth_mode = AUTHMODE_LDAP_AD;
+					//config.c_auth_mode = AUTHMODE_LDAP_AD;
 				}
 			}
 		}
 		else {
-			set_int_val(curr, &config.c_auth_mode, Value);
+			set_int_val(curr, configs[52], Value);
 		}
 		break;
 
 	case eLDAP_Host:
-		set_str_val(curr, config.c_ldap_host, Value);
+		if (IsEmptyStr(configs[32])) {
+			strcpy(configs[32], "localhost");
+		}
+		set_str_val(curr, configs[32], Value);
 		break;
 
 	case eLDAP_Port:
-		if (config.c_ldap_port == 0) {
-			config.c_ldap_port = 389;
+		if (atoi(configs[33]) == 0) {
+			strcpy(configs[33], "389");
 		}
-		set_int_val(curr, &config.c_ldap_port, Value);
+		set_int_val(curr, configs[33], Value);
 		break;
 
 	case eLDAP_Base_DN:
-		set_str_val(curr, config.c_ldap_base_dn, Value);
+		set_str_val(curr, configs[34], Value);
 		break;
 
 	case eLDAP_Bind_DN:
-		set_str_val(curr, config.c_ldap_bind_dn, Value);
+		set_str_val(curr, configs[35], Value);
 		break;
 
 	case eLDAP_Bind_PW:
-		set_str_val(curr, config.c_ldap_bind_pw, Value);
+		set_str_val(curr, configs[36], Value);
 		break;
 
 	}
 }
-
-/*
- * (re-)write the config data to disk
- */
-void write_config_to_disk(void)
-{
-	FILE *fp;
-	int fd;
-	int rv;
-
-	if ((fd = creat(file_citadel_config, S_IRUSR | S_IWUSR)) == -1) {
-		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
-		cleanup(1);
-	}
-	fp = fdopen(fd, "wb");
-	if (fp == NULL) {
-		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
-		cleanup(1);
-		return;
-	}
-	rv = fwrite((char *) &config, sizeof(struct config), 1, fp);
-
-	if (rv == -1)
-		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot write"), file_citadel_config, strerror(errno));
-
-	fclose(fp);
-}
-
 
 
 
@@ -1220,78 +997,28 @@ void fixnss(void) {
 	if (yesno(question, 1)) {
 		sprintf(buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
 		rv = system(buf);
-		if (rv != 0)
+		if (rv != 0) {
 			fprintf(stderr, "failed to edit %s.\n", NSSCONF);
-
+		}
 		chmod(NSSCONF, 0644);
 	}
 	unlink(new_filename);
 }
 
-void check_init_script (char *relhome)
-{
-	int rv;
-	FILE *fp;
 
-	/* 
-	 * If we're running on SysV, install init scripts.
-	 */
-	if (!access("/var/run", W_OK)) {
 
-		if (getenv("NO_INIT_SCRIPTS") == NULL) {
-			install_init_scripts();
-		}
-
-		if (!access("/etc/init.d/citadel", X_OK)) {
-			rv = system("/etc/init.d/citadel start");
-			if (rv != 0)
-				fprintf(stderr, "failed to call our initscript.");
-			sleep(3);
-		}
-
-		if (test_server(relhome, enable_home) == 0) {
-			char buf[SIZ];
-			int found_it = 0;
-
-			if (config.c_auth_mode == AUTHMODE_NATIVE) {
-				snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\" 2>&1", 
-				  	ctdl_sbin_dir, config.c_sysadm, admin_pass);
-				fp = popen(admin_cmd, "r");
-				if (fp != NULL) {
-					while (fgets(buf, sizeof buf, fp) != NULL) 
-					{
-						if ((atol(buf) == 574) || (atol(buf) == 200))
-							++found_it;
-					}
-					pclose(fp);
-				}
-			
-				if (found_it == 0) {
-					important_message("Error","Setup failed to create your admin user");
-				}
-			}
-
-			if (setup_type != UI_SILENT)
+#if 0
 				important_message(_("Setup finished"),
 						  _("Setup of the Citadel server is complete.\n"
 						    "If you will be using WebCit, please run its\n"
 						    "setup program now; otherwise, run './citadel'\n"
 						    "to log in.\n"));
-		}
-		else {
 			important_message(_("Setup failed"),
 					  _("Setup is finished, but the Citadel server failed to start.\n"
 					    "Go back and check your configuration.\n")
-				);
-		}
-
-	}
-
-	else {
 		important_message(_("Setup finished"),
 				  _("Setup is finished.  You may now start the server."));
-	}
-}
+#endif
 
 
 
@@ -1336,6 +1063,7 @@ void GetDefaultValStr(char *WhereTo, size_t nMax, const char *VarName, const cha
 
 void set_default_values(void)
 {
+#if 0
 	struct passwd *pw;
 	struct utsname my_utsname;
 	struct hostent *he;
@@ -1416,68 +1144,25 @@ void set_default_values(void)
 	GetDefaultVALINT(c_managesieve_port, 2020);
 	GetDefaultVALINT(c_xmpp_c2s_port, 5222);
 	GetDefaultVALINT(c_xmpp_s2s_port, 5269);
+#endif
 }
 
 
-void get_config (void)
-{
-	int a;
-	int rv;
-	FILE *fp;
-
-	/*
-	 * What we're going to try to do here is append a whole bunch of
-	 * nulls to the citadel.config file, so we can keep the old config
-	 * values if they exist, but if the file is missing or from an
-	 * earlier version with a shorter config structure, when setup tries
-	 * to read the old config parameters, they'll all come up zero.
-	 * The length of the config file will be set to what it's supposed
-	 * to be when we rewrite it, because we replace the old file with a
-	 * completely new copy.
-	 */
-	if ((a = open(file_citadel_config, O_WRONLY | O_CREAT | O_APPEND,
-		      S_IRUSR | S_IWUSR)) == -1) {
-		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot append"), file_citadel_config, strerror(errno));
-		cleanup(errno);
-	}
-	fp = fdopen(a, "ab");
-	if (fp == NULL) {
-		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot append"), file_citadel_config, strerror(errno));
-		cleanup(errno);
-	}
-	for (a = 0; a < sizeof(struct config); ++a) {
-		putc(0, fp);
-	}
-	fclose(fp);
-
-	/* now we re-open it, and read the old or blank configuration */
-	fp = fopen(file_citadel_config, "rb");
-	if (fp == NULL) {
-		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
-		cleanup(errno);
-		return;
-	}
-	rv = fread((char *) &config, sizeof(struct config), 1, fp);
-	if (rv == -1)
-		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot write"), file_citadel_config, strerror(errno));
-	fclose(fp);
-
-}
 
 int main(int argc, char *argv[])
 {
-	int a;
-	int curr; 
+	int a, i;
+	int curr;
+	char buf[1024]; 
 	char aaa[128];
-	int old_setup_level = 0;
 	int info_only = 0;
 	int relh=0;
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
-	int rv;
 	struct passwd *pw;
 	gid_t gid;
+	char *activity = NULL;
 	
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -1523,7 +1208,7 @@ int main(int argc, char *argv[])
 	}
 	if (info_only == 1) {
 		important_message(_("Citadel Setup"), CITADEL);
-		cleanup(0);
+		exit(0);
 	}
 
 	enable_home = ( relh | home );
@@ -1533,103 +1218,191 @@ int main(int argc, char *argv[])
 			      "%s: [%s]\n", 
 			      _("The directory you specified does not exist"), 
 			      ctdl_run_dir);
-		cleanup(errno);
+		exit(errno);
 	}
 
 
-	/* Try to stop Citadel if we can */
-	if (!access("/etc/init.d/citadel", X_OK)) {
-		rv = system("/etc/init.d/citadel stop");
-		if (rv != 0)
-			fprintf(stderr, _("failed to stop us using the initscript.\n"));
+	/*
+	 * Connect to the running Citadel server.
+	 */
+        serv_sock = uds_connectsock(file_citadel_admin_socket);
+	if (serv_sock < 0) { 
+		display_error(
+			"%s\n", 
+			_("Setup could not connect to a running Citadel server.")
+		);
+		exit(1);
 	}
 
-	/* Make sure Citadel is not running. */
-	if (test_server(relhome, enable_home) == 0) {
-		important_message(_("Citadel Setup"),
-				  _("The Citadel service is still running.\n"
-				    "Please stop the service manually and run "
-				    "setup again."));
-		cleanup(1);
+	/*
+	 * read the server greeting
+	 */
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		display_error("%s\n", buf);
+		exit(2);
 	}
 
-	/* Now begin. */
-	switch (setup_type) {
+	/*
+	 * Are we connected to the correct Citadel server?
+	 */
+	serv_puts("INFO");
+	serv_gets(buf);
+	if (buf[0] != '1') {
+		display_error("%s\n", buf);
+		exit(3);
+	}
+	a = 0;
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (a == 5) {
+			if (atoi(buf) != REV_LEVEL) {
+				display_error("%s\n",
+				_("Your setup program and Citadel server are from different versions.")
+				);
+				exit(4);
+			}
+		}
+		++a;
+	}
 
-	case UI_TEXT:
+	/*
+	 * Load the server's configuration
+	 */
+	serv_puts("CONF GET");
+	serv_gets(buf);
+	if (buf[0] != '1') {
+		display_error("%s\n", buf);
+		exit(5);
+	}
+	memset(configs, 0, sizeof configs);
+	a = 0;
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (a < NUM_CONFIGS) {
+			safestrncpy(configs[a], buf, sizeof(configs[a]));
+		}
+		++a;
+	}
+
+
+	/*
+	 * Now begin.
+	 */
+
+	/* _("Citadel Setup"),  */
+
+	if (setup_type == UI_TEXT) {
 		printf("\n\n\n"
-		       "	       *** %s ***\n\n",
-		       _("Citadel setup program"));
-		break;
-
+			"	       *** %s ***\n\n",
+			_("Citadel setup program")
+		);
 	}
 
-	get_config();
+	if (setup_type == UI_DIALOG) {
+		system("clear 2>/dev/null");
+	}
+
 	set_default_values();
 
 	/* Go through a series of dialogs prompting for config info */
-	for (curr = 1; curr <= MAXSETUP; ++curr) {
+	for (curr = 1; curr < eMaxQuestions; ++curr) {
 		edit_value(curr);
-		if ((curr == 6) && (config.c_auth_mode != AUTHMODE_LDAP) && (config.c_auth_mode != AUTHMODE_LDAP_AD)) {
+		if (	(curr == 6)
+			&& (atoi(configs[52]) != AUTHMODE_LDAP)
+			&& (atoi(configs[52]) != AUTHMODE_LDAP_AD)
+		) {
 			curr += 5;	/* skip LDAP questions if we're not authenticating against LDAP */
 		}
 	}
 
-	/***** begin version update section *****/
+	//config.c_setup_level = REV_LEVEL;
 
-	old_setup_level = config.c_setup_level;
-
-	if (old_setup_level == 0) {
-		goto NEW_INST;
-	}
-
-	if (old_setup_level < 555) {
-		important_message(
-			_("Citadel Setup"),
-			_("This Citadel installation is too old to be upgraded.")
-		);
-		cleanup(1);
-	}
-	write_config_to_disk();
-
-	old_setup_level = config.c_setup_level;
-
-	/***** end of version update section *****/
-
-NEW_INST:
-	config.c_setup_level = REV_LEVEL;
-
-	if ((pw = getpwuid(config.c_ctdluid)) == NULL) {
+	if ((pw = getpwuid(atoi(configs[69]))) == NULL) {
 		gid = getgid();
 	} else {
 		gid = pw->pw_gid;
 	}
 
-	create_run_directories(config.c_ctdluid, gid);
+	create_run_directories(atoi(configs[69]), gid);
 
-	write_config_to_disk();
-
-	if (	((setup_type == UI_SILENT)
-		&& (getenv("ALTER_ETC_SERVICES")!=NULL))
-		|| (setup_type != UI_SILENT)
-	) {
-		check_services_entry();	/* Check /etc/services */
+	activity = _("Reconfiguring Citadel server");
+	progress(activity, 0, NUM_CONFIGS+1);
+	sleep(1);					/* Let the message appear briefly */
+	serv_puts("CONF SET");
+	serv_gets(buf);
+	if (buf[0] == '4') {
+		for (i=0; i<NUM_CONFIGS; ++i) {
+			progress(activity, i+1, NUM_CONFIGS+1);
+			serv_puts(configs[i]);
+		}
+		serv_puts("000");
 	}
+	sleep(1);					/* Let the message appear briefly */
+	progress(activity, NUM_CONFIGS+1, NUM_CONFIGS+1);
 
 #ifndef __CYGWIN__
-	delete_inittab_entry();	/* Remove obsolete /etc/inittab entry */
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 	disable_other_mtas();   /* Offer to disable other MTAs */
 	fixnss();		/* Check for the 'db' nss and offer to disable it */
 #endif
 
-	progress(_("Setting file permissions"), 1, 3);
-	rv = chown(file_citadel_config, config.c_ctdluid, gid);
-	progress(_("Setting file permissions"), 2, 3);
-	rv = chmod(file_citadel_config, S_IRUSR | S_IWUSR);
-	progress(_("Setting file permissions"), 3, 3);
+	activity = _("Setting file permissions");
+	progress(activity, 0, 2);
+	//chown(file_citadel_config, config.c_ctdluid, gid);
+	progress(activity, 1, 2);
+	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
+	progress(activity, 2, 2);
 
-	check_init_script(relhome);
-	cleanup(0);
+	/*
+	 * Restart citserver
+	 */
+	activity = _("Restarting Citadel server to apply changes");
+	progress(activity, 0, 41);
+
+	serv_puts("TIME");
+	serv_gets(buf);
+	long original_start_time = extract_long(&buf[4], 3);
+
+	progress(activity, 1, 41);
+	serv_puts("DOWN 1");
+	progress(activity, 2, 41);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		display_error("%s\n", buf);
+		exit(6);
+	}
+
+	close(serv_sock);
+	serv_sock = (-1);
+
+	for (i=3; i<=6; ++i) {
+		progress(activity, i, 41);
+		sleep(1);
+	}
+
+	for (i=7; ((i<=38) && (serv_sock < 0)) ; ++i) {
+		progress(activity, i, 41);
+        	serv_sock = uds_connectsock(file_citadel_admin_socket);
+		sleep(1);
+	}
+
+	progress(activity, 39, 41);
+	serv_gets(buf);
+
+	progress(activity, 40, 41);
+	serv_puts("TIME");
+	serv_gets(buf);
+	long new_start_time = extract_long(&buf[4], 3);
+
+	close(serv_sock);
+	progress(activity, 41, 41);
+
+	if (original_start_time == new_start_time) {
+		display_error("%s\n",
+			_("Setup failed to restart Citadel server.  Please restart it manually.")
+		);
+		exit(7);
+	}
+
+	exit(0);
 	return 0;
 }
