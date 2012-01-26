@@ -912,10 +912,12 @@ SessionDestroyModule_TCPSOCKETS
 {
 	FreeStrBuf(&sess->CLineBuf);
 	FreeStrBuf(&sess->ReadBuf);
+	sess->connected = 0;
 	sess->ReadPos = NULL;
 	FreeStrBuf(&sess->MigrateReadLineBuf);
 	if (sess->serv_sock > 0) {
 		syslog(LOG_DEBUG, "Closing socket %d", sess->serv_sock);
 		close(sess->serv_sock);
 	}
+	sess->serv_sock = -1;
 }
