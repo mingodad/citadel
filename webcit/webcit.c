@@ -31,7 +31,7 @@ StrBuf *csslocal = NULL;
 HashList *HandlerHash = NULL;
 
 void stuff_to_cookie(int unset_cookie);
-int GetConnected(void);
+extern int GetConnected(void);
 
 
 void PutRequestLocalMem(void *Data, DeleteHashDataFunc DeleteIt)
