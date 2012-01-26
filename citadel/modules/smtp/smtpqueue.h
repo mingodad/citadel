@@ -21,17 +21,9 @@
 /*               SMTP CLIENT (Queue Management) STUFF                        */
 /*****************************************************************************/
 
-
-
 #define MaxAttempts 15
-typedef struct _delivery_attempt {
-	time_t when;
-	time_t retry;
-}DeliveryAttempt;
 
 typedef struct _mailq_entry {
-	DeliveryAttempt Attempts[MaxAttempts];
-	int nAttempts;
 	StrBuf *Recipient;
 	StrBuf *StatusMessage;
 	int Status;
@@ -58,7 +50,9 @@ typedef struct queueitem {
  * if null add a new one.
  */
 	MailQEntry *Current;
-	DeliveryAttempt LastAttempt;
+	time_t ReattemptWhen;
+	time_t Retry;
+
 	long ActiveDeliveries;
 	StrBuf *EnvelopeFrom;
 	StrBuf *BounceTo;

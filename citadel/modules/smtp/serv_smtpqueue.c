@@ -94,6 +94,7 @@ pthread_mutex_t ActiveQItemsLock;
 HashList *ActiveQItems  = NULL;
 HashList *QItemHandlers = NULL;
 
+static const long MaxRetry = SMTP_RETRY_INTERVAL * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2;
 int MsgCount            = 0;
 int run_queue_now       = 0;	/* Set to 1 to ignore SMTP send retry times */
 
@@ -217,7 +218,7 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 
 	Item = (OneQueItem*)malloc(sizeof(OneQueItem));
 	memset(Item, 0, sizeof(OneQueItem));
-	Item->LastAttempt.retry = SMTP_RETRY_INTERVAL;
+	Item->Retry = SMTP_RETRY_INTERVAL;
 	Item->MessageID = -1;
 	Item->QueMsgID = QueMsgID;
 
@@ -239,6 +240,9 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 	}
 	FreeStrBuf(&Line);
 	FreeStrBuf(&Token);
+
+	if (Item->Retry >= MaxRetry)
+		Item->FailNow = 1;
 
 	pthread_mutex_lock(&ActiveQItemsLock);
 	if (GetHash(ActiveQItems,
@@ -289,29 +293,23 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 		StrBufAppendBuf(QMessage, MyQItem->EnvelopeFrom, 0);
 	}
 
+	StrBufAppendBufPlain(QMessage, HKEY("\nretry|"), 0);
+	StrBufAppendPrintf(QMessage, "%ld",
+			   MyQItem->Retry);
+
+	StrBufAppendBufPlain(QMessage, HKEY("\nattempted|"), 0);
+	StrBufAppendPrintf(QMessage, "%ld",
+			   MyQItem->ReattemptWhen);
+
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		int i;
 
 		if (!ThisItem->Active)
 		{
 			/* skip already sent ones from the spoolfile. */
 			continue;
-		}
-
-		for (i=0; i < ThisItem->nAttempts; i++) {
-			/* TODO: most probably
-			 * there is just one retry/attempted per message!
-			 */
-			StrBufAppendBufPlain(QMessage, HKEY("\nretry|"), 0);
-			StrBufAppendPrintf(QMessage, "%ld",
-					   ThisItem->Attempts[i].retry);
-
-			StrBufAppendBufPlain(QMessage, HKEY("\nattempted|"), 0);
-			StrBufAppendPrintf(QMessage, "%ld",
-					   ThisItem->Attempts[i].when);
 		}
 		StrBufAppendBufPlain(QMessage, HKEY("\nremote|"), 0);
 		StrBufAppendBuf(QMessage, ThisItem->Recipient, 0);
@@ -378,16 +376,9 @@ void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
 
 void QItem_Handle_retry(OneQueItem *Item, StrBuf *Line, const char **Pos)
 {
-	if (Item->Current == NULL)
-		NewMailQEntry(Item);
-	if (Item->Current->Attempts[Item->Current->nAttempts].retry != 0)
-		Item->Current->nAttempts++;
-	if (Item->Current->nAttempts > MaxAttempts) {
-		Item->FailNow = 1;
-		return;
-	}
-	Item->Current->Attempts[Item->Current->nAttempts].retry =
+	Item->Retry =
 		StrBufExtractNext_int(Line, Pos, '|');
+	Item->Retry *= 2;
 }
 
 
@@ -399,31 +390,7 @@ void QItem_Handle_Submitted(OneQueItem *Item, StrBuf *Line, const char **Pos)
 
 void QItem_Handle_Attempted(OneQueItem *Item, StrBuf *Line, const char **Pos)
 {
-	if (Item->Current == NULL)
-		NewMailQEntry(Item);
-	if (Item->Current->Attempts[Item->Current->nAttempts].when != 0)
-		Item->Current->nAttempts++;
-	if (Item->Current->nAttempts > MaxAttempts) {
-		Item->FailNow = 1;
-		return;
-	}
-
-	Item->Current->Attempts[Item->Current->nAttempts].when =
-		StrBufExtractNext_int(Line, Pos, '|');
-	if (Item->Current->Attempts[Item->Current->nAttempts].when >
-	    Item->LastAttempt.when)
-	{
-		Item->LastAttempt.when =
-			Item->Current->Attempts[Item->Current->nAttempts].when;
-
-		Item->LastAttempt.retry =
-			Item->Current->Attempts[
-				Item->Current->nAttempts
-				].retry * 2;
-
-		if (Item->LastAttempt.retry > SMTP_RETRY_MAX)
-			Item->LastAttempt.retry = SMTP_RETRY_MAX;
-	}
+	Item->ReattemptWhen = StrBufExtractNext_int(Line, Pos, '|');
 }
 
 
@@ -694,8 +661,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	/*
 	 * Postpone delivery if we've already tried recently.
 	 */
-	if (((time(NULL) - MyQItem->LastAttempt.when) <
-	     MyQItem->LastAttempt.retry) &&
+	if (((time(NULL) - MyQItem->ReattemptWhen) > 0) &&
 	    (run_queue_now == 0))
 	{
 		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
