@@ -209,10 +209,9 @@ int main(int argc, char **argv)
 	syslog(LOG_DEBUG, "Called as: %s", argv[0]);
 	syslog(LOG_INFO, "%s", libcitadel_version_string());
 
-	/* Load site-specific parameters, and set the ipgm secret */
+	/* Load site-specific configuration */
 	syslog(LOG_INFO, "Loading citadel.config");
 	get_config();
-	config.c_ipgm_secret = rand();
 
 	/* get_control() MUST MUST MUST be called BEFORE the databases are opened!! */
 	syslog(LOG_INFO, "Acquiring control record");

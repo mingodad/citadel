@@ -209,8 +209,6 @@ void master_startup(void) {
 	srand(seed);
 	srandom(seed);
 
-	syslog(LOG_INFO, "Initializing ipgm secret\n");
-	config.c_ipgm_secret = rand();
 	put_config();
 
 	syslog(LOG_DEBUG, "master_startup() finished\n");
@@ -759,36 +757,6 @@ void cmd_echo(char *etext)
 }
 
 
-/* 
- * Perform privilege escalation for an internal program
- */
-void cmd_ipgm(char *argbuf)
-{
-	int secret;
-
-	secret = extract_int(argbuf, 0);
-
-	/* For security reasons, we do NOT allow this command to run
-	 * over the network.  Local sockets only.
-	 */
-	if (!CC->is_local_socket) {
-		sleep(5);
-		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
-	}
-	else if (secret == config.c_ipgm_secret) {
-		CC->internal_pgm = 1;
-		strcpy(CC->curr_user, "<internal program>");
-		CC->cs_flags = CC->cs_flags|CS_STEALTH;
-		cprintf("%d Authenticated as an internal program.\n", CIT_OK);
-	}
-	else {
-		sleep(5);
-		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
-		syslog(LOG_ERR, "Warning: ipgm authentication failed.\n");
-		CC->kill_me = KILLME_AUTHFAILED;
-	}
-}
-
 
 /*
  * Shut down the server
@@ -1113,7 +1081,6 @@ CTDL_MODULE_INIT(citserver)
 		CtdlRegisterProtoHook(cmd_echo, "ECHO", "echo text back to the client");
 		CtdlRegisterProtoHook(cmd_more, "MORE", "fetch the paginator prompt");
 		CtdlRegisterProtoHook(cmd_iden, "IDEN", "identify the client software and location");
-		CtdlRegisterProtoHook(cmd_ipgm, "IPGM", "perform privilege escalation for internal programs");
 		CtdlRegisterProtoHook(cmd_term, "TERM", "terminate another running session");
 		CtdlRegisterProtoHook(cmd_down, "DOWN", "perform a server shutdown");
 		CtdlRegisterProtoHook(cmd_halt, "HALT", "halt the server without exiting the server process");
