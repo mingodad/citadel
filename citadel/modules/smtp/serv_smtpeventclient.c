@@ -627,6 +627,7 @@ eNextState SMTP_C_Timeout(AsyncIO *IO)
 {
 	SmtpOutMsg *pMsg = IO->Data;
 
+	pMsg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	return FailOneAttempt(IO);
@@ -635,12 +636,15 @@ eNextState SMTP_C_ConnFail(AsyncIO *IO)
 {
 	SmtpOutMsg *pMsg = IO->Data;
 
+	pMsg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_DNSFail(AsyncIO *IO)
 {
+	SmtpOutMsg *pMsg = IO->Data;
+	pMsg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	return FailOneAttempt(IO);
 }

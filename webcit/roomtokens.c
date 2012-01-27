@@ -266,6 +266,15 @@ int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
 
 
 /****** Properties ******/
+int ConditionalRoom_MayEdit(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	LoadRoomXA ();
+
+	return WCC->CurRoom.XALoaded == 1;
+}
+
 int ConditionalThisRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 {
 	long QR_CheckFlag;
@@ -613,6 +622,7 @@ InitModule_ROOMTOKENS
 	/****** Properties ******/
 	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, NULL, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR"), 0, ConditionalThisRoomHas_QRFlag, CTX_NONE);
+	RegisterConditional(HKEY("COND:THISROOM:EDIT"), 0, ConditionalRoom_MayEdit, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAG:QR"), 0, ConditionalRoomHas_QRFlag, CTX_ROOMS);
 
 	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR2"), 0, ConditionalThisRoomHas_QRFlag2, CTX_NONE);

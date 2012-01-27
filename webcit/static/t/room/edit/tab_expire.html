@@ -1,4 +1,4 @@
-<div class="tabcontent">
+<?!("COND:THISROOM:EDIT", 1)><div class="tabcontent">
 	<br />
 	<form method="post" action="set_room_policy">
 		<input type="hidden" name="nonce" value="<?NONCE>" />
@@ -69,3 +69,4 @@
 		<input type="hidden" name="last_tabsel" value="<?TAB:N>" />
 	</form>
 </div>
+<?!("X", 1)><??("COND:THISROOM:EDIT", 20)><div class="tabcontent"><?_("Higher access is required to access this function.")></div><??("X", 20)>

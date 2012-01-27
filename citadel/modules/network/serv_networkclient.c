@@ -437,6 +437,7 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 		NW->State = eQUIT;
 		rc = NWC_SendQUIT(NW);
 		NWC_DBG_SEND();
+		return rc;
 	}
 
 	if (fstat(fd, &statbuf) == -1) {

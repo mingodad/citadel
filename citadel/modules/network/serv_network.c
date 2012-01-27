@@ -112,7 +112,7 @@ int GetNetworkedRoomNumbers(const char *DirName, HashList *DirList)
 	struct dirent *d;
 	struct dirent *filedir_entry;
 	long RoomNR;
-	long Count;
+	long Count = 0;
 		
 	filedir = opendir (DirName);
 	if (filedir == NULL) {
@@ -306,7 +306,7 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
 		ptr->namelen = ROOMNAMELEN - 1;
 
 	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
-	ptr->name[ptr->namelen] = 0;
+	ptr->name[ptr->namelen] = '\0';
 	ptr->QRNum = qrbuf->QRnumber;
 
 	for (i = 0; i < ptr->namelen; i++)
@@ -314,6 +314,7 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
 		ptr->lcname[i] = tolower(ptr->name[i]);
 	}
 
+	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
 	ptr->next = RP->rplist;
 	RP->rplist = ptr;
@@ -334,15 +335,16 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 		ptr->namelen = ROOMNAMELEN - 1;
 
 	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
-	ptr->name[ptr->namelen] = 0;
+	ptr->name[ptr->namelen] = '\0';
 	ptr->QRNum = qrbuf->QRnumber;
 
 	for (i = 0; i < ptr->namelen; i++)
 	{
 		ptr->lcname[i] = tolower(ptr->name[i]);
 	}
-
+	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
+
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
@@ -524,7 +526,8 @@ void network_do_queue(void) {
 	end_critical_section(S_RPLIST);
 
 	RL.RoomsInterestedIn = NewHash(1, lFlathash);
-	if (!GetNetworkedRoomNumbers(ctdl_netcfg_dir, RL.RoomsInterestedIn))
+	if (full_processing &&
+	    (GetNetworkedRoomNumbers(ctdl_netcfg_dir, RL.RoomsInterestedIn)==0))
 	{
 		doing_queue = 0;
 		DeleteHash(&RL.RoomsInterestedIn);
