@@ -1,21 +1,15 @@
 /*
  * This module dumps and/or loads the Citadel database in XML format.
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -55,11 +49,7 @@
 #include "user_ops.h"
 #include "control.h"
 #include "euidindex.h"
-
-
 #include "ctdl_module.h"
-
-
 
 #define END_OF_MESSAGE	"---eom---dbd---"
 
@@ -68,13 +58,9 @@ char migr_tempfilename2[PATH_MAX];
 FILE *migr_global_message_list;
 
 
-
-
 /*
  * Code which implements the export appears in this section
  */
-
-
 
 /*
  * Output a string to the client with these characters escaped:  & < >
@@ -421,7 +407,6 @@ void migr_do_export(void) {
 	cprintf("<c_restrict>%d</c_restrict>\n", config.c_restrict);
 	client_write("<c_site_location>", 17);	xml_strout(config.c_site_location);	client_write("</c_site_location>\n", 19);
 	client_write("<c_sysadm>", 10);		xml_strout(config.c_sysadm);		client_write("</c_sysadm>\n", 12);
-	cprintf("<c_setup_level>%d</c_setup_level>\n", config.c_setup_level);
 	cprintf("<c_maxsessions>%d</c_maxsessions>\n", config.c_maxsessions);
 	client_write("<c_ip_addr>", 11);	xml_strout(config.c_ip_addr);		client_write("</c_ip_addr>\n", 13);
 	cprintf("<c_port_number>%d</c_port_number>\n", config.c_port_number);
@@ -656,7 +641,6 @@ void migr_xml_end(void *data, const char *el) {
 	else if (!strcasecmp(el, "c_restrict"))			config.c_restrict = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_site_location"))		safestrncpy(config.c_site_location, migr_chardata, sizeof config.c_site_location);
 	else if (!strcasecmp(el, "c_sysadm"))			safestrncpy(config.c_sysadm, migr_chardata, sizeof config.c_sysadm);
-	else if (!strcasecmp(el, "c_setup_level"))		config.c_setup_level = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_maxsessions"))		config.c_maxsessions = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_ip_addr"))			safestrncpy(config.c_ip_addr, migr_chardata, sizeof config.c_ip_addr);
 	else if (!strcasecmp(el, "c_port_number"))		config.c_port_number = atoi(migr_chardata);

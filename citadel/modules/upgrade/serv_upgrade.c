@@ -21,6 +21,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/utsname.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -48,10 +49,7 @@
 #include "msgbase.h"
 #include "serv_upgrade.h"
 #include "euidindex.h"
-
-
 #include "ctdl_module.h"
-
 
 
 /*
@@ -257,6 +255,82 @@ void guess_time_zone(void) {
 
 
 /*
+ * Put some sane default values into our configuration.  Some will be overridden when we run setup.
+ */
+void brand_new_installation_set_defaults(void) {
+
+	struct passwd *pw;
+	struct utsname my_utsname;
+	struct hostent *he;
+
+	/* Determine our host name, in case we need to use it as a default */
+	uname(&my_utsname);
+
+	/* set some sample/default values in place of blanks... */
+	char c_nodename[256];
+	safestrncpy(c_nodename, my_utsname.nodename, sizeof c_nodename);
+	strtok(config.c_nodename, ".");
+	if (IsEmptyStr(config.c_fqdn) ) {
+		if ((he = gethostbyname(my_utsname.nodename)) != NULL) {
+			safestrncpy(config.c_fqdn, he->h_name, sizeof config.c_fqdn);
+		}
+		else {
+			safestrncpy(config.c_fqdn, my_utsname.nodename, sizeof config.c_fqdn);
+		}
+	}
+
+	safestrncpy(config.c_humannode, "Citadel Server", sizeof config.c_humannode);
+	safestrncpy(config.c_phonenum, "US 800 555 1212", sizeof config.c_phonenum);
+	config.c_initax = 4;
+	safestrncpy(config.c_moreprompt, "<more>", sizeof config.c_moreprompt);
+	safestrncpy(config.c_twitroom, "Trashcan", sizeof config.c_twitroom);
+	safestrncpy(config.c_baseroom, BASEROOM, sizeof config.c_baseroom);
+	safestrncpy(config.c_aideroom, "Aide", sizeof config.c_aideroom);
+	config.c_port_number = 504;
+	config.c_sleeping = 900;
+	config.c_instant_expunge = 1;
+
+	if (config.c_ctdluid == 0) {
+		pw = getpwnam("citadel");
+		if (pw != NULL) {
+			config.c_ctdluid = pw->pw_uid;
+		}
+	}
+	if (config.c_ctdluid == 0) {
+		pw = getpwnam("bbs");
+		if (pw != NULL) {
+			config.c_ctdluid = pw->pw_uid;
+		}
+	}
+	if (config.c_ctdluid == 0) {
+		pw = getpwnam("guest");
+		if (pw != NULL) {
+			config.c_ctdluid = pw->pw_uid;
+		}
+	}
+	if (config.c_createax == 0) {
+		config.c_createax = 3;
+	}
+
+	/*
+	 * Default port numbers for various services
+	 */
+	config.c_smtp_port = 25;
+	config.c_pop3_port = 110;
+	config.c_imap_port = 143;
+	config.c_msa_port = 587;
+	config.c_smtps_port = 465;
+	config.c_pop3s_port = 995;
+	config.c_imaps_port = 993;
+	config.c_pftcpdict_port = -1 ;
+	config.c_managesieve_port = 2020;
+	config.c_xmpp_c2s_port = 5222;
+	config.c_xmpp_s2s_port = 5269;
+}
+
+
+
+/*
  * Perform any upgrades that can be done automatically based on our knowledge of the previous
  * version of Citadel server that was running here.
  *
@@ -266,7 +340,7 @@ void update_config(void) {
 	get_config();
 
 	if (CitControl.version == 0) {
-		config.c_instant_expunge = 1;
+		brand_new_installation_set_defaults();
 	}
 
 	if (CitControl.version < 606) {
@@ -353,6 +427,23 @@ void check_server_upgrades(void) {
 		remove_thread_users();
 	}
 	CitControl.version = REV_LEVEL;
+
+	/*
+	 * Negative values for maxsessions are not allowed.
+	 */
+	if (config.c_maxsessions < 0) {
+		config.c_maxsessions = 0;
+	}
+
+	/* We need a system default message expiry policy, because this is
+	 * the top level and there's no 'higher' policy to fall back on.
+	 * By default, do not expire messages at all.
+	 */
+	if (config.c_ep.expire_mode == 0) {
+		config.c_ep.expire_mode = EXPIRE_MANUAL;
+		config.c_ep.expire_value = 0;
+	}
+
 	put_control();
 }
 

@@ -106,17 +106,6 @@ void get_config(void) {
 	}
 #endif
 
-	/* Check to see whether 'setup' must first be run to update data file formats */
-	if (config.c_setup_level < REV_MIN) {
-		fprintf(stderr, "Your data files are out of date.  Run setup to update them.\n");
-		fprintf(stderr, "        This program requires level %d.%02d\n",
-			(REV_LEVEL / 100), (REV_LEVEL % 100));
-		fprintf(stderr, "        Data files are currently at %d.%02d\n",
-			(config.c_setup_level / 100),
-			(config.c_setup_level % 100));
-		exit(CTDLEXIT_OOD);
-	}
-
         /* Default maximum message length is 10 megabytes.  This is site
 	 * configurable.  Also check to make sure the limit has not been
 	 * set below 8192 bytes.

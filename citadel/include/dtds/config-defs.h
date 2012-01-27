@@ -21,11 +21,11 @@ CFG_VALUE(CHAR(c_twitdetect),			" twit detect flag                 ");
 CFG_VALUE(STRING_BUF(c_twitroom, ROOMNAMELEN),	" twit detect msg move to room     ");
 CFG_VALUE(STRING_BUF(c_moreprompt, 80),		" paginator prompt                 ");
 CFG_VALUE(CHAR(c_restrict),			" restrict internet mail flag      ");
-NO_ARTV(CFG_VALUE(LONG(c_niu_1),		" (not in use)                     ")); ///////
+NO_ARTV(CFG_VALUE(LONG(c_niu_1),		" (not in use)                     "));
 CFG_VALUE(STRING_BUF(c_site_location, 32),	" physical location of server      ");
 CFG_VALUE(STRING_BUF(c_sysadm, 26),		" name of system administrator     ");
 NO_ARTV(CFG_VALUE(STRING_BUF(c_niu_2, 15),	" (not in use)                     "));
-CFG_VALUE(INTEGER(c_setup_level),		" what rev level we've setup to    ");
+CFG_VALUE(INTEGER(c_setup_level),		" (not in use)                     ");
 CFG_VALUE(INTEGER(c_maxsessions),		" maximum concurrent sessions      ");
 /* c_ip_addr is out of sortorder; its located after c_ldap_bind_pw in the old export */
 CFG_VALUE(STRING_BUF(c_ip_addr, 20),		" IP address to listen on          "); 

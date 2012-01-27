@@ -2102,18 +2102,18 @@ CTDL_MODULE_INIT(user_ops)
 		CtdlRegisterProtoHook(cmd_invt, "INVT", "Invite a user to a room");
 		CtdlRegisterProtoHook(cmd_kick, "KICK", "Kick a user out of a room");
 		CtdlRegisterProtoHook(cmd_forg, "FORG", "Forget a room");
-		CtdlRegisterProtoHook(cmd_gnur, "GNUR", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_gnur, "GNUR", "Get Next Unregistered User");
 		CtdlRegisterProtoHook(cmd_vali, "VALI", "Validate new users");
 		CtdlRegisterProtoHook(cmd_list, "LIST", "List users");
-		CtdlRegisterProtoHook(cmd_chek, "CHEK", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_qusr, "QUSR", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_agup, "AGUP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_asup, "ASUP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_seen, "SEEN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_gtsn, "GTSN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_view, "VIEW", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_renu, "RENU", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_newu, "NEWU", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_chek, "CHEK", "assorted info we need to check at login");
+		CtdlRegisterProtoHook(cmd_qusr, "QUSR", "check to see if a user exists");
+		CtdlRegisterProtoHook(cmd_agup, "AGUP", "Administratively Get User Parameters");
+		CtdlRegisterProtoHook(cmd_asup, "ASUP", "Administratively Set User Parameters");
+		CtdlRegisterProtoHook(cmd_seen, "SEEN", "Manipulate seen/unread message flags");
+		CtdlRegisterProtoHook(cmd_gtsn, "GTSN", "Fetch seen/unread message flags");
+		CtdlRegisterProtoHook(cmd_view, "VIEW", "Set preferred view for user/room combination");
+		CtdlRegisterProtoHook(cmd_renu, "RENU", "Rename a user");
+		CtdlRegisterProtoHook(cmd_newu, "NEWU", "Log in as a new user");
 	}
 	/* return our Subversion id for the Log */
 	return "user_ops";

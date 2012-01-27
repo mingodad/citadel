@@ -21,7 +21,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/utsname.h>
 #include <sys/wait.h>
 #include <signal.h>
 #include <netdb.h>
@@ -306,7 +305,7 @@ int yesno(const char *question, int default_value)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "exec %s %s --yesno '%s' 15 75",
+		snprintf(buf, sizeof buf, "exec %s %s --yesno '%s' 15 75",
 			getenv("CTDL_DIALOG"),
 			( default_value ? "" : "--defaultno" ),
 			question);
@@ -339,7 +338,7 @@ void important_message(const char *title, const char *msgtext)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "exec %s --msgbox '%s' 19 72",
+		snprintf(buf, sizeof buf, "exec %s --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
 			msgtext);
 		int rv = system(buf);
@@ -403,7 +402,7 @@ void progress(char *text, long int curr, long int cmax)
 
 	case UI_DIALOG:
 		if (curr == 0) {
-			sprintf(buf, "exec %s --gauge '%s' 7 72 0",
+			snprintf(buf, sizeof buf, "exec %s --gauge '%s' 7 72 0",
 				getenv("CTDL_DIALOG"),
 				text);
 			fp = popen(buf, "w");
@@ -610,7 +609,7 @@ void disable_other_mta(const char *mta) {
 	int lines = 0;
 	int rv;
 
-	sprintf(buf,
+	snprintf(buf, sizeof buf,
 		"/bin/ls -l /etc/rc*.d/S*%s 2>/dev/null; "
 		"/bin/ls -l /etc/rc.d/rc*.d/S*%s 2>/dev/null",
 		mta, mta
@@ -649,12 +648,12 @@ void disable_other_mta(const char *mta) {
 	}
 	
 
-	sprintf(buf, "for x in /etc/rc*.d/S*%s; do mv $x `echo $x |sed s/S/K/g`; done >/dev/null 2>&1", mta);
+	snprintf(buf, sizeof buf, "for x in /etc/rc*.d/S*%s; do mv $x `echo $x |sed s/S/K/g`; done >/dev/null 2>&1", mta);
 	rv = system(buf);
 	if (rv != 0)
 		display_error("%s %s.\n", _("failed to disable other mta"), mta);
 
-	sprintf(buf, "/etc/init.d/%s stop >/dev/null 2>&1", mta);
+	snprintf(buf, sizeof buf, "/etc/init.d/%s stop >/dev/null 2>&1", mta);
 	rv = system(buf);
 	if (rv != 0)
 		display_error(" %s.\n", _("failed to disable other mta"), mta);
@@ -724,7 +723,7 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 
 	case UI_DIALOG:
 		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
-		sprintf(buf, "exec %s --nocancel --inputbox '%s' 19 72 '%s' 2>%s",
+		snprintf(buf, sizeof buf, "exec %s --nocancel --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
 			prompt_text,
 			Target,
@@ -995,7 +994,7 @@ void fixnss(void) {
 	);
 
 	if (yesno(question, 1)) {
-		sprintf(buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
+		snprintf(buf, sizeof buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
 		rv = system(buf);
 		if (rv != 0) {
 			fprintf(stderr, "failed to edit %s.\n", NSSCONF);
@@ -1283,7 +1282,6 @@ int main(int argc, char *argv[])
 		++a;
 	}
 
-
 	/*
 	 * Now begin.
 	 */
@@ -1291,10 +1289,7 @@ int main(int argc, char *argv[])
 	/* _("Citadel Setup"),  */
 
 	if (setup_type == UI_TEXT) {
-		printf("\n\n\n"
-			"	       *** %s ***\n\n",
-			_("Citadel setup program")
-		);
+		printf("\n\n\n	       *** %s ***\n\n", _("Citadel setup program"));
 	}
 
 	if (setup_type == UI_DIALOG) {
@@ -1312,9 +1307,22 @@ int main(int argc, char *argv[])
 		) {
 			curr += 5;	/* skip LDAP questions if we're not authenticating against LDAP */
 		}
-	}
 
-	//config.c_setup_level = REV_LEVEL;
+		if (curr == eSysAdminName) {
+			if (atoi(configs[52]) == AUTHMODE_NATIVE) {
+						/* for native auth mode, fetch the admin's existing pw */
+				snprintf(buf, sizeof buf, "AGUP %s", configs[13]);
+				serv_puts(buf);
+				serv_gets(buf);
+				if (buf[0] == '2') {
+					extract_token(admin_pass, &buf[4], 1, '|', sizeof admin_pass);
+				}
+			}
+			else {
+				++curr;		/* skip the password question for non-native auth modes */
+			}
+		}
+	}
 
 	if ((pw = getpwuid(atoi(configs[69]))) == NULL) {
 		gid = getgid();
@@ -1325,19 +1333,45 @@ int main(int argc, char *argv[])
 	create_run_directories(atoi(configs[69]), gid);
 
 	activity = _("Reconfiguring Citadel server");
-	progress(activity, 0, NUM_CONFIGS+1);
+	progress(activity, 0, NUM_CONFIGS+3);
 	sleep(1);					/* Let the message appear briefly */
 	serv_puts("CONF SET");
 	serv_gets(buf);
 	if (buf[0] == '4') {
 		for (i=0; i<NUM_CONFIGS; ++i) {
-			progress(activity, i+1, NUM_CONFIGS+1);
+			progress(activity, i+1, NUM_CONFIGS+3);
 			serv_puts(configs[i]);
 		}
 		serv_puts("000");
 	}
 	sleep(1);					/* Let the message appear briefly */
-	progress(activity, NUM_CONFIGS+1, NUM_CONFIGS+1);
+
+	/*
+	 * Create the administrator account.  It's ok if the command fails if this user already exists.
+	 */
+	progress(activity, NUM_CONFIGS+1, NUM_CONFIGS+3);
+	snprintf(buf, sizeof buf, "CREU %s|%s", configs[13], admin_pass);
+	serv_puts(buf);
+	progress(activity, NUM_CONFIGS+2, NUM_CONFIGS+3);
+	serv_gets(buf);
+	progress(activity, NUM_CONFIGS+3, NUM_CONFIGS+3);
+
+	/*
+	 * Assign the desired password and access level to the administrator account.
+	 */
+	snprintf(buf, sizeof buf, "AGUP %s", configs[13]);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		int admin_flags = extract_int(&buf[4], 2);
+		int admin_times_called = extract_int(&buf[4], 3);
+		int admin_msgs_posted = extract_int(&buf[4], 4);
+		snprintf(buf, sizeof buf, "ASUP %s|%s|%d|%d|%d|6",
+			configs[13], admin_pass, admin_flags, admin_times_called, admin_msgs_posted
+		);
+		serv_puts(buf);
+		serv_gets(buf);
+	}
 
 #ifndef __CYGWIN__
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
@@ -1374,12 +1408,12 @@ int main(int argc, char *argv[])
 	close(serv_sock);
 	serv_sock = (-1);
 
-	for (i=3; i<=6; ++i) {
+	for (i=3; i<=6; ++i) {					/* wait for server to shut down */
 		progress(activity, i, 41);
 		sleep(1);
 	}
 
-	for (i=7; ((i<=38) && (serv_sock < 0)) ; ++i) {
+	for (i=7; ((i<=38) && (serv_sock < 0)) ; ++i) {		/* wait for server to start up */
 		progress(activity, i, 41);
         	serv_sock = uds_connectsock(file_citadel_admin_socket);
 		sleep(1);
@@ -1396,7 +1430,9 @@ int main(int argc, char *argv[])
 	close(serv_sock);
 	progress(activity, 41, 41);
 
-	if (original_start_time == new_start_time) {
+	if (	(original_start_time == new_start_time)
+		|| (new_start_time <= 0)
+	) {
 		display_error("%s\n",
 			_("Setup failed to restart Citadel server.  Please restart it manually.")
 		);
