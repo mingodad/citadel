@@ -103,6 +103,7 @@ char configs[NUM_CONFIGS][1024];
 const char *setup_titles[eMaxQuestions];
 const char *setup_text[eMaxQuestions];
 
+char *program_title;
 
 void SetTitles(void)
 {
@@ -305,8 +306,9 @@ int yesno(const char *question, int default_value)
 		break;
 
 	case UI_DIALOG:
-		snprintf(buf, sizeof buf, "exec %s %s --yesno '%s' 15 75",
+		snprintf(buf, sizeof buf, "exec %s --backtitle '%s' %s --yesno '%s' 15 75",
 			getenv("CTDL_DIALOG"),
+			program_title,
 			( default_value ? "" : "--defaultno" ),
 			question);
 		i = system(buf);
@@ -338,8 +340,9 @@ void important_message(const char *title, const char *msgtext)
 		break;
 
 	case UI_DIALOG:
-		snprintf(buf, sizeof buf, "exec %s --msgbox '%s' 19 72",
+		snprintf(buf, sizeof buf, "exec %s --backtitle '%s' --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
+			program_title,
 			msgtext);
 		int rv = system(buf);
 		if (rv != 0) {
@@ -402,8 +405,9 @@ void progress(char *text, long int curr, long int cmax)
 
 	case UI_DIALOG:
 		if (curr == 0) {
-			snprintf(buf, sizeof buf, "exec %s --gauge '%s' 7 72 0",
+			snprintf(buf, sizeof buf, "exec %s --backtitle '%s' --gauge '%s' 7 72 0",
 				getenv("CTDL_DIALOG"),
+				program_title,
 				text);
 			fp = popen(buf, "w");
 			if (fp != NULL) {
@@ -723,8 +727,9 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 
 	case UI_DIALOG:
 		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
-		snprintf(buf, sizeof buf, "exec %s --nocancel --inputbox '%s' 19 72 '%s' 2>%s",
+		snprintf(buf, sizeof buf, "exec %s --backtitle '%s' --nocancel --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
+			program_title,
 			prompt_text,
 			Target,
 			dialog_result);
@@ -1163,6 +1168,9 @@ int main(int argc, char *argv[])
 	gid_t gid;
 	char *activity = NULL;
 	
+	/* Keep a mild groove on */
+	program_title = _("Citadel setup program");
+
 	/* set an invalid setup type */
 	setup_type = (-1);
 
@@ -1289,7 +1297,7 @@ int main(int argc, char *argv[])
 	/* _("Citadel Setup"),  */
 
 	if (setup_type == UI_TEXT) {
-		printf("\n\n\n	       *** %s ***\n\n", _("Citadel setup program"));
+		printf("\n\n\n	       *** %s ***\n\n", program_title);
 	}
 
 	if (setup_type == UI_DIALOG) {
