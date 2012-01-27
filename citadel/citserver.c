@@ -169,6 +169,7 @@ void master_startup(void) {
 	
 	syslog(LOG_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
+	get_config();
 
 	syslog(LOG_INFO, "Opening databases\n");
 	open_databases();
@@ -209,7 +210,6 @@ void master_startup(void) {
 	srandom(seed);
 
 	syslog(LOG_INFO, "Initializing ipgm secret\n");
-	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
 

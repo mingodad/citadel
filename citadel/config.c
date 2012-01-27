@@ -20,73 +20,123 @@
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
+#include <sys/utsname.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
 #include "config.h"
-
-
 #include "ctdl_module.h"
-
 
 struct config config;
 
 /*
- * get_config() is called during the initialization of any program which
- * directly accesses Citadel data files.  It verifies the system's integrity
- * and reads citadel.config into memory.
+ * Put some sane default values into our configuration.  Some will be overridden when we run setup.
+ */
+void brand_new_installation_set_defaults(void) {
+
+	struct passwd *pw;
+	struct utsname my_utsname;
+	struct hostent *he;
+
+	/* Determine our host name, in case we need to use it as a default */
+	uname(&my_utsname);
+
+	/* set some sample/default values in place of blanks... */
+	char c_nodename[256];
+	safestrncpy(c_nodename, my_utsname.nodename, sizeof c_nodename);
+	strtok(config.c_nodename, ".");
+	if (IsEmptyStr(config.c_fqdn) ) {
+		if ((he = gethostbyname(my_utsname.nodename)) != NULL) {
+			safestrncpy(config.c_fqdn, he->h_name, sizeof config.c_fqdn);
+		}
+		else {
+			safestrncpy(config.c_fqdn, my_utsname.nodename, sizeof config.c_fqdn);
+		}
+	}
+
+	safestrncpy(config.c_humannode, "Citadel Server", sizeof config.c_humannode);
+	safestrncpy(config.c_phonenum, "US 800 555 1212", sizeof config.c_phonenum);
+	config.c_initax = 4;
+	safestrncpy(config.c_moreprompt, "<more>", sizeof config.c_moreprompt);
+	safestrncpy(config.c_twitroom, "Trashcan", sizeof config.c_twitroom);
+	safestrncpy(config.c_baseroom, BASEROOM, sizeof config.c_baseroom);
+	safestrncpy(config.c_aideroom, "Aide", sizeof config.c_aideroom);
+	config.c_port_number = 504;
+	config.c_sleeping = 900;
+	config.c_instant_expunge = 1;
+
+	if (config.c_ctdluid == 0) {
+		pw = getpwnam("citadel");
+		if (pw != NULL) {
+			config.c_ctdluid = pw->pw_uid;
+		}
+	}
+	if (config.c_ctdluid == 0) {
+		pw = getpwnam("bbs");
+		if (pw != NULL) {
+			config.c_ctdluid = pw->pw_uid;
+		}
+	}
+	if (config.c_ctdluid == 0) {
+		pw = getpwnam("guest");
+		if (pw != NULL) {
+			config.c_ctdluid = pw->pw_uid;
+		}
+	}
+	if (config.c_createax == 0) {
+		config.c_createax = 3;
+	}
+
+	/*
+	 * Default port numbers for various services
+	 */
+	config.c_smtp_port = 25;
+	config.c_pop3_port = 110;
+	config.c_imap_port = 143;
+	config.c_msa_port = 587;
+	config.c_smtps_port = 465;
+	config.c_pop3s_port = 995;
+	config.c_imaps_port = 993;
+	config.c_pftcpdict_port = -1 ;
+	config.c_managesieve_port = 2020;
+	config.c_xmpp_c2s_port = 5222;
+	config.c_xmpp_s2s_port = 5269;
+}
+
+
+
+/*
+ * get_config() is called during the initialization of Citadel server.
+ * It verifies the system's integrity and reads citadel.config into memory.
  */
 void get_config(void) {
 	FILE *cfp;
-	struct stat st;
 	int rv;
 
 	if (chdir(ctdl_bbsbase_dir) != 0) {
 		fprintf(stderr,
-			"This program could not be started.\n"
-		 	"Unable to change directory to %s\n"
-			"Error: %s\n",
+			"This program could not be started.\nUnable to change directory to %s\nError: %s\n",
 			ctdl_bbsbase_dir,
-			strerror(errno));
+			strerror(errno)
+		);
 		exit(CTDLEXIT_HOME);
 	}
-	cfp = fopen(file_citadel_config, "rb");
-	if (cfp == NULL) {
-		fprintf(stderr, "This program could not be started.\n"
-				"Unable to open %s\n"
-				"Error: %s\n",
-				file_citadel_config,
-				strerror(errno));
-		exit(CTDLEXIT_CONFIG);
-	}
+
 	memset(&config, 0, sizeof(struct config));
-	rv = fread((char *) &config, sizeof(struct config), 1, cfp);
-	if (rv != 1)
-	{
-		fprintf(stderr, 
-			"Warning: The config file %s has unexpected size. \n",
-			file_citadel_config);
+	cfp = fopen(file_citadel_config, "rb");
+	if (cfp != NULL) {
+		rv = fread((char *) &config, sizeof(struct config), 1, cfp);
+		if (rv != 1)
+		{
+			fprintf(stderr, 
+				"Warning: The config file %s has unexpected size. \n",
+				file_citadel_config);
+		}
+		fclose(cfp);
 	}
-	if (fstat(fileno(cfp), &st)) {
-		perror(file_citadel_config);
-		exit(CTDLEXIT_CONFIG);
+	else {
+		brand_new_installation_set_defaults();
 	}
-
-#ifndef __CYGWIN__
-	if (st.st_uid != CTDLUID) {
-		fprintf(stderr, "%s must be owned by uid="F_UID_T" but "F_UID_T" owns it!\n", 
-			file_citadel_config, CTDLUID, st.st_uid);
-		exit(CTDLEXIT_CONFIG);
-	}
-	int desired_mode = (S_IFREG | S_IRUSR | S_IWUSR) ;
-	if (st.st_mode != desired_mode) {
-		fprintf(stderr, "%s must be set to permissions mode %03o but they are %03o\n",
-			file_citadel_config, (desired_mode & 0xFFF), (st.st_mode & 0xFFF));
-		exit(CTDLEXIT_CONFIG);
-	}
-#endif
-
-	fclose(cfp);
 
 	/* Ensure that we are linked to the correct version of libcitadel */
 	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
