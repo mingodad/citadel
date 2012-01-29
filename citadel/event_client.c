@@ -357,7 +357,7 @@ eReadState HandleInbound(AsyncIO *IO)
 		ev_io_start(event_base, &IO->recv_event);
 		break;
 	case eTerminateConnection:
-//////TODOxxxx
+		ShutDownCLient(IO);
 		break;
 	case eAbort:
 		ShutDownCLient(IO);
