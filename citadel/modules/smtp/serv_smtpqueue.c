@@ -661,7 +661,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	/*
 	 * Postpone delivery if we've already tried recently.
 	 */
-	if (((time(NULL) - MyQItem->ReattemptWhen) > 0) &&
+	if ((MyQItem->ReattemptWhen != 0) && 
+	    (time(NULL) < MyQItem->ReattemptWhen) &&
 	    (run_queue_now == 0))
 	{
 		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
