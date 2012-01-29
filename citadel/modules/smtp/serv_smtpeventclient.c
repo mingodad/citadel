@@ -183,9 +183,9 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 
 eNextState FailOneAttempt(AsyncIO *IO)
 {
-	SmtpOutMsg *SendMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 
-	if (SendMsg->MyQEntry->Status == 2)
+	if (Msg->MyQEntry->Status == 2)
 		return eAbort;
 
 	/*
@@ -195,14 +195,14 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	 */
 	StopClientWatchers(IO);
 
-	if (SendMsg->pCurrRelay != NULL)
-		SendMsg->pCurrRelay = SendMsg->pCurrRelay->Next;
+	if (Msg->pCurrRelay != NULL)
+		Msg->pCurrRelay = Msg->pCurrRelay->Next;
 
-	if (SendMsg->pCurrRelay == NULL) {
+	if (Msg->pCurrRelay == NULL) {
 		EVS_syslog(LOG_DEBUG, "SMTP: %s Aborting\n", __FUNCTION__);
 		return eAbort;
 	}
-	if (SendMsg->pCurrRelay->IsIP) {
+	if (Msg->pCurrRelay->IsIP) {
 		EVS_syslog(LOG_DEBUG, "SMTP: %s connecting IP\n", __FUNCTION__);
 		return mx_connect_ip(IO);
 	}
@@ -217,7 +217,7 @@ eNextState FailOneAttempt(AsyncIO *IO)
 
 void SetConnectStatus(AsyncIO *IO)
 {
-	SmtpOutMsg *SendMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 	char buf[256];
 	void *src;
 
@@ -238,23 +238,23 @@ void SetConnectStatus(AsyncIO *IO)
 		  buf,
 		  sizeof(buf));
 
-	if (SendMsg->mx_host == NULL)
-		SendMsg->mx_host = "<no MX-Record>";
+	if (Msg->mx_host == NULL)
+		Msg->mx_host = "<no MX-Record>";
 
 	EVS_syslog(LOG_DEBUG,
 		  "SMTP client[%ld]: connecting to %s [%s]:%d ...\n",
-		  SendMsg->n,
-		  SendMsg->mx_host,
+		  Msg->n,
+		  Msg->mx_host,
 		  buf,
-		  SendMsg->IO.ConnectMe->Port);
+		  Msg->IO.ConnectMe->Port);
 
-	SendMsg->MyQEntry->Status = 5;
-	StrBufPrintf(SendMsg->MyQEntry->StatusMessage,
+	Msg->MyQEntry->Status = 5;
+	StrBufPrintf(Msg->MyQEntry->StatusMessage,
 		     "Timeout while connecting %s [%s]:%d ",
-		     SendMsg->mx_host,
+		     Msg->mx_host,
 		     buf,
-		     SendMsg->IO.ConnectMe->Port);
-	SendMsg->IO.NextState = eConnect;
+		     Msg->IO.ConnectMe->Port);
+	Msg->IO.NextState = eConnect;
 }
 
 /*****************************************************************************
@@ -262,11 +262,11 @@ void SetConnectStatus(AsyncIO *IO)
  *****************************************************************************/
 eNextState mx_connect_ip(AsyncIO *IO)
 {
-	SmtpOutMsg *SendMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
-	IO->ConnectMe = SendMsg->pCurrRelay;
+	IO->ConnectMe = Msg->pCurrRelay;
 
 	SetConnectStatus(IO);
 
@@ -278,23 +278,23 @@ eNextState mx_connect_ip(AsyncIO *IO)
 
 eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 {
-	SmtpOutMsg *SendMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 	struct hostent *hostent;
 
 	QueryCbDone(IO);
 
-	hostent = SendMsg->HostLookup.VParsedDNSReply;
-	if ((SendMsg->HostLookup.DNSStatus == ARES_SUCCESS) &&
+	hostent = Msg->HostLookup.VParsedDNSReply;
+	if ((Msg->HostLookup.DNSStatus == ARES_SUCCESS) &&
 	    (hostent != NULL) ) {
-		memset(&SendMsg->pCurrRelay->Addr, 0, sizeof(struct in6_addr));
-		if (SendMsg->pCurrRelay->IPv6) {
-			memcpy(&SendMsg->pCurrRelay->Addr.sin6_addr.s6_addr,
+		memset(&Msg->pCurrRelay->Addr, 0, sizeof(struct in6_addr));
+		if (Msg->pCurrRelay->IPv6) {
+			memcpy(&Msg->pCurrRelay->Addr.sin6_addr.s6_addr,
 			       &hostent->h_addr_list[0],
 			       sizeof(struct in6_addr));
 
-			SendMsg->pCurrRelay->Addr.sin6_family =
+			Msg->pCurrRelay->Addr.sin6_family =
 				hostent->h_addrtype;
-			SendMsg->pCurrRelay->Addr.sin6_port =
+			Msg->pCurrRelay->Addr.sin6_port =
 				htons(DefaultMXPort);
 		}
 		else {
@@ -306,7 +306,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			 *   htonl((uint32_t)&hostent->h_addr_list[0]);
 			 */
 
-			addr = (struct sockaddr_in*) &SendMsg->pCurrRelay->Addr;
+			addr = (struct sockaddr_in*) &Msg->pCurrRelay->Addr;
 
 			memcpy(&addr->sin_addr.s_addr,
 			       hostent->h_addr_list[0],
@@ -315,7 +315,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			addr->sin_family = hostent->h_addrtype;
 			addr->sin_port   = htons(DefaultMXPort);
 		}
-		SendMsg->mx_host = SendMsg->pCurrRelay->Host;
+		Msg->mx_host = Msg->pCurrRelay->Host;
 		return mx_connect_ip(IO);
 	}
 	else
@@ -324,7 +324,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 
 eNextState get_one_mx_host_ip(AsyncIO *IO)
 {
-	SmtpOutMsg * SendMsg = IO->Data;
+	SmtpOutMsg * Msg = IO->Data;
 	/*
 	 * here we start with the lookup of one host. it might be...
 	 * - the relay host *sigh*
@@ -338,21 +338,21 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 
 	EVS_syslog(LOG_DEBUG,
 		  "SMTP client[%ld]: looking up %s-Record %s : %d ...\n",
-		  SendMsg->n,
-		  (SendMsg->pCurrRelay->IPv6)? "aaaa": "a",
-		  SendMsg->pCurrRelay->Host,
-		  SendMsg->pCurrRelay->Port);
+		  Msg->n,
+		  (Msg->pCurrRelay->IPv6)? "aaaa": "a",
+		  Msg->pCurrRelay->Host,
+		  Msg->pCurrRelay->Port);
 
-	if (!QueueQuery((SendMsg->pCurrRelay->IPv6)? ns_t_aaaa : ns_t_a,
-			SendMsg->pCurrRelay->Host,
-			&SendMsg->IO,
-			&SendMsg->HostLookup,
+	if (!QueueQuery((Msg->pCurrRelay->IPv6)? ns_t_aaaa : ns_t_a,
+			Msg->pCurrRelay->Host,
+			&Msg->IO,
+			&Msg->HostLookup,
 			get_one_mx_host_ip_done))
 	{
-		SendMsg->MyQEntry->Status = 5;
-		StrBufPrintf(SendMsg->MyQEntry->StatusMessage,
-			     "No MX hosts found for <%s>", SendMsg->node);
-		SendMsg->IO.NextState = eTerminateConnection;
+		Msg->MyQEntry->Status = 5;
+		StrBufPrintf(Msg->MyQEntry->StatusMessage,
+			     "No MX hosts found for <%s>", Msg->node);
+		Msg->IO.NextState = eTerminateConnection;
 		return IO->NextState;
 	}
 	IO->NextState = eReadDNSReply;
@@ -365,25 +365,25 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
  *****************************************************************************/
 eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 {
-	SmtpOutMsg * SendMsg = IO->Data;
+	SmtpOutMsg * Msg = IO->Data;
 	ParsedURL **pp;
 
 	QueryCbDone(IO);
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	pp = &SendMsg->Relay;
+	pp = &Msg->Relay;
 	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
 		pp = &(*pp)->Next;
 
 	if ((IO->DNS.Query->DNSStatus == ARES_SUCCESS) &&
 	    (IO->DNS.Query->VParsedDNSReply != NULL))
 	{ /* ok, we found mx records. */
-		SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
+		Msg->IO.ErrMsg = Msg->MyQEntry->StatusMessage;
 
-		SendMsg->CurrMX
-			= SendMsg->AllMX
+		Msg->CurrMX
+			= Msg->AllMX
 			= IO->DNS.Query->VParsedDNSReply;
-		while (SendMsg->CurrMX) {
+		while (Msg->CurrMX) {
 			int i;
 			for (i = 0; i < 2; i++) {
 				ParsedURL *p;
@@ -393,14 +393,14 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 				p->IsIP = 0;
 				p->Port = DefaultMXPort;
 				p->IPv6 = i == 1;
-				p->Host = SendMsg->CurrMX->host;
+				p->Host = Msg->CurrMX->host;
 
 				*pp = p;
 				pp = &p->Next;
 			}
-			SendMsg->CurrMX    = SendMsg->CurrMX->next;
+			Msg->CurrMX    = Msg->CurrMX->next;
 		}
-		SendMsg->CXFlags   = SendMsg->CXFlags & F_HAVE_MX;
+		Msg->CXFlags   = Msg->CXFlags & F_HAVE_MX;
 	}
 	else { /* else fall back to the plain hostname */
 		int i;
@@ -412,36 +412,36 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 			p->IsIP = 0;
 			p->Port = DefaultMXPort;
 			p->IPv6 = i == 1;
-			p->Host = SendMsg->node;
+			p->Host = Msg->node;
 
 			*pp = p;
 			pp = &p->Next;
 		}
-		SendMsg->CXFlags   = SendMsg->CXFlags & F_DIRECT;
+		Msg->CXFlags   = Msg->CXFlags & F_DIRECT;
 	}
-	*pp = SendMsg->MyQItem->FallBackHost;
-	SendMsg->pCurrRelay = SendMsg->Relay;
+	*pp = Msg->MyQItem->FallBackHost;
+	Msg->pCurrRelay = Msg->Relay;
 	return get_one_mx_host_ip(IO);
 }
 
 eNextState resolve_mx_records(AsyncIO *IO)
 {
-	SmtpOutMsg * SendMsg = IO->Data;
+	SmtpOutMsg * Msg = IO->Data;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	/* start resolving MX records here. */
 	if (!QueueQuery(ns_t_mx,
-			SendMsg->node,
-			&SendMsg->IO,
-			&SendMsg->MxLookup,
+			Msg->node,
+			&Msg->IO,
+			&Msg->MxLookup,
 			smtp_resolve_mx_record_done))
 	{
-		SendMsg->MyQEntry->Status = 5;
-		StrBufPrintf(SendMsg->MyQEntry->StatusMessage,
-			     "No MX hosts found for <%s>", SendMsg->node);
+		Msg->MyQEntry->Status = 5;
+		StrBufPrintf(Msg->MyQEntry->StatusMessage,
+			     "No MX hosts found for <%s>", Msg->node);
 		return IO->NextState;
 	}
-	SendMsg->IO.NextState = eReadDNSReply;
+	Msg->IO.NextState = eReadDNSReply;
 	return IO->NextState;
 }
 
@@ -455,18 +455,18 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 			    MailQEntry *MyQEntry,
 			    int MsgCount)
 {
-	SmtpOutMsg * SendMsg;
+	SmtpOutMsg * Msg;
 
-	SendMsg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
-	memset(SendMsg, 0, sizeof(SmtpOutMsg));
+	Msg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
+	memset(Msg, 0, sizeof(SmtpOutMsg));
 
-	SendMsg->n                = MsgCount;
-	SendMsg->MyQEntry         = MyQEntry;
-	SendMsg->MyQItem          = MyQItem;
-	SendMsg->pCurrRelay       = MyQItem->URL;
+	Msg->n                = MsgCount;
+	Msg->MyQEntry         = MyQEntry;
+	Msg->MyQItem          = MyQItem;
+	Msg->pCurrRelay       = MyQItem->URL;
 
-	InitIOStruct(&SendMsg->IO,
-		     SendMsg,
+	InitIOStruct(&Msg->IO,
+		     Msg,
 		     eReadMessage,
 		     SMTP_C_ReadServerStatus,
 		     SMTP_C_DNSFail,
@@ -477,7 +477,7 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 		     SMTP_C_Timeout,
 		     SMTP_C_Shutdown);
 
-	return SendMsg;
+	return Msg;
 }
 
 void smtp_try_one_queue_entry(OneQueItem *MyQItem,
@@ -487,51 +487,51 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 			      int KeepMsgText,
 			      int MsgCount)
 {
-	SmtpOutMsg *SendMsg;
+	SmtpOutMsg *Msg;
 
 	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
-	SendMsg = new_smtp_outmsg(MyQItem, MyQEntry, MsgCount);
-	if (KeepMsgText) SendMsg->msgtext = MsgText;
-	else		 SendMsg->msgtext = NewStrBufDup(MsgText);
+	Msg = new_smtp_outmsg(MyQItem, MyQEntry, MsgCount);
+	if (KeepMsgText) Msg->msgtext = MsgText;
+	else		 Msg->msgtext = NewStrBufDup(MsgText);
 
-	if (smtp_resolve_recipients(SendMsg)) {
+	if (smtp_resolve_recipients(Msg)) {
 
 		safestrncpy(
-			((CitContext *)SendMsg->IO.CitContext)->cs_host,
-			SendMsg->node,
+			((CitContext *)Msg->IO.CitContext)->cs_host,
+			Msg->node,
 			sizeof(((CitContext *)
-				SendMsg->IO.CitContext)->cs_host));
+				Msg->IO.CitContext)->cs_host));
 
 		syslog(LOG_DEBUG, "SMTP Starting: [%ld] <%s> CC <%d> \n",
-		       SendMsg->MyQItem->MessageID,
-		       ChrPtr(SendMsg->MyQEntry->Recipient),
-		       ((CitContext*)SendMsg->IO.CitContext)->cs_pid);
-		if (SendMsg->pCurrRelay == NULL)
-			QueueEventContext(&SendMsg->IO,
+		       Msg->MyQItem->MessageID,
+		       ChrPtr(Msg->MyQEntry->Recipient),
+		       ((CitContext*)Msg->IO.CitContext)->cs_pid);
+		if (Msg->pCurrRelay == NULL)
+			QueueEventContext(&Msg->IO,
 					  resolve_mx_records);
 		else { /* oh... via relay host */
-			if (SendMsg->pCurrRelay->IsIP) {
-				QueueEventContext(&SendMsg->IO,
+			if (Msg->pCurrRelay->IsIP) {
+				QueueEventContext(&Msg->IO,
 						  mx_connect_ip);
 			}
 			else {
 				/* uneducated admin has chosen to
 				   add DNS to the equation... */
-				QueueEventContext(&SendMsg->IO,
+				QueueEventContext(&Msg->IO,
 						  get_one_mx_host_ip);
 			}
 		}
 	}
 	else {
 		/* No recipients? well fail then. */
-		if ((SendMsg==NULL) ||
-		    (SendMsg->MyQEntry == NULL)) {
-			SendMsg->MyQEntry->Status = 5;
-			StrBufPlain(SendMsg->MyQEntry->StatusMessage,
+		if ((Msg==NULL) ||
+		    (Msg->MyQEntry == NULL)) {
+			Msg->MyQEntry->Status = 5;
+			StrBufPlain(Msg->MyQEntry->StatusMessage,
 				    HKEY("Invalid Recipient!"));
 		}
-		FinalizeMessageSend(SendMsg);
+		FinalizeMessageSend(Msg);
 	}
 }
 
@@ -544,10 +544,10 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 /*                     SMTP CLIENT DISPATCHER                                */
 /*****************************************************************************/
 
-void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
+void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *Msg)
 {
 	double Timeout = 0.0;
-	AsyncIO *IO = &pMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
@@ -555,22 +555,22 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 	case eSendFile:
 	case eSendReply:
 	case eSendMore:
-		Timeout = SMTP_C_SendTimeouts[pMsg->State];
-		if (pMsg->State == eDATABody) {
+		Timeout = SMTP_C_SendTimeouts[Msg->State];
+		if (Msg->State == eDATABody) {
 			/* if we're sending a huge message,
 			 * we need more time.
 			 */
-			Timeout += StrLength(pMsg->msgtext) / 1024;
+			Timeout += StrLength(Msg->msgtext) / 1024;
 		}
 		break;
 	case eReadMessage:
-		Timeout = SMTP_C_ReadTimeouts[pMsg->State];
-		if (pMsg->State == eDATATerminateBody) {
+		Timeout = SMTP_C_ReadTimeouts[Msg->State];
+		if (Msg->State == eDATATerminateBody) {
 			/*
 			 * some mailservers take a nap before accepting
 			 * the message content inspection and such.
 			 */
-			Timeout += StrLength(pMsg->msgtext) / 1024;
+			Timeout += StrLength(Msg->msgtext) / 1024;
 		}
 		break;
 	case eSendDNSQuery:
@@ -584,30 +584,30 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 	case eAbort:
 		return;
 	}
-	SetNextTimeout(&pMsg->IO, Timeout);
+	SetNextTimeout(&Msg->IO, Timeout);
 }
 eNextState SMTP_C_DispatchReadDone(AsyncIO *IO)
 {
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	SmtpOutMsg *pMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 	eNextState rc;
 
-	rc = ReadHandlers[pMsg->State](pMsg);
+	rc = ReadHandlers[Msg->State](Msg);
 	if (rc != eAbort)
 	{
-		pMsg->State++;
-		SMTPSetTimeout(rc, pMsg);
+		Msg->State++;
+		SMTPSetTimeout(rc, Msg);
 	}
 	return rc;
 }
 eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO)
 {
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	SmtpOutMsg *pMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 	eNextState rc;
 
-	rc = SendHandlers[pMsg->State](pMsg);
-	SMTPSetTimeout(rc, pMsg);
+	rc = SendHandlers[Msg->State](Msg);
+	SMTPSetTimeout(rc, Msg);
 	return rc;
 }
 
@@ -617,46 +617,46 @@ eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO)
 /*****************************************************************************/
 eNextState SMTP_C_Terminate(AsyncIO *IO)
 {
-	SmtpOutMsg *pMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	FinalizeMessageSend(pMsg);
+	FinalizeMessageSend(Msg);
 	return eAbort;
 }
 eNextState SMTP_C_Timeout(AsyncIO *IO)
 {
-	SmtpOutMsg *pMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 
-	pMsg->MyQEntry->Status = 4;
+	Msg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
+	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[Msg->State]));
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_ConnFail(AsyncIO *IO)
 {
-	SmtpOutMsg *pMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 
-	pMsg->MyQEntry->Status = 4;
+	Msg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
+	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[Msg->State]));
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_DNSFail(AsyncIO *IO)
 {
-	SmtpOutMsg *pMsg = IO->Data;
-	pMsg->MyQEntry->Status = 4;
+	SmtpOutMsg *Msg = IO->Data;
+	Msg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_Shutdown(AsyncIO *IO)
 {
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	SmtpOutMsg *pMsg = IO->Data;
+	SmtpOutMsg *Msg = IO->Data;
 
-	pMsg->MyQEntry->Status = 3;
-	StrBufPlain(pMsg->MyQEntry->StatusMessage,
+	Msg->MyQEntry->Status = 3;
+	StrBufPlain(Msg->MyQEntry->StatusMessage,
 		    HKEY("server shutdown during message submit."));
-	FinalizeMessageSend(pMsg);
+	FinalizeMessageSend(Msg);
 	return eAbort;
 }
 

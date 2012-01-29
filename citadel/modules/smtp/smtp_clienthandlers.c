@@ -89,36 +89,36 @@
 
 
 #define SMTP_ERROR(WHICH_ERR, ERRSTR) do {			       \
-		SendMsg->MyQEntry->Status = WHICH_ERR;		       \
-		StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, \
+		Msg->MyQEntry->Status = WHICH_ERR;		       \
+		StrBufAppendBufPlain(Msg->MyQEntry->StatusMessage, \
 				     HKEY(ERRSTR), 0);		       \
 		return eAbort; }				       \
 	while (0)
 
 #define SMTP_VERROR(WHICH_ERR) do {			       \
-		SendMsg->MyQEntry->Status = WHICH_ERR;	       \
-		StrBufPlain(SendMsg->MyQEntry->StatusMessage,  \
-			    ChrPtr(SendMsg->IO.IOBuf) + 4,     \
-			    StrLength(SendMsg->IO.IOBuf) - 4); \
+		Msg->MyQEntry->Status = WHICH_ERR;	       \
+		StrBufPlain(Msg->MyQEntry->StatusMessage,  \
+			    ChrPtr(Msg->IO.IOBuf) + 4,     \
+			    StrLength(Msg->IO.IOBuf) - 4); \
 		return eAbort; }			       \
 	while (0)
 
-#define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
+#define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(Msg->IO.IOBuf)[0] == WHICH_STATE)
 
 #define SMTP_DBG_SEND() \
-	EVS_syslog(LOG_DEBUG, "SMTP: > %s\n", ChrPtr(SendMsg->IO.SendBuf.Buf))
+	EVS_syslog(LOG_DEBUG, "SMTP: > %s\n", ChrPtr(Msg->IO.SendBuf.Buf))
 
 #define SMTP_DBG_READ() \
-	EVS_syslog(LOG_DEBUG, "SMTP: < %s\n", ChrPtr(SendMsg->IO.IOBuf))
+	EVS_syslog(LOG_DEBUG, "SMTP: < %s\n", ChrPtr(Msg->IO.IOBuf))
 
 
 /*****************************************************************************/
 /*                     SMTP CLIENT STATE CALLBACKS                           */
 /*****************************************************************************/
-eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_greeting(SmtpOutMsg *Msg)
 {
 	/* Process the SMTP greeting from the server */
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -130,48 +130,48 @@ eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
 	return eSendReply;
 }
 
-eNextState SMTPC_send_EHLO(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_EHLO(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	/* At this point we know we are talking to a real SMTP server */
 
 	/* Do a EHLO command.  If it fails, try the HELO command. */
-	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+	StrBufPrintf(Msg->IO.SendBuf.Buf,
 		     "EHLO %s\r\n", config.c_fqdn);
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
-eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	if (SMTP_IS_STATE('2')) {
-		SendMsg->State ++;
+		Msg->State ++;
 
-		if ((SendMsg->pCurrRelay == NULL) ||
-		    (SendMsg->pCurrRelay->User == NULL))
-			SendMsg->State ++; /* Skip auth... */
+		if ((Msg->pCurrRelay == NULL) ||
+		    (Msg->pCurrRelay->User == NULL))
+			Msg->State ++; /* Skip auth... */
 	}
 	/* else we fall back to 'helo' */
 	return eSendReply;
 }
 
-eNextState STMPC_send_HELO(SmtpOutMsg *SendMsg)
+eNextState STMPC_send_HELO(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
-	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+	AsyncIO *IO = &Msg->IO;
+	StrBufPrintf(Msg->IO.SendBuf.Buf,
 		     "HELO %s\r\n", config.c_fqdn);
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
-eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_HELO_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2'))
@@ -181,43 +181,43 @@ eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
 		else
 			SMTP_VERROR(5);
 	}
-	if ((SendMsg->pCurrRelay == NULL) ||
-	    (SendMsg->pCurrRelay->User == NULL))
-		SendMsg->State ++; /* Skip auth... */
+	if ((Msg->pCurrRelay == NULL) ||
+	    (Msg->pCurrRelay->User == NULL))
+		Msg->State ++; /* Skip auth... */
 
 	return eSendReply;
 }
 
-eNextState SMTPC_send_auth(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_auth(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	char buf[SIZ];
 	char encoded[1024];
 
-	if ((SendMsg->pCurrRelay == NULL) ||
-	    (SendMsg->pCurrRelay->User == NULL))
-		SendMsg->State ++; /* Skip auth, shouldn't even come here!... */
+	if ((Msg->pCurrRelay == NULL) ||
+	    (Msg->pCurrRelay->User == NULL))
+		Msg->State ++; /* Skip auth, shouldn't even come here!... */
 	else {
 		/* Do an AUTH command if necessary */
 		sprintf(buf, "%s%c%s%c%s",
-			SendMsg->pCurrRelay->User, '\0',
-			SendMsg->pCurrRelay->User, '\0',
-			SendMsg->pCurrRelay->Pass);
+			Msg->pCurrRelay->User, '\0',
+			Msg->pCurrRelay->User, '\0',
+			Msg->pCurrRelay->Pass);
 
 		CtdlEncodeBase64(encoded, buf,
-				 strlen(SendMsg->pCurrRelay->User) * 2 +
-				 strlen(SendMsg->pCurrRelay->Pass) + 2, 0);
+				 strlen(Msg->pCurrRelay->User) * 2 +
+				 strlen(Msg->pCurrRelay->Pass) + 2, 0);
 
-		StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+		StrBufPrintf(Msg->IO.SendBuf.Buf,
 			     "AUTH PLAIN %s\r\n", encoded);
 	}
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
-eNextState SMTPC_read_auth_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_auth_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	/* Do an AUTH command if necessary */
 
 	SMTP_DBG_READ();
@@ -231,21 +231,21 @@ eNextState SMTPC_read_auth_reply(SmtpOutMsg *SendMsg)
 	return eSendReply;
 }
 
-eNextState SMTPC_send_FROM(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_FROM(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	/* previous command succeeded, now try the MAIL FROM: command */
-	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+	StrBufPrintf(Msg->IO.SendBuf.Buf,
 		     "MAIL FROM:<%s>\r\n",
-		     SendMsg->envelope_from);
+		     Msg->envelope_from);
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
-eNextState SMTPC_read_FROM_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_FROM_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -258,22 +258,22 @@ eNextState SMTPC_read_FROM_reply(SmtpOutMsg *SendMsg)
 }
 
 
-eNextState SMTPC_send_RCPT(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_RCPT(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	/* MAIL succeeded, now try the RCPT To: command */
-	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+	StrBufPrintf(Msg->IO.SendBuf.Buf,
 		     "RCPT TO:<%s@%s>\r\n",
-		     SendMsg->user,
-		     SendMsg->node);
+		     Msg->user,
+		     Msg->node);
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
-eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -285,20 +285,20 @@ eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *SendMsg)
 	return eSendReply;
 }
 
-eNextState SMTPC_send_DATAcmd(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_DATAcmd(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	/* RCPT succeeded, now try the DATA command */
-	StrBufPlain(SendMsg->IO.SendBuf.Buf,
+	StrBufPlain(Msg->IO.SendBuf.Buf,
 		    HKEY("DATA\r\n"));
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
-eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('3')) {
@@ -310,37 +310,37 @@ eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *SendMsg)
 	return eSendReply;
 }
 
-eNextState SMTPC_send_data_body(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_data_body(SmtpOutMsg *Msg)
 {
 	StrBuf *Buf;
 	/* If we reach this point, the server is expecting data.*/
 
-	Buf = SendMsg->IO.SendBuf.Buf;
-	SendMsg->IO.SendBuf.Buf = SendMsg->msgtext;
-	SendMsg->msgtext = Buf;
-	SendMsg->State ++;
+	Buf = Msg->IO.SendBuf.Buf;
+	Msg->IO.SendBuf.Buf = Msg->msgtext;
+	Msg->msgtext = Buf;
+	Msg->State ++;
 
 	return eSendMore;
 }
 
-eNextState SMTPC_send_terminate_data_body(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_terminate_data_body(SmtpOutMsg *Msg)
 {
 	StrBuf *Buf;
 
-	Buf = SendMsg->IO.SendBuf.Buf;
-	SendMsg->IO.SendBuf.Buf = SendMsg->msgtext;
-	SendMsg->msgtext = Buf;
+	Buf = Msg->IO.SendBuf.Buf;
+	Msg->IO.SendBuf.Buf = Msg->msgtext;
+	Msg->msgtext = Buf;
 
-	StrBufPlain(SendMsg->IO.SendBuf.Buf,
+	StrBufPlain(Msg->IO.SendBuf.Buf,
 		    HKEY(".\r\n"));
 
 	return eReadMessage;
 
 }
 
-eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_data_body_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('2')) {
@@ -351,44 +351,44 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
 	}
 
 	/* We did it! */
-	StrBufPlain(SendMsg->MyQEntry->StatusMessage,
-		    &ChrPtr(SendMsg->IO.RecvBuf.Buf)[4],
-		    StrLength(SendMsg->IO.RecvBuf.Buf) - 4);
-	SendMsg->MyQEntry->Status = 2;
+	StrBufPlain(Msg->MyQEntry->StatusMessage,
+		    &ChrPtr(Msg->IO.RecvBuf.Buf)[4],
+		    StrLength(Msg->IO.RecvBuf.Buf) - 4);
+	Msg->MyQEntry->Status = 2;
 	return eSendReply;
 }
 
-eNextState SMTPC_send_QUIT(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_QUIT(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
-	StrBufPlain(SendMsg->IO.SendBuf.Buf,
+	AsyncIO *IO = &Msg->IO;
+	StrBufPlain(Msg->IO.SendBuf.Buf,
 		    HKEY("QUIT\r\n"));
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
-eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
 	EVS_syslog(LOG_INFO,
 		   "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
-		   SendMsg->n,
-		   SendMsg->user,
-		   SendMsg->node,
-		   SendMsg->name);
+		   Msg->n,
+		   Msg->user,
+		   Msg->node,
+		   Msg->name);
 
 	return eTerminateConnection;
 }
 
-eNextState SMTPC_read_dummy(SmtpOutMsg *SendMsg)
+eNextState SMTPC_read_dummy(SmtpOutMsg *Msg)
 {
 	return eSendReply;
 }
 
-eNextState SMTPC_send_dummy(SmtpOutMsg *SendMsg)
+eNextState SMTPC_send_dummy(SmtpOutMsg *Msg)
 {
 	return eReadMessage;
 }
@@ -466,9 +466,9 @@ const ConstStr ReadErrors[eMaxSMTPC + 1] = {
 
 
 
-int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
+int smtp_resolve_recipients(SmtpOutMsg *Msg)
 {
-	AsyncIO *IO = &SendMsg->IO;
+	AsyncIO *IO = &Msg->IO;
 	const char *ptr;
 	char buf[1024];
 	int scan_done;
@@ -477,33 +477,33 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 
 	EVNCS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
-	if ((SendMsg==NULL) ||
-	    (SendMsg->MyQEntry == NULL) ||
-	    (StrLength(SendMsg->MyQEntry->Recipient) == 0)) {
+	if ((Msg==NULL) ||
+	    (Msg->MyQEntry == NULL) ||
+	    (StrLength(Msg->MyQEntry->Recipient) == 0)) {
 		return 0;
 	}
 
 	/* Parse out the host portion of the recipient address */
-	process_rfc822_addr(ChrPtr(SendMsg->MyQEntry->Recipient),
-			    SendMsg->user,
-			    SendMsg->node,
-			    SendMsg->name);
+	process_rfc822_addr(ChrPtr(Msg->MyQEntry->Recipient),
+			    Msg->user,
+			    Msg->node,
+			    Msg->name);
 
 	EVNCS_syslog(LOG_DEBUG,
 		     "SMTP client[%ld]: Attempting delivery to "
 		     "<%s> @ <%s> (%s)\n",
-		     SendMsg->n,
-		     SendMsg->user,
-		     SendMsg->node,
-		     SendMsg->name);
+		     Msg->n,
+		     Msg->user,
+		     Msg->node,
+		     Msg->name);
 
 	/* If no envelope_from is supplied, extract one from the message */
-	SendMsg->envelope_from = ChrPtr(SendMsg->MyQItem->EnvelopeFrom);
-	if ( (SendMsg->envelope_from == NULL) ||
-	     (IsEmptyStr(SendMsg->envelope_from)) ) {
-		SendMsg->mailfrom[0] = '\0';
+	Msg->envelope_from = ChrPtr(Msg->MyQItem->EnvelopeFrom);
+	if ( (Msg->envelope_from == NULL) ||
+	     (IsEmptyStr(Msg->envelope_from)) ) {
+		Msg->mailfrom[0] = '\0';
 		scan_done = 0;
-		ptr = ChrPtr(SendMsg->msgtext);
+		ptr = ChrPtr(Msg->msgtext);
 		do {
 			if (ptr = cmemreadline(ptr, buf, sizeof buf), *ptr == 0)
 			{
@@ -511,16 +511,16 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 			}
 			if (!strncasecmp(buf, "From:", 5))
 			{
-				safestrncpy(SendMsg->mailfrom,
+				safestrncpy(Msg->mailfrom,
 					    &buf[5],
-					    sizeof SendMsg->mailfrom);
+					    sizeof Msg->mailfrom);
 
-				striplt(SendMsg->mailfrom);
-				for (i=0; SendMsg->mailfrom[i]; ++i) {
-					if (!isprint(SendMsg->mailfrom[i]))
+				striplt(Msg->mailfrom);
+				for (i=0; Msg->mailfrom[i]; ++i) {
+					if (!isprint(Msg->mailfrom[i]))
 					{
-						strcpy(&SendMsg->mailfrom[i],
-						       &SendMsg->mailfrom[i+1]);
+						strcpy(&Msg->mailfrom[i],
+						       &Msg->mailfrom[i+1]);
 						i=0;
 					}
 				}
@@ -529,43 +529,43 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 				lp = (-1);
 				rp = (-1);
 				for (i=0;
-				     !IsEmptyStr(SendMsg->mailfrom + i);
+				     !IsEmptyStr(Msg->mailfrom + i);
 				     ++i)
 				{
-					if (SendMsg->mailfrom[i] == '(') lp = i;
-					if (SendMsg->mailfrom[i] == ')') rp = i;
+					if (Msg->mailfrom[i] == '(') lp = i;
+					if (Msg->mailfrom[i] == ')') rp = i;
 				}
 				if ((lp>0)&&(rp>lp))
 				{
-					strcpy(&SendMsg->mailfrom[lp-1],
-					       &SendMsg->mailfrom[rp+1]);
+					strcpy(&Msg->mailfrom[lp-1],
+					       &Msg->mailfrom[rp+1]);
 				}
 
 				/* Prefer brokketized names */
 				lp = (-1);
 				rp = (-1);
 				for (i=0;
-				     !IsEmptyStr(SendMsg->mailfrom + i);
+				     !IsEmptyStr(Msg->mailfrom + i);
 				     ++i)
 				{
-					if (SendMsg->mailfrom[i] == '<') lp = i;
-					if (SendMsg->mailfrom[i] == '>') rp = i;
+					if (Msg->mailfrom[i] == '<') lp = i;
+					if (Msg->mailfrom[i] == '>') rp = i;
 				}
 				if ( (lp>=0) && (rp>lp) ) {
-					SendMsg->mailfrom[rp] = 0;
-					memmove(SendMsg->mailfrom,
-						&SendMsg->mailfrom[lp + 1],
+					Msg->mailfrom[rp] = 0;
+					memmove(Msg->mailfrom,
+						&Msg->mailfrom[lp + 1],
 						rp - lp);
 				}
 
 				scan_done = 1;
 			}
 		} while (scan_done == 0);
-		if (IsEmptyStr(SendMsg->mailfrom))
-			strcpy(SendMsg->mailfrom, "someone@somewhere.org");
+		if (IsEmptyStr(Msg->mailfrom))
+			strcpy(Msg->mailfrom, "someone@somewhere.org");
 
-		stripallbut(SendMsg->mailfrom, '<', '>');
-		SendMsg->envelope_from = SendMsg->mailfrom;
+		stripallbut(Msg->mailfrom, '<', '>');
+		Msg->envelope_from = Msg->mailfrom;
 	}
 
 	return 1;
