@@ -267,6 +267,7 @@ eNextState mx_connect_ip(AsyncIO *IO)
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	IO->ConnectMe = Msg->pCurrRelay;
+	Msg->State = eConnectMX;
 
 	SetConnectStatus(IO);
 
