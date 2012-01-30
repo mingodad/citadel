@@ -130,7 +130,8 @@ void get_config(void) {
 		{
 			fprintf(stderr, 
 				"Warning: The config file %s has unexpected size. \n",
-				file_citadel_config);
+				file_citadel_config
+			);
 		}
 		fclose(cfp);
 	}
@@ -206,15 +207,16 @@ void get_config(void) {
 void put_config(void)
 {
 	FILE *cfp;
-	int rv;
+	int blocks_written = 0;
 
-	if ((cfp = fopen(file_citadel_config, "rb+")) == NULL)
-		perror(file_citadel_config);
-	else {
-		rv = fwrite((char *) &config, sizeof(struct config), 1, cfp);
-		if (rv == -1)
-			syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
-			       file_citadel_config, strerror(errno));
-		fclose(cfp);
+	if ((cfp = fopen(file_citadel_config, "w")) != NULL) {
+		blocks_written = fwrite((char *) &config, sizeof(struct config), 1, cfp);
+		if (blocks_written == 1) {
+			fclose(cfp);
+			chown(file_citadel_config, CTDLUID, (-1));
+			chmod(file_citadel_config, 0600);
+			return;
+		}
 	}
+	syslog(LOG_EMERG, "%s: %s", file_citadel_config, strerror(errno));
 }
