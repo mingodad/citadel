@@ -335,7 +335,7 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 	}
 	else {
 		Hdr->HR.DontNeedAuth = 1; /* Flat request? show him the login screen... */
-		StrBuf *NewLine = NewStrBufPlain(HKEY("GET /readfwd?go="));
+		StrBuf *NewLine = NewStrBufPlain(HKEY("GET /do_template?template=login"));
 		StrBufUrlescAppend(NewLine, Buf, NULL);
 		StrBufAppendBufPlain(NewLine, HKEY(" HTTP/1.0"), 0);
 		syslog(LOG_DEBUG, "Replacing with: %s", ChrPtr(NewLine));
