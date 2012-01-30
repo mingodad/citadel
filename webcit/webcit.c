@@ -245,6 +245,7 @@ void http_redirect(const char *whichpage) {
 	hprintf("Location: %s\r\n", whichpage);
 	hprintf("URI: %s\r\n", whichpage);
 	hprintf("Content-type: text/html; charset=utf-8\r\n");
+	stuff_to_cookie(0);
 	begin_burst();
 	wc_printf("<html><body>");
 	wc_printf("Go <a href=\"%s\">here</A>.", whichpage);
