@@ -244,6 +244,7 @@ void set_selected_language(const char *lang) {
 	for (i = 0; i<nLocalesLoaded; ++i) {
 		if (!strcasecmp(lang, AvailLangLoaded[i])) {
 			WC->selected_language = i;
+			break;
 		}
 	}
 #endif
