@@ -561,7 +561,7 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *Msg)
 			/* if we're sending a huge message,
 			 * we need more time.
 			 */
-			Timeout += StrLength(Msg->msgtext) / 1024;
+			Timeout += StrLength(Msg->msgtext) / 512;
 		}
 		break;
 	case eReadMessage:
@@ -571,7 +571,7 @@ void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *Msg)
 			 * some mailservers take a nap before accepting
 			 * the message content inspection and such.
 			 */
-			Timeout += StrLength(Msg->msgtext) / 1024;
+			Timeout += StrLength(Msg->msgtext) / 512;
 		}
 		break;
 	case eSendDNSQuery:
