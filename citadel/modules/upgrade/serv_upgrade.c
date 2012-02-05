@@ -291,6 +291,10 @@ void update_config(void) {
 		config.c_xmpp_s2s_port = 5269;
 	}
 
+	if (CitControl.version < 725) {
+
+
+	}
 	if (IsEmptyStr(config.c_default_cal_zone)) {
 		guess_time_zone();
 	}
@@ -345,6 +349,18 @@ void check_server_upgrades(void) {
 	if (CitControl.version < 790) {
 		remove_thread_users();
 	}
+	if (CitControl.version < 810) {
+		struct ctdlroom QRoom;
+		if (!CtdlGetRoom(&QRoom, SMTP_SPOOLOUT_ROOM)) {
+			QRoom.QRdefaultview = VIEW_QUEUE;
+			CtdlPutRoom(&QRoom);
+		}
+		if (!CtdlGetRoom(&QRoom, FNBL_QUEUE_ROOM)) {
+			QRoom.QRdefaultview = VIEW_QUEUE;
+			CtdlPutRoom(&QRoom);
+		}
+	}
+
 	CitControl.version = REV_LEVEL;
 
 	/*

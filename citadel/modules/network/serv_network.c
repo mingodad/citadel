@@ -327,6 +327,8 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 	int i;
 	struct RoomProcList *ptr;
 
+	if (qrbuf->QRdefaultview == VIEW_QUEUE)
+		return;
 	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
 	if (ptr == NULL) return;
 

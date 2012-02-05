@@ -451,7 +451,7 @@ void do_extnotify_queue(void)
 void create_extnotify_queue(void) {
 	struct ctdlroom qrbuf;
 
-	CtdlCreateRoom(FNBL_QUEUE_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
+	CtdlCreateRoom(FNBL_QUEUE_ROOM, 3, "", 0, 1, 0, VIEW_QUEUE);
 
 	CtdlFillSystemContext(&extnotify_queue_CC, "Extnotify");
 

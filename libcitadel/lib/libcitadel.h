@@ -98,6 +98,7 @@ typedef enum _room_views {
 	VIEW_JOURNAL		= 8,	/* Journal view */
 	VIEW_DRAFTS		= 9,	/* Drafts view */
 	VIEW_BLOG		= 10,	/* Blog view */
+	VIEW_QUEUE		= 11,   /* SMTP/... QUEUE rooms */
 	VIEW_MAX
 } ROOM_VIEWS;
 
