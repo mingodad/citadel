@@ -631,7 +631,10 @@ eNextState SMTP_C_Timeout(AsyncIO *IO)
 	Msg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[Msg->State]));
-	return FailOneAttempt(IO);
+	if (Msg->State > eRCPT)
+		return eAbort;
+	else
+		return FailOneAttempt(IO);
 }
 eNextState SMTP_C_ConnFail(AsyncIO *IO)
 {
