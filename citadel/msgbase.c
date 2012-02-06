@@ -3258,6 +3258,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					imsg->cm_magic = CTDLMESSAGE_MAGIC;
 					imsg->cm_anon_type = MES_NORMAL;
 					imsg->cm_format_type = FMT_RFC822;
+					imsg->cm_fields['U'] = strdup("QMSG");
 					imsg->cm_fields['A'] = strdup("Citadel");
 					imsg->cm_fields['J'] = strdup("do not journal");
 					imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
@@ -3366,6 +3367,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_magic = CTDLMESSAGE_MAGIC;
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
+		imsg->cm_fields['U'] = strdup("QMSG");
 		imsg->cm_fields['A'] = strdup("Citadel");
 		imsg->cm_fields['J'] = strdup("do not journal");
 		imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
