@@ -152,7 +152,7 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 	CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &Msg->MyQItem->QueMsgID, 1, "");
 
 	if (IDestructQueItem)
-		smtpq_do_bounce(Msg->MyQItem,Msg->msgtext);
+		smtpq_do_bounce(Msg->MyQItem, Msg->msgtext);
 
 	if (nRemain > 0)
 	{
@@ -379,7 +379,6 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 	if ((IO->DNS.Query->DNSStatus == ARES_SUCCESS) &&
 	    (IO->DNS.Query->VParsedDNSReply != NULL))
 	{ /* ok, we found mx records. */
-		Msg->IO.ErrMsg = Msg->MyQEntry->StatusMessage;
 
 		Msg->CurrMX
 			= Msg->AllMX
@@ -477,6 +476,8 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 		     SMTP_C_ConnFail,
 		     SMTP_C_Timeout,
 		     SMTP_C_Shutdown);
+
+	Msg->IO.ErrMsg = Msg->MyQEntry->StatusMessage;
 
 	return Msg;
 }
