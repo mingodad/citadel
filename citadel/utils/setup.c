@@ -261,8 +261,6 @@ void cit_backtrace(void)
 #endif
 }
 
-int direction;
-
 
 
 void title(const char *text)
@@ -1309,6 +1307,7 @@ int main(int argc, char *argv[])
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr < eMaxQuestions; ++curr) {
 		edit_value(curr);
+
 		if (	(curr == 6)
 			&& (atoi(configs[52]) != AUTHMODE_LDAP)
 			&& (atoi(configs[52]) != AUTHMODE_LDAP_AD)
