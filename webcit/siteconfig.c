@@ -1,11 +1,19 @@
 /*
  * Administrative screen for site-wide configuration
+ *
+ * Copyright (c) 1996-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
-
 
 #include "webcit.h"
 #include "webserver.h"
-
 
 HashList *ZoneHash = NULL;
 
@@ -93,7 +101,6 @@ void tmplput_ExpireMode(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-
 void LoadZoneFiles(void)
 {
 	icalarray *zones;
@@ -124,7 +131,7 @@ typedef struct _CfgMapping {
 	int type;
 	const char *Key;
 	long len;
-}CfgMapping;
+} CfgMapping;
 
 #define CFG_STR 1
 #define CFG_YES 2
@@ -197,8 +204,8 @@ CfgMapping ServerConfig[] = {
 	{CFG_STR, HKEY("c_xmpp_s2s_port")},
 	{CFG_STR, HKEY("c_pop3_fetch")},
 	{CFG_STR, HKEY("c_pop3_fastest")},
-	{CFG_YES , HKEY("c_spam_flag_only")},
-	{CFG_YES , HKEY("c_guest_logins")}
+	{CFG_YES, HKEY("c_spam_flag_only")},
+	{CFG_YES, HKEY("c_guest_logins")}
 };
 
 
@@ -226,30 +233,36 @@ void load_siteconfig(void)
 		AppendImportantMessage(SKEY(Buf));
 		FreeStrBuf(&Buf);
 		return;
-		
 	}
+
 	i = 0;
 	while (len = StrBuf_ServGetln(Buf),
-	       (len >= 0) && 
-	       (i <= (sizeof(ServerConfig) / sizeof(CfgMapping))) &&
-	       ((len != 3) || strcmp(ChrPtr(Buf), "000")))
-	{
+		(len >= 0)
+		&& (i < (sizeof(ServerConfig) / sizeof(CfgMapping)))
+		&& ((len != 3) || strcmp(ChrPtr(Buf), "000"))
+	) {
 		Put(Cfg,
-		    ServerConfig[i].Key, 
-		    ServerConfig[i].len, 
-		    Buf, 
-		    HFreeStrBuf);
+			ServerConfig[i].Key, 
+			ServerConfig[i].len, 
+			Buf, 
+			HFreeStrBuf
+		);
 		i++;
-		if (i <= sizeof(ServerConfig) / sizeof(CfgMapping))
+		if (i <= sizeof(ServerConfig) / sizeof(CfgMapping)) {
 			Buf = NewStrBuf();
-		else
-			Buf = NULL;			
+		}
+		else {
+			Buf = NULL;
+		}
 	}
-	if (strcmp(ChrPtr(Buf), "000")!=0)
+
+	if (strcmp(ChrPtr(Buf), "000") != 0)
 	{
-		/* WHOOOOPSI??? burn the lines we don't understand */
-		while ((len = StrBuf_ServGetln(Buf),
-			strcmp(ChrPtr(Buf), "000"))) {}
+		/* Discard config lines which we don't yet support */
+		while (	(len = StrBuf_ServGetln(Buf),
+			strcmp(ChrPtr(Buf), "000"))
+		) {
+		}
 		AppendImportantMessage(_("WARNING: Failed to parse Server Config; do you run a to new citserver?"), -1);
 		FreeStrBuf(&Buf);
 		return;
@@ -262,7 +275,7 @@ void load_siteconfig(void)
 
 
 
-/**
+/*
  * parse siteconfig changes 
  */
 void siteconfig(void)
