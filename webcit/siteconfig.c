@@ -224,6 +224,7 @@ void load_siteconfig(void)
 	if (GetServerStatus(Buf, NULL) != 1) {
 		StrBufCutLeft(Buf, 4);
 		AppendImportantMessage(SKEY(Buf));
+		FreeStrBuf(&Buf);
 		return;
 		
 	}
@@ -250,6 +251,7 @@ void load_siteconfig(void)
 		while ((len = StrBuf_ServGetln(Buf),
 			strcmp(ChrPtr(Buf), "000"))) {}
 		AppendImportantMessage(_("WARNING: Failed to parse Server Config; do you run a to new citserver?"), -1);
+		FreeStrBuf(&Buf);
 		return;
 	}
 	FreeStrBuf(&Buf);
