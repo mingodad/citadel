@@ -113,59 +113,55 @@ int main(int argc, char **argv)
 	InitializeMasterTSD();
 
 	/* parse command-line arguments */
-	for (a=1; a<argc; ++a) {
+	while ((a=getopt(argc, argv, "l:dh:x:t:Dr")) != EOF) switch(a) {
 
-		if (!strncmp(argv[a], "-l", 2)) {
-			safestrncpy(facility, &argv[a][2], sizeof(facility));
+		case 'l':
+			safestrncpy(facility, optarg, sizeof(facility));
 			syslog_facility = SyslogFacility(facility);
-		}
+			break;
 
 		/* run in the background if -d was specified */
-		else if (!strcmp(argv[a], "-d")) {
+		case 'd':
 			running_as_daemon = 1;
-		}
+			break;
 
-		else if (!strncmp(argv[a], "-h", 2)) {
-			relh=argv[a][2]!='/';
+		case 'h':
+			relh = optarg[0] != '/';
 			if (!relh) {
-				safestrncpy(ctdl_home_directory, &argv[a][2], sizeof ctdl_home_directory);
+				safestrncpy(ctdl_home_directory, optarg, sizeof ctdl_home_directory);
 			}
 			else {
-				safestrncpy(relhome, &argv[a][2], sizeof relhome);
+				safestrncpy(relhome, optarg, sizeof relhome);
 			}
 			home=1;
-		}
+			break;
 
-		else if (!strncmp(argv[a], "-x", 2)) {
-			/* deprecated */
-		}
+		case 'x':	/* deprecated */
+			break;
 
-		else if (!strncmp(argv[a], "-t", 2)) {
-			/* deprecated */
-		}
+		case 't':	/* deprecated */
+			break;
 
-		else if (!strncmp(argv[a], "-D", 2)) {
+		case 'D':
 			dbg = 1;
-		}
+			break;
 
-		/* -r tells the server not to drop root permissions. don't use
-		 * this unless you know what you're doing. this should be
-		 * removed in the next release if it proves unnecessary. */
-		else if (!strcmp(argv[a], "-r")) {
+		/* -r tells the server not to drop root permissions.
+		 * Don't use this unless you know what you're doing.
+		 */
+		case 'r':
 			drop_root_perms = 0;
-		}
+			break;
 
+		default:
 		/* any other parameter makes it crash and burn */
-		else {
 			fprintf(stderr,	"citserver: usage: "
 					"citserver "
-					"[-lLogFacility] "
-					"[-d] [-D] [-s] "
-					"[-hHomeDir]\n"
+					"[-l LogFacility] "
+					"[-d] [-D] [-r] "
+					"[-h HomeDir]\n"
 			);
 			exit(1);
-		}
-
 	}
 
 	openlog("citserver",
