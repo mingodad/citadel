@@ -23,7 +23,6 @@
     <a class="ib_button_link" href="javascript:authtoggle('authbox_openid');" title="OpenID"><span>
         OpenID
     </span></a>
-
 </li><??("X", 1)>
 <?!("COND:SERV:OPENID",2)><li class="ib_button" style='background-image: url("/static/webcit_icons/google-32x32.gif");'>
     <a class="ib_button_link" href="javascript:authtoggle('authbox_google');" title="Google"><span>
@@ -40,12 +39,15 @@
         AOL/AIM
     </span></a>
 </li><??("X", 4)>
-<li class="ib_button">
-</li>
-<li class="ib_button">
-</li>
-<li class="ib_button">
-</li>
+<??("COND:SERV:OPENID",5)>
+<li class="ib_button"></li>
+<li class="ib_button"></li>
+<li class="ib_button"></li>
+<li class="ib_button"></li>
+<??("X", 5)>
+<li class="ib_button"></li>
+<li class="ib_button"></li>
+<li class="ib_button"></li>
 </ul>
 </div>
 
