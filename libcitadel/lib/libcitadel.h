@@ -369,6 +369,7 @@ const char *GetIconFilename(char *MimeType, size_t len);
 /* URL parsing & connection data */
 typedef struct ParsedURL ParsedURL;
 struct ParsedURL {
+	int Priority;
 	StrBuf *URL;
 	StrBuf *UrlWithoutCred;
 	StrBuf *CurlCreds;

@@ -372,9 +372,6 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 	QueryCbDone(IO);
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	pp = &Msg->Relay;
-	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
-		pp = &(*pp)->Next;
 
 	if ((IO->DNS.Query->DNSStatus == ARES_SUCCESS) &&
 	    (IO->DNS.Query->VParsedDNSReply != NULL))
@@ -390,19 +387,38 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 
 				p = (ParsedURL*) malloc(sizeof(ParsedURL));
 				memset(p, 0, sizeof(ParsedURL));
+				p->Priority = Msg->CurrMX->priority;
 				p->IsIP = 0;
 				p->Port = DefaultMXPort;
 				p->IPv6 = i == 1;
 				p->Host = Msg->CurrMX->host;
+				if (Msg->Relay == NULL)
+					Msg->Relay = p;
+				else {
+					ParsedURL *pp = Msg->Relay;
 
-				*pp = p;
-				pp = &p->Next;
+					while ((pp->Next != NULL) &&
+					       (pp->Next->Priority <= p->Priority))
+					       pp = pp->Next;
+					if ((pp == Msg->Relay) &&
+					    (pp->Priority > p->Priority)) {
+						p->Next = Msg->Relay;
+						Msg->Relay = p;
+					}
+					else {
+						p->Next = pp->Next;
+						pp->Next = p;
+					}
+				}
 			}
 			Msg->CurrMX    = Msg->CurrMX->next;
 		}
 		Msg->CXFlags   = Msg->CXFlags & F_HAVE_MX;
 	}
 	else { /* else fall back to the plain hostname */
+		pp = &Msg->Relay;
+		while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
+			pp = &(*pp)->Next;
 		int i;
 		for (i = 0; i < 2; i++) {
 			ParsedURL *p;
