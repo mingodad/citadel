@@ -914,6 +914,7 @@ InitModule_WEBCIT
 {
 	char dir[SIZ];
 	WebcitAddUrlHandler(HKEY("blank"), "", 0, blank_page, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("landing"), "", 0, display_default_landing_page, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("do_template"), "", 0, url_do_template, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("sslg"), "", 0, seconds_since_last_gexp, AJAX|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("ajax_servcmd"), "", 0, ajax_servcmd, 0);

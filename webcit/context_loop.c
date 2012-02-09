@@ -334,10 +334,9 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		);
 	}
 	else {
-		Hdr->HR.DontNeedAuth = 1; /* Flat request? show him the login screen... */
-		StrBuf *NewLine = NewStrBufPlain(HKEY("GET /do_template?template=login"));
-		StrBufUrlescAppend(NewLine, Buf, NULL);
-		StrBufAppendBufPlain(NewLine, HKEY(" HTTP/1.0"), 0);
+		/* If this is a "flat" request for the root, display the configured landing page. */
+		Hdr->HR.DontNeedAuth = 1;
+		StrBuf *NewLine = NewStrBufPlain(HKEY("GET /landing HTTP/1.0"));
 		syslog(LOG_DEBUG, "Replacing with: %s", ChrPtr(NewLine));
 		int return_value = ReadHttpSubject(Hdr, NewLine, Buf);
 		FreeStrBuf(&NewLine);
