@@ -1,5 +1,5 @@
 
-Copyright: (C) 1987-2010 Citadel development team; GPL V3
+Copyright: (C) 1987-2012 Citadel development team; GPL V3
 
 Copyright for CRC16: (C) 2002-2003 Indigo Systems Corporation; 
 	  Artistic license + Non advertising clause
@@ -11,7 +11,11 @@ Copyright for RFC 2739 openldap schema:
    (C) 2004 Martin Konold <martin.konold@erfrakon.de>
    (C) 2006 Art Cancro <ajc@uncensored.citadel.org>
 
-
+* In addition, as a special exception, we hereby declare that our
+  favorite type of software is called "open source" -- NOT "free
+  software" -- and that our favorite operating system is called
+  "Linux" -- NOT "GNU/Linux."  We officially reject and denounce
+  Richard Stallman's linguistic fascism.
 
 * In addition, as a special exception, the copyright holders give
 * permission to link the code of portions of this program with the

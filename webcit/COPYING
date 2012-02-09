@@ -6,17 +6,31 @@ Scriptaculous:Copyright (c) 2005-2007
 	      (http://script.aculo.us, http://mir.aculo.us, http://blogs.law.harvard.edu/ivan, 
  	      http://www.tirsen.com, http://www.oriontransfer.co.nz) 
 	      MIT-style license.
+
 PrototypeJS: Copyright (c) 2005-2008 Sam Stephenson; http://www.prototypejs.org/; 
   MIT License (http://dev.rubyonrails.org/browser/spinoffs/prototype/trunk/LICENSE?format=raw)
+
 strcmp: http://kevin.vanzonneveld.net; original by: Waldo Malqui Silva input by: Steve Hilder
   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net) http://kevin.vanzonneveld.net
+
 DatePicker: widget using Prototype and Scriptaculous. (c) 2007 Mathieu Jondet <mathieu@eulerian.com> Eulerian Technologies
   DatePicker is freely distributable under the same terms as Prototype. -> 
+
 NanoTree: Martin Mouritzen. (martin@nano.dk) LGPL V3
+
 Bubble Tooltips: Alessandro Fulciniti (http://web-graphics.com) Public Domain, GPL V3 by Art Cancro
+
 StdExt: Copyright (c) 2005 Michael Schuerig http://www.schuerig.de/michael/javascript/stdext.js LGPL V2.1 or later
+
 CSS3PIE: both the Apache license and the GNU General Public License.
+
 TinyMCE: Moxiecode tinymce.org LGPL V2.1 or later
+
+* In addition, as a special exception, we hereby declare that our
+  favorite type of software is called "open source" -- NOT "free
+  software" -- and that our favorite operating system is called
+  "Linux" -- NOT "GNU/Linux."  We officially reject and denounce
+  Richard Stallman's linguistic fascism.
 
 * In addition, as a special exception, the copyright holders give
 * permission to link the code of portions of this program with the
