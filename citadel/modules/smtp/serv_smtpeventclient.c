@@ -373,6 +373,10 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
+	pp = &Msg->Relay;
+	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
+		pp = &(*pp)->Next;
+
 	if ((IO->DNS.Query->DNSStatus == ARES_SUCCESS) &&
 	    (IO->DNS.Query->VParsedDNSReply != NULL))
 	{ /* ok, we found mx records. */
@@ -392,22 +396,22 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 				p->Port = DefaultMXPort;
 				p->IPv6 = i == 1;
 				p->Host = Msg->CurrMX->host;
-				if (Msg->Relay == NULL)
-					Msg->Relay = p;
+				if (*pp == NULL)
+					*pp = p;
 				else {
-					ParsedURL *pp = Msg->Relay;
+					ParsedURL *ppp = *pp;
 
-					while ((pp->Next != NULL) &&
-					       (pp->Next->Priority <= p->Priority))
-					       pp = pp->Next;
-					if ((pp == Msg->Relay) &&
-					    (pp->Priority > p->Priority)) {
-						p->Next = Msg->Relay;
-						Msg->Relay = p;
+					while ((ppp->Next != NULL) &&
+					       (ppp->Next->Priority <= p->Priority))
+					       ppp = ppp->Next;
+					if ((ppp == *pp) &&
+					    (ppp->Priority > p->Priority)) {
+						p->Next = *pp;
+						*pp = p;
 					}
 					else {
-						p->Next = pp->Next;
-						pp->Next = p;
+						p->Next = ppp->Next;
+						ppp->Next = p;
 					}
 				}
 			}
@@ -416,9 +420,6 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 		Msg->CXFlags   = Msg->CXFlags & F_HAVE_MX;
 	}
 	else { /* else fall back to the plain hostname */
-		pp = &Msg->Relay;
-		while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))
-			pp = &(*pp)->Next;
 		int i;
 		for (i = 0; i < 2; i++) {
 			ParsedURL *p;
@@ -435,7 +436,11 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 		}
 		Msg->CXFlags   = Msg->CXFlags & F_DIRECT;
 	}
-	*pp = Msg->MyQItem->FallBackHost;
+	if (Msg->MyQItem->FallBackHost != NULL)
+	{
+		Msg->MyQItem->FallBackHost->Next = *pp;
+		*pp = Msg->MyQItem->FallBackHost;
+	}
 	Msg->pCurrRelay = Msg->Relay;
 	return get_one_mx_host_ip(IO);
 }
