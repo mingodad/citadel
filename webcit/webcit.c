@@ -821,7 +821,13 @@ void display_default_landing_page(void) {
 	if (WCC && WCC->serv_info && WCC->serv_info->serv_supports_guest) {
 		/* default action */
 
-		if (default_landing_page) {
+		if (havebstr("go")) {
+			syslog(9, "Explicit room selection: %s", bstr("go"));
+			StrBuf *teh_room = NewStrBufPlain(bstr("go"), strlen(bstr("go")));
+			smart_goto(teh_room);
+			FreeStrBuf(&teh_room);
+		}
+		else if (default_landing_page) {
 			http_redirect(default_landing_page);
 		}
 		else {
