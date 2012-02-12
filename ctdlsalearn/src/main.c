@@ -1,5 +1,5 @@
 /*
- * (c) 2009 by Art Cancro and citadel.org
+ * (c) 2009-2012 by Art Cancro and citadel.org
  * This program is released under the terms of the GNU General Public License v3.
  */
 
@@ -13,30 +13,6 @@
 #include "ctdlsalearn.h"
 
 int verbose = 0;
-
-int discover_ipgm_secret(char *dirname) {
-	int fd;
-	struct partial_config ccc;
-	char configfile[1024];
-
-	sprintf(configfile, "%s/citadel.config", dirname);
-	fd = open(configfile, O_RDONLY);
-	if (fd < 0) {
-		if (verbose) fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
-		return(-1);
-	}
-
-	if (read(fd, &ccc, sizeof(struct partial_config)) != sizeof(struct partial_config)) {
-		if (verbose) fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
-		return(-1);
-	}
-	if (close(fd) != 0) {
-		if (verbose) fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
-		return(-1);
-	}
-	return(ccc.c_ipgm_secret);
-}
-
 
 void do_room(int sock, char *roomname, char *salearnargs)
 {
@@ -99,6 +75,7 @@ int main(int argc, char **argv)
 	char buf[1024];
 	int ipgm_secret = (-1);
 	int c;
+	int i;
 	char ctdldir[256];
 
 	if ( (argc >= 2) && (!strcmp(argv[1], "-v")) ) {
@@ -110,32 +87,25 @@ int main(int argc, char **argv)
 		printf("(c) 2009-2011 citadel.org GPLv3\n");
 	}
 
-	strcpy(ctdldir, "/usr/local/citadel");
-	ipgm_secret = discover_ipgm_secret(ctdldir);
-	if (ipgm_secret < 0) {
-		strcpy(ctdldir, "/appl/citadel");
-		ipgm_secret = discover_ipgm_secret(ctdldir);
-	}
-	if (ipgm_secret < 0) {
-		strcpy(ctdldir, "/root/ctdl/trunk/citadel");
-		ipgm_secret = discover_ipgm_secret(ctdldir);
-	}
-	if (ipgm_secret < 0) {
-		exit(1);
+	char *socket_locations[] = {
+		"/usr/local/citadel/citadel-admin.socket",
+		"/appl/citadel/citadel-admin.socket",
+		"/root/citadel/citadel/citadel-admin.socket"
+	};
+
+	server_socket = (-1);
+
+	for (i=0; i<(sizeof socket_locations / sizeof(char *)); ++i) {
+		if (server_socket < 0) {
+			if (verbose) printf("Trying %s...\n", socket_locations[i]);
+			server_socket = uds_connectsock(socket_locations[i]);
+		}
 	}
 
-	if (verbose) printf("Connecting to Citadel server...\n");
-	fflush(stdout);
-	sprintf(buf, "%s/citadel.socket", ctdldir);
-	server_socket = uds_connectsock(buf);
 	if (server_socket < 0) {
 		exit(1);
 	}
 
-	sock_getln(server_socket, buf, sizeof buf);
-	if (verbose) printf("%s\n", &buf[4]);
-
-	sock_printf(server_socket, "IPGM %d\n", ipgm_secret);
 	sock_getln(server_socket, buf, sizeof buf);
 	if (verbose) printf("%s\n", &buf[4]);
 
