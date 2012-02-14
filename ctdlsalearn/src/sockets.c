@@ -21,6 +21,8 @@
 #define INADDR_NONE 0xffffffff
 #endif
 
+extern int verbose;
+
 int uds_connectsock(char *sockpath)
 {
 	struct sockaddr_un addr;
@@ -32,12 +34,12 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket[%s]: %s\n", sockpath, strerror(errno));
+		if (verbose) fprintf(stderr, "Can't create socket[%s]: %s\n", sockpath, strerror(errno));
 		return(-1);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		fprintf(stderr, "Can't connect [%s]: %s\n", sockpath, strerror(errno));
+		if (verbose) fprintf(stderr, "Can't connect [%s]: %s\n", sockpath, strerror(errno));
 		close(s);
 		return(-1);
 	}
@@ -68,14 +70,13 @@ int sock_read_to(int sock, char *buf, int bytes, int timeout, int keep_reading_u
 		retval = select(sock+1, &rfds, NULL, NULL, &tv);
 
 		if (FD_ISSET(sock, &rfds) == 0) {	/* timed out */
-			fprintf(stderr, "sock_read() timed out.\n");
+			if (verbose) fprintf(stderr, "sock_read() timed out.\n");
 			return(-1);
 		}
 
 		rlen = read(sock, &buf[len], bytes-len);
 		if (rlen<1) {
-			fprintf(stderr, "sock_read() failed: %s\n",
-				strerror(errno));
+			if (verbose) fprintf(stderr, "sock_read() failed: %s\n", strerror(errno));
 			return(-1);
 		}
 		len = len + rlen;
