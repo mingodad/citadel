@@ -4,4 +4,4 @@
 ##/
 
 bin_PROGRAMS = ctdlsalearn
-ctdlsalearn_SOURCES = main.c sockets.c ctdlsalearn.h
+ctdlsalearn_SOURCES = main.c sockets.c

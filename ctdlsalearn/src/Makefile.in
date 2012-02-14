@@ -131,7 +131,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-ctdlsalearn_SOURCES = main.c sockets.c ctdlsalearn.h
+ctdlsalearn_SOURCES = main.c sockets.c
 all: all-am
 
 .SUFFIXES:

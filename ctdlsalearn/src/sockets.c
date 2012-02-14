@@ -1,5 +1,7 @@
 /*
+ * Socket functions for ctdlsalearn
  *
+ * This is open source software for the Linux operating system, licensed under GPL v3
  */
 
 #include <config.h>
@@ -15,7 +17,6 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
-#include "ctdlsalearn.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff

@@ -10,7 +10,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
-#include "ctdlsalearn.h"
 
 int verbose = 0;
 
