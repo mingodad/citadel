@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -52,16 +46,16 @@ const char **AvailLangLoaded;
 long nLocalesLoaded = 0;
 
 #ifdef HAVE_USELOCALE
-locale_t *wc_locales; /**< here we keep the parsed stuff */
+locale_t *wc_locales; /* here we keep the parsed stuff */
 #endif
 
 /* Keep information about one locale */
 typedef struct _lang_pref{
-	char lang[16];          /**< the language locale string */
-	char region[16];        /**< the region locale string */
-	long priority;          /**< which priority does it have */
-	int availability;       /**< do we know it? */
-	int selectedlang;       /**< is this the selected language? */
+	char lang[16];          /* the language locale string */
+	char region[16];        /* the region locale string */
+	long priority;          /* which priority does it have */
+	int availability;       /* do we know it? */
+	int selectedlang;       /* is this the selected language? */
 } LangStruct;
 
 /* parse browser locale header 
@@ -108,37 +102,40 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 		ls = &wanted_locales[i];
 
 		StrBufExtract_token(Buf, LocaleString, i, ',');
-		/** we are searching, if this list item has something like ;q=n*/
+		/* we are searching, if this list item has something like ;q=n*/
 		if (StrBufNum_tokens(Buf, '=') > 1) {
 			int sbuflen, k;
 			StrBufExtract_token(SBuf, Buf, 1, '=');
 			sbuflen = StrLength(SBuf);
-			for (k = 0; k < sbuflen; k++) 
-				if (ChrPtr(SBuf)[k] == '.') 
+			for (k = 0; k < sbuflen; k++) {
+				if (ChrPtr(SBuf)[k] == '.') {
 					StrBufPeek(SBuf, NULL, k, '0');
+				}
+			}
 			ls->priority = StrTol(SBuf);
 		}
 		else {
 			ls->priority = 1000;
 		}
 
-		/** get the locale part */
+		/* get the locale part */
 		StrBufExtract_token(SBuf, Buf, 0, ';');
 
-		/** get the lang part, which should be allways there */
+		/* get the lang part, which should be allways there */
 		extract_token(&ls->lang[0], 
 			      ChrPtr(SBuf), 
 			      0, '-', 
 			      sizeof(ls->lang));
 
-		/** get the area code if any. */
+		/* get the area code if any. */
 		if (StrBufNum_tokens(SBuf, '-') > 1) {
 			extract_token(&ls->region[0], 
 				      ChrPtr(SBuf), 
 				      1, '-', 
-				      sizeof(ls->region));
+				      sizeof(ls->region)
+			);
 		}
-		else { /** no ara code? use lang code */
+		else { /* no ara code? use lang code */
 			blen=strlen(&ls->lang[0]);
 			memcpy(&ls->region[0], ls->lang, blen);
 			ls->region[blen] = '\0';
@@ -150,7 +147,7 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 		{
 			int chars;
 			chars = toupper(ls->region[j]);
-			ls->region[j] = (char)chars;/** \todo ?! */
+			ls->region[j] = (char)chars; /* todo ? */
 		}
 		snprintf(&lbuf[0], 
 			 sizeof(lbuf), 
@@ -158,18 +155,18 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 			 &ls->lang[0], 
 			 &ls->region[0]);
 			
-		/** check if we have this lang */
+		/* check if we have this lang */
 		ls->availability = 1;
 		ls->selectedlang = -1;
 		for (j = 0; j < nLocalesLoaded; j++) {
 			int result;
-			/** match against the LANG part */
+			/* match against the LANG part */
 			result = strcasecmp(&ls->lang[0], AvailLangLoaded[j]);
 			if ((result < 0) && (result < ls->availability)){
 				ls->availability = result;
 				ls->selectedlang = j;
 			}
-			/** match against lang and locale */
+			/* match against lang and locale */
 			if (0 == strcasecmp(&lbuf[0], AvailLangLoaded[j])){
 				ls->availability = 0;
 				ls->selectedlang = j;
@@ -183,24 +180,26 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 	nBest = -1;
 	for (i = 0; ((i < nParts) && (i<SEARCH_LANG)); i++) {
 		ls = &wanted_locales[i];
-		if ((ls->availability <= 0) && 
-		    (av < ls->availability) &&
-		    (prio < ls->priority) &&
-		    (ls->selectedlang != -1)) {
+		if (	(ls->availability <= 0)
+			&& (av < ls->availability)
+			&& (prio < ls->priority)
+			&& (ls->selectedlang != -1)
+		) {
 			nBest = ls->selectedlang;
 			av = ls->availability;
 			prio = ls->priority;
 		}
 	}
 	if (nBest == -1) {
-		/** fall back to C */
+		/* fall back to C */
 		nBest=0;
 	}
 	sess->selected_language = nBest;
-	syslog(9, "language found: %s\n", AvailLangLoaded[WC->selected_language]);
+	syslog(9, "language found: %s", AvailLangLoaded[WC->selected_language]);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&SBuf);
 }
+
 
 /*
  * show the language chooser on the login dialog
@@ -216,7 +215,6 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 	if (Lang == NULL)
 		Lang = "C";
 #endif
-
 
 	if (nLocalesLoaded == 1) {
 		wc_printf("<p>%s</p>", AvailLangLoaded[0]);
@@ -261,8 +259,8 @@ void go_selected_language(void) {
 #ifdef HAVE_USELOCALE
 	wcsession *WCC = WC;
 	if (WCC->selected_language < 0) return;
-	uselocale(wc_locales[WCC->selected_language]);	/** switch locales */
-	textdomain(textdomain(NULL));			/** clear the cache */
+	uselocale(wc_locales[WCC->selected_language]);	/* switch locales */
+	textdomain(textdomain(NULL));			/* clear the cache */
 #else
 	char *language;
 	
@@ -276,8 +274,8 @@ void go_selected_language(void) {
  */
 void stop_selected_language(void) {
 #ifdef HAVE_USELOCALE
-	uselocale(LC_GLOBAL_LOCALE);			/** switch locales */
-	textdomain(textdomain(NULL));			/** clear the cache */
+	uselocale(LC_GLOBAL_LOCALE);			/* switch locales */
+	textdomain(textdomain(NULL));			/* clear the cache */
 #endif
 }
 
@@ -300,7 +298,7 @@ void initialize_locales(void) {
 
 	language = getenv("WEBCIT_LANG");
 	if ((language) && (!IsEmptyStr(language)) && (strcmp(language, "UNLIMITED") != 0)) {
-		syslog(9, "Nailing locale to %s\n", language);
+		syslog(9, "Nailing locale to %s", language);
  	}
 	else language = NULL;
 
@@ -312,9 +310,6 @@ void initialize_locales(void) {
 	/* create default locale */
 	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
 #endif
-
-
-
 
 	for (i = 0; i < nLocales; ++i) {
 		if ((language != NULL) && (strcmp(AvailLang[i], language) != 0))
@@ -332,13 +327,10 @@ void initialize_locales(void) {
 			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
-			syslog(1, "locale for "LOCALEDIR"locale/%s: %s; disabled\n",
-				buf,
-				strerror(errno)
-			);
+			syslog(1, "locale for %s disabled: %s", buf, strerror(errno));
 		}
 		else {
-			syslog(3, "Found locale: %s\n", buf);
+			syslog(3, "Found locale: %s", buf);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
@@ -357,12 +349,13 @@ void initialize_locales(void) {
 #endif
 	}
 	if ((language != NULL) && (nLocalesLoaded == 0)) {
-		syslog(1, "Your selected locale [%s] isn't available on your system. falling back to C\n", language);
+		syslog(1, "Your selected locale [%s] isn't available on your system. falling back to C", language);
 #ifdef HAVE_USELOCALE
 		wc_locales[0] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
 			AvailLang[0],
-			Empty_Locale);		
+			Empty_Locale
+		);
 #else
 		setlocale(LC_MESSAGES, AvailLang[0]);
 		setenv("LANG", AvailLang[0], 1);
@@ -372,12 +365,10 @@ void initialize_locales(void) {
 	}
 
 #ifdef ENABLE_NLS
-	/*locale = */setlocale(LC_ALL, "");
-
-	syslog(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
-	syslog(9, "Text domain: %s\n", textdomain("webcit"));
-	syslog(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
-
+	setlocale(LC_ALL, "");
+	syslog(9, "Message catalog directory: %s", bindtextdomain("webcit", LOCALEDIR"/locale"));
+	syslog(9, "Text domain: %s", textdomain("webcit"));
+	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit","UTF8"));
 #endif
 }
 
@@ -389,8 +380,9 @@ ServerShutdownModule_GETTEXT
 #ifdef HAVE_USELOCALE
 	int i;
 	for (i = 0; i < nLocalesLoaded; ++i) {
-		if (Empty_Locale != wc_locales[i])
+		if (Empty_Locale != wc_locales[i]) {
 			freelocale(wc_locales[i]);
+		}
 	}
 	free(wc_locales);
 #endif
@@ -399,7 +391,9 @@ ServerShutdownModule_GETTEXT
 
 #else	/* ENABLE_NLS */
 const char *AvailLang[] = {
-	"C", ""};
+	"C",
+	""
+};
 
 /* dummy for non NLS enabled systems */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
