@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-22 13:16-0400\n"
-"PO-Revision-Date: 2010-10-22 14:49+0000\n"
-"Last-Translator: David Given <dg@cowlark.com>\n"
+"PO-Revision-Date: 2012-01-24 10:14+0000\n"
+"Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2012-01-25 05:21+0000\n"
+"X-Generator: Launchpad (build 14719)\n"
 "Language: \n"
 
 #: ../../serv_func.c:192
@@ -27,10 +27,13 @@ msgid ""
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
+"This server is already serving its maximum number of users and cannot accept "
+"any additional logins at this time.  Please try again later or contact your "
+"system administrator."
 
 #: ../../serv_func.c:197 ../../serv_func.c:226
 msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr ""
+msgstr "Received unexpected answer from Citadel server; bailing out."
 
 #: ../../serv_func.c:235
 #, c-format
@@ -41,10 +44,15 @@ msgid ""
 "\n"
 "\n"
 msgstr ""
+"You are connected to a Citadel server running Citadel %d.%02d. \n"
+"In order to run this version of WebCit you must also have Citadel %d.%02d or "
+"newer.\n"
+"\n"
+"\n"
 
 #: ../../who.c:154
 msgid "Edit your session display"
-msgstr ""
+msgstr "Edit your session display"
 
 #: ../../who.c:158
 msgid ""
@@ -53,77 +61,83 @@ msgid ""
 "click the appropriate 'change' button without typing anything in the "
 "corresponding box. "
 msgstr ""
+"This screen allows you to change the way your session appears in the 'Who is "
+"online' listing. To turn off any 'fake' name you've previously set, simply "
+"click the appropriate 'change' button without typing anything in the "
+"corresponding box. "
 
 #: ../../who.c:171
 msgid "Room name:"
-msgstr ""
+msgstr "Room name:"
 
 #: ../../who.c:176
 msgid "Change room name"
-msgstr ""
+msgstr "Change room name"
 
 #: ../../who.c:180
 msgid "Host name:"
-msgstr ""
+msgstr "Host name:"
 
 #: ../../who.c:185
 msgid "Change host name"
-msgstr ""
+msgstr "Change host name"
 
 #: ../../who.c:190 ../../static/t/openid_manual_create.html:9
 #: ../../static/t/get_logged_in.html:47 ../../static/t/get_logged_in.html:62
 #: ../../static/t/aide/edituser/detailview.html:20
 msgid "User name:"
-msgstr ""
+msgstr "User name:"
 
 #: ../../who.c:195
 msgid "Change user name"
-msgstr ""
+msgstr "Change user name"
 
 #: ../../who.c:200 ../../sieve.c:686 ../../tasks.c:353 ../../sysmsgs.c:68
 #: ../../auth.c:825 ../../vcard_edit.c:1216 ../../paging.c:66
 #: ../../event.c:773 ../../static/t/edit_message.html:135
 #: ../../static/t/confirmlogoff.html:4
 msgid "Cancel"
-msgstr ""
+msgstr "Cancel"
 
 #: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
 #, c-format
 msgid "There is no room called '%s'."
-msgstr ""
+msgstr "There is no room called '%s'."
 
 #: ../../wiki.c:76
 #, c-format
 msgid "'%s' is not a Wiki room."
-msgstr ""
+msgstr "'%s' is not a Wiki room."
 
 #: ../../wiki.c:110
 #, c-format
 msgid "There is no page called '%s' here."
-msgstr ""
+msgstr "There is no page called '%s' here."
 
 #: ../../wiki.c:112
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
+"Select the 'Edit this page' link in the room banner if you would like to "
+"create this page."
 
 #: ../../wiki.c:181 ../../static/t/msg_listview.html:11
 #: ../../static/t/summary/header.html:44
 msgid "Date"
-msgstr ""
+msgstr "Date"
 
 #: ../../wiki.c:182
 msgid "Author"
-msgstr ""
+msgstr "Author"
 
 #: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
-msgstr ""
+msgstr "(show)"
 
 #: ../../wiki.c:211 ../../static/t/navbar.html:145
 msgid "Current version"
-msgstr ""
+msgstr "Current version"
 
 #: ../../wiki.c:223
 msgid "(revert)"
@@ -250,10 +264,10 @@ msgstr ""
 msgid "Prefered startpage"
 msgstr ""
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -553,7 +567,8 @@ msgid "Higher access is required to access this function."
 msgstr ""
 
 #: ../../siteconfig.c:252
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../../siteconfig.c:314
@@ -1231,7 +1246,8 @@ msgstr ""
 
 #: ../../calendar.c:228
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../../calendar.c:233
@@ -3073,7 +3089,8 @@ msgid "(URLS for notifications when users receive new mails; )"
 msgstr ""
 
 #: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgid ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 msgstr ""
 
 #: ../../static/t/aide/inet/fallbackhosts.html:2
@@ -3258,7 +3275,8 @@ msgid "Access level required to create rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid "Automatically grant room-aide status to users who create private rooms"
+msgid ""
+"Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63

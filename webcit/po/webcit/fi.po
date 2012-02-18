@@ -2563,9 +2563,8 @@ msgid "running"
 msgstr ""
 
 #: ../../static/t/summary/page.html:65
-#, fuzzy
 msgid "with"
-msgstr "5."
+msgstr ""
 
 #: ../../static/t/summary/page.html:66
 msgid "server build"

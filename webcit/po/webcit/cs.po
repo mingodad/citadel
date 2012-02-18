@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: citadel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-22 13:16-0400\n"
-"PO-Revision-Date: 2011-01-25 22:21+0000\n"
-"Last-Translator: Citadel <Unknown>\n"
+"PO-Revision-Date: 2012-02-16 19:19+0000\n"
+"Last-Translator: Zdenek Dlauhy <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-25 04:33+0000\n"
-"X-Generator: Launchpad (build 12351)\n"
+"X-Launchpad-Export-Date: 2012-02-17 04:53+0000\n"
+"X-Generator: Launchpad (build 14814)\n"
 
 #: ../../serv_func.c:192
 msgid ""
@@ -23,10 +23,13 @@ msgid ""
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
+"Tento server již obsluhuje nejvyšší možný počet uživatelů a nyní nemůže "
+"příjmat žádná další přihlášení. Zkuste to, prosím, později, nebo kontaktujte "
+"správce systému."
 
 #: ../../serv_func.c:197 ../../serv_func.c:226
 msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr ""
+msgstr "Přijata neočekávaná odpověď od Citadel servru"
 
 #: ../../serv_func.c:235
 #, c-format
@@ -37,10 +40,15 @@ msgid ""
 "\n"
 "\n"
 msgstr ""
+"Jste připojeni k Citadel serveru verze %d.%02d. \n"
+"Pro možný běh této verze WebCit musíte mít Citadel verze %d.%02d nebo "
+"novější.\n"
+"\n"
+"\n"
 
 #: ../../who.c:154
 msgid "Edit your session display"
-msgstr ""
+msgstr "Upravte nastavení sezení"
 
 #: ../../who.c:158
 msgid ""
@@ -60,11 +68,11 @@ msgstr "Změnit jméno místnosti"
 
 #: ../../who.c:180
 msgid "Host name:"
-msgstr ""
+msgstr "Označení systému:"
 
 #: ../../who.c:185
 msgid "Change host name"
-msgstr ""
+msgstr "Změnte označení systému"
 
 #: ../../who.c:190 ../../static/t/openid_manual_create.html:9
 #: ../../static/t/get_logged_in.html:47 ../../static/t/get_logged_in.html:62
@@ -86,65 +94,67 @@ msgstr "Zrušit"
 #: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
 #, c-format
 msgid "There is no room called '%s'."
-msgstr ""
+msgstr "Místnost '%s' není k nalezení."
 
 #: ../../wiki.c:76
 #, c-format
 msgid "'%s' is not a Wiki room."
-msgstr ""
+msgstr "'%s' není wiki místnost"
 
 #: ../../wiki.c:110
 #, c-format
 msgid "There is no page called '%s' here."
-msgstr ""
+msgstr "Strana '%s' není k nalezení zde."
 
 #: ../../wiki.c:112
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
+"Vyberte 'Upravte tuto stránku' odkaz v názvu místnosti, pokud chcete "
+"vytvořit tuto stránku."
 
 #: ../../wiki.c:181 ../../static/t/msg_listview.html:11
 #: ../../static/t/summary/header.html:44
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: ../../wiki.c:182
 msgid "Author"
-msgstr ""
+msgstr "Autor:"
 
 #: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
-msgstr ""
+msgstr "(zobrazit)"
 
 #: ../../wiki.c:211 ../../static/t/navbar.html:145
 msgid "Current version"
-msgstr ""
+msgstr "Aktuální verze"
 
 #: ../../wiki.c:223
 msgid "(revert)"
-msgstr ""
+msgstr "(vrátit zpět)"
 
 #: ../../wiki.c:300
 msgid "Page title"
-msgstr ""
+msgstr "Název stránky"
 
 #: ../../notes.c:343
 msgid "Click on any note to edit it."
-msgstr ""
+msgstr "Klikněte na poznámku pro její úpravu."
 
 #: ../../useredit.c:627
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
-msgstr ""
+msgstr "Vznikla chyba při vytváření nebo úpravě položky v adresáři."
 
 #: ../../useredit.c:715
 msgid "Changes were not saved."
-msgstr ""
+msgstr "Změny nebyly uloženy."
 
 #: ../../useredit.c:780
 msgid "A new user has been created."
-msgstr ""
+msgstr "Nový uživatel byl vytvořen."
 
 #: ../../useredit.c:784
 msgid ""
@@ -152,10 +162,12 @@ msgid ""
 "host based authentication mode.  In this mode, you must create new users on "
 "the host system, not within Citadel."
 msgstr ""
+"Pokoušíte se vytvořit uživatele v Citadel avšak systém je nastaven na HOST "
+"autentifikaci. V tomto módu musíte vytvořit uživatele na servru/hostu."
 
 #: ../../iconbar.c:328
 msgid "Iconbar Setting"
-msgstr ""
+msgstr "Nastavení Iconbaru"
 
 #: ../../calendar_tools.c:100
 msgid "Hour: "
@@ -171,7 +183,7 @@ msgstr "(neznámý stav)"
 
 #: ../../calendar_tools.c:207
 msgid "(needs action)"
-msgstr ""
+msgstr "(potřebuje akci)"
 
 #: ../../calendar_tools.c:210
 msgid "(accepted)"
@@ -187,7 +199,7 @@ msgstr ""
 
 #: ../../calendar_tools.c:219
 msgid "(delegated)"
-msgstr ""
+msgstr "(delegováno)"
 
 #: ../../calendar_tools.c:222
 msgid "(completed)"
@@ -203,28 +215,28 @@ msgstr "(nic)"
 
 #: ../../openid.c:34
 msgid "Manage Account/OpenID Associations"
-msgstr ""
+msgstr "Nastavení účtu/OpenID associace"
 
 #: ../../openid.c:52
 msgid "Do you really want to delete this OpenID?"
-msgstr ""
+msgstr "Chcete opravdu smazat toto OpenID?"
 
 #: ../../openid.c:53
 msgid "(delete)"
-msgstr ""
+msgstr "(smazat)"
 
 #: ../../openid.c:61
 msgid "Add an OpenID: "
-msgstr ""
+msgstr "Přidat OpenID: "
 
 #: ../../openid.c:64
 msgid "Attach"
-msgstr ""
+msgstr "Připojit"
 
 #: ../../openid.c:68
 #, c-format
 msgid "%s does not permit authentication via OpenID."
-msgstr ""
+msgstr "%s nepodporuje přihlášení přes OpenID."
 
 #: ../../preferences.c:863
 msgid "Cancelled.  No settings were changed."
@@ -240,19 +252,19 @@ msgstr "Toto nemůže být startovní stránkou"
 
 #: ../../preferences.c:1116
 msgid "You no longer have a start page selected."
-msgstr ""
+msgstr "Nyní nemáte nastavenou startovací stránku."
 
 #: ../../preferences.c:1166
 msgid "Prefered startpage"
 msgstr "Upřednostňovaná strartovní stránka"
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:154
 msgid "availability unknown"
-msgstr ""
+msgstr "dostupnost neznámá"
 
 #: ../../availability.c:175
 msgid "free"
@@ -264,15 +276,15 @@ msgstr "ZAMĚSTNANÝ"
 
 #: ../../bbsview_renderer.c:316
 msgid "Go to page: "
-msgstr ""
+msgstr "Jdi na stranu: "
 
 #: ../../bbsview_renderer.c:353
 msgid "First"
-msgstr ""
+msgstr "První"
 
 #: ../../bbsview_renderer.c:359
 msgid "Last"
-msgstr ""
+msgstr "Poslední"
 
 #: ../../downloads.c:289
 #, c-format
@@ -311,15 +323,15 @@ msgstr "Kdy e-mail přišel: "
 
 #: ../../sieve.c:602 ../../static/t/sieve/list.html:45
 msgid "Leave it in my inbox without filtering"
-msgstr ""
+msgstr "Zanechat v mé doručené poště bez filtování"
 
 #: ../../sieve.c:606 ../../static/t/sieve/list.html:46
 msgid "Filter it according to rules selected below"
-msgstr ""
+msgstr "Provést filtraci na základě pravidel dole"
 
 #: ../../sieve.c:611 ../../static/t/sieve/list.html:47
 msgid "Filter it through a manually edited script (advanced users only)"
-msgstr ""
+msgstr "Filtrovat skrz manuálně editované skripty (pokročilý uživatelé)"
 
 #: ../../sieve.c:622 ../../static/t/sieve/list.html:53
 msgid "Your incoming mail will not be filtered through any scripts."
@@ -526,7 +538,7 @@ msgstr "Přeposlat"
 
 #: ../../sieve.c:1114 ../../static/t/sieve/display_one.html:70
 msgid "Vacation"
-msgstr ""
+msgstr "Dovolená"
 
 #: ../../sieve.c:1151 ../../static/t/sieve/display_one.html:82
 msgid "Message:"
@@ -554,8 +566,11 @@ msgid "Higher access is required to access this function."
 msgstr "Pro přístup k této funkci jsou zapotřebí vyšší práva."
 
 #: ../../siteconfig.c:252
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
+"VAROVÁNÍ: Nepodařilo se načíst nastavení servru (Server Config); Chcete "
+"spustit nový Citserver?"
 
 #: ../../siteconfig.c:314
 msgid "Your system configuration has been updated."
@@ -563,39 +578,39 @@ msgstr "Vaše systémová konfigurace byla změněna"
 
 #: ../../smtpqueue.c:133 ../../static/t/aide/ignetconf/section.html:5
 msgid "(Delete)"
-msgstr ""
+msgstr "(Smazat)"
 
 #: ../../smtpqueue.c:191
 msgid "Message ID"
-msgstr ""
+msgstr "ID zprávy"
 
 #: ../../smtpqueue.c:193
 msgid "Date/time submitted"
-msgstr ""
+msgstr "Datum a čas poslání"
 
 #: ../../smtpqueue.c:195
 msgid "Last attempt"
-msgstr ""
+msgstr "Poslední pokus"
 
 #: ../../smtpqueue.c:199
 msgid "Recipients"
-msgstr ""
+msgstr "Příjemci"
 
 #: ../../smtpqueue.c:214
 msgid "The queue is empty."
-msgstr ""
+msgstr "Fronta je prázdná."
 
 #: ../../smtpqueue.c:220
 msgid "You do not have permission to view this resource."
-msgstr ""
+msgstr "Nemáte povolení vidět tento zdroj."
 
 #: ../../smtpqueue.c:236 ../../static/t/aide/global_config.html:5
 msgid "View the outbound SMTP queue"
-msgstr ""
+msgstr "Zobrazit odchozí frontu na SMTP servru"
 
 #: ../../smtpqueue.c:251
 msgid "Refresh this page"
-msgstr ""
+msgstr "Obnovit tuto stránku"
 
 #: ../../html2html.c:136
 #, c-format
@@ -604,48 +619,48 @@ msgstr ""
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
-msgstr ""
+msgstr "Nástěnka"
 
 #: ../../roomviews.c:51
 msgid "Mail Folder"
-msgstr ""
+msgstr "Poštovní složka"
 
 #: ../../roomviews.c:52
 msgid "Address Book"
-msgstr ""
+msgstr "Adresář"
 
 #: ../../roomviews.c:53 ../../static/t/iconbar/edit.html:55
 #: ../../static/t/iconbar.html:24
 msgid "Calendar"
-msgstr ""
+msgstr "Kalendář"
 
 #: ../../roomviews.c:54
 msgid "Task List"
-msgstr ""
+msgstr "Seznam úkolů"
 
 #: ../../roomviews.c:55
 msgid "Notes List"
-msgstr ""
+msgstr "Seznam poznámek"
 
 #: ../../roomviews.c:56
 msgid "Wiki"
-msgstr ""
+msgstr "Wiki"
 
 #: ../../roomviews.c:57
 msgid "Calendar List"
-msgstr ""
+msgstr "Kalendářní pohled"
 
 #: ../../roomviews.c:58
 msgid "Journal"
-msgstr ""
+msgstr "Časopis"
 
 #: ../../roomviews.c:59
 msgid "Drafts"
-msgstr ""
+msgstr "Koncepty"
 
 #: ../../roomviews.c:60
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: ../../tasks.c:93
 msgid "Completed?"
@@ -690,11 +705,11 @@ msgstr "nebo"
 
 #: ../../tasks.c:279 ../../tasks.c:308
 msgid "Time associated"
-msgstr ""
+msgstr "Přiřezený čas"
 
 #: ../../tasks.c:283
 msgid "Due date:"
-msgstr ""
+msgstr "Do:"
 
 #: ../../tasks.c:312
 msgid "Completed:"
@@ -740,9 +755,8 @@ msgid "Cancelled.  %s was not saved."
 msgstr "Zrušeno, %s se neuloží."
 
 #: ../../sysmsgs.c:108
-#, fuzzy
 msgid " has been saved."
-msgstr "Ukládání %s proběhlo úspěšně."
+msgstr " byl uložen."
 
 #: ../../sysmsgs.c:115 ../../sysmsgs.c:116
 msgid "Room info"
@@ -754,15 +768,15 @@ msgstr "Vaše biografie"
 
 #: ../../listsub.c:53
 msgid "List subscription"
-msgstr ""
+msgstr "Seznam odebírání"
 
 #: ../../listsub.c:66
 msgid "List subscribe/unsubscribe"
-msgstr ""
+msgstr "Seznam přihlášených/odhlášených"
 
 #: ../../listsub.c:86
 msgid "Confirmation request sent"
-msgstr ""
+msgstr "Potvrzovací požadavek odeslán"
 
 #: ../../listsub.c:88
 #, c-format
@@ -777,7 +791,7 @@ msgstr ""
 
 #: ../../listsub.c:101
 msgid "Go back..."
-msgstr ""
+msgstr "Zpět"
 
 #. an erased user
 #: ../../auth.c:36 ../../static/t/aide/siteconfig/tab_access.html:40
@@ -813,14 +827,14 @@ msgstr "Klasický uživatel"
 #: ../../static/t/aide/siteconfig/tab_access.html:55
 #: ../../static/t/aide/edituser/detailview.html:47
 msgid "Network User"
-msgstr ""
+msgstr "Síťový uživatel"
 
 #. a moderator
 #: ../../auth.c:51 ../../static/t/aide/siteconfig/tab_access.html:45
 #: ../../static/t/aide/siteconfig/tab_access.html:56
 #: ../../static/t/aide/edituser/detailview.html:48
 msgid "Preferred User"
-msgstr ""
+msgstr "Preferovaný uživatel"
 
 #. chief
 #: ../../auth.c:54 ../../static/t/aide/siteconfig/tab_access.html:46
@@ -844,6 +858,8 @@ msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
 msgstr ""
+"Tento program neměl možnost se připojit nebo zůstat připojený k Citadel "
+"servru. Prosím ohlašte tento problém vašemu administrátorovi."
 
 #: ../../auth.c:545 ../../webcit.c:724
 msgid "Read More..."
@@ -917,11 +933,11 @@ msgstr "Heslo nemůže být prázdné."
 #: ../../blogview_renderer.c:64 ../../blogview_renderer.c:80
 #, c-format
 msgid "%d comments"
-msgstr ""
+msgstr "%d komentářů"
 
 #: ../../blogview_renderer.c:67 ../../blogview_renderer.c:83
 msgid "permalink"
-msgstr ""
+msgstr "pevný odkaz"
 
 #: ../../blogview_renderer.c:303
 msgid "Newer posts"
@@ -941,7 +957,7 @@ msgstr " (práce)"
 
 #: ../../vcard_edit.c:445
 msgid " (home)"
-msgstr ""
+msgstr " (domů)"
 
 #: ../../vcard_edit.c:447
 msgid " (cell)"
@@ -1053,11 +1069,11 @@ msgstr "Ostatní e-mailové adresy"
 
 #: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
-msgstr ""
+msgstr "Nelze vstoupit do této místnosti pro uložení zprávy"
 
 #: ../../vcard_edit.c:1265
 msgid "Aborting."
-msgstr ""
+msgstr "Přerušuji."
 
 #: ../../vcard_edit.c:1396
 msgid "Could Not decode vcard photo\n"
@@ -1071,19 +1087,19 @@ msgstr ""
 #: ../../roomops.c:894
 #, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr ""
+msgstr "Uživatel '%s' pozván do místnosti '%s'."
 
 #: ../../roomops.c:923
 msgid "Cancelled.  No new room was created."
-msgstr ""
+msgstr "Zrušeno. Žádná nová místnost"
 
 #: ../../roomops.c:1193
 msgid "Floor has been deleted."
-msgstr ""
+msgstr "Podlaží bylo vymazáno."
 
 #: ../../roomops.c:1217
 msgid "New floor has been created."
-msgstr ""
+msgstr "Nové podlaží bylo vytvořeno."
 
 #: ../../roomops.c:1296
 msgid "Room list view"
@@ -1091,7 +1107,7 @@ msgstr ""
 
 #: ../../roomops.c:1299
 msgid "Show empty floors"
-msgstr ""
+msgstr "Zobrazit prázná podlaží"
 
 #: ../../calendar_view.c:272 ../../calendar_view.c:468
 #: ../../calendar_view.c:937 ../../event.c:864
@@ -1170,27 +1186,27 @@ msgstr "Probíhající akce"
 
 #: ../../paging.c:35
 msgid "Send instant message"
-msgstr ""
+msgstr "Odeslat okamžitou zprávu"
 
 #: ../../paging.c:43
 msgid "Send an instant message to: "
-msgstr ""
+msgstr "Odeslat okamžitou zprávu: "
 
 #: ../../paging.c:57
 msgid "Enter message text:"
-msgstr ""
+msgstr "Zadejte text zprávy:"
 
 #: ../../paging.c:65 ../../static/t/edit_message.html:109
 msgid "Send message"
-msgstr ""
+msgstr "Odeslat zprávu"
 
 #: ../../paging.c:84
 msgid "Message was not sent."
-msgstr ""
+msgstr "Zpráva nebyla odeslána."
 
 #: ../../paging.c:95
 msgid "Message has been sent to "
-msgstr ""
+msgstr "Zpráva byla odeslána na "
 
 #: ../../netconf.c:158 ../../netconf.c:185 ../../netconf.c:193
 #: ../../netconf.c:241 ../../netconf.c:249 ../../inetconf.c:110
@@ -1200,87 +1216,89 @@ msgstr "Neplatný parametr"
 
 #: ../../calendar.c:82
 msgid "Meeting invitation"
-msgstr ""
+msgstr "Pozkánka na schůzku"
 
 #: ../../calendar.c:85
 msgid "Attendee's reply to your invitation"
-msgstr ""
+msgstr "Odpověď účastníka na pozvánku"
 
 #: ../../calendar.c:88
 msgid "Published event"
-msgstr ""
+msgstr "Publikovaná událost"
 
 #: ../../calendar.c:91
 msgid "This is an unknown type of calendar item."
-msgstr ""
+msgstr "Toto je neznámý typ kalendářového objektu."
 
 #: ../../calendar.c:174 ../../event.c:96
 msgid "Recurrence"
-msgstr ""
+msgstr "Opakování"
 
 #: ../../calendar.c:175 ../../event.c:511
 msgid "This is a recurring event"
-msgstr ""
+msgstr "Toto je opakující se událost"
 
 #: ../../calendar.c:184
 msgid "Attendee:"
-msgstr ""
+msgstr "Přijde:"
 
 #: ../../calendar.c:224
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
-msgstr ""
+msgstr "Toto je aktualizace události '%s' která už je ve vašem kalendáři."
 
 #: ../../calendar.c:228
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
-msgstr ""
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
+msgstr "Tato událost bude v konfliktu s '%s' která už je ve vašem kalendáři."
 
 #: ../../calendar.c:233
 msgid "Update:"
-msgstr ""
+msgstr "Aktualizace:"
 
 #: ../../calendar.c:234
 msgid "CONFLICT:"
-msgstr ""
+msgstr "KONFLIFT:"
 
 #: ../../calendar.c:257
 msgid "How would you like to respond to this invitation?"
-msgstr ""
+msgstr "Jak odpověďět na toto pozvání?"
 
 #: ../../calendar.c:258
 msgid "Accept"
-msgstr ""
+msgstr "Potvrdit"
 
 #: ../../calendar.c:259
 msgid "Tentative"
-msgstr ""
+msgstr "Předběžné"
 
 #: ../../calendar.c:260
 msgid "Decline"
-msgstr ""
+msgstr "Zamítnout"
 
 #: ../../calendar.c:277
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
+"Klikněte na <i>Aktualizovat</i> pro potvrzení a aktualizování kalendáře."
 
 #: ../../calendar.c:278
 msgid "Update"
-msgstr ""
+msgstr "Aktualizovat"
 
 #: ../../calendar.c:279
 msgid "Ignore"
-msgstr ""
+msgstr "Ignorovat"
 
 #: ../../calendar.c:301
 msgid "There was an error parsing this calendar item."
-msgstr ""
+msgstr "Chyba při zpracování této kalendářové položky."
 
 #: ../../calendar.c:334
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr ""
+msgstr "Provedeno potvrzení na pozvánku. Událost byla vložena do kalendáře."
 
 #: ../../calendar.c:338
 msgid ""
@@ -1296,36 +1314,38 @@ msgstr ""
 
 #: ../../calendar.c:347
 msgid "A reply has been sent to the meeting organizer."
-msgstr ""
+msgstr "Odpověď byla zaslána organizátorovi."
 
 #. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
 #. that the recipient of an ical-invitation should please
 #. answer this request.
 #: ../../calendar.c:382
 msgid "Your calendar has been updated to reflect this RSVP."
-msgstr ""
+msgstr "Kalendář byl aktualizován na základě RSVP."
 
 #: ../../calendar.c:384
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr ""
+"Rozhodli jste se ignorovat tento \"RSVP.\" Váš kalendář <b>nebyl</b> "
+"aktualizován."
 
 #: ../../calendar.c:933
 msgid "Calendar day view begins at:"
-msgstr ""
+msgstr "Začáteční den kalendáře:"
 
 #: ../../calendar.c:934
 msgid "Calendar day view ends at:"
-msgstr ""
+msgstr "Koncový den kalendáře:"
 
 #: ../../calendar.c:935
 msgid "Week starts on:"
-msgstr ""
+msgstr "Týden začíná v:"
 
 #: ../../webcit.c:348
 msgid "Authorization Required"
-msgstr ""
+msgstr "Vyžadována autorizace"
 
 #: ../../webcit.c:355
 #, c-format
@@ -1333,6 +1353,8 @@ msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
+"Pro přístup je potřeba platné uživatelské jméno a heslo. Nemohl jste být "
+"přihlášen: %s\n"
 
 #: ../../event.c:76
 msgid "seconds"
@@ -1352,102 +1374,102 @@ msgstr "dny"
 
 #: ../../event.c:80
 msgid "weeks"
-msgstr ""
+msgstr "týdny"
 
 #: ../../event.c:81
 msgid "months"
-msgstr ""
+msgstr "měsíce"
 
 #: ../../event.c:82
 msgid "years"
-msgstr ""
+msgstr "let"
 
 #: ../../event.c:83
 msgid "never"
-msgstr ""
+msgstr "nikdy"
 
 #: ../../event.c:87
 msgid "first"
-msgstr ""
+msgstr "první"
 
 #: ../../event.c:88
 msgid "second"
-msgstr ""
+msgstr "druhý"
 
 #: ../../event.c:89
 msgid "third"
-msgstr ""
+msgstr "třetí"
 
 #: ../../event.c:90
 msgid "fourth"
-msgstr ""
+msgstr "čtvrtý"
 
 #: ../../event.c:91
 msgid "fifth"
-msgstr ""
+msgstr "pátý"
 
 #: ../../event.c:94
 msgid "Event"
-msgstr ""
+msgstr "Událost"
 
 #: ../../event.c:95 ../../event.c:443 ../../event.c:455
 msgid "Attendees"
-msgstr ""
+msgstr "Návštěvníci"
 
 #: ../../event.c:173
 msgid "Add or edit an event"
-msgstr ""
+msgstr "Přidat nebo upravit událost"
 
 #: ../../event.c:212 ../../static/t/iconbar/edit.html:29
 #: ../../static/t/iconbar.html:13
 msgid "Summary"
-msgstr ""
+msgstr "Přehled"
 
 #: ../../event.c:223
 msgid "Location"
-msgstr ""
+msgstr "Umístění"
 
 #: ../../event.c:333 ../../static/t/iconbar/edit.html:49
 #: ../../static/t/iconbar.html:34
 msgid "Notes"
-msgstr ""
+msgstr "Poznámky"
 
 #: ../../event.c:375
 msgid "Organizer"
-msgstr ""
+msgstr "Organizátor"
 
 #: ../../event.c:380
 msgid "(you are the organizer)"
-msgstr ""
+msgstr "(jste organizátor)"
 
 #: ../../event.c:398
 msgid "Show time as:"
-msgstr ""
+msgstr "Ukaž čas jako:"
 
 #: ../../event.c:421
 msgid "Free"
-msgstr ""
+msgstr "Volný"
 
 #: ../../event.c:429
 msgid "Busy"
-msgstr ""
+msgstr "Obsazený"
 
 #: ../../event.c:446
 msgid "(One per line)"
-msgstr ""
+msgstr "(jeden na řádku)"
 
 #: ../../event.c:456 ../../static/t/edit_message.html:143
 #: ../../static/t/iconbar/edit.html:42 ../../static/t/iconbar.html:29
 msgid "Contacts"
-msgstr ""
+msgstr "Kotakty"
 
 #: ../../event.c:519
 msgid "Recurrence rule"
-msgstr ""
+msgstr "Pravidlo pro opakování"
 
 #: ../../event.c:523
 msgid "Repeats every"
-msgstr ""
+msgstr "Opakovat vždy"
 
 #. begin 'weekday_selector' div
 #: ../../event.c:541
@@ -1457,23 +1479,23 @@ msgstr ""
 #: ../../event.c:599
 #, c-format
 msgid "on day %s%d%s of the month"
-msgstr ""
+msgstr "v dni %s%d%s měsíce"
 
 #: ../../event.c:608 ../../event.c:670
 msgid "on the "
-msgstr ""
+msgstr "na "
 
 #: ../../event.c:632
 msgid "of the month"
-msgstr ""
+msgstr "měsíce"
 
 #: ../../event.c:661
 msgid "every "
-msgstr ""
+msgstr "každý "
 
 #: ../../event.c:662
 msgid "year on this date"
-msgstr ""
+msgstr "ročně"
 
 #: ../../event.c:694 ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
@@ -1482,79 +1504,79 @@ msgstr ""
 
 #: ../../event.c:718
 msgid "Recurrence range"
-msgstr ""
+msgstr "Délka opakování"
 
 #: ../../event.c:726
 msgid "No ending date"
-msgstr ""
+msgstr "Chybí datum ukončení"
 
 #: ../../event.c:733
 msgid "Repeat this event"
-msgstr ""
+msgstr "Opakovat tuto událost"
 
 #: ../../event.c:736
 msgid "times"
-msgstr ""
+msgstr "krát"
 
 #: ../../event.c:744
 msgid "Repeat this event until "
-msgstr ""
+msgstr "Opakovat do "
 
 #: ../../event.c:772
 msgid "Check attendee availability"
-msgstr ""
+msgstr "Zkontrolovat dostupnost účastníka"
 
 #: ../../fmt_date.c:310
 msgid "Time format"
-msgstr ""
+msgstr "Formát času"
 
 #: ../../graphics.c:57
 msgid "Graphics upload has been cancelled."
-msgstr ""
+msgstr "Nahrání grafiky bylo zrušeno."
 
 #: ../../graphics.c:63
 msgid "You didn't upload a file."
-msgstr ""
+msgstr "Nenahrál jste soubor."
 
 #: ../../graphics.c:113
 msgid "your photo"
-msgstr ""
+msgstr "fotografie"
 
 #: ../../graphics.c:120
 msgid "the icon for this room"
-msgstr ""
+msgstr "ikona této místnosti"
 
 #: ../../graphics.c:128
 msgid "the Greetingpicture for the login prompt"
-msgstr ""
+msgstr "Uvítací obrázek pro přihlášení"
 
 #: ../../graphics.c:136
 msgid "the Logoff banner picture"
-msgstr ""
+msgstr "obrázek - odhlášení"
 
 #: ../../graphics.c:147
 msgid "the icon for this floor"
-msgstr ""
+msgstr "ikona pro toto podlaží"
 
 #: ../../msg_renderers.c:579 ../../static/t/who/bio.html:15
 msgid "edit"
-msgstr ""
+msgstr "upravit"
 
 #: ../../msg_renderers.c:1108
 msgid "I don't know how to display "
-msgstr ""
+msgstr "Nevím jak zobrazit "
 
 #: ../../msg_renderers.c:1342
 msgid "(no subject)"
-msgstr ""
+msgstr "(bez předmětu)"
 
 #: ../../roomtokens.c:563
 msgid "file"
-msgstr ""
+msgstr "soubor"
 
 #: ../../roomtokens.c:565
 msgid "files"
-msgstr ""
+msgstr "soubory"
 
 #: ../../roomlist.c:99
 msgid "My Folders"
@@ -1562,81 +1584,81 @@ msgstr "Mé složky"
 
 #: ../../messages.c:70
 msgid "ERROR:"
-msgstr ""
+msgstr "CHYBA:"
 
 #: ../../messages.c:88
 msgid "Empty message"
-msgstr ""
+msgstr "Prázdná zpráva"
 
 #: ../../messages.c:994
 msgid "Cancelled.  Message was not posted."
-msgstr ""
+msgstr "Zrušeno. Zpráva nebyla odeslána."
 
 #: ../../messages.c:997
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
+msgstr "Automaticky zrušeno, jelikož zpráva už byla uložena."
 
 #: ../../messages.c:1021
 msgid "Saved to Drafts failed: "
-msgstr ""
+msgstr "Uložení do Konceptů selhalo: "
 
 #: ../../messages.c:1086
 msgid "Refusing to post empty message.\n"
-msgstr ""
+msgstr "Odmítám odeslat prázdnou zprávu.\n"
 
 #: ../../messages.c:1112
 msgid "Message has been saved to Drafts.\n"
-msgstr ""
+msgstr "Zpráva byla uložena do Konceptů.\n"
 
 #: ../../messages.c:1121
 msgid "Message has been sent.\n"
-msgstr ""
+msgstr "Zpráva byla odeslána.\n"
 
 #: ../../messages.c:1124
 msgid "Message has been posted.\n"
-msgstr ""
+msgstr "Zpráva byla vystavena.\n"
 
 #: ../../messages.c:1662
 msgid "The message was not moved."
-msgstr ""
+msgstr "Zpráva nebyla přesunuta."
 
 #: ../../messages.c:1702
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr ""
+msgstr "Vyskytla se chyba při zpracování této části: %s/%s\n"
 
 #: ../../messages.c:1762
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
-msgstr ""
+msgstr "Vyskytla se chyba při zpracování této části: %s\n"
 
 #: ../../messages.c:1929
 msgid "Attach signature to email messages?"
-msgstr ""
+msgstr "Připojit podpis k e-mailu?"
 
 #: ../../messages.c:1932
 msgid "Use this signature:"
-msgstr ""
+msgstr "Použít tento podpis:"
 
 #: ../../messages.c:1934
 msgid "Default character set for email headers:"
-msgstr ""
+msgstr "Základní kódování pro hlavičku e-mailu:"
 
 #: ../../messages.c:1937
 msgid "Preferred email address"
-msgstr ""
+msgstr "Preferovaná e-mailová adresa"
 
 #: ../../messages.c:1939
 msgid "Preferred display name for email messages"
-msgstr ""
+msgstr "Zobrazené jméno pro e-maily"
 
 #: ../../messages.c:1943
 msgid "Preferred display name for bulletin board posts"
-msgstr ""
+msgstr "Preferovaný pohled na zobrazení příspěvků na BBS"
 
 #: ../../messages.c:1946
 msgid "Mailbox view mode"
-msgstr ""
+msgstr "Zobrazení pošty"
 
 #: ../../addressbook_popup.c:192
 msgid "Add"
@@ -1644,54 +1666,53 @@ msgstr "Přidat"
 
 #: ../../summary.c:134
 msgid "(None)"
-msgstr ""
+msgstr "(Žádný)"
 
 #: ../../summary.c:186
 msgid "(Nothing)"
 msgstr "(Nic)"
 
 #: ../../inetconf.c:126
-#, fuzzy
 msgid " has been deleted."
-msgstr "Ukládání %s proběhlo úspěšně."
+msgstr " bylo smazáno."
 
 #. <domain> added status message
 #: ../../inetconf.c:144
 msgid " added."
-msgstr ""
+msgstr " přidáno."
 
 #: ../../static/t/edit_message/attachments_pane.html:3
 #: ../../static/t/get_logged_in.html:9
 msgid "Close window"
-msgstr ""
+msgstr "Zavřít okno"
 
 #: ../../static/t/edit_message/attachments_pane.html:5
 #: ../../static/t/edit_message.html:126
 msgid "Attachments:"
-msgstr ""
+msgstr "Přílohy:"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
 msgid "Attach file:"
-msgstr ""
+msgstr "Připojit soubor:"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"
-msgstr ""
+msgstr "Nahrát"
 
 #: ../../static/t/edit_message/section_attach_select.html:4
 msgid "Remove"
-msgstr ""
+msgstr "Odstranit"
 
 #: ../../static/t/msg_listselector_bottom.html:2
 #: ../../static/t/msg_listselector_top.html:2
 msgid "Reading #"
-msgstr ""
+msgstr "Čtení #"
 
 #: ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 #: ../../static/t/msg_listselector_top.html:7
 msgid "messages"
-msgstr ""
+msgstr "zprávy"
 
 #: ../../static/t/msg_listselector_bottom.html:12
 #: ../../static/t/msg_listselector_top.html:12
@@ -1705,7 +1726,7 @@ msgstr ""
 
 #: ../../static/t/room/display_private.html:7
 msgid "Go to a hidden room"
-msgstr ""
+msgstr "Jít do skryté místnosti"
 
 #: ../../static/t/room/display_private.html:8
 msgid ""
@@ -1714,30 +1735,33 @@ msgid ""
 "room, it will appear in your regular room listings so you don‘t have to keep "
 "returning here."
 msgstr ""
+"Pokud znáte jméno skryté nebo zaheslované místnosti, můžete vstoupit zadáním "
+"jejího jméno níže. Jakmile získáte přístup do soukromé místnosti, objeví se "
+"vám mezi běžnými místnostmi, takže se sem nemusíte vracet."
 
 #: ../../static/t/room/display_private.html:14
 msgid "Enter room name:"
-msgstr ""
+msgstr "Vložte jméno místnosti:"
 
 #: ../../static/t/room/display_private.html:21
 msgid "Enter room password:"
-msgstr ""
+msgstr "Vložte heslo místnosti"
 
 #: ../../static/t/room/zap_this.html:3
 msgid "Zap (forget/unsubscribe) the current room"
-msgstr ""
+msgstr "Schovat současnou místnost"
 
 #: ../../static/t/room/zap_this.html:6
 msgid "If you select this option,"
-msgstr ""
+msgstr "Pokud vyberete tuto možnost,"
 
 #: ../../static/t/room/zap_this.html:8
 msgid "will disappear from your room list.  Is this what you wish to do?"
-msgstr ""
+msgstr "zmizí ze seznamu místností. Přejete si to udělat?"
 
 #: ../../static/t/room/zapped_list.html:7
 msgid "Zapped (forgotten) rooms"
-msgstr ""
+msgstr "Schované místnosti"
 
 #: ../../static/t/room/zapped_list.html:10
 msgid "Click on any room to un-zap it and goto that room."
@@ -1746,27 +1770,27 @@ msgstr ""
 #: ../../static/t/room/edit.html:5 ../../static/t/room/edit/editroom.html:4
 #: ../../static/t/iconbar.html:72
 msgid "Administration"
-msgstr ""
+msgstr "Administrace"
 
 #: ../../static/t/room/edit.html:6 ../../static/t/room/edit/editroom.html:5
 msgid "Configuration"
-msgstr ""
+msgstr "Nastavení"
 
 #: ../../static/t/room/edit.html:7 ../../static/t/room/edit/editroom.html:6
 msgid "Message expire policy"
-msgstr ""
+msgstr "Doba platnosti zprávy"
 
 #: ../../static/t/room/edit.html:8 ../../static/t/room/edit/editroom.html:7
 msgid "Access controls"
-msgstr ""
+msgstr "Kontrola přístupu"
 
 #: ../../static/t/room/edit.html:9 ../../static/t/room/edit/editroom.html:8
 msgid "Sharing"
-msgstr ""
+msgstr "Sdílení"
 
 #: ../../static/t/room/edit.html:10 ../../static/t/room/edit/editroom.html:9
 msgid "Mailing list service"
-msgstr ""
+msgstr "Služba mailing seznamů"
 
 #: ../../static/t/room/edit.html:11 ../../static/t/room/edit/editroom.html:10
 msgid "Remote retrieval"
@@ -1775,56 +1799,58 @@ msgstr ""
 #: ../../static/t/room/create.html:11
 #: ../../static/t/menu/advanced_roomcommands.html:6
 msgid "Create a new room"
-msgstr ""
+msgstr "Vytvořit novou místnost"
 
 #: ../../static/t/room/create.html:18
 msgid "Name of room: "
-msgstr ""
+msgstr "Jméno místnosti: "
 
 #: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
-msgstr ""
+msgstr "Nachází se na podlaží: "
 
 #: ../../static/t/room/create.html:32
 msgid "Default view for room: "
-msgstr ""
+msgstr "Základní pohled pro místnost: "
 
 #: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
 msgid "Type of room:"
-msgstr ""
+msgstr "Typ místnosti:"
 
 #: ../../static/t/room/create.html:73
 #: ../../static/t/room/edit/tab_config.html:22
 msgid "Public (automatically appears to everyone)"
-msgstr ""
+msgstr "Veřejná (místnost je viditelná pro všechny)"
 
 #: ../../static/t/room/create.html:77
 #: ../../static/t/room/edit/tab_config.html:28
 msgid "Private - hidden (accessible to anyone who knows its name)"
-msgstr ""
+msgstr "Sokromá - skrytá (přístupná pouze pro ty, kteří znají jméno)"
 
 #: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
-msgstr ""
+msgstr "Soukromá - vyžaduje heslo: "
 
 #: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
 msgid "Private - invitation only"
-msgstr ""
+msgstr "Soukromé - pouze na pozvání"
 
 #: ../../static/t/room/create.html:90
 #: ../../static/t/room/edit/tab_config.html:51
 msgid "Personal (mailbox for you only)"
-msgstr ""
+msgstr "Osobní (pošta pouze pro vás)"
 
 #: ../../static/t/room/edit/tab_listserv.html:5
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br><br>"
 msgstr ""
+"<i>Obsah této místnosti je odesílán <b>jako samostatné zprávy</b> na "
+"následující seznam příjemců:</i><br><br>"
 
 #: ../../static/t/room/edit/tab_listserv.html:19
 msgid ""
@@ -1834,15 +1860,15 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_listserv.html:39
 msgid "Add recipients from Contacts or other address books"
-msgstr ""
+msgstr "Přidejte příjemce z Kontaktů nebo ostatních adresních seznamů"
 
 #: ../../static/t/room/edit/tab_listserv.html:48
 msgid "Allow non-subscribers to mail to this room."
-msgstr ""
+msgstr "Povolit neodběratelům odesílat mail na tuto místnost."
 
 #: ../../static/t/room/edit/tab_listserv.html:54
 msgid "Room post publication needs Aide permission."
-msgstr ""
+msgstr "Publikace příspěvků v místnosti vyžaduje oprávnění Aide."
 
 #: ../../static/t/room/edit/tab_listserv.html:59
 msgid "Allow self-service subscribe/unsubscribe requests."
@@ -1850,18 +1876,18 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_listserv.html:65
 msgid "The URL for subscribe/unsubscribe is: "
-msgstr ""
+msgstr "Adresa pro odběratele/neodběratele: "
 
 #: ../../static/t/room/edit/listrecp_removal.html:1
 #: ../../static/t/room/edit/pop3client_removal.html:9
 #: ../../static/t/room/edit/digestrecp_removal.html:1
 #: ../../static/t/room/edit/rssclient_removal.html:5
 msgid "(remove)"
-msgstr ""
+msgstr "(odstranit)"
 
 #: ../../static/t/room/edit/tab_config.html:6
 msgid "name of room: "
-msgstr ""
+msgstr "jméno místnosti: "
 
 #: ../../static/t/room/edit/tab_config.html:55
 msgid "If private, cause current users to forget room"
@@ -1869,59 +1895,59 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_config.html:61
 msgid "Preferred users only"
-msgstr ""
+msgstr "Pouze preferovaný uživatel"
 
 #: ../../static/t/room/edit/tab_config.html:66
 msgid "Read-only room"
-msgstr ""
+msgstr "Místnost pouze pro čtení"
 
 #: ../../static/t/room/edit/tab_config.html:71
 msgid "All users allowed to post may also delete messages"
-msgstr ""
+msgstr "Uživatelé, kteří můžou psát zprávy je můžou i mazat."
 
 #: ../../static/t/room/edit/tab_config.html:76
 msgid "File directory room"
-msgstr ""
+msgstr "Místnost pro soubory"
 
 #: ../../static/t/room/edit/tab_config.html:80
 msgid "Directory name: "
-msgstr ""
+msgstr "Jméno adresáře: "
 
 #: ../../static/t/room/edit/tab_config.html:86
 msgid "Uploading allowed"
-msgstr ""
+msgstr "Nahrávání povoleno"
 
 #: ../../static/t/room/edit/tab_config.html:91
 msgid "Downloading allowed"
-msgstr ""
+msgstr "Stahování povoleno"
 
 #: ../../static/t/room/edit/tab_config.html:96
 msgid "Visible directory"
-msgstr ""
+msgstr "Viditelný adresář"
 
 #: ../../static/t/room/edit/tab_config.html:103
 msgid "Network shared room"
-msgstr ""
+msgstr "Síťová sdílená místnost"
 
 #: ../../static/t/room/edit/tab_config.html:108
 msgid "Permanent (does not auto-purge)"
-msgstr ""
+msgstr "Trvalý (nedojde ke smazání)"
 
 #: ../../static/t/room/edit/tab_config.html:113
 msgid "Subject Required (Force users to specify a message subject)"
-msgstr ""
+msgstr "Předmět vyžadován"
 
 #: ../../static/t/room/edit/tab_config.html:116
 msgid "Anonymous messages"
-msgstr ""
+msgstr "Anonymní zpráva"
 
 #: ../../static/t/room/edit/tab_config.html:122
 msgid "No anonymous messages"
-msgstr ""
+msgstr "Žádné anonymní zprávy"
 
 #: ../../static/t/room/edit/tab_config.html:127
 msgid "All messages are anonymous"
-msgstr ""
+msgstr "Všechny zprávy jsou anonymní"
 
 #: ../../static/t/room/edit/tab_config.html:132
 msgid "Prompt user when entering messages"
@@ -1929,71 +1955,76 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_config.html:136
 msgid "Room aide: "
-msgstr ""
+msgstr "Aide místnosti: "
 
 #: ../../static/t/room/edit/tab_feed.html:2
 msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
 msgstr ""
+"Stáhnout zprávy ze vzdáleného POP3 servru a ulož je v této místnosti:"
 
 #: ../../static/t/room/edit/tab_feed.html:12
 msgid "Remote host"
-msgstr ""
+msgstr "Vzdálený host"
 
 #: ../../static/t/room/edit/tab_feed.html:13
 #: ../../static/t/who/box_list_static.html:6 ../../static/t/who/summary.html:5
 msgid "User name"
-msgstr ""
+msgstr "Jméno uživatele"
 
 #: ../../static/t/room/edit/tab_feed.html:14
 #: ../../static/t/aide/edituser/detailview.html:24
 msgid "Password"
-msgstr ""
+msgstr "Heslo:"
 
 #: ../../static/t/room/edit/tab_feed.html:15
 msgid "Keep messages on server?"
-msgstr ""
+msgstr "Ponechat zprávy na servru?"
 
 #: ../../static/t/room/edit/tab_feed.html:16
 msgid "Interval"
-msgstr ""
+msgstr "Rozmezí"
 
 #: ../../static/t/room/edit/tab_feed.html:31
 msgid "Fetch the following RSS feeds and store them in this room:"
-msgstr ""
+msgstr "Načti RSS feedy a ulož je v této místnosti:"
 
 #: ../../static/t/room/edit/tab_feed.html:43
 msgid "Feed URL"
-msgstr ""
+msgstr "Adresa kanálu"
 
 #: ../../static/t/room/edit/tab_access.html:5
 msgid ""
 "The users listed below have access to this room. To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
 msgstr ""
+"Níže zobrazení uživatelé mají přístup do této místnosti. Pro odstranění "
+"uživatele z přístupového seznamu, vyberte uživatele a klikněte \"Vykopnout\""
 
 #: ../../static/t/room/edit/tab_access.html:20
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
 msgstr ""
+"Pokud chcete umožnit přístup ostatním uživatelům do této místnosti, vložte "
+"jejich jméno klikněte \"Pozvat\""
 
 #: ../../static/t/room/edit/tab_access.html:26
 msgid "Invite:"
-msgstr ""
+msgstr "Pozvat:"
 
 #: ../../static/t/room/edit/tab_access.html:35
 msgid "Users"
-msgstr ""
+msgstr "Uživatelé"
 
 #: ../../static/t/room/edit/tab_expire.html:8
 msgid "Message expire policy for this room"
-msgstr ""
+msgstr "Vymazávací politika pro tuto místnost"
 
 #: ../../static/t/room/edit/tab_expire.html:14
 msgid "Use the default policy for this floor"
-msgstr ""
+msgstr "Použij základní politiku pro tuto místnost"
 
 #: ../../static/t/room/edit/tab_expire.html:17
 #: ../../static/t/room/edit/tab_expire.html:45
@@ -2014,14 +2045,14 @@ msgstr ""
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:73
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:92
 msgid "Expire by message age"
-msgstr ""
+msgstr "Zprávy propadnou stářím"
 
 #: ../../static/t/room/edit/tab_expire.html:25
 #: ../../static/t/room/edit/tab_expire.html:53
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:75
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:94
 msgid "Number of messages or days: "
-msgstr ""
+msgstr "Počet zprávy nebo dní: "
 
 #: ../../static/t/room/edit/tab_expire.html:36
 msgid "Message expire policy for this floor"
@@ -2029,30 +2060,30 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_expire.html:42
 msgid "Use the system default"
-msgstr ""
+msgstr "Použít výchozí nastavení systému"
 
 #: ../../static/t/room/edit/tab_share.html:5
 msgid "Shared with"
-msgstr ""
+msgstr "Sdíleno s"
 
 #: ../../static/t/room/edit/tab_share.html:6
 msgid "Not shared with"
-msgstr ""
+msgstr "Nesdíleno s"
 
 #: ../../static/t/room/edit/tab_share.html:11
 #: ../../static/t/room/edit/tab_share.html:21
 msgid "Remote node name"
-msgstr ""
+msgstr "Jméno vzdáleného uzlu"
 
 #: ../../static/t/room/edit/tab_share.html:12
 #: ../../static/t/room/edit/tab_share.html:22
 msgid "Remote room name"
-msgstr ""
+msgstr "Jméno vzdálené místnosti"
 
 #: ../../static/t/room/edit/tab_share.html:13
 #: ../../static/t/room/edit/tab_share.html:23
 msgid "Actions"
-msgstr ""
+msgstr "Akce"
 
 #: ../../static/t/room/edit/tab_share.html:35
 msgid ""
@@ -2066,77 +2097,79 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_admin.html:5
 msgid "Delete this room"
-msgstr ""
+msgstr "Odstranit tuto místnost"
 
 #: ../../static/t/room/edit/tab_admin.html:10
 msgid "Set or change the icon for this rooms banner"
-msgstr ""
+msgstr "Nastavit nebo upravit ikonu pro návěstí této místnosti"
 
 #: ../../static/t/room/edit/tab_admin.html:14
 msgid "Edit this rooms Info file"
-msgstr ""
+msgstr "Upravit Informace o místnosti"
 
 #: ../../static/t/who.html:13
 msgid "Users currently on "
-msgstr ""
+msgstr "Nyní připojení uživatelé "
 
 #: ../../static/t/who.html:22
 msgid "Click on a name to read user info.  Click on"
-msgstr ""
+msgstr "Klikněte na jméno pro informace o uživateli"
 
 #: ../../static/t/who.html:24
 msgid "to send an instant message to that user."
-msgstr ""
+msgstr "pro odeslání okamžité zprávy tomuto uživateli"
 
 #: ../../static/t/newstartpage.html:4
 msgid "New start page"
-msgstr ""
+msgstr "Nová startovní stránka"
 
 #: ../../static/t/newstartpage.html:9
 msgid "Your start page has been changed."
-msgstr ""
+msgstr "Vaše startovní stránka byla upravena."
 
 #: ../../static/t/newstartpage.html:12
 msgid ""
 "(Note: this does not change your browser's home page. It changes the page "
 "you begin on when you log on to"
 msgstr ""
+"(Poznámka: tato akce nezmění domovskou stránku prohlížeče. Pouze startovní "
+"stránku po přihlášení do"
 
 #: ../../static/t/navbar.html:5 ../../static/t/menu/basic_commands.html:6
 msgid "Ungoto"
-msgstr ""
+msgstr "Jít zpět"
 
 #: ../../static/t/navbar.html:13 ../../static/t/menu/basic_commands.html:10
 msgid "Read new messages"
-msgstr ""
+msgstr "Přečíst nové zprávy"
 
 #: ../../static/t/navbar.html:19 ../../static/t/menu/basic_commands.html:11
 msgid "Read all messages"
-msgstr ""
+msgstr "Přečíst všechny zprávy"
 
 #: ../../static/t/navbar.html:25 ../../static/t/menu/basic_commands.html:12
 msgid "Enter a message"
-msgstr ""
+msgstr "Vložte zprávu"
 
 #: ../../static/t/navbar.html:34
 msgid "View contacts"
-msgstr ""
+msgstr "Zobrazit kontakty"
 
 #: ../../static/t/navbar.html:40
 msgid "Add new contact"
-msgstr ""
+msgstr "Přidat kontakt"
 
 #: ../../static/t/navbar.html:49
 msgid "Day view"
-msgstr ""
+msgstr "Denní pohled"
 
 #: ../../static/t/navbar.html:55
 msgid "Month view"
-msgstr ""
+msgstr "Měsíční pohled"
 
 #: ../../static/t/navbar.html:61
 msgid "Add new event"
-msgstr ""
+msgstr "Přidat událost"
 
 #: ../../static/t/navbar.html:70
 msgid "Calendar list"
@@ -2144,27 +2177,27 @@ msgstr ""
 
 #: ../../static/t/navbar.html:79
 msgid "View tasks"
-msgstr ""
+msgstr "Zobrazit úkoly"
 
 #: ../../static/t/navbar.html:85
 msgid "Add new task"
-msgstr ""
+msgstr "Přidat nový úkol"
 
 #: ../../static/t/navbar.html:94
 msgid "View notes"
-msgstr ""
+msgstr "Zobrazit poznámky"
 
 #: ../../static/t/navbar.html:101
 msgid "Add new note"
-msgstr ""
+msgstr "Přidat novou poznámku"
 
 #: ../../static/t/navbar.html:110
 msgid "Refresh message list"
-msgstr ""
+msgstr "Aktualizovat list zpráv"
 
 #: ../../static/t/navbar.html:122
 msgid "Write mail"
-msgstr ""
+msgstr "Napsat e-mail"
 
 #: ../../static/t/navbar.html:132
 msgid "Wiki home"
@@ -2172,196 +2205,195 @@ msgstr ""
 
 #: ../../static/t/navbar.html:139
 msgid "Edit this page"
-msgstr ""
+msgstr "Upravit tuto stránku"
 
 #: ../../static/t/navbar.html:145
 msgid "History"
-msgstr ""
+msgstr "Historie"
 
 #: ../../static/t/navbar.html:154
-#, fuzzy
 msgid "New blog post"
-msgstr "novější příspěvků"
+msgstr "Nový zápisek na blog"
 
 #: ../../static/t/navbar.html:162
 msgid "Skip this room"
-msgstr ""
+msgstr "Přeskočit tuto místnost"
 
 #: ../../static/t/navbar.html:168 ../../static/t/menu/basic_commands.html:4
 msgid "Goto next room"
-msgstr ""
+msgstr "Jít do vedlejší místnosti"
 
 #: ../../static/t/edit_message.html:9 ../../static/t/iconbar.html:50
 #: ../../static/t/iconbar.html:59
 msgid "Loading"
-msgstr ""
+msgstr "Načítání"
 
 #: ../../static/t/edit_message.html:23
 msgid "from"
-msgstr ""
+msgstr "od"
 
 #: ../../static/t/edit_message.html:29 ../../static/t/edit_message.html:38
 msgid "Anonymous"
-msgstr ""
+msgstr "Anonymní"
 
 #: ../../static/t/edit_message.html:47
 msgid "in"
-msgstr ""
+msgstr "v"
 
 #: ../../static/t/edit_message.html:51
 msgid "To:"
-msgstr ""
+msgstr "Příjemce:"
 
 #: ../../static/t/edit_message.html:57
 #: ../../static/t/view_message/print.html:15
 #: ../../static/t/view_message.html:15
 msgid "CC:"
-msgstr ""
+msgstr "Kopie:"
 
 #: ../../static/t/edit_message.html:63
 msgid "BCC:"
-msgstr ""
+msgstr "Skrytá kopie:"
 
 #: ../../static/t/edit_message.html:71
 msgid "Subject (optional):"
-msgstr ""
+msgstr "Předmět (volitelný):"
 
 #: ../../static/t/edit_message.html:71
 #: ../../static/t/view_message/replyquote.html:8
 #: ../../static/t/view_message/print.html:16
 #: ../../static/t/view_message.html:16
 msgid "Subject:"
-msgstr ""
+msgstr "Předmět:"
 
 #: ../../static/t/edit_message.html:86
 msgid "--- forwarded message ---"
-msgstr ""
+msgstr "--- přeposlaná zpráva ---"
 
 #: ../../static/t/edit_message.html:110
 msgid "Post message"
-msgstr ""
+msgstr "Odeslat zprávu"
 
 #: ../../static/t/edit_message.html:118
 msgid "Save to Drafts"
-msgstr ""
+msgstr "Uložit do Koncetptů"
 
 #: ../../static/t/wiki/pagelist.html:1
 msgid "List of Wiki pages"
-msgstr ""
+msgstr "Seznam stránek Wiki"
 
 #: ../../static/t/wiki/history.html:1
 msgid "History of edits for this page"
-msgstr ""
+msgstr "Historie editací této stránky"
 
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
 msgid "Preferences and settings"
-msgstr ""
+msgstr "Preference a nastavení"
 
 #: ../../static/t/view_message/list_attach.html:3
 #: ../../static/t/view_message/inline_attach.html:4
 msgid "View"
-msgstr ""
+msgstr "Zobrazit"
 
 #: ../../static/t/view_message/list_attach.html:4
 #: ../../static/t/view_message/inline_attach.html:5
 msgid "Download"
-msgstr ""
+msgstr "Stáhnout"
 
 #: ../../static/t/view_message/replyquote.html:3
 #: ../../static/t/view_message/replyquote.html:7
 #: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:7
 #: ../../static/t/view_submessage.html:4
 msgid "from "
-msgstr ""
+msgstr "od "
 
 #: ../../static/t/view_message/print.html:14
 #: ../../static/t/view_message.html:14
 msgid "to"
-msgstr ""
+msgstr "komu"
 
 #: ../../static/t/view_message.html:18
 msgid "Edit"
-msgstr ""
+msgstr "Upravit"
 
 #: ../../static/t/view_message.html:20 ../../static/t/view_message.html:24
 msgid "Reply"
-msgstr ""
+msgstr "Odpovědět"
 
 #: ../../static/t/view_message.html:21
 msgid "ReplyQuoted"
-msgstr ""
+msgstr "Odpovědět citací"
 
 #: ../../static/t/view_message.html:25
 msgid "ReplyAll"
-msgstr ""
+msgstr "Odpovědět všem"
 
 #: ../../static/t/view_message.html:26
 msgid "Forward"
-msgstr ""
+msgstr "Přeposlat"
 
 #: ../../static/t/view_message.html:29 ../../static/t/msg_listview.html:25
 msgid "Move"
-msgstr ""
+msgstr "Přesunout"
 
 #: ../../static/t/view_message.html:32
 msgid "Headers"
-msgstr ""
+msgstr "Hlavičky"
 
 #: ../../static/t/view_message.html:33 ../../static/t/msg_listview.html:28
 msgid "Print"
-msgstr ""
+msgstr "Vytisknout"
 
 #: ../../static/t/user/list.html:3
 msgid "User list for "
-msgstr ""
+msgstr "Seznam uživatelů pro "
 
 #: ../../static/t/user/list.html:9
 msgid "User Name"
-msgstr ""
+msgstr "Uživatelské jméno"
 
 #: ../../static/t/user/list.html:10
 msgid "Number"
-msgstr ""
+msgstr "Číslo"
 
 #: ../../static/t/user/list.html:11
 msgid "Access Level"
-msgstr ""
+msgstr "Úroveň přístupu"
 
 #: ../../static/t/user/list.html:12
 msgid "Last Login"
-msgstr ""
+msgstr "Poslední přihlášení"
 
 #: ../../static/t/user/list.html:13
 msgid "Total Logins"
-msgstr ""
+msgstr "Celkem přihlášení"
 
 #: ../../static/t/user/list.html:14
 msgid "Total Posts"
-msgstr ""
+msgstr "Celkem příspěvků"
 
 #: ../../static/t/user/show.html:4 ../../static/t/who/bio.html:4
 msgid "User profile"
-msgstr ""
+msgstr "Uživatelský profil"
 
 #: ../../static/t/user/show.html:9
 msgid "Click here to send an instant message to"
-msgstr ""
+msgstr "Klikněte zde pro odeslání okamžité zprávy pro"
 
 #: ../../static/t/searchomatic.html:4
 msgid "Search: "
-msgstr ""
+msgstr "Hledat: "
 
 #: ../../static/t/display_main_menu.html:7
 msgid "Basic commands"
-msgstr ""
+msgstr "Základní příkazy"
 
 #: ../../static/t/display_main_menu.html:10
 msgid "Your info"
-msgstr ""
+msgstr "Informace o vás"
 
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
-msgstr ""
+msgstr "Pokročilé příkazy místnosti"
 
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 msgid "new of"
@@ -2369,33 +2401,33 @@ msgstr ""
 
 #: ../../static/t/roombanner.html:28
 msgid "Select page: "
-msgstr ""
+msgstr "Vyberte stránku: "
 
 #: ../../static/t/iconbar/edit.html:4 ../../static/t/iconbar/save.html:4
 msgid "Customize the icon bar"
-msgstr ""
+msgstr "Upravte menu ikon"
 
 #: ../../static/t/iconbar/edit.html:11
 msgid "Display icons as:"
-msgstr ""
+msgstr "Zobraz ikony jako:"
 
 #: ../../static/t/iconbar/edit.html:12
 msgid "pictures and text"
-msgstr ""
+msgstr "obrázky a text"
 
 #: ../../static/t/iconbar/edit.html:13
 msgid "pictures only"
-msgstr ""
+msgstr "pouze obrázky"
 
 #: ../../static/t/iconbar/edit.html:14
 msgid "text only"
-msgstr ""
+msgstr "pouze text"
 
 #: ../../static/t/iconbar/edit.html:16
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
-msgstr ""
+msgstr "Vyberte ikony, které chcete vidět v liště ikon na levé straně okna."
 
 #: ../../static/t/iconbar/edit.html:19 ../../static/t/iconbar/edit.html:26
 #: ../../static/t/iconbar/edit.html:32 ../../static/t/iconbar/edit.html:39
@@ -2406,7 +2438,7 @@ msgstr ""
 #: ../../static/t/prefs/box.html:198
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
 msgid "Yes"
-msgstr ""
+msgstr "Ano"
 
 #: ../../static/t/iconbar/edit.html:20 ../../static/t/iconbar/edit.html:27
 #: ../../static/t/iconbar/edit.html:33 ../../static/t/iconbar/edit.html:40
@@ -2417,39 +2449,39 @@ msgstr ""
 #: ../../static/t/prefs/box.html:200
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
 msgid "No"
-msgstr ""
+msgstr "Ne"
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "Site logo"
-msgstr ""
+msgstr "Logo webu"
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "An icon describing this site"
-msgstr ""
+msgstr "Ikona popisující tuto stránku"
 
 #: ../../static/t/iconbar/edit.html:29
 msgid "Your summary page"
-msgstr ""
+msgstr "Souhrnná stránka"
 
 #: ../../static/t/iconbar/edit.html:36
 msgid "Mail (inbox)"
-msgstr ""
+msgstr "Pošta (příchozí)"
 
 #: ../../static/t/iconbar/edit.html:36
 msgid "A shortcut to your email Inbox"
-msgstr ""
+msgstr "Zkratka do složky přijatých zpráv"
 
 #: ../../static/t/iconbar/edit.html:42
 msgid "Your personal address book"
-msgstr ""
+msgstr "Osobní adresář"
 
 #: ../../static/t/iconbar/edit.html:49
 msgid "Your personal notes"
-msgstr ""
+msgstr "Osobní poznámky"
 
 #: ../../static/t/iconbar/edit.html:55
 msgid "A shortcut to your personal calendar"
-msgstr ""
+msgstr "Zkratka do kalendáře"
 
 #: ../../static/t/iconbar/edit.html:61 ../../static/t/summary/page.html:32
 #: ../../static/t/iconbar.html:39
@@ -2458,43 +2490,48 @@ msgstr "Úlohy"
 
 #: ../../static/t/iconbar/edit.html:61
 msgid "A shortcut to your personal task list"
-msgstr ""
+msgstr "Zkratka do seznamu"
 
 #: ../../static/t/iconbar/edit.html:67 ../../static/t/iconbar.html:48
 msgid "Rooms"
-msgstr ""
+msgstr "Místnosti"
 
 #: ../../static/t/iconbar/edit.html:67
 msgid ""
 "Clicking this icon displays a list of all accessible rooms (or folders) "
 "available."
 msgstr ""
+"Kliknutím na tuto ikonu zobrazíte seznam přístupných místností (adresářů), "
+"které jsou dostupné."
 
 #: ../../static/t/iconbar/edit.html:73
 msgid "Who is online?"
-msgstr ""
+msgstr "Kdo je online?"
 
 #: ../../static/t/iconbar/edit.html:73
 msgid "Clicking this icon displays a list of all users currently logged in."
 msgstr ""
+"Kliknutím na tuto ikonu zobrazíte seznam všech přihlášených uživatelů."
 
 #: ../../static/t/iconbar/edit.html:79 ../../static/t/iconbar.html:62
 msgid "Chat"
-msgstr ""
+msgstr "Diskuze"
 
 #: ../../static/t/iconbar/edit.html:79
 msgid ""
 "Clicking this icon enters real-time chat mode with other users in the same "
 "room."
 msgstr ""
+"Kliknutím na tuto ikonu vstoupíte do chatu s ostatními uživateli stejné "
+"místnosti."
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Advanced options"
-msgstr ""
+msgstr "Pokročilé nastavení"
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Access to the complete menu of Citadel functions."
-msgstr ""
+msgstr "Přístup do kompletního menu funkcí Citadel server."
 
 #: ../../static/t/iconbar/edit.html:91
 msgid "Citadel logo"
@@ -2502,17 +2539,20 @@ msgstr ""
 
 #: ../../static/t/iconbar/edit.html:91
 msgid "Displays the 'Powered by Citadel' icon"
-msgstr ""
+msgstr "Zobrazit \"Poháněno přes Citadel\" ikonu"
 
 #: ../../static/t/iconbar/save.html:11
 msgid ""
 "Your icon bar has been updated. Please select any of its choices to continue."
 msgstr ""
+"Panel ikon byl aktualizován. Prosím vyberte nějakou volbu pro pokračování."
 
 #: ../../static/t/iconbar/save.html:11
 msgid ""
 "You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
 msgstr ""
+"Možná budete potřebovat obnovit stránku (SHIFT - F5) > aby byly změny "
+"provedeny"
 
 #: ../../static/t/login.html:5
 msgid "powered by"
@@ -2521,27 +2561,27 @@ msgstr ""
 #: ../../static/t/login.html:15 ../../static/t/get_logged_in.html:54
 #: ../../static/t/get_logged_in.html:78 ../../static/t/iconbar.html:88
 msgid "Log in"
-msgstr ""
+msgstr "Přihlásit se"
 
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
-msgstr ""
+msgstr "Zobrazit jako:"
 
 #: ../../static/t/msg_listview.html:18
 msgid "Loading messages from server, please wait"
-msgstr ""
+msgstr "Načítám zprávy ze servru, prosím čekejte"
 
 #: ../../static/t/msg_listview.html:24
 msgid "Open in new window"
-msgstr ""
+msgstr "Otevřít v novém okně"
 
 #: ../../static/t/msg_listview.html:26
 msgid "Copy"
-msgstr ""
+msgstr "Kopírovat"
 
 #: ../../static/t/summary/page.html:5
 msgid "Summary page for "
-msgstr ""
+msgstr "Přehled stránky z "
 
 #: ../../static/t/summary/page.html:23
 msgid "Messages"
@@ -2552,9 +2592,8 @@ msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Dnes&nbsp;ve&nbsp;vašem&nbsp;kalendáři"
 
 #: ../../static/t/summary/page.html:53
-#, fuzzy
 msgid "Who‘s&nbsp;online&nbsp;now"
-msgstr "Kdo&nbsp;je&nbsp;právě&nbsp;online"
+msgstr "Kdo je online &nbsp;online&nbsp;now"
 
 #: ../../static/t/summary/page.html:60
 msgid "About&nbsp;this&nbsp;server"
@@ -2562,34 +2601,35 @@ msgstr "O&nbsp;tomto&nbsp;serveru"
 
 #: ../../static/t/summary/page.html:63
 msgid "You are connected to"
-msgstr ""
+msgstr "Připojen k"
 
 #: ../../static/t/summary/page.html:64
 msgid "running"
-msgstr ""
+msgstr "běží"
 
 #: ../../static/t/summary/page.html:65
 msgid "with"
-msgstr ""
+msgstr "s"
 
 #: ../../static/t/summary/page.html:66
 msgid "server build"
-msgstr ""
+msgstr "sestavení serveru"
 
 #: ../../static/t/summary/page.html:67
-#, fuzzy
 msgid "and located in"
-msgstr "a tak"
+msgstr "nachází se v"
 
 #: ../../static/t/summary/page.html:68
 msgid "Your system administrator is"
-msgstr ""
+msgstr "Váš systémový administrátor je"
 
 #: ../../static/t/summary/trailer.html:9 ../../static/t/trailing.html:3
 msgid ""
 "WARNING: You have JavaScript disabled in your web browser.  Many functions "
 "of this system will not work properly."
 msgstr ""
+"Varování: Máte zakázaný JavaScript ve vašem webovém prohlížeči. Většina "
+"funkcí tohoto systému nebude správně fungovat."
 
 #: ../../static/t/view_blog/comment_box.html:8
 msgid "Post a comment"
@@ -2597,51 +2637,51 @@ msgstr "Přidat komentář"
 
 #: ../../static/t/menu/advanced_roomcommands.html:3
 msgid "Edit or delete this room"
-msgstr ""
+msgstr "Upravit nebo odstranit místnost"
 
 #: ../../static/t/menu/advanced_roomcommands.html:5
 msgid "Go to a 'hidden' room"
-msgstr ""
+msgstr "Jdi do 'skryté' místnosti"
 
 #: ../../static/t/menu/advanced_roomcommands.html:7
 msgid "Zap (forget) this room"
-msgstr ""
+msgstr "Schovat tuto místnost"
 
 #: ../../static/t/menu/advanced_roomcommands.html:8
 msgid "List all forgotten rooms"
-msgstr ""
+msgstr "Seznam všech schovaných místností"
 
 #: ../../static/t/menu/basic_commands.html:3
 msgid "List known rooms"
-msgstr ""
+msgstr "Zobraz místnosti"
 
 #: ../../static/t/menu/basic_commands.html:3
 msgid "Where can I go from here?"
-msgstr ""
+msgstr "Kam můžu pokračovat?"
 
 #: ../../static/t/menu/basic_commands.html:4
 msgid "...with <em>unread</em> messages"
-msgstr ""
+msgstr "...s <em>nepřečtenými</em> zprávami"
 
 #: ../../static/t/menu/basic_commands.html:5
 msgid "Skip to next room"
-msgstr ""
+msgstr "Přeskoč do další místnosti"
 
 #: ../../static/t/menu/basic_commands.html:5
 msgid "(come back here later)"
-msgstr ""
+msgstr "(vraťte se sem později)"
 
 #: ../../static/t/menu/basic_commands.html:6
 msgid "oops! Back to "
-msgstr ""
+msgstr "oops! Zpět na "
 
 #: ../../static/t/menu/basic_commands.html:10
 msgid "...in this room"
-msgstr ""
+msgstr "...v této místnosti"
 
 #: ../../static/t/menu/basic_commands.html:11
 msgid "...old <em>and</em> new"
-msgstr ""
+msgstr "...staré <em>a</em> nové"
 
 #: ../../static/t/menu/basic_commands.html:12
 msgid "(post in this room)"
@@ -2649,59 +2689,59 @@ msgstr ""
 
 #: ../../static/t/menu/basic_commands.html:13
 msgid "File library"
-msgstr ""
+msgstr "Knihovna souborů"
 
 #: ../../static/t/menu/basic_commands.html:13
 msgid "(List files available for download)"
-msgstr ""
+msgstr "(Zobrazit dostupné soubory pro stáhnutí)"
 
 #: ../../static/t/menu/basic_commands.html:17
 msgid "Summary page"
-msgstr ""
+msgstr "Stránka s přehledem"
 
 #: ../../static/t/menu/basic_commands.html:17
 msgid "Summary of my account"
-msgstr ""
+msgstr "Přehled mého účtu"
 
 #: ../../static/t/menu/basic_commands.html:18
 msgid "User list"
-msgstr ""
+msgstr "Seznam uživatelů"
 
 #: ../../static/t/menu/basic_commands.html:18
 msgid "(all registered users)"
-msgstr ""
+msgstr "(všichni registrovaní uživatelé)"
 
 #: ../../static/t/menu/basic_commands.html:19
 msgid "Bye!"
-msgstr ""
+msgstr "Nashledanou!"
 
 #: ../../static/t/menu/your_info.html:2
 msgid "Change your preferences and settings"
-msgstr ""
+msgstr "Upravte své preference a nastavení"
 
 #: ../../static/t/menu/your_info.html:3
 msgid "Update your contact information"
-msgstr ""
+msgstr "Aktualizujte své kontaktní informace"
 
 #: ../../static/t/menu/your_info.html:5
 msgid "Enter your 'bio'"
-msgstr ""
+msgstr "Vložte vaše 'bio'"
 
 #: ../../static/t/menu/your_info.html:6
 msgid "Edit your online photo"
-msgstr ""
+msgstr "Upravit online foto"
 
 #: ../../static/t/menu/your_info.html:9
 msgid "Edit your push email settings"
-msgstr ""
+msgstr "Upravit nastavení push email"
 
 #: ../../static/t/menu/your_info.html:10
 msgid "Manage your OpenIDs"
-msgstr ""
+msgstr "Upravit OpenID"
 
 #: ../../static/t/who/box_list_static.html:7 ../../static/t/who/summary.html:6
 msgid "Room"
-msgstr ""
+msgstr "Místnost"
 
 #: ../../static/t/who/box_list_static.html:8
 msgid "From host"
@@ -2709,27 +2749,27 @@ msgstr ""
 
 #: ../../static/t/who/section.html:4
 msgid "(kill)"
-msgstr ""
+msgstr "(ukončit)"
 
 #: ../../static/t/who/list_static_header.html:1
 msgid "Users currently on"
-msgstr ""
+msgstr "Uživatelé kteří jsou online"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "Your OpenID"
-msgstr ""
+msgstr "Vaše OpenID"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "was successfully verified."
-msgstr ""
+msgstr "bylo úspěšně ověřeno."
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "However, the user name"
-msgstr ""
+msgstr "Avšak toto uživatelské jméno"
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "conflicts with an existing user."
-msgstr ""
+msgstr "používá jiný uživatel."
 
 #: ../../static/t/openid_manual_create.html:5
 msgid "Please specify the user name you would like to use."
@@ -2737,35 +2777,35 @@ msgstr ""
 
 #: ../../static/t/files.html:4
 msgid "Files available for download in"
-msgstr ""
+msgstr "Soubory dostupné pro stažení z"
 
 #: ../../static/t/files.html:9
 msgid "Upload a file:"
-msgstr ""
+msgstr "Nahrát soubor:"
 
 #: ../../static/t/files.html:30
 msgid "Filename"
-msgstr ""
+msgstr "Název souboru:"
 
 #: ../../static/t/files.html:31
 msgid "Size"
-msgstr ""
+msgstr "Velikosti"
 
 #: ../../static/t/files.html:32
 msgid "Content"
-msgstr ""
+msgstr "Obsah"
 
 #: ../../static/t/files.html:33
 msgid "Description"
-msgstr ""
+msgstr "Popis"
 
 #: ../../static/t/loggedinas.html:3
 msgid "Logged in as"
-msgstr ""
+msgstr "Přihlášen jako"
 
 #: ../../static/t/loggedinas.html:6
 msgid "Not logged in."
-msgstr ""
+msgstr "Nepřihlášen."
 
 #: ../../static/t/floors_edit_one.html:11
 msgid "(delete floor)"
@@ -2773,7 +2813,7 @@ msgstr ""
 
 #: ../../static/t/floors_edit_one.html:13
 msgid "(edit graphic)"
-msgstr ""
+msgstr "(upravit vzhled)"
 
 #: ../../static/t/sieve/none.html:11
 msgid ""
@@ -2781,8 +2821,9 @@ msgid ""
 "filtering.<br>Please contact your system administrator if you require this "
 "feature.<br>"
 msgstr ""
-"Tato instalace Citadely nepodporuje filtrování pošty na straně serveru."
-"<br>Pokud tuto funkci potřebujete, kontaktujte administrátora Vašeho systému."
+"Tato instalace Citadely nepodporuje filtrování pošty na straně "
+"serveru.<br>Pokud tuto funkci potřebujete, kontaktujte administrátora Vašeho "
+"systému."
 
 #: ../../static/t/sieve/display_one.html:59
 msgid "bytes"
@@ -2790,15 +2831,15 @@ msgstr ""
 
 #: ../../static/t/get_logged_in.html:5
 msgid "You must be logged in to access this page."
-msgstr ""
+msgstr "Musíte být přihlášen pro přístup k této stránce."
 
 #: ../../static/t/get_logged_in.html:45
 msgid "Log in using a user name and password"
-msgstr ""
+msgstr "Přihlašte se s uživatelským jménem a heslem"
 
 #: ../../static/t/get_logged_in.html:50 ../../static/t/get_logged_in.html:65
 msgid "Password:"
-msgstr ""
+msgstr "Heslo:"
 
 #: ../../static/t/get_logged_in.html:55 ../../static/t/get_logged_in.html:59
 msgid "New user?  Register now"
@@ -2811,15 +2852,15 @@ msgstr ""
 
 #: ../../static/t/get_logged_in.html:73
 msgid "Log in using OpenID"
-msgstr ""
+msgstr "Přihlašte se s pomocí OpenID"
 
 #: ../../static/t/get_logged_in.html:75
 msgid "OpenID URL:"
-msgstr ""
+msgstr "OpenID URL:"
 
 #: ../../static/t/floors.html:4
 msgid "Add/change/delete floors"
-msgstr ""
+msgstr "Přidat/upravit/smazat podlaží"
 
 #: ../../static/t/floors.html:10
 msgid "Floor number"
@@ -2831,7 +2872,7 @@ msgstr ""
 
 #: ../../static/t/floors.html:12
 msgid "Number of rooms"
-msgstr ""
+msgstr "Počet místností"
 
 #: ../../static/t/floors.html:13
 msgid "Floor CSS"
@@ -2839,11 +2880,11 @@ msgstr ""
 
 #: ../../static/t/prefs/pushemail.html:2
 msgid "Configure Push Email"
-msgstr ""
+msgstr "Nastavit push email"
 
 #: ../../static/t/prefs/pushemail.html:9
 msgid "Push email and SMS settings"
-msgstr ""
+msgstr "Push email a SMS nastavení"
 
 #: ../../static/t/prefs/pushemail.html:17
 msgid ""
@@ -2851,62 +2892,69 @@ msgid ""
 "Funambol server that you haved recieved new email and automatically "
 "syncronize any devices you have with the Funambol client installed."
 msgstr ""
+"Pokud správce povolil tuto funkci, Citadel může oznámit Funambol servru, že "
+"jste obdrželi novou zprávu a automaticky se sesynchronizovat se zařízením na "
+"kterém máte nainstalován Funambol klient."
 
 #: ../../static/t/prefs/pushemail.html:20
 msgid ""
 "Alternatively, if the administrator has configured it, Citadel can send a "
 "text message to you when new mail arrives."
 msgstr ""
+"Pokud to správce nastavil, Citadel vám může poslat sms když přijde nová "
+"zpráva."
 
 #: ../../static/t/prefs/pushemail.html:26
 msgid "Notify Funambol server"
-msgstr ""
+msgstr "Oznámit Funambol serveru"
 
 #: ../../static/t/prefs/pushemail.html:31
 msgid "Send a text message to..."
-msgstr ""
+msgstr "Poslat sms na číslo..."
 
 #: ../../static/t/prefs/pushemail.html:33
 msgid ""
 "(Use international format, without any leading zeros, spaces or hypens, like "
 "+61415011501)"
 msgstr ""
+"(použijte mezinárodní formát bez úvodních nul, mezer nebo pomlček, např "
+"+61415011501)"
 
 #: ../../static/t/prefs/pushemail.html:38
 msgid "Use custom notification scheme configured by your Admin"
-msgstr ""
+msgstr "Použit vlastní schéma oznámení nastavené Administrátorem"
 
 #: ../../static/t/prefs/pushemail.html:43
 msgid "Don‘t send any notifications"
-msgstr ""
+msgstr "Neposílat žádná upozornění"
 
 #: ../../static/t/prefs/box.html:9
 msgid "Tree (folders) view"
-msgstr ""
+msgstr "Stromový (adresářový) pohled"
 
 #: ../../static/t/prefs/box.html:11
 msgid "Table (rooms) view"
-msgstr ""
+msgstr "Table (rooms) view"
 
 #: ../../static/t/prefs/box.html:20
 msgid "12 hour (am/pm)"
-msgstr ""
+msgstr "12 hodin (am/pm)"
 
 #: ../../static/t/prefs/box.html:25
 msgid "24 hour"
-msgstr ""
+msgstr "24 hodin"
 
 #: ../../static/t/prefs/box.html:152
 msgid "Sunday"
-msgstr ""
+msgstr "Neděle"
 
 #: ../../static/t/prefs/box.html:153
 msgid "Monday"
-msgstr ""
+msgstr "Pondělí"
 
 #: ../../static/t/prefs/box.html:174
 msgid "No signature"
-msgstr ""
+msgstr "Bez podpisu"
 
 #: ../../static/t/prefs/box.html:238
 msgid "Full-functionality"
@@ -2914,135 +2962,137 @@ msgstr ""
 
 #: ../../static/t/prefs/box.html:241
 msgid "Safe mode"
-msgstr ""
+msgstr "Bezpečný mód"
 
 #: ../../static/t/prefs/box.html:242
 msgid ""
 "Safe mode is less intensive on your web browser, but not as fully featured."
 msgstr ""
+"Bezpečný mód je méně náročný pro prohlížeč, ale ne všechny funkce budou "
+"fungovat."
 
 #: ../../static/t/no_new_msgs.html:3
 msgid "No new messages."
-msgstr ""
+msgstr "Žádné nové zprávy."
 
 #: ../../static/t/files/graphicsupload.html:2
 msgid "Image upload"
-msgstr ""
+msgstr "Nahrát obrázek"
 
 #: ../../static/t/files/graphicsupload.html:6
 msgid "You can upload an image directly from your computer"
-msgstr ""
+msgstr "Můžete nahrát obrázek přímo z vašeho počítače"
 
 #: ../../static/t/files/graphicsupload.html:8
 msgid "Please select a file to upload:"
-msgstr ""
+msgstr "Prosím vyberte soubor k nahrání:"
 
 #: ../../static/t/files/section_onefile.html:20
 msgid "Slideshow"
-msgstr ""
+msgstr "Prezentace"
 
 #: ../../static/t/msg/confirm_move.html:4
 msgid "Confirm move of message"
-msgstr ""
+msgstr "Potvrďte přesun zpráv"
 
 #: ../../static/t/msg/confirm_move.html:12
 msgid "Move this message to:"
-msgstr ""
+msgstr "Přesunout zprávu do:"
 
 #: ../../static/t/iconbar.html:7
 msgid "Language:"
-msgstr ""
+msgstr "Jazyk:"
 
 #: ../../static/t/iconbar.html:19
 msgid "Mail"
-msgstr ""
+msgstr "E-mail"
 
 #: ../../static/t/iconbar.html:57
 msgid "Online users"
-msgstr ""
+msgstr "Připojení uživatelé"
 
 #: ../../static/t/iconbar.html:65
 msgid "Advanced"
-msgstr ""
+msgstr "Pokročilý"
 
 #: ../../static/t/iconbar.html:83
 msgid "customize this menu"
-msgstr ""
+msgstr "upravit toto menu"
 
 #: ../../static/t/iconbar.html:92
 msgid "switch to room list"
-msgstr ""
+msgstr "přepnout do seznamu místností"
 
 #: ../../static/t/iconbar.html:93
 msgid "switch to menu"
-msgstr ""
+msgstr "přepnout na menu"
 
 #: ../../static/t/iconbar.html:94
 msgid "My folders"
-msgstr ""
+msgstr "Moje složky"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:5
 #: ../../static/t/aide/ignetconf/add.html:5
 #: ../../static/t/aide/display_ignetconf.html:10
 msgid "Add a new node"
-msgstr ""
+msgstr "Přidat nový uzel"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:15
 #: ../../static/t/aide/ignetconf/add.html:15
 #: ../../static/t/aide/siteconfig/tab_general.html:8
 msgid "Node name"
-msgstr ""
+msgstr "Jméno uzlu"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:17
 #: ../../static/t/aide/ignetconf/add.html:17
 msgid "Shared secret"
-msgstr ""
+msgstr "Sdílené tajemství"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:19
 #: ../../static/t/aide/ignetconf/add.html:19
 msgid "Host or IP address"
-msgstr ""
+msgstr "Host nebo IP adresa"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:21
 #: ../../static/t/aide/ignetconf/add.html:21
 msgid "Port number"
-msgstr ""
+msgstr "Číslo portu"
 
 #: ../../static/t/aide/ignetconf/section.html:4
 msgid "(Edit)"
-msgstr ""
+msgstr "(upravit)"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
 msgid "Confirm delete"
-msgstr ""
+msgstr "Potvrdit smazání"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
 msgid "Are you sure you want to delete "
-msgstr ""
+msgstr "Opravdu chcete odstranit "
 
 #: ../../static/t/aide/display_ignetconf.html:4
 msgid "Network configuration"
-msgstr ""
+msgstr "Nastavení sítě"
 
 #: ../../static/t/aide/display_ignetconf.html:14
 msgid "Currently configured nodes"
-msgstr ""
+msgstr "Současné uzly"
 
 #: ../../static/t/aide/display_generic_result.html:2
 msgid "Server command results"
-msgstr ""
+msgstr "Výsledek příkazu"
 
 #: ../../static/t/aide/display_generic_result.html:18
 msgid "Enter another command"
-msgstr ""
+msgstr "Vložte další příkaz"
 
 #: ../../static/t/aide/display_generic_result.html:19
 msgid "Return to menu"
-msgstr ""
+msgstr "Zpět do menu"
 
 #: ../../static/t/aide/restart.html:2
 msgid "Restart Now"
-msgstr ""
+msgstr "Restartovat nyní"
 
 #: ../../static/t/aide/restart.html:3
 msgid "Restart after paging users"
@@ -3050,11 +3100,11 @@ msgstr ""
 
 #: ../../static/t/aide/restart.html:4
 msgid "Restart when all users are idle"
-msgstr ""
+msgstr "Restartovat až budou všichni uživatelé nečinní"
 
 #: ../../static/t/aide/usermanagement.html:2
 msgid "Add, change, delete user accounts"
-msgstr ""
+msgstr "Přidat, upravit, vymazat uživatelské účty"
 
 #: ../../static/t/aide/inet/rbldns.html:2
 msgid "(hosts running a Realtime Blackhole List)"
@@ -3081,7 +3131,8 @@ msgid "(URLS for notifications when users receive new mails; )"
 msgstr ""
 
 #: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgid ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 msgstr ""
 
 #: ../../static/t/aide/inet/fallbackhosts.html:2
@@ -3098,11 +3149,11 @@ msgstr ""
 
 #: ../../static/t/aide/floorconfig.html:2
 msgid "Add, change, or delete floors"
-msgstr ""
+msgstr "Přidat, upravit nebo odstranit úroveň"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:1
 msgid "Advanced server fine-tuning controls"
-msgstr ""
+msgstr "Pokročilé nastavení serveru"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:5
 msgid "Server connection idle timeout (in seconds)"
@@ -3110,11 +3161,11 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:8
 msgid "Maximum concurrent sessions (0 = no limit)"
-msgstr ""
+msgstr "Maximální množství spojení (0 = bez omezení)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:11
 msgid "Default user purge time (days)"
-msgstr ""
+msgstr "Default user purge time (days)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:14
 msgid "Default room purge time (days)"
@@ -3122,7 +3173,7 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:17
 msgid "Maximum message length"
-msgstr ""
+msgstr "Maximální délka zprávy"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:20
 msgid "Minimum number of worker threads"
@@ -3266,7 +3317,8 @@ msgid "Access level required to create rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid "Automatically grant room-aide status to users who create private rooms"
+msgid ""
+"Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
@@ -3283,11 +3335,11 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:71
 msgid "Hint: do not select both!"
-msgstr ""
+msgstr "Tip: nevybírejte obě!"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:74
 msgid "Require registration for new users"
-msgstr ""
+msgstr "Požadovat registraci pro nové uživatele"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:77
 msgid "Allow anonymous guest access"
@@ -3303,6 +3355,8 @@ msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
 msgstr ""
+"Změny provedené v této části nebudou provedeny dokud nerestartujete server "
+"Citadelu."
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:4
 msgid ""
@@ -3356,11 +3410,11 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_general.html:5
 msgid "Change Login Logo"
-msgstr ""
+msgstr "Změnit logo při přihlašování"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:6
 msgid "Change Logout Logo"
-msgstr ""
+msgstr "Změnit logo při odhlašování"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:11
 msgid "Fully qualified domain name"
@@ -3372,7 +3426,7 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_general.html:17
 msgid "Telephone number"
-msgstr ""
+msgstr "Telefonní číslo"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:20
 msgid "Paginator prompt (for text mode clients)"
@@ -3380,23 +3434,23 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_general.html:23
 msgid "Geographic location of this system"
-msgstr ""
+msgstr "Zeměpisná poloha tohoto systému"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:26
 msgid "Name of system administrator"
-msgstr ""
+msgstr "Jméno systéového administrátora"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:29
 msgid "Default timezone for unzoned calendar items"
-msgstr ""
+msgstr "Základní časová zóna pro nepřiřazené kalendáře"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:1
 msgid "Network services"
-msgstr ""
+msgstr "Síťové služby"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:6
 msgid "SMTP MTA port (-1 to disable)"
-msgstr ""
+msgstr "SMTP MTA port (-1 pro vypnutí)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:9
 msgid "Correct forged From: lines during authenticated SMTP"
@@ -3404,7 +3458,7 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_network.html:12
 msgid "Flag message as spam, instead of rejecting it"
-msgstr ""
+msgstr "Označit zprávu jako spam, místo odmítnutí"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:15
 msgid "IMAP listener port (-1 to disable)"
@@ -3416,7 +3470,7 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_network.html:22
 msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr ""
+msgstr "IP adresa serveru (0.0.0.0 pro \"jakákoli\")"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:25
 msgid "SMTP MSA port (-1 to disable)"
@@ -3424,19 +3478,19 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_network.html:28
 msgid "IMAP over SSL port (-1 to disable)"
-msgstr ""
+msgstr "IMAP přes SSL port (-1 pro vypnutí)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:31
 msgid "SMTP over SSL port (-1 to disable)"
-msgstr ""
+msgstr "SMTP přes SSL port (-1 pro vypnutí)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:34
 msgid "Instantly expunge deleted messages in IMAP"
-msgstr ""
+msgstr "Okamžitě vymazat smazané zprávy přes IMAP"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:38
 msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr ""
+msgstr "Povolit neuatentifikované SMTP klienty"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:41
 msgid "Postfix TCP Dictionary Port"
@@ -3444,52 +3498,52 @@ msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_network.html:41
 msgid "-1 to disable"
-msgstr ""
+msgstr "-1 pro vypnutí"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:44
 msgid "ManageSieve Port (-1 to disable)"
-msgstr ""
+msgstr "ManageSieve Port (-1 pro vypnutí)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:47
 msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr ""
+msgstr "Provést RBL kontolu před připojením místo pro připojení k RCPT"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:50
 msgid "Keep original from headers in IMAP"
-msgstr ""
+msgstr "Zachovat originální hlavičky na IMAP"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:53
 msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr ""
+msgstr "XMPP (Jabber) server <> klient port  (-1 pro vypnutí)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:56
 msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr ""
+msgstr "XMPP (Jabber) server <> server port (-1 pro vypnutí)"
 
 #: ../../static/t/aide/display_serverrestart_page.html:4
 msgid "Message to your Users:"
-msgstr ""
+msgstr "Zpráva pro uživatele:"
 
 #: ../../static/t/aide/display_serverrestart.html:26
 msgid "Restart Citadel"
-msgstr ""
+msgstr "Restartovat Citadel"
 
 #: ../../static/t/aide/global_config.html:2
 msgid "Edit site-wide configuration"
-msgstr ""
+msgstr "Upravte nastavení"
 
 #: ../../static/t/aide/global_config.html:3
 msgid "Domain names and Internet mail configuration"
-msgstr ""
+msgstr "Doménová jména a nastavení Inertnetových zpráv"
 
 #: ../../static/t/aide/global_config.html:4
 msgid "Configure replication with other Citadel servers"
-msgstr ""
+msgstr "Nastavit replikaci ostatních Citadel servrů"
 
 #: ../../static/t/aide/display_inetconf.html:5
 #: ../../static/t/aide/display_menu.html:5
 msgid "System Administration Menu"
-msgstr ""
+msgstr "Systémové Administrační menu"
 
 #: ../../static/t/aide/display_inetconf.html:6
 #: ../../static/t/aide/display_menu.html:6
@@ -3540,39 +3594,39 @@ msgstr ""
 
 #: ../../static/t/aide/serverrestart/box.html:3
 msgid "Please wait while the Citadel server is restarted... "
-msgstr ""
+msgstr "Prosím čekejte dokud Citadel server je restartován... "
 
 #: ../../static/t/aide/display_menu.html:12
 msgid "Global Configuration"
-msgstr ""
+msgstr "Globální Configurace"
 
 #: ../../static/t/aide/display_menu.html:14
 msgid "User account management"
-msgstr ""
+msgstr "Nastavení uživatelů"
 
 #: ../../static/t/aide/display_menu.html:16
 msgid "Shutdown Citadel"
-msgstr ""
+msgstr "Vypnout Citadel"
 
 #: ../../static/t/aide/display_menu.html:18
 msgid "Rooms and Floors"
-msgstr ""
+msgstr "Místnosti a podlaží"
 
 #: ../../static/t/aide/edituser/detailview.html:4
 msgid "Edit user account: "
-msgstr ""
+msgstr "Upravit nastavení uživatele: "
 
 #: ../../static/t/aide/edituser/detailview.html:28
 msgid "Permission to send Internet mail"
-msgstr ""
+msgstr "Oprávnění pro odeslání Internetového e-mailu"
 
 #: ../../static/t/aide/edituser/detailview.html:32
 msgid "Number of logins"
-msgstr ""
+msgstr "Počet přihlášení"
 
 #: ../../static/t/aide/edituser/detailview.html:36
 msgid "Messages submitted"
-msgstr ""
+msgstr "Vložené zprávy"
 
 #: ../../static/t/aide/edituser/detailview.html:40
 msgid "Access level"
@@ -3580,11 +3634,11 @@ msgstr ""
 
 #: ../../static/t/aide/edituser/detailview.html:54
 msgid "User ID number"
-msgstr ""
+msgstr "ID uživatele"
 
 #: ../../static/t/aide/edituser/detailview.html:58
 msgid "Date and time of last login"
-msgstr ""
+msgstr "Datum a čas posledního přihlášení"
 
 #: ../../static/t/aide/edituser/detailview.html:68
 msgid "Auto-purge after this many days"
@@ -3592,7 +3646,7 @@ msgstr ""
 
 #: ../../static/t/aide/edituser/select.html:5
 msgid "Edit or delete users"
-msgstr ""
+msgstr "Upravit nebo smazat uživatele"
 
 #: ../../static/t/aide/edituser/select.html:9
 #: ../../static/t/aide/display_sitewide_config.html:6
@@ -3601,39 +3655,43 @@ msgstr ""
 
 #: ../../static/t/aide/edituser/select.html:17
 msgid "Add users"
-msgstr ""
+msgstr "Přidat uživatele"
 
 #: ../../static/t/aide/edituser/select.html:20
 msgid "Edit or Delete users"
-msgstr ""
+msgstr "Upravit nebo smazat uživatele"
 
 #: ../../static/t/aide/edituser/box_select.html:1
 msgid ""
 "To edit an existing user account, select the user name from the list and "
 "click 'Edit'."
 msgstr ""
+"Pro upravení existujícího uživatelského účtu, vyberte jméno ze seznamu a "
+"klikněte na 'Upravit'"
 
 #: ../../static/t/aide/edituser/add.html:1
 msgid ""
 "To create a new user account, enter the desired user name in the box below "
 "and click 'Create'."
 msgstr ""
+"Pro vytvoření nového uživatelského účtu vložte požadované jméno do textového "
+"pole dole a klikněte 'Vytvořit'"
 
 #: ../../static/t/aide/edituser/add.html:5
 msgid "New user: "
-msgstr ""
+msgstr "Nový uživatel: "
 
 #: ../../static/t/aide/display_sitewide_config.html:3
 msgid "Site configuration"
-msgstr ""
+msgstr "Nastavení webu"
 
 #: ../../static/t/aide/display_sitewide_config.html:11
 msgid "General"
-msgstr ""
+msgstr "Obecné"
 
 #: ../../static/t/aide/display_sitewide_config.html:12
 msgid "Access"
-msgstr ""
+msgstr "Přístup"
 
 #: ../../static/t/aide/display_sitewide_config.html:13
 msgid "Network"
@@ -3645,7 +3703,7 @@ msgstr ""
 
 #: ../../static/t/aide/display_sitewide_config.html:15
 msgid "Directory"
-msgstr ""
+msgstr "Adresář"
 
 #: ../../static/t/aide/display_sitewide_config.html:16
 msgid "Auto-purger"
@@ -3653,7 +3711,7 @@ msgstr ""
 
 #: ../../static/t/aide/display_sitewide_config.html:17
 msgid "Indexing/Journaling"
-msgstr ""
+msgstr "Indexování/žurnálování"
 
 #: ../../static/t/aide/display_sitewide_config.html:19
 msgid "Pop3"
@@ -3661,7 +3719,7 @@ msgstr ""
 
 #: ../../static/t/aide/display_generic_cmd.html:4
 msgid "Enter a server command"
-msgstr ""
+msgstr "Vložte příkaz pro server"
 
 #: ../../static/t/aide/display_generic_cmd.html:12
 msgid ""
@@ -3669,10 +3727,13 @@ msgid ""
 "supported by WebCit.  If you do not know what that means, then this screen "
 "will not be of much use to you."
 msgstr ""
+"Tato část umožňuje vložit příkaz pro Citadel server, který není podporován "
+"přes WebCit. Pokud nevíte co to znamená, tato stránka pro vás nebude moc "
+"užitečná."
 
 #: ../../static/t/aide/display_generic_cmd.html:15
 msgid "Enter command:"
-msgstr ""
+msgstr "Vložte příkaz:"
 
 #: ../../static/t/aide/display_generic_cmd.html:17
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
@@ -3680,15 +3741,12 @@ msgstr ""
 
 #: ../../static/t/aide/display_generic_cmd.html:20
 msgid "Detected host header is "
-msgstr ""
+msgstr "Detekovaná hlavička hosta je "
 
 #: ../../static/t/start_of_new_msgs.html:4
 msgid "Old messages"
-msgstr ""
+msgstr "Staré zprávy"
 
 #: ../../static/t/start_of_new_msgs.html:8
 msgid "New messages"
-msgstr ""
-
-#~ msgid "Your password was not accepted."
-#~ msgstr "Vaše heslo je nepřijatelné."
+msgstr "Nové zprávy"

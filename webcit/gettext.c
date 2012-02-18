@@ -39,6 +39,7 @@ const char *AvailLang[] = {
 	"kk_KK",
 	"ro_RO",
 	"sl_SL",
+	"tr_TR",
 	""
 };
 

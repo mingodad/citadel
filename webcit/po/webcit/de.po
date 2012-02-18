@@ -1698,7 +1698,7 @@ msgstr " wurde gelöscht."
 #. <domain> added status message
 #: ../../inetconf.c:144
 msgid " added."
-msgstr "hinzugefügt."
+msgstr " aufgenommen."
 
 #: ../../static/t/edit_message/attachments_pane.html:3
 #: ../../static/t/get_logged_in.html:9
@@ -2241,7 +2241,7 @@ msgstr "Ältere Versionen"
 
 #: ../../static/t/navbar.html:154
 msgid "New blog post"
-msgstr "neuere Blogbeiträge"
+msgstr "Neuer Blog-Beitrag"
 
 #: ../../static/t/navbar.html:162
 msgid "Skip this room"
@@ -2373,7 +2373,7 @@ msgstr "Drucken"
 
 #: ../../static/t/user/list.html:3
 msgid "User list for "
-msgstr "Benutzerliste für "
+msgstr "Benutzer-Liste für "
 
 #: ../../static/t/user/list.html:9
 msgid "User Name"
@@ -2605,7 +2605,7 @@ msgstr "Kopieren"
 
 #: ../../static/t/summary/page.html:5
 msgid "Summary page for "
-msgstr "Zusammenfassung für "
+msgstr "Übersichtsseite für "
 
 #: ../../static/t/summary/page.html:23
 msgid "Messages"
@@ -2625,12 +2625,11 @@ msgstr "Über&nbsp;diesen&nbsp;Server"
 
 #: ../../static/t/summary/page.html:63
 msgid "You are connected to"
-msgstr ""
+msgstr "Sie sind verbunden mit"
 
 #: ../../static/t/summary/page.html:64
-#, fuzzy
 msgid "running"
-msgstr "Feinabstimmung"
+msgstr "wird ausgeführt"
 
 #: ../../static/t/summary/page.html:65
 msgid "with"
@@ -3358,7 +3357,7 @@ msgstr ""
 #: ../../static/t/aide/siteconfig/tab_access.html:63
 msgid "Automatically grant room-aide status to users who create BLOG rooms"
 msgstr ""
-"Automatisch Benutzern, die BLOG Räume erstellen, Moderator-Status geben."
+"Automatisch Benutzern, die BLOG Räume erstellen, Moderator-Status geben"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:66
 msgid "Restrict access to Internet mail"

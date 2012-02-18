@@ -378,45 +378,47 @@ msgstr "Crear"
 
 #: ../../sieve.c:744 ../../static/t/sieve/add.html:19
 msgid "Edit scripts"
-msgstr ""
+msgstr "Editar scripts"
 
 #: ../../sieve.c:747 ../../static/t/sieve/add.html:21
 msgid "Return to the script editing screen"
-msgstr ""
+msgstr "Volver a la pantalla de edición de script"
 
 #: ../../sieve.c:754 ../../static/t/sieve/add.html:24
 msgid "Delete scripts"
-msgstr ""
+msgstr "Borrar scripts"
 
 #: ../../sieve.c:757 ../../static/t/sieve/add.html:25
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
 msgstr ""
+"Para borrar un script existente, seleccionar su nombre en la lista y pulsar "
+"\"Borrar\"."
 
 #: ../../sieve.c:781
 msgid "Delete script"
-msgstr ""
+msgstr "Borrar un script"
 
 #: ../../sieve.c:781
 msgid "Delete this script?"
-msgstr ""
+msgstr "¿Borrar este script?"
 
 #: ../../sieve.c:1002
 msgid "Move rule up"
-msgstr ""
+msgstr "Mover la regla hacia arriba"
 
 #: ../../sieve.c:1007
 msgid "Move rule down"
-msgstr ""
+msgstr "Mover la regla hacia abajo"
 
 #: ../../sieve.c:1012
 msgid "Delete rule"
-msgstr ""
+msgstr "Eliminar regla"
 
 #: ../../sieve.c:1020 ../../static/t/sieve/display_one.html:16
 msgid "If"
-msgstr ""
+msgstr "Si"
 
 #: ../../sieve.c:1023 ../../calendar_view.c:297 ../../calendar_view.c:958
 #: ../../calendar_view.c:1002 ../../calendar_view.c:1083
@@ -426,7 +428,7 @@ msgstr "De"
 
 #: ../../sieve.c:1024 ../../static/t/sieve/display_one.html:21
 msgid "To or Cc"
-msgstr ""
+msgstr "Para o CC"
 
 #: ../../sieve.c:1025 ../../calendar_view.c:759
 #: ../../static/t/msg_listview.html:9 ../../static/t/summary/header.html:42
@@ -436,7 +438,7 @@ msgstr "Asunto"
 
 #: ../../sieve.c:1026 ../../static/t/sieve/display_one.html:23
 msgid "Reply-to"
-msgstr ""
+msgstr "Responder-a"
 
 #: ../../sieve.c:1027 ../../smtpqueue.c:197
 #: ../../static/t/msg_listview.html:10 ../../static/t/summary/header.html:43
@@ -450,7 +452,7 @@ msgstr ""
 
 #: ../../sieve.c:1029 ../../static/t/sieve/display_one.html:26
 msgid "Resent-To"
-msgstr ""
+msgstr "Enviar a"
 
 #: ../../sieve.c:1030 ../../static/t/sieve/display_one.html:27
 msgid "Envelope From"
@@ -573,7 +575,8 @@ msgstr ""
 "acceso."
 
 #: ../../siteconfig.c:252
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../../siteconfig.c:314
@@ -800,8 +803,8 @@ msgstr ""
 "servidor de la lista te ha enviado un email con un link web  y debe pulsarlo "
 "par confirmar su suscripción.  Esta medida se toma por su seguridad, de "
 "forma que se impida a otros suscribirle  sin su consentimiento.<br><br />Por "
-"favor, pulse en el link que se le ha enviadoy su suscripción será activada."
-"<br>\n"
+"favor, pulse en el link que se le ha enviadoy su suscripción será "
+"activada.<br>\n"
 
 #: ../../listsub.c:101
 msgid "Go back..."
