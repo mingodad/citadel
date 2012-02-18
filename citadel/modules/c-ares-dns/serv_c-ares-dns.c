@@ -297,6 +297,7 @@ void QueryCbDone(AsyncIO *IO)
 
 void DestructCAres(AsyncIO *IO)
 {
+	ev_timer_stop (event_base, &IO->DNS.timeout);
 	ares_destroy_options(&IO->DNS.Options);
 }
 
@@ -363,6 +364,7 @@ void QueueGetHostByNameDone(void *Ctx,
 	EV_DNS_LOGT_INIT(unwind_stack);
 	EV_DNS_LOGT_START(unwind_stack);
 	ev_idle_start(event_base, &IO->unwind_stack);
+	ev_timer_stop (event_base, &IO->DNS.timeout);
 }
 
 void QueueGetHostByName(AsyncIO *IO,
