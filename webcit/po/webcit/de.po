@@ -764,9 +764,8 @@ msgid "Cancelled.  %s was not saved."
 msgstr "Abgebrochen.   %s wurde nicht gespeichert."
 
 #: ../../sysmsgs.c:108
-#, fuzzy
 msgid " has been saved."
-msgstr "%s wurde gespeichert."
+msgstr " wurde gespeichert."
 
 #: ../../sysmsgs.c:115 ../../sysmsgs.c:116
 msgid "Room info"
@@ -951,7 +950,7 @@ msgstr "%d Kommentare"
 
 #: ../../blogview_renderer.c:67 ../../blogview_renderer.c:83
 msgid "permalink"
-msgstr ""
+msgstr "Permanentlink"
 
 #: ../../blogview_renderer.c:303
 msgid "Newer posts"
@@ -1693,15 +1692,13 @@ msgid "(Nothing)"
 msgstr "(Nichts)"
 
 #: ../../inetconf.c:126
-#, fuzzy
 msgid " has been deleted."
-msgstr "%s wurde gelöscht."
+msgstr " wurde gelöscht."
 
 #. <domain> added status message
 #: ../../inetconf.c:144
-#, fuzzy
 msgid " added."
-msgstr "hinzugefügt."
+msgstr " aufgenommen."
 
 #: ../../static/t/edit_message/attachments_pane.html:3
 #: ../../static/t/get_logged_in.html:9
@@ -1757,6 +1754,9 @@ msgid ""
 "room, it will appear in your regular room listings so you don‘t have to keep "
 "returning here."
 msgstr ""
+"Wenn Sie den Namen eines versteckten (Namen-raten) oder passwortgeschützten "
+"Raums wissen, Hier eingeben um ihn zu betreten.  Wenn er einmal sichtbar "
+"ist, wird er in Ihrer regulären Raumliste erscheinen."
 
 #: ../../static/t/room/display_private.html:14
 msgid "Enter room name:"
@@ -1776,7 +1776,7 @@ msgstr "Wenn Sie diese Option wählen,"
 
 #: ../../static/t/room/zap_this.html:8
 msgid "will disappear from your room list.  Is this what you wish to do?"
-msgstr ""
+msgstr "aus der Raumliste verschwinden. Wollen Sie das wirklich tun?"
 
 #: ../../static/t/room/zapped_list.html:7
 msgid "Zapped (forgotten) rooms"
@@ -1784,7 +1784,7 @@ msgstr "Vergessene Räume"
 
 #: ../../static/t/room/zapped_list.html:10
 msgid "Click on any room to un-zap it and goto that room."
-msgstr ""
+msgstr "Einen Raum anclicken zum ent-Zap-en und betreten."
 
 #: ../../static/t/room/edit.html:5 ../../static/t/room/edit/editroom.html:4
 #: ../../static/t/iconbar.html:72
@@ -1864,22 +1864,20 @@ msgid "Personal (mailbox for you only)"
 msgstr "Persönlich (Briefkasten, nur für Sie)"
 
 #: ../../static/t/room/edit/tab_listserv.html:5
-#, fuzzy
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br><br>"
 msgstr ""
 "<i>Die Inhalte dieses Raums werden <b>als individuelle Nachrichten </b> zu "
-"folgenden Listempfängern versendet:</i><br /><br />"
+"folgenden Listenempfänger versendet:</i><br /><br />"
 
 #: ../../static/t/room/edit/tab_listserv.html:19
-#, fuzzy
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br><br>"
 msgstr ""
 "<i>Die Inhalte dieses Raums werden <b>als individuelle Nachrichten </b> zu "
-"folgenden Listempfängern versendet:</i><br /><br />"
+"folgenden Listenempfängern versendet:</i><br /><br />"
 
 #: ../../static/t/room/edit/tab_listserv.html:39
 msgid "Add recipients from Contacts or other address books"
@@ -2242,9 +2240,8 @@ msgid "History"
 msgstr "Ältere Versionen"
 
 #: ../../static/t/navbar.html:154
-#, fuzzy
 msgid "New blog post"
-msgstr "neuere Beiträge"
+msgstr "Neuer Blog-Beitrag"
 
 #: ../../static/t/navbar.html:162
 msgid "Skip this room"
@@ -2375,9 +2372,8 @@ msgid "Print"
 msgstr "Drucken"
 
 #: ../../static/t/user/list.html:3
-#, fuzzy
 msgid "User list for "
-msgstr "Benutzerliste für %s"
+msgstr "Benutzer-Liste für "
 
 #: ../../static/t/user/list.html:9
 msgid "User Name"
@@ -2408,9 +2404,8 @@ msgid "User profile"
 msgstr "Benutzerprofil"
 
 #: ../../static/t/user/show.html:9
-#, fuzzy
 msgid "Click here to send an instant message to"
-msgstr "Hier klicken um eine Kurznachricht an %s zu senden"
+msgstr "Hier klicken zum senden einer Kurznachricht an"
 
 #: ../../static/t/searchomatic.html:4
 msgid "Search: "
@@ -2609,9 +2604,8 @@ msgid "Copy"
 msgstr "Kopieren"
 
 #: ../../static/t/summary/page.html:5
-#, fuzzy
 msgid "Summary page for "
-msgstr "Zusammenfassung für %s"
+msgstr "Übersichtsseite für "
 
 #: ../../static/t/summary/page.html:23
 msgid "Messages"
@@ -2622,9 +2616,8 @@ msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Heute&nbsp;in&nbsp;ihrem&nbsp;Kalender"
 
 #: ../../static/t/summary/page.html:53
-#, fuzzy
 msgid "Who‘s&nbsp;online&nbsp;now"
-msgstr "Wer ist gerade angemeldet"
+msgstr "Wer &nbsp;ist gerade &nbsp;angemeldet"
 
 #: ../../static/t/summary/page.html:60
 msgid "About&nbsp;this&nbsp;server"
@@ -2632,31 +2625,27 @@ msgstr "Über&nbsp;diesen&nbsp;Server"
 
 #: ../../static/t/summary/page.html:63
 msgid "You are connected to"
-msgstr ""
+msgstr "Sie sind verbunden mit"
 
 #: ../../static/t/summary/page.html:64
-#, fuzzy
 msgid "running"
-msgstr "Feinabstimmung"
+msgstr "wird ausgeführt"
 
 #: ../../static/t/summary/page.html:65
-#, fuzzy
 msgid "with"
-msgstr "fünfter"
+msgstr "mit"
 
 #: ../../static/t/summary/page.html:66
 msgid "server build"
-msgstr ""
+msgstr "Server Release"
 
 #: ../../static/t/summary/page.html:67
-#, fuzzy
 msgid "and located in"
-msgstr "und dann"
+msgstr "und aufgestellt in"
 
 #: ../../static/t/summary/page.html:68
-#, fuzzy
 msgid "Your system administrator is"
-msgstr "Name des Verwalters"
+msgstr "Der Name des Systemverwalters ist"
 
 #: ../../static/t/summary/trailer.html:9 ../../static/t/trailing.html:3
 msgid ""
@@ -2860,9 +2849,8 @@ msgstr ""
 "Bitte fragen Sie Ihren Administrator, wenn Sie diese Funktion brauchen."
 
 #: ../../static/t/sieve/display_one.html:59
-#, fuzzy
 msgid "bytes"
-msgstr "Jahre"
+msgstr "Bytes"
 
 #: ../../static/t/get_logged_in.html:5
 msgid "You must be logged in to access this page."
@@ -3367,10 +3355,9 @@ msgstr ""
 "Automatisch Benutzern, die private Räume erstellen, Moderator-Status geben."
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
-#, fuzzy
 msgid "Automatically grant room-aide status to users who create BLOG rooms"
 msgstr ""
-"Automatisch Benutzern, die BLOG Räume erstellen, Moderator-Status geben."
+"Automatisch Benutzern, die BLOG Räume erstellen, Moderator-Status geben"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:66
 msgid "Restrict access to Internet mail"

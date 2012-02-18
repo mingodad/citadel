@@ -236,7 +236,7 @@ msgstr "Tee tästä aloitussivuni"
 
 #: ../../preferences.c:1114
 msgid "This isn't allowed to become the start page."
-msgstr ""
+msgstr "Tästä ei voi tehdä aloitussivua"
 
 #: ../../preferences.c:1116
 msgid "You no longer have a start page selected."
@@ -477,7 +477,7 @@ msgstr "on"
 
 #: ../../sieve.c:1059 ../../static/t/sieve/display_one.html:44
 msgid "is not"
-msgstr ""
+msgstr "ei ole"
 
 #: ../../sieve.c:1060 ../../static/t/sieve/display_one.html:45
 msgid "matches"
@@ -493,7 +493,7 @@ msgstr "(Kaikki viestit)"
 
 #: ../../sieve.c:1085 ../../static/t/sieve/display_one.html:56
 msgid "is larger than"
-msgstr ""
+msgstr "on suurempi kuin"
 
 #: ../../sieve.c:1086 ../../static/t/sieve/display_one.html:57
 msgid "is smaller than"
@@ -652,7 +652,7 @@ msgstr "Tehtävän nimi"
 
 #: ../../tasks.c:97
 msgid "Date due"
-msgstr ""
+msgstr "Tavoitepäivämäärä"
 
 #: ../../tasks.c:99
 msgid "Category"
@@ -689,7 +689,7 @@ msgstr ""
 
 #: ../../tasks.c:283
 msgid "Due date:"
-msgstr ""
+msgstr "Tavoitepäivämäärä:"
 
 #: ../../tasks.c:312
 msgid "Completed:"
@@ -801,21 +801,21 @@ msgstr ""
 #: ../../static/t/aide/siteconfig/tab_access.html:54
 #: ../../static/t/aide/edituser/detailview.html:46
 msgid "Local User"
-msgstr ""
+msgstr "Paikallinen käyttäjä"
 
 #. a user that may access network resources
 #: ../../auth.c:48 ../../static/t/aide/siteconfig/tab_access.html:44
 #: ../../static/t/aide/siteconfig/tab_access.html:55
 #: ../../static/t/aide/edituser/detailview.html:47
 msgid "Network User"
-msgstr ""
+msgstr "Verkkokäyttäjä"
 
 #. a moderator
 #: ../../auth.c:51 ../../static/t/aide/siteconfig/tab_access.html:45
 #: ../../static/t/aide/siteconfig/tab_access.html:56
 #: ../../static/t/aide/edituser/detailview.html:48
 msgid "Preferred User"
-msgstr ""
+msgstr "Ylläpitäjä"
 
 #. chief
 #: ../../auth.c:54 ../../static/t/aide/siteconfig/tab_access.html:46
@@ -850,7 +850,7 @@ msgstr "Kirjaudu uudestaan"
 
 #: ../../auth.c:598 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
-msgstr ""
+msgstr "Hyväksy uudet käyttäjät"
 
 #: ../../auth.c:618
 msgid "No users require validation at this time."
@@ -907,7 +907,7 @@ msgstr "Salasanat eivät täsmää. Salasanaa ei vaihdettu."
 
 #: ../../auth.c:858
 msgid "Blank passwords are not allowed."
-msgstr ""
+msgstr "Tyhjä salasana ei ole sallittu"
 
 #: ../../blogview_renderer.c:64 ../../blogview_renderer.c:80
 #, c-format
@@ -956,7 +956,7 @@ msgstr "Sähköpostiosoite:"
 
 #: ../../vcard_edit.c:779
 msgid "This address book is empty."
-msgstr ""
+msgstr "Tämä osoitekirja on tyhjä."
 
 #: ../../vcard_edit.c:793
 msgid "An internal error has occurred."
@@ -964,7 +964,7 @@ msgstr ""
 
 #: ../../vcard_edit.c:944
 msgid "Error"
-msgstr ""
+msgstr "Virhe"
 
 #: ../../vcard_edit.c:1048
 msgid "Edit contact information"
@@ -988,15 +988,15 @@ msgstr "Sukunimi"
 
 #: ../../vcard_edit.c:1068
 msgid "Suffix"
-msgstr ""
+msgstr "Jälkiliite"
 
 #: ../../vcard_edit.c:1089
 msgid "Display name:"
-msgstr ""
+msgstr "Näyttönimi:"
 
 #: ../../vcard_edit.c:1096
 msgid "Title:"
-msgstr ""
+msgstr "Nimike:"
 
 #: ../../vcard_edit.c:1103
 msgid "Organization:"
@@ -1004,7 +1004,7 @@ msgstr "Organisaatio:"
 
 #: ../../vcard_edit.c:1114
 msgid "PO box:"
-msgstr ""
+msgstr "Postilokero:"
 
 #: ../../vcard_edit.c:1130
 msgid "City:"
@@ -1012,7 +1012,7 @@ msgstr "Kaupunki:"
 
 #: ../../vcard_edit.c:1136
 msgid "State:"
-msgstr ""
+msgstr "Osavaltio:"
 
 #: ../../vcard_edit.c:1142
 msgid "ZIP code:"
@@ -2563,9 +2563,8 @@ msgid "running"
 msgstr ""
 
 #: ../../static/t/summary/page.html:65
-#, fuzzy
 msgid "with"
-msgstr "5."
+msgstr ""
 
 #: ../../static/t/summary/page.html:66
 msgid "server build"

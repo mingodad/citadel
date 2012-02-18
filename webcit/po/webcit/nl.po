@@ -1773,11 +1773,11 @@ msgstr ""
 
 #: ../../static/t/room/display_private.html:14
 msgid "Enter room name:"
-msgstr "Geef naam ruimte: "
+msgstr "Geef naam ruimte:"
 
 #: ../../static/t/room/display_private.html:21
 msgid "Enter room password:"
-msgstr "Geef wachtwoord ruimte: "
+msgstr "Geef wachtwoord ruimte:"
 
 #: ../../static/t/room/zap_this.html:3
 msgid "Zap (forget/unsubscribe) the current room"
@@ -1854,7 +1854,7 @@ msgstr "Standaard weergave voor ruimte: "
 #: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
 msgid "Type of room:"
-msgstr "Soort ruimte: "
+msgstr "Soort ruimte:"
 
 #: ../../static/t/room/create.html:73
 #: ../../static/t/room/edit/tab_config.html:22
@@ -2167,11 +2167,11 @@ msgstr "Gebruikers op dit moment op "
 
 #: ../../static/t/who.html:22
 msgid "Click on a name to read user info.  Click on"
-msgstr "Klik op een naam om de gebruikersinfo te lezen. Klik op "
+msgstr "Klik op een naam om de gebruikersinfo te lezen. Klik op"
 
 #: ../../static/t/who.html:24
 msgid "to send an instant message to that user."
-msgstr "Stuur een direct bericht naar die gebruiker. "
+msgstr "Stuur een direct bericht naar die gebruiker."
 
 #: ../../static/t/newstartpage.html:4
 msgid "New start page"
@@ -2467,7 +2467,7 @@ msgstr "Lijst menuitems aanpassen."
 
 #: ../../static/t/iconbar/edit.html:11
 msgid "Display icons as:"
-msgstr "Laat menuitems zien als: "
+msgstr "Laat menuitems zien als:"
 
 #: ../../static/t/iconbar/edit.html:12
 msgid "pictures and text"
@@ -2819,7 +2819,7 @@ msgstr "(beëindig)"
 
 #: ../../static/t/who/list_static_header.html:1
 msgid "Users currently on"
-msgstr "Gebruikers op dit moment op "
+msgstr "Gebruikers op dit moment op"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "Your OpenID"
@@ -3216,7 +3216,7 @@ msgstr "(hosts waarop de ClamAV clamd service draait)"
 
 #: ../../static/t/aide/floorconfig.html:2
 msgid "Add, change, or delete floors"
-msgstr "Verdiepingen toevoegen, wijzigen of verwijderen "
+msgstr "Verdiepingen toevoegen, wijzigen of verwijderen"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:1
 msgid "Advanced server fine-tuning controls"
@@ -3377,7 +3377,7 @@ msgstr "Gebruikersnaam beheerder (blanco is uit)"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:33
 msgid "Master user password"
-msgstr "Wachtwoord beheerder: "
+msgstr "Wachtwoord beheerder:"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:38
 msgid "Initial access level for new users"
@@ -3476,11 +3476,11 @@ msgstr "POP3 over SSL port (-1 to disable)"
 
 #: ../../static/t/aide/siteconfig/tab_pop3.html:12
 msgid "POP3 fetch frequency in seconds"
-msgstr "POP3 ophaalfrequentie in seconden "
+msgstr "POP3 ophaalfrequentie in seconden"
 
 #: ../../static/t/aide/siteconfig/tab_pop3.html:15
 msgid "POP3 fastest fetch frequency in seconds"
-msgstr "POP3 snelste ophaalfrequentie in seconden "
+msgstr "POP3 snelste ophaalfrequentie in seconden"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:1
 msgid "General site configuration items"
@@ -3673,11 +3673,11 @@ msgid ""
 "restarted after that... "
 msgstr ""
 "Even geduld terwijl gebruikers een berichtje hebben, de citadel server zal "
-"daarna opstarten..."
+"daarna opstarten... "
 
 #: ../../static/t/aide/serverrestart/box.html:3
 msgid "Please wait while the Citadel server is restarted... "
-msgstr "Even geduld a.u.b. tot Citadel server is opgestart..."
+msgstr "Even geduld a.u.b. tot Citadel server is opgestart... "
 
 #: ../../static/t/aide/display_menu.html:12
 msgid "Global Configuration"
@@ -3697,7 +3697,7 @@ msgstr "Ruimtes en Verdiepingen"
 
 #: ../../static/t/aide/edituser/detailview.html:4
 msgid "Edit user account: "
-msgstr "Gebruikersaccount bewerken:"
+msgstr "Gebruikersaccount bewerken: "
 
 #: ../../static/t/aide/edituser/detailview.html:28
 msgid "Permission to send Internet mail"
@@ -3817,11 +3817,11 @@ msgstr ""
 
 #: ../../static/t/aide/display_generic_cmd.html:15
 msgid "Enter command:"
-msgstr "Voer commando in: "
+msgstr "Voer commando in:"
 
 #: ../../static/t/aide/display_generic_cmd.html:17
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr "Commando invoer (indien aanvraag SEND_LISTING overdrachtsmode): "
+msgstr "Commando invoer (indien aanvraag SEND_LISTING overdrachtsmode):"
 
 #: ../../static/t/aide/display_generic_cmd.html:20
 #, fuzzy

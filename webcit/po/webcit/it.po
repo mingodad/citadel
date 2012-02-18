@@ -17,6 +17,10 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: it\n"
+#: ../../messages.c:1702
+#, c-format
+msgid "An error occurred while retrieving this part: %s/%s\n"
+msgstr "E' avvenuto un errore durante il recupero di questa parte: %s/%s\n"
 
 #: ../../serv_func.c:192
 msgid ""
@@ -1640,11 +1644,6 @@ msgstr "Il messaggio &egrave; stato postato.\n"
 msgid "The message was not moved."
 msgstr "Il messaggio non è stato spostato"
 
-#: ../../messages.c:1702
-#, c-format
-msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "E' avvenuto un errore durante il recupero di questa parte: %s/%s\n"
-
 #: ../../messages.c:1762
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
@@ -1831,16 +1830,16 @@ msgstr "Crea una nuova stanza"
 
 #: ../../static/t/room/create.html:18
 msgid "Name of room: "
-msgstr "Nome delle stanza:"
+msgstr "Nome delle stanza: "
 
 #: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
-msgstr "Appartiene al piano:"
+msgstr "Appartiene al piano: "
 
 #: ../../static/t/room/create.html:32
 msgid "Default view for room: "
-msgstr "Vista di default della stanza:"
+msgstr "Vista di default della stanza: "
 
 #: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
@@ -1860,7 +1859,7 @@ msgstr "Privata - nascosta (Accessibile solo a chi ne conosce il nome)"
 #: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
-msgstr "Privata - richiede password"
+msgstr "Privata - richiede password "
 
 #: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
@@ -3131,7 +3130,7 @@ msgstr "Conferma la cancellazione"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
 msgid "Are you sure you want to delete "
-msgstr "Sei sicuro di voler cancellare?"
+msgstr "Sei sicuro di voler cancellare? "
 
 #: ../../static/t/aide/display_ignetconf.html:4
 msgid "Network configuration"
@@ -3219,7 +3218,7 @@ msgstr "Aggiungi, modifica o cancella i piani"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:1
 msgid "Advanced server fine-tuning controls"
-msgstr "Controlli avanzati per la configurazione delle rifiniture "
+msgstr "Controlli avanzati per la configurazione delle rifiniture"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:5
 msgid "Server connection idle timeout (in seconds)"

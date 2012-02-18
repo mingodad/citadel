@@ -17,6 +17,10 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: ee\n"
+#: ../../auth.c:696
+#, c-format
+msgid "Current access level: %d (%s)\n"
+msgstr "Hetke juurdepääsutase: %d (%s)\n"
 
 #: ../../serv_func.c:192
 msgid ""
@@ -2032,7 +2036,7 @@ msgstr "Aeguvad sõnumi vanuse alusel"
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:75
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:94
 msgid "Number of messages or days: "
-msgstr "Sõnumite või päevade arv:"
+msgstr "Sõnumite või päevade arv: "
 
 #: ../../static/t/room/edit/tab_expire.html:36
 msgid "Message expire policy for this floor"
@@ -2044,7 +2048,7 @@ msgstr "Kasuta süsteemi vaikimisi seadeid"
 
 #: ../../static/t/room/edit/tab_share.html:5
 msgid "Shared with"
-msgstr "Jagatud "
+msgstr "Jagatud"
 
 #: ../../static/t/room/edit/tab_share.html:6
 msgid "Not shared with"
@@ -2663,7 +2667,7 @@ msgstr "(tule siia hiljem tagasi)"
 
 #: ../../static/t/menu/basic_commands.html:6
 msgid "oops! Back to "
-msgstr "uups! Tagasi"
+msgstr "uups! Tagasi "
 
 #: ../../static/t/menu/basic_commands.html:10
 msgid "...in this room"

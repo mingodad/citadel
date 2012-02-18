@@ -127,15 +127,15 @@ msgstr "Fecha"
 
 #: ../../wiki.c:182
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
-msgstr ""
+msgstr "(mostrar)"
 
 #: ../../wiki.c:211 ../../static/t/navbar.html:145
 msgid "Current version"
-msgstr ""
+msgstr "Versión actual"
 
 #: ../../wiki.c:223
 msgid "(revert)"
@@ -143,7 +143,7 @@ msgstr ""
 
 #: ../../wiki.c:300
 msgid "Page title"
-msgstr ""
+msgstr "Título de página"
 
 #: ../../notes.c:343
 msgid "Click on any note to edit it."
@@ -305,48 +305,52 @@ msgstr "Los cambios han sido salvados"
 
 #: ../../sieve.c:456
 msgid "A script by that name already exists."
-msgstr ""
+msgstr "Un script ya tiene este nombre."
 
 #: ../../sieve.c:467
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
 msgstr ""
+"Un nuevo script ha sido creado. Vuelva a la pantalla de edición de los "
+"scripts para editarlo y activarlo."
 
 #: ../../sieve.c:585 ../../static/t/menu/your_info.html:7
 #: ../../static/t/menu/your_info.html:8 ../../static/t/sieve/list.html:33
 #: ../../static/t/sieve/none.html:6
 msgid "View/edit server-side mail filters"
-msgstr ""
+msgstr "Ver/editar filtros de correo del lado del servidor"
 
 #: ../../sieve.c:598 ../../static/t/sieve/list.html:43
 msgid "When new mail arrives: "
-msgstr ""
+msgstr "Al llegar nuevos e-mails: "
 
 #: ../../sieve.c:602 ../../static/t/sieve/list.html:45
 msgid "Leave it in my inbox without filtering"
-msgstr ""
+msgstr "Dejarlos en mi bandeja de entrada sin filtrarlos"
 
 #: ../../sieve.c:606 ../../static/t/sieve/list.html:46
 msgid "Filter it according to rules selected below"
-msgstr ""
+msgstr "La filtración se hará según las reglas siguientes"
 
 #: ../../sieve.c:611 ../../static/t/sieve/list.html:47
 msgid "Filter it through a manually edited script (advanced users only)"
 msgstr ""
+"Filtrarlo mediante un script editado manualmente (sólo para los usuarios "
+"avanzados)"
 
 #: ../../sieve.c:622 ../../static/t/sieve/list.html:53
 msgid "Your incoming mail will not be filtered through any scripts."
-msgstr ""
+msgstr "Al llegar el correo, no se filtrará mediante ningún script."
 
 #: ../../sieve.c:637 ../../static/t/sieve/list.html:74
 msgid "The currently active script is: "
-msgstr ""
+msgstr "El script activo actualmente es: "
 
 #: ../../sieve.c:652 ../../sieve.c:714 ../../static/t/sieve/list.html:79
 #: ../../static/t/sieve/add.html:3
 msgid "Add or delete scripts"
-msgstr ""
+msgstr "Añadir o borrar scripts"
 
 #: ../../sieve.c:684 ../../sysmsgs.c:66 ../../vcard_edit.c:1215
 msgid "Save changes"
@@ -354,17 +358,19 @@ msgstr "Salvar cambios"
 
 #: ../../sieve.c:727 ../../static/t/sieve/add.html:10
 msgid "Add a new script"
-msgstr ""
+msgstr "Añadir un nuevo script"
 
 #: ../../sieve.c:730 ../../static/t/sieve/add.html:11
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
 msgstr ""
+"Para crear un nuevo script, entrar le nombre deseado para el script en la "
+"ventana abajo y pulsar \"Crear\"."
 
 #: ../../sieve.c:736 ../../static/t/sieve/add.html:15
 msgid "Script name: "
-msgstr ""
+msgstr "Nombre del script: "
 
 #: ../../sieve.c:739
 msgid "Create"
@@ -372,45 +378,47 @@ msgstr "Crear"
 
 #: ../../sieve.c:744 ../../static/t/sieve/add.html:19
 msgid "Edit scripts"
-msgstr ""
+msgstr "Editar scripts"
 
 #: ../../sieve.c:747 ../../static/t/sieve/add.html:21
 msgid "Return to the script editing screen"
-msgstr ""
+msgstr "Volver a la pantalla de edición de script"
 
 #: ../../sieve.c:754 ../../static/t/sieve/add.html:24
 msgid "Delete scripts"
-msgstr ""
+msgstr "Borrar scripts"
 
 #: ../../sieve.c:757 ../../static/t/sieve/add.html:25
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
 msgstr ""
+"Para borrar un script existente, seleccionar su nombre en la lista y pulsar "
+"\"Borrar\"."
 
 #: ../../sieve.c:781
 msgid "Delete script"
-msgstr ""
+msgstr "Borrar un script"
 
 #: ../../sieve.c:781
 msgid "Delete this script?"
-msgstr ""
+msgstr "¿Borrar este script?"
 
 #: ../../sieve.c:1002
 msgid "Move rule up"
-msgstr ""
+msgstr "Mover la regla hacia arriba"
 
 #: ../../sieve.c:1007
 msgid "Move rule down"
-msgstr ""
+msgstr "Mover la regla hacia abajo"
 
 #: ../../sieve.c:1012
 msgid "Delete rule"
-msgstr ""
+msgstr "Eliminar regla"
 
 #: ../../sieve.c:1020 ../../static/t/sieve/display_one.html:16
 msgid "If"
-msgstr ""
+msgstr "Si"
 
 #: ../../sieve.c:1023 ../../calendar_view.c:297 ../../calendar_view.c:958
 #: ../../calendar_view.c:1002 ../../calendar_view.c:1083
@@ -420,7 +428,7 @@ msgstr "De"
 
 #: ../../sieve.c:1024 ../../static/t/sieve/display_one.html:21
 msgid "To or Cc"
-msgstr ""
+msgstr "Para o CC"
 
 #: ../../sieve.c:1025 ../../calendar_view.c:759
 #: ../../static/t/msg_listview.html:9 ../../static/t/summary/header.html:42
@@ -430,7 +438,7 @@ msgstr "Asunto"
 
 #: ../../sieve.c:1026 ../../static/t/sieve/display_one.html:23
 msgid "Reply-to"
-msgstr ""
+msgstr "Responder-a"
 
 #: ../../sieve.c:1027 ../../smtpqueue.c:197
 #: ../../static/t/msg_listview.html:10 ../../static/t/summary/header.html:43
@@ -444,7 +452,7 @@ msgstr ""
 
 #: ../../sieve.c:1029 ../../static/t/sieve/display_one.html:26
 msgid "Resent-To"
-msgstr ""
+msgstr "Enviar a"
 
 #: ../../sieve.c:1030 ../../static/t/sieve/display_one.html:27
 msgid "Envelope From"
@@ -472,7 +480,7 @@ msgstr ""
 
 #: ../../sieve.c:1036 ../../static/t/sieve/display_one.html:33
 msgid "Message size"
-msgstr ""
+msgstr "Tamaño del mensaje"
 
 #: ../../sieve.c:1037 ../../static/t/select_messageindex_all.html:1
 #: ../../static/t/sieve/display_one.html:34
@@ -481,39 +489,39 @@ msgstr ""
 
 #: ../../sieve.c:1056 ../../static/t/sieve/display_one.html:41
 msgid "contains"
-msgstr ""
+msgstr "contiene"
 
 #: ../../sieve.c:1057 ../../static/t/sieve/display_one.html:42
 msgid "does not contain"
-msgstr ""
+msgstr "no contiene"
 
 #: ../../sieve.c:1058 ../../static/t/sieve/display_one.html:43
 msgid "is"
-msgstr ""
+msgstr "corresponde con"
 
 #: ../../sieve.c:1059 ../../static/t/sieve/display_one.html:44
 msgid "is not"
-msgstr ""
+msgstr "no es"
 
 #: ../../sieve.c:1060 ../../static/t/sieve/display_one.html:45
 msgid "matches"
-msgstr ""
+msgstr "coincide"
 
 #: ../../sieve.c:1061 ../../static/t/sieve/display_one.html:46
 msgid "does not match"
-msgstr ""
+msgstr "no coincide"
 
 #: ../../sieve.c:1081 ../../static/t/sieve/display_one.html:52
 msgid "(All messages)"
-msgstr ""
+msgstr "(Todos los mensajes)"
 
 #: ../../sieve.c:1085 ../../static/t/sieve/display_one.html:56
 msgid "is larger than"
-msgstr ""
+msgstr "es más grande que"
 
 #: ../../sieve.c:1086 ../../static/t/sieve/display_one.html:57
 msgid "is smaller than"
-msgstr ""
+msgstr "es más pequeño que"
 
 #: ../../sieve.c:1109 ../../static/t/sieve/display_one.html:65
 msgid "Keep"
@@ -521,11 +529,11 @@ msgstr ""
 
 #: ../../sieve.c:1110 ../../static/t/sieve/display_one.html:66
 msgid "Discard silently"
-msgstr ""
+msgstr "Descartar de manera silenciosa"
 
 #: ../../sieve.c:1111 ../../static/t/sieve/display_one.html:67
 msgid "Reject"
-msgstr ""
+msgstr "Rechazar"
 
 #: ../../sieve.c:1112 ../../static/t/sieve/display_one.html:68
 msgid "Move message to"
@@ -533,7 +541,7 @@ msgstr ""
 
 #: ../../sieve.c:1113 ../../static/t/sieve/display_one.html:69
 msgid "Forward to"
-msgstr ""
+msgstr "Reenviar a"
 
 #: ../../sieve.c:1114 ../../static/t/sieve/display_one.html:70
 msgid "Vacation"
@@ -541,15 +549,15 @@ msgstr ""
 
 #: ../../sieve.c:1151 ../../static/t/sieve/display_one.html:82
 msgid "Message:"
-msgstr ""
+msgstr "Mensaje:"
 
 #: ../../sieve.c:1161 ../../static/t/sieve/display_one.html:93
 msgid "continue processing"
-msgstr ""
+msgstr "seguir procesando"
 
 #: ../../sieve.c:1162 ../../static/t/sieve/display_one.html:94
 msgid "stop"
-msgstr ""
+msgstr "detener"
 
 #: ../../sieve.c:1165 ../../static/t/sieve/display_one.html:90
 msgid "and then"
@@ -563,9 +571,12 @@ msgstr ""
 #: ../../roomlist.c:388
 msgid "Higher access is required to access this function."
 msgstr ""
+"Para acceder a esta funcionalidad, se necesita tener un mayor nivel de "
+"acceso."
 
 #: ../../siteconfig.c:252
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../../siteconfig.c:314
@@ -661,7 +672,7 @@ msgstr "Blog"
 
 #: ../../tasks.c:93
 msgid "Completed?"
-msgstr ""
+msgstr "¿Terminado?"
 
 #: ../../tasks.c:95
 msgid "Name of task"
@@ -673,7 +684,7 @@ msgstr "Fecha coclusión"
 
 #: ../../tasks.c:99
 msgid "Category"
-msgstr ""
+msgstr "Categoría"
 
 #: ../../tasks.c:101
 msgid "Show All"
@@ -694,15 +705,15 @@ msgstr "Fecha de inicio"
 
 #: ../../tasks.c:261 ../../tasks.c:291
 msgid "No date"
-msgstr ""
+msgstr "Sin fecha"
 
 #: ../../tasks.c:265 ../../tasks.c:294
 msgid "or"
-msgstr ""
+msgstr "o"
 
 #: ../../tasks.c:279 ../../tasks.c:308
 msgid "Time associated"
-msgstr ""
+msgstr "Tiempo asociado"
 
 #: ../../tasks.c:283
 msgid "Due date:"
@@ -710,11 +721,11 @@ msgstr "Fecha finalización"
 
 #: ../../tasks.c:312
 msgid "Completed:"
-msgstr ""
+msgstr "Completado:"
 
 #: ../../tasks.c:323
 msgid "Category:"
-msgstr ""
+msgstr "Categoría:"
 
 #: ../../tasks.c:333 ../../calendar.c:165 ../../static/t/files.html:12
 msgid "Description:"
@@ -792,8 +803,8 @@ msgstr ""
 "servidor de la lista te ha enviado un email con un link web  y debe pulsarlo "
 "par confirmar su suscripción.  Esta medida se toma por su seguridad, de "
 "forma que se impida a otros suscribirle  sin su consentimiento.<br><br />Por "
-"favor, pulse en el link que se le ha enviadoy su suscripción será activada."
-"<br>\n"
+"favor, pulse en el link que se le ha enviadoy su suscripción será "
+"activada.<br>\n"
 
 #: ../../listsub.c:101
 msgid "Go back..."
@@ -988,7 +999,7 @@ msgstr "Esta libreta de direcciones está vacía."
 
 #: ../../vcard_edit.c:793
 msgid "An internal error has occurred."
-msgstr ""
+msgstr "Un error interno ocurrió."
 
 #: ../../vcard_edit.c:944
 msgid "Error"
@@ -1060,11 +1071,11 @@ msgstr "Teléfono del trabajo"
 
 #: ../../vcard_edit.c:1170
 msgid "Mobile telephone:"
-msgstr ""
+msgstr "Teléfono móvil:"
 
 #: ../../vcard_edit.c:1176
 msgid "Fax number:"
-msgstr ""
+msgstr "Número de fax:"
 
 #: ../../vcard_edit.c:1187
 msgid "Primary Internet e-mail address"
@@ -1076,15 +1087,15 @@ msgstr "Alias de email"
 
 #: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
-msgstr ""
+msgstr "Imposible entrar en la sala para guardar el mensaje"
 
 #: ../../vcard_edit.c:1265
 msgid "Aborting."
-msgstr ""
+msgstr "Abortando."
 
 #: ../../vcard_edit.c:1396
 msgid "Could Not decode vcard photo\n"
-msgstr ""
+msgstr "No se pudo descodificar vcard foto\n"
 
 #: ../../roomops.c:877
 #, c-format
@@ -1831,7 +1842,7 @@ msgstr "Nivel al que pertenece: "
 
 #: ../../static/t/room/create.html:32
 msgid "Default view for room: "
-msgstr "Vista por defecto para esta sala"
+msgstr "Vista por defecto para esta sala "
 
 #: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
@@ -1851,7 +1862,7 @@ msgstr "Privada - oculta (accesible solo a quienes conocen su nombre)"
 #: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
-msgstr "Privada - se requiere contraseña:"
+msgstr "Privada - se requiere contraseña: "
 
 #: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
@@ -2880,6 +2891,9 @@ msgid ""
 "filtering.<br>Please contact your system administrator if you require this "
 "feature.<br>"
 msgstr ""
+"Esta instalación de Citadel viene construida sin soporte para la filtración "
+"de correo server-side.<br>Contacte al administrador de su sistema si "
+"requiere esta funcionalidad.<br>"
 
 #: ../../static/t/sieve/display_one.html:59
 #, fuzzy

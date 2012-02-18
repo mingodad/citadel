@@ -41,6 +41,11 @@ const char *AvailLang[] = {
 	"pt_BR",
 	"ru_RU",
 	"zh_CN",
+ 	"he_IL",
+	"kk_KK",
+	"ro_RO",
+	"sl_SL",
+	"tr_TR",
 	""
 };
 

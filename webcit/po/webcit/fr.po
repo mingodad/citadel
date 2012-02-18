@@ -136,11 +136,11 @@ msgstr ""
 
 #: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
-msgstr ""
+msgstr "(montrer)"
 
 #: ../../wiki.c:211 ../../static/t/navbar.html:145
 msgid "Current version"
-msgstr ""
+msgstr "Version actuelle"
 
 #: ../../wiki.c:223
 msgid "(revert)"
@@ -181,7 +181,7 @@ msgstr ""
 
 #: ../../iconbar.c:328
 msgid "Iconbar Setting"
-msgstr ""
+msgstr "Options de la barre d'icônes"
 
 #: ../../calendar_tools.c:100
 msgid "Hour: "
@@ -290,7 +290,7 @@ msgstr "OCCUPÉ(E)"
 
 #: ../../bbsview_renderer.c:316
 msgid "Go to page: "
-msgstr ""
+msgstr "Aller à la page : "
 
 #: ../../bbsview_renderer.c:353
 msgid "First"
@@ -1841,16 +1841,16 @@ msgstr "Créer un nouveau salon"
 
 #: ../../static/t/room/create.html:18
 msgid "Name of room: "
-msgstr "Nom du salon :"
+msgstr "Nom du salon : "
 
 #: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
-msgstr "Réside sur le palier :"
+msgstr "Réside sur le palier : "
 
 #: ../../static/t/room/create.html:32
 msgid "Default view for room: "
-msgstr "Vue par défaut de ce salon :"
+msgstr "Vue par défaut de ce salon : "
 
 #: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
@@ -1870,7 +1870,7 @@ msgstr "Privé - caché (accessible à quiconque connaît son nom)"
 #: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
-msgstr "Privé - le mot de passe est requis :"
+msgstr "Privé - le mot de passe est requis : "
 
 #: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
@@ -2006,8 +2006,8 @@ msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
 msgstr ""
-"Récupérer les messages de comptes POP3 distants et les stocker dans ce "
-"salon :"
+"Récupérer les messages de comptes POP3 distants et les stocker dans ce salon "
+":"
 
 #: ../../static/t/room/edit/tab_feed.html:12
 msgid "Remote host"
@@ -2098,11 +2098,11 @@ msgstr "Expiration des messages en fonction de l'âge"
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:75
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:94
 msgid "Number of messages or days: "
-msgstr "Nombre de messages ou de jours :"
+msgstr "Nombre de messages ou de jours : "
 
 #: ../../static/t/room/edit/tab_expire.html:36
 msgid "Message expire policy for this floor"
-msgstr "Règles d'expiration des messages de ce palier "
+msgstr "Règles d'expiration des messages de ce palier"
 
 #: ../../static/t/room/edit/tab_expire.html:42
 msgid "Use the system default"
@@ -2171,7 +2171,7 @@ msgstr "Usagers actuellement dans "
 msgid "Click on a name to read user info.  Click on"
 msgstr ""
 "Cliquez sur l'identifiant pour lire les informations publiques de l'usager. "
-"Cliquer sur "
+"Cliquer sur"
 
 #: ../../static/t/who.html:24
 msgid "to send an instant message to that user."
@@ -2470,7 +2470,7 @@ msgstr "Personnalisation du menu"
 
 #: ../../static/t/iconbar/edit.html:11
 msgid "Display icons as:"
-msgstr "Afficher les entrées du menu comme: "
+msgstr "Afficher les entrées du menu comme:"
 
 #: ../../static/t/iconbar/edit.html:12
 msgid "pictures and text"
@@ -2796,7 +2796,7 @@ msgstr "Poser votre portrait"
 
 #: ../../static/t/menu/your_info.html:9
 msgid "Edit your push email settings"
-msgstr "Éditer les paramètres pour faire suivre les courriels. "
+msgstr "Éditer les paramètres pour faire suivre les courriels."
 
 #: ../../static/t/menu/your_info.html:10
 #, fuzzy
@@ -2964,7 +2964,7 @@ msgstr ""
 "Si votre administrateur a installé cette fonctionnalité, Citadel peut "
 "notifie à un serveur Funambol que vous avez reçu des nouveaux courrier et "
 "permettre la synchronisation automatique avec n'importe quel périphérique où "
-"un client Funambol est installé. "
+"un client Funambol est installé."
 
 #: ../../static/t/prefs/pushemail.html:20
 msgid ""
@@ -3713,7 +3713,7 @@ msgstr "Salons et paliers"
 
 #: ../../static/t/aide/edituser/detailview.html:4
 msgid "Edit user account: "
-msgstr "Modifier ce compte :"
+msgstr "Modifier ce compte : "
 
 #: ../../static/t/aide/edituser/detailview.html:28
 msgid "Permission to send Internet mail"
@@ -3778,7 +3778,7 @@ msgstr ""
 
 #: ../../static/t/aide/edituser/add.html:5
 msgid "New user: "
-msgstr "Nouvel usager :"
+msgstr "Nouvel usager : "
 
 #: ../../static/t/aide/display_sitewide_config.html:3
 msgid "Site configuration"
