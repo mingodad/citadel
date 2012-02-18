@@ -1,0 +1,11 @@
+<tr>
+<td><a href="javascript:DeleteSMTPqueueMsg(<?MAILQ:PAYLOAD:ID>,<?MAILQ:ID>);"><?_("(Delete)")></a><br>
+<?MAILQ:ID></td>
+<td><?MAILQ:SUBMITTED></td>
+<td><?MAILQ:RETRY></td>
+<td><?MAILQ:BOUNCETO()><br><?MAILQ:ENVELOPEFROM()></td>
+
+<td><table class="mailstatus">
+<?ITERATE("MAILQ:RCPT", ="view_mailq_recipient")>
+</table></td>
+</tr>

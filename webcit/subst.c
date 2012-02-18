@@ -111,6 +111,8 @@ const char *CtxNames[]  = {
 	"Context VCARD",
 	"Context SIEVE List",
 	"Context SIEVE Script",
+	"Context MailQ-Item",
+	"Context MailQ-Recipient",
 	"Context UNKNOWN"
 };
 

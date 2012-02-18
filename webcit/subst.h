@@ -62,8 +62,10 @@ enum {
 #define CTX_VCARD 21
 #define CTX_SIEVELIST 22
 #define CTX_SIEVESCRIPT 23
+#define CTX_MAILQITEM 24
+#define CTX_MAILQ_RCPT 25
 
-#define CTX_UNKNOWN 24
+#define CTX_UNKNOWN 25
 
 
 /**

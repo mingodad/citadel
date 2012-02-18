@@ -738,6 +738,14 @@ ul.adminitems li {
 
 ul.adminitems li span {	display: block }
 
+/* Mailq */
+table.mailstatus {background-color: lightgray }
+td.mailstatus_0 {background-color: gray }
+td.mailstatus_1 {background-color: gray }
+td.mailstatus_2 {background-color: green }
+td.mailstatus_3 {background-color: orange }
+td.mailstatus_4 {background-color: yellow }
+td.mailstatus_5 {background-color: red }
 
 /* Room list - Tree Node */
 
