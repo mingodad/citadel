@@ -1367,59 +1367,83 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 	return 1;
 }
 
-/* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */
-void new_summary_view(void) {
-	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
-}
-
 
 int mailview_GetParamsGetServerCall(SharedMessageStatus *Stat, 
 				    void **ViewSpecific, 
 				    long oper, 
 				    char *cmd, 
-				    long len)
+				    long len,
+				    char *filter,
+				    long flen)
 {
-	if (!WC->is_ajax) {
-		new_summary_view();
-		return 200;
-	} else {
-		Stat->defaultsortorder = 2;
-		Stat->sortit = 1;
-		Stat->load_seen = 1;
-		/* Generally using maxmsgs|startmsg is not required
-		   in mailbox view, but we have a 'safemode' for clients
-		   (*cough* Exploder) that simply can't handle too many */
-		if (havebstr("maxmsgs"))  Stat->maxmsgs  = ibstr("maxmsgs");
-		else                      Stat->maxmsgs  = 9999999;
-		if (havebstr("startmsg")) Stat->startmsg = lbstr("startmsg");
-		snprintf(cmd, len, "MSGS %s|%s||1",
-			 (oper == do_search) ? "SEARCH" : "ALL",
-			 (oper == do_search) ? bstr("query") : ""
-			);
-	}
+	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
+
 	return 200;
-}
-
-int mailview_RenderView_or_Tail(SharedMessageStatus *Stat, 
-				void **ViewSpecific, 
-				long oper)
-{
-	WCTemplputParams SubTP;
-
-	if (WC->is_ajax)
-		DoTemplate(HKEY("mailsummary_json"),NULL, &SubTP);
-	
-	return 0;
 }
 
 int mailview_Cleanup(void **ViewSpecific)
 {
 	/* Note: wDumpContent() will output one additional </div> tag. */
 	/* We ought to move this out into template */
-	if (WC->is_ajax)
-		end_burst();
-	else
-		wDumpContent(1);
+	wDumpContent(1);
+
+	return 0;
+}
+
+
+int json_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+				void **ViewSpecific, 
+				long oper, 
+				char *cmd, 
+				long len,
+				char *filter,
+				long flen)
+{
+	Stat->defaultsortorder = 2;
+	Stat->sortit = 1;
+	Stat->load_seen = 1;
+	/* Generally using maxmsgs|startmsg is not required
+	   in mailbox view, but we have a 'safemode' for clients
+	   (*cough* Exploder) that simply can't handle too many */
+	if (havebstr("maxmsgs"))  Stat->maxmsgs  = ibstr("maxmsgs");
+	else                      Stat->maxmsgs  = 9999999;
+	if (havebstr("startmsg")) Stat->startmsg = lbstr("startmsg");
+	snprintf(cmd, len, "MSGS %s|%s||1",
+		 (oper == do_search) ? "SEARCH" : "ALL",
+		 (oper == do_search) ? bstr("query") : ""
+		);
+
+	return 200;
+}
+int json_MessageListHdr(SharedMessageStatus *Stat, void **ViewSpecific) 
+{
+	/* TODO: make a generic function */
+	hprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("Content-type: application/json; charset=utf-8\r\n");
+	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
+	hprintf("Connection: close\r\n");
+	hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
+	begin_burst();
+	return 0;
+}
+
+int json_RenderView_or_Tail(SharedMessageStatus *Stat, 
+			    void **ViewSpecific, 
+			    long oper)
+{
+	WCTemplputParams SubTP;
+
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
+	DoTemplate(HKEY("mailsummary_json"),NULL, &SubTP);
+	
+	return 0;
+}
+
+int json_Cleanup(void **ViewSpecific)
+{
+	/* Note: wDumpContent() will output one additional </div> tag. */
+	/* We ought to move this out into template */
+	end_burst();
 
 	return 0;
 }
@@ -1434,10 +1458,21 @@ InitModule_MSGRENDERERS
 		VIEW_MAILBOX,
 		mailview_GetParamsGetServerCall,
 		NULL, /* TODO: is this right? */
+		NULL,
 		ParseMessageListHeaders_Detail,
 		NULL,
-		mailview_RenderView_or_Tail,
+		NULL,
 		mailview_Cleanup);
+
+	RegisterReadLoopHandlerset(
+		VIEW_JSON_LIST,
+		json_GetParamsGetServerCall,
+		json_MessageListHdr,
+		NULL, /* TODO: is this right? */
+		ParseMessageListHeaders_Detail,
+		NULL,
+		json_RenderView_or_Tail,
+		json_Cleanup);
 
 	RegisterSortFunc(HKEY("date"), 
 			 NULL, 0,
@@ -1540,8 +1575,6 @@ InitModule_MSGRENDERERS
 	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain, 1, 1);
 	RegisterMimeRenderer(HKEY("text/html"), render_MAIL_html, 1, 100);
 	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN, 0, 0);
-	/* and finalize the anouncement to the server... */
-	CreateMimeStr();
 
 	/* these headers are citserver replies to MSG4 and friends. one evaluator for each */
 	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);
@@ -1572,6 +1605,13 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("path"), examine_path, 0);
 }
 
+void 
+InitModule2_MSGRENDERERS
+(void)
+{
+	/* and finalize the anouncement to the server... */
+	CreateMimeStr();
+}
 void 
 ServerStartModule_MSGRENDERERS
 (void)

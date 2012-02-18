@@ -147,7 +147,8 @@ typedef struct _SharedMessageStatus {
 
 } SharedMessageStatus;
 
-int load_msg_ptrs(const char *servcmd, 
+int load_msg_ptrs(const char *servcmd,
+		  const char *filter,
 		  SharedMessageStatus *Stat, 
 		  load_msg_ptrs_detailheaders LH);
 
@@ -155,7 +156,9 @@ typedef int (*GetParamsGetServerCall_func)(SharedMessageStatus *Stat,
 					   void **ViewSpecific, 
 					   long oper, 
 					   char *cmd, 
-					   long len);
+					   long len,
+					   char *filter,
+					   long flen);
 
 typedef int (*PrintViewHeader_func)(SharedMessageStatus *Stat, void **ViewSpecific);
 
@@ -187,6 +190,13 @@ void RegisterReadLoopHandlerset(
 	 *  * influence the behaviour by presetting values on SharedMessageStatus
 	 */
 	GetParamsGetServerCall_func GetParamsGetServerCall,
+
+	/**
+	 * PrintpageHeader prints the surrounding information like iconbar, header etc.
+	 * by default, output_headers() is called.
+	 *
+	 */
+	PrintViewHeader_func PrintPageHeader,
 
 	/**
 	 * PrintViewHeader is here to print informations infront of your messages.
@@ -245,3 +255,14 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 
 
 
+/**
+ * @brief function to register the availability to render a specific message
+ * @param HeaderName Mimetype we know howto display
+ * @param HdrNLen length...
+ * @param InlineRenderable Should we announce to citserver that we want to receive these mimeparts immediately?
+ * @param Priority if multipart/alternative; which mimepart/Renderer should be prefered? (only applies if InlineRenderable)
+ */
+void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, 
+			  RenderMimeFunc MimeRenderer,
+			  int InlineRenderable,
+			  int Priority);

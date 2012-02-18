@@ -720,7 +720,9 @@ int tasks_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				 void **ViewSpecific, 
 				 long oper, 
 				 char *cmd, 
-				 long len)
+				 long len,
+				 char *filter,
+				 long flen)
 {
 	strcpy(cmd, "MSGS ALL");
 	Stat->maxmsgs = 32767;
@@ -745,6 +747,7 @@ InitModule_TASKS
 	RegisterReadLoopHandlerset(
 		VIEW_TASKS,
 		tasks_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		NULL,
 		tasks_LoadMsgFromServer,

@@ -365,13 +365,37 @@ int ConditionalHavewikiType(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+int wiki_PrintHeaderPage(SharedMessageStatus *Stat, void **ViewSpecific)
+{
+	/* this function was intentionaly left empty. */
+	return 0;
+}
+
+int wiki_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+				void **ViewSpecific, 
+				long oper, 
+				char *cmd, 
+				long len,
+				char *filter,
+				long flen)
+{
+	if (oper == do_search)
+		display_wiki_pagelist();
+	else 
+		http_redirect("wiki?page=home");
+
+	return 300;
+}
+
+
 void 
 InitModule_WIKI
 (void)
 {
 	RegisterReadLoopHandlerset(
 		VIEW_WIKI,
-		NULL,
+		wiki_GetParamsGetServerCall,
+		wiki_PrintHeaderPage,
 		NULL,
 		NULL,
 		NULL,

@@ -104,7 +104,9 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				   void **ViewSpecific, 
 				   long oper, 
 				   char *cmd, 
-				   long len)
+				    long len,
+				    char *filter,
+				    long flen)
 {
 	HashList *BLOG = NewHash(1, NULL);
 	*ViewSpecific = BLOG;
@@ -344,6 +346,7 @@ InitModule_BLOGVIEWRENDERERS
 	RegisterReadLoopHandlerset(
 		VIEW_BLOG,
 		blogview_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		NULL, 
 		blogview_LoadMsgFromServer,

@@ -62,7 +62,9 @@ int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				    void **ViewSpecific, 
 				    long oper, 
 				    char *cmd, 
-				    long len);
+				    long len,
+				    char *filter,
+				    long flen);
 
 int calendar_Cleanup(void **ViewSpecific);
 int __calendar_Cleanup(void **ViewSpecific);

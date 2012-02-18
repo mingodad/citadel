@@ -915,6 +915,7 @@ InitModule_CALENDAR
 		calendar_GetParamsGetServerCall,
 		NULL,
 		NULL,
+		NULL,
 		calendar_LoadMsgFromServer,
 		calendar_RenderView_or_Tail,
 		calendar_Cleanup);
@@ -922,6 +923,7 @@ InitModule_CALENDAR
 	RegisterReadLoopHandlerset(
 		VIEW_CALBRIEF,
 		calendar_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		NULL,
 		calendar_LoadMsgFromServer,

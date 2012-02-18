@@ -34,6 +34,7 @@ rm -f $C_FILE $H_FILE
 # server lifetime:
 START_FUNCS=`grep ServerStartModule_ *.c |sed "s;.*:;;" |sort -u`
 INIT_FUNCS=`grep InitModule_ *.c |sed "s;.*:;;" |sort -u`
+INIT2_FUNCS=`grep InitModule2_ *.c |sed "s;.*:;;" |sort -u`
 FINALIZE_FUNCS=`grep FinalizeModule_ *.c |sed "s;.*:;;" |sort -u`
 SHUTDOWN_FUNCS=`grep ServerShutdownModule_ *.c |sed "s;.*:;;" |sort -u`
 
@@ -68,6 +69,7 @@ extern size_t nSizErrmsg;
  * server lifetime: 
  */
 void initialise_modules (void);
+void initialise2_modules (void);
 void start_modules (void);
 void shutdown_modules (void);
 
@@ -197,6 +199,36 @@ extern void $HOOK(void);
 EOF
 done
 
+#********************************************************************************
+# server module  ******** initialisation ********  second stage.
+#********************************************************************************
+cat <<EOF >> $H_FILE
+
+/* Server Init Hooks: */
+EOF
+
+cat <<EOF  >>$C_FILE
+}
+
+
+void initialise2_modules (void)
+{
+
+EOF
+for HOOK in $INIT2_FUNCS; do
+    HOOKNAME=`echo $HOOK |sed "s;InitModule2_;;"`
+# Add this entry point to the .c file
+    cat <<EOF >> $C_FILE
+#ifdef DBG_PRINNT_HOOKS_AT_START
+	syslog(CTDL_INFO, "Initializing $HOOKNAME\n");
+#endif
+	$HOOK();
+EOF
+# Add this entry point to the .h file
+    cat <<EOF >> $H_FILE
+extern void $HOOK(void);
+EOF
+done
 
 
 

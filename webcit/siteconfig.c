@@ -209,6 +209,7 @@ CfgMapping ServerConfig[] = {
 };
 
 
+
 /*
  *  display all configuration items
  */
@@ -218,7 +219,7 @@ void load_siteconfig(void)
 	StrBuf *Buf;
 	HashList *Cfg;
 	long len;
-	int i;
+	int i, j;
 	
 	if (WCC->ServCfg == NULL)
 		WCC->ServCfg = NewHash(1, NULL);
@@ -233,39 +234,28 @@ void load_siteconfig(void)
 		AppendImportantMessage(SKEY(Buf));
 		FreeStrBuf(&Buf);
 		return;
+		
 	}
-
-	i = 0;
+	j = i = 0;
 	while (len = StrBuf_ServGetln(Buf),
-		(len >= 0)
-		&& (i < (sizeof(ServerConfig) / sizeof(CfgMapping)))
-		&& ((len != 3) || strcmp(ChrPtr(Buf), "000"))
-	) {
-		Put(Cfg,
-			ServerConfig[i].Key, 
-			ServerConfig[i].len, 
-			Buf, 
-			HFreeStrBuf
-		);
-		i++;
-		if (i <= sizeof(ServerConfig) / sizeof(CfgMapping)) {
+	       (len >= 0) && 
+	       ((len != 3) || strcmp(ChrPtr(Buf), "000")))
+	{
+		if (i < (sizeof(ServerConfig) / sizeof(CfgMapping)))
+		{
+			Put(Cfg,
+			    ServerConfig[i].Key, 
+			    ServerConfig[i].len, 
+			    Buf, 
+			    HFreeStrBuf);
+			i++;
 			Buf = NewStrBuf();
 		}
 		else {
-			Buf = NULL;
+			if (j == 0)
+				AppendImportantMessage(_("WARNING: Failed to parse Server Config; do you run a to new citserver?"), -1);
+			j++;
 		}
-	}
-
-	if (strcmp(ChrPtr(Buf), "000") != 0)
-	{
-		/* Discard config lines which we don't yet support */
-		while (	(len = StrBuf_ServGetln(Buf),
-			strcmp(ChrPtr(Buf), "000"))
-		) {
-		}
-		AppendImportantMessage(_("WARNING: Failed to parse Server Config; do you run a to new citserver?"), -1);
-		FreeStrBuf(&Buf);
-		return;
 	}
 	FreeStrBuf(&Buf);
 

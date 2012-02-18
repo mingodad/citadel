@@ -250,6 +250,7 @@ int main(int argc, char **argv)
 	/* initialize various subsystems */
 
 	initialise_modules();
+	initialise2_modules();
 	InitTemplateCache();
 	if (DumpTemplateI18NStrings) {
 		FILE *fd;

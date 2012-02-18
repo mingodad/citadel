@@ -529,7 +529,8 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
  *
  * servcmd:		the citadel command to send to the citserver
  */
-int load_msg_ptrs(const char *servcmd, 
+int load_msg_ptrs(const char *servcmd,
+		  const char *filter,
 		  SharedMessageStatus *Stat, 
 		  load_msg_ptrs_detailheaders LH)
 {
@@ -540,6 +541,7 @@ int load_msg_ptrs(const char *servcmd,
 	int n;
 	int skipit;
 	const char *Ptr = NULL;
+	int StatMajor;
 
 	Stat->lowest_found = LONG_MAX;
 	Stat->highest_found = LONG_MIN;
@@ -552,7 +554,21 @@ int load_msg_ptrs(const char *servcmd,
 	Buf = NewStrBuf();
 	serv_puts(servcmd);
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 1) {
+	StatMajor = GetServerStatus(Buf, NULL);
+	switch (StatMajor) {
+	case 1:
+		break;
+	case 8:
+		if (filter != NULL) {
+			serv_puts(filter);
+                        serv_puts("000");
+			break;
+		}
+		/* fall back to empty filter in case of we were fooled... */
+		serv_puts("");
+		serv_puts("000");
+		break;
+	default:
 		FreeStrBuf(&Buf);
 		return (Stat->nummsgs);
 	}
@@ -672,6 +688,8 @@ typedef struct _RoomRenderer{
 	int RoomType;
 
 	GetParamsGetServerCall_func GetParamsGetServerCall;
+	
+	PrintViewHeader_func PrintPageHeader;
 	PrintViewHeader_func PrintViewHeader;
 	LoadMsgFromServer_func LoadMsgFromServer;
 	RenderView_or_Tail_func RenderView_or_Tail;
@@ -692,6 +710,7 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	void *vMsg;
 	message_summary *Msg;
 	char cmd[256] = "";
+	char filter[256] = "";
 	int i, r;
 	wcsession *WCC = WC;
 	HashPos *at;
@@ -705,18 +724,8 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		WCC->CurRoom.view = VIEW_MAILBOX;
 	}
 
-	if (havebstr("is_ajax") && (1 == (ibstr("is_ajax")))) {
-		WCC->is_ajax = 1;
-	}
-
-	if ((oper == do_search) && (WCC->CurRoom.view == VIEW_WIKI)) {
-		display_wiki_pagelist();
-		return;
-	}
-
-	if (WCC->CurRoom.view == VIEW_WIKI) {
-		http_redirect("wiki?page=home");
-		return;
+	if (havebstr("view")) {
+		WCC->CurRoom.view = ibstr("view");
 	}
 
 	memset(&Stat, 0, sizeof(SharedMessageStatus));
@@ -736,22 +745,23 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	}
 
 	ViewMsg = (RoomRenderer*) vViewMsg;
-	if (!WCC->is_ajax) {
+	if (ViewMsg->PrintPageHeader == NULL)
 		output_headers(1, 1, 1, 0, 0, 0);
-	} else if (WCC->CurRoom.view == VIEW_MAILBOX) {
-		jsonMessageListHdr();
-	}
+	else 
+		ViewMsg->PrintPageHeader(&Stat, ViewSpecific);
 
 	if (ViewMsg->GetParamsGetServerCall != NULL) {
 		r = ViewMsg->GetParamsGetServerCall(
 		       &Stat,
 		       &ViewSpecific,
 		       oper,
-		       cmd, sizeof(cmd)
+		       cmd, sizeof(cmd),
+		       filter, sizeof(filter)
 		);
 	} else {
 		r = 0;
 	}
+
 	switch(r)
 	{
 	case 400:
@@ -764,8 +774,12 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	default:
 		break;
 	}
-	if (!IsEmptyStr(cmd))
-		Stat.nummsgs = load_msg_ptrs(cmd, &Stat, ViewMsg->LHParse);
+	if (!IsEmptyStr(cmd)) {
+		const char *p = NULL;
+		if (!IsEmptyStr(filter))
+			p = filter;
+		Stat.nummsgs = load_msg_ptrs(cmd, p, &Stat, ViewMsg->LHParse);
+	}
 
 	if (Stat.sortit) {
 		CompareFunc SortIt;
@@ -1894,31 +1908,23 @@ void h_do_search(void) { readloop(do_search, eUseDefault);}
 void h_readgt(void) { readloop(readgt, eUseDefault);}
 void h_readlt(void) { readloop(readlt, eUseDefault);}
 
-void jsonMessageListHdr(void) 
-{
-	/* TODO: make a generic function */
-	hprintf("HTTP/1.1 200 OK\r\n");
-	hprintf("Content-type: application/json; charset=utf-8\r\n");
-	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-	hprintf("Connection: close\r\n");
-	hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
-	begin_burst();
-}
 
 
 /* Output message list in JSON format */
 void jsonMessageList(void) {
+	StrBuf *View = NewStrBuf();
 	const StrBuf *room = sbstr("room");
 	long oper = (havebstr("query")) ? do_search : readnew;
-	WC->is_ajax = 1; 
+	StrBufPrintf(View, "%d", VIEW_JSON_LIST);
+	putbstr("view", View);; 
 	gotoroom(room);
 	readloop(oper, eUseDefault);
-	WC->is_ajax = 0;
 }
 
 void RegisterReadLoopHandlerset(
 	int RoomType,
 	GetParamsGetServerCall_func GetParamsGetServerCall,
+	PrintViewHeader_func PrintPageHeader,
 	PrintViewHeader_func PrintViewHeader,
 	load_msg_ptrs_detailheaders LH,
 	LoadMsgFromServer_func LoadMsgFromServer,
@@ -1932,6 +1938,7 @@ void RegisterReadLoopHandlerset(
 
 	Handler->RoomType = RoomType;
 	Handler->GetParamsGetServerCall = GetParamsGetServerCall;
+	Handler->PrintPageHeader = PrintPageHeader;
 	Handler->PrintViewHeader = PrintViewHeader;
 	Handler->LoadMsgFromServer = LoadMsgFromServer;
 	Handler->RenderView_or_Tail = RenderView_or_Tail;

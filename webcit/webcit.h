@@ -487,7 +487,6 @@ struct wcsession {
 	time_t lastreq;				/* Timestamp of most recent HTTP */
 	time_t last_pager_check;		/* last time we polled for instant msgs */
 	ServInfo *serv_info;			/* Information about the citserver we're connected to */
-	int is_ajax;                            /* are we doing an ajax request? */
 	StrBuf *PushedDestination;		/* Where to go after login, registration, etc. */
 
 /* Request local Members */

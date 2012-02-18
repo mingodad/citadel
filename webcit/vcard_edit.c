@@ -1417,7 +1417,9 @@ int vcard_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				 void **ViewSpecific, 
 				 long oper, 
 				 char *cmd, 
-				 long len)
+				 long len,
+				 char *filter,
+				 long flen)
 {
 	vcardview_struct *VS;
 
@@ -1513,6 +1515,7 @@ InitModule_VCARD
 	RegisterReadLoopHandlerset(
 		VIEW_ADDRESSBOOK,
 		vcard_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		NULL, 
 		vcard_LoadMsgFromServer,

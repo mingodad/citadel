@@ -86,10 +86,12 @@ extern int ParseMessageListHeaders_EUID(StrBuf *Line,
 				 StrBuf *ConversionBuffer);
 
 extern int DavUIDL_GetParamsGetServerCall(SharedMessageStatus *Stat, 
-				    void **ViewSpecific, 
-				    long oper, 
-				    char *cmd, 
-				    long len);
+					  void **ViewSpecific, 
+					  long oper, 
+					  char *cmd, 
+					  long len,
+					  char *filter,
+					  long flen);
 
 extern int DavUIDL_RenderView_or_Tail(SharedMessageStatus *Stat, 
 				void **ViewSpecific, 
@@ -106,6 +108,7 @@ InitModule_REPORT
 	RegisterReadLoopHandlerset(
 		eReadEUIDS,
 		DavUIDL_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		ParseMessageListHeaders_EUID,
 		NULL,

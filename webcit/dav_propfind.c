@@ -782,10 +782,12 @@ int ParseMessageListHeaders_EUID(StrBuf *Line,
 }
 
 int DavUIDL_GetParamsGetServerCall(SharedMessageStatus *Stat, 
-				    void **ViewSpecific, 
-				    long oper, 
-				    char *cmd, 
-				    long len)
+				   void **ViewSpecific, 
+				   long oper, 
+				   char *cmd, 
+				   long len,
+				   char *filter,
+				   long flen)
 {
 	Stat->defaultsortorder = 0;
 	Stat->sortit = 0;
@@ -825,6 +827,7 @@ InitModule_PROPFIND
 	RegisterReadLoopHandlerset(
 		eReadEUIDS,
 		DavUIDL_GetParamsGetServerCall,
+		NULL,
 		NULL, /// TODO: is this right?
 		ParseMessageListHeaders_EUID,
 		NULL, //// ""

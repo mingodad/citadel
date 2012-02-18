@@ -81,7 +81,9 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				   void **ViewSpecific, 
 				   long oper, 
 				   char *cmd, 
-				   long len)
+				   long len,
+				   char *filter,
+				   long flen)
 {
 	struct bbsview *BBS = malloc(sizeof(struct bbsview));
 	memset(BBS, 0, sizeof(struct bbsview));
@@ -416,6 +418,7 @@ InitModule_BBSVIEWRENDERERS
 	RegisterReadLoopHandlerset(
 		VIEW_BBS,
 		bbsview_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		NULL, 
 		bbsview_LoadMsgFromServer,

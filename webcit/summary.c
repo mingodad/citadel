@@ -117,7 +117,7 @@ void tasks_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", &Stat, NULL);
+		num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
 	}
 
 	if (num_msgs > 0) {
@@ -142,6 +142,7 @@ void tasks_section(void) {
  */
 void calendar_section(void) {
 	char cmd[SIZ];
+	char filter[SIZ];
 	int num_msgs = 0;
 	HashPos *at;
 	const char *HashKey;
@@ -165,13 +166,16 @@ void calendar_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", &Stat, NULL);
+		num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
 	}
 	calendar_GetParamsGetServerCall(&Stat, 
 					&v,
 					readnew, 
 					cmd, 
-					sizeof(cmd));
+					sizeof(cmd),
+					filter,
+					sizeof(filter));
+
 
 	if (num_msgs > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
