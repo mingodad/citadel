@@ -17,10 +17,6 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: ee\n"
-#: ../../auth.c:696
-#, c-format
-msgid "Current access level: %d (%s)\n"
-msgstr "Hetke juurdepääsutase: %d (%s)\n"
 
 #: ../../serv_func.c:192
 msgid ""
