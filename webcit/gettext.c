@@ -280,9 +280,6 @@ void stop_selected_language(void) {
 #endif
 }
 
-#ifdef HAVE_USELOCALE
-	locale_t Empty_Locale;
-#endif
 
 /*
  * Create a locale_t for each available language
@@ -290,7 +287,6 @@ void stop_selected_language(void) {
 void initialize_locales(void) {
 	int nLocales;
 	int i;
-	char buf[32];
 	char *language = NULL;
 
 #ifdef ENABLE_NLS
@@ -315,47 +311,38 @@ void initialize_locales(void) {
 #ifdef HAVE_USELOCALE
 	wc_locales = malloc (sizeof(locale_t) * nLocales);
 	memset(wc_locales,0, sizeof(locale_t) * nLocales);
-	/* create default locale */
-	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
+	wc_locales[0] = newlocale(LC_ALL_MASK, NULL, NULL);
 #endif
 
-	for (i = 0; i < nLocales; ++i) {
-		if ((language != NULL) && (strcmp(AvailLang[i], language) != 0))
-			continue;
-		if (i == 0) {
-			sprintf(buf, "%s", AvailLang[i]);	/* locale 0 (C) is ascii, not utf-8 */
-		}
-		else {
-			sprintf(buf, "%s.UTF8", AvailLang[i]);
-		}
+	for (i = 1; i < nLocales; ++i) {
 #ifdef HAVE_USELOCALE
 		wc_locales[nLocalesLoaded] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
-			buf,
-			Empty_Locale
+			AvailLang[i],
+			wc_locales[0]
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
 			syslog(1, "locale for %s disabled: %s (domain: %s, path: %s)",
-				buf,
+				AvailLang[i],
 				strerror(errno),
 				textdomain(NULL),
 				bindtextdomain(textdomain(NULL), NULL)
 			);
 		}
 		else {
-			syslog(3, "Found locale: %s", buf);
+			syslog(3, "Found locale: %s", AvailLang[i]);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
 #else
 		if ((language != NULL) && (strcmp(language, AvailLang[i]) == 0)) {
-			setenv("LANG", buf, 1);
+			setenv("LANG", AvailLang[i], 1);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			setlocale(LC_MESSAGES, AvailLang[i]);
 			nLocalesLoaded++;
 		}
 		else if (nLocalesLoaded == 0) {
-			setenv("LANG", buf, 1);
+			setenv("LANG", AvailLang[i], 1);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
@@ -363,13 +350,7 @@ void initialize_locales(void) {
 	}
 	if ((language != NULL) && (nLocalesLoaded == 0)) {
 		syslog(1, "Your selected locale [%s] isn't available on your system. falling back to C", language);
-#ifdef HAVE_USELOCALE
-		wc_locales[0] = newlocale(
-			(LC_MESSAGES_MASK|LC_TIME_MASK),
-			AvailLang[0],
-			Empty_Locale
-		);
-#else
+#ifndef HAVE_USELOCALE
 		setlocale(LC_MESSAGES, AvailLang[0]);
 		setenv("LANG", AvailLang[0], 1);
 #endif
@@ -386,9 +367,7 @@ ServerShutdownModule_GETTEXT
 #ifdef HAVE_USELOCALE
 	int i;
 	for (i = 0; i < nLocalesLoaded; ++i) {
-		if (Empty_Locale != wc_locales[i]) {
-			freelocale(wc_locales[i]);
-		}
+		freelocale(wc_locales[i]);
 	}
 	free(wc_locales);
 #endif
