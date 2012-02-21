@@ -233,19 +233,13 @@ int main(int argc, char **argv)
 	syslog(1, "Copyright (C) 1996-2012 by the citadel.org team");
 	syslog(1, " ");
 	syslog(1, "This program is open source software: you can redistribute it and/or");
-	syslog(1, "modify it under the terms of the GNU General Public License as published");
-	syslog(1, "by the Free Software Foundation, either version 3 of the License, or");
-	syslog(1, "(at your option) any later version.");
+	syslog(1, "modify it under the terms of the GNU General Public License, version 3.");
 	syslog(1, " ");
 	syslog(1, "This program is distributed in the hope that it will be useful,");
 	syslog(1, "but WITHOUT ANY WARRANTY; without even the implied warranty of");
 	syslog(1, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
 	syslog(1, "GNU General Public License for more details.");
 	syslog(1, " ");
-	syslog(1, "You should have received a copy of the GNU General Public License");
-	syslog(1, "along with this program.  If not, see <http://www.gnu.org/licenses/>.");
-	syslog(1, " ");
-
 
 	/* initialize various subsystems */
 
