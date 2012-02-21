@@ -207,7 +207,7 @@ void go_threading(void)
 		if ((active_workers == num_workers) && (num_workers < 256)) {
 			CtdlThreadCreate(worker_thread);
 		}
-		sleep(1);
+		usleep(1000);
 	}
 
 	/* When we get to this point we are getting ready to shut down our Citadel server */
@@ -221,6 +221,6 @@ void go_threading(void)
 		syslog(LOG_DEBUG, "Waiting %d seconds for %d worker threads to exit",
 			countdown, num_workers
 		);
-		sleep(1);
+		usleep(1000);
 	}
 }
