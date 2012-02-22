@@ -14,7 +14,7 @@
 #include "webserver.h"
 #define SEARCH_LANG 20		/* how many langs should we parse? */
 
-#ifdef HAVE_USELOCALE
+#ifdef ENABLE_NLS
 /* actual supported locales */
 const char *AvailLang[] = {
 	"C",
@@ -46,7 +46,9 @@ const char *AvailLang[] = {
 const char **AvailLangLoaded;
 long nLocalesLoaded = 0;
 
+#ifdef HAVE_USELOCALE
 locale_t *wc_locales; /* here we keep the parsed stuff */
+#endif
 
 /* Keep information about one locale */
 typedef struct _lang_pref{
@@ -207,6 +209,7 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
  */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {
+#ifdef HAVE_USELOCALE
 	int i;
 
 	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\" onChange=\"switch_to_lang($('lname').value);\">\n");
@@ -220,12 +223,16 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 	}
 
 	wc_printf("</select>\n");
+#else
+	wc_printf("%s", (getenv("LANG") ? getenv("LANG") : "C"));
+#endif
 }
 
 /*
  * Set the selected language for this session.
  */
 void set_selected_language(const char *lang) {
+#ifdef HAVE_USELOCALE
 	int i;
 	for (i = 0; i<nLocalesLoaded; ++i) {
 		if (!strcasecmp(lang, AvailLangLoaded[i])) {
@@ -233,24 +240,34 @@ void set_selected_language(const char *lang) {
 			break;
 		}
 	}
+#endif
 }
 
 /*
  * Activate the selected language for this session.
  */
 void go_selected_language(void) {
+#ifdef HAVE_USELOCALE
 	wcsession *WCC = WC;
 	if (WCC->selected_language < 0) return;
 	uselocale(wc_locales[WCC->selected_language]);	/* switch locales */
 	textdomain(textdomain(NULL));			/* clear the cache */
+#else
+	char *language;
+	
+	language = getenv("LANG");
+	setlocale(LC_MESSAGES, language);
+#endif
 }
 
 /*
  * Deactivate the selected language for this session.
  */
 void stop_selected_language(void) {
+#ifdef HAVE_USELOCALE
 	uselocale(LC_GLOBAL_LOCALE);			/* switch locales */
 	textdomain(textdomain(NULL));			/* clear the cache */
+#endif
 }
 
 
@@ -262,10 +279,12 @@ void initialize_locales(void) {
 	int i;
 	char *language = NULL;
 
+#ifdef ENABLE_NLS
 	setlocale(LC_ALL, "");
 	syslog(9, "Text domain: %s", textdomain("webcit"));
 	syslog(9, "Message catalog directory: %s", bindtextdomain(textdomain(NULL), LOCALEDIR"/locale"));
 	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit","UTF8"));
+#endif
 
 	nLocales = 0; 
 	while (!IsEmptyStr(AvailLang[nLocales]))
@@ -279,11 +298,14 @@ void initialize_locales(void) {
 
 	AvailLangLoaded = malloc (sizeof(char*) * nLocales);
 	memset(AvailLangLoaded, 0, sizeof(char*) * nLocales);
+#ifdef HAVE_USELOCALE
 	wc_locales = malloc (sizeof(locale_t) * nLocales);
 	memset(wc_locales,0, sizeof(locale_t) * nLocales);
 	wc_locales[0] = newlocale(LC_ALL_MASK, NULL, NULL);
+#endif
 
 	for (i = 1; i < nLocales; ++i) {
+#ifdef HAVE_USELOCALE
 		wc_locales[nLocalesLoaded] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
 			AvailLang[i],
@@ -302,11 +324,26 @@ void initialize_locales(void) {
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
+#else
+		if ((language != NULL) && (strcmp(language, AvailLang[i]) == 0)) {
+			setenv("LANG", AvailLang[i], 1);
+			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
+			setlocale(LC_MESSAGES, AvailLang[i]);
+			nLocalesLoaded++;
+		}
+		else if (nLocalesLoaded == 0) {
+			setenv("LANG", AvailLang[i], 1);
+			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
+			nLocalesLoaded++;
+		}
+#endif
 	}
 	if ((language != NULL) && (nLocalesLoaded == 0)) {
 		syslog(1, "Your selected locale [%s] isn't available on your system. falling back to C", language);
+#ifndef HAVE_USELOCALE
 		setlocale(LC_MESSAGES, AvailLang[0]);
 		setenv("LANG", AvailLang[0], 1);
+#endif
 		AvailLangLoaded[0] = AvailLang[0];
 		nLocalesLoaded = 1;
 	}
@@ -317,15 +354,17 @@ void
 ServerShutdownModule_GETTEXT
 (void)
 {
+#ifdef HAVE_USELOCALE
 	int i;
 	for (i = 0; i < nLocalesLoaded; ++i) {
 		freelocale(wc_locales[i]);
 	}
 	free(wc_locales);
+#endif
 	free(AvailLangLoaded);
 }
 
-#else	/* HAVE_USELOCALE */
+#else	/* ENABLE_NLS */
 const char *AvailLang[] = {
 	"C",
 	""
@@ -349,24 +388,10 @@ void go_selected_language(void) {
 void stop_selected_language(void) {
 }
 
-/* dummy for non NLS enabled systems */
 void initialize_locales(void) {
 }
 
-/* dummy for non NLS enabled systems */
-void 
-ServerShutdownModule_GETTEXT
-(void)
-{
-}
-
-
-#endif	/* HAVE_USELOCALE */
-
-
-
-
-
+#endif	/* ENABLE_NLS */
 
 
 void TmplGettext(StrBuf *Target, WCTemplputParams *TP)
@@ -380,8 +405,12 @@ void TmplGettext(StrBuf *Target, WCTemplputParams *TP)
  * This function returns a static string, so don't do anything stupid please.
  */
 const char *get_selected_language(void) {
+#ifdef ENABLE_NLS
 #ifdef HAVE_USELOCALE
 	return AvailLang[WC->selected_language];
+#else
+	return "en";
+#endif
 #else
 	return "en";
 #endif
@@ -412,7 +441,7 @@ void
 SessionNewModule_GETTEXT
 (wcsession *sess)
 {
-#ifdef HAVE_USELOCALE
+#ifdef ENABLE_NLS
 	if (	(sess != NULL)
 		&& (!sess->Hdr->HR.Static)
 		&& (sess->Hdr->HR.browser_language != NULL)
@@ -426,7 +455,7 @@ void
 SessionAttachModule_GETTEXT
 (wcsession *sess)
 {
-#ifdef HAVE_USELOCALE
+#ifdef ENABLE_NLS
 	go_selected_language();					/* set locale */
 #endif
 }
@@ -435,7 +464,7 @@ void
 SessionDestroyModule_GETTEXT
 (wcsession *sess)
 {
-#ifdef HAVE_USELOCALE
+#ifdef ENABLE_NLS
 	stop_selected_language();				/* unset locale */
 #endif
 }
