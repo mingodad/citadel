@@ -31,15 +31,10 @@ void RegisterNS(const char *NSName, long len,
 void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F){}
 pthread_key_t MyConKey;
 
-#ifdef ENABLE_NLS
-
 #ifdef HAVE_USELOCALE 
 int localeoffset = 1;
-#else
-int localeoffset = 0;
 #endif
 
-#endif
 /*
  * Delete an entry from /etc/inittab
  */
@@ -411,7 +406,7 @@ void progress(char *text, long int curr, long int cmax)
  */
 void install_init_scripts(void)
 {
-#ifdef ENABLE_NLS
+#ifdef HAVE_USELOCALE
 	int localechoice;
 #endif
 	char question[1024];
@@ -446,10 +441,8 @@ void install_init_scripts(void)
 		return;
 
 
-#ifdef ENABLE_NLS
-
+#ifdef HAVE_USELOCALE
 	localechoice = GetLocalePrefs();
-
 #endif
 	/* Defaults */
 	sprintf(http_port, "2000");
@@ -555,22 +548,18 @@ void install_init_scripts(void)
 	fprintf(fp,	"CTDL_HOSTNAME=%s\n", hostname);
 	fprintf(fp,	"CTDL_PORTNAME=%s\n", portname);
 
-#ifdef ENABLE_NLS
-	
-	if (localechoice == 0) {
 #ifdef HAVE_USELOCALE 
-		fprintf(fp, "unset LANG\n");
-#else
-		fprintf(fp, "export WEBCIT_LANG=c\n");
-#endif
-	}
-	else {
+	if (localechoice == 0) {
 		fprintf(fp, "export WEBCIT_LANG=%s\n", AvailLang[localechoice - localeoffset]);
-
 	}
 #else
 	fprintf(fp,     "# your system doesn't support locales\n");
 #endif
+
+
+
+
+
 	fprintf(fp,	"\n"
 			"\n"
 			"case \"$1\" in\n"

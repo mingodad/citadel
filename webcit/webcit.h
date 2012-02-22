@@ -53,7 +53,7 @@
 #include <iconv.h>
 #endif
 
-#ifdef ENABLE_NLS
+#ifdef HAVE_USELOCALE
 #ifdef HAVE_XLOCALE_H
 #include <xlocale.h>
 #endif

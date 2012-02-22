@@ -400,11 +400,6 @@ AC_ARG_WITH(ssldir,
 )
 AC_DEFINE_UNQUOTED(SSL_DIR, "$ssl_dir", [were should we put our keys?])
 
-
-
-
-AC_CHECK_FUNCS(strftime_l uselocale gettext)
-
 if test "$ok_nls" != "no"; then
 	AC_CHECK_PROG(ok_xgettext, xgettext, yes, no)
 	ok_nls=$ok_xgettext
@@ -421,11 +416,8 @@ if test "$ok_nls" != "no"; then
 fi
 
 if test "$ok_nls" != "no"; then
-	AC_MSG_RESULT(WebCit will be built with national language support.)
-	AC_DEFINE(ENABLE_NLS, [], [whether we have NLS support])
+	AC_CHECK_FUNCS(strftime_l uselocale gettext)
 	PROG_SUBDIRS="$PROG_SUBDIRS po/webcit/"
-else
-	AC_MSG_RESULT(WebCit will be built without national language support.)
 fi
 
 AC_SUBST(SETUP_LIBS)
