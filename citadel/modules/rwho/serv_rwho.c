@@ -87,7 +87,7 @@ void cmd_rwho(char *argbuf) {
 		return;
 	}
 	
-	aide = CtdlAccessCheck(ac_aide);
+	aide = (CC->user.axlevel >= AxAideU) ;
 	cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
 	
 	for (i=0; i<nContexts; i++) 
