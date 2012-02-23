@@ -13,6 +13,7 @@ ical_maps.c
 locale/
 modules_init.c
 modules_init.h
+language_list.c
 po/Makefile
 setup
 sysdep.h
