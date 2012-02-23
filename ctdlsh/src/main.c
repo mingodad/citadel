@@ -132,8 +132,10 @@ int main(int argc, char **argv)
 	int c;
 	char *ctdldir = CTDLDIR;
 
-	printf("\nCitadel administration shell v" PACKAGE_VERSION "\n");
-	printf("(c) 2009-2011 citadel.org GPLv3\n");
+	printf("\nCitadel administration shell v" PACKAGE_VERSION " (c) 2009-2012 by citadel.org\n"
+		"This is open source software made available to you under the terms\n"
+		"of the GNU General Public License v3.  All other rights reserved.\n"
+	);
 
 	opterr = 0;
 	while ((c = getopt (argc, argv, "h:")) != -1) {
