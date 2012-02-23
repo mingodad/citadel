@@ -1,12 +1,14 @@
 /*
- *
+ * This file contains functions which handle ctdlsh's connection
+ * to the Citadel server's admin socket.  
+ * 
+ * Copyright (c) 2009-2012 by the Citadel.org team.
+ * This program is open source software, cheerfully made available to you under
+ * the terms of the GNU General Public License version 3.
  */
 
 #include "ctdlsh.h"
 
-#ifndef INADDR_NONE
-#define INADDR_NONE 0xffffffff
-#endif
 
 int uds_connectsock(char *sockpath)
 {
@@ -102,7 +104,6 @@ int sock_write(int sock, char *buf, int nbytes)
 }
 
 
-
 /*
  * Input string from socket - implemented in terms of sock_read()
  * 
@@ -138,9 +139,8 @@ int sock_getln(int sock, char *buf, int bufsize)
 }
 
 
-
 /*
- * sock_puts() - send line to server - implemented in terms of serv_write()
+ * sock_puts() - send line to server - implemented in terms of sock_write()
  * Returns the number of bytes written, or -1 for error.
  */
 int sock_puts(int sock, char *buf)
@@ -155,6 +155,9 @@ int sock_puts(int sock, char *buf)
 }
 
 
+/*
+ * Write a formatted string to the server - implemented in terms of sock_write()
+ */
 void sock_printf(int sock, const char *format,...)
 {
 	va_list arg_ptr;

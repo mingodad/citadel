@@ -24,7 +24,3 @@ int cmd_shutdown(int server_socket, char *cmdbuf) {
 	fprintf(stderr, "%s\n", &buf[4]);
 	return(cmdret_ok);
 }
-
-
-
-
