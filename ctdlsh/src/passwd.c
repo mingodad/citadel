@@ -13,6 +13,9 @@ int cmd_passwd(int server_socket, char *cmdbuf) {
 	char *p2;
 
 	strcpy(account_name, &cmdbuf[7]);
+	if (strlen(account_name) == 0) {
+		strncpy(account_name, readline("Enter account name: "), sizeof account_name);
+	}
 	sock_printf(server_socket, "AGUP %s\n", account_name);
 	sock_getln(server_socket, buf, sizeof buf);
 	if (buf[0] != '2') {
