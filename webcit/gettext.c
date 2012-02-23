@@ -15,33 +15,7 @@
 #define SEARCH_LANG 20		/* how many langs should we parse? */
 
 #ifdef ENABLE_NLS
-/* actual supported locales */
-const char *AvailLang[] = {
-	"C",
-	"bg_BG",
-	"cs_CZ",
-	"en_US",
-	"da_DK",
-	"de_DE",
-	"el_GR",
-	"en_GB",
-	"es_ES",
-	"et_EE",
-	"fi_FI",
-	"fr_FR",
-	"hu_HU",
-	"it_IT",
-	"nl_NL",
-	"pt_BR",
-	"ru_RU",
-	"zh_CN",
- 	"he_IL",
-	"kk_KK",
-	"ro_RO",
-	"sl_SL",
-	"tr_TR",
-	""
-};
+#include "language_list.h"
 
 const char **AvailLangLoaded;
 long nLocalesLoaded = 0;
@@ -312,12 +286,7 @@ void initialize_locales(void) {
 			wc_locales[0]
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
-			syslog(1, "locale for %s disabled: %s (domain: %s, path: %s)",
-				AvailLang[i],
-				strerror(errno),
-				textdomain(NULL),
-				bindtextdomain(textdomain(NULL), NULL)
-			);
+			syslog(1, "locale for %s disabled: %s", AvailLang[i], strerror(errno));
 		}
 		else {
 			syslog(3, "Found locale: %s", AvailLang[i]);
