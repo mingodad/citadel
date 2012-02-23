@@ -6,8 +6,6 @@
 #include "ctdlsh.h"
 
 
-
-
 int cmd_quit(int sock, char *cmdbuf) {
 	return(cmdret_exit);
 }
@@ -41,34 +39,6 @@ int cmd_help(int sock, char *cmdbuf) {
 	for (i=0; commands[i].func != NULL; ++i) {
 		printf("%-10s %s\n", commands[i].name, commands[i].doc);
 	}
-}
-
-
-
-
-
-
-int discover_ipgm_secret(char *dirname) {
-	int fd;
-	struct partial_config ccc;
-	char configfile[1024];
-
-	sprintf(configfile, "%s/citadel.config", dirname);
-	fd = open(configfile, O_RDONLY);
-	if (fd < 0) {
-		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
-		return(-1);
-	}
-
-	if (read(fd, &ccc, sizeof(struct partial_config)) != sizeof(struct partial_config)) {
-		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
-		return(-1);
-	}
-	if (close(fd) != 0) {
-		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
-		return(-1);
-	}
-	return(ccc.c_ipgm_secret);
 }
 
 
@@ -159,7 +129,6 @@ int main(int argc, char **argv)
 {
 	int server_socket = 0;
 	char buf[1024];
-	int ipgm_secret = (-1);
 	int c;
 	char *ctdldir = CTDLDIR;
 
@@ -184,25 +153,14 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ipgm_secret = discover_ipgm_secret(ctdldir);
-	if (ipgm_secret < 0) {
-		exit(1);
-	}
-
 	printf("Trying %s...\n", ctdldir);
-	sprintf(buf, "%s/citadel.socket", ctdldir);
+	sprintf(buf, "%s/citadel-admin.socket", ctdldir);
 	server_socket = uds_connectsock(buf);
 	if (server_socket < 0) {
 		exit(1);
 	}
 
 	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", buf);
-
-	sock_printf(server_socket, "IPGM %d\n", ipgm_secret);
-	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", buf);
-
 	if (buf[0] == '2') {
 		do_main_loop(server_socket);
 	}
