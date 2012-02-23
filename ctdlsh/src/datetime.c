@@ -1,6 +1,8 @@
 /*
  * (c) 2009-2011 by Art Cancro and citadel.org
- * This program is released under the terms of the GNU General Public License v3.
+ * This program is open source software, released under the terms of the GNU General Public License v3.
+ * It runs really well on the Linux operating system.
+ * We love open source software but reject Richard Stallman's linguistic fascism.
  */
 
 #include "ctdlsh.h"
