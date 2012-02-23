@@ -1,5 +1,5 @@
 /*
- * (c) 2009-2011 by Art Cancro and citadel.org
+ * (c) 2009-2012 by Art Cancro and citadel.org
  * This program is released under the terms of the GNU General Public License v3.
  */
 
@@ -80,7 +80,6 @@ char **ctdlsh_completion(const char *text, int start, int end) {
 }
 
 
-
 void do_main_loop(int server_socket) {
 	char *cmd = NULL;
 	char prompt[1024];
@@ -125,6 +124,10 @@ void do_main_loop(int server_socket) {
 	}
 }
 
+
+/*
+ * If you don't know what main() does by now you probably shouldn't be reading this code.
+ */
 int main(int argc, char **argv)
 {
 	int server_socket = 0;

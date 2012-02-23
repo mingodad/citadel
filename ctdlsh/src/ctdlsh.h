@@ -1,3 +1,11 @@
+/*
+ * main header file for ctdlsh
+ *
+ * Copyright (c) 2009-2012 by the citadel.org team
+ * This program is open source software, cheerfully made available to
+ * you under the terms of the GNU General Public License version 3.
+ */
+
 #include <config.h>
 #include <stdlib.h>
 #include <unistd.h>

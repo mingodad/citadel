@@ -1,5 +1,5 @@
 /*
- * (c) 2009-2011 by Art Cancro and citadel.org
+ * (c) 2009-2012 by Art Cancro and citadel.org
  * This program is released under the terms of the GNU General Public License v3.
  */
 
@@ -27,7 +27,9 @@ int cmd_passwd(int server_socket, char *cmdbuf) {
 	p2 = readline("Enter it again: ");
 
 	if (strcmp(p1, p2)) {
-		fprintf(stderr, "Passwords do not match.  Account password is unchanged.\n");
+		fprintf(stderr, "The passwords you entered do not match."
+				"The account password remains unchanged.\n"
+		);
 		return(cmdret_error);
 	}
 
