@@ -46,7 +46,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_ctdlsh_OBJECTS = main.$(OBJEXT) sockets.$(OBJEXT) \
-	datetime.$(OBJEXT) passwd.$(OBJEXT) shutdown.$(OBJEXT)
+	datetime.$(OBJEXT) passwd.$(OBJEXT) shutdown.$(OBJEXT) \
+	who.$(OBJEXT)
 ctdlsh_OBJECTS = $(am_ctdlsh_OBJECTS)
 ctdlsh_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -145,7 +146,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-ctdlsh_SOURCES = main.c sockets.c ctdlsh.h datetime.c passwd.c shutdown.c
+ctdlsh_SOURCES = main.c sockets.c ctdlsh.h datetime.c passwd.c shutdown.c who.c
 all: all-am
 
 .SUFFIXES:
@@ -232,6 +233,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/passwd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shutdown.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sockets.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/who.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
