@@ -72,6 +72,7 @@ struct recptypes {
 	char *recp_internet;
 	char *recp_ignet;
 	char *recp_room;
+	char *recp_orgroom;
 	char *display_recp;
 	char *bounce_to;
 	char *envelope_from;

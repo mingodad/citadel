@@ -3205,7 +3205,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
 			extract_token(recipient, recps->recp_room, i,
 				      '|', sizeof recipient);
-			syslog(LOG_DEBUG, "Delivering to room <%s>\n", recipient);
+			syslog(LOG_DEBUG, "Delivering to room <%s>\n", recipient);///// xxxx
 			CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0, msg);
 		}
 
@@ -4013,9 +4013,11 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 				      int Flags) {
 	struct recptypes *ret;
 	char *recipients = NULL;
+	char *org_recp;
 	char this_recp[256];
 	char this_recp_cooked[256];
 	char append[SIZ];
+	long len;
 	int num_recps = 0;
 	int i, j;
 	int mailtype;
@@ -4045,19 +4047,22 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 	 * actually need, but it's healthier for the heap than doing lots of tiny
 	 * realloc() calls instead.
 	 */
-
-	ret->errormsg = malloc(strlen(recipients) + 1024);
-	ret->recp_local = malloc(strlen(recipients) + 1024);
-	ret->recp_internet = malloc(strlen(recipients) + 1024);
-	ret->recp_ignet = malloc(strlen(recipients) + 1024);
-	ret->recp_room = malloc(strlen(recipients) + 1024);
-	ret->display_recp = malloc(strlen(recipients) + 1024);
+	len = strlen(recipients) + 1024;
+	ret->errormsg = malloc(len);
+	ret->recp_local = malloc(len);
+	ret->recp_internet = malloc(len);
+	ret->recp_ignet = malloc(len);
+	ret->recp_room = malloc(len);
+	ret->display_recp = malloc(len);
+	ret->recp_orgroom = malloc(len);
+	org_recp = malloc(len);
 
 	ret->errormsg[0] = 0;
 	ret->recp_local[0] = 0;
 	ret->recp_internet[0] = 0;
 	ret->recp_ignet[0] = 0;
 	ret->recp_room[0] = 0;
+	ret->recp_orgroom[0] = 0;
 	ret->display_recp[0] = 0;
 
 	ret->recptypes_magic = RECPTYPES_MAGIC;
@@ -4072,7 +4077,6 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 	/* Now start extracting recipients... */
 
 	while (!IsEmptyStr(recipients)) {
-
 		for (i=0; i<=strlen(recipients); ++i) {
 			if (recipients[i] == '\"') in_quotes = 1 - in_quotes;
 			if ( ( (recipients[i] == ',') && (!in_quotes) ) || (recipients[i] == 0) ) {
@@ -4093,6 +4097,8 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 			break;
 		syslog(LOG_DEBUG, "Evaluating recipient #%d: %s\n", num_recps, this_recp);
 		++num_recps;
+
+		strcpy(org_recp, this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
@@ -4144,6 +4150,12 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 						strcat(ret->recp_room, "|");
 					}
 					strcat(ret->recp_room, &this_recp_cooked[5]);
+
+					if (!IsEmptyStr(ret->recp_orgroom)) {
+						strcat(ret->recp_orgroom, "|");
+					}
+					strcat(ret->recp_orgroom, org_recp);
+
 				}
 					
 				/* Restore room in case something needs it */
@@ -4228,6 +4240,7 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 			}
 		}
 	}
+	free(org_recp);
 
 	if ((ret->num_local + ret->num_internet + ret->num_ignet +
 	     ret->num_room + ret->num_error) == 0) {
@@ -4266,6 +4279,7 @@ void free_recipients(struct recptypes *valid) {
 	if (valid->recp_internet != NULL)	free(valid->recp_internet);
 	if (valid->recp_ignet != NULL)		free(valid->recp_ignet);
 	if (valid->recp_room != NULL)		free(valid->recp_room);
+	if (valid->recp_orgroom != NULL)        free(valid->recp_orgroom);
 	if (valid->display_recp != NULL)	free(valid->display_recp);
 	if (valid->bounce_to != NULL)		free(valid->bounce_to);
 	if (valid->envelope_from != NULL)	free(valid->envelope_from);
@@ -4560,6 +4574,15 @@ void cmd_ent0(char *entargs)
 		valid = NULL;
 	}
 	free(all_recps);
+
+	if ((valid != NULL) && (valid->num_room == 1))
+	{
+		/* posting into an ML room? set the envelope from 
+		 * to the actual mail address so others get a valid
+		 * reply-to-header.
+		 */
+		msg->cm_fields['V'] = strdup(valid->recp_orgroom);
+	}
 
 	if (msg != NULL) {
 		msgnum = CtdlSubmitMsg(msg, valid, "", QP_EADDR);
