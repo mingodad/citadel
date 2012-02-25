@@ -30,6 +30,7 @@ typedef struct _mailq_entry {
 	/**<
 	 * 0 = No delivery has yet been attempted
 	 * 2 = Delivery was successful
+	 * 3 = Transient error like connection problem. Try next remote if available.
 	 * 4 = A transient error was experienced ... try again later
 	 * 5 = Delivery to this address failed permanently.  The error message
 	 *     should be placed in the fourth field so that a bounce message may
@@ -56,6 +57,7 @@ typedef struct queueitem {
 	long ActiveDeliveries;
 	StrBuf *EnvelopeFrom;
 	StrBuf *BounceTo;
+	StrBuf *SenderRoom;
 	ParsedURL *URL;
 	ParsedURL *FallBackHost;
 } OneQueItem;

@@ -203,7 +203,7 @@ void network_deliver_digest(SpoolControl *sc) {
 /*
  * Deliver list messages to everyone on the list ... efficiently
  */
-void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
+void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName) {
 	char *recps = NULL;
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
@@ -251,6 +251,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 	if (valid != NULL) {
 		valid->bounce_to = strdup(bounce_to);
 		valid->envelope_from = strdup(bounce_to);
+		valid->sending_room = strdup(RoomName);
 		CtdlSubmitMsg(msg, valid, NULL, 0);
 		free_recipients(valid);
 	}
@@ -390,7 +391,7 @@ void network_spool_msg(long msgnum,
 			}
 
 			/* Handle delivery */
-			network_deliver_list(msg, sc);
+			network_deliver_list(msg, sc, CC->room.QRname);
 			CtdlFreeMessage(msg);
 		}
 	}

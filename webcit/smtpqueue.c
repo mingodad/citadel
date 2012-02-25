@@ -275,6 +275,7 @@ typedef struct _mailq_entry {
 	/**<
 	 * 0 = No delivery has yet been attempted
 	 * 2 = Delivery was successful
+	 * 3 = Transient error like connection problem. Try next remote if available.
 	 * 4 = A transient error was experienced ... try again later
 	 * 5 = Delivery to this address failed permanently.  The error message
 	 *     should be placed in the fourth field so that a bounce message may
@@ -301,6 +302,7 @@ typedef struct queueitem {
 	long ActiveDeliveries;
 	StrBuf *EnvelopeFrom;
 	StrBuf *BounceTo;
+	StrBuf *SenderRoom;
 	ParsedURL *URL;
 	ParsedURL *FallBackHost;
 } OneQueItem;
@@ -321,6 +323,7 @@ void FreeQueItem(OneQueItem **Item)
 	DeleteHash(&(*Item)->MailQEntries);
 	FreeStrBuf(&(*Item)->EnvelopeFrom);
 	FreeStrBuf(&(*Item)->BounceTo);
+	FreeStrBuf(&(*Item)->SenderRoom);
 	FreeURL(&(*Item)->URL);
 	free(*Item);
 	Item = NULL;
@@ -406,6 +409,18 @@ void tmplput_MailQEnvelopeFrom(StrBuf *Target, WCTemplputParams *TP)
 	OneQueItem *Item = (OneQueItem*) CTX;
 	StrBufAppendTemplate(Target, TP, Item->EnvelopeFrom, 0);
 }
+void tmplput_MailQSourceRoom(StrBuf *Target, WCTemplputParams *TP)
+{
+	OneQueItem *Item = (OneQueItem*) CTX;
+	StrBufAppendTemplate(Target, TP, Item->SenderRoom, 0);
+}
+
+int Conditional_MailQ_HaveSourceRoom(StrBuf *Target, WCTemplputParams *TP)
+{
+	OneQueItem *Item = (OneQueItem*) CTX;
+	return StrLength(Item->SenderRoom) > 0;
+}
+
 void tmplput_MailQRetry(StrBuf *Target, WCTemplputParams *TP)
 {
         char datebuf[64];
@@ -475,6 +490,13 @@ void QItem_Handle_BounceTo(OneQueItem *Item, StrBuf *Line, const char **Pos)
 	if (Item->BounceTo == NULL)
 		Item->BounceTo = NewStrBufPlain(NULL, StrLength(Line));
 	StrBufExtract_NextToken(Item->BounceTo, Line, Pos, '|');
+}
+
+void QItem_Handle_SenderRoom(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	if (Item->SenderRoom == NULL)
+		Item->SenderRoom = NewStrBufPlain(NULL, StrLength(Line));
+	StrBufExtract_NextToken(Item->SenderRoom, Line, Pos, '|');
 }
 
 void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
@@ -626,6 +648,7 @@ InitModule_SMTP_QUEUE
 	Put(QItemHandlers, HKEY("attempted"), QItem_Handle_Attempted, reference_free_handler);
 	Put(QItemHandlers, HKEY("remote"), QItem_Handle_Recipient, reference_free_handler);
 	Put(QItemHandlers, HKEY("bounceto"), QItem_Handle_BounceTo, reference_free_handler);
+	Put(QItemHandlers, HKEY("source_room"), QItem_Handle_SenderRoom, reference_free_handler);
 	Put(QItemHandlers, HKEY("submitted"), QItem_Handle_Submitted, reference_free_handler);
 
 	WebcitAddUrlHandler(HKEY("display_smtpqueue"), "", 0, display_smtpqueue, 0);
@@ -639,6 +662,8 @@ InitModule_SMTP_QUEUE
 	RegisterNamespace("MAILQ:ATTEMPTED", 0, 0, tmplput_MailQAttempted, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:SUBMITTED", 0, 0, tmplput_MailQSubmitted, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:ENVELOPEFROM", 0, 1, tmplput_MailQEnvelopeFrom, NULL, CTX_MAILQITEM);
+	RegisterNamespace("MAILQ:SRCROOM", 0, 1, tmplput_MailQSourceRoom, NULL, CTX_MAILQITEM);
+	RegisterConditional(HKEY("COND:MAILQ:HAVESRCROOM"), 0, Conditional_MailQ_HaveSourceRoom,  CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:RETRY", 0, 0, tmplput_MailQRetry, NULL, CTX_MAILQITEM);
 
 	RegisterNamespace("MAILQ:RCPT:ADDR", 0, 1, tmplput_MailQRCPT, NULL, CTX_MAILQ_RCPT);

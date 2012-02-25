@@ -170,6 +170,7 @@ void FreeQueItem(OneQueItem **Item)
 	DeleteHash(&(*Item)->MailQEntries);
 	FreeStrBuf(&(*Item)->EnvelopeFrom);
 	FreeStrBuf(&(*Item)->BounceTo);
+	FreeStrBuf(&(*Item)->SenderRoom);
 	FreeURL(&(*Item)->URL);
 	free(*Item);
 	Item = NULL;
@@ -296,6 +297,11 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 		StrBufAppendBuf(QMessage, MyQItem->EnvelopeFrom, 0);
 	}
 
+	if (StrLength(MyQItem->SenderRoom) > 0) {
+		StrBufAppendBufPlain(QMessage, HKEY("\nsource_room|"), 0);
+		StrBufAppendBuf(QMessage, MyQItem->SenderRoom, 0);
+	}
+
 	StrBufAppendBufPlain(QMessage, HKEY("\nretry|"), 0);
 	StrBufAppendPrintf(QMessage, "%ld",
 			   MyQItem->Retry);
@@ -362,6 +368,13 @@ void QItem_Handle_BounceTo(OneQueItem *Item, StrBuf *Line, const char **Pos)
 	if (Item->BounceTo == NULL)
 		Item->BounceTo = NewStrBufPlain(NULL, StrLength(Line));
 	StrBufExtract_NextToken(Item->BounceTo, Line, Pos, '|');
+}
+
+void QItem_Handle_SenderRoom(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	if (Item->SenderRoom == NULL)
+		Item->SenderRoom = NewStrBufPlain(NULL, StrLength(Line));
+	StrBufExtract_NextToken(Item->SenderRoom, Line, Pos, '|');
 }
 
 void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
@@ -554,6 +567,17 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 
 	StrBufAppendBuf(BounceMB, Msg, 0);
 	FreeStrBuf(&Msg);
+
+	if (StrLength(MyQItem->SenderRoom) > 0)
+	{
+		StrBufAppendBufPlain(
+			BounceMB,
+			HKEY("The message was originaly posted in: "), 0);
+		StrBufAppendBuf(BounceMB, MyQItem->SenderRoom, 0);
+		StrBufAppendBufPlain(
+			BounceMB,
+			HKEY("\n"), 0);
+	}
 
 	/* Attach the original message */
 	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
@@ -1033,8 +1057,8 @@ CTDL_MODULE_INIT(smtp_queu)
 		Put(QItemHandlers, HKEY("attempted"), QItem_Handle_Attempted, reference_free_handler);
 		Put(QItemHandlers, HKEY("remote"), QItem_Handle_Recipient, reference_free_handler);
 		Put(QItemHandlers, HKEY("bounceto"), QItem_Handle_BounceTo, reference_free_handler);
+		Put(QItemHandlers, HKEY("source_room"), QItem_Handle_SenderRoom, reference_free_handler);
 		Put(QItemHandlers, HKEY("submitted"), QItem_Handle_Submitted, reference_free_handler);
-
 		smtp_init_spoolout();
 
 		CtdlRegisterCleanupHook(smtp_evq_cleanup);

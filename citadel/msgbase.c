@@ -3027,7 +3027,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	int qualified_for_journaling = 0;
 	CitContext *CCC = MyContext();
 	char bounce_to[1024] = "";
-	size_t tmp = 0;
 	int rv = 0;
 
 	syslog(LOG_DEBUG, "CtdlSubmitMsg() called\n");
@@ -3337,29 +3336,41 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * contain a recipient.
 	 */
 	if ((recps != NULL) && (recps->num_internet > 0)) {
+		StrBuf *SpoolMsg = NewStrBuf();
+		long nTokens;
+
 		syslog(LOG_DEBUG, "Generating delivery instructions\n");
-		instr_alloc = 1024;
-		instr = malloc(instr_alloc);
-		snprintf(instr, instr_alloc,
-			 "Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-			 "bounceto|%s\n",
-			 SPOOLMIME, newmsgid, (long)time(NULL),
-			 bounce_to
-			);
+
+		StrBufPrintf(SpoolMsg,
+			     "Content-type: "SPOOLMIME"\n"
+			     "\n"
+			     "msgid|%ld\n"
+			     "submitted|%ld\n"
+			     "bounceto|%s\n",
+			     newmsgid,
+			     (long)time(NULL),
+			     bounce_to);
 
 		if (recps->envelope_from != NULL) {
-			tmp = strlen(instr);
-			snprintf(&instr[tmp], instr_alloc-tmp, "envelope_from|%s\n", recps->envelope_from);
+			StrBufAppendBufPlain(SpoolMsg, HKEY("envelope_from|"), 0);
+			StrBufAppendBufPlain(SpoolMsg, recps->envelope_from, -1, 0);
+			StrBufAppendBufPlain(SpoolMsg, HKEY("\n"), 0);
+		}
+		if (recps->sending_room != NULL) {
+			StrBufAppendBufPlain(SpoolMsg, HKEY("source_room|"), 0);
+			StrBufAppendBufPlain(SpoolMsg, recps->sending_room, -1, 0);
+			StrBufAppendBufPlain(SpoolMsg, HKEY("\n"), 0);
 		}
 
-	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
-			tmp = strlen(instr);
-			extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
-			if ((tmp + strlen(recipient) + 32) > instr_alloc) {
-				instr_alloc = instr_alloc * 2;
-				instr = realloc(instr, instr_alloc);
+		nTokens = num_tokens(recps->recp_internet, '|');
+	  	for (i = 0; i < nTokens; i++) {
+			long len;
+			len = extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
+			if (len > 0) {
+				StrBufAppendBufPlain(SpoolMsg, HKEY("remote|"), 0);
+				StrBufAppendBufPlain(SpoolMsg, recipient, len, 0);
+				StrBufAppendBufPlain(SpoolMsg, HKEY("|0||\n"), 0);
 			}
-			snprintf(&instr[tmp], instr_alloc - tmp, "remote|%s|0||\n", recipient);
 		}
 
 		imsg = malloc(sizeof(struct CtdlMessage));
@@ -3370,7 +3381,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_fields['U'] = strdup("QMSG");
 		imsg->cm_fields['A'] = strdup("Citadel");
 		imsg->cm_fields['J'] = strdup("do not journal");
-		imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
+		imsg->cm_fields['M'] = SmashStrBuf(&SpoolMsg);	/* imsg owns this memory now */
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 		CtdlFreeMessage(imsg);
 	}

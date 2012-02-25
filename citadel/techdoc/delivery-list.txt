@@ -75,6 +75,15 @@ fails).
     phase of the SMTP transaction.  If an envelope sender is not supplied,
     one is extracted from the message body.
 
+ INSTRUCTION:	source_room
+ SYNTAX:	source_room|Citadel Support
+ DESCRIPTION:
+    when sending mailinglist rooms this contains the source room for displaying
+    and messaging purposes.
+
+
+
+
 -- Once per Remote-part per Queue-Item --
 
  INSTRUCTION:  remote

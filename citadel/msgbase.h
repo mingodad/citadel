@@ -75,6 +75,7 @@ struct recptypes {
 	char *display_recp;
 	char *bounce_to;
 	char *envelope_from;
+	char *sending_room;
 };
 
 #define RECPTYPES_MAGIC 0xfeeb

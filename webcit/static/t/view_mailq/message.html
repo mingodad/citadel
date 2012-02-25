@@ -3,7 +3,7 @@
 <?MAILQ:ID></td>
 <td><?MAILQ:SUBMITTED></td>
 <td><?MAILQ:RETRY></td>
-<td><?MAILQ:BOUNCETO()><br><?MAILQ:ENVELOPEFROM()></td>
+<td><?MAILQ:BOUNCETO()><br><?MAILQ:ENVELOPEFROM()><?!("COND:MAILQ:HAVESRCROOM", 1)><br><?_("Originaly posted in: ")><?MAILQ:SRCROOM("X")><?!("X", 1)></td>
 
 <td><table class="mailstatus">
 <?ITERATE("MAILQ:RCPT", ="view_mailq_recipient")>
