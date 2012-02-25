@@ -14,7 +14,6 @@ usr/lib/citadel-server/migrate_aliases.sh
 usr/lib/citadel-server/aidepost
 usr/sbin/citmail
 usr/lib/citadel-server/msgform
-usr/lib/citadel-server/userlist
 usr/sbin/citserver
 usr/sbin/sendcommand
 
