@@ -163,6 +163,7 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
 		msg->cm_fields['M'] = SmashStrBuf(&MsgData);
+		msg->cm_fields['U'] = strdup("QMSG");
 		Msg->MyQItem->QueMsgID =
 			CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 		EVS_syslog(LOG_DEBUG, "SMTPQ: %ld", Msg->MyQItem->QueMsgID);
