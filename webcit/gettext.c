@@ -397,6 +397,13 @@ const char *AvailLang[] = {
 };
 
 /* dummy for non NLS enabled systems */
+void 
+ServerShutdownModule_GETTEXT
+(void)
+{
+}
+
+
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {
 	wc_printf("English (US)");
