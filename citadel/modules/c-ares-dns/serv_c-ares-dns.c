@@ -297,7 +297,16 @@ void QueryCbDone(AsyncIO *IO)
 
 void DestructCAres(AsyncIO *IO)
 {
+#ifdef DEBUG_CARES
+	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	EV_DNS_LOGT_STOP(DNS.timeout);
+#endif
+	EV_DNS_LOG_STOP(DNS.recv_event);
+	ev_io_stop(event_base, &IO->DNS.recv_event);
+	EV_DNS_LOG_STOP(DNS.send_event);
+	ev_io_stop(event_base, &IO->DNS.send_event);
 	ev_timer_stop (event_base, &IO->DNS.timeout);
+	ev_idle_stop(event_base, &IO->unwind_stack);
 	ares_destroy_options(&IO->DNS.Options);
 }
 
