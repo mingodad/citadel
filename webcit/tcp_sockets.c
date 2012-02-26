@@ -172,6 +172,9 @@ int StrBuf_ServGetln(StrBuf *buf)
 	const char *ErrStr = NULL;
 	int rc;
 	
+	if (!WCC->connected)
+		return -1;
+
 	FlushStrBuf(buf);
 	rc = StrBufTCP_read_buffered_line_fast(buf, 
 					       WCC->ReadBuf, 
