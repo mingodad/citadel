@@ -222,7 +222,7 @@ void master_cleanup(int exitcode) {
 	struct CleanupFunctionHook *fcn;
 	static int already_cleaning_up = 0;
 
-	if (already_cleaning_up) while(1) sleep(1);
+	if (already_cleaning_up) while(1) usleep(1000);
 	already_cleaning_up = 1;
 
 	/* Run any cleanup routines registered by loadable modules */

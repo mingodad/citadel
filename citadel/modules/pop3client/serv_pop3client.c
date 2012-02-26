@@ -1177,7 +1177,7 @@ CTDL_MODULE_INIT(pop3client)
 		POP3QueueRooms = NewHash(1, lFlathash);
 		POP3FetchUrls = NewHash(1, NULL);
 		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
-		CtdlRegisterCleanupHook(pop3_cleanup);
+		CtdlRegisterEVCleanupHook(pop3_cleanup);
 	}
 
 	/* return our module id for the log */

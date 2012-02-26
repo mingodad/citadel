@@ -183,7 +183,10 @@ void InitializeMasterTSD(void) {
 	memset(&masterTSD, 0, sizeof(struct thread_tsd));
 }
 
+extern void ShutDownEventQueues(void);
 
+int EventQShuttingDown = 0;
+int EVQShutDown = 0;
 /*
  * Initialize the thread system
  */
@@ -211,6 +214,14 @@ void go_threading(void)
 	}
 
 	/* When we get to this point we are getting ready to shut down our Citadel server */
+	if (!EventQShuttingDown)
+	{
+		EventQShuttingDown = 1;
+		ShutDownEventQueues();
+	}
+	while (!EVQShutDown)
+		usleep(1000);
+
 
 	terminate_all_sessions();		/* close all client sockets */
 	CtdlShutdownServiceHooks();		/* close all listener sockets to prevent new connections */

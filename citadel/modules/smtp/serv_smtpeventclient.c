@@ -106,7 +106,7 @@ void DeleteSmtpOutMsg(void *v)
 	FreeURL(&Msg->Relay);
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
-///	memset (Msg, 0, sizeof(SmtpOutMsg)); /* just to be shure... */
+	memset (Msg, 0, sizeof(SmtpOutMsg)); /* just to be shure... */
 	free(Msg);
 }
 

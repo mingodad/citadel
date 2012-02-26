@@ -161,17 +161,28 @@ void RemoveQItem(OneQueItem *MyQItem)
 void FreeMailQEntry(void *qv)
 {
 	MailQEntry *Q = qv;
+/*
+	syslog(LOG_DEBUG, "---------------%s--------------", __FUNCTION__);
+	cit_backtrace();
+*/
 	FreeStrBuf(&Q->Recipient);
 	FreeStrBuf(&Q->StatusMessage);
+
+	memset(Q, 0, sizeof(MailQEntry));
 	free(Q);
 }
 void FreeQueItem(OneQueItem **Item)
 {
+/*
+	syslog(LOG_DEBUG, "---------------%s--------------", __FUNCTION__);
+	cit_backtrace();
+*/
 	DeleteHash(&(*Item)->MailQEntries);
 	FreeStrBuf(&(*Item)->EnvelopeFrom);
 	FreeStrBuf(&(*Item)->BounceTo);
 	FreeStrBuf(&(*Item)->SenderRoom);
 	FreeURL(&(*Item)->URL);
+	memset(*Item, 0, sizeof(OneQueItem));
 	free(*Item);
 	Item = NULL;
 }
@@ -1061,7 +1072,7 @@ CTDL_MODULE_INIT(smtp_queu)
 		Put(QItemHandlers, HKEY("submitted"), QItem_Handle_Submitted, reference_free_handler);
 		smtp_init_spoolout();
 
-		CtdlRegisterCleanupHook(smtp_evq_cleanup);
+		CtdlRegisterEVCleanupHook(smtp_evq_cleanup);
 
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);

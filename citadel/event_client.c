@@ -708,11 +708,11 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 	EV_syslog(LOG_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
-	assert(IO->DNS.Fail);
 	assert(IO->DNS.Query->PostDNS);
 	switch (IO->DNS.Query->PostDNS(IO))
 	{
 	case eAbort:
+		assert(IO->DNS.Fail);
 		switch (IO->DNS.Fail(IO)) {
 		case eAbort:
 ////			StopClientWatchers(IO);

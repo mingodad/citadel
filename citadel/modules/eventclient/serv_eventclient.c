@@ -622,7 +622,9 @@ void InitEventQueue(void)
 	InboundEventQueues[1] = NewHash(1, Flathash);
 	InboundEventQueue = InboundEventQueues[0];
 }
+extern void CtdlDestroyEVCleanupHooks(void);
 
+extern int EVQShutDown;
 /*
  * this thread operates the select() etc. via libev.
  */
@@ -659,6 +661,9 @@ void *client_event_thread(void *arg)
 	close(event_add_pipe[0]);
 	close(event_add_pipe[1]);
 
+	CtdlDestroyEVCleanupHooks();
+
+	EVQShutDown = 1;	
 	return(NULL);
 }
 
@@ -805,7 +810,6 @@ CTDL_MODULE_INIT(event_client)
 {
 	if (!threading)
 	{
-		CtdlRegisterCleanupHook(ShutDownEventQueues);
 		InitEventQueue();
 		DBInitEventQueue();
 		CtdlThreadCreate(client_event_thread);

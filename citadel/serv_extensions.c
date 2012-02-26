@@ -47,6 +47,7 @@
 #endif
 
 struct CleanupFunctionHook *CleanupHookTable = NULL;
+struct CleanupFunctionHook *EVCleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
 struct XmsgFunctionHook *XmsgHookTable = NULL;
@@ -261,6 +262,7 @@ void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
 	}
 }
 
+
 void CtdlDestroyCleanupHooks(void)
 {
 	struct CleanupFunctionHook *cur, *p;
@@ -274,6 +276,56 @@ void CtdlDestroyCleanupHooks(void)
 		cur = p;
 	}
 	CleanupHookTable = NULL;
+}
+
+void CtdlRegisterEVCleanupHook(void (*fcn_ptr) (void))
+{
+
+	struct CleanupFunctionHook *newfcn;
+
+	newfcn = (struct CleanupFunctionHook *)
+	    malloc(sizeof(struct CleanupFunctionHook));
+	newfcn->next = EVCleanupHookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	EVCleanupHookTable = newfcn;
+
+	syslog(LOG_INFO, "Registered a new cleanup function\n");
+}
+
+
+void CtdlUnregisterEVCleanupHook(void (*fcn_ptr) (void))
+{
+	struct CleanupFunctionHook *cur, *p;
+
+	for (cur = EVCleanupHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				fcn_ptr == cur->h_function_pointer) {
+			syslog(LOG_INFO, "Unregistered cleanup function\n");
+			p = cur->next;
+			if (cur == EVCleanupHookTable) {
+				EVCleanupHookTable = p;
+			}
+			free(cur);
+			cur = p;
+		}
+	}
+}
+
+
+void CtdlDestroyEVCleanupHooks(void)
+{
+	struct CleanupFunctionHook *cur, *p;
+
+	cur = EVCleanupHookTable;
+	while (cur != NULL)
+	{
+		syslog(LOG_INFO, "Destroyed cleanup function\n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	EVCleanupHookTable = NULL;
 }
 
 

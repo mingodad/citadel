@@ -104,6 +104,9 @@ void CtdlUnregisterDeleteHook(void (*handler)(char *, long) );
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));
 void CtdlUnregisterCleanupHook(void (*fcn_ptr)(void));
 
+void CtdlRegisterEVCleanupHook(void (*fcn_ptr)(void));
+void CtdlUnregisterEVCleanupHook(void (*fcn_ptr)(void));
+
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
 
 void CtdlRegisterServiceHook(int tcp_port,

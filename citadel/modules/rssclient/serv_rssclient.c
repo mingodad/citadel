@@ -547,7 +547,7 @@ CTDL_MODULE_INIT(rssclient)
 		RSSFetchUrls = NewHash(1, NULL);
 		syslog(LOG_INFO, "%s\n", curl_version());
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
-		CtdlRegisterCleanupHook(rss_cleanup);
+		CtdlRegisterEVCleanupHook(rss_cleanup);
 	}
 	return "rssclient";
 }
