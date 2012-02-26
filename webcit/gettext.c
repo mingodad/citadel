@@ -209,12 +209,25 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
  */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {
-#ifdef HAVE_USELOCALE
 	int i;
+#ifndef HAVE_USELOCALE
+	char *Lang = getenv("LANG");
+	
+	if (Lang == NULL)
+		Lang = "C";
+#endif
+
+	if (nLocalesLoaded == 1) {
+		wc_printf("<p>%s</p>", AvailLangLoaded[0]);
+		return;
+	}
 
 	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\" onChange=\"switch_to_lang($('lname').value);\">\n");
 
 	for (i=0; i < nLocalesLoaded; ++i) {
+#ifndef HAVE_USELOCALE
+		if (strcmp(AvailLangLoaded[i], Lang) == 0)
+#endif
 		wc_printf("<option %s value=%s>%s</option>\n",
 			((WC->selected_language == i) ? "selected" : ""),
 			AvailLangLoaded[i],
@@ -223,9 +236,6 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 	}
 
 	wc_printf("</select>\n");
-#else
-	wc_printf("%s", (getenv("LANG") ? getenv("LANG") : "C"));
-#endif
 }
 
 /*
