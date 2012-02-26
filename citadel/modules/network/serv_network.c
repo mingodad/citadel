@@ -542,8 +542,10 @@ void network_do_queue(void) {
 	/*
 	 * Load the network map and filter list into memory.
 	 */
-	the_netmap = read_network_map();
-	load_network_filter_list();
+	if (!server_shutting_down)
+		the_netmap = read_network_map();
+	if (!server_shutting_down)
+		load_network_filter_list();
 
 	/* 
 	 * Go ahead and run the queue
@@ -553,7 +555,7 @@ void network_do_queue(void) {
 		CtdlForEachRoom(network_queue_interesting_rooms, &RL);
 	}
 
-	if (RL.rplist != NULL) {
+	if ((RL.rplist != NULL) && (!server_shutting_down)) {
 		RoomProcList *ptr, *cmp;
 		ptr = RL.rplist;
 		syslog(LOG_DEBUG, "network: running outbound queue\n");
