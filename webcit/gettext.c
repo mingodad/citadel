@@ -293,13 +293,6 @@ void initialize_locales(void) {
 	char buf[32];
 	char *language = NULL;
 
-#ifdef ENABLE_NLS
-	setlocale(LC_ALL, "");
-	syslog(9, "Text domain: %s", textdomain("webcit"));
-	syslog(9, "Message catalog directory: %s", bindtextdomain(textdomain(NULL), LOCALEDIR));
-	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit","UTF8"));
-#endif
-
 	nLocales = 0; 
 	while (!IsEmptyStr(AvailLang[nLocales]))
 		nLocales++;
@@ -335,12 +328,7 @@ void initialize_locales(void) {
 			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
-			syslog(1, "locale for %s disabled: %s (domain: %s, path: %s)",
-				buf,
-				strerror(errno),
-				textdomain(NULL),
-				bindtextdomain(textdomain(NULL), NULL)
-			);
+			syslog(1, "locale for %s disabled: %s", buf, strerror(errno));
 		}
 		else {
 			syslog(3, "Found locale: %s", buf);
@@ -376,6 +364,13 @@ void initialize_locales(void) {
 		AvailLangLoaded[0] = AvailLang[0];
 		nLocalesLoaded = 1;
 	}
+
+#ifdef ENABLE_NLS
+	setlocale(LC_ALL, "");
+	syslog(9, "Message catalog directory: %s", bindtextdomain("webcit", LOCALEDIR"/locale"));
+	syslog(9, "Text domain: %s", textdomain("webcit"));
+	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit","UTF8"));
+#endif
 }
 
 
