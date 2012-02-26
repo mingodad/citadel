@@ -51,7 +51,7 @@ locale_t *wc_locales; /* here we keep the parsed stuff */
 #endif
 
 /* Keep information about one locale */
-typedef struct _lang_pref{
+typedef struct _lang_pref {
 	char lang[16];          /* the language locale string */
 	char region[16];        /* the region locale string */
 	long priority;          /* which priority does it have */
@@ -367,9 +367,9 @@ void initialize_locales(void) {
 
 #ifdef ENABLE_NLS
 	setlocale(LC_ALL, "");
-	syslog(9, "Message catalog directory: %s", bindtextdomain("webcit", LOCALEDIR"/locale"));
 	syslog(9, "Text domain: %s", textdomain("webcit"));
-	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit","UTF8"));
+	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit", "UTF8"));
+	syslog(9, "Message catalog directory: %s", bindtextdomain(textdomain(NULL), LOCALEDIR"/locale"));
 #endif
 }
 
