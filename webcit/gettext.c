@@ -283,7 +283,7 @@ void initialize_locales(void) {
 		wc_locales[nLocalesLoaded] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
 			AvailLang[i],
-			NULL
+			wc_locales[0]
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
 			syslog(1, "locale for %s disabled: %s", AvailLang[i], strerror(errno));
