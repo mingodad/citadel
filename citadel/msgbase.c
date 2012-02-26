@@ -614,8 +614,22 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	}
 
 	/* Learn about the user and room in question */
+	if (server_shutting_down) {
+		if (need_to_free_re) regfree(&re);
+		return -1;
+	}
 	CtdlGetUser(&CC->user, CC->curr_user);
+
+	if (server_shutting_down) {
+		if (need_to_free_re) regfree(&re);
+		return -1;
+	}
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+
+	if (server_shutting_down) {
+		if (need_to_free_re) regfree(&re);
+		return -1;
+	}
 
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
@@ -649,6 +663,11 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 			 * enough to only do the read if the caller has
 			 * specified something that will need it.
 			 */
+			if (server_shutting_down) {
+				if (need_to_free_re) regfree(&re);
+				free(msglist);
+				return -1;
+			}
 			GetMetaData(&smi, msglist[a]);
 
 			/* if (strcasecmp(smi.meta_content_type, content_type)) { old non-regex way */
@@ -666,6 +685,11 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	if (num_msgs > 0) {
 		if (compare != NULL) {
 			for (a = 0; a < num_msgs; ++a) {
+				if (server_shutting_down) {
+					if (need_to_free_re) regfree(&re);
+					free(msglist);
+					return -1;
+				}
 				msg = CtdlFetchMessage(msglist[a], 1);
 				if (msg != NULL) {
 					if (CtdlMsgCmp(msg, compare)) {
@@ -728,6 +752,11 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	 */
 	if (num_msgs > 0)
 		for (a = 0; a < num_msgs; ++a) {
+			if (server_shutting_down) {
+				if (need_to_free_re) regfree(&re);
+				free(msglist);
+				return num_processed;
+			}
 			thismsg = msglist[a];
 			if (mode == MSGS_ALL) {
 				is_seen = 0;
