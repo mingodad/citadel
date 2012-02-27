@@ -196,6 +196,29 @@ void HFreeQueItem(void *Item)
  * - 3/4 (transient errors
  *        were experienced and it's time to try again)
  */
+int CheckQEntryActive(MailQEntry *ThisItem)
+{
+	if ((ThisItem->Status == 0) ||
+	    (ThisItem->Status == 3) ||
+	    (ThisItem->Status == 4))
+	{
+		return 1;
+	}
+	else
+		return 0;
+}
+int CheckQEntryIsBounce(MailQEntry *ThisItem)
+{
+	if ((ThisItem->Status == 3) ||
+	    (ThisItem->Status == 4) ||
+	    (ThisItem->Status == 5))
+	{
+		return 1;
+	}
+	else
+		return 0;
+}	
+
 int CountActiveQueueEntries(OneQueItem *MyQItem)
 {
 	HashPos  *It;
@@ -209,9 +232,8 @@ int CountActiveQueueEntries(OneQueItem *MyQItem)
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		if ((ThisItem->Status == 0) ||
-		    (ThisItem->Status == 3) ||
-		    (ThisItem->Status == 4))
+
+		if (CheckQEntryActive(ThisItem))
 		{
 			ActiveDeliveries++;
 			ThisItem->Active = 1;
@@ -326,11 +348,6 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 	{
 		MailQEntry *ThisItem = vQE;
 
-		if (!ThisItem->Active)
-		{
-			/* skip already sent ones from the spoolfile. */
-			continue;
-		}
 		StrBufAppendBufPlain(QMessage, HKEY("\nremote|"), 0);
 		StrBufAppendBuf(QMessage, ThisItem->Recipient, 0);
 		StrBufAppendBufPlain(QMessage, HKEY("|"), 0);
@@ -477,6 +494,9 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	int give_up = 0;
 
 	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
+
+	if (!MyQItem->SendBounceMail)
+		return;
 
 	if ( (ev_time() - MyQItem->Submitted) > SMTP_GIVE_UP ) {
 		give_up = 1;/// TODO: replace time by libevq timer get

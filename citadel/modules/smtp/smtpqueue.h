@@ -42,6 +42,7 @@ typedef struct _mailq_entry {
 }MailQEntry;
 
 typedef struct queueitem {
+	long SendBounceMail;
 	long MessageID;
 	long QueMsgID;
 	long Submitted;
@@ -69,3 +70,5 @@ void    RemoveQItem(OneQueItem *MyQItem);
 int     CountActiveQueueEntries(OneQueItem *MyQItem);
 StrBuf *SerializeQueueItem(OneQueItem *MyQItem);
 void    smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt);
+
+int CheckQEntryIsBounce(MailQEntry *ThisItem);

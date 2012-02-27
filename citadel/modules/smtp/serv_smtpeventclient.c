@@ -139,6 +139,13 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 
 	nRemain = CountActiveQueueEntries(Msg->MyQItem);
 
+	if (Msg->MyQEntry->Active && 
+	    CheckQEntryIsBounce(Msg->MyQEntry))
+	{
+		/* are we casue for a bounce mail? */
+		Msg->MyQItem->SendBounceMail = 1;
+	}
+
 	if ((nRemain > 0) || IDestructQueItem)
 		MsgData = SerializeQueueItem(Msg->MyQItem);
 	else
