@@ -290,5 +290,6 @@ eNextState ReAttachIO(AsyncIO *IO,
 		      int ReadFirst);
 
 void EV_backtrace(AsyncIO *IO);
+ev_tstamp ctdl_ev_now (void);
 
 #endif /* __EVENT_CLIENT_H__ */

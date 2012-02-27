@@ -955,3 +955,9 @@ void EV_backtrace(AsyncIO *IO)
 	free(strings);
 #endif
 }
+
+
+ev_tstamp ctdl_ev_now (void)
+{
+	return ev_now(event_base);
+}
