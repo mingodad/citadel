@@ -341,7 +341,7 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 
 	StrBufAppendBufPlain(QMessage, HKEY("\nattempted|"), 0);
 	StrBufAppendPrintf(QMessage, "%ld",
-			   MyQItem->ReattemptWhen);
+			   ctdl_ev_now() + MyQItem->Retry);
 
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
@@ -422,7 +422,10 @@ void QItem_Handle_retry(OneQueItem *Item, StrBuf *Line, const char **Pos)
 {
 	Item->Retry =
 		StrBufExtractNext_int(Line, Pos, '|');
-	Item->Retry *= 2;
+	if (Item->Retry == 0)
+		Item->Retry = SMTP_RETRY_INTERVAL;
+	else
+		Item->Retry *= 2;
 }
 
 
