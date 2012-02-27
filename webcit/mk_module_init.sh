@@ -26,7 +26,6 @@ H_FILE="$CUR_DIR/modules_init.h"
 MOD_FILE="$CUR_DIR/Make_modules"
 SRC_FILE="$CUR_DIR/Make_sources"
 U_FILE="$CUR_DIR/modules_upgrade.c"
-L_FILE="$CUR_DIR/language_list.h"
 
 /usr/bin/printf "Scanning extension modules for entry points.\n"
 
@@ -501,26 +500,4 @@ cat <<EOF  >> $H_FILE
 
 #endif /* MODULES_INIT_H */
 
-EOF
-
-
-### Now see what language modules we have installed ###
-/usr/bin/printf "Scanning language modules.\n"
-
-cat >$L_FILE <<EOF
-/* This file is generated automatically by mk_module_init.sh
- * Editing it by hand would be an exercise in futility.
- */
-const char *AvailLang[] = {
-        "C",
-EOF
-
-for x in po/webcit/*.po
-do
-	echo \	\"`basename $x | sed s/\.po\$//g`\",
-done >>$L_FILE
-
-cat >>$L_FILE <<EOF
-        ""
-};
 EOF

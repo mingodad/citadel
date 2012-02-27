@@ -15,7 +15,33 @@
 #define SEARCH_LANG 20		/* how many langs should we parse? */
 
 #ifdef ENABLE_NLS
-#include "language_list.h"
+/* actual supported locales */
+const char *AvailLang[] = {
+	"C",
+	"bg_BG",
+	"cs_CZ",
+	"en_US",
+	"da_DK",
+	"de_DE",
+	"el_GR",
+	"en_GB",
+	"es_ES",
+	"et_EE",
+	"fi_FI",
+	"fr_FR",
+	"hu_HU",
+	"it_IT",
+	"nl_NL",
+	"pt_BR",
+	"ru_RU",
+	"zh_CN",
+ 	"he_IL",
+	"kk_KK",
+	"ro_RO",
+	"sl_SL",
+	"tr_TR",
+	""
+};
 
 const char **AvailLangLoaded;
 long nLocalesLoaded = 0;
@@ -25,7 +51,7 @@ locale_t *wc_locales; /* here we keep the parsed stuff */
 #endif
 
 /* Keep information about one locale */
-typedef struct _lang_pref{
+typedef struct _lang_pref {
 	char lang[16];          /* the language locale string */
 	char region[16];        /* the region locale string */
 	long priority;          /* which priority does it have */
@@ -183,12 +209,25 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
  */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {
-#ifdef HAVE_USELOCALE
 	int i;
+#ifndef HAVE_USELOCALE
+	char *Lang = getenv("LANG");
+	
+	if (Lang == NULL)
+		Lang = "C";
+#endif
+
+	if (nLocalesLoaded == 1) {
+		wc_printf("<p>%s</p>", AvailLangLoaded[0]);
+		return;
+	}
 
 	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\" onChange=\"switch_to_lang($('lname').value);\">\n");
 
 	for (i=0; i < nLocalesLoaded; ++i) {
+#ifndef HAVE_USELOCALE
+		if (strcmp(AvailLangLoaded[i], Lang) == 0)
+#endif
 		wc_printf("<option %s value=%s>%s</option>\n",
 			((WC->selected_language == i) ? "selected" : ""),
 			AvailLangLoaded[i],
@@ -197,9 +236,6 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 	}
 
 	wc_printf("</select>\n");
-#else
-	wc_printf("%s", (getenv("LANG") ? getenv("LANG") : "C"));
-#endif
 }
 
 /*
@@ -244,6 +280,9 @@ void stop_selected_language(void) {
 #endif
 }
 
+#ifdef HAVE_USELOCALE
+	locale_t Empty_Locale;
+#endif
 
 /*
  * Create a locale_t for each available language
@@ -251,14 +290,8 @@ void stop_selected_language(void) {
 void initialize_locales(void) {
 	int nLocales;
 	int i;
+	char buf[32];
 	char *language = NULL;
-
-#ifdef ENABLE_NLS
-	setlocale(LC_ALL, "");
-	syslog(9, "Text domain: %s", textdomain("webcit"));
-	syslog(9, "Message catalog directory: %s", bindtextdomain(textdomain(NULL), LOCALEDIR"/locale"));
-	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit","UTF8"));
-#endif
 
 	nLocales = 0; 
 	while (!IsEmptyStr(AvailLang[nLocales]))
@@ -275,33 +308,42 @@ void initialize_locales(void) {
 #ifdef HAVE_USELOCALE
 	wc_locales = malloc (sizeof(locale_t) * nLocales);
 	memset(wc_locales,0, sizeof(locale_t) * nLocales);
-	wc_locales[0] = newlocale(LC_ALL_MASK, NULL, NULL);
+	/* create default locale */
+	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
 #endif
 
-	for (i = 1; i < nLocales; ++i) {
+	for (i = 0; i < nLocales; ++i) {
+		if ((language != NULL) && (strcmp(AvailLang[i], language) != 0))
+			continue;
+		if (i == 0) {
+			sprintf(buf, "%s", AvailLang[i]);	/* locale 0 (C) is ascii, not utf-8 */
+		}
+		else {
+			sprintf(buf, "%s.UTF8", AvailLang[i]);
+		}
 #ifdef HAVE_USELOCALE
 		wc_locales[nLocalesLoaded] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
-			AvailLang[i],
-			NULL
+			buf,
+			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
-			syslog(1, "locale for %s disabled: %s", AvailLang[i], strerror(errno));
+			syslog(1, "locale for %s disabled: %s", buf, strerror(errno));
 		}
 		else {
-			syslog(3, "Found locale: %s", AvailLang[i]);
+			syslog(3, "Found locale: %s", buf);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
 #else
 		if ((language != NULL) && (strcmp(language, AvailLang[i]) == 0)) {
-			setenv("LANG", AvailLang[i], 1);
+			setenv("LANG", buf, 1);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			setlocale(LC_MESSAGES, AvailLang[i]);
 			nLocalesLoaded++;
 		}
 		else if (nLocalesLoaded == 0) {
-			setenv("LANG", AvailLang[i], 1);
+			setenv("LANG", buf, 1);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
@@ -309,13 +351,26 @@ void initialize_locales(void) {
 	}
 	if ((language != NULL) && (nLocalesLoaded == 0)) {
 		syslog(1, "Your selected locale [%s] isn't available on your system. falling back to C", language);
-#ifndef HAVE_USELOCALE
+#ifdef HAVE_USELOCALE
+		wc_locales[0] = newlocale(
+			(LC_MESSAGES_MASK|LC_TIME_MASK),
+			AvailLang[0],
+			Empty_Locale
+		);
+#else
 		setlocale(LC_MESSAGES, AvailLang[0]);
 		setenv("LANG", AvailLang[0], 1);
 #endif
 		AvailLangLoaded[0] = AvailLang[0];
 		nLocalesLoaded = 1;
 	}
+
+#ifdef ENABLE_NLS
+	setlocale(LC_ALL, "");
+	syslog(9, "Text domain: %s", textdomain("webcit"));
+	syslog(9, "Text domain Charset: %s", bind_textdomain_codeset("webcit", "UTF8"));
+	syslog(9, "Message catalog directory: %s", bindtextdomain(textdomain(NULL), LOCALEDIR"/locale"));
+#endif
 }
 
 
@@ -326,7 +381,9 @@ ServerShutdownModule_GETTEXT
 #ifdef HAVE_USELOCALE
 	int i;
 	for (i = 0; i < nLocalesLoaded; ++i) {
-		freelocale(wc_locales[i]);
+		if (Empty_Locale != wc_locales[i]) {
+			freelocale(wc_locales[i]);
+		}
 	}
 	free(wc_locales);
 #endif
@@ -340,6 +397,13 @@ const char *AvailLang[] = {
 };
 
 /* dummy for non NLS enabled systems */
+void 
+ServerShutdownModule_GETTEXT
+(void)
+{
+}
+
+
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {
 	wc_printf("English (US)");

@@ -4,19 +4,14 @@
  *
  * Copyright (c) 1987-2012 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  
- *  
- *  
  */
 
 #include "sysdep.h"
@@ -76,8 +71,6 @@ void cmd_rwho(char *argbuf) {
 	/* So that we don't keep the context list locked for a long time
 	 * we create a copy of it first
 	 */
-	
-
 	nptr = CtdlGetContextArray(&nContexts) ;
 	if (!nptr)
 	{
@@ -87,7 +80,7 @@ void cmd_rwho(char *argbuf) {
 		return;
 	}
 	
-	aide = (CC->user.axlevel >= AxAideU) ;
+	aide = ( (CC->user.axlevel >= AxAideU) || (CC->internal_pgm) ) ;
 	cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
 	
 	for (i=0; i<nContexts; i++) 
