@@ -372,7 +372,7 @@ void save_sieve(void) {
 	int bigaction;
 	char script_names[MAX_SCRIPTS][64];
 	int num_scripts = 0;
-	int active_script = (-1);
+	int active_script = (-1);	/* this throws a 'set but not used' warning , check this ! */
 	int i;
 	char this_name[64];
 	char buf[256];
@@ -1520,13 +1520,13 @@ void FreeSieveRule(void *vRule)
 #define WC_RULE_HEADER "# WEBCIT_RULE|"
 HashList *GetSieveRules(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBuf *Line;
-	StrBuf *EncodedRule;
-	int n;
-	const char *pch;
+	StrBuf *Line = NULL;
+	StrBuf *EncodedRule = NULL;
+	int n = 0;
+	const char *pch = NULL;
 	HashList *SieveRules = NULL;
 	int Done = 0;
-	SieveRule *Rule;
+	SieveRule *Rule = NULL;
 
 	SieveRules = NewHash(1, Flathash);
 	serv_printf("MSIV getscript|"RULES_SCRIPT);
