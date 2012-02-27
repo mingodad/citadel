@@ -42,9 +42,7 @@ void brand_new_installation_set_defaults(void) {
 	uname(&my_utsname);
 
 	/* set some sample/default values in place of blanks... */
-	char c_nodename[256];
-	safestrncpy(c_nodename, my_utsname.nodename, sizeof c_nodename);
-	strtok(config.c_nodename, ".");
+	extract_token(config.c_nodename, my_utsname.nodename, 0, '.', sizeof config.c_nodename);
 	if (IsEmptyStr(config.c_fqdn) ) {
 		if ((he = gethostbyname(my_utsname.nodename)) != NULL) {
 			safestrncpy(config.c_fqdn, he->h_name, sizeof config.c_fqdn);
