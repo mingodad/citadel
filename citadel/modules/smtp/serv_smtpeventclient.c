@@ -143,7 +143,7 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 	    CheckQEntryIsBounce(Msg->MyQEntry))
 	{
 		/* are we casue for a bounce mail? */
-		Msg->MyQItem->SendBounceMail = 1;
+		Msg->MyQItem->SendBounceMail |= (1<<Msg->MyQEntry->Status);
 	}
 
 	if ((nRemain > 0) || IDestructQueItem)

@@ -483,39 +483,46 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	StrBuf *Msg = NULL;
 	StrBuf *BounceMB;
 	struct recptypes *valid;
+	time_t now;
 
 	HashPos *It;
 	void *vQE;
 	long len;
 	const char *Key;
 
+	int first_attempt = 0;
 	int successful_bounce = 0;
 	int num_bounces = 0;
 	int give_up = 0;
 
 	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
 
-	if (!MyQItem->SendBounceMail)
+	if (MyQItem->SendBounceMail == 0)
 		return;
 
-	if ( (ev_time() - MyQItem->Submitted) > SMTP_GIVE_UP ) {
-		give_up = 1;/// TODO: replace time by libevq timer get
+	now = ev_time();
+
+	if ( (now - MyQItem->Submitted) > SMTP_GIVE_UP ) {
+		give_up = 1;
+	}
+
+	if (MyQItem->Retry == SMTP_RETRY_INTERVAL) {
+		first_attempt = 1;
 	}
 
 	/*
 	 * Now go through the instructions checking for stuff.
 	 */
+	Msg = NewStrBufPlain(NULL, 1024);
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		if ((ThisItem->Status == 5) || /* failed now? */
-		    ((give_up == 1) &&
-		     (ThisItem->Status != 2)))
+		if ((ThisItem->Active && (ThisItem->Status == 5)) || /* failed now? */
+		    ((give_up == 1) && (ThisItem->Status != 2)) ||
+		    ((first_attempt == 1) && (ThisItem->Status != 2)))
 			/* giving up after failed attempts... */
 		{
-			if (num_bounces == 0)
-				Msg = NewStrBufPlain(NULL, 1024);
 			++num_bounces;
 
 			StrBufAppendBuf(Msg, ThisItem->Recipient, 0);
