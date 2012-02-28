@@ -450,21 +450,35 @@ int ctdl_getsize(sieve2_context_t *s, void *my)
 
 
 /*
- * Callback function to retrieve the sieve script
+ * Return a pointer to the active Sieve script
  */
-int ctdl_getscript(sieve2_context_t *s, void *my) {
+char *get_active_script(struct ctdl_sieve *cs) {
 	struct sdm_script *sptr;
-	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
 	for (sptr=cs->u->first_script; sptr!=NULL; sptr=sptr->next) {
 		if (sptr->script_active > 0) {
-			syslog(LOG_DEBUG, "ctdl_getscript() is using script '%s'", sptr->script_name);
-			sieve2_setvalue_string(s, "script", sptr->script_content);
-			return SIEVE2_OK;
+			syslog(LOG_DEBUG, "get_active_script() is using script '%s'", sptr->script_name);
+			return(sptr->script_content);
 		}
 	}
-		
-	syslog(LOG_DEBUG, "ctdl_getscript() found no active script");
+
+	syslog(LOG_DEBUG, "get_active_script() found no active script");
+	return(NULL);
+}
+
+
+/*
+ * Callback function to retrieve the sieve script
+ */
+int ctdl_getscript(sieve2_context_t *s, void *my) {
+	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
+
+	char *active_script = get_active_script(cs);
+	if (active_script != NULL) {
+		sieve2_setvalue_string(s, "script", active_script);
+		return SIEVE2_OK;
+	}
+
 	return SIEVE2_ERROR_GETSCRIPT;
 }
 
