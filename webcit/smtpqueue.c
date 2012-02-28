@@ -310,6 +310,16 @@ typedef struct queueitem {
 
 typedef void (*QItemHandler)(OneQueItem *Item, StrBuf *Line, const char **Pos);
 
+typedef struct __QItemHandlerStruct {
+	QItemHandler H;
+} QItemHandlerStruct;
+
+void RegisterQItemHandler(const char *Key, long Len, QItemHandler H)
+{
+	QItemHandlerStruct *HS = (QItemHandlerStruct*)malloc(sizeof(QItemHandlerStruct));
+	HS->H = H;
+	Put(QItemHandlers, Key, Len, HS, NULL);
+}
 
 void FreeMailQEntry(void *qv)
 {
@@ -358,9 +368,9 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 		StrBufExtract_NextToken(Token, Line, &pItemPart, '|');
 		if (GetHash(QItemHandlers, SKEY(Token), &vHandler))
 		{
-			QItemHandler H;
-			H = (QItemHandler) vHandler;
-			H(Item, Line, &pItemPart);
+			QItemHandlerStruct *HS;
+			HS = (QItemHandlerStruct*) vHandler;
+			HS->H(Item, Line, &pItemPart);
 		}
 	}
 	FreeStrBuf(&Line);
@@ -642,14 +652,14 @@ InitModule_SMTP_QUEUE
 (void)
 {
 
-	Put(QItemHandlers, HKEY("msgid"), QItem_Handle_MsgID, reference_free_handler);
-	Put(QItemHandlers, HKEY("envelope_from"), QItem_Handle_EnvelopeFrom, reference_free_handler);
-	Put(QItemHandlers, HKEY("retry"), QItem_Handle_retry, reference_free_handler);
-	Put(QItemHandlers, HKEY("attempted"), QItem_Handle_Attempted, reference_free_handler);
-	Put(QItemHandlers, HKEY("remote"), QItem_Handle_Recipient, reference_free_handler);
-	Put(QItemHandlers, HKEY("bounceto"), QItem_Handle_BounceTo, reference_free_handler);
-	Put(QItemHandlers, HKEY("source_room"), QItem_Handle_SenderRoom, reference_free_handler);
-	Put(QItemHandlers, HKEY("submitted"), QItem_Handle_Submitted, reference_free_handler);
+	RegisterQItemHandler(HKEY("msgid"),		QItem_Handle_MsgID);
+	RegisterQItemHandler(HKEY("envelope_from"),	QItem_Handle_EnvelopeFrom);
+	RegisterQItemHandler(HKEY("retry"),		QItem_Handle_retry);
+	RegisterQItemHandler(HKEY("attempted"),		QItem_Handle_Attempted);
+	RegisterQItemHandler(HKEY("remote"),		QItem_Handle_Recipient);
+	RegisterQItemHandler(HKEY("bounceto"),		QItem_Handle_BounceTo);
+	RegisterQItemHandler(HKEY("source_room"),	QItem_Handle_SenderRoom);
+	RegisterQItemHandler(HKEY("submitted"),		QItem_Handle_Submitted);
 
 	WebcitAddUrlHandler(HKEY("display_smtpqueue"), "", 0, display_smtpqueue, 0);
 	WebcitAddUrlHandler(HKEY("display_smtpqueue_inner_div"), "", 0, display_smtpqueue_inner_div, 0);

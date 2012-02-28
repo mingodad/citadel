@@ -65,6 +65,10 @@ typedef struct queueitem {
 
 typedef void (*QItemHandler)(OneQueItem *Item, StrBuf *Line, const char **Pos);
 
+
+typedef struct __QItemHandlerStruct {
+	QItemHandler H;
+} QItemHandlerStruct;
 int     DecreaseQReference(OneQueItem *MyQItem);
 void    RemoveQItem(OneQueItem *MyQItem);
 int     CountActiveQueueEntries(OneQueItem *MyQItem);
