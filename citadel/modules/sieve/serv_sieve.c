@@ -889,7 +889,14 @@ void sieve_do_room(char *roomname) {
 		return;
 	}
 
-	/* FIXME this is where we have to check for empty scripts */
+	/*
+	 * Check to see whether the script is empty and should not be processed.
+	 * A script is considered non-empty if it contains at least one semicolon.
+	 */
+	if ((strchr(get_active_script(&u), ';') == NULL)) {
+		syslog(LOG_DEBUG, "Sieve script is empty.  No processing is required.");
+		return;
+	}
 
 	syslog(LOG_DEBUG, "Rules found.  Performing Sieve processing for <%s>", roomname);
 
