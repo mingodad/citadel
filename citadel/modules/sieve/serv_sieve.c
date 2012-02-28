@@ -450,12 +450,13 @@ int ctdl_getsize(sieve2_context_t *s, void *my)
 
 
 /*
- * Return a pointer to the active Sieve script
+ * Return a pointer to the active Sieve script.
+ * (Caller does NOT own the memory and should not free the returned pointer.)
  */
-char *get_active_script(struct ctdl_sieve *cs) {
+char *get_active_script(struct sdm_userdata *u) {
 	struct sdm_script *sptr;
 
-	for (sptr=cs->u->first_script; sptr!=NULL; sptr=sptr->next) {
+	for (sptr=u->first_script; sptr!=NULL; sptr=sptr->next) {
 		if (sptr->script_active > 0) {
 			syslog(LOG_DEBUG, "get_active_script() is using script '%s'", sptr->script_name);
 			return(sptr->script_content);
@@ -473,7 +474,7 @@ char *get_active_script(struct ctdl_sieve *cs) {
 int ctdl_getscript(sieve2_context_t *s, void *my) {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 
-	char *active_script = get_active_script(cs);
+	char *active_script = get_active_script(cs->u);
 	if (active_script != NULL) {
 		sieve2_setvalue_string(s, "script", active_script);
 		return SIEVE2_OK;
