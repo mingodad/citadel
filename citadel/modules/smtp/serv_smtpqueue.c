@@ -350,7 +350,7 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 
 	StrBufAppendBufPlain(QMessage, HKEY("\nattempted|"), 0);
 	StrBufAppendPrintf(QMessage, "%ld",
-			   ctdl_ev_now() + MyQItem->Retry);
+			   time(NULL) /*ctdl_ev_now()*/ + MyQItem->Retry);
 
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
@@ -512,7 +512,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	if (MyQItem->SendBounceMail == 0)
 		return;
 
-	now = ev_time();
+	now = time (NULL); //ev_time();
 
 	if ( (now - MyQItem->Submitted) > SMTP_GIVE_UP ) {
 		give_up = 1;
@@ -689,6 +689,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
  * Called by smtp_do_queue() to handle an individual message.
  */
 void smtp_do_procmsg(long msgnum, void *userdata) {
+	time_t now;
 	int mynumsessions = num_sessions;
 	struct CtdlMessage *msg = NULL;
 	char *instr = NULL;
@@ -746,11 +747,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	/*
 	 * Postpone delivery if we've already tried recently.
 	 */
+	now = time(NULL);
 	if ((MyQItem->ReattemptWhen != 0) && 
-	    (time(NULL) < MyQItem->ReattemptWhen) &&
+	    (now < MyQItem->ReattemptWhen) &&
 	    (run_queue_now == 0))
 	{
-		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
+		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached. %ld seconds left.",  MyQItem->ReattemptWhen - now);
 
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
