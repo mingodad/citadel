@@ -524,9 +524,7 @@ void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
 
 void QItem_Handle_retry(OneQueItem *Item, StrBuf *Line, const char **Pos)
 {
-	Item->Retry =
-		StrBufExtractNext_int(Line, Pos, '|');
-	Item->Retry *= 2;
+	Item->Retry = StrBufExtractNext_int(Line, Pos, '|');
 }
 
 
