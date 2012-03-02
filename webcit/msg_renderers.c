@@ -869,15 +869,11 @@ void tmplput_MAIL_SUMM_PERMALINK(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
 	char perma_link[1024];
-	char encoded_link[1024];
 
 	strcpy(perma_link, "/readfwd?go=");
 	urlesc(&perma_link[12], sizeof(perma_link) - 12, (char *)ChrPtr(WC->CurRoom.name) );
 	sprintf(&perma_link[strlen(perma_link)], "?start_reading_at=%ld#%ld", Msg->msgnum, Msg->msgnum);
-
-
-	CtdlEncodeBase64(encoded_link, perma_link, strlen(perma_link), 0);
-	StrBufAppendPrintf(Target, "/B64%s", encoded_link);
+	StrBufAppendPrintf(Target, "%s", perma_link);
 }
 
 
