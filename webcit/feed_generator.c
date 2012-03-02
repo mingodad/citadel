@@ -249,15 +249,12 @@ void tmplput_rssmeta(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	char feed_link[1024];
-	char encoded_link[1024];
 
 	strcpy(feed_link, "/feed_rss?go=");
 	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
-	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
-
 	StrBufAppendPrintf(Target,
-		"<link rel=\"alternate\" title=\"RSS\" href=\"/B64%s\" type=\"application/rss+xml\">",
-		encoded_link
+		"<link rel=\"alternate\" title=\"RSS\" href=\"%s\" type=\"application/rss+xml\">",
+		feed_link
 	);
 }
 
