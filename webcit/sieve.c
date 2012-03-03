@@ -34,9 +34,6 @@ void osr_sanitize(char *str) {
 	}
 }
 
-void display_add_remove_scripts(char *message);
-void display_rules_editor_inner_div(void);
-
 
 /*
  * Output parseable Sieve script code based on rules input
