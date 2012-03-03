@@ -159,9 +159,10 @@ body {
 
 .imsg {
 	background: none;
-	color: #AAA;
+	color: #EEE;
 	font-style: italic;
 	font-weight: 700;
+	text-align: center;
 }
 
 .menubar_bg { background-color: red }
@@ -373,11 +374,6 @@ a:visited { color: #70342e }
 	color: black;
 }
 
-#important_message {
-	background-color: #3E65AF;
-	color: #FFF;
-}
-
 input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title {
 	background-color: #efefe0; /*#fbf4ca;*/
 	border: 2px solid #5c646b;
@@ -426,11 +422,13 @@ body {
 }
 
 #important_message {
+	background-color: #3E65AF;
+	color: #FFF;
 	position: absolute;
-	top: 0; 
-	right: 0;
+	top: 25; 
 	z-index: 4;
 	padding: 3px;
+	margin: 0px auto;
 }
 
 #hellomsg, .fmout, .nomsgs {
@@ -658,7 +656,6 @@ input#delbutton {
 
 .toolbar img { float: right }
 
-.imsg { text-align: center }
 
 colgroup.entity { text-align: center }
 
