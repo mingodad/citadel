@@ -4699,32 +4699,51 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 		cdb_free(cdbfr);
 	}
 	if (num_msgs > 0) {
-		for (i = 0; i < num_msgs; ++i) {
+		int have_contenttype = !IsEmptyStr(content_type);
+		int have_delmsgs = (num_dmsgnums == 0) || (dmsgnums == NULL);
+		int have_more_del = 1;
+
+		num_msgs = sort_msglist(msglist, num_msgs);
+		if (num_dmsgnums > 1)
+			num_dmsgnums = sort_msglist(dmsgnums, num_dmsgnums);
+/*
+		{
+			StrBuf *dbg = NewStrBuf();
+			for (i = 0; i < num_dmsgnums; i++)
+				StrBufAppendPrintf(dbg, ", %ld", dmsgnums[i]);
+			syslog(LOG_DEBUG, "Deleting before: %s", ChrPtr(dbg));
+			FreeStrBuf(&dbg);
+		}
+*/
+		i = 0; j = 0;
+		while ((i < num_msgs) && (have_more_del)) {
 			delete_this = 0x00;
+
 
 			/* Set/clear a bit for each criterion */
 
 			/* 0 messages in the list or a null list means that we are
 			 * interested in deleting any messages which meet the other criteria.
 			 */
-			if ((num_dmsgnums == 0) || (dmsgnums == NULL)) {
+			if (have_delmsgs) {
 				delete_this |= 0x01;
 			}
 			else {
-				for (j=0; j<num_dmsgnums; ++j) {
-					if (msglist[i] == dmsgnums[j]) {
-						delete_this |= 0x01;
-					}
+				while ((i < num_msgs) && (msglist[i] < dmsgnums[j])) i++;
+				if (msglist[i] == dmsgnums[j]) {
+					delete_this |= 0x01;
 				}
+				j++;
+				have_more_del = (j < num_dmsgnums);
 			}
 
-			if (IsEmptyStr(content_type)) {
-				delete_this |= 0x02;
-			} else {
+			if (have_contenttype) {
 				GetMetaData(&smi, msglist[i]);
 				if (regexec(&re, smi.meta_content_type, 1, &pm, 0) == 0) {
 					delete_this |= 0x02;
 				}
+			} else {
+				delete_this |= 0x02;
 			}
 
 			/* Delete message only if all bits are set */
@@ -4732,8 +4751,17 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 				dellist[num_deleted++] = msglist[i];
 				msglist[i] = 0L;
 			}
+			i++;
 		}
-
+/*
+		{
+			StrBuf *dbg = NewStrBuf();
+			for (i = 0; i < num_deleted; i++)
+				StrBufAppendPrintf(dbg, ", %ld", dellist[i]);
+			syslog(LOG_DEBUG, "Deleting: %s", ChrPtr(dbg));
+			FreeStrBuf(&dbg);
+		}
+*/
 		num_msgs = sort_msglist(msglist, num_msgs);
 		cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, (int)sizeof(long),
 			  msglist, (int)(num_msgs * sizeof(long)));
