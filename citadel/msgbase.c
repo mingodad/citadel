@@ -2794,9 +2794,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 
 	/* Bump the reference count for all messages which were merged */
 	if (!suppress_refcount_adj) {
-		for (i=0; i<num_msgs_to_be_merged; ++i) {
-			AdjRefCount(msgs_to_be_merged[i], +1);
-		}
+		AdjRefCountList(msgs_to_be_merged, num_msgs_to_be_merged, +1);
 	}
 
 	/* Free up memory... */
