@@ -1053,9 +1053,9 @@ void dvca_mime_callback(char *name, char *filename, char *partnum, char *disp,
 		char *cbid, void *cbuserdata) {
 
 	struct vCard *v;
-	char displayname[256];
+	char displayname[256] = "";
 	int displayname_len;
-	char emailaddr[256];
+	char emailaddr[256] = "";
 	int i;
 	int has_commas = 0;
 
