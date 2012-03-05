@@ -68,6 +68,8 @@ struct addresses_to_be_filed *atbf = NULL;
 /* This temp file holds the queue of operations for AdjRefCount() */
 static FILE *arcfp = NULL;
 
+void AdjRefCountList(long *msgnum, long nmsg, int incr);
+
 /*
  * These are the four-character field headers we use when outputting
  * messages in Citadel format (as opposed to RFC822 format).
@@ -4781,11 +4783,12 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	 * and we don't want that happening during an S_ROOMS critical
 	 * section.
 	 */
-	if (num_deleted) for (i=0; i<num_deleted; ++i) {
+	if (num_deleted) {
+		for (i=0; i<num_deleted; ++i) {
 			PerformDeleteHooks(qrbuf.QRname, dellist[i]);
-			AdjRefCount(dellist[i], -1);
 		}
-
+		AdjRefCountList(dellist, num_deleted, -1);
+	}
 	/* Now free the memory we used, and go away. */
 	if (msglist != NULL) free(msglist);
 	if (dellist != NULL) free(dellist);
@@ -5061,6 +5064,57 @@ void AdjRefCount(long msgnum, int incr)
 		       file_arcq,
 		       strerror(errno));
 	}
+	fflush(arcfp);
+
+	return;
+}
+
+void AdjRefCountList(long *msgnum, long nmsg, int incr)
+{
+	long i, the_size, offset;
+	struct arcq *new_arcq;
+	int rv = 0;
+
+	syslog(LOG_DEBUG, "AdjRefCountList() msg %ld ref count delta %+d\n", nmsg, incr);
+
+	begin_critical_section(S_SUPPMSGMAIN);
+	if (arcfp == NULL) {
+		arcfp = fopen(file_arcq, "ab+");
+		chown(file_arcq, CTDLUID, (-1));
+		chmod(file_arcq, 0600);
+	}
+	end_critical_section(S_SUPPMSGMAIN);
+
+	/*
+	 * If we can't open the queue, perform the operation synchronously.
+	 */
+	if (arcfp == NULL) {
+		for (i = 0; i < nmsg; i++)
+			TDAP_AdjRefCount(msgnum[i], incr);
+		return;
+	}
+
+	the_size = sizeof(struct arcq) * nmsg;
+	new_arcq = malloc(the_size);
+	for (i = 0; i < nmsg; i++) {
+		new_arcq[i].arcq_msgnum = msgnum[i];
+		new_arcq[i].arcq_delta = incr;
+	}
+	rv = 0;
+	offset = 0;
+	while ((rv >= 0) && (offset < the_size))
+	{
+		rv = fwrite(new_arcq + offset, 1, the_size - offset, arcfp);
+		if (rv == -1) {
+			syslog(LOG_EMERG, "Couldn't write Refcount Queue File %s: %s\n",
+			       file_arcq,
+			       strerror(errno));
+		}
+		else {
+			offset += rv;
+		}
+	}
+	free(new_arcq);
 	fflush(arcfp);
 
 	return;
