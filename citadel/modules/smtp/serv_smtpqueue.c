@@ -630,7 +630,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	}
 
 	/* Attach the original message */
-	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\r\n--"), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
 	StrBufAppendBufPlain(BounceMB,
