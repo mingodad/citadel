@@ -388,6 +388,50 @@ void free_parts(struct parts *p)
 
 
 /*
+ * This is a mini RFC2047 decoder.
+ * It only handles strings encoded from UTF-8 as Quoted-printable.
+ */
+void mini_2047_decode(char *s) {
+	if (!s) return;
+
+	char *qstart = strstr(s, "=?UTF-8?Q?");
+	if (!qstart) return;
+
+	char *qend = strstr(s, "?=");
+	if (!qend) return;
+
+	if (qend <= qstart) return;
+
+	strcpy(qstart, &qstart[10]);
+	qend -= 10;
+
+	char *p = qstart;
+	while (p < qend) {
+
+		if (p[0] == '=') {
+
+			char ch[3];
+			ch[0] = p[1];
+			ch[1] = p[2];
+			ch[2] = p[3];
+			int c;
+			sscanf(ch, "%02x", &c);
+			p[0] = c;
+			strcpy(&p[1], &p[3]);
+			qend -= 2;
+		}
+
+		if (p[0] == '_') {
+			p[0] = ' ';
+		}
+		
+		++p;
+	}
+
+	strcpy(qend, &qend[2]);
+}
+
+/*
  * Read a message from the server
  */
 int read_message(CtdlIPC *ipc,
@@ -468,7 +512,8 @@ int read_message(CtdlIPC *ipc,
 				scr_printf("part=%s|%s|%s|%s|%s|%ld\n",
 					ptr->name, ptr->filename, ptr->number,
 					ptr->disposition, ptr->mimetype,
-					ptr->length);
+					ptr->length
+				);
 			}
 		}
 		scr_printf("\n");
@@ -607,12 +652,12 @@ int read_message(CtdlIPC *ipc,
 		safestrncpy(reply_subject, message->subject, sizeof reply_subject);
 		if (!IsEmptyStr(message->subject)) {
 			if (dest) {
-				fprintf(dest, "Subject: %s\n",
-							message->subject);
+				fprintf(dest, "Subject: %s\n", message->subject);
 			} else {
 				color(DIM_WHITE);
 				scr_printf("Subject: ");
 				color(BRIGHT_CYAN);
+				mini_2047_decode(message->subject);
 				scr_printf("%s\n", message->subject);
 			}
 		}
@@ -1002,7 +1047,6 @@ MECR:	if (mode >= 2) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
 			fmout(screenwidth, fp, NULL, NULL, 0);
-			/* TODO: why ftell if we ignore the result? */
 			beg = ftell(fp);
 			if (beg < 0)
 				scr_printf("failed to get stream position %s\n", 

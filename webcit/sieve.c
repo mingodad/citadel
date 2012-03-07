@@ -534,8 +534,9 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 	int Done = 0;
 	SieveListing *Ruleset;
 
-	if (WCC->KnownSieveScripts != NULL)
+	if (WCC->KnownSieveScripts != NULL) {
 		return WCC->KnownSieveScripts;
+	}
 
 	serv_puts("MSIV listscripts");
 	Line = NewStrBuf();
