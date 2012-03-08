@@ -69,6 +69,7 @@
 #include "citadel_dirs.h"
 
 #include "event_client.h"
+#include "ctdl_module.h"
 
 static void IO_abort_shutdown_callback(struct ev_loop *loop,
 				       ev_cleanup *watcher,
@@ -731,6 +732,7 @@ eNextState EvConnectSock(AsyncIO *IO,
 			 double first_rw_timeout,
 			 int ReadFirst)
 {
+	struct sockaddr_in egress_sin;
 	int fdflags;
 	int rc = -1;
 
@@ -799,19 +801,38 @@ eNextState EvConnectSock(AsyncIO *IO,
 	IO->rw_timeout.data = IO;
 
 
+
+
 	/* for debugging you may bypass it like this:
 	 * IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	 * ((struct sockaddr_in)IO->ConnectMe->Addr).sin_addr.s_addr =
 	 *   inet_addr("127.0.0.1");
 	 */
-	if (IO->ConnectMe->IPv6)
+	if (IO->ConnectMe->IPv6) {
 		rc = connect(IO->SendBuf.fd,
 			     &IO->ConnectMe->Addr,
 			     sizeof(struct sockaddr_in6));
-	else
+	}
+	else {
+		/* If citserver is bound to a specific IP address on the host, make
+		 * sure we use that address for outbound connections.
+		 */
+	
+		memset(&egress_sin, 0, sizeof(egress_sin));
+		egress_sin.sin_family = AF_INET;
+		if (!IsEmptyStr(config.c_ip_addr)) {
+			egress_sin.sin_addr.s_addr = inet_addr(config.c_ip_addr);
+			if (egress_sin.sin_addr.s_addr == !INADDR_ANY) {
+				egress_sin.sin_addr.s_addr = INADDR_ANY;
+			}
+
+			/* If this bind fails, no problem; we can still use INADDR_ANY */
+			bind(IO->SendBuf.fd, (struct sockaddr *)&egress_sin, sizeof(egress_sin));
+		}
 		rc = connect(IO->SendBuf.fd,
 			     (struct sockaddr_in *)&IO->ConnectMe->Addr,
 			     sizeof(struct sockaddr_in));
+	}
 
 	if (rc >= 0){
 		EVM_syslog(LOG_DEBUG, "connect() immediate success.\n");
