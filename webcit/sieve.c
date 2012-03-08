@@ -564,8 +564,10 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 				++num_scripts;
 			}
 	}
-	if ((num_scripts > 0) && (rules_script_active == 0))
+
+	if ((num_scripts > 0) && (rules_script_active == 0)) {
 		PutBstr(HKEY("__SIEVE:EXTERNAL_SCRIPT"), NewStrBufPlain(HKEY("1")));
+	}
 
 	if (num_scripts > have_rules_script)
 	{
@@ -585,18 +587,14 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 		{
 			Ruleset = (SieveListing *) vRuleset;
 
-			/*
-			 * its the webcit rule? we don't need to load that here.
-			 */
-			if (Ruleset->IsRulesScript)
-				continue;
+			// FIXME add logic to skip if it's the webcit generated script
 
-			if (!serv_printf("MSIV getscript|%s", ChrPtr(Ruleset->Name)))
-				break;
+			serv_printf("MSIV getscript|%s", ChrPtr(Ruleset->Name));
 			StrBuf_ServGetln(Line);
 			if (GetServerStatus(Line, NULL) == 1) 
 			{
 				Ruleset->Content = NewStrBuf();
+				Done = 0;
 				while(!Done && (rc = StrBuf_ServGetln(Line), rc >= 0) )
 					if ( (StrLength(Line)==3) && 
 					     !strcmp(ChrPtr(Line), "000")) 
