@@ -8,6 +8,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ *
+ * FIXME: add logic to exclude the webcit-generated script from the manual script selection
  */
 
 #include "webcit.h"
@@ -15,6 +17,7 @@
 #define MAX_SCRIPTS	100
 #define MAX_RULES	50
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
+
 
 /*
  * Helper function for output_sieve_rule() to output strings with quotes escaped
@@ -188,7 +191,6 @@ void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp,
 		serv_printf("{");
 	}
 
-
 	/* Do action */
 
 	if (!strcasecmp(action, "keep")) {
@@ -215,13 +217,11 @@ void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp,
 		serv_printf("vacation :addresses [%s]\n\"%s\";", my_addresses, automsg);
 	}
 
-
 	/* Do 'final' action */
 
 	if (!strcasecmp(final, "stop")) {
 		serv_printf("stop;");
 	}
-
 
 	/* Close the braces if we're in a conditional loop */
 
@@ -229,10 +229,8 @@ void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp,
 		serv_printf("}");
 	}
 
-
 	/* End of rule. */
 }
-
 
 
 /*
@@ -351,7 +349,6 @@ void parse_fields_from_rule_editor(void) {
 }
 
 
-
 /*
  * save sieve config
  */
@@ -359,7 +356,6 @@ void save_sieve(void) {
 	int bigaction;
 	char script_names[MAX_SCRIPTS][64];
 	int num_scripts = 0;
-	int active_script = (-1);	/* this throws a 'set but not used' warning , check this ! */
 	int i;
 	char this_name[64];
 	char buf[256];
@@ -377,9 +373,6 @@ void save_sieve(void) {
 	if (buf[0] == '1') while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
 		if (num_scripts < MAX_SCRIPTS) {
 			extract_token(script_names[num_scripts], buf, 0, '|', 64);
-			if (extract_int(buf, 1) > 0) {
-				active_script = num_scripts;
-			}
 			++num_scripts;
 		}
 	}
@@ -426,6 +419,7 @@ void save_sieve(void) {
 	return;
 }
 
+
 /*
  * create a new script
  * take the web environment script name and create it on the citadel server
@@ -459,8 +453,6 @@ void create_script(void) {
 }
 
 
-
-
 /*
  * delete a script
  */
@@ -473,7 +465,6 @@ void delete_script(void) {
 	do_template("sieve_add");
 	wDumpContent(1);
 }
-		
 
 
 /*
@@ -534,8 +525,9 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 	int Done = 0;
 	SieveListing *Ruleset;
 
-	if (WCC->KnownSieveScripts != NULL)
+	if (WCC->KnownSieveScripts != NULL) {
 		return WCC->KnownSieveScripts;
+	}
 
 	serv_puts("MSIV listscripts");
 	Line = NewStrBuf();
@@ -574,8 +566,10 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 				++num_scripts;
 			}
 	}
-	if ((num_scripts > 0) && (rules_script_active == 0))
+
+	if ((num_scripts > 0) && (rules_script_active == 0)) {
 		PutBstr(HKEY("__SIEVE:EXTERNAL_SCRIPT"), NewStrBufPlain(HKEY("1")));
+	}
 
 	if (num_scripts > have_rules_script)
 	{
@@ -594,19 +588,12 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 		       (vRuleset != NULL))
 		{
 			Ruleset = (SieveListing *) vRuleset;
-
-			/*
-			 * its the webcit rule? we don't need to load that here.
-			 */
-			if (Ruleset->IsRulesScript)
-				continue;
-
-			if (!serv_printf("MSIV getscript|%s", ChrPtr(Ruleset->Name)))
-				break;
+			serv_printf("MSIV getscript|%s", ChrPtr(Ruleset->Name));
 			StrBuf_ServGetln(Line);
 			if (GetServerStatus(Line, NULL) == 1) 
 			{
 				Ruleset->Content = NewStrBuf();
+				Done = 0;
 				while(!Done && (rc = StrBuf_ServGetln(Line), rc >= 0) )
 					if ( (StrLength(Line)==3) && 
 					     !strcmp(ChrPtr(Line), "000")) 
