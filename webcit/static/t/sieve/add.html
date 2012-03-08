@@ -1,3 +1,5 @@
+<?=("head")><?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+
 <div id="banner">
 	<img src="static/webcit_icons/essen/32x32/config.png">
 	<h1><?_("Add or delete scripts")></h1>
@@ -18,7 +20,7 @@
 		<?=("box_end")>
 		<?=("box_begin_1")><?_("Edit scripts")><?=("box_begin_2")>
 			<br><div align="center">
-			<a href="display_sieve"><?_("Return to the script editing screen")></a><br><br>
+			<a href="do_template?template=sieve_list"><?_("Return to the script editing screen")></a><br><br>
 		<?=("box_end")>
 	</td><td>
 		<?=("box_begin_1")><?_("Delete scripts")><?=("box_begin_2")>
@@ -29,4 +31,15 @@
 			<select name="script_name" size=10 style="width:100%%">
 				<?ITERATE("SIEVE:SCRIPTS", ="sieve_script_select")>
 			</select>
+			<input type="submit" name="delete_button" value='<?_("Delete")>'></form>
+			</form>
 		<?=("box_end")>
+	<td>
+	</tr>
+	</table>
+
+there is all sorts of stuff missing here, wtf ?
+
+</div> <!-- end of 'content' div -->
+<?=("trailing")>
+

@@ -27,7 +27,6 @@
 	}
 </script>
 
-
 <div id="banner">
 	<img src="static/webcit_icons/essen/32x32/config.png">
 	<h1><?_("View/edit server-side mail filters")></h1>
@@ -39,7 +38,6 @@
     <tr><td valign="top"><form id="sieveform" method="post" action="save_sieve">
 	<input type="hidden" name="nonce" value="<?NONCE>">
 
-<?--("The no filtering div")>
 	<?_("When new mail arrives: ")>
 	<select name="bigaction" size=1 onChange="ToggleSievePanels();">
  	  <option <?%("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1, "", "selected")> value="0"><?_("Leave it in my inbox without filtering")></option>
@@ -47,6 +45,7 @@
  	  <option <?%("COND:BSTR", 1, "__SIEVE:EXTERNAL_SCRIPT", 1, "selected", "")> value="2"><?_("Filter it through a manually edited script (advanced users only)")></option>
 	</select>
 
+<?--("The no filtering div")>
 	<div id="sievediv0" style="display:none">
 		<div align="center">
 	    		<br><br>
@@ -66,22 +65,20 @@
 		<script type="text/javascript">UpdateRules();</script>
 	</div>
 
-</div> <!-- one closing div too many? --the_mgt -->
-
-<?--("The I am smart and can write my own Sieve scripts div ")>
+<?--("The I am smart and can write my own Sieve scripts div")>
 	<div id="sievediv2" style="display:none">
-		<??("COND:BSTR", 1, "__SIEVE:RULESSCRIPT", 1)>
+		<??("COND:BSTR", 1, "__SIEVE:EXTERNALSCRIPT", 1)>
 			<?_("The currently active script is: ")>
 			<select name="active_script" size=1 onChange="ToggleScriptPanels();">
 				<?ITERATE("SIEVE:SCRIPTS", ="sieve_list_select_one")>
 			</select>
 			&nbsp;&nbsp;&nbsp;
-			<a href="display_add_remove_scripts"><?_("Add or delete scripts")></a>
+			<a href="do_template?template=sieve_add"><?_("Add or delete scripts")></a>
 			<br>
 			<?ITERATE("SIEVE:SCRIPTS", ="sieve_display_one_script")>
 		<??("X", 1)>
 		<script type="text/javascript">ToggleScriptPanels();</script>
-     </div>
+	</div>
 
 <?--("The rest of this is common for all panels... ")>
 	<div align="center"><br>
