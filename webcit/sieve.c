@@ -8,6 +8,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ *
+ * FIXME: add logic to exclude the webcit-generated script from the manual script selection
  */
 
 #include "webcit.h"
@@ -586,9 +588,6 @@ HashList *GetSieveScriptListing(StrBuf *Target, WCTemplputParams *TP)
 		       (vRuleset != NULL))
 		{
 			Ruleset = (SieveListing *) vRuleset;
-
-			// FIXME add logic to skip if it's the webcit generated script
-
 			serv_printf("MSIV getscript|%s", ChrPtr(Ruleset->Name));
 			StrBuf_ServGetln(Line);
 			if (GetServerStatus(Line, NULL) == 1) 
