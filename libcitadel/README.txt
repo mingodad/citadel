@@ -4,7 +4,7 @@ WebCit.  It is not intended to be a general-purpose library for widespread
 use, although there are parts of it that may be useful for that purpose,
 such as the MIME parser and the vCard data type.
 
-Copyright (c) 1987-2011 by the citadel.org development team.
+Copyright (c) 1987-2012 by the citadel.org development team.
 This program is distributed under the terms of the GNU General Public
 License, version 3.
 

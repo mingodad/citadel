@@ -8,10 +8,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -133,9 +129,9 @@ extern char *ssl_cipher_list;
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		804		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	804		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		804		/* min required libcitadel ver */
+#define CLIENT_VERSION		805		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	805		/* min required Citadel ver */
+#define	LIBCITADEL_MIN		805		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Target for inline URL's */
