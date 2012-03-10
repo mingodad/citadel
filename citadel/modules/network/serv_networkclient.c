@@ -185,6 +185,8 @@ eNextState NWC_ReadGreeting(AsyncNetworker *NW)
 	extract_token (connected_to, ChrPtr(NW->IO.IOBuf), 1, ' ', sizeof connected_to);
 	if (strcmp(connected_to, ChrPtr(NW->node)) != 0)
 	{
+		if (NW->IO.ErrMsg == NULL)
+			NW->IO.ErrMsg = NewStrBuf();
 		StrBufPrintf(NW->IO.ErrMsg,
 			     "Connected to node \"%s\" but I was expecting to connect to node \"%s\".",
 			     connected_to, ChrPtr(NW->node));
@@ -216,6 +218,8 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 	}
 	else
 	{
+		if (NW->IO.ErrMsg == NULL)
+			NW->IO.ErrMsg = NewStrBuf();
 		StrBufPrintf(NW->IO.ErrMsg,
 			     "Connected to node \"%s\" but my secret wasn't accurate.",
 			     ChrPtr(NW->node));
@@ -788,30 +792,39 @@ eNextState NWC_Terminate(AsyncIO *IO)
 
 eNextState NWC_Timeout(AsyncIO *IO)
 {
+	AsyncNetworker *NW = IO->Data;
 	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 
+	if (NW->IO.ErrMsg == NULL)
+		NW->IO.ErrMsg = NewStrBuf();
+	StrBufPrintf(NW->IO.ErrMsg, "Timeout while talking to %s \r\n", ChrPtr(NW->host));
 	return NWC_FailNetworkConnection(IO);
 }
 eNextState NWC_ConnFail(AsyncIO *IO)
 {
-///	AsyncNetworker *NW = IO->Data;
+	AsyncNetworker *NW = IO->Data;
 
 	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
-////	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State])); todo
+	if (NW->IO.ErrMsg == NULL)
+		NW->IO.ErrMsg = NewStrBuf();
+	StrBufPrintf(NW->IO.ErrMsg, "failed to connect %s \r\n", ChrPtr(NW->host));
+
 	return NWC_FailNetworkConnection(IO);
 }
 eNextState NWC_DNSFail(AsyncIO *IO)
 {
-///	AsyncNetworker *NW = IO->Data;
+	AsyncNetworker *NW = IO->Data;
 
 	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
-////	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State])); todo
+	if (NW->IO.ErrMsg == NULL)
+		NW->IO.ErrMsg = NewStrBuf();
+	StrBufPrintf(NW->IO.ErrMsg, "failed to look up %s \r\n", ChrPtr(NW->host));
+
 	return NWC_FailNetworkConnection(IO);
 }
 eNextState NWC_Shutdown(AsyncIO *IO)
 {
 	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
-////	pop3aggr *pMsg = IO->Data;
 
 	FinalizeNetworker(IO);
 	return eAbort;
@@ -837,8 +850,6 @@ eNextState nwc_connect_ip(AsyncIO *IO)
 static int NetworkerCount = 0;
 void RunNetworker(AsyncNetworker *NW)
 {
-	AsyncIO *IO = &NW->IO;
-
 	NW->n = NetworkerCount++;
 	network_talking_to(SKEY(NW->node), NTT_ADD);
 	syslog(LOG_DEBUG, "NW[%s][%ld]: polling\n", ChrPtr(NW->node), NW->n);
