@@ -71,6 +71,8 @@
 #include "event_client.h"
 #include "ctdl_module.h"
 
+static void IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents);
+
 static void IO_abort_shutdown_callback(struct ev_loop *loop,
 				       ev_cleanup *watcher,
 				       int revents)
@@ -441,6 +443,8 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		case eSendFile:
 			if (IO->IOB.ChunkSendRemain > 0) {
 				ev_io_start(event_base, &IO->recv_event);
+				SetNextTimeout(IO, 100.0);
+
 			} else {
 				assert(IO->ReadDone);
 				IO->NextState = IO->ReadDone(IO);
@@ -500,8 +504,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		}
 	}
 	else if (rc < 0) {
-		assert(IO->Timeout);
-		IO->Timeout(IO);
+		IO_Timeout_callback(loop, &IO->rw_timeout, revents);
 	}
 	/* else : must write more. */
 }
