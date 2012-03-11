@@ -3790,8 +3790,6 @@ long IOBufferStrLength(IOBuffer *FB)
 	return StrLength(FB->Buf) - (FB->ReadWritePointer - FB->Buf->buf);
 }
 
-
-
 void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
 {
 	memset(FDB, 0, sizeof(FDIOBuffer));
@@ -3799,7 +3797,7 @@ void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
 		FDB->TotalSendSize = TotalSendSize;
 	FDB->IOB = IO;
 #ifndef LINUX_SENDFILE
-	FDB->ChunkBuffer = NewStrBuf();
+	FDB->ChunkBuffer = NewStrBufPlain(NULL, TotalSendSize + 1);
 #else
 	pipe(FDB->SplicePipe);
 #endif
@@ -3813,6 +3811,7 @@ void FDIOBufferDelete(FDIOBuffer *FDB)
 #else
 	close(FDB->SplicePipe[0]);
 	close(FDB->SplicePipe[1]);
+	
 #endif
 	close(FDB->OtherFD);
 	memset(FDB, 0, sizeof(FDIOBuffer));	
@@ -3820,7 +3819,9 @@ void FDIOBufferDelete(FDIOBuffer *FDB)
 
 int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 {
-
+	char *pRead;
+	long nRead = 0;
+	
 #ifdef LINUX_SENDFILE
 	ssize_t sent;
 	sent = sendfile(FDB->IOB->fd, FDB->OtherFD, &FDB->TotalSentAlready, FDB->ChunkSendRemain);
@@ -3830,10 +3831,33 @@ int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 		return sent;
 	}
 	FDB->ChunkSendRemain -= sent;
+	FDB->TotalSentAlready += sent;
 	return FDB->ChunkSendRemain;
 #else
+	pRead = FDB->ChunkBuffer->buf;
+	while ((FDB->ChunkBuffer->BufUsed < FDB->TotalSendSize) && (nRead >= 0))
+	{
+		nRead = read(FDB->OtherFD, pRead, FDB->TotalSendSize - FDB->ChunkBuffer->BufUsed);
+		if (nRead > 0) {
+			FDB->ChunkBuffer->BufUsed += nRead;
+			FDB->ChunkBuffer->buf[FDB->ChunkBuffer->BufUsed] = '\0';
+		}
+		else if (nRead == 0) {}
+		else return nRead;
+		
+	}
+
+	nRead = write(FDB->IOB->fd, FDB->ChunkBuffer->buf + FDB->TotalSentAlready, FDB->ChunkSendRemain);
+
+	if (nRead >= 0) {
+		FDB->TotalSentAlready += nRead;
+		FDB->ChunkSendRemain -= nRead;
+		return FDB->ChunkSendRemain;
+	}
+	else {
+		return nRead;
+	}
 #endif
-	return 0;
 }
 
 int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
