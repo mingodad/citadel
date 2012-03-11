@@ -347,6 +347,7 @@ eNextState NWC_ReadREADState(AsyncNetworker *NW)
 eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW);
 eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 {
+	eNextState rc;
 	AsyncIO *IO = &NW->IO;
 	NWC_DBG_READ();
 	if (NW->IO.IOB.TotalSendSize == NW->IO.IOB.TotalSentAlready)
@@ -364,7 +365,9 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 		}
 	
 		unlink(ChrPtr(NW->tempFileName));
-		return NWC_DispatchWriteDone(&NW->IO);
+		rc = NWC_DispatchWriteDone(&NW->IO);
+		NW->State --;
+		return rc;
 	}
 	else {
 		NW->State --;
@@ -375,6 +378,7 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 
 eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 {
+	eNextState rc;
 	AsyncIO *IO = &NW->IO;
 	NWC_DBG_READ();
 	if (NW->IO.IOB.TotalSendSize == NW->IO.IOB.TotalSentAlready)
@@ -392,7 +396,9 @@ eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 		}
 	
 		unlink(ChrPtr(NW->tempFileName));
-		return NWC_DispatchWriteDone(&NW->IO);
+		rc = NWC_DispatchWriteDone(&NW->IO);
+		NW->State --;
+		return rc;
 	}
 	else {
 		NW->State --;
@@ -514,7 +520,9 @@ eNextState NWC_SendBlobDone(AsyncNetworker *NW)
 	else {
 		NW->State --;
 		IO->IOB.ChunkSendRemain = IO->IOB.ChunkSize;
-		return NWC_DispatchWriteDone(IO);
+		rc = NWC_DispatchWriteDone(IO);
+		NW->State --;
+		return rc;
 	}
 }
 
