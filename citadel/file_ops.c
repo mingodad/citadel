@@ -81,7 +81,7 @@ int network_talking_to(const char *nodename, long len, int operation) {
 			if ((nttlist == NULL) ||
 			    (GetCount(nttlist) == 0))
 				break;
-			if (!GetHash(nttlist, nodename, len, &vdata))
+			if (GetHash(nttlist, nodename, len, &vdata))
 				retval ++;
 			syslog(LOG_DEBUG, "nttlist: have [%d] <%s>\n", retval, nodename);
 			break;
