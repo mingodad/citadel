@@ -194,25 +194,9 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 	if (do_htmlhead) {
 		begin_burst();
 		do_template("head");
-
-		/* check for ImportantMessages (these display in a div overlaying the main screen) */
-		if (StrLength(WCC->ImportantMsg) > 0) {
-			wc_printf("<div id=\"important_message\">\n"
-				"<span class=\"imsg\">");
-			StrEscAppend(WCC->WBuf, WCC->ImportantMsg, NULL, 0, 0);
-			wc_printf("</span><br>\n"
-				"</div>\n"
-			);
-			StrBufAppendBufPlain(WCC->trailing_javascript,
-					     HKEY("setTimeout('hide_imsg_popup()', 5000);	\n"),
-					     0
-			);
-			FlushStrBuf(WCC->ImportantMsg);
-		}
 		if ( (WCC->logged_in) && (!unset_cookies) ) {
 			DoTemplate(HKEY("paging"), NULL, &NoCtx);
 		}
-
 		if (do_room_banner == 1) {
 			tmplput_roombanner(NULL, NULL);
 		}

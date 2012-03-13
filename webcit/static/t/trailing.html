@@ -1,7 +1,19 @@
 <!-- start trailing.html -->
-		<noscript><div id="noscript_warning">
-			<?_("WARNING: You have JavaScript disabled in your web browser.  Many functions of this system will not work properly.")>
-		</div></noscript>
-		<script type="text/javascript"><?TRAILING_JAVASCRIPT></script>
-	</body>
+<?!("COND:IMPMSG", 1)>
+<div id="important_message">
+<span class="imsg">
+<?IMPORTANTMESSAGE>
+</span><br>
+</div>
+<script type="text/javascript">
+  alert('you have an important message');
+  setTimeout('hide_imsg_popup()', 5000);
+</script>
+<?!("X", 1)>
+
+<noscript><div id="noscript_warning">
+	<?_("WARNING: You have JavaScript disabled in your web browser.  Many functions of this system will not work properly.")>
+	</div></noscript>
+	<script type="text/javascript"><?TRAILING_JAVASCRIPT></script>
+</body>
 </html>

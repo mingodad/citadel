@@ -1,5 +1,5 @@
 <?=("head")>
-<?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <div id="banner">
 	<h1><?_("Files available for download in")>&nbsp;<?ROOMNAME></h1>
 	<?!("COND:THISROOM:FLAG:QR", 2, #"QR_UPLOAD")>
