@@ -162,112 +162,6 @@ void display_queue_msg(long msgnum)
 }
 
 
-void display_smtpqueue_inner_div(void) {
-	message_summary *Msg = NULL;
-	wcsession *WCC = WC;
-	int i;
-	int num_msgs;
-	StrBuf *Buf;
-	SharedMessageStatus Stat;
-
-	memset(&Stat, 0, sizeof(SharedMessageStatus));
-	/* Check to see if we can go to the __CitadelSMTPspoolout__ room.
-	 * If not, we don't have access to the queue.
-	 */
-	Buf = NewStrBufPlain(HKEY("__CitadelSMTPspoolout__"));
-	gotoroom(Buf);
-	FreeStrBuf(&Buf);
-	if (!strcasecmp(ChrPtr(WCC->CurRoom.name), "__CitadelSMTPspoolout__")) {
-
-		Stat.maxload = 10000;
-		Stat.lowest_found = (-1);
-		Stat.highest_found = (-1);
-//		num_msgs = load_msg_ptrs("MSGS ALL|0|1", "SUBJ|;QMSG", &Stat, NULL);
-		num_msgs = load_msg_ptrs("MSGS ", NULL, &Stat, NULL);
-		if (num_msgs > 0) {
-                        wc_printf("<table class=\"mailbox_summary\" rules=rows "
-                        	"cellpadding=2 style=\"width:100%%;\">"
-			);
-
-			wc_printf("<tr><td><b><i>");
-			wc_printf(_("Message ID"));
-			wc_printf("</i></b></td><td><b><i>");
-			wc_printf(_("Date/time submitted"));
-			wc_printf("</i></b></td><td><b><i>");
-			wc_printf(_("Last attempt"));
-			wc_printf("</i></b></td><td><b><i>");
-			wc_printf(_("Sender"));
-			wc_printf("</i></b></td><td><b><i>");
-			wc_printf(_("Recipients"));
-			wc_printf("</i></b></td></tr>\n");
-
-			for (i=0; (i < num_msgs) && (i < Stat.maxload); ++i) {
-				Msg = GetMessagePtrAt(i, WCC->summ);
-				if (Msg != NULL) {
-					display_queue_msg(Msg->msgnum);
-				}
-			}
-
-			wc_printf("</table>");
-
-		}
-		else {
-			wc_printf("<br><br><div align=\"center\">");
-			wc_printf(_("The queue is empty."));
-			wc_printf("</div><br><br>");
-		}
-	}
-	else {
-		wc_printf("<br><br><div align=\"center\">");
-		wc_printf(_("You do not have permission to view this resource."));
-		wc_printf("</div><br><br>");
-	}
-	output_headers(0, 0, 0, 0, 0, 0);
-	end_burst();
-}
-
-/*
- * display the outbound SMTP queue
- */
-void display_smtpqueue(void)
-{
-	output_headers(1, 1, 2, 0, 0, 0);
-
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<h1>");
-	wc_printf(_("View the outbound SMTP queue"));
-	wc_printf("</h1>\n");
-	wc_printf("</div>\n");
-
-	wc_printf("<div id=\"content\" class=\"service\">\n");
-
-	wc_printf("<table class=\"smtpqueue_background\">"
-		"<tr><td valign=top>\n");
-
-	wc_printf("<div id=\"smtpqueue_inner_div\">"
-		"<div align=\"center\"><img src=\"static/webcit_icons/throbber.gif\"></div>"
-		"</div>"
-		"<div align=\"center\">"
-		"<a href=\"javascript:RefreshSMTPqueueDisplay();\">%s</a>"
-		"</div>"
-		"</td></tr></table>\n", _("Refresh this page")
-	);
-
-	StrBufAppendPrintf(WC->trailing_javascript, "RefreshSMTPqueueDisplay();\n");
-
-	wDumpContent(1);
-
-}
-
-
-
-
-
-
-
-
-
-
 typedef struct _mailq_entry {
 	StrBuf *Recipient;
 	StrBuf *StatusMessage;
@@ -572,14 +466,7 @@ ServerStartModule_SMTP_QUEUE
 
 int qview_PrintPageHeader(SharedMessageStatus *Stat, void **ViewSpecific)
 {
-	if (!WC->is_aide)
-	{
-		output_headers(1, 1, 1, 0, 0, 0);
-	}
-	else
-	{
-		output_headers(1, 1, 2, 0, 0, 0);
-	}
+	output_headers(1, 1, 1, 0, 0, 0);
 	return 0;
 }
 
@@ -658,12 +545,7 @@ InitModule_SMTP_QUEUE
 	RegisterQItemHandler(HKEY("bounceto"),		QItem_Handle_BounceTo);
 	RegisterQItemHandler(HKEY("source_room"),	QItem_Handle_SenderRoom);
 	RegisterQItemHandler(HKEY("submitted"),		QItem_Handle_Submitted);
-
-	WebcitAddUrlHandler(HKEY("display_smtpqueue"), "", 0, display_smtpqueue, 0);
-	WebcitAddUrlHandler(HKEY("display_smtpqueue_inner_div"), "", 0, display_smtpqueue_inner_div, 0);
 	RegisterMimeRenderer(HKEY("application/x-citadel-delivery-list"), render_QUEUE, 1, 9000);
-
-
 	RegisterNamespace("MAILQ:ID", 0, 0, tmplput_MailQID, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:PAYLOAD:ID", 0, 0, tmplput_MailQPayloadID, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:BOUNCETO", 0, 1, tmplput_MailQBounceTo, NULL, CTX_MAILQITEM);
