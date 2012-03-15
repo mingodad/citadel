@@ -219,7 +219,7 @@ static void cdb_cull_logs(void)
 void cmd_cull(char *argbuf) {
 	if (CtdlAccessCheck(ac_internal)) return;
 	cdb_cull_logs();
-	cprintf("%d Database log file cull completed.", CIT_OK);
+	cprintf("%d Database log file cull completed.\n", CIT_OK);
 }
 
 
