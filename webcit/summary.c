@@ -197,6 +197,18 @@ void tmplput_calendar_section(StrBuf *Target, WCTemplputParams *TP) {
 	calendar_section();
 }
 
+
+/*
+ * summary page
+ */
+void display_summary_page(void)
+{
+	output_headers(1, 1, 1, 0, 0, 0); 
+	do_template("summary_page");
+	wDumpContent(1);
+}
+
+
 void 
 InitModule_SUMMARY
 (void)
@@ -206,6 +218,7 @@ InitModule_SUMMARY
 	RegisterNamespace("SUMMARY:TASKSSECTION", 0, 0, tmplput_tasks_section, NULL, CTX_NONE);
 	RegisterNamespace("SUMMARY:CALENDAR_SECTION", 0, 0, tmplput_calendar_section, NULL, CTX_NONE);
 
+	WebcitAddUrlHandler(HKEY("summary"), "", 0, display_summary_page, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("new_messages_html"), "", 0, new_messages_section, AJAX);
 	WebcitAddUrlHandler(HKEY("tasks_inner_html"), "", 0, tasks_section, AJAX);
 	WebcitAddUrlHandler(HKEY("calendar_inner_html"), "", 0, calendar_section, AJAX);

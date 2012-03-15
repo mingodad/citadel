@@ -1,14 +1,9 @@
-<?=("summary_header")>
-<div id="banner" class="banner">
-  <table border=0><tr>
-      <td><img src="static/webcit_icons/essen/32x32/summary.png"></td>
-      <td><h1><?_("Summary page for ")><??("COND:LOGGEDIN", 1)><?CURRENT_USER("X")><??("X", 1)><?!("COND:LOGGEDIN", 2)><?SERV:HUMANNODE("X")><??("X", 2)></h1><h2><?TIME:NOW></h2></td></tr></table>
-  <div id="actiondiv">
-    <ul class="room_actions">
-      <li class="start_page"><?OFFERSTARTPAGE></li></ul>
-  </div>
+<div id="room_banner_override" style="display:none">
+<table border=0><tr>
+<td><img src="static/webcit_icons/essen/32x32/summary.png"></td>
+<td><h1><?_("Summary page for ")><??("COND:LOGGEDIN", 1)><?CURRENT_USER("X")><??("X", 1)><?!("COND:LOGGEDIN", 2)><?SERV:HUMANNODE("X")><??("X", 2)></h1><h2><?TIME:NOW></h2></td>
+</tr></table>
 </div>
-
 <?--("
 * You guessed it ... were going to refresh using ajax.
 * In the future we might consider updating individual sections of the summary
@@ -84,4 +79,3 @@
  new Ajax.PeriodicalUpdater('do_template', 'template=who_summary',
                             { method: 'get', frequency: 30 }  );
 </script>
-<?=("summary_trailer")>

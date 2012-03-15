@@ -14,6 +14,11 @@
 <noscript><div id="noscript_warning">
 	<?_("WARNING: You have JavaScript disabled in your web browser.  Many functions of this system will not work properly.")>
 	</div></noscript>
-	<script type="text/javascript"><?TRAILING_JAVASCRIPT></script>
+	<script type="text/javascript">
+		<?TRAILING_JAVASCRIPT>
+		if ( $("room_banner_override") && $("room_banner") ) {
+			$("room_banner").innerHTML = $("room_banner_override").innerHTML;
+		}
+	</script>
 </body>
 </html>
