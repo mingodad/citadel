@@ -429,22 +429,19 @@ void create_script(void) {
 
 	serv_printf("MSIV getscript|%s", bstr("script_name"));
 	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
+	if (buf[0] == '1') {		// does script exist already?
 		while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
-			/* flush */
+					// yes -- flush the output
 		}
-		return;
 	}
-	
-	serv_printf("MSIV putscript|%s", bstr("script_name"));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '4') {
-		serv_puts("keep;");
-		serv_puts("000");
-	output_headers(1, 1, 2, 0, 0, 0);
-	do_template("sieve_add");
-	wDumpContent(1);
-		return;
+	else {
+					// no -- safe to create a new one by this name
+		serv_printf("MSIV putscript|%s", bstr("script_name"));
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '4') {
+			serv_puts("keep;");
+			serv_puts("000");
+		}
 	}
 
 	output_headers(1, 1, 2, 0, 0, 0);
