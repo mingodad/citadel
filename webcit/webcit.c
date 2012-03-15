@@ -257,14 +257,13 @@ void http_transmit_thing(const char *content_type, int is_static)
 void convenience_page(const char *titlebarcolor, const char *titlebarmsg, const char *messagetext)
 {
 	hprintf("HTTP/1.1 200 OK\n");
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
+	output_headers(1, 1, 1, 0, 0, 0);
+	wc_printf("<div id=\"room_banner_override\">\n");
 	wc_printf("<table width=100%% border=0 bgcolor=\"#%s\"><tr><td>", titlebarcolor);
 	wc_printf("<span class=\"titlebar\">%s</span>\n", titlebarmsg);
 	wc_printf("</td></tr></table>\n");
 	wc_printf("</div>\n<div id=\"content\">\n");
 	escputs(messagetext);
-
 	wc_printf("<hr />\n");
 	wDumpContent(1);
 }
