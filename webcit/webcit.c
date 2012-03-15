@@ -3,15 +3,10 @@
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
  *
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
  */
 
 #define SHOW_ME_VAPPEND_PRINTF
@@ -208,10 +203,10 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 }
 
 void output_custom_content_header(const char *ctype) {
-  hprintf("HTTP/1.1 200 OK\r\n");
-  hprintf("Content-type: %s; charset=utf-8\r\n",ctype);
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-  hprintf("Connection: close\r\n");
+	hprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("Content-type: %s; charset=utf-8\r\n",ctype);
+	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
+	hprintf("Connection: close\r\n");
 }
 
 
