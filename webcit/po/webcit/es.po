@@ -5,7 +5,7 @@
 # Spanish translation
 # Copyright (C) 2005 - 2009 By Gabriel C. Huertas
 # This file is distributed under the GNU General Public License;
-# either Version 2 or (at your option) any later version.
+# either Version 2 or 
 #
 msgid ""
 msgstr ""

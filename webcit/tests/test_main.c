@@ -3,7 +3,7 @@
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
- * Copyright (c) 1996-2010 by the citadel.org developers.
+ * Copyright (c) 1996-2012 by the citadel.org developers.
  * This program is released under the terms of the GNU General Public License v3.
  */
 
