@@ -184,6 +184,20 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 			Data->Val = NewStrBuf();
 			StrBufExtract_token(Data->Key, ReadBuf, 0, '|');
 			StrBufExtract_token(Data->Val, ReadBuf, 1, '|');
+
+			/***************** BEGIN VILE SLEAZY HACK ************************/
+
+			/* some users might still have this start page configured, which now breaks */
+
+			if (	(!strcasecmp(ChrPtr(Data->Key), "startpage"))
+				&& (!strcasecmp(ChrPtr(Data->Val), "/do_template?template=summary_page"))
+			) {
+				FreeStrBuf(&Data->Val);
+				Data->Val = NewStrBufPlain(HKEY("/summary"));
+			}
+
+			/******************* END VILE SLEAZY HACK ************************/
+
 			if (!IsEmptyStr(ChrPtr(Data->Key)))
 			{
 				Put(*List, 
