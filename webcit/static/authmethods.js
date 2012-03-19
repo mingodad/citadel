@@ -61,6 +61,7 @@ function authtoggle(show_which_div) {
 	$('authbox_google').style.display = 'none';
 	$('authbox_yahoo').style.display = 'none';
 	$('authbox_aol').style.display = 'none';
+	$('authbox_success').style.display = 'none';
 	$(show_which_div).style.display = 'block';
 }
 
@@ -84,6 +85,7 @@ function do_auth_popout(popout_url) {
 function ajax_try_username_and_password() {
 
 	$('login_errmsg').innerHTML = "";
+	authtoggle('authbox_success');
         $('ajax_username_password_form').request({
 		onSuccess: function(ctdlresult) {
 			if (ctdlresult.responseText.substr(0,1) == '2') {
@@ -125,6 +127,7 @@ function ajax_try_newuser() {
         $('ajax_newuser_form').request({
 		onSuccess: function(ctdlresult) {
 			if (ctdlresult.responseText.substr(0,1) == '2') {
+				authtoggle('authbox_success');
 				window.location = 'pop';
 			}
 			else {

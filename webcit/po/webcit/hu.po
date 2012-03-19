@@ -8,596 +8,54 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-22 13:16-0400\n"
+"POT-Creation-Date: 2012-03-19 11:45-0400\n"
 "PO-Revision-Date: 2010-11-12 23:46+0000\n"
 "Last-Translator: Czakó Krisztián <slapic@prolin.hu>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
+"Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-"Language: hu\n"
 
-#: ../../serv_func.c:192
-msgid ""
-"This server is already serving its maximum number of users and cannot accept "
-"any additional logins at this time.  Please try again later or contact your "
-"system administrator."
-msgstr ""
-
-#: ../../serv_func.c:197 ../../serv_func.c:226
-msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr ""
-
-#: ../../serv_func.c:235
-#, c-format
-msgid ""
-"You are connected to a Citadel server running Citadel %d.%02d. \n"
-"In order to run this version of WebCit you must also have Citadel %d.%02d or "
-"newer.\n"
-"\n"
-"\n"
-msgstr ""
-
-#: ../../who.c:154
-msgid "Edit your session display"
-msgstr ""
-
-#: ../../who.c:158
-msgid ""
-"This screen allows you to change the way your session appears in the 'Who is "
-"online' listing. To turn off any 'fake' name you've previously set, simply "
-"click the appropriate 'change' button without typing anything in the "
-"corresponding box. "
-msgstr ""
-
-#: ../../who.c:171
-msgid "Room name:"
-msgstr "Szoba száma:"
-
-#: ../../who.c:176
-msgid "Change room name"
-msgstr "Szoba nevének megváltoztatása"
-
-#: ../../who.c:180
-msgid "Host name:"
-msgstr "Gépnév:"
-
-#: ../../who.c:185
-msgid "Change host name"
-msgstr "Gép nevének megváltoztatása"
-
-#: ../../who.c:190 ../../static/t/openid_manual_create.html:9
-#: ../../static/t/get_logged_in.html:47 ../../static/t/get_logged_in.html:62
-#: ../../static/t/aide/edituser/detailview.html:20
-msgid "User name:"
-msgstr "Felhasználónév:"
-
-#: ../../who.c:195
-msgid "Change user name"
-msgstr "Felhasználó nevének megváltoztatása"
-
-#: ../../who.c:200 ../../sieve.c:686 ../../tasks.c:353 ../../sysmsgs.c:68
-#: ../../auth.c:825 ../../vcard_edit.c:1216 ../../paging.c:66
-#: ../../event.c:773 ../../static/t/edit_message.html:135
-#: ../../static/t/confirmlogoff.html:4
-msgid "Cancel"
-msgstr "Mégsem"
-
-#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
-#, c-format
-msgid "There is no room called '%s'."
-msgstr "Nincs '%s' nevű szoba."
-
-#: ../../wiki.c:76
-#, c-format
-msgid "'%s' is not a Wiki room."
-msgstr "'%s' nem Wiki szoba."
-
-#: ../../wiki.c:110
-#, c-format
-msgid "There is no page called '%s' here."
-msgstr "Nincs '%s' nevű oldal itt."
-
-#: ../../wiki.c:112
-msgid ""
-"Select the 'Edit this page' link in the room banner if you would like to "
-"create this page."
-msgstr ""
-
-#: ../../wiki.c:181 ../../static/t/msg_listview.html:11
-#: ../../static/t/summary/header.html:44
-msgid "Date"
-msgstr "Dátum"
-
-#: ../../wiki.c:182
-msgid "Author"
-msgstr ""
-
-#: ../../wiki.c:209 ../../wiki.c:218
-msgid "(show)"
-msgstr ""
-
-#: ../../wiki.c:211 ../../static/t/navbar.html:145
-msgid "Current version"
-msgstr ""
-
-#: ../../wiki.c:223
-msgid "(revert)"
-msgstr ""
-
-#: ../../wiki.c:300
-msgid "Page title"
-msgstr ""
-
-#: ../../notes.c:343
-msgid "Click on any note to edit it."
-msgstr "Kattintson bármely jegyzetre a szerkesztéshez."
-
-#: ../../useredit.c:627
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
-msgstr ""
-
-#: ../../useredit.c:715
-msgid "Changes were not saved."
-msgstr "A változások nem lettek mentve."
-
-#: ../../useredit.c:780
-msgid "A new user has been created."
-msgstr "Az új felhasználó létrehozva."
-
-#: ../../useredit.c:784
-msgid ""
-"You are attempting to create a new user from within Citadel while running in "
-"host based authentication mode.  In this mode, you must create new users on "
-"the host system, not within Citadel."
-msgstr ""
-
-#: ../../iconbar.c:328
-msgid "Iconbar Setting"
-msgstr ""
-
-#: ../../calendar_tools.c:100
-msgid "Hour: "
-msgstr "Óra: "
-
-#: ../../calendar_tools.c:120
-msgid "Minute: "
-msgstr "Perc: "
-
-#: ../../calendar_tools.c:191
-msgid "(status unknown)"
-msgstr "(ismeretlen állapot)"
-
-#: ../../calendar_tools.c:207
-msgid "(needs action)"
-msgstr "(cselekvés szükséges)"
-
-#: ../../calendar_tools.c:210
-msgid "(accepted)"
-msgstr "(elfogadott)"
-
-#: ../../calendar_tools.c:213
-msgid "(declined)"
-msgstr "(elutasított)"
-
-#: ../../calendar_tools.c:216
-msgid "(tenative)"
-msgstr "(feltételes)"
-
-#: ../../calendar_tools.c:219
-msgid "(delegated)"
-msgstr "(delegált)"
-
-#: ../../calendar_tools.c:222
-msgid "(completed)"
-msgstr "(teljesített)"
-
-#: ../../calendar_tools.c:225
-msgid "(in process)"
-msgstr "(folyamatban)"
-
-#: ../../calendar_tools.c:228
-msgid "(none)"
-msgstr "(nincs)"
-
-#: ../../openid.c:34
-msgid "Manage Account/OpenID Associations"
-msgstr "Azonosító/OpenID hozzárendelések kezelése"
-
-#: ../../openid.c:52
-msgid "Do you really want to delete this OpenID?"
-msgstr "Tényleg törölni kívánja ezt az OpenID-t?"
-
-#: ../../openid.c:53
-msgid "(delete)"
-msgstr "(törlés)"
-
-#: ../../openid.c:61
-msgid "Add an OpenID: "
-msgstr "OpenID hozzáadása: "
-
-#: ../../openid.c:64
-msgid "Attach"
-msgstr "Hozzárendel"
-
-#: ../../openid.c:68
-#, c-format
-msgid "%s does not permit authentication via OpenID."
-msgstr "%s nem engedélyezi a hitelesítést OpenID-val."
-
-#: ../../preferences.c:863
-msgid "Cancelled.  No settings were changed."
-msgstr "Megszakítva.  A beállítások nem változtak."
-
-#: ../../preferences.c:1075
-msgid "Make this my start page"
-msgstr "Legyen ez a kezdőlap."
-
-#: ../../preferences.c:1114
-msgid "This isn't allowed to become the start page."
-msgstr ""
-
-#: ../../preferences.c:1116
-msgid "You no longer have a start page selected."
-msgstr "Önnek mostantól nincs kezdőlapja."
-
-#: ../../preferences.c:1166
-msgid "Prefered startpage"
-msgstr ""
-
-#.
-#. * Set to 'unknown' right from the beginning.  Unless we learn
-#. * something else, that's what we'll go with.
-#.
-#: ../../availability.c:154
-msgid "availability unknown"
-msgstr "elérhetőség ismeretlen"
-
-#: ../../availability.c:175
-msgid "free"
-msgstr "Szabad"
-
-#: ../../availability.c:185
-msgid "BUSY"
-msgstr "ELFOGLALT"
-
-#: ../../bbsview_renderer.c:316
-msgid "Go to page: "
-msgstr ""
-
-#: ../../bbsview_renderer.c:353
-msgid "First"
-msgstr ""
-
-#: ../../bbsview_renderer.c:359
-msgid "Last"
-msgstr ""
-
-#: ../../downloads.c:289
-#, c-format
-msgid "An error occurred while retrieving this file: %s\n"
-msgstr "Hiba történt a(z) %s fájl beszerzése közben.\n"
-
-#: ../../sieve.c:381 ../../roomops.c:706 ../../roomops.c:1001
+#: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
 msgstr "Megszakítva.  Változások nem kerültek mentésre."
 
-#: ../../sieve.c:437 ../../roomops.c:834
+#: ../../roomops.c:838 ../../sieve.c:417
 msgid "Your changes have been saved."
 msgstr "A változtatásait mentettük."
 
-#: ../../sieve.c:456
-msgid "A script by that name already exists."
-msgstr ""
-
-#: ../../sieve.c:467
-msgid ""
-"A new script has been created.  Return to the script editing screen to edit "
-"and activate it."
-msgstr ""
-
-#: ../../sieve.c:585 ../../static/t/menu/your_info.html:7
-#: ../../static/t/menu/your_info.html:8 ../../static/t/sieve/list.html:33
-#: ../../static/t/sieve/none.html:6
-msgid "View/edit server-side mail filters"
-msgstr ""
-
-#: ../../sieve.c:598 ../../static/t/sieve/list.html:43
-msgid "When new mail arrives: "
-msgstr "Ha új email érkezik: "
-
-#: ../../sieve.c:602 ../../static/t/sieve/list.html:45
-msgid "Leave it in my inbox without filtering"
-msgstr "Hagyd a bejövő levelek között szűrés nélkül"
-
-#: ../../sieve.c:606 ../../static/t/sieve/list.html:46
-msgid "Filter it according to rules selected below"
-msgstr "Szűrd az alábbi feltételek szerint"
-
-#: ../../sieve.c:611 ../../static/t/sieve/list.html:47
-msgid "Filter it through a manually edited script (advanced users only)"
-msgstr "Szűrd a kézzel szerkesztett szkriptekkel (csak haladó felhasználóknak)"
-
-#: ../../sieve.c:622 ../../static/t/sieve/list.html:53
-msgid "Your incoming mail will not be filtered through any scripts."
-msgstr "A beérkező levelei nem lesznek szűrve egyetlen szkripttel sem."
-
-#: ../../sieve.c:637 ../../static/t/sieve/list.html:74
-msgid "The currently active script is: "
-msgstr "A jelenleg aktív szkript: "
-
-#: ../../sieve.c:652 ../../sieve.c:714 ../../static/t/sieve/list.html:79
-#: ../../static/t/sieve/add.html:3
-msgid "Add or delete scripts"
-msgstr "Szkript hozzáadása vagy törlése"
-
-#: ../../sieve.c:684 ../../sysmsgs.c:66 ../../vcard_edit.c:1215
-msgid "Save changes"
-msgstr "Változások mentése"
-
-#: ../../sieve.c:727 ../../static/t/sieve/add.html:10
-msgid "Add a new script"
-msgstr "Új szkript hozzáadása"
-
-#: ../../sieve.c:730 ../../static/t/sieve/add.html:11
-msgid ""
-"To create a new script, enter the desired script name in the box below and "
-"click 'Create'."
-msgstr ""
-
-#: ../../sieve.c:736 ../../static/t/sieve/add.html:15
-msgid "Script name: "
-msgstr "Szkript neve: "
-
-#: ../../sieve.c:739
-msgid "Create"
-msgstr "Létrehoz"
-
-#: ../../sieve.c:744 ../../static/t/sieve/add.html:19
-msgid "Edit scripts"
-msgstr "Szkriptek szerkesztése"
-
-#: ../../sieve.c:747 ../../static/t/sieve/add.html:21
-msgid "Return to the script editing screen"
-msgstr ""
-
-#: ../../sieve.c:754 ../../static/t/sieve/add.html:24
-msgid "Delete scripts"
-msgstr "Szkriptek törlése"
-
-#: ../../sieve.c:757 ../../static/t/sieve/add.html:25
-msgid ""
-"To delete an existing script, select the script name from the list and click "
-"'Delete'."
-msgstr ""
-
-#: ../../sieve.c:781
-msgid "Delete script"
-msgstr "Szkript törlése"
-
-#: ../../sieve.c:781
-msgid "Delete this script?"
-msgstr "Törli ezt a szkriptet?"
-
-#: ../../sieve.c:1002
-msgid "Move rule up"
-msgstr "Szabály mozgatása felfelé"
-
-#: ../../sieve.c:1007
-msgid "Move rule down"
-msgstr "Szabály mozgatása lefelé"
-
-#: ../../sieve.c:1012
-msgid "Delete rule"
-msgstr "Szabály törlése"
-
-#: ../../sieve.c:1020 ../../static/t/sieve/display_one.html:16
-msgid "If"
-msgstr "Ha"
-
-#: ../../sieve.c:1023 ../../calendar_view.c:297 ../../calendar_view.c:958
-#: ../../calendar_view.c:1002 ../../calendar_view.c:1083
-#: ../../static/t/sieve/display_one.html:20
-msgid "From"
-msgstr "Kezdet:"
-
-#: ../../sieve.c:1024 ../../static/t/sieve/display_one.html:21
-msgid "To or Cc"
-msgstr "Címzett vagy másolat"
-
-#: ../../sieve.c:1025 ../../calendar_view.c:759
-#: ../../static/t/msg_listview.html:9 ../../static/t/summary/header.html:42
-#: ../../static/t/sieve/display_one.html:22
-msgid "Subject"
-msgstr "Tárgy"
-
-#: ../../sieve.c:1026 ../../static/t/sieve/display_one.html:23
-msgid "Reply-to"
-msgstr "Válaszcím"
-
-#: ../../sieve.c:1027 ../../smtpqueue.c:197
-#: ../../static/t/msg_listview.html:10 ../../static/t/summary/header.html:43
-#: ../../static/t/sieve/display_one.html:24
-msgid "Sender"
-msgstr "Küldő"
-
-#: ../../sieve.c:1028 ../../static/t/sieve/display_one.html:25
-msgid "Resent-From"
-msgstr "Újraküldő"
-
-#: ../../sieve.c:1029 ../../static/t/sieve/display_one.html:26
-msgid "Resent-To"
-msgstr "Újraküldés címzettje"
-
-#: ../../sieve.c:1030 ../../static/t/sieve/display_one.html:27
-msgid "Envelope From"
-msgstr "Boríték feladó"
-
-#: ../../sieve.c:1031 ../../static/t/sieve/display_one.html:28
-msgid "Envelope To"
-msgstr "Boríték címzett"
-
-#: ../../sieve.c:1032 ../../static/t/sieve/display_one.html:29
-msgid "X-Mailer"
-msgstr "Levelezőprogram"
-
-#: ../../sieve.c:1033 ../../static/t/sieve/display_one.html:30
-msgid "X-Spam-Flag"
-msgstr "SPAM jelzés"
-
-#: ../../sieve.c:1034 ../../static/t/sieve/display_one.html:31
-msgid "X-Spam-Status"
-msgstr "SPAM állapot"
-
-#: ../../sieve.c:1035 ../../static/t/sieve/display_one.html:32
-msgid "List-ID"
-msgstr "Listaazonosító"
-
-#: ../../sieve.c:1036 ../../static/t/sieve/display_one.html:33
-msgid "Message size"
-msgstr "Levél mérete"
-
-#: ../../sieve.c:1037 ../../static/t/select_messageindex_all.html:1
-#: ../../static/t/sieve/display_one.html:34
-msgid "All"
-msgstr "Minden"
-
-#: ../../sieve.c:1056 ../../static/t/sieve/display_one.html:41
-msgid "contains"
-msgstr "tartalmazza"
-
-#: ../../sieve.c:1057 ../../static/t/sieve/display_one.html:42
-msgid "does not contain"
-msgstr "nem tartalmazza"
-
-#: ../../sieve.c:1058 ../../static/t/sieve/display_one.html:43
-msgid "is"
-msgstr "pontosan az, hogy"
-
-#: ../../sieve.c:1059 ../../static/t/sieve/display_one.html:44
-msgid "is not"
-msgstr "nem az, hogy"
-
-#: ../../sieve.c:1060 ../../static/t/sieve/display_one.html:45
-msgid "matches"
-msgstr "egyezik"
-
-#: ../../sieve.c:1061 ../../static/t/sieve/display_one.html:46
-msgid "does not match"
-msgstr "nem egyezik"
-
-#: ../../sieve.c:1081 ../../static/t/sieve/display_one.html:52
-msgid "(All messages)"
-msgstr "(Összes üzenet)"
-
-#: ../../sieve.c:1085 ../../static/t/sieve/display_one.html:56
-msgid "is larger than"
-msgstr "nagyobb, mint"
-
-#: ../../sieve.c:1086 ../../static/t/sieve/display_one.html:57
-msgid "is smaller than"
-msgstr "kisebb, mint"
-
-#: ../../sieve.c:1109 ../../static/t/sieve/display_one.html:65
-msgid "Keep"
-msgstr "Megtart"
-
-#: ../../sieve.c:1110 ../../static/t/sieve/display_one.html:66
-msgid "Discard silently"
-msgstr "Csendben eldob"
-
-#: ../../sieve.c:1111 ../../static/t/sieve/display_one.html:67
-msgid "Reject"
-msgstr "Visszautasít"
-
-#: ../../sieve.c:1112 ../../static/t/sieve/display_one.html:68
-msgid "Move message to"
-msgstr "Levél mozgatása ide:"
-
-#: ../../sieve.c:1113 ../../static/t/sieve/display_one.html:69
-msgid "Forward to"
-msgstr "Továbbítás ide:"
-
-#: ../../sieve.c:1114 ../../static/t/sieve/display_one.html:70
-msgid "Vacation"
-msgstr "Vakáció"
-
-#: ../../sieve.c:1151 ../../static/t/sieve/display_one.html:82
-msgid "Message:"
-msgstr "Üzenet:"
-
-#: ../../sieve.c:1161 ../../static/t/sieve/display_one.html:93
-msgid "continue processing"
-msgstr "feldolgozás folytatása"
-
-#: ../../sieve.c:1162 ../../static/t/sieve/display_one.html:94
-msgid "stop"
-msgstr "állj"
-
-#: ../../sieve.c:1165 ../../static/t/sieve/display_one.html:90
-msgid "and then"
-msgstr "és utána"
-
-#: ../../sieve.c:1186 ../../static/t/sieve/list.html:65
-msgid "Add rule"
-msgstr "Szabály hozzáadása"
-
-#: ../../siteconfig.c:38 ../../siteconfig.c:56 ../../roomlist.c:44
-#: ../../roomlist.c:388
-msgid "Higher access is required to access this function."
-msgstr "Több hozzáférésre van szükség ehhez a funkcióhoz."
-
-#: ../../siteconfig.c:252
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
-msgstr ""
-
-#: ../../siteconfig.c:314
-msgid "Your system configuration has been updated."
-msgstr "Az ön rendszerének beállítása frissítve"
-
-#: ../../smtpqueue.c:133 ../../static/t/aide/ignetconf/section.html:5
-msgid "(Delete)"
-msgstr "(Töröl)"
-
-#: ../../smtpqueue.c:191
-msgid "Message ID"
-msgstr "Üzenet azonosító"
-
-#: ../../smtpqueue.c:193
-msgid "Date/time submitted"
-msgstr "Feladás dátuma/ideje"
-
-#: ../../smtpqueue.c:195
-msgid "Last attempt"
-msgstr "Utolsó kísérlet"
-
-#: ../../smtpqueue.c:199
-msgid "Recipients"
-msgstr "Címzettek"
-
-#: ../../smtpqueue.c:214
-msgid "The queue is empty."
-msgstr "A sor üres."
-
-#: ../../smtpqueue.c:220
-msgid "You do not have permission to view this resource."
-msgstr ""
-
-#: ../../smtpqueue.c:236 ../../static/t/aide/global_config.html:5
-msgid "View the outbound SMTP queue"
-msgstr "Kimenő SMTP sor megtekintése"
-
-#: ../../smtpqueue.c:251
-msgid "Refresh this page"
-msgstr "Oldal frissítése"
-
-#: ../../html2html.c:136
+#: ../../roomops.c:881
 #, c-format
-msgid "realloc() error! couldn't get %d bytes: %s"
-msgstr "realloc() hiba! nem kaptam meg %d byte-t: %s"
+msgid "User '%s' kicked out of room '%s'."
+msgstr "%s felhasználó kirúgva a(z) %s szobából."
+
+#: ../../roomops.c:898
+#, c-format
+msgid "User '%s' invited to room '%s'."
+msgstr "%s felhasználó meghívva a(z) %s szobába."
+
+#: ../../roomops.c:927
+msgid "Cancelled.  No new room was created."
+msgstr "Megszakítva.  Nem lett új szoba létrehozva."
+
+#: ../../roomops.c:1187
+msgid "Floor has been deleted."
+msgstr "Szint törölve."
+
+#: ../../roomops.c:1211
+msgid "New floor has been created."
+msgstr "Új szint létrehozva."
+
+#: ../../roomops.c:1290
+msgid "Room list view"
+msgstr "Szoba lista nézet"
+
+#: ../../roomops.c:1293
+msgid "Show empty floors"
+msgstr "Mutasd az üres szinteket"
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
@@ -611,8 +69,8 @@ msgstr "Levelek mappa"
 msgid "Address Book"
 msgstr "Címjegyzék"
 
-#: ../../roomviews.c:53 ../../static/t/iconbar/edit.html:55
-#: ../../static/t/iconbar.html:24
+#: ../../roomviews.c:53 ../../static/t/iconbar.html:24
+#: ../../static/t/iconbar/edit.html:55
 msgid "Calendar"
 msgstr "Naptár"
 
@@ -669,8 +127,9 @@ msgstr "Összes megjelenítése"
 msgid "Edit task"
 msgstr "Feladat szerkesztése"
 
-#: ../../tasks.c:242 ../../calendar_view.c:298 ../../calendar_view.c:959
-#: ../../calendar_view.c:1003 ../../calendar_view.c:1084 ../../calendar.c:104
+#: ../../tasks.c:242 ../../calendar.c:104 ../../calendar_view.c:298
+#: ../../calendar_view.c:959 ../../calendar_view.c:1003
+#: ../../calendar_view.c:1084
 msgid "Summary:"
 msgstr "Összegzés:"
 
@@ -710,59 +169,41 @@ msgstr "Leírás:"
 msgid "Save"
 msgstr "Mentés"
 
-#: ../../tasks.c:352 ../../event.c:771 ../../static/t/navbar.html:116
-#: ../../static/t/view_message.html:30 ../../static/t/msg_listview.html:27
-#: ../../static/t/aide/inet/section.html:5
+#: ../../tasks.c:352 ../../event.c:771 ../../static/t/aide/inet/section.html:5
+#: ../../static/t/view_blog/comment.html:12
+#: ../../static/t/view_blog/post.html:15 ../../static/t/view_message.html:32
+#: ../../static/t/navbar.html:116 ../../static/t/msg_listview.html:27
 msgid "Delete"
 msgstr "Törlés"
+
+#: ../../tasks.c:353 ../../vcard_edit.c:1216 ../../paging.c:66
+#: ../../event.c:773 ../../sysmsgs.c:69 ../../who.c:200 ../../auth.c:812
+#: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:4
+msgid "Cancel"
+msgstr "Mégsem"
 
 #: ../../tasks.c:423 ../../calendar_view.c:1379
 msgid "Untitled Task"
 msgstr "Névtelen feladat"
 
-#: ../../sysmsgs.c:51
-#, c-format
-msgid "Edit %s"
-msgstr "%s szerkesztése"
+#: ../../fmt_date.c:310
+msgid "Time format"
+msgstr "Időformátum"
 
-#: ../../sysmsgs.c:54
-#, c-format
-msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
-"forced by preceding the next line by a blank."
-msgstr ""
-
-#: ../../sysmsgs.c:88
-#, c-format
-msgid "Cancelled.  %s was not saved."
-msgstr "Megszakítva.  %s nincs mentve."
-
-#: ../../sysmsgs.c:108
-#, fuzzy
-msgid " has been saved."
-msgstr "%s elmentve."
-
-#: ../../sysmsgs.c:115 ../../sysmsgs.c:116
-msgid "Room info"
-msgstr "Szoba infó"
-
-#: ../../sysmsgs.c:121 ../../sysmsgs.c:123
-msgid "Your bio"
-msgstr ""
-
-#: ../../listsub.c:53
+#: ../../listsub.c:54 ../../static/t/listsub/display.html:5
 msgid "List subscription"
 msgstr "Lista előfizetés"
 
-#: ../../listsub.c:66
+#: ../../listsub.c:67 ../../static/t/listsub/display.html:9
 msgid "List subscribe/unsubscribe"
 msgstr "Lista előfizetés/lemondás"
 
-#: ../../listsub.c:86
+#: ../../listsub.c:87 ../../static/t/listsub/display.html:15
+#: ../../static/t/listsub/display.html:34
 msgid "Confirmation request sent"
 msgstr "Jóváhagyási kérelem elküldve"
 
-#: ../../listsub.c:88
+#: ../../listsub.c:89
 #, c-format
 msgid ""
 "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
@@ -779,163 +220,144 @@ msgstr ""
 "nélkül.<br><br>Kérem kattintson rá a linkre, melyet e-mailben küldtünk "
 "önnek, hogy az előfizetését jóváhagyja.<br>\n"
 
-#: ../../listsub.c:101
+#: ../../listsub.c:102 ../../static/t/listsub/display.html:24
 msgid "Go back..."
 msgstr "Vissza..."
 
-#. an erased user
-#: ../../auth.c:36 ../../static/t/aide/siteconfig/tab_access.html:40
-#: ../../static/t/aide/siteconfig/tab_access.html:51
-#: ../../static/t/aide/edituser/detailview.html:43
-msgid "Deleted"
-msgstr "Törölt"
-
-#. a new user
-#: ../../auth.c:39 ../../static/t/get_logged_in.html:69
-#: ../../static/t/aide/siteconfig/tab_access.html:41
-#: ../../static/t/aide/siteconfig/tab_access.html:52
-#: ../../static/t/aide/edituser/detailview.html:44
-msgid "New User"
-msgstr "Új felhasználó"
-
-#. a trouble maker
-#: ../../auth.c:42 ../../static/t/aide/siteconfig/tab_access.html:42
-#: ../../static/t/aide/siteconfig/tab_access.html:53
-#: ../../static/t/aide/edituser/detailview.html:45
-msgid "Problem User"
-msgstr "Problémás felhasználó"
-
-#. user with normal privileges
-#: ../../auth.c:45 ../../static/t/aide/siteconfig/tab_access.html:43
-#: ../../static/t/aide/siteconfig/tab_access.html:54
-#: ../../static/t/aide/edituser/detailview.html:46
-msgid "Local User"
-msgstr "Helyi felhasználó"
-
-#. a user that may access network resources
-#: ../../auth.c:48 ../../static/t/aide/siteconfig/tab_access.html:44
-#: ../../static/t/aide/siteconfig/tab_access.html:55
-#: ../../static/t/aide/edituser/detailview.html:47
-msgid "Network User"
-msgstr "Hálózati felhasználó"
-
-#. a moderator
-#: ../../auth.c:51 ../../static/t/aide/siteconfig/tab_access.html:45
-#: ../../static/t/aide/siteconfig/tab_access.html:56
-#: ../../static/t/aide/edituser/detailview.html:48
-msgid "Preferred User"
-msgstr "Kedvelt felhasználó"
-
-#. chief
-#: ../../auth.c:54 ../../static/t/aide/siteconfig/tab_access.html:46
-#: ../../static/t/aide/siteconfig/tab_access.html:57
-#: ../../static/t/aide/edituser/detailview.html:49
-msgid "Aide"
+#: ../../listsub.c:253 ../../listsub.c:291 ../../listsub.c:327
+#: ../../listsub.c:334
+msgid "You need to specify the mailinglist to subscribe to."
 msgstr ""
 
-#: ../../auth.c:373 ../../auth.c:403 ../../vcard_edit.c:1299
-#: ../../vcard_edit.c:1342
-msgid "An error has occurred."
-msgstr "Egy hiba lépett fel."
+#: ../../listsub.c:260 ../../listsub.c:298
+#, fuzzy
+msgid "You need to specify the email address you'd like to subscribe with."
+msgstr "Kérem adja meg a felhasználó nevet, amit használni szeretne."
 
-#: ../../auth.c:526 ../../static/t/menu/basic_commands.html:19
-#: ../../static/t/iconbar.html:80 ../../static/t/confirmlogoff.html:3
-msgid "Log off"
-msgstr "Kilépés"
-
-#: ../../auth.c:539 ../../webcit.c:717
-msgid ""
-"This program was unable to connect or stay connected to the Citadel server.  "
-"Please report this problem to your system administrator."
-msgstr ""
-"A program képtelen volt kapcsolódni vagy a kapcsolatot fenntartani a Citadel "
-"kiszolgálóval. Kérjük jelezze a problémát a rendszergazdának."
-
-#: ../../auth.c:545 ../../webcit.c:724
-msgid "Read More..."
-msgstr "További információk"
-
-#: ../../auth.c:550
-msgid "Log in again"
-msgstr "Lépjen be újra"
-
-#: ../../auth.c:598 ../../static/t/aide/usermanagement.html:3
-msgid "Validate new users"
-msgstr "Új felhasználók érvényesítése"
-
-#: ../../auth.c:618
-msgid "No users require validation at this time."
-msgstr "Nincs érvényesítésre váró felhasználó."
-
-#: ../../auth.c:668
-msgid "very weak"
-msgstr "nagyon gyenge"
-
-#: ../../auth.c:671
-msgid "weak"
-msgstr "gyenge"
-
-#: ../../auth.c:674
-msgid "ok"
-msgstr "OK"
-
-#: ../../auth.c:678
-msgid "strong"
-msgstr "erős"
-
-#: ../../auth.c:696
-#, c-format
-msgid "Current access level: %d (%s)\n"
-msgstr "Jelenlegi elérési szint: %d (%s)\n"
-
-#: ../../auth.c:704
-msgid "Select access level for this user:"
-msgstr "Válassza ki ezen felhasználó hozzáférési szintjét:"
-
-#: ../../auth.c:789 ../../static/t/menu/your_info.html:4
-msgid "Change your password"
-msgstr "Változtassa meg a jelszavát"
-
-#: ../../auth.c:813
-msgid "Enter new password:"
-msgstr "Írja be az új jelszót:"
-
-#: ../../auth.c:817
-msgid "Enter it again to confirm:"
-msgstr "Ellenőrzésként írja be ismét:"
-
-#: ../../auth.c:823
-msgid "Change password"
-msgstr "Jelszó megváltoztatása"
-
-#: ../../auth.c:843
-msgid "Cancelled.  Password was not changed."
-msgstr "Megszakítva. A jelszó nem változott."
-
-#: ../../auth.c:852
-msgid "They don't match.  Password was not changed."
-msgstr "Nem egyeznek. A jelszó nem változott."
-
-#: ../../auth.c:858
-msgid "Blank passwords are not allowed."
-msgstr "Az üres jelszavak nem engedélyezettek."
-
-#: ../../blogview_renderer.c:64 ../../blogview_renderer.c:80
+#: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
 #, fuzzy, c-format
 msgid "%d comments"
 msgstr "Parancs elküldése"
 
-#: ../../blogview_renderer.c:67 ../../blogview_renderer.c:83
+#: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
 msgstr ""
 
-#: ../../blogview_renderer.c:303
+#: ../../blogview_renderer.c:302
 msgid "Newer posts"
 msgstr "újabb hozzászólás"
 
-#: ../../blogview_renderer.c:312
+#: ../../blogview_renderer.c:311
 msgid "Older posts"
 msgstr "régebbi hozzászólás"
+
+#: ../../useredit.c:629
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
+msgstr ""
+
+#: ../../useredit.c:717
+msgid "Changes were not saved."
+msgstr "A változások nem lettek mentve."
+
+#: ../../useredit.c:782
+msgid "A new user has been created."
+msgstr "Az új felhasználó létrehozva."
+
+#: ../../useredit.c:786
+msgid ""
+"You are attempting to create a new user from within Citadel while running in "
+"host based authentication mode.  In this mode, you must create new users on "
+"the host system, not within Citadel."
+msgstr ""
+
+#: ../../bbsview_renderer.c:312
+msgid "Go to page: "
+msgstr ""
+
+#: ../../bbsview_renderer.c:354
+msgid "First"
+msgstr ""
+
+#: ../../bbsview_renderer.c:360
+msgid "Last"
+msgstr ""
+
+#: ../../graphics.c:56
+msgid "Graphics upload has been cancelled."
+msgstr "Grafika feltöltés megszakítva."
+
+#: ../../graphics.c:62
+msgid "You didn't upload a file."
+msgstr "Nem töltött fel fájlt."
+
+#: ../../graphics.c:112
+msgid "your photo"
+msgstr "az ön fényképe"
+
+#: ../../graphics.c:119
+msgid "the icon for this room"
+msgstr "a szoba ikonja"
+
+#: ../../graphics.c:127
+msgid "the Greetingpicture for the login prompt"
+msgstr "a belépési oldal üdvözlőképe"
+
+#: ../../graphics.c:135
+msgid "the Logoff banner picture"
+msgstr "a kilépési reklám kép"
+
+#: ../../graphics.c:146
+msgid "the icon for this floor"
+msgstr "az szint ikonja"
+
+#: ../../calendar_tools.c:100
+msgid "Hour: "
+msgstr "Óra: "
+
+#: ../../calendar_tools.c:120
+msgid "Minute: "
+msgstr "Perc: "
+
+#: ../../calendar_tools.c:191
+msgid "(status unknown)"
+msgstr "(ismeretlen állapot)"
+
+#: ../../calendar_tools.c:207
+msgid "(needs action)"
+msgstr "(cselekvés szükséges)"
+
+#: ../../calendar_tools.c:210
+msgid "(accepted)"
+msgstr "(elfogadott)"
+
+#: ../../calendar_tools.c:213
+msgid "(declined)"
+msgstr "(elutasított)"
+
+#: ../../calendar_tools.c:216
+msgid "(tenative)"
+msgstr "(feltételes)"
+
+#: ../../calendar_tools.c:219
+msgid "(delegated)"
+msgstr "(delegált)"
+
+#: ../../calendar_tools.c:222
+msgid "(completed)"
+msgstr "(teljesített)"
+
+#: ../../calendar_tools.c:225
+msgid "(in process)"
+msgstr "(folyamatban)"
+
+#: ../../calendar_tools.c:228
+msgid "(none)"
+msgstr "(nincs)"
+
+#: ../../notes.c:343
+msgid "Click on any note to edit it."
+msgstr "Kattintson bármely jegyzetre a szerkesztéshez."
 
 #: ../../vcard_edit.c:175 ../../vcard_edit.c:178
 msgid "(no name)"
@@ -1057,6 +479,10 @@ msgstr "Elsődleges Internet e-mail cím"
 msgid "Internet e-mail aliases"
 msgstr "További Internet e-mail címek"
 
+#: ../../vcard_edit.c:1215 ../../sysmsgs.c:67
+msgid "Save changes"
+msgstr "Változások mentése"
+
 #: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
 msgstr ""
@@ -1065,144 +491,34 @@ msgstr ""
 msgid "Aborting."
 msgstr ""
 
-#: ../../vcard_edit.c:1396
+#: ../../vcard_edit.c:1297 ../../vcard_edit.c:1341 ../../auth.c:367
+#: ../../auth.c:397
+msgid "An error has occurred."
+msgstr "Egy hiba lépett fel."
+
+#: ../../vcard_edit.c:1399
 msgid "Could Not decode vcard photo\n"
 msgstr "Nem tudom értelmezni a névjegy fényképet\n"
 
-#: ../../roomops.c:877
-#, c-format
-msgid "User '%s' kicked out of room '%s'."
-msgstr "%s felhasználó kirúgva a(z) %s szobából."
+#: ../../preferences.c:880
+msgid "Cancelled.  No settings were changed."
+msgstr "Megszakítva.  A beállítások nem változtak."
 
-#: ../../roomops.c:894
-#, c-format
-msgid "User '%s' invited to room '%s'."
-msgstr "%s felhasználó meghívva a(z) %s szobába."
+#: ../../preferences.c:1092
+msgid "Make this my start page"
+msgstr "Legyen ez a kezdőlap."
 
-#: ../../roomops.c:923
-msgid "Cancelled.  No new room was created."
-msgstr "Megszakítva.  Nem lett új szoba létrehozva."
-
-#: ../../roomops.c:1193
-msgid "Floor has been deleted."
-msgstr "Szint törölve."
-
-#: ../../roomops.c:1217
-msgid "New floor has been created."
-msgstr "Új szint létrehozva."
-
-#: ../../roomops.c:1296
-msgid "Room list view"
-msgstr "Szoba lista nézet"
-
-#: ../../roomops.c:1299
-msgid "Show empty floors"
-msgstr "Mutasd az üres szinteket"
-
-#: ../../calendar_view.c:272 ../../calendar_view.c:468
-#: ../../calendar_view.c:937 ../../event.c:864
-msgid "Untitled Event"
-msgstr "Névtelen esemény"
-
-#: ../../calendar_view.c:306 ../../calendar_view.c:964
-#: ../../calendar_view.c:1008 ../../calendar_view.c:1089 ../../calendar.c:113
-msgid "Location:"
-msgstr "Hely:"
-
-#: ../../calendar_view.c:351 ../../calendar_view.c:970 ../../calendar.c:138
-msgid "Date:"
-msgstr "Dátum:"
-
-#: ../../calendar_view.c:355 ../../calendar_view.c:974
-msgid "Starting date:"
-msgstr "Kezdés dátuma:"
-
-#: ../../calendar_view.c:361 ../../calendar_view.c:976
-msgid "Ending date:"
-msgstr "Befejezés dátuma:"
-
-#: ../../calendar_view.c:369 ../../calendar_view.c:1095
-msgid "Date/time:"
-msgstr "Dátum/idő:"
-
-#: ../../calendar_view.c:373 ../../calendar_view.c:1013
-#: ../../calendar_view.c:1099 ../../calendar.c:145
-msgid "Starting date/time:"
-msgstr "Kezdés dátuma/ideje:"
-
-#: ../../calendar_view.c:376 ../../calendar_view.c:1015
-#: ../../calendar_view.c:1101 ../../calendar.c:156
-msgid "Ending date/time:"
-msgstr "Befejezés dátuma/ideje:"
-
-#: ../../calendar_view.c:386 ../../calendar_view.c:980
-#: ../../calendar_view.c:1018 ../../calendar_view.c:1105
-#: ../../static/t/room/edit/tab_share.html:32
-msgid "Notes:"
-msgstr "Jegyzetek:"
-
-#: ../../calendar_view.c:585 ../../calendar_view.c:721
-msgid "previous"
+#: ../../preferences.c:1130
+msgid "This isn't allowed to become the start page."
 msgstr ""
 
-#: ../../calendar_view.c:597 ../../calendar_view.c:733
-#: ../../calendar_view.c:1308
-msgid "next"
+#: ../../preferences.c:1132
+msgid "You no longer have a start page selected."
+msgstr "Önnek mostantól nincs kezdőlapja."
+
+#: ../../preferences.c:1182
+msgid "Prefered startpage"
 msgstr ""
-
-#: ../../calendar_view.c:756
-msgid "Week"
-msgstr "Hét"
-
-#: ../../calendar_view.c:758
-msgid "Hours"
-msgstr "Óra"
-
-#: ../../calendar_view.c:760 ../../event.c:234
-msgid "Start"
-msgstr "Kezdet"
-
-#: ../../calendar_view.c:761 ../../event.c:283
-msgid "End"
-msgstr "Befejezés"
-
-#: ../../calendar_view.c:957 ../../calendar_view.c:986 ../../event.c:277
-msgid "All day event"
-msgstr "Egész napos esemény"
-
-#: ../../calendar_view.c:1001 ../../calendar_view.c:1024
-msgid "Ongoing event"
-msgstr "Futó esemény"
-
-#: ../../paging.c:35
-msgid "Send instant message"
-msgstr "Azonnali üzenet küldése"
-
-#: ../../paging.c:43
-msgid "Send an instant message to: "
-msgstr "Azonnali üzenet küldése ide: "
-
-#: ../../paging.c:57
-msgid "Enter message text:"
-msgstr "Írja be az üzenet szövegét:"
-
-#: ../../paging.c:65 ../../static/t/edit_message.html:109
-msgid "Send message"
-msgstr "Üzenet küldése"
-
-#: ../../paging.c:84
-msgid "Message was not sent."
-msgstr "Üzenet nem lett elküldve."
-
-#: ../../paging.c:95
-msgid "Message has been sent to "
-msgstr "Az üzenet elküldésre került ide: "
-
-#: ../../netconf.c:158 ../../netconf.c:185 ../../netconf.c:193
-#: ../../netconf.c:241 ../../netconf.c:249 ../../inetconf.c:110
-#: ../../inetconf.c:119 ../../inetconf.c:133 ../../inetconf.c:159
-msgid "Invalid Parameter"
-msgstr "Érvénytelen paraméter"
 
 #: ../../calendar.c:82
 msgid "Meeting invitation"
@@ -1219,6 +535,25 @@ msgstr "Közzétett esemény"
 #: ../../calendar.c:91
 msgid "This is an unknown type of calendar item."
 msgstr "Ez egy ismeretlen típusú naptár bejegyzés."
+
+#: ../../calendar.c:113 ../../calendar_view.c:306 ../../calendar_view.c:964
+#: ../../calendar_view.c:1008 ../../calendar_view.c:1089
+msgid "Location:"
+msgstr "Hely:"
+
+#: ../../calendar.c:138 ../../calendar_view.c:351 ../../calendar_view.c:970
+msgid "Date:"
+msgstr "Dátum:"
+
+#: ../../calendar.c:145 ../../calendar_view.c:373 ../../calendar_view.c:1013
+#: ../../calendar_view.c:1099
+msgid "Starting date/time:"
+msgstr "Kezdés dátuma/ideje:"
+
+#: ../../calendar.c:156 ../../calendar_view.c:376 ../../calendar_view.c:1015
+#: ../../calendar_view.c:1101
+msgid "Ending date/time:"
+msgstr "Befejezés dátuma/ideje:"
 
 #: ../../calendar.c:174 ../../event.c:96
 msgid "Recurrence"
@@ -1326,27 +661,81 @@ msgid ""
 msgstr ""
 "Figyelmen kívül hagyta ezt az RSVP-t. Az ön naptára <b>nem</b> frissült."
 
-#: ../../calendar.c:933
+#: ../../calendar.c:935
 msgid "Calendar day view begins at:"
 msgstr "Naptár napi nézet kezdődik:"
 
-#: ../../calendar.c:934
+#: ../../calendar.c:936
 msgid "Calendar day view ends at:"
 msgstr "Naptár napi nézet végződik:"
 
-#: ../../calendar.c:935
+#: ../../calendar.c:937
 msgid "Week starts on:"
 msgstr "Hét első napja:"
 
-#: ../../webcit.c:348
-msgid "Authorization Required"
-msgstr "Azonosítás szükséges"
+#: ../../paging.c:35
+msgid "Send instant message"
+msgstr "Azonnali üzenet küldése"
 
-#: ../../webcit.c:355
+#: ../../paging.c:43
+msgid "Send an instant message to: "
+msgstr "Azonnali üzenet küldése ide: "
+
+#: ../../paging.c:57
+msgid "Enter message text:"
+msgstr "Írja be az üzenet szövegét:"
+
+#: ../../paging.c:65 ../../static/t/edit_message.html:109
+msgid "Send message"
+msgstr "Üzenet küldése"
+
+#: ../../paging.c:84
+msgid "Message was not sent."
+msgstr "Üzenet nem lett elküldve."
+
+#: ../../paging.c:95
+msgid "Message has been sent to "
+msgstr "Az üzenet elküldésre került ide: "
+
+#: ../../iconbar.c:328
+msgid "Iconbar Setting"
+msgstr ""
+
+#.
+#. * Set to 'unknown' right from the beginning.  Unless we learn
+#. * something else, that's what we'll go with.
+#.
+#: ../../availability.c:148
+msgid "availability unknown"
+msgstr "elérhetőség ismeretlen"
+
+#: ../../availability.c:169
+msgid "free"
+msgstr "Szabad"
+
+#: ../../availability.c:179
+msgid "BUSY"
+msgstr "ELFOGLALT"
+
+#: ../../serv_func.c:193
+msgid ""
+"This server is already serving its maximum number of users and cannot accept "
+"any additional logins at this time.  Please try again later or contact your "
+"system administrator."
+msgstr ""
+
+#: ../../serv_func.c:198 ../../serv_func.c:227
+msgid "Received unexpected answer from Citadel server; bailing out."
+msgstr ""
+
+#: ../../serv_func.c:236
 #, c-format
 msgid ""
-"The resource you requested requires a valid username and password. You could "
-"not be logged in: %s\n"
+"You are connected to a Citadel server running Citadel %d.%02d. \n"
+"In order to run this version of WebCit you must also have Citadel %d.%02d or "
+"newer.\n"
+"\n"
+"\n"
 msgstr ""
 
 #: ../../event.c:76
@@ -1413,8 +802,8 @@ msgstr "Résztvevők:"
 msgid "Add or edit an event"
 msgstr "Esemény hozzáadása vagy szerkesztése"
 
-#: ../../event.c:212 ../../static/t/iconbar/edit.html:29
-#: ../../static/t/iconbar.html:13
+#: ../../event.c:212 ../../static/t/iconbar.html:13
+#: ../../static/t/iconbar/edit.html:29
 msgid "Summary"
 msgstr "Összegzés"
 
@@ -1422,8 +811,20 @@ msgstr "Összegzés"
 msgid "Location"
 msgstr "Hely"
 
-#: ../../event.c:333 ../../static/t/iconbar/edit.html:49
-#: ../../static/t/iconbar.html:34
+#: ../../event.c:234 ../../calendar_view.c:760
+msgid "Start"
+msgstr "Kezdet"
+
+#: ../../event.c:277 ../../calendar_view.c:957 ../../calendar_view.c:986
+msgid "All day event"
+msgstr "Egész napos esemény"
+
+#: ../../event.c:283 ../../calendar_view.c:761
+msgid "End"
+msgstr "Befejezés"
+
+#: ../../event.c:333 ../../static/t/iconbar.html:34
+#: ../../static/t/iconbar/edit.html:49
 msgid "Notes"
 msgstr "Jegyzetek"
 
@@ -1452,7 +853,7 @@ msgid "(One per line)"
 msgstr "(Soronként egy)"
 
 #: ../../event.c:456 ../../static/t/edit_message.html:143
-#: ../../static/t/iconbar/edit.html:42 ../../static/t/iconbar.html:29
+#: ../../static/t/iconbar.html:29 ../../static/t/iconbar/edit.html:42
 msgid "Contacts"
 msgstr "Kapcsolatok"
 
@@ -1519,61 +920,90 @@ msgstr "Ismételje ezt az esemény eddig: "
 msgid "Check attendee availability"
 msgstr "Résztvevők elérhetőségének ellenőrzése"
 
-#: ../../fmt_date.c:310
-msgid "Time format"
-msgstr "Időformátum"
+#: ../../event.c:864 ../../calendar_view.c:272 ../../calendar_view.c:468
+#: ../../calendar_view.c:937
+msgid "Untitled Event"
+msgstr "Névtelen esemény"
 
-#: ../../graphics.c:57
-msgid "Graphics upload has been cancelled."
-msgstr "Grafika feltöltés megszakítva."
+#: ../../sysmsgs.c:52
+#, c-format
+msgid "Edit %s"
+msgstr "%s szerkesztése"
 
-#: ../../graphics.c:63
-msgid "You didn't upload a file."
-msgstr "Nem töltött fel fájlt."
-
-#: ../../graphics.c:113
-msgid "your photo"
-msgstr "az ön fényképe"
-
-#: ../../graphics.c:120
-msgid "the icon for this room"
-msgstr "a szoba ikonja"
-
-#: ../../graphics.c:128
-msgid "the Greetingpicture for the login prompt"
-msgstr "a belépési oldal üdvözlőképe"
-
-#: ../../graphics.c:136
-msgid "the Logoff banner picture"
-msgstr "a kilépési reklám kép"
-
-#: ../../graphics.c:147
-msgid "the icon for this floor"
-msgstr "az szint ikonja"
-
-#: ../../msg_renderers.c:579 ../../static/t/who/bio.html:15
-msgid "edit"
-msgstr "szerkeszt"
-
-#: ../../msg_renderers.c:1108
-msgid "I don't know how to display "
-msgstr "Nem tudom hogyan jelenítsem meg. "
-
-#: ../../msg_renderers.c:1342
-msgid "(no subject)"
-msgstr "(nincs tárgy)"
-
-#: ../../roomtokens.c:563
-msgid "file"
-msgstr "fájl"
-
-#: ../../roomtokens.c:565
-msgid "files"
-msgstr "fájlok"
-
-#: ../../roomlist.c:99
-msgid "My Folders"
+#: ../../sysmsgs.c:55
+#, c-format
+msgid ""
+"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"forced by preceding the next line by a blank."
 msgstr ""
+
+#: ../../sysmsgs.c:89
+#, c-format
+msgid "Cancelled.  %s was not saved."
+msgstr "Megszakítva.  %s nincs mentve."
+
+#: ../../sysmsgs.c:109
+#, fuzzy
+msgid " has been saved."
+msgstr "%s elmentve."
+
+#: ../../sysmsgs.c:116 ../../sysmsgs.c:117
+msgid "Room info"
+msgstr "Szoba infó"
+
+#: ../../sysmsgs.c:122 ../../sysmsgs.c:124
+msgid "Your bio"
+msgstr ""
+
+#: ../../calendar_view.c:297 ../../calendar_view.c:958
+#: ../../calendar_view.c:1002 ../../calendar_view.c:1083
+#: ../../static/t/sieve/display_one.html:20
+msgid "From"
+msgstr "Kezdet:"
+
+#: ../../calendar_view.c:355 ../../calendar_view.c:974
+msgid "Starting date:"
+msgstr "Kezdés dátuma:"
+
+#: ../../calendar_view.c:361 ../../calendar_view.c:976
+msgid "Ending date:"
+msgstr "Befejezés dátuma:"
+
+#: ../../calendar_view.c:369 ../../calendar_view.c:1095
+msgid "Date/time:"
+msgstr "Dátum/idő:"
+
+#: ../../calendar_view.c:386 ../../calendar_view.c:980
+#: ../../calendar_view.c:1018 ../../calendar_view.c:1105
+#: ../../static/t/room/edit/tab_share.html:32
+msgid "Notes:"
+msgstr "Jegyzetek:"
+
+#: ../../calendar_view.c:585 ../../calendar_view.c:721
+msgid "previous"
+msgstr ""
+
+#: ../../calendar_view.c:597 ../../calendar_view.c:733
+#: ../../calendar_view.c:1308
+msgid "next"
+msgstr ""
+
+#: ../../calendar_view.c:756
+msgid "Week"
+msgstr "Hét"
+
+#: ../../calendar_view.c:758
+msgid "Hours"
+msgstr "Óra"
+
+#: ../../calendar_view.c:759 ../../static/t/sieve/display_one.html:22
+#: ../../static/t/msg_listview.html:9
+msgid "Subject"
+msgstr "Tárgy"
+
+#: ../../calendar_view.c:1001 ../../calendar_view.c:1024
+msgid "Ongoing event"
+msgstr "Futó esemény"
 
 #: ../../messages.c:70
 msgid "ERROR:"
@@ -1583,87 +1013,81 @@ msgstr "HIBA:"
 msgid "Empty message"
 msgstr ""
 
-#: ../../messages.c:994
+#: ../../messages.c:1010
 msgid "Cancelled.  Message was not posted."
 msgstr "Megszakítva. Az üzenet nem lett beküldve."
 
-#: ../../messages.c:997
+#: ../../messages.c:1013
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automatikusan megszakítva, mert ön már elmentette ezt az üzenetet."
 
-#: ../../messages.c:1021
+#: ../../messages.c:1037
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../../messages.c:1086
+#: ../../messages.c:1102
 msgid "Refusing to post empty message.\n"
 msgstr ""
 
-#: ../../messages.c:1112
+#: ../../messages.c:1128
 msgid "Message has been saved to Drafts.\n"
 msgstr ""
 
-#: ../../messages.c:1121
+#: ../../messages.c:1137
 msgid "Message has been sent.\n"
 msgstr "Üzenet elküldve.\n"
 
-#: ../../messages.c:1124
+#: ../../messages.c:1140
 msgid "Message has been posted.\n"
 msgstr "Üzenet postázva.\n"
 
-#: ../../messages.c:1662
+#: ../../messages.c:1679
 msgid "The message was not moved."
 msgstr "Az üzenetet nem mozgattuk."
 
-#: ../../messages.c:1702
+#: ../../messages.c:1719
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "Hiba történt, miközben beszereztem ezt a részt: %s/%s\n"
 
-#: ../../messages.c:1762
+#: ../../messages.c:1796
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Hiba történt, miközben beszereztem ezt a részt: %s\n"
 
-#: ../../messages.c:1929
+#: ../../messages.c:1956
 msgid "Attach signature to email messages?"
 msgstr "Csatol aláírást az email üzenetekhez?"
 
-#: ../../messages.c:1932
+#: ../../messages.c:1959
 msgid "Use this signature:"
 msgstr "Használja ezt az aláírást:"
 
-#: ../../messages.c:1934
+#: ../../messages.c:1961
 msgid "Default character set for email headers:"
 msgstr "Alapértelmezett betűkészlet a levél fejléceihez:"
 
-#: ../../messages.c:1937
+#: ../../messages.c:1964
 msgid "Preferred email address"
 msgstr "Kedvelt email cím"
 
-#: ../../messages.c:1939
+#: ../../messages.c:1966
 msgid "Preferred display name for email messages"
 msgstr "Kedvelt megjelenített név az email üzenetekhez"
 
-#: ../../messages.c:1943
+#: ../../messages.c:1970
 msgid "Preferred display name for bulletin board posts"
 msgstr "Kedvelt megjelenített név a hirdetőtábla üzenetkehez"
 
-#: ../../messages.c:1946
+#: ../../messages.c:1973
 msgid "Mailbox view mode"
 msgstr "Postafiók megjelenítési mód"
 
-#: ../../addressbook_popup.c:192
-msgid "Add"
-msgstr "Hozzáadás"
-
-#: ../../summary.c:134
-msgid "(None)"
-msgstr "(Nincs)"
-
-#: ../../summary.c:186
-msgid "(Nothing)"
-msgstr "(Semmi)"
+#: ../../inetconf.c:110 ../../inetconf.c:119 ../../inetconf.c:133
+#: ../../inetconf.c:159 ../../netconf.c:156 ../../netconf.c:183
+#: ../../netconf.c:191 ../../netconf.c:239 ../../netconf.c:247
+msgid "Invalid Parameter"
+msgstr "Érvénytelen paraméter"
 
 #: ../../inetconf.c:126
 #, fuzzy
@@ -1675,570 +1099,777 @@ msgstr "%s törölve."
 msgid " added."
 msgstr ""
 
-#: ../../static/t/edit_message/attachments_pane.html:3
-#: ../../static/t/get_logged_in.html:9
-msgid "Close window"
-msgstr "Ablak bezárása"
+#: ../../who.c:154
+msgid "Edit your session display"
+msgstr ""
 
-#: ../../static/t/edit_message/attachments_pane.html:5
-#: ../../static/t/edit_message.html:126
-msgid "Attachments:"
-msgstr "Mellékletek:"
-
-#: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Fájl csatolása:"
-
-#: ../../static/t/edit_message/attachments_pane.html:21
-msgid "Upload"
-msgstr "Feltöltés"
-
-#: ../../static/t/edit_message/section_attach_select.html:4
-#, fuzzy
-msgid "Remove"
-msgstr "(eltávolít)"
-
-#: ../../static/t/msg_listselector_bottom.html:2
-#: ../../static/t/msg_listselector_top.html:2
-msgid "Reading #"
-msgstr "Olvasás alatt #"
-
-#: ../../static/t/msg_listselector_bottom.html:7
-#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
-#: ../../static/t/msg_listselector_top.html:7
-msgid "messages"
-msgstr "üzenetből"
-
-#: ../../static/t/msg_listselector_bottom.html:12
-#: ../../static/t/msg_listselector_top.html:12
-msgid "oldest to newest"
-msgstr "legrégebbitől a legújabbig"
-
-#: ../../static/t/msg_listselector_bottom.html:20
-#: ../../static/t/msg_listselector_top.html:20
-msgid "newest to oldest"
-msgstr "legújabbtól a legrégebbiig"
-
-#: ../../static/t/room/display_private.html:7
-msgid "Go to a hidden room"
-msgstr "Rejtett szobába ugrás"
-
-#: ../../static/t/room/display_private.html:8
+#: ../../who.c:158
 msgid ""
-"If you know the name of a hidden (guess-name) or passworded room, you can "
-"enter that room by typing its name below.  Once you gain access to a private "
-"room, it will appear in your regular room listings so you don‘t have to keep "
-"returning here."
+"This screen allows you to change the way your session appears in the 'Who is "
+"online' listing. To turn off any 'fake' name you've previously set, simply "
+"click the appropriate 'change' button without typing anything in the "
+"corresponding box. "
 msgstr ""
 
-#: ../../static/t/room/display_private.html:14
-msgid "Enter room name:"
-msgstr "Adja meg a szoba nevét:"
-
-#: ../../static/t/room/display_private.html:21
-msgid "Enter room password:"
-msgstr "Adja meg a szoba jelszavát:"
-
-#: ../../static/t/room/zap_this.html:3
-#, fuzzy
-msgid "Zap (forget/unsubscribe) the current room"
-msgstr "Szoba kilövése"
-
-#: ../../static/t/room/zap_this.html:6
-#, fuzzy
-msgid "If you select this option,"
-msgstr "Szoba szerkesztése vagy törlése"
-
-#: ../../static/t/room/zap_this.html:8
-msgid "will disappear from your room list.  Is this what you wish to do?"
-msgstr ""
-
-#: ../../static/t/room/zapped_list.html:7
-msgid "Zapped (forgotten) rooms"
-msgstr "Kilőtt (elfelejtett) szobák"
-
-#: ../../static/t/room/zapped_list.html:10
-#, fuzzy
-msgid "Click on any room to un-zap it and goto that room."
-msgstr "Kattintson bármelyik szobára, hogy azt felélessze és belépjen.\n"
-
-#: ../../static/t/room/edit.html:5 ../../static/t/room/edit/editroom.html:4
-#: ../../static/t/iconbar.html:72
-msgid "Administration"
-msgstr "Adminisztráció"
-
-#: ../../static/t/room/edit.html:6 ../../static/t/room/edit/editroom.html:5
-msgid "Configuration"
-msgstr "Beállítások"
-
-#: ../../static/t/room/edit.html:7 ../../static/t/room/edit/editroom.html:6
-msgid "Message expire policy"
-msgstr "Üzenet elévülési szabály"
-
-#: ../../static/t/room/edit.html:8 ../../static/t/room/edit/editroom.html:7
-msgid "Access controls"
-msgstr "Hozzáférés szabályozás"
-
-#: ../../static/t/room/edit.html:9 ../../static/t/room/edit/editroom.html:8
-msgid "Sharing"
-msgstr "Megosztás"
-
-#: ../../static/t/room/edit.html:10 ../../static/t/room/edit/editroom.html:9
-msgid "Mailing list service"
-msgstr "Levelezőlista szolgáltatás"
-
-#: ../../static/t/room/edit.html:11 ../../static/t/room/edit/editroom.html:10
-msgid "Remote retrieval"
-msgstr "Távoli beszerzés"
-
-#: ../../static/t/room/create.html:11
-#: ../../static/t/menu/advanced_roomcommands.html:6
-msgid "Create a new room"
-msgstr "Új szoba létrehozása"
-
-#: ../../static/t/room/create.html:18
-msgid "Name of room: "
-msgstr "Szoba neve: "
-
-#: ../../static/t/room/create.html:20
-#: ../../static/t/room/edit/tab_config.html:10
-msgid "Resides on floor: "
-msgstr "Ezen a szinten van: "
-
-#: ../../static/t/room/create.html:32
-msgid "Default view for room: "
-msgstr "Szoba alapértelmezett nézete: "
-
-#: ../../static/t/room/create.html:68
-#: ../../static/t/room/edit/tab_config.html:16
-msgid "Type of room:"
-msgstr "Szoba típusa:"
-
-#: ../../static/t/room/create.html:73
-#: ../../static/t/room/edit/tab_config.html:22
-msgid "Public (automatically appears to everyone)"
-msgstr "Nyilvános (automatikusan megjelenik mindenkinek)"
-
-#: ../../static/t/room/create.html:77
-#: ../../static/t/room/edit/tab_config.html:28
-msgid "Private - hidden (accessible to anyone who knows its name)"
-msgstr "Privát - rejtett (elérhető mindenkinek, aki tudja a nevét)"
-
-#: ../../static/t/room/create.html:81
-#: ../../static/t/room/edit/tab_config.html:35
-msgid "Private - require password: "
-msgstr "Privát - jelszót igényel: "
-
-#: ../../static/t/room/create.html:86
-#: ../../static/t/room/edit/tab_config.html:44
-msgid "Private - invitation only"
-msgstr "Privát - csak meghívással"
-
-#: ../../static/t/room/create.html:90
-#: ../../static/t/room/edit/tab_config.html:51
-msgid "Personal (mailbox for you only)"
-msgstr "Személyes (postafiók csak önnek)"
-
-#: ../../static/t/room/edit/tab_listserv.html:5
-#, fuzzy
-msgid ""
-"<i>The contents of this room are being mailed <b>as individual messages</b> "
-"to the following list recipients:</i><br><br>"
-msgstr ""
-"<i>A szoba tartalma <b>egyedi üzenetekben</b> elküldésre kerül az alábbi "
-"címzetteknek:</i><br><br>\n"
-
-#: ../../static/t/room/edit/tab_listserv.html:19
-#, fuzzy
-msgid ""
-"<i>The contents of this room are being mailed <b>in digest form</b> to the "
-"following list recipients:</i><br><br>"
-msgstr ""
-"<i>A szoba tartalma <b>egyetlen üzenetben</b> elküldésre kerül az alábbi "
-"címzetteknek:</i><br><br>\n"
-
-#: ../../static/t/room/edit/tab_listserv.html:39
-msgid "Add recipients from Contacts or other address books"
-msgstr "Címzettek hozzáadása a Kapcsolatokból vagy más címlistákból"
-
-#: ../../static/t/room/edit/tab_listserv.html:48
-msgid "Allow non-subscribers to mail to this room."
-msgstr "Engedélyezi, hogy nem előfizetők postázhassanak ebbe a szobába."
-
-#: ../../static/t/room/edit/tab_listserv.html:54
-msgid "Room post publication needs Aide permission."
-msgstr ""
-
-#: ../../static/t/room/edit/tab_listserv.html:59
-msgid "Allow self-service subscribe/unsubscribe requests."
-msgstr "Önkiszolgáló előfizetés/lemondás engedélyezése."
-
-#: ../../static/t/room/edit/tab_listserv.html:65
-msgid "The URL for subscribe/unsubscribe is: "
-msgstr "Az előfizetés/lemondás URL: "
-
-#: ../../static/t/room/edit/listrecp_removal.html:1
-#: ../../static/t/room/edit/pop3client_removal.html:9
-#: ../../static/t/room/edit/digestrecp_removal.html:1
-#: ../../static/t/room/edit/rssclient_removal.html:5
-msgid "(remove)"
-msgstr "(eltávolít)"
-
-#: ../../static/t/room/edit/tab_config.html:6
-#, fuzzy
-msgid "name of room: "
-msgstr "Szoba neve:"
-
-#: ../../static/t/room/edit/tab_config.html:55
-msgid "If private, cause current users to forget room"
-msgstr "Ha privát, az összes jelenlegi felhasználó elfelejti a szobát"
-
-#: ../../static/t/room/edit/tab_config.html:61
-msgid "Preferred users only"
-msgstr "Csak a kedvenc felhasználók"
-
-#: ../../static/t/room/edit/tab_config.html:66
-msgid "Read-only room"
-msgstr "Csak olvasható szoba"
-
-#: ../../static/t/room/edit/tab_config.html:71
-msgid "All users allowed to post may also delete messages"
-msgstr "Minden felhasználó, aki beküldhet az törölhet is üzeneteket"
-
-#: ../../static/t/room/edit/tab_config.html:76
-msgid "File directory room"
-msgstr "Fájl mappa szoba"
-
-#: ../../static/t/room/edit/tab_config.html:80
-msgid "Directory name: "
-msgstr "Könyvtár neve: "
-
-#: ../../static/t/room/edit/tab_config.html:86
-msgid "Uploading allowed"
-msgstr "Feltöltés engedélyezett"
-
-#: ../../static/t/room/edit/tab_config.html:91
-msgid "Downloading allowed"
-msgstr "Letöltés engedélyezett"
-
-#: ../../static/t/room/edit/tab_config.html:96
-msgid "Visible directory"
-msgstr "Látható könyvtár"
-
-#: ../../static/t/room/edit/tab_config.html:103
-msgid "Network shared room"
-msgstr "Hálózaton megosztott szoba"
-
-#: ../../static/t/room/edit/tab_config.html:108
-msgid "Permanent (does not auto-purge)"
-msgstr "Állandó (nem törlődik automatikusan)"
-
-#: ../../static/t/room/edit/tab_config.html:113
-msgid "Subject Required (Force users to specify a message subject)"
-msgstr ""
-"Tárgy kötelező (Kényszeríti a felhasználókat, hogy az üzeneteknek adják meg "
-"a tárgyát)"
-
-#: ../../static/t/room/edit/tab_config.html:116
-msgid "Anonymous messages"
-msgstr "Anonym üzenetek"
-
-#: ../../static/t/room/edit/tab_config.html:122
-msgid "No anonymous messages"
-msgstr "Nincsenek anonym üzenetek"
-
-#: ../../static/t/room/edit/tab_config.html:127
-msgid "All messages are anonymous"
-msgstr "Minden üzenet anonym"
-
-#: ../../static/t/room/edit/tab_config.html:132
-msgid "Prompt user when entering messages"
-msgstr ""
-
-#: ../../static/t/room/edit/tab_config.html:136
-#, fuzzy
-msgid "Room aide: "
+#: ../../who.c:171
+msgid "Room name:"
 msgstr "Szoba száma:"
 
-#: ../../static/t/room/edit/tab_feed.html:2
+#: ../../who.c:176
+msgid "Change room name"
+msgstr "Szoba nevének megváltoztatása"
+
+#: ../../who.c:180
+msgid "Host name:"
+msgstr "Gépnév:"
+
+#: ../../who.c:185
+msgid "Change host name"
+msgstr "Gép nevének megváltoztatása"
+
+#: ../../who.c:190 ../../static/t/aide/edituser/detailview.html:20
+#: ../../static/t/openid_manual_create.html:9
+#: ../../static/t/get_logged_in.html:57 ../../static/t/get_logged_in.html:72
+msgid "User name:"
+msgstr "Felhasználónév:"
+
+#: ../../who.c:195
+msgid "Change user name"
+msgstr "Felhasználó nevének megváltoztatása"
+
+#: ../../siteconfig.c:46 ../../siteconfig.c:64 ../../roomlist.c:44
+#: ../../roomlist.c:394 ../../static/t/room/edit/tab_expire.html:72
+#: ../../static/t/room/edit/tab_config.html:149
+#: ../../static/t/room/edit/tab_access.html:42
+msgid "Higher access is required to access this function."
+msgstr "Több hozzáférésre van szükség ehhez a funkcióhoz."
+
+#: ../../siteconfig.c:256
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgstr ""
+
+#: ../../siteconfig.c:319
+msgid "Your system configuration has been updated."
+msgstr "Az ön rendszerének beállítása frissítve"
+
+#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
+#, c-format
+msgid "There is no room called '%s'."
+msgstr "Nincs '%s' nevű szoba."
+
+#: ../../wiki.c:76
+#, c-format
+msgid "'%s' is not a Wiki room."
+msgstr "'%s' nem Wiki szoba."
+
+#: ../../wiki.c:110
+#, c-format
+msgid "There is no page called '%s' here."
+msgstr "Nincs '%s' nevű oldal itt."
+
+#: ../../wiki.c:112
 msgid ""
-"Retrieve messages from these remote POP3 accounts and store them in this "
-"room:"
+"Select the 'Edit this page' link in the room banner if you would like to "
+"create this page."
 msgstr ""
-"Üzenetek letöltése távoli POP3 azonosítóról és tárolása ebben a szobában:"
 
-#: ../../static/t/room/edit/tab_feed.html:12
-msgid "Remote host"
-msgstr "Távoli kiszolgáló"
+#: ../../wiki.c:181 ../../static/t/msg_listview.html:11
+msgid "Date"
+msgstr "Dátum"
 
-#: ../../static/t/room/edit/tab_feed.html:13
-#: ../../static/t/who/box_list_static.html:6 ../../static/t/who/summary.html:5
-msgid "User name"
-msgstr "Felhasználónév"
+#: ../../wiki.c:182
+msgid "Author"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_feed.html:14
-#: ../../static/t/aide/edituser/detailview.html:24
-msgid "Password"
-msgstr "Jelszó"
+#: ../../wiki.c:209 ../../wiki.c:218
+msgid "(show)"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_feed.html:15
-msgid "Keep messages on server?"
-msgstr "Megtartja az üzeneteket a szerveren?"
+#: ../../wiki.c:211 ../../static/t/navbar.html:145
+msgid "Current version"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_feed.html:16
-msgid "Interval"
-msgstr "Időköz"
+#: ../../wiki.c:223
+msgid "(revert)"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_feed.html:31
-msgid "Fetch the following RSS feeds and store them in this room:"
-msgstr "A következő RSS folyam letöltése és tárolása ebben a szobában:"
+#: ../../wiki.c:300
+msgid "Page title"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_feed.html:43
-msgid "Feed URL"
-msgstr "Folyam URL"
+#: ../../webcit.c:321
+msgid "Authorization Required"
+msgstr "Azonosítás szükséges"
 
-#: ../../static/t/room/edit/tab_access.html:5
-#, fuzzy
+#: ../../webcit.c:329
+#, c-format
 msgid ""
-"The users listed below have access to this room. To remove a user from the "
-"access list, select the user name from the list and click 'Kick'."
+"The resource you requested requires a valid username and password. You could "
+"not be logged in: %s\n"
 msgstr ""
-"Az alábbi listában található felhasználóknak van hozzáférése ehhez a "
-"szobához.  Ha el akarja valamelyiküket távolítani a listáról, válassza ki a "
-"felhasználó nevét és kattintson a 'Kirúg' pontra."
 
-#: ../../static/t/room/edit/tab_access.html:20
+#: ../../webcit.c:652 ../../auth.c:526
 msgid ""
-"To grant another user access to this room, enter the user name in the box "
-"below and click 'Invite'."
+"This program was unable to connect or stay connected to the Citadel server.  "
+"Please report this problem to your system administrator."
 msgstr ""
-"Ha szeretne további felhasználónak hozzáférést adni ehhez a szobához, írja "
-"be a felhasználó nevét az alábbi szövegdobozba és kattintson a 'Meghív' "
-"pontra."
+"A program képtelen volt kapcsolódni vagy a kapcsolatot fenntartani a Citadel "
+"kiszolgálóval. Kérjük jelezze a problémát a rendszergazdának."
 
-#: ../../static/t/room/edit/tab_access.html:26
-msgid "Invite:"
-msgstr "Meghív:"
+#: ../../webcit.c:659 ../../auth.c:532
+msgid "Read More..."
+msgstr "További információk"
 
-#: ../../static/t/room/edit/tab_access.html:35
-msgid "Users"
-msgstr "Felhasználók"
+#: ../../smtpqueue.c:134 ../../static/t/aide/ignetconf/section.html:5
+#: ../../static/t/view_mailq/message.html:2
+msgid "(Delete)"
+msgstr "(Töröl)"
 
-#: ../../static/t/room/edit/tab_expire.html:8
-msgid "Message expire policy for this room"
-msgstr "Üzenet elévülési szabályok ehhez a szobához"
+#: ../../smtpqueue.c:334
+msgid "First Attempt pending"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_expire.html:14
-msgid "Use the default policy for this floor"
-msgstr "Használja az alapértelmezett szabályokat ehhez a szinthez"
+#: ../../roomlist.c:99
+msgid "My Folders"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_expire.html:17
-#: ../../static/t/room/edit/tab_expire.html:45
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:68
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:86
-msgid "Never automatically expire messages"
-msgstr "Soha nem évüljenek el az üzenetek"
+#: ../../downloads.c:289
+#, c-format
+msgid "An error occurred while retrieving this file: %s\n"
+msgstr "Hiba történt a(z) %s fájl beszerzése közben.\n"
 
-#: ../../static/t/room/edit/tab_expire.html:20
-#: ../../static/t/room/edit/tab_expire.html:48
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:71
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:89
-msgid "Expire by message count"
-msgstr "Elévülés az üzenetek száma alapján"
+#: ../../roomtokens.c:572
+msgid "file"
+msgstr "fájl"
 
-#: ../../static/t/room/edit/tab_expire.html:23
-#: ../../static/t/room/edit/tab_expire.html:51
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:73
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:92
-msgid "Expire by message age"
-msgstr "Elévülés az üzenetek kora alapján"
+#: ../../roomtokens.c:574
+msgid "files"
+msgstr "fájlok"
 
-#: ../../static/t/room/edit/tab_expire.html:25
-#: ../../static/t/room/edit/tab_expire.html:53
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:75
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:94
-msgid "Number of messages or days: "
-msgstr "Üzenetek vagy napok száma: "
+#: ../../summary.c:128
+msgid "(None)"
+msgstr "(Nincs)"
 
-#: ../../static/t/room/edit/tab_expire.html:36
-msgid "Message expire policy for this floor"
-msgstr "Üzenetek elévülési szabálya ezen a szinten"
+#: ../../summary.c:184
+msgid "(Nothing)"
+msgstr "(Semmi)"
 
-#: ../../static/t/room/edit/tab_expire.html:42
-msgid "Use the system default"
-msgstr "Rendszer alapértelmezés használata"
+#: ../../msg_renderers.c:579 ../../static/t/who/bio.html:15
+msgid "edit"
+msgstr "szerkeszt"
 
-#: ../../static/t/room/edit/tab_share.html:5
-msgid "Shared with"
-msgstr "Megosztva ezzel:"
+#: ../../msg_renderers.c:1119
+msgid "I don't know how to display "
+msgstr "Nem tudom hogyan jelenítsem meg. "
 
-#: ../../static/t/room/edit/tab_share.html:6
-msgid "Not shared with"
-msgstr "Nincs megosztva ezzel:"
+#: ../../msg_renderers.c:1353
+msgid "(no subject)"
+msgstr "(nincs tárgy)"
 
-#: ../../static/t/room/edit/tab_share.html:11
-#: ../../static/t/room/edit/tab_share.html:21
-msgid "Remote node name"
-msgstr "Távoli csomópont neve"
+#: ../../addressbook_popup.c:186
+msgid "Add"
+msgstr "Hozzáadás"
 
-#: ../../static/t/room/edit/tab_share.html:12
-#: ../../static/t/room/edit/tab_share.html:22
-msgid "Remote room name"
-msgstr "Távoli szoba neve"
+#. an erased user
+#: ../../auth.c:30 ../../static/t/aide/edituser/detailview.html:43
+#: ../../static/t/aide/siteconfig/tab_access.html:40
+#: ../../static/t/aide/siteconfig/tab_access.html:51
+msgid "Deleted"
+msgstr "Törölt"
 
-#: ../../static/t/room/edit/tab_share.html:13
-#: ../../static/t/room/edit/tab_share.html:23
-msgid "Actions"
-msgstr "Műveletek"
+#. a new user
+#: ../../auth.c:33 ../../static/t/aide/edituser/detailview.html:44
+#: ../../static/t/aide/siteconfig/tab_access.html:41
+#: ../../static/t/aide/siteconfig/tab_access.html:52
+#: ../../static/t/get_logged_in.html:79
+msgid "New User"
+msgstr "Új felhasználó"
 
-#: ../../static/t/room/edit/tab_share.html:35
+#. a trouble maker
+#: ../../auth.c:36 ../../static/t/aide/edituser/detailview.html:45
+#: ../../static/t/aide/siteconfig/tab_access.html:42
+#: ../../static/t/aide/siteconfig/tab_access.html:53
+msgid "Problem User"
+msgstr "Problémás felhasználó"
+
+#. user with normal privileges
+#: ../../auth.c:39 ../../static/t/aide/edituser/detailview.html:46
+#: ../../static/t/aide/siteconfig/tab_access.html:43
+#: ../../static/t/aide/siteconfig/tab_access.html:54
+msgid "Local User"
+msgstr "Helyi felhasználó"
+
+#. a user that may access network resources
+#: ../../auth.c:42 ../../static/t/aide/edituser/detailview.html:47
+#: ../../static/t/aide/siteconfig/tab_access.html:44
+#: ../../static/t/aide/siteconfig/tab_access.html:55
+msgid "Network User"
+msgstr "Hálózati felhasználó"
+
+#. a moderator
+#: ../../auth.c:45 ../../static/t/aide/edituser/detailview.html:48
+#: ../../static/t/aide/siteconfig/tab_access.html:45
+#: ../../static/t/aide/siteconfig/tab_access.html:56
+msgid "Preferred User"
+msgstr "Kedvelt felhasználó"
+
+#. chief
+#: ../../auth.c:48 ../../static/t/aide/edituser/detailview.html:49
+#: ../../static/t/aide/siteconfig/tab_access.html:46
+#: ../../static/t/aide/siteconfig/tab_access.html:57
+msgid "Aide"
+msgstr ""
+
+#: ../../auth.c:513 ../../static/t/iconbar.html:80
+#: ../../static/t/confirmlogoff.html:3
+#: ../../static/t/menu/basic_commands.html:19
+msgid "Log off"
+msgstr "Kilépés"
+
+#: ../../auth.c:537
+msgid "Log in again"
+msgstr "Lépjen be újra"
+
+#: ../../auth.c:585 ../../static/t/aide/usermanagement.html:3
+msgid "Validate new users"
+msgstr "Új felhasználók érvényesítése"
+
+#: ../../auth.c:605
+msgid "No users require validation at this time."
+msgstr "Nincs érvényesítésre váró felhasználó."
+
+#: ../../auth.c:655
+msgid "very weak"
+msgstr "nagyon gyenge"
+
+#: ../../auth.c:658
+msgid "weak"
+msgstr "gyenge"
+
+#: ../../auth.c:661
+msgid "ok"
+msgstr "OK"
+
+#: ../../auth.c:665
+msgid "strong"
+msgstr "erős"
+
+#: ../../auth.c:683
+#, c-format
+msgid "Current access level: %d (%s)\n"
+msgstr "Jelenlegi elérési szint: %d (%s)\n"
+
+#: ../../auth.c:691
+msgid "Select access level for this user:"
+msgstr "Válassza ki ezen felhasználó hozzáférési szintjét:"
+
+#: ../../auth.c:776 ../../static/t/menu/your_info.html:4
+msgid "Change your password"
+msgstr "Változtassa meg a jelszavát"
+
+#: ../../auth.c:800
+msgid "Enter new password:"
+msgstr "Írja be az új jelszót:"
+
+#: ../../auth.c:804
+msgid "Enter it again to confirm:"
+msgstr "Ellenőrzésként írja be ismét:"
+
+#: ../../auth.c:810
+msgid "Change password"
+msgstr "Jelszó megváltoztatása"
+
+#: ../../auth.c:830
+msgid "Cancelled.  Password was not changed."
+msgstr "Megszakítva. A jelszó nem változott."
+
+#: ../../auth.c:839
+msgid "They don't match.  Password was not changed."
+msgstr "Nem egyeznek. A jelszó nem változott."
+
+#: ../../auth.c:845
+msgid "Blank passwords are not allowed."
+msgstr "Az üres jelszavak nem engedélyezettek."
+
+#: ../../openid.c:34
+msgid "Manage Account/OpenID Associations"
+msgstr "Azonosító/OpenID hozzárendelések kezelése"
+
+#: ../../openid.c:52
+msgid "Do you really want to delete this OpenID?"
+msgstr "Tényleg törölni kívánja ezt az OpenID-t?"
+
+#: ../../openid.c:53
+msgid "(delete)"
+msgstr "(törlés)"
+
+#: ../../openid.c:61
+msgid "Add an OpenID: "
+msgstr "OpenID hozzáadása: "
+
+#: ../../openid.c:64
+msgid "Attach"
+msgstr "Hozzárendel"
+
+#: ../../openid.c:68
+#, c-format
+msgid "%s does not permit authentication via OpenID."
+msgstr "%s nem engedélyezi a hitelesítést OpenID-val."
+
+#: ../../html2html.c:136
+#, c-format
+msgid "realloc() error! couldn't get %d bytes: %s"
+msgstr "realloc() hiba! nem kaptam meg %d byte-t: %s"
+
+#: ../../static/t/viewomatic.html:4
+msgid "View as:"
+msgstr "Mutasd mint:"
+
+#: ../../static/t/sieve/list.html:32 ../../static/t/sieve/none.html:6
+#: ../../static/t/menu/your_info.html:7
+msgid "View/edit server-side mail filters"
+msgstr ""
+
+#: ../../static/t/sieve/list.html:41
+msgid "When new mail arrives: "
+msgstr "Ha új email érkezik: "
+
+#: ../../static/t/sieve/list.html:43
+msgid "Leave it in my inbox without filtering"
+msgstr "Hagyd a bejövő levelek között szűrés nélkül"
+
+#: ../../static/t/sieve/list.html:44
+msgid "Filter it according to rules selected below"
+msgstr "Szűrd az alábbi feltételek szerint"
+
+#: ../../static/t/sieve/list.html:45
+msgid "Filter it through a manually edited script (advanced users only)"
+msgstr "Szűrd a kézzel szerkesztett szkriptekkel (csak haladó felhasználóknak)"
+
+#: ../../static/t/sieve/list.html:52
+msgid "Your incoming mail will not be filtered through any scripts."
+msgstr "A beérkező levelei nem lesznek szűrve egyetlen szkripttel sem."
+
+#: ../../static/t/sieve/list.html:64
+msgid "Add rule"
+msgstr "Szabály hozzáadása"
+
+#: ../../static/t/sieve/list.html:71
+msgid "The currently active script is: "
+msgstr "A jelenleg aktív szkript: "
+
+#: ../../static/t/sieve/list.html:76 ../../static/t/sieve/add.html:5
+msgid "Add or delete scripts"
+msgstr "Szkript hozzáadása vagy törlése"
+
+#: ../../static/t/sieve/display_one.html:16
+msgid "If"
+msgstr "Ha"
+
+#: ../../static/t/sieve/display_one.html:21
+msgid "To or Cc"
+msgstr "Címzett vagy másolat"
+
+#: ../../static/t/sieve/display_one.html:23
+msgid "Reply-to"
+msgstr "Válaszcím"
+
+#: ../../static/t/sieve/display_one.html:24
+#: ../../static/t/msg_listview.html:10
+#: ../../static/t/view_mailq/header.html:27
+msgid "Sender"
+msgstr "Küldő"
+
+#: ../../static/t/sieve/display_one.html:25
+msgid "Resent-From"
+msgstr "Újraküldő"
+
+#: ../../static/t/sieve/display_one.html:26
+msgid "Resent-To"
+msgstr "Újraküldés címzettje"
+
+#: ../../static/t/sieve/display_one.html:27
+msgid "Envelope From"
+msgstr "Boríték feladó"
+
+#: ../../static/t/sieve/display_one.html:28
+msgid "Envelope To"
+msgstr "Boríték címzett"
+
+#: ../../static/t/sieve/display_one.html:29
+msgid "X-Mailer"
+msgstr "Levelezőprogram"
+
+#: ../../static/t/sieve/display_one.html:30
+msgid "X-Spam-Flag"
+msgstr "SPAM jelzés"
+
+#: ../../static/t/sieve/display_one.html:31
+msgid "X-Spam-Status"
+msgstr "SPAM állapot"
+
+#: ../../static/t/sieve/display_one.html:32
+msgid "List-ID"
+msgstr "Listaazonosító"
+
+#: ../../static/t/sieve/display_one.html:33
+msgid "Message size"
+msgstr "Levél mérete"
+
+#: ../../static/t/sieve/display_one.html:34
+#: ../../static/t/select_messageindex_all.html:1
+msgid "All"
+msgstr "Minden"
+
+#: ../../static/t/sieve/display_one.html:41
+msgid "contains"
+msgstr "tartalmazza"
+
+#: ../../static/t/sieve/display_one.html:42
+msgid "does not contain"
+msgstr "nem tartalmazza"
+
+#: ../../static/t/sieve/display_one.html:43
+msgid "is"
+msgstr "pontosan az, hogy"
+
+#: ../../static/t/sieve/display_one.html:44
+msgid "is not"
+msgstr "nem az, hogy"
+
+#: ../../static/t/sieve/display_one.html:45
+msgid "matches"
+msgstr "egyezik"
+
+#: ../../static/t/sieve/display_one.html:46
+msgid "does not match"
+msgstr "nem egyezik"
+
+#: ../../static/t/sieve/display_one.html:52
+msgid "(All messages)"
+msgstr "(Összes üzenet)"
+
+#: ../../static/t/sieve/display_one.html:56
+msgid "is larger than"
+msgstr "nagyobb, mint"
+
+#: ../../static/t/sieve/display_one.html:57
+msgid "is smaller than"
+msgstr "kisebb, mint"
+
+#: ../../static/t/sieve/display_one.html:59
 #, fuzzy
+msgid "bytes"
+msgstr "év"
+
+#: ../../static/t/sieve/display_one.html:65
+msgid "Keep"
+msgstr "Megtart"
+
+#: ../../static/t/sieve/display_one.html:66
+msgid "Discard silently"
+msgstr "Csendben eldob"
+
+#: ../../static/t/sieve/display_one.html:67
+msgid "Reject"
+msgstr "Visszautasít"
+
+#: ../../static/t/sieve/display_one.html:68
+msgid "Move message to"
+msgstr "Levél mozgatása ide:"
+
+#: ../../static/t/sieve/display_one.html:69
+msgid "Forward to"
+msgstr "Továbbítás ide:"
+
+#: ../../static/t/sieve/display_one.html:70
+msgid "Vacation"
+msgstr "Vakáció"
+
+#: ../../static/t/sieve/display_one.html:82
+msgid "Message:"
+msgstr "Üzenet:"
+
+#: ../../static/t/sieve/display_one.html:90
+msgid "and then"
+msgstr "és utána"
+
+#: ../../static/t/sieve/display_one.html:93
+msgid "continue processing"
+msgstr "feldolgozás folytatása"
+
+#: ../../static/t/sieve/display_one.html:94
+msgid "stop"
+msgstr "állj"
+
+#: ../../static/t/sieve/none.html:11
 msgid ""
-"When sharing a room, it must be shared from both ends.  Adding a node to the "
-"'shared' list sends messages out, but in order to receive messages, the "
-"other nodes must be configured to send messages out to your system as well. "
-"<li>If the remote room name is blank, it is assumed that the room name is "
-"identical on the remote node. <li>If the remote room name is different, the "
-"remote node must also configure the name of the room here."
-msgstr ""
-"Amikor megoszt egy szobát, annak meg kell lennie osztva mindkét oldalon.  "
-"Egy csomópont hozzáadása a 'megosztások' listájához kiküldi az üzeneteket, "
-"de ahhoz, hogy kapjon is üzenetet, a másik csomópontoknak is be kell "
-"állítaniuk, hogy kiküldje az üzeneteket az ön rendszerének. <li>Ha a távoli "
-"szoba neve üres, feltételezzük, hogy a szoba neve azonos a másik oldalon."
-"<li>Ha a távoli szoba neve más, a másik csomóponton szintén be kell állítani "
-"az itteni szoba nevét.</ul></l><br>\n"
-
-#: ../../static/t/room/edit/tab_admin.html:5
-msgid "Delete this room"
-msgstr "Szoba törlése"
-
-#: ../../static/t/room/edit/tab_admin.html:10
-#, fuzzy
-msgid "Set or change the icon for this rooms banner"
-msgstr "A szoba hirdetés ikonjának beállítása vagy megváltoztatása"
-
-#: ../../static/t/room/edit/tab_admin.html:14
-#, fuzzy
-msgid "Edit this rooms Info file"
-msgstr "A szoba Info fájl szerkesztése"
-
-#: ../../static/t/who.html:13
-msgid "Users currently on "
+"This installation of Citadel was built without support for server-side mail "
+"filtering.<br>Please contact your system administrator if you require this "
+"feature.<br>"
 msgstr ""
 
-#: ../../static/t/who.html:22
-#, fuzzy
-msgid "Click on a name to read user info.  Click on"
-msgstr "Kattintson bármely jegyzetre a szerkesztéshez."
+#: ../../static/t/sieve/add.html:12
+msgid "Add a new script"
+msgstr "Új szkript hozzáadása"
 
-#: ../../static/t/who.html:24
-#, fuzzy
-msgid "to send an instant message to that user."
-msgstr "Azonnali üzenet küldése ide:"
-
-#: ../../static/t/newstartpage.html:4
-msgid "New start page"
-msgstr "Új induló oldal"
-
-#: ../../static/t/newstartpage.html:9
-msgid "Your start page has been changed."
-msgstr "Az ön induló oldala megváltozott."
-
-#: ../../static/t/newstartpage.html:12
+#: ../../static/t/sieve/add.html:13
 msgid ""
-"(Note: this does not change your browser's home page. It changes the page "
-"you begin on when you log on to"
+"To create a new script, enter the desired script name in the box below and "
+"click 'Create'."
 msgstr ""
 
-#: ../../static/t/navbar.html:5 ../../static/t/menu/basic_commands.html:6
-msgid "Ungoto"
-msgstr "Visszalépés"
+#: ../../static/t/sieve/add.html:17
+msgid "Script name: "
+msgstr "Szkript neve: "
 
-#: ../../static/t/navbar.html:13 ../../static/t/menu/basic_commands.html:10
-msgid "Read new messages"
-msgstr "Új üzenetek olvasása"
+#: ../../static/t/sieve/add.html:21
+msgid "Edit scripts"
+msgstr "Szkriptek szerkesztése"
 
-#: ../../static/t/navbar.html:19 ../../static/t/menu/basic_commands.html:11
-msgid "Read all messages"
-msgstr "Összes üzenet olvasása"
-
-#: ../../static/t/navbar.html:25 ../../static/t/menu/basic_commands.html:12
-msgid "Enter a message"
-msgstr "Üzenet beküldése"
-
-#: ../../static/t/navbar.html:34
-msgid "View contacts"
-msgstr "Kapcsolatok megnézése"
-
-#: ../../static/t/navbar.html:40
-msgid "Add new contact"
-msgstr "Új partner felévtele"
-
-#: ../../static/t/navbar.html:49
-msgid "Day view"
-msgstr "Napi nézet"
-
-#: ../../static/t/navbar.html:55
-msgid "Month view"
-msgstr "Havi nézet"
-
-#: ../../static/t/navbar.html:61
-msgid "Add new event"
-msgstr "Új esemény felvétele"
-
-#: ../../static/t/navbar.html:70
-msgid "Calendar list"
-msgstr "Naptár lista"
-
-#: ../../static/t/navbar.html:79
-msgid "View tasks"
-msgstr "Feladatok megnézése"
-
-#: ../../static/t/navbar.html:85
-msgid "Add new task"
-msgstr "Új feladat felévtele"
-
-#: ../../static/t/navbar.html:94
-msgid "View notes"
-msgstr "Jegyzetek megnézése"
-
-#: ../../static/t/navbar.html:101
-msgid "Add new note"
-msgstr "Új jegyzet felévtele"
-
-#: ../../static/t/navbar.html:110
-msgid "Refresh message list"
-msgstr "Üzenetlista frissítése"
-
-#: ../../static/t/navbar.html:122
-msgid "Write mail"
-msgstr "Email írása"
-
-#: ../../static/t/navbar.html:132
-msgid "Wiki home"
-msgstr "Wiki kezdőlap"
-
-#: ../../static/t/navbar.html:139
-msgid "Edit this page"
-msgstr "Oldal szerkesztése"
-
-#: ../../static/t/navbar.html:145
-msgid "History"
+#: ../../static/t/sieve/add.html:23
+msgid "Return to the script editing screen"
 msgstr ""
 
-#: ../../static/t/navbar.html:154
+#: ../../static/t/sieve/add.html:26
+msgid "Delete scripts"
+msgstr "Szkriptek törlése"
+
+#: ../../static/t/sieve/add.html:27
+msgid ""
+"To delete an existing script, select the script name from the list and click "
+"'Delete'."
+msgstr ""
+
+#: ../../static/t/msg/confirm_move.html:4
+msgid "Confirm move of message"
+msgstr "Üzenet mozgatás jóváhagyása"
+
+#: ../../static/t/msg/confirm_move.html:12
+msgid "Move this message to:"
+msgstr "Üzenet mozgatása ide:"
+
+#: ../../static/t/login.html:5
+msgid "powered by"
+msgstr "működteti a"
+
+#: ../../static/t/login.html:15 ../../static/t/iconbar.html:88
+#: ../../static/t/get_logged_in.html:64 ../../static/t/get_logged_in.html:88
+#: ../../static/t/get_logged_in.html:93 ../../static/t/get_logged_in.html:98
+#: ../../static/t/get_logged_in.html:107
+msgid "Log in"
+msgstr "Utolsó bejelentkezés"
+
+#: ../../static/t/trailing.html:14
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
+#: ../../static/t/view_submessage.html:4
+#: ../../static/t/view_message/replyquote.html:3
+#: ../../static/t/view_message/replyquote.html:7
+#: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:7
+msgid "from "
+msgstr "ettől: "
+
+#: ../../static/t/searchomatic.html:4
+msgid "Search: "
+msgstr "Keres: "
+
+#: ../../static/t/listsub/display.html:16
+msgid "You are subscribing "
+msgstr ""
+
+#: ../../static/t/listsub/display.html:17
 #, fuzzy
-msgid "New blog post"
-msgstr "újabb hozzászólás"
+msgid " to the "
+msgstr "a "
 
-#: ../../static/t/navbar.html:162
-msgid "Skip this room"
-msgstr "Szoba kihagyása"
+#: ../../static/t/listsub/display.html:18
+#, fuzzy
+msgid " mailing list."
+msgstr "Levelezőlista szolgáltatás"
 
-#: ../../static/t/navbar.html:168 ../../static/t/menu/basic_commands.html:4
-msgid "Goto next room"
-msgstr "Ugrás a következő szobába"
+#: ../../static/t/listsub/display.html:19
+msgid ""
+"The listserver has sent you an e-mail with one additional Web link for you "
+"to click on to confirm your subscription."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:20
+msgid ""
+"This extra step is for your protection, as it prevents others from being "
+"able to subscribe you to lists without your consent."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:22
+msgid ""
+"Please click on the link which is being e-mailed to you and your "
+"subscription will be confirmed."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:27
+#: ../../static/t/listsub/display.html:47
+#, fuzzy
+msgid "ERROR"
+msgstr "HIBA:"
+
+#: ../../static/t/listsub/display.html:35
+msgid "You are unsubscribing"
+msgstr ""
+
+#: ../../static/t/listsub/display.html:37
+#, fuzzy
+msgid "from the"
+msgstr "ettől: "
+
+#: ../../static/t/listsub/display.html:39
+#, fuzzy
+msgid "mailing list."
+msgstr "Levelezőlista szolgáltatás"
+
+#: ../../static/t/listsub/display.html:40
+msgid ""
+"The listserver has sent you an e-mail with one additional Web link for you "
+"to click on to confirm your unsubscription."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:41
+msgid ""
+"This extra step is for your protection, as it prevents others from being "
+"able to unsubscribe you from lists without your consent."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:43
+msgid ""
+"Please click on the link which is being e-mailed to you and your "
+"unsubscription will be confirmed."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:44
+#, fuzzy
+msgid "Back..."
+msgstr "Vissza..."
+
+#: ../../static/t/listsub/display.html:54
+#, fuzzy
+msgid "Confirmation successful!"
+msgstr "Jóváhagyási kérelem elküldve"
+
+#: ../../static/t/listsub/display.html:56
+#, fuzzy
+msgid "Confirmation failed."
+msgstr "Beállítások"
+
+#: ../../static/t/listsub/display.html:57
+msgid "This could mean one of two things:"
+msgstr ""
+
+#: ../../static/t/listsub/display.html:59
+msgid ""
+"You waited too long to confirm your subscribe/unsubscribe request (the "
+"confirmation link is only valid for three days)"
+msgstr ""
+
+#: ../../static/t/listsub/display.html:60
+msgid ""
+"You have <i>already</i> successfully confirmed your subscribe/unsubscribe "
+"request and are attempting to do it again."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:62
+msgid "The error returned by the server was: "
+msgstr ""
+
+#: ../../static/t/listsub/display.html:70
+#, fuzzy
+msgid "Name of list:"
+msgstr "Feladat neve"
+
+#: ../../static/t/listsub/display.html:75
+#, fuzzy
+msgid "Your e-mail address:"
+msgstr "Kedvelt email cím"
+
+#: ../../static/t/listsub/display.html:79
+msgid "(If subscribing) preferred format: "
+msgstr ""
+
+#: ../../static/t/listsub/display.html:80
+#, fuzzy
+msgid "One message at a time"
+msgstr "Írja be az üzenet szövegét:"
+
+#: ../../static/t/listsub/display.html:81
+#, fuzzy
+msgid "Digest format"
+msgstr "Időformátum"
+
+#: ../../static/t/listsub/display.html:89
+msgid ""
+"When you attempt to subscribe or unsubscribe to a mailing list, you will "
+"receive an e-mail containing one additional web link to click on for final "
+"confirmation."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:90
+msgid ""
+"This extra step is for your protection, as it prevents others from being "
+"able to subscribe or unsubscribe you to lists."
+msgstr ""
+
+#: ../../static/t/floors_edit_one.html:11
+msgid "(delete floor)"
+msgstr "(szint törlése)"
+
+#: ../../static/t/floors_edit_one.html:13
+msgid "(edit graphic)"
+msgstr "(grafika szerkesztése)"
+
+#: ../../static/t/floors.html:4
+msgid "Add/change/delete floors"
+msgstr "Szint hozzáadása/módosítása/törlése"
+
+#: ../../static/t/floors.html:10
+msgid "Floor number"
+msgstr "Szint száma"
+
+#: ../../static/t/floors.html:11
+msgid "Floor name"
+msgstr "Szint neve"
+
+#: ../../static/t/floors.html:12
+msgid "Number of rooms"
+msgstr "Szobák száma"
+
+#: ../../static/t/floors.html:13
+msgid "Floor CSS"
+msgstr "Szint CSS"
+
+#: ../../static/t/files.html:4
+msgid "Files available for download in"
+msgstr ""
+
+#: ../../static/t/files.html:9
+msgid "Upload a file:"
+msgstr "Fájl feltöltése:"
+
+#: ../../static/t/files.html:30
+msgid "Filename"
+msgstr "Fájlnév"
+
+#: ../../static/t/files.html:31
+msgid "Size"
+msgstr "Méret"
+
+#: ../../static/t/files.html:32
+msgid "Content"
+msgstr "Tartalom"
+
+#: ../../static/t/files.html:33
+msgid "Description"
+msgstr "Leírás"
 
 #: ../../static/t/edit_message.html:9 ../../static/t/iconbar.html:50
 #: ../../static/t/iconbar.html:59
@@ -2295,768 +1926,335 @@ msgstr "üzenetből"
 msgid "Save to Drafts"
 msgstr ""
 
-#: ../../static/t/wiki/pagelist.html:1
-msgid "List of Wiki pages"
-msgstr ""
+#: ../../static/t/edit_message.html:126
+#: ../../static/t/edit_message/attachments_pane.html:5
+msgid "Attachments:"
+msgstr "Mellékletek:"
 
-#: ../../static/t/wiki/history.html:1
-msgid "History of edits for this page"
-msgstr ""
+#: ../../static/t/aide/display_serverrestart_page.html:4
+msgid "Message to your Users:"
+msgstr "Üzenet az ön felhasználóinak:"
 
-#: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
-msgid "Preferences and settings"
-msgstr "Jellemzők és beállítások"
+#: ../../static/t/aide/display_generic_result.html:2
+msgid "Server command results"
+msgstr "Kiszolgáló parancs eredménye"
 
-#: ../../static/t/view_message/list_attach.html:3
-#: ../../static/t/view_message/inline_attach.html:4
-msgid "View"
-msgstr "Megnéz"
-
-#: ../../static/t/view_message/list_attach.html:4
-#: ../../static/t/view_message/inline_attach.html:5
-msgid "Download"
-msgstr "Letölt"
-
-#: ../../static/t/view_message/replyquote.html:3
-#: ../../static/t/view_message/replyquote.html:7
-#: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:7
-#: ../../static/t/view_submessage.html:4
-msgid "from "
-msgstr "ettől: "
-
-#: ../../static/t/view_message/print.html:14
-#: ../../static/t/view_message.html:14
-msgid "to"
-msgstr "Címzett:"
-
-#: ../../static/t/view_message.html:18
-msgid "Edit"
-msgstr ""
-
-#: ../../static/t/view_message.html:20 ../../static/t/view_message.html:24
-msgid "Reply"
-msgstr "Válasz"
-
-#: ../../static/t/view_message.html:21
-msgid "ReplyQuoted"
-msgstr "IdézveVálaszol"
-
-#: ../../static/t/view_message.html:25
-msgid "ReplyAll"
-msgstr "VálaszMindenkinek"
-
-#: ../../static/t/view_message.html:26
-msgid "Forward"
-msgstr "Továbbít"
-
-#: ../../static/t/view_message.html:29 ../../static/t/msg_listview.html:25
-msgid "Move"
-msgstr "Mozgat"
-
-#: ../../static/t/view_message.html:32
-msgid "Headers"
-msgstr "Fejlécek"
-
-#: ../../static/t/view_message.html:33 ../../static/t/msg_listview.html:28
-msgid "Print"
-msgstr "Nyomtatás"
-
-#: ../../static/t/user/list.html:3
+#: ../../static/t/aide/display_generic_result.html:18
 #, fuzzy
-msgid "User list for "
-msgstr "Felhasználók listája"
+msgid "Enter another command"
+msgstr "Írja be a kiszolgáló parancsot"
 
-#: ../../static/t/user/list.html:9
-msgid "User Name"
-msgstr "Felhasználónév"
+#: ../../static/t/aide/display_generic_result.html:19
+#, fuzzy
+msgid "Return to menu"
+msgstr "váltás a menüre"
 
-#: ../../static/t/user/list.html:10
-msgid "Number"
-msgstr "Szám"
+#: ../../static/t/aide/display_sitewide_config.html:3
+msgid "Site configuration"
+msgstr "Hely beállítása"
 
-#: ../../static/t/user/list.html:11
-msgid "Access Level"
+#: ../../static/t/aide/display_sitewide_config.html:6
+#: ../../static/t/aide/edituser/select.html:9
+msgid "You need to be aide to view this."
+msgstr ""
+
+#: ../../static/t/aide/display_sitewide_config.html:11
+msgid "General"
+msgstr "Általános"
+
+#: ../../static/t/aide/display_sitewide_config.html:12
+msgid "Access"
+msgstr "Hozzáférés"
+
+#: ../../static/t/aide/display_sitewide_config.html:13
+msgid "Network"
+msgstr "Hálózat"
+
+#: ../../static/t/aide/display_sitewide_config.html:14
+msgid "Tuning"
+msgstr "Hangolás"
+
+#: ../../static/t/aide/display_sitewide_config.html:15
+#, fuzzy
+msgid "Directory"
+msgstr "Könyvtár neve:"
+
+#: ../../static/t/aide/display_sitewide_config.html:16
+msgid "Auto-purger"
+msgstr "Automatikus-takarító"
+
+#: ../../static/t/aide/display_sitewide_config.html:17
+msgid "Indexing/Journaling"
+msgstr "Indexelés/naplózás"
+
+#: ../../static/t/aide/display_sitewide_config.html:18
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:1
+msgid "Push Email"
+msgstr "Push Email"
+
+#: ../../static/t/aide/display_sitewide_config.html:19
+msgid "Pop3"
+msgstr "Pop3"
+
+#: ../../static/t/aide/usermanagement.html:2
+msgid "Add, change, delete user accounts"
+msgstr "Felhasználói azonosítók hozzáadása, megváltoztatása, törlése"
+
+#: ../../static/t/aide/display_inetconf.html:5
+#: ../../static/t/aide/display_menu.html:5
+msgid "System Administration Menu"
+msgstr "Rendszer Adminisztrációs Menü"
+
+#: ../../static/t/aide/display_inetconf.html:6
+#: ../../static/t/aide/display_menu.html:6
+#, fuzzy
+msgid "Room Aide Menu"
+msgstr "Szoba infó"
+
+#: ../../static/t/aide/display_inetconf.html:13
+msgid "Local host aliases"
+msgstr "Helyi rendszer további címei"
+
+#: ../../static/t/aide/display_inetconf.html:14
+msgid "Directory domains"
+msgstr "Címtár domainek"
+
+#: ../../static/t/aide/display_inetconf.html:15
+msgid "Smart hosts"
+msgstr "Levéltovábbító címek"
+
+#: ../../static/t/aide/display_inetconf.html:16
+#, fuzzy
+msgid "Fallback smart hosts"
+msgstr "Levéltovábbító címek"
+
+#: ../../static/t/aide/display_inetconf.html:17
+msgid "Notification hosts"
+msgstr ""
+
+#: ../../static/t/aide/display_inetconf.html:22
+#, fuzzy
+msgid "RBL hosts"
+msgstr "Levéltovábbító címek"
+
+#: ../../static/t/aide/display_inetconf.html:23
+msgid "SpamAssassin hosts"
+msgstr "SpamAssassin kiszolgálók"
+
+#: ../../static/t/aide/display_inetconf.html:24
+msgid "ClamAV clamd hosts"
+msgstr "ClamAV clamd kiszolgálók"
+
+#: ../../static/t/aide/display_inetconf.html:25
+msgid "Masqueradable domains"
+msgstr ""
+
+#: ../../static/t/aide/edituser/select.html:5
+msgid "Edit or delete users"
+msgstr "Felhasználók szerkesztése vagy törlése"
+
+#: ../../static/t/aide/edituser/select.html:17
+msgid "Add users"
+msgstr "Felhasználók hozzáadása"
+
+#: ../../static/t/aide/edituser/select.html:20
+msgid "Edit or Delete users"
+msgstr "Felhasználók szerkesztése vagy törlése"
+
+#: ../../static/t/aide/edituser/box_select.html:1
+#, fuzzy
+msgid ""
+"To edit an existing user account, select the user name from the list and "
+"click 'Edit'."
+msgstr ""
+"Ha szeretne további felhasználónak hozzáférést adni ehhez a szobához, írja "
+"be a felhasználó nevét az alábbi szövegdobozba és kattintson a 'Meghív' "
+"pontra."
+
+#: ../../static/t/aide/edituser/detailview.html:4
+msgid "Edit user account: "
+msgstr "Felhasználói azonosító szerkesztése: "
+
+#: ../../static/t/aide/edituser/detailview.html:24
+#: ../../static/t/room/edit/tab_feed.html:14
+msgid "Password"
+msgstr "Jelszó"
+
+#: ../../static/t/aide/edituser/detailview.html:28
+msgid "Permission to send Internet mail"
+msgstr ""
+
+#: ../../static/t/aide/edituser/detailview.html:32
+msgid "Number of logins"
+msgstr "Belépések száma"
+
+#: ../../static/t/aide/edituser/detailview.html:36
+#, fuzzy
+msgid "Messages submitted"
+msgstr "Levél mérete"
+
+#: ../../static/t/aide/edituser/detailview.html:40
+msgid "Access level"
 msgstr "Hozzáférési szint"
 
-#: ../../static/t/user/list.html:12
-msgid "Last Login"
-msgstr "Utolsó bejelentkezés"
-
-#: ../../static/t/user/list.html:13
-msgid "Total Logins"
-msgstr "Összes bejelentkezés"
-
-#: ../../static/t/user/list.html:14
-msgid "Total Posts"
-msgstr "Összes hozzászólás"
-
-#: ../../static/t/user/show.html:4 ../../static/t/who/bio.html:4
-msgid "User profile"
-msgstr "Felhasználói profil"
-
-#: ../../static/t/user/show.html:9
+#: ../../static/t/aide/edituser/detailview.html:54
 #, fuzzy
-msgid "Click here to send an instant message to"
-msgstr "Azonnali üzenet küldése ide: "
+msgid "User ID number"
+msgstr "Felhasználónév"
 
-#: ../../static/t/searchomatic.html:4
-msgid "Search: "
-msgstr "Keres: "
+#: ../../static/t/aide/edituser/detailview.html:58
+msgid "Date and time of last login"
+msgstr "Utolsó belépés dátuma és ideje"
 
-#: ../../static/t/display_main_menu.html:7
-msgid "Basic commands"
-msgstr "Alap parancsok"
-
-#: ../../static/t/display_main_menu.html:10
-msgid "Your info"
-msgstr "Az ön adatai"
-
-#: ../../static/t/display_main_menu.html:12
-msgid "Advanced room commands"
-msgstr "Haladó szoba parancsok"
-
-#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
-msgid "new of"
+#: ../../static/t/aide/edituser/detailview.html:68
+msgid "Auto-purge after this many days"
 msgstr ""
 
-#: ../../static/t/roombanner.html:28
-msgid "Select page: "
-msgstr "Oldal kiválasztása: "
-
-#: ../../static/t/iconbar/edit.html:4 ../../static/t/iconbar/save.html:4
-msgid "Customize the icon bar"
-msgstr "eszköztár testre szabása"
-
-#: ../../static/t/iconbar/edit.html:11
-msgid "Display icons as:"
-msgstr "Ikonok megjelenítése mint:"
-
-#: ../../static/t/iconbar/edit.html:12
-msgid "pictures and text"
-msgstr "képek és szöveg"
-
-#: ../../static/t/iconbar/edit.html:13
-msgid "pictures only"
-msgstr "csak képek"
-
-#: ../../static/t/iconbar/edit.html:14
-msgid "text only"
-msgstr "csak szöveg"
-
-#: ../../static/t/iconbar/edit.html:16
+#: ../../static/t/aide/edituser/add.html:1
+#, fuzzy
 msgid ""
-"Select the icons you would like to see displayed in the 'icon bar' menu on "
-"the left side of the screen."
+"To create a new user account, enter the desired user name in the box below "
+"and click 'Create'."
 msgstr ""
-"Válassza ki az ikonokat, melyeket a képernyőn balra, az eszköztárban "
-"szeretne látni."
+"Ha szeretne további felhasználónak hozzáférést adni ehhez a szobához, írja "
+"be a felhasználó nevét az alábbi szövegdobozba és kattintson a 'Meghív' "
+"pontra."
 
-#: ../../static/t/iconbar/edit.html:19 ../../static/t/iconbar/edit.html:26
-#: ../../static/t/iconbar/edit.html:32 ../../static/t/iconbar/edit.html:39
-#: ../../static/t/iconbar/edit.html:45 ../../static/t/iconbar/edit.html:52
-#: ../../static/t/iconbar/edit.html:58 ../../static/t/iconbar/edit.html:64
-#: ../../static/t/iconbar/edit.html:70 ../../static/t/iconbar/edit.html:76
-#: ../../static/t/iconbar/edit.html:82 ../../static/t/iconbar/edit.html:88
-#: ../../static/t/prefs/box.html:198
+#: ../../static/t/aide/edituser/add.html:5
+msgid "New user: "
+msgstr "Új felhasználó: "
+
+#: ../../static/t/aide/display_generic_cmd.html:4
+msgid "Enter a server command"
+msgstr "Írja be a kiszolgáló parancsot"
+
+#: ../../static/t/aide/display_generic_cmd.html:12
+msgid ""
+"This screen allows you to enter Citadel server commands which are not "
+"supported by WebCit.  If you do not know what that means, then this screen "
+"will not be of much use to you."
+msgstr ""
+"Ez a képernyő lehetővé teszi oylan Citadel kiszolgáló parancsok bevitelét, "
+"melyet a WebCit nem támogat.  Ha nem tudja ez mit jelent, ennek a "
+"képernyőnek nem sok hasznát veszi."
+
+#: ../../static/t/aide/display_generic_cmd.html:15
+msgid "Enter command:"
+msgstr "Írja be a parancsot:"
+
+#: ../../static/t/aide/display_generic_cmd.html:17
+msgid "Command input (if requesting SEND_LISTING transfer mode):"
+msgstr "Parancs bemenet (ha SEND_LISTING átviteli módot kér):"
+
+#: ../../static/t/aide/display_generic_cmd.html:20
+#, fuzzy
+msgid "Detected host header is "
+msgstr "A felismert kiszolgáló fejléc %s://%s"
+
+#: ../../static/t/aide/display_ignetconf.html:4
+msgid "Network configuration"
+msgstr "Hálózat beállítása"
+
+#: ../../static/t/aide/display_ignetconf.html:10
+#: ../../static/t/aide/ignetconf/edit_node.html:5
+#: ../../static/t/aide/ignetconf/add.html:5
+msgid "Add a new node"
+msgstr "Új csomópont hozzáadása"
+
+#: ../../static/t/aide/display_ignetconf.html:14
+msgid "Currently configured nodes"
+msgstr "Jelenleg beállított csomópontok"
+
+#: ../../static/t/aide/display_serverrestart.html:26
+msgid "Restart Citadel"
+msgstr "Citadel újraindítása"
+
+#: ../../static/t/aide/floorconfig.html:2
+msgid "Add, change, or delete floors"
+msgstr "Szintek hozzáadása, megváltoztatása vagy törlése"
+
+#: ../../static/t/aide/serverrestart/box.html:3
+msgid "Please wait while the Citadel server is restarted... "
+msgstr "Kérem várjon, amíg a Citadel kiszolgáló újraindul..."
+
+#: ../../static/t/aide/serverrestart/box_page_do.html:3
+#, fuzzy
+msgid ""
+"Please wait while your users are being paged, the citadel server will be "
+"restarted after that... "
+msgstr "Kérem várjon, amíg a Citadel kiszolgáló újraindul..."
+
+#: ../../static/t/aide/inet/masqdomains.html:2
+msgid "(Domains as which users are allowed to masquerade)"
+msgstr ""
+
+#: ../../static/t/aide/inet/rbldns.html:2
+#, fuzzy
+msgid "(hosts running a Realtime Blackhole List)"
+msgstr "(rendszerek, melyek a ClamAV clamd szolgáltatást futtatják)"
+
+#: ../../static/t/aide/inet/dirnames.html:2
+msgid "(domains mapped with the Global Address Book)"
+msgstr "(domain nevek Globális Címlistával)"
+
+#: ../../static/t/aide/inet/notify.html:2
+msgid "(URLS for notifications when users receive new mails; )"
+msgstr ""
+
+#: ../../static/t/aide/inet/notify.html:2
+msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgstr ""
+
+#: ../../static/t/aide/inet/smarthosts.html:2
+msgid "(if present, forward all outbound mail to one of these hosts)"
+msgstr ""
+
+#: ../../static/t/aide/inet/aliases.html:2
+msgid "(domains for which this host receives mail)"
+msgstr "(domain nevek, melyekre ez a rendszer levelet fogad)"
+
+#: ../../static/t/aide/inet/clamav.html:2
+msgid "(hosts running the ClamAV clamd service)"
+msgstr "(rendszerek, melyek a ClamAV clamd szolgáltatást futtatják)"
+
+#: ../../static/t/aide/inet/spamass.html:2
+#, fuzzy
+msgid "(hosts running the SpamAssassin service)"
+msgstr "(rendszerek, melyek a ClamAV clamd szolgáltatást futtatják)"
+
+#: ../../static/t/aide/inet/fallbackhosts.html:2
+msgid "(send outbound mail to these hosts only when direct delivery fails)"
+msgstr ""
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
+msgid "Confirm delete"
+msgstr "Törlés jóváhagyása"
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
+msgid "Are you sure you want to delete "
+msgstr "Biztosan törölni akarja"
+
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
+#: ../../static/t/prefs/box.html:198 ../../static/t/iconbar/edit.html:19
+#: ../../static/t/iconbar/edit.html:26 ../../static/t/iconbar/edit.html:32
+#: ../../static/t/iconbar/edit.html:39 ../../static/t/iconbar/edit.html:45
+#: ../../static/t/iconbar/edit.html:52 ../../static/t/iconbar/edit.html:58
+#: ../../static/t/iconbar/edit.html:64 ../../static/t/iconbar/edit.html:70
+#: ../../static/t/iconbar/edit.html:76 ../../static/t/iconbar/edit.html:82
+#: ../../static/t/iconbar/edit.html:88
 msgid "Yes"
 msgstr "Igen"
 
-#: ../../static/t/iconbar/edit.html:20 ../../static/t/iconbar/edit.html:27
-#: ../../static/t/iconbar/edit.html:33 ../../static/t/iconbar/edit.html:40
-#: ../../static/t/iconbar/edit.html:46 ../../static/t/iconbar/edit.html:53
-#: ../../static/t/iconbar/edit.html:59 ../../static/t/iconbar/edit.html:65
-#: ../../static/t/iconbar/edit.html:71 ../../static/t/iconbar/edit.html:77
-#: ../../static/t/iconbar/edit.html:83 ../../static/t/iconbar/edit.html:89
-#: ../../static/t/prefs/box.html:200
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
+#: ../../static/t/prefs/box.html:200 ../../static/t/iconbar/edit.html:20
+#: ../../static/t/iconbar/edit.html:27 ../../static/t/iconbar/edit.html:33
+#: ../../static/t/iconbar/edit.html:40 ../../static/t/iconbar/edit.html:46
+#: ../../static/t/iconbar/edit.html:53 ../../static/t/iconbar/edit.html:59
+#: ../../static/t/iconbar/edit.html:65 ../../static/t/iconbar/edit.html:71
+#: ../../static/t/iconbar/edit.html:77 ../../static/t/iconbar/edit.html:83
+#: ../../static/t/iconbar/edit.html:89
 msgid "No"
 msgstr "Nem"
-
-#: ../../static/t/iconbar/edit.html:23
-msgid "Site logo"
-msgstr "Hely logó"
-
-#: ../../static/t/iconbar/edit.html:23
-msgid "An icon describing this site"
-msgstr "A helyre jellemző ikon"
-
-#: ../../static/t/iconbar/edit.html:29
-msgid "Your summary page"
-msgstr "Az ön összefoglaló oldala"
-
-#: ../../static/t/iconbar/edit.html:36
-msgid "Mail (inbox)"
-msgstr "Levél (bejövő)"
-
-#: ../../static/t/iconbar/edit.html:36
-msgid "A shortcut to your email Inbox"
-msgstr "Egy gyorsbillentyű az ön bejövő leveleihez"
-
-#: ../../static/t/iconbar/edit.html:42
-msgid "Your personal address book"
-msgstr "Az ön személyes címjegyzéke"
-
-#: ../../static/t/iconbar/edit.html:49
-msgid "Your personal notes"
-msgstr "Az ön személyes jegyzetei"
-
-#: ../../static/t/iconbar/edit.html:55
-msgid "A shortcut to your personal calendar"
-msgstr "Egy gyorsbillentyű az ön személyes naptárához"
-
-#: ../../static/t/iconbar/edit.html:61 ../../static/t/summary/page.html:32
-#: ../../static/t/iconbar.html:39
-msgid "Tasks"
-msgstr "Feladatok"
-
-#: ../../static/t/iconbar/edit.html:61
-msgid "A shortcut to your personal task list"
-msgstr "Egy gyorsbillentyű az ön személyes feladatlistájához"
-
-#: ../../static/t/iconbar/edit.html:67 ../../static/t/iconbar.html:48
-msgid "Rooms"
-msgstr "Szobák"
-
-#: ../../static/t/iconbar/edit.html:67
-msgid ""
-"Clicking this icon displays a list of all accessible rooms (or folders) "
-"available."
-msgstr ""
-"Erre az ikonra kattintva megtekintheti az összes elérhető szobát (vagy "
-"mappát)."
-
-#: ../../static/t/iconbar/edit.html:73
-msgid "Who is online?"
-msgstr "Ki van itt?"
-
-#: ../../static/t/iconbar/edit.html:73
-msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr ""
-"Erre az ikonra kattintva megtekintheti az összes bejelentkezett felhasználó "
-"listáját."
-
-#: ../../static/t/iconbar/edit.html:79 ../../static/t/iconbar.html:62
-msgid "Chat"
-msgstr "Csevegés"
-
-#: ../../static/t/iconbar/edit.html:79
-msgid ""
-"Clicking this icon enters real-time chat mode with other users in the same "
-"room."
-msgstr ""
-"Erre az ikonra kattintva belép egy valós idejű csevegés módba azokkal a "
-"felhasználókkal, akik ugyan ebben a szobában vannak."
-
-#: ../../static/t/iconbar/edit.html:85
-msgid "Advanced options"
-msgstr "Haladó beállítások"
-
-#: ../../static/t/iconbar/edit.html:85
-msgid "Access to the complete menu of Citadel functions."
-msgstr "Hozzáférés a Citadel teljes funkcióinak menüjéhez"
-
-#: ../../static/t/iconbar/edit.html:91
-msgid "Citadel logo"
-msgstr "Citadel logó"
-
-#: ../../static/t/iconbar/edit.html:91
-msgid "Displays the 'Powered by Citadel' icon"
-msgstr "Megmutatja a 'Működteti a Citadel' ikont"
-
-#: ../../static/t/iconbar/save.html:11
-#, fuzzy
-msgid ""
-"Your icon bar has been updated. Please select any of its choices to continue."
-msgstr "Az ön naptára frissült, hogy reagáljon az RSVP-re."
-
-#: ../../static/t/iconbar/save.html:11
-msgid ""
-"You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
-msgstr ""
-
-#: ../../static/t/login.html:5
-msgid "powered by"
-msgstr "működteti a"
-
-#: ../../static/t/login.html:15 ../../static/t/get_logged_in.html:54
-#: ../../static/t/get_logged_in.html:78 ../../static/t/iconbar.html:88
-msgid "Log in"
-msgstr "Utolsó bejelentkezés"
-
-#: ../../static/t/viewomatic.html:4
-msgid "View as:"
-msgstr "Mutasd mint:"
-
-#: ../../static/t/msg_listview.html:18
-msgid "Loading messages from server, please wait"
-msgstr "Levél betöltése a kiszolgálóról, türelem"
-
-#: ../../static/t/msg_listview.html:24
-msgid "Open in new window"
-msgstr "Megnyitás új ablakban"
-
-#: ../../static/t/msg_listview.html:26
-msgid "Copy"
-msgstr "Másolás"
-
-#: ../../static/t/summary/page.html:5
-#, fuzzy
-msgid "Summary page for "
-msgstr "%s összefoglaló lapja"
-
-#: ../../static/t/summary/page.html:23
-msgid "Messages"
-msgstr "Üzenetek"
-
-#: ../../static/t/summary/page.html:41
-msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Az&nbsp;ön&nbsp;naptára&nbsp;ma"
-
-#: ../../static/t/summary/page.html:53
-#, fuzzy
-msgid "Who‘s&nbsp;online&nbsp;now"
-msgstr "Ki van&nbsp;itt&nbsp;most"
-
-#: ../../static/t/summary/page.html:60
-msgid "About&nbsp;this&nbsp;server"
-msgstr "Erről&nbsp;a&nbsp;kiszolgálóról"
-
-#: ../../static/t/summary/page.html:63
-msgid "You are connected to"
-msgstr ""
-
-#: ../../static/t/summary/page.html:64
-#, fuzzy
-msgid "running"
-msgstr "Hangolás"
-
-#: ../../static/t/summary/page.html:65
-#, fuzzy
-msgid "with"
-msgstr "ötödik"
-
-#: ../../static/t/summary/page.html:66
-msgid "server build"
-msgstr ""
-
-#: ../../static/t/summary/page.html:67
-#, fuzzy
-msgid "and located in"
-msgstr "és utána"
-
-#: ../../static/t/summary/page.html:68
-#, fuzzy
-msgid "Your system administrator is"
-msgstr "Rendszergazda neve"
-
-#: ../../static/t/summary/trailer.html:9 ../../static/t/trailing.html:3
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-
-#: ../../static/t/view_blog/comment_box.html:8
-msgid "Post a comment"
-msgstr "A hozzászólásod"
-
-#: ../../static/t/menu/advanced_roomcommands.html:3
-msgid "Edit or delete this room"
-msgstr "Szoba szerkesztése vagy törlése"
-
-#: ../../static/t/menu/advanced_roomcommands.html:5
-msgid "Go to a 'hidden' room"
-msgstr "Ugrás egy 'rejtett' szobába"
-
-#: ../../static/t/menu/advanced_roomcommands.html:7
-#, fuzzy
-msgid "Zap (forget) this room"
-msgstr "Szoba kilövése"
-
-#: ../../static/t/menu/advanced_roomcommands.html:8
-msgid "List all forgotten rooms"
-msgstr "Listázza az összes elfelejtett szobát"
-
-#: ../../static/t/menu/basic_commands.html:3
-msgid "List known rooms"
-msgstr "Listázza az ismert szobákat"
-
-#: ../../static/t/menu/basic_commands.html:3
-msgid "Where can I go from here?"
-msgstr "Hova mehetek innen?"
-
-#: ../../static/t/menu/basic_commands.html:4
-msgid "...with <em>unread</em> messages"
-msgstr ""
-
-#: ../../static/t/menu/basic_commands.html:5
-msgid "Skip to next room"
-msgstr "Ugrás a következő szobába"
-
-#: ../../static/t/menu/basic_commands.html:5
-msgid "(come back here later)"
-msgstr "(visszatérés később)"
-
-#: ../../static/t/menu/basic_commands.html:6
-msgid "oops! Back to "
-msgstr "hoppá! Vissza ide: "
-
-#: ../../static/t/menu/basic_commands.html:10
-msgid "...in this room"
-msgstr "... ebben a szobában"
-
-#: ../../static/t/menu/basic_commands.html:11
-msgid "...old <em>and</em> new"
-msgstr ""
-
-#: ../../static/t/menu/basic_commands.html:12
-msgid "(post in this room)"
-msgstr "(hozzászólás ebben a szobában)"
-
-#: ../../static/t/menu/basic_commands.html:13
-msgid "File library"
-msgstr "Fájl-tár"
-
-#: ../../static/t/menu/basic_commands.html:13
-msgid "(List files available for download)"
-msgstr "(Letölthető fájlok listája)"
-
-#: ../../static/t/menu/basic_commands.html:17
-msgid "Summary page"
-msgstr "Összefoglaló oldal"
-
-#: ../../static/t/menu/basic_commands.html:17
-msgid "Summary of my account"
-msgstr "Saját azonosítóm összefoglalója"
-
-#: ../../static/t/menu/basic_commands.html:18
-msgid "User list"
-msgstr "Felhasználók listája"
-
-#: ../../static/t/menu/basic_commands.html:18
-msgid "(all registered users)"
-msgstr "(összes regisztrált felhasználó)"
-
-#: ../../static/t/menu/basic_commands.html:19
-msgid "Bye!"
-msgstr "Viszlát!"
-
-#: ../../static/t/menu/your_info.html:2
-msgid "Change your preferences and settings"
-msgstr "Az ön jellemzőinek és beállításainak megváltoztatása"
-
-#: ../../static/t/menu/your_info.html:3
-msgid "Update your contact information"
-msgstr "Frissítse a kapcsolati információit"
-
-#: ../../static/t/menu/your_info.html:5
-msgid "Enter your 'bio'"
-msgstr ""
-
-#: ../../static/t/menu/your_info.html:6
-msgid "Edit your online photo"
-msgstr "Az ön fényképének szerkesztése"
-
-#: ../../static/t/menu/your_info.html:9
-msgid "Edit your push email settings"
-msgstr ""
-
-#: ../../static/t/menu/your_info.html:10
-#, fuzzy
-msgid "Manage your OpenIDs"
-msgstr "Változtassa meg a jelszavát"
-
-#: ../../static/t/who/box_list_static.html:7 ../../static/t/who/summary.html:6
-msgid "Room"
-msgstr "Szoba"
-
-#: ../../static/t/who/box_list_static.html:8
-msgid "From host"
-msgstr "Innen jött"
-
-#: ../../static/t/who/section.html:4
-msgid "(kill)"
-msgstr "(kilő)"
-
-#: ../../static/t/who/list_static_header.html:1
-msgid "Users currently on"
-msgstr ""
-
-#: ../../static/t/openid_manual_create.html:2
-msgid "Your OpenID"
-msgstr ""
-
-#: ../../static/t/openid_manual_create.html:2
-msgid "was successfully verified."
-msgstr ""
-
-#: ../../static/t/openid_manual_create.html:3
-msgid "However, the user name"
-msgstr ""
-
-#: ../../static/t/openid_manual_create.html:3
-msgid "conflicts with an existing user."
-msgstr ""
-
-#: ../../static/t/openid_manual_create.html:5
-msgid "Please specify the user name you would like to use."
-msgstr "Kérem adja meg a felhasználó nevet, amit használni szeretne."
-
-#: ../../static/t/files.html:4
-msgid "Files available for download in"
-msgstr ""
-
-#: ../../static/t/files.html:9
-msgid "Upload a file:"
-msgstr "Fájl feltöltése:"
-
-#: ../../static/t/files.html:30
-msgid "Filename"
-msgstr "Fájlnév"
-
-#: ../../static/t/files.html:31
-msgid "Size"
-msgstr "Méret"
-
-#: ../../static/t/files.html:32
-msgid "Content"
-msgstr "Tartalom"
-
-#: ../../static/t/files.html:33
-msgid "Description"
-msgstr "Leírás"
-
-#: ../../static/t/loggedinas.html:3
-#, fuzzy
-msgid "Logged in as"
-msgstr "Utolsó bejelentkezés"
-
-#: ../../static/t/loggedinas.html:6
-#, fuzzy
-msgid "Not logged in."
-msgstr "Nincs belépve"
-
-#: ../../static/t/floors_edit_one.html:11
-msgid "(delete floor)"
-msgstr "(szint törlése)"
-
-#: ../../static/t/floors_edit_one.html:13
-msgid "(edit graphic)"
-msgstr "(grafika szerkesztése)"
-
-#: ../../static/t/sieve/none.html:11
-msgid ""
-"This installation of Citadel was built without support for server-side mail "
-"filtering.<br>Please contact your system administrator if you require this "
-"feature.<br>"
-msgstr ""
-
-#: ../../static/t/sieve/display_one.html:59
-#, fuzzy
-msgid "bytes"
-msgstr "év"
-
-#: ../../static/t/get_logged_in.html:5
-msgid "You must be logged in to access this page."
-msgstr "Be kell jelentkezned, hogy ezt az oldalt."
-
-#: ../../static/t/get_logged_in.html:45
-msgid "Log in using a user name and password"
-msgstr "belépés felhasználó név és jelszó segítségével"
-
-#: ../../static/t/get_logged_in.html:50 ../../static/t/get_logged_in.html:65
-msgid "Password:"
-msgstr "Jelszó:"
-
-#: ../../static/t/get_logged_in.html:55 ../../static/t/get_logged_in.html:59
-msgid "New user?  Register now"
-msgstr "Új felhasználó? Regisztráljon most"
-
-#: ../../static/t/get_logged_in.html:60
-msgid ""
-"enter the name and password you wish to use, and click &quot;New User.&quot; "
-msgstr ""
-
-#: ../../static/t/get_logged_in.html:73
-msgid "Log in using OpenID"
-msgstr "Belépés OpenID használatával"
-
-#: ../../static/t/get_logged_in.html:75
-msgid "OpenID URL:"
-msgstr "OpenID URL:"
-
-#: ../../static/t/floors.html:4
-msgid "Add/change/delete floors"
-msgstr "Szint hozzáadása/módosítása/törlése"
-
-#: ../../static/t/floors.html:10
-msgid "Floor number"
-msgstr "Szint száma"
-
-#: ../../static/t/floors.html:11
-msgid "Floor name"
-msgstr "Szint neve"
-
-#: ../../static/t/floors.html:12
-msgid "Number of rooms"
-msgstr "Szobák száma"
-
-#: ../../static/t/floors.html:13
-msgid "Floor CSS"
-msgstr "Szint CSS"
-
-#: ../../static/t/prefs/pushemail.html:2
-#, fuzzy
-msgid "Configure Push Email"
-msgstr "Push Email"
-
-#: ../../static/t/prefs/pushemail.html:9
-msgid "Push email and SMS settings"
-msgstr ""
-
-#: ../../static/t/prefs/pushemail.html:17
-msgid ""
-"If your administrator has enabled the functionality, Citadel can notify a "
-"Funambol server that you haved recieved new email and automatically "
-"syncronize any devices you have with the Funambol client installed."
-msgstr ""
-
-#: ../../static/t/prefs/pushemail.html:20
-msgid ""
-"Alternatively, if the administrator has configured it, Citadel can send a "
-"text message to you when new mail arrives."
-msgstr ""
-
-#: ../../static/t/prefs/pushemail.html:26
-msgid "Notify Funambol server"
-msgstr ""
-
-#: ../../static/t/prefs/pushemail.html:31
-#, fuzzy
-msgid "Send a text message to..."
-msgstr "Azonnali üzenet küldése ide:"
-
-#: ../../static/t/prefs/pushemail.html:33
-msgid ""
-"(Use international format, without any leading zeros, spaces or hypens, like "
-"+61415011501)"
-msgstr ""
-
-#: ../../static/t/prefs/pushemail.html:38
-msgid "Use custom notification scheme configured by your Admin"
-msgstr ""
-
-#: ../../static/t/prefs/pushemail.html:43
-#, fuzzy
-msgid "Don‘t send any notifications"
-msgstr "Ne küldjön értesítéseket"
-
-#: ../../static/t/prefs/box.html:9
-msgid "Tree (folders) view"
-msgstr "Fa (mappa) nézet"
-
-#: ../../static/t/prefs/box.html:11
-msgid "Table (rooms) view"
-msgstr "Táblázat (szoba) nézet"
-
-#: ../../static/t/prefs/box.html:20
-msgid "12 hour (am/pm)"
-msgstr "12 órás (de/du)"
-
-#: ../../static/t/prefs/box.html:25
-msgid "24 hour"
-msgstr "24 órás"
-
-#: ../../static/t/prefs/box.html:152
-msgid "Sunday"
-msgstr "Vasárnap"
-
-#: ../../static/t/prefs/box.html:153
-msgid "Monday"
-msgstr "Hétfő"
-
-#: ../../static/t/prefs/box.html:174
-msgid "No signature"
-msgstr "Nincs aláírás"
-
-#: ../../static/t/prefs/box.html:238
-msgid "Full-functionality"
-msgstr "Teljes funkcionalitás"
-
-#: ../../static/t/prefs/box.html:241
-msgid "Safe mode"
-msgstr "Biztonságos mód"
-
-#: ../../static/t/prefs/box.html:242
-msgid ""
-"Safe mode is less intensive on your web browser, but not as fully featured."
-msgstr ""
-
-#: ../../static/t/no_new_msgs.html:3
-msgid "No new messages."
-msgstr ""
-
-#: ../../static/t/files/graphicsupload.html:2
-msgid "Image upload"
-msgstr "Kép feltöltése"
-
-#: ../../static/t/files/graphicsupload.html:6
-msgid "You can upload an image directly from your computer"
-msgstr "Feltölthet egy képet közvetlenül a számítógépéről"
-
-#: ../../static/t/files/graphicsupload.html:8
-msgid "Please select a file to upload:"
-msgstr "Kérem válassza ki a feltöltendő fájlt:"
-
-#: ../../static/t/files/section_onefile.html:20
-msgid "Slideshow"
-msgstr "Diavetítés"
-
-#: ../../static/t/msg/confirm_move.html:4
-msgid "Confirm move of message"
-msgstr "Üzenet mozgatás jóváhagyása"
-
-#: ../../static/t/msg/confirm_move.html:12
-msgid "Move this message to:"
-msgstr "Üzenet mozgatása ide:"
-
-#: ../../static/t/iconbar.html:7
-msgid "Language:"
-msgstr "Nyelv:"
-
-#: ../../static/t/iconbar.html:19
-msgid "Mail"
-msgstr "Levelezés"
-
-#: ../../static/t/iconbar.html:57
-msgid "Online users"
-msgstr "Jelenlévő felhasználók"
-
-#: ../../static/t/iconbar.html:65
-msgid "Advanced"
-msgstr "Haladó"
-
-#: ../../static/t/iconbar.html:83
-msgid "customize this menu"
-msgstr "menü testreszabása"
-
-#: ../../static/t/iconbar.html:92
-msgid "switch to room list"
-msgstr "váltás a szoba listára"
-
-#: ../../static/t/iconbar.html:93
-msgid "switch to menu"
-msgstr "váltás a menüre"
-
-#: ../../static/t/iconbar.html:94
-msgid "My folders"
-msgstr "Saját mappáim"
-
-#: ../../static/t/aide/ignetconf/edit_node.html:5
-#: ../../static/t/aide/ignetconf/add.html:5
-#: ../../static/t/aide/display_ignetconf.html:10
-msgid "Add a new node"
-msgstr "Új csomópont hozzáadása"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:15
 #: ../../static/t/aide/ignetconf/add.html:15
@@ -3084,35 +2282,38 @@ msgstr "Port szám"
 msgid "(Edit)"
 msgstr "(Szerkeszt)"
 
-#: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
-msgid "Confirm delete"
-msgstr "Törlés jóváhagyása"
+#: ../../static/t/aide/display_menu.html:12
+msgid "Global Configuration"
+msgstr "Globális beállítások"
 
-#: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
-msgid "Are you sure you want to delete "
-msgstr "Biztosan törölni akarja"
+#: ../../static/t/aide/display_menu.html:14
+msgid "User account management"
+msgstr "Felhasználói hozzáférés kezelés"
 
-#: ../../static/t/aide/display_ignetconf.html:4
-msgid "Network configuration"
-msgstr "Hálózat beállítása"
+#: ../../static/t/aide/display_menu.html:16
+msgid "Shutdown Citadel"
+msgstr "Citadel leállítása"
 
-#: ../../static/t/aide/display_ignetconf.html:14
-msgid "Currently configured nodes"
-msgstr "Jelenleg beállított csomópontok"
+#: ../../static/t/aide/display_menu.html:18
+msgid "Rooms and Floors"
+msgstr "Szobák és szintek"
 
-#: ../../static/t/aide/display_generic_result.html:2
-msgid "Server command results"
-msgstr "Kiszolgáló parancs eredménye"
+#: ../../static/t/aide/global_config.html:2
+msgid "Edit site-wide configuration"
+msgstr "Rendszer szintű beállítások szerkesztése"
 
-#: ../../static/t/aide/display_generic_result.html:18
-#, fuzzy
-msgid "Enter another command"
-msgstr "Írja be a kiszolgáló parancsot"
+#: ../../static/t/aide/global_config.html:3
+msgid "Domain names and Internet mail configuration"
+msgstr "Domain nevek és internetes levelezés beállítása"
 
-#: ../../static/t/aide/display_generic_result.html:19
-#, fuzzy
-msgid "Return to menu"
-msgstr "váltás a menüre"
+#: ../../static/t/aide/global_config.html:4
+msgid "Configure replication with other Citadel servers"
+msgstr "Replikáció beállítása más Citadel kiszolgálókkal"
+
+#: ../../static/t/aide/global_config.html:5
+#: ../../static/t/view_mailq/header.html:3
+msgid "View the outbound SMTP queue"
+msgstr "Kimenő SMTP sor megtekintése"
 
 #: ../../static/t/aide/restart.html:2
 msgid "Restart Now"
@@ -3126,55 +2327,213 @@ msgstr "Újraindítás a felhasználók figyelmeztetése után"
 msgid "Restart when all users are idle"
 msgstr "Újraindítás, ha minden felhasználó tétlen"
 
-#: ../../static/t/aide/usermanagement.html:2
-msgid "Add, change, delete user accounts"
-msgstr "Felhasználói azonosítók hozzáadása, megváltoztatása, törlése"
-
-#: ../../static/t/aide/inet/rbldns.html:2
+#: ../../static/t/aide/siteconfig/tab_general.html:1
 #, fuzzy
-msgid "(hosts running a Realtime Blackhole List)"
-msgstr "(rendszerek, melyek a ClamAV clamd szolgáltatást futtatják)"
+msgid "General site configuration items"
+msgstr "Hely beállítása"
 
-#: ../../static/t/aide/inet/dirnames.html:2
-msgid "(domains mapped with the Global Address Book)"
-msgstr "(domain nevek Globális Címlistával)"
+#: ../../static/t/aide/siteconfig/tab_general.html:5
+msgid "Change Login Logo"
+msgstr "Belépési logó megváltoztatása"
 
-#: ../../static/t/aide/inet/spamass.html:2
+#: ../../static/t/aide/siteconfig/tab_general.html:6
+msgid "Change Logout Logo"
+msgstr "Kilépési logó megváltoztatása"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:11
+msgid "Fully qualified domain name"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_general.html:14
+msgid "Human-readable node name"
+msgstr "Csomópont ember által olvasható neve"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:17
+msgid "Telephone number"
+msgstr "Telefonszám"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:20
+msgid "Paginator prompt (for text mode clients)"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_general.html:23
+msgid "Geographic location of this system"
+msgstr "Ezen rendszer földrajzi elhelyezkedése"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:26
+msgid "Name of system administrator"
+msgstr "Rendszergazda neve"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:29
+msgid "Default timezone for unzoned calendar items"
+msgstr "Alapértelmezett időzóna az időzóna nélküli naptár bejegyzésekhez"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:1
 #, fuzzy
-msgid "(hosts running the SpamAssassin service)"
-msgstr "(rendszerek, melyek a ClamAV clamd szolgáltatást futtatják)"
+msgid "Configure automatic expiry of old messages"
+msgstr "Soha nem évüljenek el az üzenetek"
 
-#: ../../static/t/aide/inet/aliases.html:2
-msgid "(domains for which this host receives mail)"
-msgstr "(domain nevek, melyekre ez a rendszer levelet fogad)"
-
-#: ../../static/t/aide/inet/smarthosts.html:2
-msgid "(if present, forward all outbound mail to one of these hosts)"
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:2
+msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr ""
 
-#: ../../static/t/aide/inet/notify.html:2
-msgid "(URLS for notifications when users receive new mails; )"
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:6
+msgid "Hour to run database auto-purge"
 msgstr ""
 
-#: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:66
+#, fuzzy
+msgid "Default message expire policy for public rooms"
+msgstr "Üzenet elévülési szabályok ehhez a szobához"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:68
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:86
+#: ../../static/t/room/edit/tab_expire.html:17
+#: ../../static/t/room/edit/tab_expire.html:45
+msgid "Never automatically expire messages"
+msgstr "Soha nem évüljenek el az üzenetek"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:71
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:89
+#: ../../static/t/room/edit/tab_expire.html:20
+#: ../../static/t/room/edit/tab_expire.html:48
+msgid "Expire by message count"
+msgstr "Elévülés az üzenetek száma alapján"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:73
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:92
+#: ../../static/t/room/edit/tab_expire.html:23
+#: ../../static/t/room/edit/tab_expire.html:51
+msgid "Expire by message age"
+msgstr "Elévülés az üzenetek kora alapján"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:75
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:94
+#: ../../static/t/room/edit/tab_expire.html:25
+#: ../../static/t/room/edit/tab_expire.html:53
+msgid "Number of messages or days: "
+msgstr "Üzenetek vagy napok száma: "
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:81
+#, fuzzy
+msgid "Default message expire policy for private mailboxes"
+msgstr "Üzenetek elévülési szabálya ezen a szinten"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:83
+#, fuzzy
+msgid "Same policy as public rooms"
+msgstr "Üzenet elévülési szabályok ehhez a szobához"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:1
+msgid "Network services"
+msgstr "Hálózati szolgáltatások"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:2
+#: ../../static/t/aide/siteconfig/tab_directory.html:3
+msgid ""
+"Changes made on this screen will not take effect until you restart the "
+"Citadel server."
 msgstr ""
 
-#: ../../static/t/aide/inet/fallbackhosts.html:2
-msgid "(send outbound mail to these hosts only when direct delivery fails)"
+#: ../../static/t/aide/siteconfig/tab_network.html:6
+msgid "SMTP MTA port (-1 to disable)"
+msgstr "SMTP MTA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:9
+msgid "Correct forged From: lines during authenticated SMTP"
 msgstr ""
 
-#: ../../static/t/aide/inet/masqdomains.html:2
-msgid "(Domains as which users are allowed to masquerade)"
+#: ../../static/t/aide/siteconfig/tab_network.html:12
+msgid "Flag message as spam, instead of rejecting it"
+msgstr "Levelek megjelölése SPAM-ként az elutasítás helyett"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:15
+#, fuzzy
+msgid "IMAP listener port (-1 to disable)"
+msgstr "SMTP MTA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:19
+msgid "Network run frequency (in seconds)"
 msgstr ""
 
-#: ../../static/t/aide/inet/clamav.html:2
-msgid "(hosts running the ClamAV clamd service)"
-msgstr "(rendszerek, melyek a ClamAV clamd szolgáltatást futtatják)"
+#: ../../static/t/aide/siteconfig/tab_network.html:22
+msgid "Server IP address (0.0.0.0 for 'any')"
+msgstr ""
 
-#: ../../static/t/aide/floorconfig.html:2
-msgid "Add, change, or delete floors"
-msgstr "Szintek hozzáadása, megváltoztatása vagy törlése"
+#: ../../static/t/aide/siteconfig/tab_network.html:25
+msgid "SMTP MSA port (-1 to disable)"
+msgstr "SMTP MSA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:28
+#, fuzzy
+msgid "IMAP over SSL port (-1 to disable)"
+msgstr "SMTP MSA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:31
+#, fuzzy
+msgid "SMTP over SSL port (-1 to disable)"
+msgstr "SMTP MSA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:34
+msgid "Instantly expunge deleted messages in IMAP"
+msgstr "Törölt levelek azonnali megsemmisítése az IMAP-on"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:38
+msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_network.html:41
+msgid "Postfix TCP Dictionary Port"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_network.html:41
+msgid "-1 to disable"
+msgstr "-1 kikapcsolja"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:44
+#, fuzzy
+msgid "ManageSieve Port (-1 to disable)"
+msgstr "SMTP MSA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:47
+msgid "Perform RBL checks upon connect instead of after RCPT"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_network.html:50
+msgid "Keep original from headers in IMAP"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_network.html:53
+#, fuzzy
+msgid "XMPP (Jabber) client to server port (-1 to disable)"
+msgstr "SMTP MTA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:56
+#, fuzzy
+msgid "XMPP (Jabber) server to server port (-1 to disable)"
+msgstr "SMTP MTA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:1
+msgid "POP3"
+msgstr "POP3"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:6
+#, fuzzy
+msgid "POP3 listener port (-1 to disable)"
+msgstr "SMTP MTA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:9
+#, fuzzy
+msgid "POP3 over SSL port (-1 to disable)"
+msgstr "SMTP MSA port (-1 kikapcsolja)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:12
+msgid "POP3 fetch frequency in seconds"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:15
+msgid "POP3 fastest fetch frequency in seconds"
+msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:1
 msgid "Advanced server fine-tuning controls"
@@ -3212,11 +2571,6 @@ msgstr ""
 msgid "Automatically delete committed database logs"
 msgstr ""
 
-#: ../../static/t/aide/siteconfig/tab_pushmail.html:1
-#: ../../static/t/aide/display_sitewide_config.html:18
-msgid "Push Email"
-msgstr "Push Email"
-
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:5
 #, fuzzy
 msgid "Funambol server host (blank to disable)"
@@ -3239,60 +2593,6 @@ msgstr ""
 #, fuzzy
 msgid "External pager tool (blank to disable)"
 msgstr "LDAP kiszolgáló neve (üres kikapcsolja)"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:1
-msgid "Indexing and Journaling"
-msgstr "Indexelés és naplózás"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:2
-msgid "Warning: these facilities are resource intensive."
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:6
-msgid "Enable full text index"
-msgstr "Teljes szöveges indexelés bekapcsolása"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:9
-#, fuzzy
-msgid "Perform journaling of email messages"
-msgstr "Kedvelt megjelenített név az email üzenetekhez"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:13
-#, fuzzy
-msgid "Perform journaling of non-email messages"
-msgstr "Kedvelt megjelenített név az email üzenetekhez"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:16
-msgid "Email destination of journalized messages"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:1
-#, fuzzy
-msgid "Configure automatic expiry of old messages"
-msgstr "Soha nem évüljenek el az üzenetek"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:2
-msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:6
-msgid "Hour to run database auto-purge"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:66
-#, fuzzy
-msgid "Default message expire policy for public rooms"
-msgstr "Üzenet elévülési szabályok ehhez a szobához"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:81
-#, fuzzy
-msgid "Default message expire policy for private mailboxes"
-msgstr "Üzenetek elévülési szabálya ezen a szinten"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:83
-#, fuzzy
-msgid "Same policy as public rooms"
-msgstr "Üzenet elévülési szabályok ehhez a szobához"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:1
 msgid "Access controls and site policy settings"
@@ -3383,16 +2683,35 @@ msgstr ""
 msgid "Allow anonymous guest access"
 msgstr "Nincsenek anonym üzenetek"
 
+#: ../../static/t/aide/siteconfig/tab_indexing.html:1
+msgid "Indexing and Journaling"
+msgstr "Indexelés és naplózás"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:2
+msgid "Warning: these facilities are resource intensive."
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:6
+msgid "Enable full text index"
+msgstr "Teljes szöveges indexelés bekapcsolása"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:9
+#, fuzzy
+msgid "Perform journaling of email messages"
+msgstr "Kedvelt megjelenített név az email üzenetekhez"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:13
+#, fuzzy
+msgid "Perform journaling of non-email messages"
+msgstr "Kedvelt megjelenített név az email üzenetekhez"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:16
+msgid "Email destination of journalized messages"
+msgstr ""
+
 #: ../../static/t/aide/siteconfig/tab_directory.html:1
 msgid "Configure the LDAP connector for Citadel"
 msgstr "Az LDAP csatoló beállítása a Citadel számára"
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:3
-#: ../../static/t/aide/siteconfig/tab_network.html:2
-msgid ""
-"Changes made on this screen will not take effect until you restart the "
-"Citadel server."
-msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:4
 msgid ""
@@ -3420,385 +2739,361 @@ msgstr "Kapcsolódó DN"
 msgid "Password for bind DN"
 msgstr "Jelszó a kapcsolódó DN számára"
 
-#: ../../static/t/aide/siteconfig/tab_pop3.html:1
-msgid "POP3"
-msgstr "POP3"
+#: ../../static/t/iconbar.html:7
+msgid "Language:"
+msgstr "Nyelv:"
 
-#: ../../static/t/aide/siteconfig/tab_pop3.html:6
-#, fuzzy
-msgid "POP3 listener port (-1 to disable)"
-msgstr "SMTP MTA port (-1 kikapcsolja)"
+#: ../../static/t/iconbar.html:19
+msgid "Mail"
+msgstr "Levelezés"
 
-#: ../../static/t/aide/siteconfig/tab_pop3.html:9
-#, fuzzy
-msgid "POP3 over SSL port (-1 to disable)"
-msgstr "SMTP MSA port (-1 kikapcsolja)"
+#: ../../static/t/iconbar.html:39 ../../static/t/iconbar/edit.html:61
+#: ../../static/t/summary/page.html:30
+msgid "Tasks"
+msgstr "Feladatok"
 
-#: ../../static/t/aide/siteconfig/tab_pop3.html:12
-msgid "POP3 fetch frequency in seconds"
+#: ../../static/t/iconbar.html:48 ../../static/t/iconbar/edit.html:67
+msgid "Rooms"
+msgstr "Szobák"
+
+#: ../../static/t/iconbar.html:57
+msgid "Online users"
+msgstr "Jelenlévő felhasználók"
+
+#: ../../static/t/iconbar.html:62 ../../static/t/iconbar/edit.html:79
+msgid "Chat"
+msgstr "Csevegés"
+
+#: ../../static/t/iconbar.html:65
+msgid "Advanced"
+msgstr "Haladó"
+
+#: ../../static/t/iconbar.html:72 ../../static/t/room/edit/editroom.html:4
+#: ../../static/t/room/edit.html:5
+msgid "Administration"
+msgstr "Adminisztráció"
+
+#: ../../static/t/iconbar.html:83
+msgid "customize this menu"
+msgstr "menü testreszabása"
+
+#: ../../static/t/iconbar.html:92
+msgid "switch to room list"
+msgstr "váltás a szoba listára"
+
+#: ../../static/t/iconbar.html:93
+msgid "switch to menu"
+msgstr "váltás a menüre"
+
+#: ../../static/t/iconbar.html:94
+msgid "My folders"
+msgstr "Saját mappáim"
+
+#: ../../static/t/view_message/list_attach.html:3
+#: ../../static/t/view_message/inline_attach.html:4
+msgid "View"
+msgstr "Megnéz"
+
+#: ../../static/t/view_message/list_attach.html:4
+#: ../../static/t/view_message/inline_attach.html:5
+msgid "Download"
+msgstr "Letölt"
+
+#: ../../static/t/view_message/print.html:14
+#: ../../static/t/view_message.html:14
+msgid "to"
+msgstr "Címzett:"
+
+#: ../../static/t/openid_manual_create.html:2
+msgid "Your OpenID"
 msgstr ""
 
-#: ../../static/t/aide/siteconfig/tab_pop3.html:15
-msgid "POP3 fastest fetch frequency in seconds"
+#: ../../static/t/openid_manual_create.html:2
+msgid "was successfully verified."
 msgstr ""
 
-#: ../../static/t/aide/siteconfig/tab_general.html:1
+#: ../../static/t/openid_manual_create.html:3
+msgid "However, the user name"
+msgstr ""
+
+#: ../../static/t/openid_manual_create.html:3
+msgid "conflicts with an existing user."
+msgstr ""
+
+#: ../../static/t/openid_manual_create.html:5
+msgid "Please specify the user name you would like to use."
+msgstr "Kérem adja meg a felhasználó nevet, amit használni szeretne."
+
+#: ../../static/t/files/graphicsupload.html:2
+msgid "Image upload"
+msgstr "Kép feltöltése"
+
+#: ../../static/t/files/graphicsupload.html:6
+msgid "You can upload an image directly from your computer"
+msgstr "Feltölthet egy képet közvetlenül a számítógépéről"
+
+#: ../../static/t/files/graphicsupload.html:8
+msgid "Please select a file to upload:"
+msgstr "Kérem válassza ki a feltöltendő fájlt:"
+
+#: ../../static/t/files/section_onefile.html:20
+msgid "Slideshow"
+msgstr "Diavetítés"
+
+#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
+msgid "new of"
+msgstr ""
+
+#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
+#: ../../static/t/msg_listselector_bottom.html:7
+#: ../../static/t/msg_listselector_top.html:7
+msgid "messages"
+msgstr "üzenetből"
+
+#: ../../static/t/roombanner.html:28
+msgid "Select page: "
+msgstr "Oldal kiválasztása: "
+
+#: ../../static/t/who.html:13
+msgid "Users currently on "
+msgstr ""
+
+#: ../../static/t/who.html:22
 #, fuzzy
-msgid "General site configuration items"
-msgstr "Hely beállítása"
+msgid "Click on a name to read user info.  Click on"
+msgstr "Kattintson bármely jegyzetre a szerkesztéshez."
 
-#: ../../static/t/aide/siteconfig/tab_general.html:5
-msgid "Change Login Logo"
-msgstr "Belépési logó megváltoztatása"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:6
-msgid "Change Logout Logo"
-msgstr "Kilépési logó megváltoztatása"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:11
-msgid "Fully qualified domain name"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_general.html:14
-msgid "Human-readable node name"
-msgstr "Csomópont ember által olvasható neve"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:17
-msgid "Telephone number"
-msgstr "Telefonszám"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:20
-msgid "Paginator prompt (for text mode clients)"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_general.html:23
-msgid "Geographic location of this system"
-msgstr "Ezen rendszer földrajzi elhelyezkedése"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:26
-msgid "Name of system administrator"
-msgstr "Rendszergazda neve"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:29
-msgid "Default timezone for unzoned calendar items"
-msgstr "Alapértelmezett időzóna az időzóna nélküli naptár bejegyzésekhez"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:1
-msgid "Network services"
-msgstr "Hálózati szolgáltatások"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:6
-msgid "SMTP MTA port (-1 to disable)"
-msgstr "SMTP MTA port (-1 kikapcsolja)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:9
-msgid "Correct forged From: lines during authenticated SMTP"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_network.html:12
-msgid "Flag message as spam, instead of rejecting it"
-msgstr "Levelek megjelölése SPAM-ként az elutasítás helyett"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:15
+#: ../../static/t/who.html:24
 #, fuzzy
-msgid "IMAP listener port (-1 to disable)"
-msgstr "SMTP MTA port (-1 kikapcsolja)"
+msgid "to send an instant message to that user."
+msgstr "Azonnali üzenet küldése ide:"
 
-#: ../../static/t/aide/siteconfig/tab_network.html:19
-msgid "Network run frequency (in seconds)"
-msgstr ""
+#: ../../static/t/msg_listselector_bottom.html:2
+#: ../../static/t/msg_listselector_top.html:2
+msgid "Reading #"
+msgstr "Olvasás alatt #"
 
-#: ../../static/t/aide/siteconfig/tab_network.html:22
-msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr ""
+#: ../../static/t/msg_listselector_bottom.html:12
+#: ../../static/t/msg_listselector_top.html:12
+msgid "oldest to newest"
+msgstr "legrégebbitől a legújabbig"
 
-#: ../../static/t/aide/siteconfig/tab_network.html:25
-msgid "SMTP MSA port (-1 to disable)"
-msgstr "SMTP MSA port (-1 kikapcsolja)"
+#: ../../static/t/msg_listselector_bottom.html:20
+#: ../../static/t/msg_listselector_top.html:20
+msgid "newest to oldest"
+msgstr "legújabbtól a legrégebbiig"
 
-#: ../../static/t/aide/siteconfig/tab_network.html:28
-#, fuzzy
-msgid "IMAP over SSL port (-1 to disable)"
-msgstr "SMTP MSA port (-1 kikapcsolja)"
+#: ../../static/t/newstartpage.html:4
+msgid "New start page"
+msgstr "Új induló oldal"
 
-#: ../../static/t/aide/siteconfig/tab_network.html:31
-#, fuzzy
-msgid "SMTP over SSL port (-1 to disable)"
-msgstr "SMTP MSA port (-1 kikapcsolja)"
+#: ../../static/t/newstartpage.html:9
+msgid "Your start page has been changed."
+msgstr "Az ön induló oldala megváltozott."
 
-#: ../../static/t/aide/siteconfig/tab_network.html:34
-msgid "Instantly expunge deleted messages in IMAP"
-msgstr "Törölt levelek azonnali megsemmisítése az IMAP-on"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:38
-msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_network.html:41
-msgid "Postfix TCP Dictionary Port"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_network.html:41
-msgid "-1 to disable"
-msgstr "-1 kikapcsolja"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:44
-#, fuzzy
-msgid "ManageSieve Port (-1 to disable)"
-msgstr "SMTP MSA port (-1 kikapcsolja)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:47
-msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_network.html:50
-msgid "Keep original from headers in IMAP"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_network.html:53
-#, fuzzy
-msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr "SMTP MTA port (-1 kikapcsolja)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:56
-#, fuzzy
-msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr "SMTP MTA port (-1 kikapcsolja)"
-
-#: ../../static/t/aide/display_serverrestart_page.html:4
-msgid "Message to your Users:"
-msgstr "Üzenet az ön felhasználóinak:"
-
-#: ../../static/t/aide/display_serverrestart.html:26
-msgid "Restart Citadel"
-msgstr "Citadel újraindítása"
-
-#: ../../static/t/aide/global_config.html:2
-msgid "Edit site-wide configuration"
-msgstr "Rendszer szintű beállítások szerkesztése"
-
-#: ../../static/t/aide/global_config.html:3
-msgid "Domain names and Internet mail configuration"
-msgstr "Domain nevek és internetes levelezés beállítása"
-
-#: ../../static/t/aide/global_config.html:4
-msgid "Configure replication with other Citadel servers"
-msgstr "Replikáció beállítása más Citadel kiszolgálókkal"
-
-#: ../../static/t/aide/display_inetconf.html:5
-#: ../../static/t/aide/display_menu.html:5
-msgid "System Administration Menu"
-msgstr "Rendszer Adminisztrációs Menü"
-
-#: ../../static/t/aide/display_inetconf.html:6
-#: ../../static/t/aide/display_menu.html:6
-#, fuzzy
-msgid "Room Aide Menu"
-msgstr "Szoba infó"
-
-#: ../../static/t/aide/display_inetconf.html:13
-msgid "Local host aliases"
-msgstr "Helyi rendszer további címei"
-
-#: ../../static/t/aide/display_inetconf.html:14
-msgid "Directory domains"
-msgstr "Címtár domainek"
-
-#: ../../static/t/aide/display_inetconf.html:15
-msgid "Smart hosts"
-msgstr "Levéltovábbító címek"
-
-#: ../../static/t/aide/display_inetconf.html:16
-#, fuzzy
-msgid "Fallback smart hosts"
-msgstr "Levéltovábbító címek"
-
-#: ../../static/t/aide/display_inetconf.html:17
-msgid "Notification hosts"
-msgstr ""
-
-#: ../../static/t/aide/display_inetconf.html:22
-#, fuzzy
-msgid "RBL hosts"
-msgstr "Levéltovábbító címek"
-
-#: ../../static/t/aide/display_inetconf.html:23
-msgid "SpamAssassin hosts"
-msgstr "SpamAssassin kiszolgálók"
-
-#: ../../static/t/aide/display_inetconf.html:24
-msgid "ClamAV clamd hosts"
-msgstr "ClamAV clamd kiszolgálók"
-
-#: ../../static/t/aide/display_inetconf.html:25
-msgid "Masqueradable domains"
-msgstr ""
-
-#: ../../static/t/aide/serverrestart/box_page_do.html:3
-#, fuzzy
+#: ../../static/t/newstartpage.html:12
 msgid ""
-"Please wait while your users are being paged, the citadel server will be "
-"restarted after that... "
-msgstr "Kérem várjon, amíg a Citadel kiszolgáló újraindul..."
-
-#: ../../static/t/aide/serverrestart/box.html:3
-msgid "Please wait while the Citadel server is restarted... "
-msgstr "Kérem várjon, amíg a Citadel kiszolgáló újraindul..."
-
-#: ../../static/t/aide/display_menu.html:12
-msgid "Global Configuration"
-msgstr "Globális beállítások"
-
-#: ../../static/t/aide/display_menu.html:14
-msgid "User account management"
-msgstr "Felhasználói hozzáférés kezelés"
-
-#: ../../static/t/aide/display_menu.html:16
-msgid "Shutdown Citadel"
-msgstr "Citadel leállítása"
-
-#: ../../static/t/aide/display_menu.html:18
-msgid "Rooms and Floors"
-msgstr "Szobák és szintek"
-
-#: ../../static/t/aide/edituser/detailview.html:4
-msgid "Edit user account: "
-msgstr "Felhasználói azonosító szerkesztése: "
-
-#: ../../static/t/aide/edituser/detailview.html:28
-msgid "Permission to send Internet mail"
+"(Note: this does not change your browser's home page. It changes the page "
+"you begin on when you log on to"
 msgstr ""
 
-#: ../../static/t/aide/edituser/detailview.html:32
-msgid "Number of logins"
-msgstr "Belépések száma"
+#: ../../static/t/no_new_msgs.html:3
+msgid "No new messages."
+msgstr ""
 
-#: ../../static/t/aide/edituser/detailview.html:36
+#: ../../static/t/view_blog/comment_box.html:8
+msgid "Post a comment"
+msgstr "A hozzászólásod"
+
+#: ../../static/t/prefs/pushemail.html:2
 #, fuzzy
-msgid "Messages submitted"
-msgstr "Levél mérete"
+msgid "Configure Push Email"
+msgstr "Push Email"
 
-#: ../../static/t/aide/edituser/detailview.html:40
-msgid "Access level"
-msgstr "Hozzáférési szint"
+#: ../../static/t/prefs/pushemail.html:9
+msgid "Push email and SMS settings"
+msgstr ""
 
-#: ../../static/t/aide/edituser/detailview.html:54
+#: ../../static/t/prefs/pushemail.html:17
+msgid ""
+"If your administrator has enabled the functionality, Citadel can notify a "
+"Funambol server that you haved recieved new email and automatically "
+"syncronize any devices you have with the Funambol client installed."
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:20
+msgid ""
+"Alternatively, if the administrator has configured it, Citadel can send a "
+"text message to you when new mail arrives."
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:26
+msgid "Notify Funambol server"
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:31
 #, fuzzy
-msgid "User ID number"
+msgid "Send a text message to..."
+msgstr "Azonnali üzenet küldése ide:"
+
+#: ../../static/t/prefs/pushemail.html:33
+msgid ""
+"(Use international format, without any leading zeros, spaces or hypens, like "
+"+61415011501)"
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:38
+msgid "Use custom notification scheme configured by your Admin"
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:43
+#, fuzzy
+msgid "Don‘t send any notifications"
+msgstr "Ne küldjön értesítéseket"
+
+#: ../../static/t/prefs/box.html:9
+msgid "Tree (folders) view"
+msgstr "Fa (mappa) nézet"
+
+#: ../../static/t/prefs/box.html:11
+msgid "Table (rooms) view"
+msgstr "Táblázat (szoba) nézet"
+
+#: ../../static/t/prefs/box.html:20
+msgid "12 hour (am/pm)"
+msgstr "12 órás (de/du)"
+
+#: ../../static/t/prefs/box.html:25
+msgid "24 hour"
+msgstr "24 órás"
+
+#: ../../static/t/prefs/box.html:152
+msgid "Sunday"
+msgstr "Vasárnap"
+
+#: ../../static/t/prefs/box.html:153
+msgid "Monday"
+msgstr "Hétfő"
+
+#: ../../static/t/prefs/box.html:174
+msgid "No signature"
+msgstr "Nincs aláírás"
+
+#: ../../static/t/prefs/box.html:238
+msgid "Full-functionality"
+msgstr "Teljes funkcionalitás"
+
+#: ../../static/t/prefs/box.html:241
+msgid "Safe mode"
+msgstr "Biztonságos mód"
+
+#: ../../static/t/prefs/box.html:242
+msgid ""
+"Safe mode is less intensive on your web browser, but not as fully featured."
+msgstr ""
+
+#: ../../static/t/wiki/pagelist.html:1
+msgid "List of Wiki pages"
+msgstr ""
+
+#: ../../static/t/wiki/history.html:1
+msgid "History of edits for this page"
+msgstr ""
+
+#: ../../static/t/who/list_static_header.html:1
+msgid "Users currently on"
+msgstr ""
+
+#: ../../static/t/who/section.html:4
+msgid "(kill)"
+msgstr "(kilő)"
+
+#: ../../static/t/who/bio.html:4 ../../static/t/user/show.html:4
+msgid "User profile"
+msgstr "Felhasználói profil"
+
+#: ../../static/t/who/summary.html:5 ../../static/t/who/box_list_static.html:6
+#: ../../static/t/room/edit/tab_feed.html:13
+msgid "User name"
 msgstr "Felhasználónév"
 
-#: ../../static/t/aide/edituser/detailview.html:58
-msgid "Date and time of last login"
-msgstr "Utolsó belépés dátuma és ideje"
+#: ../../static/t/who/summary.html:6 ../../static/t/who/box_list_static.html:7
+msgid "Room"
+msgstr "Szoba"
 
-#: ../../static/t/aide/edituser/detailview.html:68
-msgid "Auto-purge after this many days"
+#: ../../static/t/who/box_list_static.html:8
+msgid "From host"
+msgstr "Innen jött"
+
+#: ../../static/t/view_message.html:19
+msgid "Edit"
 msgstr ""
 
-#: ../../static/t/aide/edituser/select.html:5
-msgid "Edit or delete users"
-msgstr "Felhasználók szerkesztése vagy törlése"
+#: ../../static/t/view_message.html:22 ../../static/t/view_message.html:26
+msgid "Reply"
+msgstr "Válasz"
 
-#: ../../static/t/aide/edituser/select.html:9
-#: ../../static/t/aide/display_sitewide_config.html:6
-msgid "You need to be aide to view this."
-msgstr ""
+#: ../../static/t/view_message.html:23
+msgid "ReplyQuoted"
+msgstr "IdézveVálaszol"
 
-#: ../../static/t/aide/edituser/select.html:17
-msgid "Add users"
-msgstr "Felhasználók hozzáadása"
+#: ../../static/t/view_message.html:27
+msgid "ReplyAll"
+msgstr "VálaszMindenkinek"
 
-#: ../../static/t/aide/edituser/select.html:20
-msgid "Edit or Delete users"
-msgstr "Felhasználók szerkesztése vagy törlése"
+#: ../../static/t/view_message.html:28
+msgid "Forward"
+msgstr "Továbbít"
 
-#: ../../static/t/aide/edituser/box_select.html:1
+#: ../../static/t/view_message.html:31 ../../static/t/msg_listview.html:25
+msgid "Move"
+msgstr "Mozgat"
+
+#: ../../static/t/view_message.html:34
+msgid "Headers"
+msgstr "Fejlécek"
+
+#: ../../static/t/view_message.html:35 ../../static/t/msg_listview.html:28
+msgid "Print"
+msgstr "Nyomtatás"
+
+#: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
+msgid "Preferences and settings"
+msgstr "Jellemzők és beállítások"
+
+#: ../../static/t/user/list.html:3
 #, fuzzy
-msgid ""
-"To edit an existing user account, select the user name from the list and "
-"click 'Edit'."
-msgstr ""
-"Ha szeretne további felhasználónak hozzáférést adni ehhez a szobához, írja "
-"be a felhasználó nevét az alábbi szövegdobozba és kattintson a 'Meghív' "
-"pontra."
+msgid "User list for "
+msgstr "Felhasználók listája"
 
-#: ../../static/t/aide/edituser/add.html:1
+#: ../../static/t/user/list.html:9
+msgid "User Name"
+msgstr "Felhasználónév"
+
+#: ../../static/t/user/list.html:10
+msgid "Number"
+msgstr "Szám"
+
+#: ../../static/t/user/list.html:11
+msgid "Access Level"
+msgstr "Hozzáférési szint"
+
+#: ../../static/t/user/list.html:12
+msgid "Last Login"
+msgstr "Utolsó bejelentkezés"
+
+#: ../../static/t/user/list.html:13
+msgid "Total Logins"
+msgstr "Összes bejelentkezés"
+
+#: ../../static/t/user/list.html:14
+msgid "Total Posts"
+msgstr "Összes hozzászólás"
+
+#: ../../static/t/user/show.html:9
 #, fuzzy
-msgid ""
-"To create a new user account, enter the desired user name in the box below "
-"and click 'Create'."
-msgstr ""
-"Ha szeretne további felhasználónak hozzáférést adni ehhez a szobához, írja "
-"be a felhasználó nevét az alábbi szövegdobozba és kattintson a 'Meghív' "
-"pontra."
-
-#: ../../static/t/aide/edituser/add.html:5
-msgid "New user: "
-msgstr "Új felhasználó: "
-
-#: ../../static/t/aide/display_sitewide_config.html:3
-msgid "Site configuration"
-msgstr "Hely beállítása"
-
-#: ../../static/t/aide/display_sitewide_config.html:11
-msgid "General"
-msgstr "Általános"
-
-#: ../../static/t/aide/display_sitewide_config.html:12
-msgid "Access"
-msgstr "Hozzáférés"
-
-#: ../../static/t/aide/display_sitewide_config.html:13
-msgid "Network"
-msgstr "Hálózat"
-
-#: ../../static/t/aide/display_sitewide_config.html:14
-msgid "Tuning"
-msgstr "Hangolás"
-
-#: ../../static/t/aide/display_sitewide_config.html:15
-#, fuzzy
-msgid "Directory"
-msgstr "Könyvtár neve:"
-
-#: ../../static/t/aide/display_sitewide_config.html:16
-msgid "Auto-purger"
-msgstr "Automatikus-takarító"
-
-#: ../../static/t/aide/display_sitewide_config.html:17
-msgid "Indexing/Journaling"
-msgstr "Indexelés/naplózás"
-
-#: ../../static/t/aide/display_sitewide_config.html:19
-msgid "Pop3"
-msgstr "Pop3"
-
-#: ../../static/t/aide/display_generic_cmd.html:4
-msgid "Enter a server command"
-msgstr "Írja be a kiszolgáló parancsot"
-
-#: ../../static/t/aide/display_generic_cmd.html:12
-msgid ""
-"This screen allows you to enter Citadel server commands which are not "
-"supported by WebCit.  If you do not know what that means, then this screen "
-"will not be of much use to you."
-msgstr ""
-"Ez a képernyő lehetővé teszi oylan Citadel kiszolgáló parancsok bevitelét, "
-"melyet a WebCit nem támogat.  Ha nem tudja ez mit jelent, ennek a "
-"képernyőnek nem sok hasznát veszi."
-
-#: ../../static/t/aide/display_generic_cmd.html:15
-msgid "Enter command:"
-msgstr "Írja be a parancsot:"
-
-#: ../../static/t/aide/display_generic_cmd.html:17
-msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr "Parancs bemenet (ha SEND_LISTING átviteli módot kér):"
-
-#: ../../static/t/aide/display_generic_cmd.html:20
-#, fuzzy
-msgid "Detected host header is "
-msgstr "A felismert kiszolgáló fejléc %s://%s"
+msgid "Click here to send an instant message to"
+msgstr "Azonnali üzenet küldése ide: "
 
 #: ../../static/t/start_of_new_msgs.html:4
 msgid "Old messages"
@@ -3807,6 +3102,885 @@ msgstr ""
 #: ../../static/t/start_of_new_msgs.html:8
 msgid "New messages"
 msgstr ""
+
+#: ../../static/t/display_main_menu.html:7
+msgid "Basic commands"
+msgstr "Alap parancsok"
+
+#: ../../static/t/display_main_menu.html:10
+msgid "Your info"
+msgstr "Az ön adatai"
+
+#: ../../static/t/display_main_menu.html:12
+msgid "Advanced room commands"
+msgstr "Haladó szoba parancsok"
+
+#: ../../static/t/iconbar/save.html:4 ../../static/t/iconbar/edit.html:4
+msgid "Customize the icon bar"
+msgstr "eszköztár testre szabása"
+
+#: ../../static/t/iconbar/save.html:11
+#, fuzzy
+msgid ""
+"Your icon bar has been updated. Please select any of its choices to continue."
+msgstr "Az ön naptára frissült, hogy reagáljon az RSVP-re."
+
+#: ../../static/t/iconbar/save.html:11
+msgid ""
+"You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
+msgstr ""
+
+#: ../../static/t/iconbar/edit.html:11
+msgid "Display icons as:"
+msgstr "Ikonok megjelenítése mint:"
+
+#: ../../static/t/iconbar/edit.html:12
+msgid "pictures and text"
+msgstr "képek és szöveg"
+
+#: ../../static/t/iconbar/edit.html:13
+msgid "pictures only"
+msgstr "csak képek"
+
+#: ../../static/t/iconbar/edit.html:14
+msgid "text only"
+msgstr "csak szöveg"
+
+#: ../../static/t/iconbar/edit.html:16
+msgid ""
+"Select the icons you would like to see displayed in the 'icon bar' menu on "
+"the left side of the screen."
+msgstr ""
+"Válassza ki az ikonokat, melyeket a képernyőn balra, az eszköztárban "
+"szeretne látni."
+
+#: ../../static/t/iconbar/edit.html:23
+msgid "Site logo"
+msgstr "Hely logó"
+
+#: ../../static/t/iconbar/edit.html:23
+msgid "An icon describing this site"
+msgstr "A helyre jellemző ikon"
+
+#: ../../static/t/iconbar/edit.html:29
+msgid "Your summary page"
+msgstr "Az ön összefoglaló oldala"
+
+#: ../../static/t/iconbar/edit.html:36
+msgid "Mail (inbox)"
+msgstr "Levél (bejövő)"
+
+#: ../../static/t/iconbar/edit.html:36
+msgid "A shortcut to your email Inbox"
+msgstr "Egy gyorsbillentyű az ön bejövő leveleihez"
+
+#: ../../static/t/iconbar/edit.html:42
+msgid "Your personal address book"
+msgstr "Az ön személyes címjegyzéke"
+
+#: ../../static/t/iconbar/edit.html:49
+msgid "Your personal notes"
+msgstr "Az ön személyes jegyzetei"
+
+#: ../../static/t/iconbar/edit.html:55
+msgid "A shortcut to your personal calendar"
+msgstr "Egy gyorsbillentyű az ön személyes naptárához"
+
+#: ../../static/t/iconbar/edit.html:61
+msgid "A shortcut to your personal task list"
+msgstr "Egy gyorsbillentyű az ön személyes feladatlistájához"
+
+#: ../../static/t/iconbar/edit.html:67
+msgid ""
+"Clicking this icon displays a list of all accessible rooms (or folders) "
+"available."
+msgstr ""
+"Erre az ikonra kattintva megtekintheti az összes elérhető szobát (vagy "
+"mappát)."
+
+#: ../../static/t/iconbar/edit.html:73
+msgid "Who is online?"
+msgstr "Ki van itt?"
+
+#: ../../static/t/iconbar/edit.html:73
+msgid "Clicking this icon displays a list of all users currently logged in."
+msgstr ""
+"Erre az ikonra kattintva megtekintheti az összes bejelentkezett felhasználó "
+"listáját."
+
+#: ../../static/t/iconbar/edit.html:79
+msgid ""
+"Clicking this icon enters real-time chat mode with other users in the same "
+"room."
+msgstr ""
+"Erre az ikonra kattintva belép egy valós idejű csevegés módba azokkal a "
+"felhasználókkal, akik ugyan ebben a szobában vannak."
+
+#: ../../static/t/iconbar/edit.html:85
+msgid "Advanced options"
+msgstr "Haladó beállítások"
+
+#: ../../static/t/iconbar/edit.html:85
+msgid "Access to the complete menu of Citadel functions."
+msgstr "Hozzáférés a Citadel teljes funkcióinak menüjéhez"
+
+#: ../../static/t/iconbar/edit.html:91
+msgid "Citadel logo"
+msgstr "Citadel logó"
+
+#: ../../static/t/iconbar/edit.html:91
+msgid "Displays the 'Powered by Citadel' icon"
+msgstr "Megmutatja a 'Működteti a Citadel' ikont"
+
+#: ../../static/t/room/edit/tab_expire.html:8
+msgid "Message expire policy for this room"
+msgstr "Üzenet elévülési szabályok ehhez a szobához"
+
+#: ../../static/t/room/edit/tab_expire.html:14
+msgid "Use the default policy for this floor"
+msgstr "Használja az alapértelmezett szabályokat ehhez a szinthez"
+
+#: ../../static/t/room/edit/tab_expire.html:36
+msgid "Message expire policy for this floor"
+msgstr "Üzenetek elévülési szabálya ezen a szinten"
+
+#: ../../static/t/room/edit/tab_expire.html:42
+msgid "Use the system default"
+msgstr "Rendszer alapértelmezés használata"
+
+#: ../../static/t/room/edit/editroom.html:5 ../../static/t/room/edit.html:6
+msgid "Configuration"
+msgstr "Beállítások"
+
+#: ../../static/t/room/edit/editroom.html:6 ../../static/t/room/edit.html:7
+msgid "Message expire policy"
+msgstr "Üzenet elévülési szabály"
+
+#: ../../static/t/room/edit/editroom.html:7 ../../static/t/room/edit.html:8
+msgid "Access controls"
+msgstr "Hozzáférés szabályozás"
+
+#: ../../static/t/room/edit/editroom.html:8 ../../static/t/room/edit.html:9
+msgid "Sharing"
+msgstr "Megosztás"
+
+#: ../../static/t/room/edit/editroom.html:9 ../../static/t/room/edit.html:10
+msgid "Mailing list service"
+msgstr "Levelezőlista szolgáltatás"
+
+#: ../../static/t/room/edit/editroom.html:10 ../../static/t/room/edit.html:11
+msgid "Remote retrieval"
+msgstr "Távoli beszerzés"
+
+#: ../../static/t/room/edit/tab_config.html:6
+#, fuzzy
+msgid "name of room: "
+msgstr "Szoba neve:"
+
+#: ../../static/t/room/edit/tab_config.html:10
+#: ../../static/t/room/create.html:20
+msgid "Resides on floor: "
+msgstr "Ezen a szinten van: "
+
+#: ../../static/t/room/edit/tab_config.html:16
+#: ../../static/t/room/create.html:68
+msgid "Type of room:"
+msgstr "Szoba típusa:"
+
+#: ../../static/t/room/edit/tab_config.html:22
+#: ../../static/t/room/create.html:73
+msgid "Public (automatically appears to everyone)"
+msgstr "Nyilvános (automatikusan megjelenik mindenkinek)"
+
+#: ../../static/t/room/edit/tab_config.html:28
+#: ../../static/t/room/create.html:77
+msgid "Private - hidden (accessible to anyone who knows its name)"
+msgstr "Privát - rejtett (elérhető mindenkinek, aki tudja a nevét)"
+
+#: ../../static/t/room/edit/tab_config.html:35
+#: ../../static/t/room/create.html:81
+msgid "Private - require password: "
+msgstr "Privát - jelszót igényel: "
+
+#: ../../static/t/room/edit/tab_config.html:44
+#: ../../static/t/room/create.html:86
+msgid "Private - invitation only"
+msgstr "Privát - csak meghívással"
+
+#: ../../static/t/room/edit/tab_config.html:51
+#: ../../static/t/room/create.html:90
+msgid "Personal (mailbox for you only)"
+msgstr "Személyes (postafiók csak önnek)"
+
+#: ../../static/t/room/edit/tab_config.html:55
+msgid "If private, cause current users to forget room"
+msgstr "Ha privát, az összes jelenlegi felhasználó elfelejti a szobát"
+
+#: ../../static/t/room/edit/tab_config.html:61
+msgid "Preferred users only"
+msgstr "Csak a kedvenc felhasználók"
+
+#: ../../static/t/room/edit/tab_config.html:66
+msgid "Read-only room"
+msgstr "Csak olvasható szoba"
+
+#: ../../static/t/room/edit/tab_config.html:71
+msgid "All users allowed to post may also delete messages"
+msgstr "Minden felhasználó, aki beküldhet az törölhet is üzeneteket"
+
+#: ../../static/t/room/edit/tab_config.html:76
+msgid "File directory room"
+msgstr "Fájl mappa szoba"
+
+#: ../../static/t/room/edit/tab_config.html:80
+msgid "Directory name: "
+msgstr "Könyvtár neve: "
+
+#: ../../static/t/room/edit/tab_config.html:86
+msgid "Uploading allowed"
+msgstr "Feltöltés engedélyezett"
+
+#: ../../static/t/room/edit/tab_config.html:91
+msgid "Downloading allowed"
+msgstr "Letöltés engedélyezett"
+
+#: ../../static/t/room/edit/tab_config.html:96
+msgid "Visible directory"
+msgstr "Látható könyvtár"
+
+#: ../../static/t/room/edit/tab_config.html:103
+msgid "Network shared room"
+msgstr "Hálózaton megosztott szoba"
+
+#: ../../static/t/room/edit/tab_config.html:108
+msgid "Permanent (does not auto-purge)"
+msgstr "Állandó (nem törlődik automatikusan)"
+
+#: ../../static/t/room/edit/tab_config.html:113
+msgid "Subject Required (Force users to specify a message subject)"
+msgstr ""
+"Tárgy kötelező (Kényszeríti a felhasználókat, hogy az üzeneteknek adják meg "
+"a tárgyát)"
+
+#: ../../static/t/room/edit/tab_config.html:116
+msgid "Anonymous messages"
+msgstr "Anonym üzenetek"
+
+#: ../../static/t/room/edit/tab_config.html:122
+msgid "No anonymous messages"
+msgstr "Nincsenek anonym üzenetek"
+
+#: ../../static/t/room/edit/tab_config.html:127
+msgid "All messages are anonymous"
+msgstr "Minden üzenet anonym"
+
+#: ../../static/t/room/edit/tab_config.html:132
+msgid "Prompt user when entering messages"
+msgstr ""
+
+#: ../../static/t/room/edit/tab_config.html:136
+#, fuzzy
+msgid "Room aide: "
+msgstr "Szoba száma:"
+
+#: ../../static/t/room/edit/tab_listserv.html:5
+#, fuzzy
+msgid ""
+"<i>The contents of this room are being mailed <b>as individual messages</b> "
+"to the following list recipients:</i><br><br>"
+msgstr ""
+"<i>A szoba tartalma <b>egyedi üzenetekben</b> elküldésre kerül az alábbi "
+"címzetteknek:</i><br><br>\n"
+
+#: ../../static/t/room/edit/tab_listserv.html:19
+#, fuzzy
+msgid ""
+"<i>The contents of this room are being mailed <b>in digest form</b> to the "
+"following list recipients:</i><br><br>"
+msgstr ""
+"<i>A szoba tartalma <b>egyetlen üzenetben</b> elküldésre kerül az alábbi "
+"címzetteknek:</i><br><br>\n"
+
+#: ../../static/t/room/edit/tab_listserv.html:39
+msgid "Add recipients from Contacts or other address books"
+msgstr "Címzettek hozzáadása a Kapcsolatokból vagy más címlistákból"
+
+#: ../../static/t/room/edit/tab_listserv.html:48
+msgid "Allow non-subscribers to mail to this room."
+msgstr "Engedélyezi, hogy nem előfizetők postázhassanak ebbe a szobába."
+
+#: ../../static/t/room/edit/tab_listserv.html:54
+msgid "Room post publication needs Aide permission."
+msgstr ""
+
+#: ../../static/t/room/edit/tab_listserv.html:59
+msgid "Allow self-service subscribe/unsubscribe requests."
+msgstr "Önkiszolgáló előfizetés/lemondás engedélyezése."
+
+#: ../../static/t/room/edit/tab_listserv.html:65
+msgid "The URL for subscribe/unsubscribe is: "
+msgstr "Az előfizetés/lemondás URL: "
+
+#: ../../static/t/room/edit/digestrecp_removal.html:1
+#: ../../static/t/room/edit/pop3client_removal.html:9
+#: ../../static/t/room/edit/listrecp_removal.html:1
+#: ../../static/t/room/edit/rssclient_removal.html:5
+msgid "(remove)"
+msgstr "(eltávolít)"
+
+#: ../../static/t/room/edit/tab_admin.html:5
+msgid "Delete this room"
+msgstr "Szoba törlése"
+
+#: ../../static/t/room/edit/tab_admin.html:10
+#, fuzzy
+msgid "Set or change the icon for this rooms banner"
+msgstr "A szoba hirdetés ikonjának beállítása vagy megváltoztatása"
+
+#: ../../static/t/room/edit/tab_admin.html:14
+#, fuzzy
+msgid "Edit this rooms Info file"
+msgstr "A szoba Info fájl szerkesztése"
+
+#: ../../static/t/room/edit/tab_share.html:5
+msgid "Shared with"
+msgstr "Megosztva ezzel:"
+
+#: ../../static/t/room/edit/tab_share.html:6
+msgid "Not shared with"
+msgstr "Nincs megosztva ezzel:"
+
+#: ../../static/t/room/edit/tab_share.html:11
+#: ../../static/t/room/edit/tab_share.html:21
+msgid "Remote node name"
+msgstr "Távoli csomópont neve"
+
+#: ../../static/t/room/edit/tab_share.html:12
+#: ../../static/t/room/edit/tab_share.html:22
+msgid "Remote room name"
+msgstr "Távoli szoba neve"
+
+#: ../../static/t/room/edit/tab_share.html:13
+#: ../../static/t/room/edit/tab_share.html:23
+msgid "Actions"
+msgstr "Műveletek"
+
+#: ../../static/t/room/edit/tab_share.html:35
+#, fuzzy
+msgid ""
+"When sharing a room, it must be shared from both ends.  Adding a node to the "
+"'shared' list sends messages out, but in order to receive messages, the "
+"other nodes must be configured to send messages out to your system as well. "
+"<li>If the remote room name is blank, it is assumed that the room name is "
+"identical on the remote node. <li>If the remote room name is different, the "
+"remote node must also configure the name of the room here."
+msgstr ""
+"Amikor megoszt egy szobát, annak meg kell lennie osztva mindkét oldalon.  "
+"Egy csomópont hozzáadása a 'megosztások' listájához kiküldi az üzeneteket, "
+"de ahhoz, hogy kapjon is üzenetet, a másik csomópontoknak is be kell "
+"állítaniuk, hogy kiküldje az üzeneteket az ön rendszerének. <li>Ha a távoli "
+"szoba neve üres, feltételezzük, hogy a szoba neve azonos a másik oldalon."
+"<li>Ha a távoli szoba neve más, a másik csomóponton szintén be kell állítani "
+"az itteni szoba nevét.</ul></l><br>\n"
+
+#: ../../static/t/room/edit/tab_feed.html:2
+msgid ""
+"Retrieve messages from these remote POP3 accounts and store them in this "
+"room:"
+msgstr ""
+"Üzenetek letöltése távoli POP3 azonosítóról és tárolása ebben a szobában:"
+
+#: ../../static/t/room/edit/tab_feed.html:12
+msgid "Remote host"
+msgstr "Távoli kiszolgáló"
+
+#: ../../static/t/room/edit/tab_feed.html:15
+msgid "Keep messages on server?"
+msgstr "Megtartja az üzeneteket a szerveren?"
+
+#: ../../static/t/room/edit/tab_feed.html:16
+msgid "Interval"
+msgstr "Időköz"
+
+#: ../../static/t/room/edit/tab_feed.html:31
+msgid "Fetch the following RSS feeds and store them in this room:"
+msgstr "A következő RSS folyam letöltése és tárolása ebben a szobában:"
+
+#: ../../static/t/room/edit/tab_feed.html:43
+msgid "Feed URL"
+msgstr "Folyam URL"
+
+#: ../../static/t/room/edit/tab_access.html:5
+#, fuzzy
+msgid ""
+"The users listed below have access to this room. To remove a user from the "
+"access list, select the user name from the list and click 'Kick'."
+msgstr ""
+"Az alábbi listában található felhasználóknak van hozzáférése ehhez a "
+"szobához.  Ha el akarja valamelyiküket távolítani a listáról, válassza ki a "
+"felhasználó nevét és kattintson a 'Kirúg' pontra."
+
+#: ../../static/t/room/edit/tab_access.html:20
+msgid ""
+"To grant another user access to this room, enter the user name in the box "
+"below and click 'Invite'."
+msgstr ""
+"Ha szeretne további felhasználónak hozzáférést adni ehhez a szobához, írja "
+"be a felhasználó nevét az alábbi szövegdobozba és kattintson a 'Meghív' "
+"pontra."
+
+#: ../../static/t/room/edit/tab_access.html:26
+msgid "Invite:"
+msgstr "Meghív:"
+
+#: ../../static/t/room/edit/tab_access.html:35
+msgid "Users"
+msgstr "Felhasználók"
+
+#: ../../static/t/room/zapped_list.html:7
+msgid "Zapped (forgotten) rooms"
+msgstr "Kilőtt (elfelejtett) szobák"
+
+#: ../../static/t/room/zapped_list.html:10
+#, fuzzy
+msgid "Click on any room to un-zap it and goto that room."
+msgstr "Kattintson bármelyik szobára, hogy azt felélessze és belépjen.\n"
+
+#: ../../static/t/room/display_private.html:7
+msgid "Go to a hidden room"
+msgstr "Rejtett szobába ugrás"
+
+#: ../../static/t/room/display_private.html:8
+msgid ""
+"If you know the name of a hidden (guess-name) or passworded room, you can "
+"enter that room by typing its name below.  Once you gain access to a private "
+"room, it will appear in your regular room listings so you don‘t have to keep "
+"returning here."
+msgstr ""
+
+#: ../../static/t/room/display_private.html:14
+msgid "Enter room name:"
+msgstr "Adja meg a szoba nevét:"
+
+#: ../../static/t/room/display_private.html:21
+msgid "Enter room password:"
+msgstr "Adja meg a szoba jelszavát:"
+
+#: ../../static/t/room/create.html:11
+#: ../../static/t/menu/advanced_roomcommands.html:6
+msgid "Create a new room"
+msgstr "Új szoba létrehozása"
+
+#: ../../static/t/room/create.html:18
+msgid "Name of room: "
+msgstr "Szoba neve: "
+
+#: ../../static/t/room/create.html:32
+msgid "Default view for room: "
+msgstr "Szoba alapértelmezett nézete: "
+
+#: ../../static/t/room/zap_this.html:3
+#, fuzzy
+msgid "Zap (forget/unsubscribe) the current room"
+msgstr "Szoba kilövése"
+
+#: ../../static/t/room/zap_this.html:6
+#, fuzzy
+msgid "If you select this option,"
+msgstr "Szoba szerkesztése vagy törlése"
+
+#: ../../static/t/room/zap_this.html:8
+msgid "will disappear from your room list.  Is this what you wish to do?"
+msgstr ""
+
+#: ../../static/t/menu/your_info.html:2
+msgid "Change your preferences and settings"
+msgstr "Az ön jellemzőinek és beállításainak megváltoztatása"
+
+#: ../../static/t/menu/your_info.html:3
+msgid "Update your contact information"
+msgstr "Frissítse a kapcsolati információit"
+
+#: ../../static/t/menu/your_info.html:5
+msgid "Enter your 'bio'"
+msgstr ""
+
+#: ../../static/t/menu/your_info.html:6
+msgid "Edit your online photo"
+msgstr "Az ön fényképének szerkesztése"
+
+#: ../../static/t/menu/your_info.html:8
+msgid "Edit your push email settings"
+msgstr ""
+
+#: ../../static/t/menu/your_info.html:9
+#, fuzzy
+msgid "Manage your OpenIDs"
+msgstr "Változtassa meg a jelszavát"
+
+#: ../../static/t/menu/basic_commands.html:3
+msgid "List known rooms"
+msgstr "Listázza az ismert szobákat"
+
+#: ../../static/t/menu/basic_commands.html:3
+msgid "Where can I go from here?"
+msgstr "Hova mehetek innen?"
+
+#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:168
+msgid "Goto next room"
+msgstr "Ugrás a következő szobába"
+
+#: ../../static/t/menu/basic_commands.html:4
+msgid "...with <em>unread</em> messages"
+msgstr ""
+
+#: ../../static/t/menu/basic_commands.html:5
+msgid "Skip to next room"
+msgstr "Ugrás a következő szobába"
+
+#: ../../static/t/menu/basic_commands.html:5
+msgid "(come back here later)"
+msgstr "(visszatérés később)"
+
+#: ../../static/t/menu/basic_commands.html:6 ../../static/t/navbar.html:5
+msgid "Ungoto"
+msgstr "Visszalépés"
+
+#: ../../static/t/menu/basic_commands.html:6
+msgid "oops! Back to "
+msgstr "hoppá! Vissza ide: "
+
+#: ../../static/t/menu/basic_commands.html:10 ../../static/t/navbar.html:13
+msgid "Read new messages"
+msgstr "Új üzenetek olvasása"
+
+#: ../../static/t/menu/basic_commands.html:10
+msgid "...in this room"
+msgstr "... ebben a szobában"
+
+#: ../../static/t/menu/basic_commands.html:11 ../../static/t/navbar.html:19
+msgid "Read all messages"
+msgstr "Összes üzenet olvasása"
+
+#: ../../static/t/menu/basic_commands.html:11
+msgid "...old <em>and</em> new"
+msgstr ""
+
+#: ../../static/t/menu/basic_commands.html:12 ../../static/t/navbar.html:25
+msgid "Enter a message"
+msgstr "Üzenet beküldése"
+
+#: ../../static/t/menu/basic_commands.html:12
+msgid "(post in this room)"
+msgstr "(hozzászólás ebben a szobában)"
+
+#: ../../static/t/menu/basic_commands.html:13
+msgid "File library"
+msgstr "Fájl-tár"
+
+#: ../../static/t/menu/basic_commands.html:13
+msgid "(List files available for download)"
+msgstr "(Letölthető fájlok listája)"
+
+#: ../../static/t/menu/basic_commands.html:17
+msgid "Summary page"
+msgstr "Összefoglaló oldal"
+
+#: ../../static/t/menu/basic_commands.html:17
+msgid "Summary of my account"
+msgstr "Saját azonosítóm összefoglalója"
+
+#: ../../static/t/menu/basic_commands.html:18
+msgid "User list"
+msgstr "Felhasználók listája"
+
+#: ../../static/t/menu/basic_commands.html:18
+msgid "(all registered users)"
+msgstr "(összes regisztrált felhasználó)"
+
+#: ../../static/t/menu/basic_commands.html:19
+msgid "Bye!"
+msgstr "Viszlát!"
+
+#: ../../static/t/menu/advanced_roomcommands.html:3
+msgid "Edit or delete this room"
+msgstr "Szoba szerkesztése vagy törlése"
+
+#: ../../static/t/menu/advanced_roomcommands.html:5
+msgid "Go to a 'hidden' room"
+msgstr "Ugrás egy 'rejtett' szobába"
+
+#: ../../static/t/menu/advanced_roomcommands.html:7
+#, fuzzy
+msgid "Zap (forget) this room"
+msgstr "Szoba kilövése"
+
+#: ../../static/t/menu/advanced_roomcommands.html:8
+msgid "List all forgotten rooms"
+msgstr "Listázza az összes elfelejtett szobát"
+
+#: ../../static/t/navbar.html:34
+msgid "View contacts"
+msgstr "Kapcsolatok megnézése"
+
+#: ../../static/t/navbar.html:40
+msgid "Add new contact"
+msgstr "Új partner felévtele"
+
+#: ../../static/t/navbar.html:49
+msgid "Day view"
+msgstr "Napi nézet"
+
+#: ../../static/t/navbar.html:55
+msgid "Month view"
+msgstr "Havi nézet"
+
+#: ../../static/t/navbar.html:61
+msgid "Add new event"
+msgstr "Új esemény felvétele"
+
+#: ../../static/t/navbar.html:70
+msgid "Calendar list"
+msgstr "Naptár lista"
+
+#: ../../static/t/navbar.html:79
+msgid "View tasks"
+msgstr "Feladatok megnézése"
+
+#: ../../static/t/navbar.html:85
+msgid "Add new task"
+msgstr "Új feladat felévtele"
+
+#: ../../static/t/navbar.html:94
+msgid "View notes"
+msgstr "Jegyzetek megnézése"
+
+#: ../../static/t/navbar.html:101
+msgid "Add new note"
+msgstr "Új jegyzet felévtele"
+
+#: ../../static/t/navbar.html:110
+msgid "Refresh message list"
+msgstr "Üzenetlista frissítése"
+
+#: ../../static/t/navbar.html:122
+msgid "Write mail"
+msgstr "Email írása"
+
+#: ../../static/t/navbar.html:132
+msgid "Wiki home"
+msgstr "Wiki kezdőlap"
+
+#: ../../static/t/navbar.html:139
+msgid "Edit this page"
+msgstr "Oldal szerkesztése"
+
+#: ../../static/t/navbar.html:145
+msgid "History"
+msgstr ""
+
+#: ../../static/t/navbar.html:154
+#, fuzzy
+msgid "New blog post"
+msgstr "újabb hozzászólás"
+
+#: ../../static/t/navbar.html:162
+msgid "Skip this room"
+msgstr "Szoba kihagyása"
+
+#: ../../static/t/msg_listview.html:18
+msgid "Loading messages from server, please wait"
+msgstr "Levél betöltése a kiszolgálóról, türelem"
+
+#: ../../static/t/msg_listview.html:24
+msgid "Open in new window"
+msgstr "Megnyitás új ablakban"
+
+#: ../../static/t/msg_listview.html:26
+msgid "Copy"
+msgstr "Másolás"
+
+#: ../../static/t/view_mailq/message.html:6
+msgid "Originaly posted in: "
+msgstr ""
+
+#: ../../static/t/view_mailq/header.html:15
+msgid "Refresh this page"
+msgstr "Oldal frissítése"
+
+#: ../../static/t/view_mailq/header.html:21
+msgid "Message ID"
+msgstr "Üzenet azonosító"
+
+#: ../../static/t/view_mailq/header.html:23
+msgid "Date/time submitted"
+msgstr "Feladás dátuma/ideje"
+
+#: ../../static/t/view_mailq/header.html:25
+#, fuzzy
+msgid "Next attempt"
+msgstr "Utolsó kísérlet"
+
+#: ../../static/t/view_mailq/header.html:29
+msgid "Recipients"
+msgstr "Címzettek"
+
+#: ../../static/t/view_mailq/footer_empty.html:4
+msgid "The queue is empty."
+msgstr "A sor üres."
+
+#: ../../static/t/view_mailq/footer_empty.html:9
+#: ../../static/t/view_mailq/footer.html:5
+msgid "You do not have permission to view this resource."
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:5
+msgid "You must be logged in to access this page."
+msgstr "Be kell jelentkezned, hogy ezt az oldalt."
+
+#: ../../static/t/get_logged_in.html:9
+#: ../../static/t/edit_message/attachments_pane.html:3
+msgid "Close window"
+msgstr "Ablak bezárása"
+
+#: ../../static/t/get_logged_in.html:55
+msgid "Log in using a user name and password"
+msgstr "belépés felhasználó név és jelszó segítségével"
+
+#: ../../static/t/get_logged_in.html:60 ../../static/t/get_logged_in.html:75
+msgid "Password:"
+msgstr "Jelszó:"
+
+#: ../../static/t/get_logged_in.html:65 ../../static/t/get_logged_in.html:69
+msgid "New user?  Register now"
+msgstr "Új felhasználó? Regisztráljon most"
+
+#: ../../static/t/get_logged_in.html:70
+msgid ""
+"enter the name and password you wish to use, and click &quot;New User.&quot; "
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:83
+msgid "Log in using OpenID"
+msgstr "Belépés OpenID használatával"
+
+#: ../../static/t/get_logged_in.html:85
+msgid "OpenID URL:"
+msgstr "OpenID URL:"
+
+#: ../../static/t/get_logged_in.html:92
+#, fuzzy
+msgid "Log in using Google"
+msgstr "Belépés OpenID használatával"
+
+#: ../../static/t/get_logged_in.html:97
+#, fuzzy
+msgid "Log in using Yahoo"
+msgstr "Belépés OpenID használatával"
+
+#: ../../static/t/get_logged_in.html:102
+#, fuzzy
+msgid "Log in using AOL or AIM"
+msgstr "Belépés OpenID használatával"
+
+#: ../../static/t/get_logged_in.html:104
+msgid "Enter your AOL or AIM screen name:"
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:115
+msgid "Please wait"
+msgstr "Kérem vár"
+
+#: ../../static/t/summary/page.html:4
+#, fuzzy
+msgid "Summary page for "
+msgstr "%s összefoglaló lapja"
+
+#: ../../static/t/summary/page.html:21
+msgid "Messages"
+msgstr "Üzenetek"
+
+#: ../../static/t/summary/page.html:39
+msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
+msgstr "Az&nbsp;ön&nbsp;naptára&nbsp;ma"
+
+#: ../../static/t/summary/page.html:51
+#, fuzzy
+msgid "Who‘s&nbsp;online&nbsp;now"
+msgstr "Ki van&nbsp;itt&nbsp;most"
+
+#: ../../static/t/summary/page.html:58
+msgid "About&nbsp;this&nbsp;server"
+msgstr "Erről&nbsp;a&nbsp;kiszolgálóról"
+
+#: ../../static/t/summary/page.html:61
+msgid "You are connected to"
+msgstr ""
+
+#: ../../static/t/summary/page.html:62
+#, fuzzy
+msgid "running"
+msgstr "Hangolás"
+
+#: ../../static/t/summary/page.html:63
+#, fuzzy
+msgid "with"
+msgstr "ötödik"
+
+#: ../../static/t/summary/page.html:64
+msgid "server build"
+msgstr ""
+
+#: ../../static/t/summary/page.html:65
+#, fuzzy
+msgid "and located in"
+msgstr "és utána"
+
+#: ../../static/t/summary/page.html:66
+#, fuzzy
+msgid "Your system administrator is"
+msgstr "Rendszergazda neve"
+
+#: ../../static/t/edit_message/attachments_pane.html:16
+msgid "Attach file:"
+msgstr "Fájl csatolása:"
+
+#: ../../static/t/edit_message/attachments_pane.html:21
+msgid "Upload"
+msgstr "Feltöltés"
+
+#: ../../static/t/edit_message/section_attach_select.html:4
+#, fuzzy
+msgid "Remove"
+msgstr "(eltávolít)"
+
+#: ../../static/t/loggedinas.html:3
+#, fuzzy
+msgid "Logged in as"
+msgstr "Utolsó bejelentkezés"
+
+#: ../../static/t/loggedinas.html:6
+#, fuzzy
+msgid "Not logged in."
+msgstr "Nincs belépve"
+
+#~ msgid "Create"
+#~ msgstr "Létrehoz"
+
+#~ msgid "Delete script"
+#~ msgstr "Szkript törlése"
+
+#~ msgid "Delete this script?"
+#~ msgstr "Törli ezt a szkriptet?"
+
+#~ msgid "Move rule up"
+#~ msgstr "Szabály mozgatása felfelé"
+
+#~ msgid "Move rule down"
+#~ msgstr "Szabály mozgatása lefelé"
+
+#~ msgid "Delete rule"
+#~ msgstr "Szabály törlése"
 
 #~ msgid "Reset form"
 #~ msgstr "Űrlap ürítése"
