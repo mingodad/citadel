@@ -1,23 +1,16 @@
 /*
  * Manage user preferences with a little help from the Citadel server.
  *
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
+ * modify it under the terms of the GNU General Public License, version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 
 #include "webcit.h"
 #include "webserver.h"
@@ -44,7 +37,7 @@ typedef struct _Preference {
 	long lval;
 	long decoded;
 	StrBuf *DeQPed;
-}Preference;
+} Preference;
 
 void DestroyPrefDef(void *vPrefDef)
 {
@@ -63,6 +56,7 @@ void DestroyPreference(void *vPref)
 	free(Pref);
 
 }
+
 void _RegisterPreference(const char *Setting, long SettingLen, 
 			 const char *PrefStr, 
 			 ePrefType Type, 
@@ -190,6 +184,20 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 			Data->Val = NewStrBuf();
 			StrBufExtract_token(Data->Key, ReadBuf, 0, '|');
 			StrBufExtract_token(Data->Val, ReadBuf, 1, '|');
+
+			/***************** BEGIN VILE SLEAZY HACK ************************/
+
+			/* some users might still have this start page configured, which now breaks */
+
+			if (	(!strcasecmp(ChrPtr(Data->Key), "startpage"))
+				&& (!strcasecmp(ChrPtr(Data->Val), "/do_template?template=summary_page"))
+			) {
+				FreeStrBuf(&Data->Val);
+				Data->Val = NewStrBufPlain(HKEY("/summary"));
+			}
+
+			/******************* END VILE SLEAZY HACK ************************/
+
 			if (!IsEmptyStr(ChrPtr(Data->Key)))
 			{
 				Put(*List, 
@@ -238,10 +246,8 @@ void load_preferences(void)
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (!Done &&
-	       (StrBuf_ServGetln(ReadBuf) >= 0)) {
-		if ( (StrLength(ReadBuf)==3) && 
-		     !strcmp(ChrPtr(ReadBuf), "000")) {
+	while (!Done && (StrBuf_ServGetln(ReadBuf) >= 0)) {
+		if ( (StrLength(ReadBuf)==3) && !strcmp(ChrPtr(ReadBuf), "000")) {
 			Done = 1;
 			break;
 		}
@@ -252,9 +258,11 @@ void load_preferences(void)
 		serv_printf("MSG0 %ld", msgnum);
 		StrBuf_ServGetln(ReadBuf);
 		if (GetServerStatus(ReadBuf, NULL) == 1) {
-			while ((StrBuf_ServGetln(ReadBuf) >= 0) && 
-			       (strcmp(ChrPtr(ReadBuf), "text") && 
-				strcmp(ChrPtr(ReadBuf), "000"))) {
+			while (	(StrBuf_ServGetln(ReadBuf) >= 0)
+				&& (strcmp(ChrPtr(ReadBuf), "text")
+				&& strcmp(ChrPtr(ReadBuf), "000"))
+			) {
+				/* flush */
 			}
 			if (!strcmp(ChrPtr(ReadBuf), "text")) {
 				ParsePref(&WCC->hash_prefs, ReadBuf);
@@ -272,8 +280,9 @@ void load_preferences(void)
 	FlushFolder(&Room);
 }
 
+
 /*
- * Goto the user's configuration room, creating it if necessary.
+ * Go to the user's configuration room, creating it if necessary.
  * returns 0 on success or nonzero upon failure.
  */
 int goto_config_room(StrBuf *Buf, folder *Room) 
@@ -332,10 +341,12 @@ void WritePrefsToServer(HashList *Hash)
 				
 				nchars = StrBufSub(SubBuf, Pref->Val, offset, nchars);
 				
-				if (n == 0)
+				if (n == 0) {
 					serv_printf("%s|%s", ChrPtr(Pref->Key), ChrPtr(SubBuf));
-				else
+				}
+				else {
 					serv_printf(" %s", ChrPtr(SubBuf));
+				}
 				
 				offset += nchars;
 				nchars = StrLength(Pref->Val) - offset;
@@ -343,16 +354,17 @@ void WritePrefsToServer(HashList *Hash)
 			}
 			
 		}
-		else
+		else {
 			serv_printf("%s|%s", ChrPtr(Pref->Key), ChrPtr(Pref->Val));
+		}
 		
 	}
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&HashPos);
 }
 
-/**
- * \brief save the modifications
+/*
+ * save the modifications
  */
 void save_preferences(void) 
 {
@@ -392,10 +404,8 @@ void save_preferences(void)
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (!Done &&
-	       (StrBuf_ServGetln(ReadBuf) >= 0)) {
-		if ( (StrLength(ReadBuf)==3) && 
-		     !strcmp(ChrPtr(ReadBuf), "000")) {
+	while (!Done && (StrBuf_ServGetln(ReadBuf) >= 0)) {
+		if ( (StrLength(ReadBuf)==3) && !strcmp(ChrPtr(ReadBuf), "000")) {
 			Done = 1;
 			break;
 		}
@@ -427,12 +437,13 @@ void save_preferences(void)
 	FlushFolder(&Room);
 }
 
-/**
- * \brief query the actual setting of key in the citadel database
- * \param key config key to query
- * \param keylen length of the key string
- * \param value StrBuf-value to the key to get
- * \returns found?
+/*
+ * query the actual setting of key in the citadel database
+ *
+ * key		config key to query
+ * keylen	length of the key string
+ * value	StrBuf-value to the key to get
+ * returns:	found?
  */
 int get_pref_backend(const char *key, size_t keylen, Preference **Pref)
 {
@@ -463,49 +474,54 @@ int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value)
 	return Ret;
 }
 
-/**
- * \brief	Write a key into the webcit preferences database for this user
+/*
+ * Write a key into the webcit preferences database for this user
  *
- * \params	key		key whichs value is to be modified
- * \param keylen length of the key string
- * \param	value		value to set
- * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
+ * key			key whichs value is to be modified
+ * keylen		length of the key string
+ * value		value to set
+ * save_to_server	1 = flush all data to the server, 0 = cache it for now
  */
-long compare_preference(const Preference *PrefA, 
-			const Preference *PrefB)
+long compare_preference(const Preference *PrefA, const Preference *PrefB)
 {
 	ePrefType TypeA, TypeB;
 
-	if (PrefA->Type != NULL)
+	if (PrefA->Type != NULL) {
 		TypeA = PrefA->Type->eType;
-	else 
+	}
+	else {
 		TypeA = PrefA->eFlatPrefType;
-
-	if (PrefB->Type != NULL)
-		TypeB = PrefB->Type->eType;
-	else 
-		TypeB = PrefB->eFlatPrefType;
-
-	if ((TypeA != PRF_UNSET) && 
-	    (TypeB != PRF_UNSET) && 
-	    (TypeA != TypeB))
-	{
-		if (TypeA > TypeB)
-			return 1;
-		else /* (PrefA->Type < PrefB->Type) */
-			return -1;
 	}
 
-	if (TypeB == PRF_UNSET)
+	if (PrefB->Type != NULL) {
+		TypeB = PrefB->Type->eType;
+	}
+	else {
+		TypeB = PrefB->eFlatPrefType;
+	}
+
+	if (	(TypeA != PRF_UNSET)
+		&& (TypeB != PRF_UNSET)
+		&& (TypeA != TypeB)
+	) {
+		if (TypeA > TypeB) {
+			return 1;
+		}
+		else {	/* (PrefA->Type < PrefB->Type) */
+			return -1;
+		}
+	}
+
+	if (TypeB == PRF_UNSET) {
 		TypeA = PRF_UNSET;
+	}
 		    
 	switch (TypeA)
 	{
 	default:
 	case PRF_UNSET:
 	case PRF_STRING:
-		return strcmp(ChrPtr(PrefA->Val), 
-			      ChrPtr(PrefB->Val));
+		return strcmp(ChrPtr(PrefA->Val), ChrPtr(PrefB->Val));
 	case PRF_YESNO:
 	case PRF_INT:
 		if (PrefA->lval == PrefB->lval)
@@ -520,13 +536,14 @@ long compare_preference(const Preference *PrefA,
 	}
 }
 
-/**
- * \brief	Write a key into the webcit preferences database for this user
+
+/*
+ * Write a key into the webcit preferences database for this user
  *
- * \params	key		key whichs value is to be modified
- * \param keylen length of the key string
- * \param	value		value to set
- * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
+ * key			key which value is to be modified
+ * keylen		length of the key string
+ * value		value to set
+ * save_to_server	1 = flush all data to the server, 0 = cache it for now
  */
 void set_preference_backend(const char *key, size_t keylen, 
 			    long lvalue, 
@@ -854,8 +871,8 @@ void GetPreferences(HashList *Setting)
 }
 
 
-/**
- * \brief Commit new preferences and settings
+/*
+ * Commit new preferences and settings
  */
 void set_preferences(void)
 {	
@@ -1222,7 +1239,3 @@ SessionDestroyModule_PREFERENCES
 {
 	DeleteHash(&sess->hash_prefs);
 }
-
-
-
-/*@}*/

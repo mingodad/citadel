@@ -1,21 +1,15 @@
 /*
  * Editing calendar events.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
+ * modify it under the terms of the GNU General Public License, version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -167,8 +161,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	*/
 	/* Begin output */
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
+	output_headers(1, 1, 1, 0, 0, 0);
+	wc_printf("<div id=\"room_banner_override\">\n");
 	wc_printf("<h1>");
 	wc_printf(_("Add or edit an event"));
 	wc_printf("</h1>");
@@ -1213,7 +1207,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 	/* If this was a save or delete, go back to the calendar or summary view. */
 	if (!havebstr("check_button")) {
 		if (!strcasecmp(bstr("calview"), "summary")) {
-			do_template("summary_page");
+			display_summary_page();
 		}
 		else {
 			readloop(readfwd, eUseDefault);

@@ -1,14 +1,12 @@
-<?=("summary_header")>
-<div id="banner" class="banner">
-  <table border=0><tr>
-      <td><img src="static/webcit_icons/essen/32x32/summary.png"></td>
-      <td><h1><?_("Summary page for ")><??("COND:LOGGEDIN", 1)><?CURRENT_USER("X")><??("X", 1)><?!("COND:LOGGEDIN", 2)><?SERV:HUMANNODE("X")><??("X", 2)></h1><h2><?TIME:NOW></h2></td></tr></table>
-  <div id="actiondiv">
-    <ul class="room_actions">
-      <li class="start_page"><?OFFERSTARTPAGE></li></ul>
-  </div>
+<div id="room_banner_override">
+<table border=0><tr>
+<td><img src="static/webcit_icons/essen/32x32/summary.png"></td>
+<td><h1><?_("Summary page for ")>
+	<??("COND:LOGGEDIN", 1)><?CURRENT_USER("X")><??("X", 1)>
+	<?!("COND:LOGGEDIN", 2)><?SERV:HUMANNODE("X")><??("X", 2)>
+</h1><h2><?TIME:NOW></h2></td>
+</tr></table>
 </div>
-
 <?--("
 * You guessed it ... were going to refresh using ajax.
 * In the future we might consider updating individual sections of the summary
@@ -23,7 +21,7 @@
 	    <?_("Messages")>
 	  </div><div class="boxcontent">	
 	    <div id="msg_inner">
-	      <?SUMMARY:NEWMESSAGES_SELECTION>
+		<img src="static/webcit_icons/throbber.gif">
 	</div></div></div>
       </td>
       <td width="33%">
@@ -32,7 +30,7 @@
 	    <?_("Tasks")>
 	  </div><div class="boxcontent">	
 	    <div id="tasks_inner">	
-	      <?SUMMARY:TASKSSECTION>
+		<img src="static/webcit_icons/throbber.gif">
 	</div></div></div>
       </td>
       <td width="33%">
@@ -41,7 +39,7 @@
 	    <?_("Today&nbsp;on&nbsp;your&nbsp;calendar")>
 	  </div><div class="boxcontent">	
 	    <div id="calendar_inner">
-	      <?SUMMARY:CALENDAR_SECTION>
+		<img src="static/webcit_icons/throbber.gif">
 	</div></div></div>
       </td>
       
@@ -52,7 +50,9 @@
 	  <div class="boxlabel">	
 	    <?_("Who‘s&nbsp;online&nbsp;now")>
 	  </div><div class="boxcontent">
-	    <div id="who_inner"><?=("who_summary")></div></div></div>
+	    <div id="who_inner">
+		<img src="static/webcit_icons/throbber.gif">
+	    </div></div></div>
       </td>
       <td width="33%">
 	<div class="box">	
@@ -75,13 +75,8 @@
 </div>
 
 <script type="text/javascript">
- new Ajax.PeriodicalUpdater('msg_inner', 'new_messages_html',
-                            { method: 'get', frequency: 60 }  );
- new Ajax.PeriodicalUpdater('tasks_inner', 'tasks_inner_html',
-                            { method: 'get', frequency: 120 }  );
- new Ajax.PeriodicalUpdater('calendar_inner', 'calendar_inner_html',
-                            { method: 'get', frequency: 90 }  );
- new Ajax.PeriodicalUpdater('do_template', 'template=who_summary',
-                            { method: 'get', frequency: 30 }  );
+ new Ajax.PeriodicalUpdater('msg_inner', 'new_messages_html', { method: 'get', frequency: 60 }  );
+ new Ajax.PeriodicalUpdater('tasks_inner', 'tasks_inner_html', { method: 'get', frequency: 120 }  );
+ new Ajax.PeriodicalUpdater('calendar_inner', 'calendar_inner_html', { method: 'get', frequency: 90 }  );
+ new Ajax.PeriodicalUpdater('who_inner', 'do_template?template=who_summary', { method: 'get', frequency: 30 }  );
 </script>
-<?=("summary_trailer")>

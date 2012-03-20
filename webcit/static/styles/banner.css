@@ -109,6 +109,10 @@
 	margin-right: 2px;
 }
 
+#room_banner_override {
+	display: none;
+}
+
 #nummsgs, #numfiles { 
 	font-size: 75%;
 	margin-left: 0.5em;

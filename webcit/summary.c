@@ -1,21 +1,15 @@
 /*
  * Displays the "Summary Page"
  *
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
+ * modify it under the terms of the GNU General Public License, version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -203,18 +197,26 @@ void tmplput_calendar_section(StrBuf *Target, WCTemplputParams *TP) {
 	calendar_section();
 }
 
+
+/*
+ * summary page
+ */
+void display_summary_page(void)
+{
+	output_headers(1, 1, 1, 0, 0, 0); 
+	do_template("summary_page");
+	wDumpContent(1);
+}
+
+
 void 
 InitModule_SUMMARY
 (void)
 {
 	RegisterNamespace("TIME:NOW", 0, 0, tmplput_output_date, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:NEWMESSAGES_SELECTION", 0, 0, tmplput_new_messages_section, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:TASKSSECTION", 0, 0, tmplput_tasks_section, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:CALENDAR_SECTION", 0, 0, tmplput_calendar_section, NULL, CTX_NONE);
-
+	WebcitAddUrlHandler(HKEY("summary"), "", 0, display_summary_page, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("new_messages_html"), "", 0, new_messages_section, AJAX);
 	WebcitAddUrlHandler(HKEY("tasks_inner_html"), "", 0, tasks_section, AJAX);
 	WebcitAddUrlHandler(HKEY("calendar_inner_html"), "", 0, calendar_section, AJAX);
-
 }
 

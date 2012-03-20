@@ -3,15 +3,10 @@
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
  *
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
  */
 
 #define SHOW_ME_VAPPEND_PRINTF
@@ -138,12 +133,7 @@ void wDumpContent(int print_standard_html_footer)
  */
 void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 			int do_htmlhead,	/* 1 = output HTML <head> section and <body> opener */
-
-			int do_room_banner,	/* 0=no, 1=yes,				     
-						 * 2 = I'm going to embed my own, so don't open the 
-						 *     <div id="content"> either.		   
-						 */
-
+			int do_room_banner,	/* 1 = include the room banner and <div id="content"></div> */
 			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
 			int suppress_check,	/* 1 = suppress check for instant messages	  */
 			int cache		/* 1 = allow browser to cache this page	     */
@@ -194,40 +184,24 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 	if (do_htmlhead) {
 		begin_burst();
 		do_template("head");
-
-		/* check for ImportantMessages (these display in a div overlaying the main screen) */
-		if (StrLength(WCC->ImportantMsg) > 0) {
-			wc_printf("<div id=\"important_message\">\n"
-				"<span class=\"imsg\">");
-			StrEscAppend(WCC->WBuf, WCC->ImportantMsg, NULL, 0, 0);
-			wc_printf("</span><br>\n"
-				"</div>\n"
-			);
-			StrBufAppendBufPlain(WCC->trailing_javascript,
-					     HKEY("setTimeout('hide_imsg_popup()', 5000);	\n"),
-					     0
-			);
-			FlushStrBuf(WCC->ImportantMsg);
-		}
 		if ( (WCC->logged_in) && (!unset_cookies) ) {
 			DoTemplate(HKEY("paging"), NULL, &NoCtx);
 		}
-
-		if (do_room_banner == 1) {
+		if (do_room_banner) {
 			tmplput_roombanner(NULL, NULL);
 		}
 	}
 
-	if (do_room_banner == 1) {
+	if (do_room_banner) {
 		wc_printf("<div id=\"content\">\n");
 	}
 }
 
 void output_custom_content_header(const char *ctype) {
-  hprintf("HTTP/1.1 200 OK\r\n");
-  hprintf("Content-type: %s; charset=utf-8\r\n",ctype);
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-  hprintf("Connection: close\r\n");
+	hprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("Content-type: %s; charset=utf-8\r\n",ctype);
+	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
+	hprintf("Connection: close\r\n");
 }
 
 
@@ -278,14 +252,13 @@ void http_transmit_thing(const char *content_type, int is_static)
 void convenience_page(const char *titlebarcolor, const char *titlebarmsg, const char *messagetext)
 {
 	hprintf("HTTP/1.1 200 OK\n");
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
+	output_headers(1, 1, 1, 0, 0, 0);
+	wc_printf("<div id=\"room_banner_override\">\n");
 	wc_printf("<table width=100%% border=0 bgcolor=\"#%s\"><tr><td>", titlebarcolor);
 	wc_printf("<span class=\"titlebar\">%s</span>\n", titlebarmsg);
 	wc_printf("</td></tr></table>\n");
 	wc_printf("</div>\n<div id=\"content\">\n");
 	escputs(messagetext);
-
 	wc_printf("<hr />\n");
 	wDumpContent(1);
 }

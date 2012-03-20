@@ -420,6 +420,14 @@ void save_sieve(void) {
 }
 
 
+void display_sieve_add_or_delete(void) {
+	output_headers(1, 1, 2, 0, 0, 0);
+	do_template("sieve_add");
+	wDumpContent(1);
+}
+
+
+
 /*
  * create a new script
  * take the web environment script name and create it on the citadel server
@@ -429,27 +437,22 @@ void create_script(void) {
 
 	serv_printf("MSIV getscript|%s", bstr("script_name"));
 	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
+	if (buf[0] == '1') {		// does script exist already?
 		while (serv_getln(buf, sizeof(buf)), strcmp(buf, "000")) {
-			/* flush */
+					// yes -- flush the output
 		}
-		return;
 	}
-	
-	serv_printf("MSIV putscript|%s", bstr("script_name"));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '4') {
-		serv_puts("keep;");
-		serv_puts("000");
-	output_headers(1, 1, 2, 0, 0, 0);
-	do_template("sieve_add");
-	wDumpContent(1);
-		return;
+	else {
+					// no -- safe to create a new one by this name
+		serv_printf("MSIV putscript|%s", bstr("script_name"));
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '4') {
+			serv_puts("keep;");
+			serv_puts("000");
+		}
 	}
 
-	output_headers(1, 1, 2, 0, 0, 0);
-	do_template("sieve_add");
-	wDumpContent(1);
+	display_sieve_add_or_delete();
 }
 
 
@@ -461,9 +464,7 @@ void delete_script(void) {
 
 	serv_printf("MSIV deletescript|%s", bstr("script_name"));
 	serv_getln(buf, sizeof buf);
-	output_headers(1, 1, 2, 0, 0, 0);
-	do_template("sieve_add");
-	wDumpContent(1);
+	display_sieve_add_or_delete();
 }
 
 
@@ -472,7 +473,7 @@ void delete_script(void) {
  */
 void display_no_sieve(void) {
 
-	output_headers(1, 1, 2, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 	do_template("sieve_none");
 	wDumpContent(1);
 }
@@ -955,4 +956,5 @@ InitModule_SIEVE
 	WebcitAddUrlHandler(HKEY("save_sieve"), "", 0, save_sieve, 0);
 	WebcitAddUrlHandler(HKEY("create_script"), "", 0, create_script, 0);
 	WebcitAddUrlHandler(HKEY("delete_script"), "", 0, delete_script, 0);
+	WebcitAddUrlHandler(HKEY("display_sieve_add_or_delete"), "", 0, display_sieve_add_or_delete, 0);
 }

@@ -6,615 +6,54 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-22 13:16-0400\n"
+"POT-Creation-Date: 2012-03-20 01:03-0400\n"
 "PO-Revision-Date: 2010-10-22 14:46+0000\n"
 "Last-Translator: Flemming Veggerby <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-"Language: da\n"
 
-#: ../../serv_func.c:192
-msgid ""
-"This server is already serving its maximum number of users and cannot accept "
-"any additional logins at this time.  Please try again later or contact your "
-"system administrator."
-msgstr ""
-"Denne server har allerede det maximale antal brugere logget ind og kan ikke "
-"acceptere flere lige nu. Prøv igen senere eller kontakt din System "
-"administrator."
-
-#: ../../serv_func.c:197 ../../serv_func.c:226
-msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr ""
-
-#: ../../serv_func.c:235
-#, c-format
-msgid ""
-"You are connected to a Citadel server running Citadel %d.%02d. \n"
-"In order to run this version of WebCit you must also have Citadel %d.%02d or "
-"newer.\n"
-"\n"
-"\n"
-msgstr ""
-"Du er forbundet til en Citadel server der kører Citadel %d.%02d. \n"
-"For at køre denne version af WebCit skal du have Citadel %d.%02d eller "
-"nyere.\n"
-"\n"
-"\n"
-
-#: ../../who.c:154
-msgid "Edit your session display"
-msgstr "Editér din session visning"
-
-#: ../../who.c:158
-msgid ""
-"This screen allows you to change the way your session appears in the 'Who is "
-"online' listing. To turn off any 'fake' name you've previously set, simply "
-"click the appropriate 'change' button without typing anything in the "
-"corresponding box. "
-msgstr ""
-"Her kan do bestemme hvordan din session bliver vist i 'Hvem er online' "
-"listen. For at fjerne et 'falsk' navn du tidligere har sat, bare klik den "
-"tilhørende 'skift' knap uden at skrive noget i boksen. "
-
-#: ../../who.c:171
-msgid "Room name:"
-msgstr "Rum navn:"
-
-#: ../../who.c:176
-msgid "Change room name"
-msgstr "Skift rum navn"
-
-#: ../../who.c:180
-msgid "Host name:"
-msgstr "Host navn:"
-
-#: ../../who.c:185
-msgid "Change host name"
-msgstr "Skift host navn"
-
-#: ../../who.c:190 ../../static/t/openid_manual_create.html:9
-#: ../../static/t/get_logged_in.html:47 ../../static/t/get_logged_in.html:62
-#: ../../static/t/aide/edituser/detailview.html:20
-msgid "User name:"
-msgstr "Brugernavn"
-
-#: ../../who.c:195
-msgid "Change user name"
-msgstr "Skift brugernavn"
-
-#: ../../who.c:200 ../../sieve.c:686 ../../tasks.c:353 ../../sysmsgs.c:68
-#: ../../auth.c:825 ../../vcard_edit.c:1216 ../../paging.c:66
-#: ../../event.c:773 ../../static/t/edit_message.html:135
-#: ../../static/t/confirmlogoff.html:4
-msgid "Cancel"
-msgstr "Afbryd"
-
-#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
-#, c-format
-msgid "There is no room called '%s'."
-msgstr "Der er ikke noget rum der hedder '%s'."
-
-#: ../../wiki.c:76
-#, c-format
-msgid "'%s' is not a Wiki room."
-msgstr "'%s' er ikke et Wiki rum."
-
-#: ../../wiki.c:110
-#, c-format
-msgid "There is no page called '%s' here."
-msgstr "Der er ikke nogen side her der hedder '%s'"
-
-#: ../../wiki.c:112
-msgid ""
-"Select the 'Edit this page' link in the room banner if you would like to "
-"create this page."
-msgstr ""
-"Vælg 'Editér denne side' link i rum banneret hvis du gerne vil oprette denne "
-"side."
-
-#: ../../wiki.c:181 ../../static/t/msg_listview.html:11
-#: ../../static/t/summary/header.html:44
-msgid "Date"
-msgstr "Dato"
-
-#: ../../wiki.c:182
-msgid "Author"
-msgstr ""
-
-#: ../../wiki.c:209 ../../wiki.c:218
-msgid "(show)"
-msgstr ""
-
-#: ../../wiki.c:211 ../../static/t/navbar.html:145
-msgid "Current version"
-msgstr ""
-
-#: ../../wiki.c:223
-msgid "(revert)"
-msgstr ""
-
-#: ../../wiki.c:300
-msgid "Page title"
-msgstr ""
-
-#: ../../notes.c:343
-msgid "Click on any note to edit it."
-msgstr "Klik på en note for at ændre den."
-
-#: ../../useredit.c:627
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
-msgstr ""
-"En fejl opstod ved forsøg på at oprette eller editére dette adressebogsemne."
-
-#: ../../useredit.c:715
-msgid "Changes were not saved."
-msgstr "Ændringer blev ikke gemt."
-
-#: ../../useredit.c:780
-msgid "A new user has been created."
-msgstr "En ny bruger blev oprettet."
-
-#: ../../useredit.c:784
-msgid ""
-"You are attempting to create a new user from within Citadel while running in "
-"host based authentication mode.  In this mode, you must create new users on "
-"the host system, not within Citadel."
-msgstr ""
-"Du forsøger at opretter en ny bruger i Citadel mens den kører i værtsbaseret "
-"autentifikation. I denne konfiguration, skal du oprette nye brugere på værts-"
-"systemet, ikke i Citadel."
-
-#: ../../iconbar.c:328
-msgid "Iconbar Setting"
-msgstr ""
-
-#: ../../calendar_tools.c:100
-msgid "Hour: "
-msgstr "Time: "
-
-#: ../../calendar_tools.c:120
-msgid "Minute: "
-msgstr "Minut: "
-
-#: ../../calendar_tools.c:191
-msgid "(status unknown)"
-msgstr "(status ukendt)"
-
-#: ../../calendar_tools.c:207
-msgid "(needs action)"
-msgstr "(behøver aktion)"
-
-#: ../../calendar_tools.c:210
-msgid "(accepted)"
-msgstr "(accepteret)"
-
-#: ../../calendar_tools.c:213
-msgid "(declined)"
-msgstr "(afvist)"
-
-#: ../../calendar_tools.c:216
-msgid "(tenative)"
-msgstr "(foreløbig)"
-
-#: ../../calendar_tools.c:219
-msgid "(delegated)"
-msgstr "(delegeret)"
-
-#: ../../calendar_tools.c:222
-msgid "(completed)"
-msgstr "(færdig)"
-
-#: ../../calendar_tools.c:225
-msgid "(in process)"
-msgstr "(igang)"
-
-#: ../../calendar_tools.c:228
-msgid "(none)"
-msgstr "(ingen)"
-
-#: ../../openid.c:34
-msgid "Manage Account/OpenID Associations"
-msgstr "Tilret konto/OpenID associationer"
-
-#: ../../openid.c:52
-msgid "Do you really want to delete this OpenID?"
-msgstr ""
-
-#: ../../openid.c:53
-msgid "(delete)"
-msgstr ""
-
-#: ../../openid.c:61
-msgid "Add an OpenID: "
-msgstr "Tilføj et OpenID: "
-
-#: ../../openid.c:64
-msgid "Attach"
-msgstr ""
-
-#: ../../openid.c:68
-#, c-format
-msgid "%s does not permit authentication via OpenID."
-msgstr "%s tillader ikke autentifikation via OpenID"
-
-#: ../../preferences.c:863
-msgid "Cancelled.  No settings were changed."
-msgstr "Afbrudt. Ingen indstillinger blev ændret."
-
-#: ../../preferences.c:1075
-msgid "Make this my start page"
-msgstr "Gør dette til min startside"
-
-#: ../../preferences.c:1114
-msgid "This isn't allowed to become the start page."
-msgstr ""
-
-#: ../../preferences.c:1116
-msgid "You no longer have a start page selected."
-msgstr "Du har ikke længere en startside."
-
-#: ../../preferences.c:1166
-msgid "Prefered startpage"
-msgstr ""
-
-#.
-#. * Set to 'unknown' right from the beginning.  Unless we learn
-#. * something else, that's what we'll go with.
-#.
-#: ../../availability.c:154
-msgid "availability unknown"
-msgstr "tilgængelighed ukendt"
-
-#: ../../availability.c:175
-msgid "free"
-msgstr "fri"
-
-#: ../../availability.c:185
-msgid "BUSY"
-msgstr "OPTAGET"
-
-#: ../../bbsview_renderer.c:316
-msgid "Go to page: "
-msgstr ""
-
-#: ../../bbsview_renderer.c:353
-msgid "First"
-msgstr ""
-
-#: ../../bbsview_renderer.c:359
-msgid "Last"
-msgstr ""
-
-#: ../../downloads.c:289
-#, c-format
-msgid "An error occurred while retrieving this file: %s\n"
-msgstr ""
-
-#: ../../sieve.c:381 ../../roomops.c:706 ../../roomops.c:1001
+#: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
 msgstr "Afbrudt.  Ændringer blev ikke gemt."
 
-#: ../../sieve.c:437 ../../roomops.c:834
+#: ../../roomops.c:838 ../../sieve.c:417
 msgid "Your changes have been saved."
 msgstr "Dine ændringer er blevet gemt."
 
-#: ../../sieve.c:456
-msgid "A script by that name already exists."
-msgstr "Et script med dette navn eksisterer allerede."
-
-#: ../../sieve.c:467
-msgid ""
-"A new script has been created.  Return to the script editing screen to edit "
-"and activate it."
-msgstr ""
-"Et nyt script er blevet oprettet.  Returnér til script editéring for at "
-"rette og aktivere det."
-
-#: ../../sieve.c:585 ../../static/t/menu/your_info.html:7
-#: ../../static/t/menu/your_info.html:8 ../../static/t/sieve/list.html:33
-#: ../../static/t/sieve/none.html:6
-msgid "View/edit server-side mail filters"
-msgstr "Vis/Editér server post filtre"
-
-#: ../../sieve.c:598 ../../static/t/sieve/list.html:43
-msgid "When new mail arrives: "
-msgstr "Når ny post ankommer: "
-
-#: ../../sieve.c:602 ../../static/t/sieve/list.html:45
-msgid "Leave it in my inbox without filtering"
-msgstr "Gem den i min indbakke uden filtrering"
-
-#: ../../sieve.c:606 ../../static/t/sieve/list.html:46
-msgid "Filter it according to rules selected below"
-msgstr "Filter er som regler valgt nedenfor"
-
-#: ../../sieve.c:611 ../../static/t/sieve/list.html:47
-msgid "Filter it through a manually edited script (advanced users only)"
-msgstr "Filtrér det gennem manuelt editéret script (avancerede brugere)"
-
-#: ../../sieve.c:622 ../../static/t/sieve/list.html:53
-msgid "Your incoming mail will not be filtered through any scripts."
-msgstr "Din indkomne post vil ikke blive filtreret gennem scripts."
-
-#: ../../sieve.c:637 ../../static/t/sieve/list.html:74
-msgid "The currently active script is: "
-msgstr "Det aktive script er: "
-
-#: ../../sieve.c:652 ../../sieve.c:714 ../../static/t/sieve/list.html:79
-#: ../../static/t/sieve/add.html:3
-msgid "Add or delete scripts"
-msgstr ""
-
-#: ../../sieve.c:684 ../../sysmsgs.c:66 ../../vcard_edit.c:1215
-msgid "Save changes"
-msgstr "Gem ændringer"
-
-#: ../../sieve.c:727 ../../static/t/sieve/add.html:10
-msgid "Add a new script"
-msgstr ""
-
-#: ../../sieve.c:730 ../../static/t/sieve/add.html:11
-msgid ""
-"To create a new script, enter the desired script name in the box below and "
-"click 'Create'."
-msgstr ""
-
-#: ../../sieve.c:736 ../../static/t/sieve/add.html:15
-msgid "Script name: "
-msgstr ""
-
-#: ../../sieve.c:739
-msgid "Create"
-msgstr "Opret"
-
-#: ../../sieve.c:744 ../../static/t/sieve/add.html:19
-msgid "Edit scripts"
-msgstr ""
-
-#: ../../sieve.c:747 ../../static/t/sieve/add.html:21
-msgid "Return to the script editing screen"
-msgstr "Retunér til script editéring"
-
-#: ../../sieve.c:754 ../../static/t/sieve/add.html:24
-msgid "Delete scripts"
-msgstr ""
-
-#: ../../sieve.c:757 ../../static/t/sieve/add.html:25
-msgid ""
-"To delete an existing script, select the script name from the list and click "
-"'Delete'."
-msgstr ""
-
-#: ../../sieve.c:781
-msgid "Delete script"
-msgstr ""
-
-#: ../../sieve.c:781
-msgid "Delete this script?"
-msgstr ""
-
-#: ../../sieve.c:1002
-msgid "Move rule up"
-msgstr "Flyt regel op"
-
-#: ../../sieve.c:1007
-msgid "Move rule down"
-msgstr "Flyt regel ned"
-
-#: ../../sieve.c:1012
-msgid "Delete rule"
-msgstr ""
-
-#: ../../sieve.c:1020 ../../static/t/sieve/display_one.html:16
-msgid "If"
-msgstr "Hvis"
-
-#: ../../sieve.c:1023 ../../calendar_view.c:297 ../../calendar_view.c:958
-#: ../../calendar_view.c:1002 ../../calendar_view.c:1083
-#: ../../static/t/sieve/display_one.html:20
-msgid "From"
-msgstr ""
-
-#: ../../sieve.c:1024 ../../static/t/sieve/display_one.html:21
-msgid "To or Cc"
-msgstr "Til eller Cc"
-
-#: ../../sieve.c:1025 ../../calendar_view.c:759
-#: ../../static/t/msg_listview.html:9 ../../static/t/summary/header.html:42
-#: ../../static/t/sieve/display_one.html:22
-msgid "Subject"
-msgstr "Emne"
-
-#: ../../sieve.c:1026 ../../static/t/sieve/display_one.html:23
-msgid "Reply-to"
-msgstr ""
-
-#: ../../sieve.c:1027 ../../smtpqueue.c:197
-#: ../../static/t/msg_listview.html:10 ../../static/t/summary/header.html:43
-#: ../../static/t/sieve/display_one.html:24
-msgid "Sender"
-msgstr "Afsender"
-
-#: ../../sieve.c:1028 ../../static/t/sieve/display_one.html:25
-msgid "Resent-From"
-msgstr ""
-
-#: ../../sieve.c:1029 ../../static/t/sieve/display_one.html:26
-msgid "Resent-To"
-msgstr ""
-
-#: ../../sieve.c:1030 ../../static/t/sieve/display_one.html:27
-msgid "Envelope From"
-msgstr "Konvolut Fra"
-
-#: ../../sieve.c:1031 ../../static/t/sieve/display_one.html:28
-msgid "Envelope To"
-msgstr "Konvolut Til"
-
-#: ../../sieve.c:1032 ../../static/t/sieve/display_one.html:29
-msgid "X-Mailer"
-msgstr ""
-
-#: ../../sieve.c:1033 ../../static/t/sieve/display_one.html:30
-msgid "X-Spam-Flag"
-msgstr "X-Spam-Flag"
-
-#: ../../sieve.c:1034 ../../static/t/sieve/display_one.html:31
-msgid "X-Spam-Status"
-msgstr "X-Spam-Status"
-
-#: ../../sieve.c:1035 ../../static/t/sieve/display_one.html:32
-msgid "List-ID"
-msgstr ""
-
-#: ../../sieve.c:1036 ../../static/t/sieve/display_one.html:33
-msgid "Message size"
-msgstr ""
-
-#: ../../sieve.c:1037 ../../static/t/select_messageindex_all.html:1
-#: ../../static/t/sieve/display_one.html:34
-msgid "All"
-msgstr "Alle"
-
-#: ../../sieve.c:1056 ../../static/t/sieve/display_one.html:41
-msgid "contains"
-msgstr ""
-
-#: ../../sieve.c:1057 ../../static/t/sieve/display_one.html:42
-msgid "does not contain"
-msgstr "indeholder ikke"
-
-#: ../../sieve.c:1058 ../../static/t/sieve/display_one.html:43
-msgid "is"
-msgstr "er"
-
-#: ../../sieve.c:1059 ../../static/t/sieve/display_one.html:44
-msgid "is not"
-msgstr ""
-
-#: ../../sieve.c:1060 ../../static/t/sieve/display_one.html:45
-msgid "matches"
-msgstr ""
-
-#: ../../sieve.c:1061 ../../static/t/sieve/display_one.html:46
-msgid "does not match"
-msgstr "matcher ikke"
-
-#: ../../sieve.c:1081 ../../static/t/sieve/display_one.html:52
-msgid "(All messages)"
-msgstr ""
-
-#: ../../sieve.c:1085 ../../static/t/sieve/display_one.html:56
-msgid "is larger than"
-msgstr "er større end"
-
-#: ../../sieve.c:1086 ../../static/t/sieve/display_one.html:57
-msgid "is smaller than"
-msgstr "er mindre end"
-
-#: ../../sieve.c:1109 ../../static/t/sieve/display_one.html:65
-msgid "Keep"
-msgstr "Behold"
-
-#: ../../sieve.c:1110 ../../static/t/sieve/display_one.html:66
-msgid "Discard silently"
-msgstr "Fjern"
-
-#: ../../sieve.c:1111 ../../static/t/sieve/display_one.html:67
-msgid "Reject"
-msgstr ""
-
-#: ../../sieve.c:1112 ../../static/t/sieve/display_one.html:68
-msgid "Move message to"
-msgstr ""
-
-#: ../../sieve.c:1113 ../../static/t/sieve/display_one.html:69
-msgid "Forward to"
-msgstr ""
-
-#: ../../sieve.c:1114 ../../static/t/sieve/display_one.html:70
-msgid "Vacation"
-msgstr ""
-
-#: ../../sieve.c:1151 ../../static/t/sieve/display_one.html:82
-msgid "Message:"
-msgstr ""
-
-#: ../../sieve.c:1161 ../../static/t/sieve/display_one.html:93
-msgid "continue processing"
-msgstr ""
-
-#: ../../sieve.c:1162 ../../static/t/sieve/display_one.html:94
-msgid "stop"
-msgstr "stop"
-
-#: ../../sieve.c:1165 ../../static/t/sieve/display_one.html:90
-msgid "and then"
-msgstr "og"
-
-#: ../../sieve.c:1186 ../../static/t/sieve/list.html:65
-msgid "Add rule"
-msgstr ""
-
-#: ../../siteconfig.c:38 ../../siteconfig.c:56 ../../roomlist.c:44
-#: ../../roomlist.c:388
-msgid "Higher access is required to access this function."
-msgstr "Højere tilladelse er krævet for at bruge denne funktion."
-
-#: ../../siteconfig.c:252
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
-msgstr ""
-
-#: ../../siteconfig.c:314
-msgid "Your system configuration has been updated."
-msgstr "Din system konfiguration er blevet opdateret"
-
-#: ../../smtpqueue.c:133 ../../static/t/aide/ignetconf/section.html:5
-msgid "(Delete)"
-msgstr "(Slet)"
-
-#: ../../smtpqueue.c:191
-msgid "Message ID"
-msgstr ""
-
-#: ../../smtpqueue.c:193
-msgid "Date/time submitted"
-msgstr ""
-
-#: ../../smtpqueue.c:195
-msgid "Last attempt"
-msgstr "Sidste forsøg"
-
-#: ../../smtpqueue.c:199
-msgid "Recipients"
-msgstr "Modtagere"
-
-#: ../../smtpqueue.c:214
-msgid "The queue is empty."
-msgstr ""
-
-#: ../../smtpqueue.c:220
-msgid "You do not have permission to view this resource."
-msgstr "Du har ikke lov til at se denne resource."
-
-#: ../../smtpqueue.c:236 ../../static/t/aide/global_config.html:5
-msgid "View the outbound SMTP queue"
-msgstr "Vis udgående SMTP kø"
-
-#: ../../smtpqueue.c:251
-msgid "Refresh this page"
-msgstr ""
-
-#: ../../html2html.c:136
+#: ../../roomops.c:881
 #, c-format
-msgid "realloc() error! couldn't get %d bytes: %s"
-msgstr "realloc() fejl! kunne ikke modtage %d bytes: %s"
+msgid "User '%s' kicked out of room '%s'."
+msgstr "Bruger %s blev sparket ud af rum %s."
+
+#: ../../roomops.c:898
+#, c-format
+msgid "User '%s' invited to room '%s'."
+msgstr "Bruger %s blev inviteret til rum %s."
+
+#: ../../roomops.c:927
+msgid "Cancelled.  No new room was created."
+msgstr "Afbrudt.  Intet nyt rum blev oprettet."
+
+#: ../../roomops.c:1187
+msgid "Floor has been deleted."
+msgstr "Etage er blevet slettet."
+
+#: ../../roomops.c:1211
+msgid "New floor has been created."
+msgstr "Ny etage er oprettet."
+
+#: ../../roomops.c:1290
+msgid "Room list view"
+msgstr "Rum liste visning"
+
+#: ../../roomops.c:1293
+msgid "Show empty floors"
+msgstr "Vis tomme etager"
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
@@ -628,8 +67,8 @@ msgstr "Post Mappe"
 msgid "Address Book"
 msgstr "Adressebog"
 
-#: ../../roomviews.c:53 ../../static/t/iconbar/edit.html:55
-#: ../../static/t/iconbar.html:24
+#: ../../roomviews.c:53 ../../static/t/iconbar.html:24
+#: ../../static/t/iconbar/edit.html:55
 msgid "Calendar"
 msgstr "Kalender"
 
@@ -686,8 +125,9 @@ msgstr "Vis Alle"
 msgid "Edit task"
 msgstr "Editér opgave"
 
-#: ../../tasks.c:242 ../../calendar_view.c:298 ../../calendar_view.c:959
-#: ../../calendar_view.c:1003 ../../calendar_view.c:1084 ../../calendar.c:104
+#: ../../tasks.c:242 ../../calendar.c:98 ../../calendar_view.c:298
+#: ../../calendar_view.c:959 ../../calendar_view.c:1003
+#: ../../calendar_view.c:1084
 msgid "Summary:"
 msgstr "Summering:"
 
@@ -719,69 +159,49 @@ msgstr ""
 msgid "Category:"
 msgstr "Kategori:"
 
-#: ../../tasks.c:333 ../../calendar.c:165 ../../static/t/files.html:12
+#: ../../tasks.c:333 ../../calendar.c:159 ../../static/t/files.html:12
 msgid "Description:"
 msgstr "Beskrivelse:"
 
-#: ../../tasks.c:351 ../../event.c:770
+#: ../../tasks.c:351 ../../event.c:764
 msgid "Save"
 msgstr "Gem"
 
-#: ../../tasks.c:352 ../../event.c:771 ../../static/t/navbar.html:116
-#: ../../static/t/view_message.html:30 ../../static/t/msg_listview.html:27
-#: ../../static/t/aide/inet/section.html:5
+#: ../../tasks.c:352 ../../event.c:765 ../../static/t/aide/inet/section.html:5
+#: ../../static/t/view_blog/comment.html:12
+#: ../../static/t/view_blog/post.html:15 ../../static/t/view_message.html:32
+#: ../../static/t/navbar.html:116 ../../static/t/msg_listview.html:27
 msgid "Delete"
 msgstr "Slet"
+
+#: ../../tasks.c:353 ../../vcard_edit.c:1216 ../../paging.c:66
+#: ../../event.c:767 ../../sysmsgs.c:69 ../../who.c:200 ../../auth.c:812
+#: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:4
+msgid "Cancel"
+msgstr "Afbryd"
 
 #: ../../tasks.c:423 ../../calendar_view.c:1379
 msgid "Untitled Task"
 msgstr ""
 
-#: ../../sysmsgs.c:51
-#, c-format
-msgid "Edit %s"
-msgstr "Editér %s"
+#: ../../fmt_date.c:310
+msgid "Time format"
+msgstr "Time format"
 
-#: ../../sysmsgs.c:54
-#, c-format
-msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
-"forced by preceding the next line by a blank."
-msgstr ""
-"Skriv %s nedenfor.  Tekst er formatteret til læserens skærmbredde. For at "
-"overvinde formatteringen, indfør en linie mindst et mellemrum."
-
-#: ../../sysmsgs.c:88
-#, c-format
-msgid "Cancelled.  %s was not saved."
-msgstr "Afbrudt.  %s blev ikke gemt."
-
-#: ../../sysmsgs.c:108
-#, fuzzy
-msgid " has been saved."
-msgstr "%s er blevet gemt."
-
-#: ../../sysmsgs.c:115 ../../sysmsgs.c:116
-msgid "Room info"
-msgstr "Rum info"
-
-#: ../../sysmsgs.c:121 ../../sysmsgs.c:123
-msgid "Your bio"
-msgstr "Din bio"
-
-#: ../../listsub.c:53
+#: ../../listsub.c:54 ../../static/t/listsub/display.html:5
 msgid "List subscription"
 msgstr "Vis Listeabonnementer"
 
-#: ../../listsub.c:66
+#: ../../listsub.c:67 ../../static/t/listsub/display.html:9
 msgid "List subscribe/unsubscribe"
 msgstr "Abonnér/slet abonnement"
 
-#: ../../listsub.c:86
+#: ../../listsub.c:87 ../../static/t/listsub/display.html:15
+#: ../../static/t/listsub/display.html:34
 msgid "Confirmation request sent"
 msgstr "Godkendelsesforespørgsel sendt"
 
-#: ../../listsub.c:88
+#: ../../listsub.c:89
 #, c-format
 msgid ""
 "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
@@ -798,163 +218,148 @@ msgstr ""
 "<br><br>Klik på linketsom er blevet sendt til dig for at acceptere dit "
 "abonnement.<br>\n"
 
-#: ../../listsub.c:101
+#: ../../listsub.c:102 ../../static/t/listsub/display.html:24
 msgid "Go back..."
 msgstr "Tilbage..."
 
-#. an erased user
-#: ../../auth.c:36 ../../static/t/aide/siteconfig/tab_access.html:40
-#: ../../static/t/aide/siteconfig/tab_access.html:51
-#: ../../static/t/aide/edituser/detailview.html:43
-msgid "Deleted"
-msgstr "Slettet"
-
-#. a new user
-#: ../../auth.c:39 ../../static/t/get_logged_in.html:69
-#: ../../static/t/aide/siteconfig/tab_access.html:41
-#: ../../static/t/aide/siteconfig/tab_access.html:52
-#: ../../static/t/aide/edituser/detailview.html:44
-msgid "New User"
-msgstr "Ny Bruger"
-
-#. a trouble maker
-#: ../../auth.c:42 ../../static/t/aide/siteconfig/tab_access.html:42
-#: ../../static/t/aide/siteconfig/tab_access.html:53
-#: ../../static/t/aide/edituser/detailview.html:45
-msgid "Problem User"
-msgstr "Problem Bruger"
-
-#. user with normal privileges
-#: ../../auth.c:45 ../../static/t/aide/siteconfig/tab_access.html:43
-#: ../../static/t/aide/siteconfig/tab_access.html:54
-#: ../../static/t/aide/edituser/detailview.html:46
-msgid "Local User"
-msgstr "Lokal Bruger"
-
-#. a user that may access network resources
-#: ../../auth.c:48 ../../static/t/aide/siteconfig/tab_access.html:44
-#: ../../static/t/aide/siteconfig/tab_access.html:55
-#: ../../static/t/aide/edituser/detailview.html:47
-msgid "Network User"
-msgstr "Netværk Bruger"
-
-#. a moderator
-#: ../../auth.c:51 ../../static/t/aide/siteconfig/tab_access.html:45
-#: ../../static/t/aide/siteconfig/tab_access.html:56
-#: ../../static/t/aide/edituser/detailview.html:48
-msgid "Preferred User"
-msgstr "Foretrukken Bruger"
-
-#. chief
-#: ../../auth.c:54 ../../static/t/aide/siteconfig/tab_access.html:46
-#: ../../static/t/aide/siteconfig/tab_access.html:57
-#: ../../static/t/aide/edituser/detailview.html:49
-msgid "Aide"
-msgstr "Systemansvarlig"
-
-#: ../../auth.c:373 ../../auth.c:403 ../../vcard_edit.c:1299
-#: ../../vcard_edit.c:1342
-msgid "An error has occurred."
-msgstr "En fejl er opstået"
-
-#: ../../auth.c:526 ../../static/t/menu/basic_commands.html:19
-#: ../../static/t/iconbar.html:80 ../../static/t/confirmlogoff.html:3
-msgid "Log off"
-msgstr "Log af"
-
-#: ../../auth.c:539 ../../webcit.c:717
-msgid ""
-"This program was unable to connect or stay connected to the Citadel server.  "
-"Please report this problem to your system administrator."
+#: ../../listsub.c:253 ../../listsub.c:291 ../../listsub.c:327
+#: ../../listsub.c:334
+msgid "You need to specify the mailinglist to subscribe to."
 msgstr ""
-"Dette program kunne ikke tilslutte eller forblive tilsluttet til Citadel "
-"serveren.  KOntakt din Systemadministrator."
 
-#: ../../auth.c:545 ../../webcit.c:724
-msgid "Read More..."
-msgstr "Læs mere..."
+#: ../../listsub.c:260 ../../listsub.c:298
+#, fuzzy
+msgid "You need to specify the email address you'd like to subscribe with."
+msgstr "Skriv det Brugernavn du gerne vil have."
 
-#: ../../auth.c:550
-msgid "Log in again"
-msgstr "Log på igen"
-
-#: ../../auth.c:598 ../../static/t/aide/usermanagement.html:3
-msgid "Validate new users"
-msgstr "Validér nye brugere"
-
-#: ../../auth.c:618
-msgid "No users require validation at this time."
-msgstr "Ingen brugere kræver validering på dette tidspunkt."
-
-#: ../../auth.c:668
-msgid "very weak"
-msgstr "meget svag"
-
-#: ../../auth.c:671
-msgid "weak"
-msgstr "svag"
-
-#: ../../auth.c:674
-msgid "ok"
-msgstr "ok"
-
-#: ../../auth.c:678
-msgid "strong"
-msgstr "stærk"
-
-#: ../../auth.c:696
-#, c-format
-msgid "Current access level: %d (%s)\n"
-msgstr "Aktuelt brugerniveau: %d (%s)\n"
-
-#: ../../auth.c:704
-msgid "Select access level for this user:"
-msgstr "Vælg brugerniveau for denne bruger:"
-
-#: ../../auth.c:789 ../../static/t/menu/your_info.html:4
-msgid "Change your password"
-msgstr "Skift din adgangskode"
-
-#: ../../auth.c:813
-msgid "Enter new password:"
-msgstr "Skriv ny adgangskode:"
-
-#: ../../auth.c:817
-msgid "Enter it again to confirm:"
-msgstr "Skriv adgangskode igen:"
-
-#: ../../auth.c:823
-msgid "Change password"
-msgstr "Skift adgangskode"
-
-#: ../../auth.c:843
-msgid "Cancelled.  Password was not changed."
-msgstr "Afbrudt.  Adgangskode blev ikke ændret."
-
-#: ../../auth.c:852
-msgid "They don't match.  Password was not changed."
-msgstr "Adgangskoder matcher ikke.  Adgangskode blev ikke ændret."
-
-#: ../../auth.c:858
-msgid "Blank passwords are not allowed."
-msgstr "Blanke adgangskoder er ikke tilladt."
-
-#: ../../blogview_renderer.c:64 ../../blogview_renderer.c:80
+#: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
 #, fuzzy, c-format
 msgid "%d comments"
 msgstr "Send kommando"
 
-#: ../../blogview_renderer.c:67 ../../blogview_renderer.c:83
+#: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
 msgstr ""
 
-#: ../../blogview_renderer.c:303
+#: ../../blogview_renderer.c:302
 msgid "Newer posts"
 msgstr "nyere stillinger"
 
-#: ../../blogview_renderer.c:312
+#: ../../blogview_renderer.c:311
 msgid "Older posts"
 msgstr "ældre indlæg"
+
+#: ../../useredit.c:629
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
+msgstr ""
+"En fejl opstod ved forsøg på at oprette eller editére dette adressebogsemne."
+
+#: ../../useredit.c:717
+msgid "Changes were not saved."
+msgstr "Ændringer blev ikke gemt."
+
+#: ../../useredit.c:782
+msgid "A new user has been created."
+msgstr "En ny bruger blev oprettet."
+
+#: ../../useredit.c:786
+msgid ""
+"You are attempting to create a new user from within Citadel while running in "
+"host based authentication mode.  In this mode, you must create new users on "
+"the host system, not within Citadel."
+msgstr ""
+"Du forsøger at opretter en ny bruger i Citadel mens den kører i værtsbaseret "
+"autentifikation. I denne konfiguration, skal du oprette nye brugere på værts-"
+"systemet, ikke i Citadel."
+
+#: ../../bbsview_renderer.c:312
+msgid "Go to page: "
+msgstr ""
+
+#: ../../bbsview_renderer.c:354
+msgid "First"
+msgstr ""
+
+#: ../../bbsview_renderer.c:360
+msgid "Last"
+msgstr ""
+
+#: ../../graphics.c:56
+msgid "Graphics upload has been cancelled."
+msgstr "Upload er blevet afbrudt."
+
+#: ../../graphics.c:62
+msgid "You didn't upload a file."
+msgstr "Du uploadede ikke en fil."
+
+#: ../../graphics.c:112
+msgid "your photo"
+msgstr "dit billede"
+
+#: ../../graphics.c:119
+msgid "the icon for this room"
+msgstr "ikonet for dette rum"
+
+#: ../../graphics.c:127
+msgid "the Greetingpicture for the login prompt"
+msgstr "Velkomstbillede ved login"
+
+#: ../../graphics.c:135
+msgid "the Logoff banner picture"
+msgstr "Logaf banner billede"
+
+#: ../../graphics.c:146
+msgid "the icon for this floor"
+msgstr "ikonet for denne etage"
+
+#: ../../calendar_tools.c:100
+msgid "Hour: "
+msgstr "Time: "
+
+#: ../../calendar_tools.c:120
+msgid "Minute: "
+msgstr "Minut: "
+
+#: ../../calendar_tools.c:191
+msgid "(status unknown)"
+msgstr "(status ukendt)"
+
+#: ../../calendar_tools.c:207
+msgid "(needs action)"
+msgstr "(behøver aktion)"
+
+#: ../../calendar_tools.c:210
+msgid "(accepted)"
+msgstr "(accepteret)"
+
+#: ../../calendar_tools.c:213
+msgid "(declined)"
+msgstr "(afvist)"
+
+#: ../../calendar_tools.c:216
+msgid "(tenative)"
+msgstr "(foreløbig)"
+
+#: ../../calendar_tools.c:219
+msgid "(delegated)"
+msgstr "(delegeret)"
+
+#: ../../calendar_tools.c:222
+msgid "(completed)"
+msgstr "(færdig)"
+
+#: ../../calendar_tools.c:225
+msgid "(in process)"
+msgstr "(igang)"
+
+#: ../../calendar_tools.c:228
+msgid "(none)"
+msgstr "(ingen)"
+
+#: ../../notes.c:343
+msgid "Click on any note to edit it."
+msgstr "Klik på en note for at ændre den."
 
 #: ../../vcard_edit.c:175 ../../vcard_edit.c:178
 msgid "(no name)"
@@ -1076,6 +481,10 @@ msgstr "Pimær Internet Email adresse"
 msgid "Internet e-mail aliases"
 msgstr "Internet Email aliasser"
 
+#: ../../vcard_edit.c:1215 ../../sysmsgs.c:67
+msgid "Save changes"
+msgstr "Gem ændringer"
+
 #: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
 msgstr ""
@@ -1084,114 +493,187 @@ msgstr ""
 msgid "Aborting."
 msgstr ""
 
-#: ../../vcard_edit.c:1396
+#: ../../vcard_edit.c:1297 ../../vcard_edit.c:1341 ../../auth.c:367
+#: ../../auth.c:397
+msgid "An error has occurred."
+msgstr "En fejl er opstået"
+
+#: ../../vcard_edit.c:1399
 msgid "Could Not decode vcard photo\n"
 msgstr "Kunne ikke dekode vcard foto\n"
 
-#: ../../roomops.c:877
-#, c-format
-msgid "User '%s' kicked out of room '%s'."
-msgstr "Bruger %s blev sparket ud af rum %s."
+#: ../../preferences.c:880
+msgid "Cancelled.  No settings were changed."
+msgstr "Afbrudt. Ingen indstillinger blev ændret."
 
-#: ../../roomops.c:894
-#, c-format
-msgid "User '%s' invited to room '%s'."
-msgstr "Bruger %s blev inviteret til rum %s."
+#: ../../preferences.c:1092
+msgid "Make this my start page"
+msgstr "Gør dette til min startside"
 
-#: ../../roomops.c:923
-msgid "Cancelled.  No new room was created."
-msgstr "Afbrudt.  Intet nyt rum blev oprettet."
-
-#: ../../roomops.c:1193
-msgid "Floor has been deleted."
-msgstr "Etage er blevet slettet."
-
-#: ../../roomops.c:1217
-msgid "New floor has been created."
-msgstr "Ny etage er oprettet."
-
-#: ../../roomops.c:1296
-msgid "Room list view"
-msgstr "Rum liste visning"
-
-#: ../../roomops.c:1299
-msgid "Show empty floors"
-msgstr "Vis tomme etager"
-
-#: ../../calendar_view.c:272 ../../calendar_view.c:468
-#: ../../calendar_view.c:937 ../../event.c:864
-msgid "Untitled Event"
+#: ../../preferences.c:1130
+msgid "This isn't allowed to become the start page."
 msgstr ""
 
-#: ../../calendar_view.c:306 ../../calendar_view.c:964
-#: ../../calendar_view.c:1008 ../../calendar_view.c:1089 ../../calendar.c:113
+#: ../../preferences.c:1132
+msgid "You no longer have a start page selected."
+msgstr "Du har ikke længere en startside."
+
+#: ../../preferences.c:1182
+msgid "Prefered startpage"
+msgstr ""
+
+#: ../../calendar.c:76
+msgid "Meeting invitation"
+msgstr "Møde invitaion"
+
+#: ../../calendar.c:79
+msgid "Attendee's reply to your invitation"
+msgstr "Deltagers svar på din invitation"
+
+#: ../../calendar.c:82
+msgid "Published event"
+msgstr "Publiseret aftale"
+
+#: ../../calendar.c:85
+msgid "This is an unknown type of calendar item."
+msgstr "Dette er en ukendt type kalender emne."
+
+#: ../../calendar.c:107 ../../calendar_view.c:306 ../../calendar_view.c:964
+#: ../../calendar_view.c:1008 ../../calendar_view.c:1089
 msgid "Location:"
 msgstr "Lokation:"
 
-#: ../../calendar_view.c:351 ../../calendar_view.c:970 ../../calendar.c:138
+#: ../../calendar.c:132 ../../calendar_view.c:351 ../../calendar_view.c:970
 msgid "Date:"
 msgstr "Dato:"
 
-#: ../../calendar_view.c:355 ../../calendar_view.c:974
-msgid "Starting date:"
-msgstr ""
-
-#: ../../calendar_view.c:361 ../../calendar_view.c:976
-msgid "Ending date:"
-msgstr ""
-
-#: ../../calendar_view.c:369 ../../calendar_view.c:1095
-msgid "Date/time:"
-msgstr ""
-
-#: ../../calendar_view.c:373 ../../calendar_view.c:1013
-#: ../../calendar_view.c:1099 ../../calendar.c:145
+#: ../../calendar.c:139 ../../calendar_view.c:373 ../../calendar_view.c:1013
+#: ../../calendar_view.c:1099
 msgid "Starting date/time:"
 msgstr "Start dato/tid:"
 
-#: ../../calendar_view.c:376 ../../calendar_view.c:1015
-#: ../../calendar_view.c:1101 ../../calendar.c:156
+#: ../../calendar.c:150 ../../calendar_view.c:376 ../../calendar_view.c:1015
+#: ../../calendar_view.c:1101
 msgid "Ending date/time:"
 msgstr "Slut dato/tid:"
 
-#: ../../calendar_view.c:386 ../../calendar_view.c:980
-#: ../../calendar_view.c:1018 ../../calendar_view.c:1105
-#: ../../static/t/room/edit/tab_share.html:32
-msgid "Notes:"
-msgstr "Noter:"
+#: ../../calendar.c:168 ../../event.c:90
+msgid "Recurrence"
+msgstr "Gentagelse"
 
-#: ../../calendar_view.c:585 ../../calendar_view.c:721
-msgid "previous"
+#: ../../calendar.c:169 ../../event.c:505
+msgid "This is a recurring event"
+msgstr "Dette er en gentagende aftale"
+
+#: ../../calendar.c:178
+msgid "Attendee:"
+msgstr "Deltager:"
+
+#: ../../calendar.c:218
+#, c-format
+msgid "This is an update of '%s' which is already in your calendar."
+msgstr "Dette er en opdatering af '%s' som allerede er i din kalender."
+
+#: ../../calendar.c:222
+#, c-format
+msgid "This event would conflict with '%s' which is already in your calendar."
+msgstr "Denne aftale vil konflikte med '%s* som allerede er i din kalender."
+
+#: ../../calendar.c:227
+msgid "Update:"
+msgstr "Opdatering:"
+
+#: ../../calendar.c:228
+msgid "CONFLICT:"
+msgstr "KONFLIKT:"
+
+#: ../../calendar.c:251
+msgid "How would you like to respond to this invitation?"
+msgstr "Hvordan vil du svare på denne invitation?"
+
+#: ../../calendar.c:252
+msgid "Accept"
+msgstr "Acceptér"
+
+#: ../../calendar.c:253
+msgid "Tentative"
+msgstr "Foreløbig"
+
+#: ../../calendar.c:254
+msgid "Decline"
+msgstr "Afvis"
+
+#: ../../calendar.c:271
+msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
+"Klik <i>Opdatér<i> for at acceptere dette svar og opdatere din kalender."
 
-#: ../../calendar_view.c:597 ../../calendar_view.c:733
-#: ../../calendar_view.c:1308
-msgid "next"
+#: ../../calendar.c:272
+msgid "Update"
+msgstr "Opdatér"
+
+#: ../../calendar.c:273
+msgid "Ignore"
+msgstr "Ignorér"
+
+#: ../../calendar.c:295
+msgid "There was an error parsing this calendar item."
+msgstr "Der opstod en fejl ved behandling af dette emne."
+
+#: ../../calendar.c:328
+msgid ""
+"You have accepted this meeting invitation.  It has been entered into your "
+"calendar."
 msgstr ""
+"Du har accepteret denne mødeinvitation.  Det er blevet tilføjet i din "
+"kalender."
 
-#: ../../calendar_view.c:756
-msgid "Week"
-msgstr "Uge"
+#: ../../calendar.c:332
+msgid ""
+"You have tentatively accepted this meeting invitation.  It has been "
+"'pencilled in' to your calendar."
+msgstr ""
+"Du har foreløbigt accepteret denne mødeinvitation.  Det er blevet tilføjet i "
+"din kalender 'med blyant'"
 
-#: ../../calendar_view.c:758
-msgid "Hours"
-msgstr "Timer"
+#: ../../calendar.c:336
+msgid ""
+"You have declined this meeting invitation.  It has <b>not</b> been entered "
+"into your calendar."
+msgstr ""
+"Du har afvist denne mødeinvitation.  Det er <b>ikke</b> blevet tilføjet i "
+"din kalender."
 
-#: ../../calendar_view.c:760 ../../event.c:234
-msgid "Start"
-msgstr "Start"
+#: ../../calendar.c:341
+msgid "A reply has been sent to the meeting organizer."
+msgstr "Et svar er blevet sendt til mødeorganisatoren."
 
-#: ../../calendar_view.c:761 ../../event.c:283
-msgid "End"
-msgstr "Slut"
+#. / Translators: RSVP aka Répondez s'il-vous-plaît Is the term
+#. / that the recipient of an ical-invitation should please
+#. / answer this request.
+#: ../../calendar.c:376
+msgid "Your calendar has been updated to reflect this RSVP."
+msgstr "Din kalender er opdateret til at reflektere denne S.U."
 
-#: ../../calendar_view.c:957 ../../calendar_view.c:986 ../../event.c:277
-msgid "All day event"
-msgstr "Hele dagen aftale"
+#: ../../calendar.c:378
+msgid ""
+"You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
+"updated."
+msgstr ""
+"Du har valgt at ignorere denne S.U. Din kalender er <b>ikke</b> blevet "
+"opdateret."
 
-#: ../../calendar_view.c:1001 ../../calendar_view.c:1024
-msgid "Ongoing event"
-msgstr "Igangværende aftale"
+#: ../../calendar.c:932
+msgid "Calendar day view begins at:"
+msgstr "Kalender dag visning begynder:"
+
+#: ../../calendar.c:933
+msgid "Calendar day view ends at:"
+msgstr "Kalender dag visning slutter:"
+
+#: ../../calendar.c:934
+msgid "Week starts on:"
+msgstr "Ugen starter:"
 
 #: ../../paging.c:35
 msgid "Send instant message"
@@ -1217,384 +699,323 @@ msgstr "Meddelelse blev ikke sendt."
 msgid "Message has been sent to "
 msgstr "Meddelelse blev sendt til "
 
-#: ../../netconf.c:158 ../../netconf.c:185 ../../netconf.c:193
-#: ../../netconf.c:241 ../../netconf.c:249 ../../inetconf.c:110
-#: ../../inetconf.c:119 ../../inetconf.c:133 ../../inetconf.c:159
-msgid "Invalid Parameter"
-msgstr "Invalid Parameter"
-
-#: ../../calendar.c:82
-msgid "Meeting invitation"
-msgstr "Møde invitaion"
-
-#: ../../calendar.c:85
-msgid "Attendee's reply to your invitation"
-msgstr "Deltagers svar på din invitation"
-
-#: ../../calendar.c:88
-msgid "Published event"
-msgstr "Publiseret aftale"
-
-#: ../../calendar.c:91
-msgid "This is an unknown type of calendar item."
-msgstr "Dette er en ukendt type kalender emne."
-
-#: ../../calendar.c:174 ../../event.c:96
-msgid "Recurrence"
-msgstr "Gentagelse"
-
-#: ../../calendar.c:175 ../../event.c:511
-msgid "This is a recurring event"
-msgstr "Dette er en gentagende aftale"
-
-#: ../../calendar.c:184
-msgid "Attendee:"
-msgstr "Deltager:"
-
-#: ../../calendar.c:224
-#, c-format
-msgid "This is an update of '%s' which is already in your calendar."
-msgstr "Dette er en opdatering af '%s' som allerede er i din kalender."
-
-#: ../../calendar.c:228
-#, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
-msgstr "Denne aftale vil konflikte med '%s* som allerede er i din kalender."
-
-#: ../../calendar.c:233
-msgid "Update:"
-msgstr "Opdatering:"
-
-#: ../../calendar.c:234
-msgid "CONFLICT:"
-msgstr "KONFLIKT:"
-
-#: ../../calendar.c:257
-msgid "How would you like to respond to this invitation?"
-msgstr "Hvordan vil du svare på denne invitation?"
-
-#: ../../calendar.c:258
-msgid "Accept"
-msgstr "Acceptér"
-
-#: ../../calendar.c:259
-msgid "Tentative"
-msgstr "Foreløbig"
-
-#: ../../calendar.c:260
-msgid "Decline"
-msgstr "Afvis"
-
-#: ../../calendar.c:277
-msgid "Click <i>Update</i> to accept this reply and update your calendar."
+#: ../../iconbar.c:328
+msgid "Iconbar Setting"
 msgstr ""
-"Klik <i>Opdatér<i> for at acceptere dette svar og opdatere din kalender."
 
-#: ../../calendar.c:278
-msgid "Update"
-msgstr "Opdatér"
+#.
+#. * Set to 'unknown' right from the beginning.  Unless we learn
+#. * something else, that's what we'll go with.
+#.
+#: ../../availability.c:148
+msgid "availability unknown"
+msgstr "tilgængelighed ukendt"
 
-#: ../../calendar.c:279
-msgid "Ignore"
-msgstr "Ignorér"
+#: ../../availability.c:169
+msgid "free"
+msgstr "fri"
 
-#: ../../calendar.c:301
-msgid "There was an error parsing this calendar item."
-msgstr "Der opstod en fejl ved behandling af dette emne."
+#: ../../availability.c:179
+msgid "BUSY"
+msgstr "OPTAGET"
 
-#: ../../calendar.c:334
+#: ../../serv_func.c:193
 msgid ""
-"You have accepted this meeting invitation.  It has been entered into your "
-"calendar."
+"This server is already serving its maximum number of users and cannot accept "
+"any additional logins at this time.  Please try again later or contact your "
+"system administrator."
 msgstr ""
-"Du har accepteret denne mødeinvitation.  Det er blevet tilføjet i din "
-"kalender."
+"Denne server har allerede det maximale antal brugere logget ind og kan ikke "
+"acceptere flere lige nu. Prøv igen senere eller kontakt din System "
+"administrator."
 
-#: ../../calendar.c:338
-msgid ""
-"You have tentatively accepted this meeting invitation.  It has been "
-"'pencilled in' to your calendar."
+#: ../../serv_func.c:198 ../../serv_func.c:227
+msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr ""
-"Du har foreløbigt accepteret denne mødeinvitation.  Det er blevet tilføjet i "
-"din kalender 'med blyant'"
 
-#: ../../calendar.c:342
-msgid ""
-"You have declined this meeting invitation.  It has <b>not</b> been entered "
-"into your calendar."
-msgstr ""
-"Du har afvist denne mødeinvitation.  Det er <b>ikke</b> blevet tilføjet i "
-"din kalender."
-
-#: ../../calendar.c:347
-msgid "A reply has been sent to the meeting organizer."
-msgstr "Et svar er blevet sendt til mødeorganisatoren."
-
-#. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
-#. that the recipient of an ical-invitation should please
-#. answer this request.
-#: ../../calendar.c:382
-msgid "Your calendar has been updated to reflect this RSVP."
-msgstr "Din kalender er opdateret til at reflektere denne S.U."
-
-#: ../../calendar.c:384
-msgid ""
-"You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
-"updated."
-msgstr ""
-"Du har valgt at ignorere denne S.U. Din kalender er <b>ikke</b> blevet "
-"opdateret."
-
-#: ../../calendar.c:933
-msgid "Calendar day view begins at:"
-msgstr "Kalender dag visning begynder:"
-
-#: ../../calendar.c:934
-msgid "Calendar day view ends at:"
-msgstr "Kalender dag visning slutter:"
-
-#: ../../calendar.c:935
-msgid "Week starts on:"
-msgstr "Ugen starter:"
-
-#: ../../webcit.c:348
-msgid "Authorization Required"
-msgstr "Godkendelse Krævet"
-
-#: ../../webcit.c:355
+#: ../../serv_func.c:236
 #, c-format
 msgid ""
-"The resource you requested requires a valid username and password. You could "
-"not be logged in: %s\n"
+"You are connected to a Citadel server running Citadel %d.%02d. \n"
+"In order to run this version of WebCit you must also have Citadel %d.%02d or "
+"newer.\n"
+"\n"
+"\n"
 msgstr ""
-"Resourcen som du forespurgte kræver et brugernavn og en adgangskode. Du "
-"kunne ikke blive logged ind: %s\n"
+"Du er forbundet til en Citadel server der kører Citadel %d.%02d. \n"
+"For at køre denne version af WebCit skal du have Citadel %d.%02d eller "
+"nyere.\n"
+"\n"
+"\n"
 
-#: ../../event.c:76
+#: ../../event.c:70
 msgid "seconds"
 msgstr "sekunder"
 
-#: ../../event.c:77
+#: ../../event.c:71
 msgid "minutes"
 msgstr ""
 
-#: ../../event.c:78
+#: ../../event.c:72
 msgid "hours"
 msgstr ""
 
-#: ../../event.c:79
+#: ../../event.c:73
 msgid "days"
 msgstr "dage"
 
-#: ../../event.c:80
+#: ../../event.c:74
 msgid "weeks"
 msgstr ""
 
-#: ../../event.c:81
+#: ../../event.c:75
 msgid "months"
 msgstr ""
 
-#: ../../event.c:82
+#: ../../event.c:76
 msgid "years"
 msgstr ""
 
-#: ../../event.c:83
+#: ../../event.c:77
 msgid "never"
 msgstr "aldrig"
 
-#: ../../event.c:87
+#: ../../event.c:81
 msgid "first"
 msgstr ""
 
-#: ../../event.c:88
+#: ../../event.c:82
 msgid "second"
 msgstr ""
 
-#: ../../event.c:89
+#: ../../event.c:83
 msgid "third"
 msgstr "tredie"
 
-#: ../../event.c:90
+#: ../../event.c:84
 msgid "fourth"
 msgstr "fjerde"
 
-#: ../../event.c:91
+#: ../../event.c:85
 msgid "fifth"
 msgstr "femte"
 
-#: ../../event.c:94
+#: ../../event.c:88
 msgid "Event"
 msgstr "Aftale"
 
-#: ../../event.c:95 ../../event.c:443 ../../event.c:455
+#: ../../event.c:89 ../../event.c:437 ../../event.c:449
 msgid "Attendees"
 msgstr "Deltagere"
 
-#: ../../event.c:173
+#: ../../event.c:167
 msgid "Add or edit an event"
 msgstr "Tilføj eller editér en aftale"
 
-#: ../../event.c:212 ../../static/t/iconbar/edit.html:29
-#: ../../static/t/iconbar.html:13
+#: ../../event.c:206 ../../static/t/iconbar.html:13
+#: ../../static/t/iconbar/edit.html:29
 msgid "Summary"
 msgstr "Summering"
 
-#: ../../event.c:223
+#: ../../event.c:217
 msgid "Location"
 msgstr "Lokation"
 
-#: ../../event.c:333 ../../static/t/iconbar/edit.html:49
-#: ../../static/t/iconbar.html:34
+#: ../../event.c:228 ../../calendar_view.c:760
+msgid "Start"
+msgstr "Start"
+
+#: ../../event.c:271 ../../calendar_view.c:957 ../../calendar_view.c:986
+msgid "All day event"
+msgstr "Hele dagen aftale"
+
+#: ../../event.c:277 ../../calendar_view.c:761
+msgid "End"
+msgstr "Slut"
+
+#: ../../event.c:327 ../../static/t/iconbar.html:34
+#: ../../static/t/iconbar/edit.html:49
 msgid "Notes"
 msgstr "Noter"
 
-#: ../../event.c:375
+#: ../../event.c:369
 msgid "Organizer"
 msgstr "Organisator"
 
-#: ../../event.c:380
+#: ../../event.c:374
 msgid "(you are the organizer)"
 msgstr "(du er organisator)"
 
-#: ../../event.c:398
+#: ../../event.c:392
 msgid "Show time as:"
 msgstr "Vis tid som:"
 
-#: ../../event.c:421
+#: ../../event.c:415
 msgid "Free"
 msgstr "Fri"
 
-#: ../../event.c:429
+#: ../../event.c:423
 msgid "Busy"
 msgstr "Optaget"
 
-#: ../../event.c:446
+#: ../../event.c:440
 msgid "(One per line)"
 msgstr "(Én per linie)"
 
-#: ../../event.c:456 ../../static/t/edit_message.html:143
-#: ../../static/t/iconbar/edit.html:42 ../../static/t/iconbar.html:29
+#: ../../event.c:450 ../../static/t/edit_message.html:143
+#: ../../static/t/iconbar.html:29 ../../static/t/iconbar/edit.html:42
 msgid "Contacts"
 msgstr "Kontaktpersoner"
 
-#: ../../event.c:519
+#: ../../event.c:513
 msgid "Recurrence rule"
 msgstr ""
 
-#: ../../event.c:523
+#: ../../event.c:517
 msgid "Repeats every"
 msgstr "Gentages hver"
 
 #. begin 'weekday_selector' div
-#: ../../event.c:541
+#: ../../event.c:535
 msgid "on these weekdays:"
 msgstr "på disse ugedage"
 
-#: ../../event.c:599
+#: ../../event.c:593
 #, c-format
 msgid "on day %s%d%s of the month"
 msgstr "på den %s%d%s dag i måneden"
 
-#: ../../event.c:608 ../../event.c:670
+#: ../../event.c:602 ../../event.c:664
 msgid "on the "
 msgstr ""
 
-#: ../../event.c:632
+#: ../../event.c:626
 msgid "of the month"
 msgstr "i måneden"
 
-#: ../../event.c:661
+#: ../../event.c:655
 msgid "every "
 msgstr "hver "
 
-#: ../../event.c:662
+#: ../../event.c:656
 msgid "year on this date"
 msgstr "år på denne dato"
 
-#: ../../event.c:694 ../../static/t/msg_listselector_bottom.html:7
+#: ../../event.c:688 ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
 msgid "of"
 msgstr "af"
 
-#: ../../event.c:718
+#: ../../event.c:712
 msgid "Recurrence range"
 msgstr "Gentagelsesområde"
 
-#: ../../event.c:726
+#: ../../event.c:720
 msgid "No ending date"
 msgstr ""
 
-#: ../../event.c:733
+#: ../../event.c:727
 msgid "Repeat this event"
 msgstr ""
 
-#: ../../event.c:736
+#: ../../event.c:730
 msgid "times"
 msgstr ""
 
-#: ../../event.c:744
+#: ../../event.c:738
 msgid "Repeat this event until "
 msgstr "Gentag denne aftale indtil "
 
-#: ../../event.c:772
+#: ../../event.c:766
 msgid "Check attendee availability"
 msgstr "Check deltager tilgænglighed"
 
-#: ../../fmt_date.c:310
-msgid "Time format"
-msgstr "Time format"
-
-#: ../../graphics.c:57
-msgid "Graphics upload has been cancelled."
-msgstr "Upload er blevet afbrudt."
-
-#: ../../graphics.c:63
-msgid "You didn't upload a file."
-msgstr "Du uploadede ikke en fil."
-
-#: ../../graphics.c:113
-msgid "your photo"
-msgstr "dit billede"
-
-#: ../../graphics.c:120
-msgid "the icon for this room"
-msgstr "ikonet for dette rum"
-
-#: ../../graphics.c:128
-msgid "the Greetingpicture for the login prompt"
-msgstr "Velkomstbillede ved login"
-
-#: ../../graphics.c:136
-msgid "the Logoff banner picture"
-msgstr "Logaf banner billede"
-
-#: ../../graphics.c:147
-msgid "the icon for this floor"
-msgstr "ikonet for denne etage"
-
-#: ../../msg_renderers.c:579 ../../static/t/who/bio.html:15
-msgid "edit"
-msgstr "editér"
-
-#: ../../msg_renderers.c:1108
-msgid "I don't know how to display "
+#: ../../event.c:858 ../../calendar_view.c:272 ../../calendar_view.c:468
+#: ../../calendar_view.c:937
+msgid "Untitled Event"
 msgstr ""
 
-#: ../../msg_renderers.c:1342
-msgid "(no subject)"
-msgstr "(intet emne)"
+#: ../../sysmsgs.c:52
+#, c-format
+msgid "Edit %s"
+msgstr "Editér %s"
 
-#: ../../roomtokens.c:563
-msgid "file"
+#: ../../sysmsgs.c:55
+#, c-format
+msgid ""
+"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"forced by preceding the next line by a blank."
+msgstr ""
+"Skriv %s nedenfor.  Tekst er formatteret til læserens skærmbredde. For at "
+"overvinde formatteringen, indfør en linie mindst et mellemrum."
+
+#: ../../sysmsgs.c:89
+#, c-format
+msgid "Cancelled.  %s was not saved."
+msgstr "Afbrudt.  %s blev ikke gemt."
+
+#: ../../sysmsgs.c:109
+#, fuzzy
+msgid " has been saved."
+msgstr "%s er blevet gemt."
+
+#: ../../sysmsgs.c:116 ../../sysmsgs.c:117
+msgid "Room info"
+msgstr "Rum info"
+
+#: ../../sysmsgs.c:122 ../../sysmsgs.c:124
+msgid "Your bio"
+msgstr "Din bio"
+
+#: ../../calendar_view.c:297 ../../calendar_view.c:958
+#: ../../calendar_view.c:1002 ../../calendar_view.c:1083
+#: ../../static/t/sieve/display_one.html:20
+msgid "From"
 msgstr ""
 
-#: ../../roomtokens.c:565
-msgid "files"
-msgstr "filer"
-
-#: ../../roomlist.c:99
-msgid "My Folders"
+#: ../../calendar_view.c:355 ../../calendar_view.c:974
+msgid "Starting date:"
 msgstr ""
+
+#: ../../calendar_view.c:361 ../../calendar_view.c:976
+msgid "Ending date:"
+msgstr ""
+
+#: ../../calendar_view.c:369 ../../calendar_view.c:1095
+msgid "Date/time:"
+msgstr ""
+
+#: ../../calendar_view.c:386 ../../calendar_view.c:980
+#: ../../calendar_view.c:1018 ../../calendar_view.c:1105
+#: ../../static/t/room/edit/tab_share.html:32
+msgid "Notes:"
+msgstr "Noter:"
+
+#: ../../calendar_view.c:585 ../../calendar_view.c:721
+msgid "previous"
+msgstr ""
+
+#: ../../calendar_view.c:597 ../../calendar_view.c:733
+#: ../../calendar_view.c:1308
+msgid "next"
+msgstr ""
+
+#: ../../calendar_view.c:756
+msgid "Week"
+msgstr "Uge"
+
+#: ../../calendar_view.c:758
+msgid "Hours"
+msgstr "Timer"
+
+#: ../../calendar_view.c:759 ../../static/t/sieve/display_one.html:22
+#: ../../static/t/msg_listview.html:9
+msgid "Subject"
+msgstr "Emne"
+
+#: ../../calendar_view.c:1001 ../../calendar_view.c:1024
+msgid "Ongoing event"
+msgstr "Igangværende aftale"
 
 #: ../../messages.c:70
 msgid "ERROR:"
@@ -1604,87 +1025,81 @@ msgstr "FEJL:"
 msgid "Empty message"
 msgstr ""
 
-#: ../../messages.c:994
+#: ../../messages.c:1010
 msgid "Cancelled.  Message was not posted."
 msgstr "Afbrudt.  Meddelelse ikke opsat."
 
-#: ../../messages.c:997
+#: ../../messages.c:1013
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automatisk afbrudt fordi du har allerede gemt denne meddelelse."
 
-#: ../../messages.c:1021
+#: ../../messages.c:1037
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../../messages.c:1086
+#: ../../messages.c:1102
 msgid "Refusing to post empty message.\n"
 msgstr ""
 
-#: ../../messages.c:1112
+#: ../../messages.c:1128
 msgid "Message has been saved to Drafts.\n"
 msgstr ""
 
-#: ../../messages.c:1121
+#: ../../messages.c:1137
 msgid "Message has been sent.\n"
 msgstr "Meddelelse er blevet sendt.\n"
 
-#: ../../messages.c:1124
+#: ../../messages.c:1140
 msgid "Message has been posted.\n"
 msgstr "Meddelelse er blevet opsat.\n"
 
-#: ../../messages.c:1662
+#: ../../messages.c:1679
 msgid "The message was not moved."
 msgstr "Meddelelsen blev ikke flyttet."
 
-#: ../../messages.c:1702
+#: ../../messages.c:1719
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr ""
 
-#: ../../messages.c:1762
+#: ../../messages.c:1796
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "En fejl opstod under hentning af denne del: %s\n"
 
-#: ../../messages.c:1929
+#: ../../messages.c:1956
 msgid "Attach signature to email messages?"
 msgstr "Tilføj signatur til meddelelser?"
 
-#: ../../messages.c:1932
+#: ../../messages.c:1959
 msgid "Use this signature:"
 msgstr "Brug denne signatur"
 
-#: ../../messages.c:1934
+#: ../../messages.c:1961
 msgid "Default character set for email headers:"
 msgstr "Standard karaktérsæt for email headers:"
 
-#: ../../messages.c:1937
+#: ../../messages.c:1964
 msgid "Preferred email address"
 msgstr ""
 
-#: ../../messages.c:1939
+#: ../../messages.c:1966
 msgid "Preferred display name for email messages"
 msgstr ""
 
-#: ../../messages.c:1943
+#: ../../messages.c:1970
 msgid "Preferred display name for bulletin board posts"
 msgstr "Vist navn på opslagstavle posteringer"
 
-#: ../../messages.c:1946
+#: ../../messages.c:1973
 msgid "Mailbox view mode"
 msgstr "Postkasse visning"
 
-#: ../../addressbook_popup.c:192
-msgid "Add"
-msgstr "Tilføj"
-
-#: ../../summary.c:134
-msgid "(None)"
-msgstr "(Ingen)"
-
-#: ../../summary.c:186
-msgid "(Nothing)"
-msgstr "(Ingenting)"
+#: ../../inetconf.c:110 ../../inetconf.c:119 ../../inetconf.c:133
+#: ../../inetconf.c:159 ../../netconf.c:156 ../../netconf.c:183
+#: ../../netconf.c:191 ../../netconf.c:239 ../../netconf.c:247
+msgid "Invalid Parameter"
+msgstr "Invalid Parameter"
 
 #: ../../inetconf.c:126
 #, fuzzy
@@ -1696,577 +1111,787 @@ msgstr "%s er blevet slettet."
 msgid " added."
 msgstr ""
 
-#: ../../static/t/edit_message/attachments_pane.html:3
-#: ../../static/t/get_logged_in.html:9
-msgid "Close window"
-msgstr "Luk vinduet"
+#: ../../who.c:154
+msgid "Edit your session display"
+msgstr "Editér din session visning"
 
-#: ../../static/t/edit_message/attachments_pane.html:5
-#: ../../static/t/edit_message.html:126
-msgid "Attachments:"
-msgstr "Vedhæftede filer"
-
-#: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Vedhæft fil:"
-
-#: ../../static/t/edit_message/attachments_pane.html:21
-msgid "Upload"
-msgstr "Upload"
-
-#: ../../static/t/edit_message/section_attach_select.html:4
-#, fuzzy
-msgid "Remove"
-msgstr "(fjern)"
-
-#: ../../static/t/msg_listselector_bottom.html:2
-#: ../../static/t/msg_listselector_top.html:2
-msgid "Reading #"
-msgstr "Læser #"
-
-#: ../../static/t/msg_listselector_bottom.html:7
-#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
-#: ../../static/t/msg_listselector_top.html:7
-msgid "messages"
-msgstr ""
-
-#: ../../static/t/msg_listselector_bottom.html:12
-#: ../../static/t/msg_listselector_top.html:12
-msgid "oldest to newest"
-msgstr "ældste til nyeste"
-
-#: ../../static/t/msg_listselector_bottom.html:20
-#: ../../static/t/msg_listselector_top.html:20
-msgid "newest to oldest"
-msgstr "nyeste til ældste"
-
-#: ../../static/t/room/display_private.html:7
-msgid "Go to a hidden room"
-msgstr "Gå til et skjult rum"
-
-#: ../../static/t/room/display_private.html:8
-#, fuzzy
+#: ../../who.c:158
 msgid ""
-"If you know the name of a hidden (guess-name) or passworded room, you can "
-"enter that room by typing its name below.  Once you gain access to a private "
-"room, it will appear in your regular room listings so you don‘t have to keep "
-"returning here."
+"This screen allows you to change the way your session appears in the 'Who is "
+"online' listing. To turn off any 'fake' name you've previously set, simply "
+"click the appropriate 'change' button without typing anything in the "
+"corresponding box. "
 msgstr ""
-"Hvis du kender navnet på et skjult (gæt-navn) eller adgangsbeskyttet rum, "
-"kan du gå til rummet ved at skrive navnet nedenfor.  Når du får adgang til "
-"et privat rum, vil det optræde på din almindelige rum liste så du ikke "
-"behøver at komme her igen."
+"Her kan do bestemme hvordan din session bliver vist i 'Hvem er online' "
+"listen. For at fjerne et 'falsk' navn du tidligere har sat, bare klik den "
+"tilhørende 'skift' knap uden at skrive noget i boksen. "
 
-#: ../../static/t/room/display_private.html:14
-msgid "Enter room name:"
-msgstr "Skriv rummets navn:"
+#: ../../who.c:171
+msgid "Room name:"
+msgstr "Rum navn:"
 
-#: ../../static/t/room/display_private.html:21
-msgid "Enter room password:"
-msgstr "Skriv rummets adgangskode:"
+#: ../../who.c:176
+msgid "Change room name"
+msgstr "Skift rum navn"
 
-#: ../../static/t/room/zap_this.html:3
-msgid "Zap (forget/unsubscribe) the current room"
-msgstr "Zap (glem/abonementfjern) det aktuelle rum"
+#: ../../who.c:180
+msgid "Host name:"
+msgstr "Host navn:"
 
-#: ../../static/t/room/zap_this.html:6
-#, fuzzy
-msgid "If you select this option,"
-msgstr "Editér eller slet dette rum"
+#: ../../who.c:185
+msgid "Change host name"
+msgstr "Skift host navn"
 
-#: ../../static/t/room/zap_this.html:8
-#, fuzzy
-msgid "will disappear from your room list.  Is this what you wish to do?"
+#: ../../who.c:190 ../../static/t/aide/edituser/detailview.html:20
+#: ../../static/t/openid_manual_create.html:9
+#: ../../static/t/get_logged_in.html:57 ../../static/t/get_logged_in.html:72
+msgid "User name:"
+msgstr "Brugernavn"
+
+#: ../../who.c:195
+msgid "Change user name"
+msgstr "Skift brugernavn"
+
+#: ../../siteconfig.c:46 ../../siteconfig.c:64 ../../roomlist.c:44
+#: ../../roomlist.c:394 ../../static/t/room/edit/tab_expire.html:72
+#: ../../static/t/room/edit/tab_config.html:149
+#: ../../static/t/room/edit/tab_access.html:42
+msgid "Higher access is required to access this function."
+msgstr "Højere tilladelse er krævet for at bruge denne funktion."
+
+#: ../../siteconfig.c:256
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
-"Hvis du vælger denne funktion, <em>%s</em> vil forsvinde fra din rum liste.  "
-"Er det hvad du gerne vil?<br>\n"
 
-#: ../../static/t/room/zapped_list.html:7
-msgid "Zapped (forgotten) rooms"
-msgstr "Zapped (glemte) rum"
+#: ../../siteconfig.c:319
+msgid "Your system configuration has been updated."
+msgstr "Din system konfiguration er blevet opdateret"
 
-#: ../../static/t/room/zapped_list.html:10
+#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
+#, c-format
+msgid "There is no room called '%s'."
+msgstr "Der er ikke noget rum der hedder '%s'."
+
+#: ../../wiki.c:76
+#, c-format
+msgid "'%s' is not a Wiki room."
+msgstr "'%s' er ikke et Wiki rum."
+
+#: ../../wiki.c:110
+#, c-format
+msgid "There is no page called '%s' here."
+msgstr "Der er ikke nogen side her der hedder '%s'"
+
+#: ../../wiki.c:112
+msgid ""
+"Select the 'Edit this page' link in the room banner if you would like to "
+"create this page."
+msgstr ""
+"Vælg 'Editér denne side' link i rum banneret hvis du gerne vil oprette denne "
+"side."
+
+#: ../../wiki.c:181 ../../static/t/msg_listview.html:11
+msgid "Date"
+msgstr "Dato"
+
+#: ../../wiki.c:182
+msgid "Author"
+msgstr ""
+
+#: ../../wiki.c:209 ../../wiki.c:218
+msgid "(show)"
+msgstr ""
+
+#: ../../wiki.c:211 ../../static/t/navbar.html:145
+msgid "Current version"
+msgstr ""
+
+#: ../../wiki.c:223
+msgid "(revert)"
+msgstr ""
+
+#: ../../wiki.c:300
+msgid "Page title"
+msgstr ""
+
+#: ../../webcit.c:316
+msgid "Authorization Required"
+msgstr "Godkendelse Krævet"
+
+#: ../../webcit.c:324
+#, c-format
+msgid ""
+"The resource you requested requires a valid username and password. You could "
+"not be logged in: %s\n"
+msgstr ""
+"Resourcen som du forespurgte kræver et brugernavn og en adgangskode. Du "
+"kunne ikke blive logged ind: %s\n"
+
+#: ../../webcit.c:647 ../../auth.c:526
+msgid ""
+"This program was unable to connect or stay connected to the Citadel server.  "
+"Please report this problem to your system administrator."
+msgstr ""
+"Dette program kunne ikke tilslutte eller forblive tilsluttet til Citadel "
+"serveren.  KOntakt din Systemadministrator."
+
+#: ../../webcit.c:654 ../../auth.c:532
+msgid "Read More..."
+msgstr "Læs mere..."
+
+#: ../../smtpqueue.c:134 ../../static/t/aide/ignetconf/section.html:5
+#: ../../static/t/view_mailq/message.html:2
+msgid "(Delete)"
+msgstr "(Slet)"
+
+#: ../../smtpqueue.c:334
+msgid "First Attempt pending"
+msgstr ""
+
+#: ../../roomlist.c:99
+msgid "My Folders"
+msgstr ""
+
+#: ../../downloads.c:289
+#, c-format
+msgid "An error occurred while retrieving this file: %s\n"
+msgstr ""
+
+#: ../../roomtokens.c:572
+msgid "file"
+msgstr ""
+
+#: ../../roomtokens.c:574
+msgid "files"
+msgstr "filer"
+
+#: ../../summary.c:128
+msgid "(None)"
+msgstr "(Ingen)"
+
+#: ../../summary.c:184
+msgid "(Nothing)"
+msgstr "(Ingenting)"
+
+#: ../../msg_renderers.c:579 ../../static/t/who/bio.html:15
+msgid "edit"
+msgstr "editér"
+
+#: ../../msg_renderers.c:1119
+msgid "I don't know how to display "
+msgstr ""
+
+#: ../../msg_renderers.c:1353
+msgid "(no subject)"
+msgstr "(intet emne)"
+
+#: ../../addressbook_popup.c:186
+msgid "Add"
+msgstr "Tilføj"
+
+#. an erased user
+#: ../../auth.c:30 ../../static/t/aide/edituser/detailview.html:43
+#: ../../static/t/aide/siteconfig/tab_access.html:40
+#: ../../static/t/aide/siteconfig/tab_access.html:51
+msgid "Deleted"
+msgstr "Slettet"
+
+#. a new user
+#: ../../auth.c:33 ../../static/t/aide/edituser/detailview.html:44
+#: ../../static/t/aide/siteconfig/tab_access.html:41
+#: ../../static/t/aide/siteconfig/tab_access.html:52
+#: ../../static/t/get_logged_in.html:79
+msgid "New User"
+msgstr "Ny Bruger"
+
+#. a trouble maker
+#: ../../auth.c:36 ../../static/t/aide/edituser/detailview.html:45
+#: ../../static/t/aide/siteconfig/tab_access.html:42
+#: ../../static/t/aide/siteconfig/tab_access.html:53
+msgid "Problem User"
+msgstr "Problem Bruger"
+
+#. user with normal privileges
+#: ../../auth.c:39 ../../static/t/aide/edituser/detailview.html:46
+#: ../../static/t/aide/siteconfig/tab_access.html:43
+#: ../../static/t/aide/siteconfig/tab_access.html:54
+msgid "Local User"
+msgstr "Lokal Bruger"
+
+#. a user that may access network resources
+#: ../../auth.c:42 ../../static/t/aide/edituser/detailview.html:47
+#: ../../static/t/aide/siteconfig/tab_access.html:44
+#: ../../static/t/aide/siteconfig/tab_access.html:55
+msgid "Network User"
+msgstr "Netværk Bruger"
+
+#. a moderator
+#: ../../auth.c:45 ../../static/t/aide/edituser/detailview.html:48
+#: ../../static/t/aide/siteconfig/tab_access.html:45
+#: ../../static/t/aide/siteconfig/tab_access.html:56
+msgid "Preferred User"
+msgstr "Foretrukken Bruger"
+
+#. chief
+#: ../../auth.c:48 ../../static/t/aide/edituser/detailview.html:49
+#: ../../static/t/aide/siteconfig/tab_access.html:46
+#: ../../static/t/aide/siteconfig/tab_access.html:57
+msgid "Aide"
+msgstr "Systemansvarlig"
+
+#: ../../auth.c:513 ../../static/t/iconbar.html:80
+#: ../../static/t/confirmlogoff.html:3
+#: ../../static/t/menu/basic_commands.html:19
+msgid "Log off"
+msgstr "Log af"
+
+#: ../../auth.c:537
+msgid "Log in again"
+msgstr "Log på igen"
+
+#: ../../auth.c:585 ../../static/t/aide/usermanagement.html:3
+msgid "Validate new users"
+msgstr "Validér nye brugere"
+
+#: ../../auth.c:605
+msgid "No users require validation at this time."
+msgstr "Ingen brugere kræver validering på dette tidspunkt."
+
+#: ../../auth.c:655
+msgid "very weak"
+msgstr "meget svag"
+
+#: ../../auth.c:658
+msgid "weak"
+msgstr "svag"
+
+#: ../../auth.c:661
+msgid "ok"
+msgstr "ok"
+
+#: ../../auth.c:665
+msgid "strong"
+msgstr "stærk"
+
+#: ../../auth.c:683
+#, c-format
+msgid "Current access level: %d (%s)\n"
+msgstr "Aktuelt brugerniveau: %d (%s)\n"
+
+#: ../../auth.c:691
+msgid "Select access level for this user:"
+msgstr "Vælg brugerniveau for denne bruger:"
+
+#: ../../auth.c:776 ../../static/t/menu/your_info.html:4
+msgid "Change your password"
+msgstr "Skift din adgangskode"
+
+#: ../../auth.c:800
+msgid "Enter new password:"
+msgstr "Skriv ny adgangskode:"
+
+#: ../../auth.c:804
+msgid "Enter it again to confirm:"
+msgstr "Skriv adgangskode igen:"
+
+#: ../../auth.c:810
+msgid "Change password"
+msgstr "Skift adgangskode"
+
+#: ../../auth.c:830
+msgid "Cancelled.  Password was not changed."
+msgstr "Afbrudt.  Adgangskode blev ikke ændret."
+
+#: ../../auth.c:839
+msgid "They don't match.  Password was not changed."
+msgstr "Adgangskoder matcher ikke.  Adgangskode blev ikke ændret."
+
+#: ../../auth.c:845
+msgid "Blank passwords are not allowed."
+msgstr "Blanke adgangskoder er ikke tilladt."
+
+#: ../../openid.c:34
+msgid "Manage Account/OpenID Associations"
+msgstr "Tilret konto/OpenID associationer"
+
+#: ../../openid.c:52
+msgid "Do you really want to delete this OpenID?"
+msgstr ""
+
+#: ../../openid.c:53
+msgid "(delete)"
+msgstr ""
+
+#: ../../openid.c:61
+msgid "Add an OpenID: "
+msgstr "Tilføj et OpenID: "
+
+#: ../../openid.c:64
+msgid "Attach"
+msgstr ""
+
+#: ../../openid.c:68
+#, c-format
+msgid "%s does not permit authentication via OpenID."
+msgstr "%s tillader ikke autentifikation via OpenID"
+
+#: ../../html2html.c:136
+#, c-format
+msgid "realloc() error! couldn't get %d bytes: %s"
+msgstr "realloc() fejl! kunne ikke modtage %d bytes: %s"
+
+#: ../../static/t/viewomatic.html:4
+msgid "View as:"
+msgstr "Vis som:"
+
+#: ../../static/t/sieve/list.html:32 ../../static/t/sieve/none.html:4
+#: ../../static/t/menu/your_info.html:7
+msgid "View/edit server-side mail filters"
+msgstr "Vis/Editér server post filtre"
+
+#: ../../static/t/sieve/list.html:41
+msgid "When new mail arrives: "
+msgstr "Når ny post ankommer: "
+
+#: ../../static/t/sieve/list.html:43
+msgid "Leave it in my inbox without filtering"
+msgstr "Gem den i min indbakke uden filtrering"
+
+#: ../../static/t/sieve/list.html:44
+msgid "Filter it according to rules selected below"
+msgstr "Filter er som regler valgt nedenfor"
+
+#: ../../static/t/sieve/list.html:45
+msgid "Filter it through a manually edited script (advanced users only)"
+msgstr "Filtrér det gennem manuelt editéret script (avancerede brugere)"
+
+#: ../../static/t/sieve/list.html:52
+msgid "Your incoming mail will not be filtered through any scripts."
+msgstr "Din indkomne post vil ikke blive filtreret gennem scripts."
+
+#: ../../static/t/sieve/list.html:64
+msgid "Add rule"
+msgstr ""
+
+#: ../../static/t/sieve/list.html:71
+msgid "The currently active script is: "
+msgstr "Det aktive script er: "
+
+#: ../../static/t/sieve/list.html:76 ../../static/t/sieve/add.html:3
+msgid "Add or delete scripts"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:16
+msgid "If"
+msgstr "Hvis"
+
+#: ../../static/t/sieve/display_one.html:21
+msgid "To or Cc"
+msgstr "Til eller Cc"
+
+#: ../../static/t/sieve/display_one.html:23
+msgid "Reply-to"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:24
+#: ../../static/t/msg_listview.html:10
+#: ../../static/t/view_mailq/header.html:27
+msgid "Sender"
+msgstr "Afsender"
+
+#: ../../static/t/sieve/display_one.html:25
+msgid "Resent-From"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:26
+msgid "Resent-To"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:27
+msgid "Envelope From"
+msgstr "Konvolut Fra"
+
+#: ../../static/t/sieve/display_one.html:28
+msgid "Envelope To"
+msgstr "Konvolut Til"
+
+#: ../../static/t/sieve/display_one.html:29
+msgid "X-Mailer"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:30
+msgid "X-Spam-Flag"
+msgstr "X-Spam-Flag"
+
+#: ../../static/t/sieve/display_one.html:31
+msgid "X-Spam-Status"
+msgstr "X-Spam-Status"
+
+#: ../../static/t/sieve/display_one.html:32
+msgid "List-ID"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:33
+msgid "Message size"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:34
+#: ../../static/t/select_messageindex_all.html:1
+msgid "All"
+msgstr "Alle"
+
+#: ../../static/t/sieve/display_one.html:41
+msgid "contains"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:42
+msgid "does not contain"
+msgstr "indeholder ikke"
+
+#: ../../static/t/sieve/display_one.html:43
+msgid "is"
+msgstr "er"
+
+#: ../../static/t/sieve/display_one.html:44
+msgid "is not"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:45
+msgid "matches"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:46
+msgid "does not match"
+msgstr "matcher ikke"
+
+#: ../../static/t/sieve/display_one.html:52
+msgid "(All messages)"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:56
+msgid "is larger than"
+msgstr "er større end"
+
+#: ../../static/t/sieve/display_one.html:57
+msgid "is smaller than"
+msgstr "er mindre end"
+
+#: ../../static/t/sieve/display_one.html:59
 #, fuzzy
-msgid "Click on any room to un-zap it and goto that room."
-msgstr "Klik på et rum for at af-zappe det og gå til rummet.\n"
+msgid "bytes"
+msgstr "Noter"
 
-#: ../../static/t/room/edit.html:5 ../../static/t/room/edit/editroom.html:4
-#: ../../static/t/iconbar.html:72
-msgid "Administration"
-msgstr "Administration"
+#: ../../static/t/sieve/display_one.html:65
+msgid "Keep"
+msgstr "Behold"
 
-#: ../../static/t/room/edit.html:6 ../../static/t/room/edit/editroom.html:5
-msgid "Configuration"
-msgstr "Konfiguration"
+#: ../../static/t/sieve/display_one.html:66
+msgid "Discard silently"
+msgstr "Fjern"
 
-#: ../../static/t/room/edit.html:7 ../../static/t/room/edit/editroom.html:6
-msgid "Message expire policy"
-msgstr "Meddelelse udløbspolitik"
+#: ../../static/t/sieve/display_one.html:67
+msgid "Reject"
+msgstr ""
 
-#: ../../static/t/room/edit.html:8 ../../static/t/room/edit/editroom.html:7
-msgid "Access controls"
-msgstr "Adgangskontrol"
+#: ../../static/t/sieve/display_one.html:68
+msgid "Move message to"
+msgstr ""
 
-#: ../../static/t/room/edit.html:9 ../../static/t/room/edit/editroom.html:8
-msgid "Sharing"
-msgstr "Deling"
+#: ../../static/t/sieve/display_one.html:69
+msgid "Forward to"
+msgstr ""
 
-#: ../../static/t/room/edit.html:10 ../../static/t/room/edit/editroom.html:9
-msgid "Mailing list service"
+#: ../../static/t/sieve/display_one.html:70
+msgid "Vacation"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:82
+msgid "Message:"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:90
+msgid "and then"
+msgstr "og"
+
+#: ../../static/t/sieve/display_one.html:93
+msgid "continue processing"
+msgstr ""
+
+#: ../../static/t/sieve/display_one.html:94
+msgid "stop"
+msgstr "stop"
+
+#: ../../static/t/sieve/none.html:9
+msgid ""
+"This installation of Citadel was built without support for server-side mail "
+"filtering.<br>Please contact your system administrator if you require this "
+"feature.<br>"
+msgstr ""
+"Denne installation af Citadel blev lavet uden support af server post "
+"filtrering.<br>Kontakt din Systemadministrator hvis du skal bruge denne "
+"funktion.<br>"
+
+#: ../../static/t/sieve/add.html:9
+msgid "Add a new script"
+msgstr ""
+
+#: ../../static/t/sieve/add.html:10
+msgid ""
+"To create a new script, enter the desired script name in the box below and "
+"click 'Create'."
+msgstr ""
+
+#: ../../static/t/sieve/add.html:14
+msgid "Script name: "
+msgstr ""
+
+#: ../../static/t/sieve/add.html:18
+msgid "Edit scripts"
+msgstr ""
+
+#: ../../static/t/sieve/add.html:20
+msgid "Return to the script editing screen"
+msgstr "Retunér til script editéring"
+
+#: ../../static/t/sieve/add.html:23
+msgid "Delete scripts"
+msgstr ""
+
+#: ../../static/t/sieve/add.html:24
+msgid ""
+"To delete an existing script, select the script name from the list and click "
+"'Delete'."
+msgstr ""
+
+#: ../../static/t/msg/confirm_move.html:4
+msgid "Confirm move of message"
+msgstr "Godkend flytning af meddelelse"
+
+#: ../../static/t/msg/confirm_move.html:12
+msgid "Move this message to:"
+msgstr "Flyt denne meddelelse til:"
+
+#: ../../static/t/login.html:5
+msgid "powered by"
+msgstr "powered by"
+
+#: ../../static/t/login.html:15 ../../static/t/iconbar.html:88
+#: ../../static/t/get_logged_in.html:64 ../../static/t/get_logged_in.html:88
+#: ../../static/t/get_logged_in.html:93 ../../static/t/get_logged_in.html:98
+#: ../../static/t/get_logged_in.html:107
+msgid "Log in"
+msgstr "Sidste login"
+
+#: ../../static/t/trailing.html:14
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
+#: ../../static/t/view_submessage.html:4
+#: ../../static/t/view_message/replyquote.html:3
+#: ../../static/t/view_message/replyquote.html:7
+#: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:7
+msgid "from "
+msgstr "fra "
+
+#: ../../static/t/searchomatic.html:4
+msgid "Search: "
+msgstr ""
+
+#: ../../static/t/listsub/display.html:16
+msgid "You are subscribing "
+msgstr ""
+
+#: ../../static/t/listsub/display.html:17
+#, fuzzy
+msgid " to the "
+msgstr "Gå dertil"
+
+#: ../../static/t/listsub/display.html:18
+#, fuzzy
+msgid " mailing list."
 msgstr "Mailing liste service"
 
-#: ../../static/t/room/edit.html:11 ../../static/t/room/edit/editroom.html:10
-msgid "Remote retrieval"
-msgstr "Fjernhentning"
-
-#: ../../static/t/room/create.html:11
-#: ../../static/t/menu/advanced_roomcommands.html:6
-msgid "Create a new room"
-msgstr "Opret et nyt rum"
-
-#: ../../static/t/room/create.html:18
-msgid "Name of room: "
-msgstr "Navn på rum"
-
-#: ../../static/t/room/create.html:20
-#: ../../static/t/room/edit/tab_config.html:10
-msgid "Resides on floor: "
-msgstr "Ligger på etage: "
-
-#: ../../static/t/room/create.html:32
-msgid "Default view for room: "
-msgstr "Standard visning for rum: "
-
-#: ../../static/t/room/create.html:68
-#: ../../static/t/room/edit/tab_config.html:16
-msgid "Type of room:"
-msgstr "Type på rum"
-
-#: ../../static/t/room/create.html:73
-#: ../../static/t/room/edit/tab_config.html:22
-msgid "Public (automatically appears to everyone)"
-msgstr "Offentlig (automatisk vist til alle)"
-
-#: ../../static/t/room/create.html:77
-#: ../../static/t/room/edit/tab_config.html:28
-msgid "Private - hidden (accessible to anyone who knows its name)"
-msgstr "Privat - skjult (adgang for dem der kender navnet)"
-
-#: ../../static/t/room/create.html:81
-#: ../../static/t/room/edit/tab_config.html:35
-msgid "Private - require password: "
-msgstr "Privat - med adgangskode: "
-
-#: ../../static/t/room/create.html:86
-#: ../../static/t/room/edit/tab_config.html:44
-msgid "Private - invitation only"
-msgstr "Privat - kun med invitation"
-
-#: ../../static/t/room/create.html:90
-#: ../../static/t/room/edit/tab_config.html:51
-msgid "Personal (mailbox for you only)"
-msgstr "Personlig (postkasse kun for dig)"
-
-#: ../../static/t/room/edit/tab_listserv.html:5
-#, fuzzy
+#: ../../static/t/listsub/display.html:19
 msgid ""
-"<i>The contents of this room are being mailed <b>as individual messages</b> "
-"to the following list recipients:</i><br><br>"
+"The listserver has sent you an e-mail with one additional Web link for you "
+"to click on to confirm your subscription."
 msgstr ""
-"<i>Indholdet af dette rum bliver sendt <b>som individuelle meddelelser</b> "
-"til denne liste af modtagere:</i><br><br>\n"
 
-#: ../../static/t/room/edit/tab_listserv.html:19
-#, fuzzy
+#: ../../static/t/listsub/display.html:20
 msgid ""
-"<i>The contents of this room are being mailed <b>in digest form</b> to the "
-"following list recipients:</i><br><br>"
+"This extra step is for your protection, as it prevents others from being "
+"able to subscribe you to lists without your consent."
 msgstr ""
-"<i>Indholdet af dette rum bliver sendt <b>i oversigtsform</b> til den "
-"følgende liste af modtagere:</i><br><br>\n"
 
-#: ../../static/t/room/edit/tab_listserv.html:39
-msgid "Add recipients from Contacts or other address books"
-msgstr "Tilføj modtagere fra Kontakter eller andre adressebøger"
-
-#: ../../static/t/room/edit/tab_listserv.html:48
-msgid "Allow non-subscribers to mail to this room."
-msgstr "Tillad ikkeabonenter at skrive til dette rum."
-
-#: ../../static/t/room/edit/tab_listserv.html:54
-msgid "Room post publication needs Aide permission."
-msgstr "Rum opslag publificering kræver tilladelse fra Systemansvarlig."
-
-#: ../../static/t/room/edit/tab_listserv.html:59
-#, fuzzy
-msgid "Allow self-service subscribe/unsubscribe requests."
-msgstr ""
-"Dette rum er konfigureret til at tillade selvbetjent abonement/slet "
-"abonement forspørgsler."
-
-#: ../../static/t/room/edit/tab_listserv.html:65
-msgid "The URL for subscribe/unsubscribe is: "
-msgstr "URL'en for abonement/slet abonement er:"
-
-#: ../../static/t/room/edit/listrecp_removal.html:1
-#: ../../static/t/room/edit/pop3client_removal.html:9
-#: ../../static/t/room/edit/digestrecp_removal.html:1
-#: ../../static/t/room/edit/rssclient_removal.html:5
-msgid "(remove)"
-msgstr "(fjern)"
-
-#: ../../static/t/room/edit/tab_config.html:6
-#, fuzzy
-msgid "name of room: "
-msgstr "Navn på rum"
-
-#: ../../static/t/room/edit/tab_config.html:55
-msgid "If private, cause current users to forget room"
-msgstr "Hvis privat, tving aktuelle brugere til at glemme rummet"
-
-#: ../../static/t/room/edit/tab_config.html:61
-msgid "Preferred users only"
-msgstr "Kun foretrukne brugere"
-
-#: ../../static/t/room/edit/tab_config.html:66
-msgid "Read-only room"
-msgstr "Kun-læs rum"
-
-#: ../../static/t/room/edit/tab_config.html:71
-msgid "All users allowed to post may also delete messages"
-msgstr "Alle brugere der kan skrive må også slette meddelser"
-
-#: ../../static/t/room/edit/tab_config.html:76
-msgid "File directory room"
-msgstr "Fil bibliotek rum"
-
-#: ../../static/t/room/edit/tab_config.html:80
-msgid "Directory name: "
-msgstr "Biblioteksnavn: "
-
-#: ../../static/t/room/edit/tab_config.html:86
-msgid "Uploading allowed"
-msgstr "uploading tilladt"
-
-#: ../../static/t/room/edit/tab_config.html:91
-msgid "Downloading allowed"
-msgstr "Downloading tilladt"
-
-#: ../../static/t/room/edit/tab_config.html:96
-msgid "Visible directory"
-msgstr "Synligt bibliotek"
-
-#: ../../static/t/room/edit/tab_config.html:103
-msgid "Network shared room"
-msgstr "Netværksdelt rum"
-
-#: ../../static/t/room/edit/tab_config.html:108
-msgid "Permanent (does not auto-purge)"
-msgstr "Permanent (bliver ikke autoslettet)"
-
-#: ../../static/t/room/edit/tab_config.html:113
-msgid "Subject Required (Force users to specify a message subject)"
-msgstr "Emne er krævet (Tving brugere til at skrive et emne)"
-
-#: ../../static/t/room/edit/tab_config.html:116
-msgid "Anonymous messages"
-msgstr "Anonyme meddelelser"
-
-#: ../../static/t/room/edit/tab_config.html:122
-msgid "No anonymous messages"
-msgstr "Ingen anonyme meddelser"
-
-#: ../../static/t/room/edit/tab_config.html:127
-msgid "All messages are anonymous"
-msgstr "Alle meddelelser er anonyme"
-
-#: ../../static/t/room/edit/tab_config.html:132
-msgid "Prompt user when entering messages"
-msgstr "spørg bruger som skriver meddelelser"
-
-#: ../../static/t/room/edit/tab_config.html:136
-msgid "Room aide: "
-msgstr "Rum Systemansvarlig"
-
-#: ../../static/t/room/edit/tab_feed.html:2
+#: ../../static/t/listsub/display.html:22
 msgid ""
-"Retrieve messages from these remote POP3 accounts and store them in this "
-"room:"
-msgstr "Modtag meddelelser fra disse POP konti og gem dem i dette rum:"
+"Please click on the link which is being e-mailed to you and your "
+"subscription will be confirmed."
+msgstr ""
 
-#: ../../static/t/room/edit/tab_feed.html:12
+#: ../../static/t/listsub/display.html:27
+#: ../../static/t/listsub/display.html:47
 #, fuzzy
-msgid "Remote host"
-msgstr "Smart værter"
+msgid "ERROR"
+msgstr "FEJL:"
 
-#: ../../static/t/room/edit/tab_feed.html:13
-#: ../../static/t/who/box_list_static.html:6 ../../static/t/who/summary.html:5
-msgid "User name"
-msgstr "Bruger navn"
+#: ../../static/t/listsub/display.html:35
+msgid "You are unsubscribing"
+msgstr ""
 
-#: ../../static/t/room/edit/tab_feed.html:14
-#: ../../static/t/aide/edituser/detailview.html:24
-msgid "Password"
-msgstr "Adgangskode"
-
-#: ../../static/t/room/edit/tab_feed.html:15
+#: ../../static/t/listsub/display.html:37
 #, fuzzy
-msgid "Keep messages on server?"
-msgstr "Gem meddelelser på server?"
+msgid "from the"
+msgstr "fra "
 
-#: ../../static/t/room/edit/tab_feed.html:16
+#: ../../static/t/listsub/display.html:39
 #, fuzzy
-msgid "Interval"
-msgstr "Interval"
+msgid "mailing list."
+msgstr "Mailing liste service"
 
-#: ../../static/t/room/edit/tab_feed.html:31
-msgid "Fetch the following RSS feeds and store them in this room:"
-msgstr "Hent de følgende RSS feeds og gem dem i dette rum:"
-
-#: ../../static/t/room/edit/tab_feed.html:43
-msgid "Feed URL"
-msgstr "Feed URL"
-
-#: ../../static/t/room/edit/tab_access.html:5
-#, fuzzy
+#: ../../static/t/listsub/display.html:40
 msgid ""
-"The users listed below have access to this room. To remove a user from the "
-"access list, select the user name from the list and click 'Kick'."
+"The listserver has sent you an e-mail with one additional Web link for you "
+"to click on to confirm your unsubscription."
 msgstr ""
-"Brugerne nedenfor har adgang til dette rum.  For at fjerne en bruger fra "
-"adgangslisten, Vælg brugeren på listen og klik 'Spark'."
 
-#: ../../static/t/room/edit/tab_access.html:20
+#: ../../static/t/listsub/display.html:41
 msgid ""
-"To grant another user access to this room, enter the user name in the box "
-"below and click 'Invite'."
+"This extra step is for your protection, as it prevents others from being "
+"able to unsubscribe you from lists without your consent."
 msgstr ""
-"Far at give en anden bruger adgang til dette rum, skriv brugernavnet i "
-"boksen nedenfor og klik 'Invitér'."
 
-#: ../../static/t/room/edit/tab_access.html:26
-msgid "Invite:"
-msgstr "Invitér:"
-
-#: ../../static/t/room/edit/tab_access.html:35
-#, fuzzy
-msgid "Users"
-msgstr "Brugere"
-
-#: ../../static/t/room/edit/tab_expire.html:8
-msgid "Message expire policy for this room"
-msgstr "Meddelelse udløbspolitik for dette rum"
-
-#: ../../static/t/room/edit/tab_expire.html:14
-msgid "Use the default policy for this floor"
-msgstr "Brug standard politik for denne etage"
-
-#: ../../static/t/room/edit/tab_expire.html:17
-#: ../../static/t/room/edit/tab_expire.html:45
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:68
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:86
-msgid "Never automatically expire messages"
-msgstr "Aldrig automatisk sætte meddelelse til udløbet"
-
-#: ../../static/t/room/edit/tab_expire.html:20
-#: ../../static/t/room/edit/tab_expire.html:48
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:71
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:89
-msgid "Expire by message count"
-msgstr "Sæt udløb efter meddelelsesantal"
-
-#: ../../static/t/room/edit/tab_expire.html:23
-#: ../../static/t/room/edit/tab_expire.html:51
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:73
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:92
-msgid "Expire by message age"
-msgstr "Sæt udløb efter meddelelsesalder"
-
-#: ../../static/t/room/edit/tab_expire.html:25
-#: ../../static/t/room/edit/tab_expire.html:53
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:75
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:94
-msgid "Number of messages or days: "
-msgstr "Antal meddelelser eller dage: "
-
-#: ../../static/t/room/edit/tab_expire.html:36
-msgid "Message expire policy for this floor"
-msgstr "Meddelelse udløbspolitik for denne etage"
-
-#: ../../static/t/room/edit/tab_expire.html:42
-msgid "Use the system default"
-msgstr "Brug system standard"
-
-#: ../../static/t/room/edit/tab_share.html:5
-msgid "Shared with"
-msgstr "Delt med"
-
-#: ../../static/t/room/edit/tab_share.html:6
-msgid "Not shared with"
-msgstr "Ikke delt med"
-
-#: ../../static/t/room/edit/tab_share.html:11
-#: ../../static/t/room/edit/tab_share.html:21
-msgid "Remote node name"
-msgstr "Fjernnode navn"
-
-#: ../../static/t/room/edit/tab_share.html:12
-#: ../../static/t/room/edit/tab_share.html:22
-msgid "Remote room name"
-msgstr "Fjernrum navn"
-
-#: ../../static/t/room/edit/tab_share.html:13
-#: ../../static/t/room/edit/tab_share.html:23
-msgid "Actions"
-msgstr "Aktioner"
-
-#: ../../static/t/room/edit/tab_share.html:35
-#, fuzzy
+#: ../../static/t/listsub/display.html:43
 msgid ""
-"When sharing a room, it must be shared from both ends.  Adding a node to the "
-"'shared' list sends messages out, but in order to receive messages, the "
-"other nodes must be configured to send messages out to your system as well. "
-"<li>If the remote room name is blank, it is assumed that the room name is "
-"identical on the remote node. <li>If the remote room name is different, the "
-"remote node must also configure the name of the room here."
-msgstr ""
-"Når et rum blever delt, skal det deles fra begge ender.  Tilføj en node til "
-"'delt' liste sender meddelelser ud, men for at modtage meddelelser, må de "
-"andre noder være konfigureret til at sende meddelelser ud til dit system "
-"også. <LI>Hvis fjernrum navn er blank, er det underforstået at rum navnet er "
-"identisk på fjern noden.<LI>Hvis fjern rum navnet er forskellig, må fjern "
-"noden også konfigurere navnet på rummet her.</UL></I><br>\n"
-
-#: ../../static/t/room/edit/tab_admin.html:5
-msgid "Delete this room"
-msgstr "Slet dette rum"
-
-#: ../../static/t/room/edit/tab_admin.html:10
-#, fuzzy
-msgid "Set or change the icon for this rooms banner"
-msgstr "Sæt eller skift ikonet for dette rums banner"
-
-#: ../../static/t/room/edit/tab_admin.html:14
-#, fuzzy
-msgid "Edit this rooms Info file"
-msgstr "Editér dette rums Info fil"
-
-#: ../../static/t/who.html:13
-msgid "Users currently on "
+"Please click on the link which is being e-mailed to you and your "
+"unsubscription will be confirmed."
 msgstr ""
 
-#: ../../static/t/who.html:22
+#: ../../static/t/listsub/display.html:44
 #, fuzzy
-msgid "Click on a name to read user info.  Click on"
-msgstr "Klik på et navn for at læse bruger info.  Klik på "
+msgid "Back..."
+msgstr "Tilbage..."
 
-#: ../../static/t/who.html:24
+#: ../../static/t/listsub/display.html:54
 #, fuzzy
-msgid "to send an instant message to that user."
-msgstr "for at sende popup meddelelse til den bruger"
+msgid "Confirmation successful!"
+msgstr "Godkendelsesforespørgsel sendt"
 
-#: ../../static/t/newstartpage.html:4
-msgid "New start page"
+#: ../../static/t/listsub/display.html:56
+#, fuzzy
+msgid "Confirmation failed."
+msgstr "Konfiguration"
+
+#: ../../static/t/listsub/display.html:57
+msgid "This could mean one of two things:"
 msgstr ""
 
-#: ../../static/t/newstartpage.html:9
-msgid "Your start page has been changed."
-msgstr ""
-
-#: ../../static/t/newstartpage.html:12
+#: ../../static/t/listsub/display.html:59
 msgid ""
-"(Note: this does not change your browser's home page. It changes the page "
-"you begin on when you log on to"
+"You waited too long to confirm your subscribe/unsubscribe request (the "
+"confirmation link is only valid for three days)"
 msgstr ""
 
-#: ../../static/t/navbar.html:5 ../../static/t/menu/basic_commands.html:6
-msgid "Ungoto"
-msgstr "Gå tilbage"
-
-#: ../../static/t/navbar.html:13 ../../static/t/menu/basic_commands.html:10
-msgid "Read new messages"
-msgstr "Læs nye meddelelser"
-
-#: ../../static/t/navbar.html:19 ../../static/t/menu/basic_commands.html:11
-msgid "Read all messages"
-msgstr "Læs alle meddelelser"
-
-#: ../../static/t/navbar.html:25 ../../static/t/menu/basic_commands.html:12
-msgid "Enter a message"
-msgstr "Skriv en meddelelse"
-
-#: ../../static/t/navbar.html:34
-msgid "View contacts"
-msgstr "Vis Kontaktpersoner"
-
-#: ../../static/t/navbar.html:40
-msgid "Add new contact"
-msgstr "Tilføj ny kontaktperson"
-
-#: ../../static/t/navbar.html:49
-msgid "Day view"
-msgstr "Dag visning"
-
-#: ../../static/t/navbar.html:55
-msgid "Month view"
-msgstr "Måned visning"
-
-#: ../../static/t/navbar.html:61
-msgid "Add new event"
-msgstr "Tilføj ny aftale"
-
-#: ../../static/t/navbar.html:70
-msgid "Calendar list"
-msgstr "Kalender liste"
-
-#: ../../static/t/navbar.html:79
-msgid "View tasks"
-msgstr "Vis opgaver"
-
-#: ../../static/t/navbar.html:85
-msgid "Add new task"
-msgstr "Tilføj ny opgave"
-
-#: ../../static/t/navbar.html:94
-msgid "View notes"
-msgstr "Vis noter"
-
-#: ../../static/t/navbar.html:101
-msgid "Add new note"
-msgstr "Tilføj ny note"
-
-#: ../../static/t/navbar.html:110
-msgid "Refresh message list"
+#: ../../static/t/listsub/display.html:60
+msgid ""
+"You have <i>already</i> successfully confirmed your subscribe/unsubscribe "
+"request and are attempting to do it again."
 msgstr ""
 
-#: ../../static/t/navbar.html:122
-msgid "Write mail"
-msgstr "Opret en meddelelse"
-
-#: ../../static/t/navbar.html:132
-msgid "Wiki home"
-msgstr "Wiki hjem"
-
-#: ../../static/t/navbar.html:139
-msgid "Edit this page"
-msgstr "Editér denne side"
-
-#: ../../static/t/navbar.html:145
-msgid "History"
+#: ../../static/t/listsub/display.html:62
+msgid "The error returned by the server was: "
 msgstr ""
 
-#: ../../static/t/navbar.html:154
+#: ../../static/t/listsub/display.html:70
 #, fuzzy
-msgid "New blog post"
-msgstr "nyere stillinger"
+msgid "Name of list:"
+msgstr "Navn på opgave"
 
-#: ../../static/t/navbar.html:162
-msgid "Skip this room"
-msgstr "Skip dette rum"
+#: ../../static/t/listsub/display.html:75
+#, fuzzy
+msgid "Your e-mail address:"
+msgstr "Din personlige adressebog"
 
-#: ../../static/t/navbar.html:168 ../../static/t/menu/basic_commands.html:4
-msgid "Goto next room"
-msgstr "Gå til næste rum"
+#: ../../static/t/listsub/display.html:79
+msgid "(If subscribing) preferred format: "
+msgstr ""
+
+#: ../../static/t/listsub/display.html:80
+#, fuzzy
+msgid "One message at a time"
+msgstr "Skriv meddelelsestekst:"
+
+#: ../../static/t/listsub/display.html:81
+#, fuzzy
+msgid "Digest format"
+msgstr "Time format"
+
+#: ../../static/t/listsub/display.html:89
+msgid ""
+"When you attempt to subscribe or unsubscribe to a mailing list, you will "
+"receive an e-mail containing one additional web link to click on for final "
+"confirmation."
+msgstr ""
+
+#: ../../static/t/listsub/display.html:90
+msgid ""
+"This extra step is for your protection, as it prevents others from being "
+"able to subscribe or unsubscribe you to lists."
+msgstr ""
+
+#: ../../static/t/floors_edit_one.html:11
+msgid "(delete floor)"
+msgstr "(slet etage)"
+
+#: ../../static/t/floors_edit_one.html:13
+msgid "(edit graphic)"
+msgstr "(editér grafik)"
+
+#: ../../static/t/floors.html:4
+msgid "Add/change/delete floors"
+msgstr "Tilføj/ændre/slette etager"
+
+#: ../../static/t/floors.html:10
+msgid "Floor number"
+msgstr "Etage nummer"
+
+#: ../../static/t/floors.html:11
+msgid "Floor name"
+msgstr "Etage navn"
+
+#: ../../static/t/floors.html:12
+msgid "Number of rooms"
+msgstr "Antal rum"
+
+#: ../../static/t/floors.html:13
+msgid "Floor CSS"
+msgstr "Etage CSS"
+
+#: ../../static/t/files.html:4
+msgid "Files available for download in"
+msgstr "Filer til download i"
+
+#: ../../static/t/files.html:9
+msgid "Upload a file:"
+msgstr ""
+
+#: ../../static/t/files.html:30
+msgid "Filename"
+msgstr ""
+
+#: ../../static/t/files.html:31
+msgid "Size"
+msgstr "Størrelse"
+
+#: ../../static/t/files.html:32
+msgid "Content"
+msgstr ""
+
+#: ../../static/t/files.html:33
+msgid "Description"
+msgstr ""
 
 #: ../../static/t/edit_message.html:9 ../../static/t/iconbar.html:50
 #: ../../static/t/iconbar.html:59
@@ -2322,17 +1947,860 @@ msgstr "Opslå meddelelse"
 msgid "Save to Drafts"
 msgstr ""
 
-#: ../../static/t/wiki/pagelist.html:1
-msgid "List of Wiki pages"
+#: ../../static/t/edit_message.html:126
+#: ../../static/t/edit_message/attachments_pane.html:5
+msgid "Attachments:"
+msgstr "Vedhæftede filer"
+
+#: ../../static/t/aide/display_serverrestart_page.html:4
+#, fuzzy
+msgid "Message to your Users:"
+msgstr "Meddelelse til dine brugere:"
+
+#: ../../static/t/aide/display_generic_result.html:2
+msgid "Server command results"
+msgstr "Server kommando resultater"
+
+#: ../../static/t/aide/display_generic_result.html:18
+#, fuzzy
+msgid "Enter another command"
+msgstr "Skriv en server kommando"
+
+#: ../../static/t/aide/display_generic_result.html:19
+#, fuzzy
+msgid "Return to menu"
+msgstr "skift til menu"
+
+#: ../../static/t/aide/display_sitewide_config.html:3
+msgid "Site configuration"
+msgstr "Site konfiguration"
+
+#: ../../static/t/aide/display_sitewide_config.html:6
+#: ../../static/t/aide/edituser/select.html:9
+msgid "You need to be aide to view this."
+msgstr "Du skal være Sytemansvarlig for at se dette."
+
+#: ../../static/t/aide/display_sitewide_config.html:11
+msgid "General"
+msgstr "Generelt"
+
+#: ../../static/t/aide/display_sitewide_config.html:12
+msgid "Access"
+msgstr "Adgang"
+
+#: ../../static/t/aide/display_sitewide_config.html:13
+msgid "Network"
+msgstr "Netværk"
+
+#: ../../static/t/aide/display_sitewide_config.html:14
+msgid "Tuning"
+msgstr "Tuning"
+
+#: ../../static/t/aide/display_sitewide_config.html:15
+#, fuzzy
+msgid "Directory"
+msgstr "katalog"
+
+#: ../../static/t/aide/display_sitewide_config.html:16
+msgid "Auto-purger"
+msgstr "Auto-tømmer"
+
+#: ../../static/t/aide/display_sitewide_config.html:17
+msgid "Indexing/Journaling"
+msgstr "Index/Journal"
+
+#: ../../static/t/aide/display_sitewide_config.html:18
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:1
+#, fuzzy
+msgid "Push Email"
+msgstr "Skub Email"
+
+#: ../../static/t/aide/display_sitewide_config.html:19
+msgid "Pop3"
+msgstr "Pop3"
+
+#: ../../static/t/aide/usermanagement.html:2
+msgid "Add, change, delete user accounts"
+msgstr "Tilføj, ret, slet bruger konti"
+
+#: ../../static/t/aide/display_inetconf.html:5
+#: ../../static/t/aide/display_menu.html:5
+msgid "System Administration Menu"
+msgstr "System Administration Menu"
+
+#: ../../static/t/aide/display_inetconf.html:6
+#: ../../static/t/aide/display_menu.html:6
+#, fuzzy
+msgid "Room Aide Menu"
+msgstr "Rum Systemansvarlig Menu"
+
+#: ../../static/t/aide/display_inetconf.html:13
+msgid "Local host aliases"
+msgstr "Lokal vært aliaser"
+
+#: ../../static/t/aide/display_inetconf.html:14
+msgid "Directory domains"
+msgstr "Directory domæner"
+
+#: ../../static/t/aide/display_inetconf.html:15
+msgid "Smart hosts"
+msgstr "Smart værter"
+
+#: ../../static/t/aide/display_inetconf.html:16
+#, fuzzy
+msgid "Fallback smart hosts"
+msgstr "Smart værter"
+
+#: ../../static/t/aide/display_inetconf.html:17
+msgid "Notification hosts"
 msgstr ""
 
-#: ../../static/t/wiki/history.html:1
-msgid "History of edits for this page"
+#: ../../static/t/aide/display_inetconf.html:22
+msgid "RBL hosts"
+msgstr "RBL værter"
+
+#: ../../static/t/aide/display_inetconf.html:23
+msgid "SpamAssassin hosts"
+msgstr "SpamAssassin værter"
+
+#: ../../static/t/aide/display_inetconf.html:24
+msgid "ClamAV clamd hosts"
+msgstr "ClamAV clamd værter"
+
+#: ../../static/t/aide/display_inetconf.html:25
+#, fuzzy
+msgid "Masqueradable domains"
+msgstr "Maskerade domæner"
+
+#: ../../static/t/aide/edituser/select.html:5
+msgid "Edit or delete users"
+msgstr "Editér eller slet brugere"
+
+#: ../../static/t/aide/edituser/select.html:17
+msgid "Add users"
+msgstr "Tilføj brugere"
+
+#: ../../static/t/aide/edituser/select.html:20
+msgid "Edit or Delete users"
+msgstr "Editér eller slet brugere"
+
+#: ../../static/t/aide/edituser/box_select.html:1
+msgid ""
+"To edit an existing user account, select the user name from the list and "
+"click 'Edit'."
+msgstr ""
+"For at editére en eksisterende brugerkonto, vælg et brugernavn fra listen og "
+"klik 'Editér'."
+
+#: ../../static/t/aide/edituser/detailview.html:4
+msgid "Edit user account: "
+msgstr "Editér bruger konto "
+
+#: ../../static/t/aide/edituser/detailview.html:24
+#: ../../static/t/room/edit/tab_feed.html:14
+msgid "Password"
+msgstr "Adgangskode"
+
+#: ../../static/t/aide/edituser/detailview.html:28
+msgid "Permission to send Internet mail"
+msgstr "Tilladelse til at sende Internet Mail"
+
+#: ../../static/t/aide/edituser/detailview.html:32
+msgid "Number of logins"
+msgstr "Antal gange logget på"
+
+#: ../../static/t/aide/edituser/detailview.html:36
+msgid "Messages submitted"
+msgstr "Meddelelser sendt"
+
+#: ../../static/t/aide/edituser/detailview.html:40
+msgid "Access level"
+msgstr "Bruger type"
+
+#: ../../static/t/aide/edituser/detailview.html:54
+msgid "User ID number"
+msgstr "Bruger ID nummer"
+
+#: ../../static/t/aide/edituser/detailview.html:58
+msgid "Date and time of last login"
+msgstr "Dato og tid for sidste login"
+
+#: ../../static/t/aide/edituser/detailview.html:68
+msgid "Auto-purge after this many days"
+msgstr "Auto-slet efter så mange dage"
+
+#: ../../static/t/aide/edituser/add.html:1
+msgid ""
+"To create a new user account, enter the desired user name in the box below "
+"and click 'Create'."
+msgstr ""
+"For at oprette en ny brugerkonto, skriv det ønskede navn i boksen nedenfor "
+"og klik 'Opret'."
+
+#: ../../static/t/aide/edituser/add.html:5
+msgid "New user: "
+msgstr "Ny bruger: "
+
+#: ../../static/t/aide/display_generic_cmd.html:4
+msgid "Enter a server command"
+msgstr "Skriv en server kommando"
+
+#: ../../static/t/aide/display_generic_cmd.html:12
+msgid ""
+"This screen allows you to enter Citadel server commands which are not "
+"supported by WebCit.  If you do not know what that means, then this screen "
+"will not be of much use to you."
+msgstr ""
+"Denne skærm tillader dig at skrive Citadel server kommandoer som ikke er "
+"muligt med WebCit.  Hvis du ikke ved hvad det betyder, så er dette ikke "
+"stedt for dig."
+
+#: ../../static/t/aide/display_generic_cmd.html:15
+msgid "Enter command:"
+msgstr "Skriv kommando:"
+
+#: ../../static/t/aide/display_generic_cmd.html:17
+msgid "Command input (if requesting SEND_LISTING transfer mode):"
+msgstr "Kommando input (if requesting SEND_LISTING transfer mode):"
+
+#: ../../static/t/aide/display_generic_cmd.html:20
+#, fuzzy
+msgid "Detected host header is "
+msgstr "Detekteret vært header er %s://%s"
+
+#: ../../static/t/aide/display_ignetconf.html:4
+msgid "Network configuration"
+msgstr "Netværk konfiguration"
+
+#: ../../static/t/aide/display_ignetconf.html:10
+#: ../../static/t/aide/ignetconf/edit_node.html:5
+#: ../../static/t/aide/ignetconf/add.html:5
+msgid "Add a new node"
+msgstr "Tilføj en ny node"
+
+#: ../../static/t/aide/display_ignetconf.html:14
+msgid "Currently configured nodes"
+msgstr "Konfigurede noder"
+
+#: ../../static/t/aide/display_serverrestart.html:26
+#, fuzzy
+msgid "Restart Citadel"
+msgstr "Gør dette til min startside"
+
+#: ../../static/t/aide/floorconfig.html:2
+msgid "Add, change, or delete floors"
+msgstr "Tilføj, ret, slet etager"
+
+#: ../../static/t/aide/serverrestart/box.html:3
+msgid "Please wait while the Citadel server is restarted... "
+msgstr "Vent mens Citadel server genstarter"
+
+#: ../../static/t/aide/serverrestart/box_page_do.html:3
+msgid ""
+"Please wait while your users are being paged, the citadel server will be "
+"restarted after that... "
+msgstr ""
+"Vent mens dine brugere får besked, Citadel serveren derefter genstarte..."
+
+#: ../../static/t/aide/inet/masqdomains.html:2
+msgid "(Domains as which users are allowed to masquerade)"
+msgstr "(Domæner som brugere må benytte som maskerade)"
+
+#: ../../static/t/aide/inet/rbldns.html:2
+msgid "(hosts running a Realtime Blackhole List)"
+msgstr "(værter som har en Realtime Blackhole List"
+
+#: ../../static/t/aide/inet/dirnames.html:2
+msgid "(domains mapped with the Global Address Book)"
+msgstr "(domæner mappet med Global Adressebog"
+
+#: ../../static/t/aide/inet/notify.html:2
+msgid "(URLS for notifications when users receive new mails; )"
 msgstr ""
 
-#: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
-msgid "Preferences and settings"
-msgstr "Præferencer og indstillinger"
+#: ../../static/t/aide/inet/notify.html:2
+msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgstr ""
+
+#: ../../static/t/aide/inet/smarthosts.html:2
+msgid "(if present, forward all outbound mail to one of these hosts)"
+msgstr "(hvis tilgænglig, videresend alt udgående post til en af disse værter)"
+
+#: ../../static/t/aide/inet/aliases.html:2
+msgid "(domains for which this host receives mail)"
+msgstr "(domæner som denne vært modtager post for)"
+
+#: ../../static/t/aide/inet/clamav.html:2
+#, fuzzy
+msgid "(hosts running the ClamAV clamd service)"
+msgstr "(værter som kører ClamAV clamd service"
+
+#: ../../static/t/aide/inet/spamass.html:2
+msgid "(hosts running the SpamAssassin service)"
+msgstr "(værter som kører SpamAssassin service)"
+
+#: ../../static/t/aide/inet/fallbackhosts.html:2
+msgid "(send outbound mail to these hosts only when direct delivery fails)"
+msgstr ""
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
+msgid "Confirm delete"
+msgstr "Godkend sletning"
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
+msgid "Are you sure you want to delete "
+msgstr "Er du sikker på du vil slette? "
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
+#: ../../static/t/prefs/box.html:198 ../../static/t/iconbar/edit.html:19
+#: ../../static/t/iconbar/edit.html:26 ../../static/t/iconbar/edit.html:32
+#: ../../static/t/iconbar/edit.html:39 ../../static/t/iconbar/edit.html:45
+#: ../../static/t/iconbar/edit.html:52 ../../static/t/iconbar/edit.html:58
+#: ../../static/t/iconbar/edit.html:64 ../../static/t/iconbar/edit.html:70
+#: ../../static/t/iconbar/edit.html:76 ../../static/t/iconbar/edit.html:82
+#: ../../static/t/iconbar/edit.html:88
+msgid "Yes"
+msgstr "Ja"
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
+#: ../../static/t/prefs/box.html:200 ../../static/t/iconbar/edit.html:20
+#: ../../static/t/iconbar/edit.html:27 ../../static/t/iconbar/edit.html:33
+#: ../../static/t/iconbar/edit.html:40 ../../static/t/iconbar/edit.html:46
+#: ../../static/t/iconbar/edit.html:53 ../../static/t/iconbar/edit.html:59
+#: ../../static/t/iconbar/edit.html:65 ../../static/t/iconbar/edit.html:71
+#: ../../static/t/iconbar/edit.html:77 ../../static/t/iconbar/edit.html:83
+#: ../../static/t/iconbar/edit.html:89
+msgid "No"
+msgstr "Nej"
+
+#: ../../static/t/aide/ignetconf/edit_node.html:15
+#: ../../static/t/aide/ignetconf/add.html:15
+#: ../../static/t/aide/siteconfig/tab_general.html:8
+msgid "Node name"
+msgstr "Node navn"
+
+#: ../../static/t/aide/ignetconf/edit_node.html:17
+#: ../../static/t/aide/ignetconf/add.html:17
+msgid "Shared secret"
+msgstr "Delt kodeord"
+
+#: ../../static/t/aide/ignetconf/edit_node.html:19
+#: ../../static/t/aide/ignetconf/add.html:19
+msgid "Host or IP address"
+msgstr "Vært eller IP adresse"
+
+#: ../../static/t/aide/ignetconf/edit_node.html:21
+#: ../../static/t/aide/ignetconf/add.html:21
+msgid "Port number"
+msgstr "Port nummer"
+
+#: ../../static/t/aide/ignetconf/section.html:4
+#, fuzzy
+msgid "(Edit)"
+msgstr "(editér)"
+
+#: ../../static/t/aide/display_menu.html:12
+msgid "Global Configuration"
+msgstr "Global Konfiguration"
+
+#: ../../static/t/aide/display_menu.html:14
+msgid "User account management"
+msgstr "Bruger konto administration"
+
+#: ../../static/t/aide/display_menu.html:16
+msgid "Shutdown Citadel"
+msgstr "Luk Citadel"
+
+#: ../../static/t/aide/display_menu.html:18
+msgid "Rooms and Floors"
+msgstr "Rum og Etager"
+
+#: ../../static/t/aide/global_config.html:2
+msgid "Edit site-wide configuration"
+msgstr "Editér site konfiguration"
+
+#: ../../static/t/aide/global_config.html:3
+msgid "Domain names and Internet mail configuration"
+msgstr "Domænenavne og Internet post konfiguration"
+
+#: ../../static/t/aide/global_config.html:4
+msgid "Configure replication with other Citadel servers"
+msgstr "Konfigurér replikéring med andre Citadel servere"
+
+#: ../../static/t/aide/global_config.html:5
+#: ../../static/t/view_mailq/header.html:3
+msgid "View the outbound SMTP queue"
+msgstr "Vis udgående SMTP kø"
+
+#: ../../static/t/aide/restart.html:2
+msgid "Restart Now"
+msgstr "Genstart Nu"
+
+#: ../../static/t/aide/restart.html:3
+msgid "Restart after paging users"
+msgstr "Genstart efter brugere har fået besked"
+
+#: ../../static/t/aide/restart.html:4
+msgid "Restart when all users are idle"
+msgstr "Genstart når alle brugere er inaktive"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:1
+msgid "General site configuration items"
+msgstr "Generelle site konfigurationsemner"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:5
+msgid "Change Login Logo"
+msgstr "Skift Login Logo"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:6
+msgid "Change Logout Logo"
+msgstr "Skift Logout Logo"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:11
+msgid "Fully qualified domain name"
+msgstr "Fuld kvalificeret domæne navn"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:14
+msgid "Human-readable node name"
+msgstr "Meneskelæseligt node navn"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:17
+msgid "Telephone number"
+msgstr "Telefon nummer"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:20
+msgid "Paginator prompt (for text mode clients)"
+msgstr "Paginator prompt (for tekst klienter)"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:23
+msgid "Geographic location of this system"
+msgstr "Geografisk lokation af dette system"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:26
+msgid "Name of system administrator"
+msgstr "Navn på Systemadministror"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:29
+msgid "Default timezone for unzoned calendar items"
+msgstr "Standard tidszone til Kalender aftaler ikke i zone"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:1
+msgid "Configure automatic expiry of old messages"
+msgstr "Konfigurér automatisk udløb af meddelser"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:2
+msgid "These settings may be overridden on a per-floor or per-room basis."
+msgstr "Disse indstillinger kan blive overskrevet på etage eller rum niveau."
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:6
+msgid "Hour to run database auto-purge"
+msgstr "Tid for at køre database auto-tøm"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:66
+msgid "Default message expire policy for public rooms"
+msgstr "Standard meddelelse udløb for offentlige rum"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:68
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:86
+#: ../../static/t/room/edit/tab_expire.html:17
+#: ../../static/t/room/edit/tab_expire.html:45
+msgid "Never automatically expire messages"
+msgstr "Aldrig automatisk sætte meddelelse til udløbet"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:71
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:89
+#: ../../static/t/room/edit/tab_expire.html:20
+#: ../../static/t/room/edit/tab_expire.html:48
+msgid "Expire by message count"
+msgstr "Sæt udløb efter meddelelsesantal"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:73
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:92
+#: ../../static/t/room/edit/tab_expire.html:23
+#: ../../static/t/room/edit/tab_expire.html:51
+msgid "Expire by message age"
+msgstr "Sæt udløb efter meddelelsesalder"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:75
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:94
+#: ../../static/t/room/edit/tab_expire.html:25
+#: ../../static/t/room/edit/tab_expire.html:53
+msgid "Number of messages or days: "
+msgstr "Antal meddelelser eller dage: "
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:81
+msgid "Default message expire policy for private mailboxes"
+msgstr "Standard meddelelse udløb for private postkasser"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:83
+msgid "Same policy as public rooms"
+msgstr "Samme politik som for offentlige rum"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:1
+msgid "Network services"
+msgstr "Netværk service"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:2
+#: ../../static/t/aide/siteconfig/tab_directory.html:3
+msgid ""
+"Changes made on this screen will not take effect until you restart the "
+"Citadel server."
+msgstr ""
+"Ændringer på denne skærm vil ikke blive effektueret før du har genstartet "
+"Citadel serveren."
+
+#: ../../static/t/aide/siteconfig/tab_network.html:6
+msgid "SMTP MTA port (-1 to disable)"
+msgstr "SMTP MTA port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:9
+msgid "Correct forged From: lines during authenticated SMTP"
+msgstr "Ret falske Fra: linier under autentification SMTP"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:12
+msgid "Flag message as spam, instead of rejecting it"
+msgstr "Markér meddelse som spam, istedet for at afvise den"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:15
+msgid "IMAP listener port (-1 to disable)"
+msgstr "IMAP lytte port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:19
+msgid "Network run frequency (in seconds)"
+msgstr "Netværk kør frekvens (i sekunder)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:22
+msgid "Server IP address (0.0.0.0 for 'any')"
+msgstr "Serverens IP adresse (0.0.0.0 vælger alle)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:25
+msgid "SMTP MSA port (-1 to disable)"
+msgstr "SMTP MSA port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:28
+msgid "IMAP over SSL port (-1 to disable)"
+msgstr "IMAP over SSL port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:31
+msgid "SMTP over SSL port (-1 to disable)"
+msgstr "SMTP over SSL port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:34
+msgid "Instantly expunge deleted messages in IMAP"
+msgstr "Fjern slettede meddelelser med det samme i IMAP"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:38
+#, fuzzy
+msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
+msgstr "Tillad uautoriserede SMTP klienter at benytte denne site's domæne"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:41
+msgid "Postfix TCP Dictionary Port"
+msgstr "Postfix TCP Dictionary Port"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:41
+#, fuzzy
+msgid "-1 to disable"
+msgstr "-1 for at deaktivere."
+
+#: ../../static/t/aide/siteconfig/tab_network.html:44
+#, fuzzy
+msgid "ManageSieve Port (-1 to disable)"
+msgstr "ManageSieve port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:47
+msgid "Perform RBL checks upon connect instead of after RCPT"
+msgstr "Udfør RBL check ved forbindelse i stedet for efter RCPT"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:50
+msgid "Keep original from headers in IMAP"
+msgstr "Behold originale headere i IMAP"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:53
+#, fuzzy
+msgid "XMPP (Jabber) client to server port (-1 to disable)"
+msgstr "XMPP (Jabber) klient til server port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:56
+#, fuzzy
+msgid "XMPP (Jabber) server to server port (-1 to disable)"
+msgstr "XMPP (Jabber) server til server port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:1
+msgid "POP3"
+msgstr "POP3"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:6
+msgid "POP3 listener port (-1 to disable)"
+msgstr "POP3 lytte port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:9
+msgid "POP3 over SSL port (-1 to disable)"
+msgstr "POP3 over SSL port (-1 = afbrudt)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:12
+#, fuzzy
+msgid "POP3 fetch frequency in seconds"
+msgstr "POP3 hent frekvens i sekunder"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:15
+#, fuzzy
+msgid "POP3 fastest fetch frequency in seconds"
+msgstr "POP3 hurtigste hent frekvens i sekunder"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:1
+msgid "Advanced server fine-tuning controls"
+msgstr "Avanceret server finindstilling kontroller"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:5
+msgid "Server connection idle timeout (in seconds)"
+msgstr "Server forbindelse inaktivitetstimeout (i sekunder)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:8
+msgid "Maximum concurrent sessions (0 = no limit)"
+msgstr "Maximum antal samtidige sessioner (0 = ingen max)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:11
+msgid "Default user purge time (days)"
+msgstr "Standard bruger tøm tid (dage)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:14
+msgid "Default room purge time (days)"
+msgstr "Standard rum tøm tid (dage)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:17
+msgid "Maximum message length"
+msgstr "Maximum meddelelse længde"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:20
+msgid "Minimum number of worker threads"
+msgstr "Minimum antal arbejdstråde"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:23
+msgid "Maximum number of worker threads"
+msgstr "Maximum antal arbejdstråde"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:26
+msgid "Automatically delete committed database logs"
+msgstr "Automatisk slet commited database logs"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:5
+#, fuzzy
+msgid "Funambol server host (blank to disable)"
+msgstr "Funambol server vært (blank for at slå fra)"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:8
+msgid "Funambol server port "
+msgstr "Funambol server port"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:11
+msgid "Funambol sync source"
+msgstr "Funambol synkronisering kilde"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:14
+msgid "Funambol auth details (user:pass)"
+msgstr "Funambol autorisation detaljer (bruger:adgangskode)"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:17
+#, fuzzy
+msgid "External pager tool (blank to disable)"
+msgstr "Extern pager værktøj (blank for at slå fra)"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:1
+msgid "Access controls and site policy settings"
+msgstr "Adgangskontrol og site politik indstillinger"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:5
+msgid "Allow aides to zap (forget) rooms"
+msgstr "Tillad ansvarlige at zappe (glemme) rum"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:9
+msgid "Quarantine messages from problem users"
+msgstr "Sæt meddelelser fra problem brugere i karantæne"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:12
+msgid "Name of quarantine room"
+msgstr "Navn på karantæne rum"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:17
+msgid "Name of room to log pages"
+msgstr "Navn på rum for log sider"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:22
+msgid "Authentication mode"
+msgstr "Autosisations måde"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:24
+msgid "Self contained"
+msgstr "Indeholder"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:25
+msgid "Host based"
+msgstr "Host navn"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:26
+msgid "LDAP (RFC2307)"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_access.html:27
+msgid "LDAP (Active Directory)"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_access.html:30
+#, fuzzy
+msgid "Master user name (blank to disable)"
+msgstr "Master brugernavn (blank for at slå fra)"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:33
+#, fuzzy
+msgid "Master user password"
+msgstr "Master bruger adgangskode:"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:38
+msgid "Initial access level for new users"
+msgstr "Adgangsrettighed for nye brugere"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:49
+msgid "Access level required to create rooms"
+msgstr "Adgangsrettighed krævet for at oprette rum"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:60
+msgid "Automatically grant room-aide status to users who create private rooms"
+msgstr ""
+"Giv automatisk rum-ansvarlig status til den bruger der opretter private rum"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:63
+#, fuzzy
+msgid "Automatically grant room-aide status to users who create BLOG rooms"
+msgstr ""
+"Giv automatisk rum-ansvarlig status til den bruger der opretter BLOG rum"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:66
+msgid "Restrict access to Internet mail"
+msgstr "Blokér adgang til Internet Email"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:71
+msgid "Disable self-service user account creation"
+msgstr "Slå selvservice brugeroprettelse fra"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:71
+msgid "Hint: do not select both!"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_access.html:74
+msgid "Require registration for new users"
+msgstr "Kræv registrering af nye brugere"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:77
+#, fuzzy
+msgid "Allow anonymous guest access"
+msgstr "Ingen anonyme meddelser"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:1
+msgid "Indexing and Journaling"
+msgstr "Index og Journal"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:2
+msgid "Warning: these facilities are resource intensive."
+msgstr "Advarsel: disse faciliteter er resourcekrævende."
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:6
+msgid "Enable full text index"
+msgstr "Slå fuld tekst index til"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:9
+msgid "Perform journaling of email messages"
+msgstr "Brug journal på Email meddelelser"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:13
+msgid "Perform journaling of non-email messages"
+msgstr "Brug journal på ikke-Email meddelelser"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:16
+msgid "Email destination of journalized messages"
+msgstr "Email destination på journaliserede meddelelser"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:1
+msgid "Configure the LDAP connector for Citadel"
+msgstr "Konfigurér LDAP forbindelse for Citadel"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:4
+msgid ""
+"NOTE: This Citadel server has been built without LDAP support.  These "
+"options will have no effect."
+msgstr ""
+"NOTE: Denne Citadel server er blevet installeret uden support af LDAP. Disse "
+"indstillinger vil ikke have nogen betydning."
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:9
+msgid "Host name of LDAP server (blank to disable)"
+msgstr "Navn på LDAP server (blank for at slå fra)"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:13
+msgid "Port number of LDAP server (blank to disable)"
+msgstr "Port nummer op LDAP server (blank for at slå fra)"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:16
+msgid "Base DN"
+msgstr "Base DN"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:19
+msgid "Bind DN"
+msgstr "Forbind DN"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:22
+msgid "Password for bind DN"
+msgstr "Adgangskode for forbind DN"
+
+#: ../../static/t/iconbar.html:7
+msgid "Language:"
+msgstr "Sprog"
+
+#: ../../static/t/iconbar.html:19
+msgid "Mail"
+msgstr "Post"
+
+#: ../../static/t/iconbar.html:39 ../../static/t/iconbar/edit.html:61
+#: ../../static/t/summary/page.html:30
+msgid "Tasks"
+msgstr "Opgaver"
+
+#: ../../static/t/iconbar.html:48 ../../static/t/iconbar/edit.html:67
+msgid "Rooms"
+msgstr "Rum"
+
+#: ../../static/t/iconbar.html:57
+msgid "Online users"
+msgstr ""
+
+#: ../../static/t/iconbar.html:62 ../../static/t/iconbar/edit.html:79
+msgid "Chat"
+msgstr "Chat"
+
+#: ../../static/t/iconbar.html:65
+msgid "Advanced"
+msgstr "Avanceret"
+
+#: ../../static/t/iconbar.html:72 ../../static/t/room/edit/editroom.html:4
+#: ../../static/t/room/edit.html:5
+msgid "Administration"
+msgstr "Administration"
+
+#: ../../static/t/iconbar.html:83
+msgid "customize this menu"
+msgstr "personliggør denne menu"
+
+#: ../../static/t/iconbar.html:92
+msgid "switch to room list"
+msgstr "skift til rum listen"
+
+#: ../../static/t/iconbar.html:93
+msgid "switch to menu"
+msgstr "skift til menu"
+
+#: ../../static/t/iconbar.html:94
+msgid "My folders"
+msgstr ""
 
 #: ../../static/t/view_message/list_attach.html:3
 #: ../../static/t/view_message/inline_attach.html:4
@@ -2344,473 +2812,10 @@ msgstr "Vis"
 msgid "Download"
 msgstr "Download"
 
-#: ../../static/t/view_message/replyquote.html:3
-#: ../../static/t/view_message/replyquote.html:7
-#: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:7
-#: ../../static/t/view_submessage.html:4
-msgid "from "
-msgstr "fra "
-
 #: ../../static/t/view_message/print.html:14
 #: ../../static/t/view_message.html:14
 msgid "to"
 msgstr ""
-
-#: ../../static/t/view_message.html:18
-msgid "Edit"
-msgstr ""
-
-#: ../../static/t/view_message.html:20 ../../static/t/view_message.html:24
-msgid "Reply"
-msgstr "Svar"
-
-#: ../../static/t/view_message.html:21
-msgid "ReplyQuoted"
-msgstr "SvarCitér"
-
-#: ../../static/t/view_message.html:25
-msgid "ReplyAll"
-msgstr "SvarAlle"
-
-#: ../../static/t/view_message.html:26
-msgid "Forward"
-msgstr "Videresend"
-
-#: ../../static/t/view_message.html:29 ../../static/t/msg_listview.html:25
-msgid "Move"
-msgstr "Flyt"
-
-#: ../../static/t/view_message.html:32
-msgid "Headers"
-msgstr "Headers"
-
-#: ../../static/t/view_message.html:33 ../../static/t/msg_listview.html:28
-msgid "Print"
-msgstr "Udskriv"
-
-#: ../../static/t/user/list.html:3
-#, fuzzy
-msgid "User list for "
-msgstr "Bruger liste for %s"
-
-#: ../../static/t/user/list.html:9
-msgid "User Name"
-msgstr "Bruger navn"
-
-#: ../../static/t/user/list.html:10
-msgid "Number"
-msgstr "Nummer"
-
-#: ../../static/t/user/list.html:11
-msgid "Access Level"
-msgstr "Bruger type"
-
-#: ../../static/t/user/list.html:12
-msgid "Last Login"
-msgstr "Sidste login"
-
-#: ../../static/t/user/list.html:13
-msgid "Total Logins"
-msgstr "Total antal login"
-
-#: ../../static/t/user/list.html:14
-msgid "Total Posts"
-msgstr "Totale antal meddelelser"
-
-#: ../../static/t/user/show.html:4 ../../static/t/who/bio.html:4
-msgid "User profile"
-msgstr "Bruger profil"
-
-#: ../../static/t/user/show.html:9
-#, fuzzy
-msgid "Click here to send an instant message to"
-msgstr "Klik her for at sende online meddelelse til %s"
-
-#: ../../static/t/searchomatic.html:4
-msgid "Search: "
-msgstr ""
-
-#: ../../static/t/display_main_menu.html:7
-msgid "Basic commands"
-msgstr "Almindelige kommandoer"
-
-#: ../../static/t/display_main_menu.html:10
-msgid "Your info"
-msgstr "Din information"
-
-#: ../../static/t/display_main_menu.html:12
-msgid "Advanced room commands"
-msgstr "Avancerede rum kommandoer"
-
-#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
-msgid "new of"
-msgstr ""
-
-#: ../../static/t/roombanner.html:28
-msgid "Select page: "
-msgstr ""
-
-#: ../../static/t/iconbar/edit.html:4 ../../static/t/iconbar/save.html:4
-msgid "Customize the icon bar"
-msgstr "Personliggør denne ikonbjælke"
-
-#: ../../static/t/iconbar/edit.html:11
-msgid "Display icons as:"
-msgstr "Vis ikoner som:"
-
-#: ../../static/t/iconbar/edit.html:12
-msgid "pictures and text"
-msgstr "billeder og tekst"
-
-#: ../../static/t/iconbar/edit.html:13
-msgid "pictures only"
-msgstr "kun billeder"
-
-#: ../../static/t/iconbar/edit.html:14
-msgid "text only"
-msgstr "kun tekst"
-
-#: ../../static/t/iconbar/edit.html:16
-msgid ""
-"Select the icons you would like to see displayed in the 'icon bar' menu on "
-"the left side of the screen."
-msgstr ""
-"Vælg de ikoner som vil have vist i 'ikonbjælke' menuen i den venstre side af "
-"skærmen."
-
-#: ../../static/t/iconbar/edit.html:19 ../../static/t/iconbar/edit.html:26
-#: ../../static/t/iconbar/edit.html:32 ../../static/t/iconbar/edit.html:39
-#: ../../static/t/iconbar/edit.html:45 ../../static/t/iconbar/edit.html:52
-#: ../../static/t/iconbar/edit.html:58 ../../static/t/iconbar/edit.html:64
-#: ../../static/t/iconbar/edit.html:70 ../../static/t/iconbar/edit.html:76
-#: ../../static/t/iconbar/edit.html:82 ../../static/t/iconbar/edit.html:88
-#: ../../static/t/prefs/box.html:198
-#: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
-msgid "Yes"
-msgstr "Ja"
-
-#: ../../static/t/iconbar/edit.html:20 ../../static/t/iconbar/edit.html:27
-#: ../../static/t/iconbar/edit.html:33 ../../static/t/iconbar/edit.html:40
-#: ../../static/t/iconbar/edit.html:46 ../../static/t/iconbar/edit.html:53
-#: ../../static/t/iconbar/edit.html:59 ../../static/t/iconbar/edit.html:65
-#: ../../static/t/iconbar/edit.html:71 ../../static/t/iconbar/edit.html:77
-#: ../../static/t/iconbar/edit.html:83 ../../static/t/iconbar/edit.html:89
-#: ../../static/t/prefs/box.html:200
-#: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
-msgid "No"
-msgstr "Nej"
-
-#: ../../static/t/iconbar/edit.html:23
-msgid "Site logo"
-msgstr "Site logo"
-
-#: ../../static/t/iconbar/edit.html:23
-msgid "An icon describing this site"
-msgstr "Et ikon der beskriver denne site"
-
-#: ../../static/t/iconbar/edit.html:29
-msgid "Your summary page"
-msgstr "Din summeringsside"
-
-#: ../../static/t/iconbar/edit.html:36
-msgid "Mail (inbox)"
-msgstr "Post (indbakke)"
-
-#: ../../static/t/iconbar/edit.html:36
-msgid "A shortcut to your email Inbox"
-msgstr "En genvej til din indbakke"
-
-#: ../../static/t/iconbar/edit.html:42
-msgid "Your personal address book"
-msgstr "Din personlige adressebog"
-
-#: ../../static/t/iconbar/edit.html:49
-msgid "Your personal notes"
-msgstr "Dine personlige noter"
-
-#: ../../static/t/iconbar/edit.html:55
-msgid "A shortcut to your personal calendar"
-msgstr "En genvej til din personlige kalender"
-
-#: ../../static/t/iconbar/edit.html:61 ../../static/t/summary/page.html:32
-#: ../../static/t/iconbar.html:39
-msgid "Tasks"
-msgstr "Opgaver"
-
-#: ../../static/t/iconbar/edit.html:61
-msgid "A shortcut to your personal task list"
-msgstr "En genvej til din personlige opgave liste"
-
-#: ../../static/t/iconbar/edit.html:67 ../../static/t/iconbar.html:48
-msgid "Rooms"
-msgstr "Rum"
-
-#: ../../static/t/iconbar/edit.html:67
-msgid ""
-"Clicking this icon displays a list of all accessible rooms (or folders) "
-"available."
-msgstr ""
-"Klik på dette ikon for at vise en liste med alle tilgængelige rum. (eller "
-"foldere)"
-
-#: ../../static/t/iconbar/edit.html:73
-msgid "Who is online?"
-msgstr "Hvem er online?"
-
-#: ../../static/t/iconbar/edit.html:73
-msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr ""
-"KLik på dette ikon for at vise en liste med alle brugere der er logget ind."
-
-#: ../../static/t/iconbar/edit.html:79 ../../static/t/iconbar.html:62
-msgid "Chat"
-msgstr "Chat"
-
-#: ../../static/t/iconbar/edit.html:79
-msgid ""
-"Clicking this icon enters real-time chat mode with other users in the same "
-"room."
-msgstr ""
-"Klik på dette ikon for at starte chat med andre brugere i det samme rum."
-
-#: ../../static/t/iconbar/edit.html:85
-msgid "Advanced options"
-msgstr "Avancerede indstillinger"
-
-#: ../../static/t/iconbar/edit.html:85
-msgid "Access to the complete menu of Citadel functions."
-msgstr "Adgang til den komplette menu med Citadel funktioner."
-
-#: ../../static/t/iconbar/edit.html:91
-msgid "Citadel logo"
-msgstr "Citadel logo"
-
-#: ../../static/t/iconbar/edit.html:91
-msgid "Displays the 'Powered by Citadel' icon"
-msgstr "Viser 'Powered by Citadel' ikon"
-
-#: ../../static/t/iconbar/save.html:11
-#, fuzzy
-msgid ""
-"Your icon bar has been updated. Please select any of its choices to continue."
-msgstr ""
-"Din ikonbjælke er blevet opdateret.  Vælg en af mulighederne for at "
-"fortsætte."
-
-#: ../../static/t/iconbar/save.html:11
-msgid ""
-"You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
-msgstr ""
-
-#: ../../static/t/login.html:5
-msgid "powered by"
-msgstr "powered by"
-
-#: ../../static/t/login.html:15 ../../static/t/get_logged_in.html:54
-#: ../../static/t/get_logged_in.html:78 ../../static/t/iconbar.html:88
-msgid "Log in"
-msgstr "Sidste login"
-
-#: ../../static/t/viewomatic.html:4
-msgid "View as:"
-msgstr "Vis som:"
-
-#: ../../static/t/msg_listview.html:18
-msgid "Loading messages from server, please wait"
-msgstr "Henter meddelser fra server, vent venligst"
-
-#: ../../static/t/msg_listview.html:24
-msgid "Open in new window"
-msgstr "Åbn i nyt vindue"
-
-#: ../../static/t/msg_listview.html:26
-msgid "Copy"
-msgstr "Kopiér"
-
-#: ../../static/t/summary/page.html:5
-#, fuzzy
-msgid "Summary page for "
-msgstr "Summeringsside for %s"
-
-#: ../../static/t/summary/page.html:23
-msgid "Messages"
-msgstr "Meddelelser"
-
-#: ../../static/t/summary/page.html:41
-msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Idag&nbsp;i&nbsp;din&nbsp;kalender"
-
-#: ../../static/t/summary/page.html:53
-#, fuzzy
-msgid "Who‘s&nbsp;online&nbsp;now"
-msgstr "Hvem er&nbsp;online&nbsp;nu"
-
-#: ../../static/t/summary/page.html:60
-msgid "About&nbsp;this&nbsp;server"
-msgstr "Om&nbsp;denne&nbsp;server"
-
-#: ../../static/t/summary/page.html:63
-msgid "You are connected to"
-msgstr ""
-
-#: ../../static/t/summary/page.html:64
-#, fuzzy
-msgid "running"
-msgstr "Tuning"
-
-#: ../../static/t/summary/page.html:65
-#, fuzzy
-msgid "with"
-msgstr "femte"
-
-#: ../../static/t/summary/page.html:66
-msgid "server build"
-msgstr ""
-
-#: ../../static/t/summary/page.html:67
-#, fuzzy
-msgid "and located in"
-msgstr "og"
-
-#: ../../static/t/summary/page.html:68
-#, fuzzy
-msgid "Your system administrator is"
-msgstr "Navn på Systemadministror"
-
-#: ../../static/t/summary/trailer.html:9 ../../static/t/trailing.html:3
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-
-#: ../../static/t/view_blog/comment_box.html:8
-msgid "Post a comment"
-msgstr "Skriv en kommentar"
-
-#: ../../static/t/menu/advanced_roomcommands.html:3
-msgid "Edit or delete this room"
-msgstr "Editér eller slet dette rum"
-
-#: ../../static/t/menu/advanced_roomcommands.html:5
-msgid "Go to a 'hidden' room"
-msgstr "Gå til et 'skjult' rum"
-
-#: ../../static/t/menu/advanced_roomcommands.html:7
-#, fuzzy
-msgid "Zap (forget) this room"
-msgstr "Zap (glem) dette rum (%s)"
-
-#: ../../static/t/menu/advanced_roomcommands.html:8
-msgid "List all forgotten rooms"
-msgstr "Vis alle glemte rum"
-
-#: ../../static/t/menu/basic_commands.html:3
-msgid "List known rooms"
-msgstr "Vist kendte rum"
-
-#: ../../static/t/menu/basic_commands.html:3
-msgid "Where can I go from here?"
-msgstr "Hvor kan jeg komme hen?"
-
-#: ../../static/t/menu/basic_commands.html:4
-#, fuzzy
-msgid "...with <em>unread</em> messages"
-msgstr "...med <em>ikke læste</em> meddelelser"
-
-#: ../../static/t/menu/basic_commands.html:5
-msgid "Skip to next room"
-msgstr "Fortsæt til næste rum"
-
-#: ../../static/t/menu/basic_commands.html:5
-msgid "(come back here later)"
-msgstr "(kom tilbage hertil senere)"
-
-#: ../../static/t/menu/basic_commands.html:6
-#, fuzzy
-msgid "oops! Back to "
-msgstr "(Hovsa! Tilbage til )"
-
-#: ../../static/t/menu/basic_commands.html:10
-msgid "...in this room"
-msgstr "...i dette rum"
-
-#: ../../static/t/menu/basic_commands.html:11
-msgid "...old <em>and</em> new"
-msgstr "...gamle <em>og</em> nye"
-
-#: ../../static/t/menu/basic_commands.html:12
-msgid "(post in this room)"
-msgstr "(opret i dette rum)"
-
-#: ../../static/t/menu/basic_commands.html:13
-msgid "File library"
-msgstr "Fil bibliotek"
-
-#: ../../static/t/menu/basic_commands.html:13
-msgid "(List files available for download)"
-msgstr "(Vis filer som du kan downloade)"
-
-#: ../../static/t/menu/basic_commands.html:17
-msgid "Summary page"
-msgstr "Summerings side"
-
-#: ../../static/t/menu/basic_commands.html:17
-msgid "Summary of my account"
-msgstr "Summering af min konto"
-
-#: ../../static/t/menu/basic_commands.html:18
-msgid "User list"
-msgstr "Bruger liste"
-
-#: ../../static/t/menu/basic_commands.html:18
-msgid "(all registered users)"
-msgstr "(alle registrerede brugere)"
-
-#: ../../static/t/menu/basic_commands.html:19
-msgid "Bye!"
-msgstr "Farvel!"
-
-#: ../../static/t/menu/your_info.html:2
-msgid "Change your preferences and settings"
-msgstr "Ændre dine præferencer og indstillinger"
-
-#: ../../static/t/menu/your_info.html:3
-msgid "Update your contact information"
-msgstr "Opdatér din kontakt information"
-
-#: ../../static/t/menu/your_info.html:5
-msgid "Enter your 'bio'"
-msgstr "Indtast din 'bio'"
-
-#: ../../static/t/menu/your_info.html:6
-msgid "Edit your online photo"
-msgstr "Editér dit online foto"
-
-#: ../../static/t/menu/your_info.html:9
-msgid "Edit your push email settings"
-msgstr "Editér dine skub email indstillinger"
-
-#: ../../static/t/menu/your_info.html:10
-#, fuzzy
-msgid "Manage your OpenIDs"
-msgstr "Skift din adgangskode"
-
-#: ../../static/t/who/box_list_static.html:7 ../../static/t/who/summary.html:6
-msgid "Room"
-msgstr "Rum"
-
-#: ../../static/t/who/box_list_static.html:8
-msgid "From host"
-msgstr "Fra host"
-
-#: ../../static/t/who/section.html:4
-msgid "(kill)"
-msgstr "(dræb)"
-
-#: ../../static/t/who/list_static_header.html:1
-#, fuzzy
-msgid "Users currently on"
-msgstr "Brugere i øjeblikket på"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "Your OpenID"
@@ -2832,113 +2837,86 @@ msgstr ""
 msgid "Please specify the user name you would like to use."
 msgstr "Skriv det Brugernavn du gerne vil have."
 
-#: ../../static/t/files.html:4
-msgid "Files available for download in"
-msgstr "Filer til download i"
+#: ../../static/t/files/graphicsupload.html:2
+msgid "Image upload"
+msgstr "Upload billede"
 
-#: ../../static/t/files.html:9
-msgid "Upload a file:"
+#: ../../static/t/files/graphicsupload.html:6
+msgid "You can upload an image directly from your computer"
 msgstr ""
 
-#: ../../static/t/files.html:30
-msgid "Filename"
+#: ../../static/t/files/graphicsupload.html:8
+msgid "Please select a file to upload:"
+msgstr "Vælg en fil til upload:"
+
+#: ../../static/t/files/section_onefile.html:20
+msgid "Slideshow"
+msgstr "Lysbilledshow"
+
+#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
+msgid "new of"
 msgstr ""
 
-#: ../../static/t/files.html:31
-msgid "Size"
-msgstr "Størrelse"
-
-#: ../../static/t/files.html:32
-msgid "Content"
+#: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
+#: ../../static/t/msg_listselector_bottom.html:7
+#: ../../static/t/msg_listselector_top.html:7
+msgid "messages"
 msgstr ""
 
-#: ../../static/t/files.html:33
-msgid "Description"
+#: ../../static/t/roombanner.html:28
+msgid "Select page: "
 msgstr ""
 
-#: ../../static/t/loggedinas.html:3
+#: ../../static/t/who.html:13
+msgid "Users currently on "
+msgstr ""
+
+#: ../../static/t/who.html:22
 #, fuzzy
-msgid "Logged in as"
-msgstr "Sidste login"
+msgid "Click on a name to read user info.  Click on"
+msgstr "Klik på et navn for at læse bruger info.  Klik på "
 
-#: ../../static/t/loggedinas.html:6
+#: ../../static/t/who.html:24
 #, fuzzy
-msgid "Not logged in."
-msgstr "Ikke logget ind"
+msgid "to send an instant message to that user."
+msgstr "for at sende popup meddelelse til den bruger"
 
-#: ../../static/t/floors_edit_one.html:11
-msgid "(delete floor)"
-msgstr "(slet etage)"
+#: ../../static/t/msg_listselector_bottom.html:2
+#: ../../static/t/msg_listselector_top.html:2
+msgid "Reading #"
+msgstr "Læser #"
 
-#: ../../static/t/floors_edit_one.html:13
-msgid "(edit graphic)"
-msgstr "(editér grafik)"
+#: ../../static/t/msg_listselector_bottom.html:12
+#: ../../static/t/msg_listselector_top.html:12
+msgid "oldest to newest"
+msgstr "ældste til nyeste"
 
-#: ../../static/t/sieve/none.html:11
+#: ../../static/t/msg_listselector_bottom.html:20
+#: ../../static/t/msg_listselector_top.html:20
+msgid "newest to oldest"
+msgstr "nyeste til ældste"
+
+#: ../../static/t/newstartpage.html:4
+msgid "New start page"
+msgstr ""
+
+#: ../../static/t/newstartpage.html:9
+msgid "Your start page has been changed."
+msgstr ""
+
+#: ../../static/t/newstartpage.html:12
 msgid ""
-"This installation of Citadel was built without support for server-side mail "
-"filtering.<br>Please contact your system administrator if you require this "
-"feature.<br>"
-msgstr ""
-"Denne installation af Citadel blev lavet uden support af server post "
-"filtrering.<br>Kontakt din Systemadministrator hvis du skal bruge denne "
-"funktion.<br>"
-
-#: ../../static/t/sieve/display_one.html:59
-#, fuzzy
-msgid "bytes"
-msgstr "Noter"
-
-#: ../../static/t/get_logged_in.html:5
-msgid "You must be logged in to access this page."
-msgstr "Du skal være logget ind for at se denne side."
-
-#: ../../static/t/get_logged_in.html:45
-msgid "Log in using a user name and password"
+"(Note: this does not change your browser's home page. It changes the page "
+"you begin on when you log on to"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:50 ../../static/t/get_logged_in.html:65
-msgid "Password:"
-msgstr "Adgangskode"
-
-#: ../../static/t/get_logged_in.html:55 ../../static/t/get_logged_in.html:59
-msgid "New user?  Register now"
-msgstr "Ny bruger? Tilmeld dig nu"
-
-#: ../../static/t/get_logged_in.html:60
-msgid ""
-"enter the name and password you wish to use, and click &quot;New User.&quot; "
-msgstr ""
-"indtast det navn og adgangskode du vil benytte. og klik &quot;Ny "
-"Bruger.&quot; "
-
-#: ../../static/t/get_logged_in.html:73
-msgid "Log in using OpenID"
-msgstr "Log ind med OpenID"
-
-#: ../../static/t/get_logged_in.html:75
-msgid "OpenID URL:"
+#: ../../static/t/no_new_msgs.html:3
+msgid "No new messages."
 msgstr ""
 
-#: ../../static/t/floors.html:4
-msgid "Add/change/delete floors"
-msgstr "Tilføj/ændre/slette etager"
-
-#: ../../static/t/floors.html:10
-msgid "Floor number"
-msgstr "Etage nummer"
-
-#: ../../static/t/floors.html:11
-msgid "Floor name"
-msgstr "Etage navn"
-
-#: ../../static/t/floors.html:12
-msgid "Number of rooms"
-msgstr "Antal rum"
-
-#: ../../static/t/floors.html:13
-msgid "Floor CSS"
-msgstr "Etage CSS"
+#: ../../static/t/view_blog/comment_box.html:8
+msgid "Post a comment"
+msgstr "Skriv en kommentar"
 
 #: ../../static/t/prefs/pushemail.html:2
 #, fuzzy
@@ -3028,808 +3006,109 @@ msgid ""
 "Safe mode is less intensive on your web browser, but not as fully featured."
 msgstr ""
 
-#: ../../static/t/no_new_msgs.html:3
-msgid "No new messages."
+#: ../../static/t/wiki/pagelist.html:1
+msgid "List of Wiki pages"
 msgstr ""
 
-#: ../../static/t/files/graphicsupload.html:2
-msgid "Image upload"
-msgstr "Upload billede"
-
-#: ../../static/t/files/graphicsupload.html:6
-msgid "You can upload an image directly from your computer"
+#: ../../static/t/wiki/history.html:1
+msgid "History of edits for this page"
 msgstr ""
 
-#: ../../static/t/files/graphicsupload.html:8
-msgid "Please select a file to upload:"
-msgstr "Vælg en fil til upload:"
+#: ../../static/t/who/list_static_header.html:1
+#, fuzzy
+msgid "Users currently on"
+msgstr "Brugere i øjeblikket på"
 
-#: ../../static/t/files/section_onefile.html:20
-msgid "Slideshow"
-msgstr "Lysbilledshow"
+#: ../../static/t/who/section.html:4
+msgid "(kill)"
+msgstr "(dræb)"
 
-#: ../../static/t/msg/confirm_move.html:4
-msgid "Confirm move of message"
-msgstr "Godkend flytning af meddelelse"
+#: ../../static/t/who/bio.html:4 ../../static/t/user/show.html:4
+msgid "User profile"
+msgstr "Bruger profil"
 
-#: ../../static/t/msg/confirm_move.html:12
-msgid "Move this message to:"
-msgstr "Flyt denne meddelelse til:"
+#: ../../static/t/who/summary.html:5 ../../static/t/who/box_list_static.html:6
+#: ../../static/t/room/edit/tab_feed.html:13
+msgid "User name"
+msgstr "Bruger navn"
 
-#: ../../static/t/iconbar.html:7
-msgid "Language:"
-msgstr "Sprog"
+#: ../../static/t/who/summary.html:6 ../../static/t/who/box_list_static.html:7
+msgid "Room"
+msgstr "Rum"
 
-#: ../../static/t/iconbar.html:19
-msgid "Mail"
-msgstr "Post"
+#: ../../static/t/who/box_list_static.html:8
+msgid "From host"
+msgstr "Fra host"
 
-#: ../../static/t/iconbar.html:57
-msgid "Online users"
+#: ../../static/t/view_message.html:19
+msgid "Edit"
 msgstr ""
 
-#: ../../static/t/iconbar.html:65
-msgid "Advanced"
-msgstr "Avanceret"
+#: ../../static/t/view_message.html:22 ../../static/t/view_message.html:26
+msgid "Reply"
+msgstr "Svar"
 
-#: ../../static/t/iconbar.html:83
-msgid "customize this menu"
-msgstr "personliggør denne menu"
+#: ../../static/t/view_message.html:23
+msgid "ReplyQuoted"
+msgstr "SvarCitér"
 
-#: ../../static/t/iconbar.html:92
-msgid "switch to room list"
-msgstr "skift til rum listen"
+#: ../../static/t/view_message.html:27
+msgid "ReplyAll"
+msgstr "SvarAlle"
 
-#: ../../static/t/iconbar.html:93
-msgid "switch to menu"
-msgstr "skift til menu"
+#: ../../static/t/view_message.html:28
+msgid "Forward"
+msgstr "Videresend"
 
-#: ../../static/t/iconbar.html:94
-msgid "My folders"
-msgstr ""
+#: ../../static/t/view_message.html:31 ../../static/t/msg_listview.html:25
+msgid "Move"
+msgstr "Flyt"
 
-#: ../../static/t/aide/ignetconf/edit_node.html:5
-#: ../../static/t/aide/ignetconf/add.html:5
-#: ../../static/t/aide/display_ignetconf.html:10
-msgid "Add a new node"
-msgstr "Tilføj en ny node"
+#: ../../static/t/view_message.html:34
+msgid "Headers"
+msgstr "Headers"
 
-#: ../../static/t/aide/ignetconf/edit_node.html:15
-#: ../../static/t/aide/ignetconf/add.html:15
-#: ../../static/t/aide/siteconfig/tab_general.html:8
-msgid "Node name"
-msgstr "Node navn"
+#: ../../static/t/view_message.html:35 ../../static/t/msg_listview.html:28
+msgid "Print"
+msgstr "Udskriv"
 
-#: ../../static/t/aide/ignetconf/edit_node.html:17
-#: ../../static/t/aide/ignetconf/add.html:17
-msgid "Shared secret"
-msgstr "Delt kodeord"
+#: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
+msgid "Preferences and settings"
+msgstr "Præferencer og indstillinger"
 
-#: ../../static/t/aide/ignetconf/edit_node.html:19
-#: ../../static/t/aide/ignetconf/add.html:19
-msgid "Host or IP address"
-msgstr "Vært eller IP adresse"
-
-#: ../../static/t/aide/ignetconf/edit_node.html:21
-#: ../../static/t/aide/ignetconf/add.html:21
-msgid "Port number"
-msgstr "Port nummer"
-
-#: ../../static/t/aide/ignetconf/section.html:4
+#: ../../static/t/user/list.html:3
 #, fuzzy
-msgid "(Edit)"
-msgstr "(editér)"
-
-#: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
-msgid "Confirm delete"
-msgstr "Godkend sletning"
-
-#: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
-msgid "Are you sure you want to delete "
-msgstr "Er du sikker på du vil slette? "
-
-#: ../../static/t/aide/display_ignetconf.html:4
-msgid "Network configuration"
-msgstr "Netværk konfiguration"
-
-#: ../../static/t/aide/display_ignetconf.html:14
-msgid "Currently configured nodes"
-msgstr "Konfigurede noder"
-
-#: ../../static/t/aide/display_generic_result.html:2
-msgid "Server command results"
-msgstr "Server kommando resultater"
-
-#: ../../static/t/aide/display_generic_result.html:18
-#, fuzzy
-msgid "Enter another command"
-msgstr "Skriv en server kommando"
-
-#: ../../static/t/aide/display_generic_result.html:19
-#, fuzzy
-msgid "Return to menu"
-msgstr "skift til menu"
-
-#: ../../static/t/aide/restart.html:2
-msgid "Restart Now"
-msgstr "Genstart Nu"
-
-#: ../../static/t/aide/restart.html:3
-msgid "Restart after paging users"
-msgstr "Genstart efter brugere har fået besked"
-
-#: ../../static/t/aide/restart.html:4
-msgid "Restart when all users are idle"
-msgstr "Genstart når alle brugere er inaktive"
-
-#: ../../static/t/aide/usermanagement.html:2
-msgid "Add, change, delete user accounts"
-msgstr "Tilføj, ret, slet bruger konti"
-
-#: ../../static/t/aide/inet/rbldns.html:2
-msgid "(hosts running a Realtime Blackhole List)"
-msgstr "(værter som har en Realtime Blackhole List"
-
-#: ../../static/t/aide/inet/dirnames.html:2
-msgid "(domains mapped with the Global Address Book)"
-msgstr "(domæner mappet med Global Adressebog"
-
-#: ../../static/t/aide/inet/spamass.html:2
-msgid "(hosts running the SpamAssassin service)"
-msgstr "(værter som kører SpamAssassin service)"
-
-#: ../../static/t/aide/inet/aliases.html:2
-msgid "(domains for which this host receives mail)"
-msgstr "(domæner som denne vært modtager post for)"
-
-#: ../../static/t/aide/inet/smarthosts.html:2
-msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr ""
-"(hvis tilgænglig, videresend alt udgående post til en af disse værter)"
-
-#: ../../static/t/aide/inet/notify.html:2
-msgid "(URLS for notifications when users receive new mails; )"
-msgstr ""
-
-#: ../../static/t/aide/inet/notify.html:2
-msgid ""
-"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
-msgstr ""
-
-#: ../../static/t/aide/inet/fallbackhosts.html:2
-msgid "(send outbound mail to these hosts only when direct delivery fails)"
-msgstr ""
-
-#: ../../static/t/aide/inet/masqdomains.html:2
-msgid "(Domains as which users are allowed to masquerade)"
-msgstr "(Domæner som brugere må benytte som maskerade)"
-
-#: ../../static/t/aide/inet/clamav.html:2
-#, fuzzy
-msgid "(hosts running the ClamAV clamd service)"
-msgstr "(værter som kører ClamAV clamd service"
-
-#: ../../static/t/aide/floorconfig.html:2
-msgid "Add, change, or delete floors"
-msgstr "Tilføj, ret, slet etager"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:1
-msgid "Advanced server fine-tuning controls"
-msgstr "Avanceret server finindstilling kontroller"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:5
-msgid "Server connection idle timeout (in seconds)"
-msgstr "Server forbindelse inaktivitetstimeout (i sekunder)"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:8
-msgid "Maximum concurrent sessions (0 = no limit)"
-msgstr "Maximum antal samtidige sessioner (0 = ingen max)"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:11
-msgid "Default user purge time (days)"
-msgstr "Standard bruger tøm tid (dage)"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:14
-msgid "Default room purge time (days)"
-msgstr "Standard rum tøm tid (dage)"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:17
-msgid "Maximum message length"
-msgstr "Maximum meddelelse længde"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:20
-msgid "Minimum number of worker threads"
-msgstr "Minimum antal arbejdstråde"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:23
-msgid "Maximum number of worker threads"
-msgstr "Maximum antal arbejdstråde"
-
-#: ../../static/t/aide/siteconfig/tab_tuning.html:26
-msgid "Automatically delete committed database logs"
-msgstr "Automatisk slet commited database logs"
-
-#: ../../static/t/aide/siteconfig/tab_pushmail.html:1
-#: ../../static/t/aide/display_sitewide_config.html:18
-#, fuzzy
-msgid "Push Email"
-msgstr "Skub Email"
-
-#: ../../static/t/aide/siteconfig/tab_pushmail.html:5
-#, fuzzy
-msgid "Funambol server host (blank to disable)"
-msgstr "Funambol server vært (blank for at slå fra)"
-
-#: ../../static/t/aide/siteconfig/tab_pushmail.html:8
-msgid "Funambol server port "
-msgstr "Funambol server port"
-
-#: ../../static/t/aide/siteconfig/tab_pushmail.html:11
-msgid "Funambol sync source"
-msgstr "Funambol synkronisering kilde"
-
-#: ../../static/t/aide/siteconfig/tab_pushmail.html:14
-msgid "Funambol auth details (user:pass)"
-msgstr "Funambol autorisation detaljer (bruger:adgangskode)"
-
-#: ../../static/t/aide/siteconfig/tab_pushmail.html:17
-#, fuzzy
-msgid "External pager tool (blank to disable)"
-msgstr "Extern pager værktøj (blank for at slå fra)"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:1
-msgid "Indexing and Journaling"
-msgstr "Index og Journal"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:2
-msgid "Warning: these facilities are resource intensive."
-msgstr "Advarsel: disse faciliteter er resourcekrævende."
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:6
-msgid "Enable full text index"
-msgstr "Slå fuld tekst index til"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:9
-msgid "Perform journaling of email messages"
-msgstr "Brug journal på Email meddelelser"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:13
-msgid "Perform journaling of non-email messages"
-msgstr "Brug journal på ikke-Email meddelelser"
-
-#: ../../static/t/aide/siteconfig/tab_indexing.html:16
-msgid "Email destination of journalized messages"
-msgstr "Email destination på journaliserede meddelelser"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:1
-msgid "Configure automatic expiry of old messages"
-msgstr "Konfigurér automatisk udløb af meddelser"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:2
-msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr "Disse indstillinger kan blive overskrevet på etage eller rum niveau."
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:6
-msgid "Hour to run database auto-purge"
-msgstr "Tid for at køre database auto-tøm"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:66
-msgid "Default message expire policy for public rooms"
-msgstr "Standard meddelelse udløb for offentlige rum"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:81
-msgid "Default message expire policy for private mailboxes"
-msgstr "Standard meddelelse udløb for private postkasser"
-
-#: ../../static/t/aide/siteconfig/tab_autopurger.html:83
-msgid "Same policy as public rooms"
-msgstr "Samme politik som for offentlige rum"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:1
-msgid "Access controls and site policy settings"
-msgstr "Adgangskontrol og site politik indstillinger"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:5
-msgid "Allow aides to zap (forget) rooms"
-msgstr "Tillad ansvarlige at zappe (glemme) rum"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:9
-msgid "Quarantine messages from problem users"
-msgstr "Sæt meddelelser fra problem brugere i karantæne"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:12
-msgid "Name of quarantine room"
-msgstr "Navn på karantæne rum"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:17
-msgid "Name of room to log pages"
-msgstr "Navn på rum for log sider"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:22
-msgid "Authentication mode"
-msgstr "Autosisations måde"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:24
-msgid "Self contained"
-msgstr "Indeholder"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:25
-msgid "Host based"
-msgstr "Host navn"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:26
-msgid "LDAP (RFC2307)"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_access.html:27
-msgid "LDAP (Active Directory)"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_access.html:30
-#, fuzzy
-msgid "Master user name (blank to disable)"
-msgstr "Master brugernavn (blank for at slå fra)"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:33
-#, fuzzy
-msgid "Master user password"
-msgstr "Master bruger adgangskode:"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:38
-msgid "Initial access level for new users"
-msgstr "Adgangsrettighed for nye brugere"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:49
-msgid "Access level required to create rooms"
-msgstr "Adgangsrettighed krævet for at oprette rum"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid ""
-"Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-"Giv automatisk rum-ansvarlig status til den bruger der opretter private rum"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:63
-#, fuzzy
-msgid "Automatically grant room-aide status to users who create BLOG rooms"
-msgstr ""
-"Giv automatisk rum-ansvarlig status til den bruger der opretter BLOG rum"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:66
-msgid "Restrict access to Internet mail"
-msgstr "Blokér adgang til Internet Email"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:71
-msgid "Disable self-service user account creation"
-msgstr "Slå selvservice brugeroprettelse fra"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:71
-msgid "Hint: do not select both!"
-msgstr ""
-
-#: ../../static/t/aide/siteconfig/tab_access.html:74
-msgid "Require registration for new users"
-msgstr "Kræv registrering af nye brugere"
-
-#: ../../static/t/aide/siteconfig/tab_access.html:77
-#, fuzzy
-msgid "Allow anonymous guest access"
-msgstr "Ingen anonyme meddelser"
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:1
-msgid "Configure the LDAP connector for Citadel"
-msgstr "Konfigurér LDAP forbindelse for Citadel"
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:3
-#: ../../static/t/aide/siteconfig/tab_network.html:2
-msgid ""
-"Changes made on this screen will not take effect until you restart the "
-"Citadel server."
-msgstr ""
-"Ændringer på denne skærm vil ikke blive effektueret før du har genstartet "
-"Citadel serveren."
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:4
-msgid ""
-"NOTE: This Citadel server has been built without LDAP support.  These "
-"options will have no effect."
-msgstr ""
-"NOTE: Denne Citadel server er blevet installeret uden support af LDAP. Disse "
-"indstillinger vil ikke have nogen betydning."
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:9
-msgid "Host name of LDAP server (blank to disable)"
-msgstr "Navn på LDAP server (blank for at slå fra)"
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:13
-msgid "Port number of LDAP server (blank to disable)"
-msgstr "Port nummer op LDAP server (blank for at slå fra)"
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:16
-msgid "Base DN"
-msgstr "Base DN"
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:19
-msgid "Bind DN"
-msgstr "Forbind DN"
-
-#: ../../static/t/aide/siteconfig/tab_directory.html:22
-msgid "Password for bind DN"
-msgstr "Adgangskode for forbind DN"
-
-#: ../../static/t/aide/siteconfig/tab_pop3.html:1
-msgid "POP3"
-msgstr "POP3"
-
-#: ../../static/t/aide/siteconfig/tab_pop3.html:6
-msgid "POP3 listener port (-1 to disable)"
-msgstr "POP3 lytte port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_pop3.html:9
-msgid "POP3 over SSL port (-1 to disable)"
-msgstr "POP3 over SSL port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_pop3.html:12
-#, fuzzy
-msgid "POP3 fetch frequency in seconds"
-msgstr "POP3 hent frekvens i sekunder"
-
-#: ../../static/t/aide/siteconfig/tab_pop3.html:15
-#, fuzzy
-msgid "POP3 fastest fetch frequency in seconds"
-msgstr "POP3 hurtigste hent frekvens i sekunder"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:1
-msgid "General site configuration items"
-msgstr "Generelle site konfigurationsemner"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:5
-msgid "Change Login Logo"
-msgstr "Skift Login Logo"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:6
-msgid "Change Logout Logo"
-msgstr "Skift Logout Logo"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:11
-msgid "Fully qualified domain name"
-msgstr "Fuld kvalificeret domæne navn"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:14
-msgid "Human-readable node name"
-msgstr "Meneskelæseligt node navn"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:17
-msgid "Telephone number"
-msgstr "Telefon nummer"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:20
-msgid "Paginator prompt (for text mode clients)"
-msgstr "Paginator prompt (for tekst klienter)"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:23
-msgid "Geographic location of this system"
-msgstr "Geografisk lokation af dette system"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:26
-msgid "Name of system administrator"
-msgstr "Navn på Systemadministror"
-
-#: ../../static/t/aide/siteconfig/tab_general.html:29
-msgid "Default timezone for unzoned calendar items"
-msgstr "Standard tidszone til Kalender aftaler ikke i zone"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:1
-msgid "Network services"
-msgstr "Netværk service"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:6
-msgid "SMTP MTA port (-1 to disable)"
-msgstr "SMTP MTA port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:9
-msgid "Correct forged From: lines during authenticated SMTP"
-msgstr "Ret falske Fra: linier under autentification SMTP"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:12
-msgid "Flag message as spam, instead of rejecting it"
-msgstr "Markér meddelse som spam, istedet for at afvise den"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:15
-msgid "IMAP listener port (-1 to disable)"
-msgstr "IMAP lytte port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:19
-msgid "Network run frequency (in seconds)"
-msgstr "Netværk kør frekvens (i sekunder)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:22
-msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr "Serverens IP adresse (0.0.0.0 vælger alle)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:25
-msgid "SMTP MSA port (-1 to disable)"
-msgstr "SMTP MSA port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:28
-msgid "IMAP over SSL port (-1 to disable)"
-msgstr "IMAP over SSL port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:31
-msgid "SMTP over SSL port (-1 to disable)"
-msgstr "SMTP over SSL port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:34
-msgid "Instantly expunge deleted messages in IMAP"
-msgstr "Fjern slettede meddelelser med det samme i IMAP"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:38
-#, fuzzy
-msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr "Tillad uautoriserede SMTP klienter at benytte denne site's domæne"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:41
-msgid "Postfix TCP Dictionary Port"
-msgstr "Postfix TCP Dictionary Port"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:41
-#, fuzzy
-msgid "-1 to disable"
-msgstr "-1 for at deaktivere."
-
-#: ../../static/t/aide/siteconfig/tab_network.html:44
-#, fuzzy
-msgid "ManageSieve Port (-1 to disable)"
-msgstr "ManageSieve port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:47
-msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr "Udfør RBL check ved forbindelse i stedet for efter RCPT"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:50
-msgid "Keep original from headers in IMAP"
-msgstr "Behold originale headere i IMAP"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:53
-#, fuzzy
-msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr "XMPP (Jabber) klient til server port (-1 = afbrudt)"
-
-#: ../../static/t/aide/siteconfig/tab_network.html:56
-#, fuzzy
-msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr "XMPP (Jabber) server til server port (-1 = afbrudt)"
-
-#: ../../static/t/aide/display_serverrestart_page.html:4
-#, fuzzy
-msgid "Message to your Users:"
-msgstr "Meddelelse til dine brugere:"
-
-#: ../../static/t/aide/display_serverrestart.html:26
-#, fuzzy
-msgid "Restart Citadel"
-msgstr "Gør dette til min startside"
-
-#: ../../static/t/aide/global_config.html:2
-msgid "Edit site-wide configuration"
-msgstr "Editér site konfiguration"
-
-#: ../../static/t/aide/global_config.html:3
-msgid "Domain names and Internet mail configuration"
-msgstr "Domænenavne og Internet post konfiguration"
-
-#: ../../static/t/aide/global_config.html:4
-msgid "Configure replication with other Citadel servers"
-msgstr "Konfigurér replikéring med andre Citadel servere"
-
-#: ../../static/t/aide/display_inetconf.html:5
-#: ../../static/t/aide/display_menu.html:5
-msgid "System Administration Menu"
-msgstr "System Administration Menu"
-
-#: ../../static/t/aide/display_inetconf.html:6
-#: ../../static/t/aide/display_menu.html:6
-#, fuzzy
-msgid "Room Aide Menu"
-msgstr "Rum Systemansvarlig Menu"
-
-#: ../../static/t/aide/display_inetconf.html:13
-msgid "Local host aliases"
-msgstr "Lokal vært aliaser"
-
-#: ../../static/t/aide/display_inetconf.html:14
-msgid "Directory domains"
-msgstr "Directory domæner"
-
-#: ../../static/t/aide/display_inetconf.html:15
-msgid "Smart hosts"
-msgstr "Smart værter"
-
-#: ../../static/t/aide/display_inetconf.html:16
-#, fuzzy
-msgid "Fallback smart hosts"
-msgstr "Smart værter"
-
-#: ../../static/t/aide/display_inetconf.html:17
-msgid "Notification hosts"
-msgstr ""
-
-#: ../../static/t/aide/display_inetconf.html:22
-msgid "RBL hosts"
-msgstr "RBL værter"
-
-#: ../../static/t/aide/display_inetconf.html:23
-msgid "SpamAssassin hosts"
-msgstr "SpamAssassin værter"
-
-#: ../../static/t/aide/display_inetconf.html:24
-msgid "ClamAV clamd hosts"
-msgstr "ClamAV clamd værter"
-
-#: ../../static/t/aide/display_inetconf.html:25
-#, fuzzy
-msgid "Masqueradable domains"
-msgstr "Maskerade domæner"
-
-#: ../../static/t/aide/serverrestart/box_page_do.html:3
-msgid ""
-"Please wait while your users are being paged, the citadel server will be "
-"restarted after that... "
-msgstr ""
-"Vent mens dine brugere får besked, Citadel serveren derefter genstarte..."
-
-#: ../../static/t/aide/serverrestart/box.html:3
-msgid "Please wait while the Citadel server is restarted... "
-msgstr "Vent mens Citadel server genstarter"
-
-#: ../../static/t/aide/display_menu.html:12
-msgid "Global Configuration"
-msgstr "Global Konfiguration"
-
-#: ../../static/t/aide/display_menu.html:14
-msgid "User account management"
-msgstr "Bruger konto administration"
-
-#: ../../static/t/aide/display_menu.html:16
-msgid "Shutdown Citadel"
-msgstr "Luk Citadel"
-
-#: ../../static/t/aide/display_menu.html:18
-msgid "Rooms and Floors"
-msgstr "Rum og Etager"
-
-#: ../../static/t/aide/edituser/detailview.html:4
-msgid "Edit user account: "
-msgstr "Editér bruger konto "
-
-#: ../../static/t/aide/edituser/detailview.html:28
-msgid "Permission to send Internet mail"
-msgstr "Tilladelse til at sende Internet Mail"
-
-#: ../../static/t/aide/edituser/detailview.html:32
-msgid "Number of logins"
-msgstr "Antal gange logget på"
-
-#: ../../static/t/aide/edituser/detailview.html:36
-msgid "Messages submitted"
-msgstr "Meddelelser sendt"
-
-#: ../../static/t/aide/edituser/detailview.html:40
-msgid "Access level"
+msgid "User list for "
+msgstr "Bruger liste for %s"
+
+#: ../../static/t/user/list.html:9
+msgid "User Name"
+msgstr "Bruger navn"
+
+#: ../../static/t/user/list.html:10
+msgid "Number"
+msgstr "Nummer"
+
+#: ../../static/t/user/list.html:11
+msgid "Access Level"
 msgstr "Bruger type"
 
-#: ../../static/t/aide/edituser/detailview.html:54
-msgid "User ID number"
-msgstr "Bruger ID nummer"
+#: ../../static/t/user/list.html:12
+msgid "Last Login"
+msgstr "Sidste login"
 
-#: ../../static/t/aide/edituser/detailview.html:58
-msgid "Date and time of last login"
-msgstr "Dato og tid for sidste login"
+#: ../../static/t/user/list.html:13
+msgid "Total Logins"
+msgstr "Total antal login"
 
-#: ../../static/t/aide/edituser/detailview.html:68
-msgid "Auto-purge after this many days"
-msgstr "Auto-slet efter så mange dage"
+#: ../../static/t/user/list.html:14
+msgid "Total Posts"
+msgstr "Totale antal meddelelser"
 
-#: ../../static/t/aide/edituser/select.html:5
-msgid "Edit or delete users"
-msgstr "Editér eller slet brugere"
-
-#: ../../static/t/aide/edituser/select.html:9
-#: ../../static/t/aide/display_sitewide_config.html:6
-msgid "You need to be aide to view this."
-msgstr "Du skal være Sytemansvarlig for at se dette."
-
-#: ../../static/t/aide/edituser/select.html:17
-msgid "Add users"
-msgstr "Tilføj brugere"
-
-#: ../../static/t/aide/edituser/select.html:20
-msgid "Edit or Delete users"
-msgstr "Editér eller slet brugere"
-
-#: ../../static/t/aide/edituser/box_select.html:1
-msgid ""
-"To edit an existing user account, select the user name from the list and "
-"click 'Edit'."
-msgstr ""
-"For at editére en eksisterende brugerkonto, vælg et brugernavn fra listen og "
-"klik 'Editér'."
-
-#: ../../static/t/aide/edituser/add.html:1
-msgid ""
-"To create a new user account, enter the desired user name in the box below "
-"and click 'Create'."
-msgstr ""
-"For at oprette en ny brugerkonto, skriv det ønskede navn i boksen nedenfor "
-"og klik 'Opret'."
-
-#: ../../static/t/aide/edituser/add.html:5
-msgid "New user: "
-msgstr "Ny bruger: "
-
-#: ../../static/t/aide/display_sitewide_config.html:3
-msgid "Site configuration"
-msgstr "Site konfiguration"
-
-#: ../../static/t/aide/display_sitewide_config.html:11
-msgid "General"
-msgstr "Generelt"
-
-#: ../../static/t/aide/display_sitewide_config.html:12
-msgid "Access"
-msgstr "Adgang"
-
-#: ../../static/t/aide/display_sitewide_config.html:13
-msgid "Network"
-msgstr "Netværk"
-
-#: ../../static/t/aide/display_sitewide_config.html:14
-msgid "Tuning"
-msgstr "Tuning"
-
-#: ../../static/t/aide/display_sitewide_config.html:15
+#: ../../static/t/user/show.html:9
 #, fuzzy
-msgid "Directory"
-msgstr "katalog"
-
-#: ../../static/t/aide/display_sitewide_config.html:16
-msgid "Auto-purger"
-msgstr "Auto-tømmer"
-
-#: ../../static/t/aide/display_sitewide_config.html:17
-msgid "Indexing/Journaling"
-msgstr "Index/Journal"
-
-#: ../../static/t/aide/display_sitewide_config.html:19
-msgid "Pop3"
-msgstr "Pop3"
-
-#: ../../static/t/aide/display_generic_cmd.html:4
-msgid "Enter a server command"
-msgstr "Skriv en server kommando"
-
-#: ../../static/t/aide/display_generic_cmd.html:12
-msgid ""
-"This screen allows you to enter Citadel server commands which are not "
-"supported by WebCit.  If you do not know what that means, then this screen "
-"will not be of much use to you."
-msgstr ""
-"Denne skærm tillader dig at skrive Citadel server kommandoer som ikke er "
-"muligt med WebCit.  Hvis du ikke ved hvad det betyder, så er dette ikke "
-"stedt for dig."
-
-#: ../../static/t/aide/display_generic_cmd.html:15
-msgid "Enter command:"
-msgstr "Skriv kommando:"
-
-#: ../../static/t/aide/display_generic_cmd.html:17
-msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr "Kommando input (if requesting SEND_LISTING transfer mode):"
-
-#: ../../static/t/aide/display_generic_cmd.html:20
-#, fuzzy
-msgid "Detected host header is "
-msgstr "Detekteret vært header er %s://%s"
+msgid "Click here to send an instant message to"
+msgstr "Klik her for at sende online meddelelse til %s"
 
 #: ../../static/t/start_of_new_msgs.html:4
 msgid "Old messages"
@@ -3838,6 +3117,897 @@ msgstr ""
 #: ../../static/t/start_of_new_msgs.html:8
 msgid "New messages"
 msgstr ""
+
+#: ../../static/t/display_main_menu.html:7
+msgid "Basic commands"
+msgstr "Almindelige kommandoer"
+
+#: ../../static/t/display_main_menu.html:10
+msgid "Your info"
+msgstr "Din information"
+
+#: ../../static/t/display_main_menu.html:12
+msgid "Advanced room commands"
+msgstr "Avancerede rum kommandoer"
+
+#: ../../static/t/iconbar/save.html:4 ../../static/t/iconbar/edit.html:4
+msgid "Customize the icon bar"
+msgstr "Personliggør denne ikonbjælke"
+
+#: ../../static/t/iconbar/save.html:11
+#, fuzzy
+msgid ""
+"Your icon bar has been updated. Please select any of its choices to continue."
+msgstr ""
+"Din ikonbjælke er blevet opdateret.  Vælg en af mulighederne for at "
+"fortsætte."
+
+#: ../../static/t/iconbar/save.html:11
+msgid ""
+"You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
+msgstr ""
+
+#: ../../static/t/iconbar/edit.html:11
+msgid "Display icons as:"
+msgstr "Vis ikoner som:"
+
+#: ../../static/t/iconbar/edit.html:12
+msgid "pictures and text"
+msgstr "billeder og tekst"
+
+#: ../../static/t/iconbar/edit.html:13
+msgid "pictures only"
+msgstr "kun billeder"
+
+#: ../../static/t/iconbar/edit.html:14
+msgid "text only"
+msgstr "kun tekst"
+
+#: ../../static/t/iconbar/edit.html:16
+msgid ""
+"Select the icons you would like to see displayed in the 'icon bar' menu on "
+"the left side of the screen."
+msgstr ""
+"Vælg de ikoner som vil have vist i 'ikonbjælke' menuen i den venstre side af "
+"skærmen."
+
+#: ../../static/t/iconbar/edit.html:23
+msgid "Site logo"
+msgstr "Site logo"
+
+#: ../../static/t/iconbar/edit.html:23
+msgid "An icon describing this site"
+msgstr "Et ikon der beskriver denne site"
+
+#: ../../static/t/iconbar/edit.html:29
+msgid "Your summary page"
+msgstr "Din summeringsside"
+
+#: ../../static/t/iconbar/edit.html:36
+msgid "Mail (inbox)"
+msgstr "Post (indbakke)"
+
+#: ../../static/t/iconbar/edit.html:36
+msgid "A shortcut to your email Inbox"
+msgstr "En genvej til din indbakke"
+
+#: ../../static/t/iconbar/edit.html:42
+msgid "Your personal address book"
+msgstr "Din personlige adressebog"
+
+#: ../../static/t/iconbar/edit.html:49
+msgid "Your personal notes"
+msgstr "Dine personlige noter"
+
+#: ../../static/t/iconbar/edit.html:55
+msgid "A shortcut to your personal calendar"
+msgstr "En genvej til din personlige kalender"
+
+#: ../../static/t/iconbar/edit.html:61
+msgid "A shortcut to your personal task list"
+msgstr "En genvej til din personlige opgave liste"
+
+#: ../../static/t/iconbar/edit.html:67
+msgid ""
+"Clicking this icon displays a list of all accessible rooms (or folders) "
+"available."
+msgstr ""
+"Klik på dette ikon for at vise en liste med alle tilgængelige rum. (eller "
+"foldere)"
+
+#: ../../static/t/iconbar/edit.html:73
+msgid "Who is online?"
+msgstr "Hvem er online?"
+
+#: ../../static/t/iconbar/edit.html:73
+msgid "Clicking this icon displays a list of all users currently logged in."
+msgstr ""
+"KLik på dette ikon for at vise en liste med alle brugere der er logget ind."
+
+#: ../../static/t/iconbar/edit.html:79
+msgid ""
+"Clicking this icon enters real-time chat mode with other users in the same "
+"room."
+msgstr ""
+"Klik på dette ikon for at starte chat med andre brugere i det samme rum."
+
+#: ../../static/t/iconbar/edit.html:85
+msgid "Advanced options"
+msgstr "Avancerede indstillinger"
+
+#: ../../static/t/iconbar/edit.html:85
+msgid "Access to the complete menu of Citadel functions."
+msgstr "Adgang til den komplette menu med Citadel funktioner."
+
+#: ../../static/t/iconbar/edit.html:91
+msgid "Citadel logo"
+msgstr "Citadel logo"
+
+#: ../../static/t/iconbar/edit.html:91
+msgid "Displays the 'Powered by Citadel' icon"
+msgstr "Viser 'Powered by Citadel' ikon"
+
+#: ../../static/t/room/edit/tab_expire.html:8
+msgid "Message expire policy for this room"
+msgstr "Meddelelse udløbspolitik for dette rum"
+
+#: ../../static/t/room/edit/tab_expire.html:14
+msgid "Use the default policy for this floor"
+msgstr "Brug standard politik for denne etage"
+
+#: ../../static/t/room/edit/tab_expire.html:36
+msgid "Message expire policy for this floor"
+msgstr "Meddelelse udløbspolitik for denne etage"
+
+#: ../../static/t/room/edit/tab_expire.html:42
+msgid "Use the system default"
+msgstr "Brug system standard"
+
+#: ../../static/t/room/edit/editroom.html:5 ../../static/t/room/edit.html:6
+msgid "Configuration"
+msgstr "Konfiguration"
+
+#: ../../static/t/room/edit/editroom.html:6 ../../static/t/room/edit.html:7
+msgid "Message expire policy"
+msgstr "Meddelelse udløbspolitik"
+
+#: ../../static/t/room/edit/editroom.html:7 ../../static/t/room/edit.html:8
+msgid "Access controls"
+msgstr "Adgangskontrol"
+
+#: ../../static/t/room/edit/editroom.html:8 ../../static/t/room/edit.html:9
+msgid "Sharing"
+msgstr "Deling"
+
+#: ../../static/t/room/edit/editroom.html:9 ../../static/t/room/edit.html:10
+msgid "Mailing list service"
+msgstr "Mailing liste service"
+
+#: ../../static/t/room/edit/editroom.html:10 ../../static/t/room/edit.html:11
+msgid "Remote retrieval"
+msgstr "Fjernhentning"
+
+#: ../../static/t/room/edit/tab_config.html:6
+#, fuzzy
+msgid "name of room: "
+msgstr "Navn på rum"
+
+#: ../../static/t/room/edit/tab_config.html:10
+#: ../../static/t/room/create.html:20
+msgid "Resides on floor: "
+msgstr "Ligger på etage: "
+
+#: ../../static/t/room/edit/tab_config.html:16
+#: ../../static/t/room/create.html:68
+msgid "Type of room:"
+msgstr "Type på rum"
+
+#: ../../static/t/room/edit/tab_config.html:22
+#: ../../static/t/room/create.html:73
+msgid "Public (automatically appears to everyone)"
+msgstr "Offentlig (automatisk vist til alle)"
+
+#: ../../static/t/room/edit/tab_config.html:28
+#: ../../static/t/room/create.html:77
+msgid "Private - hidden (accessible to anyone who knows its name)"
+msgstr "Privat - skjult (adgang for dem der kender navnet)"
+
+#: ../../static/t/room/edit/tab_config.html:35
+#: ../../static/t/room/create.html:81
+msgid "Private - require password: "
+msgstr "Privat - med adgangskode: "
+
+#: ../../static/t/room/edit/tab_config.html:44
+#: ../../static/t/room/create.html:86
+msgid "Private - invitation only"
+msgstr "Privat - kun med invitation"
+
+#: ../../static/t/room/edit/tab_config.html:51
+#: ../../static/t/room/create.html:90
+msgid "Personal (mailbox for you only)"
+msgstr "Personlig (postkasse kun for dig)"
+
+#: ../../static/t/room/edit/tab_config.html:55
+msgid "If private, cause current users to forget room"
+msgstr "Hvis privat, tving aktuelle brugere til at glemme rummet"
+
+#: ../../static/t/room/edit/tab_config.html:61
+msgid "Preferred users only"
+msgstr "Kun foretrukne brugere"
+
+#: ../../static/t/room/edit/tab_config.html:66
+msgid "Read-only room"
+msgstr "Kun-læs rum"
+
+#: ../../static/t/room/edit/tab_config.html:71
+msgid "All users allowed to post may also delete messages"
+msgstr "Alle brugere der kan skrive må også slette meddelser"
+
+#: ../../static/t/room/edit/tab_config.html:76
+msgid "File directory room"
+msgstr "Fil bibliotek rum"
+
+#: ../../static/t/room/edit/tab_config.html:80
+msgid "Directory name: "
+msgstr "Biblioteksnavn: "
+
+#: ../../static/t/room/edit/tab_config.html:86
+msgid "Uploading allowed"
+msgstr "uploading tilladt"
+
+#: ../../static/t/room/edit/tab_config.html:91
+msgid "Downloading allowed"
+msgstr "Downloading tilladt"
+
+#: ../../static/t/room/edit/tab_config.html:96
+msgid "Visible directory"
+msgstr "Synligt bibliotek"
+
+#: ../../static/t/room/edit/tab_config.html:103
+msgid "Network shared room"
+msgstr "Netværksdelt rum"
+
+#: ../../static/t/room/edit/tab_config.html:108
+msgid "Permanent (does not auto-purge)"
+msgstr "Permanent (bliver ikke autoslettet)"
+
+#: ../../static/t/room/edit/tab_config.html:113
+msgid "Subject Required (Force users to specify a message subject)"
+msgstr "Emne er krævet (Tving brugere til at skrive et emne)"
+
+#: ../../static/t/room/edit/tab_config.html:116
+msgid "Anonymous messages"
+msgstr "Anonyme meddelelser"
+
+#: ../../static/t/room/edit/tab_config.html:122
+msgid "No anonymous messages"
+msgstr "Ingen anonyme meddelser"
+
+#: ../../static/t/room/edit/tab_config.html:127
+msgid "All messages are anonymous"
+msgstr "Alle meddelelser er anonyme"
+
+#: ../../static/t/room/edit/tab_config.html:132
+msgid "Prompt user when entering messages"
+msgstr "spørg bruger som skriver meddelelser"
+
+#: ../../static/t/room/edit/tab_config.html:136
+msgid "Room aide: "
+msgstr "Rum Systemansvarlig"
+
+#: ../../static/t/room/edit/tab_listserv.html:5
+#, fuzzy
+msgid ""
+"<i>The contents of this room are being mailed <b>as individual messages</b> "
+"to the following list recipients:</i><br><br>"
+msgstr ""
+"<i>Indholdet af dette rum bliver sendt <b>som individuelle meddelelser</b> "
+"til denne liste af modtagere:</i><br><br>\n"
+
+#: ../../static/t/room/edit/tab_listserv.html:19
+#, fuzzy
+msgid ""
+"<i>The contents of this room are being mailed <b>in digest form</b> to the "
+"following list recipients:</i><br><br>"
+msgstr ""
+"<i>Indholdet af dette rum bliver sendt <b>i oversigtsform</b> til den "
+"følgende liste af modtagere:</i><br><br>\n"
+
+#: ../../static/t/room/edit/tab_listserv.html:39
+msgid "Add recipients from Contacts or other address books"
+msgstr "Tilføj modtagere fra Kontakter eller andre adressebøger"
+
+#: ../../static/t/room/edit/tab_listserv.html:48
+msgid "Allow non-subscribers to mail to this room."
+msgstr "Tillad ikkeabonenter at skrive til dette rum."
+
+#: ../../static/t/room/edit/tab_listserv.html:54
+msgid "Room post publication needs Aide permission."
+msgstr "Rum opslag publificering kræver tilladelse fra Systemansvarlig."
+
+#: ../../static/t/room/edit/tab_listserv.html:59
+#, fuzzy
+msgid "Allow self-service subscribe/unsubscribe requests."
+msgstr ""
+"Dette rum er konfigureret til at tillade selvbetjent abonement/slet "
+"abonement forspørgsler."
+
+#: ../../static/t/room/edit/tab_listserv.html:65
+msgid "The URL for subscribe/unsubscribe is: "
+msgstr "URL'en for abonement/slet abonement er:"
+
+#: ../../static/t/room/edit/digestrecp_removal.html:1
+#: ../../static/t/room/edit/pop3client_removal.html:9
+#: ../../static/t/room/edit/listrecp_removal.html:1
+#: ../../static/t/room/edit/rssclient_removal.html:5
+msgid "(remove)"
+msgstr "(fjern)"
+
+#: ../../static/t/room/edit/tab_admin.html:5
+msgid "Delete this room"
+msgstr "Slet dette rum"
+
+#: ../../static/t/room/edit/tab_admin.html:10
+#, fuzzy
+msgid "Set or change the icon for this rooms banner"
+msgstr "Sæt eller skift ikonet for dette rums banner"
+
+#: ../../static/t/room/edit/tab_admin.html:14
+#, fuzzy
+msgid "Edit this rooms Info file"
+msgstr "Editér dette rums Info fil"
+
+#: ../../static/t/room/edit/tab_share.html:5
+msgid "Shared with"
+msgstr "Delt med"
+
+#: ../../static/t/room/edit/tab_share.html:6
+msgid "Not shared with"
+msgstr "Ikke delt med"
+
+#: ../../static/t/room/edit/tab_share.html:11
+#: ../../static/t/room/edit/tab_share.html:21
+msgid "Remote node name"
+msgstr "Fjernnode navn"
+
+#: ../../static/t/room/edit/tab_share.html:12
+#: ../../static/t/room/edit/tab_share.html:22
+msgid "Remote room name"
+msgstr "Fjernrum navn"
+
+#: ../../static/t/room/edit/tab_share.html:13
+#: ../../static/t/room/edit/tab_share.html:23
+msgid "Actions"
+msgstr "Aktioner"
+
+#: ../../static/t/room/edit/tab_share.html:35
+#, fuzzy
+msgid ""
+"When sharing a room, it must be shared from both ends.  Adding a node to the "
+"'shared' list sends messages out, but in order to receive messages, the "
+"other nodes must be configured to send messages out to your system as well. "
+"<li>If the remote room name is blank, it is assumed that the room name is "
+"identical on the remote node. <li>If the remote room name is different, the "
+"remote node must also configure the name of the room here."
+msgstr ""
+"Når et rum blever delt, skal det deles fra begge ender.  Tilføj en node til "
+"'delt' liste sender meddelelser ud, men for at modtage meddelelser, må de "
+"andre noder være konfigureret til at sende meddelelser ud til dit system "
+"også. <LI>Hvis fjernrum navn er blank, er det underforstået at rum navnet er "
+"identisk på fjern noden.<LI>Hvis fjern rum navnet er forskellig, må fjern "
+"noden også konfigurere navnet på rummet her.</UL></I><br>\n"
+
+#: ../../static/t/room/edit/tab_feed.html:2
+msgid ""
+"Retrieve messages from these remote POP3 accounts and store them in this "
+"room:"
+msgstr "Modtag meddelelser fra disse POP konti og gem dem i dette rum:"
+
+#: ../../static/t/room/edit/tab_feed.html:12
+#, fuzzy
+msgid "Remote host"
+msgstr "Smart værter"
+
+#: ../../static/t/room/edit/tab_feed.html:15
+#, fuzzy
+msgid "Keep messages on server?"
+msgstr "Gem meddelelser på server?"
+
+#: ../../static/t/room/edit/tab_feed.html:16
+#, fuzzy
+msgid "Interval"
+msgstr "Interval"
+
+#: ../../static/t/room/edit/tab_feed.html:31
+msgid "Fetch the following RSS feeds and store them in this room:"
+msgstr "Hent de følgende RSS feeds og gem dem i dette rum:"
+
+#: ../../static/t/room/edit/tab_feed.html:43
+msgid "Feed URL"
+msgstr "Feed URL"
+
+#: ../../static/t/room/edit/tab_access.html:5
+#, fuzzy
+msgid ""
+"The users listed below have access to this room. To remove a user from the "
+"access list, select the user name from the list and click 'Kick'."
+msgstr ""
+"Brugerne nedenfor har adgang til dette rum.  For at fjerne en bruger fra "
+"adgangslisten, Vælg brugeren på listen og klik 'Spark'."
+
+#: ../../static/t/room/edit/tab_access.html:20
+msgid ""
+"To grant another user access to this room, enter the user name in the box "
+"below and click 'Invite'."
+msgstr ""
+"Far at give en anden bruger adgang til dette rum, skriv brugernavnet i "
+"boksen nedenfor og klik 'Invitér'."
+
+#: ../../static/t/room/edit/tab_access.html:26
+msgid "Invite:"
+msgstr "Invitér:"
+
+#: ../../static/t/room/edit/tab_access.html:35
+#, fuzzy
+msgid "Users"
+msgstr "Brugere"
+
+#: ../../static/t/room/zapped_list.html:7
+msgid "Zapped (forgotten) rooms"
+msgstr "Zapped (glemte) rum"
+
+#: ../../static/t/room/zapped_list.html:10
+#, fuzzy
+msgid "Click on any room to un-zap it and goto that room."
+msgstr "Klik på et rum for at af-zappe det og gå til rummet.\n"
+
+#: ../../static/t/room/display_private.html:7
+msgid "Go to a hidden room"
+msgstr "Gå til et skjult rum"
+
+#: ../../static/t/room/display_private.html:8
+#, fuzzy
+msgid ""
+"If you know the name of a hidden (guess-name) or passworded room, you can "
+"enter that room by typing its name below.  Once you gain access to a private "
+"room, it will appear in your regular room listings so you don‘t have to keep "
+"returning here."
+msgstr ""
+"Hvis du kender navnet på et skjult (gæt-navn) eller adgangsbeskyttet rum, "
+"kan du gå til rummet ved at skrive navnet nedenfor.  Når du får adgang til "
+"et privat rum, vil det optræde på din almindelige rum liste så du ikke "
+"behøver at komme her igen."
+
+#: ../../static/t/room/display_private.html:14
+msgid "Enter room name:"
+msgstr "Skriv rummets navn:"
+
+#: ../../static/t/room/display_private.html:21
+msgid "Enter room password:"
+msgstr "Skriv rummets adgangskode:"
+
+#: ../../static/t/room/create.html:11
+#: ../../static/t/menu/advanced_roomcommands.html:6
+msgid "Create a new room"
+msgstr "Opret et nyt rum"
+
+#: ../../static/t/room/create.html:18
+msgid "Name of room: "
+msgstr "Navn på rum"
+
+#: ../../static/t/room/create.html:32
+msgid "Default view for room: "
+msgstr "Standard visning for rum: "
+
+#: ../../static/t/room/zap_this.html:3
+msgid "Zap (forget/unsubscribe) the current room"
+msgstr "Zap (glem/abonementfjern) det aktuelle rum"
+
+#: ../../static/t/room/zap_this.html:6
+#, fuzzy
+msgid "If you select this option,"
+msgstr "Editér eller slet dette rum"
+
+#: ../../static/t/room/zap_this.html:8
+#, fuzzy
+msgid "will disappear from your room list.  Is this what you wish to do?"
+msgstr ""
+"Hvis du vælger denne funktion, <em>%s</em> vil forsvinde fra din rum liste.  "
+"Er det hvad du gerne vil?<br>\n"
+
+#: ../../static/t/menu/your_info.html:2
+msgid "Change your preferences and settings"
+msgstr "Ændre dine præferencer og indstillinger"
+
+#: ../../static/t/menu/your_info.html:3
+msgid "Update your contact information"
+msgstr "Opdatér din kontakt information"
+
+#: ../../static/t/menu/your_info.html:5
+msgid "Enter your 'bio'"
+msgstr "Indtast din 'bio'"
+
+#: ../../static/t/menu/your_info.html:6
+msgid "Edit your online photo"
+msgstr "Editér dit online foto"
+
+#: ../../static/t/menu/your_info.html:8
+msgid "Edit your push email settings"
+msgstr "Editér dine skub email indstillinger"
+
+#: ../../static/t/menu/your_info.html:9
+#, fuzzy
+msgid "Manage your OpenIDs"
+msgstr "Skift din adgangskode"
+
+#: ../../static/t/menu/basic_commands.html:3
+msgid "List known rooms"
+msgstr "Vist kendte rum"
+
+#: ../../static/t/menu/basic_commands.html:3
+msgid "Where can I go from here?"
+msgstr "Hvor kan jeg komme hen?"
+
+#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:168
+msgid "Goto next room"
+msgstr "Gå til næste rum"
+
+#: ../../static/t/menu/basic_commands.html:4
+#, fuzzy
+msgid "...with <em>unread</em> messages"
+msgstr "...med <em>ikke læste</em> meddelelser"
+
+#: ../../static/t/menu/basic_commands.html:5
+msgid "Skip to next room"
+msgstr "Fortsæt til næste rum"
+
+#: ../../static/t/menu/basic_commands.html:5
+msgid "(come back here later)"
+msgstr "(kom tilbage hertil senere)"
+
+#: ../../static/t/menu/basic_commands.html:6 ../../static/t/navbar.html:5
+msgid "Ungoto"
+msgstr "Gå tilbage"
+
+#: ../../static/t/menu/basic_commands.html:6
+#, fuzzy
+msgid "oops! Back to "
+msgstr "(Hovsa! Tilbage til )"
+
+#: ../../static/t/menu/basic_commands.html:10 ../../static/t/navbar.html:13
+msgid "Read new messages"
+msgstr "Læs nye meddelelser"
+
+#: ../../static/t/menu/basic_commands.html:10
+msgid "...in this room"
+msgstr "...i dette rum"
+
+#: ../../static/t/menu/basic_commands.html:11 ../../static/t/navbar.html:19
+msgid "Read all messages"
+msgstr "Læs alle meddelelser"
+
+#: ../../static/t/menu/basic_commands.html:11
+msgid "...old <em>and</em> new"
+msgstr "...gamle <em>og</em> nye"
+
+#: ../../static/t/menu/basic_commands.html:12 ../../static/t/navbar.html:25
+msgid "Enter a message"
+msgstr "Skriv en meddelelse"
+
+#: ../../static/t/menu/basic_commands.html:12
+msgid "(post in this room)"
+msgstr "(opret i dette rum)"
+
+#: ../../static/t/menu/basic_commands.html:13
+msgid "File library"
+msgstr "Fil bibliotek"
+
+#: ../../static/t/menu/basic_commands.html:13
+msgid "(List files available for download)"
+msgstr "(Vis filer som du kan downloade)"
+
+#: ../../static/t/menu/basic_commands.html:17
+msgid "Summary page"
+msgstr "Summerings side"
+
+#: ../../static/t/menu/basic_commands.html:17
+msgid "Summary of my account"
+msgstr "Summering af min konto"
+
+#: ../../static/t/menu/basic_commands.html:18
+msgid "User list"
+msgstr "Bruger liste"
+
+#: ../../static/t/menu/basic_commands.html:18
+msgid "(all registered users)"
+msgstr "(alle registrerede brugere)"
+
+#: ../../static/t/menu/basic_commands.html:19
+msgid "Bye!"
+msgstr "Farvel!"
+
+#: ../../static/t/menu/advanced_roomcommands.html:3
+msgid "Edit or delete this room"
+msgstr "Editér eller slet dette rum"
+
+#: ../../static/t/menu/advanced_roomcommands.html:5
+msgid "Go to a 'hidden' room"
+msgstr "Gå til et 'skjult' rum"
+
+#: ../../static/t/menu/advanced_roomcommands.html:7
+#, fuzzy
+msgid "Zap (forget) this room"
+msgstr "Zap (glem) dette rum (%s)"
+
+#: ../../static/t/menu/advanced_roomcommands.html:8
+msgid "List all forgotten rooms"
+msgstr "Vis alle glemte rum"
+
+#: ../../static/t/navbar.html:34
+msgid "View contacts"
+msgstr "Vis Kontaktpersoner"
+
+#: ../../static/t/navbar.html:40
+msgid "Add new contact"
+msgstr "Tilføj ny kontaktperson"
+
+#: ../../static/t/navbar.html:49
+msgid "Day view"
+msgstr "Dag visning"
+
+#: ../../static/t/navbar.html:55
+msgid "Month view"
+msgstr "Måned visning"
+
+#: ../../static/t/navbar.html:61
+msgid "Add new event"
+msgstr "Tilføj ny aftale"
+
+#: ../../static/t/navbar.html:70
+msgid "Calendar list"
+msgstr "Kalender liste"
+
+#: ../../static/t/navbar.html:79
+msgid "View tasks"
+msgstr "Vis opgaver"
+
+#: ../../static/t/navbar.html:85
+msgid "Add new task"
+msgstr "Tilføj ny opgave"
+
+#: ../../static/t/navbar.html:94
+msgid "View notes"
+msgstr "Vis noter"
+
+#: ../../static/t/navbar.html:101
+msgid "Add new note"
+msgstr "Tilføj ny note"
+
+#: ../../static/t/navbar.html:110
+msgid "Refresh message list"
+msgstr ""
+
+#: ../../static/t/navbar.html:122
+msgid "Write mail"
+msgstr "Opret en meddelelse"
+
+#: ../../static/t/navbar.html:132
+msgid "Wiki home"
+msgstr "Wiki hjem"
+
+#: ../../static/t/navbar.html:139
+msgid "Edit this page"
+msgstr "Editér denne side"
+
+#: ../../static/t/navbar.html:145
+msgid "History"
+msgstr ""
+
+#: ../../static/t/navbar.html:154
+#, fuzzy
+msgid "New blog post"
+msgstr "nyere stillinger"
+
+#: ../../static/t/navbar.html:162
+msgid "Skip this room"
+msgstr "Skip dette rum"
+
+#: ../../static/t/msg_listview.html:18
+msgid "Loading messages from server, please wait"
+msgstr "Henter meddelser fra server, vent venligst"
+
+#: ../../static/t/msg_listview.html:24
+msgid "Open in new window"
+msgstr "Åbn i nyt vindue"
+
+#: ../../static/t/msg_listview.html:26
+msgid "Copy"
+msgstr "Kopiér"
+
+#: ../../static/t/view_mailq/message.html:6
+msgid "Originaly posted in: "
+msgstr ""
+
+#: ../../static/t/view_mailq/header.html:15
+msgid "Refresh this page"
+msgstr ""
+
+#: ../../static/t/view_mailq/header.html:21
+msgid "Message ID"
+msgstr ""
+
+#: ../../static/t/view_mailq/header.html:23
+msgid "Date/time submitted"
+msgstr ""
+
+#: ../../static/t/view_mailq/header.html:25
+#, fuzzy
+msgid "Next attempt"
+msgstr "Sidste forsøg"
+
+#: ../../static/t/view_mailq/header.html:29
+msgid "Recipients"
+msgstr "Modtagere"
+
+#: ../../static/t/view_mailq/footer_empty.html:4
+msgid "The queue is empty."
+msgstr ""
+
+#: ../../static/t/view_mailq/footer_empty.html:9
+#: ../../static/t/view_mailq/footer.html:5
+msgid "You do not have permission to view this resource."
+msgstr "Du har ikke lov til at se denne resource."
+
+#: ../../static/t/get_logged_in.html:5
+msgid "You must be logged in to access this page."
+msgstr "Du skal være logget ind for at se denne side."
+
+#: ../../static/t/get_logged_in.html:9
+#: ../../static/t/edit_message/attachments_pane.html:3
+msgid "Close window"
+msgstr "Luk vinduet"
+
+#: ../../static/t/get_logged_in.html:55
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:60 ../../static/t/get_logged_in.html:75
+msgid "Password:"
+msgstr "Adgangskode"
+
+#: ../../static/t/get_logged_in.html:65 ../../static/t/get_logged_in.html:69
+msgid "New user?  Register now"
+msgstr "Ny bruger? Tilmeld dig nu"
+
+#: ../../static/t/get_logged_in.html:70
+msgid ""
+"enter the name and password you wish to use, and click &quot;New User.&quot; "
+msgstr ""
+"indtast det navn og adgangskode du vil benytte. og klik &quot;Ny Bruger."
+"&quot; "
+
+#: ../../static/t/get_logged_in.html:83
+msgid "Log in using OpenID"
+msgstr "Log ind med OpenID"
+
+#: ../../static/t/get_logged_in.html:85
+msgid "OpenID URL:"
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:92
+#, fuzzy
+msgid "Log in using Google"
+msgstr "Log ind med OpenID"
+
+#: ../../static/t/get_logged_in.html:97
+#, fuzzy
+msgid "Log in using Yahoo"
+msgstr "Log ind med OpenID"
+
+#: ../../static/t/get_logged_in.html:102
+#, fuzzy
+msgid "Log in using AOL or AIM"
+msgstr "Log ind med OpenID"
+
+#: ../../static/t/get_logged_in.html:104
+msgid "Enter your AOL or AIM screen name:"
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:115
+msgid "Please wait"
+msgstr "Vent"
+
+#: ../../static/t/summary/page.html:4
+#, fuzzy
+msgid "Summary page for "
+msgstr "Summeringsside for %s"
+
+#: ../../static/t/summary/page.html:21
+msgid "Messages"
+msgstr "Meddelelser"
+
+#: ../../static/t/summary/page.html:39
+msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
+msgstr "Idag&nbsp;i&nbsp;din&nbsp;kalender"
+
+#: ../../static/t/summary/page.html:51
+#, fuzzy
+msgid "Who‘s&nbsp;online&nbsp;now"
+msgstr "Hvem er&nbsp;online&nbsp;nu"
+
+#: ../../static/t/summary/page.html:60
+msgid "About&nbsp;this&nbsp;server"
+msgstr "Om&nbsp;denne&nbsp;server"
+
+#: ../../static/t/summary/page.html:63
+msgid "You are connected to"
+msgstr ""
+
+#: ../../static/t/summary/page.html:64
+#, fuzzy
+msgid "running"
+msgstr "Tuning"
+
+#: ../../static/t/summary/page.html:65
+#, fuzzy
+msgid "with"
+msgstr "femte"
+
+#: ../../static/t/summary/page.html:66
+msgid "server build"
+msgstr ""
+
+#: ../../static/t/summary/page.html:67
+#, fuzzy
+msgid "and located in"
+msgstr "og"
+
+#: ../../static/t/summary/page.html:68
+#, fuzzy
+msgid "Your system administrator is"
+msgstr "Navn på Systemadministror"
+
+#: ../../static/t/edit_message/attachments_pane.html:16
+msgid "Attach file:"
+msgstr "Vedhæft fil:"
+
+#: ../../static/t/edit_message/attachments_pane.html:21
+msgid "Upload"
+msgstr "Upload"
+
+#: ../../static/t/edit_message/section_attach_select.html:4
+#, fuzzy
+msgid "Remove"
+msgstr "(fjern)"
+
+#: ../../static/t/loggedinas.html:3
+#, fuzzy
+msgid "Logged in as"
+msgstr "Sidste login"
+
+#: ../../static/t/loggedinas.html:6
+#, fuzzy
+msgid "Not logged in."
+msgstr "Ikke logget ind"
+
+#~ msgid "A script by that name already exists."
+#~ msgstr "Et script med dette navn eksisterer allerede."
+
+#~ msgid ""
+#~ "A new script has been created.  Return to the script editing screen to "
+#~ "edit and activate it."
+#~ msgstr ""
+#~ "Et nyt script er blevet oprettet.  Returnér til script editéring for at "
+#~ "rette og aktivere det."
+
+#~ msgid "Create"
+#~ msgstr "Opret"
+
+#~ msgid "Move rule up"
+#~ msgstr "Flyt regel op"
+
+#~ msgid "Move rule down"
+#~ msgstr "Flyt regel ned"
 
 #~ msgid "Reset form"
 #~ msgstr "Slet form"
@@ -4064,9 +4234,6 @@ msgstr ""
 
 #~ msgid "Create new room"
 #~ msgstr "Opret nyt rum"
-
-#~ msgid "Go there"
-#~ msgstr "Gå dertil"
 
 #~ msgid "Zap this room"
 #~ msgstr "Zap dette rum"

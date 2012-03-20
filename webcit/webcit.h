@@ -819,3 +819,4 @@ struct bltr {
 
 struct bltr blogview_learn_thread_references(long msgnum);
 void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP);
+void display_summary_page(void);

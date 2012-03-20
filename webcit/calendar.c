@@ -1,21 +1,15 @@
 /*
  * Functions which handle calendar objects and their processing/display.
  *
- * Copyright (c) 1996-2011 by the citadel.org team
+ * Copyright (c) 1996-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
+ * modify it under the terms of the GNU General Public License, version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -376,9 +370,9 @@ void handle_rsvp(void)
 	if (buf[0] == '2') {
 		wc_printf("<img src=\"static/webcit_icons/calendar.png\"><span>");
 		if (!strcasecmp(bstr("sc"), "update")) {
-			/* Translators: RSVP aka Répondez s'il-vous-plaît Is the term 
-			   that the recipient of an ical-invitation should please 
-			   answer this request. */					  
+			/// Translators: RSVP aka Répondez s'il-vous-plaît Is the term 
+			/// that the recipient of an ical-invitation should please 
+			/// answer this request.
 			wc_printf(_("Your calendar has been updated to reflect this RSVP."));
 		} else if (!strcasecmp(bstr("sc"), "ignore")) {
 			wc_printf(_("You have chosen to ignore this RSVP. "
@@ -503,6 +497,9 @@ void display_individual_cal(icalcomponent *event, long msgnum, char *from, int u
 
 	if (!icaltime_is_null_time(dtend)) {		/* Need duration for recurrences */
 		dur = icaltime_subtract(dtend, dtstart);
+	}
+	else {
+		dur = icaltime_subtract(dtstart, dtstart);
 	}
 
 	/*
