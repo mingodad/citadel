@@ -50,7 +50,9 @@
 	  <div class="boxlabel">	
 	    <?_("Who‘s&nbsp;online&nbsp;now")>
 	  </div><div class="boxcontent">
-	    <div id="who_inner"><?=("who_summary")></div></div></div>
+	    <div id="who_inner">
+		<img src="static/webcit_icons/throbber.gif">
+	    </div></div></div>
       </td>
       <td width="33%">
 	<div class="box">	
@@ -76,5 +78,5 @@
  new Ajax.PeriodicalUpdater('msg_inner', 'new_messages_html', { method: 'get', frequency: 60 }  );
  new Ajax.PeriodicalUpdater('tasks_inner', 'tasks_inner_html', { method: 'get', frequency: 120 }  );
  new Ajax.PeriodicalUpdater('calendar_inner', 'calendar_inner_html', { method: 'get', frequency: 90 }  );
- new Ajax.PeriodicalUpdater('do_template', 'template=who_summary', { method: 'get', frequency: 30 }  );
+ new Ajax.PeriodicalUpdater('who_inner', 'do_template?template=who_summary', { method: 'get', frequency: 30 }  );
 </script>
