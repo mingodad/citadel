@@ -133,12 +133,7 @@ void wDumpContent(int print_standard_html_footer)
  */
 void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 			int do_htmlhead,	/* 1 = output HTML <head> section and <body> opener */
-
-			int do_room_banner,	/* 0=no, 1=yes,				     
-						 * 2 = I'm going to embed my own, so don't open the 
-						 *     <div id="content"> either.		   
-						 */
-
+			int do_room_banner,	/* 1 = include the room banner and <div id="content"></div> */
 			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
 			int suppress_check,	/* 1 = suppress check for instant messages	  */
 			int cache		/* 1 = allow browser to cache this page	     */
@@ -192,12 +187,12 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 		if ( (WCC->logged_in) && (!unset_cookies) ) {
 			DoTemplate(HKEY("paging"), NULL, &NoCtx);
 		}
-		if (do_room_banner == 1) {
+		if (do_room_banner) {
 			tmplput_roombanner(NULL, NULL);
 		}
 	}
 
-	if (do_room_banner == 1) {
+	if (do_room_banner) {
 		wc_printf("<div id=\"content\">\n");
 	}
 }
