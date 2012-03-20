@@ -420,6 +420,14 @@ void save_sieve(void) {
 }
 
 
+void display_sieve_add_or_delete(void) {
+	output_headers(1, 1, 2, 0, 0, 0);
+	do_template("sieve_add");
+	wDumpContent(1);
+}
+
+
+
 /*
  * create a new script
  * take the web environment script name and create it on the citadel server
@@ -444,9 +452,7 @@ void create_script(void) {
 		}
 	}
 
-	output_headers(1, 1, 1, 0, 0, 0);
-	do_template("sieve_add");
-	wDumpContent(1);
+	display_sieve_add_or_delete();
 }
 
 
@@ -458,9 +464,7 @@ void delete_script(void) {
 
 	serv_printf("MSIV deletescript|%s", bstr("script_name"));
 	serv_getln(buf, sizeof buf);
-	output_headers(1, 1, 1, 0, 0, 0);
-	do_template("sieve_add");
-	wDumpContent(1);
+	display_sieve_add_or_delete();
 }
 
 
@@ -952,4 +956,5 @@ InitModule_SIEVE
 	WebcitAddUrlHandler(HKEY("save_sieve"), "", 0, save_sieve, 0);
 	WebcitAddUrlHandler(HKEY("create_script"), "", 0, create_script, 0);
 	WebcitAddUrlHandler(HKEY("delete_script"), "", 0, delete_script, 0);
+	WebcitAddUrlHandler(HKEY("display_sieve_add_or_delete"), "", 0, display_sieve_add_or_delete, 0);
 }
