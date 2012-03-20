@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-19 11:45-0400\n"
+"POT-Creation-Date: 2012-03-20 01:03-0400\n"
 "PO-Revision-Date: 2010-11-13 00:06+0000\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -126,7 +126,7 @@ msgstr "Mostra Tutto"
 msgid "Edit task"
 msgstr "Aggiorna questa operazione."
 
-#: ../../tasks.c:242 ../../calendar.c:104 ../../calendar_view.c:298
+#: ../../tasks.c:242 ../../calendar.c:98 ../../calendar_view.c:298
 #: ../../calendar_view.c:959 ../../calendar_view.c:1003
 #: ../../calendar_view.c:1084
 msgid "Summary:"
@@ -160,15 +160,15 @@ msgstr "Completato:"
 msgid "Category:"
 msgstr "Categoria:"
 
-#: ../../tasks.c:333 ../../calendar.c:165 ../../static/t/files.html:12
+#: ../../tasks.c:333 ../../calendar.c:159 ../../static/t/files.html:12
 msgid "Description:"
 msgstr "Descrizione:"
 
-#: ../../tasks.c:351 ../../event.c:770
+#: ../../tasks.c:351 ../../event.c:764
 msgid "Save"
 msgstr "Salva"
 
-#: ../../tasks.c:352 ../../event.c:771 ../../static/t/aide/inet/section.html:5
+#: ../../tasks.c:352 ../../event.c:765 ../../static/t/aide/inet/section.html:5
 #: ../../static/t/view_blog/comment.html:12
 #: ../../static/t/view_blog/post.html:15 ../../static/t/view_message.html:32
 #: ../../static/t/navbar.html:116 ../../static/t/msg_listview.html:27
@@ -176,7 +176,7 @@ msgid "Delete"
 msgstr "Cancella"
 
 #: ../../tasks.c:353 ../../vcard_edit.c:1216 ../../paging.c:66
-#: ../../event.c:773 ../../sysmsgs.c:69 ../../who.c:200 ../../auth.c:812
+#: ../../event.c:767 ../../sysmsgs.c:69 ../../who.c:200 ../../auth.c:812
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:4
 msgid "Cancel"
 msgstr "Cancella"
@@ -520,109 +520,109 @@ msgstr "Non hai più una pagina principale selezionata."
 msgid "Prefered startpage"
 msgstr ""
 
-#: ../../calendar.c:82
+#: ../../calendar.c:76
 msgid "Meeting invitation"
 msgstr "Invito a un incontro"
 
-#: ../../calendar.c:85
+#: ../../calendar.c:79
 msgid "Attendee's reply to your invitation"
 msgstr "Risposta del membro al tuo invito"
 
-#: ../../calendar.c:88
+#: ../../calendar.c:82
 msgid "Published event"
 msgstr "Evento pubblicato"
 
-#: ../../calendar.c:91
+#: ../../calendar.c:85
 msgid "This is an unknown type of calendar item."
 msgstr "Questo &egrave un tipo di calendario sconosciuto."
 
-#: ../../calendar.c:113 ../../calendar_view.c:306 ../../calendar_view.c:964
+#: ../../calendar.c:107 ../../calendar_view.c:306 ../../calendar_view.c:964
 #: ../../calendar_view.c:1008 ../../calendar_view.c:1089
 msgid "Location:"
 msgstr "Luogo:"
 
-#: ../../calendar.c:138 ../../calendar_view.c:351 ../../calendar_view.c:970
+#: ../../calendar.c:132 ../../calendar_view.c:351 ../../calendar_view.c:970
 msgid "Date:"
 msgstr "Data:"
 
-#: ../../calendar.c:145 ../../calendar_view.c:373 ../../calendar_view.c:1013
+#: ../../calendar.c:139 ../../calendar_view.c:373 ../../calendar_view.c:1013
 #: ../../calendar_view.c:1099
 msgid "Starting date/time:"
 msgstr "Data e ora di inizio:"
 
-#: ../../calendar.c:156 ../../calendar_view.c:376 ../../calendar_view.c:1015
+#: ../../calendar.c:150 ../../calendar_view.c:376 ../../calendar_view.c:1015
 #: ../../calendar_view.c:1101
 msgid "Ending date/time:"
 msgstr "Data e ora di fine:"
 
-#: ../../calendar.c:174 ../../event.c:96
+#: ../../calendar.c:168 ../../event.c:90
 msgid "Recurrence"
 msgstr "Ricorrenza"
 
-#: ../../calendar.c:175 ../../event.c:511
+#: ../../calendar.c:169 ../../event.c:505
 msgid "This is a recurring event"
 msgstr "Questo è un evento ricorrente"
 
-#: ../../calendar.c:184
+#: ../../calendar.c:178
 msgid "Attendee:"
 msgstr "Membro:"
 
-#: ../../calendar.c:224
+#: ../../calendar.c:218
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
 msgstr ""
 "Questo &egrave; un aggiornamento di '%s' gi&egrave; nel tuo calendario."
 
-#: ../../calendar.c:228
+#: ../../calendar.c:222
 #, c-format
 msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Questo evento &egrave; in conflitto con l'evento '%s' gi&agrave; presente "
 "nel tuo calendario."
 
-#: ../../calendar.c:233
+#: ../../calendar.c:227
 msgid "Update:"
 msgstr "Aggiorna:"
 
-#: ../../calendar.c:234
+#: ../../calendar.c:228
 msgid "CONFLICT:"
 msgstr "CONFLITTO:"
 
-#: ../../calendar.c:257
+#: ../../calendar.c:251
 msgid "How would you like to respond to this invitation?"
 msgstr "Come vuoi rispondere a questo invito?"
 
-#: ../../calendar.c:258
+#: ../../calendar.c:252
 msgid "Accept"
 msgstr "Accetta"
 
-#: ../../calendar.c:259
+#: ../../calendar.c:253
 msgid "Tentative"
 msgstr "Tentativo"
 
-#: ../../calendar.c:260
+#: ../../calendar.c:254
 msgid "Decline"
 msgstr "Declina"
 
-#: ../../calendar.c:277
+#: ../../calendar.c:271
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
 "Seleziona <i>Aggiorna</i> Per accettare questa risposta e aggiornare il tuo "
 "calendario."
 
-#: ../../calendar.c:278
+#: ../../calendar.c:272
 msgid "Update"
 msgstr "Aggiorna"
 
-#: ../../calendar.c:279
+#: ../../calendar.c:273
 msgid "Ignore"
 msgstr "Ignora"
 
-#: ../../calendar.c:301
+#: ../../calendar.c:295
 msgid "There was an error parsing this calendar item."
 msgstr "C'&egrave; un errore in questo oggetto del calendario."
 
-#: ../../calendar.c:334
+#: ../../calendar.c:328
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
@@ -630,7 +630,7 @@ msgstr ""
 "Hai accettato questo invito all'incontro. &egrave; stato aggiunto al tuo "
 "calendario."
 
-#: ../../calendar.c:338
+#: ../../calendar.c:332
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
@@ -638,26 +638,26 @@ msgstr ""
 "Hai accettato questo messaggio in forse. &egrave; stato \"segnato a matita\" "
 "nel tuo calendario"
 
-#: ../../calendar.c:342
+#: ../../calendar.c:336
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
 "Hai declinato l'invito. Non &egrave; stato inserito nel tuo calendario."
 
-#: ../../calendar.c:347
+#: ../../calendar.c:341
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Una risposta &egrave; stata mandata all'organizzatore dell'incontro."
 
-#. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
-#. that the recipient of an ical-invitation should please
-#. answer this request.
-#: ../../calendar.c:382
+#. / Translators: RSVP aka Répondez s'il-vous-plaît Is the term
+#. / that the recipient of an ical-invitation should please
+#. / answer this request.
+#: ../../calendar.c:376
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr ""
 "Il tuo calendario &egrave; stato aggiornato per riflettere questo RSVP."
 
-#: ../../calendar.c:384
+#: ../../calendar.c:378
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
@@ -665,15 +665,15 @@ msgstr ""
 "Hai scelto di ignorare questo RSVP. il tuo calendario <b>non</b> "
 "verr&agrave; aggiornato."
 
-#: ../../calendar.c:935
+#: ../../calendar.c:932
 msgid "Calendar day view begins at:"
 msgstr "La vista giornaliera del calendario inizia il:"
 
-#: ../../calendar.c:936
+#: ../../calendar.c:933
 msgid "Calendar day view ends at:"
 msgstr "La vista giornaliera del calendario finisce il:"
 
-#: ../../calendar.c:937
+#: ../../calendar.c:934
 msgid "Week starts on:"
 msgstr "La settimana parte da:"
 
@@ -747,189 +747,189 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../../event.c:76
+#: ../../event.c:70
 msgid "seconds"
 msgstr "secondi"
 
-#: ../../event.c:77
+#: ../../event.c:71
 msgid "minutes"
 msgstr "minuti"
 
-#: ../../event.c:78
+#: ../../event.c:72
 msgid "hours"
 msgstr "ore"
 
-#: ../../event.c:79
+#: ../../event.c:73
 msgid "days"
 msgstr "giorni"
 
-#: ../../event.c:80
+#: ../../event.c:74
 msgid "weeks"
 msgstr "settimane"
 
-#: ../../event.c:81
+#: ../../event.c:75
 msgid "months"
 msgstr "mesi"
 
-#: ../../event.c:82
+#: ../../event.c:76
 msgid "years"
 msgstr "anni"
 
-#: ../../event.c:83
+#: ../../event.c:77
 msgid "never"
 msgstr "mai"
 
-#: ../../event.c:87
+#: ../../event.c:81
 msgid "first"
 msgstr "primo"
 
-#: ../../event.c:88
+#: ../../event.c:82
 msgid "second"
 msgstr "secondo"
 
-#: ../../event.c:89
+#: ../../event.c:83
 msgid "third"
 msgstr "terzo"
 
-#: ../../event.c:90
+#: ../../event.c:84
 msgid "fourth"
 msgstr "quarto"
 
-#: ../../event.c:91
+#: ../../event.c:85
 msgid "fifth"
 msgstr "quinto"
 
-#: ../../event.c:94
+#: ../../event.c:88
 msgid "Event"
 msgstr "Evento"
 
-#: ../../event.c:95 ../../event.c:443 ../../event.c:455
+#: ../../event.c:89 ../../event.c:437 ../../event.c:449
 msgid "Attendees"
 msgstr "Membri"
 
-#: ../../event.c:173
+#: ../../event.c:167
 msgid "Add or edit an event"
 msgstr "Aggiungi o modifica un evento"
 
-#: ../../event.c:212 ../../static/t/iconbar.html:13
+#: ../../event.c:206 ../../static/t/iconbar.html:13
 #: ../../static/t/iconbar/edit.html:29
 msgid "Summary"
 msgstr "Sommario"
 
-#: ../../event.c:223
+#: ../../event.c:217
 msgid "Location"
 msgstr "Luogo"
 
-#: ../../event.c:234 ../../calendar_view.c:760
+#: ../../event.c:228 ../../calendar_view.c:760
 msgid "Start"
 msgstr "Inizio"
 
-#: ../../event.c:277 ../../calendar_view.c:957 ../../calendar_view.c:986
+#: ../../event.c:271 ../../calendar_view.c:957 ../../calendar_view.c:986
 msgid "All day event"
 msgstr "Evento per tutto il giorno"
 
-#: ../../event.c:283 ../../calendar_view.c:761
+#: ../../event.c:277 ../../calendar_view.c:761
 msgid "End"
 msgstr "Fine"
 
-#: ../../event.c:333 ../../static/t/iconbar.html:34
+#: ../../event.c:327 ../../static/t/iconbar.html:34
 #: ../../static/t/iconbar/edit.html:49
 msgid "Notes"
 msgstr "Note"
 
-#: ../../event.c:375
+#: ../../event.c:369
 msgid "Organizer"
 msgstr "Organizer"
 
-#: ../../event.c:380
+#: ../../event.c:374
 msgid "(you are the organizer)"
 msgstr "(tu sei l'organizzatore)"
 
-#: ../../event.c:398
+#: ../../event.c:392
 msgid "Show time as:"
 msgstr "Mostra l'ora come:"
 
-#: ../../event.c:421
+#: ../../event.c:415
 msgid "Free"
 msgstr "Libero"
 
-#: ../../event.c:429
+#: ../../event.c:423
 msgid "Busy"
 msgstr "Occupato"
 
-#: ../../event.c:446
+#: ../../event.c:440
 msgid "(One per line)"
 msgstr "(Uno per linea)"
 
-#: ../../event.c:456 ../../static/t/edit_message.html:143
+#: ../../event.c:450 ../../static/t/edit_message.html:143
 #: ../../static/t/iconbar.html:29 ../../static/t/iconbar/edit.html:42
 msgid "Contacts"
 msgstr "Contatti"
 
-#: ../../event.c:519
+#: ../../event.c:513
 msgid "Recurrence rule"
 msgstr "Regola ricorrente"
 
-#: ../../event.c:523
+#: ../../event.c:517
 msgid "Repeats every"
 msgstr "Ripeti ogni"
 
 #. begin 'weekday_selector' div
-#: ../../event.c:541
+#: ../../event.c:535
 msgid "on these weekdays:"
 msgstr "nei giorni di questa settimana:"
 
-#: ../../event.c:599
+#: ../../event.c:593
 #, c-format
 msgid "on day %s%d%s of the month"
 msgstr "nei giorni %s%d%s del mese"
 
-#: ../../event.c:608 ../../event.c:670
+#: ../../event.c:602 ../../event.c:664
 msgid "on the "
 msgstr "sul "
 
-#: ../../event.c:632
+#: ../../event.c:626
 msgid "of the month"
 msgstr "del mese"
 
-#: ../../event.c:661
+#: ../../event.c:655
 msgid "every "
 msgstr "ogni "
 
-#: ../../event.c:662
+#: ../../event.c:656
 msgid "year on this date"
 msgstr "anno in questa data"
 
-#: ../../event.c:694 ../../static/t/msg_listselector_bottom.html:7
+#: ../../event.c:688 ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
 msgid "of"
 msgstr "di"
 
-#: ../../event.c:718
+#: ../../event.c:712
 msgid "Recurrence range"
 msgstr ""
 
-#: ../../event.c:726
+#: ../../event.c:720
 msgid "No ending date"
 msgstr "Nessuna data finale"
 
-#: ../../event.c:733
+#: ../../event.c:727
 msgid "Repeat this event"
 msgstr "Ripeti questo evento"
 
-#: ../../event.c:736
+#: ../../event.c:730
 msgid "times"
 msgstr "tempi"
 
-#: ../../event.c:744
+#: ../../event.c:738
 msgid "Repeat this event until "
 msgstr "Ripeti questo evento fino "
 
-#: ../../event.c:772
+#: ../../event.c:766
 msgid "Check attendee availability"
 msgstr "Controlla la disponibilit&agrave; del membro."
 
-#: ../../event.c:864 ../../calendar_view.c:272 ../../calendar_view.c:468
+#: ../../event.c:858 ../../calendar_view.c:272 ../../calendar_view.c:468
 #: ../../calendar_view.c:937
 msgid "Untitled Event"
 msgstr "Evento senza Titolo"
@@ -1214,11 +1214,11 @@ msgstr ""
 msgid "Page title"
 msgstr "Titolo pagina"
 
-#: ../../webcit.c:321
+#: ../../webcit.c:316
 msgid "Authorization Required"
 msgstr "Autorizzazione richiesta"
 
-#: ../../webcit.c:329
+#: ../../webcit.c:324
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -1227,7 +1227,7 @@ msgstr ""
 "Questa risorsa richiede un nome utente e una password. Non puoi essere "
 "autenticato e accedere a: %s\n"
 
-#: ../../webcit.c:652 ../../auth.c:526
+#: ../../webcit.c:647 ../../auth.c:526
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -1235,7 +1235,7 @@ msgstr ""
 "Questo programma non riesce a collegarsi o a rimanere collegato al server "
 "Citadel. Per favore, segnala questo errore all'amministratore di sistema."
 
-#: ../../webcit.c:659 ../../auth.c:532
+#: ../../webcit.c:654 ../../auth.c:532
 msgid "Read More..."
 msgstr "Leggi Altro..."
 
@@ -1444,7 +1444,7 @@ msgstr "errore di realloc()! non riesco a ottenere %d bytes: %s"
 msgid "View as:"
 msgstr "Vedi come:"
 
-#: ../../static/t/sieve/list.html:32 ../../static/t/sieve/none.html:6
+#: ../../static/t/sieve/list.html:32 ../../static/t/sieve/none.html:4
 #: ../../static/t/menu/your_info.html:7
 msgid "View/edit server-side mail filters"
 msgstr "Visualizza/Modifica i filtri email lato server"
@@ -1477,7 +1477,7 @@ msgstr "Aggiungi regola"
 msgid "The currently active script is: "
 msgstr "Lo script attivo è: "
 
-#: ../../static/t/sieve/list.html:76 ../../static/t/sieve/add.html:5
+#: ../../static/t/sieve/list.html:76 ../../static/t/sieve/add.html:3
 msgid "Add or delete scripts"
 msgstr "Aggiungi o cancella degli script"
 
@@ -1621,18 +1621,18 @@ msgstr "Continua a processare"
 msgid "stop"
 msgstr "ferma"
 
-#: ../../static/t/sieve/none.html:11
+#: ../../static/t/sieve/none.html:9
 msgid ""
 "This installation of Citadel was built without support for server-side mail "
 "filtering.<br>Please contact your system administrator if you require this "
 "feature.<br>"
 msgstr ""
 
-#: ../../static/t/sieve/add.html:12
+#: ../../static/t/sieve/add.html:9
 msgid "Add a new script"
 msgstr "Aggiungi un nuovo script"
 
-#: ../../static/t/sieve/add.html:13
+#: ../../static/t/sieve/add.html:10
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
@@ -1640,23 +1640,23 @@ msgstr ""
 "Per creare un nuovo script, inserisci il nome desiderato nella casella "
 "riportata sotto e clicca 'Crea'."
 
-#: ../../static/t/sieve/add.html:17
+#: ../../static/t/sieve/add.html:14
 msgid "Script name: "
 msgstr "Nome dello script: "
 
-#: ../../static/t/sieve/add.html:21
+#: ../../static/t/sieve/add.html:18
 msgid "Edit scripts"
 msgstr "Modifica gli script"
 
-#: ../../static/t/sieve/add.html:23
+#: ../../static/t/sieve/add.html:20
 msgid "Return to the script editing screen"
 msgstr "Torna alla schermata di modifica dello script"
 
-#: ../../static/t/sieve/add.html:26
+#: ../../static/t/sieve/add.html:23
 msgid "Delete scripts"
 msgstr "Cancella gli script"
 
-#: ../../static/t/sieve/add.html:27
+#: ../../static/t/sieve/add.html:24
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
@@ -3949,34 +3949,34 @@ msgstr "Oggi nel tuo calendario"
 msgid "Who‘s&nbsp;online&nbsp;now"
 msgstr "Chi è online adesso?"
 
-#: ../../static/t/summary/page.html:58
+#: ../../static/t/summary/page.html:60
 msgid "About&nbsp;this&nbsp;server"
 msgstr "A proposito di questo server"
 
-#: ../../static/t/summary/page.html:61
+#: ../../static/t/summary/page.html:63
 msgid "You are connected to"
 msgstr ""
 
-#: ../../static/t/summary/page.html:62
+#: ../../static/t/summary/page.html:64
 #, fuzzy
 msgid "running"
 msgstr "Rifiniture"
 
-#: ../../static/t/summary/page.html:63
+#: ../../static/t/summary/page.html:65
 #, fuzzy
 msgid "with"
 msgstr "quinto"
 
-#: ../../static/t/summary/page.html:64
+#: ../../static/t/summary/page.html:66
 msgid "server build"
 msgstr ""
 
-#: ../../static/t/summary/page.html:65
+#: ../../static/t/summary/page.html:67
 #, fuzzy
 msgid "and located in"
 msgstr "e poi"
 
-#: ../../static/t/summary/page.html:66
+#: ../../static/t/summary/page.html:68
 #, fuzzy
 msgid "Your system administrator is"
 msgstr "Nome dell'amministratore di sistema"

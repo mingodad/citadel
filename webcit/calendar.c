@@ -370,9 +370,9 @@ void handle_rsvp(void)
 	if (buf[0] == '2') {
 		wc_printf("<img src=\"static/webcit_icons/calendar.png\"><span>");
 		if (!strcasecmp(bstr("sc"), "update")) {
-			/* Translators: RSVP aka Répondez s'il-vous-plaît Is the term 
-			   that the recipient of an ical-invitation should please 
-			   answer this request. */					  
+			/// Translators: RSVP aka Répondez s'il-vous-plaît Is the term 
+			/// that the recipient of an ical-invitation should please 
+			/// answer this request.
 			wc_printf(_("Your calendar has been updated to reflect this RSVP."));
 		} else if (!strcasecmp(bstr("sc"), "ignore")) {
 			wc_printf(_("You have chosen to ignore this RSVP. "
