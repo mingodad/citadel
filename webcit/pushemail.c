@@ -86,7 +86,7 @@ void display_pushemail(void)
 		GetServerStatus(Buf, NULL);
 	}
 	FlushFolder(&Room);
-	output_headers(1, 1, 2, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 	DoTemplate(HKEY("prefs_pushemail"), NULL, &SubTP);
 	wDumpContent(1);
 	FreeStrBuf(&Buf);
