@@ -444,7 +444,7 @@ void create_script(void) {
 		}
 	}
 
-	output_headers(1, 1, 2, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 	do_template("sieve_add");
 	wDumpContent(1);
 }
@@ -458,7 +458,7 @@ void delete_script(void) {
 
 	serv_printf("MSIV deletescript|%s", bstr("script_name"));
 	serv_getln(buf, sizeof buf);
-	output_headers(1, 1, 2, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 	do_template("sieve_add");
 	wDumpContent(1);
 }
@@ -469,7 +469,7 @@ void delete_script(void) {
  */
 void display_no_sieve(void) {
 
-	output_headers(1, 1, 2, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 	do_template("sieve_none");
 	wDumpContent(1);
 }
