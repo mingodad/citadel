@@ -4312,6 +4312,7 @@ void free_recipients(struct recptypes *valid) {
 	if (valid->display_recp != NULL)	free(valid->display_recp);
 	if (valid->bounce_to != NULL)		free(valid->bounce_to);
 	if (valid->envelope_from != NULL)	free(valid->envelope_from);
+	if (valid->sending_room != NULL)	free(valid->sending_room);
 	free(valid);
 }
 
