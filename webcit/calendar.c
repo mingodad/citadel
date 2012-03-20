@@ -504,6 +504,9 @@ void display_individual_cal(icalcomponent *event, long msgnum, char *from, int u
 	if (!icaltime_is_null_time(dtend)) {		/* Need duration for recurrences */
 		dur = icaltime_subtract(dtend, dtstart);
 	}
+	else {
+		dur = icaltime_subtract(dtstart, dtstart);
+	}
 
 	/*
 	 * Just let libical iterate the recurrence, and keep looping back to the top of this function,
