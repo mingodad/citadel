@@ -214,9 +214,6 @@ InitModule_SUMMARY
 (void)
 {
 	RegisterNamespace("TIME:NOW", 0, 0, tmplput_output_date, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:NEWMESSAGES_SELECTION", 0, 0, tmplput_new_messages_section, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:TASKSSECTION", 0, 0, tmplput_tasks_section, NULL, CTX_NONE);
-	RegisterNamespace("SUMMARY:CALENDAR_SECTION", 0, 0, tmplput_calendar_section, NULL, CTX_NONE);
 
 	WebcitAddUrlHandler(HKEY("summary"), "", 0, display_summary_page, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("new_messages_html"), "", 0, new_messages_section, AJAX);
