@@ -29,8 +29,8 @@ void display_page(void)
 
 	strcpy(recp, bstr("recp"));
 
-        output_headers(1, 1, 2, 0, 0, 0);
-        wc_printf("<div id=\"banner\">\n");
+        output_headers(1, 1, 1, 0, 0, 0);
+        wc_printf("<div id=\"room_banner_override\">\n");
         wc_printf("<h1>");
 	wc_printf(_("Send instant message"));
 	wc_printf("</h1>");
