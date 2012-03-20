@@ -21,9 +21,9 @@ void do_setup_wizard(void)
 		return;
 	}
 
-	output_headers(1, 1, 2, 0, 0, 0);
+	output_headers(1, 1, 1, 0, 0, 0);
 
-	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<div id=\"room_banner_override\">\n");
 	wc_printf("<img src=\"static/citadel-logo.gif\" WIDTH=64 HEIGHT=64");
 	wc_printf("<h1>&nbsp;First time setup</h1>");
 	wc_printf("</div>\n");
