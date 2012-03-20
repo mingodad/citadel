@@ -5,17 +5,11 @@
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include "webcit.h"
@@ -167,8 +161,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	*/
 	/* Begin output */
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
+	output_headers(1, 1, 1, 0, 0, 0);
+	wc_printf("<div id=\"room_banner_override\">\n");
 	wc_printf("<h1>");
 	wc_printf(_("Add or edit an event"));
 	wc_printf("</h1>");
