@@ -235,19 +235,20 @@ eNextState NWC_SendNDOP(AsyncNetworker *NW)
 	AsyncIO *IO = &NW->IO;
 	NW->tempFileName = NewStrBuf();
 	NW->SpoolFileName = NewStrBuf();
-	StrBufPrintf(NW->tempFileName, 
+	StrBufPrintf(NW->SpoolFileName,
 		     "%s/%s.%lx%x",
 		     ctdl_netin_dir,
 		     ChrPtr(NW->node),
 		     time(NULL),// TODO: get time from libev
 		     rand());
-	StrBufPrintf(NW->SpoolFileName, 
+	StrBufStripSlashes(NW->SpoolFileName, 1);
+	StrBufPrintf(NW->tempFileName, 
 		     "%s/%s.%lx%x",
 		     ctdl_nettmp_dir,
 		     ChrPtr(NW->node),
 		     time(NULL),// TODO: get time from libev
 		     rand());
-
+	StrBufStripSlashes(NW->tempFileName, 1);
 	/* We're talking to the correct node.  Now identify ourselves. */
 	StrBufPlain(NW->IO.SendBuf.Buf, HKEY("NDOP\n"));
 	NWC_DBG_SEND();
@@ -270,14 +271,14 @@ eNextState NWC_ReadNDOPReply(AsyncNetworker *NW)
 		}
 		else {
 			int fd;
-			fd = open(ChrPtr(NW->SpoolFileName), 
+			fd = open(ChrPtr(NW->tempFileName), 
 				  O_EXCL|O_CREAT|O_NONBLOCK|O_WRONLY, 
 				  S_IRUSR|S_IWUSR);
 			if (fd < 0)
 			{
 				EVN_syslog(LOG_CRIT,
 				       "cannot open %s: %s\n", 
-				       ChrPtr(NW->SpoolFileName), 
+				       ChrPtr(NW->tempFileName), 
 				       strerror(errno));
 
 				NW->State = eQUIT - 1;
@@ -355,8 +356,8 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 		NW->State ++;
 
 		FDIOBufferDelete(&NW->IO.IOB);
-		
-		if (link(ChrPtr(NW->SpoolFileName), ChrPtr(NW->tempFileName)) != 0) {
+
+		if (link(ChrPtr(NW->tempFileName), ChrPtr(NW->SpoolFileName)) != 0) {
 			EVN_syslog(LOG_ALERT, 
 			       "Could not link %s to %s: %s\n",
 			       ChrPtr(NW->tempFileName), 
@@ -372,7 +373,7 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 	else {
 		NW->State --;
 		NW->IO.IOB.ChunkSendRemain = NW->IO.IOB.ChunkSize;
-		return NWC_DispatchWriteDone(&NW->IO);
+		return eSendReply; //NWC_DispatchWriteDone(&NW->IO);
 	}
 }
 
@@ -380,14 +381,14 @@ eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 {
 	eNextState rc;
 	AsyncIO *IO = &NW->IO;
-	NWC_DBG_READ();
+/* we don't have any data to debug print here. */
 	if (NW->IO.IOB.TotalSendSize == NW->IO.IOB.TotalSentAlready)
 	{
 		NW->State ++;
 
 		FDIOBufferDelete(&NW->IO.IOB);
-		
-		if (link(ChrPtr(NW->SpoolFileName), ChrPtr(NW->tempFileName)) != 0) {
+
+		if (link(ChrPtr(NW->tempFileName), ChrPtr(NW->SpoolFileName)) != 0) {
 			EVN_syslog(LOG_ALERT, 
 			       "Could not link %s to %s: %s\n",
 			       ChrPtr(NW->tempFileName), 
@@ -432,16 +433,18 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 	struct stat statbuf;
 	int fd;
 
-	StrBufPrintf(NW->tempFileName,
+	StrBufPrintf(NW->SpoolFileName,
 		     "%s/%s",
 		     ctdl_netout_dir,
 		     ChrPtr(NW->node));
-	fd = open(ChrPtr(NW->tempFileName), O_RDONLY);
+	StrBufStripSlashes(NW->SpoolFileName, 1);
+
+	fd = open(ChrPtr(NW->SpoolFileName), O_RDONLY);
 	if (fd < 0) {
 		if (errno != ENOENT) {
 			EVN_syslog(LOG_CRIT,
 			       "cannot open %s: %s\n", 
-			       ChrPtr(NW->tempFileName), 
+			       ChrPtr(NW->SpoolFileName), 
 			       strerror(errno));
 		}
 		NW->State = eQUIT;
@@ -452,7 +455,7 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 
 	if (fstat(fd, &statbuf) == -1) {
 		EVN_syslog(LOG_CRIT, "FSTAT FAILED %s [%s]--\n", 
-			   ChrPtr(NW->tempFileName), 
+			   ChrPtr(NW->SpoolFileName), 
 			   strerror(errno));
 		if (fd > 0) close(fd);
 		return eAbort;
@@ -541,8 +544,8 @@ eNextState NWC_ReadUCLS(AsyncNetworker *NW)
 
 	EVN_syslog(LOG_NOTICE, "Sent %ld octets to <%s>\n", NW->IO.IOB.ChunkSize, ChrPtr(NW->node));
 	if (ChrPtr(NW->IO.IOBuf)[0] == '2') {
-		EVN_syslog(LOG_DEBUG, "Removing <%s>\n", ChrPtr(NW->tempFileName));
-		unlink(ChrPtr(NW->tempFileName));
+		EVN_syslog(LOG_DEBUG, "Removing <%s>\n", ChrPtr(NW->SpoolFileName));
+		unlink(ChrPtr(NW->SpoolFileName));
 	}
 	return eSendReply;
 }
@@ -736,7 +739,7 @@ void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
 	AsyncIO *IO = &NW->IO;
 	double Timeout = 0.0;
 
-	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
+	EVN_syslog(LOG_DEBUG, "%s - %d\n", __FUNCTION__, NextTCPState);
 
 	switch (NextTCPState) {
 	case eSendReply:
@@ -761,7 +764,14 @@ void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
 	case eReadMore://// TODO
 		return;
 	}
-	SetNextTimeout(&NW->IO, Timeout);
+	if (Timeout > 0) {
+		EVN_syslog(LOG_DEBUG, 
+			   "%s - %d %f\n",
+			   __FUNCTION__,
+			   NextTCPState,
+			   Timeout);
+		SetNextTimeout(&NW->IO, Timeout*100);
+	}
 }
 
 
@@ -899,6 +909,7 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 	AsyncNetworker *NW;
 	StrBuf *CfgData;
 	StrBuf *Line;
+	StrBuf *SpoolFileName;
 	const char *lptr;
 	const char *CfgPtr;
 	int Done;
@@ -912,6 +923,7 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 	become_session(&networker_client_CC);
 
 	CfgData = NewStrBufPlain(working_ignetcfg, -1);
+	SpoolFileName = NewStrBufPlain(ctdl_netout_dir, -1);
 	Line = NewStrBufPlain(NULL, StrLength(CfgData));
 	Done = 0;
 	CfgPtr = NULL;
@@ -946,10 +958,11 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 				poll = full_poll;
 				if (poll == 0)
 				{
-					NW->SpoolFileName = NewStrBufPlain(ctdl_netout_dir, -1);
-					StrBufAppendBufPlain(NW->SpoolFileName, HKEY("/"), 0);
-					StrBufAppendBuf(NW->SpoolFileName, NW->node, 0);
-					if (access(ChrPtr(NW->SpoolFileName), R_OK) == 0) {
+					StrBufAppendBufPlain(SpoolFileName, HKEY("/"), 0);
+					StrBufAppendBuf(SpoolFileName, NW->node, 0);
+					StrBufStripSlashes(SpoolFileName, 1);
+
+					if (access(ChrPtr(SpoolFileName), R_OK) == 0) {
 						poll = 1;
 					}
 				}
@@ -972,6 +985,7 @@ void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
 			DeleteNetworker(NW);
 		}
 	}
+	FreeStrBuf(&SpoolFileName);
 	FreeStrBuf(&CfgData);
 	FreeStrBuf(&Line);
 
