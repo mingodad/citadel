@@ -3862,8 +3862,9 @@ int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 
 int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 {
-#ifdef LINUX_SENDFILE
 	ssize_t sent, pipesize;
+
+#ifdef LINUX_SENDFILE
 
 	pipesize = splice(FDB->IOB->fd, NULL, 
 			  FDB->SplicePipe[1], NULL, 
@@ -3886,6 +3887,32 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 	FDB->ChunkSendRemain -= sent;
 	return sent;
 #else
+	
+	sent = read(FDB->IOB->fd, FDB->ChunkBuffer->buf, FDB->ChunkSendRemain);
+	if (sent > 0) {
+		int nWritten = 0;
+		int rc; 
+		
+		FDB->ChunkBuffer->BufUsed = sent;
+
+		while (nWritten < FDB->ChunkBuffer->BufUsed) {
+			rc =  write(FDB->OtherFD, FDB->ChunkBuffer->buf + nWritten, FDB->ChunkBuffer->BufUsed - nWritten);
+			if (rc < 0) {
+				*Err = strerror(errno);
+				return rc;
+			}
+			nWritten += rc;
+
+		}
+		FDB->ChunkBuffer->BufUsed = 0;
+		FDB->TotalSentAlready += sent;
+		FDB->ChunkSendRemain -= sent;
+		return FDB->ChunkSendRemain;
+	}
+	else if (sent < 0) {
+		*Err = strerror(errno);
+		return sent;
+	}
 
 #endif
 	return 0;
