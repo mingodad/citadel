@@ -292,6 +292,37 @@ void ShutDownCLient(AsyncIO *IO)
 	IO->Terminate(IO);
 }
 
+void PostInbound(AsyncIO *IO)
+{
+	switch (IO->NextState) {
+	case eSendFile:
+		ev_io_start(event_base, &IO->send_event);
+		break;
+	case eSendReply:
+	case eSendMore:
+		assert(IO->SendDone);
+		IO->NextState = IO->SendDone(IO);
+		ev_io_start(event_base, &IO->send_event);
+		break;
+	case eReadPayload:
+	case eReadMore:
+	case eReadFile:
+		ev_io_start(event_base, &IO->recv_event);
+		break;
+	case eTerminateConnection:
+		ShutDownCLient(IO);
+		break;
+	case eAbort:
+		ShutDownCLient(IO);
+		break;
+	case eSendDNSQuery:
+	case eReadDNSReply:
+	case eDBQuery:
+	case eConnect:
+	case eReadMessage:
+		break;
+	}
+}
 eReadState HandleInbound(AsyncIO *IO)
 {
 	const char *Err = NULL;
@@ -344,34 +375,8 @@ eReadState HandleInbound(AsyncIO *IO)
 		}
 	}
 
-	switch (IO->NextState) {
-	case eSendFile:
-		ev_io_start(event_base, &IO->send_event);
-		break;
-	case eSendReply:
-	case eSendMore:
-		assert(IO->SendDone);
-		IO->NextState = IO->SendDone(IO);
-		ev_io_start(event_base, &IO->send_event);
-		break;
-	case eReadPayload:
-	case eReadMore:
-	case eReadFile:
-		ev_io_start(event_base, &IO->recv_event);
-		break;
-	case eTerminateConnection:
-		ShutDownCLient(IO);
-		break;
-	case eAbort:
-		ShutDownCLient(IO);
-		break;
-	case eSendDNSQuery:
-	case eReadDNSReply:
-	case eDBQuery:
-	case eConnect:
-	case eReadMessage:
-		break;
-	}
+	PostInbound(IO);
+
 	return Finished;
 }
 
@@ -644,6 +649,10 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			if (IO->IOB.ChunkSendRemain == 0)
 			{
 				IO->NextState = eSendReply;
+				assert(IO->ReadDone);
+				ev_io_stop(event_base, &IO->recv_event);
+				PostInbound(IO);
+				return;
 			}
 			else
 				return;
@@ -685,15 +694,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	if (nbytes > 0) {
 		HandleInbound(IO);
 	} else if (nbytes == 0) {
-		assert(IO->Timeout);
-
-		switch (IO->Timeout(IO))
-		{
-		case eAbort:
-			ShutDownCLient(IO);
-		default:
-			break;
-		}
+		IO_Timeout_callback(loop, &IO->rw_timeout, revents);
 		return;
 	} else if (nbytes == -1) {
 		// FD is gone. kick it. 
