@@ -3862,7 +3862,6 @@ int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 
 int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 {
-
 #ifdef LINUX_SENDFILE
 	ssize_t sent, pipesize;
 
@@ -3887,6 +3886,7 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 	FDB->ChunkSendRemain -= sent;
 	return sent;
 #else
+
 #endif
 	return 0;
 }
@@ -4628,9 +4628,10 @@ void StrBufStripSlashes(StrBuf *Dir, int RemoveTrailingSlash)
 			b++; a++;
 		}
 	}
-	if ((RemoveTrailingSlash) && (*(b - 1) != '/')){
-		*b = '/';
-		b++;
+	if ((RemoveTrailingSlash) &&
+	    (b > Dir->buf) && 
+	    (*(b - 1) == '/')){
+		b--;
 	}
 	*b = '\0';
 	Dir->BufUsed = b - Dir->buf;
