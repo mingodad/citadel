@@ -53,6 +53,7 @@ struct utmp *getutline(struct utmp *ut);
 #include "commands.h"
 #include "citadel_decls.h"
 #include "routines2.h"
+#include "tuiconfig.h"
 
 #define IFAIDE if(axlevel>=AxAideU)
 #define IFNAIDE if (axlevel<AxAideU)
@@ -310,7 +311,7 @@ void enter_config(CtdlIPC *ipc, int mode)
 			0
 		);
 
-		if (!IsEmptyStr(editor_paths[0])) {
+		if (!IsEmptyStr(editor_path)) {
 			user->flags = set_attr(
 				ipc,
 				user->flags,

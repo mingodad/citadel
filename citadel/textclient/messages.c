@@ -48,6 +48,7 @@
 #include "citadel_decls.h"
 #include "messages.h"
 #include "commands.h"
+#include "tuiconfig.h"
 #include "rooms.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -76,7 +77,6 @@ void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);
 unsigned long *msg_arr = NULL;
 int msg_arr_size = 0;
 int num_msgs;
-char rc_alt_semantics;
 extern char room_name[];
 extern char tempdir[];
 extern unsigned room_flags;
@@ -879,21 +879,11 @@ int client_make_message(CtdlIPC *ipc,
 	long beg;
 	char datestr[SIZ];
 	char header[SIZ];
-	char *editor_path = NULL;
 	int cksum = 0;
 
-	if (mode >= 2)
-	{
-		if ((mode-2) < MAX_EDITORS && !IsEmptyStr(editor_paths[mode-2]))
-		{
-			editor_path = editor_paths[mode-2];
-		} else if (!IsEmptyStr(editor_paths[0]))
-		{
-			editor_path = editor_paths[0];
-		} else {
-			scr_printf("*** No editor available; using built-in editor.\n");
-			mode = 0;
-		}
+	if ( (mode == 2) && (IsEmptyStr(editor_path)) ) {
+		scr_printf("*** No editor available; using built-in editor.\n");
+		mode = 0;
 	}
 
 	fmt_date(datestr, sizeof datestr, time(NULL), 0);
@@ -1659,11 +1649,6 @@ RMSGREAD:
 				} while ((g != f) && (g >= 0));
 			scr_printf("Message printed.\n");
 		}
-		if (rc_alt_semantics && c == 1) {
-			char buf[SIZ];
-
-			r = CtdlIPCSetMessageSeen(ipc, msg_arr[a], 1, buf);
-		}
 		if (e == SIGQUIT)
 			return;
 		if (((userflags & US_NOPROMPT) || (e == SIGINT))
@@ -1961,37 +1946,6 @@ void edit_system_message(CtdlIPC *ipc, char *which_message)
 }
 
 
-
-
-/*
- * Verify the message base
- */
-void check_message_base(CtdlIPC *ipc)
-{
-	char buf[SIZ];
-	char *transcript = NULL;
-	int r;		/* IPC response code */
-
-	scr_printf
-	    ("Please read the documentation before running this command.\n"
-	    "Having done so, do you still want to check the message base? ");
-	if (yesno() == 0)
-		return;
-
-	r = CtdlIPCMessageBaseCheck(ipc, &transcript, buf);
-	if (r / 100 != 1) {
-		scr_printf("%s\n", buf);
-		return;
-	}
-
-	while (transcript && !IsEmptyStr(transcript)) {
-		extract_token(buf, transcript, 0, '\n', sizeof buf);
-		remove_token(transcript, 0, '\n');
-		scr_printf("%s\n", buf);
-	}
-	if (transcript) free(transcript);
-	return;
-}
 
 
 /*

@@ -191,20 +191,8 @@ void updatels(CtdlIPC *ipc)
 	char buf[256];
 	int r;				/* IPC response code */
 
-	if (rc_alt_semantics) {
-		if (maxmsgnum == 0 && highest_msg_read == 0) {
-			return;
-		}
-		r = CtdlIPCSetLastRead(ipc, (maxmsgnum > highest_msg_read) ?
-				 maxmsgnum : highest_msg_read, buf);
-	} else {
-		r = CtdlIPCSetLastRead(ipc, (maxmsgnum > highest_msg_read) ?
-				 maxmsgnum : highest_msg_read, buf);
-/*		r = CtdlIPCSetLastRead(ipc, maxmsgnum, buf); */
-/* This is a quick-and-dirty fix to all msgs becoming new in Mail>.
- * It will need to be rethought when messages.c is rewritten.
- */
-	}
+	r = CtdlIPCSetLastRead(ipc, (maxmsgnum > highest_msg_read) ?  maxmsgnum : highest_msg_read, buf);
+
 	if (r / 100 != 2)
 		scr_printf("%s\n", buf);
 }

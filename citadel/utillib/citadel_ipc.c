@@ -2147,18 +2147,6 @@ int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret)
 }
 
 
-/* FSCK */
-int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret)
-{
-	size_t size = 0;
-
-	if (!cret) return -2;
-	if (!mret) return -2;
-	if (*mret) return -2;
-
-	return CtdlIPCGenericCommand(ipc, "FSCK", NULL, 0, mret, &size, cret);
-}
-
 
 /*
  * Not implemented:

@@ -20,30 +20,14 @@ encrypt=default
 #
 # editor=vi
 
-# Or, you could have multiple editors available, like this:
-# ("editor" and "editor0" are the same internally)
-# You can go up to MAX_EDITORS number of editors (5 by default)
-# editor0=pico
-# editor1=vi
-# editor2=nano
-
 # If you define PRINTCMD, it will be a pipe through which messages are
 # printed when the user hits the <P>rint key after a message.
 #
 #printcmd=lpr
 
 # If you define EXPCMD, it will be a pipe through which any incoming
-# express messages will be printed.
-#expcmd=xmessage -title "Express Message" -center -buttons OK -file -
-
-# If LOCAL_SCREEN_DIMENSIONS is set to 1, then the screen dimensions will
-# be requested from the underlying operating system instead of asking the
-# user.  On modern networks this is almost always the case: telnet, SSH,
-# xterm, and Unix/Linux consoles all properly report the screen dimensions.
-# Set this option to 0 only if you are running the Citadel client on a
-# direct-dial modem or hardwired terminals.
-#
-local_screen_dimensions=1
+# instant messages will be printed.
+#expcmd=xmessage -title "Instant message" -center -buttons OK -file -
 
 # ANSI_COLOR should be set to on/off/auto/user to control the use of
 # color on the screen.  If it is set to "auto" then an autodetect will be
@@ -116,13 +100,9 @@ remember_passwords=0
 # for 'safe' public clients.)
 #
 # This one ought to work on any Linux that has the "Portland" API's installed.
-# If properly configured, xdg-open will open the URL in the user's perferred
+# If properly configured, xdg-open will open the URL in the user's preferred
 # web browser.
 #urlcmd=xdg-open "%s"
-#
-# This one works on non-Portland Linux and most other X11-based Unices.
-# Specify the full path to Firefox if necessary.
-#urlcmd=/usr/bin/firefox -a firefox -remote "openURL(%s)" >/dev/null 2>&1
 #
 # This one works really well on a Macintosh -- it opens URL's in whatever
 # browser you have configured as the system default.
@@ -153,52 +133,9 @@ opencmd=xdg-open "%s"
 # xdg-open - on Linux systems with the Portland API's installed, this ought
 # to open the image in the user's preferred viewer.
 #imagecmd=xdg-open "%s"
-
-# XV - This is an oldie but goodie, shareware with source code included, no
-# longer included with some Linux distributions due to licensing.
-#imagecmd=xv "%s"
-
-# The following 2 image viewers are included with KDE:
-# KuickShow has a brightness/gamma option and is simple and ubobtrusive
-#imagecmd=kuickshow "%s"
-
-# KView has no brightness/gamma but can do some minimal cropping and clipboard
-# operations
-#imagecmd=kview "%s"
-
-# Eye of Gnome, the Gnome/Nautilus image viewer component (bare bones
-# view/print):
-#imagecmd=eog "%s"
-
-# GIMP is a free-software attempt at a PhotoShop-like application.
-#imagecmd=gimp "%s"
-
+#
 # Preview on Mac OS X
 #imagecmd=/Applications/Preview.app/Contents/MacOS/Preview "%s"
-
-# MESSAGE READING SEMANTICS (experimental)
-#
-# A new set of message reading semantics is now available.  If you set
-# alternate_semantics, the following changes are made:
-#
-# * Messages are marked as read when you read them, rather than when you
-#   leave the room.  This means read <N>ew will display a new message
-#   at most once, unless last old on new is turned on.
-# * Reading <F>orward or <R>everse does not mark messages as read.
-# * When you leave a room with <G>oto, <J>ump, etc., only messages that
-#   were in the room when you arrived are marked as read.  The original
-#   semantics mark all messages read that were in the room at the time
-#   you leave the room.  This occasionally causes messages to be "lost."
-# * When you leave with <T>erminate, no additional messages are marked
-#   as read.
-# * The <S>kip and <A>bandon commands are reversed.
-#
-# This set of semantics should make Citadel easier to use on very busy
-# systems, where many messages may be posted while reading.  Users
-# accustomed to D.O.C. or its variants will want to set this option.
-#
-alternate_semantics=no
-
 
 
 # COMMAND SET CONFIGURATION
@@ -290,7 +227,6 @@ cmd=70,2,&.,&Aide,&Message edit:
 cmd=78,1,&.,&Aide,&Post
 cmd=80,2,&.,&Aide,&System configuration,&General
 cmd=82,2,&.,&Aide,&System configuration,&Internet
-cmd=83,2,&.,&Aide,&System configuration,check &Message base
 cmd=88,2,&.,&Aide,&System configuration,&Network
 cmd=92,2,&.,&Aide,&System configuration,network &Filter list
 cmd=85,2,&.,&Aide,&Terminate server,&Now

@@ -76,7 +76,6 @@ extern char *moreprompt;
 char temp[PATH_MAX];		/* Name of general-purpose temp file */
 char temp2[PATH_MAX];		/* Name of general-purpose temp file */
 char tempdir[PATH_MAX];		/* Name of general-purpose temp directory */
-char editor_paths[MAX_EDITORS][SIZ];	/* paths to external editors */
 char printcmd[SIZ];		/* print command */
 int editor_pid = (-1);
 char fullname[USERNAME_SIZE];
@@ -852,10 +851,6 @@ void  gotoroomstep(CtdlIPC *ipc, int direction, int mode)
 
 	if (mode == 0) { /* not skipping */
 	    updatels(ipc);
-	} else {
-		if (rc_alt_semantics) {
-	    	updatelsa(ipc);
-		}
 	}
 
 	/* Free the room list */
@@ -972,7 +967,7 @@ void read_config(CtdlIPC *ipc)
 	    scr_printf("Enable color support: ");                              color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_COLOR)? "Yes" : "No");	     color(DIM_WHITE);
 	}
 	scr_printf("Be unlisted in userlog: ");                                color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_UNLISTED)? "Yes" : "No");    color(DIM_WHITE);
-	if (!IsEmptyStr(editor_paths[0])) {
+	if (!IsEmptyStr(editor_path)) {
     	scr_printf("Always enter messages with the full-screen editor: "); color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_EXTEDIT)? "Yes" : "No");     color(DIM_WHITE);
 	}
 	free(user);
@@ -1811,14 +1806,9 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				gotonext(ipc);
 				break;
 			case 47:			/* <A>bandon */
-				if (!rc_alt_semantics) {
-					updatelsa(ipc);
-				}
 				gotonext(ipc);
 				break;
 			case 90:			/* <.A>bandon */
-				if (!rc_alt_semantics)
-					updatelsa(ipc);
 				dotgoto(ipc, argbuf, 0, 0);
 				break;
 			case 58:			/* <M>ail */
@@ -1833,9 +1823,6 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				break;
 			case 52:
 				if (!IsEmptyStr(argbuf)) {
-					if (rc_alt_semantics) {
-						updatelsa(ipc);
-					}
 					dotgoto(ipc, argbuf, 0, 0);
 				}
 				break;
@@ -1933,9 +1920,7 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				break;
 			case 29:
 			case 30:
-				if (!rc_alt_semantics) {
-					updatels(ipc);
-				}
+				updatels(ipc);
 				termn8 = 1;
 				break;
 			case 48:
@@ -1993,8 +1978,7 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 			case 15:
 				scr_printf("Are you sure (y/n)? ");
 				if (yesno() == 1) {
-					if (!rc_alt_semantics)
-						updatels(ipc);
+					updatels(ipc);
 					a = 0;
 					termn8 = 1;
 				}
@@ -2004,8 +1988,7 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				scr_printf("All users will be disconnected!  "
 					   "Really terminate the server? ");
 				if (yesno() == 1) {
-					if (!rc_alt_semantics)
-						updatels(ipc);
+					updatels(ipc);
 					r = CtdlIPCTerminateServerNow(ipc, aaa);
 					scr_printf("%s\n", aaa);
 					if (r / 100 == 2) {
@@ -2058,9 +2041,6 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				break;
 
 			case 6:
-				if (rc_alt_semantics) {
-					updatelsa(ipc);
-				}
 				gotonext(ipc);
 				break;
 
@@ -2086,10 +2066,6 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 
 			case 82:
 				do_internet_configuration(ipc);
-				break;
-
-			case 83:
-				check_message_base(ipc);
 				break;
 
 			case 84:
@@ -2265,17 +2241,8 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				do_rssclient_configuration(ipc);
 				break;
 
-			default: /* allow some math on the command */
-				/* commands 100... to 100+MAX_EDITORS-1 will
-				   call the appropriate editor... in other
-				   words, command numbers 100+ will match
-				   the citadel.rc keys editor0, editor1, etc.*/
-				if (mcmd >= 100 && mcmd < (100+MAX_EDITORS))
-				{
-					/* entmsg mode >=2 select editor */
-					entmsg(ipc, 0, mcmd - 100 + 2, 0);
-					break;
-				}
+			default:
+				break;
 			}	/* end switch */
 	} while (termn8 == 0);
 

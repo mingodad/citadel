@@ -61,6 +61,7 @@
 #include "rooms.h"
 #include "client_chat.h"
 #include "citadel_dirs.h"
+#include "tuiconfig.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -654,18 +655,14 @@ void load_command_set(void)
 {
 	FILE *ccfile;
 	char buf[1024];
-	char editor_key[100];
 	struct citcmd *cptr;
 	struct citcmd *lastcmd = NULL;
 	int a, d;
 	int b = 0;
-	int i;
-
 
 	/* first, set up some defaults for non-required variables */
 
-	for (i = 0; i < MAX_EDITORS; i++)
-		strcpy(editor_paths[i], "");
+	strcpy(editor_path, "");
 	strcpy(printcmd, "");
 	strcpy(imagecmd, "");
 	strcpy(rc_username, "");
@@ -685,7 +682,6 @@ void load_command_set(void)
 #ifdef HAVE_OPENSSL
 	rc_encrypt = RC_DEFAULT;
 #endif
-	rc_alt_semantics = 0;
 
 	/* now try to open the citadel.rc file */
 
@@ -730,14 +726,8 @@ void load_command_set(void)
 #endif
 		}
 
-		if (!strncasecmp(buf, "editor=", 7))
-			strcpy(editor_paths[0], &buf[7]);
-
-		for (i = 0; i < MAX_EDITORS; i++)
-		{
-			sprintf(editor_key, "editor%d=", i);
-			if (!strncasecmp(buf, editor_key, strlen(editor_key)))
-				strcpy(editor_paths[i], &buf[strlen(editor_key)]);
+		if (!strncasecmp(buf, "editor=", 7)) {
+			strcpy(editor_path, &buf[7]);
 		}
 
 		if (!strncasecmp(buf, "printcmd=", 9))
@@ -807,15 +797,6 @@ void load_command_set(void)
 
 		if (!strncasecmp(buf, "gotmailcmd=", 11))
 			strcpy(rc_gotmail_cmd, &buf[11]);
-
-		if (!strncasecmp(buf, "alternate_semantics=", 20)) {
-			if (!strncasecmp(&buf[20], "yes", 3)) {
-				rc_alt_semantics = 1;
-			}
-			else {
-				rc_alt_semantics = 0;
-			}
-		}
 
 		if (!strncasecmp(buf, "cmd=", 4)) {
 			strcpy(buf, &buf[4]);

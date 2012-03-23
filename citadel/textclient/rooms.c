@@ -32,6 +32,7 @@
 #include "rooms.h"
 #include "commands.h"
 #include "messages.h"
+#include "tuiconfig.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -1188,7 +1189,7 @@ void do_edit(CtdlIPC *ipc,
 	char cmd[SIZ];
 	int b, cksum, editor_exit;
 
-	if (IsEmptyStr(editor_paths[0])) {
+	if (IsEmptyStr(editor_path)) {
 		scr_printf("Do you wish to re-enter %s? ", desc);
 		if (yesno() == 0)
 			return;
@@ -1204,7 +1205,7 @@ void do_edit(CtdlIPC *ipc,
 		return;
 	}
 
-	if (!IsEmptyStr(editor_paths[0])) {
+	if (!IsEmptyStr(editor_path)) {
 		CtdlIPC_chat_send(ipc, read_cmd);
 		CtdlIPC_chat_recv(ipc, cmd);
 		if (cmd[0] == '1') {
@@ -1218,7 +1219,7 @@ void do_edit(CtdlIPC *ipc,
 
 	cksum = file_checksum(temp);
 
-	if (!IsEmptyStr(editor_paths[0])) {
+	if (!IsEmptyStr(editor_path)) {
 		char tmp[SIZ];
 
 		snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", desc);
@@ -1227,7 +1228,7 @@ void do_edit(CtdlIPC *ipc,
 		editor_pid = fork();
 		if (editor_pid == 0) {
 			chmod(temp, 0600);
-			execlp(editor_paths[0], editor_paths[0], temp, NULL);
+			execlp(editor_path, editor_path, temp, NULL);
 			exit(1);
 		}
 		if (editor_pid > 0)
@@ -1236,7 +1237,7 @@ void do_edit(CtdlIPC *ipc,
 				b = ka_wait(&editor_exit);
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
-		scr_printf("Executed %s\n", editor_paths[0]);
+		scr_printf("Executed %s\n", editor_path);
 		stty_ctdl(0);
 	} else {
 		scr_printf("Entering %s.  Press return twice when finished.\n", desc);

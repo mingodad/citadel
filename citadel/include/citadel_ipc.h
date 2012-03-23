@@ -327,7 +327,6 @@ int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret);
 int CtdlIPCDirectoryLookup(CtdlIPC *ipc, const char *address, char *cret);
 int CtdlIPCSpecifyPreferredFormats(CtdlIPC *ipc, char *cret, char *formats);
 int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret);
-int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret);
 
 /* ************************************************************************** */
 /*             Stuff below this line is not for public consumption            */
