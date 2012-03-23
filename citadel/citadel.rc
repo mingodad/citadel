@@ -42,6 +42,10 @@ ansi_color=user
 #
 use_background=off
 
+# STATUS_LINE will keep an informative status line on the top of the screen,
+# but it doesn't work on all terminals (Mac OS is particularly bad at this).
+status_line=off
+
 # PROMPT_CONTROL should be set to on/off/user to control whether the <N>ext
 # and <S>top keys are active when displaying the paginator prompt.  If it
 # is set to "user" then it's a user-configurable option.

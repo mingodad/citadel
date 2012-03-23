@@ -773,6 +773,10 @@ void load_command_set(void)
 			if (!strncasecmp(&buf[11], "user", 4))
 				rc_ansi_color = 3;	/* user config */
 		}
+		if (!strncasecmp(buf, "status_line=", 12)) {
+			if (!strncasecmp(&buf[12], "on", 2))
+				enable_status_line = 1;
+		}
 		if (!strncasecmp(buf, "use_background=", 15)) {
 			if (!strncasecmp(&buf[15], "on", 2))
 				rc_color_use_bg = 9;

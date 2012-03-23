@@ -7,3 +7,4 @@ void do_rssclient_configuration(CtdlIPC *ipc);
 void do_system_configuration(CtdlIPC *ipc);
 
 extern char editor_path[PATH_MAX];
+extern int enable_status_line;
