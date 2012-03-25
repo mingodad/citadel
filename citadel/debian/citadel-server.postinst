@@ -21,6 +21,7 @@ case "$1" in
 	move_file /var/run/refcount_adjustments.dat /etc/citadel/data/refcount_adjustments.dat
 	move_file /etc/citadel/citadel.control /var/lib/citadel/data/citadel.control
 	move_file /etc/citadel/citadel.config /var/lib/citadel/data/citadel.config
+	invoke-rc.d citadel start
 
         db_get citadel/Administrator &&      admin="$RET"
         db_get citadel/ServerIPAddress &&    ip_addr="$RET"
@@ -43,19 +44,10 @@ case "$1" in
         export CREATE_INITTAB_ENTRY=no
         export NO_INIT_SCRIPTS=yes
 
-#This is not debian conformant, and uniq to the citadel.org debs.
-	export ALTER_ETC_SERVICES=yes
-#
-        if test -S /var/run/citadel/citadel.socket; then 
-            /usr/sbin/sendcommand "DOWN"
-        fi
-        while test -S /var/run/citadel/citadel.socket; do 
-            sleep 1
-        done
-	if test ! -f /var/lib/citadel/data/citadel.control -a -f /etc/citadel/citadel.control; then
-	    mv /etc/citadel/citadel.control /var/lib/citadel/data/
-	    mv /etc/citadel/citadel.config /var/lib/citadel/data/
-	fi
+	while test ! -S /var/run/citadel/citadel-admin.socket; do
+		sleep 1
+		echo -n :
+	done
 
         echo -n "applying your settings.... "
         /usr/lib/citadel-server/setup -q
@@ -85,14 +77,6 @@ case "$1" in
 			/usr/sbin/citmail -bm -r "$FROM" "$TO"
             fi
 	fi
-
-        if test -S /var/run/citadel/citadel.socket; then 
-            /usr/sbin/sendcommand "DOWN"
-        fi
-
-        while test -S /var/run/citadel/citadel.socket; do 
-            sleep 1
-        done
 
         db_stop
     ;;
