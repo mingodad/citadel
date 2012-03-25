@@ -838,6 +838,7 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			if (sockpath) {
 				syslog(LOG_INFO, "Closed UNIX domain socket %s\n",
 						sockpath);
+				unlink(sockpath);
 			} else if (tcp_port) {
 				syslog(LOG_INFO, "Closed TCP port %d\n", tcp_port);
 			} else {
@@ -870,6 +871,7 @@ void CtdlShutdownServiceHooks(void)
 				syslog(LOG_INFO, "[%s] Closed UNIX domain socket %s\n",
 					      cur->ServiceName,
 					      cur->sockpath);
+				unlink(cur->sockpath);
 			} else {
 				syslog(LOG_INFO, "[%s] closing service\n", 
 					      cur->ServiceName);
@@ -890,6 +892,7 @@ void CtdlDestroyServiceHook(void)
 		if (cur->sockpath) {
 			syslog(LOG_INFO, "Closed UNIX domain socket %s\n",
 				cur->sockpath);
+			unlink(cur->sockpath);
 		} else if (cur->tcp_port) {
 			syslog(LOG_INFO, "Closed TCP port %d\n", cur->tcp_port);
 		} else {
