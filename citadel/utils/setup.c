@@ -1158,8 +1158,9 @@ int main(int argc, char *argv[])
 	char buf[1024]; 
 	char aaa[128];
 	int info_only = 0;
-	int relh=0;
-	int home=0;
+	int relh = 0;
+	int home = 0;
+	int nRetries = 0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	struct passwd *pw;
@@ -1230,11 +1231,17 @@ int main(int argc, char *argv[])
 	/*
 	 * Connect to the running Citadel server.
 	 */
-        serv_sock = uds_connectsock(file_citadel_admin_socket);
+	while ((serv_sock < 0) && (nRetries < 10)) {
+        	serv_sock = uds_connectsock(file_citadel_admin_socket);
+		nRetries ++;
+		if (serv_sock < 0)
+			sleep(1);
+	}
 	if (serv_sock < 0) { 
 		display_error(
-			"%s\n", 
-			_("Setup could not connect to a running Citadel server.")
+			"%s: %s %s\n", 
+			_("Setup could not connect to a running Citadel server."),
+			strerror(errno), file_citadel_admin_socket
 		);
 		exit(1);
 	}
