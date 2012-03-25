@@ -498,45 +498,7 @@ void do_logout(void)
 
 	/* Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
-
-	/* For sites in guest mode, redirect to the landing page after we're logged out */
-	if (WC->serv_info->serv_supports_guest) {
-		wc_printf("	<script type=\"text/javascript\">	"
-			"	window.location='/';			"
-			"	</script>				"
-		);
-	}
-
-	wc_printf("<div id=\"logout_screen\">");
-        wc_printf("<div class=\"box\">");
-        wc_printf("<div class=\"boxlabel\">");
-	wc_printf(_("Log off"));
-        wc_printf("</div><div class=\"boxcontent\">");
-	serv_puts("MESG goodbye");
-	serv_getln(buf, sizeof buf);
-
-	if (WCC->serv_sock >= 0) {
-		if (buf[0] == '1') {
-			fmout("'CENTER'");
-		} else {
-			wc_printf("Goodbye\n");
-		}
-	}
-	else {
-		wc_printf(_("This program was unable to connect or stay "
-			"connected to the Citadel server.  Please report "
-			"this problem to your system administrator.")
-		);
-		wc_printf("<a href=\"http://www.citadel.org/doku.php/"
-			"faq:mastering_your_os:net#netstat\">%s</a>",
-			_("Read More..."));
-	}
-
-	wc_printf("<hr /><div class=\"buttons\"> "
-		"<span class=\"button_link\"><a href=\".\">");
-	wc_printf(_("Log in again"));
-	wc_printf("</a></span>");
-	wc_printf("</div></div></div>\n");
+	do_template("logout");
 	if (WC->serv_info->serv_supports_guest) {
 		display_default_landing_page();
 		return;
@@ -761,62 +723,6 @@ void display_reg(int during_login)
 
 }
 
-
-/*
- * display form for changing your password
- */
-void display_changepw(void)
-{
-	wcsession *WCC = WC;
-	WCTemplputParams SubTP;
-	char buf[SIZ];
-	StrBuf *Buf;
-	output_headers(1, 1, 1, 0, 0, 0);
-
-	Buf = NewStrBufPlain(_("Change your password"), -1);
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_STRBUF;
-	SubTP.Context = Buf;
-	DoTemplate(HKEY("box_begin"), NULL, &SubTP);
-
-	FreeStrBuf(&Buf);
-
-	if (StrLength(WCC->ImportantMsg) > 0) {
-		wc_printf("<span class=\"errormsg\">"
-			  "%s</span><br>\n", ChrPtr(WCC->ImportantMsg));
-		FlushStrBuf(WCC->ImportantMsg);
-	}
-
-	serv_puts("MESG changepw");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
-		fmout("CENTER");
-	}
-
-	wc_printf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wc_printf("<table class=\"altern\" ");
-	wc_printf("<tr class=\"even\"><td>");
-	wc_printf(_("Enter new password:"));
-	wc_printf("</td><td>");
-	wc_printf("<input type=\"password\" name=\"newpass1\" value=\"\" maxlength=\"20\"></td></tr>\n");
-	wc_printf("<tr class=\"odd\"><td>");
-	wc_printf(_("Enter it again to confirm:"));
-	wc_printf("</td><td>");
-	wc_printf("<input type=\"password\" name=\"newpass2\" value=\"\" maxlength=\"20\"></td></tr>\n");
-	wc_printf("</table>\n");
-
-	wc_printf("<div class=\"buttons\">\n");
-	wc_printf("<input type=\"submit\" name=\"change_action\" value=\"%s\">", _("Change password"));
-	wc_printf("&nbsp;");
-	wc_printf("<input type=\"submit\" name=\"cancel_action\" value=\"%s\">\n", _("Cancel"));
-	wc_printf("</div>\n");
-	wc_printf("</form>\n");
-
-	do_template("box_end");
-	wDumpContent(1);
-}
-
 /*
  * change password
  * if passwords match, propagate it to citserver.
@@ -837,13 +743,13 @@ void changepw(void)
 
 	if (strcasecmp(newpass1, newpass2)) {
 		AppendImportantMessage(_("They don't match.  Password was not changed."), -1);
-		display_changepw();
+		do_template("menu_change_pw");
 		return;
 	}
 
 	if (IsEmptyStr(newpass1)) {
 		AppendImportantMessage(_("Blank passwords are not allowed."), -1);
-		display_changepw();
+		do_template("menu_change_pw");
 		return;
 	}
 
@@ -864,7 +770,7 @@ void changepw(void)
 		display_main_menu();
 	}
 	else {
-		display_changepw();
+		do_template("menu_change_pw");
 	}
 	FreeStrBuf(&Line);
 }
@@ -1036,7 +942,6 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("validate"), "", 0, validate, 0);
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, 0);
 	WebcitAddUrlHandler(HKEY("display_reg"), "", 0, _display_reg, 0);
-	WebcitAddUrlHandler(HKEY("display_changepw"), "", 0, display_changepw, 0);
 	WebcitAddUrlHandler(HKEY("changepw"), "", 0, changepw, 0);
 	WebcitAddUrlHandler(HKEY("termquit"), "", 0, do_logout, 0);
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);

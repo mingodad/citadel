@@ -1,0 +1,18 @@
+<?--("For sites in guest mode, redirect to the landing page after we're logged out")>
+<?!("COND:SERV:SUPPORTS_GUEST", 1)>
+<script type="text/javascript">
+window.location='/';			
+</script>				
+<?!("X", 1)>
+
+<div id="logout_screen">
+<div class="box">
+<div class="boxlabel"><?_("Log off")></div>
+<div class="boxcontent">
+<?SERV:MESG("goodbye")>
+
+<hr /><div class="buttons"> 
+<span class="button_link"><a href=".">
+<?_("Log in again")>
+</a></span>
+</div></div></div>

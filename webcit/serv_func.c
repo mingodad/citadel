@@ -254,55 +254,6 @@ int GetConnected (void)
 	return 0;
 }
 
-/*
- *  Read Citadel variformat text and spit it out as HTML.
- *  align html align string
- */
-inline void fmout(const char *align)
-{
-	_fmout(WC->WBuf, align);
-}
-
-void _fmout(StrBuf *Target, const char *align)
-{
-	int intext = 0;
-	int bq = 0;
-	char buf[SIZ];
-
-	StrBufAppendPrintf(Target, "<div align=%s>\n", align);
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-
-		if ((intext == 1) && (isspace(buf[0]))) {
-			wc_printf("<br>");
-		}
-		intext = 1;
-
-		/*
-		 * Quoted text should be displayed in italics and in a
-		 * different colour.  This code understands Citadel-style
-		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
-		 */
-		if ((bq == 0) && (!strncmp(buf, " >", 2))) {
-			StrBufAppendBufPlain(Target, HKEY("<BLOCKQUOTE>"), 0);
-			bq = 1;
-		} else if ((bq == 1) && (strncmp(buf, " >", 2))) {
-			StrBufAppendBufPlain(Target, HKEY("</BLOCKQUOTE>"), 0);
-			bq = 0;
-		}
-		if ((bq == 1) && (!strncmp(buf, " >", 2))) {
-			strcpy(buf, &buf[2]);
-		}
-		/* Activate embedded URL's */
-		url(buf, sizeof(buf));
-
-		escputs(buf);
-		StrBufAppendBufPlain(Target, HKEY("\n"), 0);
-	}
-	if (bq == 1) {
-		wc_printf("</I>");
-	}
-	wc_printf("</div><br>\n");
-}
 
 void FmOut(StrBuf *Target, const char *align, const StrBuf *Source)
 {

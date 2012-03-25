@@ -1,0 +1,32 @@
+<?=("head")>
+<?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<?ROOMBANNER>
+<div id="content">
+
+<?=("box_begin_1")><?_("Change your password")><?=("box_begin_2")>
+
+<?SERV:MESG("changepw")>
+
+ 
+<form name="changepwform" action="changepw" method="post">
+<input type="hidden" name="nonce" value="<?NONCE>">
+
+<table class="altern" >
+<tr class="even">
+ <td><?_("Enter new password:")></td>
+ <td><input type="password" name="newpass1" value="" maxlength="20"></td>
+</tr>
+<tr class="odd">
+ <td><?_("Enter it again to confirm:")></td>
+ <td><input type="password" name="newpass2" value="" maxlength="20"></td>
+</tr>
+</table>
+
+<div class="buttons">
+<input type="submit" name="change_action" value="<?_("Change password")>"> 
+&nbsp;
+<input type="submit" name="cancel_action" value="<?_("Cancel")>">
+</div>
+</form>
+<?=("box_end")>
+<?=("trailing")>
