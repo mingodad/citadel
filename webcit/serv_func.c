@@ -524,22 +524,23 @@ void server_to_text()
 int read_server_text(StrBuf *Buf, long *nLines)
 {
 	wcsession *WCC = WC;
+	StrBuf *ReadBuf;
 	long nRead;
 	long nTotal = 0;
 	long nlines;
 	
 	nlines = 0;
+	ReadBuf = NewStrBuf();
 	while ((WCC->serv_sock!=-1) &&
-	       (nRead = StrBuf_ServGetln(Buf), (nRead >= 0) ))
+	       (nRead = StrBuf_ServGetln(ReadBuf), (nRead >= 0) &&
+		((nRead != 3)||(strcmp(ChrPtr(ReadBuf), "000") != 0))))
 	{
-		if (strcmp(ChrPtr(Buf) + nTotal, "000") != 0) {
-			StrBufCutRight(Buf, nRead);
-			break;
-		}
+		StrBufAppendBuf(Buf, ReadBuf, 0);
+		StrBufAppendBufPlain(Buf, HKEY("\n"), 0);
 		nTotal += nRead;
 		nlines ++;
 	}
-
+	FreeStrBuf(&ReadBuf);
 	*nLines = nlines;
 	return nTotal;
 }
