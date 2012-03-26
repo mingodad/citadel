@@ -2,8 +2,10 @@
 	<center>
 		<table border="0" width="100%" cellpadding="5">
 			<tr><td valign="top">
-			<?_("<i>The contents of this room are being mailed <b>as individual messages</b> to the following list recipients:</i><br><br>")>
-			<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_listrecp_removal", 0, 0, -1, #"listrecp")>
+			    <table class="altern">
+			      <tr><th><?_("<i>The contents of this room are being mailed <b>as individual messages</b> to the following list recipients:</i><br><br>")></th></tr>
+			      <?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_listrecp_removal", 0, 0, -1, #"listrecp")>
+			    </table>
 			<br>
 			<form method="post" action="netedit">
 			  <p>
@@ -16,8 +18,10 @@
 			</form>
 			</td>
 			<td valign="top">
-			<?_("<i>The contents of this room are being mailed <b>in digest form</b> to the following list recipients:</i><br><br>")>
-			<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_digestrecp_removal", 0, 0, -1, #"digestrecp")>
+			    <table class="altern">
+			      <tr><th><?_("<i>The contents of this room are being mailed <b>in digest form</b> to the following list recipients:</i><br><br>")></th></tr>
+			      <?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_digestrecp_removal", 0, 0, -1, #"digestrecp")>
+			    </table>
 			<br>
 			<form method="post" action="netedit">
 			  <p>
