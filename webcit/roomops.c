@@ -1038,6 +1038,9 @@ void netedit(void) {
 	StrBuf *TmpBuf;
 	int Done;
 
+        if (havebstr("force_room")) {
+                gotoroom(sbstr("force_room"));
+	}
 	/*/ TODO: do line dynamic! */
 	if (havebstr("line_pop3host")) {
 		strcpy(line, bstr("prefix"));
