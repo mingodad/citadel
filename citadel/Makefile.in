@@ -283,7 +283,7 @@ install-data-new:
 		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
 		$(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
 	fi
-	@for i in bio bitbucket files images info userpics; do \
+	@for i in bio bitbucket files images info userpics netconfigs; do \
 		$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/$$i; \
 	done
 
@@ -323,7 +323,7 @@ install-doc-new:
 	$(INSTALL_DATA) README.txt $(DESTDIR)$(DOC_DIR)/README.txt
 
 install-exec: all
-	@for i in bio bitbucket files images info userpics; do \
+	@for i in bio bitbucket files images info userpics netconfigs; do \
 		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
 	done
 	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS); do \
