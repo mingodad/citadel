@@ -396,7 +396,7 @@ void open_databases(void)
 		if (ret) {
 			syslog(LOG_EMERG, "db_open[%02x]: %s\n", i, db_strerror(ret));
 			if (ret == ENOMEM) {
-				syslog(LOG_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php/faq:troubleshooting:out_of_lock_entries for more information.\n");
+				syslog(LOG_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php?id=faq:troubleshooting:out_of_lock_entries for more information.");
 			}
 			syslog(LOG_EMERG, "exit code %d\n", ret);
 			exit(CTDLEXIT_DB);
@@ -889,7 +889,7 @@ void cdb_trunc(int cdb)
 			} else {
 				syslog(LOG_EMERG, "cdb_truncate(%d): %s\n", cdb, db_strerror(ret));
 				if (ret == ENOMEM) {
-					syslog(LOG_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php/faq:troubleshooting:out_of_lock_entries for more information.");
+					syslog(LOG_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php?id=faq:troubleshooting:out_of_lock_entries for more information.");
 				}
 				exit(CTDLEXIT_DB);
 			}

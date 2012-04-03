@@ -86,7 +86,7 @@ ConstStr ErrGeneral[] = {
 	{HKEY("To make both ways actualy take place restart the citserver with \"sendcommand down\"\n\n"
 	      "The errors returned by the system were:\n")},
 	{HKEY("You can recheck the above if you follow this faq item:\n"
-	      "http://www.citadel.org/doku.php/faq:mastering_your_os:net#netstat")}
+	      "http://www.citadel.org/doku.php?id=faq:mastering_your_os:net#netstat")}
 };
 
 ConstStr ErrPortShort = { HKEY("We couldn't bind all ports you configured to be provided by citadel server.\n")};

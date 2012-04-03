@@ -1095,7 +1095,7 @@ void checkcrash(void)
 			"factor.\n \n"
 			" You can obtain more information about this by enabling core dumps.\n \n"
 			" For more information, please see:\n \n"
-			" http://citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files"
+			" http://citadel.org/doku.php?id=faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files"
 			"\n \n"
 
 			" If you have already done this, the core dump is likely to be found at %score.%d\n"
