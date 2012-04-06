@@ -329,7 +329,7 @@ long get_new_room_number(void)
  * Get or set global configuration options
  *
  * IF YOU ADD OR CHANGE FIELDS HERE, YOU *MUST* DOCUMENT YOUR CHANGES AT:
- * http://www.citadel.org/doku.php/documentation:appproto:system_config
+ * http://www.citadel.org/doku.php?id=documentation:applicationprotocol
  *
  */
 void cmd_conf(char *argbuf)
