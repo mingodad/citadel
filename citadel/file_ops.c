@@ -689,9 +689,7 @@ void cmd_writ(char *cmdbuf)
 	}
 
 	if (bytes > 100000) {
-		cprintf("%d You may not write more than 100000 bytes.\n",
-			ERROR + TOO_BIG);
-		return;
+		bytes = 100000;
 	}
 
 	cprintf("%d %d\n", SEND_BINARY, bytes);
