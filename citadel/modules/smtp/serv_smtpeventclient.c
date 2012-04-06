@@ -117,10 +117,15 @@ eNextState SMTP_C_DispatchReadDone(AsyncIO *IO);
 eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO);
 eNextState SMTP_C_DNSFail(AsyncIO *IO);
 eNextState SMTP_C_Terminate(AsyncIO *IO);
+eNextState SMTP_C_TerminateDB(AsyncIO *IO);
 eReadState SMTP_C_ReadServerStatus(AsyncIO *IO);
 
 eNextState mx_connect_ip(AsyncIO *IO);
 eNextState get_one_mx_host_ip(AsyncIO *IO);
+eNextState FinalizeMessageSendDB(AsyncIO *IO);
+eNextState FinalizeMessageSend_DB1(AsyncIO *IO);
+eNextState FinalizeMessageSend_DB2(AsyncIO *IO);
+eNextState FinalizeMessageSend_DB3(AsyncIO *IO);
 
 /******************************************************************************
  * So, we're finished with sending (regardless of success or failure)         *
@@ -128,16 +133,12 @@ eNextState get_one_mx_host_ip(AsyncIO *IO);
  * we need to free the memory and send bounce messages (on terminal failure)  *
  * else we just free our SMTP-Message struct.                                 *
  ******************************************************************************/
-void FinalizeMessageSend(SmtpOutMsg *Msg)
+inline void FinalizeMessageSend_1(AsyncIO *IO)
 {
-	int IDestructQueItem;
-	int nRemain;
-	StrBuf *MsgData;
-	AsyncIO *IO = &Msg->IO;
+	SmtpOutMsg *Msg = IO->Data;
+	Msg->IDestructQueItem = DecreaseQReference(Msg->MyQItem);
 
-	IDestructQueItem = DecreaseQReference(Msg->MyQItem);
-
-	nRemain = CountActiveQueueEntries(Msg->MyQItem);
+	Msg->nRemain = CountActiveQueueEntries(Msg->MyQItem);
 
 	if (Msg->MyQEntry->Active && 
 	    CheckQEntryIsBounce(Msg->MyQEntry))
@@ -146,10 +147,19 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 		Msg->MyQItem->SendBounceMail |= (1<<Msg->MyQEntry->Status);
 	}
 
-	if ((nRemain > 0) || IDestructQueItem)
-		MsgData = SerializeQueueItem(Msg->MyQItem);
+	if ((Msg->nRemain > 0) || Msg->IDestructQueItem)
+		Msg->QMsgData = SerializeQueueItem(Msg->MyQItem);
 	else
-		MsgData = NULL;
+		Msg->QMsgData = NULL;
+}
+eNextState FinalizeMessageSend(SmtpOutMsg *Msg)
+{
+	return QueueDBOperation(&Msg->IO, FinalizeMessageSend_DB1);
+}
+
+inline void FinalizeMessageSend_DB_1(AsyncIO *IO)
+{
+	SmtpOutMsg *Msg = IO->Data;
 
 	/*
 	 * Uncompleted delivery instructions remain, so delete the old
@@ -157,11 +167,35 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 	 */
 	EVS_syslog(LOG_DEBUG, "SMTPQD: %ld", Msg->MyQItem->QueMsgID);
 	CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &Msg->MyQItem->QueMsgID, 1, "");
+}
+eNextState FinalizeMessageSend_DB1(AsyncIO *IO)
+{
+	FinalizeMessageSend_1(IO);
+	FinalizeMessageSend_DB_1(IO);
+	return NextDBOperation(IO, FinalizeMessageSend_DB2);
+}
 
-	if (IDestructQueItem)
+
+inline void FinalizeMessageSend_DB_2(AsyncIO *IO)
+{
+	SmtpOutMsg *Msg = IO->Data;
+
+	if (Msg->IDestructQueItem)
 		smtpq_do_bounce(Msg->MyQItem, Msg->msgtext);
+}
+eNextState FinalizeMessageSend_DB2(AsyncIO *IO)
+{
+	FinalizeMessageSend_DB_2(IO);
 
-	if (nRemain > 0)
+	return NextDBOperation(IO, FinalizeMessageSend_DB3);
+}
+
+
+inline void FinalizeMessageSend_DB_3(AsyncIO *IO)
+{
+	SmtpOutMsg *Msg = IO->Data;
+
+	if (Msg->nRemain > 0)
 	{
 		struct CtdlMessage *msg;
 		msg = malloc(sizeof(struct CtdlMessage));
@@ -169,7 +203,7 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
-		msg->cm_fields['M'] = SmashStrBuf(&MsgData);
+		msg->cm_fields['M'] = SmashStrBuf(&Msg->QMsgData);
 		msg->cm_fields['U'] = strdup("QMSG");
 		Msg->MyQItem->QueMsgID =
 			CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
@@ -181,12 +215,24 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 				   &Msg->MyQItem->MessageID,
 				   1,
 				   "");
-		FreeStrBuf(&MsgData);
+		FreeStrBuf(&Msg->QMsgData);
 	}
+}
+eNextState FinalizeMessageSend_DB3(AsyncIO *IO)
+{
+	FinalizeMessageSend_DB_3(IO);
+	return eAbort;
+}
+
+eNextState FinalizeMessageSend_DB(AsyncIO *IO)
+{
+	SmtpOutMsg *Msg = IO->Data;
+
 	RemoveContext(Msg->IO.CitContext);
-	if (IDestructQueItem)
+	if (Msg->IDestructQueItem)
 		RemoveQItem(Msg->MyQItem);
 	DeleteSmtpOutMsg(Msg);
+	return eAbort;
 }
 
 eNextState FailOneAttempt(AsyncIO *IO)
@@ -502,6 +548,7 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 		     SMTP_C_DispatchWriteDone,
 		     SMTP_C_DispatchReadDone,
 		     SMTP_C_Terminate,
+		     SMTP_C_TerminateDB,
 		     SMTP_C_ConnFail,
 		     SMTP_C_Timeout,
 		     SMTP_C_Shutdown);
@@ -562,7 +609,11 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 			StrBufPlain(Msg->MyQEntry->StatusMessage,
 				    HKEY("Invalid Recipient!"));
 		}
-		FinalizeMessageSend(Msg);
+		FinalizeMessageSend_1(&Msg->IO);
+		FinalizeMessageSend_DB_1(&Msg->IO);
+		FinalizeMessageSend_DB_2(&Msg->IO);
+		FinalizeMessageSend_DB_3(&Msg->IO);
+		FinalizeMessageSend_DB(&Msg->IO);
 	}
 }
 
@@ -651,8 +702,12 @@ eNextState SMTP_C_Terminate(AsyncIO *IO)
 	SmtpOutMsg *Msg = IO->Data;
 
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	FinalizeMessageSend(Msg);
-	return eAbort;
+	return FinalizeMessageSend(Msg);
+}
+eNextState SMTP_C_TerminateDB(AsyncIO *IO)
+{
+	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	return FinalizeMessageSend_DB(IO);
 }
 eNextState SMTP_C_Timeout(AsyncIO *IO)
 {
@@ -690,8 +745,7 @@ eNextState SMTP_C_Shutdown(AsyncIO *IO)
 	Msg->MyQEntry->Status = 3;
 	StrBufPlain(Msg->MyQEntry->StatusMessage,
 		    HKEY("server shutdown during message submit."));
-	FinalizeMessageSend(Msg);
-	return eAbort;
+	return FinalizeMessageSend(Msg);
 }
 
 

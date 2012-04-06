@@ -157,6 +157,7 @@ void DeleteNetworker(void *vptr)
 	FreeStrBuf(&NW->port);
 	FreeStrBuf(&NW->secret);
 	FreeStrBuf(&NW->Url);
+	FreeStrBuf(&NW->IO.ErrMsg);
 	FreeAsyncIOContents(&NW->IO);
 	free(NW);
 }
@@ -808,6 +809,13 @@ eNextState NWC_Terminate(AsyncIO *IO)
 	return eAbort;
 }
 
+eNextState NWC_TerminateDB(AsyncIO *IO)
+{
+	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
+	FinalizeNetworker(IO);
+	return eAbort;
+}
+
 eNextState NWC_Timeout(AsyncIO *IO)
 {
 	AsyncNetworker *NW = IO->Data;
@@ -881,6 +889,7 @@ void RunNetworker(AsyncNetworker *NW)
 		     NWC_DispatchWriteDone,
 		     NWC_DispatchReadDone,
 		     NWC_Terminate,
+		     NWC_TerminateDB,
 		     NWC_ConnFail,
 		     NWC_Timeout,
 		     NWC_Shutdown);

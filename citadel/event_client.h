@@ -146,6 +146,7 @@ struct AsyncIO {
 	IO_CallBack ReadDone, /* Theres new data to read... */
 		SendDone,     /* we may send more data */
 		Terminate,    /* shutting down... */
+		DBTerminate,  /* shutting down... */
 		Timeout,      /* Timeout handler;may also be conn. timeout */
 		ConnFail,     /* What to do when one connection failed? */
 		ShutdownAbort,/* we're going down. make your piece. */
@@ -274,6 +275,7 @@ void InitIOStruct(AsyncIO *IO,
 		  IO_CallBack SendDone,
 		  IO_CallBack ReadDone,
 		  IO_CallBack Terminate,
+		  IO_CallBack DBTerminate,
 		  IO_CallBack ConnFail,
 		  IO_CallBack Timeout,
 		  IO_CallBack ShutdownAbort);
@@ -283,6 +285,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 		     const char* Desc,
 		     IO_CallBack SendDone,
 		     IO_CallBack Terminate,
+		     IO_CallBack DBTerminate,
 		     IO_CallBack ShutdownAbort);
 
 eNextState ReAttachIO(AsyncIO *IO,

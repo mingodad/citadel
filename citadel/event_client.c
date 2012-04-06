@@ -127,8 +127,8 @@ void ShutDownDBCLient(AsyncIO *IO)
 	EVM_syslog(LOG_DEBUG, "DBEVENT Terminating.\n");
 	ev_cleanup_stop(event_db, &IO->db_abort_by_shutdown);
 
-	assert(IO->Terminate);
-	IO->Terminate(IO);
+	assert(IO->DBTerminate);
+	IO->DBTerminate(IO);
 }
 
 void
@@ -906,6 +906,7 @@ void InitIOStruct(AsyncIO *IO,
 		  IO_CallBack SendDone,
 		  IO_CallBack ReadDone,
 		  IO_CallBack Terminate,
+		  IO_CallBack DBTerminate,
 		  IO_CallBack ConnFail,
 		  IO_CallBack Timeout,
 		  IO_CallBack ShutdownAbort)
@@ -920,6 +921,7 @@ void InitIOStruct(AsyncIO *IO,
 	IO->SendDone      = SendDone;
 	IO->ReadDone      = ReadDone;
 	IO->Terminate     = Terminate;
+	IO->DBTerminate   = DBTerminate;
 	IO->LineReader    = LineReader;
 	IO->ConnFail      = ConnFail;
 	IO->Timeout       = Timeout;
@@ -943,6 +945,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 		     const char* Desc,
 		     IO_CallBack SendDone,
 		     IO_CallBack Terminate,
+		     IO_CallBack DBTerminate,
 		     IO_CallBack ShutdownAbort)
 {
 	IO->Data          = Data;
@@ -950,8 +953,9 @@ int InitcURLIOStruct(AsyncIO *IO,
 	IO->CitContext    = CloneContext(CC);
 	((CitContext *)IO->CitContext)->session_specific_data = (char*) Data;
 
-	IO->SendDone = SendDone;
-	IO->Terminate = Terminate;
+	IO->SendDone      = SendDone;
+	IO->Terminate     = Terminate;
+	IO->DBTerminate   = DBTerminate;
 	IO->ShutdownAbort = ShutdownAbort;
 
 	strcpy(IO->HttpReq.errdesc, Desc);

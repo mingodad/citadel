@@ -49,6 +49,7 @@
 
 eNextState EvaluateResult(AsyncIO *IO);
 eNextState ExtNotifyTerminate(AsyncIO *IO);
+eNextState ExtNotifyTerminateDB(AsyncIO *IO);
 eNextState ExtNotifyShutdownAbort(AsyncIO *IO);
 
 /*
@@ -81,6 +82,7 @@ int notify_http_server(char *remoteurl,
 			       "Citadel ExtNotify",
 			       EvaluateResult,
 			       ExtNotifyTerminate,
+			       ExtNotifyTerminateDB,
 			       ExtNotifyShutdownAbort))
 	{
 		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
@@ -295,6 +297,11 @@ eNextState EvaluateResult(AsyncIO *IO)
 	return 0;
 }
 
+eNextState ExtNotifyTerminateDB(AsyncIO *IO)
+{
+	free(IO);
+	return eAbort;
+}
 eNextState ExtNotifyTerminate(AsyncIO *IO)
 {
 	free(IO);
