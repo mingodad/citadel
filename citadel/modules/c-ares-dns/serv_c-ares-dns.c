@@ -85,7 +85,7 @@ static void HostByAddrCb(void *data,
 
 static void ParseAnswerA(AsyncIO *IO, unsigned char* abuf, int alen)
 {
-	struct hostent* host;
+	struct hostent* host = NULL;
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
@@ -100,6 +100,8 @@ static void ParseAnswerA(AsyncIO *IO, unsigned char* abuf, int alen)
 						      NULL,
 						      NULL);
 	if (IO->DNS.Query->DNSStatus != ARES_SUCCESS) {
+		if (host != NULL)
+			ares_free_hostent(host);
 		StrBufPlain(IO->ErrMsg,
 			    ares_strerror(IO->DNS.Query->DNSStatus), -1);
 		return;
@@ -111,7 +113,7 @@ static void ParseAnswerA(AsyncIO *IO, unsigned char* abuf, int alen)
 
 static void ParseAnswerAAAA(AsyncIO *IO, unsigned char* abuf, int alen)
 {
-	struct hostent* host;
+	struct hostent* host = NULL;
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
@@ -126,6 +128,8 @@ static void ParseAnswerAAAA(AsyncIO *IO, unsigned char* abuf, int alen)
 							 NULL,
 							 NULL);
 	if (IO->DNS.Query->DNSStatus != ARES_SUCCESS) {
+		if (host != NULL)
+			ares_free_hostent(host);
 		StrBufPlain(IO->ErrMsg,
 			    ares_strerror(IO->DNS.Query->DNSStatus), -1);
 		return;
@@ -137,7 +141,7 @@ static void ParseAnswerAAAA(AsyncIO *IO, unsigned char* abuf, int alen)
 
 static void ParseAnswerCNAME(AsyncIO *IO, unsigned char* abuf, int alen)
 {
-	struct hostent* host;
+	struct hostent* host = NULL;
 
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
@@ -153,6 +157,8 @@ static void ParseAnswerCNAME(AsyncIO *IO, unsigned char* abuf, int alen)
 						      NULL,
 						      NULL);
 	if (IO->DNS.Query->DNSStatus != ARES_SUCCESS) {
+		if (host != NULL)
+			ares_free_hostent(host);
 		StrBufPlain(IO->ErrMsg,
 			    ares_strerror(IO->DNS.Query->DNSStatus), -1);
 		return;
@@ -166,7 +172,7 @@ static void ParseAnswerCNAME(AsyncIO *IO, unsigned char* abuf, int alen)
 
 static void ParseAnswerMX(AsyncIO *IO, unsigned char* abuf, int alen)
 {
-	struct ares_mx_reply *mx_out;
+	struct ares_mx_reply *mx_out = NULL;
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
@@ -177,6 +183,8 @@ static void ParseAnswerMX(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNS.Query->DNSStatus = ares_parse_mx_reply(abuf, alen, &mx_out);
 	if (IO->DNS.Query->DNSStatus != ARES_SUCCESS) {
+		if (mx_out != NULL)
+			ares_free_data(mx_out);
 		StrBufPlain(IO->ErrMsg,
 			    ares_strerror(IO->DNS.Query->DNSStatus), -1);
 		return;
@@ -189,7 +197,7 @@ static void ParseAnswerMX(AsyncIO *IO, unsigned char* abuf, int alen)
 
 static void ParseAnswerNS(AsyncIO *IO, unsigned char* abuf, int alen)
 {
-	struct hostent* host;
+	struct hostent* host = NULL;
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
@@ -200,6 +208,8 @@ static void ParseAnswerNS(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNS.Query->DNSStatus = ares_parse_ns_reply(abuf, alen, &host);
 	if (IO->DNS.Query->DNSStatus != ARES_SUCCESS) {
+		if (host != NULL)
+			ares_free_hostent(host);
 		StrBufPlain(IO->ErrMsg,
 			    ares_strerror(IO->DNS.Query->DNSStatus), -1);
 		return;
@@ -211,7 +221,7 @@ static void ParseAnswerNS(AsyncIO *IO, unsigned char* abuf, int alen)
 
 static void ParseAnswerSRV(AsyncIO *IO, unsigned char* abuf, int alen)
 {
-	struct ares_srv_reply *srv_out;
+	struct ares_srv_reply *srv_out = NULL;
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
@@ -222,6 +232,8 @@ static void ParseAnswerSRV(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNS.Query->DNSStatus = ares_parse_srv_reply(abuf, alen, &srv_out);
 	if (IO->DNS.Query->DNSStatus != ARES_SUCCESS) {
+		if (srv_out != NULL)
+			ares_free_data(srv_out);
 		StrBufPlain(IO->ErrMsg,
 			    ares_strerror(IO->DNS.Query->DNSStatus), -1);
 		return;
@@ -245,6 +257,8 @@ static void ParseAnswerTXT(AsyncIO *IO, unsigned char* abuf, int alen)
 
 	IO->DNS.Query->DNSStatus = ares_parse_txt_reply(abuf, alen, &txt_out);
 	if (IO->DNS.Query->DNSStatus != ARES_SUCCESS) {
+		if (txt_out != NULL)
+			ares_free_data(txt_out);
 		StrBufPlain(IO->ErrMsg,
 			    ares_strerror(IO->DNS.Query->DNSStatus), -1);
 		return;
