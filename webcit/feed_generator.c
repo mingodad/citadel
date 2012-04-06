@@ -5,22 +5,15 @@
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include "webcit.h"
 #include "webserver.h"
-
 
 /*
  * RSS feed generator -- do one message
@@ -86,6 +79,19 @@ void feed_rss_one_message(long msgnum) {
 		in_messagetext = 0;
 		while (StrBufSipLine(Line, ServerResponse, &BufPtr), ((BufPtr!=StrBufNOTNULL)&&(BufPtr!=NULL)) ) {
 			safestrncpy(buf, ChrPtr(Line), sizeof buf);
+
+			/* XML parsers can be picky; strip out nonprintable header characters */
+			if ((strlen(buf)>=6) && (buf[4]=='=')) {
+				char *p = &buf[5];
+				while (*p) {
+					if (!isprint(*p)) {
+						*p = 0;
+					}
+					++p;
+				}
+			}
+
+			/* Now output fields */
 			if (in_body) {
 				if (in_messagetext) {
 					StrBufAppendBufPlain(messagetext, buf, -1, 0);
@@ -140,6 +146,7 @@ void feed_rss_one_message(long msgnum) {
 	FreeStrBuf(&ServerResponse);
 	return;
 }
+
 
 /*
  * RSS feed generator -- go through the message list
