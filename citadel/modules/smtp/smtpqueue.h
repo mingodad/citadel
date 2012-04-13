@@ -56,7 +56,6 @@ typedef struct queueitem {
 	time_t Retry;
 
 	long ActiveDeliveries;
-	long NotYetShutdownDeliveries;
 	StrBuf *EnvelopeFrom;
 	StrBuf *BounceTo;
 	StrBuf *SenderRoom;
@@ -71,8 +70,6 @@ typedef struct __QItemHandlerStruct {
 	QItemHandler H;
 } QItemHandlerStruct;
 int     DecreaseQReference(OneQueItem *MyQItem);
-void DecreaseShutdownDeliveries(OneQueItem *MyQItem);
-int GetShutdownDeliveries(OneQueItem *MyQItem);
 void    RemoveQItem(OneQueItem *MyQItem);
 int     CountActiveQueueEntries(OneQueItem *MyQItem);
 StrBuf *SerializeQueueItem(OneQueItem *MyQItem);

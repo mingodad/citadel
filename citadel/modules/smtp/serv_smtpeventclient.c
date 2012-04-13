@@ -126,7 +126,6 @@ eNextState FinalizeMessageSendDB(AsyncIO *IO);
 eNextState FinalizeMessageSend_DB1(AsyncIO *IO);
 eNextState FinalizeMessageSend_DB2(AsyncIO *IO);
 eNextState FinalizeMessageSend_DB3(AsyncIO *IO);
-eNextState FinalizeMessageSend_DB4(AsyncIO *IO);
 
 /******************************************************************************
  * So, we're finished with sending (regardless of success or failure)         *
@@ -218,27 +217,11 @@ inline void FinalizeMessageSend_DB_3(AsyncIO *IO)
 				   "");
 		FreeStrBuf(&Msg->QMsgData);
 	}
-	DecreaseShutdownDeliveries(Msg->MyQItem);
 }
 eNextState FinalizeMessageSend_DB3(AsyncIO *IO)
 {
-	SmtpOutMsg *Msg = IO->Data;
 	FinalizeMessageSend_DB_3(IO);
-	if (!Msg->IDestructQueItem)
-		return eAbort;
-	return NextDBOperation(IO, FinalizeMessageSend_DB4);
-}
-
-eNextState FinalizeMessageSend_DB4(AsyncIO *IO)
-{
-	int n;
-	SmtpOutMsg *Msg = IO->Data;
-
-	n = GetShutdownDeliveries(Msg->MyQItem);
-	if (n > 0) 
-		return NextDBOperation(IO, FinalizeMessageSend_DB4);
-	else
-		return eAbort;
+	return eAbort;
 }
 
 eNextState FinalizeMessageSend_DB(AsyncIO *IO)

@@ -141,22 +141,6 @@ int DecreaseQReference(OneQueItem *MyQItem)
 	return IDestructQueItem;
 }
 
-void DecreaseShutdownDeliveries(OneQueItem *MyQItem)
-{
-	pthread_mutex_lock(&ActiveQItemsLock);
-	MyQItem->NotYetShutdownDeliveries--;
-	pthread_mutex_unlock(&ActiveQItemsLock);
-}
-
-int GetShutdownDeliveries(OneQueItem *MyQItem)
-{
-	int DestructNow;
-
-	pthread_mutex_lock(&ActiveQItemsLock);
-	DestructNow = MyQItem->ActiveDeliveries == 0;
-	pthread_mutex_unlock(&ActiveQItemsLock);
-	return DestructNow;
-}
 void RemoveQItem(OneQueItem *MyQItem)
 {
 	long len;
@@ -872,7 +856,6 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	}
 	DeleteHashPos(&It);
 
-	MyQItem->NotYetShutdownDeliveries = 
 	MyQItem->ActiveDeliveries = CountActiveQueueEntries(MyQItem);
 
 	/* failsafe against overload: 
