@@ -135,7 +135,7 @@ void
 DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
-	EV_syslog(LOG_DEBUG, "%s() - event type: %d", __FUNCTION__ , IO->NextDBOperation(IO) );
+	EV_syslog(LOG_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
 
 	ev_idle_stop(event_db, &IO->db_unwind_stack);
