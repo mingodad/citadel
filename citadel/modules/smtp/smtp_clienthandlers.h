@@ -38,8 +38,6 @@ typedef struct _stmp_out_msg {
 	long n;
 	AsyncIO IO;
 	long CXFlags;
-	int IDestructQueItem;
-	int nRemain;
 
 	eSMTP_C_States State;
 
@@ -59,14 +57,11 @@ typedef struct _stmp_out_msg {
 	ParsedURL *Relay;
 	ParsedURL *pCurrRelay;
 	StrBuf *msgtext;
-	StrBuf *QMsgData;
 	const char *envelope_from;
-
 	char user[1024];
 	char node[1024];
 	char name[1024];
 	char mailfrom[1024];
-
 	long Flags;
 } SmtpOutMsg;
 

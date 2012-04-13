@@ -103,11 +103,6 @@ eNextState TerminateLookupUrl(AsyncIO *IO)
 //TOOD
 	return eAbort;
 }
-eNextState TerminateLookupUrlDB(AsyncIO *IO)
-{
-//TOOD
-	return eAbort;
-}
 eNextState LookupUrlResult(AsyncIO *IO)
 {
 	return eTerminateConnection; /// /TODO
@@ -133,7 +128,6 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 			  "Citadel RSS ShorterURL Expander",
 			  LookupUrlResult, 
 			  TerminateLookupUrl, 
-			  TerminateLookupUrlDB, 
 			  ShutdownLookuUrl))
 	{
 		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");

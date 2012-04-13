@@ -706,14 +706,6 @@ eNextState POP3_C_Terminate(AsyncIO *IO)
 	FinalizePOP3AggrRun(IO);
 	return eAbort;
 }
-eNextState POP3_C_TerminateDB(AsyncIO *IO)
-{
-///	pop3aggr *pMsg = (pop3aggr *)IO->Data;
-
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
-	FinalizePOP3AggrRun(IO);
-	return eAbort;
-}
 eNextState POP3_C_Timeout(AsyncIO *IO)
 {
 	pop3aggr *pMsg = IO->Data;
@@ -891,7 +883,6 @@ int pop3_do_fetching(pop3aggr *cpptr)
 		     POP3_C_DispatchWriteDone,
 		     POP3_C_DispatchReadDone,
 		     POP3_C_Terminate,
-		     POP3_C_TerminateDB,
 		     POP3_C_ConnFail,
 		     POP3_C_Timeout,
 		     POP3_C_Shutdown);
