@@ -231,11 +231,11 @@ eNextState FinalizeMessageSend_DB3(AsyncIO *IO)
 
 eNextState FinalizeMessageSend_DB4(AsyncIO *IO)
 {
-	int n;
+	int Done;
 	SmtpOutMsg *Msg = IO->Data;
 
-	n = GetShutdownDeliveries(Msg->MyQItem);
-	if (n > 0) 
+	Done = GetShutdownDeliveries(Msg->MyQItem);
+	if (!Done) 
 		return NextDBOperation(IO, FinalizeMessageSend_DB4);
 	else
 		return eAbort;
