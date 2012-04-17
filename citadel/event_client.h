@@ -253,8 +253,6 @@ void StopClientWatchers(AsyncIO *IO);
 
 void SetNextTimeout(AsyncIO *IO, double timeout);
 
-void InitC_ares_dns(AsyncIO *IO);
-
 #include <curl/curl.h>
 
 #define OPT(s, v) \

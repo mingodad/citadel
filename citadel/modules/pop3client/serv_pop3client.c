@@ -852,14 +852,6 @@ eNextState pop3_get_one_host_ip_done(AsyncIO *IO)
 eNextState pop3_get_one_host_ip(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
-	/*
-	 * here we start with the lookup of one host. it might be...
-	 * - the relay host *sigh*
-	 * - the direct hostname if there was no mx record
-	 * - one of the mx'es
-	 */
-
-	InitC_ares_dns(IO);
 
 	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 

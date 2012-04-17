@@ -413,8 +413,6 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 	 * - one of the mx'es
 	 */
 
-	InitC_ares_dns(IO);
-
 	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	EVS_syslog(LOG_DEBUG,
