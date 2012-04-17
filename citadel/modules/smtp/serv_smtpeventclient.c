@@ -388,10 +388,19 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			addr->sin_port   = htons(DefaultMXPort);
 		}
 		Msg->mx_host = Msg->pCurrRelay->Host;
+		if (Msg->HostLookup.VParsedDNSReply != NULL) {
+			Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);
+			Msg->HostLookup.VParsedDNSReply = NULL;
+		}
 		return mx_connect_ip(IO);
 	}
-	else
+	else {
+		if (Msg->HostLookup.VParsedDNSReply != NULL) {
+			Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);
+			Msg->HostLookup.VParsedDNSReply = NULL;
+		}
 		return FailOneAttempt(IO);
+	}
 }
 
 eNextState get_one_mx_host_ip(AsyncIO *IO)

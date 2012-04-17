@@ -159,6 +159,10 @@ void DeleteNetworker(void *vptr)
 	FreeStrBuf(&NW->Url);
 	FreeStrBuf(&NW->IO.ErrMsg);
 	FreeAsyncIOContents(&NW->IO);
+	if (NW->HostLookup.VParsedDNSReply != NULL) {
+		NW->HostLookup.DNSReplyFree(NW->HostLookup.VParsedDNSReply);
+		NW->HostLookup.VParsedDNSReply = NULL;
+	}
 	free(NW);
 }
 
