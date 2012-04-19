@@ -14,7 +14,6 @@
 
 void screen_new(void);
 int scr_printf(char *fmt, ...);
-void ctdl_getline(char *string, int lim);
 #define SCR_NOBLOCK 0
 #define SCR_BLOCK -1
 int scr_getc(int delay);
@@ -27,6 +26,7 @@ void ctdl_beep(void);
 void scr_wait_indicator(int);
 extern char status_line[];
 extern void check_screen_dims(void);
+extern void ctdl_getline(char *string, int lim);
 
 extern int screenwidth;
 extern int screenheight;
