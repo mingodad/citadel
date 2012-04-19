@@ -502,7 +502,15 @@ int ctdl_getline(char *string, int lim, int noshow, int bs)
 	int ch;
 
 	async_ka_start();
-	scr_printf("%s", string);
+	if (noshow && !IsEmptyStr(string)) {
+		int num_stars = strlen(string);
+		while (num_stars--) {
+			scr_putc('*');
+		}
+	}
+	else {
+		scr_printf("%s", string);
+	}
 
 	while(1) {
 		ch = inkey();
@@ -551,34 +559,13 @@ int ctdl_getline(char *string, int lim, int noshow, int bs)
  */
 void strprompt(char *prompt, char *str, int len)
 {
-	int i;
-	char buf[128];
-
 	print_instant();
 	color(DIM_WHITE);
-	scr_printf("%s ", prompt);
-	color(DIM_MAGENTA);
-	scr_printf("[");
-	color(BRIGHT_MAGENTA);
-
-	if (len >= 0) {
-		scr_printf("%s", str);
-	}
-	else {
-		for (i=0; !IsEmptyStr(&str[i]); ++i) {
-			scr_printf("*");
-		}
-	}
-
-	color(DIM_MAGENTA);
-	scr_printf("]");
+	scr_printf("%s", prompt);
 	color(DIM_WHITE);
 	scr_printf(": ");
 	color(BRIGHT_CYAN);
-	ctdl_getline(buf, abs(len), (len<0), 0);
-	if (buf[0] != 0) {
-		strcpy(str, buf);
-	}
+	ctdl_getline(str, abs(len), (len<0), 0);
 	color(DIM_WHITE);
 }
 
