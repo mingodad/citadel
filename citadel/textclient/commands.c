@@ -492,52 +492,50 @@ int yesno_d(int d)
  * string		Pointer to string buffer
  * lim			Maximum length
  * noshow		Echo asterisks instead of keystrokes?
- * bs			Allow backspacing out of the prompt?
+ * bs			Allow backspacing out of the prompt? (NOT IMPLEMENTED YET)
  *
  * returns: string length
  */
 int ctdl_getline(char *string, int lim, int noshow, int bs)
 {
-	int a, b;
+	int pos = strlen(string);
+	int ch;
 
-	strcpy(string, "");
 	async_ka_start();
+	scr_printf("%s", string);
 
-GLA:	a = inkey();
-	if ((a == 8 || a == 23) && (IsEmptyStr(string)))
-		goto GLA;
-	if ((a != 10) && (a != 8) && (strlen(string) == lim))
-		goto GLA;
-	if ((a == 8) && (string[0] != 0)) {
-		string[strlen(string) - 1] = 0;
-		scr_putc(8); scr_putc(32); scr_putc(8);
-		goto GLA;
-	}
-	if ((a == 23) && (string[0] != 0)) {
-		do {
-			string[strlen(string) - 1] = 0;
+	while(1) {
+		ch = inkey();
+
+		if ((ch == 8)  && (pos > 0)) {				/* backspace */
+			--pos;
 			scr_putc(8); scr_putc(32); scr_putc(8);
-		} while (!IsEmptyStr(string) && string[strlen(string) - 1] != ' ');
-		goto GLA;
+		}
+
+		else if ((ch == 23) && (pos > 0)) {			/* Ctrl-W deletes a word */
+			while ((pos > 0) && !isspace(string[pos])) {
+				--pos;
+				scr_putc(8); scr_putc(32); scr_putc(8);
+			}
+			while ((pos > 0) && !isspace(string[pos-1])) {
+				--pos;
+				scr_putc(8); scr_putc(32); scr_putc(8);
+			}
+		}
+
+		else if (ch == 10) {					/* return */
+			string[pos] = 0;
+			scr_printf("\n");
+			async_ka_end();
+			return(pos);
+		}
+
+		else if (isprint(ch)) {					/* payload characters */
+			scr_putc((noshow ? '*' : ch));
+			string[pos] = ch;
+			++pos;
+		}
 	}
-	if ((a == 10)) {
-		scr_putc(10);
-		async_ka_end();
-		return(strlen(string));
-	}
-	if (a < 32) {
-		a = '.';
-	}
-	b = strlen(string);
-	string[b] = a;
-	string[b + 1] = 0;
-	if (noshow) {
-		scr_putc('*');
-	}
-	else {
-		scr_putc(a);
-	}
-	goto GLA;
 }
 
 
