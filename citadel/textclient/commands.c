@@ -92,7 +92,6 @@ char rc_url_cmd[SIZ];
 char rc_open_cmd[SIZ];
 char rc_gotmail_cmd[SIZ];
 
-char *gl_string;
 int next_lazy_cmd = 5;
 
 extern int screenwidth, screenheight;
@@ -492,14 +491,16 @@ int yesno_d(int d)
  *
  * string		Pointer to string buffer
  * lim			Maximum length
- * noshow		If nonzero, echo asterisks instead of keystrokes
+ * noshow		Echo asterisks instead of keystrokes?
+ * bs			Allow backspacing out of the prompt?
+ *
+ * returns: string length
  */
-void ctdl_getline(char *string, int lim, int noshow)
+int ctdl_getline(char *string, int lim, int noshow, int bs)
 {
 	int a, b;
 
 	strcpy(string, "");
-	gl_string = string;
 	async_ka_start();
 
 GLA:	a = inkey();
@@ -522,7 +523,7 @@ GLA:	a = inkey();
 	if ((a == 10)) {
 		scr_putc(10);
 		async_ka_end();
-		return;
+		return(strlen(string));
 	}
 	if (a < 32) {
 		a = '.';
@@ -540,9 +541,10 @@ GLA:	a = inkey();
 }
 
 
-/*
- * strprompt()  -  prompt for a string, print the existing value and
- *                 allow the user to press return to keep it...
+/* 
+ * newprompt()		prompt for a string, print the existing value, and
+ *			allow the user to press return to keep it...
+ *			If len is negative, pass the "noshow" flag to ctdl_getline()
  */
 void strprompt(char *prompt, char *str, int len)
 {
@@ -570,7 +572,7 @@ void strprompt(char *prompt, char *str, int len)
 	color(DIM_WHITE);
 	scr_printf(": ");
 	color(BRIGHT_CYAN);
-	ctdl_getline(buf, abs(len), (len<0));
+	ctdl_getline(buf, abs(len), (len<0), 0);
 	if (buf[0] != 0) {
 		strcpy(str, buf);
 	}
@@ -628,8 +630,9 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 }
 
 /* 
- * newprompt()  -  prompt for a string with no existing value
- *                 (clears out string buffer first)
+ * newprompt()		prompt for a string with no existing value
+ *			(clears out string buffer first)
+ *			If len is negative, pass the "noshow" flag to ctdl_getline()
  */
 void newprompt(char *prompt, char *str, int len)
 {
@@ -637,7 +640,7 @@ void newprompt(char *prompt, char *str, int len)
 	color(BRIGHT_MAGENTA);
 	scr_printf("%s", prompt);
 	color(DIM_MAGENTA);
-	ctdl_getline(str, abs(len), (len<0));
+	ctdl_getline(str, abs(len), (len<0), 0);
 	color(DIM_WHITE);
 }
 
@@ -1053,7 +1056,7 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 				/* We've found our command. */
 				if (requires_string(cptr, cmdpos)) {
 					argbuf[0] = 0;
-					ctdl_getline(argbuf, 64, 0);
+					ctdl_getline(argbuf, 64, 0, 0);
 				} else {
 					scr_printf("\n");
 				}
