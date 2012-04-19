@@ -1354,7 +1354,7 @@ void process_quote(void)
 	}
 
 	qstart = intprompt("Begin quoting at", 1, 1, line);
-	qend = intprompt("  End quoting at", qstart, qstart, line);
+	qend = intprompt("  End quoting at", line, qstart, line);
 
 	rewind(qfile);
 	line = 0;
