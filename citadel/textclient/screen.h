@@ -26,7 +26,6 @@ void ctdl_beep(void);
 void scr_wait_indicator(int);
 extern char status_line[];
 extern void check_screen_dims(void);
-extern void ctdl_getline(char *string, int lim);
 
 extern int screenwidth;
 extern int screenheight;

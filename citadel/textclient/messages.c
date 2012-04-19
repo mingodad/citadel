@@ -810,14 +810,12 @@ void replace_string(char *filename, long int startpos)
 	long msglen = 0L;
 	int rv;
 
-	scr_printf("Enter text to be replaced:\n: ");
-	ctdl_getline(srch_str, (sizeof(srch_str)-1) );
+	newprompt("Enter test to be replaced: ", srch_str, (sizeof(srch_str)-1) );
 	if (IsEmptyStr(srch_str)) {
 		return;
 	}
 
-	scr_printf("Enter text to replace it with:\n: ");
-	ctdl_getline(rplc_str, (sizeof(rplc_str)-1) );
+	newprompt("Enter text to replace it with: ", rplc_str, (sizeof(rplc_str)-1) );
 
 	fp = fopen(filename, "r+");
 	if (fp == NULL) {
@@ -1214,10 +1212,10 @@ int entmsg(CtdlIPC *ipc,
 			if (is_reply) {
 				strcpy(buf, reply_to);
 			} else {
-				scr_printf("Enter recipient: ");
-				ctdl_getline(buf, (SIZ-100) );
-				if (IsEmptyStr(buf))
+				newprompt("Enter recipient: ", buf, SIZ-100);
+				if (IsEmptyStr(buf)) {
 					return (1);
+				}
 			}
 		} else
 			strcpy(buf, "sysop");
@@ -1354,12 +1352,10 @@ void process_quote(void)
 	while (fgets(buf, 128, qfile) != NULL) {
 		scr_printf("%3d %s", ++line, buf);
 	}
-	scr_printf("Begin quoting at [1] : ");
-	ctdl_getline(buf, 4);
-	qstart = (buf[0] == 0) ? (1) : atoi(buf);
-	scr_printf("  End quoting at [%d] : ", line);
-	ctdl_getline(buf, 4);
-	qend = (buf[0] == 0) ? (line) : atoi(buf);
+
+	qstart = intprompt("Begin quoting at", 1, 1, line);
+	qend = intprompt("  End quoting at", qstart, qstart, line);
+
 	rewind(qfile);
 	line = 0;
 	if (fgets(buf, 128, qfile) == NULL) {
