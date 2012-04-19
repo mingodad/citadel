@@ -492,7 +492,7 @@ int yesno_d(int d)
  * string		Pointer to string buffer
  * lim			Maximum length
  * noshow		Echo asterisks instead of keystrokes?
- * bs			Allow backspacing out of the prompt? (NOT IMPLEMENTED YET)
+ * bs			Allow backspacing out of the prompt? (returns -1 if this happens)
  *
  * returns: string length
  */
@@ -510,6 +510,11 @@ int ctdl_getline(char *string, int lim, int noshow, int bs)
 		if ((ch == 8)  && (pos > 0)) {				/* backspace */
 			--pos;
 			scr_putc(8); scr_putc(32); scr_putc(8);
+		}
+
+		else if ((ch == 8) && (pos == 0) && (bs)) {		/* backspace out of the prompt */
+			async_ka_end();
+			return(-1);
 		}
 
 		else if ((ch == 23) && (pos > 0)) {			/* Ctrl-W deletes a word */
