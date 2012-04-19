@@ -491,17 +491,13 @@ int yesno_d(int d)
  * Function to read a line of text from the terminal.
  *
  * string		Pointer to string buffer
- * lim			Maximum length - if negative, echo asterisks instead of characters
+ * lim			Maximum length
+ * noshow		If nonzero, echo asterisks instead of keystrokes
  */
-void ctdl_getline(char *string, int lim) 
+void ctdl_getline(char *string, int lim, int noshow)
 {
 	int a, b;
-	char noshow = 0;
 
-	if (lim < 0) {
-		lim = (0 - lim);
-		noshow = 1;
-	}
 	strcpy(string, "");
 	gl_string = string;
 	async_ka_start();
@@ -574,7 +570,7 @@ void strprompt(char *prompt, char *str, int len)
 	color(DIM_WHITE);
 	scr_printf(": ");
 	color(BRIGHT_CYAN);
-	ctdl_getline(buf, len);
+	ctdl_getline(buf, abs(len), (len<0));
 	if (buf[0] != 0) {
 		strcpy(str, buf);
 	}
@@ -641,7 +637,7 @@ void newprompt(char *prompt, char *str, int len)
 	color(BRIGHT_MAGENTA);
 	scr_printf("%s", prompt);
 	color(DIM_MAGENTA);
-	ctdl_getline(str, len);
+	ctdl_getline(str, abs(len), (len<0));
 	color(DIM_WHITE);
 }
 
@@ -1057,7 +1053,7 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 				/* We've found our command. */
 				if (requires_string(cptr, cmdpos)) {
 					argbuf[0] = 0;
-					ctdl_getline(argbuf, 64);
+					ctdl_getline(argbuf, 64, 0);
 				} else {
 					scr_printf("\n");
 				}
