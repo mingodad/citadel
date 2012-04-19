@@ -70,7 +70,6 @@ struct cittext {
 
 void stty_ctdl(int cmd);
 int haschar(const char *st, int ch);
-void ctdl_getline(char *string, int lim);
 int file_checksum(char *filename);
 void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);
 

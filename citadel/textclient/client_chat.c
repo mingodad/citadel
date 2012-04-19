@@ -55,9 +55,6 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 extern char temp[];
-void ctdl_getline(char *, int);
-
-
 char last_paged[SIZ] = "";
 
 void chatmode(CtdlIPC *ipc)

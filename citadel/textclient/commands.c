@@ -487,24 +487,26 @@ int yesno_d(int d)
 
 
 
-/* Gets a line from the terminal */
-/* string == Pointer to string buffer */
-/* lim == Maximum length - if negative, no-show */
+/*
+ * Function to read a line of text from the terminal.
+ *
+ * string		Pointer to string buffer
+ * lim			Maximum length - if negative, echo asterisks instead of characters
+ */
 void ctdl_getline(char *string, int lim) 
 {
 	int a, b;
-	char flag = 0;
+	char noshow = 0;
 
 	if (lim < 0) {
 		lim = (0 - lim);
-		flag = 1;
+		noshow = 1;
 	}
 	strcpy(string, "");
 	gl_string = string;
 	async_ka_start();
 
 GLA:	a = inkey();
-	/* a = (a & 127); ** commented out because it isn't just an ASCII world anymore */
 	if ((a == 8 || a == 23) && (IsEmptyStr(string)))
 		goto GLA;
 	if ((a != 10) && (a != 8) && (strlen(string) == lim))
@@ -526,15 +528,18 @@ GLA:	a = inkey();
 		async_ka_end();
 		return;
 	}
-	if (a < 32)
+	if (a < 32) {
 		a = '.';
+	}
 	b = strlen(string);
 	string[b] = a;
 	string[b + 1] = 0;
-	if (flag == 0)
-		scr_putc(a);
-	if (flag == 1)
+	if (noshow) {
 		scr_putc('*');
+	}
+	else {
+		scr_putc(a);
+	}
 	goto GLA;
 }
 

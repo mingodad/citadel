@@ -14,6 +14,7 @@
 
 void screen_new(void);
 int scr_printf(char *fmt, ...);
+void ctdl_getline(char *string, int lim);
 #define SCR_NOBLOCK 0
 #define SCR_BLOCK -1
 int scr_getc(int delay);
