@@ -114,7 +114,6 @@ int main(int argc, char **argv) {
 	struct passwd *p;
 	int uid;
 	char ctdldir[PATH_MAX]=CTDLDIR;
-	char *ptr = NULL;
 	
 	calc_dirs_n_files(0,0,"", ctdldir, 0);
 	
@@ -127,7 +126,7 @@ int main(int argc, char **argv) {
 	}
 	while(1) {
 		printf("\n\nUsername: ");
-		ptr = fgets(buf, sizeof buf, stdin);
+		fgets(buf, sizeof buf, stdin);
 		buf[strlen(buf)-1] = 0;
 		p = getpwnam(buf);
 		if (p == NULL) {
@@ -137,7 +136,7 @@ int main(int argc, char **argv) {
 			uid = p->pw_uid;
 			printf("     uid: %d\n", uid);
 			printf("Password: ");
-			ptr = fgets(buf, sizeof buf, stdin);
+			fgets(buf, sizeof buf, stdin);
 			buf[strlen(buf)-1] = 0;
 			validpw(uid, buf);
 		}

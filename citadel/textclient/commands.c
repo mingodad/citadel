@@ -575,8 +575,9 @@ void strprompt(char *prompt, char *str, int len)
 	scr_printf(": ");
 	color(BRIGHT_CYAN);
 	ctdl_getline(buf, len);
-	if (buf[0] != 0)
+	if (buf[0] != 0) {
 		strcpy(str, buf);
+	}
 	color(DIM_WHITE);
 }
 
@@ -636,6 +637,7 @@ int intprompt(char *prompt, int ival, int imin, int imax)
  */
 void newprompt(char *prompt, char *str, int len)
 {
+	str[0] = 0;
 	color(BRIGHT_MAGENTA);
 	scr_printf("%s", prompt);
 	color(DIM_MAGENTA);
@@ -1054,6 +1056,7 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 			if (cmdmatch(cmdbuf, cptr, 5)) {
 				/* We've found our command. */
 				if (requires_string(cptr, cmdpos)) {
+					argbuf[0] = 0;
 					ctdl_getline(argbuf, 64);
 				} else {
 					scr_printf("\n");
