@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <getopt.h>
 
 int verbose = 0;
 
@@ -73,12 +74,19 @@ int main(int argc, char **argv)
 	int server_socket = 0;
 	char buf[1024];
 	int ipgm_secret = (-1);
-	int c;
-	int i;
-	char ctdldir[256];
+	int a, c, i = 0;
+	char *ctdldir = "/usr/local/citadel" ;
 
-	if ( (argc >= 2) && (!strcmp(argv[1], "-v")) ) {
-		verbose = 1;
+	while ((a = getopt(argc, argv, "vh:")) != EOF) switch(a) {
+		case 'v':
+			verbose = 1;
+			break;
+		case 'h':
+			ctdldir = strdup(optarg);
+			break;
+		default:
+			fprintf(stderr, "%s: usage: %s [-v]\n", argv[0], argv[0]);
+			return(1);
 	}
 
 	if (verbose) {
@@ -86,22 +94,21 @@ int main(int argc, char **argv)
 		printf("(c) 2009-2011 citadel.org GPLv3\n");
 	}
 
-	char *socket_locations[] = {
-		"/usr/local/citadel/citadel-admin.socket",
-		"/appl/citadel/citadel-admin.socket",
-		"/root/citadel/citadel/citadel-admin.socket"
-	};
+	if (chdir(ctdldir) != 0) {
+		fprintf(stderr, "%s: cannot change directory to %s: %s\n", argv[0], ctdldir, strerror(errno));
+		return(errno);
+	}
+	else if (verbose) {
+		fprintf(stderr, "Changed directory to %s\n", ctdldir);
+	}
 
 	server_socket = (-1);
 
-	for (i=0; i<(sizeof socket_locations / sizeof(char *)); ++i) {
-		if (server_socket < 0) {
-			if (verbose) printf("Trying %s...\n", socket_locations[i]);
-			server_socket = uds_connectsock(socket_locations[i]);
-		}
-	}
+	if (verbose) fprintf(stderr, "Connecting to server...\n");
+	server_socket = uds_connectsock("citadel-admin.socket");
 
 	if (server_socket < 0) {
+		if (verbose) fprintf(stderr, "Could not connect to Citadel server.\n");
 		exit(1);
 	}
 
@@ -109,8 +116,8 @@ int main(int argc, char **argv)
 	if (verbose) printf("%s\n", &buf[4]);
 
 	if (buf[0] == '2') {
-		do_room(server_socket, "0000000001.spam", "--spam");
-		do_room(server_socket, "0000000001.ham", "--ham");
+		do_room(server_socket, "0000000001.spam", "-u spam --spam");
+		do_room(server_socket, "0000000001.ham", "-u spam --ham");
 	}
 
 	sock_puts(server_socket, "QUIT");
