@@ -129,6 +129,7 @@ struct CitContext {
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
 	const char *ServiceName;		/* readable purpose of this session */
+	long tcp_port;
 	void *openid_data;			/* Data stored by the OpenID module */
 	char *ldap_dn;				/* DN of user when using AUTHMODE_LDAP */
 

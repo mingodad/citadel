@@ -934,16 +934,17 @@ void start_chkpwd_daemon(void) {
 int CtdlTryPassword(const char *password, long len)
 {
 	int code;
+	CitContext *CCC = CC;
 
-	if ((CC->logged_in)) {
+	if ((CCC->logged_in)) {
 		syslog(LOG_WARNING, "CtdlTryPassword: already logged in\n");
 		return pass_already_logged_in;
 	}
-	if (!strcmp(CC->curr_user, NLI)) {
+	if (!strcmp(CCC->curr_user, NLI)) {
 		syslog(LOG_WARNING, "CtdlTryPassword: no user selected\n");
 		return pass_no_user;
 	}
-	if (CtdlGetUser(&CC->user, CC->curr_user)) {
+	if (CtdlGetUser(&CCC->user, CCC->curr_user)) {
 		syslog(LOG_ERR, "CtdlTryPassword: internal error\n");
 		return pass_internal_error;
 	}
@@ -953,7 +954,7 @@ int CtdlTryPassword(const char *password, long len)
 	}
 	code = (-1);
 
-	if (CC->is_master) {
+	if (CCC->is_master) {
 		code = strcmp(password, config.c_master_pass);
 	}
 
@@ -961,7 +962,7 @@ int CtdlTryPassword(const char *password, long len)
 
 		/* host auth mode */
 
-		if (validpw(CC->user.uid, password)) {
+		if (validpw(CCC->user.uid, password)) {
 			code = 0;
 
 			/*
@@ -972,9 +973,9 @@ int CtdlTryPassword(const char *password, long len)
 			 * this is a security hazard, comment it out.
 			 */
 
-			CtdlGetUserLock(&CC->user, CC->curr_user);
-			safestrncpy(CC->user.password, password, sizeof CC->user.password);
-			CtdlPutUserLock(&CC->user);
+			CtdlGetUserLock(&CCC->user, CCC->curr_user);
+			safestrncpy(CCC->user.password, password, sizeof CCC->user.password);
+			CtdlPutUserLock(&CCC->user);
 
 			/*
 			 * (sooper-seekrit hack ends here)
@@ -991,7 +992,7 @@ int CtdlTryPassword(const char *password, long len)
 
 		/* LDAP auth mode */
 
-		if ((CC->ldap_dn) && (!CtdlTryPasswordLDAP(CC->ldap_dn, password))) {
+		if ((CCC->ldap_dn) && (!CtdlTryPasswordLDAP(CCC->ldap_dn, password))) {
 			code = 0;
 		}
 		else {
@@ -1008,11 +1009,11 @@ int CtdlTryPassword(const char *password, long len)
 		pw = (char*) malloc(len + 1);
 		memcpy(pw, password, len + 1);
 		strproc(pw);
-		strproc(CC->user.password);
-		code = strcasecmp(CC->user.password, pw);
+		strproc(CCC->user.password);
+		code = strcasecmp(CCC->user.password, pw);
 		strproc(pw);
-		strproc(CC->user.password);
-		code = strcasecmp(CC->user.password, pw);
+		strproc(CCC->user.password);
+		code = strcasecmp(CCC->user.password, pw);
 		free (pw);
 	}
 
@@ -1020,7 +1021,16 @@ int CtdlTryPassword(const char *password, long len)
 		do_login();
 		return pass_ok;
 	} else {
-		syslog(LOG_WARNING, "Bad password specified for <%s>\n", CC->curr_user);
+		syslog(LOG_WARNING, "Bad password specified for <%s> Service <%s> Port <%ld> Remote <%s / %s>\n",
+		       CCC->curr_user,
+		       CCC->ServiceName,
+		       CCC->tcp_port,
+		       CCC->cs_host,
+		       CCC->cs_addr);
+
+
+//citserver[5610]: Bad password specified for <willi> Service <citadel-TCP> Remote <PotzBlitz / >
+
 		return pass_wrong_password;
 	}
 }

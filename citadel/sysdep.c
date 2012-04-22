@@ -1271,6 +1271,7 @@ do_select:	force_purge = 0;
 					con = CreateNewContext();
 
 					/* Assign our new socket number to it. */
+					con->tcp_port = serviceptr->tcp_port;
 					con->client_socket = ssock;
 					con->h_command_function = serviceptr->h_command_function;
 					con->h_async_function = serviceptr->h_async_function;
