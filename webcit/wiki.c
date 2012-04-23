@@ -49,8 +49,6 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 	long msgnum = (-1L);
 	char buf[256];
 
-	str_wiki_index(pagename);
-
 	if (WC->CurRoom.view != VIEW_WIKI) {
 		wc_printf(_("'%s' is not a Wiki room."), ChrPtr(WC->CurRoom.name) );
 		return;
@@ -60,7 +58,7 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 		strcpy(pagename, "home");
 	}
 
-	/* Found it!  Now read it. */
+	str_wiki_index(pagename);	/* convert index name to lowercase and numeric only */
 
 	if ((rev != NULL) && (strlen(rev) > 0)) {
 		/* read an older revision */
@@ -71,7 +69,7 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 		}
 	}
 	else {
-		/* read the current revision? */
+		/* read the current revision */
 		msgnum = locate_message_by_uid(pagename);
 	}
 
