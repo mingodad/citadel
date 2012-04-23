@@ -373,7 +373,7 @@ eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *Msg)
 	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
 
-	EVS_syslog(LOG_INFO,
+	EVS_syslog(LOG_DEBUG,
 		   "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
 		   Msg->n,
 		   Msg->user,

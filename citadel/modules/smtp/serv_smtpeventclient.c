@@ -136,7 +136,25 @@ eNextState FinalizeMessageSend_DB4(AsyncIO *IO);
  ******************************************************************************/
 inline void FinalizeMessageSend_1(AsyncIO *IO)
 {
+	const char *Status;
 	SmtpOutMsg *Msg = IO->Data;
+	
+	if (Msg->MyQEntry->Status == 2) 
+		Status = "Delivery Successfull.";
+	else if (Msg->MyQEntry->Status == 5) 
+		Status = "Delivery failed permanently; giving up.";
+	else
+		Status = "Delivery failed temporarily; will retry later.";
+			
+	EVS_syslog(LOG_INFO,
+		   "SMTP: %s Recipient <%s> @ <%s> (%s) Statusmessage: %s\n",
+		   Status,
+		   Msg->user,
+		   Msg->node,
+		   Msg->name,
+		   ChrPtr(Msg->MyQEntry->StatusMessage));
+
+
 	Msg->IDestructQueItem = DecreaseQReference(Msg->MyQItem);
 
 	Msg->nRemain = CountActiveQueueEntries(Msg->MyQItem);
