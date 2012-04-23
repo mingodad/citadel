@@ -756,6 +756,8 @@ void end_tab(int tabnum, int num_tabs);
 
 int get_time_format_cached (void);
 void display_wiki_pagelist(void);
+void str_wiki_index(char *);
+
 HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP);
 
 /* actual supported locales */

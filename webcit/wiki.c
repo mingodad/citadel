@@ -5,17 +5,11 @@
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include "webcit.h"
@@ -129,6 +123,7 @@ void display_wiki_page(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
+	str_wiki_index(pagename);
 	safestrncpy(rev, bstr("rev"), sizeof rev);
 	do_revert = atoi(bstr("revert"));
 	display_wiki_page_backend(roomname, pagename, rev, do_revert);

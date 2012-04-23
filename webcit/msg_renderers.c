@@ -938,7 +938,10 @@ void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)
 	 * to do it again.
 	 */
 	if (!havebstr("attach_button")) {
-		msgnum = locate_message_by_uid(BSTR("page"));
+		char *wikipage = strdup(bstr("page"));
+		str_wiki_index(wikipage);
+		msgnum = locate_message_by_uid(wikipage);
+		free(wikipage);
 		if (msgnum >= 0L) {
 			Buf = NewStrBuf();
 			read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime);

@@ -5,17 +5,11 @@
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include "webcit.h"
@@ -1017,7 +1011,7 @@ void post_message(void)
 		StrBuf *Recp = NULL; 
 		StrBuf *Cc = NULL;
 		StrBuf *Bcc = NULL;
-		const StrBuf *Wikipage = NULL;
+		char *wikipage = NULL;
 		const StrBuf *my_email_addr = NULL;
 		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
@@ -1072,14 +1066,15 @@ void post_message(void)
 		FreeStrBuf(&EmailAddress);
 		FreeStrBuf(&EncBuf);
 
-		Wikipage = sbstr("page");
+		wikipage = strdup(bstr("page"));
+		str_wiki_index(wikipage);
 		my_email_addr = sbstr("my_email_addr");
 		
 		HeaderLen = StrLength(Recp) + 
 			StrLength(encoded_subject) +
 			StrLength(Cc) +
 			StrLength(Bcc) + 
-			StrLength(Wikipage) +
+			strlen(wikipage) +
 			StrLength(my_email_addr) + 
 			StrLength(references);
 		CmdBuf = NewStrBufPlain(NULL, sizeof (CMD) + HeaderLen);
@@ -1091,11 +1086,12 @@ void post_message(void)
 			     ChrPtr(display_name),
 			     saving_to_drafts?"":ChrPtr(Cc),
 			     saving_to_drafts?"":ChrPtr(Bcc),
-			     ChrPtr(Wikipage),
+			     wikipage,
 			     ChrPtr(my_email_addr),
 			     ChrPtr(references));
 		FreeStrBuf(&references);
 		FreeStrBuf(&encoded_subject);
+		free(wikipage);
 
 		if ((HeaderLen + StrLength(sbstr("msgtext")) < 10) && 
 		    (GetCount(WCC->attachments) == 0)){
@@ -1579,14 +1575,15 @@ void display_enter(void)
 		const StrBuf *Recp = NULL; 
 		const StrBuf *Cc = NULL;
 		const StrBuf *Bcc = NULL;
-		const StrBuf *Wikipage = NULL;
+		char *wikipage = NULL;
 		StrBuf *CmdBuf = NULL;
 		const char CMD[] = "ENT0 0|%s|%d|0||%s||%s|%s|%s";
 		
 		Recp = sbstr("recp");
 		Cc = sbstr("cc");
 		Bcc = sbstr("bcc");
-		Wikipage = sbstr("page");
+		wikipage = strdup(bstr("page"));
+		str_wiki_index(wikipage);
 		
 		CmdBuf = NewStrBufPlain(NULL, 
 					sizeof (CMD) + 
@@ -1594,7 +1591,7 @@ void display_enter(void)
 					StrLength(display_name) +
 					StrLength(Cc) +
 					StrLength(Bcc) + 
-					StrLength(Wikipage));
+					strlen(wikipage));
 
 		StrBufPrintf(CmdBuf, 
 			     CMD,
@@ -1603,9 +1600,11 @@ void display_enter(void)
 			     ChrPtr(display_name),
 			     ChrPtr(Cc), 
 			     ChrPtr(Bcc), 
-			     ChrPtr(Wikipage));
+			     wikipage
+		);
 		serv_puts(ChrPtr(CmdBuf));
 		StrBuf_ServGetln(CmdBuf);
+		free(wikipage);
 
 		rc = GetServerStatusMsg(CmdBuf, &Result, 0, 0);
 
