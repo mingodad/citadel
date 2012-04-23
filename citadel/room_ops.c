@@ -1608,7 +1608,9 @@ void cmd_setr(char *args)
 		mkdir(buf, 0755);
 	}
 	snprintf(buf, sizeof buf, "The room \"%s\" has been edited by %s.\n",
-		CC->room.QRname, CC->curr_user);
+		CC->room.QRname,
+		(CC->logged_in ? CC->curr_user : "an administrator")
+	);
 	CtdlAideMessage(buf, "Room modification Message");
 	cprintf("%d Ok\n", CIT_OK);
 }
@@ -1853,7 +1855,9 @@ void cmd_kill(char *argbuf)
 
 		/* tell the world what we did */
 		snprintf(msg, sizeof msg, "The room \"%s\" has been deleted by %s.\n",
-			 deleted_room_name, CC->curr_user);
+			 deleted_room_name,
+			(CC->logged_in ? CC->curr_user : "an administrator")
+		);
 		CtdlAideMessage(msg, "Room Purger Message");
 		cprintf("%d '%s' deleted.\n", CIT_OK, deleted_room_name);
 	} else {
@@ -2071,7 +2075,7 @@ void cmd_cre8(char *args)
 	snprintf(notification_message, 1024,
 		"A new room called \"%s\" has been created by %s%s%s%s%s%s\n",
 		new_room_name,
-		CC->user.fullname,
+		(CC->logged_in ? CC->curr_user : "an administrator"),
 		((newflags & QR_MAILBOX) ? " [personal]" : ""),
 		((newflags & QR_PRIVATE) ? " [private]" : ""),
 		((newflags & QR_GUESSNAME) ? " [hidden]" : ""),

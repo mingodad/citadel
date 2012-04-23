@@ -1577,7 +1577,8 @@ int CtdlInvtKick(char *iuser, int op) {
 		iuser,
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->room.QRname,
-		CC->user.fullname);
+		(CC->logged_in ? CC->user.fullname : "an administrator")
+	);
 	CtdlAideMessage(bbb,"User Admin Message");
 
 	return(0);
@@ -1956,7 +1957,9 @@ void cmd_asup(char *cmdbuf)
 	if (deleted) {
 		snprintf(notify, SIZ, 
 			 "User \"%s\" has been deleted by %s.\n",
-			 usbuf.fullname, CC->user.fullname);
+			 usbuf.fullname,
+			(CC->logged_in ? CC->user.fullname : "an administrator")
+		);
 		CtdlAideMessage(notify, "User Deletion Message");
 	}
 
