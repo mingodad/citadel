@@ -1,21 +1,15 @@
 /*
  * Server-side module for Wiki rooms.  This handles things like version control. 
  * 
- * Copyright (c) 2009-2011 by the citadel.org team
+ * Copyright (c) 2009-2012 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
+ * modify it under the terms of the GNU General Public License, version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -431,7 +425,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 
 	CtdlDecodeBase64(memo, filename, strlen(filename));
 	extract_token(this_rev, memo, 0, '|', sizeof this_rev);
-	syslog(LOG_DEBUG, "callback found rev: %s\n", this_rev);
+	striplt(this_rev);
 
 	/* Perform the patch */
 	fp = popen(PATCH " -f -s -p0 -r /dev/null >/dev/null 2>/dev/null", "w");
@@ -566,6 +560,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	memset(&hecbd, 0, sizeof(struct HistoryEraserCallBackData));
 	hecbd.tempfilename = temp;
 	hecbd.stop_when = rev;
+	striplt(hecbd.stop_when);
 
 	mime_parser(msg->cm_fields['M'], NULL, *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
 	CtdlFreeMessage(msg);
