@@ -163,10 +163,9 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 			wc_printf("</td>");
 
 			if (row == 0) {
-				wc_printf("<td><a href=\"wiki?page=%s\">%s</a></td>",
-					bstr("page"),
-					_("(show)")
-				);
+				wc_printf("<td><a href=\"wiki?page=%s", bstr("page"));
+				wc_printf("?go="); urlescputs(ChrPtr(WC->CurRoom.name));
+				wc_printf("\">%s</a></td>", _("(show)"));
 				wc_printf("<td>(%s)</td>", _("Current version"));
 			}
 
