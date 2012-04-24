@@ -170,11 +170,12 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 			}
 
 			else {
-				wc_printf("<td><a href=\"wiki?page=%s?rev=%s\">%s</a></td>",
+				wc_printf("<td><a href=\"wiki?page=%s?rev=%s",
 					bstr("page"),
-					ChrPtr(rev_uuid),
-					_("(show)")
+					ChrPtr(rev_uuid)
 				);
+				wc_printf("?go="); urlescputs(ChrPtr(WC->CurRoom.name));
+				wc_printf("\">%s</a></td>", _("(show)"));
 				wc_printf("<td><a href=\"javascript:GetLoggedInFirst(encodeURIComponent('wiki?page=%s?rev=%s?revert=1'))\">%s</a></td>",
 					bstr("page"),
 					ChrPtr(rev_uuid),
