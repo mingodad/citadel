@@ -42,6 +42,7 @@ struct CitContext {
 
 	int cs_pid;		/* session ID */
 	int dont_term;		/* for special activities like artv so we don't get killed */
+	double created;      /* time of birth */
 	time_t lastcmd;		/* time of last command executed */
 	time_t lastidle;	/* For computing idle time */
 	CCState state;		/* thread state (see CON_ values below) */

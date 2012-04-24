@@ -72,17 +72,9 @@
 #include "ctdl_module.h"
 
 static void IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents);
-
 static void IO_abort_shutdown_callback(struct ev_loop *loop,
 				       ev_cleanup *watcher,
-				       int revents)
-{
-	AsyncIO *IO = watcher->data;
-	EV_syslog(LOG_DEBUG, "EVENT Q: %s\n", __FUNCTION__);
-
-	assert(IO->ShutdownAbort);
-	IO->ShutdownAbort(IO);
-}
+				       int revents);
 
 
 /*------------------------------------------------------------------------------
@@ -135,6 +127,7 @@ void
 DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
+	IO->Now = ev_now(event_db);
 	EV_syslog(LOG_DEBUG, "%s()", __FUNCTION__);
 	become_session(IO->CitContext);
 
@@ -184,6 +177,17 @@ extern HashList *InboundEventQueue;
 extern struct ev_loop *event_base;
 extern ev_async AddJob;
 extern ev_async ExitEventLoop;
+
+static void IO_abort_shutdown_callback(struct ev_loop *loop,
+				       ev_cleanup *watcher,
+				       int revents)
+{
+	AsyncIO *IO = watcher->data;
+	EV_syslog(LOG_DEBUG, "EVENT Q: %s\n", __FUNCTION__);
+	IO->Now = ev_now(event_base);
+	assert(IO->ShutdownAbort);
+	IO->ShutdownAbort(IO);
+}
 
 
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
@@ -388,6 +392,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 	const char *errmsg = NULL;
 
+	IO->Now = ev_now(event_base);
 	become_session(IO->CitContext);
 #ifdef BIGBAD_IODBG
 	{
@@ -545,6 +550,7 @@ IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 
+	IO->Now = ev_now(event_base);
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	become_session(IO->CitContext);
 
@@ -572,6 +578,7 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 
+	IO->Now = ev_now(event_base);
 	ev_timer_stop (event_base, &IO->conn_fail);
 
 	if (IO->SendBuf.fd != 0)
@@ -603,6 +610,7 @@ IO_connfailimmediate_callback(struct ev_loop *loop,
 {
 	AsyncIO *IO = watcher->data;
 
+	IO->Now = ev_now(event_base);
 	ev_idle_stop (event_base, &IO->conn_fail_immediate);
 
 	if (IO->SendBuf.fd != 0)
@@ -628,6 +636,7 @@ IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 
+	IO->Now = ev_now(event_base);
 	ev_io_stop(loop, &IO->conn_event);
 	ev_timer_stop (event_base, &IO->conn_fail);
 	set_start_callback(loop, IO, revents);
@@ -639,6 +648,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	ssize_t nbytes;
 	AsyncIO *IO = watcher->data;
 
+	IO->Now = ev_now(event_base);
 	switch (IO->NextState) {
 	case eReadFile:
 		nbytes = FileRecvChunked(&IO->IOB, &errmsg);
@@ -711,6 +721,7 @@ void
 IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
+	IO->Now = ev_now(event_base);
 	EV_syslog(LOG_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
 	assert(IO->DNS.Query->PostDNS);

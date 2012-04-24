@@ -433,6 +433,7 @@ int QueueQuery(ns_type Type,
 
 	IO->DNS.Query = QueryParts;
 	IO->DNS.Query->PostDNS = PostDNS;
+	IO->DNS.Start = IO->Now;
 
 	InitC_ares_dns(IO);
 
@@ -521,6 +522,7 @@ static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 
+	IO->Now = ev_now(event_base);
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 #endif
@@ -532,6 +534,8 @@ static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 static void DNS_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
+
+	IO->Now = ev_now(event_base);
 
 #ifdef DEBUG_CARES
 	EV_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
@@ -564,6 +568,7 @@ void SockStateCb(void *data, int sock, int read, int write)
 		  IO->DNS.SourcePort);
 }
 #endif
+	IO->Now = ev_now(event_base);
 
 	if (read) {
 		if ((IO->DNS.recv_event.fd != sock) &&

@@ -121,6 +121,8 @@ gotstatus(int nnrun)
 				       curl_easy_strerror(sta));
 			IO = (AsyncIO *)chandle;
 
+			IO->Now = ev_now(event_base);
+
 			ev_io_stop(event_base, &IO->recv_event);
 			ev_io_stop(event_base, &IO->send_event);
 
@@ -248,6 +250,7 @@ gotdata(void *data, size_t size, size_t nmemb, void *cglobal) {
 	{
 		IO->HttpReq.ReplyData = NewStrBufPlain(NULL, SIZ);
 	}
+	IO->Now = ev_now(event_base);
 	return CurlFillStrBuf_callback(data,
 				       size,
 				       nmemb,
@@ -305,6 +308,8 @@ gotwatchsock(CURL *easy,
 		ev_io_init(&IO->send_event, &got_out, fd, EV_WRITE);
 		curl_multi_assign(mhnd, fd, IO);
 	}
+
+	IO->Now = ev_now(event_base);
 
 	Action = "";
 	switch (action)
@@ -458,6 +463,7 @@ static void IOcurl_abort_shutdown_callback(struct ev_loop *loop,
 {
 	CURLMcode msta;
 	AsyncIO *IO = watcher->data;
+	IO->Now = ev_now(event_base);
 	EV_syslog(LOG_DEBUG, "EVENT Curl: %s\n", __FUNCTION__);
 
 	curl_slist_free_all(IO->HttpReq.headers);
@@ -559,6 +565,7 @@ ev_async ExitEventLoop;
 
 static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
+	ev_tstamp Now;
 	HashList *q;
 	void *v;
 	HashPos*It;
@@ -577,13 +584,17 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		q = InboundEventQueues[1];
 	}
 	pthread_mutex_unlock(&EventQueueMutex);
-
+	Now = ev_now (event_base);
 	It = GetNewHashPos(q, 0);
 	while (GetNextHashPos(q, It, &len, &Key, &v))
 	{
 		IOAddHandler *h = v;
-		if (h->IO->ID == 0)
+		if (h->IO->ID == 0) {
 			h->IO->ID = EvIDSource++;
+		}
+		if (h->IO->StartIO == 0.0)
+			h->IO->StartIO = Now;
+		h->IO->Now = Now;
 		h->EvAttch(h->IO);
 	}
 	DeleteHashPos(&It);
@@ -687,6 +698,7 @@ extern void ShutDownDBCLient(AsyncIO *IO);
 
 static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
+	ev_tstamp Now;
 	HashList *q;
 	void *v;
 	HashPos *It;
@@ -706,6 +718,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	pthread_mutex_unlock(&DBEventQueueMutex);
 
+	Now = ev_now (event_db);
 	It = GetNewHashPos(q, 0);
 	while (GetNextHashPos(q, It, &len, &Key, &v))
 	{
@@ -713,6 +726,9 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		eNextState rc;
 		if (h->IO->ID == 0)
 			h->IO->ID = EvIDSource++;
+		if (h->IO->StartDB == 0.0)
+			h->IO->StartDB = Now;
+		h->IO->Now = Now;
 		rc = h->EvAttch(h->IO);
 		switch (rc)
 		{

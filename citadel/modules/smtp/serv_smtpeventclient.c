@@ -147,8 +147,9 @@ inline void FinalizeMessageSend_1(AsyncIO *IO)
 		Status = "Delivery failed temporarily; will retry later.";
 			
 	EVS_syslog(LOG_INFO,
-		   "SMTP: %s Recipient <%s> @ <%s> (%s) Statusmessage: %s\n",
+		   "SMTP: %s Time[%fs] Recipient <%s> @ <%s> (%s) Statusmessage: %s\n",
 		   Status,
+		   Msg->IO.Now - Msg->IO.StartIO,
 		   Msg->user,
 		   Msg->node,
 		   Msg->name,
@@ -372,6 +373,9 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 	struct hostent *hostent;
 
 	QueryCbDone(IO);
+	EVS_syslog(LOG_DEBUG, "SMTP: %s Time[%fs]\n",
+		   __FUNCTION__,
+		   IO->Now - IO->DNS.Start);
 
 	hostent = Msg->HostLookup.VParsedDNSReply;
 	if ((Msg->HostLookup.DNSStatus == ARES_SUCCESS) &&
@@ -467,7 +471,9 @@ eNextState smtp_resolve_mx_record_done(AsyncIO *IO)
 
 	QueryCbDone(IO);
 
-	EVS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EVS_syslog(LOG_DEBUG, "SMTP: %s Time[%fs]\n",
+		   __FUNCTION__,
+		IO->Now - IO->DNS.Start);
 
 	pp = &Msg->Relay;
 	while ((pp != NULL) && (*pp != NULL) && ((*pp)->Next != NULL))

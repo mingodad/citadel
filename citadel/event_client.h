@@ -100,6 +100,7 @@ typedef struct _evcurl_request_data
 
 /* DNS Related */
 typedef struct __evcares_data {
+	ev_tstamp Start;
 	ev_io recv_event,
 		send_event;
 	ev_timer timeout;           /* timeout while requesting ips */
@@ -115,6 +116,9 @@ typedef struct __evcares_data {
 
 struct AsyncIO {
 	long ID;
+	ev_tstamp Now;
+	ev_tstamp StartIO;
+	ev_tstamp StartDB;
 	eNextState NextState;
 
 	/* connection related */
