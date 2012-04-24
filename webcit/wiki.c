@@ -5,17 +5,11 @@
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include "webcit.h"
@@ -49,31 +43,14 @@ void str_wiki_index(char *s)
  * "rev" may be set to an empty string to display the current version.
  * "do_revert" may be set to nonzero to perform a reversion to the specified version.
  */
-void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev, int do_revert)
+void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 {
 	const StrBuf *Mime;
 	long msgnum = (-1L);
 	char buf[256];
 
-	str_wiki_index(pagename);
-
-	if (StrLength(roomname) > 0) {
-
-		/* If we're not in the correct room, try going there. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
-			gotoroom(roomname);
-		}
-	
-		/* If we're still not in the correct room, it doesn't exist. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
-			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
-			return;
-		}
-
-	}
-
 	if (WC->CurRoom.view != VIEW_WIKI) {
-		wc_printf(_("'%s' is not a Wiki room."), ChrPtr(roomname));
+		wc_printf(_("'%s' is not a Wiki room."), ChrPtr(WC->CurRoom.name) );
 		return;
 	}
 
@@ -81,7 +58,7 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
 		strcpy(pagename, "home");
 	}
 
-	/* Found it!  Now read it. */
+	str_wiki_index(pagename);	/* convert index name to lowercase and numeric only */
 
 	if ((rev != NULL) && (strlen(rev) > 0)) {
 		/* read an older revision */
@@ -92,7 +69,7 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
 		}
 	}
 	else {
-		/* read the current revision? */
+		/* read the current revision */
 		msgnum = locate_message_by_uid(pagename);
 	}
 
@@ -121,17 +98,16 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
  */
 void display_wiki_page(void)
 {
-	const StrBuf *roomname;
 	char pagename[128];
 	char rev[128];
 	int do_revert = 0;
 
 	output_headers(1, 1, 1, 0, 0, 0);
-	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
+	str_wiki_index(pagename);
 	safestrncpy(rev, bstr("rev"), sizeof rev);
 	do_revert = atoi(bstr("revert"));
-	display_wiki_page_backend(roomname, pagename, rev, do_revert);
+	display_wiki_page_backend(pagename, rev, do_revert);
 	wDumpContent(1);
 }
 
@@ -141,29 +117,12 @@ void display_wiki_page(void)
  */
 void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 {
-	const StrBuf *roomname;
 	char pagename[128];
 	StrBuf *Buf;
 	int row = 0;
 
-	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
 	str_wiki_index(pagename);
-
-	if (StrLength(roomname) > 0) {
-
-		/* If we're not in the correct room, try going there. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
-			gotoroom(roomname);
-		}
-	
-		/* If we're still not in the correct room, it doesn't exist. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
-			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
-			return;
-		}
-
-	}
 
 	serv_printf("WIKI history|%s", pagename);
 	Buf = NewStrBuf();
@@ -204,10 +163,9 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 			wc_printf("</td>");
 
 			if (row == 0) {
-				wc_printf("<td><a href=\"wiki?page=%s\">%s</a></td>",
-					bstr("page"),
-					_("(show)")
-				);
+				wc_printf("<td><a href=\"wiki?page=%s", bstr("page"));
+				wc_printf("?go="); urlescputs(ChrPtr(WC->CurRoom.name));
+				wc_printf("\">%s</a></td>", _("(show)"));
 				wc_printf("<td>(%s)</td>", _("Current version"));
 			}
 
@@ -266,23 +224,8 @@ void display_wiki_history(void)
  */
 void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 {
-	const StrBuf *roomname;
 	StrBuf *Buf;
 	int row = 0;
-
-	roomname = sbstr("room");
-	if (StrLength(roomname) > 0) {
-		/* If we're not in the correct room, try going there. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
-			gotoroom(roomname);
-		}
-	
-		/* If we're still not in the correct room, it doesn't exist. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
-			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
-			return;
-		}
-	}
 
 	if (!IsEmptyStr(bstr("query"))) {
 		serv_printf("MSGS SEARCH|%s||4", bstr("query"));	/* search-reduced list */
@@ -336,7 +279,7 @@ int wiki_Cleanup(void **ViewSpecific)
 {
 	char pagename[5];
 	safestrncpy(pagename, "home", sizeof pagename);
-	display_wiki_page_backend(WC->CurRoom.name, pagename, "", 0);
+	display_wiki_page_backend(pagename, "", 0);
 	wDumpContent(1);
 	return 0;
 }

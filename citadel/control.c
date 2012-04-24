@@ -693,8 +693,9 @@ void cmd_conf(char *argbuf)
 		}
 		put_config();
 		snprintf(buf, sizeof buf,
-			 "The global system configuration has been edited by %s.\n",
-			 CC->curr_user);
+			"The global system configuration has been edited by %s.\n",
+			 (CC->logged_in ? CC->curr_user : "an administrator")
+		);
 		CtdlAideMessage(buf,"Citadel Configuration Manager Message");
 
 		if (!IsEmptyStr(config.c_logpages))
