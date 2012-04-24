@@ -972,6 +972,7 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyServiceHook();
 	CtdlDestroyRoomHooks();
 	CtdlDestroySearchHooks();
+	CtdlDestroyDebugTable();
 	#ifdef HAVE_BACKTRACE
 ///	eCrash_Uninit();
 	#endif

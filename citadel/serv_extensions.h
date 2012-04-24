@@ -15,6 +15,8 @@
 /*
  */
 
+typedef void (*CtdlDbgFunction) (void);
+ 
 
 
 /*
@@ -82,4 +84,9 @@ void CtdlDestroySearchHooks(void);
 
 void CtdlDestroyFixedOutputHooks(void);
 int PerformFixedOutputHooks(char *, char *, int);
+
+void CtdlRegisterDebugFlagHook(const char *Name, long len, CtdlDbgFunction F);
+void CtdlSetDebugLogFacilities(const char **Str, long n);
+void CtdlDestroyDebugTable(void);
+
 #endif /* SERV_EXTENSIONS_H */

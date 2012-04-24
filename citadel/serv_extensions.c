@@ -51,7 +51,12 @@
  * Structure defentitions for hook tables
  */
 
-
+typedef struct __LogDebugEntry {
+	CtdlDbgFunction F;
+	const char *Name;
+	long Len;
+} LogDebugEntry;
+HashList *LogDebugEntryTable = NULL;
 
 typedef struct LogFunctionHook LogFunctionHook;
 struct LogFunctionHook {
@@ -60,7 +65,6 @@ struct LogFunctionHook {
 	void (*h_function_pointer) (char *);
 };
 extern LogFunctionHook *LogHookTable;
-
 
 typedef struct FixedOutputHook FixedOutputHook;
 struct FixedOutputHook {
@@ -327,6 +331,77 @@ long FourHash(const char *key, long length)
 			  *ptr);
 
 	return ret;
+}
+/*
+typedef struct __LogDebugEntry {
+	CtdlDbgFunction F;
+	const char *Name;
+	long Len;
+} LogDebugEntry;
+HashList *LogDebugEntryTable = NULL;
+*/
+void CtdlRegisterDebugFlagHook(const char *Name, long Len, CtdlDbgFunction F)
+{
+	LogDebugEntry *E;
+	if (LogDebugEntryTable == NULL)
+		LogDebugEntryTable = NewHash(1, NULL);
+	E = (LogDebugEntry*) malloc(sizeof(LogDebugEntry));
+	E->F = F;
+	E->Name = Name;
+	E->Len = Len;
+	Put(LogDebugEntryTable, Name, Len, E, NULL);
+	
+}
+void CtdlSetDebugLogFacilities(const char **Str, long n)
+{
+	StrBuf *Token = NULL;
+	StrBuf *Buf = NULL;
+	const char *ch;
+	int i;
+	int DoAll = 0;
+	void *vptr;
+
+	for (i=0; i < n; i++){
+		if ((Str[i] != NULL) && !IsEmptyStr(Str[i])) {
+			if (strcmp(Str[i], "all") == 0) {
+				DoAll = 1;
+				continue;
+			}
+			Buf = NewStrBufPlain(Str[i], -1);
+			ch = NULL;
+			if (Token == NULL)
+				Token = NewStrBufPlain(NULL, StrLength(Buf));
+			while ((ch != StrBufNOTNULL) &&
+			       StrBufExtract_NextToken(Token, Buf, &ch, ',')) {
+				if (GetHash(LogDebugEntryTable, SKEY(Token), &vptr) && 
+				    (vptr != NULL))
+				{
+					LogDebugEntry *E = (LogDebugEntry*)vptr;
+					E->F();
+				}
+			}
+		}
+		FreeStrBuf(&Buf);
+	}
+	FreeStrBuf(&Token);
+	if (DoAll) {
+		long HKLen;
+		const char *ch;
+		HashPos *Pos;
+
+		Pos = GetNewHashPos(LogDebugEntryTable, 0);
+		while (GetNextHashPos(LogDebugEntryTable, Pos, &HKLen, &ch, &vptr)) {
+			LogDebugEntry *E = (LogDebugEntry*)vptr;
+			E->F();
+		}
+
+		DeleteHashPos(&Pos);
+	}
+}
+void CtdlDestroyDebugTable(void)
+{
+
+	DeleteHash(&LogDebugEntryTable);
 }
 
 void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
