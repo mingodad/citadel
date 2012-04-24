@@ -46,19 +46,150 @@
 #include "snprintf.h"
 #endif
 
-struct CleanupFunctionHook *CleanupHookTable = NULL;
-struct CleanupFunctionHook *EVCleanupHookTable = NULL;
-struct SessionFunctionHook *SessionHookTable = NULL;
-struct UserFunctionHook *UserHookTable = NULL;
-struct XmsgFunctionHook *XmsgHookTable = NULL;
-struct MessageFunctionHook *MessageHookTable = NULL;
-struct NetprocFunctionHook *NetprocHookTable = NULL;
-struct DeleteFunctionHook *DeleteHookTable = NULL;
-struct ServiceFunctionHook *ServiceHookTable = NULL;
-struct FixedOutputHook *FixedOutputTable = NULL;
-struct RoomFunctionHook *RoomHookTable = NULL;
-struct SearchFunctionHook *SearchFunctionHookTable = NULL;
+ 
+/*
+ * Structure defentitions for hook tables
+ */
 
+
+
+typedef struct LogFunctionHook LogFunctionHook;
+struct LogFunctionHook {
+	LogFunctionHook *next;
+	int loglevel;
+	void (*h_function_pointer) (char *);
+};
+extern LogFunctionHook *LogHookTable;
+
+
+typedef struct FixedOutputHook FixedOutputHook;
+struct FixedOutputHook {
+	FixedOutputHook *next;
+	char content_type[64];
+	void (*h_function_pointer) (char *, int);
+};
+extern FixedOutputHook *FixedOutputTable;
+
+
+
+/*
+ * SessionFunctionHook extensions are used for any type of hook for which
+ * the context in which it's being called (which is determined by the event
+ * type) will make it obvious for the hook function to know where to look for
+ * pertinent data.
+ */
+typedef struct SessionFunctionHook SessionFunctionHook;
+struct SessionFunctionHook {
+	SessionFunctionHook *next;
+	void (*h_function_pointer) (void);
+	int eventtype;
+};
+extern SessionFunctionHook *SessionHookTable;
+
+
+/*
+ * UserFunctionHook extensions are used for any type of hook which implements
+ * an operation on a user or username (potentially) other than the one
+ * operating the current session.
+ */
+typedef struct UserFunctionHook UserFunctionHook;
+struct UserFunctionHook {
+	UserFunctionHook *next;
+	void (*h_function_pointer) (struct ctdluser *usbuf);
+	int eventtype;
+};
+extern UserFunctionHook *UserHookTable;
+
+/*
+ * MessageFunctionHook extensions are used for hooks which implement handlers
+ * for various types of message operations (save, read, etc.)
+ */
+typedef struct MessageFunctionHook MessageFunctionHook;
+struct MessageFunctionHook {
+	MessageFunctionHook *next;
+	int (*h_function_pointer) (struct CtdlMessage *msg);
+	int eventtype;
+};
+extern MessageFunctionHook *MessageHookTable;
+
+
+/*
+ * NetprocFunctionHook extensions are used for hooks which implement handlers
+ * for incoming network messages.
+ */
+typedef struct NetprocFunctionHook NetprocFunctionHook;
+struct NetprocFunctionHook {
+	NetprocFunctionHook *next;
+	int (*h_function_pointer) (struct CtdlMessage *msg, char *target_room);
+};
+extern NetprocFunctionHook *NetprocHookTable;
+
+
+/*
+ * DeleteFunctionHook extensions are used for hooks which get called when a
+ * message is about to be deleted.
+ */
+typedef struct DeleteFunctionHook DeleteFunctionHook;
+struct DeleteFunctionHook {
+	DeleteFunctionHook *next;
+	void (*h_function_pointer) (char *target_room, long msgnum);
+};
+extern DeleteFunctionHook *DeleteHookTable;
+
+
+/*
+ * ExpressMessageFunctionHook extensions are used for hooks which implement
+ * the sending of an instant message through various channels.  Any function
+ * registered should return the number of recipients to whom the message was
+ * successfully transmitted.
+ */
+typedef struct XmsgFunctionHook XmsgFunctionHook;
+struct XmsgFunctionHook {
+	XmsgFunctionHook *next;
+	int (*h_function_pointer) (char *, char *, char *, char *);
+	int order;
+};
+extern XmsgFunctionHook *XmsgHookTable;
+
+
+
+
+/*
+ * RoomFunctionHook extensions are used for hooks which impliment room
+ * processing functions when new messages are added EG. SIEVE.
+ */
+typedef struct RoomFunctionHook RoomFunctionHook;
+struct RoomFunctionHook {
+	RoomFunctionHook *next;
+	int (*fcn_ptr) (struct ctdlroom *);
+};
+extern RoomFunctionHook *RoomHookTable;
+
+
+
+typedef struct SearchFunctionHook SearchFunctionHook;
+struct SearchFunctionHook {
+	SearchFunctionHook *next;
+	void (*fcn_ptr) (int *, long **, const char *);
+	char *name;
+};
+extern SearchFunctionHook *SearchFunctionHookTable;
+
+
+CleanupFunctionHook *CleanupHookTable = NULL;
+CleanupFunctionHook *EVCleanupHookTable = NULL;
+SessionFunctionHook *SessionHookTable = NULL;
+UserFunctionHook *UserHookTable = NULL;
+XmsgFunctionHook *XmsgHookTable = NULL;
+MessageFunctionHook *MessageHookTable = NULL;
+NetprocFunctionHook *NetprocHookTable = NULL;
+DeleteFunctionHook *DeleteHookTable = NULL;
+ServiceFunctionHook *ServiceHookTable = NULL;
+FixedOutputHook *FixedOutputTable = NULL;
+RoomFunctionHook *RoomHookTable = NULL;
+SearchFunctionHook *SearchFunctionHookTable = NULL;
+
+typedef struct ProtoFunctionHook ProtoFunctionHook;
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
 	const char *cmd;
@@ -172,10 +303,10 @@ void AddPortError(char *Port, char *ErrorMessage)
 int DLoader_Exec_Cmd(char *cmdbuf)
 {
 	void *vP;
-	struct ProtoFunctionHook *p;
+	ProtoFunctionHook *p;
 
 	if (GetHash(ProtoHookList, cmdbuf, 4, &vP) && (vP != NULL)) {
-		p = (struct ProtoFunctionHook*) vP;
+		p = (ProtoFunctionHook*) vP;
 		p->handler(&cmdbuf[5]);
 		return 1;
 	}
@@ -200,14 +331,14 @@ long FourHash(const char *key, long length)
 
 void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 {
-	struct ProtoFunctionHook *p;
+	ProtoFunctionHook *p;
 
 	if (ProtoHookList == NULL)
 		ProtoHookList = NewHash (1, FourHash);
 
 
-	p = (struct ProtoFunctionHook *)
-		malloc(sizeof(struct ProtoFunctionHook));
+	p = (ProtoFunctionHook *)
+		malloc(sizeof(ProtoFunctionHook));
 
 	if (p == NULL) {
 		fprintf(stderr, "can't malloc new ProtoFunctionHook\n");
@@ -231,10 +362,10 @@ void CtdlDestroyProtoHooks(void)
 void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 {
 
-	struct CleanupFunctionHook *newfcn;
+	CleanupFunctionHook *newfcn;
 
-	newfcn = (struct CleanupFunctionHook *)
-	    malloc(sizeof(struct CleanupFunctionHook));
+	newfcn = (CleanupFunctionHook *)
+	    malloc(sizeof(CleanupFunctionHook));
 	newfcn->next = CleanupHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	CleanupHookTable = newfcn;
@@ -245,7 +376,7 @@ void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 
 void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
 {
-	struct CleanupFunctionHook *cur, *p;
+	CleanupFunctionHook *cur, *p;
 
 	for (cur = CleanupHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -265,7 +396,7 @@ void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
 
 void CtdlDestroyCleanupHooks(void)
 {
-	struct CleanupFunctionHook *cur, *p;
+	CleanupFunctionHook *cur, *p;
 
 	cur = CleanupHookTable;
 	while (cur != NULL)
@@ -281,10 +412,10 @@ void CtdlDestroyCleanupHooks(void)
 void CtdlRegisterEVCleanupHook(void (*fcn_ptr) (void))
 {
 
-	struct CleanupFunctionHook *newfcn;
+	CleanupFunctionHook *newfcn;
 
-	newfcn = (struct CleanupFunctionHook *)
-	    malloc(sizeof(struct CleanupFunctionHook));
+	newfcn = (CleanupFunctionHook *)
+	    malloc(sizeof(CleanupFunctionHook));
 	newfcn->next = EVCleanupHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	EVCleanupHookTable = newfcn;
@@ -295,7 +426,7 @@ void CtdlRegisterEVCleanupHook(void (*fcn_ptr) (void))
 
 void CtdlUnregisterEVCleanupHook(void (*fcn_ptr) (void))
 {
-	struct CleanupFunctionHook *cur, *p;
+	CleanupFunctionHook *cur, *p;
 
 	for (cur = EVCleanupHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -315,7 +446,7 @@ void CtdlUnregisterEVCleanupHook(void (*fcn_ptr) (void))
 
 void CtdlDestroyEVCleanupHooks(void)
 {
-	struct CleanupFunctionHook *cur, *p;
+	CleanupFunctionHook *cur, *p;
 
 	cur = EVCleanupHookTable;
 	while (cur != NULL)
@@ -332,10 +463,10 @@ void CtdlDestroyEVCleanupHooks(void)
 void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
 {
 
-	struct SessionFunctionHook *newfcn;
+	SessionFunctionHook *newfcn;
 
-	newfcn = (struct SessionFunctionHook *)
-	    malloc(sizeof(struct SessionFunctionHook));
+	newfcn = (SessionFunctionHook *)
+	    malloc(sizeof(SessionFunctionHook));
 	newfcn->next = SessionHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
@@ -348,7 +479,7 @@ void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
 
 void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
 {
-	struct SessionFunctionHook *cur, *p;
+	SessionFunctionHook *cur, *p;
 
 	for (cur = SessionHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -369,7 +500,7 @@ void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
 
 void CtdlDestroySessionHooks(void)
 {
-	struct SessionFunctionHook *cur, *p;
+	SessionFunctionHook *cur, *p;
 
 	cur = SessionHookTable;
 	while (cur != NULL)
@@ -383,13 +514,13 @@ void CtdlDestroySessionHooks(void)
 }
 
 
-void CtdlRegisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
+void CtdlRegisterUserHook(void (*fcn_ptr) (ctdluser *), int EventType)
 {
 
-	struct UserFunctionHook *newfcn;
+	UserFunctionHook *newfcn;
 
-	newfcn = (struct UserFunctionHook *)
-	    malloc(sizeof(struct UserFunctionHook));
+	newfcn = (UserFunctionHook *)
+	    malloc(sizeof(UserFunctionHook));
 	newfcn->next = UserHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
@@ -402,7 +533,7 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 
 void CtdlUnregisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 {
-	struct UserFunctionHook *cur, *p;
+	UserFunctionHook *cur, *p;
 
 	for (cur = UserHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -423,7 +554,7 @@ void CtdlUnregisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 
 void CtdlDestroyUserHooks(void)
 {
-	struct UserFunctionHook *cur, *p;
+	UserFunctionHook *cur, *p;
 
 	cur = UserHookTable;
 	while (cur != NULL)
@@ -441,10 +572,10 @@ void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 				int EventType)
 {
 
-	struct MessageFunctionHook *newfcn;
+	MessageFunctionHook *newfcn;
 
-	newfcn = (struct MessageFunctionHook *)
-	    malloc(sizeof(struct MessageFunctionHook));
+	newfcn = (MessageFunctionHook *)
+	    malloc(sizeof(MessageFunctionHook));
 	newfcn->next = MessageHookTable;
 	newfcn->h_function_pointer = handler;
 	newfcn->eventtype = EventType;
@@ -458,7 +589,7 @@ void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 		int EventType)
 {
-	struct MessageFunctionHook *cur, *p;
+	MessageFunctionHook *cur, *p;
 
 	for (cur = MessageHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -479,7 +610,7 @@ void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 
 void CtdlDestroyMessageHook(void)
 {
-	struct MessageFunctionHook *cur, *p;
+	MessageFunctionHook *cur, *p;
 
 	cur = MessageHookTable; 
 	while (cur != NULL)
@@ -495,10 +626,10 @@ void CtdlDestroyMessageHook(void)
 
 void CtdlRegisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 {
-	struct RoomFunctionHook *newfcn;
+	RoomFunctionHook *newfcn;
 
-	newfcn = (struct RoomFunctionHook *)
-	    malloc(sizeof(struct RoomFunctionHook));
+	newfcn = (RoomFunctionHook *)
+	    malloc(sizeof(RoomFunctionHook));
 	newfcn->next = RoomHookTable;
 	newfcn->fcn_ptr = fcn_ptr;
 	RoomHookTable = newfcn;
@@ -509,7 +640,7 @@ void CtdlRegisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 
 void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 {
-	struct RoomFunctionHook *cur, *p;
+	RoomFunctionHook *cur, *p;
 
 	for (cur = RoomHookTable; cur != NULL; cur = cur->next) {
 		while (cur != NULL && fcn_ptr == cur->fcn_ptr) {
@@ -527,7 +658,7 @@ void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 
 void CtdlDestroyRoomHooks(void)
 {
-	struct RoomFunctionHook *cur, *p;
+	RoomFunctionHook *cur, *p;
 
 	cur = RoomHookTable;
 	while (cur != NULL)
@@ -542,10 +673,10 @@ void CtdlDestroyRoomHooks(void)
 
 void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 {
-	struct NetprocFunctionHook *newfcn;
+	NetprocFunctionHook *newfcn;
 
-	newfcn = (struct NetprocFunctionHook *)
-	    malloc(sizeof(struct NetprocFunctionHook));
+	newfcn = (NetprocFunctionHook *)
+	    malloc(sizeof(NetprocFunctionHook));
 	newfcn->next = NetprocHookTable;
 	newfcn->h_function_pointer = handler;
 	NetprocHookTable = newfcn;
@@ -556,7 +687,7 @@ void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 
 void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 {
-	struct NetprocFunctionHook *cur, *p;
+	NetprocFunctionHook *cur, *p;
 
 	for (cur = NetprocHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -575,7 +706,7 @@ void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 
 void CtdlDestroyNetprocHooks(void)
 {
-	struct NetprocFunctionHook *cur, *p;
+	NetprocFunctionHook *cur, *p;
 
 	cur = NetprocHookTable;
 	while (cur != NULL)
@@ -591,10 +722,10 @@ void CtdlDestroyNetprocHooks(void)
 
 void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 {
-	struct DeleteFunctionHook *newfcn;
+	DeleteFunctionHook *newfcn;
 
-	newfcn = (struct DeleteFunctionHook *)
-	    malloc(sizeof(struct DeleteFunctionHook));
+	newfcn = (DeleteFunctionHook *)
+	    malloc(sizeof(DeleteFunctionHook));
 	newfcn->next = DeleteHookTable;
 	newfcn->h_function_pointer = handler;
 	DeleteHookTable = newfcn;
@@ -605,7 +736,7 @@ void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 
 void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 {
-	struct DeleteFunctionHook *cur, *p;
+	DeleteFunctionHook *cur, *p;
 
 	for (cur = DeleteHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -623,7 +754,7 @@ void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 }
 void CtdlDestroyDeleteHooks(void)
 {
-	struct DeleteFunctionHook *cur, *p;
+	DeleteFunctionHook *cur, *p;
 
 	cur = DeleteHookTable;
 	while (cur != NULL)
@@ -641,10 +772,10 @@ void CtdlDestroyDeleteHooks(void)
 
 void CtdlRegisterFixedOutputHook(char *content_type, void (*handler)(char *, int) )
 {
-	struct FixedOutputHook *newfcn;
+	FixedOutputHook *newfcn;
 
-	newfcn = (struct FixedOutputHook *)
-	    malloc(sizeof(struct FixedOutputHook));
+	newfcn = (FixedOutputHook *)
+	    malloc(sizeof(FixedOutputHook));
 	newfcn->next = FixedOutputTable;
 	newfcn->h_function_pointer = handler;
 	safestrncpy(newfcn->content_type, content_type, sizeof newfcn->content_type);
@@ -656,7 +787,7 @@ void CtdlRegisterFixedOutputHook(char *content_type, void (*handler)(char *, int
 
 void CtdlUnregisterFixedOutputHook(char *content_type)
 {
-	struct FixedOutputHook *cur, *p;
+	FixedOutputHook *cur, *p;
 
 	for (cur = FixedOutputTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -674,7 +805,7 @@ void CtdlUnregisterFixedOutputHook(char *content_type)
 
 void CtdlDestroyFixedOutputHooks(void)
 {
-	struct FixedOutputHook *cur, *p;
+	FixedOutputHook *cur, *p;
 
 	cur = FixedOutputTable; 
 	while (cur != NULL)
@@ -691,7 +822,7 @@ void CtdlDestroyFixedOutputHooks(void)
 /* returns nonzero if we found a hook and used it */
 int PerformFixedOutputHooks(char *content_type, char *content, int content_length)
 {
-	struct FixedOutputHook *fcn;
+	FixedOutputHook *fcn;
 
 	for (fcn = FixedOutputTable; fcn != NULL; fcn = fcn->next) {
 		if (!strcasecmp(content_type, fcn->content_type)) {
@@ -709,9 +840,9 @@ int PerformFixedOutputHooks(char *content_type, char *content, int content_lengt
 void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int order)
 {
 
-	struct XmsgFunctionHook *newfcn;
+	XmsgFunctionHook *newfcn;
 
-	newfcn = (struct XmsgFunctionHook *) malloc(sizeof(struct XmsgFunctionHook));
+	newfcn = (XmsgFunctionHook *) malloc(sizeof(XmsgFunctionHook));
 	newfcn->next = XmsgHookTable;
 	newfcn->order = order;
 	newfcn->h_function_pointer = fcn_ptr;
@@ -722,7 +853,7 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int o
 
 void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int order)
 {
-	struct XmsgFunctionHook *cur, *p;
+	XmsgFunctionHook *cur, *p;
 
 	for (cur = XmsgHookTable; cur != NULL; cur = cur->next) {
 		/* This will also remove duplicates if any */
@@ -743,7 +874,7 @@ void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int
 
 void CtdlDestroyXmsgHooks(void)
 {
-	struct XmsgFunctionHook *cur, *p;
+	XmsgFunctionHook *cur, *p;
 
 	cur = XmsgHookTable;
 	while (cur != NULL)
@@ -766,12 +897,12 @@ void CtdlRegisterServiceHook(int tcp_port,
 			     void (*h_async_function) (void),
 			     const char *ServiceName)
 {
-	struct ServiceFunctionHook *newfcn;
+	ServiceFunctionHook *newfcn;
 	char *message;
 	char error[SIZ];
 
 	strcpy(error, "");
-	newfcn = (struct ServiceFunctionHook *) malloc(sizeof(struct ServiceFunctionHook));
+	newfcn = (ServiceFunctionHook *) malloc(sizeof(ServiceFunctionHook));
 	message = (char*) malloc (SIZ + SIZ);
 	
 	newfcn->next = ServiceHookTable;
@@ -822,7 +953,7 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			void (*h_async_function) (void)
 			)
 {
-	struct ServiceFunctionHook *cur, *p;
+	ServiceFunctionHook *cur, *p;
 
 	cur = ServiceHookTable;
 	while (cur != NULL) {
@@ -858,7 +989,7 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 void CtdlShutdownServiceHooks(void)
 {
 	/* sort of a duplicate of close_masters() but called earlier */
-	struct ServiceFunctionHook *cur;
+	ServiceFunctionHook *cur;
 
 	cur = ServiceHookTable;
 	while (cur != NULL) 
@@ -883,7 +1014,7 @@ void CtdlShutdownServiceHooks(void)
 
 void CtdlDestroyServiceHook(void)
 {
-	struct ServiceFunctionHook *cur, *p;
+	ServiceFunctionHook *cur, *p;
 
 	cur = ServiceHookTable;
 	while (cur != NULL)
@@ -907,14 +1038,14 @@ void CtdlDestroyServiceHook(void)
 
 void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name)
 {
-	struct SearchFunctionHook *newfcn;
+	SearchFunctionHook *newfcn;
 
 	if (!name || !fcn_ptr) {
 		return;
 	}
 	
-	newfcn = (struct SearchFunctionHook *)
-	    malloc(sizeof(struct SearchFunctionHook));
+	newfcn = (SearchFunctionHook *)
+	    malloc(sizeof(SearchFunctionHook));
 	newfcn->next = SearchFunctionHookTable;
 	newfcn->name = name;
 	newfcn->fcn_ptr = fcn_ptr;
@@ -925,7 +1056,7 @@ void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), c
 
 void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name)
 {
-	struct SearchFunctionHook *cur, *p;
+	SearchFunctionHook *cur, *p;
 	
 	for (cur = SearchFunctionHookTable; cur != NULL; cur = cur->next) {
 		while (fcn_ptr && (cur->fcn_ptr == fcn_ptr) && name && !strcmp(name, cur->name)) {
@@ -942,7 +1073,7 @@ void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *),
 
 void CtdlDestroySearchHooks(void)
 {
-        struct SearchFunctionHook *cur, *p;
+        SearchFunctionHook *cur, *p;
 
 	cur = SearchFunctionHookTable;
 	SearchFunctionHookTable = NULL;
@@ -955,7 +1086,7 @@ void CtdlDestroySearchHooks(void)
 
 void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_string, const char *func_name)
 {
-	struct SearchFunctionHook *fcn = NULL;
+	SearchFunctionHook *fcn = NULL;
 
 	for (fcn = SearchFunctionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (!func_name || !strcmp(func_name, fcn->name)) {
@@ -969,7 +1100,7 @@ void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_st
 
 void PerformSessionHooks(int EventType)
 {
-	struct SessionFunctionHook *fcn = NULL;
+	SessionFunctionHook *fcn = NULL;
 
 	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
@@ -981,9 +1112,9 @@ void PerformSessionHooks(int EventType)
 	}
 }
 
-void PerformUserHooks(struct ctdluser *usbuf, int EventType)
+void PerformUserHooks(ctdluser *usbuf, int EventType)
 {
-	struct UserFunctionHook *fcn = NULL;
+	UserFunctionHook *fcn = NULL;
 
 	for (fcn = UserHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
@@ -994,7 +1125,7 @@ void PerformUserHooks(struct ctdluser *usbuf, int EventType)
 
 int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 {
-	struct MessageFunctionHook *fcn = NULL;
+	MessageFunctionHook *fcn = NULL;
 	int total_retval = 0;
 
 	/* Other code may elect to protect this message from server-side
@@ -1024,7 +1155,7 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 
 int PerformRoomHooks(struct ctdlroom *target_room)
 {
-	struct RoomFunctionHook *fcn;
+	RoomFunctionHook *fcn;
 	int total_retval = 0;
 
 	syslog(LOG_DEBUG, "Performing room hooks for <%s>\n", target_room->QRname);
@@ -1041,7 +1172,7 @@ int PerformRoomHooks(struct ctdlroom *target_room)
 
 int PerformNetprocHooks(struct CtdlMessage *msg, char *target_room)
 {
-	struct NetprocFunctionHook *fcn;
+	NetprocFunctionHook *fcn;
 	int total_retval = 0;
 
 	for (fcn = NetprocHookTable; fcn != NULL; fcn = fcn->next) {
@@ -1058,7 +1189,7 @@ int PerformNetprocHooks(struct CtdlMessage *msg, char *target_room)
 
 void PerformDeleteHooks(char *room, long msgnum)
 {
-	struct DeleteFunctionHook *fcn;
+	DeleteFunctionHook *fcn;
 
 	for (fcn = DeleteHookTable; fcn != NULL; fcn = fcn->next) {
 		(*fcn->h_function_pointer) (room, msgnum);
@@ -1071,7 +1202,7 @@ void PerformDeleteHooks(char *room, long msgnum)
 
 int PerformXmsgHooks(char *sender, char *sender_email, char *recp, char *msg)
 {
-	struct XmsgFunctionHook *fcn;
+	XmsgFunctionHook *fcn;
 	int total_sent = 0;
 	int p;
 
