@@ -91,22 +91,26 @@ struct CitContext networker_client_CC;
 #define NODE ChrPtr(((AsyncNetworker*)IO->Data)->node)
 #define N ((AsyncNetworker*)IO->Data)->n
 
+int NetworkClientDebugEnabled = 0;
+
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (NetworkClientDebugEnabled != 0))
+
 #define EVN_syslog(LEVEL, FORMAT, ...) \
-	syslog(LEVEL, \
+	DBGLOG(LEVEL) syslog(LEVEL, \
 	       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT, \
 	       IO->ID, CCID, NODE, N, __VA_ARGS__)
 
 #define EVNM_syslog(LEVEL, FORMAT) \
-	syslog(LEVEL, \
+	DBGLOG(LEVEL) syslog(LEVEL, \
 	       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT, \
 	       IO->ID, CCID, NODE, N)
 
 #define EVNCS_syslog(LEVEL, FORMAT, ...) \
-	syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT, \
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT, \
 	       IO->ID, NODE, N, __VA_ARGS__)
 
 #define EVNCSM_syslog(LEVEL, FORMAT) \
-	syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT, \
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT, \
 	       IO->ID, NODE, N)
 
 
@@ -1033,8 +1037,10 @@ void network_do_clientqueue(void)
 		free(working_ignetcfg);
 }
 
-
-
+void LogDebugEnableNetworkClient(void)
+{
+	NetworkClientDebugEnabled = 1;
+}
 /*
  * Module entry point
  */
@@ -1045,6 +1051,8 @@ CTDL_MODULE_INIT(network_client)
 		CtdlFillSystemContext(&networker_client_CC, "CitNetworker");
 		
 		CtdlRegisterSessionHook(network_do_clientqueue, EVT_TIMER);
+		CtdlRegisterDebugFlagHook(HKEY("networkclient"), LogDebugEnableNetworkClient);
+
 	}
-	return "network_client";
+	return "networkclient";
 }
