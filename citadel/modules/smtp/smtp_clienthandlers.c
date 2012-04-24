@@ -90,16 +90,16 @@
 
 #define SMTP_ERROR(WHICH_ERR, ERRSTR) do {			       \
 		Msg->MyQEntry->Status = WHICH_ERR;		       \
-		StrBufAppendBufPlain(Msg->MyQEntry->StatusMessage, \
+		StrBufAppendBufPlain(Msg->MyQEntry->StatusMessage,     \
 				     HKEY(ERRSTR), 0);		       \
 		return eAbort; }				       \
 	while (0)
 
 #define SMTP_VERROR(WHICH_ERR) do {			       \
 		Msg->MyQEntry->Status = WHICH_ERR;	       \
-		StrBufPlain(Msg->MyQEntry->StatusMessage,  \
-			    ChrPtr(Msg->IO.IOBuf) + 4,     \
-			    StrLength(Msg->IO.IOBuf) - 4); \
+		StrBufPlain(Msg->MyQEntry->StatusMessage,      \
+			    ChrPtr(Msg->IO.IOBuf) + 4,	       \
+			    StrLength(Msg->IO.IOBuf) - 4);     \
 		return eAbort; }			       \
 	while (0)
 

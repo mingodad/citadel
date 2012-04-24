@@ -90,6 +90,7 @@
 #include "smtpqueue.h"
 #include "smtp_clienthandlers.h"
 
+int SMTPClientDebugEnabled = 0;
 const unsigned short DefaultMXPort = 25;
 void DeleteSmtpOutMsg(void *v)
 {
@@ -829,7 +830,14 @@ eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 	return Finished;
 }
 
+void LogDebugEnableSMTPClient(void)
+{
+	SMTPClientDebugEnabled = 1;
+}
+
 CTDL_MODULE_INIT(smtp_eventclient)
 {
+	if (!threading)
+		CtdlRegisterDebugFlagHook(HKEY("smtpeventclient"), LogDebugEnableSMTPClient);
 	return "smtpeventclient";
 }

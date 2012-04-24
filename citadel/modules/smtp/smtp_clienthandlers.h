@@ -87,26 +87,28 @@ const double SMTP_C_ConnTimeout;
 #define F_HAVE_MX        (1<<3) /* we have a list of mx records to go through.*/
 #define F_DIRECT         (1<<4) /* no mx record found, trying direct connect. */
 
+extern int SMTPClientDebugEnabled;
 
 int smtp_resolve_recipients(SmtpOutMsg *SendMsg);
 
 #define QID ((SmtpOutMsg*)IO->Data)->MyQItem->MessageID
 #define N ((SmtpOutMsg*)IO->Data)->n
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (SMTPClientDebugEnabled != 0))
 
 #define EVS_syslog(LEVEL, FORMAT, ...) \
-	syslog(LEVEL, \
+	DBGLOG(LEVEL) syslog(LEVEL,		  \
 	       "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, \
 	       IO->ID, CCID, QID, N, __VA_ARGS__)
 
 #define EVSM_syslog(LEVEL, FORMAT) \
-	syslog(LEVEL, \
+	DBGLOG(LEVEL) syslog(LEVEL, \
 	       "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, \
 	       IO->ID, CCID, QID, N)
 
 #define EVNCS_syslog(LEVEL, FORMAT, ...) \
-	syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
 	       IO->ID, QID, N, __VA_ARGS__)
 
 #define EVNCSM_syslog(LEVEL, FORMAT) \
-	syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
 	       IO->ID, QID, N)
