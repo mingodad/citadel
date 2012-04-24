@@ -6,7 +6,7 @@
 		<td>
 			<h1 id="rmname"><a href="/readnew?go=<?ROOM:INFO:PRINT_NAME("U")>"><?ROOM:INFO:PRINT_NAME("X")></a></h1>
 			<?THISROOM:FEED:RSS>
-			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><h2><?BSTR("page")></h2><?!("X", 7)>
+			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><h2><a href="wiki?go=<?ROOM:INFO:PRINT_NAME("U")>?page=<?BSTR("page")>"><?BSTR("page")></a></h2><?!("X", 7)>
 			<?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")><p id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></p><?!("X", 8)>
 			<?!("COND:ROOM:TYPE_IS", 11, #"VIEW_MAILBOX")><p id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></p><?!("X", 11)>
 			<?!("COND:THISROOM:FLAG:QR", 9, #"QR_DIRECTORY")><?!("COND:THISROOM:FLAG:QR", 10, #"QR_VISDIR")>

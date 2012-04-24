@@ -400,7 +400,9 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 				&& (strncasecmp(ptr, "<a href=\"knrooms?", 17))
 			) {
 				content_length += 64;
-				StrBufAppendPrintf(converted_msg, "<a href=\"wiki?page=");
+				StrBufAppendPrintf(converted_msg, "<a href=\"wiki?go=");
+				StrBufUrlescAppend(converted_msg, WC->CurRoom.name, NULL);
+				StrBufAppendPrintf(converted_msg, "?page=");
 				ptr = &ptr[9];
 			}
 			else {
