@@ -612,7 +612,7 @@ InitModule_ROOMTOKENS
 	/**** Room... ******/
         /**** Name ******/
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, NULL, CTX_NONE);
-	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM", 0, 1, tmplput_current_room, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, NULL, CTX_ROOMS);
