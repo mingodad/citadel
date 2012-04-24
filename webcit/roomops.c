@@ -354,20 +354,30 @@ void ParseGoto(folder *room, StrBuf *Line)
  */
 void delete_room(void)
 {
-	StrBuf *Line;
+	StrBuf *Line = NewStrBuf();
+	const StrBuf *GoBstr;
 	
-	serv_puts("KILL 1");
-	StrBuf_ServGetln(Line);
-	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
-		display_main_menu();
-	} else {
-		StrBuf *Buf;
-		
-		FlushRoomlist ();
-		Buf = NewStrBufPlain(HKEY("_BASEROOM_"));
-		smart_goto(Buf);
-		FreeStrBuf(&Buf);
+	GoBstr = sbstr("go");
+
+	if (GoBstr != NULL)
+	{
+		if (gotoroom(GoBstr) == 200)
+		{
+			serv_puts("KILL 1");
+			StrBuf_ServGetln(Line);
+			if (GetServerStatusMsg(Line, NULL, 1, 2) == 2) {
+				StrBuf *Buf;
+				
+				FlushRoomlist ();
+				Buf = NewStrBufPlain(HKEY("_BASEROOM_"));
+				smart_goto(Buf);
+				FreeStrBuf(&Buf);
+				FreeStrBuf(&Line);
+				return;
+			}
+		}
 	}
+	display_main_menu();
 	FreeStrBuf(&Line);
 }
 
