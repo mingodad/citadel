@@ -1,21 +1,15 @@
 /*
  * Consolidate mail from remote POP3 accounts.
  *
- * Copyright (c) 2007-2011 by the citadel.org team
+ * Copyright (c) 2007-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * modify it under the terms of the GNU General Public License version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include <stdlib.h>
@@ -52,7 +46,6 @@
 #include "citadel_dirs.h"
 #include "event_client.h"
 
-
 #define POP3C_OK (strncasecmp(ChrPtr(RecvMsg->IO.IOBuf), "+OK", 3) == 0)
 
 #define POP3C_DBG_SEND()					\
@@ -65,7 +58,6 @@
 	       "POP3 client[%ld]: < %s\n",		\
 	       RecvMsg->n,				\
 	       ChrPtr(RecvMsg->IO.IOBuf))
-
 
 struct CitContext pop3_client_CC;
 
@@ -224,7 +216,7 @@ eNextState POP3C_SendPassword(pop3aggr *RecvMsg)
 	StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 		     "PASS %s\r\n", ChrPtr(RecvMsg->pop3pass));
 	syslog(LOG_DEBUG, "<PASS <password>\n");
-//	POP3C_DBG_SEND(); No, we won't write the passvoid to syslog...
+//	POP3C_DBG_SEND(); No, we won't write the password to syslog...
 	return eReadMessage;
 }
 
@@ -750,9 +742,9 @@ eNextState POP3_C_Shutdown(AsyncIO *IO)
 }
 
 
-/**
- * @brief lineread Handler; understands when to read more POP3 lines,
- *   and when this is a one-lined reply.
+/*
+ * lineread Handler; understands when to read more POP3 lines,
+ * and when this is a one-lined reply.
  */
 eReadState POP3_C_ReadServerStatus(AsyncIO *IO)
 {
@@ -784,7 +776,8 @@ eReadState POP3_C_ReadServerStatus(AsyncIO *IO)
 
 /*****************************************************************************
  * So we connect our Server IP here.                                         *
- *****************************************************************************/
+ *****************************************************************************
+ */
 eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
@@ -1117,6 +1110,11 @@ void pop3client_scan(void) {
 	 * Run POP3 aggregation no more frequently than once every n seconds
 	 */
 	if ( (time(NULL) - last_run) < fastest_scan ) {
+		syslog(LOG_DEBUG,
+			"pop3client: polling interval not yet reached; last run was %ldm%lds ago",
+			((time(NULL) - last_run) / 60),
+			((time(NULL) - last_run) % 60)
+		);
 		return;
 	}
 
@@ -1126,7 +1124,10 @@ void pop3client_scan(void) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_pop3client) return;
+	if (doing_pop3client) {
+		syslog(LOG_DEBUG, "pop3client: concurrency check failed; another poll is already running");
+		return;
+	}
 	doing_pop3client = 1;
 
 	syslog(LOG_DEBUG, "pop3client started");

@@ -5,17 +5,11 @@
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA02111-1307USA
  */
 
 #include <stdlib.h>
@@ -508,6 +502,11 @@ void rssclient_scan(void) {
 
 	/* Run no more than once every 15 minutes. */
 	if ((now - last_run) < 900) {
+		syslog(LOG_DEBUG,
+			"rssclient: polling interval not yet reached; last run was %ldm%lds ago",
+			((now - last_run) / 60),
+			((now - last_run) % 60)
+		);
 		return;
 	}
 
@@ -518,8 +517,14 @@ void rssclient_scan(void) {
 	 * with a static variable instead.
 	 */
 
-	if ((GetCount(RSSQueueRooms) > 0) || (GetCount(RSSFetchUrls) > 0))
+	if ((GetCount(RSSQueueRooms) > 0) || (GetCount(RSSFetchUrls) > 0)) {
+		syslog(LOG_DEBUG,
+			"rssclient: concurrency check failed; %d rooms and %d url's are queued",
+			GetCount(RSSQueueRooms),
+			GetCount(RSSFetchUrls)
+		);
 		return;
+	}
 
 	become_session(&rss_CC);
 	syslog(LOG_DEBUG, "rssclient started\n");

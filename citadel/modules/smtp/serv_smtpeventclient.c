@@ -141,14 +141,14 @@ inline void FinalizeMessageSend_1(AsyncIO *IO)
 	SmtpOutMsg *Msg = IO->Data;
 	
 	if (Msg->MyQEntry->Status == 2) 
-		Status = "Delivery Successfull.";
+		Status = "Delivery successful.";
 	else if (Msg->MyQEntry->Status == 5) 
 		Status = "Delivery failed permanently; giving up.";
 	else
 		Status = "Delivery failed temporarily; will retry later.";
 			
 	EVS_syslog(LOG_INFO,
-		   "SMTP: %s Time[%fs] Recipient <%s> @ <%s> (%s) Statusmessage: %s\n",
+		   "SMTP: %s Time[%fs] Recipient <%s> @ <%s> (%s) Status message: %s\n",
 		   Status,
 		   Msg->IO.Now - Msg->IO.StartIO,
 		   Msg->user,
