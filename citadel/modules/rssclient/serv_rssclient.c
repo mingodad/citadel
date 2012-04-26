@@ -124,6 +124,7 @@ void UnlinkRSSAggregator(rss_aggregator *Cfg)
 {
 	HashPos *At;
 
+	pthread_mutex_lock(&RSSQueueMutex);
 	UnlinkRooms(Cfg);
 
 	At = GetNewHashPos(RSSFetchUrls, 0);
@@ -133,6 +134,7 @@ void UnlinkRSSAggregator(rss_aggregator *Cfg)
 	}
 	DeleteHashPos(&At);
 	last_run = time(NULL);
+	pthread_mutex_unlock(&RSSQueueMutex);
 }
 
 void DeleteRssCfg(void *vptr)
@@ -493,6 +495,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
  * Scan for rooms that have RSS client requests configured
  */
 void rssclient_scan(void) {
+	int RSSRoomCount, RSSCount;
 	rss_aggregator *rptr = NULL;
 	void *vrptr = NULL;
 	HashPos *it;
@@ -512,17 +515,18 @@ void rssclient_scan(void) {
 
 	/*
 	 * This is a simple concurrency check to make sure only one rssclient
-	 * run is done at a time.We could do this with a mutex, but since we
-	 * don't really require extremely fine granularity here, we'll do it
-	 * with a static variable instead.
+	 * run is done at a time.
 	 */
+	pthread_mutex_lock(&RSSQueueMutex);
+	RSSCount = GetCount(RSSFetchUrls);
+	RSSRoomCount = GetCount(RSSQueueRooms);
+	pthread_mutex_unlock(&RSSQueueMutex);
 
-	if ((GetCount(RSSQueueRooms) > 0) || (GetCount(RSSFetchUrls) > 0)) {
+	if ((RSSRoomCount > 0) || (RSSCount > 0)) {
 		syslog(LOG_DEBUG,
-			"rssclient: concurrency check failed; %d rooms and %d url's are queued",
-			GetCount(RSSQueueRooms),
-			GetCount(RSSFetchUrls)
-		);
+		       "rssclient: concurrency check failed; %d rooms and %d url's are queued",
+		       RSSRoomCount, RSSCount
+			);
 		return;
 	}
 
