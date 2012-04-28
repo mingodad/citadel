@@ -1,15 +1,21 @@
 /*
  * Consolidate mail from remote POP3 accounts.
  *
- * Copyright (c) 2007-2012 by the citadel.org team
+ * Copyright (c) 2007-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version 3.
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include <stdlib.h>
@@ -46,18 +52,43 @@
 #include "citadel_dirs.h"
 #include "event_client.h"
 
-#define POP3C_OK (strncasecmp(ChrPtr(RecvMsg->IO.IOBuf), "+OK", 3) == 0)
 
-#define POP3C_DBG_SEND()					\
-	syslog(LOG_DEBUG,					\
-	       "POP3 client[%ld]: > %s\n",			\
-	       RecvMsg->n, ChrPtr(RecvMsg->IO.SendBuf.Buf))
+#define POP3C_OK (strncasecmp(ChrPtr(RecvMsg->IO.IOBuf), "+OK", 3) == 0)
+int Pop3ClientID = 0;
+int POP3ClientDebugEnabled = 0;
+
+#define N ((pop3aggr*)IO->Data)->n
+
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (POP3ClientDebugEnabled != 0))
+
+#define EVP3C_syslog(LEVEL, FORMAT, ...)				\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "IO[%ld]CC[%d][%ld]" FORMAT,		\
+			     IO->ID, CCID, N, __VA_ARGS__)
+
+#define EVP3CM_syslog(LEVEL, FORMAT)					\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "IO[%ld]CC[%d][%ld]" FORMAT,		\
+			     IO->ID, CCID, N)
+
+#define EVP3CCS_syslog(LEVEL, FORMAT, ...)				\
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]" FORMAT,		\
+			     IO->ID, N, __VA_ARGS__)
+
+#define EVP3CCSM_syslog(LEVEL, FORMAT)				\
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]" FORMAT,	\
+			     IO->ID, N)
+
+#define POP3C_DBG_SEND()						\
+	EVP3C_syslog(LOG_DEBUG,						\
+		     "POP3: > %s\n",					\
+		     ChrPtr(RecvMsg->IO.SendBuf.Buf))
 
 #define POP3C_DBG_READ()				\
-	syslog(LOG_DEBUG,				\
-	       "POP3 client[%ld]: < %s\n",		\
-	       RecvMsg->n,				\
-	       ChrPtr(RecvMsg->IO.IOBuf))
+	EVP3C_syslog(LOG_DEBUG,				\
+		     "POP3: < %s\n",			\
+		     ChrPtr(RecvMsg->IO.IOBuf))
+
 
 struct CitContext pop3_client_CC;
 
@@ -163,7 +194,7 @@ eNextState FinalizePOP3AggrRun(AsyncIO *IO)
 	HashPos  *It;
 	pop3aggr *cptr = (pop3aggr *)IO->Data;
 
-	syslog(LOG_DEBUG, "Terminating Aggregator; bye.\n");
+	EVP3CM_syslog(LOG_DEBUG, "Terminating Aggregator; bye.\n");
 
 	It = GetNewHashPos(POP3FetchUrls, 0);
 	pthread_mutex_lock(&POP3QueueMutex);
@@ -183,6 +214,7 @@ eNextState FailAggregationRun(AsyncIO *IO)
 
 eNextState POP3C_ReadGreeting(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	/* Read the server greeting */
 	if (!POP3C_OK) return eTerminateConnection;
@@ -191,6 +223,7 @@ eNextState POP3C_ReadGreeting(pop3aggr *RecvMsg)
 
 eNextState POP3C_SendUser(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	/* Identify ourselves.  NOTE: we have to append a CR to each command.
 	 *  The LF will automatically be appended by sock_puts().  Believe it
 	 * or not, leaving out the CR will cause problems if the server happens
@@ -205,6 +238,7 @@ eNextState POP3C_SendUser(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetUserState(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
 	else return eSendReply;
@@ -212,16 +246,18 @@ eNextState POP3C_GetUserState(pop3aggr *RecvMsg)
 
 eNextState POP3C_SendPassword(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	/* Password */
 	StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 		     "PASS %s\r\n", ChrPtr(RecvMsg->pop3pass));
-	syslog(LOG_DEBUG, "<PASS <password>\n");
-//	POP3C_DBG_SEND(); No, we won't write the password to syslog...
+	EVP3CM_syslog(LOG_DEBUG, "<PASS <password>\n");
+//	POP3C_DBG_SEND(); No, we won't write the passvoid to syslog...
 	return eReadMessage;
 }
 
 eNextState POP3C_GetPassState(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
 	else return eSendReply;
@@ -229,6 +265,7 @@ eNextState POP3C_GetPassState(pop3aggr *RecvMsg)
 
 eNextState POP3C_SendListCommand(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	/* Get the list of messages */
 	StrBufPlain(RecvMsg->IO.SendBuf.Buf, HKEY("LIST\r\n"));
 	POP3C_DBG_SEND();
@@ -237,6 +274,7 @@ eNextState POP3C_SendListCommand(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetListCommandState(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
 	RecvMsg->MsgNumbers = NewHash(1, NULL);
@@ -247,6 +285,7 @@ eNextState POP3C_GetListCommandState(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 #if 0
 	int rc;
 #endif
@@ -354,6 +393,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 
 eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	long HKLen;
 	const char *HKey;
 	void *vData;
@@ -390,6 +430,7 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 
 eNextState POP3C_GetOneMessageIDState(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 #if 0
 	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
@@ -420,6 +461,7 @@ eNextState POP3C_GetOneMessageIDState(pop3aggr *RecvMsg)
 
 eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	long HKLen;
 	const char *HKey;
 	void *vData;
@@ -451,6 +493,7 @@ eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 
 eNextState POP3C_ReadMessageBodyFollowing(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	if (!POP3C_OK) return eTerminateConnection;
 	RecvMsg->IO.ReadMsg = NewAsyncMsg(HKEY("."),
@@ -508,7 +551,8 @@ eNextState POP3C_SaveMsg(AsyncIO *IO)
 
 eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 {
-	syslog(LOG_DEBUG, "Converting message...\n");
+	AsyncIO *IO = &RecvMsg->IO;
+	EVP3CM_syslog(LOG_DEBUG, "Converting message...");
 	RecvMsg->CurrMsg->Msg =
 		convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
 
@@ -517,6 +561,7 @@ eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 
 eNextState POP3C_SendDelete(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	if (!RecvMsg->keep) {
 		StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 			     "DELE %ld\r\n", RecvMsg->CurrMsg->MSGID);
@@ -530,6 +575,7 @@ eNextState POP3C_SendDelete(pop3aggr *RecvMsg)
 }
 eNextState POP3C_ReadDeleteState(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	RecvMsg->State = GetOneMessageIDState;
 	return eReadMessage;
@@ -537,6 +583,7 @@ eNextState POP3C_ReadDeleteState(pop3aggr *RecvMsg)
 
 eNextState POP3C_SendQuit(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	/* Log out */
 	StrBufPlain(RecvMsg->IO.SendBuf.Buf,
 		    HKEY("QUIT\r\n3)"));
@@ -547,6 +594,7 @@ eNextState POP3C_SendQuit(pop3aggr *RecvMsg)
 
 eNextState POP3C_ReadQuitState(pop3aggr *RecvMsg)
 {
+	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	return eTerminateConnection;
 }
@@ -619,9 +667,10 @@ const long POP3_C_ReadTimeouts[] = {
 
 void POP3SetTimeout(eNextState NextTCPState, pop3aggr *pMsg)
 {
+	AsyncIO *IO = &pMsg->IO;
 	double Timeout = 0.0;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3C_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 
 	switch (NextTCPState) {
 	case eSendFile:
@@ -742,9 +791,9 @@ eNextState POP3_C_Shutdown(AsyncIO *IO)
 }
 
 
-/*
- * lineread Handler; understands when to read more POP3 lines,
- * and when this is a one-lined reply.
+/**
+ * @brief lineread Handler; understands when to read more POP3 lines,
+ *   and when this is a one-lined reply.
  */
 eReadState POP3_C_ReadServerStatus(AsyncIO *IO)
 {
@@ -776,8 +825,7 @@ eReadState POP3_C_ReadServerStatus(AsyncIO *IO)
 
 /*****************************************************************************
  * So we connect our Server IP here.                                         *
- *****************************************************************************
- */
+ *****************************************************************************/
 eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
@@ -868,7 +916,9 @@ eNextState pop3_get_one_host_ip(AsyncIO *IO)
 
 int pop3_do_fetching(pop3aggr *cpptr)
 {
-	InitIOStruct(&cpptr->IO,
+	AsyncIO *IO = &cpptr->IO;
+
+	InitIOStruct(IO,
 		     cpptr,
 		     eReadMessage,
 		     POP3_C_ReadServerStatus,
@@ -1067,7 +1117,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 				}
 				pthread_mutex_unlock(&RSSQueueMutex);
 #endif
-
+				cptr->n = Pop3ClientID++;
 				pthread_mutex_lock(&POP3QueueMutex);
 				Put(POP3FetchUrls,
 				    SKEY(cptr->Url),
@@ -1110,11 +1160,6 @@ void pop3client_scan(void) {
 	 * Run POP3 aggregation no more frequently than once every n seconds
 	 */
 	if ( (time(NULL) - last_run) < fastest_scan ) {
-		syslog(LOG_DEBUG,
-			"pop3client: polling interval not yet reached; last run was %ldm%lds ago",
-			((time(NULL) - last_run) / 60),
-			((time(NULL) - last_run) % 60)
-		);
 		return;
 	}
 
@@ -1124,10 +1169,7 @@ void pop3client_scan(void) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_pop3client) {
-		syslog(LOG_DEBUG, "pop3client: concurrency check failed; another poll is already running");
-		return;
-	}
+	if (doing_pop3client) return;
 	doing_pop3client = 1;
 
 	syslog(LOG_DEBUG, "pop3client started");
@@ -1170,6 +1212,13 @@ void pop3_cleanup(void)
 	DeleteHash(&POP3QueueRooms);
 }
 
+
+
+void LogDebugEnablePOP3Client(void)
+{
+	POP3ClientDebugEnabled = 1;
+}
+
 CTDL_MODULE_INIT(pop3client)
 {
 	if (!threading)
@@ -1180,6 +1229,7 @@ CTDL_MODULE_INIT(pop3client)
 		POP3FetchUrls = NewHash(1, NULL);
 		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
 		CtdlRegisterEVCleanupHook(pop3_cleanup);
+		CtdlRegisterDebugFlagHook(HKEY("pop3client"), LogDebugEnablePOP3Client);
 	}
 
 	/* return our module id for the log */
