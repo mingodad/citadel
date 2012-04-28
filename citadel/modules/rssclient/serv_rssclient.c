@@ -68,7 +68,30 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO);
 struct CitContext rss_CC;
 
 struct rssnetcfg *rnclist = NULL;
+int RSSClientDebugEnabled = 0;
+#define N ((rss_aggregator*)IO->Data)->QRnumber
 
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (RSSClientDebugEnabled != 0))
+
+#define EVRSSC_syslog(LEVEL, FORMAT, ...)				\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "IO[%ld]CC[%d][%ld]RSS" FORMAT,		\
+			     IO->ID, CCID, N, __VA_ARGS__)
+
+#define EVRSSCM_syslog(LEVEL, FORMAT)					\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "IO[%ld]CC[%d][%ld]RSS" FORMAT,		\
+			     IO->ID, CCID, N)
+
+#define EVRSSQ_syslog(LEVEL, FORMAT, ...)				\
+	DBGLOG(LEVEL) syslog(LEVEL, "RSS" FORMAT,			\
+			     __VA_ARGS__)
+#define EVRSSQM_syslog(LEVEL, FORMAT)			\
+	DBGLOG(LEVEL) syslog(LEVEL, "RSS" FORMAT)
+
+#define EVRSSCSM_syslog(LEVEL, FORMAT)					\
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]RSS" FORMAT,		\
+			     IO->ID, N)
 
 void DeleteRoomReference(long QRnumber)
 {
@@ -94,19 +117,19 @@ void DeleteRoomReference(long QRnumber)
 	DeleteHashPos(&At);
 }
 
-void UnlinkRooms(rss_aggregator *Cfg)
+void UnlinkRooms(rss_aggregator *RSSAggr)
 {
-	DeleteRoomReference(Cfg->QRnumber);
-	if (Cfg->OtherQRnumbers != NULL)
+	DeleteRoomReference(RSSAggr->QRnumber);
+	if (RSSAggr->OtherQRnumbers != NULL)
 	{
 		long HKLen;
 		const char *HK;
 		HashPos *At;
 		void *vData;
 
-		At = GetNewHashPos(Cfg->OtherQRnumbers, 0);
+		At = GetNewHashPos(RSSAggr->OtherQRnumbers, 0);
 		while (! server_shutting_down &&
-		       GetNextHashPos(Cfg->OtherQRnumbers,
+		       GetNextHashPos(RSSAggr->OtherQRnumbers,
 				      At,
 				      &HKLen, &HK,
 				      &vData) &&
@@ -120,15 +143,15 @@ void UnlinkRooms(rss_aggregator *Cfg)
 	}
 }
 
-void UnlinkRSSAggregator(rss_aggregator *Cfg)
+void UnlinkRSSAggregator(rss_aggregator *RSSAggr)
 {
 	HashPos *At;
 
 	pthread_mutex_lock(&RSSQueueMutex);
-	UnlinkRooms(Cfg);
+	UnlinkRooms(RSSAggr);
 
 	At = GetNewHashPos(RSSFetchUrls, 0);
-	if (GetHashPosFromKey(RSSFetchUrls, SKEY(Cfg->Url), At))
+	if (GetHashPosFromKey(RSSFetchUrls, SKEY(RSSAggr->Url), At))
 	{
 		DeleteEntryFromHash(RSSFetchUrls, At);
 	}
@@ -141,7 +164,7 @@ void DeleteRssCfg(void *vptr)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator *)vptr;
 	AsyncIO *IO = &RSSAggr->IO;
-	EVM_syslog(LOG_DEBUG, "RSS: destroying\n");
+	EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying\n");
 
 	FreeStrBuf(&RSSAggr->Url);
 	FreeStrBuf(&RSSAggr->rooms);
@@ -170,7 +193,7 @@ eNextState RSSAggregator_Terminate(AsyncIO *IO)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator *)IO->Data;
 
-	EVM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
+	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
 
 
 	UnlinkRSSAggregator(RSSAggr);
@@ -181,7 +204,7 @@ eNextState RSSAggregator_TerminateDB(AsyncIO *IO)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator *)IO->Data;
 
-	EVM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
+	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
 
 
 	UnlinkRSSAggregator(RSSAggr);
@@ -197,7 +220,7 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
 	if (pUrl == NULL)
 		pUrl = "";
 
-	EV_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.\n", pUrl);
+	EVRSSC_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.\n", pUrl);
 
 
 	UnlinkRSSAggregator(RSSAggr);
@@ -252,7 +275,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 #ifndef DEBUG_RSS
 	if (cdbut != NULL) {
 		/* Item has already been seen */
-		EV_syslog(LOG_DEBUG,
+		EVRSSC_syslog(LOG_DEBUG,
 			  "%s has already been seen\n",
 			  ChrPtr(Ctx->ThisMsg->MsgGUID));
 		cdb_free(cdbut);
@@ -283,41 +306,42 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 /*
  * Begin a feed parse
  */
-int rss_do_fetching(rss_aggregator *Cfg)
+int rss_do_fetching(rss_aggregator *RSSAggr)
 {
+	AsyncIO		*IO = &RSSAggr->IO;
 	rss_item *ri;
 	time_t now;
 
 	now = time(NULL);
 
-	if ((Cfg->next_poll != 0) && (now < Cfg->next_poll))
+	if ((RSSAggr->next_poll != 0) && (now < RSSAggr->next_poll))
 		return 0;
 
 	ri = (rss_item*) malloc(sizeof(rss_item));
 	memset(ri, 0, sizeof(rss_item));
-	Cfg->Item = ri;
+	RSSAggr->Item = ri;
 
-	if (! InitcURLIOStruct(&Cfg->IO,
-			       Cfg,
+	if (! InitcURLIOStruct(&RSSAggr->IO,
+			       RSSAggr,
 			       "Citadel RSS Client",
 			       RSSAggregator_ParseReply,
 			       RSSAggregator_Terminate,
 			       RSSAggregator_TerminateDB,
 			       RSSAggregator_ShutdownAbort))
 	{
-		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
+		EVRSSCM_syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return 0;
 	}
 
-	safestrncpy(((CitContext*)Cfg->IO.CitContext)->cs_host,
-		    ChrPtr(Cfg->Url),
-		    sizeof(((CitContext*)Cfg->IO.CitContext)->cs_host));
+	safestrncpy(((CitContext*)RSSAggr->IO.CitContext)->cs_host,
+		    ChrPtr(RSSAggr->Url),
+		    sizeof(((CitContext*)RSSAggr->IO.CitContext)->cs_host));
 
-	syslog(LOG_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(Cfg->Url));
-	ParseURL(&Cfg->IO.ConnectMe, Cfg->Url, 80);
-	CurlPrepareURL(Cfg->IO.ConnectMe);
+	EVRSSC_syslog(LOG_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(RSSAggr->Url));
+	ParseURL(&RSSAggr->IO.ConnectMe, RSSAggr->Url, 80);
+	CurlPrepareURL(RSSAggr->IO.ConnectMe);
 
-	QueueCurlContext(&Cfg->IO);
+	QueueCurlContext(&RSSAggr->IO);
 	return 1;
 }
 
@@ -343,10 +367,10 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	pthread_mutex_lock(&RSSQueueMutex);
 	if (GetHash(RSSQueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
-		syslog(LOG_DEBUG,
-		       "rssclient: [%ld] %s already in progress.\n",
-		       qrbuf->QRnumber,
-		       qrbuf->QRname);
+		EVRSSQ_syslog(LOG_DEBUG,
+			      "rssclient: [%ld] %s already in progress.\n",
+			      qrbuf->QRnumber,
+			      qrbuf->QRname);
 		pthread_mutex_unlock(&RSSQueueMutex);
 		return;
 	}
@@ -370,10 +394,10 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 		return;
 
 	if (fstat(fd, &statbuf) == -1) {
-		syslog(LOG_DEBUG,
-		       "ERROR: could not stat configfile '%s' - %s\n",
-		       filename,
-		       strerror(errno));
+		EVRSSQ_syslog(LOG_DEBUG,
+			      "ERROR: could not stat configfile '%s' - %s\n",
+			      filename,
+			      strerror(errno));
 		return;
 	}
 
@@ -385,8 +409,8 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
 		FreeStrBuf(&CfgData);
-		syslog(LOG_DEBUG, "ERROR: reading config '%s' - %s<br>\n",
-		       filename, strerror(errno));
+		EVRSSQ_syslog(LOG_ERR, "ERROR: reading config '%s' - %s<br>\n",
+			      filename, strerror(errno));
 		return;
 	}
 	close(fd);
@@ -481,8 +505,8 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	{
 		Count->QRnumber = qrbuf->QRnumber;
 		pthread_mutex_lock(&RSSQueueMutex);
-		syslog(LOG_DEBUG, "rssclient: [%ld] %s now starting.\n",
-		       qrbuf->QRnumber, qrbuf->QRname);
+		EVRSSQ_syslog(LOG_DEBUG, "client: [%ld] %s now starting.\n",
+			      qrbuf->QRnumber, qrbuf->QRname);
 		Put(RSSQueueRooms, LKEY(qrbuf->QRnumber), Count, NULL);
 		pthread_mutex_unlock(&RSSQueueMutex);
 	}
@@ -505,10 +529,10 @@ void rssclient_scan(void) {
 
 	/* Run no more than once every 15 minutes. */
 	if ((now - last_run) < 900) {
-		syslog(LOG_DEBUG,
-			"rssclient: polling interval not yet reached; last run was %ldm%lds ago",
-			((now - last_run) / 60),
-			((now - last_run) % 60)
+		EVRSSQ_syslog(LOG_DEBUG,
+			      "Client: polling interval not yet reached; last run was %ldm%lds ago",
+			      ((now - last_run) / 60),
+			      ((now - last_run) % 60)
 		);
 		return;
 	}
@@ -523,15 +547,15 @@ void rssclient_scan(void) {
 	pthread_mutex_unlock(&RSSQueueMutex);
 
 	if ((RSSRoomCount > 0) || (RSSCount > 0)) {
-		syslog(LOG_DEBUG,
-		       "rssclient: concurrency check failed; %d rooms and %d url's are queued",
-		       RSSRoomCount, RSSCount
+		EVRSSQ_syslog(LOG_DEBUG,
+			      "rssclient: concurrency check failed; %d rooms and %d url's are queued",
+			      RSSRoomCount, RSSCount
 			);
 		return;
 	}
 
 	become_session(&rss_CC);
-	syslog(LOG_DEBUG, "rssclient started\n");
+	EVRSSQM_syslog(LOG_DEBUG, "rssclient started\n");
 	CtdlForEachRoom(rssclient_scan_room, NULL);
 
 	pthread_mutex_lock(&RSSQueueMutex);
@@ -547,7 +571,7 @@ void rssclient_scan(void) {
 	DeleteHashPos(&it);
 	pthread_mutex_unlock(&RSSQueueMutex);
 
-	syslog(LOG_DEBUG, "rssclient ended\n");
+	EVRSSQM_syslog(LOG_DEBUG, "rssclient ended\n");
 	return;
 }
 
@@ -558,6 +582,10 @@ void rss_cleanup(void)
 	DeleteHash(&RSSQueueRooms);
 }
 
+void LogDebugEnableRSSClient(void)
+{
+	RSSClientDebugEnabled = 1;
+}
 
 CTDL_MODULE_INIT(rssclient)
 {
@@ -570,6 +598,7 @@ CTDL_MODULE_INIT(rssclient)
 		syslog(LOG_INFO, "%s\n", curl_version());
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
 		CtdlRegisterEVCleanupHook(rss_cleanup);
+		CtdlRegisterDebugFlagHook(HKEY("rssclient"), LogDebugEnableRSSClient);
 	}
 	return "rssclient";
 }
