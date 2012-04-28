@@ -57,6 +57,7 @@
 #include "ctdl_module.h"
 #include "event_client.h"
 
+int DebugCAres = 0;
 
 extern struct ev_loop *event_base;
 
@@ -609,11 +610,16 @@ void SockStateCb(void *data, int sock, int read, int write)
 		ev_io_stop(event_base, &IO->DNS.send_event);
 	}
 }
+void EnableDebugCAres(void)
+{
+	DebugCAres = 1;
+}
 
 CTDL_MODULE_INIT(c_ares_client)
 {
 	if (!threading)
 	{
+		CtdlRegisterDebugFlagHook(HKEY("cares"), EnableDebugCAres);
 		int r = ares_library_init(ARES_LIB_INIT_ALL);
 		if (0 != r) {
 			

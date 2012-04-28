@@ -987,10 +987,12 @@ void EV_backtrace(AsyncIO *IO)
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
-		if (strings != NULL)
+		if (strings != NULL) {
 			EV_syslog(LOG_ALERT, " BT %s\n", strings[i]);
-		else
+		}
+		else {
 			EV_syslog(LOG_ALERT, " BT %p\n", stack_frames[i]);
+		}
 	}
 	free(strings);
 #endif

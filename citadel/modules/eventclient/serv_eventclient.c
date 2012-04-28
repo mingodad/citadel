@@ -60,6 +60,8 @@
 #include "serv_curl.h"
 
 ev_loop *event_base;
+int DebugEventLoop = 0;
+int DebugCurl = 0;
 
 long EvIDSource = 1;
 /*****************************************************************************
@@ -822,10 +824,22 @@ void ShutDownEventQueues(void)
 	pthread_mutex_unlock(&EventQueueMutex);
 }
 
+void DebugEventloopEnable(void)
+{
+	DebugEventLoop = 1;
+}
+
+void DebugCurlEnable(void)
+{
+	DebugCurl = 1;
+}
+
 CTDL_MODULE_INIT(event_client)
 {
 	if (!threading)
 	{
+		CtdlRegisterDebugFlagHook(HKEY("eventloop"), DebugEventloopEnable);
+		CtdlRegisterDebugFlagHook(HKEY("curl"), DebugCurlEnable);
 		InitEventQueue();
 		DBInitEventQueue();
 		CtdlThreadCreate(client_event_thread);

@@ -179,51 +179,52 @@ typedef struct _IOAddHandler {
 	IO_CallBack EvAttch;
 } IOAddHandler;
 
+
+
+extern int DebugEventLoop;
+extern int DebugCAres;
+
+#define EDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugEventLoop != 0))
+
 #define CCID ((CitContext*)IO->CitContext)->cs_pid
 
 #define EV_syslog(LEVEL, FORMAT, ...) \
-	syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID, __VA_ARGS__)
+	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID, __VA_ARGS__)
 
 #define EVM_syslog(LEVEL, FORMAT) \
-	syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID)
+	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID)
 
 #define EVNC_syslog(LEVEL, FORMAT, ...) \
-	syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
+	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
 
-#define EVNCM_syslog(LEVEL, FORMAT) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
+#define EVNCM_syslog(LEVEL, FORMAT) EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
 
-#ifdef DEBUG_CARES
+
+#define CDBGLOG() if (DebugCAres != 0)
 #define EV_DNS_LOG_START(a)							\
-	syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
+	CDBGLOG () syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
 	EV_backtrace(IO);
 
 #define EV_DNS_LOG_STOP(a)							\
-	syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
+	CDBGLOG () syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
 	EV_backtrace(IO);
 
 #define EV_DNS_LOG_INIT(a)							\
-	syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
+	CDBGLOG () syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %p FD %d", IO->ID, CCID, &IO->a, IO->a.fd); \
 	EV_backtrace(IO);
 
 #define EV_DNS_LOGT_START(a)							\
-	syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %p", IO->ID, CCID, &IO->a); \
+	CDBGLOG () syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %p", IO->ID, CCID, &IO->a); \
 	EV_backtrace(IO);
 
 #define EV_DNS_LOGT_STOP(a)							\
-	syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %p", IO->ID, CCID, &IO->a); \
+	CDBGLOG () syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %p", IO->ID, CCID, &IO->a); \
 	EV_backtrace(IO);
 
 #define EV_DNS_LOGT_INIT(a)							\
-	syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %p", IO->ID, CCID, &IO->a); \
+	CDBGLOG () syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %p", IO->ID, CCID, &IO->a); \
 	EV_backtrace(IO);
-#else
-#define EV_DNS_LOG_START(a)
-#define EV_DNS_LOG_STOP(a)
-#define EV_DNS_LOG_INIT(a)
-#define EV_DNS_LOGT_START(a)
-#define EV_DNS_LOGT_STOP(a)
-#define EV_DNS_LOGT_INIT(a)
-#endif
+
 
 void FreeAsyncIOContents(AsyncIO *IO);
 
