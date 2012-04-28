@@ -983,7 +983,8 @@ void EV_backtrace(AsyncIO *IO)
 	size_t size, i;
 	char **strings;
 
-
+	if (IO == NULL)
+		return;
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
