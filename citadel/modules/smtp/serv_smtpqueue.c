@@ -171,13 +171,13 @@ void RemoveQItem(OneQueItem *MyQItem)
 		DeleteEntryFromHash(ActiveQItems, It);
 	else
 	{
-		syslog(LOG_WARNING,
-		       "SMTP cleanup: unable to find QItem with ID[%ld]",
-		       MyQItem->MessageID);
+		SMTPC_syslog(LOG_WARNING,
+			     "unable to find QItem with ID[%ld]",
+			     MyQItem->MessageID);
 		while (GetNextHashPos(ActiveQItems, It, &len, &Key, &VData))
-			syslog(LOG_WARNING,
-			       "SMTP cleanup: have_: ID[%ld]",
-			       ((OneQueItem *)VData)->MessageID);
+			SMTPC_syslog(LOG_WARNING,
+				     "have_: ID[%ld]",
+				     ((OneQueItem *)VData)->MessageID);
 	}
 	pthread_mutex_unlock(&ActiveQItemsLock);
 	DeleteHashPos(&It);
@@ -188,7 +188,7 @@ void FreeMailQEntry(void *qv)
 {
 	MailQEntry *Q = qv;
 /*
-	syslog(LOG_DEBUG, "---------------%s--------------", __FUNCTION__);
+	SMTPC_syslog(LOG_DEBUG, "---------------%s--------------", __FUNCTION__);
 	cit_backtrace();
 */
 	FreeStrBuf(&Q->Recipient);
@@ -200,7 +200,7 @@ void FreeMailQEntry(void *qv)
 void FreeQueItem(OneQueItem **Item)
 {
 /*
-	syslog(LOG_DEBUG, "---------------%s--------------", __FUNCTION__);
+	SMTPC_syslog(LOG_DEBUG, "---------------%s--------------", __FUNCTION__);
 	cit_backtrace();
 */
 	DeleteHash(&(*Item)->MailQEntries);
@@ -486,11 +486,11 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
 	CCC->redirect_buffer = NULL;
 	if ((StrLength(SendMsg) > 0) &&
 	    ChrPtr(SendMsg)[StrLength(SendMsg) - 1] != '\n') {
-		syslog(LOG_WARNING,
-		       "SMTP client[%d]: Possible problem: message did not "
-		       "correctly terminate. (expecting 0x10, got 0x%02x)\n",
-		       MsgCount, //yes uncool, but best choice here...
-		       ChrPtr(SendMsg)[StrLength(SendMsg) - 1] );
+		SMTPC_syslog(LOG_WARNING,
+			     "[%d] Possible problem: message did not "
+			     "correctly terminate. (expecting 0x10, got 0x%02x)\n",
+			     MsgCount, //yes uncool, but best choice here...
+			     ChrPtr(SendMsg)[StrLength(SendMsg) - 1] );
 		StrBufAppendBufPlain(SendMsg, HKEY("\r\n"), 0);
 	}
 	return SendMsg;
@@ -524,7 +524,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	int num_bounces = 0;
 	int give_up = 0;
 
-	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
+	SMTPCM_syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
 
 	if (MyQItem->SendBounceMail == 0)
 		return;
@@ -563,7 +563,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	DeleteHashPos(&It);
 
 	/* Deliver the bounce if there's anything worth mentioning */
-	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
+	SMTPC_syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
 
 	if (num_bounces == 0) {
 		FreeStrBuf(&Msg);
@@ -585,7 +585,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 		StrLength(OMsgTxt)); /* the original message */
 	if (BounceMB == NULL) {
 		FreeStrBuf(&boundary);
-		syslog(LOG_ERR, "Failed to alloc() bounce message.\n");
+		SMTPCM_syslog(LOG_ERR, "Failed to alloc() bounce message.\n");
 
 		return;
 	}
@@ -594,7 +594,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	if (bmsg == NULL) {
 		FreeStrBuf(&boundary);
 		FreeStrBuf(&BounceMB);
-		syslog(LOG_ERR, "Failed to alloc() bounce message.\n");
+		SMTPCM_syslog(LOG_ERR, "Failed to alloc() bounce message.\n");
 
 		return;
 	}
@@ -675,11 +675,13 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	bmsg->cm_fields['M'] = SmashStrBuf(&BounceMB);
 
 	/* First try the user who sent the message */
-	if (StrLength(MyQItem->BounceTo) == 0)
-		syslog(LOG_ERR, "No bounce address specified\n");
-	else
-		syslog(LOG_DEBUG, "bounce to user? <%s>\n",
+	if (StrLength(MyQItem->BounceTo) == 0) {
+		SMTPCM_syslog(LOG_ERR, "No bounce address specified\n");
+	}
+	else {
+		SMTPC_syslog(LOG_DEBUG, "bounce to user? <%s>\n",
 		       ChrPtr(MyQItem->BounceTo));
+	}
 
 	/* Can we deliver the bounce to the original sender? */
 	valid = validate_recipients(ChrPtr(MyQItem->BounceTo), NULL, 0);
@@ -697,7 +699,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	free_recipients(valid);
 	FreeStrBuf(&boundary);
 	CtdlFreeMessage(bmsg);
-	syslog(LOG_DEBUG, "Done processing bounces\n");
+	SMTPCM_syslog(LOG_DEBUG, "Done processing bounces\n");
 }
 
 /*
@@ -723,18 +725,18 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	StrBuf *Msg =NULL;
 
 	if (mynumsessions > max_sessions_for_outbound_smtp) {
-		syslog(LOG_DEBUG,
-		       "SMTP Queue: skipping because of num jobs %d > %d max_sessions_for_outbound_smtp",
-		       mynumsessions,
-		       max_sessions_for_outbound_smtp);
+		SMTPC_syslog(LOG_DEBUG,
+			     "skipping because of num jobs %d > %d max_sessions_for_outbound_smtp",
+			     mynumsessions,
+			     max_sessions_for_outbound_smtp);
 	}
 
-	syslog(LOG_DEBUG, "SMTP Queue: smtp_do_procmsg(%ld)\n", msgnum);
+	SMTPC_syslog(LOG_DEBUG, "smtp_do_procmsg(%ld)\n", msgnum);
 	///strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		syslog(LOG_ERR, "SMTP Queue: tried %ld but no such message!\n",
+		SMTPC_syslog(LOG_ERR, "tried %ld but no such message!\n",
 		       msgnum);
 		return;
 	}
@@ -755,9 +757,9 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	FreeStrBuf(&PlainQItem);
 
 	if (MyQItem == NULL) {
-		syslog(LOG_ERR,
-		       "SMTP Queue: Msg No %ld: already in progress!\n",
-		       msgnum);
+		SMTPC_syslog(LOG_ERR,
+			     "Msg No %ld: already in progress!\n",
+			     msgnum);
 		return; /* s.b. else is already processing... */
 	}
 
@@ -769,7 +771,9 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	    (now < MyQItem->ReattemptWhen) &&
 	    (run_queue_now == 0))
 	{
-		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached. %ld seconds left.",  MyQItem->ReattemptWhen - now);
+		SMTPC_syslog(LOG_DEBUG, 
+			     "Retry time not yet reached. %ld seconds left.",
+			     MyQItem->ReattemptWhen - now);
 
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
@@ -791,7 +795,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Bail out if there's no actual message associated with this
 	 */
 	if (MyQItem->MessageID < 0L) {
-		syslog(LOG_ERR, "SMTP Queue: no 'msgid' directive found!\n");
+		SMTPCM_syslog(LOG_ERR, "no 'msgid' directive found!\n");
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		pthread_mutex_lock(&ActiveQItemsLock);
 		{
@@ -824,10 +828,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				!IsEmptyStr(Pos)))
 			{
 				StrBufExtract_NextToken(One, All, &Pos, '|');
-				if (!ParseURL(Url, One, 25))
-					syslog(LOG_DEBUG,
-					       "Failed to parse: %s\n",
-					       ChrPtr(One));
+				if (!ParseURL(Url, One, 25)) {
+					SMTPC_syslog(LOG_DEBUG,
+						     "Failed to parse: %s\n",
+						     ChrPtr(One));
+				}
 				else {
 					///if (!Url->IsIP)) // todo dupe me fork ipv6
 					Url = &(*Url)->Next;
@@ -851,10 +856,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				!IsEmptyStr(Pos)))
 			{
 				StrBufExtract_NextToken(One, All, &Pos, '|');
-				if (!ParseURL(Url, One, 25))
-					syslog(LOG_DEBUG,
-					       "Failed to parse: %s\n",
-					       ChrPtr(One));
+				if (!ParseURL(Url, One, 25)) {
+					SMTPC_syslog(LOG_DEBUG,
+						     "Failed to parse: %s\n",
+						     ChrPtr(One));
+				}
 				else
 					Url = &(*Url)->Next;
 			}
@@ -867,9 +873,9 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		syslog(LOG_DEBUG, "SMTP Queue: Task: <%s> %d\n",
-		       ChrPtr(ThisItem->Recipient),
-		       ThisItem->Active);
+		SMTPC_syslog(LOG_DEBUG, "SMTP Queue: Task: <%s> %d\n",
+			     ChrPtr(ThisItem->Recipient),
+			     ThisItem->Active);
 	}
 	DeleteHashPos(&It);
 
@@ -886,11 +892,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	    (((MyQItem->ActiveDeliveries * 2)  < max_sessions_for_outbound_smtp)))
 	{
 		/* abort delivery for another time. */
-		syslog(LOG_DEBUG,
-		       "SMTP Queue: skipping because of num jobs %d + %ld > %d max_sessions_for_outbound_smtp",
-		       mynumsessions,
-		       MyQItem->ActiveDeliveries,
-		       max_sessions_for_outbound_smtp);
+		SMTPC_syslog(LOG_DEBUG,
+			     "SMTP Queue: skipping because of num jobs %d + %ld > %d max_sessions_for_outbound_smtp",
+			     mynumsessions,
+			     MyQItem->ActiveDeliveries,
+			     max_sessions_for_outbound_smtp);
 
 		FreeQueItem(&MyQItem);
 
@@ -922,7 +928,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 				if (i > 1) n = MsgCount++;
 				syslog(LOG_DEBUG,
-				       "SMTPQ: Trying <%ld> <%s> %d / %d \n",
+				       "SMTPC: Trying <%ld> <%s> %d / %d \n",
 				       MyQItem->MessageID,
 				       ChrPtr(ThisItem->Recipient),
 				       i,
@@ -959,19 +965,18 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				const char* Key;
 				void *VData;
 
-				syslog(LOG_WARNING,
-				       "SMTP cleanup: unable to find "
-				       "QItem with ID[%ld]",
-				       MyQItem->MessageID);
+				SMTPC_syslog(LOG_WARNING,
+					     "unable to find QItem with ID[%ld]",
+					     MyQItem->MessageID);
 				while (GetNextHashPos(ActiveQItems,
 						      It,
 						      &len,
 						      &Key,
 						      &VData))
 				{
-					syslog(LOG_WARNING,
-					       "SMTP cleanup: have: ID[%ld]",
-					      ((OneQueItem *)VData)->MessageID);
+					SMTPC_syslog(LOG_WARNING,
+						     "have: ID[%ld]",
+						     ((OneQueItem *)VData)->MessageID);
 				}
 			}
 
