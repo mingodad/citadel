@@ -28,7 +28,7 @@
  * Set to the location of Citadel
  * FIXME this needs to be configurable
  */
-#define CTDLDIR	"/appl/citadel"
+#define CTDLDIR	"/usr/local/citadel"
 
 typedef int ctdlsh_cmdfunc_t(int, char *);
 
