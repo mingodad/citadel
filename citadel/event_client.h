@@ -188,14 +188,20 @@ extern int DebugCAres;
 
 #define CCID ((CitContext*)IO->CitContext)->cs_pid
 
+#define EVQ_syslog(LEVEL, FORMAT, ...) \
+	EDBGLOG (LEVEL) syslog(LEVEL, "IOQ " FORMAT, __VA_ARGS__)
+
+#define EVQM_syslog(LEVEL, FORMAT) \
+	EDBGLOG (LEVEL) syslog(LEVEL, "IO " FORMAT)
+
 #define EV_syslog(LEVEL, FORMAT, ...) \
-	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID, __VA_ARGS__)
+	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d] " FORMAT, IO->ID, CCID, __VA_ARGS__)
 
 #define EVM_syslog(LEVEL, FORMAT) \
-	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d]" FORMAT, IO->ID, CCID)
+	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d] " FORMAT, IO->ID, CCID)
 
 #define EVNC_syslog(LEVEL, FORMAT, ...) \
-	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID, __VA_ARGS__)
+	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld] " FORMAT, IO->ID, __VA_ARGS__)
 
 #define EVNCM_syslog(LEVEL, FORMAT) EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
 
@@ -264,7 +270,7 @@ void SetNextTimeout(AsyncIO *IO, double timeout);
 	do { \
 		sta = curl_easy_setopt(chnd, (CURLOPT_##s), (v));	\
 		if (sta)  {						\
-			syslog(LOG_ERR,				\
+			EVQ_syslog(LOG_ERR,				\
 			       "error setting option " #s		\
 			       " on curl handle: %s",			\
 			       curl_easy_strerror(sta));		\

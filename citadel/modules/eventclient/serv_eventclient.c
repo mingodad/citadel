@@ -68,30 +68,33 @@ long EvIDSource = 1;
 /*****************************************************************************
  *                   libevent / curl integration                             *
  *****************************************************************************/
-#define MOPT(s, v)\
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugCurl != 0))
+
+#define EVCURL_syslog(LEVEL, FORMAT, ...)				\
+	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT,	\
+			      IO->ID, CCID, __VA_ARGS__)
+
+#define EVCURLM_syslog(LEVEL, FORMAT)					\
+	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT,	\
+			      IO->ID, CCID)
+
+#define CURL_syslog(LEVEL, FORMAT, ...)					\
+	DBGLOG (LEVEL) syslog(LEVEL, "CURL: " FORMAT, __VA_ARGS__)
+
+#define CURLM_syslog(LEVEL, FORMAT)			\
+	DBGLOG (LEVEL) syslog(LEVEL, "CURL: " FORMAT)
+
+#define MOPT(s, v)							\
 	do {								\
 		sta = curl_multi_setopt(mhnd, (CURLMOPT_##s), (v));	\
 		if (sta) {						\
-			syslog(LOG_ERR, "EVCURL: error setting option " \
+			EVQ_syslog(LOG_ERR, "error setting option "	\
 			       #s " on curl multi handle: %s\n",	\
 			       curl_easy_strerror(sta));		\
 			exit (1);					\
 		}							\
 	} while (0)
 
-#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugCurl != 0))
-
-#define EVCURL_syslog(LEVEL, FORMAT, ...) \
-	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT, IO->ID, CCID, __VA_ARGS__)
-
-#define EVCURLM_syslog(LEVEL, FORMAT) \
-	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT, IO->ID, CCID)
-
-#define CURL_syslog(LEVEL, FORMAT, ...) \
-	DBGLOG (LEVEL) syslog(LEVEL, "CURL: " FORMAT, __VA_ARGS__)
-
-#define CURLM_syslog(LEVEL, FORMAT) \
-	DBGLOG (LEVEL) syslog(LEVEL, "CURL: " FORMAT)
 
 typedef struct _evcurl_global_data {
 	int magic;
@@ -358,12 +361,12 @@ gotwatchsock(CURL *easy,
 	switch (action)
 	{
 	case CURL_POLL_NONE:
-		EVCURLM_syslog(LOG_ERR,
+		EVCURLM_syslog(LOG_DEBUG,
 			       "called first time "
 			       "to register this sockwatcker\n");
 		break;
 	case CURL_POLL_REMOVE:
-		EVCURLM_syslog(LOG_ERR,
+		EVCURLM_syslog(LOG_DEBUG,
 			       "called last time to unregister "
 			       "this sockwatcher\n");
 		ev_io_stop(event_base, &IO->recv_event);
@@ -618,7 +621,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	syslog(LOG_DEBUG, "EVENT Q Add done.\n");
+	EVQM_syslog(LOG_DEBUG, "EVENT Q Add done.\n");
 }
 
 
@@ -626,7 +629,7 @@ static void EventExitCallback(EV_P_ ev_async *w, int revents)
 {
 	ev_break(event_base, EVBREAK_ALL);
 
-	syslog(LOG_DEBUG, "EVENT Q exiting.\n");
+	EVQM_syslog(LOG_DEBUG, "EVENT Q exiting.\n");
 }
 
 
@@ -664,7 +667,7 @@ void *client_event_thread(void *arg)
 
 	CtdlFillSystemContext(&libev_client_CC, "LibEv Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	syslog(LOG_DEBUG, "client_event_thread() initializing\n");
+	EVQM_syslog(LOG_DEBUG, "client_event_thread() initializing\n");
 
 	event_base = ev_default_loop (EVFLAG_AUTO);
 	ev_async_init(&AddJob, QueueEventAddCallback);
@@ -678,7 +681,7 @@ void *client_event_thread(void *arg)
 
 	ev_run (event_base, 0);
 
-	syslog(LOG_DEBUG, "client_event_thread() exiting\n");
+	EVQM_syslog(LOG_DEBUG, "client_event_thread() exiting\n");
 
 ///what todo here?	CtdlClearSystemContext();
 	ev_loop_destroy (EV_DEFAULT_UC);
@@ -759,13 +762,13 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	syslog(LOG_DEBUG, "DBEVENT Q Add done.\n");
+	EVQM_syslog(LOG_DEBUG, "DBEVENT Q Add done.\n");
 }
 
 
 static void DBEventExitCallback(EV_P_ ev_async *w, int revents)
 {
-	syslog(LOG_DEBUG, "DB EVENT Q exiting.\n");
+	EVQM_syslog(LOG_DEBUG, "DB EVENT Q exiting.\n");
 	ev_break(event_db, EVBREAK_ALL);
 }
 
@@ -778,7 +781,7 @@ void DBInitEventQueue(void)
 	pthread_mutex_init(&DBEventQueueMutex, NULL);
 
 	if (pipe(evdb_add_pipe) != 0) {
-		syslog(LOG_EMERG, "Unable to create pipe for libev queueing: %s\n", strerror(errno));
+		EVQ_syslog(LOG_EMERG, "Unable to create pipe for libev queueing: %s\n", strerror(errno));
 		abort();
 	}
 	LimitSet.rlim_cur = 1;
@@ -800,7 +803,7 @@ void *db_event_thread(void *arg)
 
 	CtdlFillSystemContext(&libev_msg_CC, "LibEv DB IO Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	syslog(LOG_DEBUG, "dbevent_thread() initializing\n");
+	EVQM_syslog(LOG_DEBUG, "dbevent_thread() initializing\n");
 
 	event_db = ev_loop_new (EVFLAG_AUTO);
 
@@ -811,7 +814,7 @@ void *db_event_thread(void *arg)
 
 	ev_run (event_db, 0);
 
-	syslog(LOG_DEBUG, "dbevent_thread() exiting\n");
+	EVQM_syslog(LOG_DEBUG, "dbevent_thread() exiting\n");
 
 //// what to do here?	CtdlClearSystemContext();
 	ev_loop_destroy (event_db);
@@ -830,7 +833,7 @@ void *db_event_thread(void *arg)
 
 void ShutDownEventQueues(void)
 {
-	syslog(LOG_DEBUG, "EVENT Qs triggering exits.\n");
+	EVQM_syslog(LOG_DEBUG, "EVENT Qs triggering exits.\n");
 
 	pthread_mutex_lock(&DBEventQueueMutex);
 	ev_async_send (event_db, &DBExitEventLoop);
