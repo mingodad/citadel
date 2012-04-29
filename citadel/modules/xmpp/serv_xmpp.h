@@ -83,3 +83,16 @@ void xmpp_massacre_roster(void);
 void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void);
 int xmpp_is_visible(struct CitContext *from, struct CitContext *to_whom);
 char *xmlesc(char *buf, char *str, int bufsiz);
+
+extern int XMPPSrvDebugEnable;
+
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (XMPPSrvDebugEnable != 0))
+
+#define XMPP_syslog(LEVEL, FORMAT, ...)				\
+	DBGLOG(LEVEL) syslog(LEVEL,				\
+			     "XMPP: " FORMAT, __VA_ARGS__)
+
+#define XMPPM_syslog(LEVEL, FORMAT)		\
+	DBGLOG(LEVEL) syslog(LEVEL,		\
+			     "XMPP: " FORMAT);
+

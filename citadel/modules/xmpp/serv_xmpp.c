@@ -64,6 +64,8 @@
 
 struct xmpp_event *xmpp_queue = NULL;
 
+int XMPPSrvDebugEnable = 0;
+
 
 
 #ifdef HAVE_XML_STOPPARSER
@@ -74,7 +76,7 @@ static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
 				const XML_Char *systemId, const XML_Char *publicId,
 				const XML_Char *notationName
 ) {
-	syslog(LOG_WARNING, "Illegal entity declaration encountered; stopping parser.");
+	XMPPM_syslog(LOG_WARNING, "Illegal entity declaration encountered; stopping parser.");
 	XML_StopParser(XMPP->xp, XML_FALSE);
 }
 #endif
@@ -203,9 +205,9 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 	}
 
 	/*
-	syslog(LOG_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
+	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
 	for (i=0; attr[i] != NULL; i+=2) {
-		syslog(LOG_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
+		XMPP_syslog(LOG_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
 	}
 	uncomment for more verbosity */
 
@@ -275,9 +277,9 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	}
 
 	/*
-	syslog(LOG_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
+	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
 	if (XMPP->chardata_len > 0) {
-		syslog(LOG_DEBUG, "          chardata: %s\n", XMPP->chardata);
+		XMPP_syslog(LOG_DEBUG, "          chardata: %s\n", XMPP->chardata);
 	}
 	uncomment for more verbosity */
 
@@ -338,9 +340,9 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			 * Unknown query ... return the XML equivalent of a blank stare
 			 */
 			else {
-				syslog(LOG_DEBUG,
-					"Unknown query <%s> - returning <service-unavailable/>\n",
-					el
+				XMPP_syslog(LOG_DEBUG,
+					    "Unknown query <%s> - returning <service-unavailable/>\n",
+					    el
 				);
 				cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
 				cprintf("<error code=\"503\" type=\"cancel\">"
@@ -473,14 +475,14 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	}
 
 	else if (!strcasecmp(el, "stream")) {
-		syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
+		XMPPM_syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
 		xmpp_massacre_roster();
 		cprintf("</stream>\n");
 		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 	}
 
 	else {
-		syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
+		XMPP_syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
 	}
 
 	XMPP->chardata_len = 0;
@@ -545,7 +547,7 @@ void xmpp_greeting(void) {
 
 	XMPP->xp = XML_ParserCreateNS("UTF-8", ':');
 	if (XMPP->xp == NULL) {
-		syslog(LOG_ALERT, "Cannot create XML parser!\n");
+		XMPPM_syslog(LOG_ALERT, "Cannot create XML parser!\n");
 		CC->kill_me = KILLME_XML_PARSER;
 		return;
 	}
@@ -582,7 +584,7 @@ void xmpp_command_loop(void) {
 		XML_Parse(XMPP->xp, ChrPtr(stream_input), rc, 0);
 	}
 	else {
-		syslog(LOG_ERR, "XMPP: client disconnected: ending session.\n");
+		XMPPM_syslog(LOG_ERR, "client disconnected: ending session.\n");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 	}
 	FreeStrBuf(&stream_input);
@@ -614,6 +616,10 @@ void xmpp_logout_hook(void) {
 }
 
 
+void LogXMPPSrvDebugEnable(const int n)
+{
+	XMPPSrvDebugEnable = n;
+}
 const char *CitadelServiceXMPP="XMPP";
 extern void xmpp_cleanup_events(void);
 CTDL_MODULE_INIT(xmpp)
@@ -626,6 +632,7 @@ CTDL_MODULE_INIT(xmpp)
 					xmpp_async_loop,
 					CitadelServiceXMPP
 		);
+		CtdlRegisterDebugFlagHook(HKEY("serv_xmpp"), LogXMPPSrvDebugEnable, &XMPPSrvDebugEnable);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);
