@@ -55,6 +55,7 @@ typedef struct __LogDebugEntry {
 	CtdlDbgFunction F;
 	const char *Name;
 	long Len;
+	const int *LogP;
 } LogDebugEntry;
 HashList *LogDebugEntryTable = NULL;
 
@@ -332,15 +333,8 @@ long FourHash(const char *key, long length)
 
 	return ret;
 }
-/*
-typedef struct __LogDebugEntry {
-	CtdlDbgFunction F;
-	const char *Name;
-	long Len;
-} LogDebugEntry;
-HashList *LogDebugEntryTable = NULL;
-*/
-void CtdlRegisterDebugFlagHook(const char *Name, long Len, CtdlDbgFunction F)
+
+void CtdlRegisterDebugFlagHook(const char *Name, long Len, CtdlDbgFunction F, const int *LogP)
 {
 	LogDebugEntry *E;
 	if (LogDebugEntryTable == NULL)
@@ -349,6 +343,7 @@ void CtdlRegisterDebugFlagHook(const char *Name, long Len, CtdlDbgFunction F)
 	E->F = F;
 	E->Name = Name;
 	E->Len = Len;
+	E->LogP = LogP;
 	Put(LogDebugEntryTable, Name, Len, E, NULL);
 	
 }
@@ -377,7 +372,7 @@ void CtdlSetDebugLogFacilities(const char **Str, long n)
 				    (vptr != NULL))
 				{
 					LogDebugEntry *E = (LogDebugEntry*)vptr;
-					E->F();
+					E->F(1);
 				}
 			}
 		}
@@ -392,10 +387,56 @@ void CtdlSetDebugLogFacilities(const char **Str, long n)
 		Pos = GetNewHashPos(LogDebugEntryTable, 0);
 		while (GetNextHashPos(LogDebugEntryTable, Pos, &HKLen, &ch, &vptr)) {
 			LogDebugEntry *E = (LogDebugEntry*)vptr;
-			E->F();
+			E->F(1);
 		}
 
 		DeleteHashPos(&Pos);
+	}
+}
+void cmd_log_get(char *argbuf)
+{
+	long HKLen;
+	const char *ch;
+	HashPos *Pos;
+	void *vptr;
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	cprintf("%d Log modules enabled:\n", LISTING_FOLLOWS);
+
+	Pos = GetNewHashPos(LogDebugEntryTable, 0);
+
+	while (GetNextHashPos(LogDebugEntryTable, Pos, &HKLen, &ch, &vptr)) {
+		LogDebugEntry *E = (LogDebugEntry*)vptr;
+		cprintf("%s: %d\n", ch, *E->LogP);
+	}
+	
+	DeleteHashPos(&Pos);
+	cprintf("000\n");
+}
+void cmd_log_set(char *argbuf)
+{
+	void *vptr;
+	int lset;
+	int wlen;
+	char which[SIZ] = "";
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	wlen = extract_token(which, argbuf, 0, '|', sizeof(which));
+	if (wlen < 0) wlen = 0;
+	lset = extract_int(argbuf, 1);
+	if (lset != 0) lset = 1;
+	if (GetHash(LogDebugEntryTable, which, wlen, &vptr) && 
+	    (vptr != NULL))
+	{
+		LogDebugEntry *E = (LogDebugEntry*)vptr;
+		E->F(lset);
+		cprintf("%d %s|%d\n", CIT_OK, which, lset);
+	}
+	else {
+		cprintf("%d Log setting %s not known\n", 
+			ERROR, which);
 	}
 }
 void CtdlDestroyDebugTable(void)
@@ -1308,4 +1349,14 @@ void CtdlModuleStartCryptoMsgs(char *ok_response, char *nosup_response, char *er
 #ifdef HAVE_OPENSSL
 	CtdlStartTLS (ok_response, nosup_response, error_response);
 #endif
+}
+
+
+CTDL_MODULE_INIT(modules)
+{
+	if (!threading) {
+		CtdlRegisterProtoHook(cmd_log_get, "LOGP", "Print Log-parameters");
+		CtdlRegisterProtoHook(cmd_log_set, "LOGS", "Set Log-parameters");
+	}
+	return "modules";
 }

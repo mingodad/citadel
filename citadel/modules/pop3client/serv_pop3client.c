@@ -1214,9 +1214,9 @@ void pop3_cleanup(void)
 
 
 
-void LogDebugEnablePOP3Client(void)
+void LogDebugEnablePOP3Client(const int n)
 {
-	POP3ClientDebugEnabled = 1;
+	POP3ClientDebugEnabled = n;
 }
 
 CTDL_MODULE_INIT(pop3client)
@@ -1229,7 +1229,7 @@ CTDL_MODULE_INIT(pop3client)
 		POP3FetchUrls = NewHash(1, NULL);
 		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
 		CtdlRegisterEVCleanupHook(pop3_cleanup);
-		CtdlRegisterDebugFlagHook(HKEY("pop3client"), LogDebugEnablePOP3Client);
+		CtdlRegisterDebugFlagHook(HKEY("pop3client"), LogDebugEnablePOP3Client, &POP3ClientDebugEnabled);
 	}
 
 	/* return our module id for the log */

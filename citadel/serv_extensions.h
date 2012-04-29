@@ -15,7 +15,7 @@
 /*
  */
 
-typedef void (*CtdlDbgFunction) (void);
+typedef void (*CtdlDbgFunction) (const int);
  
 
 
@@ -85,7 +85,7 @@ void CtdlDestroySearchHooks(void);
 void CtdlDestroyFixedOutputHooks(void);
 int PerformFixedOutputHooks(char *, char *, int);
 
-void CtdlRegisterDebugFlagHook(const char *Name, long len, CtdlDbgFunction F);
+void CtdlRegisterDebugFlagHook(const char *Name, long len, CtdlDbgFunction F, const int *);
 void CtdlSetDebugLogFacilities(const char **Str, long n);
 void CtdlDestroyDebugTable(void);
 

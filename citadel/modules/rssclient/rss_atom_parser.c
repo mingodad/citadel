@@ -1086,9 +1086,9 @@ void rss_parser_cleanup(void)
 	DeleteHash(&KnownNameSpaces);
 }
 
-void LogDebugEnableRSSATOMParser(void)
+void LogDebugEnableRSSATOMParser(const int n)
 {
-	RSSAtomParserDebugEnabled = 1;
+	RSSAtomParserDebugEnabled = n;
 }
 
 CTDL_MODULE_INIT(rssparser)
@@ -1177,7 +1177,7 @@ CTDL_MODULE_INIT(rssparser)
 		/* we don't like these namespaces because of they shadow our usefull parameters. */
 		Put(KnownNameSpaces, HKEY("http://search.yahoo.com/mrss/"), NULL, reference_free_handler);
 #endif
-		CtdlRegisterDebugFlagHook(HKEY("RSSAtomParser"), LogDebugEnableRSSATOMParser);
+		CtdlRegisterDebugFlagHook(HKEY("RSSAtomParser"), LogDebugEnableRSSATOMParser, &RSSAtomParserDebugEnabled);
 		CtdlRegisterCleanupHook(rss_parser_cleanup);
 	}
 	return "rssparser";

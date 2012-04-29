@@ -828,14 +828,14 @@ eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 	return Finished;
 }
 
-void LogDebugEnableSMTPClient(void)
+void LogDebugEnableSMTPClient(const int n)
 {
-	SMTPClientDebugEnabled = 1;
+	SMTPClientDebugEnabled = n;
 }
 
 CTDL_MODULE_INIT(smtp_eventclient)
 {
 	if (!threading)
-		CtdlRegisterDebugFlagHook(HKEY("smtpeventclient"), LogDebugEnableSMTPClient);
+		CtdlRegisterDebugFlagHook(HKEY("smtpeventclient"), LogDebugEnableSMTPClient, &SMTPClientDebugEnabled);
 	return "smtpeventclient";
 }

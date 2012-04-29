@@ -841,27 +841,27 @@ void ShutDownEventQueues(void)
 	pthread_mutex_unlock(&EventQueueMutex);
 }
 
-void DebugEventloopEnable(void)
+void DebugEventloopEnable(const int n)
 {
-	DebugEventLoop = 1;
+	DebugEventLoop = n;
 }
-void DebugEventloopBacktraceEnable(void)
+void DebugEventloopBacktraceEnable(const int n)
 {
-	DebugEventLoopBacktrace = 1;
+	DebugEventLoopBacktrace = n;
 }
 
-void DebugCurlEnable(void)
+void DebugCurlEnable(const int n)
 {
-	DebugCurl = 1;
+	DebugCurl = n;
 }
 
 CTDL_MODULE_INIT(event_client)
 {
 	if (!threading)
 	{
-		CtdlRegisterDebugFlagHook(HKEY("eventloop"), DebugEventloopEnable);
-		CtdlRegisterDebugFlagHook(HKEY("eventloopbacktrace"), DebugEventloopBacktraceEnable);
-		CtdlRegisterDebugFlagHook(HKEY("curl"), DebugCurlEnable);
+		CtdlRegisterDebugFlagHook(HKEY("eventloop"), DebugEventloopEnable, &DebugEventLoop);
+		CtdlRegisterDebugFlagHook(HKEY("eventloopbacktrace"), DebugEventloopBacktraceEnable, &DebugEventLoopBacktrace);
+		CtdlRegisterDebugFlagHook(HKEY("curl"), DebugCurlEnable, &DebugCurl);
 		InitEventQueue();
 		DBInitEventQueue();
 		CtdlThreadCreate(client_event_thread);

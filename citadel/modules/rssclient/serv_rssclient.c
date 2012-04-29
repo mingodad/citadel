@@ -582,9 +582,9 @@ void rss_cleanup(void)
 	DeleteHash(&RSSQueueRooms);
 }
 
-void LogDebugEnableRSSClient(void)
+void LogDebugEnableRSSClient(const int n)
 {
-	RSSClientDebugEnabled = 1;
+	RSSClientDebugEnabled = n;
 }
 
 CTDL_MODULE_INIT(rssclient)
@@ -598,7 +598,7 @@ CTDL_MODULE_INIT(rssclient)
 		syslog(LOG_INFO, "%s\n", curl_version());
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
 		CtdlRegisterEVCleanupHook(rss_cleanup);
-		CtdlRegisterDebugFlagHook(HKEY("rssclient"), LogDebugEnableRSSClient);
+		CtdlRegisterDebugFlagHook(HKEY("rssclient"), LogDebugEnableRSSClient, &RSSClientDebugEnabled);
 	}
 	return "rssclient";
 }

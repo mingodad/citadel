@@ -1037,9 +1037,9 @@ void network_do_clientqueue(void)
 		free(working_ignetcfg);
 }
 
-void LogDebugEnableNetworkClient(void)
+void LogDebugEnableNetworkClient(const int n)
 {
-	NetworkClientDebugEnabled = 1;
+	NetworkClientDebugEnabled = n;
 }
 /*
  * Module entry point
@@ -1051,7 +1051,7 @@ CTDL_MODULE_INIT(network_client)
 		CtdlFillSystemContext(&networker_client_CC, "CitNetworker");
 		
 		CtdlRegisterSessionHook(network_do_clientqueue, EVT_TIMER);
-		CtdlRegisterDebugFlagHook(HKEY("networkclient"), LogDebugEnableNetworkClient);
+		CtdlRegisterDebugFlagHook(HKEY("networkclient"), LogDebugEnableNetworkClient, &NetworkClientDebugEnabled);
 
 	}
 	return "networkclient";
