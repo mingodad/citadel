@@ -86,6 +86,7 @@
 #include "ctdl_module.h"
 
 #include "smtpqueue.h"
+#include "smtp_clienthandlers.h"
 #include "event_client.h"
 
 
@@ -926,6 +927,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				       ChrPtr(ThisItem->Recipient),
 				       i,
 				       m);
+				(*((int*) userdata)) ++;
 				smtp_try_one_queue_entry(MyQItem,
 							 ThisItem,
 							 Msg,
@@ -997,16 +999,17 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 void smtp_do_queue(void) {
 	static int is_running = 0;
 	int num_processed = 0;
+	int num_activated = 0;
 
 	if (is_running)
 		return;	/* Concurrency check - only one can run */
 	is_running = 1;
 
 	pthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	syslog(LOG_INFO, "SMTP client: processing outbound queue");
+	SMTPCM_syslog(LOG_INFO, "processing outbound queue");
 
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
-		syslog(LOG_ERR, "Cannot find room <%s>", SMTP_SPOOLOUT_ROOM);
+		SMTPC_syslog(LOG_ERR, "Cannot find room <%s>", SMTP_SPOOLOUT_ROOM);
 	}
 	else {
 		num_processed = CtdlForEachMessage(MSGS_ALL,
@@ -1015,11 +1018,11 @@ void smtp_do_queue(void) {
 						   SPOOLMIME,
 						   NULL,
 						   smtp_do_procmsg,
-						   NULL);
+						   &num_activated);
 	}
-	syslog(LOG_INFO,
-	       "SMTP client: queue run completed; %d messages processed",
-	       num_processed);
+	SMTPC_syslog(LOG_INFO,
+		     "queue run completed; %d messages processed %d activated",
+		     num_processed, num_activated);
 
 	run_queue_now = 0;
 	is_running = 0;

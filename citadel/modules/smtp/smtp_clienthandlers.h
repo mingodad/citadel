@@ -97,18 +97,27 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg);
 
 #define EVS_syslog(LEVEL, FORMAT, ...) \
 	DBGLOG(LEVEL) syslog(LEVEL,		  \
-	       "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, \
+	       "SMTPC:IO[%ld]CC[%d]S[%ld][%ld] " FORMAT, \
 	       IO->ID, CCID, QID, N, __VA_ARGS__)
 
 #define EVSM_syslog(LEVEL, FORMAT) \
 	DBGLOG(LEVEL) syslog(LEVEL, \
-	       "IO[%ld]CC[%d]S[%ld][%ld]" FORMAT, \
+	       "SMTPC:IO[%ld]CC[%d]S[%ld][%ld] " FORMAT, \
 	       IO->ID, CCID, QID, N)
 
 #define EVNCS_syslog(LEVEL, FORMAT, ...) \
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
+	DBGLOG(LEVEL) syslog(LEVEL, "SMTPC:IO[%ld]S[%ld][%ld] " FORMAT, \
 	       IO->ID, QID, N, __VA_ARGS__)
 
 #define EVNCSM_syslog(LEVEL, FORMAT) \
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]S[%ld][%ld]" FORMAT, \
+	DBGLOG(LEVEL) syslog(LEVEL, "SMTPC:IO[%ld]S[%ld][%ld] " FORMAT, \
 	       IO->ID, QID, N)
+
+#define SMTPC_syslog(LEVEL, FORMAT, ...)	  \
+	DBGLOG(LEVEL) syslog(LEVEL,		  \
+			     "SMTPCQ: " FORMAT,	  \
+			     __VA_ARGS__)
+
+#define SMTPCM_syslog(LEVEL, FORMAT)		\
+	DBGLOG(LEVEL) syslog(LEVEL,		\
+			     "SMTPCQ: " FORMAT)

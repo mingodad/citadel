@@ -106,10 +106,10 @@
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(Msg->IO.IOBuf)[0] == WHICH_STATE)
 
 #define SMTP_DBG_SEND() \
-	EVS_syslog(LOG_DEBUG, "SMTP: > %s\n", ChrPtr(Msg->IO.SendBuf.Buf))
+	EVS_syslog(LOG_DEBUG, "> %s\n", ChrPtr(Msg->IO.SendBuf.Buf))
 
 #define SMTP_DBG_READ() \
-	EVS_syslog(LOG_DEBUG, "SMTP: < %s\n", ChrPtr(Msg->IO.IOBuf))
+	EVS_syslog(LOG_DEBUG, "< %s\n", ChrPtr(Msg->IO.IOBuf))
 
 
 /*****************************************************************************/
@@ -374,8 +374,7 @@ eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *Msg)
 	SMTP_DBG_READ();
 
 	EVS_syslog(LOG_DEBUG,
-		   "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
-		   Msg->n,
+		   "delivery to <%s> @ <%s> (%s) succeeded\n",
 		   Msg->user,
 		   Msg->node,
 		   Msg->name);
@@ -475,7 +474,7 @@ int smtp_resolve_recipients(SmtpOutMsg *Msg)
 	int lp, rp;
 	int i;
 
-	EVNCS_syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	EVNCS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 
 	if ((Msg==NULL) ||
 	    (Msg->MyQEntry == NULL) ||
@@ -490,9 +489,7 @@ int smtp_resolve_recipients(SmtpOutMsg *Msg)
 			    Msg->name);
 
 	EVNCS_syslog(LOG_DEBUG,
-		     "SMTP client[%ld]: Attempting delivery to "
-		     "<%s> @ <%s> (%s)\n",
-		     Msg->n,
+		     "Attempting delivery to <%s> @ <%s> (%s)\n",
 		     Msg->user,
 		     Msg->node,
 		     Msg->name);
