@@ -61,6 +61,7 @@
 
 ev_loop *event_base;
 int DebugEventLoop = 0;
+int DebugEventLoopBacktrace = 0;
 int DebugCurl = 0;
 
 long EvIDSource = 1;
@@ -844,6 +845,10 @@ void DebugEventloopEnable(void)
 {
 	DebugEventLoop = 1;
 }
+void DebugEventloopBacktraceEnable(void)
+{
+	DebugEventLoopBacktrace = 1;
+}
 
 void DebugCurlEnable(void)
 {
@@ -855,6 +860,7 @@ CTDL_MODULE_INIT(event_client)
 	if (!threading)
 	{
 		CtdlRegisterDebugFlagHook(HKEY("eventloop"), DebugEventloopEnable);
+		CtdlRegisterDebugFlagHook(HKEY("eventloopbacktrace"), DebugEventloopBacktraceEnable);
 		CtdlRegisterDebugFlagHook(HKEY("curl"), DebugCurlEnable);
 		InitEventQueue();
 		DBInitEventQueue();

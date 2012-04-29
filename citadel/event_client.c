@@ -976,6 +976,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 
 }
 
+extern int DebugEventLoopBacktrace;
 void EV_backtrace(AsyncIO *IO)
 {
 #ifdef HAVE_BACKTRACE
@@ -983,7 +984,7 @@ void EV_backtrace(AsyncIO *IO)
 	size_t size, i;
 	char **strings;
 
-	if (IO == NULL)
+	if ((IO == NULL) || (DebugEventLoopBacktrace == 0))
 		return;
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	strings = backtrace_symbols(stack_frames, size);
