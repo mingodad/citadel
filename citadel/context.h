@@ -196,7 +196,7 @@ static INLINE void become_session(CitContext *which_con) {
 
 
 
-typedef void (*CtdlDbgFunction) (const int);
+/* typedef void (*CtdlDbgFunction) (const int); */
 
 extern int DebugSession;
 #define CONDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugSession != 0))
