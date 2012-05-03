@@ -618,14 +618,90 @@ int network_room_handler (struct ctdlroom *room)
 	return 0;
 }
 
+int NTTDebugEnabled = 0;
+
+/*
+ * network_talking_to()  --  concurrency checker
+ */
+static HashList *nttlist = NULL;
+int network_talking_to(const char *nodename, long len, int operation) {
+
+	int retval = 0;
+	HashPos *Pos = NULL;
+	void *vdata;
+
+	begin_critical_section(S_NTTLIST);
+
+	switch(operation) {
+
+		case NTT_ADD:
+			if (nttlist == NULL) 
+				nttlist = NewHash(1, NULL);
+			Put(nttlist, nodename, len, NewStrBufPlain(nodename, len), HFreeStrBuf);
+			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: added <%s>\n", nodename);
+			break;
+		case NTT_REMOVE:
+			if ((nttlist == NULL) ||
+			    (GetCount(nttlist) == 0))
+				break;
+			Pos = GetNewHashPos(nttlist, 1);
+			if (GetHashPosFromKey (nttlist, nodename, len, Pos))
+				DeleteEntryFromHash(nttlist, Pos);
+			DeleteHashPos(&Pos);
+			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: removed <%s>\n", nodename);
+
+			break;
+
+		case NTT_CHECK:
+			if ((nttlist == NULL) ||
+			    (GetCount(nttlist) == 0))
+				break;
+			if (GetHash(nttlist, nodename, len, &vdata))
+				retval ++;
+			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: have [%d] <%s>\n", retval, nodename);
+			break;
+	}
+
+	end_critical_section(S_NTTLIST);
+	return(retval);
+}
+
+void cleanup_nttlist(void)
+{
+        begin_critical_section(S_NTTLIST);
+	DeleteHash(&nttlist);
+        end_critical_section(S_NTTLIST);
+}
+
+
+
+void network_logout_hook(void)
+{
+	CitContext *CCC = MyContext();
+
+	/*
+	 * If we were talking to a network node, we're not anymore...
+	 */
+	if (!IsEmptyStr(CCC->net_node)) {
+		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
+	}
+}
 
 /*
  * Module entry point
  */
+void SetNTTDebugEnabled(const int n)
+{
+	NTTDebugEnabled = n;
+}
+
 CTDL_MODULE_INIT(network)
 {
 	if (!threading)
 	{
+		CtdlRegisterDebugFlagHook(HKEY("networktalkingto"), SetNTTDebugEnabled, &NTTDebugEnabled);
+		CtdlRegisterCleanupHook(cleanup_nttlist);
+                CtdlRegisterSessionHook(network_logout_hook, EVT_LOGOUT);
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 		CtdlRegisterRoomHook(network_room_handler);
 		CtdlRegisterCleanupHook(destroy_network_queue_room_locked);

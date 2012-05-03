@@ -45,59 +45,6 @@
 #include "ctdl_module.h"
 #include "user_ops.h"
 
-/*
- * network_talking_to()  --  concurrency checker
- */
-static HashList *nttlist = NULL;
-int network_talking_to(const char *nodename, long len, int operation) {
-
-	int retval = 0;
-	HashPos *Pos = NULL;
-	void *vdata;
-
-	begin_critical_section(S_NTTLIST);
-
-	switch(operation) {
-
-		case NTT_ADD:
-			if (nttlist == NULL) 
-				nttlist = NewHash(1, NULL);
-			Put(nttlist, nodename, len, NewStrBufPlain(nodename, len), HFreeStrBuf);
-			syslog(LOG_DEBUG, "nttlist: added <%s>\n", nodename);
-			break;
-		case NTT_REMOVE:
-			if ((nttlist == NULL) ||
-			    (GetCount(nttlist) == 0))
-				break;
-			Pos = GetNewHashPos(nttlist, 1);
-			if (GetHashPosFromKey (nttlist, nodename, len, Pos))
-				DeleteEntryFromHash(nttlist, Pos);
-			DeleteHashPos(&Pos);
-			syslog(LOG_DEBUG, "nttlist: removed <%s>\n", nodename);
-
-			break;
-
-		case NTT_CHECK:
-			if ((nttlist == NULL) ||
-			    (GetCount(nttlist) == 0))
-				break;
-			if (GetHash(nttlist, nodename, len, &vdata))
-				retval ++;
-			syslog(LOG_DEBUG, "nttlist: have [%d] <%s>\n", retval, nodename);
-			break;
-	}
-
-	end_critical_section(S_NTTLIST);
-	return(retval);
-}
-
-void cleanup_nttlist(void)
-{
-        begin_critical_section(S_NTTLIST);
-	DeleteHash(&nttlist);
-        end_critical_section(S_NTTLIST);
-}
-
 
 
 /*
@@ -811,6 +758,7 @@ void cmd_nuop(char *cmdbuf)
 CTDL_MODULE_INIT(file_ops)
 {
 	if (!threading) {
+
 		CtdlRegisterProtoHook(cmd_delf, "DELF", "Delete a file");
 		CtdlRegisterProtoHook(cmd_movf, "MOVF", "Move a file");
 		CtdlRegisterProtoHook(cmd_open, "OPEN", "Open a download file transfer");
@@ -823,7 +771,6 @@ CTDL_MODULE_INIT(file_ops)
 		CtdlRegisterProtoHook(cmd_nuop, "NUOP", "Open a network spool file for upload");
 		CtdlRegisterProtoHook(cmd_oimg, "OIMG", "Open an image file for download");
 		CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Upload an image file");
-		CtdlRegisterCleanupHook(cleanup_nttlist);
 	}
         /* return our Subversion id for the Log */
 	return "file_ops";

@@ -799,13 +799,6 @@ void CtdlUserLogout(void)
 		abort_upl(CCC);
 	}
 
-	/*
-	 * If we were talking to a network node, we're not anymore...
-	 */
-	if (!IsEmptyStr(CCC->net_node)) {
-		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
-	}
-
 	/* Run any hooks registered by modules... */
 	PerformSessionHooks(EVT_LOGOUT);
 	
