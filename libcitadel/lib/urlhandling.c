@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include "libcitadel.h"
+#include <sys/socket.h>
 
 /**
  * @defgroup URLHandling ParsedURL object to handle connection data
