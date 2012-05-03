@@ -189,7 +189,8 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
  */
 void imap_list(int num_parms, ConstStr *Params)
 {
-	citimap *Imap = IMAP;
+	struct CitContext *CCC = CC;
+	citimap *Imap = CCCIMAP;
 	int i, j, paren_nest;
 	ImapRoomListFilter ImapFilter;
 	int selection_left = (-1);
@@ -376,7 +377,7 @@ void imap_list(int num_parms, ConstStr *Params)
 					  &Params[i], 
 					  1);
 
-			syslog(LOG_DEBUG, "evaluating <%s>", Params[i].Key);
+			IMAP_syslog(LOG_DEBUG, "evaluating <%s>", Params[i].Key);
 
 			if (!strcasecmp(Params[i].Key, "SUBSCRIBED")) {
 				ImapFilter.return_subscribed = 1;

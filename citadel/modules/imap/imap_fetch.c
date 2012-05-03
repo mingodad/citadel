@@ -132,14 +132,14 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
 void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
-	citimap *Imap = IMAP;
+	CitContext *CCC = CC;
+	citimap *Imap = CCCIMAP;
 	const char *ptr = NULL;
 	size_t headers_size, text_size, total_size;
 	size_t bytes_to_send = 0;
 	struct MetaData smi;
 	int need_to_rewrite_metadata = 0;
 	int need_body = 0;
-	CitContext *CCC = CC;
 
 	/* Determine whether this particular fetch operation requires
 	 * us to fetch the message body from disk.  If not, we can save
@@ -240,11 +240,11 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 		text_size = 0;
 	}
 
-	syslog(LOG_DEBUG, 
-		"RFC822: headers=" SIZE_T_FMT 
-		", text=" SIZE_T_FMT
-		", total=" SIZE_T_FMT,
-		headers_size, text_size, total_size);
+	IMAP_syslog(LOG_DEBUG, 
+		    "RFC822: headers=" SIZE_T_FMT 
+		    ", text=" SIZE_T_FMT
+		    ", total=" SIZE_T_FMT,
+		    headers_size, text_size, total_size);
 
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
 		IAPrintf("RFC822.SIZE " SIZE_T_FMT, total_size);
@@ -284,14 +284,15 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    char *cbid, void *cbuserdata)
 {
+	struct CitContext *CCC = CC;
 	char mimebuf2[SIZ];
 	StrBuf *desired_section;
 
 	desired_section = (StrBuf *)cbuserdata;
-	syslog(LOG_DEBUG, "imap_load_part() looking for %s, found %s",
-	       ChrPtr(desired_section),
-	       partnum
-	);
+	IMAP_syslog(LOG_DEBUG, "imap_load_part() looking for %s, found %s",
+		    ChrPtr(desired_section),
+		    partnum
+		);
 
 	if (!strcasecmp(partnum, ChrPtr(desired_section))) {
 		client_write(content, length);
@@ -663,7 +664,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	int need_body = 1;
 	int burn_the_cache = 0;
 	CitContext *CCC = CC;
-	citimap *Imap = IMAP;
+	citimap *Imap = CCCIMAP;
 
 	/* extract section */
 	section = NewStrBufPlain(CKEY(item));
@@ -671,8 +672,8 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	if (strchr(ChrPtr(section), '[') != NULL) {
 		StrBufStripAllBut(section, '[', ']');
 	}
-	syslog(LOG_DEBUG, "Section is: [%s]", 
-	      (StrLength(section) == 0) ? "(empty)" : ChrPtr(section)
+	IMAP_syslog(LOG_DEBUG, "Section is: [%s]", 
+		    (StrLength(section) == 0) ? "(empty)" : ChrPtr(section)
 	);
 
 	/* Burn the cache if we don't have the same section of the 
@@ -705,7 +706,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 		is_partial = 1;
 	}
 	if ( (is_partial == 1) && (StrLength(partial) > 0) ) {
-		syslog(LOG_DEBUG, "Partial is <%s>", ChrPtr(partial));
+		IMAP_syslog(LOG_DEBUG, "Partial is <%s>", ChrPtr(partial));
 	}
 
 	if (Imap->cached_body == NULL) {
@@ -1133,18 +1134,18 @@ void imap_do_fetch(citimap_command *Cmd) {
 /* debug output the parsed vector */
 	{
 		int i;
-		syslog(LOG_DEBUG, "----- %ld params", Cmd->num_parms);
+		IMAP_syslog(LOG_DEBUG, "----- %ld params", Cmd->num_parms);
 
 	for (i=0; i < Cmd->num_parms; i++) {
 		if (Cmd->Params[i].len != strlen(Cmd->Params[i].Key))
-			syslog(LOG_DEBUG, "*********** %ld != %ld : %s",
-				      Cmd->Params[i].len, 
-				      strlen(Cmd->Params[i].Key),
-				      Cmd->Params[i].Key);
+			IMAP_syslog(LOG_DEBUG, "*********** %ld != %ld : %s",
+				    Cmd->Params[i].len, 
+				    strlen(Cmd->Params[i].Key),
+				    Cmd->Params[i].Key);
 		else
-			syslog(LOG_DEBUG, "%ld : %s",
-				      Cmd->Params[i].len, 
-				      Cmd->Params[i].Key);
+			IMAP_syslog(LOG_DEBUG, "%ld : %s",
+				    Cmd->Params[i].len, 
+				    Cmd->Params[i].Key);
 	}}
 
 #endif
@@ -1465,7 +1466,7 @@ void imap_uidfetch(int num_parms, ConstStr *Params) {
 
 	MakeStringOf(Cmd.CmdBuf, 4);
 #if 0
-	syslog(LOG_DEBUG, "-------%s--------", ChrPtr(Cmd.CmdBuf));
+	IMAP_syslog(LOG_DEBUG, "-------%s--------", ChrPtr(Cmd.CmdBuf));
 #endif
 	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {

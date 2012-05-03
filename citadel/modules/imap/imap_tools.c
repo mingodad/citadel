@@ -225,7 +225,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* syslog(LOG_DEBUG, "toimap %s", src); */
+	/* IMAP_syslog(LOG_DEBUG, "toimap %s", src); */
 
 	for (;;)
 	{
@@ -291,7 +291,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	if (state == 1)
 		utf7_closeb64(&dest, v, i);
-	/* syslog(LOG_DEBUG, "    -> %s", destp); */
+	/* IMAP_syslog(LOG_DEBUG, "    -> %s", destp); */
 	return string_end(&dest);
 }
 
@@ -309,7 +309,7 @@ static char* fromimap(char* destp, char* destend, const char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* syslog(LOG_DEBUG, "fromimap %s", src); */
+	/* IMAP_syslog(LOG_DEBUG, "fromimap %s", src); */
 
 	do {
 		c = *p++;
@@ -367,7 +367,7 @@ static char* fromimap(char* destp, char* destend, const char* src)
 			}
 	} while (c != '\0');
 
-	/* syslog(LOG_DEBUG, "      -> %s", destp); */
+	/* IMAP_syslog(LOG_DEBUG, "      -> %s", destp); */
 	return string_end(&dest);
 }
 
@@ -604,6 +604,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 
 int imap_roomname(char *rbuf, int bufsize, const char *foldername)
 {
+	struct CitContext *CCC = CC;
 	int levels;
 	char floorname[ROOMNAMELEN*2];
 	char roomname[ROOMNAMELEN];
@@ -680,7 +681,7 @@ int imap_roomname(char *rbuf, int bufsize, const char *foldername)
 	ret = (0 | IR_MAILBOX);
 
 exit:
-	syslog(LOG_DEBUG, "(That translates to \"%s\")", rbuf);
+	IMAP_syslog(LOG_DEBUG, "(That translates to \"%s\")", rbuf);
 	return(ret);
 }
 

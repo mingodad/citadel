@@ -280,6 +280,7 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
  * This function is called by the main command loop.
  */
 void imap_append(int num_parms, ConstStr *Params) {
+	struct CitContext *CCC = CC;
 	long literal_length;
 	struct CtdlMessage *msg = NULL;
 	long new_msgnum = (-1L);
@@ -353,10 +354,10 @@ void imap_append(int num_parms, ConstStr *Params) {
 	client_getln(dummy, sizeof dummy);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
-	syslog(LOG_DEBUG, "Converting CRLF to LF");
+	IMAPM_syslog(LOG_DEBUG, "Converting CRLF to LF");
 	StrBufToUnixLF(Imap->TransmittedMessage);
 
-	syslog(LOG_DEBUG, "Converting message format");
+	IMAPM_syslog(LOG_DEBUG, "Converting message format");
 	msg = convert_internet_message_buf(&Imap->TransmittedMessage);
 
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
