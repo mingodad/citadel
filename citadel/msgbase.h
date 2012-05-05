@@ -260,6 +260,20 @@ ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
 eReadState CtdlReadMessageBodyAsync(AsyncIO *IO);
 void DeleteAsyncMsg(ReadAsyncMsg **Msg);
 
+extern int MessageDebugEnabled;
+
+#define MSGDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (MessageDebugEnabled != 0))
+#define CCCID CCC->cs_pid
+#define MSG_syslog(LEVEL, FORMAT, ...)			\
+	MSGDBGLOG(LEVEL) syslog(LEVEL,			\
+				"CC[%d]" FORMAT,	\
+				CCCID, __VA_ARGS__)
+
+#define MSGM_syslog(LEVEL, FORMAT)			\
+	MSGDBGLOG(LEVEL) syslog(LEVEL,			\
+				"CC[%d]" FORMAT,	\
+				CCCID)
+
 
 
 #endif /* MSGBASE_H */

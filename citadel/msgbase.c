@@ -71,18 +71,6 @@ void AdjRefCountList(long *msgnum, long nmsg, int incr);
 
 int MessageDebugEnabled = 0;
 
-#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (MessageDebugEnabled != 0))
-#define CCCID CCC->cs_pid
-#define MSG_syslog(LEVEL, FORMAT, ...)		\
-	DBGLOG(LEVEL) syslog(LEVEL,		\
-			     "CC[%d]" FORMAT,	\
-			     CCCID, __VA_ARGS__)
-
-#define MSGM_syslog(LEVEL, FORMAT)		\
-	DBGLOG(LEVEL) syslog(LEVEL,		\
-			     "CC[%d]" FORMAT,	\
-			     CCCID)
-
 /*
  * These are the four-character field headers we use when outputting
  * messages in Citadel format (as opposed to RFC822 format).

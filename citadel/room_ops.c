@@ -923,6 +923,7 @@ void cmd_lzrm(char *argbuf)
 void CtdlUserGoto(char *where, int display_result, int transiently,
 		int *retmsgs, int *retnew)
 {
+	struct CitContext *CCC = CC;
 	int a;
 	int new_messages = 0;
 	int old_messages = 0;
@@ -948,20 +949,20 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	 * we can skip the extra database fetch.
 	 */
 	if (where != NULL) {
-		safestrncpy(CC->room.QRname, where, sizeof CC->room.QRname);
-		CtdlGetRoom(&CC->room, where);
+		safestrncpy(CCC->room.QRname, where, sizeof CCC->room.QRname);
+		CtdlGetRoom(&CCC->room, where);
 	}
 
 	/* Take care of all the formalities. */
 
 	begin_critical_section(S_USERS);
-	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+	CtdlGetRelationship(&vbuf, &CCC->user, &CCC->room);
 	original_v_flags = vbuf.v_flags;
 
 	/* Know the room ... but not if it's the page log room, or if the
 	 * caller specified that we're only entering this room transiently.
 	 */
-	if ((strcasecmp(CC->room.QRname, config.c_logpages))
+	if ((strcasecmp(CCC->room.QRname, config.c_logpages))
 	   && (transiently == 0) ) {
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
@@ -969,7 +970,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	
 	/* Only rewrite the database record if we changed something */
 	if (vbuf.v_flags != original_v_flags) {
-		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
+		CtdlSetRelationship(&vbuf, &CCC->user, &CCC->room);
 	}
 	end_critical_section(S_USERS);
 
@@ -977,11 +978,11 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	newmailcount = NewMailCount();
 
 	/* set info to 1 if the user needs to read the room's info file */
-	if (CC->room.QRinfo > vbuf.v_lastseen) {
+	if (CCC->room.QRinfo > vbuf.v_lastseen) {
 		info = 1;
 	}
 
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &CCC->room.QRnumber, sizeof(long));
         if (cdbfr != NULL) {
         	msglist = (long *) cdbfr->ptr;
 		cdbfr->ptr = NULL;	/* CtdlUserGoto() now owns this memory */
@@ -1022,20 +1023,20 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 
 	if (msglist != NULL) free(msglist);
 
-	if (CC->room.QRflags & QR_MAILBOX)
+	if (CCC->room.QRflags & QR_MAILBOX)
 		rmailflag = 1;
 	else
 		rmailflag = 0;
 
-	if ((CC->room.QRroomaide == CC->user.usernum)
-	    || (CC->user.axlevel >= AxAideU))
+	if ((CCC->room.QRroomaide == CCC->user.usernum)
+	    || (CCC->user.axlevel >= AxAideU))
 		raideflag = 1;
 	else
 		raideflag = 0;
 
-	safestrncpy(truncated_roomname, CC->room.QRname, sizeof truncated_roomname);
-	if ( (CC->room.QRflags & QR_MAILBOX)
-	   && (atol(CC->room.QRname) == CC->user.usernum) ) {
+	safestrncpy(truncated_roomname, CCC->room.QRname, sizeof truncated_roomname);
+	if ( (CCC->room.QRflags & QR_MAILBOX)
+	   && (atol(CCC->room.QRname) == CCC->user.usernum) ) {
 		safestrncpy(truncated_roomname, &truncated_roomname[11], sizeof truncated_roomname);
 	}
 
@@ -1045,12 +1046,12 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 
 	if (retmsgs != NULL) *retmsgs = total_messages;
 	if (retnew != NULL) *retnew = new_messages;
-	syslog(LOG_DEBUG, "<%s> %d new of %d total messages\n",
-		CC->room.QRname,
-		new_messages, total_messages
-	);
+	MSG_syslog(LOG_INFO, "<%s> %d new of %d total messages\n",
+		   CCC->room.QRname,
+		   new_messages, total_messages
+		);
 
-	CC->curr_view = (int)vbuf.v_view;
+	CCC->curr_view = (int)vbuf.v_view;
 
 	if (display_result) {
 		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|%d|\n",
@@ -1059,17 +1060,17 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 			(int)new_messages,
 			(int)total_messages,
 			(int)info,
-			(int)CC->room.QRflags,
-			(long)CC->room.QRhighest,
+			(int)CCC->room.QRflags,
+			(long)CCC->room.QRhighest,
 			(long)vbuf.v_lastseen,
 			(int)rmailflag,
 			(int)raideflag,
 			(int)newmailcount,
-			(int)CC->room.QRfloor,
+			(int)CCC->room.QRfloor,
 			(int)vbuf.v_view,
-			(int)CC->room.QRdefaultview,
+			(int)CCC->room.QRdefaultview,
 			(int)is_trash,
-			(int)CC->room.QRflags2
+			(int)CCC->room.QRflags2
 		);
 	}
 }
