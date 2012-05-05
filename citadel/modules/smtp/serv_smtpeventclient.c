@@ -338,7 +338,7 @@ void SetConnectStatus(AsyncIO *IO)
 		  buf,
 		  Msg->IO.ConnectMe->Port);
 
-	Msg->MyQEntry->Status = 5;
+	Msg->MyQEntry->Status = 4;
 	StrBufPrintf(Msg->MyQEntry->StatusMessage,
 		     "Timeout while connecting %s [%s]:%d ",
 		     Msg->mx_host,
