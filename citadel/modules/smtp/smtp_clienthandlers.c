@@ -92,6 +92,7 @@
 		Msg->MyQEntry->Status = WHICH_ERR;		       \
 		StrBufAppendBufPlain(Msg->MyQEntry->StatusMessage,     \
 				     HKEY(ERRSTR), 0);		       \
+		StrBufTrim(Msg->MyQEntry->StatusMessage);	       \
 		return eAbort; }				       \
 	while (0)
 
@@ -100,6 +101,7 @@
 		StrBufPlain(Msg->MyQEntry->StatusMessage,      \
 			    ChrPtr(Msg->IO.IOBuf) + 4,	       \
 			    StrLength(Msg->IO.IOBuf) - 4);     \
+		StrBufTrim(Msg->MyQEntry->StatusMessage);      \
 		return eAbort; }			       \
 	while (0)
 
