@@ -409,7 +409,7 @@ void cmd_log_get(char *argbuf)
 
 	while (GetNextHashPos(LogDebugEntryTable, Pos, &HKLen, &ch, &vptr)) {
 		LogDebugEntry *E = (LogDebugEntry*)vptr;
-		cprintf("%s: %d\n", ch, *E->LogP);
+		cprintf("%s|%d\n", ch, *E->LogP);
 	}
 	
 	DeleteHashPos(&Pos);
