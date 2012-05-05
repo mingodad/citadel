@@ -335,11 +335,12 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 	}
 	else {
 		/* If this is a "flat" request for the root, display the configured landing page. */
-		Hdr->HR.DontNeedAuth = 1;
+		int return_value;
 		StrBuf *NewLine = NewStrBuf();
+		Hdr->HR.DontNeedAuth = 1;
 		StrBufAppendPrintf(NewLine, "GET /landing?go=%s HTTP/1.0", ChrPtr(Buf));
 		syslog(LOG_DEBUG, "Replacing with: %s", ChrPtr(NewLine));
-		int return_value = ReadHttpSubject(Hdr, NewLine, Buf);
+		return_value = ReadHttpSubject(Hdr, NewLine, Buf);
 		FreeStrBuf(&NewLine);
 		return return_value;
 	}
