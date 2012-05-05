@@ -113,6 +113,7 @@ const char *CtxNames[]  = {
 	"Context SIEVE Script",
 	"Context MailQ-Item",
 	"Context MailQ-Recipient",
+	"Context ServLogStatus",
 	"Context UNKNOWN"
 };
 

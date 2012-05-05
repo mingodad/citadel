@@ -1,0 +1,8 @@
+<tr class='<?ITERATE:ODDEVEN>'>
+  <td><?SERVCFG:LOGNAME("X")></td>
+  <td><input type="checkbox" 
+	     id="<?SERVCFG:LOGNAME("U")>" 
+	     onclick="ToggleLogEnable('<?SERVCFG:LOGNAME("U")>')"
+	     <?%("COND:SERVCFG:THISLOGENABLE",  1, 1, 1, "checked", "")> >
+</td>
+</tr>

@@ -387,6 +387,73 @@ int ConditionalServCfgCTXStrBuf(StrBuf *Target, WCTemplputParams *TP)
 	else return 0;
 }
 
+/*----------------------------------------------------------------------------*
+ *              Displaying Logging                                            *
+ *----------------------------------------------------------------------------*/
+typedef struct __LogStatusStruct {
+	int Enable;
+	StrBuf *Name;
+}LogStatusStruct;
+
+void DeleteLogStatusStruct(void *v)
+{
+	LogStatusStruct *Stat = (LogStatusStruct*)v;
+
+	FreeStrBuf(&Stat->Name);
+	free(Stat);
+}
+
+void tmplput_servcfg_LogName(StrBuf *Target, WCTemplputParams *TP)
+{
+        LogStatusStruct *Stat = (LogStatusStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, Stat->Name, 1);
+}
+
+int ConditionalServCfgThisLogEnabled(StrBuf *Target, WCTemplputParams *TP)
+{
+        LogStatusStruct *Stat = (LogStatusStruct*) CTX;
+	return Stat->Enable;
+}
+
+HashList *iterate_GetSrvLogEnable(StrBuf *Target, WCTemplputParams *TP)
+{
+        HashList *Hash = NULL;
+	StrBuf *Buf;
+	LogStatusStruct *Stat;
+	const char *Pos;
+	int Done = 0;
+	long len;
+	int num_logs = 0;
+
+        serv_puts("LOGP");
+        Buf = NewStrBuf();
+        StrBuf_ServGetln(Buf);
+        if (GetServerStatus(Buf, NULL) == 1) {
+                Hash = NewHash(1, Flathash);
+                while (!Done) {
+                        len = StrBuf_ServGetln(Buf);
+                        if ((len <0) || 
+                            ((len == 3) &&
+                             !strcmp(ChrPtr(Buf), "000")))
+                        {
+                                Done = 1;
+                                break;
+                        }
+			Stat = (LogStatusStruct*) malloc (sizeof(LogStatusStruct));
+			Pos = NULL;
+			Stat->Name = NewStrBufPlain(NULL, len);
+                        StrBufExtract_NextToken(Stat->Name, Buf, &Pos, '|');
+                        Stat->Enable = StrBufExtractNext_int(Buf, &Pos, '|');
+
+                        Put(Hash, IKEY(num_logs), Stat, DeleteLogStatusStruct); 
+			num_logs++;
+                }
+	}
+	FreeStrBuf(&Buf);
+	return Hash;
+}
+
+
 void 
 InitModule_SITECONFIG
 (void)
@@ -411,6 +478,10 @@ InitModule_SITECONFIG
 	RegisterConditional(HKEY("COND:EXPIRE:MODE"), 2, ConditionalExpire, CTX_NONE);
 	RegisterNamespace("EXPIRE:VALUE", 1, 2, tmplput_ExpireValue, NULL, CTX_NONE);
 	RegisterNamespace("EXPIRE:MODE", 1, 2, tmplput_ExpireMode, NULL, CTX_NONE);
+
+	RegisterConditional(HKEY("COND:SERVCFG:THISLOGENABLE"), 4, ConditionalServCfgThisLogEnabled, CTX_SRVLOG);
+	RegisterIterator("SERVCFG:LOGENABLE", 0, NULL, iterate_GetSrvLogEnable, NULL, DeleteHash, CTX_SRVLOG, CTX_NONE, IT_NOFLAG);
+	RegisterNamespace("SERVCFG:LOGNAME", 0, 1, tmplput_servcfg_LogName, NULL, CTX_SRVLOG);
 }
 
 void 

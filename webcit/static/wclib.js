@@ -54,7 +54,28 @@ function strcmp ( str1, str2 ) {
     return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
 }
 
-
+function CtdlMarkLog($Which, $Status)
+{
+    if ($Status)
+	document.getElementById($Which).checked == false;
+    else
+	document.getElementById($Which).checked == true;
+ 
+}
+function ToggleLogEnable($Which)
+{
+    var p;
+    var Status = !document.getElementById($Which).checked;
+    if (Status)
+	p= encodeURI('g_cmd=LOGS ' + $Which + '|0');
+    else
+	p= encodeURI('g_cmd=LOGS ' + $Which + '|1');
+    new Ajax.Request('ajax_servcmd', {
+	method: 'post',
+	parameters: p,
+	onComplete: CtdlMarkLog($Which, Status)
+    });
+}
 
 function ToggleVisibility ($Which)
 {

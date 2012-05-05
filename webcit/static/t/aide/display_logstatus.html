@@ -1,0 +1,21 @@
+<?=("head")>
+<div id="banner">
+  <h1>
+    <?_("Temporarily enable debug logging for components")>
+  </h1>
+</div>
+
+<div id="content" class="service">
+    <??("COND:AIDE", 1)>
+    <table border=0 cellspacing="2" cellpadding="2" width=94% class="altern"><tr><td colspan=2>
+
+	  <center><?_("This screen allows you to enable debug logging of components of the current citserver process. The setting is non-restart permanent. If you want it to be enabled permanently add it to the CITADEL_LOGDEBUG environment variable in your init script.")><br>
+	  </center>
+	</td>
+      </tr>
+      	    <form method="post" action="do_generic">
+	    <?ITERATE("SERVCFG:LOGENABLE", ="aide_display_logstatus_line")>
+	    </form>
+    </table>
+    <??("X", 1)>
+<?=("trailing")>
