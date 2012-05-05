@@ -779,7 +779,7 @@ eNextState EvConnectSock(AsyncIO *IO,
 	}
 	fdflags = fcntl(IO->SendBuf.fd, F_GETFL);
 	if (fdflags < 0) {
-		EV_syslog(LOG_DEBUG,
+		EV_syslog(LOG_ERR,
 			  "EVENT: unable to get socket flags! %s \n",
 			  strerror(errno));
 		StrBufPrintf(IO->ErrMsg,
@@ -792,7 +792,7 @@ eNextState EvConnectSock(AsyncIO *IO,
 	fdflags = fdflags | O_NONBLOCK;
 	if (fcntl(IO->SendBuf.fd, F_SETFL, fdflags) < 0) {
 		EV_syslog(
-			LOG_DEBUG,
+			LOG_ERR,
 			"EVENT: unable to set socket nonblocking flags! %s \n",
 			strerror(errno));
 		StrBufPrintf(IO->ErrMsg,
