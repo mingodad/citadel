@@ -637,6 +637,8 @@ IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	IO->Now = ev_now(event_base);
+	EVM_syslog(LOG_DEBUG, "connect() succeeded.\n");
+
 	ev_io_stop(loop, &IO->conn_event);
 	ev_timer_stop (event_base, &IO->conn_fail);
 	set_start_callback(loop, IO, revents);
