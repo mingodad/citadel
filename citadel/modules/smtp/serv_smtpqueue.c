@@ -397,7 +397,8 @@ void NewMailQEntry(OneQueItem *Item)
 
 	if (Item->MailQEntries == NULL)
 		Item->MailQEntries = NewHash(1, Flathash);
-	Item->Current->StatusMessage = NewStrBuf();
+	/* alocate big buffer so we won't get problems reallocating later. */
+	Item->Current->StatusMessage = NewStrBufPlain(NULL, SIZ);
 	Item->Current->n = GetCount(Item->MailQEntries);
 	Put(Item->MailQEntries,
 	    IKEY(Item->Current->n),
