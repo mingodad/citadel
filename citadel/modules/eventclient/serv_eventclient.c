@@ -133,7 +133,6 @@ gotstatus(int nnrun)
 			sta = curl_easy_getinfo(chnd,
 						CURLINFO_PRIVATE,
 						&chandle);
-			EVCURLM_syslog(LOG_DEBUG, "request complete\n");
 			if (sta) {
 				EVCURL_syslog(LOG_ERR,
 					      "error asking curl for private"
@@ -142,6 +141,8 @@ gotstatus(int nnrun)
 				continue;
 			}
 			IO = (AsyncIO *)chandle;
+
+			EVCURLM_syslog(LOG_DEBUG, "request complete\n");
 
 			IO->Now = ev_now(event_base);
 
