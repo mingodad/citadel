@@ -82,6 +82,7 @@ static void IO_abort_shutdown_callback(struct ev_loop *loop,
  *----------------------------------------------------------------------------*/
 extern int evdb_count;
 extern pthread_mutex_t DBEventQueueMutex;
+extern pthread_mutex_t DBEventExitQueueMutex;
 extern HashList *DBInboundEventQueue;
 extern struct ev_loop *event_db;
 extern ev_async DBAddJob;
@@ -98,17 +99,38 @@ eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 	ev_cleanup_init(&IO->db_abort_by_shutdown,
 			IO_abort_shutdown_callback);
 	IO->db_abort_by_shutdown.data = IO;
-	ev_cleanup_start(event_db, &IO->db_abort_by_shutdown);
 
 	pthread_mutex_lock(&DBEventQueueMutex);
+	if (DBInboundEventQueue == NULL)
+	{
+		/* shutting down... */
+		free(h);
+		EVM_syslog(LOG_DEBUG, "DBEVENT Q exiting.\n");
+		pthread_mutex_unlock(&DBEventQueueMutex);
+		return eAbort;
+	}
 	EVM_syslog(LOG_DEBUG, "DBEVENT Q\n");
 	i = ++evdb_count ;
 	Put(DBInboundEventQueue, IKEY(i), h, NULL);
 	pthread_mutex_unlock(&DBEventQueueMutex);
 
+	pthread_mutex_lock(&DBEventExitQueueMutex);
+	if (event_db == NULL)
+	{
+		pthread_mutex_unlock(&DBEventExitQueueMutex);
+		return eAbort;
+	}
 	ev_async_send (event_db, &DBAddJob);
+	pthread_mutex_unlock(&DBEventExitQueueMutex);
+
 	EVM_syslog(LOG_DEBUG, "DBEVENT Q Done.\n");
 	return eDBQuery;
+}
+
+void StopDBWatchers(AsyncIO *IO)
+{
+	ev_cleanup_stop(event_db, &IO->db_abort_by_shutdown);
+	ev_idle_stop(event_db, &IO->db_unwind_stack);
 }
 
 void ShutDownDBCLient(AsyncIO *IO)
@@ -117,7 +139,7 @@ void ShutDownDBCLient(AsyncIO *IO)
 	become_session(Ctx);
 
 	EVM_syslog(LOG_DEBUG, "DBEVENT Terminating.\n");
-	ev_cleanup_stop(event_db, &IO->db_abort_by_shutdown);
+	StopDBWatchers(IO);
 
 	assert(IO->DBTerminate);
 	IO->DBTerminate(IO);
@@ -173,6 +195,7 @@ eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB)
  *----------------------------------------------------------------------------*/
 extern int evbase_count;
 extern pthread_mutex_t EventQueueMutex;
+extern pthread_mutex_t EventExitQueueMutex; 
 extern HashList *InboundEventQueue;
 extern struct ev_loop *event_base;
 extern ev_async AddJob;
@@ -201,15 +224,28 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	ev_cleanup_init(&IO->abort_by_shutdown,
 			IO_abort_shutdown_callback);
 	IO->abort_by_shutdown.data = IO;
-	ev_cleanup_start(event_base, &IO->abort_by_shutdown);
 
 	pthread_mutex_lock(&EventQueueMutex);
+	if (InboundEventQueue == NULL)
+	{
+		free(h);
+		/* shutting down... */
+		EVM_syslog(LOG_DEBUG, "EVENT Q exiting.\n");
+		pthread_mutex_unlock(&EventQueueMutex);
+		return eAbort;
+	}
 	EVM_syslog(LOG_DEBUG, "EVENT Q\n");
 	i = ++evbase_count;
 	Put(InboundEventQueue, IKEY(i), h, NULL);
 	pthread_mutex_unlock(&EventQueueMutex);
 
+	pthread_mutex_lock(&EventExitQueueMutex);
+	if (event_base == NULL) {
+		pthread_mutex_unlock(&EventExitQueueMutex);
+		return eAbort;
+	}
 	ev_async_send (event_base, &AddJob);
+	pthread_mutex_unlock(&EventExitQueueMutex);
 	EVM_syslog(LOG_DEBUG, "EVENT Q Done.\n");
 	return eSendReply;
 }
@@ -226,12 +262,28 @@ eNextState QueueCurlContext(AsyncIO *IO)
 	h->EvAttch = evcurl_handle_start;
 
 	pthread_mutex_lock(&EventQueueMutex);
+	if (InboundEventQueue == NULL)
+	{
+		/* shutting down... */
+		free(h);
+		EVM_syslog(LOG_DEBUG, "EVENT Q exiting.\n");
+		pthread_mutex_unlock(&EventQueueMutex);
+		return eAbort;
+	}
+
 	EVM_syslog(LOG_DEBUG, "EVENT Q\n");
 	i = ++evbase_count;
 	Put(InboundEventQueue, IKEY(i), h, NULL);
 	pthread_mutex_unlock(&EventQueueMutex);
 
+	pthread_mutex_lock(&EventExitQueueMutex);
+	if (event_base == NULL) {
+		pthread_mutex_unlock(&EventExitQueueMutex);
+		return eAbort;
+	}
 	ev_async_send (event_base, &AddJob);
+	pthread_mutex_unlock(&EventExitQueueMutex);
+
 	EVM_syslog(LOG_DEBUG, "EVENT Q Done.\n");
 	return eSendReply;
 }
@@ -262,6 +314,25 @@ void StopClientWatchers(AsyncIO *IO)
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	ev_timer_stop(event_base, &IO->conn_fail);
 	ev_idle_stop(event_base, &IO->unwind_stack);
+	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
+
+	ev_io_stop(event_base, &IO->conn_event);
+	ev_io_stop(event_base, &IO->send_event);
+	ev_io_stop(event_base, &IO->recv_event);
+
+	if (IO->SendBuf.fd != 0) {
+		close(IO->SendBuf.fd);
+	}
+	IO->SendBuf.fd = 0;
+	IO->RecvBuf.fd = 0;
+}
+
+void StopCurlWatchers(AsyncIO *IO)
+{
+	ev_timer_stop (event_base, &IO->rw_timeout);
+	ev_timer_stop(event_base, &IO->conn_fail);
+	ev_idle_stop(event_base, &IO->unwind_stack);
+	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 
 	ev_io_stop(event_base, &IO->conn_event);
 	ev_io_stop(event_base, &IO->send_event);
@@ -281,7 +352,6 @@ void ShutDownCLient(AsyncIO *IO)
 
 	EVM_syslog(LOG_DEBUG, "EVENT Terminating \n");
 
-	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 	StopClientWatchers(IO);
 
 	if (IO->DNS.Channel != NULL) {

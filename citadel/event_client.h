@@ -241,6 +241,7 @@ void FreeAsyncIOContents(AsyncIO *IO);
 
 eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
+void StopDBWatchers(AsyncIO *IO);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueCurlContext(AsyncIO *IO);
 

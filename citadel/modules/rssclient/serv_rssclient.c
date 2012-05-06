@@ -186,6 +186,7 @@ void DeleteRssCfg(void *vptr)
 	}
 
 	FreeAsyncIOContents(&RSSAggr->IO);
+	memset(RSSAggr, 0, sizeof(rss_aggregator));
 	free(RSSAggr);
 }
 
@@ -195,7 +196,7 @@ eNextState RSSAggregator_Terminate(AsyncIO *IO)
 
 	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
 
-
+	StopCurlWatchers(IO);
 	UnlinkRSSAggregator(RSSAggr);
 	return eAbort;
 }
@@ -207,6 +208,7 @@ eNextState RSSAggregator_TerminateDB(AsyncIO *IO)
 	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
 
 
+	StopDBWatchers(&RSSAggr->IO);
 	UnlinkRSSAggregator(RSSAggr);
 	return eAbort;
 }
@@ -225,12 +227,6 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
 
 	UnlinkRSSAggregator(RSSAggr);
 	return eAbort;
-}
-
-
-eNextState AbortNetworkSaveMessage (AsyncIO *IO)
-{
-	return eAbort; ///TODO
 }
 
 eNextState RSSSaveMessage(AsyncIO *IO)

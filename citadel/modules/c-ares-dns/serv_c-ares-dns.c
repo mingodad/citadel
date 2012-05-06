@@ -72,8 +72,8 @@ static void HostByAddrCb(void *data,
 	AsyncIO *IO = data;
 
 	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
-	EV_DNS_LOGT_STOP(DNS.timeout);
 
+	EV_DNS_LOGT_STOP(DNS.timeout);
 	ev_timer_stop (event_base, &IO->DNS.timeout);
 
 	IO->DNS.Query->DNSStatus = status;
@@ -269,8 +269,8 @@ void QueryCb(void *arg,
 	AsyncIO *IO = arg;
 
 	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
-	EV_DNS_LOGT_STOP(DNS.timeout);
 
+	EV_DNS_LOGT_STOP(DNS.timeout);
 	ev_timer_stop (event_base, &IO->DNS.timeout);
 
 	IO->DNS.Query->DNSStatus = status;
@@ -295,21 +295,28 @@ void QueryCb(void *arg,
 void QueryCbDone(AsyncIO *IO)
 {
 	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
-	EV_DNS_LOGT_STOP(DNS.timeout);
 
+	EV_DNS_LOGT_STOP(DNS.timeout);
+	ev_timer_stop (event_base, &IO->DNS.timeout);
+
+	EV_DNS_LOGT_STOP(unwind_stack);
 	ev_idle_stop(event_base, &IO->unwind_stack);
 }
 
 void DestructCAres(AsyncIO *IO)
 {
 	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
-	EV_DNS_LOGT_STOP(DNS.timeout);
 
 	EV_DNS_LOG_STOP(DNS.recv_event);
 	ev_io_stop(event_base, &IO->DNS.recv_event);
+
 	EV_DNS_LOG_STOP(DNS.send_event);
 	ev_io_stop(event_base, &IO->DNS.send_event);
+
+	EV_DNS_LOGT_STOP(DNS.timeout);
 	ev_timer_stop (event_base, &IO->DNS.timeout);
+
+	EV_DNS_LOGT_STOP(unwind_stack);
 	ev_idle_stop(event_base, &IO->unwind_stack);
 	ares_destroy_options(&IO->DNS.Options);
 }
@@ -369,13 +376,16 @@ void QueueGetHostByNameDone(void *Ctx,
 	IO->DNS.Query->VParsedDNSReply = hostent;
 	IO->DNS.Query->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
 
+	EV_DNS_LOGT_STOP(DNS.timeout);
+	ev_timer_stop (event_base, &IO->DNS.timeout);
+
 	ev_idle_init(&IO->unwind_stack,
 		     IO_postdns_callback);
 	IO->unwind_stack.data = IO;
 	EV_DNS_LOGT_INIT(unwind_stack);
 	EV_DNS_LOGT_START(unwind_stack);
 	ev_idle_start(event_base, &IO->unwind_stack);
-	ev_timer_stop (event_base, &IO->DNS.timeout);
+
 }
 
 void QueueGetHostByName(AsyncIO *IO,

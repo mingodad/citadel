@@ -141,6 +141,12 @@ gotstatus(int nnrun)
 				continue;
 			}
 			IO = (AsyncIO *)chandle;
+			if (IO->ID == 0) {
+				EVCURL_syslog(LOG_ERR,
+					      "Error, invalid IO context %p\n",
+					      IO);
+				continue;
+			}
 
 			EVCURLM_syslog(LOG_DEBUG, "request complete\n");
 
@@ -166,7 +172,7 @@ gotstatus(int nnrun)
 					      "error asking curl for "
 					      "response code from request: %s\n",
 					      curl_easy_strerror(sta));
-			EVCURL_syslog(LOG_ERR,
+			EVCURL_syslog(LOG_DEBUG,
 				      "http response code was %ld\n",
 				      (long)IO->HttpReq.httpcode);
 
@@ -180,7 +186,7 @@ gotstatus(int nnrun)
 					      "%s\n",
 					      curl_multi_strerror(msta));
 
-			ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
+		       ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 
 			IO->HttpReq.attached = 0;
 			switch(IO->SendDone(IO))
@@ -486,6 +492,9 @@ static void IOcurl_abort_shutdown_callback(struct ev_loop *loop,
 {
 	CURLMcode msta;
 	AsyncIO *IO = watcher->data;
+
+	if (IO == NULL)
+		return;
 	IO->Now = ev_now(event_base);
 	EVCURL_syslog(LOG_DEBUG, "EVENT Curl: %s\n", __FUNCTION__);
 
@@ -549,10 +558,12 @@ evcurl_handle_start(AsyncIO *IO)
 
 	IO->HttpReq.attached = 1;
 	ev_async_send (event_base, &WakeupCurl);
+
 	ev_cleanup_init(&IO->abort_by_shutdown,
 			IOcurl_abort_shutdown_callback);
 
 	ev_cleanup_start(event_base, &IO->abort_by_shutdown);
+
 	return eReadMessage;
 }
 
@@ -577,8 +588,8 @@ static void evcurl_shutdown (void)
  * this currently is the main loop (which may change in some future?)
  */
 int evbase_count = 0;
-int event_add_pipe[2] = {-1, -1};
 pthread_mutex_t EventQueueMutex; /* locks the access to the following vars: */
+pthread_mutex_t EventExitQueueMutex; /* locks the access to the event queue pointer on exit. */
 HashList *QueueEvents = NULL;
 HashList *InboundEventQueue = NULL;
 HashList *InboundEventQueues[2] = { NULL, NULL };
@@ -617,6 +628,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		}
 		if (h->IO->StartIO == 0.0)
 			h->IO->StartIO = Now;
+
 		h->IO->Now = Now;
 		h->EvAttch(h->IO);
 	}
@@ -637,19 +649,8 @@ static void EventExitCallback(EV_P_ ev_async *w, int revents)
 
 void InitEventQueue(void)
 {
-	struct rlimit LimitSet;
-
 	pthread_mutex_init(&EventQueueMutex, NULL);
-
-	if (pipe(event_add_pipe) != 0) {
-		syslog(LOG_EMERG,
-		       "Unable to create pipe for libev queueing: %s\n",
-		       strerror(errno));
-		abort();
-	}
-	LimitSet.rlim_cur = 1;
-	LimitSet.rlim_max = 1;
-	setrlimit(event_add_pipe[1], &LimitSet);
+	pthread_mutex_init(&EventExitQueueMutex, NULL);
 
 	QueueEvents = NewHash(1, Flathash);
 	InboundEventQueues[0] = NewHash(1, Flathash);
@@ -685,19 +686,20 @@ void *client_event_thread(void *arg)
 	EVQM_syslog(LOG_DEBUG, "client_event_thread() exiting\n");
 
 ///what todo here?	CtdlClearSystemContext();
+	pthread_mutex_lock(&EventExitQueueMutex);
 	ev_loop_destroy (EV_DEFAULT_UC);
+	event_base = NULL;
 	DeleteHash(&QueueEvents);
 	InboundEventQueue = NULL;
 	DeleteHash(&InboundEventQueues[0]);
 	DeleteHash(&InboundEventQueues[1]);
 /*	citthread_mutex_destroy(&EventQueueMutex); TODO */
 	evcurl_shutdown();
-	close(event_add_pipe[0]);
-	close(event_add_pipe[1]);
 
 	CtdlDestroyEVCleanupHooks();
 
-	EVQShutDown = 1;	
+	pthread_mutex_unlock(&EventExitQueueMutex);
+	EVQShutDown = 1;
 	return(NULL);
 }
 
@@ -708,8 +710,8 @@ void *client_event_thread(void *arg)
  */
 ev_loop *event_db;
 int evdb_count = 0;
-int evdb_add_pipe[2] = {-1, -1};
 pthread_mutex_t DBEventQueueMutex; /* locks the access to the following vars: */
+pthread_mutex_t DBEventExitQueueMutex; /* locks the access to the db-event queue pointer on exit. */
 HashList *DBQueueEvents = NULL;
 HashList *DBInboundEventQueue = NULL;
 HashList *DBInboundEventQueues[2] = { NULL, NULL };
@@ -752,6 +754,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		if (h->IO->StartDB == 0.0)
 			h->IO->StartDB = Now;
 		h->IO->Now = Now;
+		ev_cleanup_start(event_db, &h->IO->db_abort_by_shutdown);
 		rc = h->EvAttch(h->IO);
 		switch (rc)
 		{
@@ -777,17 +780,8 @@ static void DBEventExitCallback(EV_P_ ev_async *w, int revents)
 
 void DBInitEventQueue(void)
 {
-	struct rlimit LimitSet;
-
 	pthread_mutex_init(&DBEventQueueMutex, NULL);
-
-	if (pipe(evdb_add_pipe) != 0) {
-		EVQ_syslog(LOG_EMERG, "Unable to create pipe for libev queueing: %s\n", strerror(errno));
-		abort();
-	}
-	LimitSet.rlim_cur = 1;
-	LimitSet.rlim_max = 1;
-	setrlimit(evdb_add_pipe[1], &LimitSet);
+	pthread_mutex_init(&DBEventExitQueueMutex, NULL);
 
 	DBQueueEvents = NewHash(1, Flathash);
 	DBInboundEventQueues[0] = NewHash(1, Flathash);
@@ -800,13 +794,14 @@ void DBInitEventQueue(void)
  */
 void *db_event_thread(void *arg)
 {
+	ev_loop *tmp;
 	struct CitContext libev_msg_CC;
 
 	CtdlFillSystemContext(&libev_msg_CC, "LibEv DB IO Thread");
-//	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
+
 	EVQM_syslog(LOG_DEBUG, "dbevent_thread() initializing\n");
 
-	event_db = ev_loop_new (EVFLAG_AUTO);
+	tmp = event_db = ev_loop_new (EVFLAG_AUTO);
 
 	ev_async_init(&DBAddJob, DBQueueEventAddCallback);
 	ev_async_start(event_db, &DBAddJob);
@@ -815,20 +810,20 @@ void *db_event_thread(void *arg)
 
 	ev_run (event_db, 0);
 
-	EVQM_syslog(LOG_DEBUG, "dbevent_thread() exiting\n");
+	pthread_mutex_lock(&DBEventExitQueueMutex);
 
-//// what to do here?	CtdlClearSystemContext();
-	ev_loop_destroy (event_db);
+	event_db = NULL;
+	EVQM_syslog(LOG_INFO, "dbevent_thread() exiting\n");
 
 	DeleteHash(&DBQueueEvents);
 	DBInboundEventQueue = NULL;
 	DeleteHash(&DBInboundEventQueues[0]);
 	DeleteHash(&DBInboundEventQueues[1]);
 
-	close(evdb_add_pipe[0]);
-	close(evdb_add_pipe[1]);
 /*	citthread_mutex_destroy(&DBEventQueueMutex); TODO */
 
+	ev_loop_destroy (tmp);
+	pthread_mutex_unlock(&DBEventExitQueueMutex);
 	return(NULL);
 }
 
