@@ -595,6 +595,7 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 	case eReadMore:
 	case eReadMessage:
 	case eReadFile:
+		StrBufAppendBufPlain(IO->ErrMsg, HKEY("[while waiting for greeting]"), 0);
 		ev_io_start(event_base, &IO->recv_event);
 		break;
 	case eSendReply:
