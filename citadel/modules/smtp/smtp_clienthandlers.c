@@ -356,6 +356,7 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *Msg)
 	StrBufPlain(Msg->MyQEntry->StatusMessage,
 		    &ChrPtr(Msg->IO.RecvBuf.Buf)[4],
 		    StrLength(Msg->IO.RecvBuf.Buf) - 4);
+	StrBufTrim(Msg->MyQEntry->StatusMessage);
 	Msg->MyQEntry->Status = 2;
 	return eSendReply;
 }
