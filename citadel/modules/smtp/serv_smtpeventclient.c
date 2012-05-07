@@ -123,11 +123,6 @@ eReadState SMTP_C_ReadServerStatus(AsyncIO *IO);
 
 eNextState mx_connect_ip(AsyncIO *IO);
 eNextState get_one_mx_host_ip(AsyncIO *IO);
-eNextState FinalizeMessageSendDB(AsyncIO *IO);
-eNextState FinalizeMessageSend_DB1(AsyncIO *IO);
-eNextState FinalizeMessageSend_DB2(AsyncIO *IO);
-eNextState FinalizeMessageSend_DB3(AsyncIO *IO);
-eNextState FinalizeMessageSend_DB4(AsyncIO *IO);
 
 /******************************************************************************
  * So, we're finished with sending (regardless of success or failure)         *
@@ -135,7 +130,7 @@ eNextState FinalizeMessageSend_DB4(AsyncIO *IO);
  * we need to free the memory and send bounce messages (on terminal failure)  *
  * else we just free our SMTP-Message struct.                                 *
  ******************************************************************************/
-inline void FinalizeMessageSend_1(AsyncIO *IO)
+eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 {
 	const char *Status;
 	SmtpOutMsg *Msg = IO->Data;
@@ -172,15 +167,6 @@ inline void FinalizeMessageSend_1(AsyncIO *IO)
 		Msg->QMsgData = SerializeQueueItem(Msg->MyQItem);
 	else
 		Msg->QMsgData = NULL;
-}
-eNextState FinalizeMessageSend(SmtpOutMsg *Msg)
-{
-	return QueueDBOperation(&Msg->IO, FinalizeMessageSend_DB1);
-}
-
-inline void FinalizeMessageSend_DB_1(AsyncIO *IO)
-{
-	SmtpOutMsg *Msg = IO->Data;
 
 	/*
 	 * Uncompleted delivery instructions remain, so delete the old
@@ -188,33 +174,10 @@ inline void FinalizeMessageSend_DB_1(AsyncIO *IO)
 	 */
 	EVS_syslog(LOG_DEBUG, "%ld", Msg->MyQItem->QueMsgID);
 	CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &Msg->MyQItem->QueMsgID, 1, "");
-}
-eNextState FinalizeMessageSend_DB1(AsyncIO *IO)
-{
-	FinalizeMessageSend_1(IO);
-	FinalizeMessageSend_DB_1(IO);
-	return NextDBOperation(IO, FinalizeMessageSend_DB2);
-}
-
-
-inline void FinalizeMessageSend_DB_2(AsyncIO *IO)
-{
-	SmtpOutMsg *Msg = IO->Data;
+	Msg->MyQItem->QueMsgID = -1;
 
 	if (Msg->IDestructQueItem)
 		smtpq_do_bounce(Msg->MyQItem, Msg->msgtext);
-}
-eNextState FinalizeMessageSend_DB2(AsyncIO *IO)
-{
-	FinalizeMessageSend_DB_2(IO);
-
-	return NextDBOperation(IO, FinalizeMessageSend_DB3);
-}
-
-
-inline void FinalizeMessageSend_DB_3(AsyncIO *IO)
-{
-	SmtpOutMsg *Msg = IO->Data;
 
 	if (Msg->nRemain > 0)
 	{
@@ -238,38 +201,23 @@ inline void FinalizeMessageSend_DB_3(AsyncIO *IO)
 				   "");
 		FreeStrBuf(&Msg->QMsgData);
 	}
-	DecreaseShutdownDeliveries(Msg->MyQItem);
-}
-eNextState FinalizeMessageSend_DB3(AsyncIO *IO)
-{
-	SmtpOutMsg *Msg = IO->Data;
-	FinalizeMessageSend_DB_3(IO);
-	if (!Msg->IDestructQueItem)
-		return eAbort;
-	return NextDBOperation(IO, FinalizeMessageSend_DB4);
-}
-
-eNextState FinalizeMessageSend_DB4(AsyncIO *IO)
-{
-	int Done;
-	SmtpOutMsg *Msg = IO->Data;
-
-	Done = GetShutdownDeliveries(Msg->MyQItem);
-	if (!Done) 
-		return NextDBOperation(IO, FinalizeMessageSend_DB4);
-	else
-		return eAbort;
-}
-
-eNextState FinalizeMessageSend_DB(AsyncIO *IO)
-{
-	SmtpOutMsg *Msg = IO->Data;
 
 	RemoveContext(Msg->IO.CitContext);
 	if (Msg->IDestructQueItem)
 		RemoveQItem(Msg->MyQItem);
+	return eAbort;
+}
+
+eNextState Terminate(AsyncIO *IO)
+{
+	SmtpOutMsg *Msg = IO->Data;
 	DeleteSmtpOutMsg(Msg);
 	return eAbort;
+}
+eNextState FinalizeMessageSend(SmtpOutMsg *Msg)
+{
+	/* hand over to DB Queue */
+	return QueueDBOperation(&Msg->IO, FinalizeMessageSend_DB);
 }
 
 eNextState FailOneAttempt(AsyncIO *IO)
@@ -656,11 +604,8 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 			StrBufPlain(Msg->MyQEntry->StatusMessage,
 				    HKEY("Invalid Recipient!"));
 		}
-		FinalizeMessageSend_1(&Msg->IO);
-		FinalizeMessageSend_DB_1(&Msg->IO);
-		FinalizeMessageSend_DB_2(&Msg->IO);
-		FinalizeMessageSend_DB_3(&Msg->IO);
 		FinalizeMessageSend_DB(&Msg->IO);
+		DeleteSmtpOutMsg(&Msg->IO);
 	}
 }
 
@@ -754,7 +699,7 @@ eNextState SMTP_C_Terminate(AsyncIO *IO)
 eNextState SMTP_C_TerminateDB(AsyncIO *IO)
 {
 	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
-	return FinalizeMessageSend_DB(IO);
+	return Terminate(IO);
 }
 eNextState SMTP_C_Timeout(AsyncIO *IO)
 {
