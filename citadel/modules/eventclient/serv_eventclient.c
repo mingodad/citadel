@@ -599,6 +599,7 @@ ev_async ExitEventLoop;
 
 static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
+	CitContext *Ctx;
 	ev_tstamp Now;
 	HashList *q;
 	void *v;
@@ -628,6 +629,9 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		}
 		if (h->IO->StartIO == 0.0)
 			h->IO->StartIO = Now;
+
+		Ctx = h->IO->CitContext;
+		become_session(Ctx);
 
 		h->IO->Now = Now;
 		h->EvAttch(h->IO);
@@ -723,6 +727,7 @@ extern void ShutDownDBCLient(AsyncIO *IO);
 
 static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
+	CitContext *Ctx;
 	ev_tstamp Now;
 	HashList *q;
 	void *v;
@@ -754,6 +759,9 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		if (h->IO->StartDB == 0.0)
 			h->IO->StartDB = Now;
 		h->IO->Now = Now;
+
+		Ctx = h->IO->CitContext;
+		become_session(Ctx);
 		ev_cleanup_start(event_db, &h->IO->db_abort_by_shutdown);
 		rc = h->EvAttch(h->IO);
 		switch (rc)
