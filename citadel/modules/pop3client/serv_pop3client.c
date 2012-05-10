@@ -1067,11 +1067,15 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 									&lPtr,
 									'|');
 
-				StrBufPrintf(cptr->Url, "pop3://%s:%s@%s/%s",
-					     ChrPtr(cptr->pop3user),
-					     ChrPtr(cptr->pop3pass),
-					     ChrPtr(Tmp),
-					     ChrPtr(cptr->RoomName));
+				StrBufAppendBufPlain(cptr->Url, HKEY("pop3://"), 0);
+				StrBufUrlescAppend(cptr->Url, cptr->pop3user, NULL);
+				StrBufAppendBufPlain(cptr->Url, HKEY(":"), 0);
+				StrBufUrlescAppend(cptr->Url, cptr->pop3pass, NULL);
+				StrBufAppendBufPlain(cptr->Url, HKEY("@"), 0);
+				StrBufAppendBuf(cptr->Url, Tmp, 0);
+				StrBufAppendBufPlain(cptr->Url, HKEY("/"), 0);
+				StrBufUrlescAppend(cptr->Url, cptr->RoomName, NULL);
+
 				FreeStrBuf(&Tmp);
 				ParseURL(&cptr->IO.ConnectMe, cptr->Url, 110);
 
