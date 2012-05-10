@@ -30,9 +30,6 @@
 #define SHOW_ME_VAPPEND_PRINTF
 #include <stdarg.h>
 
-#ifndef LINUX_SENDFILE
-#include <sys/sendfile.h>
-#endif
 #include "libcitadel.h"
 
 #ifdef HAVE_ICONV
