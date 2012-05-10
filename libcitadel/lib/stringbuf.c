@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #define SHOW_ME_VAPPEND_PRINTF
 #include <stdarg.h>
+
 #ifndef LINUX_SENDFILE
 #include <sys/sendfile.h>
 #endif
@@ -1804,6 +1805,66 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 
 		if((*pch >= 'a' && *pch <= 'z') ||
 		   (*pch >= '@' && *pch <= 'Z') || /* @ A-Z */
+		   (*pch >= '0' && *pch <= ':') || /* 0-9 : */
+		   (*pch == '!') || (*pch == '_') || 
+		   (*pch == ',') || (*pch == '.'))
+		{
+			*(pt++) = *(pch++);
+			OutBuf->BufUsed++;
+		}			
+		else {
+			*pt = '%';
+			*(pt + 1) = HexList[(unsigned char)*pch][0];
+			*(pt + 2) = HexList[(unsigned char)*pch][1];
+			pt += 3;
+			OutBuf->BufUsed += 3;
+			pch ++;
+		}
+	}
+	*pt = '\0';
+}
+
+/** 
+ * @ingroup StrBuf_DeEnCoder
+ * @brief Escape a string for feeding out as a the username/password part of an URL while appending it to a Buffer
+ * @param OutBuf the output buffer
+ * @param In Buffer to encode
+ * @param PlainIn way in from plain old c strings
+ */
+void StrBufUrlescUPAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
+{
+	const char *pch, *pche;
+	char *pt, *pte;
+	int len;
+	
+	if (((In == NULL) && (PlainIn == NULL)) || (OutBuf == NULL) )
+		return;
+	if (PlainIn != NULL) {
+		len = strlen(PlainIn);
+		pch = PlainIn;
+		pche = pch + len;
+	}
+	else {
+		pch = In->buf;
+		pche = pch + In->BufUsed;
+		len = In->BufUsed;
+	}
+
+	if (len == 0) 
+		return;
+
+	pt = OutBuf->buf + OutBuf->BufUsed;
+	pte = OutBuf->buf + OutBuf->BufSize - 4; /**< we max append 3 chars at once plus the \0 */
+
+	while (pch < pche) {
+		if (pt >= pte) {
+			IncreaseBuf(OutBuf, 1, -1);
+			pte = OutBuf->buf + OutBuf->BufSize - 4; /**< we max append 3 chars at once plus the \0 */
+			pt = OutBuf->buf + OutBuf->BufUsed;
+		}
+
+		if((*pch >= 'a' && *pch <= 'z') ||
+		   (*pch >= 'A' && *pch <= 'Z') || /* A-Z */
 		   (*pch >= '0' && *pch <= ':') || /* 0-9 : */
 		   (*pch == '!') || (*pch == '_') || 
 		   (*pch == ',') || (*pch == '.'))
