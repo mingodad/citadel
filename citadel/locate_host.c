@@ -51,6 +51,18 @@
 #include <resolv.h>
 #endif
 
+/** START:some missing macros on OpenBSD 3.9 */
+#ifndef NS_CMPRSFLGS
+#define NS_CMPRSFLGS   0xc0
+#endif
+#if !defined(NS_MAXCDNAME) && defined (MAXCDNAME)
+#define NS_MAXCDNAME MAXCDNAME
+#endif
+#if !defined(NS_INT16SZ) && defined(INT16SZ)
+#define NS_INT16SZ INT16SZ
+#define NS_INT32SZ INT32SZ
+#endif
+/** END:some missing macros on OpenBSD 3.9 */
 
 /*
  * Given an open client socket, return the host name and IP address at the other end.
