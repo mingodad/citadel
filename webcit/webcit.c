@@ -224,11 +224,15 @@ void http_redirect(const char *whichpage) {
 
 
 /*
- * Output a piece of content to the web browser using conformant HTTP and MIME semantics
+ * Output a piece of content to the web browser using conformant HTTP and MIME semantics.
+ *
+ * If this function is called, it is expected that begin_burst() has already been called
+ * and some sort of content has been fed into the buffer.  This function will transmit a
+ * bunch of headers to the client.  end_burst() will add some headers of its own, and then
+ * transmit the buffered content to the client.
  */
 void http_transmit_thing(const char *content_type, int is_static)
 {
-
 	syslog(9, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
 
