@@ -1028,6 +1028,7 @@ void set_room_policy(void) {
 	}
 	FreeStrBuf(&Line);
 	ReloadCurrentRoom();
+
 	output_headers(1, 1, 1, 0, 0, 0);	
 	do_template("room_edit");
 	wDumpContent(1);
