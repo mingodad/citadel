@@ -687,8 +687,10 @@ void toggle_self_service(void) {
 		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 & ~QR2_SMTP_PUBLIC;
 
 	SetCurrentRoomFlags (&WCC->CurRoom);
-	
-	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+
+	output_headers(1, 1, 1, 0, 0, 0);	
+	do_template("room_edit");
+	wDumpContent(1);
 }
 
 
@@ -704,114 +706,109 @@ void editroom(void)
 	const StrBuf *er_password;
 	const StrBuf *er_dirname;
 	const StrBuf *er_roomaide;
-	unsigned er_flags;
-	unsigned er_flags2;
 	int succ1, succ2;
 
 	if (!havebstr("ok_button")) {
 		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
 		return;
 	}
+
 	if (GetCurrentRoomFlags (&WCC->CurRoom, 1) == 0) {
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
 		return;
 	}
 
 	LoadRoomAide();
-
-	er_flags = WCC->CurRoom.QRFlags;
-	er_flags &= !(QR_PRIVATE | QR_PASSWORDED | QR_GUESSNAME);
-
-	er_flags2 = WCC->CurRoom.QRFlags2;
+	WCC->CurRoom.QRFlags &= !(QR_PRIVATE | QR_PASSWORDED | QR_GUESSNAME);
 
 	Ptr = sbstr("type");
 	if (!strcmp(ChrPtr(Ptr), "invonly")) {
-		er_flags |= (QR_PRIVATE);
+		WCC->CurRoom.QRFlags |= (QR_PRIVATE);
 	}
 	if (!strcmp(ChrPtr(Ptr), "hidden")) {
-		er_flags |= (QR_PRIVATE | QR_GUESSNAME);
+		WCC->CurRoom.QRFlags |= (QR_PRIVATE | QR_GUESSNAME);
 	}
 	if (!strcmp(ChrPtr(Ptr), "passworded")) {
-		er_flags |= (QR_PRIVATE | QR_PASSWORDED);
+		WCC->CurRoom.QRFlags |= (QR_PRIVATE | QR_PASSWORDED);
 	}
 	if (!strcmp(ChrPtr(Ptr), "personal")) {
-		er_flags |= QR_MAILBOX;
+		WCC->CurRoom.QRFlags |= QR_MAILBOX;
 	} else {
-		er_flags &= ~QR_MAILBOX;
+		WCC->CurRoom.QRFlags &= ~QR_MAILBOX;
 	}
 
-
-	
 	if (yesbstr("prefonly")) {
-		er_flags |= QR_PREFONLY;
+		WCC->CurRoom.QRFlags |= QR_PREFONLY;
 	} else {
-		er_flags &= ~QR_PREFONLY;
+		WCC->CurRoom.QRFlags &= ~QR_PREFONLY;
 	}
 
 	if (yesbstr("readonly")) {
-		er_flags |= QR_READONLY;
+		WCC->CurRoom.QRFlags |= QR_READONLY;
 	} else {
-		er_flags &= ~QR_READONLY;
+		WCC->CurRoom.QRFlags &= ~QR_READONLY;
 	}
 
-	
 	if (yesbstr("collabdel")) {
-		er_flags2 |= QR2_COLLABDEL;
+		WCC->CurRoom.QRFlags2 |= QR2_COLLABDEL;
 	} else {
-		er_flags2 &= ~QR2_COLLABDEL;
+		WCC->CurRoom.QRFlags2 &= ~QR2_COLLABDEL;
 	}
 
 	if (yesbstr("permanent")) {
-		er_flags |= QR_PERMANENT;
+		WCC->CurRoom.QRFlags |= QR_PERMANENT;
 	} else {
-		er_flags &= ~QR_PERMANENT;
+		WCC->CurRoom.QRFlags &= ~QR_PERMANENT;
 	}
 
 	if (yesbstr("subjectreq")) {
-		er_flags2 |= QR2_SUBJECTREQ;
+		WCC->CurRoom.QRFlags2 |= QR2_SUBJECTREQ;
 	} else {
-		er_flags2 &= ~QR2_SUBJECTREQ;
+		WCC->CurRoom.QRFlags2 &= ~QR2_SUBJECTREQ;
 	}
 
 	if (yesbstr("network")) {
-		er_flags |= QR_NETWORK;
+		WCC->CurRoom.QRFlags |= QR_NETWORK;
 	} else {
-		er_flags &= ~QR_NETWORK;
+		WCC->CurRoom.QRFlags &= ~QR_NETWORK;
 	}
 
 	if (yesbstr("directory")) {
-		er_flags |= QR_DIRECTORY;
+		WCC->CurRoom.QRFlags |= QR_DIRECTORY;
 	} else {
-		er_flags &= ~QR_DIRECTORY;
+		WCC->CurRoom.QRFlags &= ~QR_DIRECTORY;
 	}
 
 	if (yesbstr("ulallowed")) {
-		er_flags |= QR_UPLOAD;
+		WCC->CurRoom.QRFlags |= QR_UPLOAD;
 	} else {
-		er_flags &= ~QR_UPLOAD;
+		WCC->CurRoom.QRFlags &= ~QR_UPLOAD;
 	}
 
 	if (yesbstr("dlallowed")) {
-		er_flags |= QR_DOWNLOAD;
+		WCC->CurRoom.QRFlags |= QR_DOWNLOAD;
 	} else {
-		er_flags &= ~QR_DOWNLOAD;
+		WCC->CurRoom.QRFlags &= ~QR_DOWNLOAD;
 	}
 
 	if (yesbstr("visdir")) {
-		er_flags |= QR_VISDIR;
+		WCC->CurRoom.QRFlags |= QR_VISDIR;
 	} else {
-		er_flags &= ~QR_VISDIR;
+		WCC->CurRoom.QRFlags &= ~QR_VISDIR;
 	}
-
 
 	Ptr = sbstr("anon");
 
-	er_flags &= ~(QR_ANONONLY | QR_ANONOPT);
+	WCC->CurRoom.QRFlags &= ~(QR_ANONONLY | QR_ANONOPT);
 	if (!strcmp(ChrPtr(Ptr), "anononly"))
-		er_flags |= QR_ANONONLY;
+		WCC->CurRoom.QRFlags |= QR_ANONONLY;
 	if (!strcmp(ChrPtr(Ptr), "anon2"))
-		er_flags |= QR_ANONOPT;
+		WCC->CurRoom.QRFlags |= QR_ANONOPT;
 
 	er_name     = sbstr("er_name");
 	er_dirname  = sbstr("er_dirname");
@@ -838,9 +835,12 @@ void editroom(void)
 
 	succ2 = SaveRoomAide (&WCC->CurRoom);
 	
-	if (succ1 + succ2 == 0)
+	if (succ1 + succ2 == 0) {
 		AppendImportantMessage (_("Your changes have been saved."), -1);
-	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+	}
+	output_headers(1, 1, 1, 0, 0, 0);	
+	do_template("room_edit");
+	wDumpContent(1);
 	return;
 }
 
@@ -909,7 +909,9 @@ void do_invt_kick(void)
                 }
         }
 
-	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+	output_headers(1, 1, 1, 0, 0, 0);	
+	do_template("room_edit");
+	wDumpContent(1);
 }
 
 
@@ -972,7 +974,9 @@ void entroom(void)
 	WCC->CurRoom.view = er_view;
 
 	if ( (WCC != NULL) && ( (WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) )  {
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
 	} else {
 		smart_goto(WCC->CurRoom.name);
 	}
@@ -1007,7 +1011,9 @@ void set_room_policy(void) {
 
 	if (!havebstr("ok_button")) {
 		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
 		return;
 	}
 	Line = NewStrBuf();
@@ -1022,7 +1028,9 @@ void set_room_policy(void) {
 	}
 	FreeStrBuf(&Line);
 	ReloadCurrentRoom();
-	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+	output_headers(1, 1, 1, 0, 0, 0);	
+	do_template("room_edit");
+	wDumpContent(1);
 }
 
 
@@ -1065,7 +1073,9 @@ void netedit(void) {
 		strcat(line, bstr("suffix"));
 	}
 	else {
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
 		return;
 	}
 
@@ -1076,7 +1086,9 @@ void netedit(void) {
 	if  (GetServerStatus(Line, NULL) != 1) {
 		AppendImportantMessage(SRV_STATUS_MSG(Line));	
 		FreeStrBuf(&Line);
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
 		return;
 	}
 
@@ -1107,7 +1119,9 @@ void netedit(void) {
 	if  (GetServerStatus(Line, NULL) != 4) {
 
 		AppendImportantMessage(SRV_STATUS_MSG(Line));	
-		http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
 		FreeStrBuf(&Line);
 		FreeStrBuf(&TmpBuf);
 		return;
@@ -1139,7 +1153,9 @@ void netedit(void) {
 	FlushIgnetCfgs(&WC->CurRoom);
 	FreeStrBuf(&Line);
 
-	http_transmit_thing(ChrPtr(do_template("room_edit")), 0);
+	output_headers(1, 1, 1, 0, 0, 0);	
+	do_template("room_edit");
+	wDumpContent(1);
 }
 
 /*
@@ -1299,7 +1315,6 @@ InitModule_ROOMOPS
                            NULL);
         RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO, NULL);
 
-	
 	WebcitAddUrlHandler(HKEY("json_roomflr"), "", 0, jsonRoomFlr, 0);
 
 	WebcitAddUrlHandler(HKEY("delete_floor"), "", 0, delete_floor, 0);
