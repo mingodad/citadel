@@ -584,10 +584,10 @@ long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long df
 }
 
 
-/**
- * \brief puts string into the template and computes which escape methon we should use
- * \param Source the string we should put into the template
- * \param FormatTypeIndex where should we look for escape types if?
+/*
+ * puts string into the template and computes which escape methon we should use
+ * Source = the string we should put into the template
+ * FormatTypeIndex = where should we look for escape types if?
  */
 void StrBufAppendTemplate(StrBuf *Target, 
 			  WCTemplputParams *TP,
