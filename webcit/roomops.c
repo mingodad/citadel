@@ -1007,7 +1007,6 @@ void change_view(void) {
  * Set the message expire policy for this room and/or floor
  */
 void set_room_policy(void) {
-	StrBuf *Line;
 
 	if (!havebstr("ok_button")) {
 		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
@@ -1016,13 +1015,14 @@ void set_room_policy(void) {
 		wDumpContent(1);
 		return;
 	}
-	Line = NewStrBuf();
 
-	serv_printf("SPEX roompolicy|%d|%d", ibstr("roompolicy"), ibstr("roomvalue"));
+	StrBuf *Line = NewStrBuf();
+
+	serv_printf("SPEX room|%d|%d", ibstr("roompolicy"), ibstr("roomvalue"));
 	StrBuf_ServGetln(Line);
 	GetServerStatusMsg(Line, NULL, 1, 0);
 	if (WC->axlevel >= 6) {
-		serv_printf("SPEX floorpolicy|%d|%d", ibstr("floorpolicy"), ibstr("floorvalue"));
+		serv_printf("SPEX floor|%d|%d", ibstr("floorpolicy"), ibstr("floorvalue"));
 		StrBuf_ServGetln(Line);
 		GetServerStatusMsg(Line, NULL, 1, 0);
 	}
