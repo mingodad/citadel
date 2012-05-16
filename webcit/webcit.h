@@ -267,7 +267,6 @@ extern char *ssl_cipher_list;
 #define EXPIRE_AGE              3       /* Expire messages after n days */
 
 typedef struct __ExpirePolicy {
-	int loaded; /* has this been loaded from the server? */
         int expire_mode;
         int expire_value;
 } ExpirePolicy;

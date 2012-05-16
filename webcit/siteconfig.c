@@ -36,7 +36,6 @@ void LoadExpirePolicy(GPEXWhichPolicy which)
 	serv_printf("GPEX %s", ExpirePolicyStrings[which][0].Key);
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
-	WCC->Policy[which].loaded = 1;
 	if (GetServerStatus(Buf, &State) == 2) {
 		Pos = ChrPtr(Buf) + 4;
 		WCC->Policy[which].expire_mode = StrBufExtractNext_long(Buf, &Pos, '|');
