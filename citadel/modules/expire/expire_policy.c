@@ -1,5 +1,14 @@
 /* 
- * Functions which manage policy for rooms (such as message expiry)
+ * Functions which manage expire policy for rooms
+ * Copyright (c) 1987-2012 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -127,28 +136,33 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	if (!strcasecmp(which, strof(roompolicy))||
-	    !strcasecmp(which, "room")) {
+	if (	(!strcasecmp(which, strof(roompolicy)))
+		|| (!strcasecmp(which, "room"))
+	) {
 		if (!is_room_aide()) {
-			cprintf("%d Higher access required.\n",
-				ERROR + HIGHER_ACCESS_REQUIRED);
+			cprintf("%d Higher access required.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
 		CtdlGetRoomLock(&CC->room, CC->room.QRname);
 		memcpy(&CC->room.QRep, &exp, sizeof(struct ExpirePolicy));
 		CtdlPutRoomLock(&CC->room);
-		cprintf("%d Room expire policy has been updated.\n", CIT_OK);
+		cprintf("%d Room expire policy for '%s' has been updated.\n", CIT_OK, CC->room.QRname);
+		syslog(LOG_DEBUG, "Room: %s , Policy: %d , Value: %d",
+			CC->room.QRname,
+			exp.expire_mode,
+			exp.expire_value
+		);
 		return;
 	}
 
 	if (CC->user.axlevel < AxAideU) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
+		cprintf("%d Higher access required.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
 
-	if (!strcasecmp(which, strof(floorpolicy))||
-	    !strcasecmp(which, "floor")) { /* deprecated version */
+	if (	(!strcasecmp(which, strof(floorpolicy)))
+		|| (!strcasecmp(which, "floor"))
+	) {
 		lgetfloor(&flbuf, CC->room.QRfloor);
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
 		lputfloor(&flbuf, CC->room.QRfloor);
@@ -156,17 +170,18 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	else if (!strcasecmp(which, strof(mailboxespolicy))||
-		 !strcasecmp(which, "mailboxes")) {
+	else if (	(!strcasecmp(which, strof(mailboxespolicy)))
+			|| (!strcasecmp(which, "mailboxes"))
+		) {
 		memcpy(&config.c_mbxep, &exp, sizeof(struct ExpirePolicy));
 		put_config();
-		cprintf("%d Default expire policy for mailboxes set.\n",
-			CIT_OK);
+		cprintf("%d Default expire policy for mailboxes set.\n", CIT_OK);
 		return;
 	}
 
-	else if (!strcasecmp(which, strof(sitepolicy))||
-		 !strcasecmp(which, "site")) {/* deprecated version */
+	else if (	(!strcasecmp(which, strof(sitepolicy)))
+			|| (!strcasecmp(which, "site"))
+		) {
 		if (exp.expire_mode == EXPIRE_NEXTLEVEL) {
 			cprintf("%d Invalid policy (no higher level)\n",
 				ERROR + ILLEGAL_VALUE);
@@ -178,10 +193,5 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	else {
-		cprintf("%d Invalid keyword \"%s\"\n", ERROR + ILLEGAL_VALUE, which);
-		return;
-	}
-
+	cprintf("%d Invalid keyword '%s'\n", ERROR + ILLEGAL_VALUE, which);
 }
-
