@@ -74,7 +74,7 @@ int ConditionalExpire(StrBuf *Target, WCTemplputParams *TP)
 	which = GetTemplateTokenNumber(Target, TP, 2, 0);
 	CompareWith = GetTemplateTokenNumber(Target, TP, 3, 0);
 
-	if (WCC->Policy[which].loaded == 0) LoadExpirePolicy(which);
+	LoadExpirePolicy(which);
 	
 	return WCC->Policy[which].expire_mode == CompareWith;
 }
@@ -85,7 +85,7 @@ void tmplput_ExpireValue(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 		
 	which = GetTemplateTokenNumber(Target, TP, 0, 0);
-	if (WCC->Policy[which].loaded == 0) LoadExpirePolicy(which);
+	LoadExpirePolicy(which);
 	StrBufAppendPrintf(Target, "%d", WCC->Policy[which].expire_value);
 }
 
@@ -96,7 +96,7 @@ void tmplput_ExpireMode(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 		
 	which = GetTemplateTokenNumber(Target, TP, 2, 0);
-	if (WCC->Policy[which].loaded == 0) LoadExpirePolicy(which);
+	LoadExpirePolicy(which);
 	StrBufAppendPrintf(Target, "%d", WCC->Policy[which].expire_mode);
 }
 
@@ -259,8 +259,10 @@ void load_siteconfig(void)
 	}
 	FreeStrBuf(&Buf);
 
-	LoadExpirePolicy(sitepolicy);
+	LoadExpirePolicy(roompolicy);
+	LoadExpirePolicy(floorpolicy);
 	LoadExpirePolicy(mailboxespolicy);
+	LoadExpirePolicy(sitepolicy);
 }
 
 
