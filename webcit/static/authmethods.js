@@ -93,6 +93,7 @@ function ajax_try_username_and_password() {
 			}
 			else {
 				$('login_errmsg').innerHTML = ctdlresult.responseText.substr(4) ;
+				authtoggle('authbox_userpass');
 			}
 		}
 	});
