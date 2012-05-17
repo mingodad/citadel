@@ -62,6 +62,10 @@
 #define NS_INT16SZ INT16SZ
 #define NS_INT32SZ INT32SZ
 #endif
+#ifndef NS_GET16
+#  define NS_GET16 GETSHORT
+#endif
+
 /** END:some missing macros on OpenBSD 3.9 */
 
 /*
