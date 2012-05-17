@@ -4374,7 +4374,6 @@ void cmd_ent0(char *entargs)
 	char subject[SIZ];
 	int subject_required = 0;
 	int do_confirm = 0;
-	int verbose_reply = 0;
 	long msgnum;
 	int i, j;
 	char buf[256];
@@ -4393,7 +4392,6 @@ void cmd_ent0(char *entargs)
 	do_confirm = extract_int(entargs, 6);
 	extract_token(cc, entargs, 7, '|', sizeof cc);
 	extract_token(bcc, entargs, 8, '|', sizeof bcc);
-	verbose_reply = extract_int(entargs, 9);
 	switch(CC->room.QRdefaultview) {
 	case VIEW_NOTES:
 	case VIEW_WIKI:
@@ -4646,25 +4644,19 @@ void cmd_ent0(char *entargs)
 
 	if (msg != NULL) {
 		msgnum = CtdlSubmitMsg(msg, valid, "", QP_EADDR);
-		if (verbose_reply)
-		{
-			if (StrLength(CCC->StatusMessage)>0)
-			{
-				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("\n000\n"), 0);
-				cputbuf(CCC->StatusMessage);
-			}
-			else
-				client_write(HKEY("\n000\n"));
-		}
-
 		if (do_confirm) {
 			cprintf("%ld\n", msgnum);
-			if (msgnum >= 0L) {
+
+			if (StrLength(CCC->StatusMessage) > 0) {
+				cprintf("%s\n", ChrPtr(CCC->StatusMessage));
+			}
+			else if (msgnum >= 0L) {
 				client_write(HKEY("Message accepted.\n"));
 			}
 			else {
 				client_write(HKEY("Internal error.\n"));
 			}
+
 			if (msg->cm_fields['E'] != NULL) {
 				cprintf("%s\n", msg->cm_fields['E']);
 			} else {

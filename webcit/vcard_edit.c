@@ -1275,7 +1275,7 @@ void submit_vcard(void) {
 	}
 
 	Buf = NewStrBuf();
-	serv_write(HKEY("ENT0 1|||4||||||1\n"));
+	serv_write(HKEY("ENT0 1|||4\n"));
 	if (!StrBuf_ServGetln(Buf) && (GetServerStatus(Buf, NULL) != 4))
 	{
 		edit_vcard();
@@ -1343,8 +1343,6 @@ void submit_vcard(void) {
 	serv_printf("%s\r\n", serialized_vcard);
 	serv_write(HKEY("000\n"));
 	free(serialized_vcard);
-
-	StrBuf_ServGetln(Buf);
 
 	if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
 		select_user_to_edit(NULL);
