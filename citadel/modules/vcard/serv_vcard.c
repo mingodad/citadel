@@ -6,17 +6,11 @@
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 /*
@@ -147,30 +141,30 @@ int vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 	 * probably just the networker or something.
 	 */
 	if (CCC->logged_in) {
-		syslog(LOG_DEBUG, "Checking for <%s>...\n", internet_addr);
+		syslog(LOG_DEBUG, "Checking for <%s>...", internet_addr);
 		if (CtdlDirectoryLookup(buf, internet_addr, sizeof buf) == 0) {
 			if (strcasecmp(buf, citadel_addr)) {
 				/* This address belongs to someone else.
 				 * Bail out silently without saving.
 				 */
-				syslog(LOG_DEBUG, "DOOP!\n");
+				syslog(LOG_DEBUG, "DOOP!");
 				
 				StrBufAppendPrintf(CCC->StatusMessage, "\n%d|", ERROR+ALREADY_EXISTS);
 				StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
 				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
-				StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress again."), -1, 0);
+				StrBufAppendBufPlain(CCC->StatusMessage, _("Unable to add this email address again."), -1, 0);
 				StrBufAppendBufPlain(CCC->StatusMessage, HKEY("\n"), 0);
 				return 0;
 			}
 		}
 	}
-	syslog(LOG_INFO, "Adding %s (%s) to directory\n", citadel_addr, internet_addr);
+	syslog(LOG_INFO, "Adding %s (%s) to directory", citadel_addr, internet_addr);
 	if (CtdlDirectoryAddUser(internet_addr, citadel_addr))
 	{
 		StrBufAppendPrintf(CCC->StatusMessage, "\n%d|", CIT_OK);
 		StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
 		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
-		StrBufAppendBufPlain(CCC->StatusMessage, _("successfully addded emailaddress."), -1, 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, _("Successfully added email address."), -1, 0);
 		return 1;
 	}
 	else
@@ -178,7 +172,7 @@ int vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 		StrBufAppendPrintf(CCC->StatusMessage, "\n%d|", ERROR+ ILLEGAL_VALUE);
 		StrBufAppendBufPlain(CCC->StatusMessage, internet_addr, -1, 0);
 		StrBufAppendBufPlain(CCC->StatusMessage, HKEY("|"), 0);
-		StrBufAppendBufPlain(CCC->StatusMessage, _("unable to add this emailaddress; its not matching our domain."), -1, 0);
+		StrBufAppendBufPlain(CCC->StatusMessage, _("Unable to add this email address. It does not match any local domain."), -1, 0);
 		return 0;
 	}
 }
@@ -319,7 +313,7 @@ void vcard_extract_vcard(char *name, char *filename, char *partnum, char *disp,
 	if (  (!strcasecmp(cbtype, "text/x-vcard"))
 	   || (!strcasecmp(cbtype, "text/vcard")) ) {
 
-		syslog(LOG_DEBUG, "Part %s contains a vCard!  Loading...\n", partnum);
+		syslog(LOG_DEBUG, "Part %s contains a vCard!  Loading...", partnum);
 		if (*v != NULL) {
 			vcard_free(*v);
 		}
@@ -849,7 +843,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	struct vCard *v;
 
 	vcard_fn_to_n(vname, usbuf->fullname, sizeof vname);
-	syslog(LOG_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
+	syslog(LOG_DEBUG, "Converted <%s> to <%s>", usbuf->fullname, vname);
 
 	/* Create and save the vCard */
 	v = vcard_new();
@@ -868,7 +862,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer) != NULL) {
 #else // SOLARIS_GETPWUID
 		struct passwd *result = NULL;
-		syslog(LOG_DEBUG, "Searching for uid %d\n", usbuf->uid);
+		syslog(LOG_DEBUG, "Searching for uid %d", usbuf->uid);
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, &result) == 0) {
 #endif // HAVE_GETPWUID_R
 			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, config.c_fqdn);
@@ -1155,13 +1149,13 @@ void check_get(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		syslog(LOG_CRIT, "vcard client disconnected: ending session.\n");
+		syslog(LOG_CRIT, "vcard client disconnected: ending session.");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
-	syslog(LOG_INFO, ": %s\n", cmdbuf);
+	syslog(LOG_INFO, ": %s", cmdbuf);
 	while (strlen(cmdbuf) < 3) strcat(cmdbuf, " ");
-	syslog(LOG_INFO, "[ %s]\n", cmdbuf);
+	syslog(LOG_INFO, "[ %s]", cmdbuf);
 	
 	if (strncasecmp(cmdbuf, "GET ", 4)==0)
 	{
@@ -1178,22 +1172,20 @@ void check_get(void) {
 		{
 
 			cprintf("200 OK %s\n", internet_addr);
-			syslog(LOG_INFO, "sending 200 OK for the room %s\n", rcpt->display_recp);
+			syslog(LOG_INFO, "sending 200 OK for the room %s", rcpt->display_recp);
 		}
 		else 
 		{
 			cprintf("500 REJECT noone here by that name.\n");
 			
-			syslog(LOG_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
+			syslog(LOG_INFO, "sending 500 REJECT no one here by that name: %s", internet_addr);
 		}
 		if (rcpt != NULL) 
 			free_recipients(rcpt);
 	}
-	else 
-	{
+	else {
 		cprintf("500 REJECT invalid Query.\n");
-		
-		syslog(LOG_INFO, "sending 500 REJECT invalid Query: %s\n", internet_addr);
+		syslog(LOG_INFO, "sending 500 REJECT invalid query: %s", internet_addr);
 	}
 }
 
@@ -1215,7 +1207,7 @@ void vcard_CtdlCreateRoom(void)
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (CtdlGetRoomLock(&qr, USERCONTACTSROOM)) {
-		syslog(LOG_ERR, "Couldn't get the user CONTACTS room!\n");
+		syslog(LOG_ERR, "Couldn't get the user CONTACTS room!");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
@@ -1389,7 +1381,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			}
 			vcard_free(v);
 
-			syslog(LOG_DEBUG, "Adding contact: %s\n", recipient);
+			syslog(LOG_DEBUG, "Adding contact: %s", recipient);
 			CtdlSubmitMsg(vmsg, NULL, aptr->roomname, QP_EADDR);
 			CtdlFreeMessage(vmsg);
 		}
@@ -1498,7 +1490,7 @@ CTDL_MODULE_INIT(vcard)
 			if (fp != NULL) fclose(fp);
 			rv = chown(filename, CTDLUID, (-1));
 			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
+				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]", 
 				       filename, strerror(errno));
 		}
 
