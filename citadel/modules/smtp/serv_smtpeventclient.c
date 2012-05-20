@@ -203,14 +203,16 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 	}
 
 	RemoveContext(Msg->IO.CitContext);
-	if (Msg->IDestructQueItem)
-		RemoveQItem(Msg->MyQItem);
 	return eAbort;
 }
 
 eNextState Terminate(AsyncIO *IO)
 {
 	SmtpOutMsg *Msg = IO->Data;
+
+	if (Msg->IDestructQueItem)
+		RemoveQItem(Msg->MyQItem);
+
 	DeleteSmtpOutMsg(Msg);
 	return eAbort;
 }
