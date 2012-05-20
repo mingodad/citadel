@@ -745,7 +745,7 @@ void rss_save_item(rss_item *ri, rss_aggregator *RSSAggr)
 		len = StrLength(ri->title);
 		Sbj = html_to_ascii(ChrPtr(ri->title), len, 512, 0);
 		len = strlen(Sbj);
-		if (Sbj[len - 1] == '\n')
+		if ((len > 0) && (Sbj[len - 1] == '\n'))
 		{
 			len --;
 			Sbj[len] = '\0';
