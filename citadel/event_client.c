@@ -705,15 +705,38 @@ IO_connfailimmediate_callback(struct ev_loop *loop,
 static void
 IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
-	AsyncIO *IO = watcher->data;
+        AsyncIO *IO = watcher->data;
+        int             so_err = 0;
+        socklen_t       lon = sizeof(so_err);
+        int             err;
 
-	IO->Now = ev_now(event_base);
-	EVM_syslog(LOG_DEBUG, "connect() succeeded.\n");
+        IO->Now = ev_now(event_base);
+        EVM_syslog(LOG_DEBUG, "connect() succeeded.\n");
 
-	ev_io_stop(loop, &IO->conn_event);
-	ev_timer_stop (event_base, &IO->conn_fail);
-	set_start_callback(loop, IO, revents);
+        ev_io_stop(loop, &IO->conn_event);
+        ev_timer_stop(event_base, &IO->conn_fail);
+
+        err = getsockopt(IO->SendBuf.fd,
+                         SOL_SOCKET,
+                         SO_ERROR,
+                         (void*)&so_err,
+                         &lon);
+
+        if ((err == 0) && (so_err == 111))
+        {
+                EV_syslog(LOG_DEBUG, "connect() failed [%d][%s]\n",
+                          so_err,
+                          strerror(so_err));
+                IO_connfail_callback(loop, &IO->conn_fail, revents);
+
+        }
+        else
+        {
+                EVM_syslog(LOG_DEBUG, "connect() succeeded\n");
+                set_start_callback(loop, IO, revents);
+        }
 }
+
 static void
 IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
