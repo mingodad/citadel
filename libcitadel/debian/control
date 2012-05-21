@@ -11,6 +11,8 @@ Package: libcitadel8
 Architecture: any
 Depends: ${shlibs:Depends}, shared-mime-info
 Description: Citadel toolbox
+Provides: libcitadel2
+Conflicts: libcitadel2
  This library contains the commonly used routines for the citadel suite.
 
 Package: libcitadel8-dbg
