@@ -134,10 +134,10 @@ gotstatus(int nnrun)
 						CURLINFO_PRIVATE,
 						&chandle);
 			if (sta) {
-				EVCURL_syslog(LOG_ERR,
-					      "error asking curl for private"
-					      " cookie of curl handle: %s\n",
-					      curl_easy_strerror(sta));
+				syslog(LOG_ERR,
+				       "error asking curl for private"
+				       " cookie of curl handle: %s\n",
+				       curl_easy_strerror(sta));
 				continue;
 			}
 			IO = (AsyncIO *)chandle;
