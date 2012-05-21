@@ -386,7 +386,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 		/* ok, now we know them all,
 		 * continue with reading the actual messages. */
 		DeleteHashPos(&RecvMsg->Pos);
-
+		StopDBWatchers(IO);
 		return QueueEventContext(IO, POP3_C_ReAttachToFetchMessages);
 	}
 }
@@ -524,7 +524,7 @@ eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 		  StrLength(RecvMsg->CurrMsg->MsgUID),
 		  &ut,
 		  sizeof(struct UseTable) );
-
+	StopDBWatchers(IO);
 	return QueueEventContext(&RecvMsg->IO, POP3_C_ReAttachToFetchMessages);
 }
 eNextState POP3C_SaveMsg(AsyncIO *IO)
@@ -555,7 +555,7 @@ eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 	EVP3CM_syslog(LOG_DEBUG, "Converting message...");
 	RecvMsg->CurrMsg->Msg =
 		convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
-
+	StopClientWatchers(IO);
 	return QueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg);
 }
 
