@@ -591,6 +591,9 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 static void
 set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 {
+	ev_timer_stop(event_base, &IO->conn_fail);
+	ev_timer_start(event_base, &IO->rw_timeout);
+
 	switch(IO->NextState) {
 	case eReadMore:
 	case eReadMessage:
@@ -722,7 +725,7 @@ IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
                          (void*)&so_err,
                          &lon);
 
-        if ((err == 0) && (so_err == 111))
+        if ((err == 0) && (so_err != 0))
         {
                 EV_syslog(LOG_DEBUG, "connect() failed [%d][%s]\n",
                           so_err,
@@ -948,7 +951,6 @@ eNextState EvConnectSock(AsyncIO *IO,
 	if (rc >= 0){
 		EVM_syslog(LOG_DEBUG, "connect() immediate success.\n");
 		set_start_callback(event_base, IO, 0);
-		ev_timer_start(event_base, &IO->rw_timeout);
 		return IO->NextState;
 	}
 	else if (errno == EINPROGRESS) {
