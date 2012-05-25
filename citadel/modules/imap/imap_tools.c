@@ -569,13 +569,13 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 	if (qrbuf->QRflags & QR_MAILBOX)
 	{
 		if (strcasecmp(qrbuf->QRname+11, MAILROOM) == 0)
-			p = toimap(p, bufend, "INBOX");
+			toimap(p, bufend, "INBOX");
 		else
 		{
 			p = toimap(p, bufend, "INBOX");
 			if (p < bufend)
 				*p++ = '/';
-			p = toimap(p, bufend, qrbuf->QRname+11);
+			toimap(p, bufend, qrbuf->QRname+11);
 		}
 	}
 	else
@@ -586,7 +586,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 		p = toimap(p, bufend, fl->f_name);
 		if (p < bufend)
 			*p++ = '/';
-		p = toimap(p, bufend, qrbuf->QRname);
+		toimap(p, bufend, qrbuf->QRname);
 	}
 }
 
@@ -840,7 +840,10 @@ star:
 				}
 				return WILDMAT_TRUE;
 			}
-			while (!IsEmptyStr(text) && (*(text - 1) != WILDMAT_DELIM)) {
+			while (!IsEmptyStr(text) &&
+			       /* make shure texst - 1 isn't before lcase_p */
+			       ((text == lcase_text) || (*(text - 1) != WILDMAT_DELIM)))
+			{
 				if ((matched = do_imap_match(text++, p))
 				   != WILDMAT_FALSE) {
 					return matched;
