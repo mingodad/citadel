@@ -986,6 +986,9 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 		}
 		dur = icaltime_subtract(t2end, t2start);
 	}
+	else {
+		memset (&dur, 0, sizeof(struct icaldurationtype));
+	}
 
 	rrule = ical_ctdl_get_subprop(existing_event, ICAL_RRULE_PROPERTY);
 	if (rrule) {
@@ -1056,13 +1059,16 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	int num_recur = 0;
 
 	/* initialization */
-	strcpy(compare_uid, "");
+	*compare_uid = '\0';
 
 	/* proposed event stuff */
 
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTSTART_PROPERTY);
-	if (p == NULL) return;
-	if (p != NULL) t1start = icalproperty_get_dtstart(p);
+	if (p == NULL)
+		return;
+	else
+		t1start = icalproperty_get_dtstart(p);
+
 	if (icaltime_is_utc(t1start)) {
 		t1start.zone = icaltimezone_get_utc_timezone();
 	}
@@ -1096,6 +1102,9 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 		}
 
 		dur = icaltime_subtract(t1end, t1start);
+	}
+	else {
+		memset (&dur, 0, sizeof(struct icaldurationtype));
 	}
 
 	rrule = ical_ctdl_get_subprop(proposed_event, ICAL_RRULE_PROPERTY);
@@ -1244,8 +1253,8 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 	icalproperty *p;
 	icalvalue *v;
 	struct icalperiodtype this_event_period = icalperiodtype_null_period();
-	icaltimetype dtstart = icaltime_null_time();
-	icaltimetype dtend = icaltime_null_time();
+	icaltimetype dtstart;
+	icaltimetype dtend;
 
 	/* recur variables */
 	icalproperty *rrule = NULL;
@@ -1297,6 +1306,9 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 	dtend = icalcomponent_get_dtend(cal);
 	if (!icaltime_is_null_time(dtend)) {
 		dur = icaltime_subtract(dtend, dtstart);
+	}
+	else {
+		memset (&dur, 0, sizeof(struct icaldurationtype));
 	}
 
 	/* Is a recurrence specified?  If so, get ready to process it... */
