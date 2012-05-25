@@ -95,7 +95,8 @@
 /*
  * Learn topology from path fields
  */
-void network_learn_topology(char *node, char *path, NetMap **the_netmap, int *netmap_changed) {
+static void network_learn_topology(char *node, char *path, NetMap **the_netmap, int *netmap_changed)
+{
 	char nexthop[256];
 	NetMap *nmptr;
 
@@ -117,7 +118,7 @@ void network_learn_topology(char *node, char *path, NetMap **the_netmap, int *ne
 	nmptr->lastcontact = time(NULL);
 	extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 	nmptr->next = *the_netmap;
-	the_netmap = &nmptr;
+	*the_netmap = nmptr;
 	(*netmap_changed) ++;
 }
 
@@ -834,9 +835,7 @@ void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap)
 	while (d = readdir(dp), d != NULL) {
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
-		ptr = strchr(d->d_name, '@');
-		if (d != NULL)
-			continue;
+
 		snprintf(filename, 
 			sizeof filename,
 			"%s/%s",
