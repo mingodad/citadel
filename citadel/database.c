@@ -725,12 +725,15 @@ struct cdbdata *cdb_fetch(int cdb, const void *key, int keylen)
 	if (tempcdb == NULL) {
 		syslog(LOG_EMERG, "cdb_fetch: Cannot allocate memory for tempcdb\n");
 		cdb_abort();
+		return NULL; /* make it easier for static analysis... */
 	}
-
-	tempcdb->len = dret.size;
-	tempcdb->ptr = dret.data;
-	cdb_decompress_if_necessary(tempcdb);
-	return (tempcdb);
+	else
+	{
+		tempcdb->len = dret.size;
+		tempcdb->ptr = dret.data;
+		cdb_decompress_if_necessary(tempcdb);
+		return (tempcdb);
+	}
 }
 
 
@@ -770,7 +773,7 @@ void cdb_rewind(int cdb)
 
 	if (TSD->cursors[cdb] != NULL) {
 		syslog(LOG_EMERG,
-			"cdb_rewind: must close cursor on database %d before reopening.\n", cdb);
+		       "cdb_rewind: must close cursor on database %d before reopening.\n", cdb);
 		cdb_abort();
 		/* cclose(TSD->cursors[cdb]); */
 	}
