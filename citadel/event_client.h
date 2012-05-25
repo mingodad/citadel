@@ -303,6 +303,9 @@ int InitcURLIOStruct(AsyncIO *IO,
 		     IO_CallBack DBTerminate,
 		     IO_CallBack ShutdownAbort);
 
+void StopCurlWatchers(AsyncIO *IO);
+
+
 eNextState ReAttachIO(AsyncIO *IO,
 		      void *pData,
 		      int ReadFirst);
