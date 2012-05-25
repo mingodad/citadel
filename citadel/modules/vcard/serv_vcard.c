@@ -390,7 +390,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		return(1);
 	}
 
-	s = vcard_get_prop(v, "fn", 1, 0, 0);
+	vcard_get_prop(v, "fn", 1, 0, 0);
 
 	if (yes_my_citadel_config) {
 		/* Bingo!  The user is uploading a new vCard, so
