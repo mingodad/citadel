@@ -608,7 +608,6 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		snprintf(addr, sizeof addr, "%s@%s", user, node);
 		if (msg->cm_fields['A'] == NULL)
 			msg->cm_fields['A'] = strdup(name);
-		processed = 1;
 		if (msg->cm_fields['F'] == NULL)
 			msg->cm_fields['F'] = strdup(addr);
 		processed = 1;
