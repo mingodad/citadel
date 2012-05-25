@@ -816,7 +816,6 @@ void cmd_oids(char *argbuf) {
 		return;
 	}
 	memset(oiddata, 0, sizeof(ctdl_openid));
-	CCC->openid_data = (void *) oiddata;
 
 	ArgBuf = NewStrBufPlain(argbuf, -1);
 
