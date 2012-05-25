@@ -4157,8 +4157,8 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 		++num_recps;
 
 		strcpy(org_recp, this_recp);
-		mailtype = alias(this_recp);
-		mailtype = alias(this_recp);
+		alias(this_recp);
+		alias(this_recp);
 		mailtype = alias(this_recp);
 		j = 0;
 		for (j=0; !IsEmptyStr(&this_recp[j]); ++j) {
