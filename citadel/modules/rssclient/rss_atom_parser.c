@@ -777,7 +777,7 @@ void rss_save_item(rss_item *ri, rss_aggregator *RSSAggr)
 
 	msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
 
-	Message = NewStrBufPlain(NULL, StrLength(ri->description));
+	Message = NewStrBufPlain(NULL, msglen);
 
 	StrBufPlain(Message, HKEY(
 			    "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
