@@ -209,8 +209,6 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 	 * intervening blank line to be part of the headers, not the text.
 	 */
 	headers_size = 0;
-	text_size = 0;
-	total_size = 0;
 
 	if (need_body) {
 		StrBuf *Line = NewStrBuf();
@@ -604,7 +602,7 @@ void imap_strip_headers(StrBuf *section) {
 		StrBufSipLine(Line, CCC->redirect_buffer, &Ptr);
 
 		if (!isspace(ChrPtr(Line)[0])) {
-			ok = 0;
+
 			if (doing_headers == 0) ok = 1;
 			else {
 				/* we're supposed to print all headers that are not matching the filter list */
