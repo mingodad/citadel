@@ -415,7 +415,8 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, const char *search_string) {
 
 		}
 		free(tokens);
-		qsort(all_msgs, num_all_msgs, sizeof(long), longcmp);
+		if (all_msgs != NULL)
+			qsort(all_msgs, num_all_msgs, sizeof(long), longcmp);
 
 		/*
 		 * At this point, if a message appears num_tokens times in the
@@ -435,8 +436,8 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, const char *search_string) {
 
 			}
 		}
-
-		free(all_msgs);
+		if (all_msgs != NULL)
+			free(all_msgs);
 	}
 
 	*fts_num_msgs = num_ret_msgs;
