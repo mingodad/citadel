@@ -530,6 +530,8 @@ SmtpOutMsg *new_smtp_outmsg(OneQueItem *MyQItem,
 	SmtpOutMsg * Msg;
 
 	Msg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
+	if (Msg == NULL)
+		return NULL;
 	memset(Msg, 0, sizeof(SmtpOutMsg));
 
 	Msg->n                = MsgCount;
@@ -567,6 +569,12 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 	SMTPC_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 
 	Msg = new_smtp_outmsg(MyQItem, MyQEntry, MsgCount);
+	if (Msg == NULL) {
+		SMTPC_syslog(LOG_DEBUG, "%s Failed to alocate message context.\n", __FUNCTION__);
+		if (KeepMsgText) 
+			FreeStrBuf (&MsgText);
+		return;
+	}
 	if (KeepMsgText) Msg->msgtext = MsgText;
 	else		 Msg->msgtext = NewStrBufDup(MsgText);
 
@@ -600,8 +608,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 	}
 	else {
 		/* No recipients? well fail then. */
-		if ((Msg==NULL) ||
-		    (Msg->MyQEntry == NULL)) {
+		if (Msg->MyQEntry == NULL) {
 			Msg->MyQEntry->Status = 5;
 			StrBufPlain(Msg->MyQEntry->StatusMessage,
 				    HKEY("Invalid Recipient!"));
