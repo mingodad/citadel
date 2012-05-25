@@ -1143,7 +1143,7 @@ void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
 	const char *pLeft;
 	const char *pRight;
 
-	if (Buf == NULL)
+	if ((Buf == NULL) || (Buf->buf == NULL))
 		return;
 	pLeft = pBuff = Buf->buf;
 	while (pBuff != NULL) {
@@ -2831,7 +2831,7 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 	while ((pch != NULL) && (pch < pche))
 	{
 		while (isspace(*pch)) pch++;
-		UserStart = UserEnd = EmailStart = EmailEnd = NULL;
+		UserEnd = EmailStart = EmailEnd = NULL;
 		
 		if ((*pch == '"') || (*pch == '\'')) {
 			UserStart = pch + 1;
@@ -2902,7 +2902,6 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 				EmailStart ++;
 				if (UserStart >= UserEnd)
 					UserStart = UserEnd = NULL;
-				At = strchr(EmailStart, '@');
 			}
 			else { /* this is a local recipient... no domain, just a realname */
 				EmailStart = UserStart;
@@ -3263,7 +3262,7 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 #endif
 	const char *eptr;
 	int passes = 0;
-	int i, len;
+	int i;
 	int illegal_non_rfc2047_encoding = 0;
 
 	/* Sometimes, badly formed messages contain strings which were simply
@@ -3273,7 +3272,6 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 	 *  charset to UTF-8 if we see any nonprintable characters.
 	 */
 	
-	len = StrLength(DecodeMe);
 	for (i=0; i<DecodeMe->BufUsed; ++i) {
 		if ((DecodeMe->buf[i] < 32) || (DecodeMe->buf[i] > 126)) {
 			illegal_non_rfc2047_encoding = 1;
@@ -3297,8 +3295,7 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 	}
 
 	/* pre evaluate the first pair */
-	nextend = end = NULL;
-	len = StrLength(DecodeMee);
+	end = NULL;
 	start = strstr(DecodeMee->buf, "=?");
 	eptr = DecodeMee->buf + DecodeMee->BufUsed;
 	if (start != NULL) 
@@ -3315,7 +3312,6 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 		
 		nFront = start - DecodeMee->buf;
 		StrBufAppendBufPlain(Target, DecodeMee->buf, nFront, 0);
-		len -= nFront;
 	}
 	/*
 	 * Since spammers will go to all sorts of absurd lengths to get their
@@ -3877,9 +3873,7 @@ void FDIOBufferDelete(FDIOBuffer *FDB)
 
 int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 {
-	char *pRead;
-	long nRead = 0;
-	
+
 #ifdef LINUX_SENDFILE
 	ssize_t sent;
 	sent = sendfile(FDB->IOB->fd, FDB->OtherFD, &FDB->TotalSentAlready, FDB->ChunkSendRemain);
@@ -3892,6 +3886,10 @@ int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 	FDB->TotalSentAlready += sent;
 	return FDB->ChunkSendRemain;
 #else
+
+	char *pRead;
+	long nRead = 0;
+
 	pRead = FDB->ChunkBuffer->buf;
 	while ((FDB->ChunkBuffer->BufUsed < FDB->TotalSendSize) && (nRead >= 0))
 	{
@@ -4480,8 +4478,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 {
 	const char *pos;
 	int fdflags;
-	int len = 0;
-	int rlen;
+	int rlen = 0;
 	int nRead = 0;
 	int nAlreadyRead = 0;
 	int IsNonBlock;
@@ -4507,8 +4504,8 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	pos = *Pos;
 
 	if (pos != NULL)
-		len = pos - IOBuf->buf;
-	rlen = IOBuf->BufUsed - len;
+		rlen = pos - IOBuf->buf;
+	rlen = IOBuf->BufUsed - rlen;
 
 
 	if ((IOBuf->BufUsed > 0) && 
@@ -4541,8 +4538,6 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	if (IOBuf->BufSize < nBytes - nRead)
 		IncreaseBuf(IOBuf, 0, nBytes - nRead);
 	ptr = IOBuf->buf;
-
-	len = Blob->BufUsed;
 
 	fdflags = fcntl(*fd, F_GETFL);
 	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
