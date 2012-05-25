@@ -146,7 +146,7 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 		if( len == -1 ) {
 			if (txtbuf != NULL) {
 				snprintf(txtbuf, txtbufsize,
-					"Message rejected due to known spammer source IP address");
+					 "Message rejected due to known spammer source IP address");
 			}
 			if (need_to_free_answer) free(answer);
 			return(1);
@@ -184,7 +184,7 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	{
 		if (txtbuf != NULL) {
 			snprintf(txtbuf, txtbufsize,
-				"Message rejected due to known spammer source IP address");
+				 "Message rejected due to known spammer source IP address");
 		}
 		if (need_to_free_answer) free(answer);
 		free(result);
@@ -235,11 +235,17 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	}
 	*rp = '\0';
 	if (txtbuf != NULL) {
-		snprintf(txtbuf, txtbufsize, "%s", result);
-	}
-	/* Remove nonprintable characters */
-	for (p=txtbuf; *p; ++p) {
-		if (!isprint(*p)) strcpy(p, p+1);
+		long len;
+		len = snprintf(txtbuf, txtbufsize, "%s", result);
+	
+		/* Remove nonprintable characters */
+		for (p = txtbuf; *p != '\0'; p++) {
+			if (!isprint(*p)) {
+				memmove (p,
+					 p + 1,
+					 len - (p - txtbuf) - 1);
+			}
+		}
 	}
 	if (need_to_free_answer) free(answer);
 	free(result);
