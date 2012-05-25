@@ -497,7 +497,7 @@ int client_readline_sslbuffer(StrBuf *Line, StrBuf *IOBuf, const char **Pos, int
 			StrBufAppendBufPlain(Line, pos, 
 					     StrLength(IOBuf) - (pos - ChrPtr(IOBuf)), 0);
 			FlushStrBuf(IOBuf);
-			pos = *Pos = NULL;
+			*Pos = NULL;
 		}
 		else {
 			int n = 0;
@@ -510,7 +510,7 @@ int client_readline_sslbuffer(StrBuf *Line, StrBuf *IOBuf, const char **Pos, int
 
 			if (StrLength(IOBuf) <= (pch - ChrPtr(IOBuf) + 1)) {
 				FlushStrBuf(IOBuf);
-				pos = *Pos = NULL;
+				*Pos = NULL;
 			}
 			else 
 				*Pos = pch + 1;
