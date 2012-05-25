@@ -316,10 +316,10 @@ gotwatchsock(CURL *easy,
 	if (IO == NULL) {
 		sta = curl_easy_getinfo(easy, CURLINFO_PRIVATE, &f);
 		if (sta) {
-			EVCURL_syslog(LOG_ERR,
-				      "EVCURL: error asking curl for private "
-				      "cookie of curl handle: %s\n",
-				      curl_easy_strerror(sta));
+			CURL_syslog(LOG_ERR,
+				    "EVCURL: error asking curl for private "
+				    "cookie of curl handle: %s\n",
+				    curl_easy_strerror(sta));
 			return -1;
 		}
 		IO = (AsyncIO *) f;
