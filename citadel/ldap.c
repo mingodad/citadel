@@ -124,7 +124,8 @@ int CtdlTryUserLDAP(char *username,
 	}
 
 	syslog(LOG_DEBUG, "LDAP search: %s\n", searchstring);
-	i = ldap_search_ext_s(ldserver,				/* ld				*/
+	(void) ldap_search_ext_s(
+		ldserver,					/* ld				*/
 		config.c_ldap_base_dn,				/* base				*/
 		LDAP_SCOPE_SUBTREE,				/* scope			*/
 		searchstring,					/* filter			*/
