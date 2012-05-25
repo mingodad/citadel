@@ -165,7 +165,6 @@ void write_network_map(NetMap *the_netmap, int netmap_changed) {
 		free(the_netmap);
 		the_netmap = nmptr;
 	}
-	netmap_changed = 0;
 }
 
 
