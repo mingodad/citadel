@@ -831,6 +831,7 @@ void smtp_command_loop(void) {
 
 	if (sSMTP == NULL) {
 		syslog(LOG_EMERG, "Session SMTP data is null.  WTF?  We will crash now.\n");
+		return cit_panic_backtrace (0);
 	}
 
 	time(&CC->lastcmd);
