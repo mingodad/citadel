@@ -387,7 +387,6 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 		dest[dpos++] = '\r';
 		dest[dpos++] = '\n';
 		dest[dpos] = 0;
-		thisline = 0;
 	}
 
 	return(dpos);
