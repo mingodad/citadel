@@ -608,7 +608,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 	}
 	else {
 		/* No recipients? well fail then. */
-		if (Msg->MyQEntry == NULL) {
+		if (Msg->MyQEntry != NULL) {
 			Msg->MyQEntry->Status = 5;
 			StrBufPlain(Msg->MyQEntry->StatusMessage,
 				    HKEY("Invalid Recipient!"));
