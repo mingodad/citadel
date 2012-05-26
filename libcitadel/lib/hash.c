@@ -173,9 +173,11 @@ int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry
  */
 int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Second)
 {
+#ifdef DEBUG
 	const char *foo;
 	const char *bar;
 	const char *bla = "";
+#endif
 	long key;
 	long i;
 
@@ -193,8 +195,11 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 		
 		if (Hash->LookupTable[i] == NULL)
 		{
+#ifdef DEBUG
 			foo = "";
 			bar = "";
+#endif
+
 			key = 0;
 		}
 		else 
@@ -202,13 +207,26 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 			key = Hash->LookupTable[i]->Key;
 			foo = Hash->LookupTable[i]->HashKey;
 			if (First != NULL)
-				bar = First(Hash->Members[Hash->LookupTable[i]->Position]->Data);
+#ifdef DEBUG
+				bar =
+#endif
+					First(Hash->Members[Hash->LookupTable[i]->Position]->Data);
+#ifdef DEBUG
 			else 
 				bar = "";
+#endif
+
 			if (Second != NULL)
-				bla = Second(Hash->Members[Hash->LookupTable[i]->Position]->Data);
+#ifdef DEBUG
+				bla = 
+#endif 
+					Second(Hash->Members[Hash->LookupTable[i]->Position]->Data);
+#ifdef DEBUG
+
 			else
 				bla = "";
+#endif
+
 		}
 #ifdef DEBUG
 		printf (" ---- Hashkey[%ld][%ld]: '%s' Value: '%s' ; %s\n", i, key, foo, bar, bla);
