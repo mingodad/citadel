@@ -1052,7 +1052,7 @@ void start_daemon(int unused) {
 			}
 			waitpid(current_child, &status, 0);
 		}
-		do_restart = 0;
+
 		nFireUpsNonRestart = nFireUps;
 		
 		/* Exit code 0 means the watcher should exit */
