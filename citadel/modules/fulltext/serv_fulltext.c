@@ -415,29 +415,29 @@ void ft_search(int *fts_num_msgs, long **fts_msgs, const char *search_string) {
 
 		}
 		free(tokens);
-		if (all_msgs != NULL)
+		if (all_msgs != NULL) {
 			qsort(all_msgs, num_all_msgs, sizeof(long), longcmp);
 
-		/*
-		 * At this point, if a message appears num_tokens times in the
-		 * list, then it contains all of the search tokens.
-		 */
-		if (num_all_msgs >= num_tokens)
-		   for (j=0; j<(num_all_msgs-num_tokens+1); ++j) {
-			if (all_msgs[j] == all_msgs[j+num_tokens-1]) {
-
-				++num_ret_msgs;
-				if (num_ret_msgs > num_ret_alloc) {
-					num_ret_alloc += 64;
-					ret_msgs = realloc(ret_msgs,
-						(num_ret_alloc*sizeof(long)) );
+			/*
+			 * At this point, if a message appears num_tokens times in the
+			 * list, then it contains all of the search tokens.
+			 */
+			if (num_all_msgs >= num_tokens)
+				for (j=0; j<(num_all_msgs-num_tokens+1); ++j) {
+					if (all_msgs[j] == all_msgs[j+num_tokens-1]) {
+						
+						++num_ret_msgs;
+						if (num_ret_msgs > num_ret_alloc) {
+							num_ret_alloc += 64;
+							ret_msgs = realloc(ret_msgs,
+									   (num_ret_alloc*sizeof(long)) );
+						}
+						ret_msgs[num_ret_msgs - 1] = all_msgs[j];
+						
+					}
 				}
-				ret_msgs[num_ret_msgs - 1] = all_msgs[j];
-
-			}
-		}
-		if (all_msgs != NULL)
 			free(all_msgs);
+		}
 	}
 
 	*fts_num_msgs = num_ret_msgs;
