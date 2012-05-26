@@ -130,6 +130,8 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 	static int seq = 0;
 	int i;
 
+	if (jmsg == NULL)
+		return;
 	journal_recps = validate_recipients(config.c_journal_dest, NULL, 0);
 	if (journal_recps != NULL) {
 
