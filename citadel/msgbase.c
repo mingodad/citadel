@@ -2984,47 +2984,6 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 
 
 /*
- * Serialize a struct CtdlMessage into the format used on disk and network.
- * 
- * This function loads up a "struct ser_ret" (defined in server.h) which
- * contains the length of the serialized message and a pointer to the
- * serialized message in memory.  THE LATTER MUST BE FREED BY THE CALLER.
- */
-void dump_message(struct CtdlMessage *msg,	/* unserialized msg */
-		  long Siz)                     /* how many chars ? */
-{
-	int i;
-	static char *forder = FORDER;
-	char *buf;
-
-	/*
-	 * Check for valid message format
-	 */
-	if (is_valid_message(msg) == 0) {
-		struct CitContext *CCC = CC;
-		MSGM_syslog(LOG_ERR, "dump_message() aborting due to invalid message\n");
-		return;
-	}
-
-	buf = (char*) malloc (Siz + 1);
-
-	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
-			snprintf (buf, Siz, " msg[%c] = %s ...\n", (char) forder[i], 
-				   msg->cm_fields[(int)forder[i]]);
-			if (client_write (buf, strlen(buf)) == -1)
-			{
-				struct CitContext *CCC = CC;
-				MSGM_syslog(LOG_ERR, "dump_message(): aborting due to write failure.\n");
-				return;
-			}
-		}
-
-	return;
-}
-
-
-
-/*
  * Check to see if any messages already exist in the current room which
  * carry the same Exclusive ID as this one.  If any are found, delete them.
  */
@@ -4728,7 +4687,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 		cdb_free(cdbfr);
 	}
 	if (num_msgs > 0) {
-		int have_contenttype = !IsEmptyStr(content_type);
+		int have_contenttype = (content_type != NULL) && !IsEmptyStr(content_type);
 		int have_delmsgs = (num_dmsgnums == 0) || (dmsgnums == NULL);
 		int have_more_del = 1;
 
