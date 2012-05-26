@@ -178,7 +178,6 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 			}
 			else
 			{
-				ch = 0;
 				ch = _decode_hex(&encoded[pos]);
 				pos += 2;
 				decoded[decoded_length++] = ch;
