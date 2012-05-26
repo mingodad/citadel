@@ -945,7 +945,6 @@ int CtdlTryPassword(const char *password, long len)
 		CONM_syslog(LOG_INFO, "CtdlTryPassword: NULL password string supplied\n");
 		return pass_wrong_password;
 	}
-	code = (-1);
 
 	if (CCC->is_master) {
 		code = strcmp(password, config.c_master_pass);
@@ -1004,9 +1003,11 @@ int CtdlTryPassword(const char *password, long len)
 		strproc(pw);
 		strproc(CCC->user.password);
 		code = strcasecmp(CCC->user.password, pw);
-		strproc(pw);
-		strproc(CCC->user.password);
-		code = strcasecmp(CCC->user.password, pw);
+		if (code != 0) {
+			strproc(pw);
+			strproc(CCC->user.password);
+			code = strcasecmp(CCC->user.password, pw);
+		}
 		free (pw);
 	}
 
