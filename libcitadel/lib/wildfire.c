@@ -373,6 +373,7 @@ void WildFireSerializePayload(StrBuf *JsonBuffer, StrBuf *OutBuf, int *MsgCount,
 	const char *Cat;
 	StrBuf *Header;
 
+	Header = NewStrBuf();
 	if (*MsgCount == 0) {
 		if (OutBuf != NULL) {
 			StrBufAppendBufPlain(OutBuf, 
@@ -392,7 +393,6 @@ void WildFireSerializePayload(StrBuf *JsonBuffer, StrBuf *OutBuf, int *MsgCount,
 						     "http://meta.firephp.org/Wildfire/Structure/FirePHP/FirebugConsole/0.1\r\n"), 0);
 		}
 		else {
-			Header = NewStrBuf();
 			AddHdr("X-Wf-Protocol-1", 
 			       "http://meta.wildfirehq.org/Protocol/JsonStream/0.2");
 			AddHdr("X-Wf-1-Plugin-1",
