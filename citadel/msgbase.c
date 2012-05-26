@@ -370,7 +370,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	int is_seen = 0;
 	int was_seen = 0;
 	long lo = (-1L);
-	long hi = (-1L);
+	long hi = (-1L); /// TODO: we just write here. y?
 	visit vbuf;
 	long *msglist;
 	int num_msgs = 0;
@@ -2749,6 +2749,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	msglist = realloc(msglist, (sizeof(long) * (num_msgs + num_msgs_to_be_merged)) );
 	if (msglist == NULL) {
 		MSGM_syslog(LOG_ALERT, "ERROR: can't realloc message list!\n");
+		return (ERROR + INTERNAL_ERROR);
 	}
 	memcpy(&msglist[num_msgs], msgs_to_be_merged, (sizeof(long) * num_msgs_to_be_merged) );
 	num_msgs += num_msgs_to_be_merged;
@@ -4160,8 +4161,8 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 		alias(this_recp);
 		alias(this_recp);
 		mailtype = alias(this_recp);
-		j = 0;
-		for (j=0; !IsEmptyStr(&this_recp[j]); ++j) {
+
+		for (j = 0; !IsEmptyStr(&this_recp[j]); ++j) {
 			if (this_recp[j]=='_') {
 				this_recp_cooked[j] = ' ';
 			}
