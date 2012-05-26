@@ -611,7 +611,7 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
  */
 int FlushStrBuf(StrBuf *buf)
 {
-	if (buf == NULL)
+	if ((buf == NULL) || (buf->buf == NULL))
 		return -1;
 	if (buf->ConstBuf)
 		return -1;       
@@ -2732,7 +2732,10 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 			FlushStrBuf(*target);
 			StrBufAppendBuf(*target, source, 0);
 		}
-		return (*target)->BufUsed;
+		if (*target != 0)
+			return (*target)->BufUsed;
+		else
+			return 0;
 	}
 	if (*target == NULL)
 		*target = NewStrBufPlain(NULL, sizeof(headerStr) + source->BufUsed * 2);
@@ -3080,6 +3083,9 @@ void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 	size_t obuflen;			/**< Length of output buffer */
 
 
+	if ((ConvertBuf == NULL) || (TmpBuf == NULL))
+		return;
+
 	/* since we're converting to utf-8, one glyph may take up to 6 bytes */
 	if (ConvertBuf->BufUsed * 6 >= TmpBuf->BufSize)
 		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed * 6);
@@ -3265,6 +3271,9 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 	int i;
 	int illegal_non_rfc2047_encoding = 0;
 
+
+	if (DecodeMe == NULL)
+		return;
 	/* Sometimes, badly formed messages contain strings which were simply
 	 *  written out directly in some foreign character set instead of
 	 *  using RFC2047 encoding.  This is illegal but we will attempt to
@@ -3751,6 +3760,10 @@ eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB)
 	const char *aptr, *ptr, *eptr;
 	char *optr, *xptr;
 
+	if ((FB == NULL) || (LineBuf == NULL))
+		return eReadFail;
+	
+
 	if ((FB->Buf == NULL) || (FB->ReadWritePointer == StrBufNOTNULL)) {
 		FB->ReadWritePointer = StrBufNOTNULL;
 		return eReadFail;
@@ -3838,6 +3851,8 @@ eReadState StrBufCheckBuffer(IOBuffer *FB)
 
 long IOBufferStrLength(IOBuffer *FB)
 {
+	if ((FB == NULL) || (FB->Buf == NULL))
+		return 0;
 	if (FB->ReadWritePointer == NULL)
 		return StrLength(FB->Buf);
 	
@@ -4052,6 +4067,11 @@ eReadState WriteIOBAlreadyRead(FDIOBuffer *FDB, const char **Error)
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 {
 	int len, rlen, slen;
+
+	if (buf == NULL) {
+		*Error = strerror(EINVAL);
+		return -1;
+	}
 
 	if (!append)
 		FlushStrBuf(buf);
@@ -4635,7 +4655,10 @@ int StrBufSipLine(StrBuf *LineBuf, const StrBuf *Buf, const char **Ptr)
 	const char *aptr, *ptr, *eptr;
 	char *optr, *xptr;
 
-	if ((Buf == NULL) || (*Ptr == StrBufNOTNULL)) {
+	if ((Buf == NULL) ||
+	    (*Ptr == StrBufNOTNULL) ||
+	    (LineBuf == NULL))
+	{
 		*Ptr = StrBufNOTNULL;
 		return 0;
 	}
