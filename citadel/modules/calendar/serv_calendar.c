@@ -1046,8 +1046,6 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 		long existing_msgnum)
 {
 	struct icaltimetype t1start, t1end;
-	t1start = icaltime_null_time();
-	t1end = icaltime_null_time();
 	icalproperty *p;
 	char compare_uid[SIZ];
 
@@ -1059,6 +1057,7 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	int num_recur = 0;
 
 	/* initialization */
+	t1end = icaltime_null_time();
 	*compare_uid = '\0';
 
 	/* proposed event stuff */
