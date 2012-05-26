@@ -93,11 +93,15 @@ int notify_http_server(char *remoteurl,
 
 	if (tlen > 0) {
 		/* Load the template message. Get mallocs done too */
-		FILE *Ftemplate = NULL;
+		int fd;
+		struct stat statbuf;
 		const char *mimetype;
+		const char *Err = NULL;
 
-		Ftemplate = fopen(template, "r");
-		if (Ftemplate == NULL) {
+		fd = open(template, O_RDONLY);
+		if ((fd < 0) ||
+		    (fstat(fd, &statbuf) == -1))
+		{
 			char buf[SIZ];
 
 			snprintf(buf, SIZ,
@@ -110,34 +114,35 @@ int notify_http_server(char *remoteurl,
 			CtdlAideMessage(
 				buf,
 				"External notifier: "
-				"unable to find message template!");
+				"unable to find/stat message template!");
 			goto abort;
 		}
-		mimetype = GuessMimeByFilename(template, tlen);
 
-		buf = malloc(SIZ);
-		memset(buf, 0, SIZ);
-		SOAPMessage = malloc(3072);
-		memset(SOAPMessage, 0, 3072);
-
-		while(fgets(buf, SIZ, Ftemplate) != NULL) {
-			strcat(SOAPMessage, buf);
-		}
-		fclose(Ftemplate);
-
-		if (strlen(SOAPMessage) < 0) {
+		Buf = NewStrBufPlain(NULL, statbuf.st_size + 1);
+		if (StrBufReadBLOB(Buf, &fd, 1, statbuf.st_size, &Err) < 0) {
 			char buf[SIZ];
 
-			snprintf(buf, SIZ,
-				 "Cannot load template file %s;"
-				 " won't send notification\r\n",
-				 file_funambol_msg);
-			syslog(LOG_ERR, "%s", buf);
+			close(fd);
 
-			CtdlAideMessage(buf, "External notifier: "
-					"unable to load message template!");
+			snprintf(buf, SIZ,
+				 "Cannot load template file %s [%s] "
+				 "won't send notification\r\n",
+				 file_funambol_msg,
+				 Err);
+			syslog(LOG_ERR, "%s", buf);
+			// TODO: once an hour!
+			CtdlAideMessage(
+				buf,
+				"External notifier: "
+				"unable to load message template!");
 			goto abort;
 		}
+		close(fd);
+
+		mimetype = GuessMimeByFilename(template, tlen);
+
+		SOAPMessage = SmashStrBuf(&Buf);
+
 		// Do substitutions
 		help_subst(SOAPMessage, "^notifyuser", user);
 		help_subst(SOAPMessage, "^syncsource",
@@ -159,7 +164,8 @@ int notify_http_server(char *remoteurl,
 		IO->HttpReq.headers = curl_slist_append(
 			IO->HttpReq.headers,
 			contenttype);
-
+		free(contenttype);
+		contenttype = NULL;
 		IO->HttpReq.headers = curl_slist_append(
 			IO->HttpReq.headers,
 			"Accept: application/soap+xml, "
