@@ -1658,7 +1658,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 ) {
 	struct CitContext *CCC = CC;
 	struct CtdlMessage *TheMessage = NULL;
-	int retcode = om_no_such_msg;
+	int retcode = CIT_OK;
 	struct encapmsg encap;
 	int r;
 
@@ -1748,15 +1748,20 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 		}
 		else {
-			if (do_proto) cprintf("%d msg %ld has no part %s\n",
-				ERROR + MESSAGE_NOT_FOUND, msg_num, section);
+			if (do_proto) {
+				cprintf("%d msg %ld has no part %s\n",
+					ERROR + MESSAGE_NOT_FOUND,
+					msg_num,
+					section);
+			}
 			retcode = om_no_such_msg;
 		}
 
 	}
 
 	/* Ok, output the message now */
-	retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf, flags);
+	if (retcode == CIT_OK)
+		retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf, flags);
 	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
@@ -2178,7 +2183,6 @@ void Dump_RFC822HeadersBody(
 	}
 	if (outlen > 0) {
 		client_write(outbuf, outlen);
-		outlen = 0;
 	}
 }
 
