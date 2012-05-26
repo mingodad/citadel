@@ -758,10 +758,9 @@ void CtdlRegisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 {
 	RoomFunctionHook *cur, *p, *last;
-
-	for (last = NULL, cur = RoomHookTable;
-	     cur != NULL;
-	     cur = cur->next)
+	last = NULL;
+	cur = RoomHookTable;
+	while (cur != NULL)
 	{
 		if (fcn_ptr == cur->fcn_ptr) {
 			MODM_syslog(LOG_DEBUG, "Unregistered room function\n");
@@ -774,8 +773,12 @@ void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 				last->next = p;
 			else 
 				RoomHookTable = p;
+			cur = p;
 		}
 		last = cur;
+		if (cur != NULL)
+			cur = cur->next;
+
 	}
 }
 
