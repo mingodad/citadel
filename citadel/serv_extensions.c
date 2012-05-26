@@ -775,9 +775,10 @@ void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 				RoomHookTable = p;
 			cur = p;
 		}
-		last = cur;
-		if (cur != NULL)
+		else {
+			last = cur;
 			cur = cur->next;
+		}
 
 	}
 }
@@ -814,19 +815,28 @@ void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 
 void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 {
-	NetprocFunctionHook *cur, *p;
+	NetprocFunctionHook *cur, *p, *last;
 
-	for (cur = NetprocHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				handler == cur->h_function_pointer ) {
+	cur = NetprocHookTable;
+	last = NULL;
+
+	while (cur != NULL) {
+		if (handler == cur->h_function_pointer)
+		{
 			MODM_syslog(LOG_DEBUG, "Unregistered netproc function\n");
 			p = cur->next;
-			if (cur == NetprocHookTable) {
+			free(cur);
+			if (last != NULL) {
+				last->next = p;
+			}
+			else {
 				NetprocHookTable = p;
 			}
-			free(cur);
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -863,19 +873,27 @@ void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 
 void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 {
-	DeleteFunctionHook *cur, *p;
+	DeleteFunctionHook *cur, *p, *last;
 
-	for (cur = DeleteHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				handler == cur->h_function_pointer ) {
+	last = NULL;
+	cur = DeleteHookTable;
+	while (cur != NULL) {
+		if (handler == cur->h_function_pointer )
+		{
 			MODM_syslog(LOG_DEBUG, "Unregistered delete function\n");
 			p = cur->next;
-			if (cur == DeleteHookTable) {
-				DeleteHookTable = p;
-			}
 			free(cur);
+
+			if (last != NULL)
+				last->next = p;
+			else
+				DeleteHookTable = p;
+
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -914,18 +932,31 @@ void CtdlRegisterFixedOutputHook(char *content_type, void (*handler)(char *, int
 
 void CtdlUnregisterFixedOutputHook(char *content_type)
 {
-	FixedOutputHook *cur, *p;
+	FixedOutputHook *cur, *p, *last;
 
-	for (cur = FixedOutputTable; cur != NULL; cur = cur->next) {
+	last = NULL;
+	cur = FixedOutputTable;
+	while (cur != NULL) {
 		/* This will also remove duplicates if any */
-		while (cur != NULL && (!strcasecmp(content_type, cur->content_type))) {
-			MOD_syslog(LOG_DEBUG, "Unregistered fixed output function for %s\n", content_type);
+		if (!strcasecmp(content_type, cur->content_type)) {
+			MOD_syslog(LOG_DEBUG,
+				   "Unregistered fixed output function for %s\n",
+				   content_type);
+
 			p = cur->next;
-			if (cur == FixedOutputTable) {
-				FixedOutputTable = p;
-			}
 			free(cur);
+
+			if (last != NULL)
+				last->next = p;
+			else
+				FixedOutputTable = p;
+			
 			cur = p;
+		}
+		else
+		{
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -980,21 +1011,29 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int o
 
 void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *, char *), int order)
 {
-	XmsgFunctionHook *cur, *p;
+	XmsgFunctionHook *cur, *p, *last;
 
-	for (cur = XmsgHookTable; cur != NULL; cur = cur->next) {
+	last = NULL;
+	cur = XmsgHookTable;
+	while (cur != NULL) {
 		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				fcn_ptr == cur->h_function_pointer &&
-				order == cur->order) {
+		if (fcn_ptr == cur->h_function_pointer &&
+		    order == cur->order) {
 			MOD_syslog(LOG_DEBUG, "Unregistered x-msg function "
 				   "(priority %d)\n", order);
 			p = cur->next;
-			if (cur == XmsgHookTable) {
-				XmsgHookTable = p;
-			}
 			free(cur);
+
+			if (last != NULL)
+				last->next = p;
+			else
+				XmsgHookTable = p;
+			
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -1080,19 +1119,20 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			void (*h_async_function) (void)
 			)
 {
-	ServiceFunctionHook *cur, *p;
+	ServiceFunctionHook *cur, *p, *last;
 
+	last = NULL;
 	cur = ServiceHookTable;
 	while (cur != NULL) {
 		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				!(sockpath && cur->sockpath &&
-					strcmp(sockpath, cur->sockpath)) &&
-				h_greeting_function == cur->h_greeting_function &&
-				h_command_function == cur->h_command_function &&
-				h_async_function == cur->h_async_function &&
-				tcp_port == cur->tcp_port) {
-			close(cur->msock);
+		if (h_greeting_function == cur->h_greeting_function &&
+		    h_command_function == cur->h_command_function &&
+		    h_async_function == cur->h_async_function &&
+		    tcp_port == cur->tcp_port && 
+		    !(sockpath && cur->sockpath && strcmp(sockpath, cur->sockpath)) )
+		{
+			if (cur->msock > 0)
+				close(cur->msock);
 			if (sockpath) {
 				MOD_syslog(LOG_INFO, "Closed UNIX domain socket %s\n",
 					   sockpath);
@@ -1103,11 +1143,16 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 				MOD_syslog(LOG_INFO, "Unregistered service \"%s\"\n", cur->ServiceName);
 			}
 			p = cur->next;
-			if (cur == ServiceHookTable) {
-				ServiceHookTable = p;
-			}
 			free(cur);
+			if (last != NULL)
+				last->next = p;
+			else
+				ServiceHookTable = p;
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -1183,17 +1228,27 @@ void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), c
 
 void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name)
 {
-	SearchFunctionHook *cur, *p;
+	SearchFunctionHook *cur, *p, *last;
 	
-	for (cur = SearchFunctionHookTable; cur != NULL; cur = cur->next) {
-		while (fcn_ptr && (cur->fcn_ptr == fcn_ptr) && name && !strcmp(name, cur->name)) {
+	last = NULL;
+	cur = SearchFunctionHookTable;
+	while (cur != NULL) {
+		if (fcn_ptr &&
+		    (cur->fcn_ptr == fcn_ptr) &&
+		    name && !strcmp(name, cur->name))
+		{
 			MOD_syslog(LOG_DEBUG, "Unregistered search function(%s)\n", name);
 			p = cur->next;
-			if (cur == SearchFunctionHookTable) {
-				SearchFunctionHookTable = p;
-			}
 			free (cur);
+			if (last != NULL)
+				last->next = p;
+			else
+				SearchFunctionHookTable = p;
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
