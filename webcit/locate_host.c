@@ -22,7 +22,7 @@ void locate_host(StrBuf *tbuf, int client_socket)
 {
 	struct sockaddr_in6 clientaddr;
 	unsigned int addrlen = sizeof(clientaddr);
-	char clienthost[NI_MAXHOST];
+	char clienthost[NI_MAXHOST] = "";
 
 	getpeername(client_socket, (struct sockaddr *)&clientaddr, &addrlen);
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen, clienthost, sizeof(clienthost), NULL, 0, 0);
