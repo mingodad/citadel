@@ -177,8 +177,8 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 	const char *foo;
 	const char *bar;
 	const char *bla = "";
-#endif
 	long key;
+#endif
 	long i;
 
 	if (Hash == NULL)
@@ -198,14 +198,15 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 #ifdef DEBUG
 			foo = "";
 			bar = "";
-#endif
-
 			key = 0;
+#endif
 		}
 		else 
 		{
+#ifdef DEBUG
 			key = Hash->LookupTable[i]->Key;
 			foo = Hash->LookupTable[i]->HashKey;
+#endif
 			if (First != NULL)
 #ifdef DEBUG
 				bar =
