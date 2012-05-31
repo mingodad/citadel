@@ -493,19 +493,28 @@ void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
 
 void CtdlUnregisterCleanupHook(void (*fcn_ptr) (void))
 {
-	CleanupFunctionHook *cur, *p;
-
-	for (cur = CleanupHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				fcn_ptr == cur->h_function_pointer) {
+	CleanupFunctionHook *cur, *p, *last;
+	last = NULL;
+	cur = CleanupHookTable;
+	while (cur != NULL)
+	{
+		if (fcn_ptr == cur->h_function_pointer)
+		{
 			MODM_syslog(LOG_DEBUG, "Unregistered cleanup function\n");
 			p = cur->next;
-			if (cur == CleanupHookTable) {
-				CleanupHookTable = p;
-			}
+
 			free(cur);
+			cur = NULL;
+
+			if (last != NULL)
+				last->next = p;
+			else 
+				CleanupHookTable = p;
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -543,19 +552,28 @@ void CtdlRegisterEVCleanupHook(void (*fcn_ptr) (void))
 
 void CtdlUnregisterEVCleanupHook(void (*fcn_ptr) (void))
 {
-	CleanupFunctionHook *cur, *p;
-
-	for (cur = EVCleanupHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				fcn_ptr == cur->h_function_pointer) {
+	CleanupFunctionHook *cur, *p, *last;
+	last = NULL;
+	cur = EVCleanupHookTable;
+	while (cur != NULL)
+	{
+		if (fcn_ptr == cur->h_function_pointer)
+		{
 			MODM_syslog(LOG_DEBUG, "Unregistered cleanup function\n");
 			p = cur->next;
-			if (cur == EVCleanupHookTable) {
-				EVCleanupHookTable = p;
-			}
+
 			free(cur);
+			cur = NULL;
+
+			if (last != NULL)
+				last->next = p;
+			else 
+				EVCleanupHookTable = p;
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -596,21 +614,29 @@ void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
 
 void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
 {
-	SessionFunctionHook *cur, *p;
-
-	for (cur = SessionHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				fcn_ptr == cur->h_function_pointer &&
-				EventType == cur->eventtype) {
+	SessionFunctionHook *cur, *p, *last;
+	last = NULL;
+	cur = SessionHookTable;
+	while  (cur != NULL) {
+		if ((fcn_ptr == cur->h_function_pointer) &&
+		    (EventType == cur->eventtype))
+		{
 			MOD_syslog(LOG_DEBUG, "Unregistered session function (type %d)\n",
 				   EventType);
 			p = cur->next;
-			if (cur == SessionHookTable) {
-				SessionHookTable = p;
-			}
+
 			free(cur);
+			cur = NULL;
+
+			if (last != NULL)
+				last->next = p;
+			else 
+				SessionHookTable = p;
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -650,21 +676,29 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (ctdluser *), int EventType)
 
 void CtdlUnregisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 {
-	UserFunctionHook *cur, *p;
-
-	for (cur = UserHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				fcn_ptr == cur->h_function_pointer &&
-				EventType == cur->eventtype) {
+	UserFunctionHook *cur, *p, *last;
+	last = NULL;
+	cur = UserHookTable;
+	while (cur != NULL) {
+		if ((fcn_ptr == cur->h_function_pointer) &&
+		    (EventType == cur->eventtype))
+		{
 			MOD_syslog(LOG_DEBUG, "Unregistered user function (type %d)\n",
 				   EventType);
 			p = cur->next;
-			if (cur == UserHookTable) {
-				UserHookTable = p;
-			}
+
 			free(cur);
+			cur = NULL;
+
+			if (last != NULL)
+				last->next = p;
+			else 
+				UserHookTable = p;
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -706,21 +740,28 @@ void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
 void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 		int EventType)
 {
-	MessageFunctionHook *cur, *p;
-
-	for (cur = MessageHookTable; cur != NULL; cur = cur->next) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				handler == cur->h_function_pointer &&
-				EventType == cur->eventtype) {
+	MessageFunctionHook *cur, *p, *last;
+	last = NULL;
+	cur = MessageHookTable;
+	while (cur != NULL) {
+		if ((handler == cur->h_function_pointer) &&
+		    (EventType == cur->eventtype))
+		{
 			MOD_syslog(LOG_DEBUG, "Unregistered message function (type %d)\n",
 				   EventType);
 			p = cur->next;
-			if (cur == MessageHookTable) {
-				MessageHookTable = p;
-			}
 			free(cur);
+			cur = NULL;
+
+			if (last != NULL)
+				last->next = p;
+			else 
+				MessageHookTable = p;
 			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
 		}
 	}
 }
@@ -779,7 +820,6 @@ void CtdlUnregisterRoomHook(int (*fcn_ptr)(struct ctdlroom *))
 			last = cur;
 			cur = cur->next;
 		}
-
 	}
 }
 
