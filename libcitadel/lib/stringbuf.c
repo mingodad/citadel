@@ -511,6 +511,7 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 
 	if (Siz == 0)
 	{
+		free(NewBuf);
 		return NULL;
 	}
 
@@ -815,7 +816,8 @@ long StrBufPook(StrBuf *Buf, const char* ptr, long nThChar, long nChars, char Po
  */
 void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset)
 {
-	if ((AppendBuf == NULL) || (Buf == NULL) || (AppendBuf->buf == NULL))
+	if ((AppendBuf == NULL) || (AppendBuf->buf == NULL) ||
+	    (Buf == NULL) || (Buf->buf == NULL))
 		return;
 
 	if (Buf->BufSize - Offset < AppendBuf->BufUsed + Buf->BufUsed + 1)
@@ -1062,7 +1064,9 @@ void StrBufCutLeft(StrBuf *Buf, int nChars)
  */
 void StrBufCutRight(StrBuf *Buf, int nChars)
 {
-	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
+	if ((Buf == NULL) || (Buf->BufUsed == 0) || (Buf->buf == NULL))
+		return;
+
 	if (nChars >= Buf->BufUsed) {
 		FlushStrBuf(Buf);
 		return;
@@ -2500,13 +2504,13 @@ void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source)
 	int a, b, len;
 	char hex[3];
 
-	if (target != NULL)
-		FlushStrBuf(target);
-
-	if (source == NULL ||target == NULL)
+	if ((source == NULL) || (target == NULL) || (target->buf == NULL))
 	{
 		return;
 	}
+
+	if (target != NULL)
+		FlushStrBuf(target);
 
 	len = source->BufUsed;
 	for (a = 0; a < len; ++a) {
@@ -2544,7 +2548,7 @@ void StrBufEUid_escapize(StrBuf *target, const StrBuf *source)
 	if (target != NULL)
 		FlushStrBuf(target);
 
-	if (source == NULL ||target == NULL)
+	if ((source == NULL) || (target == NULL) || (target->buf == NULL))
 	{
 		return;
 	}
@@ -3760,7 +3764,7 @@ eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB)
 	const char *aptr, *ptr, *eptr;
 	char *optr, *xptr;
 
-	if ((FB == NULL) || (LineBuf == NULL))
+	if ((FB == NULL) || (LineBuf == NULL) || (LineBuf->buf == NULL))
 		return eReadFail;
 	
 
@@ -4068,7 +4072,7 @@ int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 {
 	int len, rlen, slen;
 
-	if (buf == NULL) {
+	if ((buf == NULL) || (buf->buf == NULL)) {
 		*Error = strerror(EINVAL);
 		return -1;
 	}
@@ -4416,7 +4420,7 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 	struct timeval tv;
 	fd_set rfds;
 
-	if ((Buf == NULL) || (*fd == -1))
+	if ((Buf == NULL) || (Buf->buf == NULL) || (*fd == -1))
 	{
 		*Error = ErrRBLF_BLOBPreConditionFailed;
 		return -1;
