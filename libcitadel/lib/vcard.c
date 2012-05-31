@@ -142,8 +142,6 @@ struct vCard *vcard_load(char *vtext) {
 
 	ptr = mycopy;
 	while (!IsEmptyStr(ptr)) {
-		colonpos = (-1);
-		nlpos = (-1);
 		colonpos = pattern2(ptr, ":");
 		nlpos = pattern2(ptr, "\n");
 
