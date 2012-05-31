@@ -2753,6 +2753,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	msglist = realloc(msglist, (sizeof(long) * (num_msgs + num_msgs_to_be_merged)) );
 	if (msglist == NULL) {
 		MSGM_syslog(LOG_ALERT, "ERROR: can't realloc message list!\n");
+		free(msgs_to_be_merged);
 		return (ERROR + INTERNAL_ERROR);
 	}
 	memcpy(&msglist[num_msgs], msgs_to_be_merged, (sizeof(long) * num_msgs_to_be_merged) );
