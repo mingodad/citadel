@@ -994,7 +994,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	for (a=0; a<num_msgs; ++a) {
 		if (msglist[a] > 0L) ++total_messages;
 	}
-	new_messages = num_msgs;
+
 	num_sets = num_tokens(vbuf.v_seen, ',');
 	for (s=0; s<num_sets; ++s) {
 		extract_token(setstr, vbuf.v_seen, s, ',', sizeof setstr);
