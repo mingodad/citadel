@@ -590,13 +590,14 @@ void network_do_queue(void) {
 				   &netmap_changed);
 	}
 
-	/* Save the network map back to disk */
-	write_network_map(the_netmap, netmap_changed);
-
 	/* Free the filter list in memory */
 	free_netfilter_list();
 
 	network_consolidate_spoolout(working_ignetcfg, the_netmap);
+
+	/* Save the network map back to disk */
+	write_and_free_network_map(&the_netmap, netmap_changed);
+
 	free(working_ignetcfg);
 
 	syslog(LOG_DEBUG, "network: queue run completed\n");

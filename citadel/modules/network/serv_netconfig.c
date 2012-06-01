@@ -116,10 +116,13 @@ NetMap *read_network_map(void) {
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_map, '\n'); ++i) {
 		extract_token(buf, serialized_map, i, '\n', sizeof buf);
+
 		nmptr = (NetMap *) malloc(sizeof(NetMap));
+
 		extract_token(nmptr->nodename, buf, 0, '|', sizeof nmptr->nodename);
 		nmptr->lastcontact = extract_long(buf, 1);
 		extract_token(nmptr->nexthop, buf, 2, '|', sizeof nmptr->nexthop);
+
 		nmptr->next = the_netmap;
 		the_netmap = nmptr;
 	}
@@ -132,16 +135,16 @@ NetMap *read_network_map(void) {
 /*
  * Write the network map from memory back to the configuration file.
  */
-void write_network_map(NetMap *the_netmap, int netmap_changed) {
+void write_and_free_network_map(NetMap **the_netmap, int netmap_changed)
+{
 	char *serialized_map = NULL;
 	NetMap *nmptr;
-
 
 	if (netmap_changed) {
 		serialized_map = strdup("");
 	
-		if (the_netmap != NULL) {
-			for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
+		if (*the_netmap != NULL) {
+			for (nmptr = *the_netmap; nmptr != NULL; nmptr = nmptr->next) {
 				serialized_map = realloc(serialized_map,
 							(strlen(serialized_map)+SIZ) );
 				if (!IsEmptyStr(nmptr->nodename)) {
@@ -160,10 +163,10 @@ void write_network_map(NetMap *the_netmap, int netmap_changed) {
 	}
 
 	/* Now free the list */
-	while (the_netmap != NULL) {
-		nmptr = the_netmap->next;
-		free(the_netmap);
-		the_netmap = nmptr;
+	while (*the_netmap != NULL) {
+		nmptr = (*the_netmap)->next;
+		free(*the_netmap);
+		*the_netmap = nmptr;
 	}
 }
 
@@ -368,9 +371,9 @@ void cmd_netp(char *cmdbuf)
 	char pass[256];
 	int v;
 
-	char secret[256];
-	char nexthop[256];
-	char err_buf[SIZ];
+	char secret[256] = "";
+	char nexthop[256] = "";
+	char err_buf[SIZ] = "";
 
 	/* Authenticate */
 	nodelen = extract_token(node, cmdbuf, 0, '|', sizeof node);
