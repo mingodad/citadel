@@ -224,7 +224,7 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
 
 	EVRSSC_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.\n", pUrl);
 
-
+	StopCurlWatchers(IO);
 	UnlinkRSSAggregator(RSSAggr);
 	return eAbort;
 }
