@@ -4661,7 +4661,8 @@ int StrBufSipLine(StrBuf *LineBuf, const StrBuf *Buf, const char **Ptr)
 
 	if ((Buf == NULL) ||
 	    (*Ptr == StrBufNOTNULL) ||
-	    (LineBuf == NULL))
+	    (LineBuf == NULL)||
+	    (LineBuf->buf == NULL))
 	{
 		*Ptr = StrBufNOTNULL;
 		return 0;
