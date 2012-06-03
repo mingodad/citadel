@@ -96,7 +96,7 @@ void DeleteSmtpOutMsg(void *v)
 {
 	SmtpOutMsg *Msg = v;
 	AsyncIO *IO = &Msg->IO;
-	EVS_syslog(LOG_DEBUG, "%s Exit\n", __FUNCTION__);
+	EV_syslog(LOG_DEBUG, "%s Exit\n", __FUNCTION__);
 
 	/* these are kept in our own space and free'd below */
 	Msg->IO.ConnectMe = NULL;
