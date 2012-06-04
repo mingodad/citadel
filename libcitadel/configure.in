@@ -78,6 +78,32 @@ AC_CHECK_HEADER(sys/sendfile.h, [AC_DEFINE(LINUX_SENDFILE, [], [whether we have 
 dnl TODO: we might need to check for the actual syntax....  
 
 
+AC_MSG_CHECKING([whether your system knows about splice()]) 
+AC_TRY_COMPILE([
+#define _GNU_SOURCE
+#include <unistd.h>
+#include <fcntl.h>
+],
+[
+	ssize_t sent, pipesize;
+	int fd, SplicePipe[2];
+	pipesize = splice(fd, NULL, 
+			  SplicePipe[1], NULL, 
+			  1, 
+			  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
+],
+		[
+		  ok_splice=yes
+		  AC_DEFINE(LINUX_SPLICE, [], [whether we have the linux splice api])
+		  AC_MSG_RESULT([yes])
+		],
+		[ 
+		  ok_splice=no
+		  AC_MSG_RESULT([no])
+		]
+)
+
+
 AC_CHECK_HEADERS(iconv.h)
 
 
