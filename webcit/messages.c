@@ -37,6 +37,15 @@ typedef struct _MsgPartEvaluatorStruct {
 	MsgPartEvaluatorFunc f;
 } MsgPartEvaluatorStruct;
 
+void fixview()
+{
+	/* workaround for json listview; its not useable directly */
+	if (WC->CurRoom.view == VIEW_JSON_LIST) {
+		StrBuf *View = NewStrBuf();
+		StrBufPrintf(View, "%d", VIEW_MAILBOX);
+		putbstr("view", View);;
+	}
+}
 int load_message(message_summary *Msg, 
 		 StrBuf *FoundCharset,
 		 StrBuf **Error)
@@ -1123,6 +1132,7 @@ void post_message(void)
 				if (saving_to_drafts) {
 					AppendImportantMessage(_("Message has been saved to Drafts.\n"), -1);
 					gotoroom(WCC->CurRoom.name);
+					fixview();
 					readloop(readnew, eUseDefault);
 					FreeStrBuf(&Buf);
 					return;
@@ -1174,6 +1184,7 @@ void post_message(void)
 	 *  Otherwise, just go to the "read messages" loop.
 	 */
 	else {
+		fixview();
 		readloop(readnew, eUseDefault);
 	}
 }
@@ -1345,6 +1356,7 @@ void display_enter(void)
 	}
 	else if (rc != 2) {		/* Any other error means that we cannot continue */
 		rc = GetServerStatusMsg(Line, &Result, 0, 2);
+		fixview();
 		readloop(readnew, eUseDefault);
 		FreeStrBuf(&Line);
 		return;
@@ -1616,6 +1628,7 @@ void display_enter(void)
 		else if (rc != 2) {	/* Any other error means that we cannot continue */
 			AppendImportantMessage(ChrPtr(CmdBuf) + 4, StrLength(CmdBuf) - 4);
 			FreeStrBuf(&CmdBuf);
+			fixview();
 			readloop(readnew, eUseDefault);
 			return;
 		}
@@ -1654,6 +1667,8 @@ void delete_msg(void)
 	StrBuf_ServGetln(Line);
 	GetServerStatusMsg(Line, NULL, 1, 0);
 
+	fixview();
+
 	readloop(readnew, eUseDefault);
 }
 
@@ -1678,6 +1693,7 @@ void move_msg(void)
 		AppendImportantMessage(_("The message was not moved."), -1);
 	}
 
+	fixview();
 	readloop(readnew, eUseDefault);
 }
 
