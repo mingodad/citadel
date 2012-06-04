@@ -10,21 +10,21 @@ msgstr ""
 "Project-Id-Version: citadel 7.63-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2010-12-14 08:13+0000\n"
-"Last-Translator: Andrey Olykainen <Unknown>\n"
+"PO-Revision-Date: 2012-01-01 22:15+0000\n"
+"Last-Translator: Alexander Vrublevskiy <Unknown>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-15 04:32+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2012-01-02 04:55+0000\n"
+"X-Generator: Launchpad (build 14560)\n"
 "Language: ru\n"
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../utils/setup.c:119
 msgid "Citadel Home Directory"
-msgstr "Домашняя директория Citadel"
+msgstr "Директория Citadel"
 
 #: ../utils/setup.c:122
 msgid ""
@@ -33,6 +33,9 @@ msgid ""
 "specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n"
 msgstr ""
+"Введите полный путь к  директории установки/обновления Citadel.\n"
+"Если путь отличается от пути по умолчанию, не забудьте указать\n"
+"его в значении параметра -h при  запуске citserver\n"
 
 #: ../utils/setup.c:128
 msgid ""
@@ -42,10 +45,15 @@ msgid ""
 "specify the -h flag to the server when you start it up.\n"
 "note that it may not have a leading /"
 msgstr ""
+"Для установки в директорию по умолчанию оставьте это поле пустым.\n"
+"Если вам необходимо установить Citadel в какое-либо другое место,\n"
+"введите здесь полный путь к нужной директории (без / в начале!).\n"
+"Имейте в виду, что это значение нужно будет передать с параметром -h при "
+"запуске citserver"
 
 #: ../utils/setup.c:135
 msgid "Citadel administrator username:"
-msgstr "Имя учётной записи администратора Citadel:"
+msgstr "Администратор Citadel"
 
 #: ../utils/setup.c:137
 msgid ""
@@ -54,25 +62,25 @@ msgid ""
 "this user account will be created if it does not exist. For external "
 "authentication this user account has to exist."
 msgstr ""
-"Введите название учётной записи пользователя Citadel, которой будут даны "
-"административные права после создания. Если используется внутренняя "
-"аутентификация, то данная учётная запись будет создана в случае её "
-"отсутствия. При внешней аутентификации пользователь должен существовать."
+"Введите имя учетной записи администратора Citadel.\r\n"
+"Если используется внешняя аутентификация, запись должна существовать.\r\n"
+"Если внешняя аутентификация происходит через LDAP/AD,\r\n"
+"в качестве имени администратора укажите Display Name нужной записи"
 
 #: ../utils/setup.c:143
 msgid "Administrator password:"
-msgstr "Пароль к учётной записи администратора:"
+msgstr "Пароль администратора"
 
 #: ../utils/setup.c:145
 msgid ""
 "Enter a password for the system administrator. When setup\n"
 "completes it will attempt to create the administrator user\n"
 "and set the password specified here.\n"
-msgstr ""
+msgstr "Введите пароль администратора\n"
 
 #: ../utils/setup.c:149
 msgid "Citadel User ID:"
-msgstr "ID пользователя Citadel:"
+msgstr "ID пользователя Citadel"
 
 #: ../utils/setup.c:151
 msgid ""
@@ -83,10 +91,14 @@ msgid ""
 "user ID here.  You may specify either a user name or a numeric\n"
 "UID.\n"
 msgstr ""
+"По умолчанию программа setup автоматически создает пользователя,\n"
+"от имени которого будет работать сервер - citadel.\n"
+"Если это вам не подходит, вы можете указать в этом поле имя или ID другого "
+"пользователя\n"
 
 #: ../utils/setup.c:158
 msgid "Listening address for the Citadel server:"
-msgstr "Прослушиваемый адрес для сервера Citadel:"
+msgstr "IP адрес на котором Citadel ожидает запросы"
 
 #: ../utils/setup.c:160
 msgid ""
@@ -97,10 +109,14 @@ msgid ""
 "listen on all addresses. This can usually be left to the default unless "
 "multiple instances of Citadel are running on the same computer."
 msgstr ""
+"По умолчанию сервер Citadel ожидает запросы на всех IP адресах системы.\n"
+"Обычно этого достаточно, если только вы не планируете запускать\n"
+"несколько экземпляров Citadel. Тем не менее, здесь вы можете указать\n"
+"конкретный адрес IPv4 или IPv6, на котором Citadel будет ожидать запросы"
 
 #: ../utils/setup.c:168
 msgid "Server port number:"
-msgstr "Номер порта сервера:"
+msgstr "Номер порта"
 
 #: ../utils/setup.c:170
 msgid ""
@@ -111,10 +127,13 @@ msgid ""
 "of Citadel on the same computer and there is something else\n"
 "already using port 504.\n"
 msgstr ""
+"По умолчанию Citadel работает на порту 504/tcp, который официально\n"
+"зарегистрирован в IANA. Однако, если вы хотите запустить несколько\n"
+"экземпляров Citadel на одной машине, укажите здесь какое-либо иное значение\n"
 
 #: ../utils/setup.c:177
 msgid "Authentication method to use:"
-msgstr "Используемый метод аутентификации:"
+msgstr "Способ аутентификации"
 
 #: ../utils/setup.c:179
 msgid ""
@@ -134,38 +153,57 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
+"Укажите способ аутентификации пользователей.\n"
+"По умолчанию Citadel использует собственный механизм аутентификации.\n"
+"Однако, есть варианты системной аутентификацией (через /etc/passwd или любой "
+"модуль PAM),\n"
+"а также аутентификации через LDAP (RFC2307) и Active Directory (выбирайте "
+"этот вариант,\n"
+"если у вас AD).  Имейте в виду, что метод аутентификации в дальнейшем "
+"невозможно\n"
+"будет изменить без потери доступа для всех существующих пользователей!\n"
+"\n"
+"0) внутренняя аутентификация (по умолчанию)\n"
+"1) системная аутентификация (/etc/passwd)\n"
+"2) внешняя аутентификация - LDAP RFC2307\n"
+"3) внешняя аутентификация - M$ Active Directory\n"
+"\n"
+"Подробнее: http://www.citadel.org/doku.php/faq:installation:authmodes\n"
+"\n"
+"ВНИМАНИЕ!!! Если не уверены в своих действиях, выбирайте вариант \"0\"!\n"
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
-msgstr "Сервер LDAP:"
+msgstr "Сервер LDAP"
 
 #: ../utils/setup.c:199
 msgid "Please enter the host name or IP address of your LDAP server.\n"
-msgstr "Введите имя или IP-адрес сервера LDAP.\n"
+msgstr "Введите адрес сервера LDAP\n"
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
-msgstr "Номер порта LDAP:"
+msgstr "Порт LDAP"
 
 #: ../utils/setup.c:203
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
-msgstr "Введите номер порта службы LDAP (обычно 389).\n"
+msgstr "Введите номер порта LDAP (обычно 389)\n"
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
-msgstr "Базовое DN LDAP:"
+msgstr "Поиск в LDAP"
 
 #: ../utils/setup.c:207
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"Введите базовое DN для поиска, используемое при аутентификации \n"
-"(например: dc=example,dc=com).\n"
+"Введите distinguished name отправной точки для поиска учетных записей в "
+"LDAP\n"
+"(например, CN=Users,DC=domain,DC=local)\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
-msgstr "DN для подключения к серверу LDAP:"
+msgstr "Пользователь LDAP"
 
 #: ../utils/setup.c:212
 msgid ""
@@ -177,10 +215,19 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
+"Если ваш сервер LDAP позволяет выполнение анонимных запросов, можете "
+"оставить это поле пустым.\n"
+"В противном случае, введите здесь distinguished name учетной записи LDAP,\n"
+"у которой есть права на запрос информации,\n"
+"например CN=User,OU=Office,DC=domain,DC=local.\n"
+"\n"
+"ВАЖНО! Для данной записи не нужно никаких особенных прав,\n"
+"например, в случае аутентификации в AD, лучше ограничить права  этой записи "
+"только членством в группе Domain Guests\n"
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
-msgstr "Пароль для подключения к LDAP:"
+msgstr "Пароль LDAP"
 
 #: ../utils/setup.c:222
 msgid ""
@@ -188,8 +235,10 @@ msgid ""
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Если вы ввели DN учётной записи в предыдущем вопросе, то теперь вам нужно\n"
-"указать пароль для этой учётной записи. Иначе можете оставить поле пустым.\n"
+"Если ваш сервер LDAP позволяет выполнение анонимных запросов, можете "
+"оставить это поле пустым.\n"
+"В противном случае, введите здесь пароль учетной записи пользователя LDAP из "
+"предыдущего пункта\n"
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
@@ -205,7 +254,7 @@ msgstr "Нет"
 
 #: ../utils/setup.c:346
 msgid "Press return to continue..."
-msgstr "Нажмите return для продолжения..."
+msgstr "Нажмите Enter чтобы продолжить..."
 
 #: ../utils/setup.c:364
 msgid "Important Message"
@@ -217,23 +266,26 @@ msgstr "Ошибка"
 
 #: ../utils/setup.c:459
 msgid "Adding service entry..."
-msgstr ""
+msgstr "Добавляется служебная запись..."
 
 #. Other errors might mean something really did go wrong.
 #. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
-msgstr "Ошибка открытия"
+msgstr "Невозможно открыть"
 
 #: ../utils/setup.c:569
 msgid ""
 "Citadel already appears to be configured to start at boot.\n"
 "Would you like to keep your boot configuration as is?\n"
 msgstr ""
+"Похоже, что система сконфигурирована автоматически запускать Citadel при "
+"старте.\n"
+"Это то, что вам нужно (обычно да)?\n"
 
 #: ../utils/setup.c:577
 msgid "Would you like to automatically start Citadel at boot?\n"
-msgstr "Запускать автоматически Citadel при загрузке системы?\n"
+msgstr "Запускать Citadel автоматически при старте системы?\n"
 
 #: ../utils/setup.c:583
 msgid "Cannot create"
@@ -246,10 +298,13 @@ msgid ""
 "connect incoming telnet sessions to Citadel, bypassing the\n"
 "host system login: prompt.  Would you like to do this?\n"
 msgstr ""
+"Программа setup может попытаться автоматически настроить xinetd,\n"
+"чтобы при подключении по telnet к серверу Citadel пользователи\n"
+"миновали приглашение зарегистрироваться в системе. Настроить?\n"
 
 #: ../utils/setup.c:740
 msgid "You appear to have the "
-msgstr ""
+msgstr "Похоже, у вас уже установлена "
 
 #: ../utils/setup.c:742
 msgid ""
@@ -257,12 +312,16 @@ msgid ""
 "running on your system.  If you want Citadel mail\n"
 "connected with "
 msgstr ""
+" своя почтовая система. Если вы хотите,\n"
+"чтобы Citadel работала совместно с ней, "
 
 #: ../utils/setup.c:746
 msgid ""
 " you will have to manually integrate\n"
 "them.  It is preferable to disable "
 msgstr ""
+" вам придется совмещать их работу самостоятельно.\n"
+"Рекомендуется отключить "
 
 #: ../utils/setup.c:749
 msgid ""
@@ -271,25 +330,30 @@ msgid ""
 "\n"
 "May we disable "
 msgstr ""
+"существующую систему и использовать службы\n"
+"SMTP, POP3 и IMAP4, предоставляемые Citadel.\n"
+"Позволить программе setup отключить вашу почтовую систему "
 
 #: ../utils/setup.c:753
 msgid ""
 "so that Citadel has access to ports\n"
 "25, 110, and 143?\n"
 msgstr ""
+"таки образом, чтобы Citadel заняла порты\n"
+"25, 110 и 143?\n"
 
 #: ../utils/setup.c:863
 msgid "This is currently set to:"
-msgstr ""
+msgstr "Текущие настройки"
 
 #: ../utils/setup.c:864
 msgid "Enter new value or press return to leave unchanged:"
 msgstr ""
-"Введите новое значение или нажмите назад чтобы оставить без изменений:"
+"Введите новое значение или нажмите Enter, чтобы оставить без изменений"
 
 #: ../utils/setup.c:1067 ../utils/setup.c:1072 ../utils/setup.c:1384
 msgid "setup: cannot open"
-msgstr ""
+msgstr "Программа setup: ошибка при открытии"
 
 #: ../utils/setup.c:1175
 #, c-format
@@ -303,10 +367,15 @@ msgid ""
 "Do you want this module to be automatically disabled?\n"
 "\n"
 msgstr ""
+"\n"
+"Устаревшая настройка /etc/nsswitch.conf (модуль 'db')\n"
+"может помешать работе Citadel.\n"
+"В большинстве случаев она не нужна. Попробовать отключить ее?\n"
+"\n"
 
 #: ../utils/setup.c:1236 ../utils/setup.c:1252
 msgid "Setup finished"
-msgstr "Установка закончена"
+msgstr "Установка завершена"
 
 #: ../utils/setup.c:1237
 msgid ""
@@ -315,6 +384,9 @@ msgid ""
 "setup program now; otherwise, run './citadel'\n"
 "to log in.\n"
 msgstr ""
+"Установка Citadel завершена.\n"
+"Если вы собираетесь использовать Webcit, установите его.\n"
+"Либо запустите ./citadel чтобы приступить к работе прямо сейчас.\n"
 
 #: ../utils/setup.c:1243
 msgid "Setup failed"
@@ -325,10 +397,12 @@ msgid ""
 "Setup is finished, but the Citadel server failed to start.\n"
 "Go back and check your configuration.\n"
 msgstr ""
+"Установка завершена, но программе setup не удалось запустить Citadel.\n"
+"Пожалуйста, перепроверьте все настройки.\n"
 
 #: ../utils/setup.c:1253
 msgid "Setup is finished.  You may now start the server."
-msgstr "Установка закончена. Можете перезагрузить сервер."
+msgstr "Настройка завершена, можно запускать Citadel."
 
 #: ../utils/setup.c:1279
 msgid "My System"
@@ -340,12 +414,12 @@ msgstr "US 800 555 1212"
 
 #: ../utils/setup.c:1368 ../utils/setup.c:1373
 msgid "setup: cannot append"
-msgstr ""
+msgstr "Программа setup: невозможно добавить"
 
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
 msgid "Citadel Setup"
-msgstr "Установка Citadel"
+msgstr "Программа setup"
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
@@ -356,20 +430,20 @@ msgid ""
 "The Citadel service is still running.\n"
 "Please stop the service manually and run setup again."
 msgstr ""
-"Сервис Citadel запущен.\n"
-"Остановите сервис самостоятельно и запустите установку снова."
+"Даемон Citadel в данный момент запущен.\n"
+"Остановите его и перезапустите программу setup."
 
 #: ../utils/setup.c:1485
 msgid "Citadel setup program"
-msgstr "Программа установки Citadel"
+msgstr "Программа setup"
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
-msgstr ""
+msgstr "Увы, ваша Citadel слишком устарела и не может быть обновлена"
 
 #: ../utils/setup.c:1552 ../utils/setup.c:1554 ../utils/setup.c:1556
 msgid "Setting file permissions"
-msgstr "Установка разрешений файла"
+msgstr "Устанавливаются права доступа к файлам"
 
 #~ msgid ""
 #~ "Please specify the IP address which the server should be listening to. If "

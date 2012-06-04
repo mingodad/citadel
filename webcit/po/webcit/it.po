@@ -18,6 +18,11 @@ msgstr ""
 "X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
+#: ../../messages.c:1719
+#, c-format
+msgid "An error occurred while retrieving this part: %s/%s\n"
+msgstr "E' avvenuto un errore durante il recupero di questa parte: %s/%s\n"
+
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
 msgstr "Attività Cancellata.Le modifiche non sono state salvate."
