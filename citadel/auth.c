@@ -110,7 +110,7 @@ int validate_password(uid_t uid, const char *pass)
 #endif
 	struct passwd *pw;
 	int retval = 0;
-	int flags;
+	int flags = 0;
 
 #ifdef PAM_DATA_SILENT
 	flags = PAM_DATA_SILENT;

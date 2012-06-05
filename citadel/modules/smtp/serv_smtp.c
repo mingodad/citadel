@@ -1,5 +1,5 @@
 /*
- * This module is an SMTP and ESMTP implementation for the Citadel system.
+ * This module is an SMTP and ESMTP server for the Citadel system.
  * It is compliant with all of the following:
  *
  * RFC  821 - Simple Mail Transfer Protocol
@@ -25,16 +25,10 @@
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
  *  
- *  
- *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *
- *  
- *  
- *  
  */
 
 #include "sysdep.h"
@@ -100,14 +94,6 @@ enum {				/* Command states for login authentication */
 	smtp_password,
 	smtp_plain
 };
-
-
-
-
-
-/*****************************************************************************/
-/*                      SMTP SERVER (INBOUND) STUFF                          */
-/*****************************************************************************/
 
 
 /*
@@ -590,11 +576,11 @@ void smtp_rcpt(char *argbuf) {
 		}
 	}
 
-	valid = validate_recipients(recp, 
-				    smtp_get_Recipients (),
-				    (sSMTP->is_lmtp)? POST_LMTP:
-				       (CC->logged_in)? POST_LOGGED_IN:
-				                        POST_EXTERNAL);
+	valid = validate_recipients(
+		recp, 
+		smtp_get_Recipients(),
+		(sSMTP->is_lmtp)? POST_LMTP: (CC->logged_in)? POST_LOGGED_IN: POST_EXTERNAL
+	);
 	if (valid->num_error != 0) {
 		cprintf("550 %s\r\n", valid->errormsg);
 		free_recipients(valid);
@@ -730,11 +716,11 @@ void smtp_data(void) {
 	msg->cm_fields['V'] = strdup(sSMTP->recipients);
 
 	/* Submit the message into the Citadel system. */
-	valid = validate_recipients(sSMTP->recipients, 
-				    smtp_get_Recipients (),
-				    (sSMTP->is_lmtp)? POST_LMTP:
-				       (CC->logged_in)? POST_LOGGED_IN:
-				                        POST_EXTERNAL);
+	valid = validate_recipients(
+		sSMTP->recipients,
+		smtp_get_Recipients(),
+		(sSMTP->is_lmtp)? POST_LMTP: (CC->logged_in)? POST_LOGGED_IN: POST_EXTERNAL
+	);
 
 	/* If there are modules that want to scan this message before final
 	 * submission (such as virus checkers or spam filters), call them now
@@ -766,7 +752,7 @@ void smtp_data(void) {
 		}
 	}
 
-	/* For SMTP and ESTMP, just print the result message.  For LMTP, we
+	/* For SMTP and ESMTP, just print the result message.  For LMTP, we
 	 * have to print one result message for each recipient.  Since there
 	 * is nothing in Citadel which would cause different recipients to
 	 * have different results, we can get away with just spitting out the
@@ -802,7 +788,7 @@ void smtp_data(void) {
 
 
 /*
- * implements the STARTTLS command (Citadel API version)
+ * implements the STARTTLS command
  */
 void smtp_starttls(void)
 {
@@ -810,20 +796,16 @@ void smtp_starttls(void)
 	char nosup_response[SIZ];
 	char error_response[SIZ];
 
-	sprintf(ok_response,
-		"220 Begin TLS negotiation now\r\n");
-	sprintf(nosup_response,
-		"554 TLS not supported here\r\n");
-	sprintf(error_response,
-		"554 Internal error\r\n");
+	sprintf(ok_response, "220 Begin TLS negotiation now\r\n");
+	sprintf(nosup_response, "554 TLS not supported here\r\n");
+	sprintf(error_response, "554 Internal error\r\n");
 	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 	smtp_rset(0);
 }
 
 
-
 /* 
- * Main command loop for SMTP sessions.
+ * Main command loop for SMTP server sessions.
  */
 void smtp_command_loop(void) {
 	char cmdbuf[SIZ];
@@ -912,12 +894,6 @@ void smtp_command_loop(void) {
 
 
 }
-
-
-
-
-
-
 
 
 /*****************************************************************************/
