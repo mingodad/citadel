@@ -93,7 +93,7 @@ char *msgkeys[] = {
 	"hnod",
 	"msgn",
 	"jrnl",
-	NULL,
+	"rep2",
 	"list",
 	"text",
 	"node",
