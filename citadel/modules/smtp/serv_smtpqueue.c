@@ -1003,13 +1003,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
  * Run through the queue sending out messages.
  */
 void smtp_do_queue(void) {
-	static int is_running = 0;
 	int num_processed = 0;
 	int num_activated = 0;
-
-	if (is_running)
-		return;	/* Concurrency check - only one can run */
-	is_running = 1;
 
 	pthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
 	SMTPCM_syslog(LOG_INFO, "processing outbound queue");
@@ -1030,8 +1025,6 @@ void smtp_do_queue(void) {
 		     "queue run completed; %d messages processed %d activated",
 		     num_processed, num_activated);
 
-	run_queue_now = 0;
-	is_running = 0;
 }
 
 

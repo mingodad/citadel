@@ -117,9 +117,9 @@ void check_ref_counts(void) {
  * only allow housekeeping to execute once per minute, and we only allow one
  * instance to run at a time.
  */
+static int housekeeping_in_progress = 0;
+static time_t last_timer = 0L;
 void do_housekeeping(void) {
-	static int housekeeping_in_progress = 0;
-	static time_t last_timer = 0L;
 	int do_housekeeping_now = 0;
 	int do_perminute_housekeeping_now = 0;
 	time_t now;
@@ -133,11 +133,6 @@ void do_housekeeping(void) {
 	if (housekeeping_in_progress == 0) {
 		do_housekeeping_now = 1;
 		housekeeping_in_progress = 1;
-		now = time(NULL);
-		if ( (now - last_timer) > (time_t)60 ) {
-			do_perminute_housekeeping_now = 1;
-			last_timer = time(NULL);
-		}
 	}
 	end_critical_section(S_HOUSEKEEPING);
 
@@ -149,6 +144,12 @@ void do_housekeeping(void) {
 	 * Ok, at this point we've made the decision to run the housekeeping
 	 * loop.  Everything below this point is real work.
 	 */
+
+	now = time(NULL);
+	if ( (now - last_timer) > (time_t)60 ) {
+		do_perminute_housekeeping_now = 1;
+		last_timer = time(NULL);
+	}
 
 	/* First, do the "as often as needed" stuff... */
 	JournalRunQueue();
@@ -163,5 +164,7 @@ void do_housekeeping(void) {
 	/*
 	 * All done.
 	 */
+	begin_critical_section(S_HOUSEKEEPING);
 	housekeeping_in_progress = 0;
+	end_critical_section(S_HOUSEKEEPING);
 }
