@@ -588,10 +588,15 @@ void cmd_read(char *cmdbuf)
 	long start_pos;
 	size_t bytes;
 	char buf[SIZ];
+	int rc;
 
 	/* The client will transmit its requested offset and byte count */
 	start_pos = extract_long(cmdbuf, 0);
 	bytes = extract_int(cmdbuf, 1);
+	if ((start_pos < 0) || (bytes <= 0)) {
+		cprintf("%d you have to specify a value > 0.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
 
 	if (CC->download_fp == NULL) {
 		cprintf("%d You don't have a download file open.\n",
@@ -604,7 +609,11 @@ void cmd_read(char *cmdbuf)
 		bytes = sizeof(buf);
 	}
 
-	fseek(CC->download_fp, start_pos, 0);
+	rc = fseek(CC->download_fp, start_pos, 0);
+	if (rc != start_pos) {
+		cprintf("%d your file is smaller then %ld.\n", ERROR + ILLEGAL_VALUE, start_pos);
+		return;
+	}
 	bytes = fread(buf, 1, bytes, CC->download_fp);
 	if (bytes > 0) {
 		/* Tell the client the actual byte count and transmit it */
