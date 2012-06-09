@@ -634,6 +634,10 @@ void cmd_writ(char *cmdbuf)
 		cprintf("%d You don't have an upload file open.\n", ERROR + RESOURCE_NOT_OPEN);
 		return;
 	}
+	if (bytes <= 0) {
+		cprintf("%d you have to specify a value > 0.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
 
 	if (bytes > 100000) {
 		bytes = 100000;
