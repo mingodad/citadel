@@ -255,6 +255,7 @@ typedef struct __fd_iobuffer {
 	IOBuffer *IOB;
 	int OtherFD;
 	int SplicePipe[2];
+	int PipeSize;
 	long TotalSendSize;
 	long TotalSentAlready;
 	long ChunkSize;

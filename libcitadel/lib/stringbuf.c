@@ -3909,17 +3909,38 @@ void FDIOBufferDelete(FDIOBuffer *FDB)
 
 int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 {
+	ssize_t sent, pipesize;
 #ifdef LINUX_SPLICE
-	ssize_t sent;
-	sent = sendfile(FDB->IOB->fd, FDB->OtherFD, &FDB->TotalSentAlready, FDB->ChunkSendRemain);
+	if (FDB->PipeSize == 0)
+	{
+		pipesize = splice(FDB->OtherFD,
+				  &FDB->TotalSentAlready, 
+				  FDB->SplicePipe[1],
+				  NULL, 
+				  FDB->ChunkSendRemain, 
+				  SPLICE_F_MOVE);
+	
+		if (pipesize == -1)
+		{
+			*Err = strerror(errno);
+			return pipesize;
+		}
+		FDB->PipeSize = pipesize;
+	}
+	sent =  splice(FDB->SplicePipe[0],
+		       NULL, 
+		       FDB->IOB->fd,
+		       NULL, 
+		       FDB->PipeSize,
+		       SPLICE_F_MORE | SPLICE_F_MOVE | SPLICE_F_NONBLOCK);
 	if (sent == -1)
 	{
 		*Err = strerror(errno);
 		return sent;
 	}
+	FDB->PipeSize -= sent;
 	FDB->ChunkSendRemain -= sent;
-	FDB->TotalSentAlready += sent;
-	return FDB->ChunkSendRemain;
+	return sent;
 #else
 
 	char *pRead;
@@ -3956,18 +3977,21 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 	ssize_t sent, pipesize;
 
 #ifdef LINUX_SPLICE
-
-	pipesize = splice(FDB->IOB->fd,
-			  NULL, 
-			  FDB->SplicePipe[1],
-			  NULL, 
-			  FDB->ChunkSendRemain, 
-			  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
-
-	if (pipesize == -1)
+	if (FDB->PipeSize == 0)
 	{
-		*Err = strerror(errno);
-		return pipesize;
+		pipesize = splice(FDB->IOB->fd,
+				  NULL, 
+				  FDB->SplicePipe[1],
+				  NULL, 
+				  FDB->ChunkSendRemain, 
+				  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
+
+		if (pipesize == -1)
+		{
+			*Err = strerror(errno);
+			return pipesize;
+		}
+		FDB->PipeSize = pipesize;
 	}
 	
 	sent = splice(FDB->SplicePipe[0],
@@ -3982,6 +4006,7 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 		*Err = strerror(errno);
 		return sent;
 	}
+	FDB->PipeSize -= sent;
 	FDB->ChunkSendRemain -= sent;
 	return sent;
 #else
