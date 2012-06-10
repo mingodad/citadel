@@ -278,6 +278,7 @@ long IOBufferStrLength(IOBuffer *FB);
 
 int StrBufSipLine(StrBuf *LineBuf, const StrBuf *Buf, const char **Ptr);
 int StrBufReplaceToken(StrBuf *Buf, long where, long HowLong, const char *Repl, long ReplLen);
+int StrBufExtract_tokenFromStr(StrBuf *dest, const char *Source, long SourceLen, int parmnum, char separator);
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
 int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t nChars);
 

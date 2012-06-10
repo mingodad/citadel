@@ -1345,6 +1345,23 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 	return ReducedBy;
 }
 
+int StrBufExtract_tokenFromStr(StrBuf *dest, const char *Source, long SourceLen, int parmnum, char separator)
+{
+	const StrBuf Temp = {
+		(char*)Source,
+		SourceLen,
+		SourceLen,
+		1
+#ifdef SIZE_DEBUG
+		,
+		0,
+		"",
+		""
+#endif
+	};
+
+	return StrBufExtract_token(dest, &Temp, parmnum, separator);
+}
 
 /**
  * @ingroup StrBuf_Tokenizer
@@ -3892,7 +3909,6 @@ void FDIOBufferDelete(FDIOBuffer *FDB)
 
 int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 {
-
 #ifdef LINUX_SPLICE
 	ssize_t sent;
 	sent = sendfile(FDB->IOB->fd, FDB->OtherFD, &FDB->TotalSentAlready, FDB->ChunkSendRemain);
@@ -3941,19 +3957,26 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 
 #ifdef LINUX_SPLICE
 
-	pipesize = splice(FDB->IOB->fd, NULL, 
-			  FDB->SplicePipe[1], NULL, 
+	pipesize = splice(FDB->IOB->fd,
+			  NULL, 
+			  FDB->SplicePipe[1],
+			  NULL, 
 			  FDB->ChunkSendRemain, 
 			  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
+
 	if (pipesize == -1)
 	{
 		*Err = strerror(errno);
 		return pipesize;
 	}
 	
-	sent = splice(FDB->SplicePipe[0], NULL, 
-		      FDB->OtherFD, &FDB->TotalSentAlready, 
-		      pipesize, SPLICE_F_MORE | SPLICE_F_MOVE);
+	sent = splice(FDB->SplicePipe[0],
+		      NULL, 
+		      FDB->OtherFD,
+		      &FDB->TotalSentAlready, 
+		      pipesize,
+		      SPLICE_F_MORE | SPLICE_F_MOVE);
+
 	if (sent == -1)
 	{
 		*Err = strerror(errno);
