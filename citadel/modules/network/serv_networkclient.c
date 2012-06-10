@@ -274,7 +274,7 @@ eNextState NWC_ReadNDOPReply(AsyncNetworker *NW)
 
 		NW->IO.IOB.TotalSentAlready = 0;
 		TotalSendSize = atol (ChrPtr(NW->IO.IOBuf) + 4);
-		EVN_syslog(LOG_DEBUG, "Expecting to transfer %ld bytes\n", TotalSendSize);
+		EVN_syslog(LOG_DEBUG, "Expecting to transfer %d bytes\n", TotalSendSize);
 		if (TotalSendSize <= 0) {
 			NW->State = eNUOP - 1;
 		}
@@ -391,7 +391,7 @@ eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 	eNextState rc;
 	AsyncIO *IO = &NW->IO;
 /* we don't have any data to debug print here. */
-	if (NW->IO.IOB.TotalSendSize == NW->IO.IOB.TotalSentAlready)
+	if (NW->IO.IOB.TotalSentAlready >= NW->IO.IOB.TotalSendSize)
 	{
 		NW->State ++;
 
@@ -448,7 +448,7 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 		     ChrPtr(NW->node));
 	StrBufStripSlashes(NW->SpoolFileName, 1);
 
-	fd = open(ChrPtr(NW->SpoolFileName), O_RDONLY);
+	fd = open(ChrPtr(NW->SpoolFileName), O_EXCL|O_NONBLOCK|O_RDONLY);
 	if (fd < 0) {
 		if (errno != ENOENT) {
 			EVN_syslog(LOG_CRIT,
@@ -520,7 +520,7 @@ eNextState NWC_SendBlobDone(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
 	eNextState rc;
-	if (IO->IOB.TotalSendSize == NW->IO.IOB.TotalSentAlready)
+	if (NW->IO.IOB.TotalSentAlready >= IO->IOB.TotalSendSize)
 	{
 		NW->State ++;
 
