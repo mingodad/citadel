@@ -352,7 +352,6 @@ int is_valid_node(const StrBuf **nexthop,
 }
 
 
-
 void cmd_gnet(char *argbuf)
 {
 	char filename[PATH_MAX];
@@ -467,8 +466,9 @@ void cmd_snet(char *argbuf) {
  */
 void cmd_netp(char *cmdbuf)
 {
+	struct CitContext *CCC = CC;
 	HashList *working_ignetcfg;
-	char node[256];
+	char *node;
 	StrBuf *NodeStr;
 	long nodelen;
 	char pass[256];
@@ -479,8 +479,9 @@ void cmd_netp(char *cmdbuf)
 	char err_buf[SIZ] = "";
 
 	/* Authenticate */
-	nodelen = extract_token(node, cmdbuf, 0, '|', sizeof node);
-	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
+	node = CCC->curr_user;
+	nodelen = extract_token(CCC->curr_user, cmdbuf, 0, '|', sizeof CCC->curr_user);
+	extract_token(CCC->user.password, cmdbuf, 1, '|', sizeof pass);
 	NodeStr = NewStrBufPlain(node, nodelen);
 	/* load the IGnet Configuration to check node validity */
 	working_ignetcfg = load_ignetcfg();
@@ -518,9 +519,8 @@ void cmd_netp(char *cmdbuf)
 		FreeStrBuf(&NodeStr);
 		return;
 	}
-
-	safestrncpy(CC->net_node, node, sizeof CC->net_node);
-	network_talking_to(node, nodelen, NTT_ADD);
+	nodelen = safestrncpy(CC->net_node, node, sizeof CC->net_node);
+	network_talking_to(CC->net_node, nodelen, NTT_ADD);
 	syslog(LOG_NOTICE, "Network node <%s> logged in from %s [%s]\n",
 		CC->net_node, CC->cs_host, CC->cs_addr
 	);

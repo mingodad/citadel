@@ -693,8 +693,19 @@ void network_logout_hook(void)
 	 */
 	if (!IsEmptyStr(CCC->net_node)) {
 		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
+		CCC->net_node[0] = '\0';
 	}
 }
+void network_cleanup_function(void)
+{
+	struct CitContext *CCC = CC;
+
+	if (!IsEmptyStr(CCC->net_node)) {
+		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
+		CCC->net_node[0] = '\0';
+	}
+}
+
 
 /*
  * Module entry point
@@ -710,6 +721,7 @@ CTDL_MODULE_INIT(network)
 	{
 		CtdlRegisterDebugFlagHook(HKEY("networktalkingto"), SetNTTDebugEnabled, &NTTDebugEnabled);
 		CtdlRegisterCleanupHook(cleanup_nttlist);
+		CtdlRegisterSessionHook(network_cleanup_function, EVT_STOP);
                 CtdlRegisterSessionHook(network_logout_hook, EVT_LOGOUT);
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 		CtdlRegisterRoomHook(network_room_handler);
