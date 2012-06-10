@@ -480,7 +480,6 @@ void cmd_netp(char *cmdbuf)
 	/* Authenticate */
 	node = CCC->curr_user;
 	nodelen = extract_token(CCC->curr_user, cmdbuf, 0, '|', sizeof CCC->curr_user);
-	extract_token(CCC->user.password, cmdbuf, 1, '|', sizeof CCC->user.password);
 	NodeStr = NewStrBufPlain(node, nodelen);
 	/* load the IGnet Configuration to check node validity */
 	working_ignetcfg = load_ignetcfg();
@@ -498,6 +497,7 @@ void cmd_netp(char *cmdbuf)
 		return;
 	}
 
+	extract_token(CCC->user.password, cmdbuf, 1, '|', sizeof CCC->user.password);
 	if (strcasecmp(CCC->user.password, ChrPtr(secret))) {
 		snprintf(err_buf, sizeof err_buf,
 			"A Citadel server at %s [%s] failed to authenticate as network node \"%s\".\n",
