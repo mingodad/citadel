@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2011 by the citadel.org team
+ * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -274,7 +274,7 @@ eNextState NWC_ReadNDOPReply(AsyncNetworker *NW)
 
 		NW->IO.IOB.TotalSentAlready = 0;
 		TotalSendSize = atol (ChrPtr(NW->IO.IOBuf) + 4);
-		EVN_syslog(LOG_DEBUG, "Expecting to transfer %ld bytes\n", NW->IO.IOB.TotalSendSize);
+		EVN_syslog(LOG_DEBUG, "Expecting to transfer %ld bytes\n", TotalSendSize);
 		if (TotalSendSize <= 0) {
 			NW->State = eNUOP - 1;
 		}
@@ -921,97 +921,84 @@ void RunNetworker(AsyncNetworker *NW)
  * Set "full" to nonzero to force a poll of every node, or to zero to poll
  * only nodes to which we have data to send.
  */
-void network_poll_other_citadel_nodes(int full_poll, char *working_ignetcfg)
+void network_poll_other_citadel_nodes(int full_poll, HashList *ignetcfg)
 {
+	const char *key;
+	long len;
+	HashPos *Pos;
+	void *vCfg;
 	AsyncNetworker *NW;
-	StrBuf *CfgData;
-	StrBuf *Line;
 	StrBuf *SpoolFileName;
-	const char *lptr;
-	const char *CfgPtr;
-	int Done;
 	
 	int poll = 0;
 	
-	if ((working_ignetcfg == NULL) || (*working_ignetcfg == '\0')) {
+	if (GetCount(ignetcfg) ==0) {
 		syslog(LOG_DEBUG, "network: no neighbor nodes are configured - not polling.\n");
 		return;
 	}
 	become_session(&networker_client_CC);
 
-	CfgData = NewStrBufPlain(working_ignetcfg, -1);
 	SpoolFileName = NewStrBufPlain(ctdl_netout_dir, -1);
-	Line = NewStrBufPlain(NULL, StrLength(CfgData));
-	Done = 0;
-	CfgPtr = NULL;
-	while (!Done)
+
+	Pos = GetNewHashPos(ignetcfg, 0);
+
+	while (GetNextHashPos(ignetcfg, Pos, &len, &key, &vCfg))
 	{
 		/* Use the string tokenizer to grab one line at a time */
-		StrBufSipLine(Line, CfgData, &CfgPtr);
-		Done = CfgPtr == StrBufNOTNULL;
-		if (StrLength(Line) > 0)
+		if(server_shutting_down)
+			return;/* TODO free stuff*/
+		NodeConf *pNode = (NodeConf*) vCfg;
+		poll = 0;
+		NW = (AsyncNetworker*)malloc(sizeof(AsyncNetworker));
+		memset(NW, 0, sizeof(AsyncNetworker));
+		
+		NW->node = NewStrBufDup(pNode->NodeName);
+		NW->host = NewStrBufDup(pNode->Host);
+		NW->port = NewStrBufDup(pNode->Port);
+		NW->secret = NewStrBufDup(pNode->Secret);
+		
+		if ( (StrLength(NW->node) != 0) && 
+		     (StrLength(NW->secret) != 0) &&
+		     (StrLength(NW->host) != 0) &&
+		     (StrLength(NW->port) != 0))
 		{
-			if(server_shutting_down)
-				return;/* TODO free stuff*/
-			lptr = NULL;
-			poll = 0;
-			NW = (AsyncNetworker*)malloc(sizeof(AsyncNetworker));
-			memset(NW, 0, sizeof(AsyncNetworker));
-			
-			NW->node = NewStrBufPlain(NULL, StrLength(Line));
-			NW->host = NewStrBufPlain(NULL, StrLength(Line));
-			NW->port = NewStrBufPlain(NULL, StrLength(Line));
-			NW->secret = NewStrBufPlain(NULL, StrLength(Line));
-			
-			StrBufExtract_NextToken(NW->node, Line, &lptr, '|');
-			StrBufExtract_NextToken(NW->secret, Line, &lptr, '|');
-			StrBufExtract_NextToken(NW->host, Line, &lptr, '|');
-			StrBufExtract_NextToken(NW->port, Line, &lptr, '|');
-			if ( (StrLength(NW->node) != 0) && 
-			     (StrLength(NW->secret) != 0) &&
-			     (StrLength(NW->host) != 0) &&
-			     (StrLength(NW->port) != 0))
+			poll = full_poll;
+			if (poll == 0)
 			{
-				poll = full_poll;
-				if (poll == 0)
-				{
-					StrBufAppendBufPlain(SpoolFileName, HKEY("/"), 0);
-					StrBufAppendBuf(SpoolFileName, NW->node, 0);
-					StrBufStripSlashes(SpoolFileName, 1);
-
-					if (access(ChrPtr(SpoolFileName), R_OK) == 0) {
-						poll = 1;
-					}
+				StrBufAppendBufPlain(SpoolFileName, HKEY("/"), 0);
+				StrBufAppendBuf(SpoolFileName, NW->node, 0);
+				StrBufStripSlashes(SpoolFileName, 1);
+				
+				if (access(ChrPtr(SpoolFileName), R_OK) == 0) {
+					poll = 1;
 				}
 			}
-			if (poll && 
-			    (StrLength(NW->host) > 0) && 
-			    strcmp("0.0.0.0", ChrPtr(NW->host)))
-			{
-				NW->Url = NewStrBufPlain(NULL, StrLength(Line));
-				StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
-					     ChrPtr(NW->secret),
-					     ChrPtr(NW->host),
-					     ChrPtr(NW->port));
-				if (!network_talking_to(SKEY(NW->node), NTT_CHECK))
-				{
-					RunNetworker(NW);
-					continue;
-				}
-			}
-			DeleteNetworker(NW);
 		}
+		if (poll && 
+		    (StrLength(NW->host) > 0) && 
+		    strcmp("0.0.0.0", ChrPtr(NW->host)))
+		{
+			NW->Url = NewStrBuf();
+			StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
+				     ChrPtr(NW->secret),
+				     ChrPtr(NW->host),
+				     ChrPtr(NW->port));
+			if (!network_talking_to(SKEY(NW->node), NTT_CHECK))
+			{
+				RunNetworker(NW);
+				continue;
+			}
+		}
+		DeleteNetworker(NW);
 	}
 	FreeStrBuf(&SpoolFileName);
-	FreeStrBuf(&CfgData);
-	FreeStrBuf(&Line);
-
+	DeleteHashPos(&Pos);
 }
 
 
 void network_do_clientqueue(void)
 {
-	char *working_ignetcfg;
+	HashList *working_ignetcfg;
 	int full_processing = 1;
 	static time_t last_run = 0L;
 
@@ -1026,15 +1013,14 @@ void network_do_clientqueue(void)
 		);
 	}
 
-	working_ignetcfg = load_working_ignetcfg();
+	working_ignetcfg = load_ignetcfg();
 	/*
 	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
 	 * then we poll everyone.  Otherwise we only poll nodes we have stuff
 	 * to send to.
 	 */
 	network_poll_other_citadel_nodes(full_processing, working_ignetcfg);
-	if (working_ignetcfg)
-		free(working_ignetcfg);
+	DeleteHash(&working_ignetcfg);
 }
 
 void LogDebugEnableNetworkClient(const int n)
