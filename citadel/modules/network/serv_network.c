@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2011 by the citadel.org team
+ * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -495,8 +495,8 @@ void network_do_queue(void) {
 	static int doing_queue = 0;
 	static time_t last_run = 0L;
 	int full_processing = 1;
-	char *working_ignetcfg;
-	NetMap *the_netmap = NULL;
+	HashList *working_ignetcfg;
+	HashList *the_netmap = NULL;
 	int netmap_changed = 0;
 	roomlists RL;
 
@@ -537,7 +537,7 @@ void network_do_queue(void) {
 			return;
 	}
 	/* Load the IGnet Configuration into memory */
-	working_ignetcfg = load_working_ignetcfg();
+	working_ignetcfg = load_ignetcfg();
 
 	/*
 	 * Load the network map and filter list into memory.
@@ -586,19 +586,27 @@ void network_do_queue(void) {
 	/* If there is anything in the inbound queue, process it */
 	if (!server_shutting_down) {
 		network_do_spoolin(working_ignetcfg, 
-				   &the_netmap,
+				   the_netmap,
 				   &netmap_changed);
 	}
 
 	/* Free the filter list in memory */
 	free_netfilter_list();
 
+	/* Save the network map back to disk */
+	if (netmap_changed) {
+		StrBuf *MapStr = SerializeNetworkMap(the_netmap);
+		CtdlPutSysConfig(IGNETMAP, SmashStrBuf(&MapStr));
+	}
+
+	/* combine singe message files into one spool entry per remote node. */
 	network_consolidate_spoolout(working_ignetcfg, the_netmap);
 
-	/* Save the network map back to disk */
-	write_and_free_network_map(&the_netmap, netmap_changed);
+	/* shut down. */
 
-	free(working_ignetcfg);
+	DeleteHash(&the_netmap);
+
+	DeleteHash(&working_ignetcfg);
 
 	syslog(LOG_DEBUG, "network: queue run completed\n");
 

@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2011 by the citadel.org team
+ * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -91,36 +91,6 @@
 #include "netspool.h"
 #include "netmail.h"
 #include "ctdl_module.h"
-
-/*
- * Learn topology from path fields
- */
-static void network_learn_topology(char *node, char *path, NetMap **the_netmap, int *netmap_changed)
-{
-	char nexthop[256];
-	NetMap *nmptr;
-
-	*nexthop = '\0';
-
-	if (num_tokens(path, '!') < 3) return;
-	for (nmptr = *the_netmap; nmptr != NULL; nmptr = nmptr->next) {
-		if (!strcasecmp(nmptr->nodename, node)) {
-			extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
-			nmptr->lastcontact = time(NULL);
-			(*netmap_changed) ++;
-			return;
-		}
-	}
-
-	/* If we got here then it's not in the map, so add it. */
-	nmptr = (NetMap *) malloc(sizeof (NetMap));
-	strcpy(nmptr->nodename, node);
-	nmptr->lastcontact = time(NULL);
-	extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
-	nmptr->next = *the_netmap;
-	*the_netmap = nmptr;
-	(*netmap_changed) ++;
-}
 
 
 	
@@ -382,8 +352,8 @@ int is_recipient(SpoolControl *sc, const char *Name)
  * Batch up and send all outbound traffic from the current room
  */
 void network_spoolout_room(RoomProcList *room_to_spool, 		       
-			   char *working_ignetcfg,
-			   NetMap *the_netmap)
+			   HashList *working_ignetcfg,
+			   HashList *the_netmap)
 {
 	char buf[SIZ];
 	char filename[PATH_MAX];
@@ -452,8 +422,9 @@ void network_spoolout_room(RoomProcList *room_to_spool,
  * Process a buffer containing a single message from a single file
  * from the inbound queue 
  */
-void network_process_buffer(char *buffer, long size, char *working_ignetcfg, NetMap **the_netmap, int *netmap_changed)
+void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg, HashList *the_netmap, int *netmap_changed)
 {
+	StrBuf *Buf = NULL;
 	struct CtdlMessage *msg = NULL;
 	long pos;
 	int field;
@@ -463,7 +434,7 @@ void network_process_buffer(char *buffer, long size, char *working_ignetcfg, Net
 	char *oldpath = NULL;
 	char filename[PATH_MAX];
 	FILE *fp;
-	char nexthop[SIZ];
+	const StrBuf *nexthop = NULL;
 	unsigned char firstbyte;
 	unsigned char lastbyte;
 
@@ -499,12 +470,12 @@ void network_process_buffer(char *buffer, long size, char *working_ignetcfg, Net
 		if (strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
 
 			/* route the message */
-			strcpy(nexthop, "");
-			if (is_valid_node(nexthop, 
+			Buf = NewStrBufPlain(msg->cm_fields['D'], -1);
+			if (is_valid_node(&nexthop, 
 					  NULL, 
-					  msg->cm_fields['D'], 
+					  Buf, 
 					  working_ignetcfg, 
-					  *the_netmap) == 0) 
+					  the_netmap) == 0) 
 			{
 				/* prepend our node to the path */
 				if (msg->cm_fields['P'] != NULL) {
@@ -524,16 +495,16 @@ void network_process_buffer(char *buffer, long size, char *working_ignetcfg, Net
 				serialize_message(&sermsg, msg);
 
 				/* now send it */
-				if (IsEmptyStr(nexthop)) {
-					strcpy(nexthop, msg->cm_fields['D']);
+				if (StrLength(nexthop) == 0) {
+					nexthop = Buf;
 				}
-				snprintf(filename, 
-					sizeof filename,
-					"%s/%s@%lx%x",
-					ctdl_netout_dir,
-					nexthop,
-					time(NULL),
-					rand()
+				snprintf(filename,
+					 sizeof filename,
+					 "%s/%s@%lx%x",
+					 ctdl_netout_dir,
+					 ChrPtr(nexthop),
+					 time(NULL),
+					 rand()
 				);
 				syslog(LOG_DEBUG, "Appending to %s\n", filename);
 				fp = fopen(filename, "ab");
@@ -546,10 +517,12 @@ void network_process_buffer(char *buffer, long size, char *working_ignetcfg, Net
 				}
 				free(sermsg.ser);
 				CtdlFreeMessage(msg);
+				FreeStrBuf(&Buf);
 				return;
 			}
 			
 			else {	/* invalid destination node name */
+				FreeStrBuf(&Buf);
 
 				network_bounce(msg,
 "A message you sent could not be delivered due to an invalid destination node"
@@ -635,8 +608,8 @@ void network_process_buffer(char *buffer, long size, char *working_ignetcfg, Net
 void network_process_message(FILE *fp, 
 			     long msgstart, 
 			     long msgend,
-			     char *working_ignetcfg,
-			     NetMap **the_netmap, 
+			     HashList *working_ignetcfg,
+			     HashList *the_netmap, 
 			     int *netmap_changed)
 {
 	long hold_pos;
@@ -666,8 +639,8 @@ void network_process_message(FILE *fp,
  * Process a single file from the inbound queue 
  */
 void network_process_file(char *filename,
-			  char *working_ignetcfg,
-			  NetMap **the_netmap, 
+			  HashList *working_ignetcfg,
+			  HashList *the_netmap, 
 			  int *netmap_changed)
 {
 	FILE *fp;
@@ -724,7 +697,7 @@ void network_process_file(char *filename,
 /*
  * Process anything in the inbound queue
  */
-void network_do_spoolin(char *working_ignetcfg, NetMap **the_netmap, int *netmap_changed)
+void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *netmap_changed)
 {
 	DIR *dp;
 	struct dirent *d;
@@ -772,90 +745,233 @@ void network_do_spoolin(char *working_ignetcfg, NetMap **the_netmap, int *netmap
  * Step 1: consolidate files in the outbound queue into one file per neighbor node
  * Step 2: delete any files in the outbound queue that were for neighbors who no longer exist.
  */
-void network_consolidate_spoolout(char *working_ignetcfg, NetMap *the_netmap)
+void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netmap)
 {
+	IOBuffer IOB;
+	FDIOBuffer FDIO;
+        int d_namelen;
 	DIR *dp;
 	struct dirent *d;
+	struct dirent *filedir_entry;
+	const char *pch;
+	char spooloutfilename[PATH_MAX];
 	char filename[PATH_MAX];
-	char cmd[PATH_MAX];
-	char nexthop[256];
-	long nexthoplen;
+	const StrBuf *nexthop;
+	StrBuf *NextHop;
 	int i;
-	char *ptr;
+	int nFailed = 0;
 
 	/* Step 1: consolidate files in the outbound queue into one file per neighbor node */
+	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
+	if (d == NULL) 	return;
+
 	dp = opendir(ctdl_netout_dir);
-	if (dp == NULL) return;
-	while (d = readdir(dp), d != NULL) {
-		if (
-			(strcmp(d->d_name, "."))
-			&& (strcmp(d->d_name, ".."))
-			&& (strchr(d->d_name, '@') != NULL)
-		) {
-			nexthoplen = safestrncpy(nexthop, d->d_name, sizeof nexthop);
-			ptr = strchr(nexthop, '@');
-			if (ptr) {
-				*ptr = 0;
-				nexthoplen = ptr - nexthop;
-			}				
-	
-			snprintf(filename, 
-				sizeof filename,
-				"%s/%s",
-				ctdl_netout_dir,
-				d->d_name
-			);
-	
-			syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, nexthop);
-			if (network_talking_to(nexthop, nexthoplen, NTT_CHECK)) {
-				syslog(LOG_DEBUG,
-					"Currently online with %s - skipping for now\n",
-					nexthop
+	if (dp == NULL) {
+		free(d);
+		return;
+	}
+
+	NextHop = NewStrBuf();
+	memset(&IOB, 0, sizeof(IOBuffer));
+	memset(&FDIO, 0, sizeof(FDIOBuffer));
+	FDIO.IOB = &IOB;
+
+	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
+	       (filedir_entry != NULL))
+	{
+#ifdef _DIRENT_HAVE_D_NAMELEN
+		d_namelen = filedir_entry->d_namelen;
+#else
+
+#ifndef DT_UNKNOWN
+#define DT_UNKNOWN     0
+#define DT_DIR         4
+#define DT_REG         8
+#define DT_LNK         10
+
+#define IFTODT(mode)   (((mode) & 0170000) >> 12)
+#define DTTOIF(dirtype)        ((dirtype) << 12)
+#endif
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
+			continue; /* Ignore backup files... */
+
+		if ((d_namelen == 1) && 
+		    (filedir_entry->d_name[0] == '.'))
+			continue;
+
+		if ((d_namelen == 2) && 
+		    (filedir_entry->d_name[0] == '.') &&
+		    (filedir_entry->d_name[1] == '.'))
+			continue;
+
+		pch = strchr(filedir_entry->d_name, '@');
+		if (pch == NULL)
+			continue;
+
+		snprintf(filename, 
+			 sizeof filename,
+			 "%s/%s",
+			 ctdl_netout_dir,
+			 filedir_entry->d_name);
+
+		StrBufPlain(NextHop,
+			    filedir_entry->d_name,
+			    pch - filedir_entry->d_name);
+
+		snprintf(spooloutfilename,
+			 sizeof spooloutfilename,
+			 "%s/%s",
+			 ctdl_netout_dir,
+			 ChrPtr(NextHop));
+
+		syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, ChrPtr(NextHop));
+		if (network_talking_to(SKEY(NextHop), NTT_CHECK)) {
+			nFailed++;
+			syslog(LOG_DEBUG,
+			       "Currently online with %s - skipping for now\n",
+			       ChrPtr(NextHop)
 				);
+		}
+		else {
+			size_t dsize;
+			size_t fsize;
+			int fd;
+			const char *err = NULL;
+			network_talking_to(SKEY(NextHop), NTT_ADD);
+
+			IOB.fd = open(filename, O_RDONLY);
+			if (IOB.fd == -1) {
+				nFailed++;
+				syslog(LOG_ERR,
+				       "failed to open %s for reading due to %s; skipping.\n",
+				       filename, strerror(errno)
+				);
+				network_talking_to(SKEY(NextHop), NTT_REMOVE);
+				continue;				
+			}
+			
+			fd = open(spooloutfilename,
+				  O_EXCL|O_CREAT|O_NONBLOCK|O_WRONLY, 
+				  S_IRUSR|S_IWUSR);
+			if (fd == -1)
+			{
+				fd = open(spooloutfilename,
+					  O_EXCL|O_NONBLOCK|O_WRONLY, 
+					  S_IRUSR | S_IWUSR);
+			}
+			if (fd == -1) {
+				nFailed++;
+				syslog(LOG_ERR,
+				       "failed to open %s for reading due to %s; skipping.\n",
+				       spooloutfilename, strerror(errno)
+				);
+				close(IOB.fd);
+				network_talking_to(SKEY(NextHop), NTT_REMOVE);
+				continue;
+			}
+			dsize = lseek(fd, 0, SEEK_END);
+			fsize = lseek(IOB.fd, 0, SEEK_END);
+			
+			FDIOBufferInit(&FDIO, &IOB, fd, fsize + dsize);
+			FDIO.ChunkSendRemain = fsize;
+			FDIO.TotalSentAlready = dsize;
+
+			do {} while (FileRecvChunked(&FDIO, &err) > 0);
+			if (err == NULL) {
+				unlink(filename);
 			}
 			else {
-				network_talking_to(nexthop, nexthoplen, NTT_ADD);
-				snprintf(cmd, sizeof cmd, "/bin/cat %s >>%s/%s && /bin/rm -f %s",
-					filename,
-					ctdl_netout_dir, nexthop,
-					filename
+				nFailed++;
+				syslog(LOG_ERR,
+				       "failed to append to %s [%s]; rolling back..\n",
+				       spooloutfilename, strerror(errno)
 				);
-				system(cmd);
-				network_talking_to(nexthop, nexthoplen, NTT_REMOVE);
+				/* whoops partial append?? truncate spooloutfilename again! */
+				ftruncate(fd, dsize);
 			}
+			FDIOBufferDelete(&FDIO);
+			close(IOB.fd);
+			close(fd);
+			network_talking_to(SKEY(NextHop), NTT_REMOVE);
 		}
 	}
 	closedir(dp);
 
+	if (nFailed > 0) {
+		FreeStrBuf(&NextHop);
+		syslog(LOG_INFO,
+		       "skipping Spoolcleanup because of %d files unprocessed.\n",
+		       nFailed
+			);
+
+		return;
+	}
+
 	/* Step 2: delete any files in the outbound queue that were for neighbors who no longer exist */
-
 	dp = opendir(ctdl_netout_dir);
-	if (dp == NULL) return;
+	if (dp == NULL) {
+		FreeStrBuf(&NextHop);
+		free(d);
+		return;
+	}
 
-	while (d = readdir(dp), d != NULL) {
-		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
+	       (filedir_entry != NULL))
+	{
+#ifdef _DIRENT_HAVE_D_NAMELEN
+		d_namelen = filedir_entry->d_namelen;
+		d_type = filedir_entry->d_type;
+#else
+
+#ifndef DT_UNKNOWN
+#define DT_UNKNOWN     0
+#define DT_DIR         4
+#define DT_REG         8
+#define DT_LNK         10
+
+#define IFTODT(mode)   (((mode) & 0170000) >> 12)
+#define DTTOIF(dirtype)        ((dirtype) << 12)
+#endif
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+		if ((d_namelen == 1) && 
+		    (filedir_entry->d_name[0] == '.'))
 			continue;
+
+		if ((d_namelen == 2) && 
+		    (filedir_entry->d_name[0] == '.') &&
+		    (filedir_entry->d_name[1] == '.'))
+			continue;
+
+		pch = strchr(filedir_entry->d_name, '@');
+		if (pch == NULL) /* no @ in name? consolidated file. */
+			continue;
+
+		StrBufPlain(NextHop,
+			    filedir_entry->d_name,
+			    pch - filedir_entry->d_name);
 
 		snprintf(filename, 
 			sizeof filename,
 			"%s/%s",
 			ctdl_netout_dir,
-			d->d_name
+			filedir_entry->d_name
 		);
 
-		strcpy(nexthop, "");
-		i = is_valid_node(nexthop,
+		i = is_valid_node(&nexthop,
 				  NULL,
-				  d->d_name,
+				  NextHop,
 				  working_ignetcfg,
 				  the_netmap);
 	
-		if ( (i != 0) || !IsEmptyStr(nexthop) ) {
+		if ( (i != 0) || (StrLength(nexthop) > 0) ) {
 			unlink(filename);
 		}
 	}
-
-
+	FreeStrBuf(&NextHop);
+	free(d);
 	closedir(dp);
 }
 

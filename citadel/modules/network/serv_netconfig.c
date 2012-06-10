@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2011 by the citadel.org team
+ * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -92,167 +92,269 @@
 #include "ctdl_module.h"
 
 
+
+void DeleteNodeConf(void *vNode)
+{
+	NodeConf *Node = (NodeConf*) vNode;
+	FreeStrBuf(&Node->NodeName);
+	FreeStrBuf(&Node->Secret);
+	FreeStrBuf(&Node->Host);
+	FreeStrBuf(&Node->Port);
+	free(Node);
+}
+
+NodeConf *NewNode(StrBuf *SerializedNode)
+{
+	const char *Pos = NULL;
+	NodeConf *Node;
+
+	/* we need at least 4 pipes and some other text so its invalid. */
+	if (StrLength(SerializedNode) < 8)
+		return NULL;
+	Node = (NodeConf *) malloc(sizeof(NodeConf));
+
+	Node->DeleteMe = 0;
+
+	Node->NodeName=NewStrBuf();
+	StrBufExtract_NextToken(Node->NodeName, SerializedNode, &Pos, '|');
+
+	Node->Secret=NewStrBuf();
+	StrBufExtract_NextToken(Node->Secret, SerializedNode, &Pos, '|');
+
+	Node->Host=NewStrBuf();
+	StrBufExtract_NextToken(Node->Host, SerializedNode, &Pos, '|');
+
+	Node->Port=NewStrBuf();
+	StrBufExtract_NextToken(Node->Port, SerializedNode, &Pos, '|');
+	return Node;
+}
+
+
 /*
  * Load or refresh the Citadel network (IGnet) configuration for this node.
  */
-char* load_working_ignetcfg(void) {
-	return CtdlGetSysConfig(IGNETCFG);
-}
+HashList* load_ignetcfg(void)
+{
+	const char *LinePos;
+	char       *Cfg;
+	StrBuf     *Buf;
+	StrBuf     *LineBuf;
+	HashList   *Hash;
+	NodeConf   *Node;
 
-
-/* 
- * Read the network map from its configuration file into memory.
- */
-NetMap *read_network_map(void) {
-	char *serialized_map = NULL;
-	int i;
-	char buf[SIZ];
-	NetMap *nmptr, *the_netmap;
-
-	the_netmap = NULL;
-	serialized_map = CtdlGetSysConfig(IGNETMAP);
-	if (serialized_map == NULL) return NULL;	/* if null, no entries */
-
-	/* Use the string tokenizer to grab one line at a time */
-	for (i=0; i<num_tokens(serialized_map, '\n'); ++i) {
-		extract_token(buf, serialized_map, i, '\n', sizeof buf);
-
-		nmptr = (NetMap *) malloc(sizeof(NetMap));
-
-		extract_token(nmptr->nodename, buf, 0, '|', sizeof nmptr->nodename);
-		nmptr->lastcontact = extract_long(buf, 1);
-		extract_token(nmptr->nexthop, buf, 2, '|', sizeof nmptr->nexthop);
-
-		nmptr->next = the_netmap;
-		the_netmap = nmptr;
+	Cfg =  CtdlGetSysConfig(IGNETCFG);
+	if ((Cfg == NULL) || IsEmptyStr(Cfg)) {
+		if (Cfg != NULL)
+			free(Cfg);
+		return NULL;
 	}
 
-	free(serialized_map);
-	return the_netmap;
+	Hash = NewHash(1, NULL);
+	Buf = NewStrBufPlain(Cfg, -1);
+	free(Cfg);
+	LineBuf = NewStrBufPlain(NULL, StrLength(Buf));
+	LinePos = NULL;
+	do
+	{
+		StrBufSipLine(LineBuf, Buf, &LinePos);
+		if (StrLength(LineBuf) != 0) {
+			Node = NewNode(LineBuf);
+			if (Node != NULL) {
+				Put(Hash, SKEY(Node->NodeName), Node, DeleteNodeConf);
+			}
+		}
+	} while (LinePos != StrBufNOTNULL);
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&LineBuf);
+	return Hash;
+}
+
+void DeleteNetMap(void *vNetMap)
+{
+	NetMap *TheNetMap = (NetMap*) vNetMap;
+	FreeStrBuf(&TheNetMap->NodeName);
+	FreeStrBuf(&TheNetMap->NextHop);
+	free(TheNetMap);
+}
+
+NetMap *NewNetMap(StrBuf *SerializedNetMap)
+{
+	const char *Pos = NULL;
+	NetMap *NM;
+
+	/* we need at least 3 pipes and some other text so its invalid. */
+	if (StrLength(SerializedNetMap) < 6)
+		return NULL;
+	NM = (NetMap *) malloc(sizeof(NetMap));
+
+	NM->NodeName=NewStrBuf();
+	StrBufExtract_NextToken(NM->NodeName, SerializedNetMap, &Pos, '|');
+
+	NM->lastcontact = StrBufExtractNext_long(SerializedNetMap, &Pos, '|');
+
+	NM->NextHop=NewStrBuf();
+	StrBufExtract_NextToken(NM->NextHop, SerializedNetMap, &Pos, '|');
+
+	return NM;
+}
+
+HashList* read_network_map(void)
+{
+	const char *LinePos;
+	char       *Cfg;
+	StrBuf     *Buf;
+	StrBuf     *LineBuf;
+	HashList   *Hash;
+	NetMap     *TheNetMap;
+
+	Cfg =  CtdlGetSysConfig(IGNETMAP);
+	if ((Cfg == NULL) || IsEmptyStr(Cfg)) {
+		if (Cfg != NULL)
+			free(Cfg);
+		return NULL;
+	}
+
+	Hash = NewHash(1, NULL);
+	Buf = NewStrBufPlain(Cfg, -1);
+	free(Cfg);
+	LineBuf = NewStrBufPlain(NULL, StrLength(Buf));
+	LinePos = NULL;
+	while (StrBufSipLine(Buf, LineBuf, &LinePos))
+	{
+		TheNetMap = NewNetMap(LineBuf);
+		if (TheNetMap != NULL) { /* TODO: is the NodeName Uniq? */
+			Put(Hash, SKEY(TheNetMap->NodeName), TheNetMap, DeleteNetMap);
+		}
+	}
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&LineBuf);
+	return Hash;
+}
+
+StrBuf *SerializeNetworkMap(HashList *Map)
+{
+	void *vMap;
+	const char *key;
+	long len;
+	StrBuf *Ret = NewStrBuf();
+	HashPos *Pos = GetNewHashPos(Map, 0);
+
+	while (GetNextHashPos(Map, Pos, &len, &key, &vMap))
+	{
+		NetMap *pMap = (NetMap*) vMap;
+		StrBufAppendBuf(Ret, pMap->NodeName, 0);
+		StrBufAppendBufPlain(Ret, HKEY("|"), 0);
+
+		StrBufAppendPrintf(Ret, "%ld", pMap->lastcontact, 0);
+		StrBufAppendBufPlain(Ret, HKEY("|"), 0);
+
+		StrBufAppendBuf(Ret, pMap->NextHop, 0);
+		StrBufAppendBufPlain(Ret, HKEY("\n"), 0);
+	}
+	DeleteHashPos(&Pos);
+	return Ret;
 }
 
 
 /*
- * Write the network map from memory back to the configuration file.
+ * Learn topology from path fields
  */
-void write_and_free_network_map(NetMap **the_netmap, int netmap_changed)
+void network_learn_topology(char *node, char *path, HashList *the_netmap, int *netmap_changed)
 {
-	char *serialized_map = NULL;
+	NetMap *pNM = NULL;
+	void *vptr;
+	char nexthop[256];
 	NetMap *nmptr;
 
-	if (netmap_changed) {
-		serialized_map = strdup("");
-	
-		if (*the_netmap != NULL) {
-			for (nmptr = *the_netmap; nmptr != NULL; nmptr = nmptr->next) {
-				serialized_map = realloc(serialized_map,
-							(strlen(serialized_map)+SIZ) );
-				if (!IsEmptyStr(nmptr->nodename)) {
-					snprintf(&serialized_map[strlen(serialized_map)],
-						SIZ,
-						"%s|%ld|%s\n",
-						nmptr->nodename,
-						(long)nmptr->lastcontact,
-						nmptr->nexthop);
-				}
-			}
+	if (GetHash(the_netmap, node, strlen(node), &vptr) && 
+	    (vptr != NULL))/* TODO: is the NodeName Uniq? */
+	{
+		pNM = (NetMap*)vptr;
+		extract_token(nexthop, path, 0, '!', sizeof nexthop);
+		if (!strcmp(nexthop, ChrPtr(pNM->NextHop))) {
+			pNM->lastcontact = time(NULL);
+			(*netmap_changed) ++;
+			return;
 		}
-
-		CtdlPutSysConfig(IGNETMAP, serialized_map);
-		free(serialized_map);
 	}
 
-	/* Now free the list */
-	while (*the_netmap != NULL) {
-		nmptr = (*the_netmap)->next;
-		free(*the_netmap);
-		*the_netmap = nmptr;
-	}
+	/* If we got here then it's not in the map, so add it. */
+	nmptr = (NetMap *) malloc(sizeof (NetMap));
+	nmptr->NodeName = NewStrBufPlain(node, -1);
+	nmptr->lastcontact = time(NULL);
+	nmptr->NextHop = NewStrBuf ();
+	StrBufExtract_tokenFromStr(nmptr->NextHop, path, strlen(path), 0, '!');
+	/* TODO: is the NodeName Uniq? */
+	Put(the_netmap, SKEY(nmptr->NodeName), nmptr, DeleteNetMap);
+	(*netmap_changed) ++;
 }
 
 
-
-/* 
+/*
  * Check the network map and determine whether the supplied node name is
  * valid.  If it is not a neighbor node, supply the name of a neighbor node
  * which is the next hop.  If it *is* a neighbor node, we also fill in the
  * shared secret.
  */
-int is_valid_node(char *nexthop, 
-		  char *secret, 
-		  char *node, 
-		  char *working_ignetcfg, 
-		  NetMap *the_netmap)
+int is_valid_node(const StrBuf **nexthop,
+		  const StrBuf **secret,
+		  StrBuf *node,
+		  HashList *IgnetCfg,
+		  HashList *the_netmap)
 {
-	int i;
-	char linebuf[SIZ];
-	char buf[SIZ];
-	int retval;
-	NetMap *nmptr;
+	void *vNetMap;
+	void *vNodeConf;
+	NodeConf *TheNode;
+	NetMap *TheNetMap;
 
-	if (node == NULL) {
+	if (StrLength(node) == 0) {
 		return(-1);
 	}
 
 	/*
 	 * First try the neighbor nodes
 	 */
-	if ((working_ignetcfg == NULL) || (*working_ignetcfg == '\0')) {
-		syslog(LOG_ERR, "working_ignetcfg is empty!\n");
+	if (GetCount(IgnetCfg) == 0) {
+		syslog(LOG_INFO, "IgnetCfg is empty!\n");
 		if (nexthop != NULL) {
-			strcpy(nexthop, "");
+			*nexthop = NULL;
 		}
 		return(-1);
 	}
 
-	retval = (-1);
-	if (nexthop != NULL) {
-		strcpy(nexthop, "");
+	/* try to find a neigbour with the name 'node' */
+	if (GetHash(IgnetCfg, SKEY(node), &vNodeConf) && 
+	    (vNodeConf != NULL))
+	{
+		TheNode = (NodeConf*)vNodeConf;
+		if (secret != NULL)
+			*secret = TheNode->Secret;
+		return 0;		/* yup, it's a direct neighbor */
 	}
 
-	/* Use the string tokenizer to grab one line at a time */
-	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
-		extract_token(linebuf, working_ignetcfg, i, '\n', sizeof linebuf);
-		extract_token(buf, linebuf, 0, '|', sizeof buf);
-		if (!strcasecmp(buf, node)) {
-			if (nexthop != NULL) {
-				strcpy(nexthop, "");
-			}
-			if (secret != NULL) {
-				extract_token(secret, linebuf, 1, '|', 256);
-			}
-			retval = 0;
-		}
-	}
-
-	if (retval == 0) {
-		return(retval);		/* yup, it's a direct neighbor */
-	}
-
-	/*	
+	/*
 	 * If we get to this point we have to see if we know the next hop
-	 */
-	if (the_netmap != NULL) {
-		for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
-			if (!strcasecmp(nmptr->nodename, node)) {
-				if (nexthop != NULL) {
-					strcpy(nexthop, nmptr->nexthop);
-				}
-				return(0);
-			}
-		}
+	 *//* TODO: is the NodeName Uniq? */
+	if ((GetCount(the_netmap) > 0) &&
+	    (GetHash(the_netmap, SKEY(node), &vNetMap)))
+	{
+		TheNetMap = (NetMap*)vNetMap;
+		if (nexthop != NULL)
+			*nexthop = TheNetMap->NextHop;
+		return(0);
 	}
 
 	/*
 	 * If we get to this point, the supplied node name is bogus.
 	 */
-	syslog(LOG_ERR, "Invalid node name <%s>\n", node);
+	syslog(LOG_ERR, "Invalid node name <%s>\n", ChrPtr(node));
 	return(-1);
 }
 
 
 
-void cmd_gnet(char *argbuf) {
+void cmd_gnet(char *argbuf)
+{
 	char filename[PATH_MAX];
 	char buf[SIZ];
 	FILE *fp;
@@ -365,24 +467,24 @@ void cmd_snet(char *argbuf) {
  */
 void cmd_netp(char *cmdbuf)
 {
-	char *working_ignetcfg;
+	HashList *working_ignetcfg;
 	char node[256];
+	StrBuf *NodeStr;
 	long nodelen;
 	char pass[256];
 	int v;
 
-	char secret[256] = "";
-	char nexthop[256] = "";
+	const StrBuf *secret = NULL;
+	const StrBuf *nexthop = NULL;
 	char err_buf[SIZ] = "";
 
 	/* Authenticate */
 	nodelen = extract_token(node, cmdbuf, 0, '|', sizeof node);
 	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
-
+	NodeStr = NewStrBufPlain(node, nodelen);
 	/* load the IGnet Configuration to check node validity */
-	working_ignetcfg = load_working_ignetcfg();
-	v = is_valid_node(nexthop, secret, node, working_ignetcfg, NULL); //// TODO do we need the netmap?
-
+	working_ignetcfg = load_ignetcfg();
+	v = is_valid_node(&nexthop, &secret, NodeStr, working_ignetcfg, NULL);
 	if (v != 0) {
 		snprintf(err_buf, sizeof err_buf,
 			"An unknown Citadel server called \"%s\" attempted to connect from %s [%s].\n",
@@ -391,11 +493,12 @@ void cmd_netp(char *cmdbuf)
 		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
-		free(working_ignetcfg);
+		DeleteHash(&working_ignetcfg);
+		FreeStrBuf(&NodeStr);
 		return;
 	}
 
-	if (strcasecmp(pass, secret)) {
+	if (strcasecmp(pass, ChrPtr(secret))) {
 		snprintf(err_buf, sizeof err_buf,
 			"A Citadel server at %s [%s] failed to authenticate as network node \"%s\".\n",
 			CC->cs_host, CC->cs_addr, node
@@ -403,14 +506,16 @@ void cmd_netp(char *cmdbuf)
 		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		CtdlAideMessage(err_buf, "IGNet Networking.");
-		free(working_ignetcfg);
+		DeleteHash(&working_ignetcfg);
+		FreeStrBuf(&NodeStr);
 		return;
 	}
 
 	if (network_talking_to(node, nodelen, NTT_CHECK)) {
 		syslog(LOG_WARNING, "Duplicate session for network node <%s>", node);
 		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
-		free(working_ignetcfg);
+		DeleteHash(&working_ignetcfg);
+		FreeStrBuf(&NodeStr);
 		return;
 	}
 
@@ -420,7 +525,8 @@ void cmd_netp(char *cmdbuf)
 		CC->net_node, CC->cs_host, CC->cs_addr
 	);
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CC->net_node);
-	free(working_ignetcfg);
+	DeleteHash(&working_ignetcfg);
+	FreeStrBuf(&NodeStr);
 }
 
 int netconfig_check_roomaccess(

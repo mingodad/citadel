@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2011 by the citadel.org team
+ * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -265,6 +265,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 void network_spool_msg(long msgnum,
 		       void *userdata)
 {
+	StrBuf *Buf = NULL;
 	SpoolControl *sc;
 	int i;
 	char *newpath = NULL;
@@ -470,9 +471,11 @@ void network_spool_msg(long msgnum,
 						config.c_nodename)) {
 					ok_to_participate = 1;
 				}
+
+				Buf = NewStrBufPlain(msg->cm_fields['N'], -1);
 				if (is_valid_node(NULL,
 						  NULL,
-						  msg->cm_fields['N'],
+						  Buf,
 						  sc->working_ignetcfg,
 						  sc->the_netmap) == 0)
 				{
@@ -560,11 +563,14 @@ void network_spool_msg(long msgnum,
 		    mptr = mptr->next) {
 
 			send = 1;
-
+			if (Buf == NULL)
+				Buf = NewStrBufPlain(mptr->remote_nodename, -1);
+			else
+				StrBufPlain(Buf, mptr->remote_nodename, -1);
 			/* Check for valid node name */
 			if (is_valid_node(NULL,
 					  NULL,
-					  mptr->remote_nodename,
+					  Buf,
 					  sc->working_ignetcfg,
 					  sc->the_netmap) != 0)
 			{
@@ -665,5 +671,5 @@ void network_spool_msg(long msgnum,
 	if (delete_after_send) {
 		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "");
 	}
-
+	FreeStrBuf(&Buf);
 }
