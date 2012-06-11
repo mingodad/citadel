@@ -94,6 +94,7 @@ struct CitContext smtp_queue_CC;
 pthread_mutex_t ActiveQItemsLock;
 HashList *ActiveQItems  = NULL;
 HashList *QItemHandlers = NULL;
+const unsigned short DefaultMXPort = 25;
 int max_sessions_for_outbound_smtp = 500; /* how many sessions might be active till we stop adding more smtp jobs */
 int ndelay_count = 50; /* every n queued messages we will sleep... */
 int delay_msec = 5000; /* this many seconds. */
@@ -829,7 +830,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				!IsEmptyStr(Pos)))
 			{
 				StrBufExtract_NextToken(One, All, &Pos, '|');
-				if (!ParseURL(Url, One, 25)) {
+				if (!ParseURL(Url, One, DefaultMXPort)) {
 					SMTPC_syslog(LOG_DEBUG,
 						     "Failed to parse: %s\n",
 						     ChrPtr(One));
@@ -857,7 +858,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				!IsEmptyStr(Pos)))
 			{
 				StrBufExtract_NextToken(One, All, &Pos, '|');
-				if (!ParseURL(Url, One, 25)) {
+				if (!ParseURL(Url, One, DefaultMXPort)) {
 					SMTPC_syslog(LOG_DEBUG,
 						     "Failed to parse: %s\n",
 						     ChrPtr(One));

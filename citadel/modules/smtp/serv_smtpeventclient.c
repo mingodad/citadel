@@ -91,7 +91,6 @@
 #include "smtp_clienthandlers.h"
 
 int SMTPClientDebugEnabled = 0;
-const unsigned short DefaultMXPort = 25;
 void DeleteSmtpOutMsg(void *v)
 {
 	SmtpOutMsg *Msg = v;
@@ -322,6 +321,8 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 	SmtpOutMsg *Msg = IO->Data;
 	struct hostent *hostent;
 
+	IO->ConnectMe = Msg->pCurrRelay;
+
 	QueryCbDone(IO);
 	EVS_syslog(LOG_DEBUG, "%s Time[%fs]\n",
 		   __FUNCTION__,
@@ -339,7 +340,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			Msg->pCurrRelay->Addr.sin6_family =
 				hostent->h_addrtype;
 			Msg->pCurrRelay->Addr.sin6_port =
-				htons(DefaultMXPort);
+				htons(Msg->IO.ConnectMe->Port);
 		}
 		else {
 			struct sockaddr_in *addr;
@@ -357,7 +358,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 			       sizeof(uint32_t));
 
 			addr->sin_family = hostent->h_addrtype;
-			addr->sin_port   = htons(DefaultMXPort);
+			addr->sin_port   = htons(Msg->IO.ConnectMe->Port);
 		}
 		Msg->mx_host = Msg->pCurrRelay->Host;
 		if (Msg->HostLookup.VParsedDNSReply != NULL) {

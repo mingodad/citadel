@@ -22,6 +22,7 @@
 /*****************************************************************************/
 
 #define MaxAttempts 15
+extern const unsigned short DefaultMXPort;
 
 typedef struct _mailq_entry {
 	StrBuf *Recipient;
