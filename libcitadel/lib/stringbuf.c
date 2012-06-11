@@ -3998,7 +3998,7 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 		      NULL, 
 		      FDB->OtherFD,
 		      &FDB->TotalSentAlready, 
-		      pipesize,
+		      FDB->PipeSize,
 		      SPLICE_F_MORE | SPLICE_F_MOVE);
 
 	if (sent == -1)
