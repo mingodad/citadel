@@ -1,7 +1,7 @@
 /*
  * This is an implementation of OpenID 2.0 relying party support in stateless mode.
  *
- * Copyright (c) 2007-2011 by the citadel.org team
+ * Copyright (c) 2007-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1129,7 +1129,7 @@ void cmd_oidf(char *argbuf) {
 CTDL_MODULE_INIT(openid_rp)
 {
 	if (!threading) {
-		curl_global_init(CURL_GLOBAL_ALL);
+// evcurl call this for us. curl_global_init(CURL_GLOBAL_ALL);
 
 		/* Only enable the OpenID command set when native mode authentication is in use. */
 		if (config.c_auth_mode == AUTHMODE_NATIVE) {
