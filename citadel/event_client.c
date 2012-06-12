@@ -584,7 +584,9 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		}
 	}
 	else if (rc < 0) {
-		IO_Timeout_callback(loop, &IO->rw_timeout, revents);
+		if (errno != EAGAIN) {
+			IO_Timeout_callback(loop, &IO->rw_timeout, revents);
+		}
 	}
 	/* else : must write more. */
 }
@@ -806,12 +808,14 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		IO_Timeout_callback(loop, &IO->rw_timeout, revents);
 		return;
 	} else if (nbytes == -1) {
-		// FD is gone. kick it. 
-		StopClientWatchers(IO);
-		EV_syslog(LOG_DEBUG,
-			  "EVENT: Socket Invalid! %s \n",
-			  strerror(errno));
-		ShutDownCLient(IO);
+		if (errno != EAGAIN) {
+			// FD is gone. kick it. 
+			StopClientWatchers(IO);
+			EV_syslog(LOG_DEBUG,
+				  "EVENT: Socket Invalid! %s \n",
+				  strerror(errno));
+			ShutDownCLient(IO);
+		}
 		return;
 	}
 }
