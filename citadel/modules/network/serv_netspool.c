@@ -877,8 +877,8 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			FDIOBufferInit(&FDIO, &IOB, fd, fsize + dsize);
 			FDIO.ChunkSendRemain = fsize;
 			FDIO.TotalSentAlready = dsize;
-
-			do {} while (FileRecvChunked(&FDIO, &err) > 0);
+			err = NULL;
+			do {} while ((FileMoveChunked(&FDIO, &err) > 0) && (err == NULL));
 			if (err == NULL) {
 				unlink(filename);
 			}
