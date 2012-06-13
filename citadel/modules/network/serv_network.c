@@ -204,7 +204,8 @@ int network_usetable(struct CtdlMessage *msg) {
  * ignoring anything we know about which messages have already undergone
  * network processing.  This can be used to bring a new node into sync.
  */
-int network_sync_to(char *target_node) {
+int network_sync_to(char *target_node, long len)
+{
 	SpoolControl sc;
 	int num_spooled = 0;
 	int found_node = 0;
@@ -223,32 +224,40 @@ int network_sync_to(char *target_node) {
 		end_critical_section(S_NETCONFIGS);
 		return(-1);
 	}
-	while (fgets(buf, sizeof buf, fp) != NULL) {
+	while (fgets(buf, sizeof buf, fp) != NULL)
+	{
 		buf[strlen(buf)-1] = 0;
+
 		extract_token(sc_type, buf, 0, '|', sizeof sc_type);
+		if (strcasecmp(sc_type, "ignet_push_share"))
+			continue;
+
 		extract_token(sc_node, buf, 1, '|', sizeof sc_node);
+		if (!strcasecmp(sc_node, target_node))
+			continue;
+
 		extract_token(sc_room, buf, 2, '|', sizeof sc_room);
-		if ( (!strcasecmp(sc_type, "ignet_push_share"))
-		   && (!strcasecmp(sc_node, target_node)) ) {
-			found_node = 1;
+		found_node = 1;
 			
-			/* Concise syntax because we don't need a full linked-list */
-			memset(&sc, 0, sizeof(SpoolControl));
-			sc.ignet_push_shares = (maplist *)
-				malloc(sizeof(maplist));
-			sc.ignet_push_shares->next = NULL;
-			safestrncpy(sc.ignet_push_shares->remote_nodename,
-				sc_node,
-				sizeof sc.ignet_push_shares->remote_nodename);
-			safestrncpy(sc.ignet_push_shares->remote_roomname,
-				sc_room,
-				sizeof sc.ignet_push_shares->remote_roomname);
-		}
+		/* Concise syntax because we don't need a full linked-list */
+		memset(&sc, 0, sizeof(SpoolControl));
+		sc.ignet_push_shares = (maplist *)
+			malloc(sizeof(maplist));
+		sc.ignet_push_shares->next = NULL;
+		safestrncpy(sc.ignet_push_shares->remote_nodename,
+			    sc_node,
+			    sizeof sc.ignet_push_shares->remote_nodename);
+		safestrncpy(sc.ignet_push_shares->remote_roomname,
+			    sc_room,
+			    sizeof sc.ignet_push_shares->remote_roomname);
 	}
 	fclose(fp);
 	end_critical_section(S_NETCONFIGS);
 
 	if (!found_node) return(-1);
+
+	sc.working_ignetcfg = load_ignetcfg();
+	sc.the_netmap = read_network_map();
 
 	/* Send ALL messages */
 	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
@@ -256,6 +265,9 @@ int network_sync_to(char *target_node) {
 
 	/* Concise cleanup because we know there's only one node in the sc */
 	free(sc.ignet_push_shares);
+
+	DeleteHash(&sc.working_ignetcfg);
+	DeleteHash(&sc.the_netmap);
 
 	syslog(LOG_NOTICE, "Synchronized %d messages to <%s>\n",
 		num_spooled, target_node);
@@ -268,12 +280,13 @@ int network_sync_to(char *target_node) {
  */
 void cmd_nsyn(char *argbuf) {
 	int num_spooled;
+	long len;
 	char target_node[256];
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	extract_token(target_node, argbuf, 0, '|', sizeof target_node);
-	num_spooled = network_sync_to(target_node);
+	len = extract_token(target_node, argbuf, 0, '|', sizeof target_node);
+	num_spooled = network_sync_to(target_node, len);
 	if (num_spooled >= 0) {
 		cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
 	}
