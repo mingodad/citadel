@@ -610,8 +610,13 @@ void cmd_read(char *cmdbuf)
 	}
 
 	rc = fseek(CC->download_fp, start_pos, 0);
-	if (rc != start_pos) {
+	if (rc < 0) {
 		cprintf("%d your file is smaller then %ld.\n", ERROR + ILLEGAL_VALUE, start_pos);
+		syslog(LOG_ALERT, "your file %s is smaller then %ld. [%s]\n", 
+		       CC->upl_path, 
+		       start_pos,
+		       strerror(errno));
+
 		return;
 	}
 	bytes = fread(buf, 1, bytes, CC->download_fp);
