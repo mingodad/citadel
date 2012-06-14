@@ -1062,11 +1062,6 @@ msgstr "Il messaggio &egrave; stato postato.\n"
 msgid "The message was not moved."
 msgstr "Il messaggio non è stato spostato"
 
-#: ../../messages.c:1719
-#, c-format
-msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "E' avvenuto un errore durante il recupero di questa parte: %s/%s\n"
-
 #: ../../messages.c:1796
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
