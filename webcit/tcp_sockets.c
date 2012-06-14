@@ -396,13 +396,14 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 	wcsession *WCC = WC;
 	size_t bytes_read = 0;
 	size_t this_block = 0;
-	int rc;
+	int rc = 6;
+	int ServerRc = 6;
 
 	if (Ret == NULL) {
 		return -1;
 	}
 
-	while (bytes_read < total_len) {
+	while ((bytes_read < total_len) && (ServerRc == 6)) {
 
 		if (WCC->serv_sock==-1) {
 			FlushStrBuf(Ret); 
@@ -410,7 +411,8 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 		}
 
 		serv_printf("READ "SIZE_T_FMT"|"SIZE_T_FMT, bytes_read, total_len-bytes_read);
-		if ( (rc = StrBuf_ServGetln(Buf) > 0) && (GetServerStatus(Buf, NULL) == 6) ) 
+		if ( (rc = StrBuf_ServGetln(Buf) > 0) &&
+		     (ServerRc = GetServerStatus(Buf, NULL), ServerRc == 6) ) 
 		{
 			if (rc < 0)
 				return rc;
