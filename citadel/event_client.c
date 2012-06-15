@@ -495,8 +495,8 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 				StrBufPlain(IO->ErrMsg, errmsg, -1);
 			break;
 		default:
-			rc = StrBuf_write_one_chunk_callback(watcher->fd,
-							     0/*TODO*/,
+			rc = StrBuf_write_one_chunk_callback(IO->SendBuf.fd,
+							     0,
 							     &IO->SendBuf);
 		}
 
@@ -585,6 +585,9 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	}
 	else if (rc < 0) {
 		if (errno != EAGAIN) {
+			EV_syslog(LOG_DEBUG,
+				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
+				  errno, strerror(errno), IO->SendBuf.fd);
 			IO_Timeout_callback(loop, &IO->rw_timeout, revents);
 		}
 	}
@@ -770,8 +773,8 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		}
 		break;
 	default:
-		nbytes = StrBuf_read_one_chunk_callback(watcher->fd,
-							0 /*TODO */,
+		nbytes = StrBuf_read_one_chunk_callback(IO->RecvBuf.fd,
+							0,
 							&IO->RecvBuf);
 		break;
 	}
@@ -812,8 +815,8 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			// FD is gone. kick it. 
 			StopClientWatchers(IO);
 			EV_syslog(LOG_DEBUG,
-				  "EVENT: Socket Invalid! %s \n",
-				  strerror(errno));
+				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
+				  errno, strerror(errno), IO->SendBuf.fd);
 			ShutDownCLient(IO);
 		}
 		return;
