@@ -585,10 +585,14 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	}
 	else if (rc < 0) {
 		if (errno != EAGAIN) {
+			StopClientWatchers(IO);
 			EV_syslog(LOG_DEBUG,
 				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
-			IO_Timeout_callback(loop, &IO->rw_timeout, revents);
+			StrBufPrintf(IO->ErrMsg,
+				     "Socket Invalid! [%s]",
+				     strerror(errno));
+			SetNextTimeout(IO, 0.0);
 		}
 	}
 	/* else : must write more. */
@@ -808,7 +812,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	if (nbytes > 0) {
 		HandleInbound(IO);
 	} else if (nbytes == 0) {
-		IO_Timeout_callback(loop, &IO->rw_timeout, revents);
+		SetNextTimeout(IO, 0.0);
 		return;
 	} else if (nbytes == -1) {
 		if (errno != EAGAIN) {
@@ -817,7 +821,10 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			EV_syslog(LOG_DEBUG,
 				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
-			ShutDownCLient(IO);
+			StrBufPrintf(IO->ErrMsg,
+				     "Socket Invalid! [%s]",
+				     strerror(errno));
+			SetNextTimeout(IO, 0.0);
 		}
 		return;
 	}
