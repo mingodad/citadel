@@ -71,6 +71,16 @@ int POP3ClientDebugEnabled = 0;
 			     "IO[%ld]CC[%d][%ld]" FORMAT,		\
 			     IO->ID, CCID, N)
 
+#define EVP3CQ_syslog(LEVEL, FORMAT, ...)				\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "P3Q:" FORMAT,				\
+			     __VA_ARGS__)
+
+#define EVP3CQM_syslog(LEVEL, FORMAT)					\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "P3Q" FORMAT				\
+		)
+
 #define EVP3CCS_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]" FORMAT,		\
 			     IO->ID, N, __VA_ARGS__)
@@ -150,6 +160,8 @@ struct pop3aggr {
 	AsyncIO	 IO;
 
 	long n;
+	double IOStart;
+	long count;
 	long RefCount;
 	DNSQueryParts HostLookup;
 
@@ -192,14 +204,21 @@ void DeletePOP3Aggregator(void *vptr)
 eNextState FinalizePOP3AggrRun(AsyncIO *IO)
 {
 	HashPos  *It;
-	pop3aggr *cptr = (pop3aggr *)IO->Data;
+	pop3aggr *cpptr = (pop3aggr *)IO->Data;
 
-	EVP3CM_syslog(LOG_DEBUG, "Terminating Aggregator; bye.\n");
+	EVP3C_syslog(LOG_INFO,
+		     "%s@%s: fetched %ld new of %d messages in %fs. bye.",
+		     ChrPtr(cpptr->pop3user),
+		     ChrPtr(cpptr->pop3pass),
+		     cpptr->count,
+		     GetCount(cpptr->MsgNumbers), 
+		     IO->Now - cpptr->IOStart 
+		);
 
 	It = GetNewHashPos(POP3FetchUrls, 0);
 	pthread_mutex_lock(&POP3QueueMutex);
 	{
-		if (GetHashPosFromKey(POP3FetchUrls, SKEY(cptr->Url), It))
+		if (GetHashPosFromKey(POP3FetchUrls, SKEY(cpptr->Url), It))
 			DeleteEntryFromHash(POP3FetchUrls, It);
 	}
 	pthread_mutex_unlock(&POP3QueueMutex);
@@ -319,14 +338,14 @@ eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 #if 0
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0)
-		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
+		EVP3CCS_syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
 
 	Put(RecvMsg->MsgNumbers, LKEY(OneMsg->MSGID), OneMsg, HfreeFetchItem);
 #if 0
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0)
-		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
+		EVP3CCS_syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
 	//RecvMsg->State --; /* read next Line */
 	return eReadMore;
@@ -351,9 +370,9 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 			return eAbort;
 
 		RecvMsg->CurrMsg = (FetchItem*) vData;
-		syslog(LOG_DEBUG,
-		       "CHECKING: whether %s has already been seen: ",
-		       ChrPtr(RecvMsg->CurrMsg->MsgUID));
+		EVP3CCS_syslog(LOG_DEBUG,
+			       "CHECKING: whether %s has already been seen: ",
+			       ChrPtr(RecvMsg->CurrMsg->MsgUID));
 
 		/* Find out if we've already seen this item */
 		safestrncpy(ut.ut_msgid,
@@ -364,7 +383,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 		cdbut = cdb_fetch(CDB_USETABLE, SKEY(RecvMsg->CurrMsg->MsgUID));
 		if (cdbut != NULL) {
 			/* Item has already been seen */
-			syslog(LOG_DEBUG, "YES\n");
+			EVP3CCSM_syslog(LOG_DEBUG, "YES\n");
 			cdb_free(cdbut);
 
 			/* rewrite the record anyway, to update the timestamp */
@@ -375,7 +394,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 		}
 		else
 		{
-			syslog(LOG_DEBUG, "NO\n");
+			EVP3CCSM_syslog(LOG_DEBUG, "NO\n");
 			RecvMsg->CurrMsg->NeedFetch = 1;
 		}
 		return NextDBOperation(&RecvMsg->IO,
@@ -402,7 +421,7 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0)
-		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
+		EVP3CCS_syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
 	if(GetNextHashPos(RecvMsg->MsgNumbers,
 			  RecvMsg->Pos,
@@ -435,7 +454,7 @@ eNextState POP3C_GetOneMessageIDState(pop3aggr *RecvMsg)
 	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
 	if (rc != 0)
-		syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
+		EVP3CCS_syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
 
 	POP3C_DBG_READ();
@@ -511,9 +530,9 @@ eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 	struct UseTable ut;
 
-	syslog(LOG_DEBUG,
-	       "MARKING: %s as seen: ",
-	       ChrPtr(RecvMsg->CurrMsg->MsgUID));
+	EVP3CCS_syslog(LOG_DEBUG,
+		       "MARKING: %s as seen: ",
+		       ChrPtr(RecvMsg->CurrMsg->MsgUID));
 
 	safestrncpy(ut.ut_msgid,
 		    ChrPtr(RecvMsg->CurrMsg->MsgUID),
@@ -546,6 +565,7 @@ eNextState POP3C_SaveMsg(AsyncIO *IO)
 	}
 	CtdlFreeMessage(RecvMsg->CurrMsg->Msg);
 
+	RecvMsg->count ++;
 	return NextDBOperation(&RecvMsg->IO, POP3C_StoreMsgRead);
 }
 
@@ -714,7 +734,7 @@ void POP3SetTimeout(eNextState NextTCPState, pop3aggr *pMsg)
 }
 eNextState POP3_C_DispatchReadDone(AsyncIO *IO)
 {
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+/*	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__); to noisy anyways. */
 	pop3aggr *pMsg = IO->Data;
 	eNextState rc;
 
@@ -726,10 +746,10 @@ eNextState POP3_C_DispatchReadDone(AsyncIO *IO)
 }
 eNextState POP3_C_DispatchWriteDone(AsyncIO *IO)
 {
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 	pop3aggr *pMsg = IO->Data;
 	eNextState rc;
 
+/*	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__); to noisy anyways. */
 	rc = POP3C_SendHandlers[pMsg->State](pMsg);
 	POP3SetTimeout(rc, pMsg);
 	return rc;
@@ -743,7 +763,7 @@ eNextState POP3_C_Terminate(AsyncIO *IO)
 {
 ///	pop3aggr *pMsg = (pop3aggr *)IO->Data;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 	FinalizePOP3AggrRun(IO);
 	return eAbort;
 }
@@ -751,7 +771,7 @@ eNextState POP3_C_TerminateDB(AsyncIO *IO)
 {
 ///	pop3aggr *pMsg = (pop3aggr *)IO->Data;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 	FinalizePOP3AggrRun(IO);
 	return eAbort;
 }
@@ -759,7 +779,7 @@ eNextState POP3_C_Timeout(AsyncIO *IO)
 {
 	pop3aggr *pMsg = IO->Data;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State]));
 	return FailAggregationRun(IO);
 }
@@ -767,7 +787,7 @@ eNextState POP3_C_ConnFail(AsyncIO *IO)
 {
 	pop3aggr *pMsg = (pop3aggr *)IO->Data;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State]));
 	return FailAggregationRun(IO);
 }
@@ -775,13 +795,13 @@ eNextState POP3_C_DNSFail(AsyncIO *IO)
 {
 	pop3aggr *pMsg = (pop3aggr *)IO->Data;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 	StrBufPlain(IO->ErrMsg, CKEY(POP3C_ReadErrors[pMsg->State]));
 	return FailAggregationRun(IO);
 }
 eNextState POP3_C_Shutdown(AsyncIO *IO)
 {
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 ////	pop3aggr *pMsg = IO->Data;
 
 ////pMsg->MyQEntry->Status = 3;
@@ -830,7 +850,7 @@ eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 ////???	cpptr->State ++;
 	if (cpptr->Pos == NULL)
 		cpptr->Pos = GetNewHashPos(cpptr->MsgNumbers, 0);
@@ -843,7 +863,12 @@ eNextState POP3_C_ReAttachToFetchMessages(AsyncIO *IO)
 
 eNextState pop3_connect_ip(AsyncIO *IO)
 {
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	pop3aggr *cpptr = IO->Data;
+
+	if (cpptr->IOStart == 0.0) /* whith or without DNS? */
+		cpptr->IOStart = IO->Now;
+
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
 
 	return EvConnectSock(IO,
 			     POP3_C_ConnTimeout,
@@ -894,14 +919,16 @@ eNextState pop3_get_one_host_ip(AsyncIO *IO)
 {
 	pop3aggr *cpptr = IO->Data;
 
-	syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+	cpptr->IOStart = IO->Now;
 
-	syslog(LOG_DEBUG, 
-		      "POP3 client[%ld]: looking up %s-Record %s : %d ...\n",
-		      cpptr->n,
-		      (cpptr->IO.ConnectMe->IPv6)? "aaaa": "a",
-		      cpptr->IO.ConnectMe->Host,
-		      cpptr->IO.ConnectMe->Port);
+	EVP3CCS_syslog(LOG_DEBUG, "POP3: %s\n", __FUNCTION__);
+
+	EVP3CCS_syslog(LOG_DEBUG, 
+		       "POP3 client[%ld]: looking up %s-Record %s : %d ...\n",
+		       cpptr->n,
+		       (cpptr->IO.ConnectMe->IPv6)? "aaaa": "a",
+		       cpptr->IO.ConnectMe->Host,
+		       cpptr->IO.ConnectMe->Port);
 
 	QueueQuery((cpptr->IO.ConnectMe->IPv6)? ns_t_aaaa : ns_t_a,
 		   cpptr->IO.ConnectMe->Host,
@@ -969,11 +996,12 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	pthread_mutex_lock(&POP3QueueMutex);
 	if (GetHash(POP3QueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
-		syslog(LOG_DEBUG,
-			      "pop3client: [%ld] %s already in progress.\n",
+		pthread_mutex_unlock(&POP3QueueMutex);
+		EVP3CQ_syslog(LOG_DEBUG,
+			      "pop3client: [%ld] %s already in progress.",
 			      qrbuf->QRnumber,
 			      qrbuf->QRname);
-		pthread_mutex_unlock(&POP3QueueMutex);
+		return;
 	}
 	pthread_mutex_unlock(&POP3QueueMutex);
 
@@ -992,10 +1020,10 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	if (server_shutting_down)
 		return;
 	if (fstat(fd, &statbuf) == -1) {
-		syslog(LOG_DEBUG,
-		       "ERROR: could not stat configfile '%s' - %s\n",
-		       filename,
-		       strerror(errno));
+		EVP3CQ_syslog(LOG_INFO,
+			      "ERROR: could not stat configfile '%s' - %s",
+			      filename,
+			      strerror(errno));
 		return;
 	}
 	if (server_shutting_down)
@@ -1004,7 +1032,8 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
 		FreeStrBuf(&CfgData);
-		syslog(LOG_DEBUG, "ERROR: reading config '%s' - %s<br>\n",
+		EVP3CQ_syslog(LOG_INFO,
+			      "ERROR: reading config '%s' - %s",
 			      filename, strerror(errno));
 		return;
 	}
@@ -1176,7 +1205,7 @@ void pop3client_scan(void) {
 	if (doing_pop3client) return;
 	doing_pop3client = 1;
 
-	syslog(LOG_DEBUG, "pop3client started");
+	EVP3CQM_syslog(LOG_DEBUG, "pop3client started");
 	CtdlForEachRoom(pop3client_scan_room, NULL);
 
 	pthread_mutex_lock(&POP3QueueMutex);
@@ -1202,7 +1231,7 @@ void pop3client_scan(void) {
 	DeleteHashPos(&it);
 	pthread_mutex_unlock(&POP3QueueMutex);
 
-	syslog(LOG_DEBUG, "pop3client ended");
+	EVP3CQM_syslog(LOG_DEBUG, "pop3client ended");
 	last_run = time(NULL);
 	doing_pop3client = 0;
 }
