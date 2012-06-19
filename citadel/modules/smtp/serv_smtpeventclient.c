@@ -233,7 +233,7 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	 * - connection timeout
 	 * - dns lookup failed
 	 */
-	StopClientWatchers(IO);
+	StopClientWatchers(IO, 1);
 
 	if (Msg->pCurrRelay != NULL)
 		Msg->pCurrRelay = Msg->pCurrRelay->Next;

@@ -575,7 +575,7 @@ eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 	EVP3CM_syslog(LOG_DEBUG, "Converting message...");
 	RecvMsg->CurrMsg->Msg =
 		convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
-	StopClientWatchers(IO);
+	StopClientWatchers(IO, 0);
 	return QueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg);
 }
 

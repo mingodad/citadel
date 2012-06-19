@@ -266,7 +266,7 @@ void QueryCbDone(AsyncIO *IO);
 
 void StopClient(AsyncIO *IO);
 
-void StopClientWatchers(AsyncIO *IO);
+void StopClientWatchers(AsyncIO *IO, int CloseFD);
 
 void SetNextTimeout(AsyncIO *IO, double timeout);
 

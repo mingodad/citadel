@@ -309,7 +309,7 @@ void FreeAsyncIOContents(AsyncIO *IO)
 }
 
 
-void StopClientWatchers(AsyncIO *IO)
+void StopClientWatchers(AsyncIO *IO, int CloseFD)
 {
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	ev_timer_stop(event_base, &IO->conn_fail);
@@ -320,11 +320,11 @@ void StopClientWatchers(AsyncIO *IO)
 	ev_io_stop(event_base, &IO->send_event);
 	ev_io_stop(event_base, &IO->recv_event);
 
-	if (IO->SendBuf.fd != 0) {
+	if (CloseFD && (IO->SendBuf.fd > 0)) {
 		close(IO->SendBuf.fd);
+		IO->SendBuf.fd = -1;
+		IO->RecvBuf.fd = -1;
 	}
-	IO->SendBuf.fd = 0;
-	IO->RecvBuf.fd = 0;
 }
 
 void StopCurlWatchers(AsyncIO *IO)
@@ -352,7 +352,7 @@ void ShutDownCLient(AsyncIO *IO)
 
 	EVM_syslog(LOG_DEBUG, "EVENT Terminating \n");
 
-	StopClientWatchers(IO);
+	StopClientWatchers(IO, 1);
 
 	if (IO->DNS.Channel != NULL) {
 		ares_destroy(IO->DNS.Channel);
@@ -585,7 +585,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	}
 	else if (rc < 0) {
 		if (errno != EAGAIN) {
-			StopClientWatchers(IO);
+			StopClientWatchers(IO, 1);
 			EV_syslog(LOG_DEBUG,
 				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
@@ -817,7 +817,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	} else if (nbytes == -1) {
 		if (errno != EAGAIN) {
 			// FD is gone. kick it. 
-			StopClientWatchers(IO);
+			StopClientWatchers(IO, 1);
 			EV_syslog(LOG_DEBUG,
 				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
