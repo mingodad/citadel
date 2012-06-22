@@ -61,7 +61,7 @@
 CTDL_MODULE_INIT(checkpoint) {
 	if (threading)
 	{
-		CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
+		CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER, PRIO_CLEANUP + 10);
 	}
 	/* return our module name for the log */
 	return "checkpoint";

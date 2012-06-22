@@ -961,7 +961,7 @@ CTDL_MODULE_INIT(smtp)
 					NULL,
 					CitadelServiceSMTP_LMTP_UNF);
 
-		CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
+		CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP, PRIO_STOP + 250);
 	}
 	
 	/* return our module name for the log */

@@ -1260,7 +1260,7 @@ CTDL_MODULE_INIT(pop3client)
 		pthread_mutex_init(&POP3QueueMutex, NULL);
 		POP3QueueRooms = NewHash(1, lFlathash);
 		POP3FetchUrls = NewHash(1, NULL);
-		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER);
+		CtdlRegisterSessionHook(pop3client_scan, EVT_TIMER, PRIO_AGGR + 50);
 		CtdlRegisterEVCleanupHook(pop3_cleanup);
 		CtdlRegisterDebugFlagHook(HKEY("pop3client"), LogDebugEnablePOP3Client, &POP3ClientDebugEnabled);
 	}

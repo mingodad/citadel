@@ -599,11 +599,11 @@ CTDL_MODULE_INIT(instmsg)
 		CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an instant message");
 		CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable instant messages");
 		CtdlRegisterProtoHook(cmd_reqt, "REQT", "Request client termination");
-		CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC);
-		CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
+		CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC, PRIO_ASYNC + 1);
+		CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP, PRIO_STOP + 1);
 		CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
-		CtdlRegisterSessionHook(instmsg_timer, EVT_TIMER);
-		CtdlRegisterSessionHook(instmsg_shutdown, EVT_SHUTDOWN);
+		CtdlRegisterSessionHook(instmsg_timer, EVT_TIMER, PRIO_CLEANUP + 400);
+		CtdlRegisterSessionHook(instmsg_shutdown, EVT_SHUTDOWN, PRIO_SHUTDOWN + 10);
 	}
 	
 	/* return our module name for the log */

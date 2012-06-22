@@ -734,12 +734,12 @@ CTDL_MODULE_INIT(network)
 	{
 		CtdlRegisterDebugFlagHook(HKEY("networktalkingto"), SetNTTDebugEnabled, &NTTDebugEnabled);
 		CtdlRegisterCleanupHook(cleanup_nttlist);
-		CtdlRegisterSessionHook(network_cleanup_function, EVT_STOP);
-                CtdlRegisterSessionHook(network_logout_hook, EVT_LOGOUT);
+		CtdlRegisterSessionHook(network_cleanup_function, EVT_STOP, PRIO_STOP + 30);
+                CtdlRegisterSessionHook(network_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 10);
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 		CtdlRegisterRoomHook(network_room_handler);
 		CtdlRegisterCleanupHook(destroy_network_queue_room_locked);
-		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
+		CtdlRegisterSessionHook(network_do_queue, EVT_TIMER, PRIO_QUEUE + 10);
 	}
 	return "network";
 }

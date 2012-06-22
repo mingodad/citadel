@@ -385,7 +385,7 @@ void init_ssl(void)
 	CtdlRegisterProtoHook(cmd_stls, "STLS", "Start SSL/TLS session");
 	CtdlRegisterProtoHook(cmd_gtls, "GTLS",
 			      "Get SSL/TLS session status");
-	CtdlRegisterSessionHook(endtls, EVT_STOP);
+	CtdlRegisterSessionHook(endtls, EVT_STOP, PRIO_STOP + 10);
 }
 
 

@@ -371,7 +371,7 @@ int main(int argc, char **argv)
 	}
 
 	/* We want to check for idle sessions once per minute */
-	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
+	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER, PRIO_CLEANUP + 1);
 
 	go_threading();
 	

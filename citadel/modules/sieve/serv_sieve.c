@@ -1354,7 +1354,7 @@ CTDL_MODULE_INIT(sieve)
 		ctdl_sieve_init();
 		CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
 	        CtdlRegisterRoomHook(serv_sieve_room);
-        	CtdlRegisterSessionHook(perform_sieve_processing, EVT_HOUSE);
+        	CtdlRegisterSessionHook(perform_sieve_processing, EVT_HOUSE, PRIO_HOUSE + 10);
 		CtdlRegisterCleanupHook(cleanup_sieve);
 	}
 	

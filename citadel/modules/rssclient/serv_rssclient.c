@@ -592,7 +592,7 @@ CTDL_MODULE_INIT(rssclient)
 		RSSQueueRooms = NewHash(1, lFlathash);
 		RSSFetchUrls = NewHash(1, NULL);
 		syslog(LOG_INFO, "%s\n", curl_version());
-		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
+		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER, PRIO_AGGR + 300);
 		CtdlRegisterEVCleanupHook(rss_cleanup);
 		CtdlRegisterDebugFlagHook(HKEY("rssclient"), LogDebugEnableRSSClient, &RSSClientDebugEnabled);
 	}

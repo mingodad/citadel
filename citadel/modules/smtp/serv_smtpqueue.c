@@ -1137,7 +1137,7 @@ CTDL_MODULE_INIT(smtp_queu)
 		CtdlRegisterEVCleanupHook(smtp_evq_cleanup);
 
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
-		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
+		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER, PRIO_SEND + 10);
 	}
 
 	/* return our Subversion id for the Log */

@@ -507,7 +507,7 @@ CTDL_MODULE_INIT(fulltext)
 		CtdlRegisterDeleteHook(ft_delete_remove);
 		CtdlRegisterSearchFuncHook(ft_search, "fulltext");
 		CtdlRegisterCleanupHook(noise_word_cleanup);
-		CtdlRegisterSessionHook(do_fulltext_indexing, EVT_TIMER);
+		CtdlRegisterSessionHook(do_fulltext_indexing, EVT_TIMER, PRIO_CLEANUP + 300);
 	}
 	/* return our module name for the log */
 	return "fulltext";

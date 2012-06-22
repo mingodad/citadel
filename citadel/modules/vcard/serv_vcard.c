@@ -1452,7 +1452,7 @@ CTDL_MODULE_INIT(vcard)
 
 	if (!threading)
 	{
-		CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
+		CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN, PRIO_LOGIN + 70);
 		CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
 		CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
 		CtdlRegisterDeleteHook(vcard_delete_remove);
@@ -1466,7 +1466,7 @@ CTDL_MODULE_INIT(vcard)
 		CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
 		CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 		CtdlRegisterNetprocHook(vcard_extract_from_network);
-		CtdlRegisterSessionHook(store_harvested_addresses, EVT_TIMER);
+		CtdlRegisterSessionHook(store_harvested_addresses, EVT_TIMER, PRIO_CLEANUP + 470);
 		CtdlRegisterFixedOutputHook("text/x-vcard", vcard_fixed_output);
 		CtdlRegisterFixedOutputHook("text/vcard", vcard_fixed_output);
 

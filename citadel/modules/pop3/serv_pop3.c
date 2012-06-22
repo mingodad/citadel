@@ -679,7 +679,7 @@ CTDL_MODULE_INIT(pop3)
 					NULL,
 					CitadelServicePop3S);
 #endif
-		CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
+		CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP, PRIO_STOP + 30);
 	}
 	
 	/* return our module name for the log */

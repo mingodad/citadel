@@ -471,7 +471,7 @@ CTDL_MODULE_INIT(extnotify)
 	if (!threading)
 	{
 		create_extnotify_queue();
-		CtdlRegisterSessionHook(do_extnotify_queue, EVT_TIMER);
+		CtdlRegisterSessionHook(do_extnotify_queue, EVT_TIMER, PRIO_SEND + 10);
 	}
 	/* return our module name for the log */
 	return "extnotify";

@@ -87,6 +87,7 @@ extern FixedOutputHook *FixedOutputTable;
 typedef struct SessionFunctionHook SessionFunctionHook;
 struct SessionFunctionHook {
 	SessionFunctionHook *next;
+	int Priority;
 	void (*h_function_pointer) (void);
 	int eventtype;
 };
@@ -595,20 +596,28 @@ void CtdlDestroyEVCleanupHooks(void)
 }
 
 
-void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
+void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType, int Priority)
 {
-
 	SessionFunctionHook *newfcn;
 
 	newfcn = (SessionFunctionHook *)
 	    malloc(sizeof(SessionFunctionHook));
-	newfcn->next = SessionHookTable;
+	newfcn->Priority = Priority;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
-	SessionHookTable = newfcn;
 
-	MOD_syslog(LOG_DEBUG, "Registered a new session function (type %d)\n",
-		   EventType);
+	SessionFunctionHook **pfcn;
+	pfcn = &SessionHookTable;
+	while ((*pfcn != NULL) && 
+	       ((*pfcn)->Priority < newfcn->Priority) &&
+	       ((*pfcn)->next != NULL))
+		pfcn = &(*pfcn)->next;
+		
+	newfcn->next = *pfcn;
+	*pfcn = newfcn;
+	
+	MOD_syslog(LOG_DEBUG, "Registered a new session function (type %d Priority %d)\n",
+		   EventType, Priority);
 }
 
 

@@ -1721,7 +1721,7 @@ CTDL_MODULE_INIT(imap)
 		CtdlRegisterServiceHook(config.c_imaps_port,
 					NULL, imaps_greeting, imap_command_loop, NULL, CitadelServiceIMAPS);
 #endif
-		CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
+		CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP, PRIO_STOP + 30);
 		CtdlRegisterCleanupHook(imap_cleanup);
 	}
 	

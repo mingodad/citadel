@@ -76,8 +76,32 @@
 /*
  * Hook functions available to modules.
  */
-
-void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
+/* Priorities for  */
+#define PRIO_QUEUE 500
+#define PRIO_AGGR 1000
+#define PRIO_SEND 1500
+#define PRIO_CLEANUP 2000
+/* Priorities for EVT_HOUSE */
+#define PRIO_HOUSE 3000
+/* Priorities for EVT_LOGIN */
+#define PRIO_CREATE 10000
+/* Priorities for EVT_LOGOUT */
+#define PRIO_LOGOUT 15000
+/* Priorities for EVT_LOGIN */
+#define PRIO_LOGIN 20000
+/* Priorities for EVT_START */
+#define PRIO_START 25000
+/* Priorities for EVT_STOP */
+#define PRIO_STOP 30000
+/* Priorities for EVT_ASYNC */
+#define PRIO_ASYNC 35000
+/* Priorities for EVT_SHUTDOWN */
+#define PRIO_SHUTDOWN 40000
+/* Priorities for EVT_UNSTEALTH */
+#define PRIO_UNSTEALTH 45000
+/* Priorities for EVT_STEALTH */
+#define PRIO_STEALTH 50000
+void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType, int Priority);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlShutdownServiceHooks(void);
 

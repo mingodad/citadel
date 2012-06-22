@@ -633,11 +633,11 @@ CTDL_MODULE_INIT(xmpp)
 					CitadelServiceXMPP
 		);
 		CtdlRegisterDebugFlagHook(HKEY("serv_xmpp"), LogXMPPSrvDebugEnable, &XMPPSrvDebugEnable);
-		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
-                CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
-                CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);
-                CtdlRegisterSessionHook(xmpp_login_hook, EVT_UNSTEALTH);
-                CtdlRegisterSessionHook(xmpp_logout_hook, EVT_STEALTH);
+		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP, PRIO_STOP + 70);
+                CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN, PRIO_LOGIN + 90);
+                CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 90);
+                CtdlRegisterSessionHook(xmpp_login_hook, EVT_UNSTEALTH, PRIO_UNSTEALTH + 1);
+                CtdlRegisterSessionHook(xmpp_logout_hook, EVT_STEALTH, PRIO_STEALTH + 1);
 		CtdlRegisterCleanupHook(xmpp_cleanup_events);
 
 	}

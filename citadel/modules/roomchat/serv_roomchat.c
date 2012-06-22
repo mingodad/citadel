@@ -267,8 +267,8 @@ CTDL_MODULE_INIT(roomchat)
 	if (!threading)
 	{
 		CtdlRegisterProtoHook(cmd_rcht, "RCHT", "Participate in real time chat in a room");
-		CtdlRegisterSessionHook(roomchat_timer, EVT_TIMER);
-		CtdlRegisterSessionHook(roomchat_shutdown, EVT_SHUTDOWN);
+		CtdlRegisterSessionHook(roomchat_timer, EVT_TIMER, PRIO_CLEANUP + 400);
+		CtdlRegisterSessionHook(roomchat_shutdown, EVT_SHUTDOWN, PRIO_SHUTDOWN + 55);
 	}
 	
 	/* return our module name for the log */

@@ -74,10 +74,10 @@ CTDL_MODULE_INIT(test)
 	if (!threading)
 	{
 		CtdlRegisterCleanupHook(CleanupTest);
-		CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
-		CtdlRegisterSessionHook(SessionStartTest, EVT_START);
-		CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
-		CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
+		CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM, 1);
+		CtdlRegisterSessionHook(SessionStartTest, EVT_START, 1);
+		CtdlRegisterSessionHook(SessionStopTest, EVT_STOP, 1);
+		CtdlRegisterSessionHook(LoginTest, EVT_LOGIN, 1);
 	}
 #endif
 

@@ -951,7 +951,7 @@ CTDL_MODULE_INIT(expire)
 		CtdlRegisterProtoHook(cmd_tdap, "TDAP", "Manually initiate auto-purger");
 		CtdlRegisterProtoHook(cmd_gpex, "GPEX", "Get expire policy");
 		CtdlRegisterProtoHook(cmd_spex, "SPEX", "Set expire policy");
-		CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
+		CtdlRegisterSessionHook(purge_databases, EVT_TIMER, PRIO_CLEANUP + 20);
 	}
 
 	/* return our module name for the log */

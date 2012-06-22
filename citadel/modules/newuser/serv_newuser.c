@@ -110,7 +110,7 @@ CTDL_MODULE_INIT(newuser)
 {
 	if (!threading)
 	{
-		CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
+		CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN, PRIO_LOGIN + 1);
 	}
 	
 	/* return our module name for the log */

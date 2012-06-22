@@ -2600,10 +2600,10 @@ CTDL_MODULE_INIT(calendar)
 		/* Initialize our hook functions */
 		CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 		CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
-		CtdlRegisterSessionHook(ical_CtdlCreateRoom, EVT_LOGIN);
+		CtdlRegisterSessionHook(ical_CtdlCreateRoom, EVT_LOGIN, PRIO_LOGIN + 1);
 		CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
-		CtdlRegisterSessionHook(ical_session_startup, EVT_START);
-		CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);
+		CtdlRegisterSessionHook(ical_session_startup, EVT_START, PRIO_START + 1);
+		CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP, PRIO_STOP + 80);
 		CtdlRegisterFixedOutputHook("text/calendar", ical_fixed_output);
 		CtdlRegisterFixedOutputHook("application/ics", ical_fixed_output);
 		CtdlRegisterCleanupHook(serv_calendar_destroy);

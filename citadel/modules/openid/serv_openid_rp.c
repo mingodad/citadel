@@ -1140,7 +1140,7 @@ CTDL_MODULE_INIT(openid_rp)
 			CtdlRegisterProtoHook(cmd_oidc, "OIDC", "Create new user after validating OpenID");
 			CtdlRegisterProtoHook(cmd_oida, "OIDA", "List all OpenIDs in the database");
 		}
-		CtdlRegisterSessionHook(openid_cleanup_function, EVT_LOGOUT);
+		CtdlRegisterSessionHook(openid_cleanup_function, EVT_LOGOUT, PRIO_LOGOUT + 10);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
 		openid_level_supported = 1;	/* This module supports OpenID 1.0 only */
 	}

@@ -666,7 +666,7 @@ CTDL_MODULE_INIT(managesieve)
 					managesieve_command_loop,
 					NULL, 
 					CitadelServiceManageSieve);
-		CtdlRegisterSessionHook(managesieve_cleanup_function, EVT_STOP);
+		CtdlRegisterSessionHook(managesieve_cleanup_function, EVT_STOP, PRIO_STOP + 30);
 	}
 	
 	/* return our module name for the log */

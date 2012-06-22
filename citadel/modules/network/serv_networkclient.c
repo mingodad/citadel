@@ -1043,7 +1043,7 @@ CTDL_MODULE_INIT(network_client)
 	{
 		CtdlFillSystemContext(&networker_client_CC, "CitNetworker");
 		
-		CtdlRegisterSessionHook(network_do_clientqueue, EVT_TIMER);
+		CtdlRegisterSessionHook(network_do_clientqueue, EVT_TIMER, PRIO_SEND + 10);
 		CtdlRegisterDebugFlagHook(HKEY("networkclient"), LogDebugEnableNetworkClient, &NetworkClientDebugEnabled);
 
 	}
