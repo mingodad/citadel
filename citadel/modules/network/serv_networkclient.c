@@ -318,6 +318,7 @@ eNextState NWC_SendREAD(AsyncNetworker *NW)
 		{
 			FDIOBufferDelete(&NW->IO.IOB);
 			unlink(ChrPtr(NW->tempFileName));
+			FDIOBufferDelete(&IO->IOB);
 			return eAbort;
 		}
 		StrBufPrintf(NW->IO.SendBuf.Buf, "READ %ld|%ld\n",
@@ -352,6 +353,7 @@ eNextState NWC_ReadREADState(AsyncNetworker *NW)
 			NW->IO.IOB.ChunkSize = atol(ChrPtr(NW->IO.IOBuf)+4);
 		return eReadFile;
 	}
+	FDIOBufferDelete(&IO->IOB);
 	return eAbort;
 }
 eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW);
@@ -396,7 +398,6 @@ eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 		NW->State ++;
 
 		FDIOBufferDelete(&NW->IO.IOB);
-
 		if (link(ChrPtr(NW->tempFileName), ChrPtr(NW->SpoolFileName)) != 0) {
 			EVN_syslog(LOG_ALERT, 
 			       "Could not link %s to %s: %s\n",
@@ -428,6 +429,7 @@ eNextState NWC_ReadCLOSReply(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
 	NWC_DBG_READ();
+	FDIOBufferDelete(&IO->IOB);
 	if (ChrPtr(NW->IO.IOBuf)[0] != '2')
 		return eTerminateConnection;
 	return eSendReply;
@@ -476,6 +478,7 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 		NW->State = eQUIT;
 		rc = NWC_SendQUIT(NW);
 		NWC_DBG_SEND();
+		if (fd > 0) close(fd);
 		return rc;
 	}
 	FDIOBufferInit(&NW->IO.IOB, &NW->IO.SendBuf, fd, TotalSendSize);
@@ -489,8 +492,10 @@ eNextState NWC_ReadNUOPReply(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
 	NWC_DBG_READ();
-	if (ChrPtr(NW->IO.IOBuf)[0] != '2')
+	if (ChrPtr(NW->IO.IOBuf)[0] != '2') {
+		FDIOBufferDelete(&IO->IOB);
 		return eAbort;
+	}
 	return eSendReply;
 }
 
@@ -508,6 +513,7 @@ eNextState NWC_ReadWRITReply(AsyncNetworker *NW)
 	NWC_DBG_READ();
 	if (ChrPtr(NW->IO.IOBuf)[0] != '7')
 	{
+		FDIOBufferDelete(&IO->IOB);
 		return eAbort;
 	}
 
@@ -556,6 +562,7 @@ eNextState NWC_ReadUCLS(AsyncNetworker *NW)
 		EVN_syslog(LOG_DEBUG, "Removing <%s>\n", ChrPtr(NW->SpoolFileName));
 		unlink(ChrPtr(NW->SpoolFileName));
 	}
+	FDIOBufferDelete(&IO->IOB);
 	return eSendReply;
 }
 
