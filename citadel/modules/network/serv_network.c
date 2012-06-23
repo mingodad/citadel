@@ -233,7 +233,7 @@ int network_sync_to(char *target_node, long len)
 			continue;
 
 		extract_token(sc_node, buf, 1, '|', sizeof sc_node);
-		if (!strcasecmp(sc_node, target_node))
+		if (strcasecmp(sc_node, target_node))
 			continue;
 
 		extract_token(sc_room, buf, 2, '|', sizeof sc_room);
