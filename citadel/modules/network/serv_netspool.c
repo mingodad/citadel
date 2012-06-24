@@ -424,6 +424,7 @@ void network_spoolout_room(RoomProcList *room_to_spool,
  */
 void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg, HashList *the_netmap, int *netmap_changed)
 {
+	struct CitContext *CCC = CC;
 	StrBuf *Buf = NULL;
 	struct CtdlMessage *msg = NULL;
 	long pos;
@@ -438,14 +439,14 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	unsigned char firstbyte;
 	unsigned char lastbyte;
 
-	syslog(LOG_DEBUG, "network_process_buffer() processing %ld bytes\n", size);
+	QN_syslog(LOG_DEBUG, "network_process_buffer() processing %ld bytes\n", size);
 
 	/* Validate just a little bit.  First byte should be FF and * last byte should be 00. */
 	firstbyte = buffer[0];
 	lastbyte = buffer[size-1];
 	if ( (firstbyte != 255) || (lastbyte != 0) ) {
-		syslog(LOG_ERR, "Corrupt message ignored.  Length=%ld, firstbyte = %d, lastbyte = %d\n",
-			size, firstbyte, lastbyte);
+		QN_syslog(LOG_ERR, "Corrupt message ignored.  Length=%ld, firstbyte = %d, lastbyte = %d\n",
+			  size, firstbyte, lastbyte);
 		return;
 	}
 
@@ -506,14 +507,14 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 					 time(NULL),
 					 rand()
 				);
-				syslog(LOG_DEBUG, "Appending to %s\n", filename);
+				QN_syslog(LOG_DEBUG, "Appending to %s\n", filename);
 				fp = fopen(filename, "ab");
 				if (fp != NULL) {
 					fwrite(sermsg.ser, sermsg.len, 1, fp);
 					fclose(fp);
 				}
 				else {
-					syslog(LOG_ERR, "%s: %s\n", filename, strerror(errno));
+					QN_syslog(LOG_ERR, "%s: %s\n", filename, strerror(errno));
 				}
 				free(sermsg.ser);
 				CtdlFreeMessage(msg);
@@ -569,7 +570,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 				"Please check the address and try sending the message again.\n");
 			msg = NULL;
 			free_recipients(recp);
-			syslog(LOG_DEBUG, "Bouncing message due to invalid recipient address.\n");
+			QNM_syslog(LOG_DEBUG, "Bouncing message due to invalid recipient address.\n");
 			return;
 		}
 		strcpy(target_room, "");	/* no target room if mail */
@@ -643,6 +644,7 @@ void network_process_file(char *filename,
 			  HashList *the_netmap, 
 			  int *netmap_changed)
 {
+	struct CitContext *CCC = CC;
 	FILE *fp;
 	long msgstart = (-1L);
 	long msgend = (-1L);
@@ -652,12 +654,12 @@ void network_process_file(char *filename,
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL) {
-		syslog(LOG_CRIT, "Error opening %s: %s\n", filename, strerror(errno));
+		QN_syslog(LOG_CRIT, "Error opening %s: %s\n", filename, strerror(errno));
 		return;
 	}
 
 	fseek(fp, 0L, SEEK_END);
-	syslog(LOG_INFO, "network: processing %ld bytes from %s\n", ftell(fp), filename);
+	QN_syslog(LOG_INFO, "network: processing %ld bytes from %s\n", ftell(fp), filename);
 	rewind(fp);
 
 	/* Look for messages in the data stream and break them out */
@@ -699,6 +701,7 @@ void network_process_file(char *filename,
  */
 void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *netmap_changed)
 {
+	struct CitContext *CCC = CC;
 	DIR *dp;
 	struct dirent *d;
 	struct stat statbuf;
@@ -711,11 +714,11 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	 */
 	if (stat(ctdl_netin_dir, &statbuf)) return;
 	if (statbuf.st_mtime == last_spoolin_mtime) {
-		syslog(LOG_DEBUG, "network: nothing in inbound queue\n");
+		QNM_syslog(LOG_DEBUG, "network: nothing in inbound queue\n");
 		return;
 	}
 	last_spoolin_mtime = statbuf.st_mtime;
-	syslog(LOG_DEBUG, "network: processing inbound queue\n");
+	QNM_syslog(LOG_DEBUG, "network: processing inbound queue\n");
 
 	/*
 	 * Ok, there's something interesting in there, so scan it.
@@ -747,6 +750,7 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
  */
 void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netmap)
 {
+	struct CitContext *CCC = CC;
 	IOBuffer IOB;
 	FDIOBuffer FDIO;
         int d_namelen;
@@ -826,12 +830,12 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			 ctdl_netout_dir,
 			 ChrPtr(NextHop));
 
-		syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, ChrPtr(NextHop));
+		QN_syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, ChrPtr(NextHop));
 		if (network_talking_to(SKEY(NextHop), NTT_CHECK)) {
 			nFailed++;
-			syslog(LOG_DEBUG,
-			       "Currently online with %s - skipping for now\n",
-			       ChrPtr(NextHop)
+			QN_syslog(LOG_DEBUG,
+				  "Currently online with %s - skipping for now\n",
+				  ChrPtr(NextHop)
 				);
 		}
 		else {
@@ -844,10 +848,10 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			IOB.fd = open(filename, O_RDONLY);
 			if (IOB.fd == -1) {
 				nFailed++;
-				syslog(LOG_ERR,
-				       "failed to open %s for reading due to %s; skipping.\n",
-				       filename, strerror(errno)
-				);
+				QN_syslog(LOG_ERR,
+					  "failed to open %s for reading due to %s; skipping.\n",
+					  filename, strerror(errno)
+					);
 				network_talking_to(SKEY(NextHop), NTT_REMOVE);
 				continue;				
 			}
@@ -863,10 +867,10 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			}
 			if (fd == -1) {
 				nFailed++;
-				syslog(LOG_ERR,
-				       "failed to open %s for reading due to %s; skipping.\n",
-				       spooloutfilename, strerror(errno)
-				);
+				QN_syslog(LOG_ERR,
+					  "failed to open %s for reading due to %s; skipping.\n",
+					  spooloutfilename, strerror(errno)
+					);
 				close(IOB.fd);
 				network_talking_to(SKEY(NextHop), NTT_REMOVE);
 				continue;
@@ -884,10 +888,10 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			}
 			else {
 				nFailed++;
-				syslog(LOG_ERR,
-				       "failed to append to %s [%s]; rolling back..\n",
-				       spooloutfilename, strerror(errno)
-				);
+				QN_syslog(LOG_ERR,
+					  "failed to append to %s [%s]; rolling back..\n",
+					  spooloutfilename, strerror(errno)
+					);
 				/* whoops partial append?? truncate spooloutfilename again! */
 				ftruncate(fd, dsize);
 			}
@@ -901,9 +905,9 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 
 	if (nFailed > 0) {
 		FreeStrBuf(&NextHop);
-		syslog(LOG_INFO,
-		       "skipping Spoolcleanup because of %d files unprocessed.\n",
-		       nFailed
+		QN_syslog(LOG_INFO,
+			  "skipping Spoolcleanup because of %d files unprocessed.\n",
+			  nFailed
 			);
 
 		return;

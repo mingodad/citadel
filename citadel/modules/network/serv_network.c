@@ -92,6 +92,9 @@
 #include "netmail.h"
 #include "ctdl_module.h"
 
+int NetQDebugEnabled = 0;
+struct CitContext networker_spool_CC;
+
 /* comes from lookup3.c from libcitadel... */
 extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
@@ -147,8 +150,9 @@ int GetNetworkedRoomNumbers(const char *DirName, HashList *DirList)
  * message from being entered into the database multiple times if it happens
  * to arrive multiple times by accident.
  */
-int network_usetable(struct CtdlMessage *msg) {
-
+int network_usetable(struct CtdlMessage *msg)
+{
+	struct CitContext *CCC = CC;
 	char msgid[SIZ];
 	struct cdbdata *cdbut;
 	struct UseTable ut;
@@ -179,7 +183,7 @@ int network_usetable(struct CtdlMessage *msg) {
 	cdbut = cdb_fetch(CDB_USETABLE, msgid, strlen(msgid));
 	if (cdbut != NULL) {
 		cdb_free(cdbut);
-		syslog(LOG_DEBUG, "network_usetable() : we already have %s\n", msgid);
+		QN_syslog(LOG_DEBUG, "network_usetable() : we already have %s\n", msgid);
 		return(1);
 	}
 
@@ -206,6 +210,7 @@ int network_usetable(struct CtdlMessage *msg) {
  */
 int network_sync_to(char *target_node, long len)
 {
+	struct CitContext *CCC = CC;
 	SpoolControl sc;
 	int num_spooled = 0;
 	int found_node = 0;
@@ -269,8 +274,8 @@ int network_sync_to(char *target_node, long len)
 	DeleteHash(&sc.working_ignetcfg);
 	DeleteHash(&sc.the_netmap);
 
-	syslog(LOG_NOTICE, "Synchronized %d messages to <%s>\n",
-		num_spooled, target_node);
+	QN_syslog(LOG_NOTICE, "Synchronized %d messages to <%s>\n",
+		  num_spooled, target_node);
 	return(num_spooled);
 }
 
@@ -391,7 +396,9 @@ void destroy_network_queue_room_locked (void)
 /*
  * Bounce a message back to the sender
  */
-void network_bounce(struct CtdlMessage *msg, char *reason) {
+void network_bounce(struct CtdlMessage *msg, char *reason)
+{
+	struct CitContext *CCC = CC;
 	char *oldpath = NULL;
 	char buf[SIZ];
 	char bouncesource[SIZ];
@@ -401,7 +408,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	static int serialnum = 0;
 	size_t size;
 
-	syslog(LOG_DEBUG, "entering network_bounce()\n");
+	QNM_syslog(LOG_DEBUG, "entering network_bounce()\n");
 
 	if (msg == NULL) return;
 
@@ -490,7 +497,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	/* Clean up */
 	if (valid != NULL) free_recipients(valid);
 	CtdlFreeMessage(msg);
-	syslog(LOG_DEBUG, "leaving network_bounce()\n");
+	QNM_syslog(LOG_DEBUG, "leaving network_bounce()\n");
 }
 
 
@@ -504,7 +511,9 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
  * 
  * Run through the rooms doing various types of network stuff.
  */
-void network_do_queue(void) {
+void network_do_queue(void)
+{
+	struct CitContext *CCC = CC;
 	static int doing_queue = 0;
 	static time_t last_run = 0L;
 	int full_processing = 1;
@@ -520,7 +529,7 @@ void network_do_queue(void) {
 	if ( (time(NULL) - last_run) < config.c_net_freq ) {
 		full_processing = 0;
 		syslog(LOG_DEBUG, "Network full processing in %ld seconds.\n",
-			config.c_net_freq - (time(NULL)- last_run)
+		       config.c_net_freq - (time(NULL)- last_run)
 		);
 	}
 
@@ -535,6 +544,7 @@ void network_do_queue(void) {
 	}
 	doing_queue = 1;
 
+	become_session(&networker_spool_CC);
 	begin_critical_section(S_RPLIST);
 	RL.rplist = rplist;
 	rplist = NULL;
@@ -564,14 +574,14 @@ void network_do_queue(void) {
 	 * Go ahead and run the queue
 	 */
 	if (full_processing && !server_shutting_down) {
-		syslog(LOG_DEBUG, "network: loading outbound queue\n");
+		QNM_syslog(LOG_DEBUG, "network: loading outbound queue");
 		CtdlForEachRoom(network_queue_interesting_rooms, &RL);
 	}
 
 	if ((RL.rplist != NULL) && (!server_shutting_down)) {
 		RoomProcList *ptr, *cmp;
 		ptr = RL.rplist;
-		syslog(LOG_DEBUG, "network: running outbound queue\n");
+		QNM_syslog(LOG_DEBUG, "network: running outbound queue");
 		while (ptr != NULL && !server_shutting_down) {
 			
 			cmp = ptr->next;
@@ -621,7 +631,7 @@ void network_do_queue(void) {
 
 	DeleteHash(&working_ignetcfg);
 
-	syslog(LOG_DEBUG, "network: queue run completed\n");
+	QNM_syslog(LOG_DEBUG, "network: queue run completed");
 
 	if (full_processing) {
 		last_run = time(NULL);
@@ -727,12 +737,18 @@ void SetNTTDebugEnabled(const int n)
 {
 	NTTDebugEnabled = n;
 }
+void SetNetQDebugEnabled(const int n)
+{
+	NetQDebugEnabled = n;
+}
 
 CTDL_MODULE_INIT(network)
 {
 	if (!threading)
 	{
+		CtdlFillSystemContext(&networker_spool_CC, "CitNetSpool");
 		CtdlRegisterDebugFlagHook(HKEY("networktalkingto"), SetNTTDebugEnabled, &NTTDebugEnabled);
+		CtdlRegisterDebugFlagHook(HKEY("networkqueue"), SetNetQDebugEnabled, &NetQDebugEnabled);
 		CtdlRegisterCleanupHook(cleanup_nttlist);
 		CtdlRegisterSessionHook(network_cleanup_function, EVT_STOP, PRIO_STOP + 30);
                 CtdlRegisterSessionHook(network_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 10);

@@ -97,6 +97,7 @@
  * Deliver digest messages
  */
 void network_deliver_digest(SpoolControl *sc) {
+	struct CitContext *CCC = CC;
 	char buf[SIZ];
 	int i;
 	struct CtdlMessage *msg = NULL;
@@ -167,9 +168,9 @@ void network_deliver_digest(SpoolControl *sc) {
 	recps = malloc(recps_len);
 
 	if (recps == NULL) {
-		syslog(LOG_EMERG,
-		       "Cannot allocate %ld bytes for recps...\n",
-		       (long)recps_len);
+		QN_syslog(LOG_EMERG,
+			  "Cannot allocate %ld bytes for recps...\n",
+			  (long)recps_len);
 		abort();
 	}
 
@@ -203,7 +204,9 @@ void network_deliver_digest(SpoolControl *sc) {
 /*
  * Deliver list messages to everyone on the list ... efficiently
  */
-void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName) {
+void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName)
+{
+	struct CitContext *CCC = CC;
 	char *recps = NULL;
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
@@ -225,9 +228,9 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	recps = malloc(recps_len);
 
 	if (recps == NULL) {
-		syslog(LOG_EMERG,
-		       "Cannot allocate %ld bytes for recps...\n",
-		       (long)recps_len);
+		QN_syslog(LOG_EMERG,
+			  "Cannot allocate %ld bytes for recps...\n",
+			  (long)recps_len);
 		abort();
 	}
 
@@ -265,6 +268,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 void network_spool_msg(long msgnum,
 		       void *userdata)
 {
+	struct CitContext *CCC = CC;
 	StrBuf *Buf = NULL;
 	SpoolControl *sc;
 	int i;
@@ -574,34 +578,35 @@ void network_spool_msg(long msgnum,
 					  sc->working_ignetcfg,
 					  sc->the_netmap) != 0)
 			{
-				syslog(LOG_ERR,
-				       "Invalid node <%s>\n",
-				       mptr->remote_nodename);
+				QN_syslog(LOG_ERR,
+					  "Invalid node <%s>\n",
+					  mptr->remote_nodename);
 
 				send = 0;
 			}
 
 			/* Check for split horizon */
-			syslog(LOG_DEBUG, "Path is %s\n", msg->cm_fields['P']);
+			QN_syslog(LOG_DEBUG, "Path is %s\n", msg->cm_fields['P']);
 			bang = num_tokens(msg->cm_fields['P'], '!');
-			if (bang > 1) for (i=0; i<(bang-1); ++i) {
-				extract_token(buf,
-					      msg->cm_fields['P'],
-					      i, '!',
-					      sizeof buf);
+			if (bang > 1) {
+				for (i=0; i<(bang-1); ++i) {
+					extract_token(buf,
+						      msg->cm_fields['P'],
+						      i, '!',
+						      sizeof buf);
+					
+					QN_syslog(LOG_DEBUG, "Compare <%s> to <%s>\n",
+						  buf, mptr->remote_nodename) ;
+					if (!strcasecmp(buf, mptr->remote_nodename)) {
+						send = 0;
+						break;
+					}
+				}
 
-				syslog(LOG_DEBUG, "Compare <%s> to <%s>\n",
-					buf, mptr->remote_nodename) ;
-				if (!strcasecmp(buf, mptr->remote_nodename)) {
-					send = 0;
-					syslog(LOG_DEBUG, "Not sending to %s\n",
-						mptr->remote_nodename);
-				}
-				else {
-					syslog(LOG_DEBUG,
-					       "Sending to %s\n",
-					       mptr->remote_nodename);
-				}
+				QN_syslog(LOG_INFO,
+					  "%sSending to %s\n",
+					  (send)?"":"Not ",
+					  mptr->remote_nodename);
 			}
 
 			/* Send the message */
@@ -638,9 +643,9 @@ void network_spool_msg(long msgnum,
 						 rand()
 					);
 
-					syslog(LOG_DEBUG,
-					       "Appending to %s\n",
-					       filename);
+					QN_syslog(LOG_DEBUG,
+						  "Appending to %s\n",
+						  filename);
 
 					fp = fopen(filename, "ab");
 					if (fp != NULL) {
@@ -649,10 +654,10 @@ void network_spool_msg(long msgnum,
 						fclose(fp);
 					}
 					else {
-						syslog(LOG_ERR,
-						       "%s: %s\n",
-						       filename,
-						       strerror(errno));
+						QN_syslog(LOG_ERR,
+							  "%s: %s\n",
+							  filename,
+							  strerror(errno));
 					}
 
 					/* free the serialized version */
