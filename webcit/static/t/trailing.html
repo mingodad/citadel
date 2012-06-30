@@ -1,14 +1,18 @@
 <!-- start trailing.html -->
-<?!("COND:IMPMSG", 1)>
-<div id="important_message">
+<div id="important_message"
+<??("COND:IMPMSG", 1)>
+style="visibility: hidden;"
+<?!("X", 1)>
+>
 <span class="imsg">
-<?IMPORTANTMESSAGE>
+aoeuaoeu<?IMPORTANTMESSAGE>
 </span><br>
 </div>
+<?!("COND:IMPMSG", 2)>
 <script type="text/javascript">
   setTimeout('hide_imsg_popup()', 5000);
 </script>
-<?!("X", 1)>
+<?!("X", 2)>
 
 <noscript><div id="noscript_warning">
 	<?_("WARNING: You have JavaScript disabled in your web browser.  Many functions of this system will not work properly.")>
