@@ -1007,6 +1007,7 @@ void change_view(void) {
  * Set the message expire policy for this room and/or floor
  */
 void set_room_policy(void) {
+	StrBuf *Line;
 
 	if (!havebstr("ok_button")) {
 		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
@@ -1016,7 +1017,7 @@ void set_room_policy(void) {
 		return;
 	}
 
-	StrBuf *Line = NewStrBuf();
+	Line = NewStrBuf();
 
 	serv_printf("SPEX room|%d|%d", ibstr("roompolicy"), ibstr("roomvalue"));
 	StrBuf_ServGetln(Line);
@@ -1395,6 +1396,7 @@ InitModule_ROOMOPS
 	REGISTERTokenParamDefine(VIEW_CALBRIEF);
 	REGISTERTokenParamDefine(VIEW_JOURNAL);
 	REGISTERTokenParamDefine(VIEW_BLOG);
+	REGISTERTokenParamDefine(VIEW_QUEUE);
 
 	/* GNET types: */
 	/* server internal, we need to know but ignore them. */
