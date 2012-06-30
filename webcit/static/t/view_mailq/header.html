@@ -4,7 +4,6 @@
 </h1>
 </div>
 
-<div id="content" class="service">
 <!--
 <table class="smtpqueue_background">
 <tr><td valign=top>
@@ -16,6 +15,16 @@
 </div>
 </td></tr></table>
 -->
+
+<div id="runqueue" class="runqueue" style="display:none">
+<?_("Citadel reattempts sending mail per interval; it starts at 60 second, and doubles each time. You can however bypass this mechanism once; all messages will be reattempted on the next queue run.")>
+<a href="javascript:ToggleVisibility('runqueue_help1')"><?_("OK, got you, lets go!")></a>
+</div>
+
+<div id="runqueue_help1" style="display:none">
+<br><a href="javascript:SMTPRunQueue();"><?_("Reschedule all messages for delivery on next queue run")></a>
+</div>
+
 <table class="mailbox_summary" rules=rows cellpadding=2 style="width:100%%;">
 <tr><td><b><i>
 <?_("Message ID")>

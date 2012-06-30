@@ -77,6 +77,18 @@ function ToggleLogEnable($Which)
     });
 }
 
+function SMTPRunQueue()
+{
+    var p;
+
+    p= encodeURI('g_cmd=SMTP runqueue');
+    new Ajax.Request('ajax_servcmd', {
+	method: 'post',
+	parameters: p,
+	onComplete: function(transport) { ajax_important_message(transport.responseText.substr(4));}
+    });
+}
+
 function ToggleVisibility ($Which)
 {
 	if (document.getElementById)
@@ -177,6 +189,36 @@ function hide_imsg_popup() {
 	document.poppedLayer.style.visibility = "hidden";
 }
 
+function unhide_imsg_popup() {
+	if (browserType == "gecko") {
+		document.poppedLayer = eval('document.getElementById(\'important_message\')');
+	}
+	else if (browserType == "ie") {
+		document.poppedLayer = eval('document.all[\'important_message\']');
+	}
+	else {
+		document.poppedLayer = eval('document.layers[\'`important_message\']');
+	}
+
+	document.poppedLayer.style.visibility = "visible";
+    setTimeout('hide_imsg_popup()', 5000);
+}
+
+function ajax_important_message(messagetext)
+{
+    if (browserType == "gecko") {
+	document.poppedLayer = eval('document.getElementById(\'important_message\')');
+    }
+    else if (browserType == "ie") {
+	document.poppedLayer = eval('document.all[\'important_message\']');
+    }
+    else {
+	document.poppedLayer = eval('document.layers[\'`important_message\']');
+    }
+    document.poppedLayer.style.visibility = "visible";
+    setTimeout('hide_imsg_popup()', 5000);
+    document.poppedLayer.innerHTML = messagetext;
+}
 
 // This function activates the ajax-powered recipient autocompleters on the message entry screen.
 function activate_entmsg_autocompleters() {
