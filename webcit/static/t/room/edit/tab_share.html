@@ -2,19 +2,10 @@
 	<br />
 	<table border="1" cellpadding="5">
 		<tr>
+			<td><b><i><?_("Not shared with")></i></b></td>
 			<td><b><i><?_("Shared with")></i></b></td>
-			<td><b><i><?_("Not shared with")></i></b></td></tr>
+		</tr>
 		<tr>
-			<td valign="top">
-				<table border="0" cellpadding="5">
-					<tr class="tab_cell">
-						<td><?_("Remote node name")></td>
-						<td><?_("Remote room name")></td>
-						<td><?_("Actions")></td>
-					</tr>
-					<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_shared_room_removal", 0, 0, -1, #"ignet_push_share")>
-				</table>
-			</td>
 			<td valign="top">
 				<table border="0" cellpadding="5">
 					<tr class="tab_cell">
@@ -25,16 +16,30 @@
 					<?ITERATE("NODECONFIG", ="room_edit_shared_room_add")>
 				</table>
 			</td>
+			<td valign="top">
+				<table border="0" cellpadding="5">
+					<tr class="tab_cell">
+						<td><?_("Remote node name")></td>
+						<td><?_("Remote room name")></td>
+						<td><?_("Actions")></td>
+					</tr>
+					<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_shared_room_removal", 0, 0, -1, #"ignet_push_share")>
+				</table>
+			</td>
 		</tr>
 	</table>
 	<br />
-	<i>
+	<div id="hints">
 		<b><?_("Notes:")></b>
-		<ul>
+		<div><ul>
 			<li>
-				<?_("When sharing a room, it must be shared from both ends.  Adding a node to the 'shared' list sends messages out, but in order to receive messages, the other nodes must be configured to send messages out to your system as well. <li>If the remote room name is blank, it is assumed that the room name is identical on the remote node. <li>If the remote room name is different, the remote node must also configure the name of the room here.")>
+				<?_("When sharing a room, it must be shared from both ends.  Adding a node to the 'shared' list sends messages out, but in order to receive messages, the other nodes must be configured to send messages out to your system as well.")>
+			<li>
+			  <?_("If the remote room name is blank, it is assumed that the room name is identical on the remote node.")>
+			</li> <li>
+		          <?_("If the remote room name is different, the remote node must also configure the name of the room here.")>
 			</li>
-		</ul>
-	</i>
+		</ul></div>
+	</div>
 	<br />
 </div>
