@@ -1,6 +1,8 @@
 <script type="text/javascript">
-document.getElementById("ignet_share_node_add__<?CONTEXTSTRARR(#"GNET_IGNET_NODE", "U")>").style.display  = "none";
+<?#("if we already have this room, you can't add it anymore.")>
+remove_something('ignet_share_node_add__<?CONTEXTSTRARR(#"GNET_IGNET_NODE", "U")>', "hidden");
 </script>
+
 <form method="post" action="netedit">
 	<input type="hidden" name="nonce" value="<?NONCE>" />
 	<tr>
@@ -17,4 +19,3 @@ document.getElementById("ignet_share_node_add__<?CONTEXTSTRARR(#"GNET_IGNET_NODE
 		</td>
 	</tr>
 </form>
-

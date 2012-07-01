@@ -188,6 +188,18 @@ function hide_imsg_popup() {
 
 	document.poppedLayer.style.visibility = "hidden";
 }
+function remove_something(what_to_search, new_visibility) {
+	if (browserType == "gecko") {
+		document.poppedLayer = eval('document.getElementById(\'' + what_to_search + '\')');
+	}
+	else if (browserType == "ie") {
+		document.poppedLayer = eval('document.all[\'' + what_to_search + '\']');
+	}
+	else {
+		document.poppedLayer = eval('document.layers[\'`' + what_to_search + '\']');
+	}
+    document.poppedLayer.innerHTML = "";
+}
 
 function unhide_imsg_popup() {
 	if (browserType == "gecko") {
