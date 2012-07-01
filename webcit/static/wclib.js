@@ -89,6 +89,17 @@ function SMTPRunQueue()
     });
 }
 
+function NetworkSynchronizeRoom(NodeName)
+{
+    var p;
+
+    p= encodeURI('g_cmd=NSYN ' + NodeName);
+    new Ajax.Request('ajax_servcmd', {
+	method: 'post',
+	parameters: p,
+	onComplete: function(transport) { ajax_important_message(transport.responseText.substr(4));}
+    });
+}
 function ToggleVisibility ($Which)
 {
 	if (document.getElementById)

@@ -11,6 +11,7 @@
 			<input type="hidden" name="tab" value="sharing" />
 			<input type="hidden" name="cmd" value="remove" />
 			<input type="submit" name="unshare_button" value="<?_("Unshare")>" />
+			<a href="javascript:NetworkSynchronizeRoom('<?CONTEXTSTRARR(#"GNET_IGNET_NODE", "X")>')"><img src="static/webcit_icons/essen/16x16/refresh.png" alt='<?_("resend messages to this node")>' width="16" height="16"></a>
 <script type="text/javascript">
 <?#("if we already have this room, you can't add it anymore.")>
 remove_something('ignet_share_node_add__<?CONTEXTSTRARR(#"GNET_IGNET_NODE", "U")>', "hidden");
