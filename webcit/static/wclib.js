@@ -198,7 +198,8 @@ function remove_something(what_to_search, new_visibility) {
 	else {
 		document.poppedLayer = eval('document.layers[\'`' + what_to_search + '\']');
 	}
-    document.poppedLayer.innerHTML = "";
+    if (document.poppedLayer!= null)
+	document.poppedLayer.innerHTML = "";
 }
 
 function unhide_imsg_popup() {
