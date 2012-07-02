@@ -763,6 +763,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	const StrBuf *nexthop;
 	StrBuf *NextHop;
 	int i;
+	struct stat statbuf;
 	int nFailed = 0;
 
 	/* Step 1: consolidate files in the outbound queue into one file per neighbor node */
@@ -841,12 +842,12 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 		else {
 			size_t dsize;
 			size_t fsize;
-			int fd;
+			int infd, outfd;
 			const char *err = NULL;
 			network_talking_to(SKEY(NextHop), NTT_ADD);
 
-			IOB.fd = open(filename, O_RDONLY);
-			if (IOB.fd == -1) {
+			infd = open(filename, O_RDONLY);
+			if (infd == -1) {
 				nFailed++;
 				QN_syslog(LOG_ERR,
 					  "failed to open %s for reading due to %s; skipping.\n",
@@ -856,32 +857,40 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 				continue;				
 			}
 			
-			fd = open(spooloutfilename,
+			outfd = open(spooloutfilename,
 				  O_EXCL|O_CREAT|O_NONBLOCK|O_WRONLY, 
 				  S_IRUSR|S_IWUSR);
-			if (fd == -1)
+			if (outfd == -1)
 			{
-				fd = open(spooloutfilename,
-					  O_EXCL|O_NONBLOCK|O_WRONLY, 
-					  S_IRUSR | S_IWUSR);
+				outfd = open(spooloutfilename,
+					     O_EXCL|O_NONBLOCK|O_WRONLY, 
+					     S_IRUSR | S_IWUSR);
 			}
-			if (fd == -1) {
+			if (outfd == -1) {
 				nFailed++;
 				QN_syslog(LOG_ERR,
 					  "failed to open %s for reading due to %s; skipping.\n",
 					  spooloutfilename, strerror(errno)
 					);
-				close(IOB.fd);
+				close(infd);
 				network_talking_to(SKEY(NextHop), NTT_REMOVE);
 				continue;
 			}
-			dsize = lseek(fd, 0, SEEK_END);
-			fsize = lseek(IOB.fd, 0, SEEK_END);
-			
-			FDIOBufferInit(&FDIO, &IOB, fd, fsize + dsize);
+
+			dsize = lseek(outfd, 0, SEEK_END);
+			lseek(outfd, -dsize, SEEK_SET);
+
+			fstat(infd, &statbuf);
+			fsize = statbuf.st_size;
+/*
+			fsize = lseek(infd, 0, SEEK_END);
+*/			
+			IOB.fd = infd;
+			FDIOBufferInit(&FDIO, &IOB, outfd, fsize + dsize);
 			FDIO.ChunkSendRemain = fsize;
 			FDIO.TotalSentAlready = dsize;
 			err = NULL;
+			errno = 0;
 			do {} while ((FileMoveChunked(&FDIO, &err) > 0) && (err == NULL));
 			if (err == NULL) {
 				unlink(filename);
@@ -893,11 +902,11 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 					  spooloutfilename, strerror(errno)
 					);
 				/* whoops partial append?? truncate spooloutfilename again! */
-				ftruncate(fd, dsize);
+				ftruncate(outfd, dsize);
 			}
 			FDIOBufferDelete(&FDIO);
-			close(IOB.fd);
-			close(fd);
+			close(infd);
+			close(outfd);
 			network_talking_to(SKEY(NextHop), NTT_REMOVE);
 		}
 	}
