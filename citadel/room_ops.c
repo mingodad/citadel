@@ -1039,7 +1039,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	CCC->curr_view = (int)vbuf.v_view;
 
 	if (display_result) {
-		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|%d|\n",
+		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|%d|%ld|\n",
 			CIT_OK, CtdlCheckExpress(),
 			truncated_roomname,
 			(int)new_messages,
@@ -1055,7 +1055,8 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 			(int)vbuf.v_view,
 			(int)CCC->room.QRdefaultview,
 			(int)is_trash,
-			(int)CCC->room.QRflags2
+			(int)CCC->room.QRflags2,
+			(long)CCC->room.QRmtime
 		);
 	}
 }
