@@ -1,21 +1,15 @@
 /* 
  * Server functions which perform operations on room objects.
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License, version 3.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -261,6 +255,7 @@ SKIP_EVERYTHING:
 	if (view != NULL) *view = vbuf.v_view;
 }
 
+
 /*
  * Self-checking stuff for a room record read into memory
  */
@@ -362,13 +357,10 @@ void b_putroom(struct ctdlroom *qrbuf, char *room_name)
 
 	len = bptr - lowercase_name;
 	if (qrbuf == NULL) {
-		cdb_delete(CDB_ROOMS,
-			   lowercase_name, len);
+		cdb_delete(CDB_ROOMS, lowercase_name, len);
 	} else {
 		time(&qrbuf->QRmtime);
-		cdb_store(CDB_ROOMS,
-			  lowercase_name, len,
-			  qrbuf, sizeof(struct ctdlroom));
+		cdb_store(CDB_ROOMS, lowercase_name, len, qrbuf, sizeof(struct ctdlroom));
 	}
 }
 
@@ -389,7 +381,6 @@ void b_deleteroom(char *room_name) {
 }
 
 
-
 /*
  * CtdlPutRoomLock()  -  same as CtdlPutRoom() but unlocks the record (if supported)
  */
@@ -400,8 +391,6 @@ void CtdlPutRoomLock(struct ctdlroom *qrbuf)
 	end_critical_section(S_ROOMS);
 
 }
-
-/****************************************************************************/
 
 
 /*
@@ -424,7 +413,6 @@ int CtdlGetFloorByName(const char *floor_name)
 	}
 	return -1;
 }
-
 
 
 /*
@@ -484,6 +472,7 @@ void CtdlGetFloor(struct floor *flbuf, int floor_num)
 
 }
 
+
 /*
  * lgetfloor()  -  same as CtdlGetFloor() but locks the record (if supported)
  */
@@ -533,7 +522,6 @@ struct floor *CtdlGetCachedFloor(int floor_num) {
 }
 
 
-
 /*
  * CtdlPutFloor()  -  store floor data on disk
  */
@@ -553,7 +541,6 @@ void CtdlPutFloor(struct floor *flbuf, int floor_num)
 }
 
 
-
 /*
  * CtdlPutFloorLock()  -  same as CtdlPutFloor() but unlocks the record (if supported)
  */
@@ -564,7 +551,6 @@ void CtdlPutFloorLock(struct floor *flbuf, int floor_num)
 	end_critical_section(S_FLOORTAB);
 
 }
-
 
 
 /*
@@ -591,11 +577,13 @@ void CtdlForEachRoom(void (*CallBack) (struct ctdlroom *EachRoom, void *out_data
 		memset(&qrbuf, 0, sizeof(struct ctdlroom));
 		memcpy(&qrbuf, cdbqr->ptr,
 		       ((cdbqr->len > sizeof(struct ctdlroom)) ?
-			sizeof(struct ctdlroom) : cdbqr->len));
+			sizeof(struct ctdlroom) : cdbqr->len)
+		);
 		cdb_free(cdbqr);
 		room_sanity_check(&qrbuf);
-		if (qrbuf.QRflags & QR_INUSE)
+		if (qrbuf.QRflags & QR_INUSE) {
 			(*CallBack)(&qrbuf, in_data);
+		}
 	}
 }
 
@@ -608,7 +596,7 @@ void delete_msglist(struct ctdlroom *whichroom)
         struct cdbdata *cdbml;
 
 	/* Make sure the msglist we're deleting actually exists, otherwise
-	 * gdbm will complain when we try to delete an invalid record
+	 * libdb will complain when we try to delete an invalid record
 	 */
         cdbml = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
         if (cdbml != NULL) {
@@ -618,7 +606,6 @@ void delete_msglist(struct ctdlroom *whichroom)
 		cdb_delete(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
 	}
 }
-
 
 
 /*
@@ -649,8 +636,7 @@ int sort_msglist(long listptrs[], int oldcount)
 
 	/* and yank any nulls */
 	while ((numitems > 0) && (listptrs[0] == 0L)) {
-		memmove(&listptrs[0], &listptrs[1],
-		       (sizeof(long) * (numitems - 1)));
+		memmove(&listptrs[0], &listptrs[1], (sizeof(long) * (numitems - 1)));
 		--numitems;
 	}
 
@@ -672,7 +658,6 @@ int CtdlIsNonEditable(struct ctdlroom *qrbuf)
 	/* Everything else is editable */
 	return (0);
 }
-
 
 
 /*
@@ -1054,7 +1039,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	CCC->curr_view = (int)vbuf.v_view;
 
 	if (display_result) {
-		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|%d|\n",
+		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|%d|%d|%ld|\n",
 			CIT_OK, CtdlCheckExpress(),
 			truncated_roomname,
 			(int)new_messages,
@@ -1070,7 +1055,8 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 			(int)vbuf.v_view,
 			(int)CCC->room.QRdefaultview,
 			(int)is_trash,
-			(int)CCC->room.QRflags2
+			(int)CCC->room.QRflags2,
+			(long)CCC->room.QRmtime
 		);
 	}
 }
