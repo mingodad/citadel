@@ -171,6 +171,7 @@ struct pop3aggr {
 	StrBuf		*Url;
 	StrBuf *pop3user;
 	StrBuf *pop3pass;
+	StrBuf *Host;
 	StrBuf *RoomName; // TODO: fill me
 	int keep;
 	time_t interval;
@@ -188,6 +189,7 @@ void DeletePOP3Aggregator(void *vptr)
 //	FreeStrBuf(&ptr->rooms);
 	FreeStrBuf(&ptr->pop3user);
 	FreeStrBuf(&ptr->pop3pass);
+	FreeStrBuf(&ptr->Host);
 	FreeStrBuf(&ptr->RoomName);
 	FreeURL(&ptr->IO.ConnectMe);
 	FreeStrBuf(&ptr->Url);
@@ -209,7 +211,7 @@ eNextState FinalizePOP3AggrRun(AsyncIO *IO)
 	EVP3C_syslog(LOG_INFO,
 		     "%s@%s: fetched %ld new of %d messages in %fs. bye.",
 		     ChrPtr(cpptr->pop3user),
-		     ChrPtr(cpptr->pop3pass),
+		     ChrPtr(cpptr->Host),
 		     cpptr->count,
 		     GetCount(cpptr->MsgNumbers), 
 		     IO->Now - cpptr->IOStart 
@@ -439,7 +441,7 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 	}
 	else
 	{
-	    RecvMsg->State++;
+		RecvMsg->State++;
 		DeleteHashPos(&RecvMsg->Pos);
 		/// done receiving uidls.. start looking them up now.
 		RecvMsg->Pos = GetNewHashPos(RecvMsg->MsgNumbers, 0);
@@ -1059,7 +1061,6 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 			if (!strcasecmp("pop3client", ChrPtr(CfgType)))
 			{
 				pop3aggr *cptr;
-				StrBuf *Tmp;
 /*
 				if (Count == NULL)
 				{
@@ -1078,9 +1079,10 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 				cptr->pop3pass =
 					NewStrBufPlain(NULL, StrLength(Line));
 				cptr->Url = NewStrBuf();
-				Tmp = NewStrBuf();
+				cptr->Host =
+					NewStrBufPlain(NULL, StrLength(Line));
 
-				StrBufExtract_NextToken(Tmp, Line, &lPtr, '|');
+				StrBufExtract_NextToken(cptr->Host, Line, &lPtr, '|');
 				StrBufExtract_NextToken(cptr->pop3user,
 							Line,
 							&lPtr,
@@ -1104,11 +1106,10 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 				StrBufAppendBufPlain(cptr->Url, HKEY(":"), 0);
 				StrBufUrlescUPAppend(cptr->Url, cptr->pop3pass, NULL);
 				StrBufAppendBufPlain(cptr->Url, HKEY("@"), 0);
-				StrBufAppendBuf(cptr->Url, Tmp, 0);
+				StrBufAppendBuf(cptr->Url, cptr->Host, 0);
 				StrBufAppendBufPlain(cptr->Url, HKEY("/"), 0);
 				StrBufUrlescAppend(cptr->Url, cptr->RoomName, NULL);
 
-				FreeStrBuf(&Tmp);
 				ParseURL(&cptr->IO.ConnectMe, cptr->Url, 110);
 
 
