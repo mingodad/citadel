@@ -50,6 +50,7 @@ int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
                           const Bytef * source, uLong sourceLen, int level);
 #endif
 int BaseStrBufSize = 64;
+int EnableSplice = 0;
 
 const char *StrBufNOTNULL = ((char*) NULL) - 1;
 
@@ -3886,23 +3887,28 @@ void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
 	FDB->ChunkSize = 
 		FDB->TotalSendSize = TotalSendSize;
 	FDB->IOB = IO;
-#ifndef LINUX_SPLICE
-	FDB->ChunkBuffer = NewStrBufPlain(NULL, TotalSendSize + 1);
-#else
-	pipe(FDB->SplicePipe);
+#ifdef LINUX_SPLICE
+	if (EnableSplice)
+		pipe(FDB->SplicePipe);
+	else
 #endif
+		FDB->ChunkBuffer = NewStrBufPlain(NULL, TotalSendSize + 1);
+
 	FDB->OtherFD = FD;
 }
 
 void FDIOBufferDelete(FDIOBuffer *FDB)
 {
-#ifndef LINUX_SPLICE
-	FreeStrBuf(&FDB->ChunkBuffer);
-#else
-	close(FDB->SplicePipe[0]);
-	close(FDB->SplicePipe[1]);
-	
+#ifdef LINUX_SPLICE
+	if (EnableSplice)
+	{
+		close(FDB->SplicePipe[0]);
+		close(FDB->SplicePipe[1]);
+	}
+	else
 #endif
+		FreeStrBuf(&FDB->ChunkBuffer);
+	
 	close(FDB->OtherFD);
 	memset(FDB, 0, sizeof(FDIOBuffer));	
 }
@@ -3911,65 +3917,69 @@ int FileSendChunked(FDIOBuffer *FDB, const char **Err)
 {
 	ssize_t sent, pipesize;
 #ifdef LINUX_SPLICE
-	if (FDB->PipeSize == 0)
+	if (EnableSplice)
 	{
-		pipesize = splice(FDB->OtherFD,
-				  &FDB->TotalSentAlready, 
-				  FDB->SplicePipe[1],
-				  NULL, 
-				  FDB->ChunkSendRemain, 
-				  SPLICE_F_MOVE);
+		if (FDB->PipeSize == 0)
+		{
+			pipesize = splice(FDB->OtherFD,
+					  &FDB->TotalSentAlready, 
+					  FDB->SplicePipe[1],
+					  NULL, 
+					  FDB->ChunkSendRemain, 
+					  SPLICE_F_MOVE);
 	
-		if (pipesize == -1)
+			if (pipesize == -1)
+			{
+				*Err = strerror(errno);
+				return pipesize;
+			}
+			FDB->PipeSize = pipesize;
+		}
+		sent =  splice(FDB->SplicePipe[0],
+			       NULL, 
+			       FDB->IOB->fd,
+			       NULL, 
+			       FDB->PipeSize,
+			       SPLICE_F_MORE | SPLICE_F_MOVE | SPLICE_F_NONBLOCK);
+		if (sent == -1)
 		{
 			*Err = strerror(errno);
-			return pipesize;
+			return sent;
 		}
-		FDB->PipeSize = pipesize;
-	}
-	sent =  splice(FDB->SplicePipe[0],
-		       NULL, 
-		       FDB->IOB->fd,
-		       NULL, 
-		       FDB->PipeSize,
-		       SPLICE_F_MORE | SPLICE_F_MOVE | SPLICE_F_NONBLOCK);
-	if (sent == -1)
-	{
-		*Err = strerror(errno);
+		FDB->PipeSize -= sent;
+		FDB->ChunkSendRemain -= sent;
 		return sent;
 	}
-	FDB->PipeSize -= sent;
-	FDB->ChunkSendRemain -= sent;
-	return sent;
-#else
-
-	char *pRead;
-	long nRead = 0;
-
-	pRead = FDB->ChunkBuffer->buf;
-	while ((FDB->ChunkBuffer->BufUsed < FDB->TotalSendSize) && (nRead >= 0))
-	{
-		nRead = read(FDB->OtherFD, pRead, FDB->TotalSendSize - FDB->ChunkBuffer->BufUsed);
-		if (nRead > 0) {
-			FDB->ChunkBuffer->BufUsed += nRead;
-			FDB->ChunkBuffer->buf[FDB->ChunkBuffer->BufUsed] = '\0';
-		}
-		else if (nRead == 0) {}
-		else return nRead;
-		
-	}
-
-	nRead = write(FDB->IOB->fd, FDB->ChunkBuffer->buf + FDB->TotalSentAlready, FDB->ChunkSendRemain);
-
-	if (nRead >= 0) {
-		FDB->TotalSentAlready += nRead;
-		FDB->ChunkSendRemain -= nRead;
-		return FDB->ChunkSendRemain;
-	}
-	else {
-		return nRead;
-	}
+	else
 #endif
+	{
+		char *pRead;
+		long nRead = 0;
+
+		pRead = FDB->ChunkBuffer->buf;
+		while ((FDB->ChunkBuffer->BufUsed < FDB->TotalSendSize) && (nRead >= 0))
+		{
+			nRead = read(FDB->OtherFD, pRead, FDB->TotalSendSize - FDB->ChunkBuffer->BufUsed);
+			if (nRead > 0) {
+				FDB->ChunkBuffer->BufUsed += nRead;
+				FDB->ChunkBuffer->buf[FDB->ChunkBuffer->BufUsed] = '\0';
+			}
+			else if (nRead == 0) {}
+			else return nRead;
+		
+		}
+
+		nRead = write(FDB->IOB->fd, FDB->ChunkBuffer->buf + FDB->TotalSentAlready, FDB->ChunkSendRemain);
+
+		if (nRead >= 0) {
+			FDB->TotalSentAlready += nRead;
+			FDB->ChunkSendRemain -= nRead;
+			return FDB->ChunkSendRemain;
+		}
+		else {
+			return nRead;
+		}
+	}
 }
 
 int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
@@ -3977,68 +3987,71 @@ int FileRecvChunked(FDIOBuffer *FDB, const char **Err)
 	ssize_t sent, pipesize;
 
 #ifdef LINUX_SPLICE
-	if (FDB->PipeSize == 0)
+	if (EnableSplice)
 	{
-		pipesize = splice(FDB->IOB->fd,
-				  NULL, 
-				  FDB->SplicePipe[1],
-				  NULL, 
-				  FDB->ChunkSendRemain, 
-				  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
+		if (FDB->PipeSize == 0)
+		{
+			pipesize = splice(FDB->IOB->fd,
+					  NULL, 
+					  FDB->SplicePipe[1],
+					  NULL, 
+					  FDB->ChunkSendRemain, 
+					  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
 
-		if (pipesize == -1)
+			if (pipesize == -1)
+			{
+				*Err = strerror(errno);
+				return pipesize;
+			}
+			FDB->PipeSize = pipesize;
+		}
+	
+		sent = splice(FDB->SplicePipe[0],
+			      NULL, 
+			      FDB->OtherFD,
+			      &FDB->TotalSentAlready, 
+			      FDB->PipeSize,
+			      SPLICE_F_MORE | SPLICE_F_MOVE);
+
+		if (sent == -1)
 		{
 			*Err = strerror(errno);
-			return pipesize;
+			return sent;
 		}
-		FDB->PipeSize = pipesize;
-	}
-	
-	sent = splice(FDB->SplicePipe[0],
-		      NULL, 
-		      FDB->OtherFD,
-		      &FDB->TotalSentAlready, 
-		      FDB->PipeSize,
-		      SPLICE_F_MORE | SPLICE_F_MOVE);
-
-	if (sent == -1)
-	{
-		*Err = strerror(errno);
-		return sent;
-	}
-	FDB->PipeSize -= sent;
-	FDB->ChunkSendRemain -= sent;
-	return sent;
-#else
-	
-	sent = read(FDB->IOB->fd, FDB->ChunkBuffer->buf, FDB->ChunkSendRemain);
-	if (sent > 0) {
-		int nWritten = 0;
-		int rc; 
-		
-		FDB->ChunkBuffer->BufUsed = sent;
-
-		while (nWritten < FDB->ChunkBuffer->BufUsed) {
-			rc =  write(FDB->OtherFD, FDB->ChunkBuffer->buf + nWritten, FDB->ChunkBuffer->BufUsed - nWritten);
-			if (rc < 0) {
-				*Err = strerror(errno);
-				return rc;
-			}
-			nWritten += rc;
-
-		}
-		FDB->ChunkBuffer->BufUsed = 0;
-		FDB->TotalSentAlready += sent;
+		FDB->PipeSize -= sent;
 		FDB->ChunkSendRemain -= sent;
-		return FDB->ChunkSendRemain;
-	}
-	else if (sent < 0) {
-		*Err = strerror(errno);
 		return sent;
 	}
-
+	else
 #endif
-	return 0;
+	{
+		sent = read(FDB->IOB->fd, FDB->ChunkBuffer->buf, FDB->ChunkSendRemain);
+		if (sent > 0) {
+			int nWritten = 0;
+			int rc; 
+		
+			FDB->ChunkBuffer->BufUsed = sent;
+
+			while (nWritten < FDB->ChunkBuffer->BufUsed) {
+				rc =  write(FDB->OtherFD, FDB->ChunkBuffer->buf + nWritten, FDB->ChunkBuffer->BufUsed - nWritten);
+				if (rc < 0) {
+					*Err = strerror(errno);
+					return rc;
+				}
+				nWritten += rc;
+
+			}
+			FDB->ChunkBuffer->BufUsed = 0;
+			FDB->TotalSentAlready += sent;
+			FDB->ChunkSendRemain -= sent;
+			return FDB->ChunkSendRemain;
+		}
+		else if (sent < 0) {
+			*Err = strerror(errno);
+			return sent;
+		}
+		return 0;
+	}
 }
 
 int FileMoveChunked(FDIOBuffer *FDB, const char **Err)
@@ -4046,68 +4059,71 @@ int FileMoveChunked(FDIOBuffer *FDB, const char **Err)
 	ssize_t sent, pipesize;
 
 #ifdef LINUX_SPLICE
-	if (FDB->PipeSize == 0)
+	if (EnableSplice)
 	{
-		pipesize = splice(FDB->IOB->fd,
-				  &FDB->TotalReadAlready, 
-				  FDB->SplicePipe[1],
-				  NULL, 
-				  FDB->ChunkSendRemain, 
-				  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
-
-		if (pipesize == -1)
+		if (FDB->PipeSize == 0)
+		{
+			pipesize = splice(FDB->IOB->fd,
+					  &FDB->TotalReadAlready, 
+					  FDB->SplicePipe[1],
+					  NULL, 
+					  FDB->ChunkSendRemain, 
+					  SPLICE_F_MORE | SPLICE_F_MOVE|SPLICE_F_NONBLOCK);
+			
+			if (pipesize == -1)
+			{
+				*Err = strerror(errno);
+				return pipesize;
+			}
+			FDB->PipeSize = pipesize;
+		}
+		
+		sent = splice(FDB->SplicePipe[0],
+			      NULL, 
+			      FDB->OtherFD,
+			      &FDB->TotalSentAlready, 
+			      FDB->PipeSize,
+			      SPLICE_F_MORE | SPLICE_F_MOVE);
+		
+		if (sent == -1)
 		{
 			*Err = strerror(errno);
-			return pipesize;
+			return sent;
 		}
-		FDB->PipeSize = pipesize;
-	}
-	
-	sent = splice(FDB->SplicePipe[0],
-		      NULL, 
-		      FDB->OtherFD,
-		      &FDB->TotalSentAlready, 
-		      FDB->PipeSize,
-		      SPLICE_F_MORE | SPLICE_F_MOVE);
-
-	if (sent == -1)
-	{
-		*Err = strerror(errno);
-		return sent;
-	}
-	FDB->PipeSize -= sent;
-	FDB->ChunkSendRemain -= sent;
-	return sent;
-#else
-	
-	sent = read(FDB->IOB->fd, FDB->ChunkBuffer->buf, FDB->ChunkSendRemain);
-	if (sent > 0) {
-		int nWritten = 0;
-		int rc; 
-		
-		FDB->ChunkBuffer->BufUsed = sent;
-
-		while (nWritten < FDB->ChunkBuffer->BufUsed) {
-			rc =  write(FDB->OtherFD, FDB->ChunkBuffer->buf + nWritten, FDB->ChunkBuffer->BufUsed - nWritten);
-			if (rc < 0) {
-				*Err = strerror(errno);
-				return rc;
-			}
-			nWritten += rc;
-
-		}
-		FDB->ChunkBuffer->BufUsed = 0;
-		FDB->TotalSentAlready += sent;
+		FDB->PipeSize -= sent;
 		FDB->ChunkSendRemain -= sent;
-		return FDB->ChunkSendRemain;
-	}
-	else if (sent < 0) {
-		*Err = strerror(errno);
 		return sent;
 	}
+	else
+#endif	
+	{
+		sent = read(FDB->IOB->fd, FDB->ChunkBuffer->buf, FDB->ChunkSendRemain);
+		if (sent > 0) {
+			int nWritten = 0;
+			int rc; 
+		
+			FDB->ChunkBuffer->BufUsed = sent;
 
-#endif
-	return 0;
+			while (nWritten < FDB->ChunkBuffer->BufUsed) {
+				rc =  write(FDB->OtherFD, FDB->ChunkBuffer->buf + nWritten, FDB->ChunkBuffer->BufUsed - nWritten);
+				if (rc < 0) {
+					*Err = strerror(errno);
+					return rc;
+				}
+				nWritten += rc;
+
+			}
+			FDB->ChunkBuffer->BufUsed = 0;
+			FDB->TotalSentAlready += sent;
+			FDB->ChunkSendRemain -= sent;
+			return FDB->ChunkSendRemain;
+		}
+		else if (sent < 0) {
+			*Err = strerror(errno);
+			return sent;
+		}
+		return 0;
+	}
 }
 
 eReadState WriteIOBAlreadyRead(FDIOBuffer *FDB, const char **Error)
