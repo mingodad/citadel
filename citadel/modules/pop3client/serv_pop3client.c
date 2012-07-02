@@ -359,7 +359,8 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 	struct cdbdata *cdbut;
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 
-	if(GetNextHashPos(RecvMsg->MsgNumbers,
+	if((RecvMsg->Pos != NULL) &&
+	   GetNextHashPos(RecvMsg->MsgNumbers,
 			  RecvMsg->Pos,
 			  &HKLen,
 			  &HKey,
@@ -423,7 +424,8 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 	if (rc != 0)
 		EVP3CCS_syslog(LOG_DEBUG, "Hash Invalid: %d\n", rc);
 #endif
-	if(GetNextHashPos(RecvMsg->MsgNumbers,
+	if((RecvMsg->Pos != NULL) &&
+	   GetNextHashPos(RecvMsg->MsgNumbers,
 			  RecvMsg->Pos,
 			  &HKLen, &HKey,
 			  &vData))
@@ -486,7 +488,8 @@ eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 	void *vData;
 
 	RecvMsg->CurrMsg = NULL;
-	while (GetNextHashPos(RecvMsg->MsgNumbers,
+	while ((RecvMsg->Pos != NULL) && 
+	       GetNextHashPos(RecvMsg->MsgNumbers,
 			      RecvMsg->Pos,
 			      &HKLen, &HKey,
 			      &vData) &&
