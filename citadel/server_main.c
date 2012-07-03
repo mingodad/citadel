@@ -89,6 +89,7 @@ void go_threading(void);
  */
 int main(int argc, char **argv)
 {
+	size_t basesize = 64;
 	char facility[32];
 	int a;			/* General-purpose variables */
 	struct passwd pw, *pwp = NULL;
@@ -114,7 +115,7 @@ int main(int argc, char **argv)
 	InitializeMasterTSD();
 
 	/* parse command-line arguments */
-	while ((a=getopt(argc, argv, "l:dh:x:t:Dr")) != EOF) switch(a) {
+	while ((a=getopt(argc, argv, "l:dh:x:t:B:Dr")) != EOF) switch(a) {
 
 		case 'l':
 			safestrncpy(facility, optarg, sizeof(facility));
@@ -143,6 +144,9 @@ int main(int argc, char **argv)
 
 		case 't':	/* deprecated */
 			break;
+                case 'B': /* Basesize */
+                        basesize = atoi(optarg);
+                        break;
 
 		case 'D':
 			dbg = 1;
@@ -165,7 +169,7 @@ int main(int argc, char **argv)
 			);
 			exit(1);
 	}
-
+	StartLibCitadel(basesize);
 	openlog("citserver",
 		( running_as_daemon ? (LOG_PID) : (LOG_PID | LOG_PERROR) ),
 		syslog_facility
