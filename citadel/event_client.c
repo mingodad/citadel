@@ -805,7 +805,8 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	if (nbytes > 0) {
 		HandleInbound(IO);
 	} else if (nbytes == 0) {
-		SetNextTimeout(IO, 0.0);
+		StopClientWatchers(IO, 1);
+		SetNextTimeout(IO, 0.01);
 		return;
 	} else if (nbytes == -1) {
 		if (errno != EAGAIN) {
