@@ -251,8 +251,9 @@ void load_siteconfig(void)
 			Buf = NewStrBuf();
 		}
 		else {
-			if (j == 0)
-				AppendImportantMessage(_("WARNING: Failed to parse Server Config; do you run a to new citserver?"), -1);
+			if (j == 0) {
+				syslog(LOG_WARNING, "The server sent more configuration data than this version of webcit is capable of changing.  Unknown configuration values will remain unchanged.");
+			}
 			j++;
 		}
 	}
