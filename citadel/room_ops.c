@@ -2278,6 +2278,19 @@ void cmd_eflr(char *argbuf)
 }
 
 
+
+/* 
+ * cmd_stat()  -  return the modification time of the current room (maybe other things in the future)
+ */
+void cmd_stat(char *gargs)
+{
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+	CtdlGetRoom(&CC->room, CC->room.QRname);
+	cprintf("%d %s|%ld|\n", CIT_OK, CC->room.QRname, CC->room.QRmtime);
+}
+
+
+
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
 /*****************************************************************************/
@@ -2292,6 +2305,7 @@ CTDL_MODULE_INIT(room_ops)
 		CtdlRegisterProtoHook(cmd_lzrm, "LZRM", "List zapped rooms");
 		CtdlRegisterProtoHook(cmd_lprm, "LPRM", "List public rooms");
 		CtdlRegisterProtoHook(cmd_goto, "GOTO", "Goto a named room");
+		CtdlRegisterProtoHook(cmd_stat, "STAT", "Get mtime of the current room");
 		CtdlRegisterProtoHook(cmd_whok, "WHOK", "List users who know this room");
 		CtdlRegisterProtoHook(cmd_rdir, "RDIR", "List files in room directory");
 		CtdlRegisterProtoHook(cmd_getr, "GETR", "Get room parameters");
