@@ -28,7 +28,7 @@
 	<?DOBOXED(="who_box_list_static", ="who_list_static_header")>
 </div>
 <script type="text/javascript">
- new Ajax.PeriodicalUpdater('do_template', 'template=wholiststatic',
+ new Ajax.PeriodicalUpdater('who_inner', 'do_template?template=who_box_list_static',
                             { method: 'get', frequency: 30 }  );
 </script>
 <?=("trailing")>
