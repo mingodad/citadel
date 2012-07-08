@@ -1,7 +1,7 @@
 <tr class="<?ITERATE:ODDEVEN>">
 	<td class="edit_col">
 		<??("COND:AIDE", 1)><??("WHO:ISME", 2)>
- 			<a href="terminate_session?which_session=<?WHO:SESSION>&template=who" onClick="return ConfirmKill();"><?_("(kill)")></a>
+ 			<a href="terminate_session?which_session=<?WHO:SESSION>?template=who" onClick="return ConfirmKill();"><?_("(kill)")></a>
 		<??("X", 2)><??("X", 1)>
 		<?!("WHO:ISME", 3)>
 			<a href="edit_me"><img src="static/webcit_icons/essen/16x16/config.png" alt="(<?_("edit")>)" title="<?_("edit")>"></a>
