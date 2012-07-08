@@ -863,7 +863,6 @@ void tmplput_importantmessage(StrBuf *Target, WCTemplputParams *TP)
 	if (WCC != NULL) {
 		if (StrLength(WCC->ImportantMsg) > 0) {
 			StrEscAppend(Target, WCC->ImportantMsg, NULL, 0, 0);
-			FlushStrBuf(WCC->ImportantMsg);
 		}
 	}
 }
@@ -973,6 +972,10 @@ SessionDetachModule_WEBCIT
 	else
 		FlushStrBuf(sess->WBuf);
 	FlushStrBuf(sess->HBuf);
+	if (StrLength(sess->ImportantMsg) > 0) {
+		FlushStrBuf(sess->ImportantMsg);
+	}
+
 }
 
 void 
