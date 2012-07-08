@@ -227,14 +227,22 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 	}
 	else
 	{
+		int Error = atol(ChrPtr(NW->IO.IOBuf));
 		if (NW->IO.ErrMsg == NULL)
 			NW->IO.ErrMsg = NewStrBuf();
 		StrBufPrintf(NW->IO.ErrMsg,
-			     "Connected to node \"%s\" but my secret wasn't accurate.",
-			     ChrPtr(NW->node));
-		EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
-		CtdlAideMessage(ChrPtr(NW->IO.ErrMsg), "Network error");
-		
+			     "Connected to node \"%s\" but my secret wasn't accurate.\nReason was:%s\n",
+			     ChrPtr(NW->node), ChrPtr(NW->IO.IOBuf) + 4);
+		if (Error == 552) {
+			EVN_syslog(LOG_INFO,
+				   "Already talking to %s; skipping this time.\n",
+				   ChrPtr(NW->node));
+			
+		}
+		else {
+			EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
+			CtdlAideMessage(ChrPtr(NW->IO.ErrMsg), "Network error");
+		}
 		return eAbort;
 	}
 }
