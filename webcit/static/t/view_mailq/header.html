@@ -25,16 +25,8 @@
 <br><a href="javascript:SMTPRunQueue();"><?_("Reschedule all messages for delivery on next queue run")></a>
 </div>
 
-<table class="mailbox_summary" rules=rows cellpadding=2 style="width:100%%;">
-<tr><td><b><i>
-<?_("Message ID")>
-</i></b></td><td><b><i>
-<?_("Date/time submitted")>
-</i></b></td><td><b><i>
-<?_("Next attempt")>
-</i></b></td><td><b><i>
-<?_("Sender")>
-</i></b></td><td><b><i>
-<?_("Recipients")>
-</i></b></td></tr>
+<div align="center">
+<a href="javascript:RefreshSMTPqueueDisplay();"><?_("Refresh this page")></a>
+</div>
 
+<?=("view_mailq_table">

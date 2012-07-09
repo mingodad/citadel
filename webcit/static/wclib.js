@@ -931,8 +931,8 @@ function WCLog(msg) {
 }
 
 function RefreshSMTPqueueDisplay() {
-	new Ajax.Updater('smtpqueue_inner_div',
-	'display_smtpqueue_inner_div', { method: 'get',
+	new Ajax.Updater('mailqueue_list',
+	'dotskip?room=__CitadelSMTPspoolout__&view=11&ListOnly=yes', { method: 'get',
 		parameters: Math.random() } );
 }
 
@@ -942,7 +942,7 @@ function DeleteSMTPqueueMsg(msgnum1, msgnum2) {
 		'ajax_servcmd', {
 			method: 'post',
 			parameters: p,
-			onComplete: RefreshSMTPqueueDisplay()
+		        onComplete: function(transport) { ajax_important_message(transport.responseText.substr(4)); RefreshSMTPqueueDisplay();}
 		}
 	);
 }

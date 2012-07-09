@@ -311,7 +311,10 @@ ServerStartModule_SMTP_QUEUE
 
 int qview_PrintPageHeader(SharedMessageStatus *Stat, void **ViewSpecific)
 {
-	output_headers(1, 1, 1, 0, 0, 0);
+	if (yesbstr("ListOnly"))
+		output_headers(1, 0, 0, 0, 0, 0);
+	else
+		output_headers(1, 1, 1, 0, 0, 0);
 	return 0;
 }
 
@@ -333,7 +336,10 @@ int qview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	else {
 		snprintf(cmd, len, "MSGS ALL|0|1");
 		snprintf(filter, flen, "SUBJ|QMSG");
-		DoTemplate(HKEY("view_mailq_header"), NULL, NULL);
+		if (yesbstr("ListOnly"))
+			DoTemplate(HKEY("view_mailq_table"), NULL, NULL);
+		else
+			DoTemplate(HKEY("view_mailq_header"), NULL, NULL);
 		return 200;
 	}
 }
@@ -364,16 +370,22 @@ int qview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	wcsession *WCC = WC;
 	WCTemplputParams SubTP;
 
-	if (GetCount(WCC->summ) == 0)
-		DoTemplate(HKEY("view_mailq_footer_empty"),NULL, &SubTP);
+	if (yesbstr("ListOnly"))
+		DoTemplate(HKEY("view_mailq_footer_listonly"),NULL, &SubTP);
 	else
-		DoTemplate(HKEY("view_mailq_footer"),NULL, &SubTP);
-	
+	{
+		if (GetCount(WCC->summ) == 0)
+			DoTemplate(HKEY("view_mailq_footer_empty"),NULL, &SubTP);
+		else
+			DoTemplate(HKEY("view_mailq_footer"),NULL, &SubTP);
+	}
+
 	return 0;
 }
 int qview_Cleanup(void **ViewSpecific)
 {
-	wDumpContent(1);
+	
+	wDumpContent(yesbstr("ListOnly")?0:1);
 	return 0;
 }
 
