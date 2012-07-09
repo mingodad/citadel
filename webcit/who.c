@@ -131,77 +131,25 @@ void edit_me(void)
 {
 	char buf[SIZ];
 
+	output_headers(1, 0, 0, 0, 0, 0);
 	if (havebstr("change_room_name_button")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("who");
+		do_template("who");
 	} else if (havebstr("change_host_name_button")) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("who");
+		do_template("who");
 	} else if (havebstr("change_user_name_button")) {
 		serv_printf("UCHG %s", bstr("fake_username"));
 		serv_getln(buf, sizeof buf);
-		http_redirect("who");
+		do_template("who");
 	} else if (havebstr("cancel_button")) {
-		http_redirect("who");
+		do_template("who");
 	} else {
-		output_headers(1, 1, 0, 0, 0, 0);
-
-		wc_printf("<div id=\"banner\">\n");
-		wc_printf("<table class=\"who_banner\"><tr><td>");
-		wc_printf("<span class=\"titlebar\">");
-		wc_printf(_("Edit your session display"));
-		wc_printf("</span></td></tr></table>\n");
-		wc_printf("</div>\n<div id=\"content\">\n");
-
-		wc_printf(_("This screen allows you to change the way your "
-			"session appears in the 'Who is online' listing. "
-			"To turn off any 'fake' name you've previously "
-			"set, simply click the appropriate 'change' button "
-			"without typing anything in the corresponding box. "));
-		wc_printf("<br>\n");
-
-		wc_printf("<form method=\"POST\" action=\"edit_me\">\n");
-		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-
-		wc_printf("<table border=0 width=100%%>\n");
-
-		wc_printf("<tr><td><b>");
-		wc_printf(_("Room name:"));
-		wc_printf("</b></td>\n<td>");
-		wc_printf("<input type=\"text\" name=\"fake_roomname\" maxlength=\"64\">\n");
-		wc_printf("</td>\n<td align=center>");
-		wc_printf("<input type=\"submit\" name=\"change_room_name_button\" value=\"%s\">",
-			_("Change room name"));
-		wc_printf("</td>\n</tr>\n");
-
-		wc_printf("<tr><td><b>");
-		wc_printf(_("Host name:"));
-		wc_printf("</b></td><td>");
-		wc_printf("<input type=\"text\" name=\"fake_hostname\" maxlength=\"64\">\n");
-		wc_printf("</td>\n<td align=center>");
-		wc_printf("<input type=\"submit\" name=\"change_host_name_button\" value=\"%s\">",
-			_("Change host name"));
-		wc_printf("</td>\n</tr>\n");
-
-		if (WC->is_aide) {
-			wc_printf("<tr><td><b>");
-			wc_printf(_("User name:"));
-			wc_printf("</b></td><td>");
-			wc_printf("<input type=\"text\" name=\"fake_username\" maxlength=\"64\">\n");
-			wc_printf("</td>\n<td align=center>");
-			wc_printf("<input type=\"submit\" name \"change_user_name_button\" value=\"%s\">",
-				_("Change user name"));
-			wc_printf("</td>\n</tr>\n");
-		}
-		wc_printf("<tr><td> </td><td> </td><td align=center>");
-		wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">",
-			_("Cancel"));
-		wc_printf("</td></tr></table>\n");
-		wc_printf("</form></center>\n");
-		wDumpContent(1);
+		do_template("who_edit");
 	}
+	end_burst();
 }
 
 void _terminate_session(void) {

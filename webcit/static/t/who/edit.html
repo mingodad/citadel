@@ -1,0 +1,52 @@
+<?=("head")>
+<div id="banner">
+<table class="who_banner"><tr><td>
+<span class="titlebar">
+<?_("Edit your session display")>
+</span></td></tr></table>
+</div>
+<div id="content">
+
+<?_("This screen allows you to change the way your session appears in the 'Who is online' listing. To turn off any 'fake' name you've previously set, simply click the appropriate 'change' button without typing anything in the corresponding box. ")>
+<br>
+
+<form method="POST" action="edit_me">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<table border=0 width=100%%>
+
+<tr><td><b>
+<?_("Room name:")>
+</b></td>
+<td>
+<input type="text" name="fake_roomname" maxlength="64">
+</td>
+<td align="center">
+<input type="submit" name="change_room_name_button" value="<?_("Change room name")>">
+</td>
+</tr>
+
+<tr><td><b>
+<?_("Host name:")>
+</b></td><td>
+<input type="text" name="fake_hostname" maxlength="64">
+</td>
+<td align="center">
+<input type="submit" name="change_host_name_button" value="<?_("Change host name")>">
+</td>
+</tr>
+<??("COND:AIDE", 1)>
+	<tr><td><b>
+	<?_("User name:")>
+	</b></td><td>
+	<input type="text" name="fake_username" maxlength="64">
+	</td>
+	<td align="center">
+	<input type="submit" name "change_user_name_button" value="<?_("Change user name")>">		
+	</td>
+	</tr>
+<??("X", 1)>
+<tr><td> </td><td> </td><td align="center">
+<input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</td></tr></table>
+</form></center>
+<?=("trailing")>
