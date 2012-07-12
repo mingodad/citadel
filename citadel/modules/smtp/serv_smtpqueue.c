@@ -817,6 +817,32 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	{
 		char mxbuf[SIZ];
 		ParsedURL **Url = &MyQItem->URL;
+		nRelays = get_hosts(mxbuf, "fallbackhost");
+		if (nRelays > 0) {
+			StrBuf *All;
+			StrBuf *One;
+			const char *Pos = NULL;
+			All = NewStrBufPlain(mxbuf, -1);
+			One = NewStrBufPlain(NULL, StrLength(All) + 1);
+
+			while ((Pos != StrBufNOTNULL) &&
+			       ((Pos == NULL) ||
+				!IsEmptyStr(Pos)))
+			{
+				StrBufExtract_NextToken(One, All, &Pos, '|');
+				if (!ParseURL(Url, One, DefaultMXPort)) {
+					SMTPC_syslog(LOG_DEBUG,
+						     "Failed to parse: %s\n",
+						     ChrPtr(One));
+				}
+				else {
+					(*Url)->IsRelay = 1;
+					MyQItem->HaveRelay = 1;
+				}
+			}
+			FreeStrBuf(&All);
+			FreeStrBuf(&One);
+		}
 		nRelays = get_hosts(mxbuf, "smarthost");
 		if (nRelays > 0) {
 			StrBuf *All;
@@ -845,33 +871,6 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			FreeStrBuf(&One);
 		}
 
-		Url = &MyQItem->FallBackHost;
-		nRelays = get_hosts(mxbuf, "fallbackhost");
-		if (nRelays > 0) {
-			StrBuf *All;
-			StrBuf *One;
-			const char *Pos = NULL;
-			All = NewStrBufPlain(mxbuf, -1);
-			One = NewStrBufPlain(NULL, StrLength(All) + 1);
-
-			while ((Pos != StrBufNOTNULL) &&
-			       ((Pos == NULL) ||
-				!IsEmptyStr(Pos)))
-			{
-				StrBufExtract_NextToken(One, All, &Pos, '|');
-				if (!ParseURL(Url, One, DefaultMXPort)) {
-					SMTPC_syslog(LOG_DEBUG,
-						     "Failed to parse: %s\n",
-						     ChrPtr(One));
-				}
-				else {
-					(*Url)->IsRelay = 1;
-					MyQItem->HaveRelay = 1;
-				}
-			}
-			FreeStrBuf(&All);
-			FreeStrBuf(&One);
-		}
 	}
 
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
