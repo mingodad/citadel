@@ -994,7 +994,7 @@ void network_poll_other_citadel_nodes(int full_poll, HashList *ignetcfg)
 		    strcmp("0.0.0.0", ChrPtr(NW->host)))
 		{
 			NW->Url = NewStrBuf();
-			StrBufPrintf(NW->Url, "citadel://:%s@%s:%s", 
+			StrBufPrintf(NW->Url, "citadel://%s@%s:%s", 
 				     ChrPtr(NW->secret),
 				     ChrPtr(NW->host),
 				     ChrPtr(NW->port));
