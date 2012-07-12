@@ -130,7 +130,9 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 		((struct sockaddr_in *)&(url->Addr))->sin_port = htons(url->Port);
 		((struct sockaddr_in *)&(url->Addr))->sin_family = AF_INET;
 	    }	
-	}	
+	}
+	if (*Url != NULL)
+		url->Next = *Url;
 	*Url = url;
 	return 1;
 }

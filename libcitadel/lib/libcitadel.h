@@ -391,6 +391,7 @@ struct ParsedURL {
 	struct hostent *HEnt;
 	struct sockaddr_in6 Addr;
 	ParsedURL *Next;
+	int IsRelay;
 };
 
 void FreeURL(ParsedURL** Url);
