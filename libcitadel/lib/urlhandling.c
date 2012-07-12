@@ -53,12 +53,12 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 	 */
 	url->URL = NewStrBufDup(UrlStr);
 	url->Host = pch = ChrPtr(url->URL);
-	url->LocalPart = strchr(pch, '/');
+	pEndHost = url->LocalPart = strchr(pch, '/');
 	if (url->LocalPart != NULL) {
 		if ((*(url->LocalPart + 1) == '/') && 
 		    (*(url->LocalPart - 1) == ':')) { /* TODO: find default port for this protocol... */
 			url->Host = url->LocalPart + 2;
-			url->LocalPart = strchr(url->Host, '/');
+			pEndHost = url->LocalPart = strchr(url->Host, '/');
 			if (url->LocalPart != NULL)
 			{
 			    StrBufPeek(url->URL, url->LocalPart, 0, '\0');
@@ -67,10 +67,10 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 		}
 	}
 	if (url->LocalPart == NULL) {
-		url->LocalPart = pch + StrLength(url->URL);
+		pEndHost = url->LocalPart = ChrPtr(url->URL) + StrLength(url->URL);
 	}
 
-	pCredEnd = strchr(pch, '@');
+	pCredEnd = strrchr(ChrPtr(url->URL), '@');
 	if (pCredEnd >= url->LocalPart)
 		pCredEnd = NULL;
 	if (pCredEnd != NULL)
