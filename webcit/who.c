@@ -37,7 +37,7 @@ int CompareUserStruct(const void *VUser1, const void *VUser2)
 }
 
 
-int GetWholistSection(HashList *List, time_t now, StrBuf *Buf)
+int GetWholistSection(HashList *List, time_t now, StrBuf *Buf, const char *FilterName, long FNLen)
 {
 	wcsession *WCC = WC;
 	UserStateStruct *User, *OldUser;
@@ -82,28 +82,41 @@ int GetWholistSection(HashList *List, time_t now, StrBuf *Buf)
 			User->IdleSince = (now - User->LastActive) / 60;
 			User->SessionCount = 1;
 
-			if (GetHash(List, 
-				    ChrPtr(User->UserName), 
-				    StrLength(User->UserName), 
-				    &VOldUser)) {
-				OldUser = VOldUser;
-				OldUser->SessionCount++;
-				if (!User->Idle) {
-					if (User->Session == WCC->ctdl_pid) 
-						OldUser->Session = User->Session;
-
-					OldUser->Idle = User->Idle;
-					OldUser->LastActive = User->LastActive;
+			if (FilterName == NULL) {
+				if (GetHash(List, 
+					    SKEY(User->UserName), 
+					    &VOldUser)) {
+					OldUser = VOldUser;
+					OldUser->SessionCount++;
+					if (!User->Idle) {
+						if (User->Session == WCC->ctdl_pid) 
+							OldUser->Session = User->Session;
+						
+						OldUser->Idle = User->Idle;
+						OldUser->LastActive = User->LastActive;
+					}
+					DestroyUserStruct(User);
 				}
-				DestroyUserStruct(User);
+				else
+					Put(List, 
+					    SKEY(User->UserName), 
+					    User, DestroyUserStruct);
 			}
-			else
-				Put(List, 
-				    ChrPtr(User->UserName), 
-				    StrLength(User->UserName), 
-				    User, DestroyUserStruct);
+			else {
+				if (strcmp(FilterName, ChrPtr(User->UserName)) == 0)
+				{
+					Put(List, 
+					    SKEY(User->UserName), 
+					    User, DestroyUserStruct);
+				}
+				else 
+				{
+					DestroyUserStruct(User);
+				}
+			}
 		}
-		SortByPayload(List, CompareUserStruct);
+		if (FilterName == NULL)
+			SortByPayload(List, CompareUserStruct);
 		return 1;
 	}
 	else {
@@ -160,6 +173,10 @@ void _terminate_session(void) {
 HashList *GetWholistHash(StrBuf *Target, WCTemplputParams *TP)
 
 {
+	const char *ch = NULL;
+	int HashUniq = 1;
+	long len;
+	StrBuf *FilterNameStr = NULL;
 	StrBuf *Buf;
 	HashList *List;
         time_t now;
@@ -175,10 +192,17 @@ HashList *GetWholistHash(StrBuf *Target, WCTemplputParams *TP)
 	else {
 		now = time(NULL);
 	}
+	if (HaveTemplateTokenString(NULL, TP, 2, &ch, &len))
+	{
+		FilterNameStr = NewStrBuf();
+		GetTemplateTokenString(FilterNameStr, TP, 2, &ch, &len);
+		HashUniq = 0;
+	}
 
-	List = NewHash(1, NULL);
-	GetWholistSection(List, now, Buf);
+	List = NewHash(HashUniq, NULL);
+	GetWholistSection(List, now, Buf, ch, len);
 	FreeStrBuf(&Buf);
+	FreeStrBuf(&FilterNameStr);
 	return List;
 }
 
@@ -279,7 +303,7 @@ InitModule_WHO
 	WebcitAddUrlHandler(HKEY("terminate_session"), "", 0, _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), "", 0, edit_me, 0);
 
-	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, NULL, DeleteWholistHash, CTX_WHO, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("WHOLIST", 1, NULL, GetWholistHash, NULL, DeleteWholistHash, CTX_WHO, CTX_NONE, IT_NOFLAG);
 
 	RegisterNamespace("WHO:NAME",        0, 1, tmplput_who_username, NULL, CTX_WHO);
 	RegisterNamespace("WHO:ROOM",        0, 1, tmplput_who_room, NULL, CTX_WHO);
