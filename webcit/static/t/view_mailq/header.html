@@ -17,16 +17,29 @@
 -->
 
 <div id="runqueue" class="runqueue" style="display:none">
+<?=("box_begin_1")><?_("HINT")><?=("box_begin_2")>
 <?_("Citadel reattempts sending mail per interval; it starts at 60 second, and doubles each time. You can however bypass this mechanism once; all messages will be reattempted on the next queue run.")>
 <a href="javascript:ToggleVisibility('runqueue_help1')"><?_("OK, got you, lets go!")></a>
+<?=("box_end")>
 </div>
+&nbsp;
 
 <div id="runqueue_help1" style="display:none">
+<?=("box_begin_1")><?=("box_begin_2")>
 <br><a href="javascript:SMTPRunQueue();"><?_("Reschedule all messages for delivery on next queue run")></a>
+<?=("box_end")>
 </div>
+&nbsp;
 
+<?=("box_begin_1")><?_("Currently active mail delivery jobs; Remote Sites:")><?=("box_begin_2")>
+<div align="center">
+<?=("who_active_smtpsessions")>
+</div>
+<?=("box_end")>
+&nbsp;
+
+<?=("box_begin_1")><?_("Jobs waiting for further processing:")><?=("box_begin_2")>
 <div align="center">
 <a href="javascript:RefreshSMTPqueueDisplay();"><?_("Refresh this page")></a>
 </div>
-
 <?=("view_mailq_table")>
