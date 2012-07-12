@@ -237,6 +237,13 @@ eNextState FailOneAttempt(AsyncIO *IO)
 
 	if (Msg->pCurrRelay != NULL)
 		Msg->pCurrRelay = Msg->pCurrRelay->Next;
+	if ((Msg->pCurrRelay != NULL) &&
+	    !Msg->pCurrRelay->IsRelay &&
+	    Msg->MyQItem->HaveRelay)
+	{
+		EVS_syslog(LOG_DEBUG, "%s Aborting; last relay failed.\n", __FUNCTION__);
+		return eAbort;
+	}
 
 	if (Msg->pCurrRelay == NULL) {
 		EVS_syslog(LOG_DEBUG, "%s Aborting\n", __FUNCTION__);

@@ -837,7 +837,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				}
 				else {
 					///if (!Url->IsIP)) // todo dupe me fork ipv6
-					Url = &(*Url)->Next;
+					(*Url)->IsRelay = 1;
+					MyQItem->HaveRelay = 1;
 				}
 			}
 			FreeStrBuf(&All);
@@ -863,8 +864,10 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 						     "Failed to parse: %s\n",
 						     ChrPtr(One));
 				}
-				else
-					Url = &(*Url)->Next;
+				else {
+					(*Url)->IsRelay = 1;
+					MyQItem->HaveRelay = 1;
+				}
 			}
 			FreeStrBuf(&All);
 			FreeStrBuf(&One);

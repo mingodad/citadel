@@ -63,6 +63,7 @@ typedef struct queueitem {
 	StrBuf *SenderRoom;
 	ParsedURL *URL;
 	ParsedURL *FallBackHost;
+	int HaveRelay;
 } OneQueItem;
 
 typedef void (*QItemHandler)(OneQueItem *Item, StrBuf *Line, const char **Pos);
