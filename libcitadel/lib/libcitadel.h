@@ -392,6 +392,8 @@ struct ParsedURL {
 	struct sockaddr_in6 Addr;
 	ParsedURL *Next;
 	int IsRelay;
+	StrBuf *UsrName;
+	StrBuf *Password;
 };
 
 void FreeURL(ParsedURL** Url);

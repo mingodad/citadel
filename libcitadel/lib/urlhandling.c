@@ -26,6 +26,8 @@ void FreeURL(ParsedURL** Url)
 		FreeStrBuf(&(*Url)->URL);
 		FreeStrBuf(&(*Url)->UrlWithoutCred);
 		FreeStrBuf(&(*Url)->CurlCreds);
+		FreeStrBuf(&(*Url)->UsrName);
+		FreeStrBuf(&(*Url)->Password);
 		if ((*Url)->Next != NULL)
 			FreeURL(&(*Url)->Next);
 		free(*Url);
@@ -131,6 +133,19 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 		((struct sockaddr_in *)&(url->Addr))->sin_family = AF_INET;
 	    }	
 	}
+
+	if (url->User != NULL) {
+		url->UsrName = NewStrBufPlain(url->User, pUserEnd - url->User);
+		StrBufUnescape(url->UsrName, 0);
+		url->User = ChrPtr(url->UsrName);
+	}
+
+	if (url->Pass != NULL) {
+		url->Password = NewStrBufPlain(url->Pass, pCredEnd - url->Pass);
+		StrBufUnescape(url->Password, 0);
+		url->Pass = ChrPtr(url->Password);
+	}
+
 	if (*Url != NULL)
 		url->Next = *Url;
 	*Url = url;
