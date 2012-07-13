@@ -1,0 +1,98 @@
+====== How Threads & IO for clients work ======
+Citserver is a multi thread process. It has four types of threads: 
+  - Workers - these are anonymous threads which can do any of the server related functions like Imapserver; smtpserver; citadel protocol and so on.
+  - Housekeeping - once per minute one Worker becomes the Housekeeping thread which does recurrent jobs like database maintenance and so on.
+  - IO - one thread is spawned to become the IO-Thread at startup. Inside it lives the event-queue which is implemented by libev.
+  - DB-IO - one thread is spawned to become the database IO thread. Inside it lives another event-queue, which is also implemented by libev.
+
+
+===== Worker Threads =====
+The workers live blocking on selects to server sockets. Once IO on a server socket becomes available, one thread awakes, and takes the task.
+It is then assigned a CitContext structure on a Thread global var (accessible via the CC macro), which then becomes his personality and controls what the thread is going to do with the IO,
+and which server code (Imap/SMTP/Citadel/...) is going to evaluate the IO and reply to it.
+
+===== Housekeeping Thread =====
+Once every minute one Worker becomes something special: the Housekeeping Thread. Only one Houskekeeper can exist at once. As long as one Housekeeper is running no other is started.
+Jobs done by the Housekeeper are registered via the <>-API. The current list:
+
+  - DB maintenance; flush redo logs etc.
+  - fulltext index (this one is a little problematic here, since it may be long running and block other housekeeping tasks for a while)
+  - Networking-Queue
+  - Citadel Networking Queue aggregator (Blocks NTT)
+  - Citadel Inbound Queue operator (Blocks NTT)
+  - Citadel Networking Queue
+  - SMTP-Client-Queue
+  - RSS-Aggregator scheduling
+  - HTTP-Message Notification Queue (Extnotify)
+  - POP3Client Queue
+
+The queues operate over their respective queue; which may be implemented with a private room (smtp-Queue, Extnotify Client), per room configs (RSS-Client; POP3Client), or an aggregate of Rooms/Queue/Roomconfigs (Citadel Networker).
+
+
+==== Networking Queue ====
+The networking queue opperats over an aggregate of per room network configs and messages in rooms that are newer than a remembered whatermark (netconfigs.txt#lastsent). 
+All messages Newer than the watermark are then processed: 
+  - for all mailinglist recipients an entry is added to the mailqueue
+  - for all mailinglist digest recipients a digest file is written, or once per day scheduled to 
+  - for all Citadel networking nodes a spool file is written for later evaluation.
+
+==== Citadel Networking Queue aggregator ====
+The aggregator iterates over the spool directory, and combines all per message spool files to one big file which is to be sent by the Citadel Networking Queue later.
+It blocks the NTT-List for the remote party while doing so; if the NTT-List is blocked the file is skipped for next operation. Once all files are successfully processed, all files not associated with a networking config are flushed.
+
+==== Citadel Inbound Queue operator ====
+The inbound queue operator scans for new inbound spool files, processes them, splits them into messages which are then posted into their respective rooms.
+
+
+==== other Queues ====
+Once these Queue-operators have identified a job to be performed like 
+  - talking to another Citadel Node to transfer spool files back and forth
+  - sending mails via SMTP
+  - polling remote POP3-Servers for new mails
+  - fetching RSS-Feeds via HTTP
+  - Notifying external facilities for new messages in inboxes via HTTP
+
+They create a Context for that Job (AsyncIO struct) plus their own Private data, plus a CitContext which is run under the privileges of a SYS_* user.
+HTTP Jobs just schedule the HTTP-Job, and are then called back on their previously registered hook once the HTTP-Request is done.
+
+All other have to implement their own IO controled business logic.
+
+
+===== IO-Thread =====
+The IO-Event-queue lives in this thread. Code running in this thread has to obey several rules.
+  - it mustn't do blocking operations (like disk IO) 
+  - it mustn't use blocking Sockets
+  - other threads mustn't access memory belonging to an IO job
+  - New IO contexts have to be registered via QueueEventContext() from other threads; Its callback are then called from whithin the event queue to start its logic.
+  - New HTTP-IO contexts have to be registered via QueueCurlContext() 
+
+==== Logic in event_client ====
+InitIOStruct() which prepares an AsyncIO struct for later use before using QueueEventContext() to activate it.
+Here we offer the basics for I/O; Hostname lookus, connecting remote parties, basic read and write operation control flows.
+This logic communicates with the next layer via callback hooks. Before running hooks or logging CC is set from AsyncIO->CitContext
+Most clients are stacked that way: 
+
+<event base> --- <IO grammer logic> -- <state machine dispatcher> -- <state hooks>
+
+=== event base ===
+While the event base is responsible for reading and writing, it just does so without the understanding of the protocol it speaks. It at most knows about chunksises to send/read, or when a line is sent / received.
+=== IO grammer logic ===
+The IO grammer logic is implemented for each client. It understands the grammer of the protocol spoken; i.e. the SMTP implementation knows that it has to read status lines as long as there are 3 digits followed by a dash (i.e. in the ehlo reply). Once the grammer logic has decided a communication state is completed, it calls the next layer.
+
+=== state machine dispatcher ===
+The state machine dispatcher knows which part of the application logic is currently operated. Once its called, it dispatches to the right read/write hook. Read/write hooks may in term call the dispatcher again, if they want to divert to another part of the logic.
+
+=== state hooks ===
+The state hooks or handlers actualy PARSE the IO-Buffer and evaluate what next action should be taken; 
+There could be an error from the remote side so the action has to be aborted, or usually simply the next state can be reached.
+
+
+=== surrounding businesslogic ===
+Depending on the protocol there has to be surrounding business logic, which handles i.e. nameserver lookups, which ips to connect, what to do on a connection timeout, or doing local database IO.
+
+===== DB-IO-Thread =====
+Since lookups / writes to the database may take time, this mustn't be done inside of the IO-Eventloop. Therefore this other thread & event queue is around. 
+Usually a context should respect that there may be others around also wanting to do DB IO, so it shouldn't do endless numbers of requests.
+While its ok to do _some_ requests in a row (like deleting some messages, updating messages, etc.),
+loops over unknown numbers of queries should be unrolled and be done one query at a time (i.e. looking up messages in the 'already known table')
+
