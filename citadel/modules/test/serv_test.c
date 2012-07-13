@@ -1,21 +1,16 @@
 /*
- * A skeleton module to test the dynamic loader.
- *
+ * This is an empty skeleton of a Citadel server module, included to demonstrate
+ * how to add a new module to the system and how to activate it in the server.
+ * 
  * Copyright (c) 1998-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include "sysdep.h"
