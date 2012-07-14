@@ -1,0 +1,38 @@
+====== SMTP Client ======
+===== source files involved: =====
+
+event_client.h - AsyncIO structure, interfaces to event Queue
+
+
+modules/smtp/smtp_clienthandlers.h - SMTP-Client Context struct & functions.
+modules/smtp/smtpqueue.h - parsing of Queue mails & respective structures
+
+modules/smtp/serv_smtpqueue.c - queue handling executed by housekeeping thread; de/serialization of Queue-control-messages
+modules/smtp/serv_smtpeventclient.c - business logic 
+modules/smtp/smtp_clienthandlers.c - Protocoll logic
+
+msgbase.c - writes spool messages + spoolcontrol files
+
+event_client.c - base event functions
+
+modules/eventclient/serv_eventclient.c - the event queue
+modules/c-ares-dns/serv_c-ares-dns.c - nameserver lookup
+
+===== Spool Controll =====
+Citadel stores two messages for mail deliveries; the spool control message format is described in delivery-list.txt; its generated in msgbase.c, and de/serialized in serv_smtpqueue.c.
+The for Spool-control structures are kept in memory as OneQueItem per Spool-Control-File, and MailQEntry per Recipient of the message.
+For each MailQEntry which is still to be delivered, one SmtpOutMsg (containing the AsyncIO context) is spawned. The Jobs are processed in paralell, each job finished triggers an update of the spool control message, so we don't accidently deliver a message twice to one recipient. If the last recipient has succeeded, or permanently failed, the spool-file and the mail-file are removed from the spool room.
+
+===== Business Logic for one SMTP Connection =====
+For each SMTP client one SmtpOutMsg is created as Context; we now live inside the IO-Eventloop. SMTP requires to attempt to connect different servers in different situations; not all errors from remote sides are permanent, or fatal for one delivery attempt. One delivery attempt may involve talking to several SMTP-Servers; maybe the first isn't active or currently not accepting messages.
+If citadel runs in relay mode, only the relays are connected; no MX lookup is done.
+
+ - MX nameserver lookup; may give several mailservers; IPv4 and IPv6 addresses may be there. If no MX is found, the server is contacted directly.
+ - Now we have a number of Mailservers we have to iterate over; This is the entry for all subsequent tries for delivery; FailOneAttempt() will decide what to do next.
+ - one server has to be resolved; A or AAAA record in case of IPv4 or IPv6
+ - we try to connect the server nonblocking; if we fail to connect in a given time range, the next server has to be tried.
+ - we now have to wait for the server greeting; we musn't say anything before the server sent a complete line. A timeout may occur, the next server has to be tried, if.
+ - Now the handlers start to control the logic. A timeout may occur between each of them; Servers may reply with fatal or non fatal or temporary error codes; depending on them
+   - we fail the conversation with this server, and try the next
+   - we fail this delivery attempt, and retry later in the next queue run.
+   - we succeed the delivery of this message.
