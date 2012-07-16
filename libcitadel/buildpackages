@@ -100,14 +100,16 @@ EMAIL=citadel@outgesourced.org
 
 	;;
     sourcedist)
-	cd ..; tar --exclude .svn \
+	cd ..; tar \
 	    --exclude ".gitignore" \
-	    --exclude .libs \
 	    --exclude "*.lo" \
 	    --exclude "*.o" \
 	    --exclude "*.d" \
+	    --exclude "autom4te.cache/*" \
 	    --exclude "debian/*" \
 	    --exclude "sysdep.h" \
+	    \
+	    --exclude .libs \
 	    --exclude tests/testdata \
 	    \
 	    -chvzf libcitadel-$LIBCITADEL_VERSION.tar.gz libcitadel-$LIBCITADEL_VERSION/

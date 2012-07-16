@@ -62,7 +62,18 @@ case $1 in
 	if test "$2" == "dfsg"; then
 	    NONDFSG=-"-exclude static/webcit_icons/openid-small.gif"
 	fi
-	cd ..; tar --exclude .gitignore --exclude "debian/*" $NONDFSG -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
+	cd ..; tar \
+	    --exclude ".gitignore" \
+	    --exclude "*.lo" \
+	    --exclude "*.o" \
+	    --exclude "*.d" \
+	    --exclude "autom4te.cache/*" \
+	    --exclude "debian/*" \
+	    --exclude "sysdep.h" \
+	    \
+	    $NONDFSG \
+	    \
+	    -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
 	;;
     i18n)
 	./webcit -G `pwd`/i18n_templatelist.c

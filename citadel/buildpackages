@@ -100,7 +100,16 @@ EMAIL=citadel@outgesourced.org
 
 	;;
     sourcedist)
-	cd ..; tar --exclude .gitignore --exclude "debian/*" -chvzf citadel-$CITADEL_VERSION.tar.gz citadel-$CITADEL_VERSION/
+	cd ..; tar \
+	    --exclude ".gitignore" \
+	    --exclude "*.lo" \
+	    --exclude "*.o" \
+	    --exclude "*.d" \
+	    --exclude "autom4te.cache/*" \
+	    --exclude "debian/*" \
+	    --exclude "sysdep.h" \
+	    \
+	    -chvzf citadel-$CITADEL_VERSION.tar.gz citadel-$CITADEL_VERSION/
 	;;
 	*)
 		echo "Not yet implemented. we have: debian "
