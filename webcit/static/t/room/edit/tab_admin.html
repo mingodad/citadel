@@ -1,12 +1,12 @@
 <div class="tabcontent">
 	<ul>
 		<li>
-			<a href="delete_room?go=<?THISROOM("U")>" onClick="return confirm('<?_("Are you sure you want to delete this room?")>')">
+			<a href="delete_room?go=<?THISROOM:NAME("U")>" onClick="return confirm('<?_("Are you sure you want to delete this room?")>')">
 				<?_("Delete this room")>
 			</a>
 		</li>
 		<li>
-			<a href="display_editroompic?which_room=<?ROOMNAME("U")>">
+			<a href="display_editroompic?which_room=<?THISROOM:NAME("U")>">
 				<?_("Set or change the icon for this rooms banner")>
 			</a>
 		</li>

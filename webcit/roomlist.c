@@ -393,6 +393,8 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 	else if (State == 550)
 		AppendImportantMessage(_("Higher access is required to access this function."), -1);
 
+	FreeStrBuf(&Line);
+	FreeStrBuf(&Token);
 
 	return WCC->CurRoom.IgnetCfgs[WantThisOne];
 }

@@ -2,13 +2,13 @@
 	<br />
 	<form method="post" action="set_room_policy">
 		<input type="hidden" name="nonce" value="<?NONCE>" />
-		<input type="hidden" name="go" value="<?ROOM:INFO:PRINT_NAME("X")>">
+		<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
 		<table border="0" cellspacing="5">
 			<tr>
 				<td>
 					<?_("Message expire policy for this room")>
 					<br />
-					<?ROOMNAME("X")>
+					<?THISROOM:NAME("X")>
 				</td>
 				<td>
 					<input type="radio" name="roompolicy" value="0" <?%("COND:EXPIRE:MODE", 1, #"roompolicy", #"EXPIRE_NEXTLEVEL" , 'checked="checked"',"")>/>&nbsp;
