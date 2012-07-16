@@ -12,7 +12,7 @@
 			        <input type="hidden" name="last_tabsel" value="<?TAB:N>">
 				<input type="hidden" name="prefix" value="listrecp|">
 				<input type="hidden" name="nonce" value="<?NONCE>">
-				<input type="hidden" name="go" value="<?ROOM:INFO:PRINT_NAME("X")>">
+				<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
 				<input type="text" id="add_as_listrecp" name="line">
 				<input type="submit" name="add_button" value="<?_("Add")>">
 			  </p>
@@ -29,7 +29,7 @@
 			        <input type="hidden" name="last_tabsel" value="<?TAB:N>">
 				<input type="hidden" name="prefix" value="digestrecp|">
 				<input type="hidden" name="nonce" value="<?NONCE>">
-				<input type="hidden" name="go" value="<?ROOM:INFO:PRINT_NAME("X")>">
+				<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
 				<input type="text" id="add_as_digestrecp" name="line">
 				<input type="submit" name="add_button" value="<?_("Add")>">
 			  </p>
@@ -77,7 +77,7 @@
 					<td colspan="2" align="center">
 					        <input type="hidden" name="last_tabsel" value="<?TAB:N>">
 						<input type="hidden" name="nonce" value="<?NONCE>">
-						<input type="hidden" name="go" value="<?ROOM:INFO:PRINT_NAME("X")>">
+						<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
 						<input type="submit" name="add_button" value="<?_("Save changes")>">
 					</td>
 				</tr>

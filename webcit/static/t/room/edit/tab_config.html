@@ -1,11 +1,11 @@
 <?!("COND:THISROOM:EDIT", 1)><div class="tabcontent">
 	<form method="post" action="editroom">
 		<input type="hidden" name="nonce" value="<?NONCE>" />
-		<input type="hidden" name="go" value="<?ROOM:INFO:PRINT_NAME("X")>">
+		<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
 		<ul>   
 			<li>
 				<?_("name of room: ")>
-				<input type="text" name="er_name" value="<?ROOMNAME("X")>" maxlength="127" />
+				<input type="text" name="er_name" value="<?THISROOM:NAME("X")>" maxlength="127" />
 			</li>
 			<li>
 				<?_("Resides on floor: ")>

@@ -187,14 +187,7 @@ int ConditionalFloorIsVirtual(StrBuf *Target, WCTemplputParams *TP)
  *******************************************************************************/
 /**** Name ******/
 
-
-void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
-{
-	StrBufAppendTemplate(Target, TP, WC->CurRoom.name, 0);
-}
-
-
-void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
+void tmplput_ThisRoom(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 
@@ -211,14 +204,6 @@ void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP)
 {
 	folder *Folder = (folder *)CTX;
 
-	if (Folder == NULL)
-	{
-		wcsession *WCC = WC;
-
-		if (WCC == NULL)
-			return;
-		Folder = &WCC->CurRoom;
-	}
 	StrBufAppendTemplate(Target, TP, Folder->name, 0);
 }
 
@@ -605,10 +590,9 @@ InitModule_ROOMTOKENS
 
 	/**** Room... ******/
         /**** Name ******/
-	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, NULL, CTX_NONE);
-	RegisterNamespace("THISROOM", 0, 1, tmplput_current_room, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:NAME", 0, 1, tmplput_ThisRoom, NULL, CTX_NONE);
+
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, NULL, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:INFO:IS_INBOX"), 0, ConditionalRoomIsInbox, CTX_ROOMS);

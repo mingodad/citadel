@@ -8,7 +8,7 @@
 					<form method="post" action="do_invt_kick">
         					<input type="hidden" name="nonce" value="<?NONCE>">
 						<input type="hidden" name="last_tabsel" value="<?TAB:N>">
-						<input type="hidden" name="go" value="<?ROOM:INFO:PRINT_NAME("X")>">
+						<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
         					<select name="username" size="10" style="width:100%">
 							<?ITERATE("ITERATE:THISROOM:WHO_KNOWS", ="room_edit_username_list", 0, 0, -1)>
 						</select>
@@ -24,7 +24,7 @@
 					<form method="post" action="do_invt_kick">
 					        <input type="hidden" name="last_tabsel" value="<?TAB:N>">
 						<input type="hidden" name="nonce" value="<?NONCE>">
-						<input type="hidden" name="go" value="<?ROOM:INFO:PRINT_NAME("X")>">
+						<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
         					<?_("Invite:")>
 						<input type="text" name="username" id="username_id" style="width:100R"><br>
 						<input type="hidden" name="invite_button" value="Invite">
