@@ -6,25 +6,21 @@
 		<ul class="room_actions"></ul>
 	</div>
 	<div id="navbar"><ul>
-		<li><a href="display_pageWHONAME">
+		<li><a href="display_page?recp=<?BSTR("who", "U")>">
 			<img src="static/webcit_icons/essen/16x16/chat.png" alt="">
-			<span class="navbar_link">chat</span>
+			<span class="navbar_link"><?_("Click here to send an instant message to")> <?BSTR("who", "X")> </span>
 		</a></li>
-		<?!("WHO:ISME", 2)><li><a href="edit_me">
-			<img src="static/webcit_icons/essen/16x16/config.png" alt="">
-			<span class="navbar_link"><?_("edit")></span>
-		</a></li><?!("X", 2)>
 	</ul></div>
 </div>
 <div id="content" class="service">
 	<div id="bio_page">
 		<div id="bio_pic">
-       			<img src="image?name=_userpic_?parm=<?WHO:NAME("X")>">
+		<??("COND:USER:PIC", 1, B"who")><img src="image?name=_userpic_?parm=<?BSTR("who", "U")>" alt=""><??("X", 1)>
         	</div>
 		<?!("X", 1)>
-		<div id="bio_title"><h1><?WHO:NAME("X")></h1></div>
+		<div id="bio_title"><h1><<?BSTR("who", "X")></h1></div>
 		<div id="bio_text">
-			<?WHO:RBIO("X")>
+	<?USER:BIO(B"who", "FJUSTIFY")>
 		</div>
 	</div>
 <?=("trailing")>
