@@ -1,5 +1,5 @@
 <tr class="<?ITERATE:ODDEVEN>"><td>
-    <?!("COND:USERLIST:HAVEBIO", 1)><a href="showuser?who=<?USERLIST:USERNAME('U')>"><?USERLIST:USERNAME('X')></a><?!("X", 1)><??("COND:USERLIST:HAVEBIO", 2)><?USERLIST:USERNAME('X')><??("X", 2)>
+    <?!("COND:USERLIST:HAVEBIO", 1)><a href="do_template?temlpate=user_show?who=<?USERLIST:USERNAME('U')>"><?USERLIST:USERNAME('X')></a><?!("X", 1)><??("COND:USERLIST:HAVEBIO", 2)><?USERLIST:USERNAME('X')><??("X", 2)>
   </td>
 <td><?USERLIST:UID></td>
 <td><?USERLIST:ACCLVLSTR>(<?USERLIST:ACCLVLNO>)</td>

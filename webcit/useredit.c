@@ -802,19 +802,10 @@ void _display_edituser(void) {
 	display_edituser(NULL, 0);
 }
 
-void showuser(void)
-{
-	output_headers(1, 0, 0, 0, 1, 0);
-	do_template("user_show");
-	end_burst();
-}
-
-
 void 
 InitModule_USEREDIT
 (void)
 {
-	WebcitAddUrlHandler(HKEY("showuser"), "", 0, showuser, 0);
 	WebcitAddUrlHandler(HKEY("select_user_to_edit"), "", 0, _select_user_to_edit, 0);
 	WebcitAddUrlHandler(HKEY("display_edituser"), "", 0, _display_edituser, 0);
 	WebcitAddUrlHandler(HKEY("edituser"), "", 0, edituser, 0);
