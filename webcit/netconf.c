@@ -193,15 +193,15 @@ void display_edit_node(void)
 		DeleteHash(&NodeConfig);
 		return;
 	}
-	
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_NODECONF;
-	SubTP.Context = vNode;
-	begin_burst();
-	Tmpl = sbstr("template");
-        output_headers(1, 0, 0, 0, 1, 0);
-        DoTemplate(SKEY(Tmpl), NULL, &SubTP);
-        end_burst();                                                                               
+	StackContext(NULL, &SubTP, vNode, CTX_NODECONF, 0, NULL);
+	{
+		begin_burst();
+		Tmpl = sbstr("template");
+		output_headers(1, 0, 0, 0, 1, 0);
+		DoTemplate(SKEY(Tmpl), NULL, &SubTP);
+		end_burst();
+	}
+	UnStackContext(&SubTP);
 	DeleteHash(&NodeConfig);
 	
 }
@@ -261,25 +261,25 @@ void delete_node(void)
 
 void tmplput_NodeName(StrBuf *Target, WCTemplputParams *TP)
 {
-	NodeConf *Node = (NodeConf*) CTX;	
+	NodeConf *Node = (NodeConf*) CTX(CTX_NODECONF);	
 	StrBufAppendTemplate(Target, TP, Node->NodeName, 0);
 }
 
 void tmplput_Secret(StrBuf *Target, WCTemplputParams *TP)
 {
-	NodeConf *Node = (NodeConf*) CTX;
+	NodeConf *Node = (NodeConf*) CTX(CTX_NODECONF);
 	StrBufAppendTemplate(Target, TP, Node->Secret, 0);
 }
 
 void tmplput_Host(StrBuf *Target, WCTemplputParams *TP) 
 {
-	NodeConf *Node= (NodeConf*) CTX;
+	NodeConf *Node= (NodeConf*) CTX(CTX_NODECONF);
 	StrBufAppendTemplate(Target, TP, Node->Host, 0);
 }
 
 void tmplput_Port(StrBuf *Target, WCTemplputParams *TP)
 {
-	NodeConf *Node= (NodeConf*) CTX;
+	NodeConf *Node= (NodeConf*) CTX(CTX_NODECONF);
 	StrBufAppendTemplate(Target, TP, Node->Port, 0);
 }
 

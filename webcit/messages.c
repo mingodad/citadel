@@ -238,10 +238,11 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 		evaluate_mime_part(Msg, Mime);
 	}
 	DeleteHashPos(&it);
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_MAILSUM;
-	SubTP.Context = Msg;
-	*OutMime = DoTemplate(tmpl, tmpllen, Target, &SubTP);
+	StackContext(NULL, &SubTP, Msg, CTX_MAILSUM, 0, NULL);
+	{
+		*OutMime = DoTemplate(tmpl, tmpllen, Target, &SubTP);
+	}
+	UnStackContext(&SubTP);
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
@@ -786,11 +787,14 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 
 	if (Stat.sortit) {
 		CompareFunc SortIt;
-		memset(&SubTP, 0, sizeof(WCTemplputParams));
-		SubTP.Filter.ContextType = CTX_MAILSUM;
-		SubTP.Context = NULL;
-		SortIt =  RetrieveSort(&SubTP, NULL, 0,
-				       HKEY("date"), Stat.defaultsortorder);
+		StackContext(NULL, &SubTP, NULL, CTX_MAILSUM, 0, NULL);
+		{
+			SortIt =  RetrieveSort(&SubTP,
+					       NULL, 0,
+					       HKEY("date"),
+					       Stat.defaultsortorder);
+		}
+		UnStackContext(&SubTP);
 		if (SortIt != NULL)
 			SortByPayload(WCC->summ, SortIt);
 	}

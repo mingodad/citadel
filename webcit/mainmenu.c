@@ -41,7 +41,6 @@ void do_generic(void)
 		return;
 	}
 
-        memset(&SubTP, 0, sizeof(WCTemplputParams));
 	Buf = NewStrBuf();
 	serv_puts(bstr("g_cmd"));
 	StrBuf_ServGetln(Buf);
@@ -91,11 +90,11 @@ void do_generic(void)
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
 
-        SubTP.Filter.ContextType = CTX_STRBUF;
-        SubTP.Context = Buf;
-
-        DoTemplate(HKEY("aide_display_generic_result"), NULL, &SubTP);
-
+	StackContext(NULL, &SubTP, Buf, CTX_STRBUF, 0, NULL);
+	{
+		DoTemplate(HKEY("aide_display_generic_result"), NULL, &SubTP);
+	}
+	UnStackContext(&SubTP);
         wDumpContent(1);
 
 	FreeStrBuf(&Buf);

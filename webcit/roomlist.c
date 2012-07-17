@@ -595,7 +595,7 @@ int CompareRooms(const folder *room1, const folder *room2)
 int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
-	folder     *Folder = (folder *)CTX;
+	folder     *Folder = (folder *)CTX(CTX_ROOMS);
 	HashPos    *it;
 	StrBuf     * Dir;
 	void       *vDir;

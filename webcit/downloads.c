@@ -38,22 +38,22 @@ void FreeFiles(void *vFile)
 /* -------------------------------------------------------------------------------- */
 void tmplput_FILE_NAME(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) CTX;
+	FileListStruct *F = (FileListStruct*) CTX(CTX_FILELIST);
 	StrBufAppendTemplate(Target, TP, F->Filename, 0);
 }
 void tmplput_FILE_SIZE(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) CTX;
+	FileListStruct *F = (FileListStruct*) CTX(CTX_FILELIST);
 	StrBufAppendPrintf(Target, "%ld", F->FileSize);
 }
 void tmplput_FILEMIMETYPE(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) CTX;
+	FileListStruct *F = (FileListStruct*) CTX(CTX_FILELIST);
 	StrBufAppendTemplate(Target, TP, F->MimeType, 0);
 }
 void tmplput_FILE_COMMENT(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) CTX;
+	FileListStruct *F = (FileListStruct*) CTX(CTX_FILELIST);
 	StrBufAppendTemplate(Target, TP, F->Comment, 0);
 }
 
@@ -61,7 +61,7 @@ void tmplput_FILE_COMMENT(StrBuf *Target, WCTemplputParams *TP)
 
 int Conditional_FILE_ISPIC(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) CTX;
+	FileListStruct *F = (FileListStruct*) CTX(CTX_FILELIST);
 	return F->IsPic;
 }
 

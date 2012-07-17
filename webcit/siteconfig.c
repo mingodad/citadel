@@ -375,7 +375,7 @@ int ConditionalServCfgCTXStrBuf(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	void *vBuf;
 	StrBuf *Buf;
-	StrBuf *ZoneToCheck = (StrBuf*) CTX;
+	StrBuf *ZoneToCheck = (StrBuf*) CTX(CTX_STRBUF);
 
 	if ((WCC->is_aide) || (ZoneToCheck == NULL)) {
 		if (WCC->ServCfg == NULL)
@@ -407,13 +407,13 @@ void DeleteLogStatusStruct(void *v)
 
 void tmplput_servcfg_LogName(StrBuf *Target, WCTemplputParams *TP)
 {
-        LogStatusStruct *Stat = (LogStatusStruct*) CTX;
+        LogStatusStruct *Stat = (LogStatusStruct*) CTX(CTX_SRVLOG);
 	StrBufAppendTemplate(Target, TP, Stat->Name, 1);
 }
 
 int ConditionalServCfgThisLogEnabled(StrBuf *Target, WCTemplputParams *TP)
 {
-        LogStatusStruct *Stat = (LogStatusStruct*) CTX;
+        LogStatusStruct *Stat = (LogStatusStruct*) CTX(CTX_SRVLOG);
 	return Stat->Enable;
 }
 

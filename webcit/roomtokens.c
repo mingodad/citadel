@@ -61,7 +61,7 @@ void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	Floor *myFloor = (Floor *)CTX;
+	Floor *myFloor = (Floor *)CTX(CTX_FLOORS);
 
 	StrBufAppendPrintf(Target, "%d", myFloor->ID);
 }
@@ -69,14 +69,14 @@ void tmplput_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_FLOORID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	StrBufAppendPrintf(Target, "%d", Folder->floorid);
 }
 
 
 void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	const Floor *pFloor = Folder->Floor;
 
 	if (pFloor == NULL)
@@ -88,7 +88,7 @@ void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	const Floor *pFloor = Folder->Floor;
 
 	if (pFloor == NULL)
@@ -117,7 +117,7 @@ void tmplput_ThisRoomFloorName(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	Floor *myFloor = (Floor *)CTX;
+	Floor *myFloor = (Floor *)CTX(CTX_FLOORS);
 
 	StrBufAppendTemplate(Target, TP, myFloor->Name, 0);
 }
@@ -125,7 +125,7 @@ void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	Floor *myFloor = (Floor *)CTX;
+	Floor *myFloor = (Floor *)CTX(CTX_FLOORS);
 
 	StrBufAppendPrintf(Target, "%d", myFloor->NRooms);
 }
@@ -133,7 +133,7 @@ void tmplput_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	const Floor *pFloor = Folder->Floor;
 
 	if (pFloor == NULL)
@@ -144,7 +144,7 @@ void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalFloorHaveNRooms(StrBuf *Target, WCTemplputParams *TP)
 {
-	Floor *MyFloor = (Floor *)CTX;
+	Floor *MyFloor = (Floor *)CTX(CTX_FLOORS);
 	int HaveN;
 
 	HaveN = GetTemplateTokenNumber(Target, TP, 0, 0);
@@ -156,7 +156,7 @@ int ConditionalFloorHaveNRooms(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
-	Floor *MyFloor = (Floor *)CTX;
+	Floor *MyFloor = (Floor *)CTX(CTX_FLOORS);
 	/** if we have dav_depth the client just wants the subfloors */
 	if ((WCC->Hdr->HR.dav_depth == 1) && 
 	    (GetCount(WCC->Directory) == 0))
@@ -168,7 +168,7 @@ int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalFloorIsSUBROOM(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
-	Floor *MyFloor = (Floor *)CTX;
+	Floor *MyFloor = (Floor *)CTX(CTX_FLOORS);
 
 	return WCC->CurRoom.floorid == MyFloor->ID;
 }
@@ -176,7 +176,7 @@ int ConditionalFloorIsSUBROOM(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalFloorIsVirtual(StrBuf *Target, WCTemplputParams *TP)
 {
-	Floor *MyFloor = (Floor *)CTX;
+	Floor *MyFloor = (Floor *)CTX(CTX_FLOORS);
 
 	return MyFloor->ID == VIRTUAL_MY_FLOOR;
 }
@@ -202,7 +202,7 @@ void tmplput_ThisRoom(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 
 	StrBufAppendTemplate(Target, TP, Folder->name, 0);
 }
@@ -210,7 +210,7 @@ void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *room = (folder *)CTX;
+	folder *room = (folder *)CTX(CTX_ROOMS);
 
 	if (room->nRoomNameParts > 1)
 		StrBufAppendTemplate(Target, TP, 
@@ -222,7 +222,7 @@ void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *room = (folder *)CTX;
+	folder *room = (folder *)CTX(CTX_ROOMS);
 	int i;
         const char *AppendMe;
         long AppendMeLen;
@@ -239,7 +239,7 @@ void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	return Folder->is_inbox;
 }
 
@@ -295,7 +295,7 @@ int ConditionalRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_QRFLAGS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	StrBufAppendPrintf(Target, "%d", Folder->QRFlags);
 }
 
@@ -351,7 +351,7 @@ int ConditionalRoomHas_UAFlag(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_ACL(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 
 	StrBufAppendPrintf(Target, "%ld", Folder->RAFlags, 0);
 }
@@ -459,7 +459,7 @@ int ConditionalThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_LISTORDER(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	StrBufAppendPrintf(Target, "%d", Folder->Order);
 }
 
@@ -516,7 +516,7 @@ void tmplput_ThisRoomInfoText(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_LASTCHANGE(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	StrBufAppendPrintf(Target, "%d", Folder->lastchange);
 }
 
@@ -556,7 +556,7 @@ void tmplput_ThisRoomX_FileString(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalIsThisThatRoom(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	wcsession *WCC = WC;
 
 	if (WCC == NULL)

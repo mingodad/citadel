@@ -13,9 +13,7 @@ void display_pushemail(void)
 	WCTemplputParams SubTP;
 	char mobnum[20];
 
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_LONGVECTOR;
-	SubTP.Context = &vector;
+	StackContext(NULL, &SubTP, &vector, CTX_LONGVECTOR, 0, NULL);
 	vector[0] = 16;
 
 	/* Find any existing settings*/
@@ -89,6 +87,7 @@ void display_pushemail(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 	DoTemplate(HKEY("prefs_pushemail"), NULL, &SubTP);
 	wDumpContent(1);
+	UnStackContext(&SubTP);
 	FreeStrBuf(&Buf);
 }
 

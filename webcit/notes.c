@@ -351,61 +351,61 @@ void add_new_note(void) {
 
 void tmpl_vcard_put_posleft(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%d", v->pos_left);
 }
 
 void tmpl_vcard_put_postop(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%d", v->pos_top);
 }
 
 void tmpl_vcard_put_poswidth(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%d", v->pos_width);
 }
 
 void tmpl_vcard_put_posheight(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%d", v->pos_height);
 }
 
 void tmpl_vcard_put_posheight2(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%d", (v->pos_height / 16) - 5);
 }
 
 void tmpl_vcard_put_width2(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%d", (v->pos_width / 9) - 1);
 }
 
 void tmpl_vcard_put_color(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%02X%02X%02X", v->color_red, v->color_green, v->color_blue);
 }
 
 void tmpl_vcard_put_bgcolor(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendPrintf(Target, "%02X%02X%02X", v->color_red/2, v->color_green/2, v->color_blue/2);
 }
 
 void tmpl_vcard_put_message(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrEscAppend(Target, NULL, v->body, 0, 0); /*TODO?*/
 }
 
 void tmpl_vcard_put_uid(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) CTX;
+	struct vnote *v = (struct vnote *) CTX(CTX_VNOTE);
 	StrBufAppendBufPlain(Target, v->uid, -1, 0);
 }
 

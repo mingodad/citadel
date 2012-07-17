@@ -330,80 +330,80 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_USERLIST_UserName(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	StrBufAppendTemplate(Target, TP, ul->UserName, 0);
 }
 
 void tmplput_USERLIST_Password(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	StrBufAppendTemplate(Target, TP, ul->Passvoid, 0);
 }
 
 void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->AccessLevel, 0);
 }
 
 void tmplput_USERLIST_AccessLevelStr(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	
 	StrBufAppendBufPlain(Target, _(axdefs[ul->AccessLevel]), -1, 0);
 }
 
 void tmplput_USERLIST_UID(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->UID, 0);
 }
 
 void tmplput_USERLIST_LastLogonNo(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target,"%ld", ul->LastLogonT, 0);
 }
 void tmplput_USERLIST_LastLogonStr(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	StrEscAppend(Target, NULL, asctime(localtime(&ul->LastLogonT)), 0, 0);
 }
 
 void tmplput_USERLIST_nLogons(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->nLogons, 0);
 }
 
 void tmplput_USERLIST_nPosts(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->nPosts, 0);
 }
 
 void tmplput_USERLIST_Flags(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->Flags, 0);
 }
 
 void tmplput_USERLIST_DaysTillPurge(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->DaysTillPurge, 0);
 }
 
 int ConditionalUser(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	if (havebstr("usernum")) {
 		return ibstr("usernum") == ul->UID;
 	}
@@ -416,13 +416,13 @@ int ConditionalUser(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalFlagINetEmail(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	return (ul->Flags & US_INTERNET) != 0;
 }
 
 int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	
 	if (ul == NULL)
 		return 0;
@@ -436,7 +436,7 @@ int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalHaveBIO(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	
 	if (ul == NULL)
 		return 0;
@@ -808,8 +808,6 @@ void showuser(void)
 	do_template("user_show");
 	end_burst();
 }
-
-
 void 
 InitModule_USEREDIT
 (void)

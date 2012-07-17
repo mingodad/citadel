@@ -117,7 +117,47 @@ const char *CtxNames[]  = {
 	"Context UNKNOWN"
 };
 
+void StackContext(WCTemplputParams *Super, 
+		  WCTemplputParams *Sub, 
+		  void *Context,
+		  int ContextType,
+		  int nArgs,
+		  WCTemplateToken *Tokens)
+{
+	memset(Sub, 0, sizeof(WCTemplputParams));
 
+	if (Super != NULL) {
+		Sub->Sub = Super->Sub;
+		Super->Sub = Sub;
+	}
+	Sub->Super = Super;
+	
+	Sub->Context = Context;
+	Sub->Filter.ContextType = ContextType;
+	Sub->nArgs = nArgs;
+	Sub->Tokens = Tokens;
+}
+
+void UnStackContext(WCTemplputParams *Sub)
+{
+	if (Sub->Super != NULL)
+	{
+		Sub->Super->Sub = Sub->Sub;
+	}
+}
+
+void *GetContextPayload(WCTemplputParams *TP, int ContextType)
+{
+	WCTemplputParams *whichTP = TP;
+
+	if (ContextType == CTX_NONE)
+		return TP->Context;
+
+	while ((whichTP != NULL) && (whichTP->Filter.ContextType != ContextType))
+		whichTP = whichTP->Super;
+
+	return whichTP->Context;	
+}
 
 void DestroySortStruct(void *vSort)
 {
@@ -163,23 +203,19 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	if (TP->Tokens != NULL) 
 	{
 		syslog(1, "%s [%s]  (in '%s' line %ld); %s; [%s]\n", 
-			Type, 
-			Err, 
-			ChrPtr(TP->Tokens->FileName),
-			TP->Tokens->Line, 
-			ChrPtr(Error), 
-			ChrPtr(TP->Tokens->FlatToken));
+		       Type, 
+		       Err, 
+		       ChrPtr(TP->Tokens->FileName),
+		       TP->Tokens->Line, 
+		       ChrPtr(Error), 
+		       ChrPtr(TP->Tokens->FlatToken));
 	}
 	else 
 	{
 		syslog(1, "%s: %s;\n", 
-			Type, 
-			ChrPtr(Error));
+		       Type, 
+		       ChrPtr(Error));
 	}
-/*
-	if (Target == NULL) 
-		return;
-*/
 	WCC = WC;
 	if (WCC == NULL) {
 		FreeStrBuf(&Info);
@@ -295,28 +331,8 @@ void RegisterNS(const char *NSName,
 	NewHandler->Filter.nMinArgs = nMinArgs;
 	NewHandler->Filter.nMaxArgs = nMaxArgs;
 	NewHandler->Filter.ContextType = ContextRequired;
-	NewHandler->Filter.ControlContextType = CTX_NONE;
 
 	NewHandler->PreEvalFunc = PreevalFunc;
-	NewHandler->HandlerFunc = HandlerFunc;	
-	Put(GlobalNS, NSName, len, NewHandler, NULL);
-}
-
-void RegisterControlNS(const char *NSName, 
-		       long len, 
-		       int nMinArgs, 
-		       int nMaxArgs, 
-		       WCHandlerFunc HandlerFunc, 
-		       int ControlContextRequired)
-{
-	HashHandler *NewHandler;
-	
-	NewHandler = (HashHandler*) malloc(sizeof(HashHandler));
-	memset(NewHandler, 0, sizeof(HashHandler));
-	NewHandler->Filter.nMinArgs = nMinArgs;
-	NewHandler->Filter.nMaxArgs = nMaxArgs;
-	NewHandler->Filter.ContextType = CTX_NONE;
-	NewHandler->Filter.ControlContextType = ControlContextRequired;
 	NewHandler->HandlerFunc = HandlerFunc;	
 	Put(GlobalNS, NSName, len, NewHandler, NULL);
 }
@@ -325,23 +341,26 @@ void RegisterControlNS(const char *NSName,
 
 int CheckContext(StrBuf *Target, ContextFilter *Need, WCTemplputParams *TP, const char *ErrType)
 {
-	if ((Need->ContextType != CTX_NONE) && 
-	    (Need->ContextType != TP->Filter.ContextType)) {
+	WCTemplputParams *TPP = TP;
+	
+	if ((Need != NULL) &&
+	    (Need->ContextType != CTX_NONE) && 
+	    (Need->ContextType != TPP->Filter.ContextType)) {
+
+		while ((TPP != NULL) && 
+		       (Need->ContextType != TPP->Filter.ContextType))
+		{
+			TPP = TPP->Super;
+		}
+
+		if (TPP != NULL)
+			return 1;
+
                 LogTemplateError(
                         Target, ErrType, ERR_PARM1, TP,
 			"  WARNING: requires Context: [%s], have [%s]!", 
 			ContextName(Need->ContextType), 
 			ContextName(TP->Filter.ContextType));
-		return 0;
-	}
-
-	if ((Need->ControlContextType != CTX_NONE) && 
-	    (Need->ControlContextType != TP->Filter.ControlContextType)) {
-                LogTemplateError(
-                        Target, ErrType, ERR_PARM1, TP,
-			"  WARNING: requires Control Context: [%s], have [%s]!", 
-			ContextName(Need->ControlContextType), 
-			ContextName(TP->Filter.ControlContextType));
 		return 0;
 	}
 /*			
@@ -427,7 +446,7 @@ void GetTemplateTokenString(StrBuf *Target,
 			    long *len)
 {
 	StrBuf *Buf;
-	WCTemplputParams SubTP;
+///	WCTemplputParams SubTP;
 
 	if (N >= TP->Tokens->nParameters) {
 		LogTemplateError(Target, 
@@ -495,11 +514,9 @@ void GetTemplateTokenString(StrBuf *Target,
 			break;
 		}
 
-		memset(&SubTP, 0, sizeof(WCTemplputParams *));
-		SubTP.Context = TP->Context;
-		SubTP.Filter.ContextType = TP->Filter.ContextType;
 		Buf = NewStrBuf();
-		DoTemplate(TKEY(N), Buf, &SubTP);
+		DoTemplate(TKEY(N), Buf, TP);
+
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		/* we can't free it here, so we put it into the subst so its discarded later on. */
@@ -1573,12 +1590,24 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 		TmplGettext(Target, TP);
 		break;
 	case SV_CONDITIONAL: /** Forward conditional evaluation */
+		Handler = (HashHandler*) TP->Tokens->PreEval;
+		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
+			return -1;
+		}
 		return EvaluateConditional(Target, 1, state, TP);
 		break;
 	case SV_NEG_CONDITIONAL: /** Reverse conditional evaluation */
+		Handler = (HashHandler*) TP->Tokens->PreEval;
+		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
+			return -1;
+		}
 		return EvaluateConditional(Target, 0, state, TP);
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
+		Handler = (HashHandler*) TP->Tokens->PreEval;
+		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
+			return -1;
+		}
 		if (TP->Tokens->nParameters >= 6) {
 			if (EvaluateConditional(Target, 0, state, TP)) {
 				GetTemplateTokenString(Target, TP, 5, &AppendMe, &AppendMeLen);
@@ -1645,7 +1674,8 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 	memcpy(&TP.Filter, &CallingTP->Filter, sizeof(ContextFilter));
 
 	TP.Context = CallingTP->Context;
-	TP.ControlContext = CallingTP->ControlContext;
+	TP.Sub = CallingTP->Sub;
+	TP.Super = CallingTP->Super;
 
 	if (LoadTemplates != 0) {			
 		if (LoadTemplates > 1)
@@ -1877,6 +1907,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	void *vContext;
 	void *vLastContext = NULL;
 	StrBuf *SubBuf;
+	WCTemplputParams IterateTP;
 	WCTemplputParams SubTP;
 	IterateStruct Status;
 
@@ -1885,7 +1916,6 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	long StopAt = -1;
 
 	memset(&Status, 0, sizeof(IterateStruct));
-	memcpy (&SubTP, &TP, sizeof(WCTemplputParams));
 	
 	It = (HashIterator*) TP->Tokens->Preeval2;
 	if (It == NULL) {
@@ -1940,42 +1970,47 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 		}
 	}
 	nMembersUsed = GetCount(List);
-	SubBuf = NewStrBuf();
-	SubTP.Filter.ContextType = It->ContextType;
-	SubTP.Filter.ControlContextType = CTX_ITERATE;
-	SubTP.ControlContext = &Status;
+
+	StackContext (TP, &IterateTP, &Status, CTX_ITERATE, 0, TP->Tokens);
+	{
+		SubBuf = NewStrBuf();
 	
-	if (HAVE_PARAM(2)) {
-		StartAt = GetTemplateTokenNumber(Target, TP, 2, 0);
-	}
-	if (HAVE_PARAM(3)) {
-		StepWidth = GetTemplateTokenNumber(Target, TP, 3, 0);
-	}
-	if (HAVE_PARAM(4)) {
-		StopAt = GetTemplateTokenNumber(Target, TP, 4, -1);
-	}
-	it = GetNewHashPos(List, StepWidth);
-	if (StopAt < 0) {
-		StopAt = GetCount(List);
-	}
-	while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
-		if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
-			if (DetectGroupChange && Status.n > 0) {
-				Status.GroupChange = SortBy->GroupChange(vContext, vLastContext);
-			}
-			Status.LastN = (Status.n + 1) == nMembersUsed;
-			SubTP.Context = vContext;
-			if (It->DoSubTemplate != NULL)
-				It->DoSubTemplate(SubBuf, &SubTP);
-			DoTemplate(TKEY(1), SubBuf, &SubTP);
-			
-			StrBufAppendBuf(Target, SubBuf, 0);
-			FlushStrBuf(SubBuf);
-			Status.oddeven = ! Status.oddeven;
-			vLastContext = vContext;
+		if (HAVE_PARAM(2)) {
+			StartAt = GetTemplateTokenNumber(Target, TP, 2, 0);
 		}
-		Status.n++;
+		if (HAVE_PARAM(3)) {
+			StepWidth = GetTemplateTokenNumber(Target, TP, 3, 0);
+		}
+		if (HAVE_PARAM(4)) {
+			StopAt = GetTemplateTokenNumber(Target, TP, 4, -1);
+		}
+		it = GetNewHashPos(List, StepWidth);
+		if (StopAt < 0) {
+			StopAt = GetCount(List);
+		}
+		while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
+			if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
+				if (DetectGroupChange && Status.n > 0) {
+					Status.GroupChange = SortBy->GroupChange(vContext, vLastContext);
+				}
+				Status.LastN = (Status.n + 1) == nMembersUsed;
+				StackContext(&IterateTP, &SubTP, vContext, It->ContextType, 0, NULL);
+				{
+					if (It->DoSubTemplate != NULL)
+						It->DoSubTemplate(SubBuf, &SubTP);
+					DoTemplate(TKEY(1), SubBuf, &SubTP);
+
+					StrBufAppendBuf(Target, SubBuf, 0);
+					FlushStrBuf(SubBuf);
+				}
+				UnStackContext(&SubTP);
+				Status.oddeven = ! Status.oddeven;
+				vLastContext = vContext;
+			}
+			Status.n++;
+		}
 	}
+	UnStackContext(&IterateTP);
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);
 	if (It->Destructor != NULL)
@@ -1985,7 +2020,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 
 int conditional_ITERATE_ISGROUPCHANGE(StrBuf *Target, WCTemplputParams *TP)
 {
-	IterateStruct *Ctx = CCTX;
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	if (TP->Tokens->nParameters < 3)
 		return 	Ctx->GroupChange;
 
@@ -1994,7 +2029,7 @@ int conditional_ITERATE_ISGROUPCHANGE(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ITERATE_ODDEVEN(StrBuf *Target, WCTemplputParams *TP)
 {
-	IterateStruct *Ctx = CCTX;
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	if (Ctx->oddeven)
 		StrBufAppendBufPlain(Target, HKEY("odd"), 0);
 	else
@@ -2004,7 +2039,7 @@ void tmplput_ITERATE_ODDEVEN(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ITERATE_KEY(StrBuf *Target, WCTemplputParams *TP)
 {
-	IterateStruct *Ctx = CCTX;
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
 
 	StrBufAppendBufPlain(Target, Ctx->Key, Ctx->KeyLen, 0);
 }
@@ -2012,19 +2047,19 @@ void tmplput_ITERATE_KEY(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 {
-	IterateStruct *Ctx = CCTX;
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	StrBufAppendPrintf(Target, "%d", Ctx->n);
 }
 
 int conditional_ITERATE_FIRSTN(StrBuf *Target, WCTemplputParams *TP)
 {
-	IterateStruct *Ctx = CCTX;
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	return Ctx->n == 0;
 }
 
 int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 {
-	IterateStruct *Ctx = CCTX;
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	return Ctx->LastN;
 }
 
@@ -2054,6 +2089,7 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP
 	if (!CheckContext(Target, &Cond->Filter, TP, "Conditional")) {
 		return 0;
 	}
+
 	res = Cond->CondF(Target, TP);
 	if (res == Neg)
 		rc = TP->Tokens->Params[1]->lvalue;
@@ -2078,25 +2114,6 @@ void RegisterConditional(const char *Name, long len,
 	Cond->Filter.nMinArgs = nParams;
 	Cond->CondF = CondF;
 	Cond->Filter.ContextType = ContextRequired;
-	Cond->Filter.ControlContextType = CTX_NONE;
-	Put(Conditionals, Name, len, Cond, NULL);
-}
-
-void RegisterControlConditional(const char *Name, long len, 
-				int nParams,
-				WCConditionalFunc CondF, 
-				int ControlContextRequired)
-{
-	ConditionalStruct *Cond;
-
-	Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
-	memset(Cond, 0, sizeof(ConditionalStruct));
-	Cond->PlainName = Name;
-	Cond->Filter.nMaxArgs = nParams;
-	Cond->Filter.nMinArgs = nParams;
-	Cond->CondF = CondF;
-	Cond->Filter.ContextType = CTX_NONE;
-	Cond->Filter.ControlContextType = ControlContextRequired;
 	Put(Conditionals, Name, len, Cond, NULL);
 }
 
@@ -2150,11 +2167,11 @@ HashList *Defines;
  */
 void tmplput_ContextString(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, (StrBuf*)CTX, 0);
+	StrBufAppendTemplate(Target, TP, (StrBuf*)CTX(CTX_STRBUF), 0);
 }
 int ConditionalContextStr(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBuf *TokenText = (StrBuf*) CTX;
+	StrBuf *TokenText = (StrBuf*) CTX((CTX_STRBUF));
 	const char *CompareToken;
 	long len;
 
@@ -2164,7 +2181,7 @@ int ConditionalContextStr(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ContextStringArray(StrBuf *Target, WCTemplputParams *TP)
 {
-	HashList *Arr = (HashList*) CTX;
+	HashList *Arr = (HashList*) CTX(CTX_STRBUFARR);
 	void *pV;
 	int val;
 
@@ -2176,7 +2193,7 @@ void tmplput_ContextStringArray(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalContextStrinArray(StrBuf *Target, WCTemplputParams *TP)
 {
-	HashList *Arr = (HashList*) CTX;
+	HashList *Arr = (HashList*) CTX(CTX_STRBUFARR);
 	void *pV;
 	int val;
 	const char *CompareToken;
@@ -2218,10 +2235,12 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 		}
 	}
 	/* else TODO error? logging? */
-	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
-	SubTP.Context = Headline;
-	SubTP.Filter.ContextType = CTX_STRBUF;
-	DoTemplate(HKEY("box_begin"), Target, &SubTP);
+
+	StackContext (TP, &SubTP, Headline, CTX_STRBUF, 0, NULL);
+	{
+		DoTemplate(HKEY("box_begin"), Target, &SubTP);
+	}
+	UnStackContext(&SubTP);
 	DoTemplate(TKEY(0), Target, TP);
 	DoTemplate(HKEY("box_end"), Target, TP);
 	FreeStrBuf(&Headline);
@@ -2243,7 +2262,6 @@ int preeval_do_tabbed(WCTemplateToken *Token)
 	const char *Ch;
 	long len;
 	int i, nTabs;
-
 
 	memset(&TPP, 0, sizeof(WCTemplputParams));
 	TP = &TPP;
@@ -2307,7 +2325,6 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 	WCTemplputParams SubTP;
 
 	memset(&TS, 0, sizeof(tab_struct));
-	memcpy (&SubTP, &TP, sizeof(WCTemplputParams));
 
 	nTabs = ntabs = TP->Tokens->nParameters / 2;
 	TabNames = (StrBuf **) malloc(ntabs * sizeof(StrBuf*));
@@ -2334,33 +2351,37 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 			nTabs --;
 		}
 	}
-	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
-	SubTP.Filter.ControlContextType = CTX_TAB;
-	SubTP.ControlContext = &TS;
+	StackContext (TP, &SubTP, &TS, CTX_TAB, 0, NULL);
+	{
+////	TODO jetzt	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
+//		SubTP.Filter.ControlContextType = ;
 
-	StrTabbedDialog(Target, nTabs, TabNames);
-	for (i = 0; i < ntabs; i++) {
-		memset(&TS, 0, sizeof(tab_struct));
-		TS.CurrentTab = i;
-		TS.TabTitle = TabNames[i];
-		StrBeginTab(Target, i, nTabs, TabNames);
-		DoTemplate(TKEY(i * 2 + 1), Target, &SubTP);
-		StrEndTab(Target, i, nTabs);
+		StrTabbedDialog(Target, nTabs, TabNames);
+		for (i = 0; i < ntabs; i++) {
+			memset(&TS, 0, sizeof(tab_struct));
+			TS.CurrentTab = i;
+			TS.TabTitle = TabNames[i];
+			StrBeginTab(Target, i, nTabs, TabNames);
+			DoTemplate(TKEY(i * 2 + 1), Target, &SubTP);
+			StrEndTab(Target, i, nTabs);
+		}
+		for (i = 0; i < ntabs; i++) 
+			FreeStrBuf(&TabNames[i]);
+		free(TabNames);
 	}
-	for (i = 0; i < ntabs; i++) 
-		FreeStrBuf(&TabNames[i]);
+	UnStackContext(&SubTP);
 }
 
 void tmplput_TAB_N(StrBuf *Target, WCTemplputParams *TP)
 {
-	tab_struct *Ctx = CCTX;
+	tab_struct *Ctx = CTX(CTX_TAB);
 
 	StrBufAppendPrintf(Target, "%d", Ctx->CurrentTab);
 }
 
 void tmplput_TAB_TITLE(StrBuf *Target, WCTemplputParams *TP)
 {
-	tab_struct *Ctx = CCTX;
+	tab_struct *Ctx = CTX(CTX_TAB);
 	StrBufAppendTemplate(Target, TP, Ctx->TabTitle, 0);
 }
 
@@ -2647,7 +2668,7 @@ void tmplput_SORT_ORDER(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_long_vector(StrBuf *Target, WCTemplputParams *TP)
 {
-	long *LongVector = (long*) CTX;
+	long *LongVector = (long*) CTX(CTX_LONGVECTOR);
 
 	if ((TP->Tokens->Params[0]->Type == TYPE_LONG) && 
 	    (TP->Tokens->Params[0]->lvalue <= LongVector[0]))
@@ -2690,7 +2711,7 @@ void dbg_print_longvector(long *LongVector)
 
 int ConditionalLongVector(StrBuf *Target, WCTemplputParams *TP)
 {
-	long *LongVector = (long*) CTX;
+	long *LongVector = (long*) CTX(CTX_LONGVECTOR);
 
 	if ((TP->Tokens->Params[2]->Type == TYPE_LONG) && 
 	    (TP->Tokens->Params[2]->lvalue <= LongVector[0])&&
@@ -2740,8 +2761,8 @@ InitModule_SUBST
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, preeval_iterate, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, NULL, CTX_NONE);
 	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, preeval_do_tabbed, CTX_NONE);
-	RegisterControlNS(HKEY("TAB:N"), 0, 0, tmplput_TAB_N, CTX_TAB);
-	RegisterControlNS(HKEY("TAB:SUBJECT"), 0, 1, tmplput_TAB_TITLE, CTX_TAB);
+	RegisterNamespace("TAB:N", 0, 0, tmplput_TAB_N, NULL, CTX_TAB);
+	RegisterNamespace("TAB:SUBJECT", 0, 1, tmplput_TAB_TITLE, NULL, CTX_TAB);
 
 
 	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, NULL, CTX_LONGVECTOR);
@@ -2752,19 +2773,19 @@ InitModule_SUBST
 	RegisterConditional(HKEY("COND:LONGVECTOR"), 4, ConditionalLongVector, CTX_LONGVECTOR);
 
 
-	RegisterControlConditional(HKEY("COND:ITERATE:ISGROUPCHANGE"), 2, 
-				   conditional_ITERATE_ISGROUPCHANGE, 
-				   CTX_ITERATE);
-	RegisterControlConditional(HKEY("COND:ITERATE:LASTN"), 2, 
-				   conditional_ITERATE_LASTN, 
-				   CTX_ITERATE);
-	RegisterControlConditional(HKEY("COND:ITERATE:FIRSTN"), 2, 
-				   conditional_ITERATE_FIRSTN, 
-				   CTX_ITERATE);
+	RegisterConditional(HKEY("COND:ITERATE:ISGROUPCHANGE"), 2, 
+			    conditional_ITERATE_ISGROUPCHANGE, 
+			    CTX_ITERATE);
+	RegisterConditional(HKEY("COND:ITERATE:LASTN"), 2, 
+			    conditional_ITERATE_LASTN, 
+			    CTX_ITERATE);
+	RegisterConditional(HKEY("COND:ITERATE:FIRSTN"), 2, 
+			    conditional_ITERATE_FIRSTN, 
+			    CTX_ITERATE);
 
-	RegisterControlNS(HKEY("ITERATE:ODDEVEN"), 0, 0, tmplput_ITERATE_ODDEVEN, CTX_ITERATE);
-	RegisterControlNS(HKEY("ITERATE:KEY"), 0, 0, tmplput_ITERATE_KEY, CTX_ITERATE);
-	RegisterControlNS(HKEY("ITERATE:N"), 0, 0, tmplput_ITERATE_LASTN, CTX_ITERATE);
+	RegisterNamespace("ITERATE:ODDEVEN", 0, 0, tmplput_ITERATE_ODDEVEN, NULL, CTX_ITERATE);
+	RegisterNamespace("ITERATE:KEY", 0, 0, tmplput_ITERATE_KEY, NULL, CTX_ITERATE);
+	RegisterNamespace("ITERATE:N", 0, 0, tmplput_ITERATE_LASTN, NULL, CTX_ITERATE);
 	RegisterNamespace("CURRENTFILE", 0, 1, tmplput_CURRENT_FILE, NULL, CTX_NONE);
 	RegisterNamespace("DEF:STR", 1, 1, tmplput_DefStr, NULL, CTX_NONE);
 	RegisterNamespace("DEF:VAL", 1, 1, tmplput_DefVal, NULL, CTX_NONE);
