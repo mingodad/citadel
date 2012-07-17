@@ -1,0 +1,210 @@
+# Makefile for Citadel
+#
+# NOTE: normally you should not have to modify the Makefile.  All
+# system-dependent configuration is in the "configure" script, which
+# uses "Makefile.in" to generate a "Makefile".  In the rare instance
+# that you have to modify something here, please take note:
+# 1. Edit Makefile.in, -not- Makefile.
+# 2. Send e-mail to ajc@uncensored.citadel.org and let me know what you
+#    did, so any necessary changes can be put into the next release.
+#
+########################################################################
+
+prefix=@prefix@
+srcdir=@srcdir@
+VPATH=$(srcdir)
+
+TARGETS=@TARGETS@
+RUN_DIR=@MAKE_RUN_DIR@
+SPOOL_DIR=@MAKE_SPOOL_DIR@
+ETC_DIR=@MAKE_ETC_DIR@
+DATA_DIR=@MAKE_DATA_DIR@
+STATICDATA_DIR=@MAKE_STATICDATA_DIR@
+HELP_DIR=@MAKE_HELP_DIR@
+DOC_DIR=@MAKE_DOC_DIR@
+UTILBIN_DIR=@MAKE_UTILBIN_DIR@
+DEPEND_FLAG=@DEPEND_FLAG@
+all: buildinfo $(TARGETS)
+
+.SUFFIXES: .o .d .c
+
+EXEEXT=@EXEEXT@
+
+CLIENT_TARGETS=citadel$(EXEEXT)
+
+ACLOCAL=@ACLOCAL@
+AUTOCONF=@AUTOCONF@
+chkpwd_LIBS=@chkpwd_LIBS@
+CC=@CC@
+CFLAGS=@CFLAGS@ -I ./include/
+CPPFLAGS=@CPPFLAGS@ -I. -I ./include/
+DATABASE=@DATABASE@
+DEFS=@DEFS@ -DDIFF=\"@DIFF@\" -DPATCH=\"@PATCH@\"
+LDFLAGS=@LDFLAGS@
+LIBS=@LIBS@
+LIBOBJS=@LIBOBJS@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+RESOLV=@RESOLV@
+SHELL=/bin/sh
+SERVER_LDFLAGS=@SERVER_LDFLAGS@
+SERVER_LIBS=@SERVER_LIBS@
+SETUP_LIBS=@SETUP_LIBS@
+YACC=@YACC@
+DIFF=@DIFF@
+PATCH=@PATCH@
+LOCALEDIR=@LOCALEDIR@
+
+# End configuration section
+
+.SILENT:
+
+
+SOURCES=src/client_chat.c \
+	src/client_passwords.c \
+	src/commands.c \
+	src/messages.c \
+	src/rooms.c \
+	src/routines.c \
+	src/routines2.c \
+	src/tuiconfig.c \
+	src/citadel.c \
+	src/citadel_ipc.c \
+	src/ipc_c_tcp.c \
+	src/screen.c
+
+# for VPATH builds (invoked by configure)
+mkdir-init:
+	mkdir -p textclient
+	mkdir locale
+
+
+noinst: $(NOINST_TARGETS)
+client: $(CLIENT_TARGETS)
+
+citadel$(EXEEXT): src/citadel.o  \
+	src/client_chat.o \
+	src/client_passwords.o \
+	src/commands.o \
+	src/md5.o \
+	src/messages.o \
+	src/rooms.o \
+	src/routines.o \
+	src/routines2.o \
+	src/tuiconfig.o \
+	src/screen.o \
+	src/citadel_ipc.o \
+	src/ipc_c_tcp.o \
+	$(LIBOBJS)
+	$(CC) citadel.o \
+	src/client_chat.o \
+	src/client_passwords.o \
+	src/commands.o \
+	src/md5.o \
+	src/messages.o \
+	src/rooms.o \
+	src/routines.o \
+	src/routines2.o \
+	src/tuiconfig.o \
+	src/screen.o \
+	src/citadel_ipc.o \
+	src/ipc_c_tcp.o \
+	$(LIBOBJS) \
+	$(LDFLAGS) -o citadel $(LIBS)
+
+%.o: %.c ${HEADERS}
+	echo "CC $<"
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
+
+.PHONY: install-data install-doc install-exec clean cleaner distclean
+
+install-locale:
+
+install: install-exec install-data install-doc install-locale
+	@echo 
+	@echo Installation is complete.
+	@echo 
+
+install-new: install-exec-new install-data-new install-doc-new install-locale
+	@echo 
+	@echo Installation is complete.
+	@echo 
+
+upgrade: install-exec install-doc
+	@echo
+	@echo Upgrade is complete.
+	@echo
+
+install-data:
+	@for i in citadel.rc \
+		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+	done
+
+install-data-new:
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/
+	$(INSTALL_DATA) $(srcdir)/citadel.rc $(DESTDIR)$(ETC_DIR)/citadel.rc
+
+install-doc:
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/docs
+
+install-doc-new:
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR)/docs
+
+install-exec: all
+	@for i in $(CLIENT_TARGETS) ; do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
+			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
+		fi \
+	done
+
+install-exec-new: all
+	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
+	@for i in $(CLIENT_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
+			$(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
+		fi \
+	done
+
+clean:
+	rm -fr locale/*
+	rm -f *.o 
+	rm -f $(CLIENT_TARGETS) 
+
+cleaner: clean
+	rm -rf $(CLIENT_TARGETS)
+
+distclean: cleaner
+	find . -name '*~' -o -name '.#*' | xargs rm -f
+	rm -f po/Makefile 
+	rm -f Makefile sysdep.h config.cache config.log config.status *.d 
+
+
+.c.d:
+	@echo Checking dependencies for $<
+	@$(CC) $(DEPEND_FLAG) $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*/.o $@!' > $@
+	@test -s $@ || rm -f $@
+
+Makefile: $(srcdir)/Makefile.in config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+
+$(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
+	cd $(srcdir) && $(AUTOCONF)
+
+$(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
+	cd $(srcdir) && $(ACLOCAL)
+
+buildinfo:
+	echo
+	echo "Dependencies: $(CC) $(DEPEND_FLAG) $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*/.o $@!' > $@"
+	echo "Complie: $(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@ "
+	echo "LDFLAGS: $(LDFLAGS)"
+	echo
+
+-include $(DEP_FILES)

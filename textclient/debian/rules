@@ -1,0 +1,167 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+export DH_OPTIONS
+
+DEB_DESTDIR = $(CURDIR)/debian/tmp
+
+CFLAGS = -Wall -g -Werror=format-security 
+
+COMPILER=
+EXTRA_ARGS=
+PROFILE_ARGS=
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss gcov clang cares"
+ifneq (,$(findstring clang,$(DEB_BUILD_OPTIONS)))
+        COMPILER="clang" 
+endif
+ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
+	PROFILE_ARGS= --with-gprof
+endif
+
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP -D TECH_PREVIEW
+	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
+	EXTRA_ARGS = --with-backtrace
+	ifneq (,$(findstring event,$(DEB_BUILD_OPTIONS)))
+		EXTRA_ARGS = --with-backtrace
+	endif
+else
+	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
+	CFLAGS += -O2
+endif
+
+ifneq (,$(findstring backtrace,$(DEB_BUILD_OPTIONS)))
+	CFLAGS+= -rdynamic -D_GNU_SOURCE -MD -MP
+	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
+	EXTRA_ARGS += --with-backtrace
+endif
+
+ifneq (,$(findstring threadoff,$(DEB_BUILD_OPTIONS)))
+	THREAD_ARGS=--without-threaded-client
+	CFLAGS += -D WITH_THREADLOG
+else
+	THREAD_ARGS=
+endif
+
+ifneq (,$(findstring iodbg,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -D BIGBAD_IODBG
+endif
+
+ifneq (,$(findstring gcov,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -fprofile-arcs -ftest-coverage
+	LDFLAGS += -fprofile-arcs -ftest-coverage
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+
+	export CC=$(COMPILER); export LDFLAGS="$(LDFLAGS)"; export CFLAGS="$(CFLAGS)"; ./configure \
+		--prefix=/var/lib/citadel/ \
+		--with-datadir=/var/lib/citadel/ \
+		--with-helpdir=/usr/share/citadel-server/ \
+		--with-staticdatadir=/etc/citadel/ \
+		--with-spooldir=/var/spool/citadel/ \
+		--with-sysconfdir=/etc/citadel/ \
+		--with-rundir=/var/run/citadel/ \
+		--with-docdir=/usr/share/doc/citadel-doc/ \
+		--with-ssldir=/etc/ssl/citadel/ \
+		--with-utility-bindir=/usr/lib/citadel-server/ \
+		--with-autosysconfdir=/var/lib/citadel/data/ \
+                --with-localedir=/usr/share/ \
+		--with-pam \
+		--with-db \
+		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS) $(THREAD_ARGS)
+
+	touch configure-stamp
+
+#Architecture 
+build: build-arch build-indep
+
+build-arch: build-arch-stamp
+build-arch-stamp: configure-stamp
+
+	$(MAKE)
+	touch $@
+
+build-indep: build-indep-stamp
+build-indep-stamp: configure-stamp
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-arch-stamp build-indep-stamp configure-stamp
+
+
+	dh_clean 
+	rm -f config.status config.log
+#[ ! -f Makefile ] || $(MAKE) distclean
+
+install: install-indep install-arch
+install-indep: build-indep
+	dh_testdir
+	dh_testroot
+	dh_clean -k -i 
+	dh_installdirs -i
+
+	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-doc-new
+
+	dh_install -i --sourcedir=debian/tmp
+
+install-arch: build-arch
+	dh_testdir
+	dh_testroot
+	dh_clean -k -s 
+	dh_installdirs -s
+
+	$(MAKE) install-locale DESTDIR=$(DEB_DESTDIR)
+	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-exec-new install-data-new
+
+	install -D -p -m0755 database_cleanup.sh \
+		$(DEB_DESTDIR)/usr/share/doc/citadel-server/examples/database_cleanup.sh
+
+	install -D -p -m0644 docs/welcomemail.html \
+		$(DEB_DESTDIR)/usr/share/doc/citadel-server/welcomemail.html
+
+	install -D -p -m0644 docs/welcomemail.txt \
+		$(DEB_DESTDIR)/usr/share/doc/citadel-server/welcomemail.txt
+
+	dh_install -s --sourcedir=debian/tmp
+
+binary-common:
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installdebconf	
+	dh_installinit --name=citadel
+	dh_installman
+	dh_strip --dbg-package=citadel-dbg
+	dh_link
+	dh_compress 
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture independant packages using the common target.
+binary-indep: build-indep install-indep
+	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
+
+# Build architecture dependant packages using the common target.
+binary-arch: build-arch install-arch
+	$(MAKE) -f debian/rules DH_OPTIONS=-s binary-common
+
+binary: binary-arch binary-indep
+.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure
