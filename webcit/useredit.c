@@ -461,8 +461,10 @@ void tmplput_USER_BIO(StrBuf *Target, WCTemplputParams *TP)
 			if ( (StrLength(Buf)==3) && 
 			     !strcmp(ChrPtr(Buf), "000")) 
 				Done = 1;
-			else
+			else {
 				StrBufAppendBuf(BioBuf, Buf, 0);
+				StrBufAppendBufPlain(BioBuf, HKEY("\n"), 0);
+			}
 		}
 		StrBufAppendTemplate(Target, TP, BioBuf, 1);
 		FreeStrBuf(&BioBuf);
