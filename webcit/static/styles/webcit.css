@@ -425,7 +425,7 @@ body {
 	background-color: #3E65AF;
 	color: #FFF;
 	position: absolute;
-	top: 25; 
+	top: 25px; 
 	z-index: 4;
 	padding: 3px;
 	margin: 0px auto;
@@ -484,7 +484,7 @@ body {
 	-o-text-overflow: ellipsis;
 }
 
-.new_message { font-weight: bold; !important }
+.new_message { font-weight: bold !important }
 
 #loading { text-align: center}
 
