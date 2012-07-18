@@ -22,9 +22,6 @@ autoheader
 echo ... running mk_svn_revision.sh ...
 ./scripts/mk_svn_revision.sh
 
-echo ... running mk_module_init.sh ...
-./scripts/mk_module_init.sh
-
 echo
 echo This script has been tested with autoconf 2.53 and
 echo automake 1.5. Other versions may work, but we recommend

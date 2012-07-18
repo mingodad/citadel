@@ -125,15 +125,6 @@ install-arch: build-arch
 	$(MAKE) install-locale DESTDIR=$(DEB_DESTDIR)
 	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-exec-new install-data-new
 
-	install -D -p -m0755 database_cleanup.sh \
-		$(DEB_DESTDIR)/usr/share/doc/citadel-server/examples/database_cleanup.sh
-
-	install -D -p -m0644 docs/welcomemail.html \
-		$(DEB_DESTDIR)/usr/share/doc/citadel-server/welcomemail.html
-
-	install -D -p -m0644 docs/welcomemail.txt \
-		$(DEB_DESTDIR)/usr/share/doc/citadel-server/welcomemail.txt
-
 	dh_install -s --sourcedir=debian/tmp
 
 binary-common:

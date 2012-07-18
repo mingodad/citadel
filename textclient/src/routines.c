@@ -48,7 +48,7 @@
 #endif
 
 #include <libcitadel.h>
-#include "citadel.h"
+///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "screen.h"
 
@@ -58,7 +58,7 @@ struct utmp *getutline(struct utmp *ut);
 
 #define ROUTINES_C
 
-#include "citadel.h"
+///#include "citadel.h"
 #include "routines.h"
 #include "commands.h"
 #include "citadel_decls.h"

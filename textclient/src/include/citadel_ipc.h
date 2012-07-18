@@ -1,3 +1,8 @@
+#ifdef __GNUC__
+#define INLINE __inline__
+#else
+#define INLINE
+#endif
 
 #define	UDS			"_UDS_"
 #ifdef __CYGWIN__
@@ -7,7 +12,9 @@
 #endif
 #define DEFAULT_PORT		"504"
 
-#include "sysdep.h"
+#include <libcitadel.h>
+#include <limits.h>
+////#include "sysdep.h"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -17,7 +24,108 @@
 #include <openssl/rand.h>
 #endif
 
-#include "server.h"
+#define CLIENT_VERSION          811
+#define CLIENT_TYPE               0
+//copycat of: /#include "server.h"
+
+#define ROOMNAMELEN	128	/* The size of a roomname string */
+
+// copycat of citadel_dirs.h
+void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, int dbg);
+
+//copycat of: /#include "citadel.h"
+/* commands we can send to the stty_ctdl() routine */
+#define SB_NO_INTR      0               /* set to Citadel client mode, i/q disabled */
+#define SB_YES_INTR     1               /* set to Citadel client mode, i/q enabled */
+#define SB_SAVE         2               /* save settings */
+#define SB_RESTORE      3               /* restore settings */
+#define SB_LAST         4               /* redo the last command sent */
+
+#define UGLISTLEN	100	/* you get a ungoto list of this size */
+
+#define USERNAME_SIZE   64      /* The size of a username string */
+#define MAX_EDITORS     5       /* # of external editors supported */
+                                /* MUST be at least 1 */
+
+#define NONCE_SIZE	128	/* Added by <bc> to allow for APOP auth 
+				 * it is BIG becuase there is a hostname
+				 * in the nonce, as per the APOP RFC.
+				 */
+
+/* 
+ * S_KEEPALIVE is a watchdog timer.  It is used to send "keep
+ * alive" messages to the server to prevent the server from assuming the
+ * client is dead and terminating the session.  30 seconds is the recommended
+ * value; I can't think of any good reason to change it.
+ */
+#define S_KEEPALIVE	30
+
+#define READ_HEADER	2
+#define READ_MSGBODY	3
+
+#define NUM_CONFIGS 70
+
+
+
+/*
+ * This struct stores a list of rooms with new messages which the client
+ * fetches from the server.  This allows the client to "march" through
+ * relevant rooms without having to ask the server each time where to go next.
+ */
+typedef struct ExpirePolicy ExpirePolicy;
+struct ExpirePolicy {
+	int expire_mode;
+	int expire_value;
+};
+
+typedef struct march march;
+struct march {
+	struct march *next;
+	char march_name[ROOMNAMELEN];
+	unsigned int march_flags;
+	char march_floor;
+	char march_order;
+	unsigned int march_flags2;
+	int march_access;
+};
+/*
+ * User records.
+ */
+typedef struct ctdluser ctdluser;
+struct ctdluser {			/* User record                      */
+	int version;			/* Cit vers. which created this rec  */
+	uid_t uid;			/* Associate with a unix account?    */
+	char password[32];		/* password                          */
+	unsigned flags;			/* See US_ flags below               */
+	long timescalled;		/* Total number of logins            */
+	long posted;			/* Number of messages ever submitted */
+	uint8_t axlevel;		/* Access level                      */
+	long usernum;			/* User number (never recycled)      */
+	time_t lastcall;		/* Date/time of most recent login    */
+	int USuserpurge;		/* Purge time (in days) for user     */
+	char fullname[64];		/* Display name (primary identifier) */
+};
+typedef struct ctdlroom ctdlroom;
+struct ctdlroom {
+ 	char QRname[ROOMNAMELEN];	/* Name of room                     */
+ 	char QRpasswd[10];		/* Only valid if it's a private rm  */
+ 	long QRroomaide;		/* User number of room aide         */
+ 	long QRhighest;			/* Highest message NUMBER in room   */
+ 	time_t QRgen;			/* Generation number of room        */
+ 	unsigned QRflags;		/* See flag values below            */
+ 	char QRdirname[15];		/* Directory name, if applicable    */
+ 	long QRinfo;			/* Info file update relative to msgs*/
+ 	char QRfloor;			/* Which floor this room is on      */
+ 	time_t QRmtime;			/* Date/time of last post           */
+ 	struct ExpirePolicy QRep;	/* Message expiration policy        */
+ 	long QRnumber;			/* Globally unique room number      */
+ 	char QRorder;			/* Sort key for room listing order  */
+ 	unsigned QRflags2;		/* Additional flags                 */
+ 	int QRdefaultview;		/* How to display the contents      */
+};
+
+
+/////////////
 
 #ifdef __cplusplus
 extern "C" {
@@ -190,6 +298,8 @@ enum MessageDirection {
 	ReadReverse = -1,
 	ReadForward = 1
 };
+extern char file_citadel_rc[PATH_MAX];
+extern char file_citadel_config[PATH_MAX];
 
 /* Shared Diffie-Hellman parameters */
 #define DH_P		"F6E33BD70D475906ABCFB368DA2D1E5611D57DFDAC6A10CD78F406D6952519C74E21FFDCC5A780B9359722AACC8036E4CD24D5F5165EAC9EF226DBD9BBCF678F8DDEE86386F1BC20E291A9854A513A2CA326B411DC92E38F2ED2FEB6A3B792F13DB6550371FDBAC5ECA373BE5050CA4905431CA86088737D52B36C8D13CE9CB4EEF4C910285035E8329DD07551A80B87775676DD1067395CCEE9040C9B8BF998C528B3772B4C590A2CF18C5E58929BFCB538A62638B7437A9C68572D15287E97692B0B1EC5444D9DAB6EB062D20B79CA005EC5035065567AFD1FEF9B251D74747C6065D8C8B6B0862D1EE03F3A244C429EADE0CCC5C3A4196F5CBF5AA01A9026EFB20AA90E462BD64620278F271905EB604F38E6CFAE412EAA6C468E3B58170909BC18662FE2053224F30BE4FDB93BF9FBF969D91A5427A0665AC7BD1C43701B991094C92F7A935063055617142164F02973EB4ED86DD74D2BBAB3CD3B28F7BBD8D9F925B0FE92F7F7D0568D783F9ECE7AF96FB5AF274B586924B64639733A73ACA8F2BD1E970DF51ADDD983F7F6361A2B0DC4F086DE26D8656EC8813DE4B74D6D57BC1E690AC2FF1682B7E16938565A41D1DC64C75ADB81DA4582613FC68C0FDD327D35E2CDF20D009465303773EF3870FBDB0985EE7002A95D7912BBCC78187C29DB046763B7FABFF44EABE820F8ED0D7230AA0AF24F428F82448345BC099B"
@@ -366,23 +476,43 @@ char CtdlIPC_get(CtdlIPC* ipc);
 
 
 
-static INLINE void CtdlIPC_lock(CtdlIPC *ipc)
-{
-	if (ipc->network_status_cb) ipc->network_status_cb(1);
-#ifdef THREADED_CLIENT
-	pthread_mutex_lock(&(ipc->mutex));
-#endif
-}
+INLINE void CtdlIPC_lock(CtdlIPC *ipc);
+
+INLINE void CtdlIPC_unlock(CtdlIPC *ipc);
+
+char *libcitadelclient_version_string(void);
+
+/* commands we can send to the stty_ctdl() routine */
+#define SB_NO_INTR	0		/* set to Citadel client mode, i/q disabled */
+#define SB_YES_INTR	1		/* set to Citadel client mode, i/q enabled */
+#define SB_SAVE		2		/* save settings */
+#define SB_RESTORE	3		/* restore settings */
+#define SB_LAST		4		/* redo the last command sent */
+
+#define	NEXT_KEY	15
+#define STOP_KEY	3
+
+/* citadel.rc stuff */
+#define RC_NO		0		/* always no */
+#define RC_YES		1		/* always yes */
+#define RC_DEFAULT	2		/* setting depends on user config */
+
+/* keepalives */
+enum {
+	KA_NO,				/* no keepalives */
+	KA_YES,				/* full keepalives */
+	KA_HALF				/* half keepalives */
+};
+
+/* for <;G>oto and <;S>kip commands */
+#define GF_GOTO		0		/* <;G>oto floor mode */
+#define GF_SKIP		1		/* <;S>kip floor mode */
+#define GF_ZAP		2		/* <;Z>ap floor mode */
 
 
-static INLINE void CtdlIPC_unlock(CtdlIPC *ipc)
-{
-#ifdef THREADED_CLIENT
-	pthread_mutex_unlock(&(ipc->mutex));
-#endif
-	if (ipc->network_status_cb) ipc->network_status_cb(0);
-}
+#ifndef AXDEFS
 
-#ifdef __cplusplus
-}
+extern char *axdefs[];
+
+extern char *viewdefs[];
 #endif

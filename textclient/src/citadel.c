@@ -41,9 +41,9 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <libcitadel.h>
-#include "citadel.h"
+///#include "citadel.h"
 #include "citadel_ipc.h"
-#include "axdefs.h"
+//#include "axdefs.h"
 #include "routines.h"
 #include "routines2.h"
 #include "tuiconfig.h"
@@ -58,7 +58,7 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
-#include "citadel_dirs.h"
+///#include "citadel_dirs.h"
 
 #include "ecrash.h"
 #include "md5.h"
@@ -1005,8 +1005,8 @@ void system_info(CtdlIPC *ipc)
 	CtdlIPCServerInfo(ipc, buf);
 
 	scr_printf("You are connected to %s (%s) @%s\n", ipc->ServInfo.nodename, ipc->ServInfo.humannode, ipc->ServInfo.fqdn);
-	scr_printf("running %s with text client v%.2f,\n", ipc->ServInfo.software, (float)REV_LEVEL/100);
-	scr_printf("server build %s,\n", ipc->ServInfo.svn_revision, (float)REV_LEVEL/100);
+	scr_printf("running %s with text client v%.2f,\n", ipc->ServInfo.software, (float)CLIENT_VERSION/100);
+	scr_printf("server build %s,\n", ipc->ServInfo.svn_revision, (float)CLIENT_VERSION/100);
     scr_printf("and located in %s.\n", ipc->ServInfo.site_location);
     scr_printf("Connected users %d / Active users %d / Highest message #%ld\n", mrtg_users, mrtg_active_users, mrtg_himessage);
     scr_printf("Server uptime: %s\n", mrtg_server_uptime);
@@ -1101,8 +1101,8 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 	moreprompt = ipc->ServInfo.moreprompt;
 
 	/* be nice and identify ourself to the server */
-	CtdlIPCIdentifySoftware(ipc, SERVER_TYPE, 0, REV_LEVEL,
-		 (ipc->isLocal ? "local" : CITADEL),
+	CtdlIPCIdentifySoftware(ipc, CLIENT_TYPE, 0, CLIENT_VERSION,
+		 (ipc->isLocal ? "local" : PACKAGE_STRING),
 		 (supplied_hostname) ? supplied_hostname : 
 		 /* Look up the , in the bible if you're confused */
 		 (locate_host(ipc, buf), buf), buf);
@@ -1419,9 +1419,9 @@ int main(int argc, char **argv)
 
 #ifdef HAVE_BACKTRACE
 	bzero(&params, sizeof(params));
-	params.filename = file_pid_paniclog;
+//	params.filename = file_pid_paniclog;
 //	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
-	params.filep = fopen(file_pid_paniclog, "a+");
+///	params.filep = fopen(file_pid_paniclog, "a+");
 	params.debugLevel = ECRASH_DEBUG_VERBOSE;
 	params.dumpAllThreads = TRUE;
 	params.useBacktraceSymbols = 1;
@@ -1432,7 +1432,7 @@ int main(int argc, char **argv)
 	params.signals[2]=SIGBUS;
 	params.signals[3]=SIGABRT;
 
-	eCrash_Init(&params);
+///	eCrash_Init(&params);
 #endif	
 	setIPCErrorPrintf(scr_printf);
 	setCryptoStatusHook(statusHook);

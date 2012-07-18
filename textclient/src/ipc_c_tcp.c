@@ -21,13 +21,41 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <libcitadel.h>
-#include "citadel.h"
+//#include "citadel.h"
 #include "citadel_ipc.h"
-#include "citadel_decls.h"
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
+//#include "citadel_decls.h"
+//#ifndef HAVE_SNPRINTF
+//#include "snprintf.h"
+//#endif
 #include "commands.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <ctype.h>
+#include <string.h>
+#include <sys/types.h>
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#else
+#include <sgtty.h>
+#endif
+
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 /* Note that some of these functions may not work with multiple instances. */
 

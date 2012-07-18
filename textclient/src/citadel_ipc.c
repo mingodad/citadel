@@ -40,10 +40,10 @@
 #include <pthread.h>
 #endif
 #include <libcitadel.h>
-#include "citadel.h"
+///#include "citadel.h"
 #include "citadel_ipc.h"
-#include "citadel_decls.h"
-#include "citadel_dirs.h"
+//#include "citadel_decls.h"
+//#include "citadel_dirs.h"
 #ifdef THREADED_CLIENT
 pthread_mutex_t rwlock;
 #endif
@@ -63,6 +63,135 @@ pthread_mutex_t **Critters;			/* Things that need locking */
 #endif
 
 static void (*status_hook)(char *s) = NULL;
+char ctdl_autoetc_dir[PATH_MAX]="";
+char file_citadel_rc[PATH_MAX]="";
+char ctdl_run_dir[PATH_MAX]="";
+char ctdl_etc_dir[PATH_MAX]="";
+char ctdl_home_directory[PATH_MAX] = "";
+char file_citadel_socket[PATH_MAX]="";
+char file_citadel_config[PATH_MAX]="";
+
+
+char *viewdefs[]={
+        "Messages",
+        "Summary",
+        "Address book",
+        "Calendar",
+        "Tasks"
+};
+
+char *axdefs[]={
+        "Deleted",
+        "New User",
+        "Problem User",
+        "Local User",
+        "Network User",
+        "Preferred User",
+        "Aide",
+        "Sysop"
+        };
+
+
+INLINE void CtdlIPC_lock(CtdlIPC *ipc)
+{
+	if (ipc->network_status_cb) ipc->network_status_cb(1);
+#ifdef THREADED_CLIENT
+	pthread_mutex_lock(&(ipc->mutex));
+#endif
+}
+
+
+INLINE void CtdlIPC_unlock(CtdlIPC *ipc)
+{
+#ifdef THREADED_CLIENT
+	pthread_mutex_unlock(&(ipc->mutex));
+#endif
+	if (ipc->network_status_cb) ipc->network_status_cb(0);
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+
+char *libcitadelclient_version_string(void) {
+        return "libcitadelclient(unnumbered)";
+}
+
+
+
+
+#define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
+	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
+			 (home&!relh)?ctdl_home_directory:basedir, \
+             ((basedir!=ctdldir)&(home&!relh))?basedir:"/", \
+             ((basedir!=ctdldir)&(home&!relh))?"/":"", \
+			 relhome, \
+             (relhome[0]!='\0')?"/":"",\
+			 dirbuffer,\
+			 (dirbuffer[0]!='\0')?"/":"");
+
+#define DBG_PRINT(A) if (dbg==1) fprintf (stderr,"%s : %s \n", #A, A)
+
+
+void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, int dbg)
+{
+	const char* basedir = "";
+	char dirbuffer[PATH_MAX] = "";
+
+	StripSlashes(ctdldir, 1);
+
+#ifndef HAVE_RUN_DIR
+	basedir=ctdldir;
+#else
+	basedir=RUN_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_run_dir);
+	StripSlashes(ctdl_run_dir, 1);
+
+
+#ifndef HAVE_AUTO_ETC_DIR
+	basedir=ctdldir;
+#else
+	basedir=AUTO_ETC_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_autoetc_dir);
+	StripSlashes(ctdl_autoetc_dir, 1);
+
+
+#ifndef HAVE_ETC_DIR
+	basedir=ctdldir;
+#else
+	basedir=ETC_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_etc_dir);
+	StripSlashes(ctdl_etc_dir, 1);
+
+
+
+	snprintf(file_citadel_rc, 
+			 sizeof file_citadel_rc,
+			 "%scitadel.rc",
+			 ctdl_etc_dir);
+	StripSlashes(file_citadel_rc, 0);
+
+	snprintf(file_citadel_socket, 
+			 sizeof file_citadel_socket,
+				"%scitadel.socket",
+			 ctdl_run_dir);
+	StripSlashes(file_citadel_socket, 0);
+
+	snprintf(file_citadel_config, 
+			 sizeof file_citadel_config,
+			 "%scitadel.config",
+			 ctdl_autoetc_dir);
+	StripSlashes(file_citadel_config, 0);
+
+	DBG_PRINT(ctdl_run_dir);
+	DBG_PRINT(file_citadel_socket);
+	DBG_PRINT(ctdl_etc_dir);
+	DBG_PRINT(file_citadel_rc);
+}
 
 void setCryptoStatusHook(void (*hook)(char *s)) {
 	status_hook = hook;
@@ -1545,7 +1674,7 @@ int CtdlIPCIdentifySoftware(CtdlIPC *ipc, int developerid, int clientid,
 	    !software_name) {
 		developerid = 8;
 		clientid = 0;
-		revision = REV_LEVEL - 600;
+		revision = CLIENT_VERSION - 600;
 		software_name = "Citadel (libcitadel)";
 	}
 	if (!hostname) return -2;

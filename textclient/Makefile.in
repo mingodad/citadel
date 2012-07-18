@@ -37,7 +37,7 @@ AUTOCONF=@AUTOCONF@
 chkpwd_LIBS=@chkpwd_LIBS@
 CC=@CC@
 CFLAGS=@CFLAGS@ -I ./include/
-CPPFLAGS=@CPPFLAGS@ -I. -I ./include/
+CPPFLAGS=@CPPFLAGS@ -I. -I ./src/include/
 DATABASE=@DATABASE@
 DEFS=@DEFS@ -DDIFF=\"@DIFF@\" -DPATCH=\"@PATCH@\"
 LDFLAGS=@LDFLAGS@
@@ -70,6 +70,7 @@ SOURCES=src/client_chat.c \
 	src/tuiconfig.c \
 	src/citadel.c \
 	src/citadel_ipc.c \
+	src/ecrash.c \
 	src/ipc_c_tcp.c \
 	src/screen.c
 
@@ -93,10 +94,11 @@ citadel$(EXEEXT): src/citadel.o  \
 	src/routines2.o \
 	src/tuiconfig.o \
 	src/screen.o \
+	src/ecrash.o \
 	src/citadel_ipc.o \
 	src/ipc_c_tcp.o \
 	$(LIBOBJS)
-	$(CC) citadel.o \
+	$(CC) src/citadel.o \
 	src/client_chat.o \
 	src/client_passwords.o \
 	src/commands.o \
@@ -107,6 +109,7 @@ citadel$(EXEEXT): src/citadel.o  \
 	src/routines2.o \
 	src/tuiconfig.o \
 	src/screen.o \
+	src/ecrash.o \
 	src/citadel_ipc.o \
 	src/ipc_c_tcp.o \
 	$(LIBOBJS) \
