@@ -45,6 +45,7 @@ void DestroyMessageSummary(void *vMsg)
 	FreeStrBuf(&Msg->reply_inreplyto);
 	FreeStrBuf(&Msg->reply_references);
 	FreeStrBuf(&Msg->cccc);
+	FreeStrBuf(&Msg->ReplyTo);
 	FreeStrBuf(&Msg->hnod);
 	FreeStrBuf(&Msg->AllRcpt);
 	FreeStrBuf(&Msg->Room);
@@ -365,6 +366,31 @@ void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, Msg->reply_references, 0);
 }
 
+void examine_replyto(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
+	FreeStrBuf(&Msg->ReplyTo);
+	Msg->ReplyTo = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_2_Utf8(Msg->ReplyTo, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
+	if (Msg->AllRcpt == NULL)
+		Msg->AllRcpt = NewStrBufPlain(NULL, StrLength(HdrLine));
+	if (StrLength(Msg->AllRcpt) > 0) {
+		StrBufAppendBufPlain(Msg->AllRcpt, HKEY(", "), 0);
+	}
+	StrBufAppendBuf(Msg->AllRcpt, Msg->ReplyTo, 0);
+}
+void tmplput_MAIL_SUMM_REPLYTO(StrBuf *Target, WCTemplputParams *TP)
+{
+	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
+	StrBufAppendTemplate(Target, TP, Msg->ReplyTo, 0);
+}
 
 void examine_cccc(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -427,6 +453,11 @@ int Conditional_MAIL_SUMM_CCCC(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
 	return StrLength(Msg->cccc) > 0;
+}
+int Conditional_MAIL_SUMM_REPLYTO(StrBuf *Target, WCTemplputParams *TP)
+{
+	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
+	return StrLength(Msg->ReplyTo) > 0;
 }
 
 void examine_node(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -1508,6 +1539,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:SUBJECT", 0, 4, tmplput_MAIL_SUMM_SUBJECT,  NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:NTATACH", 0, 0, tmplput_MAIL_SUMM_NATTACH,  NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:CCCC", 0, 2, tmplput_MAIL_SUMM_CCCC, NULL, CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:REPLYTO", 0, 2, tmplput_MAIL_SUMM_REPLYTO, NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:H_NODE", 0, 2, tmplput_MAIL_SUMM_H_NODE,  NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:ALLRCPT", 0, 2, tmplput_MAIL_SUMM_ALLRCPT,  NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:ORGROOM", 0, 2, tmplput_MAIL_SUMM_ORGROOM,  NULL, CTX_MAILSUM);
@@ -1521,6 +1553,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:EDITWIKI", 1, 2, tmplput_EDIT_WIKI_BODY,  NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:CCCC"), 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:REPLYTO"), 0, Conditional_MAIL_SUMM_REPLYTO,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
@@ -1583,6 +1616,7 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("msgn"), examine_msgn, 0);
 	RegisterMsgHdr(HKEY("wefw"), examine_wefw, 0);
 	RegisterMsgHdr(HKEY("cccc"), examine_cccc, 0);
+	RegisterMsgHdr(HKEY("rep2"), examine_replyto, 0);
 	RegisterMsgHdr(HKEY("hnod"), examine_hnod, 0);
 	RegisterMsgHdr(HKEY("room"), examine_room, 0);
 	RegisterMsgHdr(HKEY("rfca"), examine_rfca, 0);
