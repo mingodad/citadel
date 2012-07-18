@@ -3,7 +3,7 @@
 <form enctype="multipart/form-data" action='<?BSTR("__UPLURL")>' method="post" name="graphicsupload">
 
 <input type="hidden" name="nonce" value="<?NONCE>">
-<input type="hidden" name="which_room" value="<?ROOMNAME("U")>"><?_("You can upload an image directly from your computer")>
+<input type="hidden" name="which_room" value="<?THISROOM:NAME("U")>"><?_("You can upload an image directly from your computer")>
 <br><br>
 <?_("Please select a file to upload:")>
 <input type="file" name="filename" size="35">

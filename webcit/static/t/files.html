@@ -1,7 +1,7 @@
 <?=("head")>
 <?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <div id="banner">
-	<h1><?_("Files available for download in")>&nbsp;<?ROOMNAME></h1>
+	<h1><?_("Files available for download in")>&nbsp;<?THISROOM:NAME></h1>
 	<?!("COND:THISROOM:FLAG:QR", 2, #"QR_UPLOAD")>
 		<br>
 		<form enctype="multipart/form-data" method="POST" accept-charset="UTF-8" action="upload_file" name="upload_file_form">
