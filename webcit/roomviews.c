@@ -262,7 +262,7 @@ InitModule_ROOMVIEWS
 	RegisterConditional(HKEY("COND:ROOM:TYPE_IS"), 0, ConditionalIsRoomtype, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_VIEW"), 0, ConditionalThisRoomHaveView, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:dav_CONTENT"), 0, ConditionalRoomHasGroupdavContent, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:DAV_CONTENT"), 0, ConditionalRoomHasGroupdavContent, CTX_ROOMS);
 
 	RegisterConditional(HKEY("COND:THISROOM:CURR_VIEW"), 0, ConditionalThisRoomCurrView, CTX_NONE);
 	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, NULL, CTX_ROOMS);
