@@ -1,0 +1,33 @@
+.blog_post {
+	padding-top: 0.5em;
+        margin: 0.5em;
+        width: 38em;
+	border-top: 1px solid #5C646B;
+}
+
+
+.blog_post_title a {
+	font-size: large;
+	color: #5C646B;
+}
+	
+.blog_post_header a, .blog_comment_header a { 
+	font-style: italic;
+	color: #000;
+ }
+
+.blog_post_header, .blog_comment_header {
+	margin: 0.3em 0.5em;
+	font-size: smaller;
+}
+
+.blog_post_content {
+	font-family: serif;
+	font-size: small;
+}
+
+.blog_comment {
+        margin: 0.5em;
+        width: 30em;
+}
+
