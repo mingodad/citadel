@@ -14,7 +14,7 @@
 <input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
 <input type="hidden" name="return_to" value="<?BSTR("return_to")>">
 <input type="hidden" name="nonce" value="<?NONCE>">
-<input type="hidden" name="force_room" value="<?ROOMNAME("X")>">
+<input type="hidden" name="force_room" value="<?THISROOM:NAME("X")>">
 <input type="hidden" name="references" value="<?BSTR("references")>">
 <input type="hidden" name="page" value="<?BSTR("page")>">
 <input type="hidden" name="submit_action" value="">
@@ -44,7 +44,7 @@
 </select>
 <?!("X", 4)>
 
- <i><?_("in")></i> <?ROOMNAME></td></tr>
+ <i><?_("in")></i> <?THISROOM:NAME></td></tr>
 
 <?!("COND:BSTR", 5, "__RCPTREQUIRED")>
 <tr>

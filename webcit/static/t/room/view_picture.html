@@ -1,5 +1,5 @@
 <?!("COND:THISROOM:HAVE_PIC", 1)>
-<img height="64px" alt="<?_("Room Logo")>" src="image?name=_roompic_?room=<?ROOMNAME("U")>">
+<img height="64px" alt="<?_("Room Logo")>" src="image?name=_roompic_?room=<?THISROOM:NAME("U")>">
 <?!("X", 1)><??("COND:THISROOM:HAVE_PIC", 2)>
 	<?!("COND:ROOM:TYPE_IS", 3, #"VIEW_ADDRESSBOOK")>
 		<img class="roompic" alt="" src="static/webcit_icons/essen/32x32/contact.png">
