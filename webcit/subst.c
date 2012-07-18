@@ -1057,6 +1057,11 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 				if (Handler->PreEvalFunc != NULL)
 					Handler->PreEvalFunc(NewToken);
 			}
+		} else {
+			LogTemplateError(
+				NULL, "Token ", ERR_NAME, &TP,
+				" isn't known to us.", 
+				NULL);
 		}
 		break;
 	case SV_GETTEXT:
