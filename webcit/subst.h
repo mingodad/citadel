@@ -35,9 +35,6 @@ enum {
 	WCS_LONG          /* its an integer */
 };
 
-#define CTX TP->Context
-#define CCTX TP->ControlContext
-
 #define CTX_NONE 0
 #define CTX_SITECFG 1
 #define CTX_SESSION 2
@@ -78,7 +75,6 @@ enum {
  */
 typedef struct _contexts {
 	int ContextType;                /* do we require a User Context ? */
-	int ControlContextType;         /* are we inside of a control structure? */
 	int nMinArgs;                   /* How many arguments do we need at least? */
 	int nMaxArgs;                   /* up to how many arguments can we handle? */
 } ContextFilter;
@@ -96,6 +92,9 @@ typedef int (*WCPreevalFunc)(WCTemplateToken *Token);
 
 /* make a template token a lookup key: */
 #define TKEY(a) TP->Tokens->Params[a]->Start, TP->Tokens->Params[a]->len
+
+void *GetContextPayload(WCTemplputParams *TP, int ContextType);
+#define CTX(a) GetContextPayload(TP, a)
 
 /**
  * @ingroup subst
@@ -165,9 +164,9 @@ struct WCTemplateToken {
 struct WCTemplputParams {
 	ContextFilter Filter;
 	void *Context;
-	void *ControlContext;
 	int nArgs;
 	WCTemplateToken *Tokens;
+	WCTemplputParams *Sub, *Super;
 };
 
 
@@ -363,6 +362,14 @@ void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 
 
 
+void StackContext(WCTemplputParams *Super, 
+		  WCTemplputParams *Sub, 
+		  void *Context,
+		  int ContextType,
+		  int nArgs,
+		  WCTemplateToken *Tokens);
+
+void UnStackContext(WCTemplputParams *Sub);
 
 
 

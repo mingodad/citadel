@@ -488,22 +488,22 @@ typedef struct __SieveListing {
 
 int ConditionalSieveScriptIsActive(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveListing     *SieveList = (SieveListing *)CTX;
+	SieveListing     *SieveList = (SieveListing *)CTX(CTX_SIEVELIST);
 	return SieveList->IsActive;
 }
 int ConditionalSieveScriptIsRulesScript(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveListing     *SieveList = (SieveListing *)CTX;
+	SieveListing     *SieveList = (SieveListing *)CTX(CTX_SIEVELIST);
 	return SieveList->IsActive;
 }
 void tmplput_SieveScriptName(StrBuf *Target, WCTemplputParams *TP) 
 {
-	SieveListing     *SieveList = (SieveListing *)CTX;
+	SieveListing     *SieveList = (SieveListing *)CTX(CTX_SIEVELIST);
 	StrBufAppendTemplate(Target, TP, SieveList->Name, 0);
 }
 void tmplput_SieveScriptContent(StrBuf *Target, WCTemplputParams *TP) 
 {
-	SieveListing     *SieveList = (SieveListing *)CTX;
+	SieveListing     *SieveList = (SieveListing *)CTX(CTX_SIEVELIST);
 	StrBufAppendTemplate(Target, TP, SieveList->Content, 0);
 }
 void FreeSieveListing(void *vSieveListing)
@@ -683,7 +683,7 @@ typedef struct __SieveRule {
 
 int ConditionalSieveRule_hfield(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
 	
         return GetTemplateTokenNumber(Target, 
                                       TP, 
@@ -694,7 +694,7 @@ int ConditionalSieveRule_hfield(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalSieveRule_compare(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
         return GetTemplateTokenNumber(Target, 
                                       TP, 
                                       3, 
@@ -704,7 +704,7 @@ int ConditionalSieveRule_compare(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalSieveRule_action(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
         return GetTemplateTokenNumber(Target, 
                                       TP, 
                                       3, 
@@ -714,7 +714,7 @@ int ConditionalSieveRule_action(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalSieveRule_sizecomp(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
         return GetTemplateTokenNumber(Target, 
                                       TP, 
                                       3, 
@@ -724,7 +724,7 @@ int ConditionalSieveRule_sizecomp(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalSieveRule_final(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
         return GetTemplateTokenNumber(Target, 
                                       TP, 
                                       3, 
@@ -734,7 +734,7 @@ int ConditionalSieveRule_final(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalSieveRule_ThisRoom(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
         return GetTemplateTokenNumber(Target, 
                                       TP, 
                                       3, 
@@ -744,39 +744,39 @@ int ConditionalSieveRule_ThisRoom(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalSieveRule_Active(StrBuf *Target, WCTemplputParams *TP)
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
         return Rule->active;
 }
 void tmplput_SieveRule_htext(StrBuf *Target, WCTemplputParams *TP) 
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
 	StrBufAppendTemplate(Target, TP, Rule->htext, 0);
 }
 void tmplput_SieveRule_fileinto(StrBuf *Target, WCTemplputParams *TP) 
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
 	StrBufAppendTemplate(Target, TP, Rule->fileinto, 0);
 }
 void tmplput_SieveRule_redirect(StrBuf *Target, WCTemplputParams *TP) 
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
 	StrBufAppendTemplate(Target, TP, Rule->redirect, 0);
 }
 void tmplput_SieveRule_automsg(StrBuf *Target, WCTemplputParams *TP) 
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
 	StrBufAppendTemplate(Target, TP, Rule->automsg, 0);
 }
 void tmplput_SieveRule_sizeval(StrBuf *Target, WCTemplputParams *TP) 
 {
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
 	StrBufAppendPrintf(Target, "%d", Rule->sizeval);
 }
 
 void tmplput_SieveRule_lookup_FileIntoRoom(StrBuf *Target, WCTemplputParams *TP) 
 {
 	void *vRoom;
-	SieveRule     *Rule = (SieveRule *)CTX;
+	SieveRule     *Rule = (SieveRule *)CTX(CTX_SIEVESCRIPT);
         wcsession *WCC = WC;
 	HashList *Rooms = GetRoomListHashLKRA(Target, TP);
 

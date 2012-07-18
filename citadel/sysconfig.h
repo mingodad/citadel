@@ -11,14 +11,6 @@
  */
 #define CHATLOG		"/dev/null"
 
-/* 
- * S_KEEPALIVE is a watchdog timer.  It is used to send "keep
- * alive" messages to the server to prevent the server from assuming the
- * client is dead and terminating the session.  30 seconds is the recommended
- * value; I can't think of any good reason to change it.
- */
-#define S_KEEPALIVE	30
-
 /*
  * Logging level to use if none is specified on the command line.
  * Note that this will suppress messages before they even get to syslog().

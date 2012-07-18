@@ -126,54 +126,54 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 
 void tmplput_MailQID(StrBuf *Target, WCTemplputParams *TP)
 {
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 	StrBufAppendPrintf(Target, "%ld", Item->QueMsgID);;
 }
 void tmplput_MailQPayloadID(StrBuf *Target, WCTemplputParams *TP)
 {
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 	StrBufAppendPrintf(Target, "%ld", Item->MessageID);
 }
 void tmplput_MailQBounceTo(StrBuf *Target, WCTemplputParams *TP)
 {
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 	StrBufAppendTemplate(Target, TP, Item->BounceTo, 0);
 }
 void tmplput_MailQAttempted(StrBuf *Target, WCTemplputParams *TP)
 {
         char datebuf[64];
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
         webcit_fmt_date(datebuf, 64, Item->ReattemptWhen, DATEFMT_BRIEF);
         StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
 void tmplput_MailQSubmitted(StrBuf *Target, WCTemplputParams *TP)
 {
         char datebuf[64];
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
         webcit_fmt_date(datebuf, 64, Item->Submitted, DATEFMT_BRIEF);
         StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
 void tmplput_MailQEnvelopeFrom(StrBuf *Target, WCTemplputParams *TP)
 {
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 	StrBufAppendTemplate(Target, TP, Item->EnvelopeFrom, 0);
 }
 void tmplput_MailQSourceRoom(StrBuf *Target, WCTemplputParams *TP)
 {
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 	StrBufAppendTemplate(Target, TP, Item->SenderRoom, 0);
 }
 
 int Conditional_MailQ_HaveSourceRoom(StrBuf *Target, WCTemplputParams *TP)
 {
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 	return StrLength(Item->SenderRoom) > 0;
 }
 
 void tmplput_MailQRetry(StrBuf *Target, WCTemplputParams *TP)
 {
         char datebuf[64];
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 
 	if (Item->Retry == 0) {
 		StrBufAppendBufPlain(Target, _("First Attempt pending"), -1, 0);
@@ -186,23 +186,23 @@ void tmplput_MailQRetry(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_MailQRCPT(StrBuf *Target, WCTemplputParams *TP)
 {
-	MailQEntry *Entry = (MailQEntry*) CTX;
+	MailQEntry *Entry = (MailQEntry*) CTX(CTX_MAILQ_RCPT);
 	StrBufAppendTemplate(Target, TP, Entry->Recipient, 0);
 }
 void tmplput_MailQRCPTStatus(StrBuf *Target, WCTemplputParams *TP)
 {
-	MailQEntry *Entry = (MailQEntry*) CTX;
+	MailQEntry *Entry = (MailQEntry*) CTX(CTX_MAILQ_RCPT);
 	StrBufAppendPrintf(Target, "%ld", Entry->Status);
 }
 void tmplput_MailQStatusMsg(StrBuf *Target, WCTemplputParams *TP)
 {
-	MailQEntry *Entry = (MailQEntry*) CTX;
+	MailQEntry *Entry = (MailQEntry*) CTX(CTX_MAILQ_RCPT);
 	StrBufAppendTemplate(Target, TP, Entry->StatusMessage, 0);
 }
 
 HashList *iterate_get_Recipients(StrBuf *Target, WCTemplputParams *TP)
 {
-	OneQueItem *Item = (OneQueItem*) CTX;
+	OneQueItem *Item = (OneQueItem*) CTX(CTX_MAILQITEM);
 	return Item->MailQEntries;
 }
 

@@ -40,16 +40,16 @@
 #include <stdarg.h>
 #include <libcitadel.h>
 #include "sysdep.h"
-#include "citadel.h"
+///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "routines2.h"
 #include "routines.h"
 #include "commands.h"
-#include "messages.h"
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
+//#include "messages.h"
+//#ifndef HAVE_SNPRINTF
+//#include "snprintf.h"
+//#endif
 #include "screen.h"
 
 /* work around solaris include files */

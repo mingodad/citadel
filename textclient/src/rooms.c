@@ -26,18 +26,18 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <libcitadel.h>
-#include "citadel.h"
+//#include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "rooms.h"
 #include "commands.h"
 #include "messages.h"
 #include "tuiconfig.h"
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
+//#ifndef HAVE_SNPRINTF
+//#include "snprintf.h"
+//#endif
 #include "screen.h"
-#include "citadel_dirs.h"
+//#include "citadel_dirs.h"
 
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 

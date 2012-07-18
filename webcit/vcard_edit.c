@@ -651,7 +651,7 @@ TODO: check for layer II
 
 void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
 {
-	HashList *VC = CTX;
+	HashList *VC = CTX(CTX_VCARD);
 	eVC evc;
 	void *vStr;
 

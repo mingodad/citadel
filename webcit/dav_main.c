@@ -271,7 +271,7 @@ int Conditional_DAV_NSCURRENT(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	void *vHandler;
 
-	vHandler = CTX;
+	vHandler = CTX(CTX_NONE);
 	return WCC->Hdr->HR.Handler == vHandler;
 }
 
@@ -282,8 +282,9 @@ void tmplput_DAV_NAMESPACE(StrBuf *Target, WCTemplputParams *TP)
 
 	if (TP->Filter.ContextType == CTX_DAVNS) {
 		WebcitHandler *H;
-		H = (WebcitHandler*) CTX;
-		StrBufAppendTemplate(Target, TP, H->Name, 0);
+		H = (WebcitHandler*) CTX(CTX_DAVNS);
+		if (H != NULL)
+			StrBufAppendTemplate(Target, TP, H->Name, 0);
 	}
 	else if (WCC->Hdr->HR.Handler != NULL) {
 		StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.Handler->Name, 0);

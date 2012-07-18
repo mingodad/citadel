@@ -63,7 +63,7 @@ void initialize_viewdefs(void) {
 
 void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	
 	switch(Folder->view) {
 	case VIEW_CALENDAR:
@@ -91,7 +91,7 @@ void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 
 	syslog(0, "-> %s: %d\n", ChrPtr(Folder->name), Folder->view);
 
@@ -228,12 +228,12 @@ int ConditionalThisRoomHaveView(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_VIEW(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	StrBufAppendPrintf(Target, "%d", Folder->view);
 }
 void tmplput_ROOM_DEFVIEW(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)CTX;
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
 	StrBufAppendPrintf(Target, "%d", Folder->defview);
 }
 

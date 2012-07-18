@@ -1,0 +1,17 @@
+Source: citadel
+Section: mail
+Priority: extra
+Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
+Build-Depends: debhelper (>= 4), po-debconf, autotools-dev,
+ gettext, locales, libcitadel-dev (>= 8.11),
+Standards-Version: 3.8.0
+
+Package: citadel-client
+Architecture: any
+Recommends: shared-mime-info
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
+Description: complete and feature-rich groupware server (command line client)
+ This is package contains the command line client for Citadel, a complete and
+ feature-rich open source groupware platform.
+ .
+ See the 'citadel-server' package for more information.

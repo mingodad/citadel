@@ -247,11 +247,6 @@ fi
 
 AC_CHECK_LIB(intl, libintl_bindtextdomain, [LDFLAGS="$LDFLAGS -lintl"])
 
-
-
-AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
-			  disable multithreaded client])
-
 AC_ARG_ENABLE(pie, [  --enable-pie            build position-independent executables])
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
@@ -283,10 +278,6 @@ else
 	test -d /usr/local/BerkeleyDB.4.4 && db_dir=/usr/local/BerkeleyDB.4.4
 	test -d /usr/local/BerkeleyDB.4.5 && db_dir=/usr/local/BerkeleyDB.4.5
 fi
-
-dnl By default, we only build the client (citadel and whobbs) unless we can
-dnl figure out how to build with POSIX threads.
-TARGETS=client
 
 AC_CANONICAL_HOST
 PTHREAD_DEFS=-D_REENTRANT
@@ -996,10 +987,7 @@ AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
 #endif],
 ac_cv_func_pthread_create=yes, ac_cv_func_pthread_create=no)])
 if test "$ac_cv_func_pthread_create" = yes; then
-	test "$DATABASE" && TARGETS="client server utils"
-	if test "x$enable_threaded_client" != xno; then
-		AC_DEFINE(THREADED_CLIENT, [], [define this if you want to enable the multithreaded client])
-	fi
+	test "$DATABASE" && TARGETS="server utils"
 fi
 
 AC_REPLACE_FUNCS(snprintf getutline)
@@ -1084,7 +1072,6 @@ if test "$abs_srcdir" != "$abs_builddir"; then
    fi
    mkdir -p $abs_builddir/utils
    mkdir -p $abs_builddir/utillib
-   mkdir -p $abs_builddir/textclient
 fi
 
 if test -n "$srcdir"; then 

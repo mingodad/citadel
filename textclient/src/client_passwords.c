@@ -24,7 +24,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <libcitadel.h>
-#include "citadel.h"
+///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "commands.h"
 #include "client_passwords.h"

@@ -43,16 +43,16 @@
 
 #include <stdarg.h>
 #include <libcitadel.h>
-#include "citadel.h"
+///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "messages.h"
 #include "commands.h"
 #include "tuiconfig.h"
 #include "rooms.h"
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
+//#ifndef HAVE_SNPRINTF
+///#include "snprintf.h"
+//#endif
 #include "screen.h"
 
 #define MAXWORDBUF SIZ

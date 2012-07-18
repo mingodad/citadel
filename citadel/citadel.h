@@ -61,12 +61,7 @@ extern "C" {
 
 /* Various length constants */
 
-#define UGLISTLEN	100	/* you get a ungoto list of this size */
 #define ROOMNAMELEN	128	/* The size of a roomname string */
-#define NONCE_SIZE	128	/* Added by <bc> to allow for APOP auth 
-				 * it is BIG becuase there is a hostname
-				 * in the nonce, as per the APOP RFC.
-				 */
 					 
 #define USERNAME_SIZE	64	/* The size of a username string */
 #define MAX_EDITORS	5	/* # of external editors supported */
@@ -202,49 +197,8 @@ struct floor {
 #define NEWREGISTER	0		/* new user to register */
 #define REREGISTER	1		/* existing user reregistering */
 
-#define READ_HEADER	2
-#define READ_MSGBODY	3
-
-/* commands we can send to the stty_ctdl() routine */
-#define SB_NO_INTR	0		/* set to Citadel client mode, i/q disabled */
-#define SB_YES_INTR	1		/* set to Citadel client mode, i/q enabled */
-#define SB_SAVE		2		/* save settings */
-#define SB_RESTORE	3		/* restore settings */
-#define SB_LAST		4		/* redo the last command sent */
-
-#define	NEXT_KEY	15
-#define STOP_KEY	3
-
-/* citadel.rc stuff */
-#define RC_NO		0		/* always no */
-#define RC_YES		1		/* always yes */
-#define RC_DEFAULT	2		/* setting depends on user config */
-
-/* keepalives */
-enum {
-	KA_NO,				/* no keepalives */
-	KA_YES,				/* full keepalives */
-	KA_HALF				/* half keepalives */
-};
-
-/* for <;G>oto and <;S>kip commands */
-#define GF_GOTO		0		/* <;G>oto floor mode */
-#define GF_SKIP		1		/* <;S>kip floor mode */
-#define GF_ZAP		2		/* <;Z>ap floor mode */
-
 /* number of items which may be handled by the CONF command */
 #define NUM_CONFIGS 70
-
-/*
- * MIME types used in Citadel for configuration stuff
- */
-#define SPOOLMIME	"application/x-citadel-delivery-list"
-#define	INTERNETCFG	"application/x-citadel-internet-config"
-#define IGNETCFG	"application/x-citadel-ignet-config"
-#define IGNETMAP	"application/x-citadel-ignet-map"
-#define FILTERLIST	"application/x-citadel-filter-list"
-#define SIEVECONFIG	"application/x-citadel-sieve-config"
-#define XMPPMORTUARY	"application/x-citadel-xmpp-mortuary"
 
 #define TRACE	syslog(LOG_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 

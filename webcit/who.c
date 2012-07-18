@@ -214,83 +214,83 @@ void DeleteWholistHash(HashList **KillMe)
 
 void tmplput_who_username(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendTemplate(Target, TP, User->UserName, 0);
 }
 
 void tmplput_who_room(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendTemplate(Target, TP, User->Room, 0);
 }
 
 void tmplput_who_host(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendTemplate(Target, TP, User->Host, 0);
 }
 
 void tmplput_who_realroom(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendTemplate(Target, TP, User->RealRoom, 0);
 }
 int conditional_who_realroom(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	return StrLength(User->RealRoom) > 0;
 }
 
 void tmplput_who_realhost(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendTemplate(Target, TP, User->RealHost, 0);
 }
 int conditional_who_realhost(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	return StrLength(User->RealHost) > 0;
 }
 
 void tmplput_who_lastactive(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendPrintf(Target, "%d", User->LastActive);
 }
 
 void tmplput_who_idlesince(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendPrintf(Target, "%d", User->IdleSince);
 }
 
 void tmplput_who_session(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendPrintf(Target, "%d", User->Session);
 }
 
 int conditional_who_idle(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	return User->Idle;
 }
 
 int conditional_who_nsessions(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	return User->SessionCount;
 }
 
 void tmplput_who_nsessions(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	StrBufAppendPrintf(Target, "%d", User->SessionCount);
 }
 
 int conditional_who_isme(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) CTX;
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
 	return (User->Session == WC->ctdl_pid);
 }
 

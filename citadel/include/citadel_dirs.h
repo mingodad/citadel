@@ -37,7 +37,6 @@ extern char ctdl_utilbin_dir[PATH_MAX];
 
 /* some of the frequently used files */
 extern char file_citadel_control[PATH_MAX];
-extern char file_citadel_rc[PATH_MAX];
 extern char file_citadel_config[PATH_MAX];
 extern char file_citadel_urlshorteners[PATH_MAX];
 extern char file_lmtp_socket[PATH_MAX];

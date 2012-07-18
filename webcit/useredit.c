@@ -330,80 +330,80 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_USERLIST_UserName(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	StrBufAppendTemplate(Target, TP, ul->UserName, 0);
 }
 
 void tmplput_USERLIST_Password(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	StrBufAppendTemplate(Target, TP, ul->Passvoid, 0);
 }
 
 void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->AccessLevel, 0);
 }
 
 void tmplput_USERLIST_AccessLevelStr(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	
 	StrBufAppendBufPlain(Target, _(axdefs[ul->AccessLevel]), -1, 0);
 }
 
 void tmplput_USERLIST_UID(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->UID, 0);
 }
 
 void tmplput_USERLIST_LastLogonNo(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target,"%ld", ul->LastLogonT, 0);
 }
 void tmplput_USERLIST_LastLogonStr(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	StrEscAppend(Target, NULL, asctime(localtime(&ul->LastLogonT)), 0, 0);
 }
 
 void tmplput_USERLIST_nLogons(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->nLogons, 0);
 }
 
 void tmplput_USERLIST_nPosts(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->nPosts, 0);
 }
 
 void tmplput_USERLIST_Flags(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->Flags, 0);
 }
 
 void tmplput_USERLIST_DaysTillPurge(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 
 	StrBufAppendPrintf(Target, "%d", ul->DaysTillPurge, 0);
 }
 
 int ConditionalUser(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	if (havebstr("usernum")) {
 		return ibstr("usernum") == ul->UID;
 	}
@@ -416,13 +416,13 @@ int ConditionalUser(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalFlagINetEmail(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	return (ul->Flags & US_INTERNET) != 0;
 }
 
 int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	
 	if (ul == NULL)
 		return 0;
@@ -436,7 +436,7 @@ int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
 }
 int ConditionalHaveBIO(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) CTX;
+	UserListEntry *ul = (UserListEntry*) CTX(CTX_USERLIST);
 	
 	if (ul == NULL)
 		return 0;
@@ -461,8 +461,10 @@ void tmplput_USER_BIO(StrBuf *Target, WCTemplputParams *TP)
 			if ( (StrLength(Buf)==3) && 
 			     !strcmp(ChrPtr(Buf), "000")) 
 				Done = 1;
-			else
+			else {
 				StrBufAppendBuf(BioBuf, Buf, 0);
+				StrBufAppendBufPlain(BioBuf, HKEY("\n"), 0);
+			}
 		}
 		StrBufAppendTemplate(Target, TP, BioBuf, 1);
 		FreeStrBuf(&BioBuf);
@@ -800,19 +802,10 @@ void _display_edituser(void) {
 	display_edituser(NULL, 0);
 }
 
-void showuser(void)
-{
-	output_headers(1, 0, 0, 0, 1, 0);
-	do_template("user_show");
-	end_burst();
-}
-
-
 void 
 InitModule_USEREDIT
 (void)
 {
-	WebcitAddUrlHandler(HKEY("showuser"), "", 0, showuser, 0);
 	WebcitAddUrlHandler(HKEY("select_user_to_edit"), "", 0, _select_user_to_edit, 0);
 	WebcitAddUrlHandler(HKEY("display_edituser"), "", 0, _display_edituser, 0);
 	WebcitAddUrlHandler(HKEY("edituser"), "", 0, edituser, 0);
