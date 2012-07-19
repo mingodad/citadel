@@ -1,24 +1,28 @@
 <div class="blog_comment" id="blog_comment_<?MAIL:SUMM:N>">
-<div class="blog_comment_header">
-<span>
- <??("COND:MAIL:ANON",1)>
-   <?!("COND:MAIL:SUMM:RFCA", 2)><a href="do_template?temlpate=user_show?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
-   <??("COND:MAIL:SUMM:RFCA", 3)><a href="do_template?temlpate=user_show?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> 
-      <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
- <??("X", 1)>
-</span>
- <span><?MAIL:SUMM:DATEFULL></span>
-<?!("COND:ROOM:EDITACCESS", 16)>
-   <a href="#" onclick="if (confirm('<?_("Delete this message?")>')) { DeleteBlogComment(<?MAIL:SUMM:N>); }"><span>[</span><?_("Delete")><span>]</span> </a> 
-<??("X", 16)>
-</div>
-<div class="blog_comment_content">
-<?MAIL:BODY>
-<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
-<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", ="view_message_inline_attach")>
-<?!("X", 10)>
-<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
-<?ITERATE("MAIL:MIME:ATTACH:LINKS", ="view_message_list_attach")>
-<?!("X", 11)>
-</div>
+	<div class="blog_comment_header">
+		<span class="blog_commenter_name">
+ 		<??("COND:MAIL:ANON",1)>
+   			<?!("COND:MAIL:SUMM:RFCA", 2)>
+				<a href="do_template?temlpate=user_show?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;</a>
+			<?!("X", 2)>
+   			<??("COND:MAIL:SUMM:RFCA", 3)>
+				<a href="do_template?temlpate=user_show?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> 
+			<??("X", 3)>
+			<?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
+		<??("X", 1)>
+		&nbsp;says:&nbsp;</span>
+		<span class="blog_comment_date"><?MAIL:SUMM:DATEFULL></span>
+		<?!("COND:ROOM:EDITACCESS", 16)>
+   			<a href="#" onclick="if (confirm('<?_("Delete this message?")>')) { DeleteBlogComment(<?MAIL:SUMM:N>); }"><span>[</span><?_("Delete")><span>]</span> </a> 
+		<??("X", 16)>
+	</div>
+	<div class="blog_comment_content">
+		<?MAIL:BODY>
+		<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
+			<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", ="view_message_inline_attach")>
+		<?!("X", 10)>
+		<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
+			<?ITERATE("MAIL:MIME:ATTACH:LINKS", ="view_message_list_attach")>
+		<?!("X", 11)>
+	</div>
 </div>

@@ -15,6 +15,7 @@
 @import url("message.css");
 @import url("modal.css");
 @import url("service.css");
+@import url("blog.css");
 
 @media print {
 	input#toggler, .toolbar { display: none }
@@ -1164,53 +1165,6 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	display: block;
 	padding:3px 8px 10px;
 	background: url(/static/webcit_icons/bubble.gif) no-repeat bottom;
-}
-
-
-/*---------- styles for the blog view -----------*/
-
-.blog_post {
-}
-
-.blog_post_title {
-	font-size: 150%;
-	font-weight: bold;
-}
-
-.blog_post_title a:link, .blog_post_title a:visited, .blog_post_title a:active {
-	color: #000000;
-}
-
-.blog_post_title a:hover {
-	color: #0000FF;
-}
-
-
-.blog_post_header {
-	font-size: 100%;
-	font-style: italic;
-}
-
-.blog_post_content {
-}
-
-.blog_comment {
-	border: 1px solid grey;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	margin-left: 5%;
-	margin-right: 5%;
-	padding: 5px;
-}
-
-.blog_comment_header {
-	margin-bottom: 1em;
-	font-size: 100%;
-	font-style: italic;
-}
-
-.post_a_comment_title {
-	font-size: 120%;
 }
 
 /*---------- styles for the attachments form -----------*/
