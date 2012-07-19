@@ -388,7 +388,7 @@ void examine_replyto(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset
 }
 void tmplput_MAIL_SUMM_REPLYTO(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
+	message_summary *Msg = (message_summary*) CTX;
 	StrBufAppendTemplate(Target, TP, Msg->ReplyTo, 0);
 }
 
@@ -456,7 +456,7 @@ int Conditional_MAIL_SUMM_CCCC(StrBuf *Target, WCTemplputParams *TP)
 }
 int Conditional_MAIL_SUMM_REPLYTO(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
+	message_summary *Msg = (message_summary*) CTX;
 	return StrLength(Msg->ReplyTo) > 0;
 }
 
