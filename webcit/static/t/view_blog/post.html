@@ -2,8 +2,19 @@
 	<div class="blog_post_title">
 		<?!("COND:MAIL:SUBJ", 7)><a href="<?BLOG:PERMALINK>"><?MAIL:SUMM:SUBJECT("X")></a><??("X", 7)>
 	</div>
+	<div class="blog_post_content">
+		<div>   
+			<?MAIL:BODY>
+			<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
+				<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", ="view_message_inline_attach")>
+			<?!("X", 10)>
+			<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
+				<?ITERATE("MAIL:MIME:ATTACH:LINKS", ="view_message_list_attach")>
+			<?!("X", 11)>
+		</div>
+	</div>
 	<div class="blog_post_header">
-		<span><??("COND:MAIL:ANON",1)>
+		<span>Posted by <??("COND:MAIL:ANON",1)>
    			<?!("COND:MAIL:SUMM:RFCA", 2)>
 			<a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">
 				"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;
@@ -16,23 +27,12 @@
       			<??("X", 3)>
 			<?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
  		<??("X", 1)></span>
-		<span><?MAIL:SUMM:DATEFULL></span>
+		<span>on <?MAIL:SUMM:DATEFULL></span>
 		<?!("COND:ROOM:EDITACCESS", 16)>
 			<a href="delete_msg?msgid=<?MAIL:SUMM:N>" onclick="return confirm('<?_("Delete this message?")>');">
 				<span>[</span><?_("Delete")><span>]</span>
 			</a> 
 		<??("X", 16)>
 	</div>
-	<div class="blog_post_content">
-		<div>
-			<?MAIL:BODY>
-			<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
-				<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", ="view_message_inline_attach")>
-			<?!("X", 10)>
-			<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
-				<?ITERATE("MAIL:MIME:ATTACH:LINKS", ="view_message_list_attach")>
-			<?!("X", 11)>
-		</div>
-	</div>
 	<div id="comment_replyto" style="display:none"><?MAIL:SUMM:INREPLYTO("X")></div>
-</div>
+<!-- closing /div provided by blogview_render.c -->
