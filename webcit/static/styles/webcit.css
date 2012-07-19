@@ -1264,15 +1264,3 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
         background: url('../webcit_icons/openid-small.gif') no-repeat scroll 0pt 50%;
         padding-left: 18px;
 }
-
-.older_blog_posts, .newer_blog_posts {
-	font-size: 110%;
-}
-
-.older_blog_posts {
-	text-align: left;
-}
-
-.newer_blog_posts {
-	text-align: right;
-}

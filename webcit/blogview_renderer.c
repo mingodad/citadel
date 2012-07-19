@@ -54,12 +54,12 @@ void blogpost_render(struct blogpost *bp, int with_comments)
 
 	if (with_comments) {
 		/* Show any existing comments, then offer the comment box */
-		wc_printf("<a name=\"comments\"></a>\n");
+		wc_printf("<a class=\"blog_show_comments_link\" name=\"comments\"></a>\n");
 		wc_printf(_("%d comments"), bp->num_msgs - 1);
-		wc_printf(" | <a href=\"");
+		wc_printf(" | <a class=\"blog_permalink_link\" href=\"");
 		tmplput_blog_permalink(NULL, NULL);
 		wc_printf("\">%s</a>", _("permalink"));
-		wc_printf("<br>\n");
+		wc_printf("</div>\n");
 		for (i=1; i<bp->num_msgs; ++i) {
 			read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
 		}
@@ -68,14 +68,14 @@ void blogpost_render(struct blogpost *bp, int with_comments)
 
 	else {
 		/* Show only the number of comments */
-		wc_printf("<a href=\"readfwd?p=%d?go=", bp->top_level_id);
+		wc_printf("<a class=\"blog_show_comments_link\" href=\"readfwd?p=%d?go=", bp->top_level_id);
 		urlescputs(ChrPtr(WC->CurRoom.name));
 		wc_printf("#comments\">");
 		wc_printf(_("%d comments"), bp->num_msgs - 1);
-		wc_printf("</a> | <a href=\"");
+		wc_printf("</a> | <a class=\"blog_permalink_link\" href=\"");
 		tmplput_blog_permalink(NULL, NULL);
 		wc_printf("\">%s</a>", _("permalink"));
-		wc_printf("<br><br><br>\n");
+		wc_printf("<hr>\n</div>\n");
 	}
 }
 
