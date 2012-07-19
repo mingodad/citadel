@@ -176,6 +176,7 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from,
 			int unread, calview *calv)
 {
+	wcsession *WCC = WC;
 	icalcomponent *vtodo;
 	icalproperty *p;
 	struct icaltimetype IcalTime;
@@ -230,6 +231,11 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wc_printf("<div class=\"boxcontent\">\n");
 	wc_printf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
 	wc_printf("<div style=\"display: none;\">\n	");
+
+	wc_printf("<input type=\"hidden\" name=\"go\" value=\"");
+	StrEscAppend(WCC->WBuf, WCC->CurRoom.name, NULL, 0, 0);
+	wc_printf("\">\n");
+
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n", msgnum);
 	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"return_to_summary\" VALUE=\"%d\">\n",
