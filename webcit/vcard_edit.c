@@ -870,6 +870,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 		   wc_mime_attachment *VCAtt,
 		   const char *return_to, 
 		   const char *force_room) {
+	wcsession *WCC = WC;
 	message_summary *Msg = NULL;
 	wc_mime_attachment *VCMime = NULL;
 	struct vCard *v;
@@ -1048,6 +1049,12 @@ void do_edit_vcard(long msgnum, char *partnum,
 	if (force_room != NULL) {
 		wc_printf("<input type=\"hidden\" name=\"force_room\" value=\"");
 		escputs(force_room);
+		wc_printf("\">\n");
+	}
+	else
+	{
+		wc_printf("<input type=\"hidden\" name=\"go\" value=\"");
+		StrEscAppend(WCC->WBuf, WCC->CurRoom.name, NULL, 0, 0);
 		wc_printf("\">\n");
 	}
 

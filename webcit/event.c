@@ -24,6 +24,7 @@
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from,
 	int unread, calview *calv)
 {
+	wcsession *WCC = WC;
 	icalcomponent *vevent;
 	icalproperty *p;
 	icalvalue *v;
@@ -183,6 +184,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wc_printf("<form name=\"EventForm\" method=\"POST\" action=\"save_event\">\n");
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+
+	wc_printf("<input type=\"hidden\" name=\"go\" value=\"");
+	StrEscAppend(WCC->WBuf, WCC->CurRoom.name, NULL, 0, 0);
+	wc_printf("\">\n");
 
 	wc_printf("<input type=\"hidden\" name=\"msgnum\" value=\"%ld\">\n",
 		msgnum);
