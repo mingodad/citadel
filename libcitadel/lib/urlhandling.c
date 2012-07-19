@@ -89,6 +89,8 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, unsigned short DefaultPort)
 		StrBufPeek(url->URL, pUserEnd, 0, '\0');
 		StrBufPeek(url->URL, pCredEnd, 0, '\0');		
 	}
+	else
+		pUserEnd = NULL;
 	
 	pPort = NULL;
 	if (*url->Host == '[') {
