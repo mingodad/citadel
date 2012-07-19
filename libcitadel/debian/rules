@@ -90,11 +90,11 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
-	dh_installchangelogs -a -plibcitadel2
+	dh_installchangelogs -a -plibcitadel3
 	dh_installdocs -a
 	dh_install -a --sourcedir=debian/tmp
 	dh_link -a
-	dh_strip -a --dbg-package=libcitadel2-dbg
+	dh_strip -a --dbg-package=libcitadel3-dbg
 	dh_compress -a
 	dh_fixperms -a
 	dh_makeshlibs -a -V
