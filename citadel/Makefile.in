@@ -30,8 +30,6 @@ all: buildinfo $(TARGETS)
 
 EXEEXT=@EXEEXT@
 
-CLIENT_TARGETS=citadel$(EXEEXT)
-NOINST_TARGETS=stress$(EXEEXT)
 SERVER_TARGETS=citserver$(EXEEXT)
 SERV_MODULES= md5.o \
 	ical_dezonify.o
@@ -74,15 +72,11 @@ LOCALEDIR=@LOCALEDIR@
 .SILENT:
 
 
-SOURCES=utils/aidepost.c utils/stress.c utils/citmail.c \
+SOURCES=utils/aidepost.c utils/citmail.c \
 	utils/setup.c utils/msgform.c utils/chkpw.c \
 	utils/sendcommand.c \
 	utils/ctdlmigrate.c utils/base64.c utils/chkpwd.c \
-	utillib/citadel_ipc.c utillib/citadel_dirs.c utillib/ipc_c_tcp.c \
-	textclient/client_chat.c textclient/client_passwords.c \
-	textclient/commands.c textclient/messages.c textclient/rooms.c \
-	textclient/routines.c textclient/routines2.c textclient/tuiconfig.c \
-	textclient/citadel.c textclient/screen.c \
+	utillib/citadel_dirs.c \
 	citserver.c clientsocket.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
@@ -106,7 +100,7 @@ mkdir-init:
 	@for d in `/bin/ls $(VPATH)/user_modules/`; do \
 		(mkdir -p user_modules/$$d ) ; \
 	done
-	mkdir -p utils utillib textclient
+	mkdir -p utils utillib
 	mkdir locale
 
 svn_revision.c: ${SOURCES}
@@ -115,25 +109,10 @@ svn_revision.c: ${SOURCES}
 DEP_FILES=$(SOURCES:.c=.d) modules_init.d modules_upgrade.d
 
 noinst: $(NOINST_TARGETS)
-client: $(CLIENT_TARGETS)
 
 server: $(SERVER_TARGETS) $(SERV_MODULES)
 
 utils: $(UTIL_TARGETS) $(UTILBIN_TARGETS)
-
-citadel$(EXEEXT): textclient/citadel.o utillib/citadel_ipc.o \
-		textclient/client_chat.o textclient/client_passwords.o \
-		textclient/commands.o utillib/ipc_c_tcp.o md5.o \
-		textclient/messages.o textclient/rooms.o textclient/routines.o \
-		textclient/routines2.o textclient/tuiconfig.o \
-		textclient/screen.o utillib/citadel_dirs.o ecrash.o $(LIBOBJS)
-	$(CC) textclient/citadel.o utillib/citadel_ipc.o \
-		textclient/client_chat.o textclient/client_passwords.o \
-		textclient/commands.o utillib/ipc_c_tcp.o md5.o \
-		textclient/messages.o textclient/rooms.o textclient/routines.o \
-		textclient/routines2.o textclient/tuiconfig.o \
-		textclient/screen.o utillib/citadel_dirs.o ecrash.o $(LIBOBJS) \
-		$(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
 	$(YACC) $(YFLAGS) $<
@@ -192,12 +171,6 @@ chkpw$(EXEEXT): utils/chkpw.o auth.o utillib/citadel_dirs.o
 	$(CC) utils/chkpw.o auth.o utillib/citadel_dirs.o \
 		$(LDFLAGS) -o chkpw$(EXEEXT) $(chkpwd_LIBS)
 
-stress$(EXEEXT): utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		utillib/citadel_dirs.o $(LIBOBJS)
-	$(CC) utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
-		utillib/citadel_dirs.o $(LIBOBJS) \
-		$(LDFLAGS) -o stress$(EXEEXT) $(LIBS)
-
 sendcommand$(EXEEXT): utils/sendcommand.o utillib/citadel_dirs.o $(LIBOBJS)
 	$(CC) utils/sendcommand.o utillib/citadel_dirs.o \
 		$(LIBOBJS) $(LDFLAGS) -o sendcommand$(EXEEXT) $(LIBS)
@@ -243,7 +216,7 @@ install-data:
 		 network/systems; do \
 		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
 	done
-	@for i in funambol_newmail_soap.xml notify_about_newmail.js citadel.rc public_clients citadel_urlshorteners.rc \
+	@for i in funambol_newmail_soap.xml notify_about_newmail.js public_clients citadel_urlshorteners.rc \
 		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
@@ -260,7 +233,6 @@ install-data-new:
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/
 	$(INSTALL_DATA) $(srcdir)/public_clients $(DESTDIR)$(ETC_DIR)/public_clients
 	$(INSTALL_DATA) $(srcdir)/citadel_urlshorteners.rc $(DESTDIR)$(ETC_DIR)/citadel_urlshorteners.rc
-	$(INSTALL_DATA) $(srcdir)/citadel.rc $(DESTDIR)$(ETC_DIR)/citadel.rc
 	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(DESTDIR)$(ETC_DIR)/mail.aliases$
 
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(STATICDATA_DIR)/messages
@@ -326,7 +298,7 @@ install-exec: all
 	@for i in bio bitbucket files images info userpics netconfigs; do \
 		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
 	done
-	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS); do \
+	@for i in $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS); do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
 			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
@@ -364,12 +336,6 @@ install-exec-new: all
 	done
 
 	$(INSTALL) citmail $(DESTDIR)/usr/sbin/sendmail;
-	@for i in $(CLIENT_TARGETS); do \
-		if test -f $$i; then \
-			echo $(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
-			$(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
-		fi \
-	done
 	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema ; do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
@@ -382,7 +348,6 @@ clean:
 	rm -f *.o 
 	rm -f utils/*.o ;\
 	rm -f utillib/*.o ;\
-	rm -f textclient/*.o ;\
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.o ;\
 	done
@@ -391,11 +356,11 @@ clean:
 			rm -f $$i/*.o ;\
 		done \
 	fi
-	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS)
+	rm -f $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS)
 
 
 cleaner: clean
-	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS) database_cleanup.sh *.la
+	rm -rf $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS) database_cleanup.sh *.la
 	rm -rf modules_upgrade.c modules_init.c modules_init.h Make_modules Make_sources
 
 distclean: cleaner
@@ -404,7 +369,6 @@ distclean: cleaner
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d 
 	rm -f utils/*.d ;
 	rm -f utillib/*.d ;
-	rm -f textclient/*.d ;
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.d ;\
 	done
