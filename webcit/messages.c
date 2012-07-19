@@ -1318,14 +1318,28 @@ long l_msgn;
 long l_from;
 long l_rcpt;
 long l_cccc;
+long l_replyto;
 long l_node;
 long l_rfca;
 
+const char *ReplyToModeStrings [3] = {
+	"reply",
+	"replyalle",
+	"forward"
+};
+typedef enum _eReplyToNodes {
+	eReply,
+	eReplyAll,
+	eForward
+}eReplyToNodes;
+	
 /*
  * display the message entry screen
  */
 void display_enter(void)
 {
+	const char *ReplyingModeStr;
+	eReplyToNodes ReplyMode = eReply;
 	StrBuf *Line;
 	long Result;
 	int rc;
@@ -1402,6 +1416,15 @@ void display_enter(void)
 	}
 
 
+	ReplyingModeStr = bstr("replying_mode");
+	if (ReplyingModeStr != NULL) for (i = 0; i < 3; i++) {
+			if (strcmp(ReplyingModeStr, ReplyToModeStrings[i]) == 0) {
+				ReplyMode = (eReplyToNodes) i;
+				break;
+			}
+		}
+		
+
 	/*
 	 * If the "replying_to" variable is set, it refers to a message
 	 * number from which we must extract some header fields...
@@ -1416,6 +1439,7 @@ void display_enter(void)
 		StrBuf *rfca = NULL;
 		StrBuf *rcpt = NULL;
 		StrBuf *cccc = NULL;
+		StrBuf *replyto = NULL;
 		serv_printf("MSG0 %ld|1", replying_to);	
 
 		StrBuf_ServGetln(Line);
@@ -1435,7 +1459,7 @@ void display_enter(void)
 					StrBuf *subj = NewStrBuf();
 					StrBuf *FlatSubject;
 
-					if (!strcasecmp(bstr("replying_mode"), "forward")) {
+					if (ReplyMode == eForward) {
 						if (strncasecmp(ChrPtr(Line) + 5, "Fw:", 3)) {
 							StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
 						}
@@ -1499,7 +1523,9 @@ void display_enter(void)
 				else if (which == l_node) {
 					node = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
 				}
-				
+				else if (which == l_replyto) {
+					replyto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+				}				
 				else if (which == l_rfca) {
 					StrBuf *FlatRFCA;
 					rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
@@ -1530,11 +1556,14 @@ void display_enter(void)
 		/*
 		 * If this is a Reply or a ReplyAll, copy the sender's email into the To: field
 		 */
-		if (	(!strcasecmp(bstr("replying_mode"), "reply"))
-			|| (!strcasecmp(bstr("replying_mode"), "replyall"))
-		) {
+		if ((ReplyMode == eReply) || (ReplyMode == eReplyAll))
+		{
 			StrBuf *to_rcpt;
-			if (StrLength(rfca) > 0) {
+			if ((StrLength(replyto) > 0) && (ReplyMode == eReplyAll)) {
+				to_rcpt = NewStrBuf();
+				StrBufAppendBuf(to_rcpt, replyto, 0);
+			}
+			else if (StrLength(rfca) > 0) {
 				to_rcpt = NewStrBuf();
 				StrBufAppendBuf(to_rcpt, from, 0);
 				StrBufAppendBufPlain(to_rcpt, HKEY(" <"), 0);
@@ -1557,11 +1586,12 @@ void display_enter(void)
 		/*
 		 * Only if this is a ReplyAll, copy all recipients into the Cc: field
 		 */
-		if (	(!strcasecmp(bstr("replying_mode"), "replyall"))
-		) {
+		if (ReplyMode == eReplyAll)
+		{
 			StrBuf *cc_rcpt = rcpt;
 			rcpt = NULL;
-			if (StrLength(cccc) > 0) {
+			if ((StrLength(cccc) > 0) && (StrLength(replyto) == 0))
+			{
 				if (cc_rcpt != NULL)  {
 					StrBufAppendPrintf(cc_rcpt, ", ");
 					StrBufAppendBuf(cc_rcpt, cccc, 0);
@@ -2024,6 +2054,7 @@ InitModule_MSG
 	l_from = FourHash("from", 4);
 	l_rcpt = FourHash("rcpt", 4);
 	l_cccc = FourHash("cccc", 4);
+	l_replyto = FourHash("rep2", 4);
 	l_node = FourHash("node", 4);
 	l_rfca = FourHash("rfca", 4);
 

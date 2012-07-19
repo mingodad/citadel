@@ -1,9 +1,9 @@
-<??("COND:ROOM:GROUPDAV_CONTENT", 1)><??("COND:ROOM:REST:ISSUBROOM", 2)><response>
-<href><?DAV:HOSTNAME>/groupdav/<?ROOM:INFO:FLOOR:NAME("X")>/<?ROOM:INFO:NAME("X")>/</href>
+<??("COND:ROOM:DAV_CONTENT", 1)><??("COND:ROOM:REST:ISSUBROOM", 2)><response>
+<href><?DAV:HOSTNAME>/groupdav/<?ROOM:INFO:FLOOR:NAME("X")>/<?THISROOM:NAME("X")>/</href>
 <propstat>
 <status>HTTP/1.1 200 OK</status>
 <prop>
-<displayname><?ROOM:INFO:PRINT_NAME></displayname>
+<displayname><?THISROOM:NAME></displayname>
 <resourcetype><collection/><G:vtodo<?ROOM:INFO:COLLECTIONTYPE>-collection /></resourcetype>
 <getlastmodified><?ROOM:INFO:LASTCHANGE></getlastmodified>
 </prop>

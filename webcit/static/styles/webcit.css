@@ -15,6 +15,7 @@
 @import url("message.css");
 @import url("modal.css");
 @import url("service.css");
+@import url("blog.css")
 
 @media print {
 	input#toggler, .toolbar { display: none }

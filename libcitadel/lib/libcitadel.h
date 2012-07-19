@@ -754,6 +754,8 @@ extern "C" {
 #define UA_ADMINALLOWED		64	/* Aide or Room Aide rights exist here */
 #define UA_DELETEALLOWED	128	/* User is allowed to delete messages from this room */
 #define UA_REPLYALLOWED		256	/* User is allowed to reply to existing messages here */
+/* runtime flag extracted from goto reply; not db persistant, should be moved if new flags added */
+#define UA_ISTRASH              512	/* Only available in room view... */
 
 #ifdef __cplusplus
 }
