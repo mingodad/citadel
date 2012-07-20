@@ -73,22 +73,20 @@ void embeddable_mini_calendar(int year, int month)
 
 	/* Previous month link */
 	localtime_r(&previous_month, &tm);
-	wc_printf("<a href=\"javascript:minical_change_month(%d,%d);\">&laquo;</a>", 
+	wc_printf("<a href=\"javascript:minical_change_month(%d,%d);\">&laquo;</a>",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 
 	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
-	wc_printf("&nbsp;&nbsp;"
-		"<span class=\"mini_calendar_month_label\">"
+	wc_printf("<span class=\"mini_calendar_month_label\">"
 		"%s %d"
-		"</span>"
-		"&nbsp;&nbsp;", colheader_label, year);
+		"</span>", colheader_label, year);
 
 	/* Next month link */
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"javascript:minical_change_month(%d,%d);\">&raquo;</a>",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 
-	wc_printf("<table border=\"0\" cellpadding=\"1\" cellspacing=\"1\" class=\"mini_calendar_days\">"
+	wc_printf("<table class=\"mini_calendar_days\">"
 		"<tr>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
@@ -148,9 +146,9 @@ void embeddable_mini_calendar(int year, int month)
 }
 
 /*
- * ajax embedder for the above mini calendar 
+ * ajax embedder for the above mini calendar
  */
-void ajax_mini_calendar(void) 
+void ajax_mini_calendar(void)
 {
 	embeddable_mini_calendar( ibstr("year"), ibstr("month"));
 }
@@ -269,14 +267,13 @@ void calendar_month_view_display_events(int year, int month, int day)
 			if (p != NULL) {
 
 				if (all_day_event) {
-					wc_printf("<table border=\"0\" cellpadding=\"2\"><TR>"
-						"<td bgcolor=\"#CCCCDD\">"
+					wc_printf("<table><tr>"
+						"<td>"
 						);
 				}
 
 
-				wc_printf("<font size=\"-1\">"
-					"<a class=\"event%s\" href=\"display_edit_event?"
+				wc_printf("<a class=\"event%s\" href=\"display_edit_event?"
 					"msgnum=%ld?calview=month?year=%d?month=%d?day=%d\">"
 					,
 					(Cal->unread)?"_unread":"_read",
@@ -288,8 +285,8 @@ void calendar_month_view_display_events(int year, int month, int day)
 
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
 
-				wc_printf("<i>%s: %s</i><br>", _("From"), Cal->from);
-				wc_printf("<i>%s</i> ",          _("Summary:"));
+				wc_printf("<span class=\"calender_event_from\">%s: %s</span><br>", _("From"), Cal->from);
+				wc_printf("<span class=\"calender_event_summary\">%s</span> ", _("Summary:"));
 				escputs((char *)icalproperty_get_comment(p));
 				wc_printf("<br>");
 
@@ -297,7 +294,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 					Cal->cal,
 					ICAL_LOCATION_PROPERTY);
 				if (q) {
-					wc_printf("<i>%s</i> ", _("Location:"));
+					wc_printf("<span class=\"calender_event_location\">%s</span> ", _("Location:"));
 					escputs((char *)icalproperty_get_comment(q));
 					wc_printf("<br>");
 				}
@@ -341,17 +338,17 @@ void calendar_month_view_display_events(int year, int month, int day)
 							wc_strftime(buf, sizeof buf, "%x", &d_tm);
 
 							if (no_end || !icaltime_compare(t, end_t)) {
-								wc_printf("<i>%s</i> %s<br>",
+								wc_printf("<span class=\"calender_event_date\">%s</span> %s<br>",
 									_("Date:"), buf);
 							}
 							else {
-								wc_printf("<i>%s</i> %s<br>",
+								wc_printf("<span class=\"calender_event_starting_date\">%s</span> %s<br>",
 									_("Starting date:"), buf);
 								d_tm.tm_year = end_t.year - 1900;
 								d_tm.tm_mon = end_t.month - 1;
 								d_tm.tm_mday = end_t.day;
 								wc_strftime(buf, sizeof buf, "%x", &d_tm);
-								wc_printf("<i>%s</i> %s<br>",
+								wc_printf("<span class=\"calender_event_ending_date\">%s</span> %s<br>",
 									_("Ending date:"), buf);
 							}
 						}
@@ -359,15 +356,16 @@ void calendar_month_view_display_events(int year, int month, int day)
 							tt = icaltime_as_timet(t);
 							webcit_fmt_date(buf, 256, tt, DATEFMT_BRIEF);
 							if (no_end || !icaltime_compare(t, end_t)) {
-								wc_printf("<i>%s</i> %s<br>",
+								wc_printf("<span class=\"calender_event_date\">%s</span> %s<br>",
 									_("Date/time:"), buf);
 							}
 							else {
-								wc_printf("<i>%s</i> %s<br>",
+								wc_printf("<span class=\"calender_event_starting_date\">%s</span> %s<br>",
 									_("Starting date/time:"), buf);
 								tt = icaltime_as_timet(end_t);
 								webcit_fmt_date(buf, 256, tt, DATEFMT_BRIEF);
-								wc_printf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
+								wc_printf("<span class=\"calender_event_ending_date\">%s</span> %s<br>",
+									_("Ending date/time:"), buf);
 							}
 
 						}
@@ -377,13 +375,13 @@ void calendar_month_view_display_events(int year, int month, int day)
 
 				q = icalcomponent_get_first_property(Cal->cal, ICAL_DESCRIPTION_PROPERTY);
 				if (q) {
-					wc_printf("<i>%s</i> ", _("Notes:"));
+					wc_printf("<span class=\"calender_event_notes\">%s</span> ", _("Notes:"));
 					escputs((char *)icalproperty_get_comment(q));
 					wc_printf("<br>");
 				}
 
 				wc_printf("</span><span class=\"bttbottom\"></span></span>");
-				wc_printf("</a></font><br>\n");
+				wc_printf("</a><br>\n");
 
 				if (all_day_event) {
 					wc_printf("</td></tr></table>");
@@ -463,7 +461,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 				icalcomponent_add_property(Cal->cal, p);
 			}
 			e = icalcomponent_get_first_property(
-				Cal->cal, 
+				Cal->cal,
 				ICAL_DTEND_PROPERTY);
 			if ((p != NULL) && (e != NULL)) {
 				time_t difftime;
@@ -475,7 +473,6 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 				hours=(int)(difftime / 60);
 				minutes=difftime % 60;
 				wc_printf("<tr><td bgcolor='%s'>%i:%2i</td><td bgcolor='%s'>"
-					"<font size=\"-1\">"
 					"<a class=\"event%s\" href=\"display_edit_event?msgnum=%ld?calview=calbrief?year=%s?month=%s?day=%s\">",
 					daycolor,
 					hours, minutes,
@@ -493,7 +490,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 				wc_strftime(&sbuf[0], sizeof(sbuf), timeformat, &event_tms);
 				wc_strftime(&ebuf[0], sizeof(sbuf), timeformat, &event_tme);
 
-				wc_printf("</a></font></td>"
+				wc_printf("</a></td>"
 					"<td bgcolor='%s'>%s</td><td bgcolor='%s'>%s</td></tr>",
 					daycolor,
 					sbuf,
@@ -566,43 +563,36 @@ void calendar_month_view(int year, int month, int day) {
 		localtime_r(&thetime, &tm);
 	}
 
-	/* Outer table (to get the background color) */
-	wc_printf("<table class=\"calendar\"> \n <tr><td>"); 
-
-	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n");
-
-	wc_printf("<td align=\"center\">");
+	/* Outer (to get the background color) */
+	wc_printf("<div class=\"calendar_outer_frame\">");
+	wc_printf("<div>\n");
 
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/back.png\" border=\"0\"></a>\n", _("previous"));
+	wc_printf("<img alt=\"%s\" src=\"static/webcit_icons/essen/16x16/back.png\"></a>\n", _("previous"));
 
 	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
-	wc_printf("&nbsp;&nbsp;"
-		"<font size=\"+1\" color=\"#FFFFFF\">"
+	wc_printf("<span class=\"calender_colheader\">"
 		"%s %d"
-		"</font>"
-		"&nbsp;&nbsp;", colheader_label, year);
+		"</span>", colheader_label, year);
 
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/forward.png\" border=\"0\"></A>\n", _("next"));
+	wc_printf("<img alt=\"%s\" src=\"static/webcit_icons/essen/16x16/forward.png\"></a>\n", _("next"));
 
-	wc_printf("</td></tr></table>\n");
+	wc_printf("</div>\n");
 
 	/* Inner table (the real one) */
-	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" "
-		"bgcolor='#204B78' id=\"inner_month\"><tr>");
-	wc_printf("<th align=\"center\" width=\"2%%\"></th>");
+	wc_printf("<table id=\"inner_month\"><tr>");
+	wc_printf("<th class=\"calender_th_noday\"></th>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
 		colheader_time = thetime + (i * 86400) ;
 		localtime_r(&colheader_time, &colheader_tm);
 		wc_strftime(colheader_label, sizeof colheader_label, "%A", &colheader_tm);
-		wc_printf("<th align=\"center\" width=\"14%%\">"
-			"<font color=\"#FFFFFF\">%s</font></th>", colheader_label);
+		wc_printf("<th class=\"calender_th_weekday\">%s</th>", colheader_label);
 
 	}
 	wc_printf("</tr>\n");
@@ -659,7 +649,7 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	wc_printf("</table>"			/* end of inner table */
-		"</td></tr></table>\n"		/* end of outer table */
+		"</div>\n"			/* end of outer frame */
 	);
 }
 
@@ -701,38 +691,31 @@ void calendar_brief_month_view(int year, int month, int day) {
 		localtime_r(&thetime, &tm);
 	}
 
-	/* Outer table (to get the background color) */
-	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
-		"bgcolor=#204B78><tr><td>\n");
-
-	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n");
-
-	wc_printf("<td align=\"center\">");
+	/* Outer frame (to get the background color) */
+	wc_printf("<div id=\"calendar_outer_frame\">\n");
+	wc_printf("<div>\n");
 
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/back.png\" border=\"0\"></a>\n", _("previous"));
+	wc_printf("<img alt=\"%s\" src=\"static/webcit_icons/essen/16x16/back.png\"></a>\n", _("previous"));
 
 	wc_strftime(month_label, sizeof month_label, "%B", &tm);
-	wc_printf("&nbsp;&nbsp;"
-		"<font size=\"+1\" color=\"#FFFFFF\">"
+	wc_printf("<span class=\"calendar_month_label">"
 		"%s %d"
-		"</font>"
-		"&nbsp;&nbsp;", month_label, year);
+		"</span>", month_label, year);
 
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/forward.png\" border=\"0\"></a>\n", _("next"));
+	wc_printf("<img alt=\"%s\" src=\"static/webcit_icons/essen/16x16/forward.png\"></a>\n", _("next"));
 
-	wc_printf("</td></tr></table>\n");
+	wc_printf("</div>\n");
 
 	/* Inner table (the real one) */
-	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" "
-		"bgcolor=#EEEECC><TR>");
+	wc_printf("<table id=\"calendar_inner_table\"><tr>");
 	wc_printf("</tr>\n");
-	wc_printf("<tr><td colspan=\"100%%\">\n");
+	wc_printf("<tr><td>\n");
 
 	/* Now do 35 days */
 	for (i = 0; i < 35; ++i) {
@@ -745,7 +728,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 		/* Before displaying Sunday, start a new CELL */
 		if ((i % 7) == 0) {
 			wc_strftime(&weeknumber[0], sizeof(weeknumber), "%U", &tm);
-			wc_printf("<table border='0' bgcolor=\"#EEEECC\" width='100%%'> <tr><th colspan='4'>%s %s</th></tr>"
+			wc_printf("<table class=\"calendar_new_cell_before_sunday\"> <tr><th colspan='4'>%s %s</th></tr>"
 				"   <tr><td>%s</td><td width='70%%'>%s</td><td>%s</td><td>%s</td></tr>\n",
 				_("Week"),
 				weeknumber,
@@ -781,7 +764,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	}
 
 	wc_printf("</table>"			/* end of inner table */
-		"</td></tr></table>\n"		/* end of outer table */
+		"</div>\n"		/* end of outer frame */
 	);
 }
 
@@ -789,7 +772,7 @@ void calendar_brief_month_view(int year, int month, int day) {
  * Calendar week view -- not implemented yet, this is a stub function
  */
 void calendar_week_view(int year, int month, int day) {
-	wc_printf("<center><i>week view FIXME</i></center><br>\n");
+	wc_printf("<span class=\"calendar_week_view\">week view FIXME</span>\n");
 }
 
 
@@ -934,7 +917,7 @@ void calendar_day_view_display_events(time_t thetime,
 
 		if ((show_event) && (p != NULL)) {
 
-			if ((event_te.tm_mday != day) || (event_tm.tm_mday != day)) ongoing_event = 1; 
+			if ((event_te.tm_mday != day) || (event_tm.tm_mday != day)) ongoing_event = 1;
 
 			if (all_day_event && notime_events)
 			{
@@ -948,30 +931,30 @@ void calendar_day_view_display_events(time_t thetime,
 				);
                                 escputs((char *) icalproperty_get_comment(p));
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
-                                wc_printf("<i>%s</i><br>",      _("All day event"));
-				wc_printf("<i>%s: %s</i><br>",  _("From"), Cal->from);
-                                wc_printf("<i>%s</i> ",           _("Summary:"));
+                                wc_printf("<span class=\"calender_event_allday\">%s</span>", _("All day event"));
+				wc_printf("<span class=\"calender_event_from\">%s: %s</span>",  _("From"), Cal->from);
+                                wc_printf("<span class=\"calender_event_summary\">%s</span> ", _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
                                 wc_printf("<br>");
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
                                 if (q) {
-                                        wc_printf("<i>%s</i> ", _("Location:"));
+                                        wc_printf("<span class=\"calender_event_location\">%s</span> ", _("Location:"));
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br>");
 				}
 				if (!icaltime_compare(t, end_t)) { /* one day only */
 					webcit_fmt_date(buf, 256, event_tt, DATEFMT_LOCALEDATE);
-					wc_printf("<i>%s</i> %s<br>", _("Date:"), buf);
+					wc_printf("<span class=\"calender_event_date\">%s</span> %s<br>", _("Date:"), buf);
 				}
 				else {
 					webcit_fmt_date(buf, 256, event_tt, DATEFMT_LOCALEDATE);
-					wc_printf("<i>%s</i> %s<br>", _("Starting date:"), buf);
+					wc_printf("<span class=\"calender_event_starting_date\">%s</span> %s<br>", _("Starting date:"), buf);
 					webcit_fmt_date(buf, 256, event_tte, DATEFMT_LOCALEDATE);
-					wc_printf("<i>%s</i> %s<br>", _("Ending date:"), buf);
+					wc_printf("<span class=\"calender_event_ending_date\">%s</span> %s<br>", _("Ending date:"), buf);
 				}
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
-                                        wc_printf("<i>%s</i> ", _("Notes:"));
+                                        wc_printf("<span class=\"calender_event_notes\">%s</span> ", _("Notes:"));
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br>");
                                 }
@@ -980,36 +963,36 @@ void calendar_day_view_display_events(time_t thetime,
                                 wc_printf(_("All day event"));
                                 wc_printf(")</span></li>\n");
 			}
-			else if (ongoing_event && notime_events) 
+			else if (ongoing_event && notime_events)
 			{
 				wc_printf("<li class=\"event_framed%s\"> "
 					"<a href=\"display_edit_event?"
 					"msgnum=%ld&calview=day?year=%d?month=%d?day=%d\" "
-					" class=\"event_title\">" 
+					" class=\"event_title\">"
 					,
 					(Cal->unread)?"_unread":"_read",
 					Cal->cal_msgnum, year, month, day
 				);
 				escputs((char *) icalproperty_get_comment(p));
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
-                                wc_printf("<i>%s</i><br>",     _("Ongoing event"));
-				wc_printf("<i>%s: %s</i><br>", _("From"), Cal->from);
-                                wc_printf("<i>%s</i> ",          _("Summary:"));
+                                wc_printf("<span class=\"calender_event_ongoing\">%s</span>", _("Ongoing event"));
+				wc_printf("<span class=\"calender_event_from\">%s: %s</span>", _("From"), Cal->from);
+                                wc_printf("<span class=\"calender_event_summary\">%s</span> ", _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
                                 wc_printf("<br>");
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
                                 if (q) {
-                                        wc_printf("<i>%s</i> ", _("Location:"));
+                                        wc_printf("<span class=\"calender_event_location\">%s</span> ", _("Location:"));
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br>");
 								}
                                 webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
-                                wc_printf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
+                                wc_printf("<span class=\"calender_event_starting_date\">%s</span> %s<br>", _("Starting date/time:"), buf);
                                 webcit_fmt_date(buf, 256, event_tte, DATEFMT_BRIEF);
-                                wc_printf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
+                                wc_printf("<span class=\"calender_event_ending_date\">%s</span> %s<br>", _("Ending date/time:"), buf);
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
-                                        wc_printf("<i>%s</i> ", _("Notes:"));
+                                        wc_printf("<span class=\"calender_event_notes\">%s</span> ", _("Notes:"));
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br>");
                                 }
@@ -1059,7 +1042,7 @@ void calendar_day_view_display_events(time_t thetime,
 					/* should never get here */
 				}
 
-				wc_printf("<dd  class=\"event_framed%s\" "
+				wc_printf("<dd class=\"event_framed%s\" "
 					"style=\"position: absolute; "
 					"top:%dpx; left:%dpx; "
 					"height:%dpx; \" >",
@@ -1074,29 +1057,29 @@ void calendar_day_view_display_events(time_t thetime,
 				);
 				escputs((char *) icalproperty_get_comment(p));
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
-				wc_printf("<i>%s: %s</i><br>", _("From"), Cal->from);
-                                wc_printf("<i>%s</i> ",          _("Summary:"));
+				wc_printf("<span class=\"calendar_event_from\">%s: %s</span>", _("From"), Cal->from);
+                                wc_printf("<span class=\"calendar_event_summary\">%s</span> ", _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
                                 wc_printf("<br>");
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
                                 if (q) {
-                                        wc_printf("<i>%s</i> ", _("Location:"));
+                                        wc_printf("<span class=\"calendar_event_location\">%s</span> ", _("Location:"));
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br>");
 								}
 				if (!icaltime_compare(t, end_t)) { /* one day only */
 					webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
-					wc_printf("<i>%s</i> %s<br>", _("Date/time:"), buf);
+					wc_printf("<span class=\"calendar_event_date\">%s</span> %s<br>", _("Date/time:"), buf);
 				}
 				else {
 					webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
-					wc_printf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
+					wc_printf("<span class=\"calendar_event_starting_date\">%s</span> %s<br>", _("Starting date/time:"), buf);
 					webcit_fmt_date(buf, 256, event_tte, DATEFMT_BRIEF);
-					wc_printf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
+					wc_printf("<span class=\"calendar_event_ending_date\">%s</span> %s<br>", _("Ending date/time:"), buf);
 				}
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
-                                        wc_printf("<i>%s</i> ", _("Notes:"));
+                                        wc_printf("<span class=\"calendar_event_notes\">%s</span> ", _("Notes:"));
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br>");
                                 }
@@ -1141,7 +1124,7 @@ void calendar_day_view(int year, int month, int day) {
 	d_tm.tm_year = year - 1900;
 	d_tm.tm_mon = month - 1;
 	d_tm.tm_mday = day;
-	today_t = mktime(&d_tm); 
+	today_t = mktime(&d_tm);
 
 	/* Figure out the dates for "yesterday" and "tomorrow" links */
 
@@ -1269,40 +1252,33 @@ void calendar_day_view(int year, int month, int day) {
 
 	wc_printf("</td>");	/* end extra on the middle */
 
-	wc_printf("<td width='20%%' align=\"center\" valign=top>");	/* begin stuff-on-the-right */
+	wc_printf("<td class=\"calendar_begin_stuff_on_the_right\">");	/* begin stuff-on-the-right */
 
 	/* Begin todays-date-with-left-and-right-arrows */
-	wc_printf("<table border=\"0\" width=\"100%%\" "
-		"cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#FFFFFF\">\n");
-	wc_printf("<tr>");
+	wc_printf("<div class=\"todays_date_with_left_and_right_arrows\">");
 
 	/* Left arrow */
-	wc_printf("<td align=\"center\">");
 	wc_printf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
-	wc_printf("<img alt=\"previous\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/back.png\" border=\"0\"></a>");
-	wc_printf("</td>");
+	wc_printf("<img alt=\"previous\" src=\"static/webcit_icons/essen/16x16/back.png\"></a>");
 
 	wc_strftime(d_str, sizeof d_str,
-		"<td align=\"center\">"
-		"<font size='+2'>%A</font><br>"
-		"<font size='+2'>%B</font><br>"
-		"<font size='+3'>%d</font><br>"
-		"<font size='+2'>%Y</font><br>"
-		"</td>",
+		"<div class=\"todays_date_middle>"
+		"<span class=\"todays_date_middle_A>%A</span>"
+		"<span class=\"todays_date_middle_B>%B</span>"
+		"<span class=\"todays_date_middle_d>%d</span>"
+		"<span class=\"todays_date_middle_Y>%Y</span>"
+		"</div>",
 		&d_tm
 		);
 	wc_printf("%s", d_str);
 
 	/* Right arrow */
-	wc_printf("<td align=\"center\">");
 	wc_printf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
-	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/webcit_icons/essen/32x32/forward.png\""
-		" border=\"0\"></a>\n", _("next"));
-	wc_printf("</td>");
+	wc_printf("<img alt=\"%s\" src=\"static/webcit_icons/essen/16x16/forward.png\"></a>\n", _("next"));
 
-	wc_printf("</tr></table>\n");
+	wc_printf("</div>\n");
 	/* End todays-date-with-left-and-right-arrows */
 
 	/* Embed a mini month calendar in this space */
@@ -1534,7 +1510,7 @@ int calendar_RenderView_or_Tail(SharedMessageStatus *Stat,
 	return 0;
 }
 
-void 
+void
 InitModule_CALENDAR_VIEW
 (void)
 {
