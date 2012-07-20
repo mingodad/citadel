@@ -701,7 +701,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	wc_printf("<img alt=\"%s\" src=\"static/webcit_icons/essen/16x16/back.png\"></a>\n", _("previous"));
 
 	wc_strftime(month_label, sizeof month_label, "%B", &tm);
-	wc_printf("<span class=\"calendar_month_label">"
+	wc_printf("<span class=\"calendar_month_label\">"
 		"%s %d"
 		"</span>", month_label, year);
 
