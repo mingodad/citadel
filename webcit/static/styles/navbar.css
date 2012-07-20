@@ -1,43 +1,36 @@
 #navbar {
-	font-size: 70%;
-	font-weight: bold;
-	height: 2em;
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	background-color: #7D858C;
-	border-top: 2px solid #424b52;
-	color: #FFF;
+	clear: both;
+	padding-left: 9em;
+	border-top: 1px solid #424b52;
+	color: #424b52;
+	margin: 0 0.5em;
 }
 
-#navbar ul, .selector_top, .selector_bottom {
-	width: 100%;
-	margin: 0 auto 0 auto;
-	white-space: nowrap;
+#navbar ul {
+	font-size: 66%;
+	min-height: 2em;
+	margin: 0;
+	padding: 0;
+	font-weight: bold;
+	border-bottom: 1px solid #424b52;
 	text-align: center;
-	vertical-align: middle;
 }
 
 #navbar ul li {
-	display: inline;
+	float: left;
 	list-style: none;
 	vertical-align: middle;
 	padding: 0 0.2em;
 }
 
 #navbar ul li a {
-	padding: 0.3em;
+	padding: 0.4em;
 	display: inline-block;
 	white-space: nowrap;
 }
 
 #navbar ul li a:hover {
-	padding: 0.3em;
-	background-color: #5c646b;
-	border: 0px solid #5c646b;
-        border-radius: 5px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
+	padding: 0.5em;
 }
 
 #navbar ul li img {
@@ -47,6 +40,4 @@
 
 #navbar ul li a img {
       vertical-align: middle;
-      border: none;
 }
-

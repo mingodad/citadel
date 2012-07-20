@@ -1,18 +1,19 @@
 <! newstartpage.html start>
 <div class="banner" >
-<div align=center >
-<h1><?_("New start page")></h1>
-&nbsp;
-</div></div>
-<div id="content">
-<div align=center>
-<font size=+2><?_("Your start page has been changed.")></font> </div>
-<br><br>
-<div align=center>
-<i><?_("(Note: this does not change your browser's home page. It changes the page you begin on when you log on to")> <?SERV:HUMANNODE>).</i>
-<br><br>
-
-<a href="javascript:history.back()">Back...</a>
+	<div id="room_descriptor">
+		<h1 id="rmname"><?_("New start page")></h1>
+	</div>
 </div>
+<div id="content" class="service">
+	<div class="box">
+		<div class="boxlabel">
+			<?_("Your start page has been changed.")>
+		</div>
+		<div class="boxcontent">
+			<i><?_("(Note: this does not change your browser's home page. It changes the page you begin on when you log on to")> <?SERV:HUMANNODE>).</i>
+			<br><br>
+			<a href="javascript:history.back()">Back...</a>
+		</div>
+	</div>
 </div>
 <! newstartpage.html end>

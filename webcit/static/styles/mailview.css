@@ -1,0 +1,98 @@
+/* Please avoid setting heights for any of the mailbox view elements
+ * (except summary_view and resize). In particular, do NOT set any
+ * for message_list_hdr as its not good feng shui and messes with
+ * the summaryview.js
+ */
+.sort_ascending, .sort_descending {
+        background-repeat: no-repeat;
+        background-position: center right;
+}
+ 
+.sort_ascending { background-image: url("/static/webcit_icons/down_pointer.gif") }
+
+.sort_descending { background-image: url("/static/webcit_icons/up_pointer.gif") }
+
+.current_sort_mode { background-color: #DEDED0; }
+
+#message_listview { font-size: 80%}
+
+#message_listview th {             
+        border-right: 5px solid #fff;
+        border-bottom: 1px solid #424B52;
+}                     
+#message_listview td {
+        padding-left: 1em;
+}
+
+
+#message_list_hdr {
+        display: block;
+        padding-bottom: 0;
+        margin-bottom: 0;
+}
+
+#message_list_hdr table { 
+	font-size: 80%;
+	width: 100%;
+}
+
+#message_list_hdr > table { border-collapse: collapse }
+
+#summary_view > table { border-collapse: collapse }
+
+#summary_view {
+        overflow-y: scroll;
+        overflow-x: hidden;
+        cursor: pointer;
+}
+ 
+#summary_headers {
+        background-color: white;
+        table-layout: fixed;
+}
+ 
+#summary_headers tr td {
+        overflow-y: hidden;
+        overflow-x: hidden; /* stop long subjects overflowing */
+}
+ 
+#message_listview .col1 { width: 66% }
+ 
+#message_listview .col2 { width: 22% }
+ 
+#message_listview .col3 { width: 12% }
+
+.col1, .col2, .col3 {
+        cursor: pointer;
+        text-overflow: ellipsis;                                                                                                            
+        -o-text-overflow: ellipsis;                                                                                                         
+}
+
+.mailbox_summary td {    
+        white-space: nowrap;
+        overflow: hidden;
+}
+
+.new_message { font-weight: bold; !important }
+
+#loading { text-align: center}
+
+#resize_msglist {
+        overflow: hidden;
+        cursor: s-resize;
+        height: 8px;
+	margin: 0 1em;
+        background-image: url(/static/webcit_icons/resizegrippy.gif);
+        background-position: center;
+        background-repeat: no-repeat;
+	border-top: 1px dotted #424B52;
+	border-bottom: 1px dotted #424B52;
+}
+
+#preview_pane { overflow: auto }
+
+#preview_pane .message { /*overwrites the defaults from message.css */
+	margin: 0;
+	width: 100%;
+	max-width: 100%;
+}

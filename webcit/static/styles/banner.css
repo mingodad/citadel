@@ -1,128 +1,130 @@
 #banner {
-	background: #4D555C;
-	background: -webkit-gradient(linear, 0 0, 0 bottom, from(#4D555C), to(#7D858C));
-	background: -moz-linear-gradient(#4D555C, #7D858C);
-	background: linear-gradient(#4D555C, #7D858C);
-	-pie-background: linear-gradient(#4D555C, #7D858C);
-	behavior: url(/static/styles/PIE.htc);
-        border-bottom: 2px solid #424b52;
-	color: #f0feff;
-	margin: 0;
-	padding: 0;
+	z-index: 100;
 	top: 0;
-	height: 100px;          /* when changing this, also change #content */
 	position: fixed;
-	width: 84%;             /* when changing this, also change #iconbar and #content */
-	left: 16%;              /* when changing this, also change #iconbar and #content */
-	z-index: 3;                                                
+	width: 100%; 
+	color: #424b52; /* set "#banner a" accordingly below */
+	background-color: #fff;
+	padding: 0;
+	margin: 0;
 	overflow: hidden;
+	max-height: 7em;
 }
 
-#banner table { width: 100% }
-
-#banner a { color: #f0feff }
-
-#banner h1 {
-	font-size: 160%;
-	font-weight: 700;
+#room_banner{ 
+	min-width: 50em;
+	max-width: 90em;
+	margin: 0.5em 0.5em 0 0.5em;
 }
 
-#banner #rmname { white-space: nowrap; }
-
-#banner h2 { font-weight: 700}
-
-#banner h2, #banner .titlebar { font-size: 130% }
-
-#banner ul.room_actions li.start_page a {
-	background-color: #5C646B;
-	color: #FEFFFC;
-	border: 1px solid black;
-}
-
-#banner .banner {}
-
-/* style for the rooom picture */
-#banner td img {
-	padding: 0;
-	margin: 0.5em;
-	max-height: 64px;
+#citlogo { 
 	float: left;
-}
-
-#banner h1, #banner h2 {
-	padding: 0;
 	margin: 0;
 }
 
-#banner .banner p {
-	padding: 0;
+.logo_citadel {border: none }
+
+.logo_citadel img{
+        background-color: #edede0;
+        border: 2px solid #edede0;
+        -khtml-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        behavior: url(/static/styles/PIE.htc);
+} 
+
+#room_definition {
+	float: left;
+	margin-left: 1.5em;
+}
+
+#room_descriptor ul {
+	float: right;
 	margin: 0;
 }
 
-/* style for the feed, file, etc picture */
-#banner .banner td  a > img {
-	clear: both;
-	padding: 0;
-	margin: 0 0.3em;
-	border: none;
+.descriptor_list li {}
+
+.roompic {
+	float: left;
+	margin-right: 0.5em;
+	height: 32px;
 }
 
-#banner .infos{ margin: 0.5em }
+#banner a { color: #424b52; }
+
+.banner h1, .banner h2 {
+	float: left;
+	display: inline;
+	font-size: 150%;
+	margin: 0;
+}
+
+/*#banner #rmname { white-space: nowrap; } */
+
+.banner h2, .banner .titlebar { font-size: 120% }
+
+.banner .infos, #room_infos {
+        /*position: absolute;
+        top: 1em;
+	left: 18em;*/
+	display: inline;
+	margin: 0.5em;
+	cursor: help;
+}
+
 
 #room_infos {
-	position: absolute;
-	top: 0;
-	left: 50%;
-	width: 45%;
 	z-index: 10;
 	cursor: pointer;
-	text-align: left;
-	padding: 10px 2px 2px 2px;
 }
 
 #room_infos img.close_infos { float: right }
 
-#actiondiv {
-	float: right;
-	margin: 0;
-	padding: 0;
-	text-align: right;
-	font-size: 70%;
-	font-weight: bold;
+#room_details {
+	clear: both;
+	float: left;
+	margin: 0.3em;
 }
 
-#banner ul.room_actions {
+#nummsgs, #numfiles, #searchomatic { 
+        font-size: 75%;
+        margin-right: 0.5em;
+}
+
+#searchomatic form {display: inline}
+
+#actiondiv {
+	float: right;
+	text-align: right;
+	font-size: 70%;
+}
+
+.banner ul.room_actions {
+	display: inline;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
-#banner ul.room_actions li {
-	white-space: nowrap;
-}
-#banner ul.room_actions li form {
-	margin: 0;
-	padding: 0;
-}
 
-#banner ul.room_actions li select, #banner ul.room_actions li input {
-	margin-top: 2px;
-	margin-right: 2px;
-}
+.banner ul.room_actions li {white-space: nowrap }
 
-#room_banner_override {
-	display: none;
-}
+#loggedinas { margin-bottom: 0.5em }
 
-#nummsgs, #numfiles { 
-	font-size: 75%;
-	margin-left: 0.5em;
-}
+.user_name { font-style: italic }
 
 #selectpage.hidden { display: none !important }
 
+#banner input { 
+	font-size: x-small;
+	height: 1em;
+}
 
-.banner .infos { cursor: help }
+.room_actions select {
+	cursor: pointer;
+	font-size: x-small;
+	height: 1.7em;
+}
 
-.room_actions form select { cursor: pointer }
-
-.start_page { font-size: 50% }
+/* some rooms use the override banner: */
+#room_banner_override { display: none }

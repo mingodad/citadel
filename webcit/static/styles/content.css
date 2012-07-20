@@ -1,69 +1,28 @@
 #content {
-	position: fixed;
-	top: 100px;             /* when changing this, also change #banner and #iconbar */
-	left: 16%;              /* when changing this, also change #banner and #iconbar */
-	bottom: 0;
-	width: 84%;             /* when changing this, also change #banner and #iconbar */
-	background: #F3F6F2;
-	color: #000;
-	z-index: 2;
+	position: absolute;
+	top: 6em;
+	left: 9em;
+	right: 0;
+	min-width: 55em;
 	overflow-y: auto;
-	padding-top: 0.5em;
 }
+
 
 .boxcontent table {
 	margin: 0;
 	padding: 0;
 }
 
-#content table .box {
-	margin: 0;
-	width: 100%;
-	text-align: left;
-}
-
-.service, .who_is_online {
-	text-align: center;
-	width: 100%;
-}
-
-.service table {
-	margin: 0 auto 0 auto;
-	width: 100%;
-	text-align: left;
-}
-
-.instructions {
-	text-align: center;
-}
-
 .moreprompt {
-	margin: 0 1em;
+	margin: 0 auto;
 	text-align: center;
 	font-size: small;
-	background-color: #4d555c;
-	color: #ddd;
-	border: 2px solid #4d555c; /*in order to make the hover effect pop out nice */
-	/*border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px; */
+	color: #424b52;
 }
  
-.moreprompt_link {
-	color: #ddd;
-	font-weight: bold;
-}
+.moreprompt_link {color: #424b52;}
  
 .moreprompt_link:hover {
-	background-color: #ddd;
-	color: #4d555c;
-	border: 0px solid #5c646b;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
+	text-decoration: underline;
 }
-
-/* a > div.moreprompt { 
-	border: none;
-	border-radius: 0; } */
 

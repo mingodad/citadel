@@ -1,27 +1,20 @@
 <!-- start trailing.html -->
-<div id="important_message"
-<??("COND:IMPMSG", 1)>
-style="visibility: hidden;"
-<?!("X", 1)>
->
-<span class="imsg">
-<?IMPORTANTMESSAGE>
-</span><br>
-</div>
-<?!("COND:IMPMSG", 2)>
-<script type="text/javascript">
-  setTimeout('hide_imsg_popup()', 5000);
-</script>
-<?!("X", 2)>
-
-<noscript><div id="noscript_warning">
-	<?_("WARNING: You have JavaScript disabled in your web browser.  Many functions of this system will not work properly.")>
-	</div></noscript>
-	<script type="text/javascript">
-		<?TRAILING_JAVASCRIPT>
-		if ( $("room_banner_override") && $("room_banner") ) {
-			$("room_banner").innerHTML = $("room_banner_override").innerHTML;
-		}
-	</script>
-</body>
+		<div id="important_message"<??("COND:IMPMSG", 1)>style="visibility: hidden;"<?!("X", 1)>>
+			<span class="imsg"><?IMPORTANTMESSAGE></span>
+		</div>
+	<?!("COND:IMPMSG", 2)>
+		<script type="text/javascript">
+  			setTimeout('hide_imsg_popup()', 5000);
+		</script>
+	<?!("X", 2)>
+		<noscript><div id="noscript_warning">
+			<?_("WARNING: You have JavaScript disabled in your web browser.  Many functions of this system will not work properly.")>
+		</div></noscript>
+		<script type="text/javascript">
+			<?TRAILING_JAVASCRIPT>
+			if ( $("room_banner_override") && $("room_banner") ) {
+				$("room_banner").innerHTML = $("room_banner_override").innerHTML;
+			}
+		</script>
+	</body>
 </html>

@@ -1,11 +1,11 @@
-.service {}
+.service {margin-left: 0.5em;}
 
 .service .edit_col, .service .host_col { display: none }
 
-.bio table {
-	margin-top: 0.5em;
-	padding: 0 0.5em;
-	width: 95%;
+#bio_page {
+	padding: 1em;
+	width: 38em;
+	min-height: 25em;
 	font-family: monospace;
 	background-color: #fff;
 	border: 1px solid #5C646B;
@@ -15,18 +15,16 @@
 	behavior: url(/static/styles/PIE.htc);
 }
 
-.bio table table {
-	border: 0;
-	padding: 0;
-	margin: 0.5em 0;
-	box-shadow: none;
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
-}
+#bio_page h2 {
+	margin-right: 1em;
+ }
 
-.bio table table img {
-        max-width: 250px;
-	padding: 0.2em;
+
+#bio_page img {
+	float: right;
+	clear: all;
+        max-width: 230px;
+	margin:0 1em;
 	background-color: #f0feff;
 	border: 1px solid #5C646B;
 	box-shadow: none;
@@ -34,7 +32,11 @@
 	-webkit-box-shadow: none;
 }
 
-.bio h1 { float: right; }
+.summary .box {
+	float: left;
+	max-width: 30%;
+	margin:0 0.5em 0.5em 0;
+}
 
 .who_is_online tr { 
 	height: 1.5em;

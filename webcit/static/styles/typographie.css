@@ -1,0 +1,14 @@
+body {
+	font-family: 'Liberation Sans', sans-serif;
+}
+
+/* Links */
+
+a { text-decoration: none }
+
+a:link, .calendar a:visited { color: #0e73e3 } /*color: #2F65DD;*/
+
+a:active { color: #3E65AF }
+
+a:visited { color: #70342e }
+

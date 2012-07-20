@@ -1,96 +1,44 @@
 #iconbar {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	width: 16%;             /* when changing this, also change #banner width */
-	z-index: 0;
-	overflow: auto;
-	overflow-x: hidden !important;
+	position: fixed;
+	top: 4em;
+	max-width: 8em;
+        padding: 2em 0.5em;
+	z-index: 2;
+/*	overflow: auto;
+/*	overflow-x: hidden !important; */
+	background-color: #fff; /*important when you are on small screens*/
 }
 
 #iconbar_container {}
 
-#citlogo { 
-	height: 76px;
-        background: #4D555C;
-        background: -webkit-gradient(linear, 0 0, 0 bottom, from(#4D555C), to(#7D858C));
-        background: -moz-linear-gradient(#4D555C, #7D858C);
-        background: linear-gradient(#4D555C, #7D858C);
-        -pie-background: linear-gradient(#4D555C, #7D858C);
-        behavior: url(/static/styles/PIE.htc);
-}
-
-.logo_citadel, li.ib_button a img {
-	border: none;
-}
-
-.logo_citadel img{
-	padding: 3px;
-	margin-top: 16px;
-	background-color: #edede0;
-	border: 2px solid #edede0;
-	-khtml-border-radius: 8px;
-        -moz-border-radius: 8px;
-        border-radius: 8px;
-        behavior: url(/static/styles/PIE.htc);
-} 
-
-.iconbar_text {        
-	height: 22px;
-	font-size: 70%;
-	font-weight: bold;
-	color: #fff;
-	background-color: #7d858c;
-	border-top-color: #424b52;
-	border-top-style: solid;
-	border-top-width: 2px;
-	border-bottom-color: #424b52;
-	border-bottom-style: solid;
-	border-bottom-width: 2px;
-}
+.iconbar_text {}
 
 .iconbar_text > span { 	cursor: pointer }
 
-div.iconbar_text select { border: 1px solid #424b52; }
-
-#iconbar_menu {}
-
-#iconbar #button {
+#iconbar_menu ul {
 	padding: 0;
-	margin: 5px 0;
+	margin: 0;
 	border: none;
 	list-style: none;
+	font-size: 90%;
 }
-
 
 .ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
 	display: block;
+	margin-left: 24px;
+	line-height: 20px; /*adjust with iconbarics.css*/
 	text-decoration: none;
-	color: #F0FEFF;
+	color: #4d555c;
 }
 
-.ib_button, .floor {
-	margin: 0.2em;
+.ib_button{
 	display: block;
-	font-size: 90%;
-	background-color: #4d555c;
-	color: #F0FEFF;
-	font-weight: bold;
-	-khtml-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
  }
 
-.logo, #citlogo, .iconbar_text, #online_users li {
-	text-align: center;
-}
+.ib_button_link:hover, #button li:hover, #ib_logoff:hover, #ib_login:hover {color: #7d858c}
+	/* color: #5c646b */
 
-#button li:hover, #ib_logoff:hover, #ib_login:hover {
-	background-color: #5c646b;
-}
-
-#online_users {
+#roomlist, #online_users{
 	display: none; /* Hide by default */
 	border: 0;
 	max-height: 200px;
@@ -99,58 +47,40 @@ div.iconbar_text select { border: 1px solid #424b52; }
 	padding-bottom: 5px;
 } 
 
-#online_users li {
+#roomlist .floor {
+	margin-left: 1em;
+}
+
+#roomlist .room{
+	margin-left: 1em;
+}
+
+#online_users ul{
 	list-style: none;
 	margin: 0;
 	padding: 2px;
 	white-space: nowrap;
-	border: none;
-	border-top: 1px solid #777277;
+	text-align: center;
 }
 
 #online_users li a { font-size: 80% !important }
 
-#online_users li.inactiveuser { background-color: #9c959d; }
+#online_users li.inactiveuser a {color: #9c959d}
  
-#online_users li.activeuser { background-color: #4d555c; }
+#online_users li.activeuser a {color: #4d555c}
  
 #online_users li:hover { /* separate in order for override */ }
 
-
-.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old {
-	margin: 4px;
-	padding: 0;
-}
-
-.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old {
-	cursor: pointer;
-}
-
-.ib_roomlist_floor, .roomlist_new, .ib_roomlist_new {
-	font-weight: 700;
-}
-
-.ib_roomlist_floor {}
-
-.ib_roomlist_new {
-	color: #800;
-}
-
-.ib_roomlist_old {
-	color: #008;
-}
-
-#iconbar_container #customize {
-	margin: 0 9px;
-	border: 2px solid #424b52;
-	-khtml-border-radius: 8px;
-	-moz-border-radius: 8px;
-	border-radius: 8px;
-	behavior: url(/static/styles/PIE.htc);
-}
-
 #iconbar_container #customize a:active, #iconbar_container #customize a:link, #iconbar_container #customize a:visited {
-        color: #fff;
-	line-height:2em;
+	color: #f0feff;        
+	background-color: #7d858c;
+	font-size: 80%;
+	line-height:1.5em;
+	text-align: center;
 	display: block;
+	border: 1px solid transparent;
+        -khtml-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        behavior: url(/static/styles/PIE.htc);
 }

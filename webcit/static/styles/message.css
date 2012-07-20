@@ -6,6 +6,8 @@
 	-moz-box-shadow: #666 0px 2px 3px;
 	box-shadow: #666 0px 2px 3px;
 /*	behavior: url(/static/styles/PIE.htc);*/
+	max-width: 42em;
+	min-width: 25em;
 }
 
 .entmsg { height: 95%; }

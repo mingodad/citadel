@@ -1,35 +1,45 @@
 <!-- start roombanner.html -->
-<div class="banner" id="room_banner">
-	<table border=0><tr>
-		<td><?=("room_view_picture")></td>
-
-		<td>
-			<h1 id="rmname"><a href="/readnew?go=<?THISROOM:NAME("U")>"><?THISROOM:NAME("X")></a></h1>
-			<?THISROOM:FEED:RSS>
-			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><h2><a href="wiki?go=<?THISROOM:NAME("U")>?page=<?BSTR("page")>"><?BSTR("page")></a></h2><?!("X", 7)>
-			<?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")><p id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></p><?!("X", 8)>
-			<?!("COND:ROOM:TYPE_IS", 11, #"VIEW_MAILBOX")><p id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></p><?!("X", 11)>
-			<?!("COND:THISROOM:FLAG:QR", 9, #"QR_DIRECTORY")><?!("COND:THISROOM:FLAG:QR", 10, #"QR_VISDIR")>
-				<p id="numfiles"><a href="do_template?template=files">
-					<img src="/static/webcit_icons/essen/16x16/file.png" alt="File">
-					<?THISROOM:FILES:N> <?THISROOM:FILES:STR></a>
-				</p>
-			<?!("X", 10)><?!("X", 9)>
-		</td>
-		<td><?=("readinfo")></td>
-		<td id="actiondiv">
+<div id="room_banner" class="banner">
+		<div id="citlogo" class="logo_citadel">
+			<img src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>">
+		</div>
+		<div id="room_definition">
+			<div id="room_descriptor">
+				<?=("room_view_picture")>
+				<h1 id="rmname"><a href="/readnew?go=<?THISROOM:NAME("U")>"><?THISROOM:NAME("X")></a></h1>
+				<ul class="descriptor_list">
+					<li class="inform_me"><?=("readinfo")></li>
+				</ul>
+			</div>
+			<div id="room_details">
+				<span class="feed_me"><?THISROOM:FEED:RSS></span>
+				<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><h2><a href="wiki?go=<?ROOM:INFO:PRINT_NAME("U")>?page=<?BSTR("page")>"><?BSTR("page")></a></h2><?!("X", 7)>
+				<?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")><span id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></span><?!("X", 8)>
+				<?!("COND:ROOM:TYPE_IS", 11, #"VIEW_MAILBOX")><span id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></span><?!("X", 11)>
+				<?!("COND:THISROOM:FLAG:QR", 9, #"QR_DIRECTORY")><?!("COND:THISROOM:FLAG:QR", 10, #"QR_VISDIR")>
+					<span id="numfiles"><a href="do_template?template=files">
+						<img src="/static/webcit_icons/essen/16x16/file.png" alt="File">
+						<?THISROOM:FILES:N> <?THISROOM:FILES:STR></a>
+					</span>
+				<?!("X", 10)><?!("X", 9)>
+				 <?!("COND:ROOM:TYPE_IS", 12, #"VIEW_MAILBOX")>
+					<span class="search" id="searchomatic">
+						 <img src="/static/webcit_icons/essen/16x16/search.png" alt="File">
+						<?=("searchomatic")></span>
+				<?!("X", 12)>
+			</div>
+		</div>
+		<div id="actiondiv">
 			<ul class="room_actions">
-				<li class="start_page"><?OFFERSTARTPAGE></li>
 				<li class="logstatus"><?=("loggedinas")></li>
-				<?!("COND:ROOM:TYPE_IS", 12, #"VIEW_MAILBOX")><li class="search" id="searchomatic"><?=("searchomatic")></li><?!("X", 12)>
 				<li class="view"><?=("viewomatic")></li>
+				<li class="language"><?_("Language:")> <?LANG:SELECT></li>
 				<?!("COND:THISROOM:CURR_VIEW", 1, #"VIEW_MAILBOX")>
 					<li class="hidden" id="selectpage">
 						<?_("Select page: ")> <select id="summpage"><option> </option></select>
 					</li>
 				<?!("X",1)>
 			</ul>
-		</td>
-	</tr></table>
+		</div>
 </div>
 <!-- end roombanner.html -->

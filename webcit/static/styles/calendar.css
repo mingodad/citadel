@@ -1,0 +1,143 @@
+.week_of_year {
+        background-color: #e1e1e1;
+        font-size: 70%; 
+}
+
+.day { font-weight: 700 }
+
+.calout { background-color: #DDDDDD }
+
+.calday { background-color: #FFFFFF }
+
+.calweekend { background-color: #EEEECC }
+
+.caltoday { background-color: #EEEEFF }
+
+.current_sort_mode { background-color: white }
+
+.calendar {
+	background-color: #424b52;
+	margin: 0 auto;
+	width: 98%;
+	height: 302px;
+	border-radius: 8px;
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        behavior: url(/static/styles/PIE.htc);
+}
+
+.calendar th { 
+	background-color: #424b52;
+	border-color: #424b52; }
+
+#inner_day { padding: 0.1em; }
+
+td.events_of_the_day { width: 50% }
+
+.events_of_the_day dl {
+	margin: 0;
+/*	padding: 0;
+	position: absolute;
+	top: 0;
+	left:0; */
+	width: 100%;
+}
+
+.events_of_the_day dl dt {
+	background-color: #FFFFFF;
+	margin: 0;
+	width: 500px;
+	border: 1px solid #CCC;
+}
+
+.events_of_the_day dl dt.hour {
+	/* font-size: 160%; commenting out because we need to line it up with the actual size */
+}
+
+.events_of_the_day dl dt.extrahour {
+	/* font-size: 80%; commenting out because we need to line it up with the actual size */
+}
+
+.hour_label, .extra_events dl dt {
+	background-color: #CCCCDD;
+	vertical-align: middle;
+	text-align: left;	
+}
+
+.hour_events, .extra_events {
+	background-color: #FFFFFF;
+	vertical-align: top;
+	text-align: left;	
+}
+
+.extra_events { border: 1px solid #ccc }
+
+.extra_events ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.extra_events ul li { margin: 4px }
+
+.calday, .calout, .calweekend, .caltoday {
+	width: 14%;
+	height: 60px;
+	text-align: left;
+	vertical-align: top;
+}
+
+.event_framed_unread {
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	behavior: url(/static/styles/PIE.htc);
+	border: solid 1px red;
+	background-color: yellow;
+	z-index: 10;
+	padding: 0 4px 0 4px; 
+}
+
+li.event_framed_unread span, a.event_title { font-size: 100% }
+
+.event_framed_read {
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	behavior: url(/static/styles/PIE.htc);
+	border: solid 1px red;
+	background-color: yellow;
+	z-index: 10;
+	padding: 0 4px 0 4px; 
+}
+
+li.event_framed_read span, a.event_title { font-size: 100% }
+
+.event_read {}
+
+li.event_read span, a.event_read_title { font-size: 100% }
+
+.event_unread {}
+
+li.event_unread span, a.event_read_title { font-size: 100% }
+
+.mini_calendar { color: #fff }
+
+.mini_calendar a { color: #fff }
+
+.mini_calendar a:link,.mini_calendar a:visited { color: #fff }
+
+.mini_calendar a:hover,.mini_calendar a:active {
+   color: #3E65AF;
+   background-color: #3E65AF;
+}
+
+.mini_calendar td a { color: #fff }
+
+.mini_calendar td a:link,.mini_calendar td a:visited { color: #fff }
+
+.mini_calendar td a:hover,.mini_calendar td a:active {
+   color: #3E65AF;
+   background-color: #3E65AF;
+
+}

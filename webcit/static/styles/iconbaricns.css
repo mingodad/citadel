@@ -1,61 +1,47 @@
-/*
- * Copyright 2005 - 2009 The Citadel Team
- * Licensed under the GPL V3
- *
- * Styles for the WebCit Iconbar.
- */
-
 .ib_button {
-    min-height: 38px;
+    min-height: 20px;
     background-repeat: no-repeat !important;
-    background-position: 7px 3px;
-    vertical-align: middle;
+    background-position: 4px 2px;
 }
-.ib_button_link {
-    padding-top: 0.8em;
-    padding-left: 48px;
-    height: 100%;
-    min-height: 25px; /* Makes all of the 'button' to be clickable */
-}
+
+#expand_roomlist, #expand_wholist {vertical-align: middle}
+
 #ib_summary {
-    background-image: url("/static/webcit_icons/essen/32x32/summary.png");
+	background-image: url("/static/webcit_icons/essen/16x16/summary.png");
 }
 #ib_inbox {
-    background-image: url("/static/webcit_icons/essen/32x32/email.png");
+	background-image: url("/static/webcit_icons/essen/16x16/email.png");
 }
 #ib_calendar {
-    background-image: url("/static/webcit_icons/essen/32x32/calendar.png");
+	background-image: url("/static/webcit_icons/essen/16x16/calendar.png");
 }
 #ib_contacts {
-    background-image: url("/static/webcit_icons/essen/32x32/contact.png");
+	background-image: url("/static/webcit_icons/essen/16x16/contact.png");
 }
 #ib_notes {
-    background-image: url("/static/webcit_icons/essen/32x32/note.png");
+	background-image: url("/static/webcit_icons/essen/16x16/note.png");
 }
 #ib_tasks {
-    background-image: url("/static/webcit_icons/essen/32x32/task.png");
+	background-image: url("/static/webcit_icons/essen/16x16/task.png");
 }
 #ib_rooms {
-    background-image: url("/static/webcit_icons/essen/32x32/room.png");
+	background-image: url("/static/webcit_icons/essen/16x16/room.png");
 }
 #ib_users {
-    background-image: url("/static/webcit_icons/essen/32x32/user.png");
+	background-image: url("/static/webcit_icons/essen/16x16/user.png");
 }
 #ib_chat {
-    background-image: url("/static/webcit_icons/essen/32x32/chat.png");
+	background-image: url("/static/webcit_icons/essen/16x16/chat.png");
 }
 #ib_advanced, #ib_admin {
-    background-image: url("/static/webcit_icons/essen/32x32/config.png");
+	background-image: url("/static/webcit_icons/essen/16x16/config.png");
 }
 #ib_aide {
-    background-image: url("/static/webcit_icons/essen/32x32/config.png");
+	background-image: url("/static/webcit_icons/essen/16x16/config.png");
 }
 #ib_logoff {
-    background-image: url("/static/webcit_icons/essen/32x32/logout.png");
+	background-image: url("/static/webcit_icons/essen/16x16/logout.png");
 }
 #ib_login {
-    background-image: url("/static/webcit_icons/essen/32x32/login.png");
-}
-#citlogo {
-    display: block !important;
+	background-image: url("/static/webcit_icons/essen/16x16/login.png");
 }
