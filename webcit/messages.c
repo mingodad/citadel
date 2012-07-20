@@ -903,7 +903,9 @@ void post_mime_to_server(void) {
 	}
 
 	/* Only do multipart/alternative for mailboxes.  BBS and Wiki rooms don't need it. */
-	if (WC->CurRoom.view == VIEW_MAILBOX) {
+	if ((WCC->CurRoom.view == VIEW_MAILBOX) ||
+	    (WCC->CurRoom.view == VIEW_JSON_LIST))
+	{
 		include_text_alt = 1;
 	}
 
@@ -1129,7 +1131,7 @@ void post_message(void)
 						serv_printf("Cc: %s", ChrPtr(Cc));
 						serv_printf("Bcc: %s", ChrPtr(Bcc));
 					} else {
-						serv_printf("X-Citadel-Room: %s", ChrPtr(WC->CurRoom.name));
+						serv_printf("X-Citadel-Room: %s", ChrPtr(WCC->CurRoom.name));
 					}
 				}
 				post_mime_to_server();
@@ -1574,7 +1576,7 @@ void display_enter(void)
 				to_rcpt =  from;
 				from = NULL;
 				if (	(StrLength(node) > 0)
-					&& (strcasecmp(ChrPtr(node), ChrPtr(WC->serv_info->serv_nodename)))
+					&& (strcasecmp(ChrPtr(node), ChrPtr(WCC->serv_info->serv_nodename)))
 				) {
 					StrBufAppendBufPlain(to_rcpt, HKEY(" @ "), 0);
 					StrBufAppendBuf(to_rcpt, node, 0);
