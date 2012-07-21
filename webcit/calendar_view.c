@@ -1264,10 +1264,10 @@ void calendar_day_view(int year, int month, int day) {
 
 	wc_strftime(d_str, sizeof d_str,
 		"<div class=\"todays_date_middle\">"
-		"<span class=\"todays_date_middle_A\">%A</span>"
-		"<span class=\"todays_date_middle_B\">%B</span>"
-		"<span class=\"todays_date_middle_d\">%d</span>"
-		"<span class=\"todays_date_middle_Y\">%Y</span>"
+		"<span class=\"todays_date_weekday\">%A</span>"
+		"<span class=\"todays_date_month\">%B</span>"
+		"<span class=\"todays_date_date\">%d</span>"
+		"<span class=\"todays_date_year\">%Y</span>"
 		"</div>",
 		&d_tm
 		);
