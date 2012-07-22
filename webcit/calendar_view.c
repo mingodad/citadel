@@ -1263,11 +1263,11 @@ void calendar_day_view(int year, int month, int day) {
 	wc_printf("<img alt=\"previous\" src=\"static/webcit_icons/essen/16x16/back.png\"></a>");
 
 	wc_strftime(d_str, sizeof d_str,
-		"<div class=\"todays_date_middle\">"
-		"<span class=\"todays_date_weekday\">%A</span>"
-		"<span class=\"todays_date_month\">%B</span>"
-		"<span class=\"todays_date_date\">%d</span>"
-		"<span class=\"todays_date_year\">%Y</span>"
+		"<div class=\"todays_date_sheet\">"
+		"<div class=\"todays_date_weekday\">%A</div>"
+		"<div class=\"todays_date_month\">%B</div>"
+		"<div class=\"todays_date_date\">%d</div>"
+		"<div class=\"todays_date_year\">%Y</div>"
 		"</div>",
 		&d_tm
 		);
