@@ -499,7 +499,7 @@ void do_logout(void)
 	/* Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
 	do_template("logout");
-	if (WC->serv_info->serv_supports_guest) {
+	if ((WCC->serv_info != NULL) && WCC->serv_info->serv_supports_guest) {
 		display_default_landing_page();
 		return;
 	}
