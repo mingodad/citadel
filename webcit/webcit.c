@@ -741,6 +741,7 @@ void session_loop(void)
 	if (WCC->Hdr->HR.Handler != NULL) {
 		if (	(!WCC->logged_in)
 			&& ((WCC->Hdr->HR.Handler->Flags & ANONYMOUS) == 0)
+			&& (WCC->serv_info != NULL)
 			&& (WCC->serv_info->serv_supports_guest == 0)
 		) {
 			display_login();

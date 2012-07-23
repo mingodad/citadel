@@ -215,11 +215,12 @@ void tmplput_iconbar(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	
-	 if (	(WCC != NULL)
-		&& (	(WCC->logged_in)
-			|| (WCC->serv_info->serv_supports_guest)
-		)
-	) {
+	 if ( (WCC != NULL)     &&
+	      ((WCC->logged_in) ||
+	      ((WCC->serv_info != NULL) &&
+	       (WCC->serv_info->serv_supports_guest))
+		      ) )
+	 {
 		DoTemplate(HKEY("iconbar"), NULL, &NoCtx);
 	}
 }
