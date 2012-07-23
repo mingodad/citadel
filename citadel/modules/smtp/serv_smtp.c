@@ -691,6 +691,8 @@ void smtp_data(void) {
 	 * is read with a Citadel client.
 	 */
 	if ( (CC->logged_in) && (config.c_rfc822_strict_from == 0) ) {
+
+#ifdef SMTP_REJECT_INVALID_SENDER
 		int validemail = 0;
 
 		if (!IsEmptyStr(CC->cs_inet_email) && 
@@ -709,11 +711,11 @@ void smtp_data(void) {
 			}
 		}
 		if (!validemail) {
-			syslog(LOG_ERR, "rejecting email because of invalid sender: %s\n", msg->cm_fields['F']);
-			cprintf("550 fix your mail client config; this is not you!.\r\n");
+			syslog(LOG_ERR, "invalid sender '%s' - rejecting this message", msg->cm_fields['F']);
+			cprintf("550 Invalid sender '%s' - rejecting this message.\r\n", msg->cm_fields['F']);
 			return;
-
 		}
+#endif /* SMTP_REJECT_INVALID_SENDER */
 
 		if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
 		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
