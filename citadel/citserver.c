@@ -710,8 +710,6 @@ void cmd_term(char *cmdbuf)
 	int session_num;
 	int terminated = 0;
 
-	if (CtdlAccessCheck(ac_aide)) return;
-
 	session_num = extract_int(cmdbuf, 0);
 
 	terminated = CtdlTerminateOtherSession(session_num);
