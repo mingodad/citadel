@@ -751,6 +751,28 @@ eNextState SMTP_C_Shutdown(AsyncIO *IO)
 	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 	SmtpOutMsg *Msg = IO->Data;
 
+	switch (IO->NextState) {
+	case eSendDNSQuery:
+	case eReadDNSReply:
+
+		/* todo: abort c-ares */
+	case eConnect:
+	case eSendReply:
+	case eSendMore:
+	case eSendFile:
+	case eReadMessage:
+	case eReadMore:
+	case eReadPayload:
+	case eReadFile:
+		StopClientWatchers(IO, 1);
+		break;
+	case eDBQuery:
+
+		break;
+	case eTerminateConnection:
+	case eAbort:
+		break;
+	}
 	Msg->MyQEntry->Status = 3;
 	StrBufPlain(Msg->MyQEntry->StatusMessage,
 		    HKEY("server shutdown during message submit."));

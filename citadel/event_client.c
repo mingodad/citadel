@@ -298,6 +298,7 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	if (Ctx) {
 		Ctx->state = CON_IDLE;
 		Ctx->kill_me = 1;
+		IO->CitContext = NULL;
 	}
 }
 
@@ -1031,7 +1032,8 @@ void InitIOStruct(AsyncIO *IO,
 	IO->Data          = Data;
 
 	IO->CitContext    = CloneContext(CC);
-	((CitContext *)IO->CitContext)->session_specific_data = (char*) Data;
+	IO->CitContext->session_specific_data = (char*) Data;
+	IO->CitContext->IO = IO;
 
 	IO->NextState     = NextState;
 
@@ -1068,7 +1070,8 @@ int InitcURLIOStruct(AsyncIO *IO,
 	IO->Data          = Data;
 
 	IO->CitContext    = CloneContext(CC);
-	((CitContext *)IO->CitContext)->session_specific_data = (char*) Data;
+	IO->CitContext->session_specific_data = (char*) Data;
+	IO->CitContext->IO = IO;
 
 	IO->SendDone      = SendDone;
 	IO->Terminate     = Terminate;
@@ -1080,6 +1083,85 @@ int InitcURLIOStruct(AsyncIO *IO,
 
 	return  evcurl_init(IO);
 
+}
+
+
+typedef struct KillOtherSessionContext {
+	AsyncIO IO;
+	AsyncIO *OtherOne;
+}KillOtherSessionContext;
+
+eNextState KillTerminate(AsyncIO *IO)
+{
+	KillOtherSessionContext *Ctx = (KillOtherSessionContext*)IO->Data;
+	EV_syslog(LOG_DEBUG, "%s Exit\n", __FUNCTION__);
+	FreeAsyncIOContents(IO);
+	memset(Ctx, 0, sizeof(KillOtherSessionContext));
+	free(Ctx);
+	return eAbort;
+
+}
+
+eNextState KillShutdown(AsyncIO *IO)
+{
+	return eTerminateConnection;
+}
+
+eNextState KillOtherContextNow(AsyncIO *IO)
+{
+	KillOtherSessionContext *Ctx = IO->Data;
+
+	if (Ctx->OtherOne->ShutdownAbort != NULL)
+		Ctx->OtherOne->ShutdownAbort(Ctx->OtherOne);
+	return eTerminateConnection;
+}
+
+void KillAsyncIOContext(AsyncIO *IO)
+{
+	KillOtherSessionContext *Ctx;
+
+	Ctx = (KillOtherSessionContext*) malloc(sizeof(KillOtherSessionContext));
+	memset(Ctx, 0, sizeof(KillOtherSessionContext));
+	
+	InitIOStruct(&Ctx->IO,
+		     Ctx,
+		     eReadMessage,
+		     NULL,
+		     NULL,
+		     NULL,
+		     NULL,
+		     KillTerminate,
+		     NULL,
+		     NULL,
+		     NULL,
+		     KillShutdown);
+
+	Ctx->OtherOne = IO;
+
+	switch(IO->NextState) {
+	case eSendDNSQuery:
+	case eReadDNSReply:
+
+	case eConnect:
+	case eSendReply:
+	case eSendMore:
+	case eSendFile:
+
+	case eReadMessage:
+	case eReadMore:
+	case eReadPayload:
+	case eReadFile:
+		QueueEventContext(&Ctx->IO, KillOtherContextNow);
+		break;
+	case eDBQuery:
+		QueueDBOperation(&Ctx->IO, KillOtherContextNow);
+		break;
+	case eTerminateConnection:
+	case eAbort:
+		/*hm, its already dying, dunno which Queue its in... */
+		free(Ctx);
+	}
+	
 }
 
 extern int DebugEventLoopBacktrace;

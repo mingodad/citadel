@@ -593,6 +593,7 @@ pthread_mutex_t EventExitQueueMutex; /* locks the access to the event queue poin
 HashList *QueueEvents = NULL;
 HashList *InboundEventQueue = NULL;
 HashList *InboundEventQueues[2] = { NULL, NULL };
+extern void ShutDownCLient(AsyncIO *IO);
 
 ev_async AddJob;
 ev_async ExitEventLoop;
@@ -634,7 +635,25 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		become_session(Ctx);
 
 		h->IO->Now = Now;
-		h->EvAttch(h->IO);
+		switch (h->EvAttch(h->IO))
+		{
+		case eReadMore:
+		case eReadMessage:
+		case eReadFile:
+		case eSendReply:
+		case eSendMore:
+		case eReadPayload:
+		case eSendFile:
+		case eDBQuery:
+		case eSendDNSQuery:
+		case eReadDNSReply:
+		case eConnect:
+			break;
+		case eTerminateConnection:
+		case eAbort:
+			ShutDownCLient(h->IO);
+		break;
+		}
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);

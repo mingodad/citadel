@@ -28,6 +28,8 @@ typedef enum __CCState {
 	CON_SYS                 /* This is a system context and mustn't be purged */
 } CCState;
 
+typedef struct AsyncIO AsyncIO; /* forward declaration for event_client.h */
+typedef struct CitContext CitContext;
 
 /*
  * Here's the big one... the Citadel context structure.
@@ -37,8 +39,8 @@ typedef enum __CCState {
  *
  */
 struct CitContext {
-	struct CitContext *prev;	/* Link to previous session in list */
-	struct CitContext *next;	/* Link to next session in the list */
+	CitContext *prev;	/* Link to previous session in list */
+	CitContext *next;	/* Link to next session in the list */
 
 	int cs_pid;		/* session ID */
 	int dont_term;		/* for special activities like artv so we don't get killed */
@@ -140,9 +142,10 @@ struct CitContext {
 
 	long *cached_msglist;			/* results of the previous CtdlForEachMessage() */
 	int cached_num_msgs;
+
+	AsyncIO *IO;				/* if this session has AsyncIO going on... */
 };
 
-typedef struct CitContext CitContext;
 
 
 #define CC MyContext()

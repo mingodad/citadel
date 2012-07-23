@@ -93,25 +93,25 @@ struct CitContext networker_client_CC;
 
 int NetworkClientDebugEnabled = 0;
 
-#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (NetworkClientDebugEnabled != 0))
+#define NCDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (NetworkClientDebugEnabled != 0))
 
-#define EVN_syslog(LEVEL, FORMAT, ...) \
-	DBGLOG(LEVEL) syslog(LEVEL, \
-	       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT, \
-	       IO->ID, CCID, NODE, N, __VA_ARGS__)
+#define EVN_syslog(LEVEL, FORMAT, ...)					\
+	NCDBGLOG(LEVEL) syslog(LEVEL,					\
+			       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
+			       IO->ID, CCID, NODE, N, __VA_ARGS__)
 
-#define EVNM_syslog(LEVEL, FORMAT) \
-	DBGLOG(LEVEL) syslog(LEVEL, \
-	       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT, \
-	       IO->ID, CCID, NODE, N)
+#define EVNM_syslog(LEVEL, FORMAT)					\
+	NCDBGLOG(LEVEL) syslog(LEVEL,					\
+			       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
+			       IO->ID, CCID, NODE, N)
 
 #define EVNCS_syslog(LEVEL, FORMAT, ...) \
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT, \
-	       IO->ID, NODE, N, __VA_ARGS__)
+	NCDBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT,	\
+			       IO->ID, NODE, N, __VA_ARGS__)
 
 #define EVNCSM_syslog(LEVEL, FORMAT) \
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT, \
-	       IO->ID, NODE, N)
+	NCDBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT,	\
+			       IO->ID, NODE, N)
 
 
 typedef enum _eNWCState {

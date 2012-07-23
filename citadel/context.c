@@ -88,6 +88,7 @@ CitContext *ContextList = NULL;
 
 time_t last_purge = 0;				/* Last dead session purge */
 int num_sessions = 0;				/* Current number of sessions */
+int next_pid = 0;
 
 /* Flag for single user mode */
 static int want_single_user = 0;
@@ -146,26 +147,46 @@ int CtdlIsSingleUser(void)
  */
 int CtdlTerminateOtherSession (int session_num)
 {
+	struct CitContext *CCC = CC;
 	int ret = 0;
 	CitContext *ccptr;
+	int aide;
 
-	if (session_num == CC->cs_pid) {
-		return TERM_NOTALLOWED;
-	}
+	if (session_num == CCC->cs_pid) return TERM_NOTALLOWED;
+
+	aide = ( (CCC->user.axlevel >= AxAideU) || (CCC->internal_pgm) ) ;
 
 	CONM_syslog(LOG_DEBUG, "Locating session to kill\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (session_num == ccptr->cs_pid) {
 			ret |= TERM_FOUND;
-			if ((ccptr->user.usernum == CC->user.usernum)
-			   || (CC->user.axlevel >= AxAideU)) {
+			if ((ccptr->user.usernum == CCC->user.usernum) || aide) {
 				ret |= TERM_ALLOWED;
-				ccptr->kill_me = KILLME_ADMIN_TERMINATE;
 			}
+			break;
 		}
 	}
-	end_critical_section(S_SESSION_TABLE);
+
+	if (((ret & TERM_FOUND) != 0) && ((ret & TERM_ALLOWED) == 0))
+	{
+		if (ccptr->IO != NULL) {
+			AsyncIO *IO = ccptr->IO;
+			end_critical_section(S_SESSION_TABLE);
+			KillAsyncIOContext(IO);
+		}
+		else
+		{
+			if (ccptr->user.usernum == CCC->user.usernum)
+				ccptr->kill_me = KILLME_ADMIN_TERMINATE;
+			else
+				ccptr->kill_me = KILLME_IDLE;
+			end_critical_section(S_SESSION_TABLE);
+		}
+	}
+	else
+		end_critical_section(S_SESSION_TABLE);
+
 	return ret;
 }
 
@@ -388,7 +409,6 @@ void RemoveContext (CitContext *con)
  */
 CitContext *CreateNewContext(void) {
 	CitContext *me;
-	static int next_pid = 0;
 
 	me = (CitContext *) malloc(sizeof(CitContext));
 	if (me == NULL) {
@@ -438,7 +458,6 @@ CitContext *CreateNewContext(void) {
  */
 CitContext *CloneContext(CitContext *CloneMe) {
 	CitContext *me;
-	static int next_pid = 0;
 
 	me = (CitContext *) malloc(sizeof(CitContext));
 	if (me == NULL) {
@@ -464,7 +483,10 @@ CitContext *CloneContext(CitContext *CloneMe) {
 	me->openid_data = NULL;
 	me->ldap_dn = NULL;
 	me->session_specific_data = NULL;
+	
+	me->CIT_ICAL = NULL;
 
+	me->cached_msglist = NULL;
 	me->download_fp = NULL;
 	me->upload_fp = NULL;
 	me->client_socket = 0;
