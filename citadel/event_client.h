@@ -24,6 +24,7 @@
 #include <curl/curl.h>
 
 typedef struct AsyncIO AsyncIO;
+typedef struct CitContext CitContext;
 
 typedef enum _eNextState {
 	eSendDNSQuery,
@@ -164,7 +165,7 @@ struct AsyncIO {
 
 	/* Context specific data; Hint: put AsyncIO in there */
 	void *Data;        /* application specific data */
-	void *CitContext;  /* Citadel Session context... */
+	CitContext *CitContext;  /* Citadel Session context... */
 };
 
 typedef struct _IOAddHandler {
@@ -296,7 +297,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 		     IO_CallBack Terminate,
 		     IO_CallBack DBTerminate,
 		     IO_CallBack ShutdownAbort);
-
+void KillAsyncIOContext(AsyncIO *IO);
 void StopCurlWatchers(AsyncIO *IO);
 
 
