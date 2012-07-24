@@ -11,8 +11,8 @@ int task_completed_cmp(const void *vtask1, const void *vtask2) {
 
 	icalproperty_status t1 = icalcomponent_get_status((Task1)->cal);
 	/* icalproperty_status t2 = icalcomponent_get_status(((struct disp_cal *)task2)->cal); */
-	
-	if (t1 == ICAL_STATUS_COMPLETED) 
+
+	if (t1 == ICAL_STATUS_COMPLETED)
 		return 1;
 	return 0;
 }
@@ -74,8 +74,8 @@ int task_due_cmp(const void *vtask1, const void *vtask2) {
 /*
  * do the whole task view stuff
  */
-int tasks_RenderView_or_Tail(SharedMessageStatus *Stat, 
-			      void **ViewSpecific, 
+int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
+			      void **ViewSpecific,
 			      long oper)
 {
 	long hklen;
@@ -89,13 +89,13 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 	icalproperty *p;
 	wcsession *WCC = WC;
 
-	wc_printf("<table class=\"calendar_view_background\"><tbody id=\"taskview\">\n<tr>\n<th>");
+	wc_printf("<table id=\"task_view_background\"><tbody class=\"taskview\">\n<tr class=\"taskview_headrow\">\n<th class=\"task_completed\">");
 	wc_printf(_("Completed?"));
-	wc_printf("</th><th>");
+	wc_printf("</th><th class=\"task_name\">");
 	wc_printf(_("Name of task"));
-	wc_printf("</th><th>");
+	wc_printf("</th><th class=\"task_due_date\">");
 	wc_printf(_("Date due"));
-	wc_printf("</th><th>");
+	wc_printf("</th><th class=\"task_category\">");
 	wc_printf(_("Category"));
 	wc_printf(" (<select id=\"selectcategory\"><option value=\"showall\">%s</option></select>)</th></tr>\n",
 		_("Show All"));
@@ -111,7 +111,7 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	/* And then again, by completed */
 	if (nItems > 1) {
-		SortByPayload(WC->disp_cal_items, 
+		SortByPayload(WC->disp_cal_items,
 			      task_completed_cmp);
 	}
 
@@ -121,13 +121,13 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 		int is_date;
 
 		Cal = (disp_cal*)vCal;
-		wc_printf("<tr><td>");
+		wc_printf("<tr><td class=\"task_completed\">");
 		todoStatus = icalcomponent_get_status(Cal->cal);
 		wc_printf("<input type=\"checkbox\" name=\"completed\" value=\"completed\" ");
 		if (todoStatus == ICAL_STATUS_COMPLETED) {
 			wc_printf("checked=\"checked\" ");
 		}
-		wc_printf("disabled=\"disabled\">\n</td><td>");
+		wc_printf("disabled=\"disabled\">\n</td><td class=\"task_name\">");
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_SUMMARY_PROPERTY);
 		wc_printf("<a href=\"display_edit_task?msgnum=%ld?taskrm=", Cal->cal_msgnum);
@@ -142,7 +142,7 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 		wc_printf("</td>\n");
 
 		due = get_task_due_date(Cal->cal, &is_date);
-		wc_printf("<td><span");
+		wc_printf("<td class=\"task_due_date\"><span");
 		if (due > 0) {
 			webcit_fmt_date(buf, SIZ, due, is_date ? DATEFMT_RAWDATE : DATEFMT_FULL);
 			wc_printf(">%s",buf);
@@ -151,7 +151,7 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 			wc_printf(">");
 		}
 		wc_printf("</span></td>");
-		wc_printf("<td>");
+		wc_printf("<td class=\"task_category\">");
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_CATEGORIES_PROPERTY);
 		if (p != NULL) {

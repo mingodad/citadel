@@ -69,3 +69,15 @@ div#who_inner th.host_col {
 	font-size: 90%;
 }
 
+#task_view_background {
+	margin-left: 0.5em;
+	font-size: 90%;
+}
+
+.taskview th, .taskview td {
+	margin: 0 auto;
+	line-height: 1.5em;
+	min-width: 10em;
+}
+
+.taskview th { border-bottom: 1px dotted #5C646B }
