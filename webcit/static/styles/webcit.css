@@ -34,13 +34,10 @@ img {border: none;}
 
 li {list-style: none;}
 
-table.altern {
-	border-bottom: solid 2px #AAA;
-	border-top: solid 2px #AAA;
-}     
+table.altern {}     
       
 table.altern .even, .table-alt-row {       
-	background-color: #DEDED0;
+	background-color: #EDEDE0;
 }
 
 

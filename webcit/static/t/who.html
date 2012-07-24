@@ -7,29 +7,37 @@
 	}
 </script>
 
-<div id="banner" class="banner">
-	<h1>
-		<img alt="" src="static/webcit_icons/essen/32x32/user.png">
-		<?_("Users currently on ")><?SERV:HUMANNODE>
-	</h1>
-	<div id="actiondiv">
-		<ul class="room_actions">
-			<li class="start_page"><?OFFERSTARTPAGE></li>
-			<li><?=("loggedinas")></li>
-		</ul>
+<div id="banner">
+	<div id="room_banner" class="banner">
+		<div id="citlogo" class="logo_citadel">
+			<img src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>">
+		</div>
+		<div id="room_definition">
+			<div id="room_descriptor">
+				<img class="roompic" alt="" src="static/webcit_icons/essen/32x32/user.png">
+				<h1 id="rmname"><?_("Users currently on ")><?SERV:HUMANNODE></h1>
+			</div>
+			<div id="room_details">
+				<span><?_("Click on a name to read user info.")></span>
+			</div>
+		</div>
+		<div id="actiondiv">
+			<ul class="room_actions">
+				<li><?=("loggedinas")></li>
+			</ul>
+		</div>
 	</div>
 	<div id="navbar"><ul><li>
-		<span class="navbar_link"><?_("Click on a name to read user info.  Click on")></span>
+		<span class="navbar_link"><?_("Click on")>
 		<img align="middle" src="static/webcit_icons/essen/16x16/chat.png" alt="(p)">
-		<span class="navbar_link"><?_("to send an instant message to that user.")></span>
+		<?_("to send an instant message to that user.")></span>
 	</li></ul></div>
 </div>
-<div id="content" class="who_is_online">
-	<?DOBOXED(="who_box_list_static", ="who_list_static_header")>
+<div id="content" class="service who_is_online">
+	<div id="who_inner"><img src="static/webcit_icons/throbber.gif"></div>	
 </div>
 <script type="text/javascript">
  new Ajax.PeriodicalUpdater('who_inner', 'do_template?template=who_box_list_static',
                             { method: 'get', frequency: 30 }  );
 </script>
-</div>
 <?=("trailing")>

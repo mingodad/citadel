@@ -38,14 +38,17 @@
 	margin:0 0.5em 0.5em 0;
 }
 
+.who_is_online th{}
+
 .who_is_online tr { 
 	height: 1.5em;
 	padding: 0;
 	margin: 0;
+	font-size: 90%;
 }
 
 .who_is_online td {
-	padding: 0 0.3em;
+	padding: 0 0.4em;
 }
 
 .who_is_online td img { 
@@ -55,12 +58,14 @@
 
 .who_is_online .edit_col {}
 
-.who_is_online .host_col { 
+.who_is_online .host_col {
+	display: table-cell;
 	font-family: monospace;
 	font-size: 90%;
 }
 
 div#who_inner th.host_col { 
 	font-family: sans-serif;
-	font-size: 100%;
+	font-size: 90%;
 }
+
