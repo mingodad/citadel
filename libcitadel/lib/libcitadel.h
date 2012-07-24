@@ -659,6 +659,10 @@ extern ConstStr RoomNetCfgStrs[maxRoomNetCfg];
 extern "C" {
 #endif
 
+#define CFG_SMTP_FROM_FILTERALL 0
+#define CFG_SMTP_FROM_NOFILTER 1
+#define CFG_SMTP_FROM_CORRECT 2
+#define CFG_SMTP_FROM_REJECT 3
 /*
  * MIME types used in Citadel for configuration stuff
  */
