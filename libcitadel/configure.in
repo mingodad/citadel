@@ -10,6 +10,7 @@ AC_INIT(libcitadel, 3.8.13, http://uncensored.citadel.org)
 AC_CONFIG_SRCDIR(Makefile.in)
 AC_CONFIG_AUX_DIR(conftools)
 AC_CONFIG_SRCDIR(tests/Makefile.in)
+m4_include([m4/local.m4])
 
 dnl
 dnl Increment LIBREVISION if source code has changed at all
@@ -99,6 +100,36 @@ AC_TRY_COMPILE([
 		],
 		[ 
 		  ok_splice=no
+		  AC_MSG_RESULT([no])
+		]
+)
+
+AC_MSG_CHECKING([whether your system likes memcpy + HKEY]) 
+AC_TRY_COMPILE([
+#define _GNU_SOURCE
+#include <ctype.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/select.h>
+#include <fcntl.h>
+#include <sys/types.h>
+
+#include "lib/libcitadel.h"
+],
+[
+	char foo[22];
+	memcpy(foo, HKEY("foo"));
+	
+],
+		[
+
+		  AC_MSG_RESULT([yes])
+		],
+		[ 
+		  AC_DEFINE(UNDEF_MEMCPY, [], [whether we need to undefine memcpy])
 		  AC_MSG_RESULT([no])
 		]
 )

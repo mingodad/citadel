@@ -40,8 +40,8 @@
 #include <execinfo.h>
 #endif
 
-#ifdef LINUX_SENDFILE
-#include <sys/sendfile.h>
+#ifdef UNDEF_MEMCPY
+#undef memcpy
 #endif
 
 #ifdef HAVE_ZLIB

@@ -123,6 +123,10 @@ extern char *ssl_cipher_list;
 
 #define TRACE syslog(LOG_DEBUG, "\033[3%dmCHECKPOINT: %s:%d\033[0m", ((__LINE__%6)+1), __FILE__, __LINE__)
 
+#ifdef UNDEF_MEMCPY
+#undef memcpy
+#endif
+
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
