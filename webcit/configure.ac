@@ -252,6 +252,35 @@ AC_CHECK_HEADER(libcitadel.h,
 	]
 )
 
+AC_MSG_CHECKING([whether your system likes memcpy + HKEY]) 
+AC_TRY_COMPILE([
+#define _GNU_SOURCE
+#include <ctype.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/select.h>
+#include <fcntl.h>
+#include <sys/types.h>
+
+#include "lib/libcitadel.h"
+],
+[
+	char foo[22];
+	memcpy(foo, HKEY("foo"));
+	
+],
+		[
+
+		  AC_MSG_RESULT([yes])
+		],
+		[ 
+		  AC_DEFINE(UNDEF_MEMCPY, [], [whether we need to undefine memcpy])
+		  AC_MSG_RESULT([no])
+		]
+)
 
 dnl Checks for the Expat XML parser.
 AC_CHECK_HEADER(expat.h,
