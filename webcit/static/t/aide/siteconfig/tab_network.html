@@ -7,10 +7,30 @@
 <input type="text" NAME="c_smtp_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_smtp_port")>'></td></tr>
 
 <tr><td><?_("Correct forged From: lines during authenticated SMTP")></td><td>
-<input type="checkbox" NAME="c_rfc822_strict_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", 1, "", "CHECKED")>></td></tr>
+<ul>
+<li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_FILTERALL")>" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_FILTERALL", "CHECKED", "")> />
+  <?_("Always replace / insert the users primary email address")>
+</li><li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_NOFILTER")>"  <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_NOFILTER",  "CHECKED", "")> />
+ <?_("Don't check the From: header at all")>
+</li><li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_CORRECT")>"   <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_CORRECT",   "CHECKED", "")> />
+ <?_("If the specified email is none of the users email-aliases, replace it with his primary mail address")>
+</li><li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_REJECT")>"    <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_REJECT",    "CHECKED", "")> />
+ <?_("If the specified email is none of the users email-aliases or missing, refuse to relay the email")>
+</li>
+</ul>
+<!--
+<input type="checkbox" NAME="c_rfc822_strict_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", 1, "", "CHECKED")>>
+-->
+</td></tr>
 
 <tr><td><?_("Flag message as spam, instead of rejecting it")></td><td>
 <input type="checkbox" NAME="c_spam_flag_only" VALUE="yes" <?%("COND:SERVCFG", 1, "c_spam_flag_only", 1, "CHECKED", "")>></td></tr>
+
+<tr><td></td></tr>
 
 <tr><td><?_("IMAP listener port (-1 to disable)")></td><td>
 <input type="text" NAME="c_imap_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_imap_port")>'></td></tr>

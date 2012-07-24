@@ -128,6 +128,9 @@ void LoadZoneFiles(void)
 
 typedef struct _CfgMapping {
 	int type;
+	int min;
+	int max;
+	const char *defval;
 	const char *Key;
 	long len;
 } CfgMapping;
@@ -135,76 +138,77 @@ typedef struct _CfgMapping {
 #define CFG_STR 1
 #define CFG_YES 2
 #define CFG_NO 3
+#define CFG_INT 4
 
 CfgMapping ServerConfig[] = {
-	{CFG_STR, HKEY("c_nodename")},
-	{CFG_STR, HKEY("c_fqdn")},
-	{CFG_STR, HKEY("c_humannode")},
-	{CFG_STR, HKEY("c_phonenum")},
-	{CFG_YES, HKEY("c_creataide")},
-	{CFG_STR, HKEY("c_sleeping")},
-	{CFG_STR, HKEY("c_initax")},
-	{CFG_YES, HKEY("c_regiscall")},
-	{CFG_YES, HKEY("c_twitdetect")},
-	{CFG_STR, HKEY("c_twitroom")},
-	{CFG_STR, HKEY("c_moreprompt")},
-	{CFG_YES, HKEY("c_restrict")},
-	{CFG_STR, HKEY("c_bbs_city")},
-	{CFG_STR, HKEY("c_sysadm")},
-	{CFG_STR, HKEY("c_maxsessions")},
-	{CFG_STR, HKEY("reserved1")},
-	{CFG_STR, HKEY("c_userpurge")},
-	{CFG_STR, HKEY("c_roompurge")},
-	{CFG_STR, HKEY("c_logpages")},
-	{CFG_STR, HKEY("c_createax")},
-	{CFG_STR, HKEY("c_maxmsglen")},
-	{CFG_STR, HKEY("c_min_workers")},
-	{CFG_STR, HKEY("c_max_workers")},
-	{CFG_STR, HKEY("c_pop3_port")},
-	{CFG_STR, HKEY("c_smtp_port")},
-	{CFG_NO , HKEY("c_rfc822_strict_from")},	/* note: reverse bool */
-	{CFG_YES, HKEY("c_aide_zap")},
-	{CFG_STR, HKEY("c_imap_port")},
-	{CFG_STR, HKEY("c_net_freq")},
-	{CFG_YES, HKEY("c_disable_newu")},
-	{CFG_STR, HKEY("reserved2")},
-	{CFG_STR, HKEY("c_purge_hour")},
-	{CFG_STR, HKEY("c_ldap_host")},
-	{CFG_STR, HKEY("c_ldap_port")},
-	{CFG_STR, HKEY("c_ldap_base_dn")},
-	{CFG_STR, HKEY("c_ldap_bind_dn")},
-	{CFG_STR, HKEY("c_ldap_bind_pw")},
-	{CFG_STR, HKEY("c_ip_addr")},
-	{CFG_STR, HKEY("c_msa_port")},
-	{CFG_STR, HKEY("c_imaps_port")},
-	{CFG_STR, HKEY("c_pop3s_port")},
-	{CFG_STR, HKEY("c_smtps_port")},
-	{CFG_YES, HKEY("c_enable_fulltext")},
-	{CFG_YES, HKEY("c_auto_cull")},
-	{CFG_YES, HKEY("c_instant_expunge")},
-	{CFG_YES, HKEY("c_allow_spoofing")},
-	{CFG_YES, HKEY("c_journal_email")},
-	{CFG_YES, HKEY("c_journal_pubmsgs")},
-	{CFG_STR, HKEY("c_journal_dest")},
-	{CFG_STR, HKEY("c_default_cal_zone")},
-	{CFG_STR, HKEY("c_pftcpdict_port")},
-	{CFG_STR, HKEY("c_mgesve_port")},
-	{CFG_STR, HKEY("c_auth_mode")},
-	{CFG_STR, HKEY("c_funambol_host")},
-	{CFG_STR, HKEY("c_funambol_port")},
-	{CFG_STR, HKEY("c_funambol_source")},
-	{CFG_STR, HKEY("c_funambol_auth")},
-	{CFG_YES, HKEY("c_rbl_at_greeting")},
-	{CFG_STR, HKEY("c_master_user")},
-	{CFG_STR, HKEY("c_master_pass")},
-	{CFG_STR, HKEY("c_pager_program")},
-	{CFG_YES, HKEY("c_imap_keep_from")},
-	{CFG_STR, HKEY("c_xmpp_c2s_port")},
-	{CFG_STR, HKEY("c_xmpp_s2s_port")},
-	{CFG_STR, HKEY("c_pop3_fetch")},
-	{CFG_STR, HKEY("c_pop3_fastest")},
-	{CFG_YES, HKEY("c_spam_flag_only")},
-	{CFG_YES, HKEY("c_guest_logins")}
+	{CFG_STR, 0, 0, "", HKEY("c_nodename")},
+	{CFG_STR, 0, 0, "", HKEY("c_fqdn")},
+	{CFG_STR, 0, 0, "", HKEY("c_humannode")},
+	{CFG_STR, 0, 0, "", HKEY("c_phonenum")},
+	{CFG_YES, 0, 0, "", HKEY("c_creataide")},
+	{CFG_STR, 0, 0, "", HKEY("c_sleeping")},
+	{CFG_STR, 0, 0, "", HKEY("c_initax")},
+	{CFG_YES, 0, 0, "", HKEY("c_regiscall")},
+	{CFG_YES, 0, 0, "", HKEY("c_twitdetect")},
+	{CFG_STR, 0, 0, "", HKEY("c_twitroom")},
+	{CFG_STR, 0, 0, "", HKEY("c_moreprompt")},
+	{CFG_YES, 0, 0, "", HKEY("c_restrict")},
+	{CFG_STR, 0, 0, "", HKEY("c_bbs_city")},
+	{CFG_STR, 0, 0, "", HKEY("c_sysadm")},
+	{CFG_STR, 0, 0, "", HKEY("c_maxsessions")},
+	{CFG_STR, 0, 0, "", HKEY("reserved1")},
+	{CFG_STR, 0, 0, "", HKEY("c_userpurge")},
+	{CFG_STR, 0, 0, "", HKEY("c_roompurge")},
+	{CFG_STR, 0, 0, "", HKEY("c_logpages")},
+	{CFG_STR, 0, 0, "", HKEY("c_createax")},
+	{CFG_STR, 0, 0, "", HKEY("c_maxmsglen")},
+	{CFG_STR, 0, 0, "", HKEY("c_min_workers")},
+	{CFG_STR, 0, 0, "", HKEY("c_max_workers")},
+	{CFG_STR, 0, 0, "", HKEY("c_pop3_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_smtp_port")},
+	{CFG_INT, CFG_SMTP_FROM_FILTERALL, CFG_SMTP_FROM_REJECT, "0", HKEY("c_rfc822_strict_from")},	
+	{CFG_YES, 0, 0, "", HKEY("c_aide_zap")},
+	{CFG_STR, 0, 0, "", HKEY("c_imap_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_net_freq")},
+	{CFG_YES, 0, 0, "", HKEY("c_disable_newu")},
+	{CFG_STR, 0, 0, "", HKEY("reserved2")},
+	{CFG_STR, 0, 0, "", HKEY("c_purge_hour")},
+	{CFG_STR, 0, 0, "", HKEY("c_ldap_host")},
+	{CFG_STR, 0, 0, "", HKEY("c_ldap_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_ldap_base_dn")},
+	{CFG_STR, 0, 0, "", HKEY("c_ldap_bind_dn")},
+	{CFG_STR, 0, 0, "", HKEY("c_ldap_bind_pw")},
+	{CFG_STR, 0, 0, "", HKEY("c_ip_addr")},
+	{CFG_STR, 0, 0, "", HKEY("c_msa_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_imaps_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_pop3s_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_smtps_port")},
+	{CFG_YES, 0, 0, "", HKEY("c_enable_fulltext")},
+	{CFG_YES, 0, 0, "", HKEY("c_auto_cull")},
+	{CFG_YES, 0, 0, "", HKEY("c_instant_expunge")},
+	{CFG_YES, 0, 0, "", HKEY("c_allow_spoofing")},
+	{CFG_YES, 0, 0, "", HKEY("c_journal_email")},
+	{CFG_YES, 0, 0, "", HKEY("c_journal_pubmsgs")},
+	{CFG_STR, 0, 0, "", HKEY("c_journal_dest")},
+	{CFG_STR, 0, 0, "", HKEY("c_default_cal_zone")},
+	{CFG_STR, 0, 0, "", HKEY("c_pftcpdict_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_mgesve_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_auth_mode")},
+	{CFG_STR, 0, 0, "", HKEY("c_funambol_host")},
+	{CFG_STR, 0, 0, "", HKEY("c_funambol_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_funambol_source")},
+	{CFG_STR, 0, 0, "", HKEY("c_funambol_auth")},
+	{CFG_YES, 0, 0, "", HKEY("c_rbl_at_greeting")},
+	{CFG_STR, 0, 0, "", HKEY("c_master_user")},
+	{CFG_STR, 0, 0, "", HKEY("c_master_pass")},
+	{CFG_STR, 0, 0, "", HKEY("c_pager_program")},
+	{CFG_YES, 0, 0, "", HKEY("c_imap_keep_from")},
+	{CFG_STR, 0, 0, "", HKEY("c_xmpp_c2s_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_xmpp_s2s_port")},
+	{CFG_STR, 0, 0, "", HKEY("c_pop3_fetch")},
+	{CFG_STR, 0, 0, "", HKEY("c_pop3_fastest")},
+	{CFG_YES, 0, 0, "", HKEY("c_spam_flag_only")},
+	{CFG_YES, 0, 0, "", HKEY("c_guest_logins")}
 };
 
 
@@ -273,7 +277,7 @@ void load_siteconfig(void)
 void siteconfig(void)
 {
 	wcsession *WCC = WC;
-	int i;
+	int i, value;
 	StrBuf *Line;
 
 	if (strlen(bstr("ok_button")) == 0) {
@@ -307,6 +311,14 @@ void siteconfig(void)
 			serv_puts(YesBstr(ServerConfig[i].Key, 
 					  ServerConfig[i].len) ?
 				  "0" : "1");
+			break;
+		case CFG_INT:
+			value = IBstr(ServerConfig[i].Key, 
+				      ServerConfig[i].len);
+			if ((value < ServerConfig[i].min) ||
+			    (value > ServerConfig[i].max))
+				value = atol(ServerConfig[i].defval);
+			serv_printf("%d", value);
 			break;
 		}
 	}
@@ -476,6 +488,11 @@ InitModule_SITECONFIG
 	REGISTERTokenParamDefine(EXPIRE_MANUAL);
 	REGISTERTokenParamDefine(EXPIRE_NUMMSGS);
 	REGISTERTokenParamDefine(EXPIRE_AGE);
+
+	REGISTERTokenParamDefine(CFG_SMTP_FROM_FILTERALL);
+	REGISTERTokenParamDefine(CFG_SMTP_FROM_NOFILTER);
+	REGISTERTokenParamDefine(CFG_SMTP_FROM_CORRECT);
+	REGISTERTokenParamDefine(CFG_SMTP_FROM_REJECT);
 
 	RegisterConditional(HKEY("COND:EXPIRE:MODE"), 2, ConditionalExpire, CTX_NONE);
 	RegisterNamespace("EXPIRE:VALUE", 1, 2, tmplput_ExpireValue, NULL, CTX_NONE);

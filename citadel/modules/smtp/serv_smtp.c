@@ -690,43 +690,48 @@ void smtp_data(void) {
 	 * to something ugly like "0000058008.Sent Items>" when the message
 	 * is read with a Citadel client.
 	 */
-	if ( (CC->logged_in) && (config.c_rfc822_strict_from == 0) ) {
-
-#ifdef SMTP_REJECT_INVALID_SENDER
+	if ( (CC->logged_in) && (config.c_rfc822_strict_from != CFG_SMTP_FROM_NOFILTER) ) {
 		int validemail = 0;
-
-		if (!IsEmptyStr(CC->cs_inet_email) && 
-		    !IsEmptyStr(msg->cm_fields['F']))
-			validemail = strcmp(CC->cs_inet_email, msg->cm_fields['F']) == 0;
-		if ((!validemail) && 
-		    (!IsEmptyStr(CC->cs_inet_other_emails)))
+		
+		if (!IsEmptyStr(msg->cm_fields['F'])       &&
+		    ((config.c_rfc822_strict_from == CFG_SMTP_FROM_CORRECT) || 
+		     (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)    )  )
 		{
-			int num_secondary_emails = 0;
-			int i;
-			num_secondary_emails = num_tokens(CC->cs_inet_other_emails, '|');
-			for (i=0; i<num_secondary_emails && !validemail; ++i) {
-				char buf[256];
-				extract_token(buf, CC->cs_inet_other_emails,i,'|',sizeof CC->cs_inet_other_emails);
-				validemail = strcmp(buf, msg->cm_fields['F']) == 0;
+			if (!IsEmptyStr(CC->cs_inet_email))
+				validemail = strcmp(CC->cs_inet_email, msg->cm_fields['F']) == 0;
+			if ((!validemail) && 
+			    (!IsEmptyStr(CC->cs_inet_other_emails)))
+			{
+				int num_secondary_emails = 0;
+				int i;
+				num_secondary_emails = num_tokens(CC->cs_inet_other_emails, '|');
+				for (i=0; i < num_secondary_emails && !validemail; ++i) {
+					char buf[256];
+					extract_token(buf, CC->cs_inet_other_emails,i,'|',sizeof CC->cs_inet_other_emails);
+					validemail = strcmp(buf, msg->cm_fields['F']) == 0;
+				}
 			}
 		}
-		if (!validemail) {
+
+		if (!validemail && (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)) {
 			syslog(LOG_ERR, "invalid sender '%s' - rejecting this message", msg->cm_fields['F']);
 			cprintf("550 Invalid sender '%s' - rejecting this message.\r\n", msg->cm_fields['F']);
 			return;
 		}
-#endif /* SMTP_REJECT_INVALID_SENDER */
 
 		if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
 		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
 		if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
-		if (msg->cm_fields['F'] != NULL) free(msg->cm_fields['F']);
 		if (msg->cm_fields['O'] != NULL) free(msg->cm_fields['O']);
 		msg->cm_fields['A'] = strdup(CC->user.fullname);
 		msg->cm_fields['N'] = strdup(config.c_nodename);
 		msg->cm_fields['H'] = strdup(config.c_humannode);
-		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
         	msg->cm_fields['O'] = strdup(MAILROOM);
+
+		if (!validemail) {
+			if (msg->cm_fields['F'] != NULL) free(msg->cm_fields['F']);
+			msg->cm_fields['F'] = strdup(CC->cs_inet_email);
+		}
 	}
 
 	/* Set the "envelope from" address */
