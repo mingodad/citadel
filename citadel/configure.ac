@@ -990,8 +990,6 @@ if test "$ac_cv_func_pthread_create" = yes; then
 	test "$DATABASE" && TARGETS="server utils"
 fi
 
-AC_REPLACE_FUNCS(snprintf getutline)
-
 AC_CACHE_CHECK([the weather], ac_cv_weather, [
 	sleep 1
 	echo $ECHO_N "opening your window... $ECHO_C" >&6

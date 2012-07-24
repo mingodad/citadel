@@ -78,7 +78,7 @@ SOURCES=utils/aidepost.c utils/citmail.c \
 	utils/ctdlmigrate.c utils/base64.c utils/chkpwd.c \
 	utillib/citadel_dirs.c \
 	citserver.c clientsocket.c config.c control.c $(DATABASE) \
-	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
+	domain.c serv_extensions.c file_ops.c genstamp.c \
 	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
 	locate_host.c md5.c auth.c msgbase.c parsedate.c \
 	room_ops.c euidindex.c server_main.c snprintf.c ldap.c \
