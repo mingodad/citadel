@@ -10,7 +10,6 @@ AC_INIT(libcitadel, 3.8.13, http://uncensored.citadel.org)
 AC_CONFIG_SRCDIR(Makefile.in)
 AC_CONFIG_AUX_DIR(conftools)
 AC_CONFIG_SRCDIR(tests/Makefile.in)
-m4_include([m4/local.m4])
 
 dnl
 dnl Increment LIBREVISION if source code has changed at all
