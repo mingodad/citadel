@@ -23,14 +23,14 @@
 <tr><td><?_("Correct forged From: lines during authenticated SMTP")></td><td>
 <ul>
 <li>
- <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_FILTERALL")>" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_FILTERALL", "CHECKED", "")> />
-  <?_("Yes, always place the user's primary email address in the From: header")>
-</li><li>
  <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_NOFILTER")>"  <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_NOFILTER",  "CHECKED", "")> />
  <?_("No, allow any address in the From: header")>
 </li><li>
  <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_CORRECT")>"   <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_CORRECT",   "CHECKED", "")> />
  <?_("Only change the From: header if the address is not valid for the user")>
+</li><li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_FILTERALL")>" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_FILTERALL", "CHECKED", "")> />
+  <?_("Yes, always place the user's primary email address in the From: header")>
 </li><li>
  <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_REJECT")>"    <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_REJECT",    "CHECKED", "")> />
  <?_("No, REJECT messages containing an invalid From: header")>
