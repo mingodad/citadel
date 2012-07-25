@@ -94,6 +94,14 @@
 <?_("Number of messages or days: ")>
 <input type="text" NAME="mailboxespolicy_value" MAXLENGTH="5" VALUE='<?EXPIRE:VALUE(#"mailboxespolicy")>'>
 </td></tr>
+<tr><td colspan=2><hr></td></tr>
+
+<tr><td><?_("Default user purge time (days)")></td><td>
+<input type="text" name="c_userpurge" maxlength="5" value='<?SERV:CFG("c_userpurge")>'></td></tr>
+
+<tr><td><?_("Default room purge time (days)")></td><td>
+<input type="text" name="c_roompurge" maxlength="5" value='<?SERV:CFG("c_roompurge")>'></td></tr>
+
 
 <tr><td COLSPAN=2><hr /></td></tr>
 

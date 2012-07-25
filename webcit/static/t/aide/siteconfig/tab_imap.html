@@ -1,0 +1,17 @@
+<div class="conftitle"><?_("IMAP")></div>
+<div class="confdescr"><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></div>
+<hr>
+<table border="0">
+<tr><td><?_("IMAP listener port (-1 to disable)")></td><td>
+<input type="text" NAME="c_imap_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_imap_port")>'></td></tr>
+
+<tr><td><?_("IMAP over SSL port (-1 to disable)")></td><td>
+<input type="text" NAME="c_imaps_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_imaps_port")>'></td></tr>
+
+<tr><td><?_("Keep original from headers in IMAP")></td><td>
+<input type="checkbox" NAME="c_imap_keep_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_imap_keep_from", 1, "CHECKED", "")>></td></tr>
+
+<tr><td><?_("Instantly expunge deleted messages in IMAP")></td><td>
+<input type="checkbox" NAME="c_instant_expunge" VALUE="yes" <?%("COND:SERVCFG", 1, "c_instant_expunge", 1, "CHECKED", "")>></td></tr>
+
+</table>
