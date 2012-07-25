@@ -24,16 +24,16 @@
 <ul>
 <li>
  <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_FILTERALL")>" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_FILTERALL", "CHECKED", "")> />
-  <?_("Always replace / insert the users primary email address")>
+  <?_("Yes, always place the user's primary email address in the From: header")>
 </li><li>
  <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_NOFILTER")>"  <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_NOFILTER",  "CHECKED", "")> />
- <?_("Don't check the From: header at all")>
+ <?_("No, allow any address in the From: header")>
 </li><li>
  <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_CORRECT")>"   <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_CORRECT",   "CHECKED", "")> />
- <?_("If the specified email is none of the users email-aliases, replace it with his primary mail address")>
+ <?_("Only change the From: header if the address is not valid for the user")>
 </li><li>
  <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_REJECT")>"    <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_REJECT",    "CHECKED", "")> />
- <?_("If the specified email is none of the users email-aliases or missing, refuse to relay the email")>
+ <?_("No, REJECT messages containing an invalid From: header")>
 </li>
 </ul>
 </td></tr>
