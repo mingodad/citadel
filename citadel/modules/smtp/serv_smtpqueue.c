@@ -473,7 +473,7 @@ void QItem_Handle_Attempted(OneQueItem *Item, StrBuf *Line, const char **Pos)
 /**
  * this one has to have the context for loading the message via the redirect buffer...
  */
-StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
+StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n, char **Author, char **Address)
 {
 	CitContext *CCC=CC;
 	StrBuf *SendMsg;
@@ -482,7 +482,9 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
 	CtdlOutputMsg(MyQItem->MessageID,
 		      MT_RFC822, HEADERS_ALL,
 		      0, 1, NULL,
-		      (ESC_DOT|SUPPRESS_ENV_TO) );
+		      (ESC_DOT|SUPPRESS_ENV_TO),
+		      Author,
+		      Address);
 
 	SendMsg = CCC->redirect_buffer;
 	CCC->redirect_buffer = NULL;
@@ -704,6 +706,80 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	SMTPCM_syslog(LOG_DEBUG, "Done processing bounces\n");
 }
 
+ParsedURL *LoadRelayUrls(OneQueItem *MyQItem,
+			 char *Author,
+			 char *Address)
+{
+	int nRelays = 0;
+	ParsedURL *RelayUrls = NULL;
+	char mxbuf[SIZ];
+	ParsedURL **Url = &MyQItem->URL;
+
+	nRelays = get_hosts(mxbuf, "fallbackhost");
+	if (nRelays > 0) {
+		StrBuf *All;
+		StrBuf *One;
+		const char *Pos = NULL;
+		All = NewStrBufPlain(mxbuf, -1);
+		One = NewStrBufPlain(NULL, StrLength(All) + 1);
+		
+		while ((Pos != StrBufNOTNULL) &&
+		       ((Pos == NULL) ||
+			!IsEmptyStr(Pos)))
+		{
+			StrBufExtract_NextToken(One, All, &Pos, '|');
+			if (!ParseURL(Url, One, DefaultMXPort)) {
+				SMTPC_syslog(LOG_DEBUG,
+					     "Failed to parse: %s\n",
+					     ChrPtr(One));
+			}
+			else {
+				(*Url)->IsRelay = 1;
+				MyQItem->HaveRelay = 1;
+			}
+		}
+		FreeStrBuf(&All);
+		FreeStrBuf(&One);
+	}
+	nRelays = get_hosts(mxbuf, "smarthost");
+	if (nRelays > 0) {
+		char *User;
+		StrBuf *All;
+		StrBuf *One;
+		const char *Pos = NULL;
+		All = NewStrBufPlain(mxbuf, -1);
+		One = NewStrBufPlain(NULL, StrLength(All) + 1);
+		
+		while ((Pos != StrBufNOTNULL) &&
+		       ((Pos == NULL) ||
+			!IsEmptyStr(Pos)))
+		{
+			StrBufExtract_NextToken(One, All, &Pos, '|');
+			User = strchr(ChrPtr(One), ' ');
+			if (User != NULL) {
+				if (!strcmp(User + 1, Author) ||
+				    !strcmp(User + 1, Address))
+					StrBufCutAt(One, 0, User);
+				else
+					continue;
+
+			}
+			if (!ParseURL(Url, One, DefaultMXPort)) {
+				SMTPC_syslog(LOG_DEBUG,
+					     "Failed to parse: %s\n",
+					     ChrPtr(One));
+			}
+			else {
+				///if (!Url->IsIP)) // todo dupe me fork ipv6
+				(*Url)->IsRelay = 1;
+				MyQItem->HaveRelay = 1;
+			}
+		}
+		FreeStrBuf(&All);
+		FreeStrBuf(&One);
+	}
+	return RelayUrls;
+}
 /*
  * smtp_do_procmsg()
  *
@@ -713,6 +789,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	time_t now;
 	int mynumsessions = num_sessions;
 	struct CtdlMessage *msg = NULL;
+	char *Author = NULL;
+	char *Address = NULL;
 	char *instr = NULL;
 	StrBuf *PlainQItem;
 	OneQueItem *MyQItem;
@@ -721,8 +799,6 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	void *vQE;
 	long len;
 	const char *Key;
-	int nRelays = 0;
-	ParsedURL *RelayUrls = NULL;
 	int HaveBuffers = 0;
 	StrBuf *Msg =NULL;
 
@@ -814,64 +890,6 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		return;
 	}
 
-	{
-		char mxbuf[SIZ];
-		ParsedURL **Url = &MyQItem->URL;
-		nRelays = get_hosts(mxbuf, "fallbackhost");
-		if (nRelays > 0) {
-			StrBuf *All;
-			StrBuf *One;
-			const char *Pos = NULL;
-			All = NewStrBufPlain(mxbuf, -1);
-			One = NewStrBufPlain(NULL, StrLength(All) + 1);
-
-			while ((Pos != StrBufNOTNULL) &&
-			       ((Pos == NULL) ||
-				!IsEmptyStr(Pos)))
-			{
-				StrBufExtract_NextToken(One, All, &Pos, '|');
-				if (!ParseURL(Url, One, DefaultMXPort)) {
-					SMTPC_syslog(LOG_DEBUG,
-						     "Failed to parse: %s\n",
-						     ChrPtr(One));
-				}
-				else {
-					(*Url)->IsRelay = 1;
-					MyQItem->HaveRelay = 1;
-				}
-			}
-			FreeStrBuf(&All);
-			FreeStrBuf(&One);
-		}
-		nRelays = get_hosts(mxbuf, "smarthost");
-		if (nRelays > 0) {
-			StrBuf *All;
-			StrBuf *One;
-			const char *Pos = NULL;
-			All = NewStrBufPlain(mxbuf, -1);
-			One = NewStrBufPlain(NULL, StrLength(All) + 1);
-
-			while ((Pos != StrBufNOTNULL) &&
-			       ((Pos == NULL) ||
-				!IsEmptyStr(Pos)))
-			{
-				StrBufExtract_NextToken(One, All, &Pos, '|');
-				if (!ParseURL(Url, One, DefaultMXPort)) {
-					SMTPC_syslog(LOG_DEBUG,
-						     "Failed to parse: %s\n",
-						     ChrPtr(One));
-				}
-				else {
-					///if (!Url->IsIP)) // todo dupe me fork ipv6
-					(*Url)->IsRelay = 1;
-					MyQItem->HaveRelay = 1;
-				}
-			}
-			FreeStrBuf(&All);
-			FreeStrBuf(&One);
-		}
-
-	}
 
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
@@ -910,11 +928,17 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 	if (MyQItem->ActiveDeliveries > 0)
 	{
+		ParsedURL *RelayUrls = NULL;
 		int nActivated = 0;
 		int n = MsgCount++;
 		int m = MyQItem->ActiveDeliveries;
 		int i = 1;
-		Msg = smtp_load_msg(MyQItem, n);
+
+		Msg = smtp_load_msg(MyQItem, n, &Author, &Address);
+		RelayUrls = LoadRelayUrls(MyQItem, Author, Address);
+		if (Author != NULL) free (Author);
+		if (Address != NULL) free (Address);
+
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		while ((i <= m) &&
 		       (GetNextHashPos(MyQItem->MailQEntries,
