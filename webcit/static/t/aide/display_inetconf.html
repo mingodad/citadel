@@ -7,7 +7,8 @@
 </h1>
 </div>
 <div id="content" class="service">
-<table border=0 width=100% cellspacing="10" cellpadding="10"> <tr><td valign=top width="50%">
+<table border="0" width="100%" cellspacing="10" cellpadding="10">
+<tr><td valign="top" width="50%">
 
 
 <?DOBOXED("aide_inet_aliases", _("Local host aliases"))><br>
@@ -16,7 +17,7 @@
 <?DOBOXED("aide_inet_fallbackhosts", _("Fallback smart hosts"))><br>
 <?DOBOXED("aide_inet_notify", _("Notification hosts"))>
 
-</td><td valign=top width="50%">
+</td><td valign="top" width="50%">
 
 
 <?DOBOXED("aide_inet_rbldns", _("RBL hosts"))><br>
@@ -26,5 +27,7 @@
 
 
 </td></tr></table>
+</div>
 <?SERVCFG:FLUSHINETCFG>
+</div>
 <?=("trailing")>
