@@ -5,4 +5,8 @@
 			<?!("WHO:REALHOST", 8)><br><i> <?WHO:REALHOST("X")></i>
 		<?!("X", 8)>
 	</td>
+	<td class="edit_col">
+		<??("COND:AIDE", 1)><??("WHO:ISME", 2)>
+ 			<a href="terminate_session?which_session=<?WHO:SESSION>?template=who" onClick="return ConfirmKill();"><?_("(kill)")></a>&nbsp;
+	</td>
 </tr>
