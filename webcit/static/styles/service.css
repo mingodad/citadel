@@ -69,6 +69,56 @@ div#who_inner th.host_col {
 	font-size: 90%;
 }
 
+.stickynote_outer {
+	position: absolute;
+	width: 200px;
+	height: 200px;
+	border: 1px solid #333;
+	background-color: #ffff00;
+	overflow: hidden;
+	-webkit-box-shadow: #666 0px 2px 3px;
+	-moz-box-shadow: #666 0px 2px 3px;
+	box-shadow: #666 0px 2px 3px;
+	behavior: url(/static/styles/PIE.htc);
+}
+
+.stickynote_titlebar {
+	position: relative;
+	width: 100%;
+	top: 0px;
+	left: 0px;
+	font-size: 60%;     
+}
+
+.stickynote_body {
+	position: relative;
+	font-family: cursive;
+}
+
+.stickynote_resize {
+	position: absolute;
+	background-image: url('resizecorner.png');
+	height: 16px;
+	width: 16px;
+	right: -1px;
+	bottom: -1px;
+}
+
+.stickynote_palette {
+	position: absolute;
+	width: 48px;
+	height: 48px;
+	top: 16px;
+	left: 0px;
+	background-color: #ffffff;
+	border: 1px solid #333;
+	display: none;
+}
+
+.stickynote_palette table {}
+
+.stickynote_palette td {}
+
 #task_view_background {
 	margin-left: 0.5em;
 	font-size: 90%;
@@ -81,3 +131,4 @@ div#who_inner th.host_col {
 }
 
 .taskview th { border-bottom: 1px dotted #5C646B }
+
