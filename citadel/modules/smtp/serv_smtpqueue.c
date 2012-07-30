@@ -512,7 +512,7 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n, char **Author, char **Address)
  * instructions for "5" codes (permanent fatal errors) and produce/deliver
  * a "bounce" message (delivery status notification).
  */
-void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
+void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 {
 	static int seq = 0;
 
@@ -563,6 +563,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 		{
 			++num_bounces;
 
+			StrBufAppendBufPlain(Msg, HKEY(" "), 0);
 			StrBufAppendBuf(Msg, ThisItem->Recipient, 0);
 			StrBufAppendBufPlain(Msg, HKEY(": "), 0);
 			StrBufAppendBuf(Msg, ThisItem->StatusMessage, 0);
@@ -577,6 +578,18 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	if (num_bounces == 0) {
 		FreeStrBuf(&Msg);
 		return;
+	}
+
+	if ((StrLength(MyQItem->SenderRoom) == 0) && MyQItem->HaveRelay) {
+		/* one message that relaying is broken is enough; no extra room error message. */
+		StrBuf *RelayDetails = NewStrBuf();
+
+		StrBufPrintf(RelayDetails,
+			     "Relaying via %s failed permanently. \n Reason:\n%s\n Revalidate your relay configuration.",
+			     ChrPtr(Relay->URL),
+			     ChrPtr(Msg));
+                CtdlAideMessage(ChrPtr(RelayDetails), "Relaying Failed");
+		FreeStrBuf(&RelayDetails);
 	}
 
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
