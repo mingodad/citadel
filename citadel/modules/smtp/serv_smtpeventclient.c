@@ -587,8 +587,10 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 	if (KeepMsgText) Msg->msgtext = MsgText;
 	else		 Msg->msgtext = NewStrBufDup(MsgText);
 
-	if (smtp_resolve_recipients(Msg)) {
-
+	if (((!MyQItem->HaveRelay ||
+	      (MyQItem->URL != NULL)) &&
+	     smtp_resolve_recipients(Msg)))
+	{
 		safestrncpy(
 			((CitContext *)Msg->IO.CitContext)->cs_host,
 			Msg->node,
@@ -619,8 +621,9 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		/* No recipients? well fail then. */
 		if (Msg->MyQEntry != NULL) {
 			Msg->MyQEntry->Status = 5;
-			StrBufPlain(Msg->MyQEntry->StatusMessage,
-				    HKEY("Invalid Recipient!"));
+			if (StrLength(Msg->MyQEntry->StatusMessage) == 0)
+				StrBufPlain(Msg->MyQEntry->StatusMessage,
+					    HKEY("Invalid Recipient!"));
 		}
 		FinalizeMessageSend_DB(&Msg->IO);
 		DeleteSmtpOutMsg(&Msg->IO);

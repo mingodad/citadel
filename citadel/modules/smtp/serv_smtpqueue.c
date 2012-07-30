@@ -581,12 +581,16 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 	}
 
 	if ((StrLength(MyQItem->SenderRoom) == 0) && MyQItem->HaveRelay) {
+		const char *RelayUrlStr = "[not found]";
 		/* one message that relaying is broken is enough; no extra room error message. */
 		StrBuf *RelayDetails = NewStrBuf();
 
+		if (Relay != NULL)
+			RelayUrlStr = ChrPtr(Relay->URL);
+
 		StrBufPrintf(RelayDetails,
 			     "Relaying via %s failed permanently. \n Reason:\n%s\n Revalidate your relay configuration.",
-			     ChrPtr(Relay->URL),
+			     RelayUrlStr,
 			     ChrPtr(Msg));
                 CtdlAideMessage(ChrPtr(RelayDetails), "Relaying Failed");
 		FreeStrBuf(&RelayDetails);
@@ -778,9 +782,10 @@ ParsedURL *LoadRelayUrls(OneQueItem *MyQItem,
 				if (!strcmp(User + 1, Author) ||
 				    !strcmp(User + 1, Address))
 					StrBufCutAt(One, 0, User);
-				else
+				else {
+					MyQItem->HaveRelay = 1;
 					continue;
-
+				}
 			}
 			if (!ParseURL(Url, One, DefaultMXPort)) {
 				SMTPC_syslog(LOG_DEBUG,
@@ -952,12 +957,52 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		int m = MyQItem->ActiveDeliveries;
 		int i = 1;
 
+		It = GetNewHashPos(MyQItem->MailQEntries, 0);
+
 		Msg = smtp_load_msg(MyQItem, n, &Author, &Address);
 		RelayUrls = LoadRelayUrls(MyQItem, Author, Address);
+		if ((RelayUrls == NULL) && MyQItem->HaveRelay) {
+
+			while ((i <= m) &&
+			       (GetNextHashPos(MyQItem->MailQEntries,
+					       It, &len, &Key, &vQE)))
+			{
+				int KeepBuffers = (i == m);
+				MailQEntry *ThisItem = vQE;
+				StrBufPrintf(ThisItem->StatusMessage,
+					     "No relay configured matching %s / %s", 
+					     (Author != NULL)? Author : "",
+					     (Address != NULL)? Address : "");
+				ThisItem->Status = 5;
+
+				nActivated++;
+
+				if (i > 1) n = MsgCount++;
+				syslog(LOG_INFO,
+				       "SMTPC: giving up on <%ld> <%s> %d / %d \n",
+				       MyQItem->MessageID,
+				       ChrPtr(ThisItem->Recipient),
+				       i,
+				       m);
+				(*((int*) userdata)) ++;
+				smtp_try_one_queue_entry(MyQItem,
+							 ThisItem,
+							 Msg,
+							 KeepBuffers,
+							 n,
+							 RelayUrls);
+
+				if (KeepBuffers) HaveBuffers = 1;
+
+				i++;
+			}
+			DeleteHashPos(&It);
+
+			return;
+		}
 		if (Author != NULL) free (Author);
 		if (Address != NULL) free (Address);
 
-		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		while ((i <= m) &&
 		       (GetNextHashPos(MyQItem->MailQEntries,
 				       It, &len, &Key, &vQE)))
