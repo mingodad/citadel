@@ -153,9 +153,10 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 
 	Msg->IDestructQueItem = DecreaseQReference(Msg->MyQItem);
 
-	Msg->nRemain = CountActiveQueueEntries(Msg->MyQItem);
+	Msg->nRemain = CountActiveQueueEntries(Msg->MyQItem, 0);
 
 	if (Msg->MyQEntry->Active && 
+	    !Msg->MyQEntry->StillActive &&
 	    CheckQEntryIsBounce(Msg->MyQEntry))
 	{
 		/* are we casue for a bounce mail? */

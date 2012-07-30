@@ -246,7 +246,7 @@ int CheckQEntryIsBounce(MailQEntry *ThisItem)
 		return 0;
 }	
 
-int CountActiveQueueEntries(OneQueItem *MyQItem)
+int CountActiveQueueEntries(OneQueItem *MyQItem, int before)
 {
 	HashPos  *It;
 	long len;
@@ -258,15 +258,20 @@ int CountActiveQueueEntries(OneQueItem *MyQItem)
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
+		int Active;
 		MailQEntry *ThisItem = vQE;
 
 		if (CheckQEntryActive(ThisItem))
 		{
 			ActiveDeliveries++;
-			ThisItem->Active = 1;
+			Active = 1;
 		}
 		else
-			ThisItem->Active = 0;
+			Active = 0;
+		if (before)
+			ThisItem->Active = Active;
+		else
+			ThisItem->StillActive = Active;
 	}
 	DeleteHashPos(&It);
 	return ActiveDeliveries;
@@ -902,7 +907,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	DeleteHashPos(&It);
 
 	MyQItem->NotYetShutdownDeliveries = 
-	MyQItem->ActiveDeliveries = CountActiveQueueEntries(MyQItem);
+		MyQItem->ActiveDeliveries = CountActiveQueueEntries(MyQItem, 1);
 
 	/* failsafe against overload: 
 	 * will we exceed the limit set? 
