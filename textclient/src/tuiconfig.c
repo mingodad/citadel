@@ -129,7 +129,7 @@ void do_system_configuration(CtdlIPC *ipc)
 		"Allow anonymous guest logins",
 		atoi(&sc[67][0]))));
 	snprintf(sc[4], sizeof sc[4], "%d", (boolprompt(
-		"Automatically give room aide privs to a user who creates a private room",
+		"Automatically give room admin privs to a user who creates a private room",
 		atoi(&sc[4][0]))));
 
 	snprintf(sc[8], sizeof sc[8], "%d", (boolprompt(
@@ -141,7 +141,7 @@ void do_system_configuration(CtdlIPC *ipc)
 		"Restrict Internet mail to only those with that privilege",
 		atoi(&sc[11][0]))));
 	snprintf(sc[26], sizeof sc[26], "%d", (boolprompt(
-		"Allow Aides to Zap (forget) rooms",
+		"Allow admins to Zap (forget) rooms",
 		atoi(&sc[26][0]))));
 
 	if (!IsEmptyStr(&sc[18][0])) {

@@ -11,7 +11,7 @@ the DB this way the existing setup tools don't need to be altered.
 Webcit can then ask for the site wide config using normal MSG* commands.
 Webcit will need to parse the message into key value pairs which is dead simple to do.
 
-Hmm, just a thought but has anyone wondered about locking things like this so 2 Aides can't
+Hmm, just a thought but has anyone wondered about locking things like this so two Admins can't
 change them at the same time which would result in some changes getting lost.
 
 

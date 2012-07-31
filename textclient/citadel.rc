@@ -153,7 +153,7 @@ opencmd=xdg-open "%s"
 # Keep a copy of the original version of this file around as a reference
 # for the command numbers.  They are not documented anywhere else.
 #
-# Access is:  0 (all users), 1 (aides or room aides), 2 (aides only).
+# Access is:  0 (all users), 1 (admins or room admins), 2 (admins only).
 # Please be aware that it is futile to attempt to gain unauthorized access to
 # the administrative functions of the system by changing all the access levels
 # to 0.  If you do this, you'll simply be able to enter a lot of commands that
@@ -216,28 +216,28 @@ cmd=20,0,&Jump:
 cmd=20,0,&.,&Goto:
 #
 cmd=21,0,&.,&Help:
-cmd=22,1,&.,&Aide,&Kill this room
-cmd=23,1,&.,&Aide,&Edit this room
-cmd=24,0,&.,&Aide,&Who knows room
-cmd=25,2,&.,&Aide,&User,&Edit
-cmd=96,2,&.,&Aide,&User,&Delete
-cmd=26,2,&.,&Aide,&Validate new users
-cmd=48,1,&.,&Aide,enter &Info file
-cmd=27,0,&.,&Aide,&Room,&Invite user
-cmd=28,0,&.,&Aide,&Room,&Kick out user
-cmd=51,1,&.,&Aide,&File,&Delete
-cmd=54,1,&.,&Aide,&File,&Move
-cmd=70,2,&.,&Aide,&Message edit:
-cmd=78,1,&.,&Aide,&Post
-cmd=80,2,&.,&Aide,&System configuration,&General
-cmd=82,2,&.,&Aide,&System configuration,&Internet
-cmd=88,2,&.,&Aide,&System configuration,&Network
-cmd=92,2,&.,&Aide,&System configuration,network &Filter list
-cmd=85,2,&.,&Aide,&Terminate server,&Now
-cmd=86,2,&.,&Aide,&Terminate server,&Scheduled
-cmd=87,1,&.,&Aide,mailing &List recipients
-cmd=94,1,&.,&Aide,mailing list &Digest recipients
-cmd=89,1,&.,&Aide,&Network room sharing
+cmd=22,1,&.,&Admin,&Kill this room
+cmd=23,1,&.,&Admin,&Edit this room
+cmd=24,0,&.,&Admin,&Who knows room
+cmd=25,2,&.,&Admin,&User,&Edit
+cmd=96,2,&.,&Admin,&User,&Delete
+cmd=26,2,&.,&Admin,&Validate new users
+cmd=48,1,&.,&Admin,enter &Info file
+cmd=27,0,&.,&Admin,&Room,&Invite user
+cmd=28,0,&.,&Admin,&Room,&Kick out user
+cmd=51,1,&.,&Admin,&File,&Delete
+cmd=54,1,&.,&Admin,&File,&Move
+cmd=70,2,&.,&Admin,&Message edit:
+cmd=78,1,&.,&Admin,&Post
+cmd=80,2,&.,&Admin,&System configuration,&General
+cmd=82,2,&.,&Admin,&System configuration,&Internet
+cmd=88,2,&.,&Admin,&System configuration,&Network
+cmd=92,2,&.,&Admin,&System configuration,network &Filter list
+cmd=85,2,&.,&Admin,&Terminate server,&Now
+cmd=86,2,&.,&Admin,&Terminate server,&Scheduled
+cmd=87,1,&.,&Admin,mailing &List recipients
+cmd=94,1,&.,&Admin,mailing list &Digest recipients
+cmd=89,1,&.,&Admin,&Network room sharing
 
 cmd=29,0,&.,&Terminate,and &Quit
 cmd=30,0,&.,&Terminate,and &Stay online
@@ -311,9 +311,9 @@ cmd=60,0,&;,&Goto floor:
 cmd=60,0,&.,&Enter,&Floor:
 cmd=61,0,&;,&Skip to floor:
 cmd=62,0,&;,&Zap (forget) floor
-cmd=63,2,&;,&Aide,&Create floor
-cmd=64,2,&;,&Aide,&Edit this floor
-cmd=65,2,&;,&Aide,&Kill this floor
+cmd=63,2,&;,&Admin,&Create floor
+cmd=64,2,&;,&Admin,&Edit this floor
+cmd=65,2,&;,&Admin,&Kill this floor
 cmd=68,0,&;,&Known rooms
 cmd=66,0,&.,&Enter,&Bio
 cmd=67,0,&.,&Read,&Bio

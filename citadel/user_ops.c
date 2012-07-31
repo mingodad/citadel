@@ -369,7 +369,7 @@ void MailboxName(char *buf, size_t n, const struct ctdluser *who, const char *pr
 
 
 /*
- * Is the user currently logged in an Aide?
+ * Is the user currently logged in an Admin?
  */
 int is_aide(void)
 {
@@ -381,7 +381,7 @@ int is_aide(void)
 
 
 /*
- * Is the user currently logged in an Aide *or* the room aide for this room?
+ * Is the user currently logged in an Admin *or* the room Admin for this room?
  */
 int is_room_aide(void)
 {
@@ -1589,7 +1589,7 @@ int CtdlInvtKick(char *iuser, int op) {
 void cmd_invt_kick(char *iuser, int op) {
 
 	/*
-	 * These commands are only allowed by aides, room aides,
+	 * These commands are only allowed by admins, room admins,
 	 * and room namespace owners
 	 */
 	if (is_room_aide()) {
@@ -1632,7 +1632,7 @@ void cmd_kick(char *iuser) {cmd_invt_kick(iuser, 0);}
 int CtdlForgetThisRoom(void) {
 	visit vbuf;
 
-	/* On some systems, Aides are not allowed to forget rooms */
+	/* On some systems, Admins are not allowed to forget rooms */
 	if (is_aide() && (config.c_aide_zap == 0)
 	   && ((CC->room.QRflags & QR_MAILBOX) == 0)  ) {
 		return(1);
