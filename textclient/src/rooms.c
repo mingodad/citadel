@@ -501,7 +501,7 @@ int select_floor(CtdlIPC *ipc, int rfloor)
 void editthisroom(CtdlIPC *ipc)
 {
 	int rbump = 0;
-	char raide[USERNAME_SIZE];
+	char room_admin_name[USERNAME_SIZE];
 	char buf[SIZ];
 	struct ctdlroom *attr = NULL;
 	struct ExpirePolicy *eptr = NULL;
@@ -515,15 +515,15 @@ void editthisroom(CtdlIPC *ipc)
 	}
 	eptr = &(attr->QRep);
 
-	/* Fetch the name of the current room aide */
+	/* Fetch the name of the current room admin */
 	r = CtdlIPCGetRoomAide(ipc, buf);
 	if (r / 100 == 2) {
-		safestrncpy(raide, buf, sizeof raide);
+		safestrncpy(room_admin_name, buf, sizeof room_admin_name);
 	} else {
-		strcpy(raide, "");
+		strcpy(room_admin_name, "");
 	}
-	if (IsEmptyStr(raide)) {
-		strcpy(raide, "none");
+	if (IsEmptyStr(room_admin_name)) {
+		strcpy(room_admin_name, "none");
 	}
 
 	/* Fetch the expire policy (this will silently fail on old servers,
@@ -616,14 +616,14 @@ void editthisroom(CtdlIPC *ipc)
 	}
 	attr->QRorder = intprompt("Listing order", attr->QRorder, 0, 127);
 
-	/* Ask about the room aide */
+	/* Ask about the room admin */
 	do {
-		strprompt("Room aide (or 'none')", raide, 29);
-		if (!strcasecmp(raide, "none")) {
-			strcpy(raide, "");
+		strprompt("Room admin (or 'none')", room_admin_name, 29);
+		if (!strcasecmp(room_admin_name, "none")) {
+			strcpy(room_admin_name, "");
 			break;
 		} else {
-			r = CtdlIPCQueryUsername(ipc, raide, buf);
+			r = CtdlIPCQueryUsername(ipc, room_admin_name, buf);
 			if (r / 100 != 2)
 				scr_printf("%s\n", buf);
 		}
@@ -660,7 +660,7 @@ void editthisroom(CtdlIPC *ipc)
 	scr_printf("Save changes (y/n)? ");
 
 	if (yesno() == 1) {
-		r = CtdlIPCSetRoomAide(ipc, raide, buf);
+		r = CtdlIPCSetRoomAide(ipc, room_admin_name, buf);
 		if (r / 100 != 2) {
 			scr_printf("%s\n", buf);
 		}
@@ -1077,7 +1077,7 @@ void entroom(CtdlIPC *ipc)
 			"<1>Public room (shown to all users by default)\n"
 			"<2>Hidden room (accessible to anyone who knows the room name)\n"
 			"<3>Passworded room (hidden, plus requires a password to enter)\n"
-			"<4>Invitation-only room (requires access to be granted by an Aide)\n"
+			"<4>Invitation-only room (requires access to be granted by an Admin)\n"
 		       	"<5>Personal room (accessible to you only)\n"
 			"Enter room type: "
 		);
@@ -1133,19 +1133,19 @@ void entroom(CtdlIPC *ipc)
 void readinfo(CtdlIPC *ipc)
 {				/* read info file for current room */
 	char buf[SIZ];
-	char raide[64];
+	char room_admin_name[64];
 	int r;			/* IPC response code */
 	char *text = NULL;
 
-	/* Name of currernt room aide */
+	/* Name of currernt room admin */
 	r = CtdlIPCGetRoomAide(ipc, buf);
 	if (r / 100 == 2)
-		safestrncpy(raide, buf, sizeof raide);
+		safestrncpy(room_admin_name, buf, sizeof room_admin_name);
 	else
-		strcpy(raide, "");
+		strcpy(room_admin_name, "");
 
-	if (!IsEmptyStr(raide))
-		scr_printf("Room aide is %s.\n\n", raide);
+	if (!IsEmptyStr(room_admin_name))
+		scr_printf("Room admin is %s.\n\n", room_admin_name);
 
 	r = CtdlIPCRoomInfo(ipc, &text, buf);
 	if (r / 100 != 1)

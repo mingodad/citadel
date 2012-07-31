@@ -3,7 +3,7 @@ Description of the custom MIME type "application/x-citadel-delivery-list"
  This MIME type may be found in the outbound queue room on Citadel systems,
 which is typically called "__CitadelSMTPspoolout__".  The room is flagged as
 a "system" room, which means that it's completely hidden to everyone, although
-an Aide can get to it if the full name is specified (but unlike a normal
+an Admin can get to it if the full name is specified (but unlike a normal
 hidden room, it does not appear in the known rooms list on subsequent visits).
  
  Messages in this format contain delivery instructions.  Therefore, for each

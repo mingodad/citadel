@@ -1,0 +1,43 @@
+<div class="confdescr"><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></div>
+<hr>
+<table border="0">
+
+<tr><td colspan=2><div class="conftitle"><?_("Network services")></div></td></tr>
+
+<tr><td><?_("Server IP address (0.0.0.0 for 'any' IPV4, * for all including IPV6)")></td><td>
+<input type="text" NAME="c_ip_addr" MAXLENGTH="15" VALUE='<?SERV:CFG("c_ip_addr")>'></td></tr>
+
+<tr><td><?_("XMPP (Jabber) client to server port (-1 to disable)")></td><td>
+<input type="text" name="c_xmpp_c2s_port" maxlength="5" value='<?SERV:CFG("c_xmpp_c2s_port")>'></td></tr>
+
+<tr><td><?_("XMPP (Jabber) server to server port (-1 to disable)")></td><td>
+<input type="hidden" name="c_xmpp_s2s_port" value='<?SERV:CFG("c_xmpp_s2s_port")>'></td></tr>
+
+<tr><td colspan=2><div class="conftitle"><?_("Advanced server fine-tuning controls")></div></td></tr>
+
+<tr><td><?_("Maximum message length")></td><td>
+<input type="text" name="c_maxmsglen" maxlength="20" value='<?SERV:CFG("c_maxmsglen")>'></td></tr>
+
+<tr><td><?_("Server connection idle timeout (in seconds)")></td><td>
+<input type="text" name="c_sleeping" maxlength="15" value='<?SERV:CFG("c_sleeping")>'></td></tr>
+
+<tr><td><?_("Network run frequency (in seconds)")></td><td>
+<input type="text" NAME="c_net_freq" MAXLENGTH="5" VALUE='<?SERV:CFG("c_net_freq")>'></td></tr>
+
+<tr><td><?_("Maximum concurrent sessions (0 = no limit)")></td><td>
+<input type="text" name="c_maxsessions" maxlength="5" value='<?SERV:CFG("c_maxsessions")>'></td></tr>
+
+<tr><td colspan=2><hr></td></tr>
+
+<tr><td><?_("Minimum number of worker threads")></td><td>
+<input type="text" name="c_min_workers" maxlength="5" value='<?SERV:CFG("c_min_workers")>'></td></tr>
+
+<tr><td><?_("Maximum number of worker threads")></td><td>
+<input type="text" name="c_max_workers" maxlength="5" value='<?SERV:CFG("c_max_workers")>'></td></tr>
+
+<tr><td colspan=2><hr></td></tr>
+
+<tr><td><?_("Automatically delete committed database logs")></td><td>
+<input type="checkbox" NAME="c_auto_cull" VALUE="yes" <?%("COND:SERVCFG", 1, "c_auto_cull", 1, "CHECKED", "")>></td></tr>
+
+</table>

@@ -1,30 +1,30 @@
-The following commands are available only to Aides.  A subset of these
+The following commands are available only to Admins.  A subset of these
 commands are available to room aides when they are currently in the room
 they are room aide for.
 
- <.> <A>ide <K>ill this room   (Delete the current room)
- <.> <A>ide <E>dit this room   (Edit the current room's parameters)
- <.> <A>ide <W>ho knows room   (List users with access to this room)
- <.> <A>ide edit <U>ser        (Change user's access level, password, etc.)
- <.> <A>ide <V>alidate new users   (Process new user registrations)
- <.> <A>ide enter <I>nfo file      (Create/change this room's banner)
- <.> <A>ide <R>oom <I>nvite user   (Grant access to an invitation-only room)
- <.> <A>ide <R>oom <K>ick out user (Revoke access to an invitation-only room)
- <.> <A>ide <F>ile <D>elete        (Delete a file from the room's directory)
- <.> <A>ide <F>ile <S>end over net (Transmit a file to another node)
- <.> <A>ide <F>ile <M>ove          (Move a file to another room's directory)
- <.> <A>ide <M>essage edit:        (Edit system banners)
- <.> <A>ide <P>ost                 (Post a message on behalf of another user)
- <.> <A>ide <S>ystem configuration <G>eneral   (Edit global site config)
- <.> <A>ide <S>ystem configuration <I>nternet  (Edit Internet domains)
- <.> <A>ide <S>ystem configuration check <M>essage base   (Internal checks)
- <.> <A>ide <S>ystem configuration <N>etwork   (Netting with other Citadels)
- <.> <A>ide <S>ystem configuration network <F>ilter list
- <.> <A>ide <T>erminate server <N>ow          (Shut down Citadel server now)
- <.> <A>ide <T>erminate server <S>cheduled    (Shut down Citadel server later)
- <.> <A>ide mailing <L>ist recipients         (For mailing list rooms)
- <.> <A>ide mailing list <D>igest recipients  (For mailing list rooms)
- <.> <A>ide <N>etwork room sharing     (Replication with other Citadels)
+ <.> <A>dmin <K>ill this room   (Delete the current room)
+ <.> <A>dmin <E>dit this room   (Edit the current room's parameters)
+ <.> <A>dmin <W>ho knows room   (List users with access to this room)
+ <.> <A>dmin edit <U>ser        (Change user's access level, password, etc.)
+ <.> <A>dmin <V>alidate new users   (Process new user registrations)
+ <.> <A>dmin enter <I>nfo file      (Create/change this room's banner)
+ <.> <A>dmin <R>oom <I>nvite user   (Grant access to an invitation-only room)
+ <.> <A>dmin <R>oom <K>ick out user (Revoke access to an invitation-only room)
+ <.> <A>dmin <F>ile <D>elete        (Delete a file from the room's directory)
+ <.> <A>dmin <F>ile <S>end over net (Transmit a file to another node)
+ <.> <A>dmin <F>ile <M>ove          (Move a file to another room's directory)
+ <.> <A>dmin <M>essage edit:        (Edit system banners)
+ <.> <A>dmin <P>ost                 (Post a message on behalf of another user)
+ <.> <A>dmin <S>ystem configuration <G>eneral   (Edit global site config)
+ <.> <A>dmin <S>ystem configuration <I>nternet  (Edit Internet domains)
+ <.> <A>dmin <S>ystem configuration check <M>essage base   (Internal checks)
+ <.> <A>dmin <S>ystem configuration <N>etwork   (Netting with other Citadels)
+ <.> <A>dmin <S>ystem configuration network <F>ilter list
+ <.> <A>dmin <T>erminate server <N>ow          (Shut down Citadel server now)
+ <.> <A>dmin <T>erminate server <S>cheduled    (Shut down Citadel server later)
+ <.> <A>dmin mailing <L>ist recipients         (For mailing list rooms)
+ <.> <A>dmin mailing list <D>igest recipients  (For mailing list rooms)
+ <.> <A>dmin <N>etwork room sharing     (Replication with other Citadels)
  
  In addition, the <M>ove and <D>elete commands are available at the
 message prompt.

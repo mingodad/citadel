@@ -1307,7 +1307,7 @@ void cmd_rdir(char *cmdbuf)
 }
 
 /*
- * get room parameters (aide or room aide command)
+ * get room parameters (admin or room admin command)
  */
 void cmd_getr(char *cmdbuf)
 {
@@ -1459,7 +1459,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 
 
 /*
- * set room parameters (aide or room aide command)
+ * set room parameters (admin or room admin command)
  */
 void cmd_setr(char *args)
 {
@@ -1605,7 +1605,7 @@ void cmd_setr(char *args)
 
 
 /* 
- * get the name of the room aide for this room
+ * get the name of the room admin for this room
  */
 void cmd_geta(char *cmdbuf)
 {
@@ -1622,7 +1622,7 @@ void cmd_geta(char *cmdbuf)
 
 
 /* 
- * set the room aide for this room
+ * set the room admin for this room
  */
 void cmd_seta(char *new_ra)
 {
@@ -1654,13 +1654,13 @@ void cmd_seta(char *new_ra)
 	if (post_notice == 1) {
 		if (!IsEmptyStr(usbuf.fullname))
 			snprintf(buf, sizeof buf,
-				"%s is now the room aide for \"%s\".\n",
+				"%s is now the room admin for \"%s\".\n",
 				usbuf.fullname, CC->room.QRname);
 		else
 			snprintf(buf, sizeof buf,
-				"There is now no room aide for \"%s\".\n",
+				"There is now no room admin for \"%s\".\n",
 				CC->room.QRname);
-		CtdlAideMessage(buf, "Aide Room Modification");
+		CtdlAideMessage(buf, "Admin Room Modification");
 	}
 	cprintf("%d Ok\n", CIT_OK);
 }
@@ -1806,13 +1806,13 @@ int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr) {
 	}
 
 	/*
-	 * For normal rooms, just check for aide or room aide status.
+	 * For normal rooms, just check for admin or room admin status.
 	 */
 	return(is_room_aide());
 }
 
 /*
- * aide command: kill the current room
+ * admin command: kill the current room
  */
 void cmd_kill(char *argbuf)
 {
@@ -1905,18 +1905,18 @@ unsigned CtdlCreateRoom(char *new_room_name,
 	}
 
 	/* If the room is private, and the system administrator has elected
-	 * to automatically grant room aide privileges, do so now.
+	 * to automatically grant room admin privileges, do so now.
 	 */
 	if ((qrbuf.QRflags & QR_PRIVATE) && (CREATAIDE == 1)) {
 		qrbuf.QRroomaide = CC->user.usernum;
 	}
-	/* Blog owners automatically become room aides of their blogs.
+	/* Blog owners automatically become room admins of their blogs.
 	 * (In the future we will offer a site-wide configuration setting to suppress this behavior.)
 	 */
 	else if (new_room_view == VIEW_BLOG) {
 		qrbuf.QRroomaide = CC->user.usernum;
 	}
-	/* Otherwise, set the room aide to undefined.
+	/* Otherwise, set the room admin to undefined.
 	 */
 	else {
 		qrbuf.QRroomaide = (-1L);
@@ -2310,8 +2310,8 @@ CTDL_MODULE_INIT(room_ops)
 		CtdlRegisterProtoHook(cmd_rdir, "RDIR", "List files in room directory");
 		CtdlRegisterProtoHook(cmd_getr, "GETR", "Get room parameters");
 		CtdlRegisterProtoHook(cmd_setr, "SETR", "Set room parameters");
-		CtdlRegisterProtoHook(cmd_geta, "GETA", "Get the room aide name");
-		CtdlRegisterProtoHook(cmd_seta, "SETA", "Set the room aide for this room");
+		CtdlRegisterProtoHook(cmd_geta, "GETA", "Get the room admin name");
+		CtdlRegisterProtoHook(cmd_seta, "SETA", "Set the room admin for this room");
 		CtdlRegisterProtoHook(cmd_rinf, "RINF", "Fetch room info file");
 		CtdlRegisterProtoHook(cmd_kill, "KILL", "Kill (delete) the current room");
 		CtdlRegisterProtoHook(cmd_cre8, "CRE8", "Create a new room");

@@ -1345,8 +1345,8 @@ msgstr "Usuário preferencial"
 #: ../../auth.c:48 ../../static/t/aide/edituser/detailview.html:49
 #: ../../static/t/aide/siteconfig/tab_access.html:46
 #: ../../static/t/aide/siteconfig/tab_access.html:57
-msgid "Aide"
-msgstr "Aide"
+msgid "Admin"
+msgstr "Admin"
 
 #: ../../auth.c:513 ../../static/t/iconbar.html:80
 #: ../../static/t/confirmlogoff.html:3
@@ -2044,8 +2044,8 @@ msgstr "Menu de administração do sistema"
 #: ../../static/t/aide/display_inetconf.html:6
 #: ../../static/t/aide/display_menu.html:6
 #, fuzzy
-msgid "Room Aide Menu"
-msgstr "Aide da sala: "
+msgid "Room Admin Menu"
+msgstr "Admin da sala: "
 
 #: ../../static/t/aide/display_inetconf.html:13
 msgid "Local host aliases"
@@ -3413,7 +3413,7 @@ msgstr "Perguntar ao usuário ao entrar mensagens"
 
 #: ../../static/t/room/edit/tab_config.html:136
 msgid "Room aide: "
-msgstr "Aide da sala: "
+msgstr "Admin da sala: "
 
 #: ../../static/t/room/edit/tab_listserv.html:5
 #, fuzzy
@@ -3442,8 +3442,8 @@ msgid "Allow non-subscribers to mail to this room."
 msgstr "Permitir que não participantes mandem mensagens para essa sala."
 
 #: ../../static/t/room/edit/tab_listserv.html:54
-msgid "Room post publication needs Aide permission."
-msgstr "Publicação de posts na sala requer permissão do Aide."
+msgid "Room post publication needs Admin permission."
+msgstr "Publicação de posts na sala requer permissão do Admin."
 
 #: ../../static/t/room/edit/tab_listserv.html:59
 msgid "Allow self-service subscribe/unsubscribe requests."

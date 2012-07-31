@@ -166,7 +166,14 @@ void pop3_add_message(long msgnum, void *userdata) {
 	GetMetaData(&smi, msgnum);
 	if (smi.meta_rfc822_length <= 0L) {
 		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, SUPPRESS_ENV_TO);
+
+		CtdlOutputMsg(msgnum,
+			      MT_RFC822,
+			      HEADERS_ALL,
+			      0, 1, NULL,
+			      SUPPRESS_ENV_TO,
+			      NULL, NULL);
+
 		smi.meta_rfc822_length = StrLength(CC->redirect_buffer);
 		FreeStrBuf(&CC->redirect_buffer); /* TODO: WHEW, all this for just knowing the length???? */
 		PutMetaData(&smi);
@@ -324,9 +331,9 @@ void pop3_retr(char *argbuf) {
 
 	cprintf("+OK Message %d:\r\n", which_one);
 	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
-		MT_RFC822, HEADERS_ALL, 0, 1, NULL,
-		(ESC_DOT|SUPPRESS_ENV_TO)
-	);
+		      MT_RFC822, HEADERS_ALL, 0, 1, NULL,
+		      (ESC_DOT|SUPPRESS_ENV_TO),
+		      NULL, NULL);
 	cprintf(".\r\n");
 }
 
@@ -356,7 +363,14 @@ void pop3_top(char *argbuf) {
 	}
 
 	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, SUPPRESS_ENV_TO);
+
+	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
+		      MT_RFC822,
+		      HEADERS_ALL,
+		      0, 1, NULL,
+		      SUPPRESS_ENV_TO,
+		      NULL, NULL);
+
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 

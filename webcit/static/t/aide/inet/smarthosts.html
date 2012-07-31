@@ -1,14 +1,14 @@
 <span class="menudesc">
 <?_("(if present, forward all outbound mail to one of these hosts)")>
 </span><br />
-<table border=0 cellspacing="2" cellpadding="2" width=94% class="altern" >
-<?ITERATE("SERVCFG:INET", ="aide_inet_section", 0, 0, -1, "smarthost")>
 <form method="post" action="save_inetconf">
 <input type="hidden" name="nonce" value='<?NONCE>'>
+<table border="0" cellspacing="2" cellpadding="2" width="94%" class="altern" >
+<?ITERATE("SERVCFG:INET", ="aide_inet_section", 0, 0, -1, "smarthost")>
 <tr><td>
-<input type="text" name="ename" maxlength="64">
+<input type="text" name="ename" maxlength="256">
 <input type="hidden" name="etype" VALUE="smarthost">
-</td><td align=left>
+</td><td align="left">
 <input type="submit" name="oper" value="Add">
 <input type="hidden" name="template" value="aide_display_inetconf">
 </td></tr></table></form>

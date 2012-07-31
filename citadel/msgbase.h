@@ -165,7 +165,9 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		  int do_proto,		/* do Citadel protocol responses? */
 		  int crlf,		/* 0=LF, 1=CRLF */
 		  char *section,		/* output a message/rfc822 section */
-		  int flags		/* should the bessage be exported clean? */
+		  int flags,		/* should the bessage be exported clean? */
+		  char **Author,        /* if you want to know the author of the message... */
+		  char **Address        /* if you want to know the sender address of the message... */
 );
 
 /* Flags which may be passed to CtdlOutputMsg() and CtdlOutputPreLoadedMsg() */

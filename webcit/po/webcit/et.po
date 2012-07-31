@@ -1302,7 +1302,7 @@ msgstr "Privilegeeritud Kasutaja"
 #: ../../auth.c:48 ../../static/t/aide/edituser/detailview.html:49
 #: ../../static/t/aide/siteconfig/tab_access.html:46
 #: ../../static/t/aide/siteconfig/tab_access.html:57
-msgid "Aide"
+msgid "Admin"
 msgstr "Korrapidaja"
 
 #: ../../auth.c:513 ../../static/t/iconbar.html:80
@@ -1998,7 +1998,7 @@ msgstr "Administratsioon"
 #: ../../static/t/aide/display_inetconf.html:6
 #: ../../static/t/aide/display_menu.html:6
 #, fuzzy
-msgid "Room Aide Menu"
+msgid "Room Admin Menu"
 msgstr "Toa Korrapidaja: "
 
 #: ../../static/t/aide/display_inetconf.html:13
@@ -3397,7 +3397,7 @@ msgid "Allow non-subscribers to mail to this room."
 msgstr ""
 
 #: ../../static/t/room/edit/tab_listserv.html:54
-msgid "Room post publication needs Aide permission."
+msgid "Room post publication needs Admin permission."
 msgstr ""
 
 #: ../../static/t/room/edit/tab_listserv.html:59

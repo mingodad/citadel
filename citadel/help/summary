@@ -77,7 +77,7 @@ commands are available:
                                   see the name you enter rather than the
                                   actual name of the room you're in)
  <.> <W>holist <H>ostname         Masquerade your host name
- <.> <E>nter <U>sername           Masquerade your user name (Aides only)
+ <.> <E>nter <U>sername           Masquerade your user name (Admins only)
  <.> <W>holist <S>tealth mode     Enter/exit "stealth mode" (when in stealth
                                   mode you are invisible on the wholist)
  
@@ -90,21 +90,21 @@ commands are available:
  ;<Z>ap floor                       - zap (forget) all rooms on this floor
  
  
- Aide (administrative) commands: 
+ Administrative commands: 
  
- <.> <A>ide <K>ill this room   
- <.> <A>ide <E>dit this room   
- <.> <A>ide <W>ho knows room   
- <.> <A>ide edit <U>ser   
- <.> <A>ide <V>alidate new users   
- <.> <A>ide enter <I>nfo file   
- <.> <A>ide <R>oom <I>nvite user  
- <.> <A>ide <R>oom <K>ick out user  
- <.> <A>ide <F>ile <D>elete  
- <.> <A>ide <F>ile <S>end over net  
- <.> <A>ide <F>ile <M>ove  
- <.> <A>ide <M>essage edit:   
- <.> <A>ide <P>ost   
- <.> <A>ide <S>ystem configuration   
- <.> <A>ide <T>erminate server <N>ow
- <.> <A>ide <T>erminate server <S>cheduled
+ <.> <A>dmin <K>ill this room   
+ <.> <A>dmin <E>dit this room   
+ <.> <A>dmin <W>ho knows room   
+ <.> <A>dmin edit <U>ser   
+ <.> <A>dmin <V>alidate new users   
+ <.> <A>dmin enter <I>nfo file   
+ <.> <A>dmin <R>oom <I>nvite user  
+ <.> <A>dmin <R>oom <K>ick out user  
+ <.> <A>dmin <F>ile <D>elete  
+ <.> <A>dmin <F>ile <S>end over net  
+ <.> <A>dmin <F>ile <M>ove  
+ <.> <A>dmin <M>essage edit:   
+ <.> <A>dmin <P>ost   
+ <.> <A>dmin <S>ystem configuration   
+ <.> <A>dmin <T>erminate server <N>ow
+ <.> <A>dmin <T>erminate server <S>cheduled

@@ -72,6 +72,7 @@ SOURCES=src/client_chat.c \
 	src/citadel_ipc.c \
 	src/ecrash.c \
 	src/ipc_c_tcp.c \
+	src/getutline.c \
 	src/screen.c
 
 # for VPATH builds (invoked by configure)

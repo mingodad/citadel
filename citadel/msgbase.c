@@ -1654,7 +1654,9 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		  int do_proto,		/* do Citadel protocol responses? */
 		  int crlf,		/* Use CRLF newlines instead of LF? */
 		  char *section, 	/* NULL or a message/rfc822 section */
-		  int flags		/* various flags; see msgbase.h */
+		  int flags,		/* various flags; see msgbase.h */
+		  char **Author,
+		  char **Address
 ) {
 	struct CitContext *CCC = CC;
 	struct CtdlMessage *TheMessage = NULL;
@@ -1732,6 +1734,17 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			*extract_encapsulated_message,
 			NULL, NULL, (void *)&encap, 0
 		);
+
+		if ((Author != NULL) && (*Author == NULL))
+		{
+			*Author = TheMessage->cm_fields['A'];
+			TheMessage->cm_fields['A'] = NULL;
+		}
+		if ((Address != NULL) && (*Address == NULL))
+		{	
+			*Address = TheMessage->cm_fields['F'];
+			TheMessage->cm_fields['F'] = NULL;
+		}
 		CtdlFreeMessage(TheMessage);
 		TheMessage = NULL;
 
@@ -1762,6 +1775,17 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	/* Ok, output the message now */
 	if (retcode == CIT_OK)
 		retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf, flags);
+	if ((Author != NULL) && (*Author == NULL))
+	{
+		*Author = TheMessage->cm_fields['A'];
+		TheMessage->cm_fields['A'] = NULL;
+	}
+	if ((Address != NULL) && (*Address == NULL))
+	{	
+		*Address = TheMessage->cm_fields['F'];
+		TheMessage->cm_fields['F'] = NULL;
+	}
+
 	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
@@ -2541,7 +2565,7 @@ void cmd_msg0(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0, NULL, 0);
+	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0, NULL, 0, NULL, NULL);
 	return;
 }
 
@@ -2557,7 +2581,7 @@ void cmd_msg2(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1, NULL, 0);
+	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1, NULL, 0, NULL, NULL);
 }
 
 
@@ -2611,7 +2635,7 @@ void cmd_msg4(char *cmdbuf)
 
 	msgid = extract_long(cmdbuf, 0);
 	extract_token(section, cmdbuf, 1, '|', sizeof section);
-	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0, (section[0] ? section : NULL) , 0);
+	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0, (section[0] ? section : NULL) , 0, NULL, NULL);
 }
 
 
@@ -2644,7 +2668,7 @@ void cmd_opna(char *cmdbuf)
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section,
 		sizeof CC->download_desired_section);
-	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL, 0);
+	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL, 0, NULL, NULL);
 }			
 
 
@@ -2660,8 +2684,8 @@ void cmd_dlat(char *cmdbuf)
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section,
 		sizeof CC->download_desired_section);
-	CtdlOutputMsg(msgid, MT_SPEW_SECTION, 0, 1, 1, NULL, 0);
-}			
+	CtdlOutputMsg(msgid, MT_SPEW_SECTION, 0, 1, 1, NULL, 0, NULL, NULL);
+}
 
 
 /*
@@ -4013,7 +4037,7 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 	/* User flagged ok? */
 	if (who->flags & US_INTERNET) return(2);
 
-	/* Aide level access? */
+	/* Admin level access? */
 	if (who->axlevel >= AxAideU) return(3);
 
 	/* No mail for you! */
@@ -4896,7 +4920,7 @@ void cmd_move(char *args)
 	 */
 	permit = 0;
 
-	/* Aides can move/copy */
+	/* Admins can move/copy */
 	if (CC->user.axlevel >= AxAideU) permit = 1;
 
 	/* Room aides can move/copy */

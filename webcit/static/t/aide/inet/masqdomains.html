@@ -1,10 +1,10 @@
 <span class="menudesc">
 <?_("(Domains as which users are allowed to masquerade)")>
 </span><br />
-<table border=0 cellspacing="2" cellpadding="2" width=94% class="altern" >
-<?ITERATE("SERVCFG:INET", ="aide_inet_section", 0, 0, -1, "masqdomain")>
 <form method="post" action="save_inetconf">
 <input type="hidden" name="nonce" value='<?NONCE>'>
+<table border="0" cellspacing="2" cellpadding="2" width="94%" class="altern" >
+<?ITERATE("SERVCFG:INET", ="aide_inet_section", 0, 0, -1, "masqdomain")>
 <tr><td>
 <input type="text" name="ename" maxlength="64">
 <input type="hidden" name="etype" VALUE="masqdomain">

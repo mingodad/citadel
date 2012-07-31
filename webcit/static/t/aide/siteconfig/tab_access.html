@@ -27,6 +27,9 @@
 	<option <?%("COND:SERVCFG", 1, "c_auth_mode", 3, 'selected="selected"', "")> value="3"><?_("LDAP (Active Directory)")></option>
 </select></td></tr>
 
+<tr><td><?_("Allow anonymous guest access")></td><td>
+<input type="checkbox" NAME="c_guest_logins" VALUE="yes" <?%("COND:SERVCFG", 1, "c_guest_logins", 1, "CHECKED", "")>></td></tr>
+
 <tr><td><?_("Master user name (blank to disable)")></td><td>
 <input type="text" NAME="c_master_user" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_user")>'></td></tr>
 
@@ -43,7 +46,7 @@
 	<option <?%("COND:SERVCFG", 1, "c_initax", 3, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
 	<option <?%("COND:SERVCFG", 1, "c_initax", 4, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
 	<option <?%("COND:SERVCFG", 1, "c_initax", 5, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_initax", 6, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 6, 'selected="selected"', "")> value="6">6 - <?_("Admin")></option>
 </select></td></tr>
 
 <tr><td><?_("Access level required to create rooms")></td><td>
@@ -54,7 +57,7 @@
 	<option <?%("COND:SERVCFG", 1, "c_createax", 3, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
 	<option <?%("COND:SERVCFG", 1, "c_createax", 4, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
 	<option <?%("COND:SERVCFG", 1, "c_createax", 5, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_createax", 6, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 6, 'selected="selected"', "")> value="6">6 - <?_("Admin")></option>
 </select></td></tr>
 
 <tr><td><?_("Automatically grant room-aide status to users who create private rooms")></td><td>
@@ -73,9 +76,5 @@
 
 <tr><td><?_("Require registration for new users")></td><td>
 <input type="checkbox" name="c_regiscall" value="yes" <?%("COND:SERVCFG", 1, "c_regiscall", 1, "CHECKED", "")>></td></tr>
-
-<tr><td><?_("Allow anonymous guest access")></td><td>
-<input type="checkbox" NAME="c_guest_logins" VALUE="yes" <?%("COND:SERVCFG", 1, "c_guest_logins", 1, "CHECKED", "")>></td></tr>
-
 
 </table>

@@ -1,0 +1,49 @@
+<div class="conftitle"><?_("SMTP-Servers")></div>
+<div class="confdescr"><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></div>
+<hr>
+<table border="0">
+<tr><td><?_("SMTP MTA port (-1 to disable)")></td><td>
+<input type="text" NAME="c_smtp_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_smtp_port")>'></td></tr>
+
+<tr><td><?_("SMTP MSA port (-1 to disable)")></td><td>
+<input type="text" NAME="c_msa_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_msa_port")>'></td></tr>
+
+<tr><td><?_("SMTP over SSL port (-1 to disable)")></td><td>
+<input type="text" NAME="c_smtps_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_smtps_port")>'></td></tr>
+
+<tr><td><?_("Perform RBL checks upon connect instead of after RCPT")></td><td>
+<input type="checkbox" NAME="c_rbl_at_greeting" VALUE="yes" <?%("COND:SERVCFG", 1, "c_rbl_at_greeting", 1, "CHECKED", "")>></td></tr>
+
+<tr><td><?_("Flag message as spam, instead of rejecting it")></td><td>
+<input type="checkbox" NAME="c_spam_flag_only" VALUE="yes" <?%("COND:SERVCFG", 1, "c_spam_flag_only", 1, "CHECKED", "")>></td></tr>
+
+<tr><td><?_("Allow unauthenticated SMTP clients to spoof this sites domains")></td><td>
+<input type="checkbox" NAME="c_allow_spoofing" VALUE="yes" <?%("COND:SERVCFG", 1, "c_allow_spoofing", 1, "CHECKED", "")>></td></tr>
+
+<tr><td><?_("Correct forged From: lines during authenticated SMTP")></td><td>
+<ul>
+<li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_NOFILTER")>"  <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_NOFILTER",  "CHECKED", "")> />
+ <?_("No, allow any address in the From: header")>
+</li><li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_CORRECT")>"   <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_CORRECT",   "CHECKED", "")> />
+ <?_("Only change the From: header if the address is not valid for the user")>
+</li><li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_FILTERALL")>" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_FILTERALL", "CHECKED", "")> />
+  <?_("Yes, always place the user's primary email address in the From: header")>
+</li><li>
+ <input type="radio" NAME="c_rfc822_strict_from" value="<?DEF:VAL(#"CFG_SMTP_FROM_REJECT")>"    <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", #"CFG_SMTP_FROM_REJECT",    "CHECKED", "")> />
+ <?_("No, REJECT messages containing an invalid From: header")>
+</li>
+</ul>
+</td></tr>
+
+<tr><td colspan=2><hr></td></tr>
+
+<tr><td><a href="http://www.postfix.org/tcp_table.5.html"><?_("Postfix TCP Dictionary Port")></a>(<?_("-1 to disable")>)</td><td>
+<input type="text" NAME="c_pftcpdict_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_pftcpdict_port")>'></td></tr>
+
+<tr><td><?_("ManageSieve Port (-1 to disable)")></td><td>
+<input type="text" NAME="c_mgesve_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_mgesve_port")>'></td></tr>
+
+</table>

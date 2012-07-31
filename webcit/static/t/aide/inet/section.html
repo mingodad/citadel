@@ -1,5 +1,5 @@
 <tr class='<?ITERATE:ODDEVEN>'>
-<td align=left><?CONTEXTSTR></td><td align=left>
+<td align=left><?CONTEXTSTR("X")></td><td align=left>
 <span class="button_link">
-<a href='save_inetconf?template=aide_display_inetconf&oper=delete&ename=<?ITERATE:KEY>&etype=<?BSTR("__SERVCFG:INET:TYPE")>' onClick="return confirm('<?_("Delete this entry?")>')" >
+<a href='save_inetconf?template=aide_display_inetconf?oper=delete?ename=<?ITERATE:KEY>?etype=<?BSTR("__SERVCFG:INET:TYPE")>' onClick="return confirm('<?_("Delete this entry?")>')" >
 <?_("Delete")> </a></span></td></tr>

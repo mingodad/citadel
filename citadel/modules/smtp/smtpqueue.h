@@ -40,6 +40,7 @@ typedef struct _mailq_entry {
 
 	int n;
 	int Active;
+	int StillActive;
 }MailQEntry;
 
 typedef struct queueitem {
@@ -76,8 +77,8 @@ int     DecreaseQReference(OneQueItem *MyQItem);
 void DecreaseShutdownDeliveries(OneQueItem *MyQItem);
 int GetShutdownDeliveries(OneQueItem *MyQItem);
 void    RemoveQItem(OneQueItem *MyQItem);
-int     CountActiveQueueEntries(OneQueItem *MyQItem);
+int     CountActiveQueueEntries(OneQueItem *MyQItem, int before);
 StrBuf *SerializeQueueItem(OneQueItem *MyQItem);
-void    smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt);
+void    smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay);
 
 int CheckQEntryIsBounce(MailQEntry *ThisItem);

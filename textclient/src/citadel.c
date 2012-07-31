@@ -88,7 +88,7 @@ long uglistlsn[UGLISTLEN]; /* current read position for all the ungoto's. Not go
 int uglistsize = 0;
 char is_mail = 0;		/* nonzero when we're in a mail room */
 char axlevel = AxDeleted;		/* access level */
-char is_room_aide = 0;		/* boolean flag, 1 if room aide */
+char is_room_aide = 0;		/* boolean flag, 1 if room admin */
 int timescalled;
 int posted;
 unsigned userflags;
