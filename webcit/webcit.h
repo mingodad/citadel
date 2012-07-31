@@ -445,7 +445,7 @@ struct wcsession {
 	StrBuf *wc_password;			/* Password of current user */
 	StrBuf *httpauth_pass;  		/* only for GroupDAV sessions */
 	int axlevel;				/* this user's access level */
-	int is_aide;				/* nonzero == this user is an Aide */
+	int is_aide;				/* nonzero == this user is an Admin */
 	int connected;				/* nonzero == we are connected to Citadel */
 	int logged_in;				/* nonzero == we are logged in  */
 	int need_regi;				/* This user needs to register. */
