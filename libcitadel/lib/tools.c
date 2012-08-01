@@ -885,7 +885,10 @@ void generate_uuid(char *buf) {
 			int rv;
 			rv = fread(buf, 36, 1, fp);
 			fclose(fp);
-			if (rv == 1) return;
+			if (rv == 1) {
+				buf[36] = 0;
+				return;
+			}
 		}
 	}
 
