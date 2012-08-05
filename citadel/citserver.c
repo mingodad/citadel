@@ -684,14 +684,14 @@ int CtdlAccessCheck(int required_level) {
 
 	if (CC->user.axlevel >= AxAideU) return(0);
  	if (required_level >= ac_aide) {
-		cprintf("%d This command requires Aide access.\n",
+		cprintf("%d This command requires Admin access.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return(-1);
 	}
 
 	if (is_room_aide()) return(0);
 	if (required_level >= ac_room_aide) {
-		cprintf("%d This command requires Aide or Room Aide access.\n",
+		cprintf("%d This command requires Admin or Room Admin access.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return(-1);
 	}

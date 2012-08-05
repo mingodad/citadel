@@ -7,9 +7,9 @@ char *axdefs[]={
 	"Local User",
 	"Network User",
 	"Preferred User",
-	"Aide",
-	"Sysop"
-	};
+	"Admin",
+	"Admin"
+};
 
 #define AXDEFS 1
 

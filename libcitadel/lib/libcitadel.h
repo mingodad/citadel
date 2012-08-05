@@ -722,7 +722,7 @@ extern "C" {
 #define QR_ANONOPT	1024		/* Anonymous-Option room            */
 #define QR_NETWORK	2048		/* Shared network room              */
 #define QR_PREFONLY	4096		/* Preferred status needed to enter */
-#define QR_READONLY	8192		/* Aide status required to post     */
+#define QR_READONLY	8192		/* Admin status required to post     */
 #define QR_MAILBOX	16384		/* Set if this is a private mailbox */
 
 #define QR2_SYSTEM	1		/* System room; hide by default     */
@@ -755,7 +755,7 @@ extern "C" {
 #define UA_HASNEWMSGS           8	/* Unread messages exist in this room */
 #define UA_ZAPPED               16	/* User has forgotten (zapped) this room */
 #define UA_POSTALLOWED		32	/* User may post top-level messages here */
-#define UA_ADMINALLOWED		64	/* Aide or Room Aide rights exist here */
+#define UA_ADMINALLOWED		64	/* Admin or Room Admin rights exist here */
 #define UA_DELETEALLOWED	128	/* User is allowed to delete messages from this room */
 #define UA_REPLYALLOWED		256	/* User is allowed to reply to existing messages here */
 /* runtime flag extracted from goto reply; not db persistant, should be moved if new flags added */

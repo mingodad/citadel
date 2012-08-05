@@ -1344,7 +1344,7 @@ msgstr "Usager privilégié"
 #: ../../auth.c:48 ../../static/t/aide/edituser/detailview.html:49
 #: ../../static/t/aide/siteconfig/tab_access.html:46
 #: ../../static/t/aide/siteconfig/tab_access.html:57
-msgid "Aide"
+msgid "Admin"
 msgstr "Administrateur"
 
 #: ../../auth.c:513 ../../static/t/iconbar.html:80
@@ -2045,8 +2045,8 @@ msgstr "Menu d'administration du système"
 #: ../../static/t/aide/display_inetconf.html:6
 #: ../../static/t/aide/display_menu.html:6
 #, fuzzy
-msgid "Room Aide Menu"
-msgstr "Room Aide Menu"
+msgid "Room Admin Menu"
+msgstr "Room Admin Menu"
 
 #: ../../static/t/aide/display_inetconf.html:13
 msgid "Local host aliases"
@@ -2795,7 +2795,7 @@ msgstr "Clavardage"
 
 #: ../../static/t/iconbar.html:65
 msgid "Advanced"
-msgstr "Aide et préférences"
+msgstr "Admin et préférences"
 
 #: ../../static/t/iconbar.html:72 ../../static/t/room/edit/editroom.html:4
 #: ../../static/t/room/edit.html:5
@@ -3445,7 +3445,7 @@ msgid "Allow non-subscribers to mail to this room."
 msgstr "Permettre aux non abonnés de poster dans ce salon."
 
 #: ../../static/t/room/edit/tab_listserv.html:54
-msgid "Room post publication needs Aide permission."
+msgid "Room post publication needs Admin permission."
 msgstr "Publier dans ce salon nécessite la permission de l'administrateur."
 
 #: ../../static/t/room/edit/tab_listserv.html:59
@@ -4299,7 +4299,7 @@ msgstr "Non connecté"
 #~ msgstr "Sortie du mode clavardage."
 
 #~ msgid "Help"
-#~ msgstr "Aide"
+#~ msgstr "Admin"
 
 #~ msgid "List users"
 #~ msgstr "Liste des usagers"

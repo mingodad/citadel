@@ -45,7 +45,7 @@ void initialize_axdefs(void) {
 	axdefs[5] = _("Preferred User");
 
 	/* chief */
-	axdefs[6] = _("Aide");          
+	axdefs[6] = _("Admin");          
 }
 
 

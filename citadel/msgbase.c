@@ -4037,7 +4037,7 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 	/* User flagged ok? */
 	if (who->flags & US_INTERNET) return(2);
 
-	/* Aide level access? */
+	/* Admin level access? */
 	if (who->axlevel >= AxAideU) return(3);
 
 	/* No mail for you! */
@@ -4920,7 +4920,7 @@ void cmd_move(char *args)
 	 */
 	permit = 0;
 
-	/* Aides can move/copy */
+	/* Admins can move/copy */
 	if (CC->user.axlevel >= AxAideU) permit = 1;
 
 	/* Room aides can move/copy */
