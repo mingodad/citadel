@@ -393,6 +393,7 @@ int eCrash_Init(eCrashParameters *params)
 
 	DPRINTF(ECRASH_DEBUG_VERY_VERBOSE,"Init Starting params = %p\n", params);
 
+	if (params == NULL) return -1;
 	// Allocate our backtrace area
 	gbl_backtraceBuffer = malloc(sizeof(void *) * (params->maxStackDepth+5));
 

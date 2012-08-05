@@ -55,7 +55,7 @@
 void getz(char *buf) {
 	char *ptr;
 
-	ptr = fgets(buf, 32767, stdin);
+	ptr = fgets(buf, SIZ, stdin);
 	if (!ptr) {
 		buf[0] = 0;
 		return;
@@ -81,8 +81,8 @@ int main(int argc, char *argv[])
 	char cmd[PATH_MAX];
 	char buf[PATH_MAX];
 	char socket_path[PATH_MAX];
-	char remote_user[256];
-	char remote_host[256];
+	char remote_user[SIZ];
+	char remote_host[SIZ];
 	char remote_sendcommand[PATH_MAX];
 	FILE *sourcefp = NULL;
 	FILE *targetfp = NULL;
