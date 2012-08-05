@@ -229,11 +229,139 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
 	return eAbort;
 }
 
+void AppendLink(StrBuf *Message,
+		StrBuf *link,
+		StrBuf *LinkTitle,
+		const char *Title)
+{
+	if (StrLength(link) > 0)
+	{
+		StrBufAppendBufPlain(Message, HKEY("<a href=\""), 0);
+		StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("\">"), 0);
+		if (StrLength(LinkTitle) > 0)
+			StrBufAppendBuf(Message, LinkTitle, 0);
+		else if ((Title != NULL) && !IsEmptyStr(Title))
+			StrBufAppendBufPlain(Message, Title, -1, 0);
+		else
+			StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
+	}
+}
+
+
+void rss_format_item(networker_save_message *SaveMsg)
+{
+	StrBuf *Message;
+	int msglen = 0;
+
+	if (SaveMsg->author_or_creator != NULL) {
+
+		char *From;
+		StrBuf *Encoded = NULL;
+		int FromAt;
+
+		From = html_to_ascii(ChrPtr(SaveMsg->author_or_creator),
+				     StrLength(SaveMsg->author_or_creator),
+				     512, 0);
+		StrBufPlain(SaveMsg->author_or_creator, From, -1);
+		StrBufTrim(SaveMsg->author_or_creator);
+		free(From);
+
+		FromAt = strchr(ChrPtr(SaveMsg->author_or_creator), '@') != NULL;
+		if (!FromAt && StrLength (SaveMsg->author_email) > 0)
+		{
+			StrBufRFC2047encode(&Encoded, SaveMsg->author_or_creator);
+			SaveMsg->Msg.cm_fields['A'] = SmashStrBuf(&Encoded);
+			SaveMsg->Msg.cm_fields['P'] =
+				SmashStrBuf(&SaveMsg->author_email);
+		}
+		else
+		{
+			if (FromAt)
+			{
+				SaveMsg->Msg.cm_fields['A'] =
+					SmashStrBuf(&SaveMsg->author_or_creator);
+				SaveMsg->Msg.cm_fields['P'] =
+					strdup(SaveMsg->Msg.cm_fields['A']);
+			}
+			else
+			{
+				StrBufRFC2047encode(&Encoded,
+						    SaveMsg->author_or_creator);
+				SaveMsg->Msg.cm_fields['A'] =
+					SmashStrBuf(&Encoded);
+				SaveMsg->Msg.cm_fields['P'] =
+					strdup("rss@localhost");
+
+			}
+		}
+	}
+	else {
+		SaveMsg->Msg.cm_fields['A'] = strdup("rss");
+	}
+
+	SaveMsg->Msg.cm_fields['N'] = strdup(NODENAME);
+	if (SaveMsg->title != NULL) {
+		long len;
+		char *Sbj;
+		StrBuf *Encoded, *QPEncoded;
+
+		QPEncoded = NULL;
+		StrBufSpaceToBlank(SaveMsg->title);
+		len = StrLength(SaveMsg->title);
+		Sbj = html_to_ascii(ChrPtr(SaveMsg->title), len, 512, 0);
+		len = strlen(Sbj);
+		if ((len > 0) && (Sbj[len - 1] == '\n'))
+		{
+			len --;
+			Sbj[len] = '\0';
+		}
+		Encoded = NewStrBufPlain(Sbj, len);
+		free(Sbj);
+
+		StrBufTrim(Encoded);
+		StrBufRFC2047encode(&QPEncoded, Encoded);
+
+		SaveMsg->Msg.cm_fields['U'] = SmashStrBuf(&QPEncoded);
+		FreeStrBuf(&Encoded);
+	}
+	if (SaveMsg->link == NULL)
+		SaveMsg->link = NewStrBufPlain(HKEY(""));
+
+#if 0 /* temporarily disable shorter urls. */
+	SaveMsg->Msg.cm_fields[TMP_SHORTER_URLS] =
+		GetShorterUrls(SaveMsg->description);
+#endif
+
+	msglen += 1024 + StrLength(SaveMsg->link) + StrLength(SaveMsg->description) ;
+
+	Message = NewStrBufPlain(NULL, msglen);
+
+	StrBufPlain(Message, HKEY(
+			    "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
+			    "<html><body>\n"));
+#if 0 /* disable shorter url for now. */
+	SaveMsg->Msg.cm_fields[TMP_SHORTER_URL_OFFSET] = StrLength(Message);
+#endif
+	StrBufAppendBuf(Message, SaveMsg->description, 0);
+	StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
+
+	AppendLink(Message, SaveMsg->link, SaveMsg->linkTitle, NULL);
+	AppendLink(Message, SaveMsg->reLink, SaveMsg->reLinkTitle, "Reply to this");
+	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
+
+
+	SaveMsg->Message = Message;
+}
+
 eNextState RSSSaveMessage(AsyncIO *IO)
 {
 	long len;
 	const char *Key;
 	rss_aggregator *RSSAggr = (rss_aggregator *) IO->Data;
+
+	rss_format_item(RSSAggr->ThisMsg);
 
 	RSSAggr->ThisMsg->Msg.cm_fields['M'] =
 		SmashStrBuf(&RSSAggr->ThisMsg->Message);

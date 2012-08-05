@@ -58,7 +58,7 @@
 #include "event_client.h"
 #include "rss_atom_parser.h"
 
-void rss_save_item(rss_item *ri, rss_aggregator *Cfg);
+void rss_remember_item(rss_item *ri, rss_aggregator *Cfg);
 
 int RSSAtomParserDebugEnabled = 0;
 
@@ -524,7 +524,7 @@ void RSS_item_item_end(StrBuf *CData,
 		       const char** Attr)
 {
 	--ri->item_tag_nesting;
-	rss_save_item(ri, RSSAggr);
+	rss_remember_item(ri, RSSAggr);
 }
 
 
@@ -534,7 +534,7 @@ void ATOM_item_entry_end(StrBuf *CData,
 			 const char** Attr)
 {
 	--ri->item_tag_nesting;
-	rss_save_item(ri, RSSAggr);
+	rss_remember_item(ri, RSSAggr);
 }
 
 void RSS_item_rss_end(StrBuf *CData,
@@ -605,40 +605,30 @@ void FreeNetworkSaveMessage (void *vMsg)
 	CtdlFreeMessageContents(&Msg->Msg);
 	FreeStrBuf(&Msg->Message);
 	FreeStrBuf(&Msg->MsgGUID);
+
+	FreeStrBuf(&Msg->author_email);
+	FreeStrBuf(&Msg->author_or_creator);
+	FreeStrBuf(&Msg->title);
+	FreeStrBuf(&Msg->description);
+
+	FreeStrBuf(&Msg->link);
+	FreeStrBuf(&Msg->linkTitle);
+
+	FreeStrBuf(&Msg->reLink);
+	FreeStrBuf(&Msg->reLinkTitle);
+
 	free(Msg);
 }
 
 
-void AppendLink(StrBuf *Message,
-		StrBuf *link,
-		StrBuf *LinkTitle,
-		const char *Title)
-{
-	if (StrLength(link) > 0)
-	{
-		StrBufAppendBufPlain(Message, HKEY("<a href=\""), 0);
-		StrBufAppendBuf(Message, link, 0);
-		StrBufAppendBufPlain(Message, HKEY("\">"), 0);
-		if (StrLength(LinkTitle) > 0)
-			StrBufAppendBuf(Message, LinkTitle, 0);
-		else if ((Title != NULL) && !IsEmptyStr(Title))
-			StrBufAppendBufPlain(Message, Title, -1, 0);
-		else
-			StrBufAppendBuf(Message, link, 0);
-		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
-	}
-}
-
 /*
  * Commit a fetched and parsed RSS item to disk
  */
-void rss_save_item(rss_item *ri, rss_aggregator *RSSAggr)
+void rss_remember_item(rss_item *ri, rss_aggregator *RSSAggr)
 {
 	networker_save_message *SaveMsg;
 	struct MD5Context md5context;
 	u_char rawdigest[MD5_DIGEST_LEN];
-	int msglen = 0;
-	StrBuf *Message;
 	StrBuf *guid;
 	AsyncIO *IO = &RSSAggr->IO;
 	int n;
@@ -682,82 +672,16 @@ void rss_save_item(rss_item *ri, rss_aggregator *RSSAggr)
 	SaveMsg->Msg.cm_anon_type = MES_NORMAL;
 	SaveMsg->Msg.cm_format_type = FMT_RFC822;
 
+	/* gather the cheaply computed information now... */
+
 	if (ri->guid != NULL) {
 		SaveMsg->Msg.cm_fields['E'] = strdup(ChrPtr(ri->guid));
 	}
 
-	if (ri->author_or_creator != NULL) {
-		char *From;
-		StrBuf *Encoded = NULL;
-		int FromAt;
+	SaveMsg->MsgGUID = guid;
 
-		From = html_to_ascii(ChrPtr(ri->author_or_creator),
-				     StrLength(ri->author_or_creator),
-				     512, 0);
-		StrBufPlain(ri->author_or_creator, From, -1);
-		StrBufTrim(ri->author_or_creator);
-		free(From);
-
-		FromAt = strchr(ChrPtr(ri->author_or_creator), '@') != NULL;
-		if (!FromAt && StrLength (ri->author_email) > 0)
-		{
-			StrBufRFC2047encode(&Encoded, ri->author_or_creator);
-			SaveMsg->Msg.cm_fields['A'] = SmashStrBuf(&Encoded);
-			SaveMsg->Msg.cm_fields['P'] =
-				SmashStrBuf(&ri->author_email);
-		}
-		else
-		{
-			if (FromAt)
-			{
-				SaveMsg->Msg.cm_fields['A'] =
-					SmashStrBuf(&ri->author_or_creator);
-				SaveMsg->Msg.cm_fields['P'] =
-					strdup(SaveMsg->Msg.cm_fields['A']);
-			}
-			else
-			{
-				StrBufRFC2047encode(&Encoded,
-						    ri->author_or_creator);
-				SaveMsg->Msg.cm_fields['A'] =
-					SmashStrBuf(&Encoded);
-				SaveMsg->Msg.cm_fields['P'] =
-					strdup("rss@localhost");
-
-			}
-			if (ri->pubdate <= 0) {
-				ri->pubdate = time(NULL);
-			}
-		}
-	}
-	else {
-		SaveMsg->Msg.cm_fields['A'] = strdup("rss");
-	}
-
-	SaveMsg->Msg.cm_fields['N'] = strdup(NODENAME);
-	if (ri->title != NULL) {
-		long len;
-		char *Sbj;
-		StrBuf *Encoded, *QPEncoded;
-
-		QPEncoded = NULL;
-		StrBufSpaceToBlank(ri->title);
-		len = StrLength(ri->title);
-		Sbj = html_to_ascii(ChrPtr(ri->title), len, 512, 0);
-		len = strlen(Sbj);
-		if ((len > 0) && (Sbj[len - 1] == '\n'))
-		{
-			len --;
-			Sbj[len] = '\0';
-		}
-		Encoded = NewStrBufPlain(Sbj, len);
-		free(Sbj);
-
-		StrBufTrim(Encoded);
-		StrBufRFC2047encode(&QPEncoded, Encoded);
-
-		SaveMsg->Msg.cm_fields['U'] = SmashStrBuf(&QPEncoded);
-		FreeStrBuf(&Encoded);
+	if (ri->pubdate <= 0) {
+		ri->pubdate = time(NULL); /// TODO: use event time!
 	}
 	SaveMsg->Msg.cm_fields['T'] = malloc(64);
 	snprintf(SaveMsg->Msg.cm_fields['T'], 64, "%ld", ri->pubdate);
@@ -767,37 +691,37 @@ void rss_save_item(rss_item *ri, rss_aggregator *RSSAggr)
 				strdup(ChrPtr(ri->channel_title));
 		}
 	}
-	if (ri->link == NULL)
-		ri->link = NewStrBufPlain(HKEY(""));
 
-#if 0 /* temporarily disable shorter urls. */
-	SaveMsg->Msg.cm_fields[TMP_SHORTER_URLS] =
-		GetShorterUrls(ri->description);
-#endif
+	/* remember the ones for defferred processing to save computing power after we know if we realy need it. */
 
-	msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
+	SaveMsg->author_or_creator = ri->author_or_creator;
+	ri->author_or_creator = NULL;
 
-	Message = NewStrBufPlain(NULL, msglen);
+	SaveMsg->author_email = ri->author_email;
+	ri->author_email = NULL;
 
-	StrBufPlain(Message, HKEY(
-			    "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
-			    "<html><body>\n"));
-#if 0 /* disable shorter url for now. */
-	SaveMsg->Msg.cm_fields[TMP_SHORTER_URL_OFFSET] = StrLength(Message);
-#endif
-	StrBufAppendBuf(Message, ri->description, 0);
-	StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
+	SaveMsg->title = ri->title;
+	ri->title = NULL;
 
-	AppendLink(Message, ri->link, ri->linkTitle, NULL);
-	AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
-	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
+	SaveMsg->link = ri->link;
+	ri->link = NULL;
 
-	SaveMsg->MsgGUID = guid;
-	SaveMsg->Message = Message;
+	SaveMsg->description = ri->description;
+	ri->description = NULL;
+
+	SaveMsg->linkTitle = ri->linkTitle;
+	ri->linkTitle = NULL;
+
+	SaveMsg->reLink = ri->reLink;
+	ri->reLink = NULL;
+
+	SaveMsg->reLinkTitle = ri->reLinkTitle;
+	ri->reLinkTitle = NULL;
 
 	n = GetCount(RSSAggr->Messages) + 1;
 	Put(RSSAggr->Messages, IKEY(n), SaveMsg, FreeNetworkSaveMessage);
 }
+
 
 
 void rss_xml_start(void *data, const char *supplied_el, const char **attr)

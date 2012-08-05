@@ -67,6 +67,17 @@ typedef struct __networker_save_message {
 	StrBuf *MsgGUID;
 	StrBuf *Message;
 	struct UseTable ut;
+
+	StrBuf *author_email;
+	StrBuf *author_or_creator;
+	StrBuf *title;
+	StrBuf *description;
+
+	StrBuf *link;
+	StrBuf *linkTitle;
+
+	StrBuf *reLink;
+	StrBuf *reLinkTitle;
 } networker_save_message;
 
 struct rss_aggregator {
