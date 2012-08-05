@@ -1813,7 +1813,7 @@ char *qp_encode_email_addrs(char *source)
 
 	if (source == NULL) return source;
 	if (IsEmptyStr(source)) return source;
-	cit_backtrace();
+	if (MessageDebugEnabled != 0) cit_backtrace();
 	MSG_syslog(LOG_DEBUG, "qp_encode_email_addrs: [%s]\n", source);
 
 	AddrPtr = malloc (sizeof (long) * nAddrPtrMax);
