@@ -299,6 +299,68 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	}
 }
 
+eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
+{
+	struct UseTable ut;
+	u_char rawdigest[MD5_DIGEST_LEN];
+	struct MD5Context md5context;
+	StrBuf *guid;
+	struct cdbdata *cdbut;
+	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
+
+	if (IO->HttpReq.httpcode != 200)
+	{
+
+		EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
+			      IO->HttpReq.httpcode);
+// TODO: aide error message with rate limit
+		return eAbort;
+	}
+
+	MD5Init(&md5context);
+
+	MD5Update(&md5context,
+		  (const unsigned char*)SKEY(IO->HttpReq.ReplyData));
+
+	MD5Update(&md5context,
+		  (const unsigned char*)SKEY(Ctx->Url));
+
+	MD5Final(rawdigest, &md5context);
+	guid = NewStrBufPlain(NULL,
+			      MD5_DIGEST_LEN * 2 + 12 /* _rss2ctdl*/);
+	StrBufHexEscAppend(guid, NULL, rawdigest, MD5_DIGEST_LEN);
+	StrBufAppendBufPlain(guid, HKEY("_rssFM"), 0);
+	if (StrLength(guid) > 40)
+		StrBufCutAt(guid, 40, NULL);
+	/* Find out if we've already seen this item */
+	memcpy(ut.ut_msgid, SKEY(guid));
+	ut.ut_timestamp = time(NULL);
+
+	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
+#ifndef DEBUG_RSS
+	if (cdbut != NULL) {
+		/* Item has already been seen */
+		EVRSSC_syslog(LOG_DEBUG,
+			      "%s has already been seen\n",
+			      ChrPtr(Ctx->Url));
+		cdb_free(cdbut);
+	}
+
+	/* rewrite the record anyway, to update the timestamp */
+	cdb_store(CDB_USETABLE,
+		  SKEY(guid),
+		  &ut, sizeof(struct UseTable) );
+
+	if (cdbut != NULL) return eAbort;
+#endif
+	return RSSAggregator_ParseReply(IO);
+}
+
+eNextState RSSAggregator_FinishHttp(AsyncIO *IO)
+{
+	return QueueDBOperation(IO, RSSAggregator_AnalyseReply);
+}
+
 /*
  * Begin a feed parse
  */
@@ -320,7 +382,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 	if (! InitcURLIOStruct(&RSSAggr->IO,
 			       RSSAggr,
 			       "Citadel RSS Client",
-			       RSSAggregator_ParseReply,
+			       RSSAggregator_FinishHttp,
 			       RSSAggregator_Terminate,
 			       RSSAggregator_TerminateDB,
 			       RSSAggregator_ShutdownAbort))

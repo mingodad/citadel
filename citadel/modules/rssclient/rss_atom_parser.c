@@ -946,6 +946,8 @@ void rss_xml_end(void *data, const char *supplied_el)
 	FlushStrBuf(RSSAggr->CData);
 }
 
+
+
 /*
  * Callback function for passing libcurl's output to expat for parsing
  * we don't do streamed parsing so expat can handle non-utf8 documents
@@ -956,6 +958,8 @@ size_t rss_libcurl_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 }
  */
 
+
+
 eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 {
 	StrBuf *Buf;
@@ -965,16 +969,6 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 	char *ptr;
 	long len;
 	const char *Key;
-
-
-	if (IO->HttpReq.httpcode != 200)
-	{
-
-		EVRSSATOM_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
-				 IO->HttpReq.httpcode);
-// TODO: aide error message with rate limit
-		return eAbort;
-	}
 
 	RSSAggr = IO->Data;
 	ri = RSSAggr->Item;
@@ -1045,7 +1039,7 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 			   &len,
 			   &Key,
 			   (void**) &RSSAggr->ThisMsg))
-		return QueueDBOperation(IO, RSS_FetchNetworkUsetableEntry);
+		return NextDBOperation(IO, RSS_FetchNetworkUsetableEntry);
 	else
 		return eAbort;
 }
