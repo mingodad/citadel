@@ -996,6 +996,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 				i++;
 			}
+			if (Author != NULL) free (Author);
+			if (Address != NULL) free (Address);
 			DeleteHashPos(&It);
 
 			return;
