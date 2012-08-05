@@ -626,7 +626,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 					    HKEY("Invalid Recipient!"));
 		}
 		FinalizeMessageSend_DB(&Msg->IO);
-		DeleteSmtpOutMsg(&Msg->IO);
+		DeleteSmtpOutMsg(Msg);
 	}
 }
 
