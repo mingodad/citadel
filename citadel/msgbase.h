@@ -234,14 +234,6 @@ struct CtdlMessage *CtdlMakeMessage(
 int CtdlCheckInternetMailPermission(struct ctdluser *who);
 int CtdlIsMe(char *addr, int addr_buf_len);
 
-/*
- * Use of aide_message is deprecated.
- * It has been replaced with CtdlAideMessage.
- * All parameters remain the same.
-*/
-void aide_message(char *text, char *subject) __attribute__ ((deprecated));
-
-
 /* 
  * loading messages async via an FD: 
  * add IO->ReadMsg = NewAsyncMsg(...)

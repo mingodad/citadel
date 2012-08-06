@@ -3489,18 +3489,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 }
 
 
-
-void aide_message (char *text, char *subject)
-{
-	quickie_message("Citadel",NULL,NULL,AIDEROOM,text,FMT_CITADEL,subject);
-}
-
-
 /*
  * Convenience function for generating small administrative messages.
  */
-void quickie_message(const char *from, const char *fromaddr, char *to, char *room, const char *text, 
-		     int format_type, const char *subject)
+void quickie_message(const char *from,
+		     const char *fromaddr,
+		     char *to,
+		     char *room,
+		     const char *text, 
+		     int format_type,
+		     const char *subject)
 {
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;
@@ -3540,7 +3538,6 @@ void quickie_message(const char *from, const char *fromaddr, char *to, char *roo
 	CtdlFreeMessage(msg);
 	if (recp != NULL) free_recipients(recp);
 }
-
 
 
 /*
