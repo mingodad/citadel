@@ -438,10 +438,32 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 	if (IO->HttpReq.httpcode != 200)
 	{
+		StrBuf *ErrMsg;
+		long lens[2];
+		const char *strs[2];
 
+		ErrMsg = NewStrBuf();
 		EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
 			      IO->HttpReq.httpcode);
-// TODO: aide error message with rate limit
+		
+		strs[0] = ChrPtr(Ctx->Url);
+		lens[0] = StrLength(Ctx->Url);
+
+		strs[1] = ChrPtr(Ctx->rooms);
+		lens[1] = StrLength(Ctx->rooms);
+		StrBufPrintf(ErrMsg,
+			     "Error while RSS-Aggregation Run of %s\n"
+			     " need a 200, got a %ld !\n"
+			     " Response text was: \n"
+			     " \n %s\n",
+			     ChrPtr(Ctx->Url),
+			     IO->HttpReq.httpcode,
+			     ChrPtr(IO->HttpReq.ReplyData));
+		CtdlAideFPMessage(
+			ChrPtr(ErrMsg),
+			"RSS Aggregation run failure",
+			2, strs, (long*) &lens);
+		FreeStrBuf(&ErrMsg);
 		return eAbort;
 	}
 
@@ -478,7 +500,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	cdb_store(CDB_USETABLE,
 		  SKEY(guid),
 		  &ut, sizeof(struct UseTable) );
-
+	FreeStrBuf(&guid);
 	if (cdbut != NULL) return eAbort;
 #endif
 	return RSSAggregator_ParseReply(IO);
