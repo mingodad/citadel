@@ -111,7 +111,26 @@ void cmd_dlat (char *cmdbuf);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
 long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, const char *, int);
-void quickie_message (const char *, const char *, char *, char *, const char *, int, const char *);
+
+void quickie_message(const char *from,
+		     const char *fromaddr,
+		     char *to,
+		     char *room,
+		     const char *text, 
+		     int format_type,
+		     const char *subject);
+
+void flood_protect_quickie_message(const char *from,
+				   const char *fromaddr,
+				   char *to,
+				   char *room,
+				   const char *text, 
+				   int format_type,
+				   const char *subject,
+				   int nCriterions,
+				   const char **CritStr,
+				   long *CritStrLen);
+
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);
 void cmd_move (char *args);
