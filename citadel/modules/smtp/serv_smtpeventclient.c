@@ -90,6 +90,27 @@
 #include "smtpqueue.h"
 #include "smtp_clienthandlers.h"
 
+ConstStr SMTPStates[] = {
+	{HKEY("looking up mx - record")},
+	{HKEY("evaluating what to do next")},
+	{HKEY("looking up a - record")},
+	{HKEY("looking up aaaa - record")},
+	{HKEY("connecting remote")},
+	{HKEY("smtp conversation ongoing")},
+	{HKEY("smtp sending maildata")},
+	{HKEY("smtp sending done")},
+	{HKEY("smtp successfully finished")},
+	{HKEY("failed one attempt")},
+	{HKEY("failed temporarily")},
+	{HKEY("failed permanently")}
+};
+
+void SetSMTPState(AsyncIO *IO, smtpstate State)
+{
+	CitContext* CCC = IO->CitContext;
+	memcpy(CCC->cs_clientname, SMTPStates[State].Key, SMTPStates[State].len + 1);
+}
+
 int SMTPClientDebugEnabled = 0;
 void DeleteSmtpOutMsg(void *v)
 {
@@ -134,12 +155,18 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 	const char *Status;
 	SmtpOutMsg *Msg = IO->Data;
 	
-	if (Msg->MyQEntry->Status == 2) 
+	if (Msg->MyQEntry->Status == 2) {
+		SetSMTPState(IO, eSTMPfinished);
 		Status = "Delivery successful.";
-	else if (Msg->MyQEntry->Status == 5) 
+	}
+	else if (Msg->MyQEntry->Status == 5) {
+		SetSMTPState(IO, eSMTPFailTotal);
 		Status = "Delivery failed permanently; giving up.";
-	else
+	}
+	else {
+		SetSMTPState(IO, eSMTPFailTemporary);
 		Status = "Delivery failed temporarily; will retry later.";
+	}
 			
 	EVS_syslog(LOG_INFO,
 		   "%s Time[%fs] Recipient <%s> @ <%s> (%s) Status message: %s\n",
@@ -226,6 +253,7 @@ eNextState FailOneAttempt(AsyncIO *IO)
 {
 	SmtpOutMsg *Msg = IO->Data;
 
+	SetSMTPState(IO, eSTMPfailOne);
 	if (Msg->MyQEntry->Status == 2)
 		return eAbort;
 
@@ -310,6 +338,7 @@ void SetConnectStatus(AsyncIO *IO)
 eNextState mx_connect_ip(AsyncIO *IO)
 {
 	SmtpOutMsg *Msg = IO->Data;
+	SetSMTPState(IO, eSTMPconnecting);
 
 	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 
@@ -376,6 +405,7 @@ eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 		return mx_connect_ip(IO);
 	}
 	else {
+		SetSMTPState(IO, eSTMPfailOne);
 		if (Msg->HostLookup.VParsedDNSReply != NULL) {
 			Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);
 			Msg->HostLookup.VParsedDNSReply = NULL;
@@ -393,6 +423,7 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 	 * - the direct hostname if there was no mx record
 	 * - one of the mx'es
 	 */
+	SetSMTPState(IO, (Msg->pCurrRelay->IPv6)?eSTMPalookup:eSTMPaaaalookup);
 
 	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 
@@ -509,6 +540,8 @@ eNextState resolve_mx_records(AsyncIO *IO)
 {
 	SmtpOutMsg * Msg = IO->Data;
 
+	SetSMTPState(IO, eSTMPmxlookup);
+
 	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 	/* start resolving MX records here. */
 	if (!QueueQuery(ns_t_mx,
@@ -601,15 +634,19 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 			     Msg->MyQItem->MessageID,
 			     ChrPtr(Msg->MyQEntry->Recipient),
 			     ((CitContext*)Msg->IO.CitContext)->cs_pid);
-		if (Msg->pCurrRelay == NULL)
+		if (Msg->pCurrRelay == NULL) {
+			SetSMTPState(&Msg->IO, eSTMPmxlookup);
 			QueueEventContext(&Msg->IO,
 					  resolve_mx_records);
+		}
 		else { /* oh... via relay host */
 			if (Msg->pCurrRelay->IsIP) {
+				SetSMTPState(&Msg->IO, eSTMPconnecting);
 				QueueEventContext(&Msg->IO,
 						  mx_connect_ip);
 			}
 			else {
+				SetSMTPState(&Msg->IO, eSTMPalookup);
 				/* uneducated admin has chosen to
 				   add DNS to the equation... */
 				QueueEventContext(&Msg->IO,
@@ -618,6 +655,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 		}
 	}
 	else {
+		SetSMTPState(&Msg->IO, eSMTPFailTotal);
 		/* No recipients? well fail then. */
 		if (Msg->MyQEntry != NULL) {
 			Msg->MyQEntry->Status = 5;
