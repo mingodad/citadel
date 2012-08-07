@@ -888,10 +888,12 @@ eNextState EvConnectSock(AsyncIO *IO,
 	fdflags = fcntl(IO->SendBuf.fd, F_GETFL);
 	if (fdflags < 0) {
 		EV_syslog(LOG_ERR,
-			  "EVENT: unable to get socket flags! %s \n",
+			  "EVENT: unable to get socket %d flags! %s \n",
+			  IO->SendBuf.fd,
 			  strerror(errno));
 		StrBufPrintf(IO->ErrMsg,
-			     "Failed to get socket flags: %s",
+			     "Failed to get socket %d flags: %s",
+			     IO->SendBuf.fd,
 			     strerror(errno));
 		close(IO->SendBuf.fd);
 		IO->SendBuf.fd = IO->RecvBuf.fd = 0;
@@ -901,7 +903,8 @@ eNextState EvConnectSock(AsyncIO *IO,
 	if (fcntl(IO->SendBuf.fd, F_SETFL, fdflags) < 0) {
 		EV_syslog(
 			LOG_ERR,
-			"EVENT: unable to set socket nonblocking flags! %s \n",
+			"EVENT: unable to set socket %d nonblocking flags! %s \n",
+			IO->SendBuf.fd,
 			strerror(errno));
 		StrBufPrintf(IO->ErrMsg,
 			     "Failed to set socket flags: %s",
@@ -958,12 +961,12 @@ eNextState EvConnectSock(AsyncIO *IO,
 	}
 
 	if (rc >= 0){
-		EVM_syslog(LOG_DEBUG, "connect() immediate success.\n");
+		EV_syslog(LOG_DEBUG, "connect() = %d immediate success.\n", IO->SendBuf.fd);
 		set_start_callback(event_base, IO, 0);
 		return IO->NextState;
 	}
 	else if (errno == EINPROGRESS) {
-		EVM_syslog(LOG_DEBUG, "connect() have to wait now.\n");
+		EV_syslog(LOG_DEBUG, "connect() = %d have to wait now.\n", IO->SendBuf.fd);
 
 		ev_io_init(&IO->conn_event,
 			   IO_connestd_callback,
@@ -982,7 +985,11 @@ eNextState EvConnectSock(AsyncIO *IO,
 		IO->conn_fail_immediate.data = IO;
 		ev_idle_start(event_base, &IO->conn_fail_immediate);
 
-		EV_syslog(LOG_ERR, "connect() failed: %s\n", strerror(errno));
+		EV_syslog(LOG_ERR,
+			  "connect() = %d failed: %s\n",
+			  IO->SendBuf.fd,
+			  strerror(errno));
+
 		StrBufPrintf(IO->ErrMsg,
 			     "Failed to connect: %s",
 			     strerror(errno));
