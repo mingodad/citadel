@@ -115,7 +115,7 @@ int NetworkClientDebugEnabled = 0;
 
 
 typedef enum _eNWCState {
-	eeGreating,
+	eGreating,
 	eAuth,
 	eNDOP,
 	eREAD,
@@ -128,6 +128,41 @@ typedef enum _eNWCState {
 	eQUIT
 }eNWCState;
 
+typedef enum _eNWCVState {
+	eNWCVSLookup,
+	eNWCVSConnecting,
+	eNWCVSConnFail,
+	eNWCVSGreating,
+	eNWCVSAuth,
+	eNWCVSAuthFailNTT,
+	eNWCVSAuthFail,
+	eNWCVSNDOP,
+	eNWCVSNDOPDone,
+	eNWCVSNUOP,
+	eNWCVSNUOPDone,
+	eNWCVSFail
+}eNWCVState;
+
+ConstStr NWCStateStr[] = {
+	{HKEY("Looking up Host")},
+	{HKEY("Connecting host")},
+	{HKEY("Failed to connect")},
+	{HKEY("Rread Greeting")},
+	{HKEY("Authenticating")},
+	{HKEY("Auth failed by NTT")},
+	{HKEY("Auth failed")},
+	{HKEY("Downloading")},
+	{HKEY("Downloading Success")},
+	{HKEY("Uploading Spoolfile")},
+	{HKEY("Uploading done")},
+	{HKEY("failed")}
+};
+
+void SetNWCState(AsyncIO *IO, eNWCVState State)
+{
+	CitContext* CCC = IO->CitContext;
+	memcpy(CCC->cs_clientname, NWCStateStr[State].Key, NWCStateStr[State].len + 1);
+}
 
 typedef struct _async_networker {
         AsyncIO IO;
@@ -207,6 +242,7 @@ eNextState NWC_ReadGreeting(AsyncNetworker *NW)
 {
 	char connected_to[SIZ];
 	AsyncIO *IO = &NW->IO;
+	SetNWCState(IO, eNWCVSGreating);
 	NWC_DBG_READ();
 	/* Read the server greeting */
 	/* Check that the remote is who we think it is and warn the Aide if not */
@@ -228,6 +264,7 @@ eNextState NWC_ReadGreeting(AsyncNetworker *NW)
 eNextState NWC_SendAuth(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
+	SetNWCState(IO, eNWCVSAuth);
 	/* We're talking to the correct node.  Now identify ourselves. */
 	StrBufPrintf(NW->IO.SendBuf.Buf, "NETP %s|%s\n", 
 		     config.c_nodename, 
@@ -253,12 +290,14 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 			     "Connected to node \"%s\" but my secret wasn't accurate.\nReason was:%s\n",
 			     ChrPtr(NW->node), ChrPtr(NW->IO.IOBuf) + 4);
 		if (Error == 552) {
+			SetNWCState(IO, eNWCVSAuthFailNTT);
 			EVN_syslog(LOG_INFO,
 				   "Already talking to %s; skipping this time.\n",
 				   ChrPtr(NW->node));
 			
 		}
 		else {
+			SetNWCState(IO, eNWCVSAuthFailNTT);
 			EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
 			StopClientWatchers(IO, 1);
 			return QueueDBOperation(IO, SendFailureMessage);
@@ -270,6 +309,7 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 eNextState NWC_SendNDOP(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
+	SetNWCState(IO, eNWCVSNDOP);
 	NW->tempFileName = NewStrBuf();
 	NW->SpoolFileName = NewStrBuf();
 	StrBufPrintf(NW->SpoolFileName,
@@ -313,6 +353,7 @@ eNextState NWC_ReadNDOPReply(AsyncNetworker *NW)
 				  S_IRUSR|S_IWUSR);
 			if (fd < 0)
 			{
+				SetNWCState(IO, eNWCVSFail);
 				EVN_syslog(LOG_CRIT,
 				       "cannot open %s: %s\n", 
 				       ChrPtr(NW->tempFileName), 
@@ -327,6 +368,7 @@ eNextState NWC_ReadNDOPReply(AsyncNetworker *NW)
 	}
 	else
 	{
+		SetNWCState(IO, eNWCVSFail);
 		return eAbort;
 	}
 }
@@ -347,6 +389,7 @@ eNextState NWC_SendREAD(AsyncNetworker *NW)
 			FDIOBufferDelete(&NW->IO.IOB);
 			unlink(ChrPtr(NW->tempFileName));
 			FDIOBufferDelete(&IO->IOB);
+			SetNWCState(IO, eNWCVSFail);
 			return eAbort;
 		}
 		StrBufPrintf(NW->IO.SendBuf.Buf, "READ %ld|%ld\n",
@@ -448,6 +491,7 @@ eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 eNextState NWC_SendCLOS(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
+	SetNWCState(IO, eNWCVSNDOPDone);
 	StrBufPlain(NW->IO.SendBuf.Buf, HKEY("CLOS\n"));
 	NWC_DBG_SEND();
 	return eSendReply;
@@ -472,6 +516,7 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 	struct stat statbuf;
 	int fd;
 
+	SetNWCState(IO, eNWCVSNUOP);
 	StrBufPrintf(NW->SpoolFileName,
 		     "%s/%s",
 		     ctdl_netout_dir,
@@ -591,6 +636,7 @@ eNextState NWC_ReadUCLS(AsyncNetworker *NW)
 		unlink(ChrPtr(NW->SpoolFileName));
 	}
 	FDIOBufferDelete(&IO->IOB);
+	SetNWCState(IO, eNWCVSNUOPDone);
 	return eSendReply;
 }
 
@@ -775,6 +821,7 @@ eReadState NWC_ReadServerStatus(AsyncIO *IO)
 
 eNextState NWC_FailNetworkConnection(AsyncIO *IO)
 {
+	SetNWCState(IO, eNWCVSConnFail);
 	StopClientWatchers(IO, 1);
 	return QueueDBOperation(IO, SendFailureMessage);
 }
@@ -905,6 +952,7 @@ eNextState nwc_connect_ip(AsyncIO *IO)
 {
 	AsyncNetworker *NW = IO->Data;
 
+	SetNWCState(&NW->IO, eNWCVSConnecting);
 	EVN_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
 	EVN_syslog(LOG_NOTICE, "Connecting to <%s> at %s:%s\n", 
 		   ChrPtr(NW->node), 
@@ -943,10 +991,12 @@ void RunNetworker(AsyncNetworker *NW)
 		    sizeof(((CitContext *)NW->IO.CitContext)->cs_host)); 
 
 	if (NW->IO.ConnectMe->IsIP) {
+		SetNWCState(&NW->IO, eNWCVSLookup);
 		QueueEventContext(&NW->IO,
 				  nwc_connect_ip);
 	}
 	else { /* uneducated admin has chosen to add DNS to the equation... */
+		SetNWCState(&NW->IO, eNWCVSConnecting);
 		QueueEventContext(&NW->IO,
 				  nwc_get_one_host_ip);
 	}
