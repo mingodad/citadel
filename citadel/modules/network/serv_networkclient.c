@@ -174,6 +174,25 @@ void DeleteNetworker(void *vptr)
 #define NWC_DBG_READ() EVN_syslog(LOG_DEBUG, ": < %s\n", ChrPtr(NW->IO.IOBuf))
 #define NWC_OK (strncasecmp(ChrPtr(NW->IO.IOBuf), "+OK", 3) == 0)
 
+eNextState SendFailureMessage(AsyncIO *IO)
+{
+	AsyncNetworker *NW = IO->Data;
+	long lens[2];
+	const char *strs[2];
+
+	strs[0] = ChrPtr(NW->node);
+	lens[0] = StrLength(NW->node);
+	
+	strs[1] = ChrPtr(NW->IO.ErrMsg);
+	lens[1] = StrLength(NW->IO.ErrMsg);
+	CtdlAideFPMessage(
+		ChrPtr(NW->IO.ErrMsg),
+		"Networker error",
+		2, strs, (long*) &lens);
+	
+	return eAbort;
+}
+
 eNextState FinalizeNetworker(AsyncIO *IO)
 {
 	AsyncNetworker *NW = (AsyncNetworker *)IO->Data;
@@ -200,8 +219,8 @@ eNextState NWC_ReadGreeting(AsyncNetworker *NW)
 			     "Connected to node \"%s\" but I was expecting to connect to node \"%s\".",
 			     connected_to, ChrPtr(NW->node));
 		EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
-		CtdlAideMessage(ChrPtr(NW->IO.ErrMsg), "Network error");
-		return eAbort;/// todo: aide message in anderer queue speichern
+		StopClientWatchers(IO, 1);
+		return QueueDBOperation(IO, SendFailureMessage);
 	}
 	return eSendReply;
 }
@@ -241,7 +260,8 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 		}
 		else {
 			EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
-			CtdlAideMessage(ChrPtr(NW->IO.ErrMsg), "Network error");
+			StopClientWatchers(IO, 1);
+			return QueueDBOperation(IO, SendFailureMessage);
 		}
 		return eAbort;
 	}
@@ -755,7 +775,8 @@ eReadState NWC_ReadServerStatus(AsyncIO *IO)
 
 eNextState NWC_FailNetworkConnection(AsyncIO *IO)
 {
-	return eAbort;
+	StopClientWatchers(IO, 1);
+	return QueueDBOperation(IO, SendFailureMessage);
 }
 
 void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)

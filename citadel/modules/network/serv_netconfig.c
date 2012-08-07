@@ -472,6 +472,8 @@ void cmd_netp(char *cmdbuf)
 	StrBuf *NodeStr;
 	long nodelen;
 	int v;
+	long lens[2];
+	const char *strs[2];
 
 	const StrBuf *secret = NULL;
 	const StrBuf *nexthop = NULL;
@@ -487,11 +489,22 @@ void cmd_netp(char *cmdbuf)
 	if (v != 0) {
 		snprintf(err_buf, sizeof err_buf,
 			"An unknown Citadel server called \"%s\" attempted to connect from %s [%s].\n",
-			node, CC->cs_host, CC->cs_addr
+			node, CCC->cs_host, CCC->cs_addr
 		);
 		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
-		CtdlAideMessage(err_buf, "IGNet Networking.");
+
+		strs[0] = CCC->cs_addr;
+		lens[0] = strlen(CCC->cs_addr);
+		
+		strs[1] = "SRV_UNKNOWN";
+		lens[1] = sizeof("SRV_UNKNOWN" - 1);
+
+		CtdlAideFPMessage(
+			err_buf,
+			"IGNet Networking.",
+			2, strs, (long*) &lens);
+
 		DeleteHash(&working_ignetcfg);
 		FreeStrBuf(&NodeStr);
 		return;
@@ -501,11 +514,22 @@ void cmd_netp(char *cmdbuf)
 	if (strcasecmp(CCC->user.password, ChrPtr(secret))) {
 		snprintf(err_buf, sizeof err_buf,
 			"A Citadel server at %s [%s] failed to authenticate as network node \"%s\".\n",
-			CC->cs_host, CC->cs_addr, node
+			CCC->cs_host, CCC->cs_addr, node
 		);
 		syslog(LOG_WARNING, "%s", err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
-		CtdlAideMessage(err_buf, "IGNet Networking.");
+
+		strs[0] = CCC->cs_addr;
+		lens[0] = strlen(CCC->cs_addr);
+		
+		strs[1] = "SRV_PW";
+		lens[1] = sizeof("SRV_PW" - 1);
+
+		CtdlAideFPMessage(
+			err_buf,
+			"IGNet Networking.",
+			2, strs, (long*) &lens);
+
 		DeleteHash(&working_ignetcfg);
 		FreeStrBuf(&NodeStr);
 		return;
@@ -518,12 +542,12 @@ void cmd_netp(char *cmdbuf)
 		FreeStrBuf(&NodeStr);
 		return;
 	}
-	nodelen = safestrncpy(CC->net_node, node, sizeof CC->net_node);
-	network_talking_to(CC->net_node, nodelen, NTT_ADD);
+	nodelen = safestrncpy(CCC->net_node, node, sizeof CCC->net_node);
+	network_talking_to(CCC->net_node, nodelen, NTT_ADD);
 	syslog(LOG_NOTICE, "Network node <%s> logged in from %s [%s]\n",
-		CC->net_node, CC->cs_host, CC->cs_addr
+		CCC->net_node, CCC->cs_host, CCC->cs_addr
 	);
-	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CC->net_node);
+	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CCC->net_node);
 	DeleteHash(&working_ignetcfg);
 	FreeStrBuf(&NodeStr);
 }

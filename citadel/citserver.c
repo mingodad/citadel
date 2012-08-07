@@ -425,7 +425,7 @@ int is_public_client(void)
 					}
 				}
 			}
-		fclose(fp);
+		if (fp != NULL) fclose(fp);
 		pc_timestamp = time(NULL);
 		end_critical_section(S_PUBLIC_CLIENTS);
 	}

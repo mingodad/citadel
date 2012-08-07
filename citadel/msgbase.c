@@ -38,6 +38,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <regex.h>
+
+#include "md5.h"
+
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -1813,7 +1816,7 @@ char *qp_encode_email_addrs(char *source)
 
 	if (source == NULL) return source;
 	if (IsEmptyStr(source)) return source;
-	cit_backtrace();
+	if (MessageDebugEnabled != 0) cit_backtrace();
 	MSG_syslog(LOG_DEBUG, "qp_encode_email_addrs: [%s]\n", source);
 
 	AddrPtr = malloc (sizeof (long) * nAddrPtrMax);
@@ -3489,18 +3492,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 }
 
 
-
-void aide_message (char *text, char *subject)
-{
-	quickie_message("Citadel",NULL,NULL,AIDEROOM,text,FMT_CITADEL,subject);
-}
-
-
 /*
  * Convenience function for generating small administrative messages.
  */
-void quickie_message(const char *from, const char *fromaddr, char *to, char *room, const char *text, 
-		     int format_type, const char *subject)
+void quickie_message(const char *from,
+		     const char *fromaddr,
+		     char *to,
+		     char *room,
+		     const char *text, 
+		     int format_type,
+		     const char *subject)
 {
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;
@@ -3541,6 +3542,72 @@ void quickie_message(const char *from, const char *fromaddr, char *to, char *roo
 	if (recp != NULL) free_recipients(recp);
 }
 
+void flood_protect_quickie_message(const char *from,
+				   const char *fromaddr,
+				   char *to,
+				   char *room,
+				   const char *text, 
+				   int format_type,
+				   const char *subject,
+				   int nCriterions,
+				   const char **CritStr,
+				   long *CritStrLen)
+{
+	int i;
+	struct UseTable ut;
+	u_char rawdigest[MD5_DIGEST_LEN];
+	struct MD5Context md5context;
+	StrBuf *guid;
+	struct cdbdata *cdbut;
+	char timestamp[64];
+	long tslen;
+	time_t ts = time(NULL);
+	time_t tsday = ts / (8*60*60); /* just care for a day... */
+
+	tslen = snprintf(timestamp, sizeof(timestamp), "%ld", tsday);
+	MD5Init(&md5context);
+
+	for (i = 0; i < nCriterions; i++)
+		MD5Update(&md5context,
+			  (const unsigned char*)CritStr[i], CritStrLen[i]);
+	MD5Update(&md5context,
+		  (const unsigned char*)timestamp, tslen);
+	MD5Final(rawdigest, &md5context);
+
+	guid = NewStrBufPlain(NULL,
+			      MD5_DIGEST_LEN * 2 + 12);
+	StrBufHexEscAppend(guid, NULL, rawdigest, MD5_DIGEST_LEN);
+	StrBufAppendBufPlain(guid, HKEY("_fldpt"), 0);
+	if (StrLength(guid) > 40)
+		StrBufCutAt(guid, 40, NULL);
+	/* Find out if we've already sent a similar message */
+	memcpy(ut.ut_msgid, SKEY(guid));
+	ut.ut_timestamp = ts;
+
+	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
+
+	if (cdbut != NULL) {
+		/* yes, we did. flood protection kicks in. */
+		syslog(LOG_DEBUG,
+		       "not sending message again\n");
+		cdb_free(cdbut);
+	}
+
+	/* rewrite the record anyway, to update the timestamp */
+	cdb_store(CDB_USETABLE,
+		  SKEY(guid),
+		  &ut, sizeof(struct UseTable) );
+
+	if (cdbut != NULL) return;
+	/* no, this message isn't sent recently; go ahead. */
+	quickie_message(from,
+			fromaddr,
+			to,
+			room,
+			text, 
+			format_type,
+			subject);
+}
 
 
 /*

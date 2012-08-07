@@ -72,7 +72,29 @@
 
 #define CTDL_UPGRADE_CALL(module_name) ctdl_module_##module_name##_upgrade ()
 
-#define CtdlAideMessage(TEXT, SUBJECT) quickie_message("Citadel",NULL,NULL,AIDEROOM,TEXT,FMT_CITADEL,SUBJECT) 
+#define CtdlAideMessage(TEXT, SUBJECT)		\
+	quickie_message(			\
+		"Citadel",			\
+		NULL,				\
+		NULL,				\
+		AIDEROOM,			\
+		TEXT,				\
+		FMT_CITADEL,			\
+		SUBJECT) 
+
+
+#define CtdlAideFPMessage(TEXT, SUBJECT, N, STR, STRLEN) \
+	flood_protect_quickie_message(			 \
+		"Citadel",				 \
+		NULL,					 \
+		NULL,					 \
+		AIDEROOM,				 \
+		TEXT,					 \
+		FMT_CITADEL,				 \
+		SUBJECT,				 \
+		N,					 \
+		STR,					 \
+		STRLEN)
 /*
  * Hook functions available to modules.
  */

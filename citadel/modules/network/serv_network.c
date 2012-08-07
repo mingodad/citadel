@@ -259,7 +259,10 @@ int network_sync_to(char *target_node, long len)
 	fclose(fp);
 	end_critical_section(S_NETCONFIGS);
 
-	if (!found_node) return(-1);
+	if (!found_node) {
+		free(sc.ignet_push_shares);
+		return(-1);
+	}
 
 	sc.working_ignetcfg = load_ignetcfg();
 	sc.the_netmap = read_network_map();

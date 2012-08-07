@@ -325,7 +325,7 @@ HttpStatus(long CitadelStatus)
  */
 void handle_one_message(void) 
 {
-	long CitStatus;
+	long CitStatus = ERROR + NOT_HERE;
 	int CopyMessage = 0;
 	const StrBuf *Destination;
 	void *vLine;

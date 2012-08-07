@@ -229,11 +229,139 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
 	return eAbort;
 }
 
+void AppendLink(StrBuf *Message,
+		StrBuf *link,
+		StrBuf *LinkTitle,
+		const char *Title)
+{
+	if (StrLength(link) > 0)
+	{
+		StrBufAppendBufPlain(Message, HKEY("<a href=\""), 0);
+		StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("\">"), 0);
+		if (StrLength(LinkTitle) > 0)
+			StrBufAppendBuf(Message, LinkTitle, 0);
+		else if ((Title != NULL) && !IsEmptyStr(Title))
+			StrBufAppendBufPlain(Message, Title, -1, 0);
+		else
+			StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
+	}
+}
+
+
+void rss_format_item(networker_save_message *SaveMsg)
+{
+	StrBuf *Message;
+	int msglen = 0;
+
+	if (SaveMsg->author_or_creator != NULL) {
+
+		char *From;
+		StrBuf *Encoded = NULL;
+		int FromAt;
+
+		From = html_to_ascii(ChrPtr(SaveMsg->author_or_creator),
+				     StrLength(SaveMsg->author_or_creator),
+				     512, 0);
+		StrBufPlain(SaveMsg->author_or_creator, From, -1);
+		StrBufTrim(SaveMsg->author_or_creator);
+		free(From);
+
+		FromAt = strchr(ChrPtr(SaveMsg->author_or_creator), '@') != NULL;
+		if (!FromAt && StrLength (SaveMsg->author_email) > 0)
+		{
+			StrBufRFC2047encode(&Encoded, SaveMsg->author_or_creator);
+			SaveMsg->Msg.cm_fields['A'] = SmashStrBuf(&Encoded);
+			SaveMsg->Msg.cm_fields['P'] =
+				SmashStrBuf(&SaveMsg->author_email);
+		}
+		else
+		{
+			if (FromAt)
+			{
+				SaveMsg->Msg.cm_fields['A'] =
+					SmashStrBuf(&SaveMsg->author_or_creator);
+				SaveMsg->Msg.cm_fields['P'] =
+					strdup(SaveMsg->Msg.cm_fields['A']);
+			}
+			else
+			{
+				StrBufRFC2047encode(&Encoded,
+						    SaveMsg->author_or_creator);
+				SaveMsg->Msg.cm_fields['A'] =
+					SmashStrBuf(&Encoded);
+				SaveMsg->Msg.cm_fields['P'] =
+					strdup("rss@localhost");
+
+			}
+		}
+	}
+	else {
+		SaveMsg->Msg.cm_fields['A'] = strdup("rss");
+	}
+
+	SaveMsg->Msg.cm_fields['N'] = strdup(NODENAME);
+	if (SaveMsg->title != NULL) {
+		long len;
+		char *Sbj;
+		StrBuf *Encoded, *QPEncoded;
+
+		QPEncoded = NULL;
+		StrBufSpaceToBlank(SaveMsg->title);
+		len = StrLength(SaveMsg->title);
+		Sbj = html_to_ascii(ChrPtr(SaveMsg->title), len, 512, 0);
+		len = strlen(Sbj);
+		if ((len > 0) && (Sbj[len - 1] == '\n'))
+		{
+			len --;
+			Sbj[len] = '\0';
+		}
+		Encoded = NewStrBufPlain(Sbj, len);
+		free(Sbj);
+
+		StrBufTrim(Encoded);
+		StrBufRFC2047encode(&QPEncoded, Encoded);
+
+		SaveMsg->Msg.cm_fields['U'] = SmashStrBuf(&QPEncoded);
+		FreeStrBuf(&Encoded);
+	}
+	if (SaveMsg->link == NULL)
+		SaveMsg->link = NewStrBufPlain(HKEY(""));
+
+#if 0 /* temporarily disable shorter urls. */
+	SaveMsg->Msg.cm_fields[TMP_SHORTER_URLS] =
+		GetShorterUrls(SaveMsg->description);
+#endif
+
+	msglen += 1024 + StrLength(SaveMsg->link) + StrLength(SaveMsg->description) ;
+
+	Message = NewStrBufPlain(NULL, msglen);
+
+	StrBufPlain(Message, HKEY(
+			    "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
+			    "<html><body>\n"));
+#if 0 /* disable shorter url for now. */
+	SaveMsg->Msg.cm_fields[TMP_SHORTER_URL_OFFSET] = StrLength(Message);
+#endif
+	StrBufAppendBuf(Message, SaveMsg->description, 0);
+	StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
+
+	AppendLink(Message, SaveMsg->link, SaveMsg->linkTitle, NULL);
+	AppendLink(Message, SaveMsg->reLink, SaveMsg->reLinkTitle, "Reply to this");
+	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
+
+
+	SaveMsg->Message = Message;
+}
+
 eNextState RSSSaveMessage(AsyncIO *IO)
 {
 	long len;
 	const char *Key;
 	rss_aggregator *RSSAggr = (rss_aggregator *) IO->Data;
+
+	rss_format_item(RSSAggr->ThisMsg);
 
 	RSSAggr->ThisMsg->Msg.cm_fields['M'] =
 		SmashStrBuf(&RSSAggr->ThisMsg->Message);
@@ -299,6 +427,90 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	}
 }
 
+eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
+{
+	struct UseTable ut;
+	u_char rawdigest[MD5_DIGEST_LEN];
+	struct MD5Context md5context;
+	StrBuf *guid;
+	struct cdbdata *cdbut;
+	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
+
+	if (IO->HttpReq.httpcode != 200)
+	{
+		StrBuf *ErrMsg;
+		long lens[2];
+		const char *strs[2];
+
+		ErrMsg = NewStrBuf();
+		EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
+			      IO->HttpReq.httpcode);
+		
+		strs[0] = ChrPtr(Ctx->Url);
+		lens[0] = StrLength(Ctx->Url);
+
+		strs[1] = ChrPtr(Ctx->rooms);
+		lens[1] = StrLength(Ctx->rooms);
+		StrBufPrintf(ErrMsg,
+			     "Error while RSS-Aggregation Run of %s\n"
+			     " need a 200, got a %ld !\n"
+			     " Response text was: \n"
+			     " \n %s\n",
+			     ChrPtr(Ctx->Url),
+			     IO->HttpReq.httpcode,
+			     ChrPtr(IO->HttpReq.ReplyData));
+		CtdlAideFPMessage(
+			ChrPtr(ErrMsg),
+			"RSS Aggregation run failure",
+			2, strs, (long*) &lens);
+		FreeStrBuf(&ErrMsg);
+		return eAbort;
+	}
+
+	MD5Init(&md5context);
+
+	MD5Update(&md5context,
+		  (const unsigned char*)SKEY(IO->HttpReq.ReplyData));
+
+	MD5Update(&md5context,
+		  (const unsigned char*)SKEY(Ctx->Url));
+
+	MD5Final(rawdigest, &md5context);
+	guid = NewStrBufPlain(NULL,
+			      MD5_DIGEST_LEN * 2 + 12 /* _rss2ctdl*/);
+	StrBufHexEscAppend(guid, NULL, rawdigest, MD5_DIGEST_LEN);
+	StrBufAppendBufPlain(guid, HKEY("_rssFM"), 0);
+	if (StrLength(guid) > 40)
+		StrBufCutAt(guid, 40, NULL);
+	/* Find out if we've already seen this item */
+	memcpy(ut.ut_msgid, SKEY(guid));
+	ut.ut_timestamp = time(NULL);
+
+	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
+#ifndef DEBUG_RSS
+	if (cdbut != NULL) {
+		/* Item has already been seen */
+		EVRSSC_syslog(LOG_DEBUG,
+			      "%s has already been seen\n",
+			      ChrPtr(Ctx->Url));
+		cdb_free(cdbut);
+	}
+
+	/* rewrite the record anyway, to update the timestamp */
+	cdb_store(CDB_USETABLE,
+		  SKEY(guid),
+		  &ut, sizeof(struct UseTable) );
+	FreeStrBuf(&guid);
+	if (cdbut != NULL) return eAbort;
+#endif
+	return RSSAggregator_ParseReply(IO);
+}
+
+eNextState RSSAggregator_FinishHttp(AsyncIO *IO)
+{
+	return QueueDBOperation(IO, RSSAggregator_AnalyseReply);
+}
+
 /*
  * Begin a feed parse
  */
@@ -320,7 +532,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 	if (! InitcURLIOStruct(&RSSAggr->IO,
 			       RSSAggr,
 			       "Citadel RSS Client",
-			       RSSAggregator_ParseReply,
+			       RSSAggregator_FinishHttp,
 			       RSSAggregator_Terminate,
 			       RSSAggregator_TerminateDB,
 			       RSSAggregator_ShutdownAbort))
