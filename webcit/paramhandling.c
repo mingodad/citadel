@@ -51,7 +51,7 @@ void ParseURLParams(StrBuf *url)
 		}
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if(keylen > sizeof(u->url_key)) {
-			syslog(1, "URLkey to long! [%s]", up);
+			syslog(1, "invalid url_key");
 			continue;
 		}
 
@@ -59,7 +59,7 @@ void ParseURLParams(StrBuf *url)
 		memcpy(u->url_key, up, keylen);
 		u->url_key[keylen] = '\0';
 		if (keylen < 0) {
-			syslog(1, "URLkey to long! [%s]", up);
+			syslog(1, "invalid url_key");
 			free(u);
 			continue;
 		}
@@ -371,7 +371,7 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 	urlcontent *u;
 
 	if(keylen > sizeof(u->url_key)) {
-		syslog(1, "URLkey to long! [%s]", key);
+		syslog(1, "invalid url_key");
 		FreeStrBuf(&Value);
 		return;
 	}
