@@ -264,6 +264,14 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	 */
 	StopClientWatchers(IO, 1);
 
+	Msg->MyQEntry->nAttempt ++;
+	if (Msg->MyQEntry->AllStatusMessages == NULL)
+		Msg->MyQEntry->AllStatusMessages = NewStrBuf();
+
+	StrBufAppendPrintf(Msg->MyQEntry->AllStatusMessages, "%ld) ", Msg->MyQEntry->nAttempt);
+	StrBufAppendBuf(Msg->MyQEntry->AllStatusMessages, Msg->MyQEntry->StatusMessage, 0);
+	StrBufAppendBufPlain(Msg->MyQEntry->AllStatusMessages, HKEY("; "), 0);
+
 	if (Msg->pCurrRelay != NULL)
 		Msg->pCurrRelay = Msg->pCurrRelay->Next;
 	if ((Msg->pCurrRelay != NULL) &&

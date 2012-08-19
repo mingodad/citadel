@@ -27,6 +27,7 @@ extern const unsigned short DefaultMXPort;
 typedef struct _mailq_entry {
 	StrBuf *Recipient;
 	StrBuf *StatusMessage;
+	StrBuf *AllStatusMessages;
 	int Status;
 	/**<
 	 * 0 = No delivery has yet been attempted
@@ -41,6 +42,7 @@ typedef struct _mailq_entry {
 	int n;
 	int Active;
 	int StillActive;
+	int nAttempt;
 }MailQEntry;
 
 typedef struct queueitem {
