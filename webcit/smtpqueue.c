@@ -250,6 +250,7 @@ void QItem_Handle_SenderRoom(OneQueItem *Item, StrBuf *Line, const char **Pos)
 
 void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
 {
+	const char *pch;
 	if (Item->Current == NULL)
 		NewMailQEntry(Item);
 	if (Item->Current->Recipient == NULL)
@@ -257,6 +258,18 @@ void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
 	StrBufExtract_NextToken(Item->Current->Recipient, Line, Pos, '|');
 	Item->Current->Status = StrBufExtractNext_int(Line, Pos, '|');
 	StrBufExtract_NextToken(Item->Current->StatusMessage, Line, Pos, '|');
+
+	pch = ChrPtr(Item->Current->StatusMessage);
+	while ((pch != NULL) && (*pch != '\0')) {
+		pch = strchr(pch, ';');
+		if (pch != NULL) {
+			pch ++;
+			if (*pch == ' ') {
+				StrBufPeek(Item->Current->StatusMessage,
+					   pch, -1, '\n');
+			}
+		}
+	}
 	Item->Current = NULL; // TODO: is this always right?
 }
 
