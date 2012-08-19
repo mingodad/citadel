@@ -774,7 +774,9 @@ eNextState SMTP_C_Timeout(AsyncIO *IO)
 
 	Msg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
-	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[Msg->State]));
+	StrBufPrintf(IO->ErrMsg, "Timeout: %s while talking to %s",
+		     ReadErrors[Msg->State].Key,
+		     Msg->mx_host);
 	if (Msg->State > eRCPT)
 		return eAbort;
 	else
@@ -786,7 +788,10 @@ eNextState SMTP_C_ConnFail(AsyncIO *IO)
 
 	Msg->MyQEntry->Status = 4;
 	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
-	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[Msg->State]));
+	StrBufPrintf(IO->ErrMsg, "Connection failure: %s while talking to %s",
+		     ReadErrors[Msg->State].Key,
+		     Msg->mx_host);
+
 	return FailOneAttempt(IO);
 }
 eNextState SMTP_C_DNSFail(AsyncIO *IO)
