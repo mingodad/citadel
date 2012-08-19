@@ -305,18 +305,18 @@ void QueryCbDone(AsyncIO *IO)
 
 void DestructCAres(AsyncIO *IO)
 {
-	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 
-	EV_DNS_LOG_STOP(DNS.recv_event);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %d %p \n", "DNS.recv_event", IO->DNS.recv_event.fd, &IO->DNS.recv_event);
 	ev_io_stop(event_base, &IO->DNS.recv_event);
 
-	EV_DNS_LOG_STOP(DNS.send_event);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %d %p\n", "DNS.send_event", IO->DNS.send_event.fd, &IO->DNS.send_event);
 	ev_io_stop(event_base, &IO->DNS.send_event);
 
-	EV_DNS_LOGT_STOP(DNS.timeout);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %p\n", "DNS.timeout", &IO->DNS.send_event);
 	ev_timer_stop (event_base, &IO->DNS.timeout);
 
-	EV_DNS_LOGT_STOP(unwind_stack);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %p\n", "DNS.unwind_stack", &IO->unwind_stack);
 	ev_idle_stop(event_base, &IO->unwind_stack);
 	ares_destroy_options(&IO->DNS.Options);
 }
