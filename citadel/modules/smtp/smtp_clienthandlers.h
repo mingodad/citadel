@@ -121,3 +121,22 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg);
 #define SMTPCM_syslog(LEVEL, FORMAT)		\
 	DBGLOG(LEVEL) syslog(LEVEL,		\
 			     "SMTPCQ: " FORMAT)
+
+
+
+typedef enum __smtpstate {
+	eSTMPmxlookup,
+	eSTMPevaluatenext,
+	eSTMPalookup,
+	eSTMPaaaalookup,
+	eSTMPconnecting,
+	eSTMPsmtp,
+	eSTMPsmtpdata,
+	eSTMPsmtpdone,
+	eSTMPfinished,
+	eSTMPfailOne,
+	eSMTPFailTemporary,
+	eSMTPFailTotal
+} smtpstate;
+
+void SetSMTPState(AsyncIO *IO, smtpstate State);

@@ -122,6 +122,7 @@ eNextState SMTPC_read_greeting(SmtpOutMsg *Msg)
 	/* Process the SMTP greeting from the server */
 	AsyncIO *IO = &Msg->IO;
 	SMTP_DBG_READ();
+	SetSMTPState(IO, eSTMPsmtp);
 
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
@@ -304,11 +305,13 @@ eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *Msg)
 	SMTP_DBG_READ();
 
 	if (!SMTP_IS_STATE('3')) {
+		SetSMTPState(IO, eSTMPfailOne);
 		if (SMTP_IS_STATE('4'))
 			SMTP_VERROR(3);
 		else
 			SMTP_VERROR(5);
 	}
+	SetSMTPState(IO, eSTMPsmtpdata);
 	return eSendReply;
 }
 
@@ -352,6 +355,7 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *Msg)
 			SMTP_VERROR(5);
 	}
 
+	SetSMTPState(IO, eSTMPsmtpdone);
 	/* We did it! */
 	StrBufPlain(Msg->MyQEntry->StatusMessage,
 		    &ChrPtr(Msg->IO.RecvBuf.Buf)[4],

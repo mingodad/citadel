@@ -194,7 +194,7 @@ void FreeMailQEntry(void *qv)
 */
 	FreeStrBuf(&Q->Recipient);
 	FreeStrBuf(&Q->StatusMessage);
-
+	FreeStrBuf(&Q->AllStatusMessages);
 	memset(Q, 0, sizeof(MailQEntry));
 	free(Q);
 }
@@ -385,7 +385,10 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 		StrBufAppendBufPlain(QMessage, HKEY("|"), 0);
 		StrBufAppendPrintf(QMessage, "%d", ThisItem->Status);
 		StrBufAppendBufPlain(QMessage, HKEY("|"), 0);
-		StrBufAppendBuf(QMessage, ThisItem->StatusMessage, 0);
+		if (ThisItem->AllStatusMessages != NULL)
+			StrBufAppendBuf(QMessage, ThisItem->AllStatusMessages, 0);
+		else
+			StrBufAppendBuf(QMessage, ThisItem->StatusMessage, 0);
 	}
 	DeleteHashPos(&It);
 	StrBufAppendBufPlain(QMessage, HKEY("\n"), 0);

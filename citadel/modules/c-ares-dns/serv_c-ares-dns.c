@@ -280,7 +280,11 @@ void QueryCb(void *arg,
 		EV_DNS_syslog(LOG_DEBUG, "C-ARES: Failed by: %s error %s\n",
 			      __FUNCTION__,
 			      ares_strerror(status));
-		StrBufPlain(IO->ErrMsg, ares_strerror(status), -1);
+		StrBufPrintf(IO->ErrMsg,
+			     "%s-lookup %s - %s",
+			     IO->DNS.Query->QueryTYPE,
+			     (IO->DNS.Query->QStr != NULL)? IO->DNS.Query->QStr : "",
+			     ares_strerror(status));
 		IO->DNS.Query->DNSStatus = status;
 	}
 
@@ -305,18 +309,18 @@ void QueryCbDone(AsyncIO *IO)
 
 void DestructCAres(AsyncIO *IO)
 {
-	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 
-	EV_DNS_LOG_STOP(DNS.recv_event);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %d %p \n", "DNS.recv_event", IO->DNS.recv_event.fd, &IO->DNS.recv_event);
 	ev_io_stop(event_base, &IO->DNS.recv_event);
 
-	EV_DNS_LOG_STOP(DNS.send_event);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %d %p\n", "DNS.send_event", IO->DNS.send_event.fd, &IO->DNS.send_event);
 	ev_io_stop(event_base, &IO->DNS.send_event);
 
-	EV_DNS_LOGT_STOP(DNS.timeout);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %p\n", "DNS.timeout", &IO->DNS.send_event);
 	ev_timer_stop (event_base, &IO->DNS.timeout);
 
-	EV_DNS_LOGT_STOP(unwind_stack);
+	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %p\n", "DNS.unwind_stack", &IO->unwind_stack);
 	ev_idle_stop(event_base, &IO->unwind_stack);
 	ares_destroy_options(&IO->DNS.Options);
 }
@@ -415,6 +419,17 @@ void QueueGetHostByName(AsyncIO *IO,
 
 }
 
+const char* QT[] = {
+	"A",
+	"AAAA",
+	"MX",
+	"NS",
+	"TXT",
+	"SRV",
+	"CNAME",
+	"PTR"
+};
+
 int QueueQuery(ns_type Type,
 	       const char *name,
 	       AsyncIO *IO,
@@ -429,6 +444,7 @@ int QueueQuery(ns_type Type,
 	IO->DNS.Query = QueryParts;
 	IO->DNS.Query->PostDNS = PostDNS;
 	IO->DNS.Start = IO->Now;
+	IO->DNS.Query->QStr = name;
 
 	InitC_ares_dns(IO);
 
@@ -439,35 +455,41 @@ int QueueQuery(ns_type Type,
 	switch(Type) {
 	case ns_t_a:
 		IO->DNS.Query->DNS_CB = ParseAnswerA;
+		IO->DNS.Query->QueryTYPE = QT[0];
 		break;
 
 	case ns_t_aaaa:
 		IO->DNS.Query->DNS_CB = ParseAnswerAAAA;
+		IO->DNS.Query->QueryTYPE = QT[1];
 		break;
 
 	case ns_t_mx:
 		IO->DNS.Query->DNS_CB = ParseAnswerMX;
+		IO->DNS.Query->QueryTYPE = QT[2];
 		break;
 
 	case ns_t_ns:
 		IO->DNS.Query->DNS_CB = ParseAnswerNS;
+		IO->DNS.Query->QueryTYPE = QT[3];
 		break;
 
 	case ns_t_txt:
 		IO->DNS.Query->DNS_CB = ParseAnswerTXT;
+		IO->DNS.Query->QueryTYPE = QT[4];
 		break;
 
 	case ns_t_srv:
 		IO->DNS.Query->DNS_CB = ParseAnswerSRV;
+		IO->DNS.Query->QueryTYPE = QT[5];
 		break;
 
 	case ns_t_cname:
 		IO->DNS.Query->DNS_CB = ParseAnswerCNAME;
+		IO->DNS.Query->QueryTYPE = QT[6];
 		break;
 
 	case ns_t_ptr:
-
-
+		IO->DNS.Query->QueryTYPE = QT[7];
 		if (inet_pton(AF_INET, name, &address_b) == 1) {
 			length = sizeof(struct in_addr);
 			family = AF_INET;

@@ -5,6 +5,7 @@ typedef struct UserStateStruct {
 	StrBuf *UserName;
 	StrBuf *Room;
 	StrBuf *Host;
+	StrBuf *UserAgent;
 	StrBuf *RealRoom;
 	StrBuf *RealHost;
 	long LastActive;
@@ -22,6 +23,7 @@ void DestroyUserStruct(void *vUser)
 	FreeStrBuf(&User->Host);
 	FreeStrBuf(&User->RealRoom);
 	FreeStrBuf(&User->RealHost);
+	FreeStrBuf(&User->UserAgent);
 	free(User);
 }
 
@@ -67,7 +69,8 @@ int GetWholistSection(HashList *List, time_t now, StrBuf *Buf, const char *Filte
 			User->Host = NewStrBufPlain(NULL, BufLen);
 			StrBufExtract_NextToken(User->Host, Buf, &Pos, '|');
 
-			StrBufSkip_NTokenS(Buf, &Pos, '|', 1);
+			User->UserAgent = NewStrBufPlain(NULL, BufLen);
+			StrBufExtract_NextToken(User->UserAgent, Buf, &Pos, '|');
 
 			User->LastActive = StrBufExtractNext_long(Buf, &Pos, '|');
 			StrBufSkip_NTokenS(Buf, &Pos, '|', 3);
@@ -218,6 +221,12 @@ void tmplput_who_username(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, User->UserName, 0);
 }
 
+void tmplput_who_UserAgent(StrBuf *Target, WCTemplputParams *TP)
+{
+	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
+	StrBufAppendTemplate(Target, TP, User->UserAgent, 0);
+}
+
 void tmplput_who_room(StrBuf *Target, WCTemplputParams *TP)
 {
 	UserStateStruct *User = (UserStateStruct*) CTX(CTX_WHO);
@@ -306,6 +315,7 @@ InitModule_WHO
 	RegisterIterator("WHOLIST", 1, NULL, GetWholistHash, NULL, DeleteWholistHash, CTX_WHO, CTX_NONE, IT_NOFLAG);
 
 	RegisterNamespace("WHO:NAME",        0, 1, tmplput_who_username, NULL, CTX_WHO);
+	RegisterNamespace("WHO:USERAGENT",   0, 1, tmplput_who_UserAgent, NULL, CTX_WHO);
 	RegisterNamespace("WHO:ROOM",        0, 1, tmplput_who_room, NULL, CTX_WHO);
 	RegisterNamespace("WHO:HOST",        0, 1, tmplput_who_host, NULL, CTX_WHO);
 	RegisterNamespace("WHO:REALROOM",    0, 1, tmplput_who_realroom, NULL, CTX_WHO);
