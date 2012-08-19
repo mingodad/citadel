@@ -71,6 +71,8 @@ typedef struct _DNSQueryParts {
 	ParseDNSAnswerCb DNS_CB;
 	IO_CallBack PostDNS;
 
+	const char *QueryTYPE;
+	const char *QStr;
 	int DNSStatus;
 	void *VParsedDNSReply;
 	FreeDNSReply DNSReplyFree;
