@@ -59,7 +59,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	useredit.o vcard_edit.o preferences.o html2html.o listsub.o roomchat.o \
 	graphics.o netconf.o siteconfig.o subst.o bbsview_renderer.o \
 	calendar.o calendar_tools.o calendar_view.o tasks.o event.o smtpqueue.o \
-	availability.o iconbar.o crypto.o inetconf.o notes.o wiki.o \
+	availability.o iconbar.o icontheme.o crypto.o inetconf.o notes.o wiki.o \
 	dav_main.o dav_get.o dav_propfind.o dav_report.o fmt_date.o \
 	dav_options.o autocompletion.o gettext.o tabs.o sieve.o sitemap.o \
 	dav_delete.o dav_put.o http_datestring.o setup_wizard.o \
@@ -76,7 +76,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	useredit.o locate_host.o siteconfig.o subst.o vcard_edit.o roomchat.o \
 	graphics.o netconf.o preferences.o html2html.o openid.o bbsview_renderer.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o tasks.o event.o wiki.o \
-	availability.o ical_dezonify.o iconbar.o crypto.o inetconf.o notes.o \
+	availability.o ical_dezonify.o iconbar.o icontheme.o crypto.o inetconf.o notes.o \
 	dav_main.o dav_get.o dav_propfind.o dav_report.o dav_delete.o \
 	dav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o sitemap.o \
 	dav_put.o http_datestring.o setup_wizard.o fmt_date.o modules_init.o \
