@@ -490,6 +490,8 @@ struct wcsession {
 
 	char last_chat_user[256];
 
+	StrBuf *IconTheme;                      /* Icontheme setting */
+
 /* Iconbar controls */
 	int cache_max_folders;
 	int cache_num_floors;
