@@ -104,7 +104,7 @@ $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 $(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
 
-install:  install-bin install-setupbin install-wwwdata install-tinymce install-locale
+install:  install-bin install-setupbin install-wwwdata install-ckeditor install-locale
 
 install-bin:
 	test -d $(DESTDIR)$(prefix) || mkdir -p $(DESTDIR)$(prefix)
@@ -130,14 +130,14 @@ install-wwwdata:
 		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
 	done
 
-install-tinymce:
+install-ckeditor:
 	test -d $(DESTDIR)$(WWWDIR)/static || mkdir -p $(DESTDIR)$(WWWDIR)/static
-	for i in `find tiny_mce -type d | grep -v .svn` \
+	for i in `find ckeditor -type d | grep -v .svn` \
 		; do \
 		test -d $(DESTDIR)$(WWWDIR)/$$i || mkdir -p $(DESTDIR)$(WWWDIR)/$$i; \
 	done
 	for i in \
-		`find tiny_mce -type f | grep -v .svn` \
+		`find ckeditor -type f | grep -v .svn` \
 		; do \
 		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
 	done

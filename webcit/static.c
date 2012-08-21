@@ -398,7 +398,5 @@ InitModule_STATIC
 	WebcitAddUrlHandler(HKEY("favicon.ico"), "", 0, output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("static"), "", 0, output_static_0, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("static.local"), "", 0, output_static_1, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
-	WebcitAddUrlHandler(HKEY("tinymce"), "", 0, output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
-	WebcitAddUrlHandler(HKEY("tiny_mce"), "", 0, output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("ckeditor"), "", 0, output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 }

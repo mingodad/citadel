@@ -485,13 +485,13 @@ if test "$prefix" = NONE; then
 	localedir=$ac_default_prefix
 	wwwdir=$ac_default_prefix
 	rundir=$ac_default_prefix
-	editordir=$ac_default_prefix/tiny_mce
+	editordir=$ac_default_prefix/ckeditor
 else
 	localedir=$prefix
 	wwwdir=$prefix
 	datadir=$prefix
 	rundir=$prefix
-	editordir=$prefix/tiny_mce
+	editordir=$prefix/ckeditor
 fi
 
 dnl where to put the locale files
@@ -562,7 +562,7 @@ AC_OUTPUT(Makefile po/webcit/Makefile tests/Makefile)
 
 if test "$abs_srcdir" != "$abs_builddir"; then
    ln -s $abs_srcdir/static $abs_builddir
-   ln -s $abs_srcdir/tiny_mce $abs_builddir
+   ln -s $abs_srcdir/ckeditor $abs_builddir
    ln -s $abs_srcdir/*.h $abs_builddir
    make mkdir-init
    

@@ -1,18 +1,20 @@
-<script type="text/javascript" src="tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript" src="tiny_mce/ckeditor.js"></script>
 <script type="text/javascript">
-idealHeight = $('entmsg').offsetHeight - $('msgtext').offsetTop - 10;
-tinyMCE.init({
-	mode : "textareas",
-	width : "100%",
-	height : idealHeight,
-	browsers : "msie,gecko,safari,opera",
-	theme : "advanced",
-	plugins : "iespell",
-	theme_advanced_buttons1 : "bold, italic, underline, strikethrough, justifyleft, justifycenter, justifyright, justifyfull, blockquote, bullist, numlist, cut, copy, paste, link, image, help, forecolor, iespell, code",
-	theme_advanced_buttons2 : "",
-	theme_advanced_buttons3 : "",
-	theme_advanced_toolbar_location : "top",
-	content_css : "static/styles/webcit-tinymce.css",
-	entity_encoding : "raw"
-});
+	//<![CDATA[
+	// Replace the <textarea id="msgtext"> with an CKEditor instance.
+	var editor = CKEDITOR.replace( 'msgtext',
+	{	toolbar :
+		[
+		{ name: 'insert', items : [ 'Link','Unlink','Image','Table','HorizontalRule','Smiley','SpecialChar' ] },
+		{ name: 'views', items : [ 'Find','Replace','-','Undo','Redo','-','ShowBlocks','Preview' ] },
+		{ name: 'document', items : [ 'Save','Source','-','About'] },
+		'/',
+		{ name: 'styles', items : [ 'Format' ] },
+		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','Strike','-','RemoveFormat' ] },
+		{ name: 'paragraph', items : [ 'JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','Blockquote' ] },
+		{ name: 'lists', items : [ 'NumberedList','BulletedList','-','Outdent','Indent' ] },
+		{ name: 'colors', items : [ 'TextColor','BGColor' ] },
+		]
+	});
+	//]]>
 </script>
