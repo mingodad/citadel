@@ -67,7 +67,8 @@
 /* if you make changes here, port them to WEBCIT-TINYMCE.css! */
 .message_content blockquote {
 	/*border: 1px solid #5C646B;*/
-	padding: 0.3em;
+	padding: 0.2em;
+	margin: 0.3em 0.5em;
 }
 
 .message_content blockquote .message_header span {
@@ -89,6 +90,7 @@ blockquote .message_header {
 blockquote .message_content {
 	padding: 0;
 	background-color: transparent;
+	margin: 0.3em;
 }
 /* --- End of blockquoting block --- */
 
