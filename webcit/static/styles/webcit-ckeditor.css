@@ -3,21 +3,17 @@ body {font-size: 12px;}
 
 blockquote{
 	background-color: #deded0;
-	border: 1px solid #5C646B;
-	border-top: none;
 }
 
 .message_header {
 	font-size: x-small;
 	padding: 0.5em;
-        border-top: 1px solid transparent;
 }
 
 .message_content {
 	background-color: #fff;
 	padding: 0.5em;
 	clear: both;
-	border-bottom: 1px solid transparent;
 }
 
 
@@ -52,11 +48,10 @@ blockquote{
 /* make blockquotes in messages distingushable */
 /* there is a lot of cascading happen io order to make it look beautiful */
 .message_content blockquote {
-	/*border: 1px solid #5C646B;*/
-	padding: 0.3em;
+	padding: 0.2em;
+	margin: 0.3em 0.5em;
 }
 
-/*but draw a top border if message inside blockquote was quoted with header!*/
 blockquote .message_header {          
 	padding: 0;
 	background-color: #deded0;
@@ -71,7 +66,6 @@ blockquote .message_header {
 	float: none;
 }
 
-/*make bottom border of content inside of a blockquote rounded, so it fits the blockquote*/
 blockquote .message_content {
 	padding: 0;
 	background-color: transparent;
