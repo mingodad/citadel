@@ -14,11 +14,12 @@ extern HashList *LocalTemplateCache;
 #define TYPE_STR   1
 #define TYPE_LONG  2
 #define TYPE_PREFSTR 3
-#define TYPE_PREFINT 4
-#define TYPE_GETTEXT 5
-#define TYPE_BSTR 6
-#define TYPE_SUBTEMPLATE 7
-#define TYPE_INTDEFINE 8
+#define TYPE_ROOMPREFSTR 4
+#define TYPE_PREFINT 5
+#define TYPE_GETTEXT 6
+#define TYPE_BSTR 7
+#define TYPE_SUBTEMPLATE 8
+#define TYPE_INTDEFINE 9
 #define MAXPARAM  25
 
 #define IS_NUMBER(a) ((a == TYPE_LONG) || (a == TYPE_PREFINT) || (a == TYPE_INTDEFINE))

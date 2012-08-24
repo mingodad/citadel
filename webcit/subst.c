@@ -448,6 +448,7 @@ int HaveTemplateTokenString(StrBuf *Target,
 	case TYPE_STR:
 	case TYPE_BSTR:
 	case TYPE_PREFSTR:
+	case TYPE_ROOMPREFSTR:
 	case TYPE_GETTEXT:
 	case TYPE_SUBTEMPLATE:
 		return 1;
@@ -506,6 +507,19 @@ void GetTemplateTokenString(StrBuf *Target,
 			break;
 		}
 		get_PREFERENCE(TKEY(N), &Buf);
+		*Value = ChrPtr(Buf);
+		*len = StrLength(Buf);
+		break;
+	case TYPE_ROOMPREFSTR:
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type PREFSTR, empty lookup string not admitted.", N);
+			*len = 0;
+			*Value = EmptyStr;
+			break;
+		}
+		Buf = get_ROOM_PREFS(TKEY(N));
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		break;
@@ -586,6 +600,19 @@ long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long df
 			return 0;
 		}
 		if (get_PREF_LONG(TKEY(N), &Ret, dflt))
+			return Ret;
+		return 0;
+	case TYPE_ROOMPREFSTR:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "requesting a prefstring in param %d want a number", N);
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type PREFSTR, empty lookup string not admitted.", N);
+			return 0;
+		}
+		if (get_ROOM_PREFS_LONG(TKEY(N), &Ret, dflt))
 			return Ret;
 		return 0;
 	case TYPE_INTDEFINE:
@@ -724,6 +751,14 @@ int GetNextParameter(StrBuf *Buf,
 
 	if (*pch == ':') {
 		Parm->Type = TYPE_PREFSTR;
+		pch ++;
+		if (*pch == '(') {
+			pch ++;
+			ParamBrace = 1;
+		}
+	}
+	else if (*pch == '.') {
+		Parm->Type = TYPE_ROOMPREFSTR;
 		pch ++;
 		if (*pch == '(') {
 			pch ++;
