@@ -690,7 +690,7 @@ function PopOpenAddressBook(target_input) {
 	p = 'target_input=' + target_input + '&r=' + CtdlRandomString();
 	new Ajax.Updater(
 		'address_book_popup_middle_div',
-		'display_address_book_middle_div',
+		'do_template?template=addressbook_list',
 		{
 			method: 'get',
 			parameters: p,
@@ -700,18 +700,19 @@ function PopOpenAddressBook(target_input) {
 }
 
 function PopulateAddressBookInnerDiv(which_addr_book, target_input) {
-	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br></div>";
-	p = 'which_addr_book=' + which_addr_book
-	  + '&target_input=' + target_input
-	  + '&r=' + CtdlRandomString();
-	new Ajax.Updater(
-		'address_book_inner_div',
-		'display_address_book_inner_div',
-		{
-			method: 'get',
-			parameters: p
-		}
-	);
+    $('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br></div>";
+    p = 'which_addr_book=' + which_addr_book
+	+ '&target_input=' + target_input
+	+ '&r=' + CtdlRandomString()
+	+ "&template=addressbook_namelist";
+    new Ajax.Updater(
+	'address_book_inner_div',
+	'do_template',
+	{
+	    method: 'get',
+	    parameters: p
+	}
+    );
 }
 
 // What happens when a contact is selected from the address book popup

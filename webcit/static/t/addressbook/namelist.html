@@ -1,0 +1,6 @@
+<div align=center><form onSubmit="return false;"><select multiple name="whichaddr" id="whichaddr" size="15">
+<?ITERATE("ITERATE:ABNAMES", ="addressbook_namelist_entry")>
+</select>
+<?_("Add:")>
+<?ITERATE("ITERATE:BSTR:PAIR", ="addressbook_namelist_button", "target_input")>
+</form></div>
