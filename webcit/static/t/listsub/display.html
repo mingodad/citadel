@@ -1,19 +1,23 @@
-<HTML><HEAD>
-<meta name="MSSmartTagsPreventParsing" content="TRUE" />
-<link href="static/styles/webcit.css" rel="stylesheet" type="text/css">
-<TITLE>
-<?_("List subscription")>
-</TITLE></HEAD><BODY>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta name="MSSmartTagsPreventParsing" content="TRUE" >
+  <link href="/static/styles/webcit.css" rel="stylesheet" type="text/css">
+  <title><?_("List subscription")></title>
+</head>
+<body>
+
 <div align=center>
-<table border=0 width=75%><tr><td>
+<table border=0 width='75%'><tr><td>
 <?=("box_begin_1")><?_("List subscribe/unsubscribe")><?=("box_begin_2")>
 <div align=center><br>
 
-<??("COND:BSTR", 10, "cmd", "subscribe")>
+<?!("COND:BSTR", 10, "cmd", "subscribe")>
 <?!("COND:LISTSUB:EXECUTE:SUBSCRIBE", 11)>
-<CENTER>
-<H1><?_("Confirmation request sent")></H1>
-<?_("You are subscribing ")><TT><?BSTR("email", "X")></TT>
+<center>
+<h1><?_("Confirmation request sent")></h1>
+<?_("You are subscribing ")><tt><?BSTR("email", "X")></tt>
 <?_(" to the ")><b><?BSTR("room", "X")></b>
 <?_(" mailing list.")> 
 <?_("The listserver has sent you an e-mail with one additional Web link for you to click on to confirm your subscription.")>  
@@ -22,18 +26,18 @@
 <?_("Please click on the link which is being e-mailed to you and your subscription will be confirmed.")>
 <br>
 <a href="listsub"><?_("Go back...")></a>
-</CENTER>
+</center>
 <?!("X", 11)><??("COND:BSTR", 12, "__FAIL")>
-<FONT SIZE=+1><B><?_("ERROR")>: <?IMPORTANTMESSAGE></B></FONT><br><br>
+<font size=+1><b><?_("ERROR")>: <?IMPORTANTMESSAGE></b></font><br><br>
 <??("X", 12)>
-<??("X", 10)>
+<?!("X", 10)>
 
-<??("COND:BSTR", 20, "cmd", "unsubscribe")>
+<?!("COND:BSTR", 20, "cmd", "unsubscribe")>
 <?!("COND:LISTSUB:EXECUTE:UNSUBSCRIBE", 21)>
-<CENTER>
-<H1><?_("Confirmation request sent")></H1>
+<center>
+<h1><?_("Confirmation request sent")></h1>
 <?_("You are unsubscribing")> 
-<TT><?BSTR("email", "X")></TT> 
+<tt><?BSTR("email", "X")></tt> 
 <?_("from the")> 
 &quot;<?BSTR("room", "X")>&quot; 
 <?_("mailing list.")>
@@ -42,28 +46,28 @@
 <br><br>
 <?_("Please click on the link which is being e-mailed to you and your unsubscription will be confirmed.")><br>
 <a href="listsub"><?_("Back...")></a>
-</CENTER>
+</center>
 <?!("X", 21)><??("COND:BSTR", 22, "__FAIL")>
-<FONT SIZE=+1><B><?_("ERROR")>: <?IMPORTANTMESSAGE></B></FONT>
+<font SIZE=+1><b><?_("ERROR")>: <?IMPORTANTMESSAGE></b></font>
 <br><br>
 <?!("X", 22)>
-<??("X", 20)>
+<?!("X", 20)>
 
-<??("COND:BSTR", 30, "cmd", "confirm")>
+<?!("COND:BSTR", 30, "cmd", "confirm")>
 <?!("COND:LISTSUB:EXECUTE:CONFIRM:SUBSCRIBE", 31)>
-<CENTER><H1><?_("Confirmation successful!")></H1>
+<center><h1><?_("Confirmation successful!")></h1></center>
 <?!("X", 31)><??("COND:BSTR", 32, "__FAIL")>
-<CENTER><H1><?_("Confirmation failed.")></H1>
+<center><h1><?_("Confirmation failed.")></h1></center>
 <?_("This could mean one of two things:")>
-<UL>
-<LI><?_("You waited too long to confirm your subscribe/unsubscribe request (the confirmation link is only valid for three days)")></LI>
-<LI><?_("You have <i>already</i> successfully confirmed your subscribe/unsubscribe request and are attempting to do it again.")></li>
-</UL>
+<ul>
+<li><?_("You waited too long to confirm your subscribe/unsubscribe request (the confirmation link is only valid for three days)")></li>
+<li><?_("You have <i>already</i> successfully confirmed your subscribe/unsubscribe request and are attempting to do it again.")></li>
+</ul>
 <?_("The error returned by the server was: ")><?IMPORTANTMESSAGE>
 <??("X", 32)>
 <??("X", 30)>
 
-<??("COND:BSTR", 40, "cmd", "choose")>
+<?!("COND:BSTR", 40, "cmd", "choose")>
 
 <form method="POST" action="listsub">
 
@@ -73,17 +77,17 @@
 </select><br><br>
 
 <?_("Your e-mail address:")> 
-<INPUT TYPE="text" NAME="email" VALUE="<?BSTR('email', 'X')>" maxlength="128" size="60">
+<input type="text" name="email" value="<?BSTR('email', 'X')>" maxlength="128" size="60">
 <br><br>
 
 <?_("(If subscribing) preferred format: ")>
-<INPUT TYPE="radio" NAME="subtype" VALUE="list" CHECKED><?_("One message at a time")>&nbsp; 
-<INPUT TYPE="radio" NAME="subtype" VALUE="digest"><?_("Digest format")>&nbsp; 
+<input type="radio" name="subtype" value="list" CHECKED><?_("One message at a time")>&nbsp; 
+<input type="radio" name="subtype" value="digest"><?_("Digest format")>&nbsp; 
 <br><br>
-<INPUT TYPE="submit" NAME="cmd" VALUE="subscribe">
-<INPUT TYPE="submit" NAME="cmd" VALUE="unsubscribe">
+<input type="submit" name="cmd" value="subscribe">
+<input type="submit" name="cmd" value="unsubscribe">
 <br><br>
-</FORM>
+</form>
 
 <hr>
 <?_("When you attempt to subscribe or unsubscribe to a mailing list, you will receive an e-mail containing one additional web link to click on for final confirmation.")>
@@ -94,4 +98,4 @@
 <?=("box_end")>
 </td></tr></table></div>
 
-</BODY></HTML>
+</body></html>
