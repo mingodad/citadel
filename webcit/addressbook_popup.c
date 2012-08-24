@@ -16,20 +16,6 @@
 
 
 /*
- * Call this right before wDumpContent() on any page which requires the address book popup
- */
-void address_book_popup(void) {
-	/* Open a new div, hidden initially, for address book popups. */
-	wc_printf("</div>\n");	/* End of 'content' div */
-	wc_printf("<div id=\"address_book_popup\" style=\"display:none;\">");
-	wc_printf("<div id=\"address_book_popup_container_div\">");
-	wc_printf("<div id=\"address_book_popup_middle_div\"></div>");
-	wc_printf("<div id=\"address_book_inner_div\"></div>");
-	wc_printf("</div>");
-	/* The 'address_book_popup' div will be closed by wDumpContent() */
-}
-
-/*
  * Address book popup window
  */
 void display_address_book_middle_div(void) {

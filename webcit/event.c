@@ -779,7 +779,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"RecurrenceShowHide();		\n"
 		"EnableOrDisableCheckButton();	\n"
 	);
-	address_book_popup();
+	do_template("addressbook_popup");
+
 	wDumpContent(1);
 
 	if (created_new_vevent) {

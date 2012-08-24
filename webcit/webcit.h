@@ -677,7 +677,6 @@ void output_html(const char *, int, int, StrBuf *, StrBuf *);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(wc_mime_attachment *Mime);
 
-void address_book_popup(void);
 void begin_ajax_response(void);
 void end_ajax_response(void);
 
