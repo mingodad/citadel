@@ -476,12 +476,86 @@ void tmplput_url_part(StrBuf *Target, WCTemplputParams *TP)
 	}
 }
 
+typedef struct __BstrPair {
+	StrBuf *x;
+	StrBuf *y;
+}BstrPair;
+CtxType CTX_BSTRPAIRS = CTX_NONE;
+void HFreeBstrPair(void *pv)
+{
+	BstrPair *p = (BstrPair*) pv;
+	FreeStrBuf(&p->x);
+	FreeStrBuf(&p->y);
+	free(pv);
+}
+
+HashList *iterate_GetBstrPairs(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBuf *X, *Y;
+        const char *ch = NULL;
+        long len;
+	const StrBuf *TheBStr;
+	BstrPair *OnePair;
+        HashList *List;
+	const char *Pos = NULL;
+	int i = 0;
+
+	if (HaveTemplateTokenString(NULL, TP, 2, &ch, &len))
+        {
+                GetTemplateTokenString(Target, TP, 2, &ch, &len);
+        }
+	else 
+	{
+		return NULL;
+	}
+
+	TheBStr = SBstr(ch, len);
+	if ((TheBStr == NULL) || (StrLength(TheBStr) == 0))
+		return NULL;
+	List = NewHash(1, NULL);
+	while (Pos != StrBufNOTNULL)
+	{
+		X = NewStrBufPlain(NULL, StrLength(TheBStr));
+		StrBufExtract_NextToken(X, TheBStr, &Pos, '|');
+		if (Pos == StrBufNOTNULL) {
+			FreeStrBuf(&X);
+			DeleteHash(&List);
+			return NULL;
+		}
+		Y = NewStrBufPlain(NULL, StrLength(TheBStr));
+		StrBufExtract_NextToken(Y, TheBStr, &Pos, '|');
+		OnePair = (BstrPair*)malloc(sizeof(BstrPair));
+		OnePair->x = X;
+		OnePair->y = Y;
+		Put(List, IKEY(i), OnePair, HFreeBstrPair);
+		i++;
+	}
+	return List;
+}
+
+
+void tmplput_bstr_pair(StrBuf *Target, WCTemplputParams *TP, int XY)
+{
+	BstrPair *Pair = (BstrPair*) CTX(CTX_BSTRPAIRS);
+
+	StrBufAppendTemplate(Target, TP, (XY)?Pair->y:Pair->x, 0);
+}
+
+void tmplput_bstr_pair_x(StrBuf *Target, WCTemplputParams *TP)
+{	tmplput_bstr_pair(Target, TP, 0); }
+void tmplput_bstr_pair_y(StrBuf *Target, WCTemplputParams *TP)
+{	tmplput_bstr_pair(Target, TP, 1); }
 
 void 
 InitModule_PARAMHANDLING
 (void)
 {
+	RegisterCTX(CTX_BSTRPAIRS);
 	WebcitAddUrlHandler(HKEY("diagnostics"), "", 0, diagnostics, NEED_URL);
+
+	RegisterIterator("ITERATE:BSTR:PAIR", 1, NULL, iterate_GetBstrPairs, NULL, DeleteHash, CTX_BSTRPAIRS, CTX_NONE, IT_NOFLAG);
+	RegisterNamespace("BSTR:PAIR:X", 1, 2, tmplput_bstr_pair_x, NULL, CTX_BSTRPAIRS);
+	RegisterNamespace("BSTR:PAIR:Y", 1, 2, tmplput_bstr_pair_y, NULL, CTX_BSTRPAIRS);
 
 	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, NULL, CTX_NONE);
