@@ -16,6 +16,7 @@
 #include "webserver.h"
 #include "dav.h"
 
+CtxType CTX_DAVNS = CTX_NONE;
 extern HashList *HandlerHash;
 
 HashList *DavNamespaces = NULL;
@@ -333,6 +334,7 @@ void
 InitModule_GROUPDAV
 (void)
 {
+	RegisterCTX(CTX_DAVNS);
 	RegisterDAVNamespace(HKEY("groupdav"), HKEY("GroupDAV"), 
 			     dav_main, GroupdavDispatchREST, 
 			     XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE

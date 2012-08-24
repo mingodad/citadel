@@ -1,4 +1,4 @@
-
+extern CtxType CTX_MAILSUM;
 extern HashList *MsgHeaderHandler;
 extern HashList *MimeRenderHandler;
 extern HashList *ReadLoopHandler;

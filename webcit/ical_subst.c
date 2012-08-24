@@ -15,7 +15,7 @@
 extern IcalEnumMap icalproperty_kind_map[];
 
 HashList *IcalComponentMap = NULL;
-
+CtxType CTX_ICAL = CTX_NONE;
 #if 0
 void SortPregetMatter(HashList *Cals)
 {
@@ -123,6 +123,7 @@ void
 InitModule_ICAL_SUBST
 (void)
 {
+	RegisterCTX(CTX_ICAL);
 	CreateIcalComponendKindLookup ();
 
 }

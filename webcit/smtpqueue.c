@@ -3,6 +3,8 @@
  */
 
 #include "webcit.h"
+CtxType CTX_MAILQITEM = CTX_NONE;
+CtxType CTX_MAILQ_RCPT = CTX_NONE;
 HashList *QItemHandlers = NULL;
 
 
@@ -406,6 +408,8 @@ void
 InitModule_SMTP_QUEUE
 (void)
 {
+	RegisterCTX(CTX_MAILQITEM);
+	RegisterCTX(CTX_MAILQ_RCPT);
 
 	RegisterQItemHandler(HKEY("msgid"),		QItem_Handle_MsgID);
 	RegisterQItemHandler(HKEY("envelope_from"),	QItem_Handle_EnvelopeFrom);

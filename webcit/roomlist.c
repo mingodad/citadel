@@ -5,6 +5,7 @@
 #include "webcit.h"
 #include "webserver.h"
 
+
 HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Line;
@@ -680,6 +681,9 @@ void
 InitModule_ROOMLIST
 (void)
 {
+	/* we duplicate this, just to be shure its already done. */
+	RegisterCTX(CTX_ROOMS);
+	RegisterCTX(CTX_FLOORS);
 
 	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUFARR, CTX_NONE, IT_NOFLAG);

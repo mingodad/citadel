@@ -14,7 +14,7 @@
 #include "webserver.h"
 #include "calendar.h"
 
-
+CtxType CTX_VCARD = CTX_NONE;
 
 ConstStr VCStr [] = {
 	{HKEY("n")}, /* N is name, but only if there's no FN already there */
@@ -1511,6 +1511,7 @@ void
 InitModule_VCARD
 (void)
 {
+	RegisterCTX(CTX_VCARD);
 	RegisterReadLoopHandlerset(
 		VIEW_ADDRESSBOOK,
 		vcard_GetParamsGetServerCall,

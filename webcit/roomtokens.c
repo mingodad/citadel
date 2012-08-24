@@ -15,6 +15,8 @@
 #include "webcit.h"
 #include "webserver.h"
 
+CtxType CTX_ROOMS = CTX_NONE;
+CtxType CTX_FLOORS = CTX_NONE;
 
 /*
  * Embed the room banner
@@ -570,6 +572,10 @@ void
 InitModule_ROOMTOKENS
 (void)
 {
+	/* we duplicate this, just to be shure its already done. */
+	RegisterCTX(CTX_ROOMS);
+	RegisterCTX(CTX_FLOORS);
+
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, NULL, CTX_NONE);
 
 	RegisterNamespace("FLOOR:ID", 0, 0, tmplput_FLOOR_ID, NULL, CTX_FLOORS);

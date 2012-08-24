@@ -13,7 +13,7 @@
 #include "webcit.h"
 #include "webserver.h"
 
-
+CtxType CTX_USERLIST = CTX_NONE;
 /*
  *  show a list of available users to edit them
  *  message the header message???
@@ -806,6 +806,7 @@ void
 InitModule_USEREDIT
 (void)
 {
+	RegisterCTX(CTX_USERLIST);
 	WebcitAddUrlHandler(HKEY("select_user_to_edit"), "", 0, _select_user_to_edit, 0);
 	WebcitAddUrlHandler(HKEY("display_edituser"), "", 0, _display_edituser, 0);
 	WebcitAddUrlHandler(HKEY("edituser"), "", 0, edituser, 0);

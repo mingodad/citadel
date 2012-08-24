@@ -83,44 +83,70 @@ typedef struct _SortStruct {
 	CompareFunc Reverse;
 	CompareFunc GroupChange;
 
-	long ContextType;
+	CtxType ContextType;
 }SortStruct;
 
-const char *CtxNames[]  = {
-	"Context NONE",
-	"Context SITECFG",
-	"Context SESSION",
-	"Context INETCFG",
-	"Context VNOTE",
-	"Context WHO",
-	"Context PREF",
-	"Context NODECONF",
-	"Context USERLIST",
-	"Context MAILSUM",
-	"Context MIME_ATACH",
-	"Context FILELIST",
-	"Context STRBUF",
-	"Context STRBUFARR",
-	"Context LONGVECTOR",
-	"Context ROOMS",
-	"Context FLOORS",
-	"Context ITERATE",
-	"Context ICAL",
-	"Context DavNamespace",
-	"Context TAB",
-	"Context VCARD",
-	"Context SIEVE List",
-	"Context SIEVE Script",
-	"Context MailQ-Item",
-	"Context MailQ-Recipient",
-	"Context ServLogStatus",
-	"Context UNKNOWN"
-};
+HashList *CtxList = NULL;
+
+static CtxType CtxCounter = CTX_NONE;
+
+CtxType CTX_STRBUF = CTX_NONE;
+CtxType CTX_STRBUFARR = CTX_NONE;
+CtxType CTX_LONGVECTOR = CTX_NONE;
+
+CtxType CTX_ITERATE = CTX_NONE;
+CtxType CTX_TAB = CTX_NONE;
+
+void HFreeContextType(void *pCtx)
+{
+	CtxTypeStruct *FreeStruct = (CtxTypeStruct *) pCtx;
+	FreeStrBuf(&FreeStruct->Name);
+	free(FreeStruct);
+}
+void PutContextType(const char *name, long len, CtxType TheCtx)
+{
+	CtxTypeStruct *NewStruct;
+
+	NewStruct = (CtxTypeStruct*) malloc(sizeof(CtxTypeStruct));
+	NewStruct->Name = NewStrBufPlain(name, len);
+	NewStruct->Type = TheCtx;
+
+	Put(CtxList, IKEY(NewStruct->Type), NewStruct, HFreeContextType);
+}
+void RegisterContextType(const char *name, long len, CtxType *TheCtx)
+{
+	if (*TheCtx != CTX_NONE)
+		return;
+
+	*TheCtx = ++CtxCounter;
+	PutContextType(name, len, *TheCtx);
+}
+
+CtxTypeStruct *GetContextType(CtxType Type)
+{
+	void *pv = NULL;
+	GetHash(CtxList, IKEY(Type), &pv);
+	return pv;
+}
+
+const char *UnknownContext = "CTX_UNKNOWN";
+
+const char *ContextName(CtxType ContextType)
+{
+	CtxTypeStruct *pCtx;
+
+	pCtx = GetContextType(ContextType);
+
+	if (pCtx != NULL) 
+		return ChrPtr(pCtx->Name);
+	else
+		return UnknownContext;
+}
 
 void StackContext(WCTemplputParams *Super, 
 		  WCTemplputParams *Sub, 
 		  void *Context,
-		  int ContextType,
+		  CtxType ContextType,
 		  int nArgs,
 		  WCTemplateToken *Tokens)
 {
@@ -146,7 +172,7 @@ void UnStackContext(WCTemplputParams *Sub)
 	}
 }
 
-void *GetContextPayload(WCTemplputParams *TP, int ContextType)
+void *GetContextPayload(WCTemplputParams *TP, CtxType ContextType)
 {
 	WCTemplputParams *whichTP = TP;
 
@@ -167,13 +193,6 @@ void DestroySortStruct(void *vSort)
 	free (Sort);
 }
 
-const char *ContextName(int ContextType)
-{
-	if (ContextType < CTX_UNKNOWN)
-		return CtxNames[ContextType];
-	else
-		return CtxNames[CTX_UNKNOWN];
-}
 
 void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplputParams *TP, const char *Format, ...)
 {
@@ -322,7 +341,7 @@ void RegisterNS(const char *NSName,
 		int nMaxArgs, 
 		WCHandlerFunc HandlerFunc, 
 		WCPreevalFunc PreevalFunc,
-		int ContextRequired)
+		CtxType ContextRequired)
 {
 	HashHandler *NewHandler;
 	
@@ -1077,8 +1096,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		} else {
 			LogTemplateError(
 				NULL, "Token ", ERR_NAME, &TP,
-				" isn't known to us.", 
-				NULL);
+				" isn't known to us.");
 		}
 		break;
 	case SV_GETTEXT:
@@ -1815,8 +1833,8 @@ void tmplput_Comment(StrBuf *Target, WCTemplputParams *TP)
 typedef struct _HashIterator {
 	HashList *StaticList;
 	int AdditionalParams;
-	int ContextType;
-	int XPectContextType;
+	CtxType ContextType;
+	CtxType XPectContextType;
 	int Flags;
 	RetrieveHashlistFunc GetHash;
 	HashDestructorFunc Destructor;
@@ -1829,8 +1847,8 @@ void RegisterITERATOR(const char *Name, long len,
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor,
-		      int ContextType, 
-		      int XPectContextType, 
+		      CtxType ContextType, 
+		      CtxType XPectContextType, 
 		      int Flags)
 {
 	HashIterator *It;
@@ -2400,7 +2418,7 @@ void RegisterSortFunc(const char *name, long len,
 		      CompareFunc Forward, 
 		      CompareFunc Reverse, 
 		      CompareFunc GroupChange, 
-		      long ContextType)
+		      CtxType ContextType)
 {
 	SortStruct *NewSort;
 
@@ -2756,6 +2774,9 @@ void
 InitModule_SUBST
 (void)
 {
+	RegisterCTX(CTX_TAB);
+	RegisterCTX(CTX_ITERATE);
+
 	memset(&NoCtx, 0, sizeof(WCTemplputParams));
 	RegisterNamespace("--", 0, 2, tmplput_Comment, NULL, CTX_NONE);
 	RegisterNamespace("SORT:ICON", 1, 2, tmplput_SORT_ICON, NULL, CTX_NONE);
@@ -2812,6 +2833,13 @@ ServerStartModule_SUBST
 	Conditionals = NewHash(1, NULL);
 	SortHash = NewHash(1, NULL);
 	Defines = NewHash(1, NULL);
+	CtxList = NewHash(1, NULL);
+	
+	PutContextType(HKEY("CTX_NONE"), 0);
+
+	RegisterCTX(CTX_STRBUF);
+	RegisterCTX(CTX_STRBUFARR);
+	RegisterCTX(CTX_LONGVECTOR);
 }
 
 void
@@ -2833,6 +2861,7 @@ ServerShutdownModule_SUBST
 	DeleteHash(&Conditionals);
 	DeleteHash(&SortHash);
 	DeleteHash(&Defines);
+	DeleteHash(&CtxList);
 }
 
 

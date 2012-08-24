@@ -1,6 +1,8 @@
 
 #include "webcit.h"
 
+CtxType CTX_WHO = CTX_NONE;
+
 typedef struct UserStateStruct {
 	StrBuf *UserName;
 	StrBuf *Room;
@@ -307,7 +309,7 @@ void
 InitModule_WHO
 (void)
 {
-	
+	RegisterCTX(CTX_WHO);
 
 	WebcitAddUrlHandler(HKEY("terminate_session"), "", 0, _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), "", 0, edit_me, 0);

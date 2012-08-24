@@ -15,6 +15,8 @@
 #include "webcit.h"
 #include "webserver.h"
 
+CtxType CTX_SRVLOG = CTX_NONE;
+
 HashList *ZoneHash = NULL;
 
 ConstStr ExpirePolicyString = {CStrOf(roompolicy)     };
@@ -472,6 +474,7 @@ void
 InitModule_SITECONFIG
 (void)
 {
+	RegisterCTX(CTX_SRVLOG);
 	WebcitAddUrlHandler(HKEY("siteconfig"), "", 0, siteconfig, CTX_NONE);
 
 	RegisterNamespace("SERV:CFG", 1, 2, tmplput_servcfg, NULL, CTX_NONE);

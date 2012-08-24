@@ -36,35 +36,20 @@ enum {
 };
 
 #define CTX_NONE 0
-#define CTX_SITECFG 1
-#define CTX_SESSION 2
-#define CTX_INETCFG 3
-#define CTX_VNOTE 4
-#define CTX_WHO 5
-#define CTX_PREF 6
-#define CTX_NODECONF 7
-#define CTX_USERLIST 8
-#define CTX_MAILSUM 9
-#define CTX_MIME_ATACH 10
-#define CTX_FILELIST 11
-#define CTX_STRBUF 12
-#define CTX_STRBUFARR 13
-#define CTX_LONGVECTOR 14
-#define CTX_ROOMS 15
-#define CTX_FLOORS 16
-#define CTX_ITERATE 17
-#define CTX_ICAL 18
-#define CTX_DAVNS 19
-#define CTX_TAB 20
-#define CTX_VCARD 21
-#define CTX_SIEVELIST 22
-#define CTX_SIEVESCRIPT 23
-#define CTX_MAILQITEM 24
-#define CTX_MAILQ_RCPT 25
-#define CTX_SRVLOG 26
 
-#define CTX_UNKNOWN 27
+typedef int CtxType;
+typedef struct __CtxTypeStruct {
+	CtxType Type;
+	StrBuf *Name;
+} CtxTypeStruct;
 
+CtxTypeStruct *GetContextType(CtxType Type);
+void RegisterContextType(const char *name, long len, CtxType *TheCtx);
+#define RegisterCTX(a) RegisterContextType(#a, sizeof(#a) - 1, &a)
+
+extern CtxType CTX_STRBUF;
+extern CtxType CTX_STRBUFARR;
+extern CtxType CTX_LONGVECTOR;
 
 /**
  * @ingroup subst
@@ -74,7 +59,7 @@ enum {
  * if not, we will log/print an error and refuse to call it.
  */
 typedef struct _contexts {
-	int ContextType;                /* do we require a User Context ? */
+	CtxType ContextType;                /* do we require a User Context ? */
 	int nMinArgs;                   /* How many arguments do we need at least? */
 	int nMaxArgs;                   /* up to how many arguments can we handle? */
 } ContextFilter;
@@ -93,7 +78,7 @@ typedef int (*WCPreevalFunc)(WCTemplateToken *Token);
 /* make a template token a lookup key: */
 #define TKEY(a) TP->Tokens->Params[a]->Start, TP->Tokens->Params[a]->len
 
-void *GetContextPayload(WCTemplputParams *TP, int ContextType);
+void *GetContextPayload(WCTemplputParams *TP, CtxType ContextType);
 #define CTX(a) GetContextPayload(TP, a)
 
 /**
@@ -356,8 +341,8 @@ void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 		      RetrieveHashlistFunc GetHash, /* else retrieve the hashlist by calling this function */
 		      SubTemplFunc DoSubTempl,       /* call this function on each iteration for svput & friends */
 		      HashDestructorFunc Destructor, /* use this function to shut down the hash; NULL if its a reference */
-		      int ContextType,               /* which context do we provide to the subtemplate? */
-		      int XPectContextType,          /* which context do we expct to be called in? */
+		      CtxType ContextType,               /* which context do we provide to the subtemplate? */
+		      CtxType XPectContextType,          /* which context do we expct to be called in? */
 		      int Flags);
 
 
@@ -365,7 +350,7 @@ void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 void StackContext(WCTemplputParams *Super, 
 		  WCTemplputParams *Sub, 
 		  void *Context,
-		  int ContextType,
+		  CtxType ContextType,
 		  int nArgs,
 		  WCTemplateToken *Tokens);
 
@@ -382,7 +367,7 @@ void RegisterSortFunc(const char *name, long len,
 		      CompareFunc Forward, 
 		      CompareFunc Reverse, 
 		      CompareFunc GroupChange, 
-		      long ContextType);
+		      CtxType ContextType);
 
 void dbg_print_longvector(long *LongVector);
 
