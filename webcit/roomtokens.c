@@ -245,6 +245,23 @@ int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
 	return Folder->is_inbox;
 }
 
+int ConditionalRoomIsType(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
+
+	if (Folder == NULL)
+		return 0;
+
+	if ((TP->Tokens->nParameters < 3))
+	{
+		return ((Folder->view < VIEW_BBS) || 
+			(Folder->view > VIEW_MAX));
+	}
+
+	return Folder->view == GetTemplateTokenNumber(Target, TP, 2, VIEW_BBS);
+}
+
+
 
 /****** Properties ******/
 int ConditionalRoom_MayEdit(StrBuf *Target, WCTemplputParams *TP)
@@ -567,6 +584,18 @@ int ConditionalIsThisThatRoom(StrBuf *Target, WCTemplputParams *TP)
 	return Folder == WCC->ThisRoom;
 }
 
+int ConditionalRoomIsName(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)CTX(CTX_ROOMS);
+        const char *CheckRoomName = NULL;
+        long CheckRoomNameLen;
+
+	GetTemplateTokenString(Target, TP, 3, &CheckRoomName, &CheckRoomNameLen);
+	if (CheckRoomName == NULL)
+		return 0;
+	return strcmp(ChrPtr(Folder->name), CheckRoomName) == 0;
+}
+
 
 void 
 InitModule_ROOMTOKENS
@@ -602,6 +631,8 @@ InitModule_ROOMTOKENS
 	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, NULL, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:INFO:IS_INBOX"), 0, ConditionalRoomIsInbox, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:INFO:TYPE_IS"), 0, ConditionalRoomIsType, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:INFO:NAME_IS"), 1, ConditionalRoomIsName, CTX_ROOMS);
 
 	/****** Properties ******/
 	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, NULL, CTX_ROOMS);
