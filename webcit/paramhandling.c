@@ -52,7 +52,7 @@ void ParseURLParams(StrBuf *url)
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if(keylen > sizeof(u->url_key)) {
 			syslog(1, "invalid url_key");
-			continue;
+			return;
 		}
 
 		u = (urlcontent *) malloc(sizeof(urlcontent));
@@ -61,7 +61,7 @@ void ParseURLParams(StrBuf *url)
 		if (keylen < 0) {
 			syslog(1, "invalid url_key");
 			free(u);
-			continue;
+			return;
 		}
 		
 		if (strncmp(u->url_key, "__", 2) != 0)
