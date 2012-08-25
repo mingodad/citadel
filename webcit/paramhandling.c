@@ -51,7 +51,7 @@ void ParseURLParams(StrBuf *url)
 		}
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if(keylen > sizeof(u->url_key)) {
-			syslog(1, "invalid url_key");
+			syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 			return;
 		}
 
@@ -59,7 +59,7 @@ void ParseURLParams(StrBuf *url)
 		memcpy(u->url_key, up, keylen);
 		u->url_key[keylen] = '\0';
 		if (keylen < 0) {
-			syslog(1, "invalid url_key");
+			syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 			free(u);
 			return;
 		}
@@ -369,9 +369,10 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 void PutBstr(const char *key, long keylen, StrBuf *Value)
 {
 	urlcontent *u;
+	wcsession *WCC = WC;
 
 	if(keylen > sizeof(u->url_key)) {
-		syslog(1, "invalid url_key");
+		syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 		FreeStrBuf(&Value);
 		return;
 	}
