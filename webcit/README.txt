@@ -4,6 +4,7 @@
  
 	Art Cancro
 	Wilfried Goesgens
+	Stefan Garthe
 	Dave West
 	Thierry Pasquier
 	Nathan Bryant
@@ -13,7 +14,6 @@
 	Dave Lindquist
 	Matt Pfleger
 	Martin Mouritzen
-	Stefan Garthe
 
    This program is open source software released under the terms of the GNU
    General Public License, version 3. Please read COPYING.txt for more
@@ -33,8 +33,8 @@
    License.
 
    Most of our Icons are taken from the "Essen" set by the people on
-   http://pc.de/icons/. We like to thank them for their astonishing work!
-   Their site explicitly states: "Free for commercial use as well."
+   http://pc.de/icons/. We would like to thank them for their astonishing
+   work!  Their site explicitly states: "Free for commercial use as well."
 
    One or more icons are from Milosz Wlazlo [http://miloszwl.deviantart.com]
    whose license explicitly allows inclusion in open source projects on the

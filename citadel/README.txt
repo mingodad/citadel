@@ -4,7 +4,7 @@
  * The condensed version:
  
    1. Create a user on your system under which to run Citadel
-   2. Install supported versions of Berkeley DB, libical, and libsieve.
+   2. Install supported versions of all dependencies
    3. ./configure && make && make install
    4. Run the "setup" program
  
