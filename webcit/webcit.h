@@ -294,7 +294,7 @@ typedef struct _addrbookent {
 #define DATEFMT_BRIEF 1
 #define DATEFMT_RAWDATE 2
 #define DATEFMT_LOCALEDATE 3
-void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
+long webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
 
 
 typedef enum _RESTDispatchID {

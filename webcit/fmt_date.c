@@ -55,8 +55,9 @@ size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 /*
  * Format a date/time stamp for output 
  */
-void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format)
+long webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format)
 {
+	long retlen = 0;
 	struct tm tm;
 	struct tm today_tm;
 	time_t today_timet;
@@ -84,33 +85,34 @@ void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format)
 			  &&(tm.tm_mon == today_tm.tm_mon)
 			  &&(tm.tm_mday == today_tm.tm_mday)) {
 				if (time_format == WC_TIMEFORMAT_24) 
-					wc_strftime(buf, siz, "%k:%M", &tm);
+					retlen = wc_strftime(buf, siz, "%k:%M", &tm);
 				else
-					wc_strftime(buf, siz, "%l:%M%p", &tm);
+					retlen = wc_strftime(buf, siz, "%l:%M%p", &tm);
 			}
 			else if (today_timet - thetime < 15552000) {
 				if (time_format == WC_TIMEFORMAT_24) 
-					wc_strftime(buf, siz, "%b %d %k:%M", &tm);
+					retlen = wc_strftime(buf, siz, "%b %d %k:%M", &tm);
 				else
-					wc_strftime(buf, siz, "%b %d %l:%M%p", &tm);
+					retlen = wc_strftime(buf, siz, "%b %d %l:%M%p", &tm);
 			}
 			else {
-				wc_strftime(buf, siz, "%b %d %Y", &tm);
+				retlen = wc_strftime(buf, siz, "%b %d %Y", &tm);
 			}
 			break;
 		case DATEFMT_FULL:
 			if (time_format == WC_TIMEFORMAT_24)
-				wc_strftime(buf, siz, "%a %b %d %Y %T %Z", &tm);
+				retlen = wc_strftime(buf, siz, "%a %b %d %Y %T %Z", &tm);
 			else
-				wc_strftime(buf, siz, "%a %b %d %Y %r %Z", &tm);
+				retlen = wc_strftime(buf, siz, "%a %b %d %Y %r %Z", &tm);
 			break;
 		case DATEFMT_RAWDATE:
-			wc_strftime(buf, siz, "%a %b %d %Y", &tm);
+			retlen = wc_strftime(buf, siz, "%a %b %d %Y", &tm);
 			break;
 		case DATEFMT_LOCALEDATE:
-			wc_strftime(buf, siz, "%x", &tm);
+			retlen = wc_strftime(buf, siz, "%x", &tm);
 			break;
 	}
+	return retlen;
 }
 
 
