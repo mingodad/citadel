@@ -694,6 +694,55 @@ void StrBufAppendTemplate(StrBuf *Target,
 	}
 }
 
+/*
+ * puts string into the template and computes which escape methon we should use
+ * Source = the string we should put into the template
+ * FormatTypeIndex = where should we look for escape types if?
+ */
+void StrBufAppendTemplateStr(StrBuf *Target, 
+			     WCTemplputParams *TP,
+			     const char *Source, int FormatTypeIndex)
+{
+	const char *pFmt = NULL;
+	char EscapeAs = ' ';
+
+	if ((FormatTypeIndex < TP->Tokens->nParameters) &&
+	    (TP->Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
+	    (TP->Tokens->Params[FormatTypeIndex]->len >= 1)) {
+		pFmt = TP->Tokens->Params[FormatTypeIndex]->Start;
+		EscapeAs = *pFmt;
+	}
+
+	switch(EscapeAs)
+	{
+	case 'H':
+		StrEscAppend(Target, NULL, Source, 0, 2);
+		break;
+	case 'X':
+		StrEscAppend(Target, NULL, Source, 0, 0);
+		break;
+	case 'J':
+		StrECMAEscAppend(Target, NULL, Source);
+	  break;
+	case 'K':
+		StrHtmlEcmaEscAppend(Target, NULL, Source, 0, 0);
+	  break;
+	case 'U':
+		StrBufUrlescAppend(Target, NULL, Source);
+		break;
+/*
+	case 'F':
+		if (pFmt != NULL) 	pFmt++;
+		else			pFmt = "JUSTIFY";
+		if (*pFmt == '\0')	pFmt = "JUSTIFY";
+		FmOut(Target, pFmt, Source);
+		break;
+*/
+	default:
+		StrBufAppendBufPlain(Target, Source, 0, 0);
+	}
+}
+
 
 void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 {

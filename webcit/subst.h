@@ -268,6 +268,11 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  const StrBuf *Source, 
 			  int FormatTypeIndex);
 
+void StrBufAppendTemplateStr(StrBuf *Target, 
+			     WCTemplputParams *TP,
+			     const char *Source, 
+			     int FormatTypeIndex);
+
 
 #define RegisterNamespace(a, b, c, d, e, f) RegisterNS(a, sizeof(a)-1, b, c, d, e, f)
 /**
