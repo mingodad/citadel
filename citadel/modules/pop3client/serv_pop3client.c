@@ -63,12 +63,12 @@ int POP3ClientDebugEnabled = 0;
 
 #define EVP3C_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]" FORMAT,		\
+			     "IO[%ld]CC[%d][%ld]POP3: " FORMAT,		\
 			     IO->ID, CCID, N, __VA_ARGS__)
 
 #define EVP3CM_syslog(LEVEL, FORMAT)					\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]" FORMAT,		\
+			     "IO[%ld]CC[%d][%ld]POP3: " FORMAT,		\
 			     IO->ID, CCID, N)
 
 #define EVP3CQ_syslog(LEVEL, FORMAT, ...)				\
@@ -82,21 +82,23 @@ int POP3ClientDebugEnabled = 0;
 		)
 
 #define EVP3CCS_syslog(LEVEL, FORMAT, ...)				\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]" FORMAT,		\
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]POP3: " FORMAT,	\
 			     IO->ID, N, __VA_ARGS__)
 
-#define EVP3CCSM_syslog(LEVEL, FORMAT)				\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]" FORMAT,	\
+#define EVP3CCSM_syslog(LEVEL, FORMAT)					\
+	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]POP3: " FORMAT,	\
 			     IO->ID, N)
 
 #define POP3C_DBG_SEND()						\
 	EVP3C_syslog(LOG_DEBUG,						\
-		     "POP3: > %s\n",					\
+		     "IO[%ld]CC[%d][%ld]POP3: > %s\n",			\
+		     IO->ID, CCID, N,					\
 		     ChrPtr(RecvMsg->IO.SendBuf.Buf))
 
-#define POP3C_DBG_READ()				\
-	EVP3C_syslog(LOG_DEBUG,				\
-		     "POP3: < %s\n",			\
+#define POP3C_DBG_READ()						\
+	EVP3C_syslog(LOG_DEBUG,						\
+		     "IO[%ld]CC[%d][%ld]POP3: < %s\n",			\
+		     IO->ID, CCID, N,					\
 		     ChrPtr(RecvMsg->IO.IOBuf))
 
 

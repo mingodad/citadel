@@ -278,12 +278,12 @@ extern int MessageDebugEnabled;
 #define CCCID CCC->cs_pid
 #define MSG_syslog(LEVEL, FORMAT, ...)			\
 	MSGDBGLOG(LEVEL) syslog(LEVEL,			\
-				"CC[%d]" FORMAT,	\
+				"CC[%d]MSG" FORMAT,	\
 				CCCID, __VA_ARGS__)
 
 #define MSGM_syslog(LEVEL, FORMAT)			\
 	MSGDBGLOG(LEVEL) syslog(LEVEL,			\
-				"CC[%d]" FORMAT,	\
+				"CC[%d]MSG" FORMAT,	\
 				CCCID)
 
 
