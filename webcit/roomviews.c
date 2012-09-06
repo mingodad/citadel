@@ -249,6 +249,10 @@ void
 InitModule_ROOMVIEWS
 (void)
 {
+	/* we duplicate this, just to be shure its already done. */
+	RegisterCTX(CTX_ROOMS);
+	RegisterCTX(CTX_FLOORS);
+
 	initialize_viewdefs();
 
 	RegisterNamespace("THISROOM:VIEW_STRING", 0, 1, tmplput_CurrentRoomViewString, NULL, CTX_NONE);

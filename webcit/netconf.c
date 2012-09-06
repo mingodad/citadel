@@ -2,6 +2,7 @@
 
 void display_netconf(void);
 
+CtxType CTX_NODECONF = CTX_NONE;
 /*----------------------------------------------------------------------*/
 /*              Business Logic                                          */
 /*----------------------------------------------------------------------*/
@@ -287,6 +288,7 @@ void
 InitModule_NETCONF
 (void)
 {
+	RegisterCTX(CTX_NODECONF);
 	WebcitAddUrlHandler(HKEY("display_edit_node"), "", 0, display_edit_node, 0);
 
 	WebcitAddUrlHandler(HKEY("aide_ignetconf_edit_node"), "", 0, edit_node, 0);

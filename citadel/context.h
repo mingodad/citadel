@@ -28,8 +28,14 @@ typedef enum __CCState {
 	CON_SYS                 /* This is a system context and mustn't be purged */
 } CCState;
 
+#ifndef __ASYNCIO__
+#define __ASYNCIO__
 typedef struct AsyncIO AsyncIO; /* forward declaration for event_client.h */
+#endif
+#ifndef __CIT_CONTEXT__
+#define __CIT_CONTEXT__
 typedef struct CitContext CitContext;
+#endif
 
 /*
  * Here's the big one... the Citadel context structure.

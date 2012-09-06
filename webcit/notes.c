@@ -3,6 +3,8 @@
 #include "dav.h"
 #include "webserver.h"
 
+CtxType CTX_VNOTE = CTX_NONE;
+
 int pastel_palette[9][3] = {
 	{ 0x80, 0x80, 0x80 },
 	{ 0xff, 0x80, 0x80 },
@@ -433,11 +435,48 @@ int notes_Cleanup(void **ViewSpecific)
 	return 0;
 }
 
+void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+{
+	if (StrLength(Mime->Data) == 0)
+		MimeLoadData(Mime);
+	if (StrLength(Mime->Data) > 0) {
+		struct vnote *v;
+		StrBuf *Buf;
+		char *vcard;
+
+		Buf = NewStrBuf();
+		vcard = SmashStrBuf(&Mime->Data);
+		v = vnote_new_from_str(vcard);
+		free (vcard);
+		if (v) {
+			WCTemplputParams TP;
+			
+			memset(&TP, 0, sizeof(WCTemplputParams));
+			TP.Filter.ContextType = CTX_VNOTE;
+			TP.Context = v;
+			DoTemplate(HKEY("mail_vnoteitem"),
+				   Buf, &TP);
+			
+			vnote_free(v);
+			Mime->Data = Buf;
+		}
+		else {
+			if (Mime->Data == NULL)
+				Mime->Data = NewStrBuf();
+			else
+				FlushStrBuf(Mime->Data);
+		}
+	}
+}
+
+
 
 void 
 InitModule_NOTES
 (void)
 {
+	RegisterCTX(CTX_VNOTE);
+
 	RegisterReadLoopHandlerset(
 		VIEW_NOTES,
 		notes_GetParamsGetServerCall,
@@ -461,4 +500,6 @@ InitModule_NOTES
 	RegisterNamespace("VNOTE:BGCOLOR", 0, 0,tmpl_vcard_put_bgcolor, NULL, CTX_VNOTE);
 	RegisterNamespace("VNOTE:MSG", 0, 1, tmpl_vcard_put_message, NULL, CTX_VNOTE);
 	RegisterNamespace("VNOTE:UID", 0, 0, tmpl_vcard_put_uid, NULL, CTX_VNOTE);
+
+	RegisterMimeRenderer(HKEY("text/vnote"), render_MIME_VNote, 1, 300);
 }

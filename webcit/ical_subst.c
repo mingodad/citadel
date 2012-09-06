@@ -15,7 +15,7 @@
 extern IcalEnumMap icalproperty_kind_map[];
 
 HashList *IcalComponentMap = NULL;
-
+CtxType CTX_ICAL = CTX_NONE;
 #if 0
 void SortPregetMatter(HashList *Cals)
 {
@@ -77,9 +77,78 @@ void SortPregetMatter(HashList *Cals)
 
 void tmplput_ICalItem(StrBuf *Target, WCTemplputParams *TP)
 {
+	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
+	icalproperty *p;
+	icalproperty_kind Kind;
+	const char *str;
 
+	Kind = (icalproperty_kind) GetTemplateTokenNumber(Target, TP, 0, ICAL_ANY_PROPERTY);
+	p = icalcomponent_get_first_property(cal, Kind);
+	if (p != NULL) {
+		str = icalproperty_get_comment (p);
+		StrBufAppendTemplateStr(Target, TP, str, 1);
+	}
 }
 
+void tmplput_ICalDate(StrBuf *Target, WCTemplputParams *TP)
+{
+	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
+	icalproperty *p;
+	icalproperty_kind Kind;
+	const char *str;
+	struct icaltimetype t;
+	time_t tt;
+
+	Kind = (icalproperty_kind) GetTemplateTokenNumber(Target, TP, 0, ICAL_ANY_PROPERTY);
+	p = icalcomponent_get_first_property(cal, Kind);
+	if (p != NULL) {
+		long len;
+		t = icalproperty_get_dtend(p);
+		tt = icaltime_as_timet(t);
+		len = webcit_fmt_date(buf, 256, tt, DATEFMT_FULL);
+		StrBufAppendBufPlain(Target, buf, len, 0);
+	}
+}
+
+
+
+void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+{
+	icalcomponent *cal;
+	icalcomponent *c;
+        WCTemplputParams SubTP;
+
+
+	if (StrLength(Mime->Data) == 0) {
+		MimeLoadData(Mime);
+	}
+	if (StrLength(Mime->Data) > 0) {
+		cal = icalcomponent_new_from_string(ChrPtr(Mime->Data));
+	}
+	if (cal == NULL) {
+		StrBufAppendPrintf(Mime->Data, _("There was an error parsing this calendar item."));
+		StrBufAppendPrintf(Mime->Data, "<br>\n");
+		return;
+	}
+
+        memset(&SubTP, 0, sizeof(WCTemplputParams));
+        SubTP.Filter.ContextType = CTX_ICAL;
+
+	ical_dezonify(cal);
+
+	/* If the component has subcomponents, recurse through them. */
+	c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+
+        SubTP.Context = (c != NULL) ? c : cal;
+
+	FlushStrBuf(Mime->Data);
+	DoTemplate(HKEY("ical_attachment_display"), Mime->Data, &SubTP);
+
+	cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum));
+
+	/* Free the memory we obtained from libical's constructor */
+	icalcomponent_free(cal);
+}
 void CreateIcalComponendKindLookup(void)
 {
 	int i = 0;
@@ -123,8 +192,21 @@ void
 InitModule_ICAL_SUBST
 (void)
 {
-	CreateIcalComponendKindLookup ();
+	int i;
+	for (i=0; icalproperty_kind_map[i].NameLen > 0; i++)
+		RegisterTokenParamDefine (
+			icalproperty_kind_map[i].Name,
+			icalproperty_kind_map[i].NameLen,
+			icalproperty_kind_map[i].map);
+	
 
+	RegisterCTX(CTX_ICAL);
+	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS_TPL, 1, 501);
+	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS_TPL, 1, 500);
+	CreateIcalComponendKindLookup ();
+	RegisterNamespace("ICAL:ITEM", 1, 2, tmplput_ICalItem, NULL, CTX_ICAL);
+
+	
 }
 
 void 

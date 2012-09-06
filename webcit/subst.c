@@ -83,44 +83,70 @@ typedef struct _SortStruct {
 	CompareFunc Reverse;
 	CompareFunc GroupChange;
 
-	long ContextType;
+	CtxType ContextType;
 }SortStruct;
 
-const char *CtxNames[]  = {
-	"Context NONE",
-	"Context SITECFG",
-	"Context SESSION",
-	"Context INETCFG",
-	"Context VNOTE",
-	"Context WHO",
-	"Context PREF",
-	"Context NODECONF",
-	"Context USERLIST",
-	"Context MAILSUM",
-	"Context MIME_ATACH",
-	"Context FILELIST",
-	"Context STRBUF",
-	"Context STRBUFARR",
-	"Context LONGVECTOR",
-	"Context ROOMS",
-	"Context FLOORS",
-	"Context ITERATE",
-	"Context ICAL",
-	"Context DavNamespace",
-	"Context TAB",
-	"Context VCARD",
-	"Context SIEVE List",
-	"Context SIEVE Script",
-	"Context MailQ-Item",
-	"Context MailQ-Recipient",
-	"Context ServLogStatus",
-	"Context UNKNOWN"
-};
+HashList *CtxList = NULL;
+
+static CtxType CtxCounter = CTX_NONE;
+
+CtxType CTX_STRBUF = CTX_NONE;
+CtxType CTX_STRBUFARR = CTX_NONE;
+CtxType CTX_LONGVECTOR = CTX_NONE;
+
+CtxType CTX_ITERATE = CTX_NONE;
+CtxType CTX_TAB = CTX_NONE;
+
+void HFreeContextType(void *pCtx)
+{
+	CtxTypeStruct *FreeStruct = (CtxTypeStruct *) pCtx;
+	FreeStrBuf(&FreeStruct->Name);
+	free(FreeStruct);
+}
+void PutContextType(const char *name, long len, CtxType TheCtx)
+{
+	CtxTypeStruct *NewStruct;
+
+	NewStruct = (CtxTypeStruct*) malloc(sizeof(CtxTypeStruct));
+	NewStruct->Name = NewStrBufPlain(name, len);
+	NewStruct->Type = TheCtx;
+
+	Put(CtxList, IKEY(NewStruct->Type), NewStruct, HFreeContextType);
+}
+void RegisterContextType(const char *name, long len, CtxType *TheCtx)
+{
+	if (*TheCtx != CTX_NONE)
+		return;
+
+	*TheCtx = ++CtxCounter;
+	PutContextType(name, len, *TheCtx);
+}
+
+CtxTypeStruct *GetContextType(CtxType Type)
+{
+	void *pv = NULL;
+	GetHash(CtxList, IKEY(Type), &pv);
+	return pv;
+}
+
+const char *UnknownContext = "CTX_UNKNOWN";
+
+const char *ContextName(CtxType ContextType)
+{
+	CtxTypeStruct *pCtx;
+
+	pCtx = GetContextType(ContextType);
+
+	if (pCtx != NULL) 
+		return ChrPtr(pCtx->Name);
+	else
+		return UnknownContext;
+}
 
 void StackContext(WCTemplputParams *Super, 
 		  WCTemplputParams *Sub, 
 		  void *Context,
-		  int ContextType,
+		  CtxType ContextType,
 		  int nArgs,
 		  WCTemplateToken *Tokens)
 {
@@ -146,7 +172,7 @@ void UnStackContext(WCTemplputParams *Sub)
 	}
 }
 
-void *GetContextPayload(WCTemplputParams *TP, int ContextType)
+void *GetContextPayload(WCTemplputParams *TP, CtxType ContextType)
 {
 	WCTemplputParams *whichTP = TP;
 
@@ -167,13 +193,6 @@ void DestroySortStruct(void *vSort)
 	free (Sort);
 }
 
-const char *ContextName(int ContextType)
-{
-	if (ContextType < CTX_UNKNOWN)
-		return CtxNames[ContextType];
-	else
-		return CtxNames[CTX_UNKNOWN];
-}
 
 void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplputParams *TP, const char *Format, ...)
 {
@@ -322,7 +341,7 @@ void RegisterNS(const char *NSName,
 		int nMaxArgs, 
 		WCHandlerFunc HandlerFunc, 
 		WCPreevalFunc PreevalFunc,
-		int ContextRequired)
+		CtxType ContextRequired)
 {
 	HashHandler *NewHandler;
 	
@@ -429,6 +448,7 @@ int HaveTemplateTokenString(StrBuf *Target,
 	case TYPE_STR:
 	case TYPE_BSTR:
 	case TYPE_PREFSTR:
+	case TYPE_ROOMPREFSTR:
 	case TYPE_GETTEXT:
 	case TYPE_SUBTEMPLATE:
 		return 1;
@@ -487,6 +507,19 @@ void GetTemplateTokenString(StrBuf *Target,
 			break;
 		}
 		get_PREFERENCE(TKEY(N), &Buf);
+		*Value = ChrPtr(Buf);
+		*len = StrLength(Buf);
+		break;
+	case TYPE_ROOMPREFSTR:
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type PREFSTR, empty lookup string not admitted.", N);
+			*len = 0;
+			*Value = EmptyStr;
+			break;
+		}
+		Buf = get_ROOM_PREFS(TKEY(N));
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		break;
@@ -569,6 +602,19 @@ long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long df
 		if (get_PREF_LONG(TKEY(N), &Ret, dflt))
 			return Ret;
 		return 0;
+	case TYPE_ROOMPREFSTR:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "requesting a prefstring in param %d want a number", N);
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type PREFSTR, empty lookup string not admitted.", N);
+			return 0;
+		}
+		if (get_ROOM_PREFS_LONG(TKEY(N), &Ret, dflt))
+			return Ret;
+		return 0;
 	case TYPE_INTDEFINE:
 	case TYPE_LONG:
 		return TP->Tokens->Params[N]->lvalue;
@@ -648,6 +694,55 @@ void StrBufAppendTemplate(StrBuf *Target,
 	}
 }
 
+/*
+ * puts string into the template and computes which escape methon we should use
+ * Source = the string we should put into the template
+ * FormatTypeIndex = where should we look for escape types if?
+ */
+void StrBufAppendTemplateStr(StrBuf *Target, 
+			     WCTemplputParams *TP,
+			     const char *Source, int FormatTypeIndex)
+{
+	const char *pFmt = NULL;
+	char EscapeAs = ' ';
+
+	if ((FormatTypeIndex < TP->Tokens->nParameters) &&
+	    (TP->Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
+	    (TP->Tokens->Params[FormatTypeIndex]->len >= 1)) {
+		pFmt = TP->Tokens->Params[FormatTypeIndex]->Start;
+		EscapeAs = *pFmt;
+	}
+
+	switch(EscapeAs)
+	{
+	case 'H':
+		StrEscAppend(Target, NULL, Source, 0, 2);
+		break;
+	case 'X':
+		StrEscAppend(Target, NULL, Source, 0, 0);
+		break;
+	case 'J':
+		StrECMAEscAppend(Target, NULL, Source);
+	  break;
+	case 'K':
+		StrHtmlEcmaEscAppend(Target, NULL, Source, 0, 0);
+	  break;
+	case 'U':
+		StrBufUrlescAppend(Target, NULL, Source);
+		break;
+/*
+	case 'F':
+		if (pFmt != NULL) 	pFmt++;
+		else			pFmt = "JUSTIFY";
+		if (*pFmt == '\0')	pFmt = "JUSTIFY";
+		FmOut(Target, pFmt, Source);
+		break;
+*/
+	default:
+		StrBufAppendBufPlain(Target, Source, 0, 0);
+	}
+}
+
 
 void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 {
@@ -705,6 +800,14 @@ int GetNextParameter(StrBuf *Buf,
 
 	if (*pch == ':') {
 		Parm->Type = TYPE_PREFSTR;
+		pch ++;
+		if (*pch == '(') {
+			pch ++;
+			ParamBrace = 1;
+		}
+	}
+	else if (*pch == '.') {
+		Parm->Type = TYPE_ROOMPREFSTR;
 		pch ++;
 		if (*pch == '(') {
 			pch ++;
@@ -1077,8 +1180,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		} else {
 			LogTemplateError(
 				NULL, "Token ", ERR_NAME, &TP,
-				" isn't known to us.", 
-				NULL);
+				" isn't known to us.");
 		}
 		break;
 	case SV_GETTEXT:
@@ -1815,8 +1917,8 @@ void tmplput_Comment(StrBuf *Target, WCTemplputParams *TP)
 typedef struct _HashIterator {
 	HashList *StaticList;
 	int AdditionalParams;
-	int ContextType;
-	int XPectContextType;
+	CtxType ContextType;
+	CtxType XPectContextType;
 	int Flags;
 	RetrieveHashlistFunc GetHash;
 	HashDestructorFunc Destructor;
@@ -1829,8 +1931,8 @@ void RegisterITERATOR(const char *Name, long len,
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor,
-		      int ContextType, 
-		      int XPectContextType, 
+		      CtxType ContextType, 
+		      CtxType XPectContextType, 
 		      int Flags)
 {
 	HashIterator *It;
@@ -2400,7 +2502,7 @@ void RegisterSortFunc(const char *name, long len,
 		      CompareFunc Forward, 
 		      CompareFunc Reverse, 
 		      CompareFunc GroupChange, 
-		      long ContextType)
+		      CtxType ContextType)
 {
 	SortStruct *NewSort;
 
@@ -2756,6 +2858,9 @@ void
 InitModule_SUBST
 (void)
 {
+	RegisterCTX(CTX_TAB);
+	RegisterCTX(CTX_ITERATE);
+
 	memset(&NoCtx, 0, sizeof(WCTemplputParams));
 	RegisterNamespace("--", 0, 2, tmplput_Comment, NULL, CTX_NONE);
 	RegisterNamespace("SORT:ICON", 1, 2, tmplput_SORT_ICON, NULL, CTX_NONE);
@@ -2812,6 +2917,13 @@ ServerStartModule_SUBST
 	Conditionals = NewHash(1, NULL);
 	SortHash = NewHash(1, NULL);
 	Defines = NewHash(1, NULL);
+	CtxList = NewHash(1, NULL);
+	
+	PutContextType(HKEY("CTX_NONE"), 0);
+
+	RegisterCTX(CTX_STRBUF);
+	RegisterCTX(CTX_STRBUFARR);
+	RegisterCTX(CTX_LONGVECTOR);
 }
 
 void
@@ -2833,6 +2945,7 @@ ServerShutdownModule_SUBST
 	DeleteHash(&Conditionals);
 	DeleteHash(&SortHash);
 	DeleteHash(&Defines);
+	DeleteHash(&CtxList);
 }
 
 

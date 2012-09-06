@@ -1,0 +1,17 @@
+<table border=0 width='100%'>
+  <tr valign=middle>
+    <td align=left><img src="static/webcit_icons/essen/32x32/contact.png"></td>
+    <td align=center>
+      <form>
+	<select class="address_book_popup_title" size=1 id="which_addr_book"  onChange="PopulateAddressBookInnerDiv($('which_addr_book').value,'<?BSTR("target_input", "X")>')">
+	  <option value="__LOCAL_USERS__" ><?SERV:HUMANNODE("X")></option>
+		<?ITERATE("LKRA", ="addressbook_list_entry")>
+	</select>
+      </form>
+    </td>
+    <td align='right' onclick="javascript:$('address_book_popup').style.display='none';" >
+      <img src="static/webcit_icons/closewindow.gif">
+    </td>
+  </tr>
+</table>
+<script type="text/javascript">PopulateAddressBookInnerDiv($('which_addr_book').value,'<?BSTR("target_input", "X")>');</script>

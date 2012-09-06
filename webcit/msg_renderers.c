@@ -2,7 +2,8 @@
 #include "webserver.h"
 #include "dav.h"
 
-
+CtxType CTX_MAILSUM = CTX_NONE;
+CtxType CTX_MIME_ATACH = CTX_NONE;
 
 inline void CheckConvertBufs(struct wcsession *WCC)
 {
@@ -616,40 +617,6 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 		Mime->Data = Buf;
 	}
 
-}
-
-void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
-{
-	if (StrLength(Mime->Data) == 0)
-		MimeLoadData(Mime);
-	if (StrLength(Mime->Data) > 0) {
-		struct vnote *v;
-		StrBuf *Buf;
-		char *vcard;
-
-		Buf = NewStrBuf();
-		vcard = SmashStrBuf(&Mime->Data);
-		v = vnote_new_from_str(vcard);
-		free (vcard);
-		if (v) {
-			WCTemplputParams TP;
-			
-			memset(&TP, 0, sizeof(WCTemplputParams));
-			TP.Filter.ContextType = CTX_VNOTE;
-			TP.Context = v;
-			DoTemplate(HKEY("mail_vnoteitem"),
-				   Buf, &TP);
-			
-			vnote_free(v);
-			Mime->Data = Buf;
-		}
-		else {
-			if (Mime->Data == NULL)
-				Mime->Data = NewStrBuf();
-			else
-				FlushStrBuf(Mime->Data);
-		}
-	}
 }
 
 void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
@@ -1481,6 +1448,8 @@ void
 InitModule_MSGRENDERERS
 (void)
 {
+	RegisterCTX(CTX_MAILSUM);
+	RegisterCTX(CTX_MIME_ATACH);
 	RegisterReadLoopHandlerset(
 		VIEW_MAILBOX,
 		mailview_GetParamsGetServerCall,
@@ -1594,11 +1563,12 @@ InitModule_MSGRENDERERS
 
 	/* mime renderers translate an attachment into webcit viewable html text */
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 0, 150);
-	RegisterMimeRenderer(HKEY("text/vnote"), render_MIME_VNote, 1, 300);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard, 1, 201);
 	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard, 1, 200);
+/*
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS, 1, 501);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS, 1, 500);
+*/
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat, 1, 2);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain, 1, 3);
 	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain, 1, 1);

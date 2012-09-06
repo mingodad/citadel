@@ -294,7 +294,7 @@ typedef struct _addrbookent {
 #define DATEFMT_BRIEF 1
 #define DATEFMT_RAWDATE 2
 #define DATEFMT_LOCALEDATE 3
-void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
+long webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
 
 
 typedef enum _RESTDispatchID {
@@ -677,7 +677,6 @@ void output_html(const char *, int, int, StrBuf *, StrBuf *);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(wc_mime_attachment *Mime);
 
-void address_book_popup(void);
 void begin_ajax_response(void);
 void end_ajax_response(void);
 

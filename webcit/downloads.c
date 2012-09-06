@@ -13,6 +13,8 @@
 #include "webcit.h"
 #include "webserver.h"
 
+CtxType CTX_FILELIST = CTX_NONE;
+
 extern void output_static(const char* What);
 
 extern char* static_dirs[];
@@ -420,6 +422,7 @@ void
 InitModule_DOWNLOAD
 (void)
 {
+	RegisterCTX(CTX_FILELIST);
 
 	RegisterIterator("ROOM:FILES", 0, NULL, LoadFileList,
 			 NULL, DeleteHash, CTX_FILELIST, CTX_NONE, 

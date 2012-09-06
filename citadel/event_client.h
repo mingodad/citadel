@@ -23,8 +23,14 @@
 #include <ares.h>
 #include <curl/curl.h>
 
+#ifndef __ASYNCIO__
+#define __ASYNCIO__
 typedef struct AsyncIO AsyncIO;
+#endif
+#ifndef __CIT_CONTEXT__
+#define __CIT_CONTEXT__
 typedef struct CitContext CitContext;
+#endif
 
 typedef enum _eNextState {
 	eSendDNSQuery,

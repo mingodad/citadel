@@ -14,6 +14,9 @@
 
 #include "webcit.h"
 
+CtxType CTX_SIEVELIST = CTX_NONE;
+CtxType CTX_SIEVESCRIPT = CTX_NONE;
+
 #define MAX_SCRIPTS	100
 #define MAX_RULES	50
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
@@ -890,6 +893,8 @@ void
 InitModule_SIEVE
 (void)
 {
+	RegisterCTX(CTX_SIEVELIST);
+	RegisterCTX(CTX_SIEVESCRIPT);
 	REGISTERTokenParamDefine(from);		
 	REGISTERTokenParamDefine(tocc);		
 	REGISTERTokenParamDefine(subject);	
