@@ -13,11 +13,11 @@ Depends: ${shlibs:Depends}, shared-mime-info
 Description: Citadel toolbox
  This library contains the commonly used routines for the citadel suite.
 
-Package: libcitadel3-dbg
+Package: libcitadel4-dbg
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, libcitadel3
-Description: Debugging symbols for libcitadel3
+Depends: ${shlibs:Depends}, libcitadel4
+Description: Debugging symbols for libcitadel4
  This library contains the commonly used routines for the citadel suite.
  .
  This package provides the debugging symbols.
@@ -27,7 +27,7 @@ Section: libdevel
 Architecture: any
 Depends: ${shlibs:Depends}, pkg-config,
  libcitadel3 (= ${binary:Version})
-Description: Development files for libcitadel3
+Description: Development files for libcitadel4
  This library contains the commonly used routines for the citadel suite.
  .
  This package provides development files and static libraries.

@@ -257,8 +257,8 @@ typedef struct __fd_iobuffer {
 	int SplicePipe[2];
 	int PipeSize;
 	long TotalSendSize;
-	long TotalSentAlready;
-	long TotalReadAlready;
+	loff_t TotalSentAlready;
+	loff_t TotalReadAlready;
 	long ChunkSize;
 	long ChunkSendRemain;
 	StrBuf *ChunkBuffer; /* just used if we don't have sendfile */
