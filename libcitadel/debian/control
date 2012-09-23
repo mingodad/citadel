@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 5), zlib1g-dev
 Standards-Version: 3.8.0
 Homepage: http://citadel.org
 
-Package: libcitadel3
+Package: libcitadel4
 Architecture: any
 Depends: ${shlibs:Depends}, shared-mime-info
 Description: Citadel toolbox
@@ -26,7 +26,7 @@ Package: libcitadel-dev
 Section: libdevel
 Architecture: any
 Depends: ${shlibs:Depends}, pkg-config,
- libcitadel3 (= ${binary:Version})
+ libcitadel4 (= ${binary:Version})
 Description: Development files for libcitadel4
  This library contains the commonly used routines for the citadel suite.
  .
