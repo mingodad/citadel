@@ -95,9 +95,9 @@ void tmplput_ICalDate(StrBuf *Target, WCTemplputParams *TP)
 	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
 	icalproperty *p;
 	icalproperty_kind Kind;
-	const char *str;
 	struct icaltimetype t;
 	time_t tt;
+	char buf[256];
 
 	Kind = (icalproperty_kind) GetTemplateTokenNumber(Target, TP, 0, ICAL_ANY_PROPERTY);
 	p = icalcomponent_get_first_property(cal, Kind);
@@ -134,7 +134,7 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
         memset(&SubTP, 0, sizeof(WCTemplputParams));
         SubTP.Filter.ContextType = CTX_ICAL;
 
-	ical_dezonify(cal);
+	///ical_dezonify(cal);
 
 	/* If the component has subcomponents, recurse through them. */
 	c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
@@ -144,7 +144,7 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 	FlushStrBuf(Mime->Data);
 	DoTemplate(HKEY("ical_attachment_display"), Mime->Data, &SubTP);
 
-	cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum));
+	// cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum));
 
 	/* Free the memory we obtained from libical's constructor */
 	icalcomponent_free(cal);
