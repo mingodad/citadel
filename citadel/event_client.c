@@ -581,7 +581,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		if (errno != EAGAIN) {
 			StopClientWatchers(IO, 1);
 			EV_syslog(LOG_DEBUG,
-				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
+				  "IO_send_callback(): Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
 			StrBufPrintf(IO->ErrMsg,
 				     "Socket Invalid! [%s]",
@@ -814,7 +814,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			// FD is gone. kick it. 
 			StopClientWatchers(IO, 1);
 			EV_syslog(LOG_DEBUG,
-				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
+				  "IO_recv_callback(): Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
 			StrBufPrintf(IO->ErrMsg,
 				     "Socket Invalid! [%s]",
