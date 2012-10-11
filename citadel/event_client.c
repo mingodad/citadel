@@ -316,8 +316,8 @@ void StopClientWatchers(AsyncIO *IO, int CloseFD)
 
 	if (CloseFD && (IO->SendBuf.fd > 0)) {
 		close(IO->SendBuf.fd);
-		IO->SendBuf.fd = -1;
-		IO->RecvBuf.fd = -1;
+		IO->SendBuf.fd = 0;
+		IO->RecvBuf.fd = 0;
 	}
 }
 
