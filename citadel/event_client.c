@@ -586,7 +586,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			StrBufPrintf(IO->ErrMsg,
 				     "Socket Invalid! [%s]",
 				     strerror(errno));
-			SetNextTimeout(IO, 0.0);
+			SetNextTimeout(IO, 0.01);
 		}
 	}
 	/* else : must write more. */
@@ -819,7 +819,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			StrBufPrintf(IO->ErrMsg,
 				     "Socket Invalid! [%s]",
 				     strerror(errno));
-			SetNextTimeout(IO, 0.0);
+			SetNextTimeout(IO, 0.01);
 		}
 		return;
 	}
