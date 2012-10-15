@@ -810,7 +810,7 @@ void replace_string(char *filename, long int startpos)
 	long msglen = 0L;
 	int rv;
 
-	newprompt("Enter test to be replaced: ", srch_str, (sizeof(srch_str)-1) );
+	newprompt("Enter text to be replaced: ", srch_str, (sizeof(srch_str)-1) );
 	if (IsEmptyStr(srch_str)) {
 		return;
 	}
