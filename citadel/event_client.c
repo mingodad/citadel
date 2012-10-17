@@ -316,8 +316,8 @@ void StopClientWatchers(AsyncIO *IO, int CloseFD)
 
 	if (CloseFD && (IO->SendBuf.fd > 0)) {
 		close(IO->SendBuf.fd);
-		IO->SendBuf.fd = -1;
-		IO->RecvBuf.fd = -1;
+		IO->SendBuf.fd = 0;
+		IO->RecvBuf.fd = 0;
 	}
 }
 
@@ -581,12 +581,12 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		if (errno != EAGAIN) {
 			StopClientWatchers(IO, 1);
 			EV_syslog(LOG_DEBUG,
-				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
+				  "IO_send_callback(): Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
 			StrBufPrintf(IO->ErrMsg,
 				     "Socket Invalid! [%s]",
 				     strerror(errno));
-			SetNextTimeout(IO, 0.0);
+			SetNextTimeout(IO, 0.01);
 		}
 	}
 	/* else : must write more. */
@@ -814,12 +814,12 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			// FD is gone. kick it. 
 			StopClientWatchers(IO, 1);
 			EV_syslog(LOG_DEBUG,
-				  "EVENT: Socket Invalid! [%d] [%s] [%d]\n",
+				  "IO_recv_callback(): Socket Invalid! [%d] [%s] [%d]\n",
 				  errno, strerror(errno), IO->SendBuf.fd);
 			StrBufPrintf(IO->ErrMsg,
 				     "Socket Invalid! [%s]",
 				     strerror(errno));
-			SetNextTimeout(IO, 0.0);
+			SetNextTimeout(IO, 0.01);
 		}
 		return;
 	}

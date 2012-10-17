@@ -168,7 +168,7 @@ int CtdlTerminateOtherSession (int session_num)
 		}
 	}
 
-	if (((ret & TERM_FOUND) != 0) && ((ret & TERM_ALLOWED) == 0))
+	if (((ret & TERM_FOUND) != 0) && ((ret & TERM_ALLOWED) != 0))
 	{
 		if (ccptr->IO != NULL) {
 			AsyncIO *IO = ccptr->IO;
