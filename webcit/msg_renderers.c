@@ -1517,22 +1517,22 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  NULL, CTX_NONE);
 	RegisterNamespace("MAIL:EDITTEXT", 1, 2, tmplput_EDIT_MAIL_BODY,  NULL, CTX_NONE);
 	RegisterNamespace("MAIL:EDITWIKI", 1, 2, tmplput_EDIT_WIKI_BODY,  NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:CCCC"), 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:REPLYTO"), 0, Conditional_MAIL_SUMM_REPLYTO,  CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:SUBJECT"), 0, Conditional_MAIL_SUMM_SUBJECT, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:ANON"), 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:TO"), 0, Conditional_MAIL_SUMM_TO, CTX_MAILSUM);	
-	RegisterConditional(HKEY("COND:MAIL:SUBJ"), 0, Conditional_MAIL_SUMM_SUBJ, CTX_MAILSUM);	
+	RegisterConditional("COND:MAIL:SUMM:RFCA", 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:CCCC", 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:REPLYTO", 0, Conditional_MAIL_SUMM_REPLYTO,  CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:UNREAD", 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:H_NODE", 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:OTHERNODE", 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:SUBJECT", 0, Conditional_MAIL_SUMM_SUBJECT, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:ANON", 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:TO", 0, Conditional_MAIL_SUMM_TO, CTX_MAILSUM);	
+	RegisterConditional("COND:MAIL:SUBJ", 0, Conditional_MAIL_SUMM_SUBJ, CTX_MAILSUM);	
 
 	/* do we have mimetypes to iterate over? */
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH"), 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:SUBMESSAGES"), 0, Conditional_MAIL_MIME_SUBMESSAGES, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:LINKS"), 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:ATT"), 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH", 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 0, Conditional_MAIL_MIME_SUBMESSAGES, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH:LINKS", 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH:ATT", 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:SUBMESSAGES", 0, NULL, iterate_get_mime_Submessages, 
@@ -1568,7 +1568,7 @@ InitModule_MSGRENDERERS
 /*
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS, 1, 501);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS, 1, 500);
-*/
+//*/
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat, 1, 2);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain, 1, 3);
 	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain, 1, 1);

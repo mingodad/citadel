@@ -949,9 +949,9 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("ajax_login_newuser"), "", 0, ajax_login_newuser, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("switch_language"), "", 0, switch_language, ANONYMOUS);
-	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
-	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
-	RegisterConditional(HKEY("COND:MAY_CREATE_ROOM"), 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
+	RegisterConditional("COND:AIDE", 2, ConditionalAide, CTX_NONE);
+	RegisterConditional("COND:LOGGEDIN", 2, ConditionalIsLoggedIn, CTX_NONE);
+	RegisterConditional("COND:MAY_CREATE_ROOM", 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
 	return;
 }
 

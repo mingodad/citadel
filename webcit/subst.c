@@ -71,8 +71,13 @@ typedef struct _HashHandler {
 	WCHandlerFunc HandlerFunc;
 }HashHandler;
 
+typedef enum _estate {
+	eNext,
+	eSkipTilEnd
+} TemplState;
+
 void *load_template(StrBuf *Target, WCTemplate *NewTemplate);
-int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP);
+int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams **TPP);
 
 
 
@@ -143,12 +148,14 @@ const char *ContextName(CtxType ContextType)
 		return UnknownContext;
 }
 
-void StackContext(WCTemplputParams *Super, 
-		  WCTemplputParams *Sub, 
-		  void *Context,
-		  CtxType ContextType,
-		  int nArgs,
-		  WCTemplateToken *Tokens)
+void StackDynamicContext(WCTemplputParams *Super, 
+			 WCTemplputParams *Sub, 
+			 void *Context,
+			 CtxType ContextType,
+			 int nArgs,
+			 WCTemplateToken *Tokens, 
+			 WCConditionalFunc ExitCtx, 
+			 long ExitCTXID)
 {
 	memset(Sub, 0, sizeof(WCTemplputParams));
 
@@ -162,6 +169,8 @@ void StackContext(WCTemplputParams *Super,
 	Sub->Filter.ContextType = ContextType;
 	Sub->nArgs = nArgs;
 	Sub->Tokens = Tokens;
+	Sub->ExitCtx = ExitCtx;
+	Sub->ExitCTXID = ExitCTXID;
 }
 
 void UnStackContext(WCTemplputParams *Sub)
@@ -170,6 +179,13 @@ void UnStackContext(WCTemplputParams *Sub)
 	{
 		Sub->Super->Sub = Sub->Sub;
 	}
+}
+void UnStackDynamicContext(StrBuf *Target, WCTemplputParams **TPP)
+{
+	WCTemplputParams *TP = *TPP;
+	WCTemplputParams *Super = TP->Super;
+	TP->ExitCtx(Target, TP);
+	*TPP = Super;
 }
 
 void *GetContextPayload(WCTemplputParams *TP, CtxType ContextType)
@@ -1681,12 +1697,13 @@ void InitTemplateCache(void)
  * \param state are we in conditional state?
  * \param ContextType what type of information does context giv us?
  */
-int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
+int EvaluateToken(StrBuf *Target, int state, WCTemplputParams **TPP)
 {
 	const char *AppendMe;
 	long AppendMeLen;
 	HashHandler *Handler;
 	void *vVar;
+	WCTemplputParams *TP = *TPP;
 	
 /* much output, since pName is not terminated...
 	syslog(1,"Doing token: %s\n",Token->pName);
@@ -1701,14 +1718,14 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
 			return -1;
 		}
-		return EvaluateConditional(Target, 1, state, TP);
+		return EvaluateConditional(Target, 1, state, TPP);
 		break;
 	case SV_NEG_CONDITIONAL: /** Reverse conditional evaluation */
 		Handler = (HashHandler*) TP->Tokens->PreEval;
 		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
 			return -1;
 		}
-		return EvaluateConditional(Target, 0, state, TP);
+		return EvaluateConditional(Target, 0, state, TPP);
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
 		Handler = (HashHandler*) TP->Tokens->PreEval;
@@ -1716,7 +1733,7 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 			return -1;
 		}
 		if (TP->Tokens->nParameters >= 6) {
-			if (EvaluateConditional(Target, 0, state, TP)) {
+			if (EvaluateConditional(Target, 0, state, TPP)) {
 				GetTemplateTokenString(Target, TP, 5, &AppendMe, &AppendMeLen);
 				StrBufAppendBufPlain(Target, 
 						     AppendMe, 
@@ -1729,6 +1746,10 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 						     AppendMe, 
 						     AppendMeLen,
 						     0);
+			}
+			if (*TPP != TP)
+			{
+				UnStackDynamicContext(Target, TPP);
 			}
 		}
 		else  {
@@ -1773,10 +1794,12 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 {
 	WCTemplate *pTmpl = Tmpl;
 	int done = 0;
-	int i, state;
+	int i;
+	TemplState state;
 	const char *pData, *pS;
 	long len;
 	WCTemplputParams TP;
+	WCTemplputParams *TPtr = &TP;
 
 	memcpy(&TP.Filter, &CallingTP->Filter, sizeof(ContextFilter));
 
@@ -1803,7 +1826,7 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 	pS = pData = ChrPtr(pTmpl->Data);
 	len = StrLength(pTmpl->Data);
 	i = 0;
-	state = 0;
+	state = eNext;
 	while (!done) {
 		if (i >= pTmpl->nTokensUsed) {
 			StrBufAppendBufPlain(Target, 
@@ -1812,26 +1835,38 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 			done = 1;
 		}
 		else {
+			int TokenRc;
+
 			StrBufAppendBufPlain(
 				Target, pData, 
 				pTmpl->Tokens[i]->pTokenStart - pData, 0);
-			TP.Tokens = pTmpl->Tokens[i];
-			TP.nArgs = pTmpl->Tokens[i]->nParameters;
-			state = EvaluateToken(Target, state, &TP);
+			TPtr->Tokens = pTmpl->Tokens[i];
+			TPtr->nArgs = pTmpl->Tokens[i]->nParameters;
 
-			while ((state != 0) && (i+1 < pTmpl->nTokensUsed)) {
+		        TokenRc = EvaluateToken(Target, TokenRc, &TPtr);
+			if (TokenRc != 0) state = eSkipTilEnd;
+
+			while ((state != eNext) && (i+1 < pTmpl->nTokensUsed)) {
 			/* condition told us to skip till its end condition */
 				i++;
-				TP.Tokens = pTmpl->Tokens[i];
-				TP.nArgs = pTmpl->Tokens[i]->nParameters;
+				TPtr->Tokens = pTmpl->Tokens[i];
+				TPtr->nArgs = pTmpl->Tokens[i]->nParameters;
 				if ((pTmpl->Tokens[i]->Flags == SV_CONDITIONAL) ||
-				    (pTmpl->Tokens[i]->Flags == SV_NEG_CONDITIONAL)) {
-					if (state == EvaluateConditional(
-						    Target, 
-						    pTmpl->Tokens[i]->Flags, 
-						    state, 
-						    &TP))
-						state = 0;
+				    (pTmpl->Tokens[i]->Flags == SV_NEG_CONDITIONAL))
+				{
+					int rc;
+				        rc = EvaluateConditional(
+						Target, 
+						pTmpl->Tokens[i]->Flags, 
+						TokenRc, 
+						&TPtr);
+					if (rc == TokenRc)
+					{
+						TokenRc = 0;
+						state = eNext;
+						if (TPtr != &TP)
+							UnStackDynamicContext(Target, &TPtr);
+					}
 				}
 			}
 			pData = pTmpl->Tokens[i++]->pTokenEnd + 1;
@@ -2175,15 +2210,18 @@ int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 /*-----------------------------------------------------------------------------
  *                      Conditionals
  */
-int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP)
+int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams **TPP)
 {
 	ConditionalStruct *Cond;
 	int rc = 0;
 	int res;
+	WCTemplputParams *TP = *TPP;
 
 	if ((TP->Tokens->Params[0]->len == 1) &&
 	    (TP->Tokens->Params[0]->Start[0] == 'X'))
+	{
 		return (state != 0)?TP->Tokens->Params[1]->lvalue:0;
+	}
 	    
 	Cond = (ConditionalStruct *) TP->Tokens->PreEval;
 	if (Cond == NULL) {
@@ -2204,13 +2242,19 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP
 		syslog(1, "<%s> : %d %d==%d\n", 
 			ChrPtr(TP->Tokens->FlatToken), 
 			rc, res, Neg);
+	if (TP->Sub != NULL)
+	{
+////	*XC = Cond->CondExitCtx;
+		*TPP = TP->Sub;
+	}
 	return rc;
 }
 
-void RegisterConditional(const char *Name, long len, 
-			 int nParams,
-			 WCConditionalFunc CondF, 
-			 int ContextRequired)
+void RegisterContextConditional(const char *Name, long len, 
+				int nParams,
+				WCConditionalFunc CondF, 
+				WCConditionalFunc ExitCtxCond,
+				int ContextRequired)
 {
 	ConditionalStruct *Cond;
 
@@ -2220,6 +2264,7 @@ void RegisterConditional(const char *Name, long len,
 	Cond->Filter.nMaxArgs = nParams;
 	Cond->Filter.nMinArgs = nParams;
 	Cond->CondF = CondF;
+	Cond->CondExitCtx = ExitCtxCond;
 	Cond->Filter.ContextType = ContextRequired;
 	Put(Conditionals, Name, len, Cond, NULL);
 }
@@ -2878,18 +2923,18 @@ InitModule_SUBST
 	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, NULL, CTX_LONGVECTOR);
 
 
-	RegisterConditional(HKEY("COND:CONTEXTSTR"), 3, ConditionalContextStr, CTX_STRBUF);
-	RegisterConditional(HKEY("COND:CONTEXTSTRARR"), 4, ConditionalContextStrinArray, CTX_STRBUFARR);
-	RegisterConditional(HKEY("COND:LONGVECTOR"), 4, ConditionalLongVector, CTX_LONGVECTOR);
+	RegisterConditional("COND:CONTEXTSTR", 3, ConditionalContextStr, CTX_STRBUF);
+	RegisterConditional("COND:CONTEXTSTRARR", 4, ConditionalContextStrinArray, CTX_STRBUFARR);
+	RegisterConditional("COND:LONGVECTOR", 4, ConditionalLongVector, CTX_LONGVECTOR);
 
 
-	RegisterConditional(HKEY("COND:ITERATE:ISGROUPCHANGE"), 2, 
+	RegisterConditional("COND:ITERATE:ISGROUPCHANGE", 2, 
 			    conditional_ITERATE_ISGROUPCHANGE, 
 			    CTX_ITERATE);
-	RegisterConditional(HKEY("COND:ITERATE:LASTN"), 2, 
+	RegisterConditional("COND:ITERATE:LASTN", 2, 
 			    conditional_ITERATE_LASTN, 
 			    CTX_ITERATE);
-	RegisterConditional(HKEY("COND:ITERATE:FIRSTN"), 2, 
+	RegisterConditional("COND:ITERATE:FIRSTN", 2, 
 			    conditional_ITERATE_FIRSTN, 
 			    CTX_ITERATE);
 

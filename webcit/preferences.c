@@ -1188,9 +1188,9 @@ InitModule_PREFERENCES
 	
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, NULL, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
-	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHasPreference, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:SET"), 4, ConditionalHasRoomPreference, CTX_NONE);
+	RegisterConditional("COND:PREF", 4, ConditionalPreference, CTX_NONE);
+	RegisterConditional("COND:PREF:SET", 4, ConditionalHasPreference, CTX_NONE);
+	RegisterConditional("COND:ROOM:SET", 4, ConditionalHasRoomPreference, CTX_NONE);
 	
 	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
 			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);

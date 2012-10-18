@@ -427,7 +427,7 @@ InitModule_SMTP_QUEUE
 	RegisterNamespace("MAILQ:SUBMITTED", 0, 0, tmplput_MailQSubmitted, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:ENVELOPEFROM", 0, 1, tmplput_MailQEnvelopeFrom, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:SRCROOM", 0, 1, tmplput_MailQSourceRoom, NULL, CTX_MAILQITEM);
-	RegisterConditional(HKEY("COND:MAILQ:HAVESRCROOM"), 0, Conditional_MailQ_HaveSourceRoom,  CTX_MAILQITEM);
+	RegisterConditional("COND:MAILQ:HAVESRCROOM", 0, Conditional_MailQ_HaveSourceRoom,  CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:RETRY", 0, 0, tmplput_MailQRetry, NULL, CTX_MAILQITEM);
 
 	RegisterNamespace("MAILQ:RCPT:ADDR", 0, 1, tmplput_MailQRCPT, NULL, CTX_MAILQ_RCPT);

@@ -260,11 +260,16 @@ typedef struct _disp_cal {
 	icalproperty_status Status;
 } disp_cal;						
 
-typedef struct _IcalEnumMap {
+typedef struct _IcalKindEnumMap {
 	const char *Name;
 	long NameLen;
 	icalproperty_kind map;
-} IcalEnumMap;
+} IcalKindEnumMap;
+typedef struct _IcalMethodEnumMap {
+	const char *Name;
+	long NameLen;
+        icalproperty_method map;
+} IcalMethodEnumMap;
 
 /*
  * Address book entry (keep it short and sweet, it's just a quickie lookup

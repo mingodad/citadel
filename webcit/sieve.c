@@ -934,21 +934,21 @@ InitModule_SIEVE
 
 	RegisterIterator("SIEVE:SCRIPTS", 0, NULL, GetSieveScriptListing, NULL, NULL, CTX_SIEVELIST, CTX_NONE, IT_NOFLAG);
 
-	RegisterConditional(HKEY("COND:SIEVE:SCRIPT:ACTIVE"), 0, ConditionalSieveScriptIsActive, CTX_SIEVELIST);
-	RegisterConditional(HKEY("COND:SIEVE:SCRIPT:ISRULES"), 0, ConditionalSieveScriptIsRulesScript, CTX_SIEVELIST);
+	RegisterConditional("COND:SIEVE:SCRIPT:ACTIVE", 0, ConditionalSieveScriptIsActive, CTX_SIEVELIST);
+	RegisterConditional("COND:SIEVE:SCRIPT:ISRULES", 0, ConditionalSieveScriptIsRulesScript, CTX_SIEVELIST);
 	RegisterNamespace("SIEVE:SCRIPT:NAME", 0, 1, tmplput_SieveScriptName, NULL, CTX_SIEVELIST);
 	RegisterNamespace("SIEVE:SCRIPT:CONTENT", 0, 1, tmplput_SieveScriptContent, NULL, CTX_SIEVELIST);
 
  
 	RegisterIterator("SIEVE:RULES", 0, NULL, GetSieveRules, NULL, DeleteHash, CTX_SIEVESCRIPT, CTX_NONE, IT_NOFLAG);
 
-	RegisterConditional(HKEY("COND:SIEVE:ACTIVE"), 1, ConditionalSieveRule_Active, CTX_SIEVESCRIPT);
-	RegisterConditional(HKEY("COND:SIEVE:HFIELD"), 1, ConditionalSieveRule_hfield, CTX_SIEVESCRIPT);
-	RegisterConditional(HKEY("COND:SIEVE:COMPARE"), 1, ConditionalSieveRule_compare, CTX_SIEVESCRIPT);
-	RegisterConditional(HKEY("COND:SIEVE:ACTION"), 1, ConditionalSieveRule_action, CTX_SIEVESCRIPT);
-	RegisterConditional(HKEY("COND:SIEVE:SIZECOMP"), 1, ConditionalSieveRule_sizecomp, CTX_SIEVESCRIPT);
-	RegisterConditional(HKEY("COND:SIEVE:FINAL"), 1, ConditionalSieveRule_final, CTX_SIEVESCRIPT);
-	RegisterConditional(HKEY("COND:SIEVE:THISROOM"), 1, ConditionalSieveRule_ThisRoom, CTX_SIEVESCRIPT);
+	RegisterConditional("COND:SIEVE:ACTIVE", 1, ConditionalSieveRule_Active, CTX_SIEVESCRIPT);
+	RegisterConditional("COND:SIEVE:HFIELD", 1, ConditionalSieveRule_hfield, CTX_SIEVESCRIPT);
+	RegisterConditional("COND:SIEVE:COMPARE", 1, ConditionalSieveRule_compare, CTX_SIEVESCRIPT);
+	RegisterConditional("COND:SIEVE:ACTION", 1, ConditionalSieveRule_action, CTX_SIEVESCRIPT);
+	RegisterConditional("COND:SIEVE:SIZECOMP", 1, ConditionalSieveRule_sizecomp, CTX_SIEVESCRIPT);
+	RegisterConditional("COND:SIEVE:FINAL", 1, ConditionalSieveRule_final, CTX_SIEVESCRIPT);
+	RegisterConditional("COND:SIEVE:THISROOM", 1, ConditionalSieveRule_ThisRoom, CTX_SIEVESCRIPT);
 
 	RegisterNamespace("SIEVE:SCRIPT:HTEXT", 0, 1, tmplput_SieveRule_htext, NULL, CTX_SIEVESCRIPT);
 	RegisterNamespace("SIEVE:SCRIPT:SIZE", 0, 1, tmplput_SieveRule_sizeval, NULL, CTX_SIEVESCRIPT);

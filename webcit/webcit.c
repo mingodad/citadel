@@ -906,9 +906,9 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("pop"), "", 0, pop_destination, 0);
 
 	WebcitAddUrlHandler(HKEY("401"), "", 0, authorization_required, ANONYMOUS|COOKIEUNNEEDED);
-	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
-	RegisterConditional(HKEY("COND:REST:DEPTH"), 0, Conditional_REST_DEPTH, CTX_NONE);
-	RegisterConditional(HKEY("COND:IS_HTTPS"), 0, Conditional_IS_HTTPS, CTX_NONE);
+	RegisterConditional("COND:IMPMSG", 0, ConditionalImportantMesage, CTX_NONE);
+	RegisterConditional("COND:REST:DEPTH", 0, Conditional_REST_DEPTH, CTX_NONE);
+	RegisterConditional("COND:IS_HTTPS", 0, Conditional_IS_HTTPS, CTX_NONE);
 
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, NULL, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);

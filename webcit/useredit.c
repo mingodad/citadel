@@ -827,12 +827,12 @@ InitModule_USEREDIT
 
 	RegisterNamespace("USER:BIO", 1, 2, tmplput_USER_BIO,  NULL, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:USERNAME"),  0,    ConditionalUser, CTX_USERLIST);
-	RegisterConditional(HKEY("COND:USERACCESS"), 0,   ConditionalUserAccess, CTX_USERLIST);
-	RegisterConditional(HKEY("COND:USERLIST:FLAG:USE_INTERNET"), 0, ConditionalFlagINetEmail, CTX_USERLIST);
-	RegisterConditional(HKEY("COND:USERLIST:HAVEBIO"), 0, ConditionalHaveBIO, CTX_USERLIST);
+	RegisterConditional("COND:USERNAME",  0,    ConditionalUser, CTX_USERLIST);
+	RegisterConditional("COND:USERACCESS", 0,   ConditionalUserAccess, CTX_USERLIST);
+	RegisterConditional("COND:USERLIST:FLAG:USE_INTERNET", 0, ConditionalFlagINetEmail, CTX_USERLIST);
+	RegisterConditional("COND:USERLIST:HAVEBIO", 0, ConditionalHaveBIO, CTX_USERLIST);
 
-	RegisterConditional(HKEY("COND:USER:PIC"), 1, Conditional_USER_HAS_PIC,  CTX_NONE);
+	RegisterConditional("COND:USER:PIC", 1, Conditional_USER_HAS_PIC,  CTX_NONE);
 
 	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	

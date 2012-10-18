@@ -153,6 +153,8 @@ struct WCTemplputParams {
 	int nArgs;
 	WCTemplateToken *Tokens;
 	WCTemplputParams *Sub, *Super;
+	WCConditionalFunc ExitCtx;
+        long ExitCTXID;
 };
 
 
@@ -161,6 +163,7 @@ typedef struct _ConditionalStruct {
 	ContextFilter Filter;
 	const char *PlainName;
 	WCConditionalFunc CondF;
+	WCConditionalFunc CondExitCtx;
 } ConditionalStruct;
 
 
@@ -302,12 +305,21 @@ void RegisterNS(const char *NSName, long len,
  * @param len the token length so we don't have to measure it.
  * @param nParams how many parameters does your conditional need on top of the default conditional parameters
  * @param CondF your Callback to be called when the template is evaluated at runtime; return 0 or 1 to us please.
+ * @param ExitCtxCond if non-NULL, will be called after the area of the conditional is left behind.
  * @param ContextRequired if your token requires a specific context, else say CTX_NONE here.
  */
-void RegisterConditional(const char *Name, long len, 
-			 int nParams,
-			 WCConditionalFunc CondF, 
-			 int ContextRequired);
+void RegisterContextConditional(const char *Name, long len, 
+				int nParams,
+				WCConditionalFunc CondF, 
+				WCConditionalFunc ExitCtxCond,
+				int ContextRequired);
+
+#define RegisterCtxConditional(Name, nParams, CondF, ExitCtxCond, ContextRequired) \
+	RegisterContextConditional(Name, sizeof(Name) -1, nParams, CondF, ExitCtxCond, ContextRequired)
+
+#define RegisterConditional(Name, nParams, CondF, ContextRequired) \
+	RegisterContextConditional(Name, sizeof(Name) -1, nParams, CondF, NULL, ContextRequired)
+
 
 /**
  * @ingroup subst
@@ -353,12 +365,18 @@ void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 
 
 
-void StackContext(WCTemplputParams *Super, 
-		  WCTemplputParams *Sub, 
-		  void *Context,
-		  CtxType ContextType,
-		  int nArgs,
-		  WCTemplateToken *Tokens);
+void StackDynamicContext(WCTemplputParams *Super, 
+			 WCTemplputParams *Sub, 
+			 void *Context,
+			 CtxType ContextType,
+			 int nArgs,
+			 WCTemplateToken *Tokens, 
+			 WCConditionalFunc ExitCtx,
+			 long ExitCTXID);
+
+#define StackContext(Super, Sub, Context, ContextType, nArgs, Tokens) \
+	StackDynamicContext(Super, Sub, Context, ContextType, nArgs, Tokens, NULL, 0)
+
 
 void UnStackContext(WCTemplputParams *Sub);
 

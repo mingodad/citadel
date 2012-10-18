@@ -464,7 +464,7 @@ InitModule_DOWNLOAD
 	RegisterNamespace("FILE:MIMETYPE", 0, 2, tmplput_FILEMIMETYPE, NULL, CTX_FILELIST);
 	RegisterNamespace("FILE:COMMENT", 0, 2, tmplput_FILE_COMMENT, NULL, CTX_FILELIST);
 
-	RegisterConditional(HKEY("COND:FILE:ISPIC"), 0, Conditional_FILE_ISPIC, CTX_FILELIST);
+	RegisterConditional("COND:FILE:ISPIC", 0, Conditional_FILE_ISPIC, CTX_FILELIST);
 
 	WebcitAddUrlHandler(HKEY("image"), "", 0, output_image, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("display_mime_icon"), "", 0, display_mime_icon , ANONYMOUS);

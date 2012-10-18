@@ -696,7 +696,7 @@ InitModule_ROOMLIST
 
 
 
-	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBROOM"), 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
+	RegisterConditional("COND:ROOM:REST:ISSUBROOM", 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
 
 	RegisterSortFunc(HKEY("byfloorroom"),
 			 NULL, 0,

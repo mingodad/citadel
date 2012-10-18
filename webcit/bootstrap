@@ -6,7 +6,7 @@
 # Remove any vestiges of pre-6.05 build environments
 rm -f .libs modules *.so *.lo *.la 2>/dev/null
 
-./get_ical_data.sh
+./scripts/get_ical_data.sh
 
 echo ... running aclocal ...
 aclocal
@@ -23,7 +23,7 @@ echo ... running autoheader ...
 autoheader
 
 echo ... mk_module_init.sh ...
-./mk_module_init.sh
+./scripts/mk_module_init.sh
 
 
 echo

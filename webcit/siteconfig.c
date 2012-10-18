@@ -478,8 +478,8 @@ InitModule_SITECONFIG
 	WebcitAddUrlHandler(HKEY("siteconfig"), "", 0, siteconfig, CTX_NONE);
 
 	RegisterNamespace("SERV:CFG", 1, 2, tmplput_servcfg, NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
-	RegisterConditional(HKEY("COND:SERVCFG:CTXSTRBUF"), 4, ConditionalServCfgCTXStrBuf, CTX_STRBUF);
+	RegisterConditional("COND:SERVCFG", 3, ConditionalServCfg, CTX_NONE);
+	RegisterConditional("COND:SERVCFG:CTXSTRBUF", 4, ConditionalServCfgCTXStrBuf, CTX_STRBUF);
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	REGISTERTokenParamDefine(roompolicy);
@@ -497,11 +497,11 @@ InitModule_SITECONFIG
 	REGISTERTokenParamDefine(CFG_SMTP_FROM_CORRECT);
 	REGISTERTokenParamDefine(CFG_SMTP_FROM_REJECT);
 
-	RegisterConditional(HKEY("COND:EXPIRE:MODE"), 2, ConditionalExpire, CTX_NONE);
+	RegisterConditional("COND:EXPIRE:MODE", 2, ConditionalExpire, CTX_NONE);
 	RegisterNamespace("EXPIRE:VALUE", 1, 2, tmplput_ExpireValue, NULL, CTX_NONE);
 	RegisterNamespace("EXPIRE:MODE", 1, 2, tmplput_ExpireMode, NULL, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:SERVCFG:THISLOGENABLE"), 4, ConditionalServCfgThisLogEnabled, CTX_SRVLOG);
+	RegisterConditional("COND:SERVCFG:THISLOGENABLE", 4, ConditionalServCfgThisLogEnabled, CTX_SRVLOG);
 	RegisterIterator("SERVCFG:LOGENABLE", 0, NULL, iterate_GetSrvLogEnable, NULL, DeleteHash, CTX_SRVLOG, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("SERVCFG:LOGNAME", 0, 1, tmplput_servcfg_LogName, NULL, CTX_SRVLOG);
 }

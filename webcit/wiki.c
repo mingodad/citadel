@@ -352,6 +352,6 @@ InitModule_WIKI
 	WebcitAddUrlHandler(HKEY("wiki_pagelist"), "", 0, display_wiki_pagelist, 0);
 	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
 	RegisterNamespace("WIKI:DISPLAYPAGELIST", 0, 0, tmplput_display_wiki_pagelist, NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:WIKI:PAGE"), 1, ConditionalHaveWikiPage, CTX_NONE);
-	RegisterConditional(HKEY("COND:WIKI:TYPE"), 1, ConditionalHavewikiType, CTX_NONE);
+	RegisterConditional("COND:WIKI:PAGE", 1, ConditionalHaveWikiPage, CTX_NONE);
+	RegisterConditional("COND:WIKI:TYPE", 1, ConditionalHavewikiType, CTX_NONE);
 }

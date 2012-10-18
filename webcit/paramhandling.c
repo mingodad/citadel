@@ -558,7 +558,7 @@ InitModule_PARAMHANDLING
 	RegisterNamespace("BSTR:PAIR:X", 1, 2, tmplput_bstr_pair_x, NULL, CTX_BSTRPAIRS);
 	RegisterNamespace("BSTR:PAIR:Y", 1, 2, tmplput_bstr_pair_y, NULL, CTX_BSTRPAIRS);
 
-	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
+	RegisterConditional("COND:BSTR", 1, ConditionalBstr, CTX_NONE);
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, NULL, CTX_NONE);
 	RegisterNamespace("BSTR:FORWARD", 1, 2, tmplput_bstrforward, NULL, CTX_NONE);
 	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, NULL, CTX_NONE);
