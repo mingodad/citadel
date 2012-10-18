@@ -12,10 +12,14 @@
 
 #include "webcit.h"
 
-extern IcalEnumMap icalproperty_kind_map[];
+extern IcalKindEnumMap icalproperty_kind_map[];
+extern IcalMethodEnumMap icalproperty_method_map[];
 
 HashList *IcalComponentMap = NULL;
 CtxType CTX_ICAL = CTX_NONE;
+CtxType CTX_ICALPROPERTY = CTX_NONE;
+CtxType CTX_ICALMETHOD = CTX_NONE;
+CtxType CTX_ICALTIME = CTX_NONE;
 #if 0
 void SortPregetMatter(HashList *Cals)
 {
@@ -51,7 +55,7 @@ void SortPregetMatter(HashList *Cals)
 		return;
 
 	switch (SortMap[i - 1]->map) {
-		///	case 
+		/*	case */
 
 	default:
 		break;
@@ -90,6 +94,144 @@ void tmplput_ICalItem(StrBuf *Target, WCTemplputParams *TP)
 	}
 }
 
+void tmplput_CtxICalProperty(StrBuf *Target, WCTemplputParams *TP)
+{
+	icalproperty *p = (icalproperty *) CTX(CTX_ICALPROPERTY);
+	const char *str;
+
+	str = icalproperty_get_comment (p);
+	StrBufAppendTemplateStr(Target, TP, str, 0);
+}
+
+int ReleaseIcalSubCtx(StrBuf *Target, WCTemplputParams *TP)
+{
+	WCTemplputParams *TPP = TP;
+	UnStackContext(TP);
+	free(TPP);
+	return 0;
+}
+int cond_ICalIsA(StrBuf *Target, WCTemplputParams *TP)
+{
+	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
+	icalcomponent_kind c = GetTemplateTokenNumber(Target, TP, 2, ICAL_NO_COMPONENT);
+	return icalcomponent_isa(cal) == c;
+}
+
+int cond_ICalHaveItem(StrBuf *Target, WCTemplputParams *TP)
+{
+	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
+	icalproperty *p;
+	icalproperty_kind Kind;
+
+	Kind = (icalproperty_kind) GetTemplateTokenNumber(Target, TP, 2, ICAL_ANY_PROPERTY);
+	p = icalcomponent_get_first_property(cal, Kind);
+	if (p != NULL) {
+		WCTemplputParams *DynamicTP;
+	
+		DynamicTP = (WCTemplputParams*) malloc(sizeof(WCTemplputParams));
+		StackDynamicContext (TP, 
+				     DynamicTP, 
+				     p,
+				     CTX_ICALPROPERTY,
+				     0,
+				     TP->Tokens,
+				     ReleaseIcalSubCtx,
+				     TP->Tokens->Params[1]->lvalue);
+
+		return 1;
+	}
+	return 0;
+}
+
+int ReleaseIcalTimeCtx(StrBuf *Target, WCTemplputParams *TP)
+{
+	WCTemplputParams *TPP = TP;
+
+	UnStackContext(TP);
+	free(TPP);
+	return 0;
+}
+
+int cond_ICalHaveTimeItem(StrBuf *Target, WCTemplputParams *TP)
+{
+	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
+	icalproperty *p;
+	icalproperty_kind Kind;
+	struct icaltimetype tt;
+
+	Kind = (icalproperty_kind) GetTemplateTokenNumber(Target, TP, 2, ICAL_ANY_PROPERTY);
+
+
+	p = icalcomponent_get_first_property(cal, Kind);
+	if (p != NULL) {
+		struct icaltimetype *t;
+		time_t ttt;
+		WCTemplputParams *DynamicTP;
+
+		DynamicTP = (WCTemplputParams*) malloc(sizeof(WCTemplputParams) + 
+						       sizeof(struct icaltimetype));
+		t = (struct icaltimetype *) ((char*)DynamicTP) + sizeof(WCTemplputParams);
+		switch (Kind)
+		{
+		case ICAL_DTSTART_PROPERTY:
+			*t = icalproperty_get_dtstart(p);
+			break;
+		case ICAL_DTEND_PROPERTY:
+			tt = icalproperty_get_dtend(p);
+			ttt = icaltime_as_timet(tt);
+			break;
+		default:
+			memset(t, 0, sizeof(struct icaltimetype));
+			break;
+		}
+	
+		StackDynamicContext (TP, 
+				     DynamicTP, 
+				     t,
+				     CTX_ICALTIME,
+				     0,
+				     TP->Tokens,
+				     ReleaseIcalTimeCtx,
+				     TP->Tokens->Params[1]->lvalue);
+
+		return 1;
+	}
+	return 0;
+}
+
+
+int cond_ICalTimeIsDate(StrBuf *Target, WCTemplputParams *TP)
+{
+	struct icaltimetype *t = (struct icaltimetype *) CTX(CTX_ICALTIME);
+	return t->is_date;
+}
+
+void tmplput_ICalTime_Date(StrBuf *Target, WCTemplputParams *TP)
+{
+	struct tm d_tm;
+	long len;
+	char buf[256];
+	struct icaltimetype *t = (struct icaltimetype *) CTX(CTX_ICALTIME);
+
+	memset(&d_tm, 0, sizeof d_tm);
+	d_tm.tm_year = t->year - 1900;
+	d_tm.tm_mon = t->month - 1;
+	d_tm.tm_mday = t->day;
+	len = wc_strftime(buf, sizeof(buf), "%x", &d_tm);
+	StrBufAppendBufPlain(Target, buf, len, 0);
+}
+void tmplput_ICalTime_Time(StrBuf *Target, WCTemplputParams *TP)
+{
+	long len;
+	char buf[256];
+	struct icaltimetype *t = (struct icaltimetype *) CTX(CTX_ICALTIME);
+        time_t tt;
+
+	tt = icaltime_as_timet(*t);
+	len = webcit_fmt_date(buf, sizeof(buf), tt, DATEFMT_FULL);
+	StrBufAppendBufPlain(Target, buf, len, 0);
+}
+
 void tmplput_ICalDate(StrBuf *Target, WCTemplputParams *TP)
 {
 	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
@@ -110,14 +252,30 @@ void tmplput_ICalDate(StrBuf *Target, WCTemplputParams *TP)
 	}
 }
 
+void tmplput_CtxICalPropertyDate(StrBuf *Target, WCTemplputParams *TP)
+{
+	icalproperty *p = (icalproperty *) CTX(CTX_ICALPROPERTY);
+	struct icaltimetype t;
+	time_t tt;
+	char buf[256];
+
+	long len;
+	t = icalproperty_get_dtend(p);
+	tt = icaltime_as_timet(t);
+	len = webcit_fmt_date(buf, sizeof(buf), tt, DATEFMT_FULL);
+	StrBufAppendBufPlain(Target, buf, len, 0);
+}
+
 
 
 void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
+	icalproperty_method the_method = ICAL_METHOD_NONE;
+	icalproperty *method = NULL;
 	icalcomponent *cal;
 	icalcomponent *c;
         WCTemplputParams SubTP;
-
+        WCTemplputParams SubSubTP;
 
 	if (StrLength(Mime->Data) == 0) {
 		MimeLoadData(Mime);
@@ -132,21 +290,42 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 	}
 
         memset(&SubTP, 0, sizeof(WCTemplputParams));
+        memset(&SubSubTP, 0, sizeof(WCTemplputParams));
         SubTP.Filter.ContextType = CTX_ICAL;
 
-	///ical_dezonify(cal);
+	/*//ical_dezonify(cal); */
 
 	/* If the component has subcomponents, recurse through them. */
 	c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 
-        SubTP.Context = (c != NULL) ? c : cal;
+        c = (c != NULL) ? c : cal;
+        SubTP.Context = c;
 
+	method = icalcomponent_get_first_property(c, ICAL_METHOD_PROPERTY);
+	if (method != NULL) {
+		the_method = icalproperty_get_method(method);
+	}
+
+	StackContext (&SubTP, 
+		      &SubSubTP, 
+		      &the_method,
+		      CTX_ICALMETHOD,
+		      0,
+		      SubTP.Tokens);
 	FlushStrBuf(Mime->Data);
 	DoTemplate(HKEY("ical_attachment_display"), Mime->Data, &SubTP);
 
-	// cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum));
+	/*/ cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum)); */
 
 	/* Free the memory we obtained from libical's constructor */
+	StrBufPlain(Mime->ContentType, HKEY("text/html"));
+	StrBufAppendPrintf(WC->trailing_javascript,
+		"eventEditAllDay();		\n"
+		"RecurrenceShowHide();		\n"
+		"EnableOrDisableCheckButton();	\n"
+	);
+
+	UnStackContext(&SubSubTP);
 	icalcomponent_free(cal);
 }
 void CreateIcalComponendKindLookup(void)
@@ -176,7 +355,14 @@ void CreateIcalComponendKindLookup(void)
 
 
 
+int cond_ICalIsMethod(StrBuf *Target, WCTemplputParams *TP)
+{
+	icalproperty_method *the_method = (icalproperty_method *) CTX(CTX_ICALMETHOD);
+	icalproperty_method which_method;
 
+	which_method = GetTemplateTokenNumber(Target, TP, 3, ICAL_METHOD_X);
+	return *the_method == which_method;
+}
 
 
 
@@ -192,21 +378,30 @@ void
 InitModule_ICAL_SUBST
 (void)
 {
-	int i;
-	for (i=0; icalproperty_kind_map[i].NameLen > 0; i++)
-		RegisterTokenParamDefine (
-			icalproperty_kind_map[i].Name,
-			icalproperty_kind_map[i].NameLen,
-			icalproperty_kind_map[i].map);
-	
-
 	RegisterCTX(CTX_ICAL);
+//*
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS_TPL, 1, 501);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS_TPL, 1, 500);
-	CreateIcalComponendKindLookup ();
-	RegisterNamespace("ICAL:ITEM", 1, 2, tmplput_ICalItem, NULL, CTX_ICAL);
+//*/
 
-	
+	CreateIcalComponendKindLookup ();
+ 	RegisterConditional("COND:ICAL:PROPERTY", 1, cond_ICalHaveItem, CTX_ICAL);
+ 	RegisterConditional("COND:ICAL:IS:A", 1, cond_ICalIsA, CTX_ICAL);
+
+	RegisterCTX(CTX_ICALPROPERTY);
+	RegisterNamespace("ICAL:ITEM", 1, 2, tmplput_ICalItem, NULL, CTX_ICAL);
+	RegisterNamespace("ICAL:PROPERTY:STR", 0, 1, tmplput_CtxICalProperty, NULL, CTX_ICALPROPERTY);
+	RegisterNamespace("ICAL:PROPERTY:DATE", 0, 1, tmplput_CtxICalPropertyDate, NULL, CTX_ICALPROPERTY);
+
+	RegisterCTX(CTX_ICALMETHOD);
+ 	RegisterConditional("COND:ICAL:METHOD", 1, cond_ICalIsMethod, CTX_ICALMETHOD);
+
+
+	RegisterCTX(CTX_ICALTIME);
+ 	RegisterConditional("COND:ICAL:DT:PROPERTY", 1, cond_ICalHaveTimeItem, CTX_ICAL);
+ 	RegisterConditional("COND:ICAL:DT:ISDATE", 0, cond_ICalTimeIsDate, CTX_ICALTIME);
+	RegisterNamespace("ICAL:DT:DATE", 0, 1, tmplput_ICalTime_Date, NULL, CTX_ICALTIME);
+	RegisterNamespace("ICAL:DT:DATETIME", 0, 1, tmplput_ICalTime_Time, NULL, CTX_ICALTIME);
 }
 
 void 
@@ -215,3 +410,7 @@ ServerShutdownModule_ICAL
 {
 	DeleteHash(&IcalComponentMap);
 }
+
+
+
+
