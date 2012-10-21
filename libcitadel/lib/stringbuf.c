@@ -4648,9 +4648,12 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	int nSuccessLess = 0;
 	int MaxTries;
 
-	if ((Blob == NULL) || (*fd == -1) || (IOBuf == NULL) || (Pos == NULL))
+	if ((Blob == NULL)  ||
+	    (*fd == -1)     ||
+	    (IOBuf == NULL) ||
+	    (Pos == NULL))
 	{
-		if (*Pos != NULL)
+		if (Pos != NULL)
 			*Pos = NULL;
 		*Error = ErrRBB_BLOBFPreConditionFailed;
 		return -1;
