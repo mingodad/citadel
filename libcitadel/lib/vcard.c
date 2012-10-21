@@ -138,7 +138,11 @@ struct vCard *vcard_load(char *vtext) {
 	}
 
 	v = vcard_new();
-	if (v == NULL) return v;
+	if (v == NULL)
+	{
+		free(mycopy);
+		return v;
+	}
 
 	ptr = mycopy;
 	while (!IsEmptyStr(ptr)) {
