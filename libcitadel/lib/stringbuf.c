@@ -362,7 +362,12 @@ long StrBufShrinkToFit(StrBuf *Buf, int Force)
 	if (Force || 
 	    (Buf->BufUsed + (Buf->BufUsed / 3) > Buf->BufSize))
 	{
-		char *TmpBuf = (char*) malloc(Buf->BufUsed + 1);
+		char *TmpBuf;
+
+		TmpBuf = (char*) malloc(Buf->BufUsed + 1);
+		if (TmpBuf == NULL)
+			return -1;
+
 		memcpy (TmpBuf, Buf->buf, Buf->BufUsed + 1);
 		Buf->BufSize = Buf->BufUsed + 1;
 		free(Buf->buf);
@@ -381,7 +386,15 @@ StrBuf* NewStrBuf(void)
 	StrBuf *NewBuf;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
+
 	NewBuf->buf = (char*) malloc(BaseStrBufSize);
+	if (NewBuf->buf == NULL)
+	{
+		free(NewBuf);
+		return NULL;
+	}
 	NewBuf->buf[0] = '\0';
 	NewBuf->BufSize = BaseStrBufSize;
 	NewBuf->BufUsed = 0;
@@ -406,7 +419,16 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 		return NewStrBuf();
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
+
 	NewBuf->buf = (char*) malloc(CopyMe->BufSize);
+	if (NewBuf->buf == NULL)
+	{
+		free(NewBuf);
+		return NULL;
+	}
+
 	memcpy(NewBuf->buf, CopyMe->buf, CopyMe->BufUsed + 1);
 	NewBuf->BufUsed = CopyMe->BufUsed;
 	NewBuf->BufSize = CopyMe->BufSize;
@@ -502,6 +524,9 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 	size_t CopySize;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
+
 	if (nChars < 0)
 		CopySize = strlen((ptr != NULL)?ptr:"");
 	else
@@ -595,6 +620,8 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 	StrBuf *NewBuf;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
 	NewBuf->buf = (char*) StringConstant;
 	NewBuf->BufSize = SizeOfStrConstant;
 	NewBuf->BufUsed = SizeOfStrConstant;
@@ -2606,9 +2633,14 @@ int StrBufDecodeBase64(StrBuf *Buf)
 {
 	char *xferbuf;
 	size_t siz;
-	if (Buf == NULL) return -1;
+
+	if (Buf == NULL)
+		return -1;
 
 	xferbuf = (char*) malloc(Buf->BufSize);
+	if (xferbuf == NULL)
+		return -1;
+
 	*xferbuf = '\0';
 	siz = CtdlDecodeBase64(xferbuf,
 			       Buf->buf,
