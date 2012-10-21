@@ -1023,16 +1023,18 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 	}
 	if (Offset + nChars < Source->BufUsed)
 	{
-		if (nChars >= dest->BufSize)
-			IncreaseBuf(dest, 0, nChars + 1);
+		if ((nChars >= dest->BufSize) && 
+		    (IncreaseBuf(dest, 0, nChars + 1) == -1))
+			return 0;
 		memcpy(dest->buf, Source->buf + Offset, nChars);
 		dest->BufUsed = nChars;
 		dest->buf[dest->BufUsed] = '\0';
 		return nChars;
 	}
 	NCharsRemain = Source->BufUsed - Offset;
-	if (NCharsRemain  >= dest->BufSize)
-		IncreaseBuf(dest, 0, NCharsRemain + 1);
+	if ((NCharsRemain  >= dest->BufSize) && 
+	    (IncreaseBuf(dest, 0, NCharsRemain + 1) == -1))
+		return 0;
 	memcpy(dest->buf, Source->buf + Offset, NCharsRemain);
 	dest->BufUsed = NCharsRemain;
 	dest->buf[dest->BufUsed] = '\0';
@@ -4316,10 +4318,11 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 			nSuccessLess = 0;
 			buf->BufUsed += rlen;
 			buf->buf[buf->BufUsed] = '\0';
-			if (buf->BufUsed + 10 > buf->BufSize) {
-				IncreaseBuf(buf, 1, -1);
-			}
 			pch = strchr(buf->buf, '\n');
+			if ((pch == NULL) &&
+			    (buf->BufUsed + 10 > buf->BufSize) &&
+			    (IncreaseBuf(buf, 1, -1) == -1))
+				return -1;
 			continue;
 		}
 		
