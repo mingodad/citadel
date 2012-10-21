@@ -50,7 +50,7 @@ void ParseURLParams(StrBuf *url)
 			bptr++;
 		}
 		keylen = aptr - up - 1; /* -1 -> '=' */
-		if(keylen > sizeof(u->url_key)) {
+		if(keylen >= sizeof(u->url_key)) {
 			syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 			return;
 		}
@@ -371,7 +371,7 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 	urlcontent *u;
 	wcsession *WCC = WC;
 
-	if(keylen > sizeof(u->url_key)) {
+	if(keylen >= sizeof(u->url_key)) {
 		syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 		FreeStrBuf(&Value);
 		return;
