@@ -212,7 +212,7 @@ void vnote_serialize_output_field(char *append_to, char *field, char *label) {
 
 	mydup = malloc((strlen(field) * 3) + 1);
 	if (!mydup) return;
-	strcpy(mydup, "");
+	*mydup = '\0';
 
 	while (ptr[pos] != 0) {
 		ch = (unsigned char)(ptr[pos++]);
@@ -255,7 +255,7 @@ char *vnote_serialize(struct vnote *v) {
 	s = malloc(bytes_needed);
 	if (!s) return NULL;
 
-	strcpy(s, "");
+	*s = '\0';
 	vnote_serialize_output_field(s, "vnote", "BEGIN");
 	vnote_serialize_output_field(s, "//Citadel//vNote handler library//EN", "PRODID");
 	vnote_serialize_output_field(s, "1.1", "VERSION");
