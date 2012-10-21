@@ -80,10 +80,10 @@ struct vnote *vnote_new_from_str(char *s) {
 		thisline = NULL;
 		nexteol = strchr(ptr, '\n');
 		if (nexteol) {
-			thisline = malloc((nexteol - ptr) + 2);
-			strncpy(thisline, ptr, (nexteol-ptr));
 			thisline_len = (nexteol-ptr);
-			thisline[thisline_len] = 0;
+			thisline = malloc(thisline_len + 2);
+			memcpy(thisline, ptr, thisline_len);
+			thisline[thisline_len] = '\0';
 			ptr = nexteol + 1;
 		}
 		else {
