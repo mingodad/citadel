@@ -273,12 +273,25 @@ HashList *NewHash(int Uniq, HashFunc F)
 {
 	HashList *NewList;
 	NewList = malloc (sizeof(HashList));
+	if (NewList == NULL)
+		return NULL;
 	memset(NewList, 0, sizeof(HashList));
 
 	NewList->Members = malloc(sizeof(Payload*) * 100);
+	if (NewList->Members == NULL)
+	{
+		free(NewList);
+		return NULL;
+	}
 	memset(NewList->Members, 0, sizeof(Payload*) * 100);
 
 	NewList->LookupTable = malloc(sizeof(HashKey*) * 100);
+	if (NewList->LookupTable == NULL)
+	{
+		free(NewList->Members);
+		free(NewList);
+		return NULL;
+	}
 	memset(NewList->LookupTable, 0, sizeof(HashKey*) * 100);
 
 	NewList->MemberSize = 100;
@@ -390,14 +403,14 @@ void DeleteHash(HashList **Hash)
  * @brief Private function to increase the hash size.
  * @param Hash the Hasharray to increase
  */
-static void IncreaseHashSize(HashList *Hash)
+static int IncreaseHashSize(HashList *Hash)
 {
 	/* Ok, Our space is used up. Double the available space. */
 	Payload **NewPayloadArea;
 	HashKey **NewTable;
 	
 	if (Hash == NULL)
-		return ;
+		return 0;
 
 	/** If we grew to much, this might be the place to rehash and shrink again.
 	if ((Hash->NMembersUsed > Hash->nLookupTableItems) && 
@@ -409,21 +422,30 @@ static void IncreaseHashSize(HashList *Hash)
 	}
 	*/
 
-	/** double our payload area */
 	NewPayloadArea = (Payload**) malloc(sizeof(Payload*) * Hash->MemberSize * 2);
+	if (NewPayloadArea == NULL)
+		return 0;
+	NewTable = malloc(sizeof(HashKey*) * Hash->MemberSize * 2);
+	if (NewTable == NULL)
+	{
+		free(NewPayloadArea);
+		return 0;
+	}
+
+	/** double our payload area */
 	memset(&NewPayloadArea[Hash->MemberSize], 0, sizeof(Payload*) * Hash->MemberSize);
 	memcpy(NewPayloadArea, Hash->Members, sizeof(Payload*) * Hash->MemberSize);
 	free(Hash->Members);
 	Hash->Members = NewPayloadArea;
 	
 	/** double our hashtable area */
-	NewTable = malloc(sizeof(HashKey*) * Hash->MemberSize * 2);
 	memset(&NewTable[Hash->MemberSize], 0, sizeof(HashKey*) * Hash->MemberSize);
 	memcpy(NewTable, Hash->LookupTable, sizeof(HashKey*) * Hash->MemberSize);
 	free(Hash->LookupTable);
 	Hash->LookupTable = NewTable;
 	
 	Hash->MemberSize *= 2;
+	return 1;
 }
 
 
@@ -438,31 +460,49 @@ static void IncreaseHashSize(HashList *Hash)
  * @param Data your Payload to add
  * @param Destructor Functionpointer to free Data. if NULL, default free() is used.
  */
-static void InsertHashItem(HashList *Hash, 
-			   long HashPos, 
-			   long HashBinKey, 
-			   const char *HashKeyStr, 
-			   long HKLen, 
-			   void *Data,
-			   DeleteHashDataFunc Destructor)
+static int InsertHashItem(HashList *Hash, 
+			  long HashPos, 
+			  long HashBinKey, 
+			  const char *HashKeyStr, 
+			  long HKLen, 
+			  void *Data,
+			  DeleteHashDataFunc Destructor)
 {
 	Payload *NewPayloadItem;
 	HashKey *NewHashKey;
+	char *HashKeyOrgVal;
 
 	if (Hash == NULL)
-		return;
+		return 0;
 
-	if (Hash->nMembersUsed >= Hash->MemberSize)
-		IncreaseHashSize (Hash);
+	if ((Hash->nMembersUsed >= Hash->MemberSize) &&
+	    (!IncreaseHashSize (Hash)))
+	    return 0;
+
+	NewPayloadItem = (Payload*) malloc (sizeof(Payload));
+	if (NewPayloadItem == NULL)
+		return 0;
+	NewHashKey = (HashKey*) malloc (sizeof(HashKey));
+	if (NewHashKey == NULL)
+	{
+		free(NewPayloadItem);
+		return 0;
+	}
+	HashKeyOrgVal = (char *) malloc (HKLen + 1);
+	if (HashKeyOrgVal == NULL)
+	{
+		free(NewHashKey);
+		free(NewPayloadItem);
+		return 0;
+	}
+
 
 	/** Arrange the payload */
-	NewPayloadItem = (Payload*) malloc (sizeof(Payload));
 	NewPayloadItem->Data = Data;
 	NewPayloadItem->Destructor = Destructor;
 	/** Arrange the hashkey */
-	NewHashKey = (HashKey*) malloc (sizeof(HashKey));
-	NewHashKey->HashKey = (char *) malloc (HKLen + 1);
 	NewHashKey->HKLen = HKLen;
+	NewHashKey->HashKey = HashKeyOrgVal;
 	memcpy (NewHashKey->HashKey, HashKeyStr, HKLen + 1);
 	NewHashKey->Key = HashBinKey;
 	NewHashKey->PL = NewPayloadItem;
@@ -487,6 +527,7 @@ static void InsertHashItem(HashList *Hash,
 	Hash->LookupTable[HashPos] = NewHashKey;
 	Hash->nMembersUsed++;
 	Hash->nLookupTableItems++;
+	return 1;
 }
 
 /**
@@ -635,8 +676,9 @@ void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDat
 	HashBinKey = CalcHashKey(Hash, HKey, HKLen);
 	HashAt = FindInHash(Hash, HashBinKey);
 
-	if (HashAt >= Hash->MemberSize)
-		IncreaseHashSize (Hash);
+	if ((HashAt >= Hash->MemberSize) &&
+	    (!IncreaseHashSize (Hash)))
+		return;
 
 	/** oh, we're brand new... */
 	if (Hash->LookupTable[HashAt] == NULL) {
@@ -710,7 +752,7 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Payload)
 
 /**
  * @ingroup HashListAccess
- * @brief get the Keys present in this hash, simila to array_keys() in PHP
+ * @brief get the Keys present in this hash, similar to array_keys() in PHP
  *  Attention: List remains to Hash! don't modify or free it!
  * @param Hash Your Hashlist to extract the keys from
  * @param List returns the list of hashkeys stored in Hash
@@ -718,14 +760,19 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Payload)
 int GetHashKeys(HashList *Hash, char ***List)
 {
 	long i;
+
+	*List = NULL;
 	if (Hash == NULL)
 		return 0;
 	if (Hash->MyKeys != NULL)
 		free (Hash->MyKeys);
 
 	Hash->MyKeys = (char**) malloc(sizeof(char*) * Hash->nLookupTableItems);
-	for (i=0; i < Hash->nLookupTableItems; i++) {
-	
+	if (Hash->MyKeys == NULL)
+		return 0;
+
+	for (i=0; i < Hash->nLookupTableItems; i++)
+	{
 		Hash->MyKeys[i] = Hash->LookupTable[i]->HashKey;
 	}
 	*List = (char**)Hash->MyKeys;
@@ -746,6 +793,9 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 	HashPos *Ret;
 	
 	Ret = (HashPos*)malloc(sizeof(HashPos));
+	if (Ret == NULL)
+		return NULL;
+
 	if (StepWidth != 0)
 		Ret->StepWidth = StepWidth;
 	else
@@ -1174,8 +1224,15 @@ int ParseMSet(MSet **MSetList, StrBuf *MSetStr)
 	    return 0;
 	    
 	OneSet = NewStrBufPlain(NULL, StrLength(MSetStr));
+	if (OneSet == NULL)
+		return 0;
 
 	ThisMSet = NewHash(0, lFlathash);
+	if (ThisMSet == NULL)
+	{
+		FreeStrBuf(&OneSet);
+		return 0;
+	}
 
 	*MSetList = (MSet*) ThisMSet;
 
@@ -1198,6 +1255,12 @@ int ParseMSet(MSet **MSetList, StrBuf *MSetStr)
 		}
 
 		pEndSet = (long*) malloc (sizeof(long));
+		if (pEndSet == NULL)
+		{
+			FreeStrBuf(&OneSet);
+			DeleteHash(&ThisMSet);
+			return 0;
+		}
 		*pEndSet = EndSet;
 
 		Put(ThisMSet, LKEY(StartSet), pEndSet, NULL);
