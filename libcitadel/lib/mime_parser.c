@@ -135,7 +135,7 @@ char *fixed_partnum(char *supplied_partnum) {
 
 static inline unsigned int _decode_hex(const char *Source)
 {
-	int ret = '?';
+	unsigned int ret = '?';
 	unsigned char LO_NIBBLE;
 	unsigned char HI_NIBBLE;
 
@@ -216,13 +216,13 @@ void mime_decode(char *partnum,
 
 	/* Some encodings aren't really encodings */
 	if (!strcasecmp(encoding, "7bit"))
-		strcpy(encoding, "");
+		*encoding = '\0';
 	if (!strcasecmp(encoding, "8bit"))
-		strcpy(encoding, "");
+		*encoding = '\0';
 	if (!strcasecmp(encoding, "binary"))
-		strcpy(encoding, "");
+		*encoding = '\0';
 	if (!strcasecmp(encoding, "ISO-8859-1"))
-		strcpy(encoding, "");
+		*encoding = '\0';
 
 	/* If this part is not encoded, send as-is */
 	if ( (strlen(encoding) == 0) || (dont_decode)) {
@@ -304,11 +304,11 @@ int mime_decode_now (char *part_start,
 	*decoded = NULL;
 	/* Some encodings aren't really encodings */
 	if (!strcasecmp(encoding, "7bit"))
-		strcpy(encoding, "");
+		*encoding = '\0';
 	if (!strcasecmp(encoding, "8bit"))
-		strcpy(encoding, "");
+		*encoding = '\0';
 	if (!strcasecmp(encoding, "binary"))
-		strcpy(encoding, "");
+		*encoding = '\0';
 
 	/* If this part is not encoded, send as-is */
 	if (strlen(encoding) == 0) {
