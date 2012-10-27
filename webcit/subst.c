@@ -1716,21 +1716,21 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams **TPP)
 	case SV_CONDITIONAL: /** Forward conditional evaluation */
 		Handler = (HashHandler*) TP->Tokens->PreEval;
 		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
-			return -1;
+			return 0;
 		}
 		return EvaluateConditional(Target, 1, state, TPP);
 		break;
 	case SV_NEG_CONDITIONAL: /** Reverse conditional evaluation */
 		Handler = (HashHandler*) TP->Tokens->PreEval;
 		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
-			return -1;
+			return 0;
 		}
 		return EvaluateConditional(Target, 0, state, TPP);
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
 		Handler = (HashHandler*) TP->Tokens->PreEval;
 		if (!CheckContext(Target, &Handler->Filter, TP, "Conditional")) {
-			return -1;
+			return 0;
 		}
 		if (TP->Tokens->nParameters >= 6) {
 			if (EvaluateConditional(Target, 0, state, TPP)) {
@@ -1765,7 +1765,7 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams **TPP)
 	case SV_PREEVALUATED:
 		Handler = (HashHandler*) TP->Tokens->PreEval;
 		if (!CheckContext(Target, &Handler->Filter, TP, "Token")) {
-			return -1;
+			return 0;
 		}
 		Handler->HandlerFunc(Target, TP);
 		break;		
@@ -1773,7 +1773,7 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams **TPP)
 		if (GetHash(GlobalNS, TP->Tokens->pName, TP->Tokens->NameEnd, &vVar)) {
 			Handler = (HashHandler*) vVar;
 			if (!CheckContext(Target, &Handler->Filter, TP, "Token")) {
-				return -1;
+				return 0;
 			}
 			else {
 				Handler->HandlerFunc(Target, TP);
@@ -1844,7 +1844,19 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 			TPtr->nArgs = pTmpl->Tokens[i]->nParameters;
 
 		        TokenRc = EvaluateToken(Target, TokenRc, &TPtr);
-			if (TokenRc != 0) state = eSkipTilEnd;
+			if (TokenRc > 0)
+			{
+				state = eSkipTilEnd;
+			}
+			else if (TokenRc < 0)
+			{
+				if ((TPtr != &TP) &&
+				    (TPtr->ExitCTXID == TokenRc))
+				{
+					UnStackDynamicContext(Target, &TPtr);
+				}
+				TokenRc = 0;
+			}
 
 			while ((state != eNext) && (i+1 < pTmpl->nTokensUsed)) {
 			/* condition told us to skip till its end condition */
@@ -1860,15 +1872,14 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 						pTmpl->Tokens[i]->Flags, 
 						TokenRc, 
 						&TPtr);
-					if (rc == TokenRc)
+					if (rc == -TokenRc)
 					{
 						TokenRc = 0;
 						state = eNext;
-						if (TPtr != &TP)
-							UnStackDynamicContext(Target, &TPtr);
 					}
 				}
 			}
+
 			pData = pTmpl->Tokens[i++]->pTokenEnd + 1;
 			if (i > pTmpl->nTokensUsed)
 				done = 1;
@@ -2220,7 +2231,7 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams **T
 	if ((TP->Tokens->Params[0]->len == 1) &&
 	    (TP->Tokens->Params[0]->Start[0] == 'X'))
 	{
-		return (state != 0)?TP->Tokens->Params[1]->lvalue:0;
+		return - (TP->Tokens->Params[1]->lvalue);
 	}
 	    
 	Cond = (ConditionalStruct *) TP->Tokens->PreEval;
@@ -2228,7 +2239,7 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams **T
 		LogTemplateError(
 			Target, "Conditional", ERR_PARM1, TP,
 			"unknown!");
-		return 1;
+		return 0;
 	}
 
 	if (!CheckContext(Target, &Cond->Filter, TP, "Conditional")) {
@@ -2244,7 +2255,6 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams **T
 			rc, res, Neg);
 	if (TP->Sub != NULL)
 	{
-////	*XC = Cond->CondExitCtx;
 		*TPP = TP->Sub;
 	}
 	return rc;
