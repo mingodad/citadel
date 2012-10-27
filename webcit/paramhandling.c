@@ -318,7 +318,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	long keylen;
 
 #ifdef DEBUG_URLSTRINGS
-	syslog(9, "upload_handler() name=%s, type=%s, len=%d", name, cbtype, length);
+	syslog(9, "upload_handler() name=%s, type=%s, len="SIZE_T_FMT, name, cbtype, length);
 #endif
 	if (WCC->Hdr->urlstrings == NULL)
 		WCC->Hdr->urlstrings = NewHash(1, NULL);
@@ -364,8 +364,6 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 
 }
 
-
-
 void PutBstr(const char *key, long keylen, StrBuf *Value)
 {
 	urlcontent *u;
@@ -380,6 +378,14 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 	memcpy(u->url_key, key, keylen + 1);
 	u->url_data = Value;
 	Put(WC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
+}
+void PutlBstr(const char *key, long keylen, long Value)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(NULL, sizeof(long) * 16);
+	StrBufPrintf(Buf, "%ld", Value);
+	PutBstr(key, keylen, Buf);
 }
 
 

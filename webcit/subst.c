@@ -898,7 +898,7 @@ int GetNextParameter(StrBuf *Buf,
 			StrBufPeek(Buf, pch, -1, '\0');		
 			if (LoadTemplates > 1) {			
 				syslog(1,
-					"DBG: got param [%s] %d %d\n", 
+					"DBG: got param [%s] "SIZE_T_FMT" "SIZE_T_FMT"\n", 
 					pchs, pche - pchs, strlen(pchs)
 				);
 			}

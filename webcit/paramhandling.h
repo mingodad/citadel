@@ -40,3 +40,6 @@ const char *Bstr(const char *key, size_t keylen);
 #define putbstr(a, b) PutBstr(a, sizeof(a) - 1, b)
 void PutBstr(const char *key, long keylen, StrBuf *Value);
 
+#define putlbstr(a, b) PutlBstr(a, sizeof(a) - 1, b)
+void PutlBstr(const char *key, long keylen, long Value);
+
