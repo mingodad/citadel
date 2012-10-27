@@ -167,7 +167,7 @@ int cond_ICalHaveTimeItem(StrBuf *Target, WCTemplputParams *TP)
 
 		DynamicTP = (WCTemplputParams*) malloc(sizeof(WCTemplputParams) + 
 						       sizeof(struct icaltimetype));
-		t = (struct icaltimetype *) ((char*)DynamicTP) + sizeof(WCTemplputParams);
+		t = (struct icaltimetype *) &DynamicTP[1];
 		memset(&tt, 0, sizeof(struct icaltimetype));
 		switch (Kind)
 		{
