@@ -1,51 +1,21 @@
-aaa
-<?ICAL:ITEM(#"ICAL_SUMMARY_PROPERTY", "X")>
-abc
-
-<?!("COND:ICAL:PROPERTY", 1, #"ICAL_SUMMARY_PROPERTY")>
-blarg
-<?ICAL:PROPERTY:STR("X")>
-blub
-<??("X", 1)>
-
-datum:
-<?!("COND:ICAL:PROPERTY", 2, #"ICAL_DTSTART_PROPERTY")>
-<?ICAL:PROPERTY:DATE()>
-<??("X", 2)>
-xxxx
-
-<?ICAL:ITEM(#"ICAL_SUMMARY_PROPERTY", "X")>
-
-cde
-
-<?ICAL:ITEM(#"ICAL_LOCATION_PROPERTY", "X")>
-
-efg
-
-
-<?ICAL:ITEM(#"ICAL_DESCRIPTION_PROPERTY", "X")>
-
-hij
-
-
 
 <div class="mimepart">
 
-<div id="<?BSTR("divname")>_title">
+<div id="rsvp<?BSTR("divname")>_title">
 <img src="static/webcit_icons/essen/32x32/calendar.png">
 <span>
 &nbsp;&nbsp;
 <div id="unknown_method"> <?_("This is an unknown type of calendar item.")></div>
 
-<??("COND:ICAL:METHOD", 11, #"ICAL_METHOD_REQUEST")>
+<?!("COND:ICAL:METHOD", 11, #"ICAL_METHOD_REQUEST")>
 <?_("Meeting invitation")><script type="text/javascript">remove_something('unknown_method', 'hidden');</script>
-<??("X", 11)>
-<??("COND:ICAL:METHOD", 12, #"ICAL_METHOD_REPLY")>
+<?!("X", 11)>
+<?!("COND:ICAL:METHOD", 12, #"ICAL_METHOD_REPLY")>
 <?_("Attendee's reply to your invitation")><script type="text/javascript">remove_something('unknown_method', 'hidden');</script>
-<??("X", 12)>
-<??("COND:ICAL:METHOD", 13 #"ICAL_METHOD_PUBLISH")>
+<?!("X", 12)>
+<?!("COND:ICAL:METHOD", 13, #"ICAL_METHOD_PUBLISH")>
 <?_("Published event")><script type="text/javascript">remove_something('unknown_method', 'hidden');</script>
-<??("X", 13)>
+<?!("X", 13)>
 </span>
 </div>
 <dl>
@@ -61,12 +31,12 @@ hij
 <?!("COND:ICAL:IS:A", 66, #"ICAL_VEVENT_COMPONENT")>
 
 <?!("COND:ICAL:DT:PROPERTY", 67, #"ICAL_DTSTART_PROPERTY")>
-<??("COND:ICAL:DT:ISDATE", 68)>
+<?!("COND:ICAL:DT:ISDATE", 68)>
 <dt><?_("Date:")></dt><dd><?ICAL:DT:DATE()></dd>
 <?!("X", 68)>
-<?!("COND:ICAL:DT:ISDATE", 69)>
+<??("COND:ICAL:DT:ISDATE", 69)>
 <dt><?_("Starting date/time:")></dt><dd><?ICAL:DT:DATETIME()></dd>
-<?!("X", 69)>
+<??("X", 69)>
 <?!("X", 67)>
 
 <?!("COND:ICAL:DT:PROPERTY", 77, #"ICAL_DTEND_PROPERTY")>
@@ -85,38 +55,10 @@ hij
 <dt><?_("Recurrence")></dt><dd><?_("This is a recurring event")>.</dd>
 <?!("X", 99)>
 
-	/* If the component has attendees, iterate through them. */
-	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); 
-	     (p != NULL); 
-	     p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
-		StrBufAppendPrintf(Target, "<dt>");
-		StrBufAppendPrintf(Target, _("Attendee:"));
-		StrBufAppendPrintf(Target, "</dt><dd>");
-		ch = icalproperty_get_attendee(p);
-		if ((ch != NULL) && !strncasecmp(buf, "MAILTO:", 7)) {
 
-			/** screen name or email address */
-			safestrncpy(buf, ch + 7, sizeof(buf));
-			striplt(buf);
-			StrEscAppend(Target, NULL, buf, 0, 0);
-			StrBufAppendPrintf(Target, " ");
 
-			/** participant status */
-			partstat_as_string(buf, p);
-			StrEscAppend(Target, NULL, buf, 0, 0);
-		}
-		StrBufAppendPrintf(Target, "</dd>\n");
-	}
 
-	/* If the component has subcomponents, recurse through them. */
-	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
-	     (c != 0);
-	     c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
-		/* Recursively process subcomponent */
-		cal_process_object(Target, c, recursion_level+1, msgnum, cal_partnum);
-	}
-
-<??("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REQUEST")>
+<?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REQUEST")>
 <?--("If this is a REQUEST, display conflicts and buttons")>
 <?--("Check for conflicts")>
 <?ICAL:SERV:CHECK:CONFLICT()>
@@ -124,28 +66,28 @@ hij
 </dl>
 
 <?--("Display the Accept/Decline buttons")>
-<p id="<?BSTR("divname")>_question">
+<p id="rsvp<?BSTR("divname")>_question">
 <?_("How would you like to respond to this invitation?")>
 &nbsp;&nbsp;&nbsp;<span class="button_link">
-<a href="javascript:RespondToInvitation('<?BSTR("divname")>_question','<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Accept');"><?_("Accept")></a>
+<a href="javascript:RespondToInvitation('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Accept');"><?_("Accept")></a>
 </span>&nbsp;&nbsp;&nbsp;<span class="button_link">
-<a href="javascript:RespondToInvitation('<?BSTR("divname")>_question','<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Tentative');"><?_("Tentative")></a>
+<a href="javascript:RespondToInvitation('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Tentative');"><?_("Tentative")></a>
 </span>&nbsp;&nbsp;&nbsp;<span class="button_link">
-<a href="javascript:RespondToInvitation('<?BSTR("divname")>_question','<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Decline');"><?_("Decline")></a>
+<a href="javascript:RespondToInvitation('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Decline');"><?_("Decline")></a>
 </span></p>
 <??("X", 100)>
 
 <?--("If this is a REPLY, display update button")>
-<??("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REPLY")>
+<?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REPLY")>
 <?--("Display the update buttons")>
-<p id="<?BSTR("divname")>_question" >
+<p id="rsvp<?BSTR("divname")>_question" >
 <?_("Click <i>Update</i> to accept this reply and update your calendar.")>
 &nbsp;&nbsp;&nbsp;<span class="button_link">
-<a href="javascript:HandleRSVP('<?BSTR("divname")>_question','<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Update');"><?_("Update")></a>
+<a href="javascript:HandleRSVP('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Update');"><?_("Update")></a>
 </span>&nbsp;&nbsp;&nbsp;<span class="button_link">
-<a href="javascript:HandleRSVP('<?BSTR("divname")>_question','<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Ignore');"><?_("Ignore")></a>
+<a href="javascript:HandleRSVP('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Ignore');"><?_("Ignore")></a>
 </span></p>
-<??("X", 110)>
+<?!("X", 110)>
 
 <?--("Trailing HTML for the display of this object")>
 	if (recursion_level == 0) {

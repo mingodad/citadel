@@ -157,34 +157,31 @@ int cond_ICalHaveTimeItem(StrBuf *Target, WCTemplputParams *TP)
 	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
 	icalproperty *p;
 	icalproperty_kind Kind;
-	struct icaltimetype tt;
 
 	Kind = (icalproperty_kind) GetTemplateTokenNumber(Target, TP, 2, ICAL_ANY_PROPERTY);
-
-
 	p = icalcomponent_get_first_property(cal, Kind);
 	if (p != NULL) {
 		struct icaltimetype *t;
-		time_t ttt;
+		struct icaltimetype tt;
 		WCTemplputParams *DynamicTP;
 
 		DynamicTP = (WCTemplputParams*) malloc(sizeof(WCTemplputParams) + 
 						       sizeof(struct icaltimetype));
 		t = (struct icaltimetype *) ((char*)DynamicTP) + sizeof(WCTemplputParams);
+		memset(&tt, 0, sizeof(struct icaltimetype));
 		switch (Kind)
 		{
 		case ICAL_DTSTART_PROPERTY:
-			*t = icalproperty_get_dtstart(p);
+			tt = icalproperty_get_dtstart(p);
 			break;
 		case ICAL_DTEND_PROPERTY:
 			tt = icalproperty_get_dtend(p);
-			ttt = icaltime_as_timet(tt);
 			break;
 		default:
-			memset(t, 0, sizeof(struct icaltimetype));
 			break;
 		}
-	
+		memcpy(t, &tt, sizeof(struct icaltimetype));
+
 		StackDynamicContext (TP, 
 				     DynamicTP, 
 				     t,
@@ -275,7 +272,8 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 	icalcomponent *cal;
 	icalcomponent *c;
         WCTemplputParams SubTP;
-        WCTemplputParams SubSubTP;
+        WCTemplputParams SuperTP;
+	static int divcount = 0;
 
 	if (StrLength(Mime->Data) == 0) {
 		MimeLoadData(Mime);
@@ -289,29 +287,33 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 		return;
 	}
 
+	putlbstr("divname",  ++divcount);
+	putbstr("cal_partnum", NewStrBufDup(Mime->PartNum));
+	putlbstr("msgnum", Mime->msgnum);
+
         memset(&SubTP, 0, sizeof(WCTemplputParams));
-        memset(&SubSubTP, 0, sizeof(WCTemplputParams));
-        SubTP.Filter.ContextType = CTX_ICAL;
+        memset(&SuperTP, 0, sizeof(WCTemplputParams));
 
 	/*//ical_dezonify(cal); */
 
 	/* If the component has subcomponents, recurse through them. */
 	c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
-
         c = (c != NULL) ? c : cal;
-        SubTP.Context = c;
 
-	method = icalcomponent_get_first_property(c, ICAL_METHOD_PROPERTY);
+	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
 	if (method != NULL) {
 		the_method = icalproperty_get_method(method);
 	}
 
-	StackContext (&SubTP, 
-		      &SubSubTP, 
-		      &the_method,
-		      CTX_ICALMETHOD,
+	SuperTP.Context = &the_method;
+	SuperTP.Filter.ContextType = CTX_ICALMETHOD,
+
+	StackContext (&SuperTP, 
+		      &SubTP, 
+		      c,
+		      CTX_ICAL,
 		      0,
-		      SubTP.Tokens);
+		      SuperTP.Tokens);
 	FlushStrBuf(Mime->Data);
 	DoTemplate(HKEY("ical_attachment_display"), Mime->Data, &SubTP);
 
@@ -325,7 +327,7 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 		"EnableOrDisableCheckButton();	\n"
 	);
 
-	UnStackContext(&SubSubTP);
+	UnStackContext(&SubTP);
 	icalcomponent_free(cal);
 }
 void CreateIcalComponendKindLookup(void)
@@ -360,7 +362,7 @@ int cond_ICalIsMethod(StrBuf *Target, WCTemplputParams *TP)
 	icalproperty_method *the_method = (icalproperty_method *) CTX(CTX_ICALMETHOD);
 	icalproperty_method which_method;
 
-	which_method = GetTemplateTokenNumber(Target, TP, 3, ICAL_METHOD_X);
+	which_method = GetTemplateTokenNumber(Target, TP, 2, ICAL_METHOD_X);
 	return *the_method == which_method;
 }
 
@@ -370,7 +372,45 @@ int cond_ICalIsMethod(StrBuf *Target, WCTemplputParams *TP)
 
 
 
+void tmplput_Conflict(StrBuf *Target, WCTemplputParams *TP)
+{}
 
+HashList* IterateGetAttendees()
+{
+/*
+	/* If the component has attendees, iterate through them. * /
+	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); 
+	     (p != NULL); 
+	     p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
+		StrBufAppendPrintf(Target, "<dt>");
+		StrBufAppendPrintf(Target, _("Attendee:"));
+		StrBufAppendPrintf(Target, "</dt><dd>");
+		ch = icalproperty_get_attendee(p);
+		if ((ch != NULL) && !strncasecmp(buf, "MAILTO:", 7)) {
+
+			/** screen name or email address * /
+			safestrncpy(buf, ch + 7, sizeof(buf));
+			striplt(buf);
+			StrEscAppend(Target, NULL, buf, 0, 0);
+			StrBufAppendPrintf(Target, " ");
+
+			/** participant status * /
+			partstat_as_string(buf, p);
+			StrEscAppend(Target, NULL, buf, 0, 0);
+		}
+		StrBufAppendPrintf(Target, "</dd>\n");
+	}
+*/
+	return NULL;
+	/* If the component has subcomponents, recurse through them. * /
+	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+	     (c != 0);
+	     c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+		/* Recursively process subcomponent * /
+		cal_process_object(Target, c, recursion_level+1, msgnum, cal_partnum);
+	}
+	*/
+}
 
 
 
@@ -387,6 +427,8 @@ InitModule_ICAL_SUBST
 	CreateIcalComponendKindLookup ();
  	RegisterConditional("COND:ICAL:PROPERTY", 1, cond_ICalHaveItem, CTX_ICAL);
  	RegisterConditional("COND:ICAL:IS:A", 1, cond_ICalIsA, CTX_ICAL);
+
+	RegisterNamespace("ICAL:SERV:CHECK:CONFLICT", 0, 0, tmplput_Conflict, NULL, CTX_ICAL);
 
 	RegisterCTX(CTX_ICALPROPERTY);
 	RegisterNamespace("ICAL:ITEM", 1, 2, tmplput_ICalItem, NULL, CTX_ICAL);
