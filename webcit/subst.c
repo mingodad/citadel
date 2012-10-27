@@ -1851,7 +1851,7 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 			else if (TokenRc < 0)
 			{
 				if ((TPtr != &TP) &&
-				    (TPtr->ExitCTXID == TokenRc))
+				    (TPtr->ExitCTXID == -TokenRc))
 				{
 					UnStackDynamicContext(Target, &TPtr);
 				}
@@ -1872,10 +1872,15 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 						pTmpl->Tokens[i]->Flags, 
 						TokenRc, 
 						&TPtr);
-					if (rc == -TokenRc)
+					if (-rc == TokenRc)
 					{
 						TokenRc = 0;
 						state = eNext;
+						if ((TPtr != &TP) &&
+						    (TPtr->ExitCTXID == - rc))
+						{
+							UnStackDynamicContext(Target, &TPtr);
+						}
 					}
 				}
 			}
