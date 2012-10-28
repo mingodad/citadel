@@ -178,7 +178,7 @@ void cal_process_object(StrBuf *Target,
 		StrBufAppendPrintf(Target, _("Attendee:"));
 		StrBufAppendPrintf(Target, "</dt><dd>");
 		ch = icalproperty_get_attendee(p);
-		if ((ch != NULL) && !strncasecmp(buf, "MAILTO:", 7)) {
+		if ((ch != NULL) && !strncasecmp(ch, "MAILTO:", 7)) {
 
 			/** screen name or email address */
 			safestrncpy(buf, ch + 7, sizeof(buf));
