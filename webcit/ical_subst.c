@@ -20,6 +20,7 @@ CtxType CTX_ICAL = CTX_NONE;
 CtxType CTX_ICALPROPERTY = CTX_NONE;
 CtxType CTX_ICALMETHOD = CTX_NONE;
 CtxType CTX_ICALTIME = CTX_NONE;
+CtxType CTX_ICALATTENDEE = CTX_NONE;
 #if 0
 void SortPregetMatter(HashList *Cals)
 {
@@ -380,33 +381,62 @@ int cond_ICalIsMethod(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_Conflict(StrBuf *Target, WCTemplputParams *TP)
 {}
 
-HashList* IterateGetAttendees()
+
+HashList *iterate_get_ical_attendees(StrBuf *Target, WCTemplputParams *TP)
 {
-/*
-	/* If the component has attendees, iterate through them. * /
+	icalcomponent *cal = (icalcomponent *) CTX(CTX_ICAL);
+	icalparameter *partstat_param;
+	icalproperty *p;
+	CalAttendee *Att;
+	HashList *Attendees = NULL;
+	const char *ch;
+	int n = 0;
+
+	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); 
 	     (p != NULL); 
 	     p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
-		StrBufAppendPrintf(Target, "<dt>");
-		StrBufAppendPrintf(Target, _("Attendee:"));
-		StrBufAppendPrintf(Target, "</dt><dd>");
 		ch = icalproperty_get_attendee(p);
-		if ((ch != NULL) && !strncasecmp(buf, "MAILTO:", 7)) {
+		if ((ch != NULL) && !strncasecmp(ch, "MAILTO:", 7)) {
+			Att = (CalAttendee*) malloc(sizeof(CalAttendee));
 
-			/** screen name or email address * /
-			safestrncpy(buf, ch + 7, sizeof(buf));
-			striplt(buf);
-			StrEscAppend(Target, NULL, buf, 0, 0);
-			StrBufAppendPrintf(Target, " ");
+			/** screen name or email address */
+			Att->AttendeeStr = NewStrBufPlain(ch + 7, -1);
+			StrBufTrim(Att->AttendeeStr);
 
-			/** participant status * /
-			partstat_as_string(buf, p);
-			StrEscAppend(Target, NULL, buf, 0, 0);
+			/** participant status */
+			partstat_param = icalproperty_get_first_parameter(
+				p,
+				ICAL_PARTSTAT_PARAMETER
+				);
+			if (partstat_param == NULL) {
+				Att->partstat = ICAL_PARTSTAT_X;
+			}
+			else {
+				Att->partstat = icalparameter_get_partstat(partstat_param);
+			}
+			if (Attendees == NULL)
+				Attendees = NewHash(1, Flathash);
+			Put(Attendees, IKEY(n), Att, DeleteAtt);
+			n++;
 		}
-		StrBufAppendPrintf(Target, "</dd>\n");
 	}
-*/
-	return NULL;
+	return Attendees;
+}
+
+void tmplput_ICalAttendee(StrBuf *Target, WCTemplputParams *TP)
+{
+	CalAttendee *Att = (CalAttendee*) CTX(CTX_ICALATTENDEE);
+	StrBufAppendTemplate(Target, TP, Att->AttendeeStr, 0);
+}
+int cond_ICalAttendeeState(StrBuf *Target, WCTemplputParams *TP)
+{
+	CalAttendee *Att = (CalAttendee*) CTX(CTX_ICALATTENDEE);
+	icalparameter_partstat which_partstat;
+
+	which_partstat = GetTemplateTokenNumber(Target, TP, 2, ICAL_PARTSTAT_X);
+	return Att->partstat == which_partstat;
+}
 	/* If the component has subcomponents, recurse through them. * /
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 	     (c != 0);
@@ -415,7 +445,6 @@ HashList* IterateGetAttendees()
 		cal_process_object(Target, c, recursion_level+1, msgnum, cal_partnum);
 	}
 	*/
-}
 
 
 void 
@@ -433,6 +462,12 @@ InitModule_ICAL_SUBST
  	RegisterConditional("COND:ICAL:IS:A", 1, cond_ICalIsA, CTX_ICAL);
 
 	RegisterNamespace("ICAL:SERV:CHECK:CONFLICT", 0, 0, tmplput_Conflict, NULL, CTX_ICAL);
+
+	RegisterCTX(CTX_ICALATTENDEE);
+        RegisterIterator("ICAL:ATTENDEES", 0, NULL, iterate_get_ical_attendees, 
+                         NULL, NULL, CTX_ICALATTENDEE, CTX_ICAL, IT_NOFLAG);
+	RegisterNamespace("ICAL:ATTENDEE", 1, 2, tmplput_ICalAttendee, NULL, CTX_ICALATTENDEE);
+ 	RegisterConditional("COND:ICAL:ATTENDEE", 1, cond_ICalAttendeeState, CTX_ICALATTENDEE);
 
 	RegisterCTX(CTX_ICALPROPERTY);
 	RegisterNamespace("ICAL:ITEM", 1, 2, tmplput_ICalItem, NULL, CTX_ICAL);

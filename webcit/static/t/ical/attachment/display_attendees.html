@@ -1,0 +1,14 @@
+<dt>
+<?_("Attendee:")>
+</dt><dd>
+<?ICAL:ATTENDEE("X")>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_X")>(x)<??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_NEEDSACTION")><?_("(needs action)")><??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_ACCEPTED")><?_("(accepted)")><??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_DECLINED")><?_("(declined)")><??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_TENTATIVE")><?_("(tenative)")><??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_DELEGATED")><?_("(delegated)")><??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_COMPLETED")><?_("(completed)")><??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_INPROCESS")><?_("(in process)")><??("X", 1)>
+<?!("COND:ICAL:ATTENDEE", 1, #"ICAL_PARTSTAT_NONE")><?_("(none)")><??("X", 1)>
+</dd>

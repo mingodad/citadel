@@ -5,7 +5,6 @@
 <img src="static/webcit_icons/essen/32x32/calendar.png">
 <span>
 &nbsp;&nbsp;
-
 <??("COND:ICAL:METHOD", 1, #"ICAL_METHOD_REQUEST")><??("COND:ICAL:METHOD", 2, #"ICAL_METHOD_REPLY")><??("COND:ICAL:METHOD", 3, #"ICAL_METHOD_PUBLISH")>
 <?_("This is an unknown type of calendar item.")>
 <??("X", 1)><??("X", 2)><??("X", 3)>
@@ -20,53 +19,36 @@
 <?!("X", 13)>
 </span>
 </div>
+
+
+<?--("------------------------------")>
 <dl>
-<?!("COND:ICAL:PROPERTY", 44, #"ICAL_SUMMARY_PROPERTY")>
-<dt><?_("Summary:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd>
-<?!("X", 44)>
-<?!("COND:ICAL:PROPERTY", 55, #"ICAL_LOCATION_PROPERTY")>
-<dt><?_("Location:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd>
-<?!("X", 55)>
+<?!("COND:ICAL:PROPERTY", 44, #"ICAL_SUMMARY_PROPERTY")><dt><?_("Summary:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 44)>
+<?!("COND:ICAL:PROPERTY", 55, #"ICAL_LOCATION_PROPERTY")><dt><?_("Location:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 55)>
 
-
-
+<?--("------------------------------")>
 <?!("COND:ICAL:IS:A", 66, #"ICAL_VEVENT_COMPONENT")>
-
 <?!("COND:ICAL:DT:PROPERTY", 67, #"ICAL_DTSTART_PROPERTY")>
-<?!("COND:ICAL:DT:ISDATE", 68)>
-<dt><?_("Date:")></dt><dd><?ICAL:DT:DATE()></dd>
-<?!("X", 68)>
-<??("COND:ICAL:DT:ISDATE", 69)>
-<dt><?_("Starting date/time:")></dt><dd><?ICAL:DT:DATETIME()></dd>
-<??("X", 69)>
+<?!("COND:ICAL:DT:ISDATE", 68)><dt><?_("Date:")></dt><dd><?ICAL:DT:DATE()></dd><?!("X", 68)>
+<??("COND:ICAL:DT:ISDATE", 69)><dt><?_("Starting date/time:")></dt><dd><?ICAL:DT:DATETIME()></dd><??("X", 69)>
 <?!("X", 67)>
-
-<?!("COND:ICAL:DT:PROPERTY", 77, #"ICAL_DTEND_PROPERTY")>
-<dt><?_("Ending date/time:")></dt><dd><?ICAL:DT:DATETIME()></dd>
-<?!("X", 77)>
-
+<?!("COND:ICAL:DT:PROPERTY", 77, #"ICAL_DTEND_PROPERTY")><dt><?_("Ending date/time:")></dt><dd><?ICAL:DT:DATETIME()></dd><?!("X", 77)>
 <?!("X", 66)>
 
 
-<?!("COND:ICAL:PROPERTY", 88, #"ICAL_DESCRIPTION_PROPERTY")>
-<dt><?_("Description:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd>
-<?!("X", 88)>
+<?!("COND:ICAL:PROPERTY", 88, #"ICAL_DESCRIPTION_PROPERTY")><dt><?_("Description:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 88)>
 
-<?!("COND:ICAL:PROPERTY", 99, #"ICAL_DESCRIPTION_PROPERTY")>
 <?--("Unusual string syntax used here in order to re-use existing translations")>
-<dt><?_("Recurrence")></dt><dd><?_("This is a recurring event")>.</dd>
-<?!("X", 99)>
+<?!("COND:ICAL:PROPERTY", 99, #"ICAL_DESCRIPTION_PROPERTY")><dt><?_("Recurrence")></dt><dd><?_("This is a recurring event")>.</dd><?!("X", 99)>
 
 
-
-
-<?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REQUEST")>
-<?--("If this is a REQUEST, display conflicts and buttons")>
-<?--("Check for conflicts")>
-<?ICAL:SERV:CHECK:CONFLICT()>
+<?ITERATE("ICAL:ATTENDEES", ="ical_attachment_display_attendees")>
 
 </dl>
 
+<?--("If this is a REQUEST, display conflicts and buttons")>
+<?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REQUEST")>
+<?ICAL:SERV:CHECK:CONFLICT()>
 <?--("Display the Accept/Decline buttons")>
 <p id="rsvp<?BSTR("divname")>_question">
 <?_("How would you like to respond to this invitation?")>
@@ -77,11 +59,10 @@
 </span>&nbsp;&nbsp;&nbsp;<span class="button_link">
 <a href="javascript:RespondToInvitation('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Decline');"><?_("Decline")></a>
 </span></p>
-<??("X", 100)>
+<??("X", 110)>
 
 <?--("If this is a REPLY, display update button")>
-<?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REPLY")>
-<?--("Display the update buttons")>
+<?!("COND:ICAL:METHOD", 120, #"ICAL_METHOD_REPLY")>
 <p id="rsvp<?BSTR("divname")>_question" >
 <?_("Click <i>Update</i> to accept this reply and update your calendar.")>
 &nbsp;&nbsp;&nbsp;<span class="button_link">
@@ -89,9 +70,9 @@
 </span>&nbsp;&nbsp;&nbsp;<span class="button_link">
 <a href="javascript:HandleRSVP('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Ignore');"><?_("Ignore")></a>
 </span></p>
-<?!("X", 110)>
+<?!("X", 120)>
 
 <?--("Trailing HTML for the display of this object")>
-	if (recursion_level == 0) {
+<?--("if (recursion_level == 0) {")>
 <p>&nbsp;</p></div>
-	}
+<?--("}")>
