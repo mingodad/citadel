@@ -13,7 +13,7 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 	long State;
 	HashList *Whok = NULL;
 	int Done = 0;
-	int n;
+	int n = 0;
 
 	serv_puts("WHOK");
 	Line = NewStrBuf();
