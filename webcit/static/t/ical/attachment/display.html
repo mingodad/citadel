@@ -5,16 +5,18 @@
 <img src="static/webcit_icons/essen/32x32/calendar.png">
 <span>
 &nbsp;&nbsp;
-<div id="unknown_method"> <?_("This is an unknown type of calendar item.")></div>
 
+<??("COND:ICAL:METHOD", 1, #"ICAL_METHOD_REQUEST")><??("COND:ICAL:METHOD", 2, #"ICAL_METHOD_REPLY")><??("COND:ICAL:METHOD", 3, #"ICAL_METHOD_PUBLISH")>
+<?_("This is an unknown type of calendar item.")>
+<??("X", 1)><??("X", 2)><??("X", 3)>
 <?!("COND:ICAL:METHOD", 11, #"ICAL_METHOD_REQUEST")>
-<?_("Meeting invitation")><script type="text/javascript">remove_something('unknown_method', 'hidden');</script>
+<?_("Meeting invitation")>
 <?!("X", 11)>
 <?!("COND:ICAL:METHOD", 12, #"ICAL_METHOD_REPLY")>
-<?_("Attendee's reply to your invitation")><script type="text/javascript">remove_something('unknown_method', 'hidden');</script>
+<?_("Attendee's reply to your invitation")>
 <?!("X", 12)>
 <?!("COND:ICAL:METHOD", 13, #"ICAL_METHOD_PUBLISH")>
-<?_("Published event")><script type="text/javascript">remove_something('unknown_method', 'hidden');</script>
+<?_("Published event")>
 <?!("X", 13)>
 </span>
 </div>
