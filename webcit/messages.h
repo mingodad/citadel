@@ -1,9 +1,10 @@
 extern CtxType CTX_MAILSUM;
+extern CtxType CTX_MIME_ATACH;
 extern HashList *MsgHeaderHandler;
 extern HashList *MimeRenderHandler;
 extern HashList *ReadLoopHandler;
 typedef struct wc_mime_attachment wc_mime_attachment;
-typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset);
+typedef void (*RenderMimeFunc)(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset);
 typedef struct _RenderMimeFuncStruct {
 	RenderMimeFunc f;
 } RenderMimeFuncStruct;
@@ -79,7 +80,7 @@ static inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 
 typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
 
-void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime);
+void evaluate_mime_part(StrBuf *Target, WCTemplputParams *TP);
 
 
 typedef enum _eCustomRoomRenderer {

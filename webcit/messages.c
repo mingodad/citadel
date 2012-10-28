@@ -188,6 +188,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	void *vHdr;
 	long len;
 	const char *Key;
+	WCTemplputParams SuperTP;
 	WCTemplputParams SubTP;
 	StrBuf *Error = NULL;
 
@@ -211,38 +212,47 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	StrBufTrim(Buf);
 	StrBufLowerCase(Buf);
 
-	/* Locate a renderer capable of converting this MIME part into HTML */
-	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
-	    (vHdr != NULL)) {
-		RenderMimeFuncStruct *Render;
-		Render = (RenderMimeFuncStruct*)vHdr;
-		Render->f(Msg->MsgBody, NULL, FoundCharset);
-	}
-
-	if (StrLength(Msg->reply_references)> 0) {
-		/* Trim down excessively long lists of thread references.  We eliminate the
-		 * second one in the list so that the thread root remains intact.
-		 */
-		int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
-		int rrlen = StrLength(Msg->reply_references);
-		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-			StrBufRemove_token(Msg->reply_references, 1, '|');
-		}
-	}
-
-	/* now check if we need to translate some mimeparts, and remove the duplicate */
-	it = GetNewHashPos(Msg->AllAttach, 0);
-	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
-	       (vMime != NULL)) {
-		wc_mime_attachment *Mime = (wc_mime_attachment*) vMime;
-		evaluate_mime_part(Msg, Mime);
-	}
-	DeleteHashPos(&it);
-	StackContext(NULL, &SubTP, Msg, CTX_MAILSUM, 0, NULL);
+	StackContext(NULL, &SuperTP, Msg, CTX_MAILSUM, 0, NULL);
 	{
-		*OutMime = DoTemplate(tmpl, tmpllen, Target, &SubTP);
+		/* Locate a renderer capable of converting this MIME part into HTML */
+		if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
+		    (vHdr != NULL)) {
+			WCTemplputParams SubTP;
+			RenderMimeFuncStruct *Render;
+			
+			StackContext(&SuperTP, &SubTP, Msg->MsgBody, CTX_MIME_ATACH, 0, NULL);
+			{
+				Render = (RenderMimeFuncStruct*)vHdr;
+				Render->f(Target, &SubTP, FoundCharset);
+			}
+			UnStackContext(&SubTP);
+		}
+		
+		if (StrLength(Msg->reply_references)> 0) {
+			/* Trim down excessively long lists of thread references.  We eliminate the
+			 * second one in the list so that the thread root remains intact.
+			 */
+			int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
+			int rrlen = StrLength(Msg->reply_references);
+			if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+				StrBufRemove_token(Msg->reply_references, 1, '|');
+			}
+		}
+
+		/* now check if we need to translate some mimeparts, and remove the duplicate */
+		it = GetNewHashPos(Msg->AllAttach, 0);
+		while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
+		       (vMime != NULL)) {
+			StackContext(&SuperTP, &SubTP, vMime, CTX_MIME_ATACH, 0, NULL);
+			{
+				evaluate_mime_part(Target, &SubTP);
+			}
+			UnStackContext(&SubTP);
+		}
+		DeleteHashPos(&it);
+		*OutMime = DoTemplate(tmpl, tmpllen, Target, &SuperTP);
 	}
-	UnStackContext(&SubTP);
+	UnStackContext(&SuperTP);
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);

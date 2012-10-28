@@ -296,19 +296,20 @@ void QItem_Handle_Attempted(OneQueItem *Item, StrBuf *Line, const char **Pos)
 
 
 
-
-
-
-
-void render_QUEUE(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_QUEUE(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = CTX(CTX_MIME_ATACH);
 	WCTemplputParams SubTP;
+	OneQueItem* Context;
 
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_MAILQITEM;
-	SubTP.Context = DeserializeQueueItem(Mime->Data, Mime->msgnum);
-	DoTemplate(HKEY("view_mailq_message"),NULL, &SubTP);
-	FreeQueItem ((OneQueItem**)&SubTP.Context);
+	Context = DeserializeQueueItem(Mime->Data, Mime->msgnum);
+	StackContext(TP, &SubTP, Context, CTX_MAILQITEM, 0, TP->Tokens);
+	{
+		DoTemplate(HKEY("view_mailq_message"), NULL, &SubTP);
+	}
+	UnStackContext(&SubTP);
+
+	FreeQueItem (&Context);
 }
 
 void

@@ -265,14 +265,16 @@ void tmplput_CtxICalPropertyDate(StrBuf *Target, WCTemplputParams *TP)
 
 
 
-void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MIME_ICS_TPL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = CTX(CTX_MIME_ATACH);
 	icalproperty_method the_method = ICAL_METHOD_NONE;
 	icalproperty *method = NULL;
 	icalcomponent *cal;
 	icalcomponent *c;
         WCTemplputParams SubTP;
         WCTemplputParams SuperTP;
+
 	static int divcount = 0;
 
 	if (StrLength(Mime->Data) == 0) {
@@ -288,6 +290,8 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 	}
 
 	putlbstr("divname",  ++divcount);
+
+
 	putbstr("cal_partnum", NewStrBufDup(Mime->PartNum));
 	putlbstr("msgnum", Mime->msgnum);
 
@@ -305,8 +309,12 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 		the_method = icalproperty_get_method(method);
 	}
 
-	SuperTP.Context = &the_method;
-	SuperTP.Filter.ContextType = CTX_ICALMETHOD,
+	StackContext (TP,
+		      &SuperTP,
+		      &the_method,
+		      CTX_ICALMETHOD,
+		      0,
+		      TP->Tokens);
 
 	StackContext (&SuperTP, 
 		      &SubTP, 
@@ -327,6 +335,7 @@ void render_MIME_ICS_TPL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 		"EnableOrDisableCheckButton();	\n"
 	);
 
+	UnStackContext(&SuperTP);
 	UnStackContext(&SubTP);
 	icalcomponent_free(cal);
 }
@@ -365,10 +374,6 @@ int cond_ICalIsMethod(StrBuf *Target, WCTemplputParams *TP)
 	which_method = GetTemplateTokenNumber(Target, TP, 2, ICAL_METHOD_X);
 	return *the_method == which_method;
 }
-
-
-
-
 
 
 
@@ -411,7 +416,6 @@ HashList* IterateGetAttendees()
 	}
 	*/
 }
-
 
 
 void 

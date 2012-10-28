@@ -571,8 +571,9 @@ void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, WCTemplputParams *TP)
 
 
 
-void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	const StrBuf *TemplateMime;
 
 	if (Mime->Data == NULL) 
@@ -593,8 +594,9 @@ void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset
 */
 }
 
-void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	wcsession *WCC = WC;
 	if (StrLength(Mime->Data) == 0)
 		MimeLoadData(Mime);
@@ -619,8 +621,9 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 
 }
 
-void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MIME_ICS(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	if (StrLength(Mime->Data) == 0) {
 		MimeLoadData(Mime);
 	}
@@ -711,8 +714,10 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 }
 
 
-void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
+void evaluate_mime_part(StrBuf *Target, WCTemplputParams *TP)
 {
+	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	void *vMimeRenderer;
 
 	/* just print the root-node */
@@ -956,23 +961,25 @@ void tmplput_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_variformat(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
 	/* Messages in legacy Citadel variformat get handled thusly... */
-	StrBuf *Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
-	FmOut(Target, "JUSTIFY", Mime->Data);
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
+	StrBuf *TTarget = NewStrBufPlain(NULL, StrLength(Mime->Data));
+	FmOut(TTarget, "JUSTIFY", Mime->Data);
 	FreeStrBuf(&Mime->Data);
-	Mime->Data = Target;
+	Mime->Data = TTarget;
 }
 
-void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_text_plain(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;
 	StrBuf *Line;
 	StrBuf *Line1;
 	StrBuf *Line2;
-	StrBuf *Target;
+	StrBuf *TTarget;
 	long Linecount;
 	long nEmptyLines;
 	int bn = 0;
@@ -1019,7 +1026,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	Line = NewStrBufPlain(NULL, SIZ);
 	Line1 = NewStrBufPlain(NULL, SIZ);
 	Line2 = NewStrBufPlain(NULL, SIZ);
-	Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
+	TTarget = NewStrBufPlain(NULL, StrLength(Mime->Data));
 	Linecount = 0;
 	nEmptyLines = 0;
 	if (StrLength(Mime->Data) > 0) 
@@ -1046,26 +1053,26 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 			if (StrLength(Line) == 0) {
 				if (Linecount == 0)
 					continue;
-				StrBufAppendBufPlain(Target, HKEY("<tt></tt><br>\n"), 0);
+				StrBufAppendBufPlain(TTarget, HKEY("<tt></tt><br>\n"), 0);
 
 				nEmptyLines ++;
 				continue;
 			}
 			nEmptyLines = 0;
 			for (i = bn; i < bq; i++)				
-				StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
+				StrBufAppendBufPlain(TTarget, HKEY("<blockquote>"), 0);
 			for (i = bq; i < bn; i++)				
-				StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
+				StrBufAppendBufPlain(TTarget, HKEY("</blockquote>"), 0);
 #ifdef HAVE_ICONV
 			if (ConvertIt) {
 				StrBufConvert(Line, Line1, &ic);
 			}
 #endif
-			StrBufAppendBufPlain(Target, HKEY("<tt>"), 0);
+			StrBufAppendBufPlain(TTarget, HKEY("<tt>"), 0);
 			UrlizeText(Line1, Line, Line2);
 
-			StrEscAppend(Target, Line1, NULL, 0, 0);
-			StrBufAppendBufPlain(Target, HKEY("</tt><br>\n"), 0);
+			StrEscAppend(TTarget, Line1, NULL, 0, 0);
+			StrBufAppendBufPlain(TTarget, HKEY("</tt><br>\n"), 0);
 			bn = bq;
 			Linecount ++;
 		}
@@ -1073,11 +1080,11 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	       (BufPtr != NULL));
 
 	if (nEmptyLines > 0)
-		StrBufCutRight(Target, nEmptyLines * (sizeof ("<tt></tt><br>\n") - 1));
+		StrBufCutRight(TTarget, nEmptyLines * (sizeof ("<tt></tt><br>\n") - 1));
 	for (i = 0; i < bn; i++)				
-		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
+		StrBufAppendBufPlain(TTarget, HKEY("</blockquote>"), 0);
 
-	StrBufAppendBufPlain(Target, HKEY("</i><br>"), 0);
+	StrBufAppendBufPlain(TTarget, HKEY("</i><br>"), 0);
 #ifdef HAVE_ICONV
 	if (ic != (iconv_t)(-1) ) {
 		iconv_close(ic);
@@ -1085,7 +1092,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 #endif
 
 	FreeStrBuf(&Mime->Data);
-	Mime->Data = Target;
+	Mime->Data = TTarget;
 	FlushStrBuf(Mime->ContentType);
 	StrBufAppendBufPlain(Mime->ContentType, HKEY("text/html"), 0);
 	FlushStrBuf(Mime->Charset);
@@ -1095,8 +1102,9 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	FreeStrBuf(&Line2);
 }
 
-void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_html(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	StrBuf *Buf;
 
 	if (StrLength(Mime->Data) == 0)
@@ -1113,8 +1121,9 @@ void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCh
 	Mime->Data = Buf;
 }
 
-void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_UNKNOWN(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	/* Unknown weirdness */
 	FlushStrBuf(Mime->Data);
 	StrBufAppendBufPlain(Mime->Data, _("I don't know how to display "), -1, 0);
@@ -1195,7 +1204,7 @@ void tmplput_MIME_Data(StrBuf *Target, WCTemplputParams *TP)
 {
 	wc_mime_attachment *mime = (wc_mime_attachment*) CTX(CTX_MIME_ATACH);
 	if (mime->Renderer != NULL)
-		mime->Renderer->f(mime, NULL, NULL);
+		mime->Renderer->f(Target, TP, NULL);
 	StrBufAppendTemplate(Target, TP, mime->Data, 0);
 	/* TODO: check whether we need to load it now? */
 }
