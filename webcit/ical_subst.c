@@ -21,6 +21,7 @@ CtxType CTX_ICALPROPERTY = CTX_NONE;
 CtxType CTX_ICALMETHOD = CTX_NONE;
 CtxType CTX_ICALTIME = CTX_NONE;
 CtxType CTX_ICALATTENDEE = CTX_NONE;
+CtxType CTX_ICALCONFLICT = CTX_NONE;
 #if 0
 void SortPregetMatter(HashList *Cals)
 {
@@ -377,10 +378,104 @@ int cond_ICalIsMethod(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+typedef struct CalendarConflict
+{
+	long is_update;
+	long existing_msgnum;
+	StrBuf *conflict_event_uid;
+	StrBuf *conflict_event_summary;
+}CalendarConflict;
+void DeleteConflict(void *vConflict)
+{
+	CalendarConflict *c = (CalendarConflict *) vConflict;
 
-void tmplput_Conflict(StrBuf *Target, WCTemplputParams *TP)
-{}
+	FreeStrBuf(&c->conflict_event_uid);
+	FreeStrBuf(&c->conflict_event_summary);
+	free(c);
+}
+HashList *iterate_FindConflict(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBuf *Line;
+	HashList *Conflicts = NULL;
+	CalendarConflict *Conflict;
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 
+	serv_printf("ICAL conflicts|%ld|%s|", Mime->msgnum, ChrPtr(Mime->PartNum));
+
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, NULL) == 1)
+	{
+		const char *Pos = NULL;
+		int Done = 0;
+		int n = 0;
+		Conflicts = NewHash(1, Flathash);
+		while(!Done && (StrBuf_ServGetln(Line) >= 0) )
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000")) 
+			{
+				Done = 1;
+			}
+			else {
+				Conflict = (CalendarConflict *) malloc(sizeof(CalendarConflict *));
+				Conflict->conflict_event_uid = NewStrBufPlain(NULL, StrLength(Line));
+				Conflict->conflict_event_summary = NewStrBufPlain(NULL, StrLength(Line));
+
+				Conflict->existing_msgnum = StrBufExtractNext_long(Line, &Pos, '|');
+				StrBufSkip_NTokenS(Line, &Pos, '|', 1);
+				StrBufExtract_NextToken(Conflict->conflict_event_uid, Line, &Pos, '|');
+				StrBufExtract_NextToken(Conflict->conflict_event_summary, Line, &Pos, '|');
+				Conflict->is_update = StrBufExtractNext_long(Line, &Pos, '|');
+
+				Put(Conflicts, IKEY(n), Conflict, DeleteConflict);
+				n++;
+				Pos = NULL;
+			}
+	}
+	syslog(9, "...done.\n");
+	return Conflicts;
+}
+
+
+
+void tmplput_ConflictEventMsgID(StrBuf *Target, WCTemplputParams *TP)
+{
+	CalendarConflict *C = (CalendarConflict *) CTX(CTX_ICALCONFLICT);
+	char buf[sizeof(long) * 16];
+
+	snprintf(buf, sizeof(buf), "%ld", C->existing_msgnum);
+	StrBufAppendTemplateStr(Target, TP, buf, 0);
+}
+void tmplput_ConflictEUID(StrBuf *Target, WCTemplputParams *TP)
+{
+	CalendarConflict *C = (CalendarConflict *) CTX(CTX_ICALCONFLICT);
+	
+	StrBufAppendTemplate(Target, TP, C->conflict_event_uid, 0);
+}
+void tmplput_ConflictSummary(StrBuf *Target, WCTemplputParams *TP)
+{
+	CalendarConflict *C = (CalendarConflict *) CTX(CTX_ICALCONFLICT);
+
+	StrBufAppendTemplate(Target, TP, C->conflict_event_summary, 0);
+}
+int cond_ConflictIsUpdate(StrBuf *Target, WCTemplputParams *TP)
+{
+	CalendarConflict *C = (CalendarConflict *) CTX(CTX_ICALCONFLICT);
+	return C->is_update;
+}
+
+typedef struct CalAttendee
+{
+	StrBuf *AttendeeStr;
+	icalparameter_partstat partstat;
+} CalAttendee;
+
+void DeleteAtt(void *vAtt)
+{
+	CalAttendee *att = (CalAttendee*) vAtt;
+	FreeStrBuf(&att->AttendeeStr);
+	free(vAtt);
+}
 
 HashList *iterate_get_ical_attendees(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -461,7 +556,14 @@ InitModule_ICAL_SUBST
  	RegisterConditional("COND:ICAL:PROPERTY", 1, cond_ICalHaveItem, CTX_ICAL);
  	RegisterConditional("COND:ICAL:IS:A", 1, cond_ICalIsA, CTX_ICAL);
 
-	RegisterNamespace("ICAL:SERV:CHECK:CONFLICT", 0, 0, tmplput_Conflict, NULL, CTX_ICAL);
+
+        RegisterIterator("ICAL:CONFLICT", 0, NULL, iterate_FindConflict, 
+                         NULL, NULL, CTX_MIME_ATACH, CTX_ICALCONFLICT, IT_NOFLAG);
+	RegisterNamespace("ICAL:CONFLICT:MSGID", 0, 1, tmplput_ConflictEventMsgID, NULL, CTX_ICALCONFLICT);
+	RegisterNamespace("ICAL:CONFLICT:EUID", 0, 1, tmplput_ConflictEUID, NULL, CTX_ICALCONFLICT);
+	RegisterNamespace("ICAL:CONFLICT:SUMMARY", 0, 1, tmplput_ConflictSummary, NULL, CTX_ICALCONFLICT);
+	RegisterConditional("ICAL:CONFLICT:IS:UPDATE", 0, cond_ConflictIsUpdate, CTX_ICALCONFLICT);
+
 
 	RegisterCTX(CTX_ICALATTENDEE);
         RegisterIterator("ICAL:ATTENDEES", 0, NULL, iterate_get_ical_attendees, 
@@ -494,4 +596,25 @@ ServerShutdownModule_ICAL
 
 
 
+/*
+			if (is_update) {
+				snprintf(conflict_message, sizeof conflict_message,
+					 _("This is an update of '%s' which is already in your calendar."), conflict_name);
+			}
+			else {
+				snprintf(conflict_message, sizeof conflict_message,
+					 _("This event would conflict with '%s' which is already in your calendar."), conflict_name);
+			}
 
+			StrBufAppendPrintf(Target, "<dt>%s",
+					   (is_update ?
+					    _("Update:") :
+					    _("CONFLICT:")
+						   )
+				);
+			StrBufAppendPrintf(Target, "</dt><dd>");
+			StrEscAppend(Target, NULL, conflict_message, 0, 0);
+			StrBufAppendPrintf(Target, "</dd>\n");
+			}
+		}
+/*/
