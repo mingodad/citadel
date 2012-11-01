@@ -392,7 +392,7 @@ int CheckContext(StrBuf *Target, ContextFilter *Need, WCTemplputParams *TP, cons
 			return 1;
 
                 LogTemplateError(
-                        Target, ErrType, ERR_PARM1, TP,
+                        Target, ErrType, ERR_NAME, TP,
 			"  WARNING: requires Context: [%s], have [%s]!", 
 			ContextName(Need->ContextType), 
 			ContextName(TP->Filter.ContextType));
