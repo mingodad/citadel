@@ -163,6 +163,8 @@ void StackDynamicContext(WCTemplputParams *Super,
 		Sub->Sub = Super->Sub;
 		Super->Sub = Sub;
 	}
+	if (Sub->Sub != NULL)
+		Sub->Sub->Super = Sub;
 	Sub->Super = Super;
 	
 	Sub->Context = Context;
@@ -178,6 +180,10 @@ void UnStackContext(WCTemplputParams *Sub)
 	if (Sub->Super != NULL)
 	{
 		Sub->Super->Sub = Sub->Sub;
+	}
+	if (Sub->Sub != NULL)
+	{
+		Sub->Sub->Super = Sub->Super;
 	}
 }
 void UnStackDynamicContext(StrBuf *Target, WCTemplputParams **TPP)
@@ -314,9 +320,6 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		wc_backtrace(); 
 */
 }
-
-
-
 
 void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
 {
@@ -2254,10 +2257,12 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams **T
 	res = Cond->CondF(Target, TP);
 	if (res == Neg)
 		rc = TP->Tokens->Params[1]->lvalue;
+
 	if (LoadTemplates > 5) 
 		syslog(1, "<%s> : %d %d==%d\n", 
 			ChrPtr(TP->Tokens->FlatToken), 
 			rc, res, Neg);
+
 	if (TP->Sub != NULL)
 	{
 		*TPP = TP->Sub;
