@@ -1,4 +1,3 @@
-
 <div class="mimepart">
 
 <div id="rsvp<?BSTR("divname")>_title">
@@ -48,7 +47,7 @@
 
 <?--("If this is a REQUEST, display conflicts and buttons")>
 <?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REQUEST")>
-<?ICAL:SERV:CHECK:CONFLICT()>
+<?ITERATE("ICAL:CONFLICT", ="ical_attachment_display_conflict")>
 <?--("Display the Accept/Decline buttons")>
 <p id="rsvp<?BSTR("divname")>_question">
 <?_("How would you like to respond to this invitation?")>
