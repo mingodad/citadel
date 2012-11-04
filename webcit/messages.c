@@ -192,6 +192,9 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	WCTemplputParams SubTP;
 	StrBuf *Error = NULL;
 
+	memset(&SuperTP, 0, sizeof(WCTemplputParams));
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
+
 	Buf = NewStrBuf();
 	FoundCharset = NewStrBuf();
 	Msg = (message_summary *)malloc(sizeof(message_summary));
@@ -217,7 +220,6 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 		/* Locate a renderer capable of converting this MIME part into HTML */
 		if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 		    (vHdr != NULL)) {
-			WCTemplputParams SubTP;
 			RenderMimeFuncStruct *Render;
 			
 			StackContext(&SuperTP, &SubTP, Msg->MsgBody, CTX_MIME_ATACH, 0, NULL);
