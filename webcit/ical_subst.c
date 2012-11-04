@@ -417,7 +417,7 @@ HashList *iterate_FindConflict(StrBuf *Target, WCTemplputParams *TP)
 				Done = 1;
 			}
 			else {
-				Conflict = (CalendarConflict *) malloc(sizeof(CalendarConflict *));
+				Conflict = (CalendarConflict *) malloc(sizeof(CalendarConflict));
 				Conflict->conflict_event_uid = NewStrBufPlain(NULL, StrLength(Line));
 				Conflict->conflict_event_summary = NewStrBufPlain(NULL, StrLength(Line));
 
@@ -432,6 +432,7 @@ HashList *iterate_FindConflict(StrBuf *Target, WCTemplputParams *TP)
 				Pos = NULL;
 			}
 	}
+	FreeStrBuf(&Line);
 	syslog(9, "...done.\n");
 	return Conflicts;
 }
