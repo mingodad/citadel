@@ -558,7 +558,7 @@ InitModule_ICAL_SUBST
 
 
         RegisterIterator("ICAL:CONFLICT", 0, NULL, iterate_FindConflict, 
-                         NULL, NULL, CTX_MIME_ATACH, CTX_ICALCONFLICT, IT_NOFLAG);
+                         NULL, DeleteHash, CTX_MIME_ATACH, CTX_ICALCONFLICT, IT_NOFLAG);
 	RegisterNamespace("ICAL:CONFLICT:MSGID", 0, 1, tmplput_ConflictEventMsgID, NULL, CTX_ICALCONFLICT);
 	RegisterNamespace("ICAL:CONFLICT:EUID", 0, 1, tmplput_ConflictEUID, NULL, CTX_ICALCONFLICT);
 	RegisterNamespace("ICAL:CONFLICT:SUMMARY", 0, 1, tmplput_ConflictSummary, NULL, CTX_ICALCONFLICT);
@@ -567,7 +567,7 @@ InitModule_ICAL_SUBST
 
 	RegisterCTX(CTX_ICALATTENDEE);
         RegisterIterator("ICAL:ATTENDEES", 0, NULL, iterate_get_ical_attendees, 
-                         NULL, NULL, CTX_ICALATTENDEE, CTX_ICAL, IT_NOFLAG);
+                         NULL, DeleteHash, CTX_ICALATTENDEE, CTX_ICAL, IT_NOFLAG);
 	RegisterNamespace("ICAL:ATTENDEE", 1, 2, tmplput_ICalAttendee, NULL, CTX_ICALATTENDEE);
  	RegisterConditional("COND:ICAL:ATTENDEE", 1, cond_ICalAttendeeState, CTX_ICALATTENDEE);
 
@@ -593,28 +593,3 @@ ServerShutdownModule_ICAL
 {
 	DeleteHash(&IcalComponentMap);
 }
-
-
-
-/*
-			if (is_update) {
-				snprintf(conflict_message, sizeof conflict_message,
-					 _("This is an update of '%s' which is already in your calendar."), conflict_name);
-			}
-			else {
-				snprintf(conflict_message, sizeof conflict_message,
-					 _("This event would conflict with '%s' which is already in your calendar."), conflict_name);
-			}
-
-			StrBufAppendPrintf(Target, "<dt>%s",
-					   (is_update ?
-					    _("Update:") :
-					    _("CONFLICT:")
-						   )
-				);
-			StrBufAppendPrintf(Target, "</dt><dd>");
-			StrEscAppend(Target, NULL, conflict_message, 0, 0);
-			StrBufAppendPrintf(Target, "</dd>\n");
-			}
-		}
-/*/
