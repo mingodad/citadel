@@ -21,7 +21,7 @@
 
 
 <?--("------------------------------")>
-<dl>
+<div><dl>
 <?!("COND:ICAL:PROPERTY", 44, #"ICAL_SUMMARY_PROPERTY")><dt><?_("Summary:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 44)>
 <?!("COND:ICAL:PROPERTY", 55, #"ICAL_LOCATION_PROPERTY")><dt><?_("Location:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 55)>
 
@@ -43,7 +43,7 @@
 
 <?ITERATE("ICAL:ATTENDEES", ="ical_attachment_display_attendees")>
 
-</dl>
+</dl></div>
 
 <?--("If this is a REQUEST, display conflicts and buttons")>
 <?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REQUEST")>
