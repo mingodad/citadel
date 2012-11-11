@@ -58,7 +58,7 @@ msgstr "Ver listado de salas"
 
 #: ../../roomops.c:1293
 msgid "Show empty floors"
-msgstr ""
+msgstr "Mostrrar pisos vacíos"
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
@@ -98,9 +98,8 @@ msgid "Journal"
 msgstr "Diario"
 
 #: ../../roomviews.c:59
-#, fuzzy
 msgid "Drafts"
-msgstr "Fecha"
+msgstr "Borradores"
 
 #: ../../roomviews.c:60
 msgid "Blog"
@@ -124,7 +123,7 @@ msgstr "Categoría"
 
 #: ../../tasks.c:101
 msgid "Show All"
-msgstr ""
+msgstr "Mostrar Todo"
 
 #: ../../tasks.c:223
 msgid "Edit task"
@@ -230,20 +229,21 @@ msgstr "Ir atrás"
 #: ../../listsub.c:253 ../../listsub.c:291 ../../listsub.c:327
 #: ../../listsub.c:334
 msgid "You need to specify the mailinglist to subscribe to."
-msgstr ""
+msgstr "Necesita especificar la lista de correo a suscribirse"
 
 #: ../../listsub.c:260 ../../listsub.c:298
 msgid "You need to specify the email address you'd like to subscribe with."
 msgstr ""
+"Necesita especificar la dirección de correo con la que desea suscribirse."
 
 #: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
-#, fuzzy, c-format
+#, c-format
 msgid "%d comments"
-msgstr "Enviar comando"
+msgstr "%d comentarios"
 
 #: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
-msgstr ""
+msgstr "Enlace permanente"
 
 #: ../../blogview_renderer.c:302
 msgid "Newer posts"
@@ -257,6 +257,8 @@ msgstr "las entradas más antiguas"
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
 msgstr ""
+"Un error ocurrio mientras intentaba crear o editar esta entrada en la "
+"libreta de direcciones."
 
 #: ../../useredit.c:717
 msgid "Changes were not saved."
@@ -272,6 +274,9 @@ msgid ""
 "host based authentication mode.  In this mode, you must create new users on "
 "the host system, not within Citadel."
 msgstr ""
+"Está intentando crear un nuevo usuario denrtro de Citadel el cual está en "
+"modo de autenticación basado en anfitrión. En este modo, debe crear nuevos "
+"usuarios en el sistema anfitrión, no dentro de Citadel."
 
 #: ../../bbsview_renderer.c:312
 msgid "Go to page: "
@@ -303,11 +308,11 @@ msgstr "el icono par esta sala"
 
 #: ../../graphics.c:127
 msgid "the Greetingpicture for the login prompt"
-msgstr ""
+msgstr "la imagen de Saludo para el indicador de entrada"
 
 #: ../../graphics.c:135
 msgid "the Logoff banner picture"
-msgstr ""
+msgstr "la imagen de la bandera de cierre de sessión"
 
 #: ../../graphics.c:146
 msgid "the icon for this floor"
@@ -419,7 +424,7 @@ msgstr "Medio"
 
 #: ../../vcard_edit.c:1068
 msgid "Last Name"
-msgstr ""
+msgstr "Apellido"
 
 #: ../../vcard_edit.c:1068
 msgid "Suffix"
@@ -512,7 +517,7 @@ msgstr "Hacer de esta mi página de inicio"
 
 #: ../../preferences.c:1130
 msgid "This isn't allowed to become the start page."
-msgstr ""
+msgstr "Está no está permitida para ser la página de inicio."
 
 #: ../../preferences.c:1132
 msgid "You no longer have a start page selected."
@@ -520,7 +525,7 @@ msgstr "Ya no tiene página de inicio seleccionada."
 
 #: ../../preferences.c:1182
 msgid "Prefered startpage"
-msgstr ""
+msgstr "Página de inicio preferida"
 
 #: ../../calendar.c:76
 msgid "Meeting invitation"
@@ -576,7 +581,8 @@ msgstr "Esta es una actualizaciñon de '%s' que está ya en su calendario."
 
 #: ../../calendar.c:222
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Este evento entrará en conflicto con '%s' que está ya en su calendario."
 
@@ -698,12 +704,12 @@ msgstr "El mensaje ha sido enviado a "
 
 #: ../../iconbar.c:328
 msgid "Iconbar Setting"
-msgstr ""
+msgstr "Configuración de barra de iconos"
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:148
 msgid "availability unknown"
 msgstr "disponibilidad desconocida"
@@ -722,10 +728,13 @@ msgid ""
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
+"Este servidor ya está sirviendo su número máximo de usuarios y no puede "
+"aceptar inicios de sesión adicionales en este momento. Por favor, inténtelo "
+"de nuevo más tarde o póngase en contacto con el administrador del sistema."
 
 #: ../../serv_func.c:198 ../../serv_func.c:227
 msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr ""
+msgstr "Respuesta inesperada desde el servidor Citadel; liberando operación."
 
 #: ../../serv_func.c:236
 #, c-format
@@ -863,7 +872,7 @@ msgstr "Contactos"
 
 #: ../../event.c:513
 msgid "Recurrence rule"
-msgstr ""
+msgstr "Regla de recuerrencia"
 
 #: ../../event.c:517
 msgid "Repeats every"
@@ -872,16 +881,16 @@ msgstr "Se repite cada"
 #. begin 'weekday_selector' div
 #: ../../event.c:535
 msgid "on these weekdays:"
-msgstr ""
+msgstr "en estos días laborables:"
 
 #: ../../event.c:593
 #, c-format
 msgid "on day %s%d%s of the month"
-msgstr ""
+msgstr "en días %s%d%s de el mes"
 
 #: ../../event.c:602 ../../event.c:664
 msgid "on the "
-msgstr ""
+msgstr "en el "
 
 #: ../../event.c:626
 msgid "of the month"
@@ -893,7 +902,7 @@ msgstr "cada "
 
 #: ../../event.c:656
 msgid "year on this date"
-msgstr ""
+msgstr "año de esta fecha"
 
 #: ../../event.c:688 ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
@@ -949,9 +958,8 @@ msgid "Cancelled.  %s was not saved."
 msgstr "Cancelado %s no se salvó"
 
 #: ../../sysmsgs.c:109
-#, fuzzy
 msgid " has been saved."
-msgstr "%s no se salvó"
+msgstr " a sido guardado."
 
 #: ../../sysmsgs.c:116 ../../sysmsgs.c:117
 msgid "Room info"
@@ -1029,15 +1037,15 @@ msgstr "Cancelado automáticamente porque ya habías salvado este mensaje."
 
 #: ../../messages.c:1037
 msgid "Saved to Drafts failed: "
-msgstr ""
+msgstr "Guardar a Borradores fallo: "
 
 #: ../../messages.c:1102
 msgid "Refusing to post empty message.\n"
-msgstr ""
+msgstr "Se negó enviar mensaje vacío.\n"
 
 #: ../../messages.c:1128
 msgid "Message has been saved to Drafts.\n"
-msgstr ""
+msgstr "El mensaje ha sido guardado en Borradores.\n"
 
 #: ../../messages.c:1137
 msgid "Message has been sent.\n"
@@ -1054,7 +1062,7 @@ msgstr "No se movió el mensaje."
 #: ../../messages.c:1719
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr ""
+msgstr "Un error ocurrió mientras se obtenía esta parte: %s/%s\n"
 
 #: ../../messages.c:1796
 #, c-format
@@ -1079,15 +1087,15 @@ msgstr "Dirección de correo preferida"
 
 #: ../../messages.c:1966
 msgid "Preferred display name for email messages"
-msgstr ""
+msgstr "Nombre preferido a mostrar para mensajes de correo"
 
 #: ../../messages.c:1970
 msgid "Preferred display name for bulletin board posts"
-msgstr ""
+msgstr "Nombre preferido a mostrar en envíos al tablero de mensajes"
 
 #: ../../messages.c:1973
 msgid "Mailbox view mode"
-msgstr ""
+msgstr "Modo de vista buzón"
 
 #: ../../inetconf.c:110 ../../inetconf.c:119 ../../inetconf.c:133
 #: ../../inetconf.c:159 ../../netconf.c:156 ../../netconf.c:183
@@ -1096,15 +1104,13 @@ msgid "Invalid Parameter"
 msgstr "Parámetro inválido"
 
 #: ../../inetconf.c:126
-#, fuzzy
 msgid " has been deleted."
-msgstr "%s ha sido borrado"
+msgstr " ha sido borrado"
 
 #. <domain> added status message
 #: ../../inetconf.c:144
-#, fuzzy
 msgid " added."
-msgstr "añadido."
+msgstr " agregado"
 
 #: ../../who.c:154
 msgid "Edit your session display"
@@ -1158,8 +1164,11 @@ msgstr ""
 "acceso."
 
 #: ../../siteconfig.c:256
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
+"ADVERTENCIA: No se pudo analizar la configuración del servidor, se ejecuta "
+"un nuevo citserver?"
 
 #: ../../siteconfig.c:319
 msgid "Your system configuration has been updated."
@@ -1206,7 +1215,7 @@ msgstr "Versión actual"
 
 #: ../../wiki.c:223
 msgid "(revert)"
-msgstr ""
+msgstr "(revertir)"
 
 #: ../../wiki.c:300
 msgid "Page title"
@@ -1245,7 +1254,7 @@ msgstr "(Borrar)"
 
 #: ../../smtpqueue.c:334
 msgid "First Attempt pending"
-msgstr ""
+msgstr "Primer Intento pendiente"
 
 #: ../../roomlist.c:99
 msgid "My Folders"
@@ -1254,7 +1263,7 @@ msgstr "Mis carpetas"
 #: ../../downloads.c:289
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr ""
+msgstr "Un error ocurrió mientras se obtenía este archivo: %s\n"
 
 #: ../../roomtokens.c:572
 msgid "file"
@@ -1278,7 +1287,7 @@ msgstr "editar"
 
 #: ../../msg_renderers.c:1119
 msgid "I don't know how to display "
-msgstr ""
+msgstr "No se como mostrarlo "
 
 #: ../../msg_renderers.c:1353
 msgid "(no subject)"
@@ -1411,11 +1420,11 @@ msgstr "No se permiten contraseñas en blanco"
 
 #: ../../openid.c:34
 msgid "Manage Account/OpenID Associations"
-msgstr ""
+msgstr "Administrar Asociación Cuenta/OpenID"
 
 #: ../../openid.c:52
 msgid "Do you really want to delete this OpenID?"
-msgstr ""
+msgstr "Realmente quiere borrar este OpenID?"
 
 #: ../../openid.c:53
 msgid "(delete)"
@@ -1423,7 +1432,7 @@ msgstr "(eliminar)"
 
 #: ../../openid.c:61
 msgid "Add an OpenID: "
-msgstr ""
+msgstr "Agregar un OpenID: "
 
 #: ../../openid.c:64
 msgid "Attach"
@@ -1432,7 +1441,7 @@ msgstr "Adjuntar"
 #: ../../openid.c:68
 #, c-format
 msgid "%s does not permit authentication via OpenID."
-msgstr ""
+msgstr "%s no permite autenticación vía OpenID."
 
 #: ../../html2html.c:136
 #, c-format
@@ -1472,7 +1481,7 @@ msgstr "Al llegar el correo, no se filtrará mediante ningún script."
 
 #: ../../static/t/sieve/list.html:64
 msgid "Add rule"
-msgstr ""
+msgstr "Agregar regla"
 
 #: ../../static/t/sieve/list.html:71
 msgid "The currently active script is: "
@@ -1502,7 +1511,7 @@ msgstr "Remitente"
 
 #: ../../static/t/sieve/display_one.html:25
 msgid "Resent-From"
-msgstr ""
+msgstr "Reenviado desde"
 
 #: ../../static/t/sieve/display_one.html:26
 msgid "Resent-To"
@@ -1510,27 +1519,27 @@ msgstr "Enviar a"
 
 #: ../../static/t/sieve/display_one.html:27
 msgid "Envelope From"
-msgstr ""
+msgstr "Ensobretado Desde"
 
 #: ../../static/t/sieve/display_one.html:28
 msgid "Envelope To"
-msgstr ""
+msgstr "Ensobretado Para"
 
 #: ../../static/t/sieve/display_one.html:29
 msgid "X-Mailer"
-msgstr ""
+msgstr "X-Mailer"
 
 #: ../../static/t/sieve/display_one.html:30
 msgid "X-Spam-Flag"
-msgstr ""
+msgstr "X-Spam-Flag"
 
 #: ../../static/t/sieve/display_one.html:31
 msgid "X-Spam-Status"
-msgstr ""
+msgstr "X-Spam-Status"
 
 #: ../../static/t/sieve/display_one.html:32
 msgid "List-ID"
-msgstr ""
+msgstr "List-ID"
 
 #: ../../static/t/sieve/display_one.html:33
 msgid "Message size"
@@ -1539,7 +1548,7 @@ msgstr "Tamaño del mensaje"
 #: ../../static/t/sieve/display_one.html:34
 #: ../../static/t/select_messageindex_all.html:1
 msgid "All"
-msgstr ""
+msgstr "Todo"
 
 #: ../../static/t/sieve/display_one.html:41
 msgid "contains"
@@ -1578,13 +1587,12 @@ msgid "is smaller than"
 msgstr "es más pequeño que"
 
 #: ../../static/t/sieve/display_one.html:59
-#, fuzzy
 msgid "bytes"
-msgstr "años"
+msgstr "bytes"
 
 #: ../../static/t/sieve/display_one.html:65
 msgid "Keep"
-msgstr ""
+msgstr "Conservar"
 
 #: ../../static/t/sieve/display_one.html:66
 msgid "Discard silently"
@@ -1596,7 +1604,7 @@ msgstr "Rechazar"
 
 #: ../../static/t/sieve/display_one.html:68
 msgid "Move message to"
-msgstr ""
+msgstr "Mover mensaje a"
 
 #: ../../static/t/sieve/display_one.html:69
 msgid "Forward to"
@@ -1604,7 +1612,7 @@ msgstr "Reenviar a"
 
 #: ../../static/t/sieve/display_one.html:70
 msgid "Vacation"
-msgstr ""
+msgstr "Vacaciones"
 
 #: ../../static/t/sieve/display_one.html:82
 msgid "Message:"
@@ -1612,7 +1620,7 @@ msgstr "Mensaje:"
 
 #: ../../static/t/sieve/display_one.html:90
 msgid "and then"
-msgstr ""
+msgstr "y entonces"
 
 #: ../../static/t/sieve/display_one.html:93
 msgid "continue processing"
@@ -1678,7 +1686,7 @@ msgstr "Mover este mensaje a:"
 
 #: ../../static/t/login.html:5
 msgid "powered by"
-msgstr ""
+msgstr "ofrecido por"
 
 #: ../../static/t/login.html:15 ../../static/t/iconbar.html:88
 #: ../../static/t/get_logged_in.html:64 ../../static/t/get_logged_in.html:88
@@ -1692,6 +1700,8 @@ msgid ""
 "WARNING: You have JavaScript disabled in your web browser.  Many functions "
 "of this system will not work properly."
 msgstr ""
+"ADVERTENCIA: Tiene desactivado JavaScript en su navegador. Muchas funciones "
+"de este sistema no funcionaran apropiadamente."
 
 #: ../../static/t/view_submessage.html:4
 #: ../../static/t/view_message/replyquote.html:3
@@ -1702,21 +1712,19 @@ msgstr "de "
 
 #: ../../static/t/searchomatic.html:4
 msgid "Search: "
-msgstr ""
+msgstr "Buscar: "
 
 #: ../../static/t/listsub/display.html:16
 msgid "You are subscribing "
-msgstr ""
+msgstr "Se está suscribiendo "
 
 #: ../../static/t/listsub/display.html:17
-#, fuzzy
 msgid " to the "
-msgstr "Ir allí"
+msgstr " a la "
 
 #: ../../static/t/listsub/display.html:18
-#, fuzzy
 msgid " mailing list."
-msgstr "Servicio de lista de correo"
+msgstr " lista de mensajes."
 
 #: ../../static/t/listsub/display.html:19
 msgid ""

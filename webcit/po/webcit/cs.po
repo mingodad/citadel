@@ -14,8 +14,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-06 04:32+0000\n"
-"X-Generator: Launchpad (build 15060)\n"
+"X-Launchpad-Export-Date: 2012-08-01 04:33+0000\n"
+"X-Generator: Launchpad (build 15719)\n"
 "Language: cs\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
@@ -1432,7 +1432,7 @@ msgstr "%s nepodporuje přihlášení přes OpenID."
 #: ../../html2html.c:136
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
-msgstr ""
+msgstr "chyba v realloc() nelze získat %d bytes: %s"
 
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
@@ -1515,11 +1515,11 @@ msgstr "X-Mailer"
 
 #: ../../static/t/sieve/display_one.html:30
 msgid "X-Spam-Flag"
-msgstr ""
+msgstr "X-Spam-Flag"
 
 #: ../../static/t/sieve/display_one.html:31
 msgid "X-Spam-Status"
-msgstr ""
+msgstr "X-Spam-Status"
 
 #: ../../static/t/sieve/display_one.html:32
 msgid "List-ID"
@@ -2067,7 +2067,7 @@ msgstr ""
 
 #: ../../static/t/aide/display_inetconf.html:25
 msgid "Masqueradable domains"
-msgstr ""
+msgstr "Domény, mající povolenou maškarádu"
 
 #: ../../static/t/aide/edituser/select.html:5
 msgid "Edit or delete users"
@@ -2200,11 +2200,11 @@ msgstr ""
 
 #: ../../static/t/aide/inet/masqdomains.html:2
 msgid "(Domains as which users are allowed to masquerade)"
-msgstr ""
+msgstr "(Domény, jejichž uživatelé mají povolenu maškarádu)"
 
 #: ../../static/t/aide/inet/rbldns.html:2
 msgid "(hosts running a Realtime Blackhole List)"
-msgstr ""
+msgstr "(List běžících Realtime Blackhole)"
 
 #: ../../static/t/aide/inet/dirnames.html:2
 msgid "(domains mapped with the Global Address Book)"
@@ -2218,10 +2218,13 @@ msgstr "(URLS pro oznámení, když uživatel dostane nový email; )"
 msgid ""
 "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 msgstr ""
+"Zápis syntaxe: Šablona pro oznánení:http[s]://user:password@hostname/path"
 
 #: ../../static/t/aide/inet/smarthosts.html:2
 msgid "(if present, forward all outbound mail to one of these hosts)"
 msgstr ""
+"(Pokud je potvrzeno, přepošle všechny odchozí maily na jednoho z těchto "
+"hostů)"
 
 #: ../../static/t/aide/inet/aliases.html:2
 msgid "(domains for which this host receives mail)"
@@ -2452,7 +2455,7 @@ msgstr "SMTP MTA port (-1 pro vypnutí)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:9
 msgid "Correct forged From: lines during authenticated SMTP"
-msgstr ""
+msgstr "Opravit upravené \"From:\" řádky při autentifikovaném SMTP přenosu"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:12
 msgid "Flag message as spam, instead of rejecting it"
@@ -2596,7 +2599,7 @@ msgstr "Externí pager nástroje (prázdné pole pro vypnutí)"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:1
 msgid "Access controls and site policy settings"
-msgstr ""
+msgstr "Kontrola přístupu a nastavení politiky stránky"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:5
 msgid "Allow aides to zap (forget) rooms"

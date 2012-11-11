@@ -13,12 +13,12 @@ msgstr ""
 "PO-Revision-Date: 2011-01-31 08:31+0000\n"
 "Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-25 04:34+0000\n"
-"X-Generator: Launchpad (build 12351)\n"
+"X-Launchpad-Export-Date: 2012-09-13 04:33+0000\n"
+"X-Generator: Launchpad (build 15944)\n"
+"Language: ru\n"
 "X-Language: ru_RU\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
@@ -32,7 +32,7 @@ msgstr "Ваши изменения сохранены."
 #: ../../roomops.c:881
 #, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr ""
+msgstr "Пользователь '%s' был удалён из комнаты '%s'."
 
 #: ../../roomops.c:898
 #, c-format
@@ -61,11 +61,11 @@ msgstr "Показать пустые этажи"
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
-msgstr ""
+msgstr "Доска объявлений"
 
 #: ../../roomviews.c:51
 msgid "Mail Folder"
-msgstr ""
+msgstr "Почтовая папка"
 
 #: ../../roomviews.c:52
 msgid "Address Book"
@@ -250,6 +250,8 @@ msgstr "старые сообщения"
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
 msgstr ""
+"Произошла ошибка во время попытки создания или редактирования записи "
+"адресной книги."
 
 #: ../../useredit.c:717
 msgid "Changes were not saved."
@@ -280,7 +282,7 @@ msgstr "Последний"
 
 #: ../../graphics.c:56
 msgid "Graphics upload has been cancelled."
-msgstr ""
+msgstr "Загрузка графики была отменена."
 
 #: ../../graphics.c:62
 msgid "You didn't upload a file."
@@ -352,7 +354,7 @@ msgstr "(не указан)"
 
 #: ../../notes.c:343
 msgid "Click on any note to edit it."
-msgstr ""
+msgstr "Щёлкните на любой заметке, если хотите внести в неё изменения."
 
 #: ../../vcard_edit.c:175 ../../vcard_edit.c:178
 msgid "(no name)"
@@ -388,7 +390,7 @@ msgstr "Адресная книга пуста."
 
 #: ../../vcard_edit.c:793
 msgid "An internal error has occurred."
-msgstr ""
+msgstr "Произошла внутренняя ошибка."
 
 #: ../../vcard_edit.c:944
 msgid "Error"
@@ -396,7 +398,7 @@ msgstr "Ошибка"
 
 #: ../../vcard_edit.c:1048
 msgid "Edit contact information"
-msgstr ""
+msgstr "Изменить сведения о контакте"
 
 #: ../../vcard_edit.c:1068
 msgid "Prefix"
@@ -432,7 +434,7 @@ msgstr "Организация:"
 
 #: ../../vcard_edit.c:1114
 msgid "PO box:"
-msgstr ""
+msgstr "Абонентский ящик:"
 
 #: ../../vcard_edit.c:1130
 msgid "City:"
@@ -480,7 +482,7 @@ msgstr "Сохранить изменения"
 
 #: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
-msgstr ""
+msgstr "Невозможно войти в комнату для сохранения вашего сообщения"
 
 #: ../../vcard_edit.c:1265
 msgid "Aborting."
@@ -569,7 +571,8 @@ msgstr ""
 
 #: ../../calendar.c:222
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr "Данное событие может конфликтовать с  '%s' в вашем календаре."
 
 #: ../../calendar.c:227
@@ -616,7 +619,8 @@ msgstr ""
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr "Вы приняли приглашение на встречу. Она была добавлена в ваш календарь."
+msgstr ""
+"Вы приняли приглашение на встречу. Она была добавлена в ваш календарь."
 
 #: ../../calendar.c:332
 msgid ""
@@ -663,7 +667,7 @@ msgstr "Неделя начинается с:"
 
 #: ../../paging.c:35
 msgid "Send instant message"
-msgstr ""
+msgstr "Отправить сообщение"
 
 #: ../../paging.c:43
 msgid "Send an instant message to: "
@@ -689,10 +693,10 @@ msgstr ""
 msgid "Iconbar Setting"
 msgstr "Настройка панели иконок"
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:148
 msgid "availability unknown"
 msgstr "доступность не известна"
@@ -1053,7 +1057,7 @@ msgstr "Использовать подпись:"
 
 #: ../../messages.c:1961
 msgid "Default character set for email headers:"
-msgstr ""
+msgstr "Стандартный набор символов для заголовков письма:"
 
 #: ../../messages.c:1964
 msgid "Preferred email address"
@@ -1630,7 +1634,8 @@ msgstr "Удалить скрипты"
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
-msgstr "Для удаления скрипта, выберите скрипт из списка и нажмите \"Удалить\"."
+msgstr ""
+"Для удаления скрипта, выберите скрипт из списка и нажмите \"Удалить\"."
 
 #: ../../static/t/msg/confirm_move.html:4
 msgid "Confirm move of message"

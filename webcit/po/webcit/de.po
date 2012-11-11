@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2011-02-25 08:32+0000\n"
+"PO-Revision-Date: 2012-07-31 20:12+0000\n"
 "Last-Translator: cmdrhenner <cmdrhenner@gmail.com>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-26 04:43+0000\n"
-"X-Generator: Launchpad (build 12351)\n"
+"X-Launchpad-Export-Date: 2012-08-01 04:33+0000\n"
+"X-Generator: Launchpad (build 15719)\n"
+"Language: de\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
@@ -226,12 +226,13 @@ msgstr "Zurück..."
 #: ../../listsub.c:253 ../../listsub.c:291 ../../listsub.c:327
 #: ../../listsub.c:334
 msgid "You need to specify the mailinglist to subscribe to."
-msgstr ""
+msgstr "Sie müssen die Mailing-Liste angeben, die Sie abonnieren möchten."
 
 #: ../../listsub.c:260 ../../listsub.c:298
-#, fuzzy
 msgid "You need to specify the email address you'd like to subscribe with."
-msgstr "Bitte gebe den Benutzernamen ein den du verwenden willst."
+msgstr ""
+"Sie müssen Ihre E-Mail-Adresse angeben, mit der Sie das Abonnement empfangen "
+"möchten."
 
 #: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
 #, c-format
@@ -240,7 +241,7 @@ msgstr "%d Kommentare"
 
 #: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
-msgstr "Permanentlink"
+msgstr "permalink"
 
 #: ../../blogview_renderer.c:302
 msgid "Newer posts"
@@ -575,7 +576,8 @@ msgstr "Die Änderung '%s', existiert bereits Ihrem Kalender ist."
 
 #: ../../calendar.c:222
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Dieser Termin würde mit '%s' kollidieren, der bereits in Ihrem Kalender "
 "vorgemerkt ist."
@@ -702,10 +704,10 @@ msgstr "Kurznachricht gesendet an "
 msgid "Iconbar Setting"
 msgstr "Iconbar einstellungen"
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:148
 msgid "availability unknown"
 msgstr "Verfügbarkeit unbekannt"
@@ -944,9 +946,9 @@ msgid ""
 "Enter %s below. Text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"Geben sie hier %s ein. Der Text wird auf dem Browser des Lesers formatiert."
-"Eine neue Zeile erzwingt man, indem man die nächste Zeile mit einem "
-"Leerschritt beginnt."
+"Geben sie hier %s ein. Der Text wird auf dem Browser des Lesers "
+"formatiert.Eine neue Zeile erzwingt man, indem man die nächste Zeile mit "
+"einem Leerschritt beginnt."
 
 #: ../../sysmsgs.c:89
 #, c-format
@@ -1158,7 +1160,8 @@ msgid "Higher access is required to access this function."
 msgstr "Diese Funktion benötigt höhere Zugriffsechte"
 
 #: ../../siteconfig.c:256
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 "WARNUNG: Konnte die Serverkonfiguration nicht lesen; ist der Citserver neuer "
 "als WebCit?"
@@ -1224,8 +1227,8 @@ msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
-"Die angeforderte Sektion benötigt einen gültigen Benutzernamen und Passwort."
-"Sie konnten nicht Angemeldet werden: %s\n"
+"Die angeforderte Sektion benötigt einen gültigen Benutzernamen und "
+"Passwort.Sie konnten nicht Angemeldet werden: %s\n"
 
 #: ../../webcit.c:647 ../../auth.c:526
 msgid ""
@@ -1246,7 +1249,7 @@ msgstr "(Löschen)"
 
 #: ../../smtpqueue.c:334
 msgid "First Attempt pending"
-msgstr ""
+msgstr "Erster Versuch steht aus"
 
 #: ../../roomlist.c:99
 msgid "My Folders"
@@ -1578,7 +1581,7 @@ msgstr "ist kleiner als"
 
 #: ../../static/t/sieve/display_one.html:59
 msgid "bytes"
-msgstr "Bytes"
+msgstr "bytes"
 
 #: ../../static/t/sieve/display_one.html:65
 msgid "Keep"
@@ -1705,132 +1708,137 @@ msgstr "Suchen: "
 
 #: ../../static/t/listsub/display.html:16
 msgid "You are subscribing "
-msgstr ""
+msgstr "Sie abonnieren "
 
 #: ../../static/t/listsub/display.html:17
-#, fuzzy
 msgid " to the "
-msgstr "an dem "
+msgstr " die "
 
 #: ../../static/t/listsub/display.html:18
-#, fuzzy
 msgid " mailing list."
-msgstr "Mailinglistendienst"
+msgstr " Mailing-Liste."
 
 #: ../../static/t/listsub/display.html:19
 msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your subscription."
 msgstr ""
+"Der Mailing-Listen-Server hat Ihnen eine E-Mail mit einem Verweis gesendet, "
+"auf den Sie klicken müssen, um Ihr Abonnement zu bestätigen."
 
 #: ../../static/t/listsub/display.html:20
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to subscribe you to lists without your consent."
 msgstr ""
+"Dieser zusätzliche Schritt dient Ihrem Schutz, weil dadurch verhindert wird, "
+"dass andere ohne Ihre Zustimmung für Sie Mailing-Listen abonnieren können."
 
 #: ../../static/t/listsub/display.html:22
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "subscription will be confirmed."
 msgstr ""
+"Bitte klicken Sie auf den Verweis, der Ihnen per E-Mail gesendet wurde und "
+"Ihr Abonnement wird bestätigt."
 
 #: ../../static/t/listsub/display.html:27
 #: ../../static/t/listsub/display.html:47
-#, fuzzy
 msgid "ERROR"
-msgstr "FEHLER:"
+msgstr "FEHLER"
 
 #: ../../static/t/listsub/display.html:35
 msgid "You are unsubscribing"
-msgstr ""
+msgstr "Sie kündigen das Abonnement"
 
 #: ../../static/t/listsub/display.html:37
-#, fuzzy
 msgid "from the"
-msgstr "von "
+msgstr "der"
 
 #: ../../static/t/listsub/display.html:39
-#, fuzzy
 msgid "mailing list."
-msgstr "Mailinglistendienst"
+msgstr "Mailing-Liste."
 
 #: ../../static/t/listsub/display.html:40
 msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your unsubscription."
 msgstr ""
+"Der Mailing-Listen-Server hat Ihnen eine E-Mail mit einem Verweis gesendet, "
+"auf den Sie klicken müssen, um die Kündigung Ihres Abonnements zu bestätigen."
 
 #: ../../static/t/listsub/display.html:41
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to unsubscribe you from lists without your consent."
 msgstr ""
+"Dieser zusätzliche Schritt dient Ihrem Schutz, weil dadurch verhindert wird, "
+"dass andere ohne Ihre Zustimmung Ihre Mailing-Listen-Abonnements kündigen "
+"können."
 
 #: ../../static/t/listsub/display.html:43
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "unsubscription will be confirmed."
 msgstr ""
+"Bitte klicken Sie auf den Verweis, der Ihnen per E-Mail gesendet wurde und "
+"Ihre Abonnement-Kündigung wird bestätigt."
 
 #: ../../static/t/listsub/display.html:44
-#, fuzzy
 msgid "Back..."
-msgstr "Zurück..."
+msgstr "Zurück …"
 
 #: ../../static/t/listsub/display.html:54
-#, fuzzy
 msgid "Confirmation successful!"
-msgstr "Anfrage bestätigt"
+msgstr "Bestätigung erfolgreich!"
 
 #: ../../static/t/listsub/display.html:56
-#, fuzzy
 msgid "Confirmation failed."
-msgstr "Konfiguration"
+msgstr "Bestätigung gescheitert."
 
 #: ../../static/t/listsub/display.html:57
 msgid "This could mean one of two things:"
-msgstr ""
+msgstr "Das könnte eines von zwei Dingen bedeuten:"
 
 #: ../../static/t/listsub/display.html:59
 msgid ""
 "You waited too long to confirm your subscribe/unsubscribe request (the "
 "confirmation link is only valid for three days)"
 msgstr ""
+"Sie haben mit der Bestätigung Ihres Abonnements/Ihrer Abonnement-Kündigung "
+"zu lange gewartet (der Verweis zur Bestätigung ist nur drei Tage lang gültig)"
 
 #: ../../static/t/listsub/display.html:60
 msgid ""
 "You have <i>already</i> successfully confirmed your subscribe/unsubscribe "
 "request and are attempting to do it again."
 msgstr ""
+"Sie <i>haben bereits</i> erfolgreich Ihr Abonnement/Ihre Abonnement-"
+"Kündigung bestätigt und versuchen es gerade erneut."
 
 #: ../../static/t/listsub/display.html:62
 msgid "The error returned by the server was: "
-msgstr ""
+msgstr "Der vom Server gemeldete Fehler war: "
 
 #: ../../static/t/listsub/display.html:70
-#, fuzzy
 msgid "Name of list:"
-msgstr "Name der Aufgaben"
+msgstr "Name der Liste:"
 
 #: ../../static/t/listsub/display.html:75
-#, fuzzy
 msgid "Your e-mail address:"
-msgstr "Bevorzugte EMailadresse"
+msgstr "Ihre E-Mail-Adresse:"
 
 #: ../../static/t/listsub/display.html:79
 msgid "(If subscribing) preferred format: "
-msgstr ""
+msgstr "Bevorzugtes Format (falls Sie abonnieren): "
 
 #: ../../static/t/listsub/display.html:80
-#, fuzzy
 msgid "One message at a time"
-msgstr "Nachrichtentext eingeben:"
+msgstr "Eine Nachricht auf einmal"
 
 #: ../../static/t/listsub/display.html:81
-#, fuzzy
 msgid "Digest format"
-msgstr "Uhrzeitformat"
+msgstr "Digest-Format"
 
 #: ../../static/t/listsub/display.html:89
 msgid ""
@@ -1838,12 +1846,18 @@ msgid ""
 "receive an e-mail containing one additional web link to click on for final "
 "confirmation."
 msgstr ""
+"Sie werden eine E-Mail mit einem zusätzlichen Verweis erhalten, auf den Sie "
+"zur endgültigen Bestätigung klicken müssen, wenn Sie versuchen, eine Mailing-"
+"Liste zu abonnieren oder zu kündigen."
 
 #: ../../static/t/listsub/display.html:90
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to subscribe or unsubscribe you to lists."
 msgstr ""
+"Dieser zusätzliche Schritt dient Ihrem Schutz, weil dadurch verhindert wird, "
+"dass andere ohne Ihre Zustimmung für Sie Mailing-Listen abonnieren oder Ihre "
+"Mailing-Listen-Abonnements kündigen können."
 
 #: ../../static/t/floors_edit_one.html:11
 msgid "(delete floor)"
@@ -2214,8 +2228,10 @@ msgid "(URLS for notifications when users receive new mails; )"
 msgstr "(URLs für Benachrichtigungen, when ein Nutzer neue Mails erhält;)"
 
 #: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
-msgstr "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgid ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgstr ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 
 #: ../../static/t/aide/inet/smarthosts.html:2
 msgid "(if present, forward all outbound mail to one of these hosts)"
@@ -2579,7 +2595,8 @@ msgstr "Automatisch die Datenbanktransferlogs löschen"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:5
 msgid "Funambol server host (blank to disable)"
-msgstr "Hostname des Funambol-Synchronisierungs-Servers (leer zum Abschalten)"
+msgstr ""
+"Hostname des Funambol-Synchronisierungs-Servers (leer zum Abschalten)"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:8
 msgid "Funambol server port "
@@ -2655,14 +2672,14 @@ msgid "Access level required to create rooms"
 msgstr "Zugangsberechtigung um Räume zu erzeugen"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid "Automatically grant room-aide status to users who create private rooms"
+msgid ""
+"Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 "Automatisch Benutzern, die private Räume erstellen, Moderator-Status geben."
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
 msgid "Automatically grant room-aide status to users who create BLOG rooms"
-msgstr ""
-"Automatisch Benutzern, die BLOG Räume erstellen, Moderator-Status geben"
+msgstr "Automatisch Erstellern von BLOG-Räumen Moderator-Status geben"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:66
 msgid "Restrict access to Internet mail"
@@ -3386,15 +3403,15 @@ msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br><br>"
 msgstr ""
-"<i>Die Inhalte dieses Raums werden <b>als individuelle Nachrichten </b> zu "
-"folgenden Listenempfänger versendet:</i><br /><br />"
+"</ i> <br>: <i> Der Inhalt dieser Raums werden <b> als einzelne Nachrichten "
+"</ b>, an die folgende Liste von Empfängern verschickt"
 
 #: ../../static/t/room/edit/tab_listserv.html:19
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br><br>"
 msgstr ""
-"<i>Die Inhalte dieses Raums werden <b>als individuelle Nachrichten </b> zu "
+"<i>Die Inhalte dieses Raums werden <b>als einzelne Nachrichten </b> zu "
 "folgenden Listenempfängern versendet:</i><br /><br />"
 
 #: ../../static/t/room/edit/tab_listserv.html:39
@@ -3858,23 +3875,20 @@ msgid "OpenID URL:"
 msgstr "OpenID URL:"
 
 #: ../../static/t/get_logged_in.html:92
-#, fuzzy
 msgid "Log in using Google"
-msgstr "Mit einem OpenID Konto Anmelden"
+msgstr "Über Google anmelden"
 
 #: ../../static/t/get_logged_in.html:97
-#, fuzzy
 msgid "Log in using Yahoo"
-msgstr "Mit einem OpenID Konto Anmelden"
+msgstr "Über Yahoo anmelden"
 
 #: ../../static/t/get_logged_in.html:102
-#, fuzzy
 msgid "Log in using AOL or AIM"
-msgstr "Mit einem OpenID Konto Anmelden"
+msgstr "Über AOL oder AIM anmelden"
 
 #: ../../static/t/get_logged_in.html:104
 msgid "Enter your AOL or AIM screen name:"
-msgstr ""
+msgstr "Geben Sie Ihren AOL- oder AIM-Benutzernamen ein:"
 
 #: ../../static/t/get_logged_in.html:115
 msgid "Please wait"
@@ -3922,7 +3936,7 @@ msgstr "und aufgestellt in"
 
 #: ../../static/t/summary/page.html:68
 msgid "Your system administrator is"
-msgstr "Der Name des Systemverwalters ist"
+msgstr "Ihr Systemadministrator ist"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
 msgid "Attach file:"
