@@ -11,16 +11,16 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2010-11-12 23:47+0000\n"
-"Last-Translator: iltl <iltl@free.fr>\n"
+"PO-Revision-Date: 2012-11-09 17:38+0000\n"
+"Last-Translator: Robert di Rosa <robert@di-rosa.ch>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2012-11-10 04:32+0000\n"
+"X-Generator: Launchpad (build 16251)\n"
 "X-Poedit-Country: FRANCE\n"
+"Language: fr\n"
 "X-Poedit-Language: French\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
@@ -99,13 +99,12 @@ msgid "Journal"
 msgstr "Journal"
 
 #: ../../roomviews.c:59
-#, fuzzy
 msgid "Drafts"
-msgstr "Date"
+msgstr "Brouillons"
 
 #: ../../roomviews.c:60
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: ../../tasks.c:93
 msgid "Completed?"
@@ -151,7 +150,7 @@ msgstr "ou"
 
 #: ../../tasks.c:279 ../../tasks.c:308
 msgid "Time associated"
-msgstr ""
+msgstr "Temps associé"
 
 #: ../../tasks.c:283
 msgid "Due date:"
@@ -232,20 +231,21 @@ msgstr "Retour..."
 #: ../../listsub.c:334
 msgid "You need to specify the mailinglist to subscribe to."
 msgstr ""
+"Vous devez spécifier la liste de distribution à laquelle vous, vous inscrivez"
 
 #: ../../listsub.c:260 ../../listsub.c:298
-#, fuzzy
 msgid "You need to specify the email address you'd like to subscribe with."
-msgstr "SVP précisez le nom d'usager que vous souhaitez utiliser."
+msgstr ""
+"Vous devez spécifier l'adresse mail avec laquelle vous vous inscrivez"
 
 #: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
-#, fuzzy, c-format
+#, c-format
 msgid "%d comments"
-msgstr "Envoyer la commande"
+msgstr "%d commentaires"
 
 #: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
-msgstr ""
+msgstr "Lien permanent"
 
 #: ../../blogview_renderer.c:302
 msgid "Newer posts"
@@ -286,11 +286,11 @@ msgstr "Aller à la page : "
 
 #: ../../bbsview_renderer.c:354
 msgid "First"
-msgstr ""
+msgstr "Premier"
 
 #: ../../bbsview_renderer.c:360
 msgid "Last"
-msgstr ""
+msgstr "Dernier"
 
 #: ../../graphics.c:56
 msgid "Graphics upload has been cancelled."
@@ -494,11 +494,11 @@ msgstr "Enregistrer les modifications"
 
 #: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
-msgstr ""
+msgstr "Impossible d'entrer dans le salon pour sauver votre message"
 
 #: ../../vcard_edit.c:1265
 msgid "Aborting."
-msgstr ""
+msgstr "Abandon."
 
 #: ../../vcard_edit.c:1297 ../../vcard_edit.c:1341 ../../auth.c:367
 #: ../../auth.c:397
@@ -519,7 +519,7 @@ msgstr "En faire ma page d'accueil"
 
 #: ../../preferences.c:1130
 msgid "This isn't allowed to become the start page."
-msgstr ""
+msgstr "Ceci ne peut pas devenir votre page d'accueil"
 
 #: ../../preferences.c:1132
 msgid "You no longer have a start page selected."
@@ -527,7 +527,7 @@ msgstr "Vous n'avez pas encore choisi de page d'accueil."
 
 #: ../../preferences.c:1182
 msgid "Prefered startpage"
-msgstr ""
+msgstr "page d'accueil par défaut"
 
 #: ../../calendar.c:76
 msgid "Meeting invitation"
@@ -583,7 +583,8 @@ msgstr "Ceci est une mise à jour de '%s' déjà présent dans votre agenda."
 
 #: ../../calendar.c:222
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Cet événement entre en conflit avec '%s' qui est déjà dans votre agenda."
 
@@ -709,10 +710,10 @@ msgstr "Le message a été envoyé à "
 msgid "Iconbar Setting"
 msgstr "Options de la barre d'icônes"
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:148
 msgid "availability unknown"
 msgstr "disponibilité inconnue"
@@ -738,6 +739,8 @@ msgstr ""
 #: ../../serv_func.c:198 ../../serv_func.c:227
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr ""
+"Nous avons reçu une réponse inatendue du serveur Citadel; interruption du "
+"programme."
 
 #: ../../serv_func.c:236
 #, c-format
@@ -961,9 +964,8 @@ msgid "Cancelled.  %s was not saved."
 msgstr "Abandon. %s n'a pas été enregistré."
 
 #: ../../sysmsgs.c:109
-#, fuzzy
 msgid " has been saved."
-msgstr "%s a été enregistré."
+msgstr " à été sauvegardé"
 
 #: ../../sysmsgs.c:116 ../../sysmsgs.c:117
 msgid "Room info"
@@ -981,15 +983,15 @@ msgstr "De"
 
 #: ../../calendar_view.c:355 ../../calendar_view.c:974
 msgid "Starting date:"
-msgstr ""
+msgstr "date de début:"
 
 #: ../../calendar_view.c:361 ../../calendar_view.c:976
 msgid "Ending date:"
-msgstr ""
+msgstr "date de fin:"
 
 #: ../../calendar_view.c:369 ../../calendar_view.c:1095
 msgid "Date/time:"
-msgstr ""
+msgstr "Date/heure"
 
 #: ../../calendar_view.c:386 ../../calendar_view.c:980
 #: ../../calendar_view.c:1018 ../../calendar_view.c:1105
@@ -999,12 +1001,12 @@ msgstr "Notes :"
 
 #: ../../calendar_view.c:585 ../../calendar_view.c:721
 msgid "previous"
-msgstr ""
+msgstr "précédent"
 
 #: ../../calendar_view.c:597 ../../calendar_view.c:733
 #: ../../calendar_view.c:1308
 msgid "next"
-msgstr ""
+msgstr "suivant"
 
 #: ../../calendar_view.c:756
 msgid "Week"
@@ -1029,7 +1031,7 @@ msgstr "ERREUR :"
 
 #: ../../messages.c:88
 msgid "Empty message"
-msgstr ""
+msgstr "Message vide"
 
 #: ../../messages.c:1010
 msgid "Cancelled.  Message was not posted."
@@ -1041,15 +1043,15 @@ msgstr "Abandon automatique car vous avez déjà enregistré ce message."
 
 #: ../../messages.c:1037
 msgid "Saved to Drafts failed: "
-msgstr ""
+msgstr "Sauvegarde dans le dossier brouillon à échoué "
 
 #: ../../messages.c:1102
 msgid "Refusing to post empty message.\n"
-msgstr ""
+msgstr "L'envoit de message vide à été réfusé\n"
 
 #: ../../messages.c:1128
 msgid "Message has been saved to Drafts.\n"
-msgstr ""
+msgstr "Le message à été sauvé dans le dossier brouillon\n"
 
 #: ../../messages.c:1137
 msgid "Message has been sent.\n"
@@ -1108,14 +1110,14 @@ msgid "Invalid Parameter"
 msgstr "Paramètre invalide"
 
 #: ../../inetconf.c:126
-#, fuzzy
+
 msgid " has been deleted."
-msgstr "%s a été supprimé"
+msgstr " à été supprimé"
 
 #. <domain> added status message
 #: ../../inetconf.c:144
 msgid " added."
-msgstr ""
+msgstr " ajouté"
 
 #: ../../who.c:154
 msgid "Edit your session display"
@@ -1168,8 +1170,11 @@ msgid "Higher access is required to access this function."
 msgstr "Un niveau d'accès supérieur est requis pour utiliser cette fonction"
 
 #: ../../siteconfig.c:256
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
+"ATTENTION: Echec lors de la lecture du la Configuration du Serveur; s'agît-"
+"il d'un nouveau citserver?"
 
 #: ../../siteconfig.c:319
 msgid "Your system configuration has been updated."
@@ -1204,7 +1209,7 @@ msgstr "Date"
 
 #: ../../wiki.c:182
 msgid "Author"
-msgstr ""
+msgstr "Auteur"
 
 #: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
@@ -1216,11 +1221,11 @@ msgstr "Version actuelle"
 
 #: ../../wiki.c:223
 msgid "(revert)"
-msgstr ""
+msgstr "(annuler)"
 
 #: ../../wiki.c:300
 msgid "Page title"
-msgstr ""
+msgstr "Titre de la page"
 
 #: ../../webcit.c:316
 msgid "Authorization Required"
@@ -1254,11 +1259,11 @@ msgstr "(Supprimer)"
 
 #: ../../smtpqueue.c:334
 msgid "First Attempt pending"
-msgstr ""
+msgstr "Première tentative en attente"
 
 #: ../../roomlist.c:99
 msgid "My Folders"
-msgstr ""
+msgstr "Mes répetoires"
 
 #: ../../downloads.c:289
 #, c-format
@@ -1520,11 +1525,11 @@ msgstr "Resent-To"
 
 #: ../../static/t/sieve/display_one.html:27
 msgid "Envelope From"
-msgstr ""
+msgstr "Enveloppe De"
 
 #: ../../static/t/sieve/display_one.html:28
 msgid "Envelope To"
-msgstr ""
+msgstr "Enveloppe À"
 
 #: ../../static/t/sieve/display_one.html:29
 msgid "X-Mailer"
@@ -1588,9 +1593,8 @@ msgid "is smaller than"
 msgstr "est plus petit que"
 
 #: ../../static/t/sieve/display_one.html:59
-#, fuzzy
 msgid "bytes"
-msgstr "années"
+msgstr "octets"
 
 #: ../../static/t/sieve/display_one.html:65
 msgid "Keep"
@@ -1614,7 +1618,7 @@ msgstr "Faire suivre"
 
 #: ../../static/t/sieve/display_one.html:70
 msgid "Vacation"
-msgstr ""
+msgstr "Absence"
 
 #: ../../static/t/sieve/display_one.html:82
 msgid "Message:"
@@ -1694,7 +1698,6 @@ msgstr "propulsé par"
 #: ../../static/t/get_logged_in.html:64 ../../static/t/get_logged_in.html:88
 #: ../../static/t/get_logged_in.html:93 ../../static/t/get_logged_in.html:98
 #: ../../static/t/get_logged_in.html:107
-#, fuzzy
 msgid "Log in"
 msgstr "Connexion"
 
@@ -1703,6 +1706,8 @@ msgid ""
 "WARNING: You have JavaScript disabled in your web browser.  Many functions "
 "of this system will not work properly."
 msgstr ""
+"ATTENTION: JavaScript est désactivé dans votre navigateur. Plusieurs "
+"fonctionnalités du système ne seront pas disponibles."
 
 #: ../../static/t/view_submessage.html:4
 #: ../../static/t/view_message/replyquote.html:3
@@ -1717,132 +1722,138 @@ msgstr "Recherche "
 
 #: ../../static/t/listsub/display.html:16
 msgid "You are subscribing "
-msgstr ""
+msgstr "Vous vous inscrivez "
 
 #: ../../static/t/listsub/display.html:17
-#, fuzzy
 msgid " to the "
 msgstr "sur le "
 
 #: ../../static/t/listsub/display.html:18
-#, fuzzy
 msgid " mailing list."
-msgstr "Service des listes de diffusion"
+msgstr " liste de distribution"
 
 #: ../../static/t/listsub/display.html:19
 msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your subscription."
 msgstr ""
+"Le listserver vous a envoyé un email avec un lien Internet supplémentaire "
+"que vous pourrez cliquer pour confirmer votre inscription."
 
 #: ../../static/t/listsub/display.html:20
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to subscribe you to lists without your consent."
 msgstr ""
+"Cette étape supplémentaire est là pour votre protection, dans la mesure où "
+"elle ne permet pas à d'autres de vous inscrire à des listes sans votre "
+"consentement."
 
 #: ../../static/t/listsub/display.html:22
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "subscription will be confirmed."
 msgstr ""
+"Veuillez clicker sur le lien qui vous à été envoyé par email, afin de "
+"valider votre inscription."
 
 #: ../../static/t/listsub/display.html:27
 #: ../../static/t/listsub/display.html:47
-#, fuzzy
 msgid "ERROR"
-msgstr "ERREUR :"
+msgstr "ERREUR"
 
 #: ../../static/t/listsub/display.html:35
 msgid "You are unsubscribing"
-msgstr ""
+msgstr "Vous vous inscrivez"
 
 #: ../../static/t/listsub/display.html:37
-#, fuzzy
 msgid "from the"
-msgstr "de "
+msgstr "De"
 
 #: ../../static/t/listsub/display.html:39
-#, fuzzy
 msgid "mailing list."
-msgstr "Service des listes de diffusion"
+msgstr "liste de distribution"
 
 #: ../../static/t/listsub/display.html:40
 msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your unsubscription."
 msgstr ""
+"Le listserver vous a envoyé un email avec un lien Internet supplémentaire "
+"que vous pourrez cliquer pour confirmer votre inscription."
 
 #: ../../static/t/listsub/display.html:41
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to unsubscribe you from lists without your consent."
 msgstr ""
+"Cette étape supplémentaire vise à vous protéger, elle évite que d'autres "
+"usagers puissent se désinscrire à vos listes sans votre consotement."
 
 #: ../../static/t/listsub/display.html:43
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "unsubscription will be confirmed."
 msgstr ""
+"Veuillez clicker sur le lien qui vous à été envoyé par email, afin de "
+"valider votre désinscription."
 
 #: ../../static/t/listsub/display.html:44
-#, fuzzy
 msgid "Back..."
 msgstr "Retour..."
 
 #: ../../static/t/listsub/display.html:54
-#, fuzzy
 msgid "Confirmation successful!"
-msgstr "Requête de confirmation envoyée."
+msgstr "Confirmation réussie"
 
 #: ../../static/t/listsub/display.html:56
-#, fuzzy
 msgid "Confirmation failed."
-msgstr "Configuration"
+msgstr "Confirmation échoué"
 
 #: ../../static/t/listsub/display.html:57
 msgid "This could mean one of two things:"
-msgstr ""
+msgstr "Cela peut signifier une des deux options:"
 
 #: ../../static/t/listsub/display.html:59
 msgid ""
 "You waited too long to confirm your subscribe/unsubscribe request (the "
 "confirmation link is only valid for three days)"
 msgstr ""
+"Vous avez attendu trop longtemps pour valider votre demande "
+"d'inscription/désinscription (le mail de confirmation n'est valable que "
+"pendant trois jours)"
 
 #: ../../static/t/listsub/display.html:60
 msgid ""
 "You have <i>already</i> successfully confirmed your subscribe/unsubscribe "
 "request and are attempting to do it again."
 msgstr ""
+"Vous avez <i>déjà</i> confirmé votre demande d'inscription/désinscription et "
+"êtes en train d'essayer à nouveau de le faire."
 
 #: ../../static/t/listsub/display.html:62
 msgid "The error returned by the server was: "
-msgstr ""
+msgstr "L'erreur retourné par le serveur est: "
 
 #: ../../static/t/listsub/display.html:70
-#, fuzzy
 msgid "Name of list:"
-msgstr "Intitulé de la tâche"
+msgstr "Nom de la liste :"
 
 #: ../../static/t/listsub/display.html:75
-#, fuzzy
 msgid "Your e-mail address:"
-msgstr "Adresse de courriel préférée"
+msgstr "Votre adresse mail"
 
 #: ../../static/t/listsub/display.html:79
 msgid "(If subscribing) preferred format: "
-msgstr ""
+msgstr "(en cas d'inscription) format préféré: "
 
 #: ../../static/t/listsub/display.html:80
-#, fuzzy
 msgid "One message at a time"
-msgstr "Entrez le texte du message :"
+msgstr "Un message à la fois"
 
 #: ../../static/t/listsub/display.html:81
-#, fuzzy
 msgid "Digest format"
-msgstr "Format horaire"
+msgstr "Digest format"
 
 #: ../../static/t/listsub/display.html:89
 msgid ""
@@ -1850,6 +1861,9 @@ msgid ""
 "receive an e-mail containing one additional web link to click on for final "
 "confirmation."
 msgstr ""
+"Lors que vous essayez de vous inscrire ou de vous désinscrire à une liste "
+"d'envoie, vous allez recevoir un email contenant un lien Internet "
+"supplémentaire que vous devrez cliquer pour la confirmation finale."
 
 #: ../../static/t/listsub/display.html:90
 msgid ""
@@ -1961,7 +1975,7 @@ msgstr "Poster le message"
 
 #: ../../static/t/edit_message.html:118
 msgid "Save to Drafts"
-msgstr ""
+msgstr "Sauvegarde comme brouillon"
 
 #: ../../static/t/edit_message.html:126
 #: ../../static/t/edit_message/attachments_pane.html:5
@@ -1977,14 +1991,12 @@ msgid "Server command results"
 msgstr "Résultat de la commande serveur"
 
 #: ../../static/t/aide/display_generic_result.html:18
-#, fuzzy
 msgid "Enter another command"
-msgstr "Entrer une commande serveur"
+msgstr "Entrer une autre commande"
 
 #: ../../static/t/aide/display_generic_result.html:19
-#, fuzzy
 msgid "Return to menu"
-msgstr "passer au menu"
+msgstr "Retour au menu"
 
 #: ../../static/t/aide/display_sitewide_config.html:3
 msgid "Site configuration"
@@ -2012,9 +2024,8 @@ msgid "Tuning"
 msgstr "Réglages"
 
 #: ../../static/t/aide/display_sitewide_config.html:15
-#, fuzzy
 msgid "Directory"
-msgstr "répertoire"
+msgstr "Dossier"
 
 #: ../../static/t/aide/display_sitewide_config.html:16
 msgid "Auto-purger"
@@ -2044,9 +2055,8 @@ msgstr "Menu d'administration du système"
 
 #: ../../static/t/aide/display_inetconf.html:6
 #: ../../static/t/aide/display_menu.html:6
-#, fuzzy
 msgid "Room Admin Menu"
-msgstr "Room Admin Menu"
+msgstr "Menu d'amdinistration des salons"
 
 #: ../../static/t/aide/display_inetconf.html:13
 msgid "Local host aliases"
@@ -2067,7 +2077,7 @@ msgstr "Serveurs de relais"
 
 #: ../../static/t/aide/display_inetconf.html:17
 msgid "Notification hosts"
-msgstr ""
+msgstr "Hôtes de notification"
 
 #: ../../static/t/aide/display_inetconf.html:22
 msgid "RBL hosts"
@@ -2177,9 +2187,8 @@ msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr "Command input (if requesting SEND_LISTING transfer mode):"
 
 #: ../../static/t/aide/display_generic_cmd.html:20
-#, fuzzy
 msgid "Detected host header is "
-msgstr "L'entête de l'hôte est %s://%s"
+msgstr "L'en-tête de l'hôte detecté est "
 
 #: ../../static/t/aide/display_ignetconf.html:4
 msgid "Network configuration"
@@ -2205,7 +2214,8 @@ msgstr "Ajouter, modifier ou supprimer des paliers"
 
 #: ../../static/t/aide/serverrestart/box.html:3
 msgid "Please wait while the Citadel server is restarted... "
-msgstr "S'il vous plaît, patientez pendant que le serveur Citadel redémarre..."
+msgstr ""
+"S'il vous plaît, patientez pendant que le serveur Citadel redémarre... "
 
 #: ../../static/t/aide/serverrestart/box_page_do.html:3
 msgid ""
@@ -2213,11 +2223,11 @@ msgid ""
 "restarted after that... "
 msgstr ""
 "S'il vous plait patientez pendant que Citadel informe les usagers, le "
-"serveur redémarrera ensuite..."
+"serveur redémarrera ensuite... "
 
 #: ../../static/t/aide/inet/masqdomains.html:2
 msgid "(Domains as which users are allowed to masquerade)"
-msgstr ""
+msgstr "(Domaines que les utilisateurs peuvent utiliser)"
 
 #: ../../static/t/aide/inet/rbldns.html:2
 msgid "(hosts running a Realtime Blackhole List)"
@@ -2230,10 +2240,15 @@ msgstr "(domaines référencés dans l'annuaire principal)"
 #: ../../static/t/aide/inet/notify.html:2
 msgid "(URLS for notifications when users receive new mails; )"
 msgstr ""
+"(URLS pour la notification lorsque les utilisateurs reçoivent de nouveaux "
+"emails; )"
 
 #: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgid ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 msgstr ""
+"Syntaxe: "
+"nomdumodeldenotification:http[s]://utilisateur:motdepasse@hostname/chemin"
 
 #: ../../static/t/aide/inet/smarthosts.html:2
 msgid "(if present, forward all outbound mail to one of these hosts)"
@@ -2307,9 +2322,8 @@ msgid "Port number"
 msgstr "Numéro de port"
 
 #: ../../static/t/aide/ignetconf/section.html:4
-#, fuzzy
 msgid "(Edit)"
-msgstr "(éditer)"
+msgstr "(Edition)"
 
 #: ../../static/t/aide/display_menu.html:12
 msgid "Global Configuration"
@@ -2569,7 +2583,8 @@ msgstr "Réglages avancés du serveur"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:5
 msgid "Server connection idle timeout (in seconds)"
-msgstr "Limite de temps d'inactivité d'une connexion au serveur (en secondes)"
+msgstr ""
+"Limite de temps d'inactivité d'une connexion au serveur (en secondes)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:8
 msgid "Maximum concurrent sessions (0 = no limit)"
@@ -2605,7 +2620,7 @@ msgstr "Nom d'hôte du serveur Funambol (laisser vide pour désactiver)"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:8
 msgid "Funambol server port "
-msgstr "Numéro de port de Funambol"
+msgstr "Numéro de port de Funambol "
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:11
 msgid "Funambol sync source"
@@ -2616,7 +2631,6 @@ msgid "Funambol auth details (user:pass)"
 msgstr "Détails d'authentification Funambol (user:pass)"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:17
-#, fuzzy
 msgid "External pager tool (blank to disable)"
 msgstr "External pager tool (blank to disable)"
 
@@ -2626,7 +2640,7 @@ msgstr "Contrôles des accès et mise en place des règles de fonctionnement"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:5
 msgid "Allow aides to zap (forget) rooms"
-msgstr "Permettre aux administrateurs de sauter (mettre de côté) des salons "
+msgstr "Permettre aux administrateurs de sauter (mettre de côté) des salons"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:9
 msgid "Quarantine messages from problem users"
@@ -2645,7 +2659,6 @@ msgid "Authentication mode"
 msgstr "Mode d'authentification"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:24
-#, fuzzy
 msgid "Self contained"
 msgstr "contient"
 
@@ -2679,7 +2692,8 @@ msgid "Access level required to create rooms"
 msgstr "Niveau d'accès requis pour créer des salons"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid "Automatically grant room-aide status to users who create private rooms"
+msgid ""
+"Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 "Les usagers qui créent des salons privés se voient accordé le statut "
 "d'administrateurs de ces salons."
@@ -2701,16 +2715,15 @@ msgstr "Désactiver le libre-service de création de compte d'usager"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:71
 msgid "Hint: do not select both!"
-msgstr ""
+msgstr "Conseil: ne pas séléctionner les deux"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:74
 msgid "Require registration for new users"
 msgstr "L'enregistrement est requis pour les nouveaux usagers"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:77
-#, fuzzy
 msgid "Allow anonymous guest access"
-msgstr "Pas de messages anonymes"
+msgstr "Authoriser les accès client anonymes"
 
 #: ../../static/t/aide/siteconfig/tab_indexing.html:1
 msgid "Indexing and Journaling"
@@ -2835,11 +2848,11 @@ msgstr "à"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "Your OpenID"
-msgstr ""
+msgstr "Votre OpenID"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "was successfully verified."
-msgstr ""
+msgstr "A été vérifié avec succès"
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "However, the user name"
@@ -2847,7 +2860,7 @@ msgstr ""
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "conflicts with an existing user."
-msgstr ""
+msgstr "Conflits avec un utilisateur existant"
 
 #: ../../static/t/openid_manual_create.html:5
 msgid "Please specify the user name you would like to use."
@@ -2859,7 +2872,8 @@ msgstr "Image téléchargée"
 
 #: ../../static/t/files/graphicsupload.html:6
 msgid "You can upload an image directly from your computer"
-msgstr "Vous pouvez télécharger une image directement depuis votre ordinateur"
+msgstr ""
+"Vous pouvez télécharger une image directement depuis votre ordinateur"
 
 #: ../../static/t/files/graphicsupload.html:8
 msgid "Please select a file to upload:"
@@ -2871,7 +2885,7 @@ msgstr "Diaporama"
 
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 msgid "new of"
-msgstr ""
+msgstr "Nouveau depuis"
 
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 #: ../../static/t/msg_listselector_bottom.html:7
@@ -2900,7 +2914,7 @@ msgstr "Envoyer un message instantané à cet usager."
 #: ../../static/t/msg_listselector_bottom.html:2
 #: ../../static/t/msg_listselector_top.html:2
 msgid "Reading #"
-msgstr ""
+msgstr "Lecture #"
 
 #: ../../static/t/msg_listselector_bottom.html:12
 #: ../../static/t/msg_listselector_top.html:12
@@ -2930,7 +2944,7 @@ msgstr ""
 
 #: ../../static/t/no_new_msgs.html:3
 msgid "No new messages."
-msgstr ""
+msgstr "Pas de nouveaux messages"
 
 #: ../../static/t/view_blog/comment_box.html:8
 msgid "Post a comment"
@@ -2964,14 +2978,12 @@ msgstr ""
 "message textuel lorsqu'un nouveau mail est arrivé."
 
 #: ../../static/t/prefs/pushemail.html:26
-#, fuzzy
 msgid "Notify Funambol server"
-msgstr "Numéro de port de Funambol"
+msgstr "Notifier le serveur Funambol"
 
 #: ../../static/t/prefs/pushemail.html:31
-#, fuzzy
 msgid "Send a text message to..."
-msgstr "Envoyer un message instantané à : "
+msgstr "Envoyer un message texte à ..."
 
 #: ../../static/t/prefs/pushemail.html:33
 msgid ""
@@ -2984,11 +2996,11 @@ msgstr ""
 #: ../../static/t/prefs/pushemail.html:38
 msgid "Use custom notification scheme configured by your Admin"
 msgstr ""
+"Utilisez les schéma de nothifications personnalisé par votre administrateur"
 
 #: ../../static/t/prefs/pushemail.html:43
-#, fuzzy
 msgid "Don‘t send any notifications"
-msgstr "N'envoyer aucune notification"
+msgstr "Ne pas envoyer de nothifications"
 
 #: ../../static/t/prefs/box.html:9
 msgid "Tree (folders) view"
@@ -3035,11 +3047,11 @@ msgstr ""
 
 #: ../../static/t/wiki/pagelist.html:1
 msgid "List of Wiki pages"
-msgstr ""
+msgstr "Liste des pages Wiki"
 
 #: ../../static/t/wiki/history.html:1
 msgid "History of edits for this page"
-msgstr ""
+msgstr "Historique des éditions de cette page"
 
 #: ../../static/t/who/list_static_header.html:1
 msgid "Users currently on"
@@ -3068,7 +3080,7 @@ msgstr "Machine d'origine"
 
 #: ../../static/t/view_message.html:19
 msgid "Edit"
-msgstr ""
+msgstr "Éditer (?)"
 
 #: ../../static/t/view_message.html:22 ../../static/t/view_message.html:26
 msgid "Reply"
@@ -3103,9 +3115,8 @@ msgid "Preferences and settings"
 msgstr "Préférences et options"
 
 #: ../../static/t/user/list.html:3
-#, fuzzy
 msgid "User list for "
-msgstr "Liste des usagers de %s"
+msgstr "Liste des utilisateur pour "
 
 #: ../../static/t/user/list.html:9
 msgid "User Name"
@@ -3132,17 +3143,16 @@ msgid "Total Posts"
 msgstr "Nombre de messages"
 
 #: ../../static/t/user/show.html:9
-#, fuzzy
 msgid "Click here to send an instant message to"
-msgstr "Cliquez ici pour envoyer un message instantané à %s"
+msgstr "Clickez ici pour envoyer un message instantané à"
 
 #: ../../static/t/start_of_new_msgs.html:4
 msgid "Old messages"
-msgstr ""
+msgstr "Ancients messages"
 
 #: ../../static/t/start_of_new_msgs.html:8
 msgid "New messages"
-msgstr ""
+msgstr "Nouveaux messages"
 
 #: ../../static/t/display_main_menu.html:7
 msgid "Basic commands"
@@ -3161,17 +3171,19 @@ msgid "Customize the icon bar"
 msgstr "Personnalisation du menu"
 
 #: ../../static/t/iconbar/save.html:11
-#, fuzzy
+
 msgid ""
 "Your icon bar has been updated. Please select any of its choices to continue."
 msgstr ""
-"Votre barre d'icônes a été mise à jour. SVP sélectionnez l'un des choix "
-"proposés pour continuer."
+"Votre barre d'icônes à été mise à jour. Veuillez séléctionner une option "
+"pour continuer."
 
 #: ../../static/t/iconbar/save.html:11
 msgid ""
 "You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
 msgstr ""
+"Vous devriez forcer un rafraîchissement (MAJ-F5) pour que les changements "
+"prennent effets"
 
 #: ../../static/t/iconbar/edit.html:11
 msgid "Display icons as:"
@@ -3310,9 +3322,8 @@ msgid "Remote retrieval"
 msgstr "Récupération à distance"
 
 #: ../../static/t/room/edit/tab_config.html:6
-#, fuzzy
 msgid "name of room: "
-msgstr "Nom du salon :"
+msgstr "nom de la salle: "
 
 #: ../../static/t/room/edit/tab_config.html:10
 #: ../../static/t/room/create.html:20
@@ -3372,7 +3383,7 @@ msgstr "Dépot de fichiers"
 
 #: ../../static/t/room/edit/tab_config.html:80
 msgid "Directory name: "
-msgstr "Nom du répertoire :"
+msgstr "Nom du répertoire : "
 
 #: ../../static/t/room/edit/tab_config.html:86
 msgid "Uploading allowed"
@@ -3419,22 +3430,20 @@ msgid "Room aide: "
 msgstr "Administrateur "
 
 #: ../../static/t/room/edit/tab_listserv.html:5
-#, fuzzy
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br><br>"
 msgstr ""
-"<i>Les contenus de ce salon sont envoyés comme des <b>courriels individuels "
-"</b> aux destinataires suivants :</i><br><br>\n"
+"<i>Les contenus de ce salon seront envoyés par email sous forme de "
+"<b>messages individuels</b> à la liste de destinataires:</i><br><br>"
 
 #: ../../static/t/room/edit/tab_listserv.html:19
-#, fuzzy
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br><br>"
 msgstr ""
-"<i>Les contenus de ce salon sont envoyés par courriels sous une <b>forme "
-"condensée</b> aux destinataires suivants :</i><br><br>\n"
+"<i>Les contenus de ce salon seront envoyés par email <b>sous forme de  "
+"resumé</b> à la liste de destinataires:</i><br><br>"
 
 #: ../../static/t/room/edit/tab_listserv.html:39
 msgid "Add recipients from Contacts or other address books"
@@ -3468,14 +3477,12 @@ msgid "Delete this room"
 msgstr "Supprimer ce salon"
 
 #: ../../static/t/room/edit/tab_admin.html:10
-#, fuzzy
 msgid "Set or change the icon for this rooms banner"
-msgstr "Attribuer ou changer l'icône de la bannière de ce salon"
+msgstr "Définir ou changer l'icône de ce salon"
 
 #: ../../static/t/room/edit/tab_admin.html:14
-#, fuzzy
 msgid "Edit this rooms Info file"
-msgstr "Éditer les propriétés de ce salon"
+msgstr "Editer les informations de ce salon"
 
 #: ../../static/t/room/edit/tab_share.html:5
 msgid "Shared with"
@@ -3523,8 +3530,8 @@ msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
 msgstr ""
-"Récupérer les messages de comptes POP3 distants et les stocker dans ce "
-"salon :"
+"Récupérer les messages de comptes POP3 distants et les stocker dans ce salon "
+":"
 
 #: ../../static/t/room/edit/tab_feed.html:12
 msgid "Remote host"
@@ -3576,26 +3583,26 @@ msgid "Zapped (forgotten) rooms"
 msgstr "Salons mis de côté (sautés)"
 
 #: ../../static/t/room/zapped_list.html:10
-#, fuzzy
 msgid "Click on any room to un-zap it and goto that room."
-msgstr "Cliquez sur un des salons pour ne plus 'le sauter' et vous y rendre.\n"
+msgstr ""
+"Cliquer sur n'importe quel salon pour le réactiver et aller à ce salon"
 
 #: ../../static/t/room/display_private.html:7
 msgid "Go to a hidden room"
 msgstr "Allez à un salon caché"
 
 #: ../../static/t/room/display_private.html:8
-#, fuzzy
 msgid ""
 "If you know the name of a hidden (guess-name) or passworded room, you can "
 "enter that room by typing its name below.  Once you gain access to a private "
 "room, it will appear in your regular room listings so you don‘t have to keep "
 "returning here."
 msgstr ""
-"Si vous connaissez le nom d'un salon caché ou protégé par un mot de passe, "
-"vous pouvez vous y rendre en écrivant son nom ci-dessous. Une fois que vous "
-"accédez à un salon privé, ce salon apparaîtra dans vos listes habituelles, "
-"vous n'aurez donc pas à recommencer cette procédure."
+"Si vous connaissez le nom caché (devinez le nom) ou le mot de passe d'un "
+"salon caché, vous pouvez entrer dans ce salon en saisissant son nom ci-"
+"dessous. Une fois que vous aurrez rejoint le salon privé, elle apparaîtra "
+"dans la liste de vos salons habituels, de sorte à ce que vous n'ayez plus "
+"besoin de revenir ici."
 
 #: ../../static/t/room/display_private.html:14
 msgid "Enter room name:"
@@ -3623,16 +3630,12 @@ msgid "Zap (forget/unsubscribe) the current room"
 msgstr "Sauter (mettre de côté) le salon courant"
 
 #: ../../static/t/room/zap_this.html:6
-#, fuzzy
 msgid "If you select this option,"
-msgstr "Éditer ou supprimer ce salon"
+msgstr "Si vous séléctionnez cette option,"
 
 #: ../../static/t/room/zap_this.html:8
-#, fuzzy
 msgid "will disappear from your room list.  Is this what you wish to do?"
-msgstr ""
-"Si vous sélectionnez cette option, <em>%s</em> disparaîtra de votre liste de "
-"salons. Est-ce bien ce que vous souhaitez faire ?<br>\n"
+msgstr "va disparaitre de se salon. Est-ce ce que vous désirez ?"
 
 #: ../../static/t/menu/your_info.html:2
 msgid "Change your preferences and settings"
@@ -3655,9 +3658,8 @@ msgid "Edit your push email settings"
 msgstr "Éditer les paramètres pour faire suivre les courriels."
 
 #: ../../static/t/menu/your_info.html:9
-#, fuzzy
 msgid "Manage your OpenIDs"
-msgstr "Changez votre mot de passe"
+msgstr "Gérer vos OpenIDs"
 
 #: ../../static/t/menu/basic_commands.html:3
 msgid "List known rooms"
@@ -3817,12 +3819,11 @@ msgstr "Modifier cette page"
 
 #: ../../static/t/navbar.html:145
 msgid "History"
-msgstr ""
+msgstr "Hstorique"
 
 #: ../../static/t/navbar.html:154
-#, fuzzy
 msgid "New blog post"
-msgstr "les nouveaux messages"
+msgstr "Nouvelle publication de blog"
 
 #: ../../static/t/navbar.html:162
 msgid "Skip this room"
@@ -3842,7 +3843,7 @@ msgstr "Copier"
 
 #: ../../static/t/view_mailq/message.html:6
 msgid "Originaly posted in: "
-msgstr ""
+msgstr "Initalement posté dans: "
 
 #: ../../static/t/view_mailq/header.html:15
 msgid "Refresh this page"
@@ -3857,9 +3858,8 @@ msgid "Date/time submitted"
 msgstr "Date et heure de soumission"
 
 #: ../../static/t/view_mailq/header.html:25
-#, fuzzy
 msgid "Next attempt"
-msgstr "Dernière tentative"
+msgstr "Prochain essait"
 
 #: ../../static/t/view_mailq/header.html:29
 msgid "Recipients"
@@ -3911,32 +3911,28 @@ msgid "OpenID URL:"
 msgstr "adresse OpenID :"
 
 #: ../../static/t/get_logged_in.html:92
-#, fuzzy
 msgid "Log in using Google"
-msgstr "Se connecter en utilisant OpenID"
+msgstr "Connection en utilisant Google"
 
 #: ../../static/t/get_logged_in.html:97
-#, fuzzy
 msgid "Log in using Yahoo"
-msgstr "Se connecter en utilisant OpenID"
+msgstr "Connection en utilisant Yahoo"
 
 #: ../../static/t/get_logged_in.html:102
-#, fuzzy
 msgid "Log in using AOL or AIM"
-msgstr "Se connecter en utilisant OpenID"
+msgstr "Connection en utilisant AOL ou AIM"
 
 #: ../../static/t/get_logged_in.html:104
 msgid "Enter your AOL or AIM screen name:"
-msgstr ""
+msgstr "Saisissez votre nom d'utilisateur AOL ou AIM:"
 
 #: ../../static/t/get_logged_in.html:115
 msgid "Please wait"
 msgstr "S'il vous plaît, patientez pendant"
 
 #: ../../static/t/summary/page.html:4
-#, fuzzy
 msgid "Summary page for "
-msgstr "Tableau de bord de %s"
+msgstr "Page récapitulatif de "
 
 #: ../../static/t/summary/page.html:21
 msgid "Messages"
@@ -3947,9 +3943,8 @@ msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Votre&nbsp;agenda&nbsp;d'aujourd'hui"
 
 #: ../../static/t/summary/page.html:51
-#, fuzzy
 msgid "Who‘s&nbsp;online&nbsp;now"
-msgstr "Qui&nbsp;est&nbsp;connecté&nbsp;maintenant&nbsp;?"
+msgstr "Qui&nbsp;est&nbsp;en&nbsp;ligne&nbsp;maintenant"
 
 #: ../../static/t/summary/page.html:60
 msgid "About&nbsp;this&nbsp;server"
@@ -3957,31 +3952,27 @@ msgstr "À propos de ce serveur"
 
 #: ../../static/t/summary/page.html:63
 msgid "You are connected to"
-msgstr ""
+msgstr "Vous êtes connecté à"
 
 #: ../../static/t/summary/page.html:64
-#, fuzzy
 msgid "running"
-msgstr "Réglages"
+msgstr "en cours d'exécution"
 
 #: ../../static/t/summary/page.html:65
-#, fuzzy
 msgid "with"
-msgstr "cinquième"
+msgstr "avec"
 
 #: ../../static/t/summary/page.html:66
 msgid "server build"
-msgstr ""
+msgstr "build serveur"
 
 #: ../../static/t/summary/page.html:67
-#, fuzzy
 msgid "and located in"
-msgstr "et ensuite"
+msgstr "et situé dans"
 
 #: ../../static/t/summary/page.html:68
-#, fuzzy
 msgid "Your system administrator is"
-msgstr "Nom de l'administrateur du système"
+msgstr "Votre administrateur système est"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
 msgid "Attach file:"
@@ -3992,19 +3983,16 @@ msgid "Upload"
 msgstr "Télécharger"
 
 #: ../../static/t/edit_message/section_attach_select.html:4
-#, fuzzy
 msgid "Remove"
-msgstr "(enlever)"
+msgstr "Supprimer"
 
 #: ../../static/t/loggedinas.html:3
-#, fuzzy
 msgid "Logged in as"
-msgstr "Se connecter à nouveau"
+msgstr "Connecté en tant que"
 
 #: ../../static/t/loggedinas.html:6
-#, fuzzy
 msgid "Not logged in."
-msgstr "Non connecté"
+msgstr "Non connecté."
 
 #~ msgid "A script by that name already exists."
 #~ msgstr "Il existe déjà un script avec ce nom."
