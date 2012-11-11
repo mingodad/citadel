@@ -1344,11 +1344,6 @@ msgstr "käib kah"
 msgid "strong"
 msgstr "tugev"
 
-#: ../../auth.c:683
-#, c-format
-msgid "Current access level: %d (%s)\n"
-msgstr "Hetke juurdepääsutase: %d (%s)\n"
-
 #: ../../auth.c:691
 msgid "Select access level for this user:"
 msgstr "Määra kasutaja juurdepääsutase:"
