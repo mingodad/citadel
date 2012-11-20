@@ -3,20 +3,13 @@
  *
  * Copyright (c) 2002-2012 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *  
- *  
- *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *
- *  
- *  
- *  
- *
  */
 
 #include "sysdep.h"
@@ -56,15 +49,7 @@
 #include "internet_addressing.h"
 #include "clientsocket.h"
 #include "file_ops.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
-
-
 #include "ctdl_module.h"
-
 
 /*
  * Generate a randomizationalisticized token to use for authentication of

@@ -73,10 +73,6 @@
 #include <sys/select.h>
 #endif
 
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "ctdl_module.h"
 #include "threads.h"
 #include "user_ops.h"

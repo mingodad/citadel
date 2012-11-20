@@ -14,9 +14,6 @@
 #include "webserver.h"
 
 #include "modules_init.h"
-#ifndef HAVE_SNPRINTF
-int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
-#endif
 
 extern int msock;				/* master listening socket */
 extern char static_icon_dir[PATH_MAX];          /* where should we find our mime icons */

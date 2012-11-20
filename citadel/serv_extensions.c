@@ -35,10 +35,6 @@
 
 #include "ctdl_module.h"
 
-#ifndef HAVE_SNPRINTF
-#include <stdarg.h>
-#include "snprintf.h"
-#endif
 
 int DebugModules = 0;
  

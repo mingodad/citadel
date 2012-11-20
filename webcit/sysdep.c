@@ -59,9 +59,6 @@
 #include <sys/select.h>
 #endif
 
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
 #include "webserver.h"
 #include "modules_init.h"
 #if HAVE_BACKTRACE
