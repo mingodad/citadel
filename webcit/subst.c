@@ -1804,6 +1804,8 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 	WCTemplputParams TP;
 	WCTemplputParams *TPtr = &TP;
 
+	memset(TPtr, 0, sizeof(WCTemplputParams));
+
 	memcpy(&TP.Filter, &CallingTP->Filter, sizeof(ContextFilter));
 
 	TP.Context = CallingTP->Context;

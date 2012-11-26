@@ -386,6 +386,7 @@ int qview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	wcsession *WCC = WC;
 	WCTemplputParams SubTP;
 
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	if (yesbstr("ListOnly"))
 		DoTemplate(HKEY("view_mailq_footer_listonly"),NULL, &SubTP);
 	else
