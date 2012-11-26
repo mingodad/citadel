@@ -34,9 +34,6 @@
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
 #include "sysdep_decls.h"
 #include "config.h"
 #include "clientsocket.h"

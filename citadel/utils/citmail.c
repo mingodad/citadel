@@ -31,9 +31,6 @@
 #include <limits.h>
 #include <libcitadel.h>
 #include "citadel.h"
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
 #include "citadel_dirs.h"
 
 int serv_sock;

@@ -41,14 +41,7 @@
 #include "room_ops.h"
 #include "parsedate.h"
 #include "database.h"
-
 #include "ctdl_module.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
-
 #ifdef HAVE_ICONV
 #include <iconv.h>
 

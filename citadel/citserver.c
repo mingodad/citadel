@@ -65,11 +65,6 @@
 #include "euidindex.h"
 #include "context.h"
 #include "svn_revision.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "ctdl_module.h"
 
 char *unique_session_numbers;

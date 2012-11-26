@@ -34,10 +34,6 @@
 #include "imap_tools.h"
 #include "ctdl_module.h"
 
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 /* String handling helpers */
 
 /* This code uses some pretty nasty string manipulation. To make everything

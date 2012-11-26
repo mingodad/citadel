@@ -37,11 +37,6 @@
 #include "msgbase.h"
 #include "citserver.h"
 #include "threads.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "ctdl_module.h"
 #include "user_ops.h"
 

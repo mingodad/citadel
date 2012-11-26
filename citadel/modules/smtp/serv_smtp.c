@@ -77,14 +77,6 @@
 #include "clientsocket.h"
 #include "locate_host.h"
 #include "citadel_dirs.h"
-
-
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
-
 #include "ctdl_module.h"
 
 #include "smtp_util.h"
