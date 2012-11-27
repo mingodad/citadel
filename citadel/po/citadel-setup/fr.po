@@ -52,7 +52,7 @@ msgstr ""
 
 #: ../utils/setup.c:135
 msgid "Citadel administrator username:"
-msgstr "Identifiant de l'administrateur de Citadel :"
+msgstr "Identifiant de l'administrateur de Citadel:"
 
 #: ../utils/setup.c:137
 msgid ""
@@ -68,7 +68,7 @@ msgstr ""
 
 #: ../utils/setup.c:143
 msgid "Administrator password:"
-msgstr "Mot de passe de l'administrateur :"
+msgstr "Mot de passe de l'administrateur:"
 
 #: ../utils/setup.c:145
 msgid ""
@@ -205,7 +205,7 @@ msgstr ""
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
-msgstr "DN de base du serveur LDAP :"
+msgstr "DN de base du serveur LDAP:"
 
 #: ../utils/setup.c:207
 msgid ""
@@ -217,7 +217,7 @@ msgstr ""
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
-msgstr "Compte de connexion LDAP :"
+msgstr "Compte de connexion LDAP:"
 
 #: ../utils/setup.c:212
 msgid ""
@@ -236,7 +236,7 @@ msgstr ""
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
-msgstr "Mot de passe de connexion LDAP :"
+msgstr "Mot de passe de connexion LDAP:"
 
 #: ../utils/setup.c:222
 msgid ""

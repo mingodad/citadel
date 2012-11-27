@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2012-11-09 17:38+0000\n"
+"PO-Revision-Date: 2012-11-26 20:51+0000\n"
 "Last-Translator: Robert di Rosa <robert@di-rosa.ch>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-11-10 04:32+0000\n"
-"X-Generator: Launchpad (build 16251)\n"
+"X-Launchpad-Export-Date: 2012-11-27 05:11+0000\n"
+"X-Generator: Launchpad (build 16309)\n"
 "X-Poedit-Country: FRANCE\n"
 "Language: fr\n"
 "X-Poedit-Language: French\n"
@@ -34,12 +34,12 @@ msgstr "Vos modifications ont été enregistrées."
 #: ../../roomops.c:881
 #, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "L'usager %s a été éjecté du salon %s."
+msgstr "L'utilisateur %s a été renvoyé du salon %s."
 
 #: ../../roomops.c:898
 #, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "L'usager %s a été invité à rejoindre le salon %s."
+msgstr "L'utilisateur %s a été invité à rejoindre le salon %s."
 
 #: ../../roomops.c:927
 msgid "Cancelled.  No new room was created."
@@ -76,11 +76,11 @@ msgstr "Carnet d'adresses"
 #: ../../roomviews.c:53 ../../static/t/iconbar.html:24
 #: ../../static/t/iconbar/edit.html:55
 msgid "Calendar"
-msgstr "Agenda"
+msgstr "Calendrier"
 
 #: ../../roomviews.c:54
 msgid "Task List"
-msgstr "Liste de tâches"
+msgstr "Liste des tâches"
 
 #: ../../roomviews.c:55
 msgid "Notes List"
@@ -1726,7 +1726,7 @@ msgstr "Vous vous inscrivez "
 
 #: ../../static/t/listsub/display.html:17
 msgid " to the "
-msgstr "sur le "
+msgstr " à "
 
 #: ../../static/t/listsub/display.html:18
 msgid " mailing list."
@@ -1870,6 +1870,9 @@ msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to subscribe or unsubscribe you to lists."
 msgstr ""
+"Cette étape supplémentaire est là pour votre protection, dans la mesure où "
+"elle permet d'éviter que d'autres puissent vous inscrire ou vous désinscrire "
+"de listes."
 
 #: ../../static/t/floors_edit_one.html:11
 msgid "(delete floor)"
@@ -2071,7 +2074,6 @@ msgid "Smart hosts"
 msgstr "Serveurs de relais"
 
 #: ../../static/t/aide/display_inetconf.html:16
-#, fuzzy
 msgid "Fallback smart hosts"
 msgstr "Serveurs de relais"
 
@@ -2269,6 +2271,7 @@ msgstr "(hôtes sur lesquels fonctionne le service SpamAssassin)"
 #: ../../static/t/aide/inet/fallbackhosts.html:2
 msgid "(send outbound mail to these hosts only when direct delivery fails)"
 msgstr ""
+"(Envoyer les mails sortant à ces hôtes uniquement lorsque l'envoi échoue)"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
 msgid "Confirm delete"
@@ -2364,7 +2367,7 @@ msgstr "Redémarrer maintenant"
 
 #: ../../static/t/aide/restart.html:3
 msgid "Restart after paging users"
-msgstr ""
+msgstr "Rédémarrer après avoir bippé les utilisateurs"
 
 #: ../../static/t/aide/restart.html:4
 msgid "Restart when all users are idle"
@@ -2497,9 +2500,8 @@ msgid "IMAP listener port (-1 to disable)"
 msgstr "Port d'écoute IMAP (-1 pour désactiver ce service)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:19
-#, fuzzy
 msgid "Network run frequency (in seconds)"
-msgstr "Intervalle de rafraichissement réseau (en secondes)"
+msgstr "Fréquenece de lancement du réseau (en secondes)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:22
 msgid "Server IP address (0.0.0.0 for 'any')"
@@ -2663,9 +2665,8 @@ msgid "Self contained"
 msgstr "contient"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:25
-#, fuzzy
 msgid "Host based"
-msgstr "Nom de la machine hôte :"
+msgstr "Host based"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:26
 msgid "LDAP (RFC2307)"
@@ -2699,11 +2700,10 @@ msgstr ""
 "d'administrateurs de ces salons."
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
-#, fuzzy
 msgid "Automatically grant room-aide status to users who create BLOG rooms"
 msgstr ""
-"Les usagers qui créent des salons BLOG se voient accordé le statut "
-"d'administrateurs de ces salons."
+"Donner automatiquement le statut \"aide au salon\" aux créateurx de salons "
+"BLOG"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:66
 msgid "Restrict access to Internet mail"
@@ -2856,7 +2856,7 @@ msgstr "A été vérifié avec succès"
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "However, the user name"
-msgstr ""
+msgstr "Malgrès, le nom d'utilisateur"
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "conflicts with an existing user."
@@ -3508,7 +3508,6 @@ msgid "Actions"
 msgstr "Actions"
 
 #: ../../static/t/room/edit/tab_share.html:35
-#, fuzzy
 msgid ""
 "When sharing a room, it must be shared from both ends.  Adding a node to the "
 "'shared' list sends messages out, but in order to receive messages, the "
@@ -3517,13 +3516,10 @@ msgid ""
 "identical on the remote node. <li>If the remote room name is different, the "
 "remote node must also configure the name of the room here."
 msgstr ""
-"Lors du partage d'un salon, le partage doit être activé des deux côtés. "
-"L'ajout d'un nœud à la liste des 'partages' provoque l'envoi des messages, "
-"mais afin que vous puissiez en recevoir, l'autre nœud doit être également "
-"être configuré pour en envoyer vers votre système. <li>Si le nom du salon "
-"distant est laissé vide, cela indique qu'il est identique au nom du nœud "
-"distant.</li><li>Si le nom du salon distant est différent, le nœud distant "
-"doit être configuré avec le nom d'ici.</li></ul></i><br>\n"
+"Lors du partage d'un salon, le salon doit être partagé avec le même nom des "
+"deux cotés, et les deux cotés doivent partager le nœud. <li>Si le nom du "
+"salon est vide ici, elle est supposée l'être de l'autre coté aussi.<li>Si le "
+"nom du salon est différent, se nom de salon doit aussi être renseigné ici."
 
 #: ../../static/t/room/edit/tab_feed.html:2
 msgid ""
@@ -3554,13 +3550,12 @@ msgid "Feed URL"
 msgstr "URL du flux"
 
 #: ../../static/t/room/edit/tab_access.html:5
-#, fuzzy
 msgid ""
 "The users listed below have access to this room. To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
 msgstr ""
-"Les usagers énumérés ci-dessous ont accès à ce salon. Pour retirer un usager "
-"de cette liste, sélectionner son nom de l'usager et cliquer sur 'Éjecter'."
+"Les utilisateurs suivant ont accès au salon. Pour supprimer un utilisateur "
+"de la liste d'accès, sélectionnez l'utilisateur et clickez 'éjecter'."
 
 #: ../../static/t/room/edit/tab_access.html:20
 msgid ""

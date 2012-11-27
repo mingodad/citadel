@@ -3622,7 +3622,7 @@ msgstr "Bearbeiten Sie ihre Push-Email einstellungen"
 
 #: ../../static/t/menu/your_info.html:9
 msgid "Manage your OpenIDs"
-msgstr "opin ID's bearbeiten"
+msgstr "openID's bearbeiten"
 
 #: ../../static/t/menu/basic_commands.html:3
 msgid "List known rooms"
@@ -3806,7 +3806,7 @@ msgstr "Kopieren"
 
 #: ../../static/t/view_mailq/message.html:6
 msgid "Originaly posted in: "
-msgstr ""
+msgstr "Ursprünglich veröffentlicht in: "
 
 #: ../../static/t/view_mailq/header.html:15
 msgid "Refresh this page"
@@ -3821,9 +3821,8 @@ msgid "Date/time submitted"
 msgstr "Versandzeitpunkt"
 
 #: ../../static/t/view_mailq/header.html:25
-#, fuzzy
 msgid "Next attempt"
-msgstr "Letzter Versuch"
+msgstr "Nächster Versuch"
 
 #: ../../static/t/view_mailq/header.html:29
 msgid "Recipients"

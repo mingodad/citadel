@@ -219,8 +219,8 @@ msgstr ""
 "servidor de la lista te ha enviado un email con un link web  y debe pulsarlo "
 "par confirmar su suscripción.  Esta medida se toma por su seguridad, de "
 "forma que se impida a otros suscribirle  sin su consentimiento.<br><br />Por "
-"favor, pulse en el link que se le ha enviadoy su suscripción será activada."
-"<br>\n"
+"favor, pulse en el link que se le ha enviadoy su suscripción será "
+"activada.<br>\n"
 
 #: ../../listsub.c:102 ../../static/t/listsub/display.html:24
 msgid "Go back..."
