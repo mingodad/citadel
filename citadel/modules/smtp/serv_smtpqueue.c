@@ -829,7 +829,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	StrBuf *Msg =NULL;
 
 	if (mynumsessions > max_sessions_for_outbound_smtp) {
-		SMTPC_syslog(LOG_DEBUG,
+		SMTPC_syslog(LOG_INFO,
 			     "skipping because of num jobs %d > %d max_sessions_for_outbound_smtp",
 			     mynumsessions,
 			     max_sessions_for_outbound_smtp);
@@ -940,13 +940,23 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	    (((MyQItem->ActiveDeliveries * 2)  < max_sessions_for_outbound_smtp)))
 	{
 		/* abort delivery for another time. */
-		SMTPC_syslog(LOG_DEBUG,
+		SMTPC_syslog(LOG_INFO,
 			     "SMTP Queue: skipping because of num jobs %d + %ld > %d max_sessions_for_outbound_smtp",
 			     mynumsessions,
 			     MyQItem->ActiveDeliveries,
 			     max_sessions_for_outbound_smtp);
 
-		FreeQueItem(&MyQItem);
+		It = GetNewHashPos(MyQItem->MailQEntries, 0);
+		pthread_mutex_lock(&ActiveQItemsLock);
+		{
+			if (GetHashPosFromKey(ActiveQItems,
+					      LKEY(MyQItem->MessageID),
+					      It))
+			{
+				DeleteEntryFromHash(ActiveQItems, It);
+			}
+		}
+		pthread_mutex_unlock(&ActiveQItemsLock);
 
 		return;
 	}
