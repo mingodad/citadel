@@ -87,6 +87,45 @@ enum {				/* Command states for login authentication */
 	smtp_plain
 };
 
+enum SMTP_FLAGS {
+	HELO,
+	EHLO,
+	LHLO
+};
+
+typedef void (*smtp_handler)(long offest, long Flags);
+
+typedef struct _smtp_handler_hook {
+	smtp_handler h;
+	int Flags;
+} smtp_handler_hook;
+
+HashList *SMTPCmds = NULL;
+#define MaxSMTPCmdLen 10
+
+#define RegisterSmtpCMD(First, H, Flags) \
+	registerSmtpCMD(HKEY(First), H, Flags)
+void registerSmtpCMD(const char *First, long FLen, 
+		     smtp_handler H,
+		     int Flags)
+{
+	smtp_handler_hook *h;
+
+	if (FLen >= MaxSMTPCmdLen)
+		cit_panic_backtrace (0);
+
+	h = (smtp_handler_hook*) malloc(sizeof(smtp_handler_hook));
+	memset(h, 0, sizeof(smtp_handler_hook));
+
+	h->Flags = Flags;
+	h->h = H;
+	Put(SMTPCmds, First, FLen, h, NULL);
+}
+
+void smtp_cleanup(void)
+{
+	DeleteHash(&SMTPCmds);
+}
 
 /*
  * Here's where our SMTP session begins its happy day.
@@ -103,6 +142,11 @@ void smtp_greeting(int is_msa)
 	memset(SMTP, 0, sizeof(citsmtp));
 	sSMTP = SMTP;
 	sSMTP->is_msa = is_msa;
+	sSMTP->Cmd = NewStrBufPlain(NULL, SIZ);
+	sSMTP->helo_node = NewStrBuf();
+	sSMTP->from = NewStrBufPlain(NULL, SIZ);
+	sSMTP->recipients = NewStrBufPlain(NULL, SIZ);
+	sSMTP->OneRcpt = NewStrBufPlain(NULL, SIZ);
 
 	/* If this config option is set, reject connections from problem
 	 * addresses immediately instead of after they execute a RCPT
@@ -189,11 +233,11 @@ void lmtp_unfiltered_greeting(void) {
 /*
  * Login greeting common to all auth methods
  */
-void smtp_auth_greeting(void) {
-		cprintf("235 Hello, %s\r\n", CC->user.fullname);
-		syslog(LOG_NOTICE, "SMTP authenticated %s\n", CC->user.fullname);
-		CC->internal_pgm = 0;
-		CC->cs_flags &= ~CS_STEALTH;
+void smtp_auth_greeting(long offset, long Flags) {
+	cprintf("235 Hello, %s\r\n", CC->user.fullname);
+	syslog(LOG_NOTICE, "SMTP authenticated %s\n", CC->user.fullname);
+	CC->internal_pgm = 0;
+	CC->cs_flags &= ~CS_STEALTH;
 }
 
 
@@ -202,32 +246,33 @@ void smtp_auth_greeting(void) {
  *
  * which_command:  0=HELO, 1=EHLO, 2=LHLO
  */
-void smtp_hello(char *argbuf, int which_command) {
+void smtp_hello(long offset, long which_command)
+{
 	citsmtp *sSMTP = SMTP;
 
-	safestrncpy(sSMTP->helo_node, argbuf, sizeof sSMTP->helo_node);
+	StrBufAppendBuf (sSMTP->helo_node, sSMTP->Cmd, offset);
 
-	if ( (which_command != 2) && (sSMTP->is_lmtp) ) {
+	if ( (which_command != LHLO) && (sSMTP->is_lmtp) ) {
 		cprintf("500 Only LHLO is allowed when running LMTP\r\n");
 		return;
 	}
 
-	if ( (which_command == 2) && (sSMTP->is_lmtp == 0) ) {
+	if ( (which_command == LHLO) && (sSMTP->is_lmtp == 0) ) {
 		cprintf("500 LHLO is only allowed when running LMTP\r\n");
 		return;
 	}
 
-	if (which_command == 0) {
+	if (which_command == HELO) {
 		cprintf("250 Hello %s (%s [%s])\r\n",
-			sSMTP->helo_node,
+			ChrPtr(sSMTP->helo_node),
 			CC->cs_host,
 			CC->cs_addr
 		);
 	}
 	else {
-		if (which_command == 1) {
+		if (which_command == EHLO) {
 			cprintf("250-Hello %s (%s [%s])\r\n",
-				sSMTP->helo_node,
+				ChrPtr(sSMTP->helo_node),
 				CC->cs_host,
 				CC->cs_addr
 			);
@@ -262,7 +307,7 @@ void smtp_hello(char *argbuf, int which_command) {
 /*
  * Implement HELP command.
  */
-void smtp_help(void) {
+void smtp_help(long offset, long Flags) {
 	cprintf("214 RTFM http://www.ietf.org/rfc/rfc2821.txt\r\n");
 }
 
@@ -270,12 +315,13 @@ void smtp_help(void) {
 /*
  *
  */
-void smtp_get_user(char *argbuf) {
+void smtp_get_user(long offset)
+{
 	char buf[SIZ];
 	char username[SIZ];
 	citsmtp *sSMTP = SMTP;
 
-	CtdlDecodeBase64(username, argbuf, SIZ);
+	CtdlDecodeBase64(username, ChrPtr(sSMTP->Cmd) + offset, SIZ);
 	/* syslog(LOG_DEBUG, "Trying <%s>\n", username); */
 	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		CtdlEncodeBase64(buf, "Password:", 9, 0);
@@ -292,27 +338,31 @@ void smtp_get_user(char *argbuf) {
 /*
  *
  */
-void smtp_get_pass(char *argbuf) {
+void smtp_get_pass(long offset, long Flags)
+{
+	citsmtp *sSMTP = SMTP;
 	char password[SIZ];
 	long len;
 
 	memset(password, 0, sizeof(password));	
-	len = CtdlDecodeBase64(password, argbuf, SIZ);
+	len = CtdlDecodeBase64(password, ChrPtr(sSMTP->Cmd), SIZ);
 	/* syslog(LOG_DEBUG, "Trying <%s>\n", password); */
 	if (CtdlTryPassword(password, len) == pass_ok) {
-		smtp_auth_greeting();
+		smtp_auth_greeting(offset, Flags);
 	}
 	else {
 		cprintf("535 Authentication failed.\r\n");
 	}
-	SMTP->command_state = smtp_command;
+	sSMTP->command_state = smtp_command;
 }
 
 
 /*
  * Back end for PLAIN auth method (either inline or multistate)
  */
-void smtp_try_plain(char *encoded_authstring) {
+void smtp_try_plain(long offset, long Flags)
+{
+	citsmtp *sSMTP = SMTP;
 	char decoded_authstring[1024];
 	char ident[256];
 	char user[256];
@@ -320,14 +370,14 @@ void smtp_try_plain(char *encoded_authstring) {
 	int result;
 	long len;
 
-	CtdlDecodeBase64(decoded_authstring, encoded_authstring, strlen(encoded_authstring) );
+	CtdlDecodeBase64(decoded_authstring, ChrPtr(sSMTP->Cmd), StrLength(sSMTP->Cmd));
 	safestrncpy(ident, decoded_authstring, sizeof ident);
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
 	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
 	if (len == -1)
 		len = sizeof(pass) - 1;
 
-	SMTP->command_state = smtp_command;
+	sSMTP->command_state = smtp_command;
 
 	if (!IsEmptyStr(ident)) {
 		result = CtdlLoginExistingUser(user, ident);
@@ -338,7 +388,7 @@ void smtp_try_plain(char *encoded_authstring) {
 
 	if (result == login_ok) {
 		if (CtdlTryPassword(pass, len) == pass_ok) {
-			smtp_auth_greeting();
+			smtp_auth_greeting(offset, Flags);
 			return;
 		}
 	}
@@ -349,7 +399,9 @@ void smtp_try_plain(char *encoded_authstring) {
 /*
  * Attempt to perform authenticated SMTP
  */
-void smtp_auth(char *argbuf) {
+void smtp_auth(long offset, long Flags)
+{
+	citsmtp *sSMTP = SMTP;
 	char username_prompt[64];
 	char method[64];
 	char encoded_authstring[1024];
@@ -359,30 +411,34 @@ void smtp_auth(char *argbuf) {
 		return;
 	}
 
-	extract_token(method, argbuf, 0, ' ', sizeof method);
+	extract_token(method, ChrPtr(sSMTP->Cmd), 0, ' ', sizeof method);
 
 	if (!strncasecmp(method, "login", 5) ) {
-		if (strlen(argbuf) >= 7) {
-			smtp_get_user(&argbuf[6]);
+		if (StrLength(sSMTP->Cmd) >= 7) {
+			smtp_get_user(6);
 		}
 		else {
 			CtdlEncodeBase64(username_prompt, "Username:", 9, 0);
 			cprintf("334 %s\r\n", username_prompt);
-			SMTP->command_state = smtp_user;
+			sSMTP->command_state = smtp_user;
 		}
 		return;
 	}
 
 	if (!strncasecmp(method, "plain", 5) ) {
-		if (num_tokens(argbuf, ' ') < 2) {
+		long len;
+		if (num_tokens(ChrPtr(sSMTP->Cmd), ' ') < 2) {
 			cprintf("334 \r\n");
 			SMTP->command_state = smtp_plain;
 			return;
 		}
 
-		extract_token(encoded_authstring, argbuf, 1, ' ', sizeof encoded_authstring);
-
-		smtp_try_plain(encoded_authstring);
+		len = extract_token(encoded_authstring, 
+				    ChrPtr(sSMTP->Cmd),
+				    1, ' ',
+				    sizeof encoded_authstring);
+		StrBufPlain(sSMTP->Cmd, encoded_authstring, len);
+		smtp_try_plain(offset, Flags);
 		return;
 	}
 
@@ -402,7 +458,7 @@ void smtp_auth(char *argbuf) {
  *
  * Set do_response to nonzero to output the SMTP RSET response code.
  */
-void smtp_rset(int do_response) {
+void smtp_rset(long offset, long do_response) {
 	int is_lmtp;
 	int is_unfiltered;
 	citsmtp *sSMTP = SMTP;
@@ -443,11 +499,13 @@ void smtp_rset(int do_response) {
  * Clear out the portions of the state buffer that need to be cleared out
  * after the DATA command finishes.
  */
-void smtp_data_clear(void) {
+void smtp_data_clear(long offset, long flags)
+{
 	citsmtp *sSMTP = SMTP;
 
-	strcpy(sSMTP->from, "");
-	strcpy(sSMTP->recipients, "");
+	FlushStrBuf(sSMTP->from);
+	FlushStrBuf(sSMTP->recipients);
+	FlushStrBuf(sSMTP->OneRcpt);
 	sSMTP->number_of_recipients = 0;
 	sSMTP->delivery_mode = 0;
 	sSMTP->message_originated_locally = 0;
@@ -456,26 +514,26 @@ void smtp_data_clear(void) {
 /*
  * Implements the "MAIL FROM:" command
  */
-void smtp_mail(char *argbuf) {
+void smtp_mail(long offset, long flags) {
 	char user[SIZ];
 	char node[SIZ];
 	char name[SIZ];
 	citsmtp *sSMTP = SMTP;
 
-	if (!IsEmptyStr(sSMTP->from)) {
+	if (StrLength(sSMTP->from) > 0) {
 		cprintf("503 Only one sender permitted\r\n");
 		return;
 	}
 
-	if (strncasecmp(argbuf, "From:", 5)) {
+	if (strncasecmp(ChrPtr(sSMTP->Cmd) + offset, "From:", 5)) {
 		cprintf("501 Syntax error\r\n");
 		return;
 	}
 
-	strcpy(sSMTP->from, &argbuf[5]);
-	striplt(sSMTP->from);
-	if (haschar(sSMTP->from, '<') > 0) {
-		stripallbut(sSMTP->from, '<', '>');
+	StrBufAppendBuf(sSMTP->from, sSMTP->Cmd, offset);
+	StrBufTrim(sSMTP->from);
+	if (strchr(ChrPtr(sSMTP->from), '<') != NULL) {
+		StrBufStripAllBut(sSMTP->from, '<', '>');
 	}
 
 	/* We used to reject empty sender names, until it was brought to our
@@ -484,16 +542,16 @@ void smtp_mail(char *argbuf) {
 	 * address so we don't have to contend with the empty string causing
 	 * other code to fail when it's expecting something there.
 	 */
-	if (IsEmptyStr(sSMTP->from)) {
-		strcpy(sSMTP->from, "someone@example.com");
+	if (StrLength(sSMTP->from)) {
+		StrBufPlain(sSMTP->from, HKEY("someone@example.com"));
 	}
 
 	/* If this SMTP connection is from a logged-in user, force the 'from'
 	 * to be the user's Internet e-mail address as Citadel knows it.
 	 */
 	if (CC->logged_in) {
-		safestrncpy(sSMTP->from, CC->cs_inet_email, sizeof sSMTP->from);
-		cprintf("250 Sender ok <%s>\r\n", sSMTP->from);
+		StrBufPlain(sSMTP->from, CC->cs_inet_email, -1);
+		cprintf("250 Sender ok <%s>\r\n", ChrPtr(sSMTP->from));
 		sSMTP->message_originated_locally = 1;
 		return;
 	}
@@ -506,10 +564,10 @@ void smtp_mail(char *argbuf) {
 	 * this system (unless, of course, c_allow_spoofing is enabled)
 	 */
 	else if (config.c_allow_spoofing == 0) {
-		process_rfc822_addr(sSMTP->from, user, node, name);
+		process_rfc822_addr(ChrPtr(sSMTP->from), user, node, name);
 		if (CtdlHostAlias(node) != hostalias_nomatch) {
 			cprintf("550 You must log in to send mail from %s\r\n", node);
-			strcpy(sSMTP->from, "");
+			FlushStrBuf(sSMTP->from);
 			return;
 		}
 	}
@@ -522,39 +580,40 @@ void smtp_mail(char *argbuf) {
 /*
  * Implements the "RCPT To:" command
  */
-void smtp_rcpt(char *argbuf) {
-	char recp[1024];
+void smtp_rcpt(long offset, long flags)
+{
+	struct CitContext *CCC = CC;
 	char message_to_spammer[SIZ];
 	struct recptypes *valid = NULL;
 	citsmtp *sSMTP = SMTP;
 
-	if (IsEmptyStr(sSMTP->from)) {
+	if (StrLength(sSMTP->from) == 0) {
 		cprintf("503 Need MAIL before RCPT\r\n");
 		return;
 	}
-
-	if (strncasecmp(argbuf, "To:", 3)) {
+	
+	if (strncasecmp(ChrPtr(sSMTP->Cmd) + offset, "To:", 3)) {
 		cprintf("501 Syntax error\r\n");
 		return;
 	}
 
-	if ( (sSMTP->is_msa) && (!CC->logged_in) ) {
+	if ( (sSMTP->is_msa) && (!CCC->logged_in) ) {
 		cprintf("550 You must log in to send mail on this port.\r\n");
-		strcpy(sSMTP->from, "");
+		FlushStrBuf(sSMTP->from);
 		return;
 	}
+	FlushStrBuf(sSMTP->OneRcpt);
+	StrBufAppendBuf(sSMTP->OneRcpt, sSMTP->Cmd, offset + 3);
+	StrBufTrim(sSMTP->OneRcpt);
+	StrBufStripAllBut(sSMTP->OneRcpt, '<', '>');
 
-	safestrncpy(recp, &argbuf[3], sizeof recp);
-	striplt(recp);
-	stripallbut(recp, '<', '>');
-
-	if ( (strlen(recp) + strlen(sSMTP->recipients) + 1 ) >= SIZ) {
+	if ( (StrLength(sSMTP->OneRcpt) + StrLength(sSMTP->recipients)) >= SIZ) {
 		cprintf("452 Too many recipients\r\n");
 		return;
 	}
 
 	/* RBL check */
-	if ( (!CC->logged_in)	/* Don't RBL authenticated users */
+	if ( (!CCC->logged_in)	/* Don't RBL authenticated users */
 	   && (!sSMTP->is_lmtp) ) {	/* Don't RBL LMTP clients */
 		if (config.c_rbl_at_greeting == 0) {	/* Don't RBL again if we already did it */
 			if (rbl_check(message_to_spammer)) {
@@ -569,9 +628,9 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	valid = validate_recipients(
-		recp, 
+		ChrPtr(sSMTP->OneRcpt), 
 		smtp_get_Recipients(),
-		(sSMTP->is_lmtp)? POST_LMTP: (CC->logged_in)? POST_LOGGED_IN: POST_EXTERNAL
+		(sSMTP->is_lmtp)? POST_LMTP: (CCC->logged_in)? POST_LOGGED_IN: POST_EXTERNAL
 	);
 	if (valid->num_error != 0) {
 		cprintf("550 %s\r\n", valid->errormsg);
@@ -580,9 +639,10 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	if (valid->num_internet > 0) {
-		if (CC->logged_in) {
-                        if (CtdlCheckInternetMailPermission(&CC->user)==0) {
-				cprintf("551 <%s> - you do not have permission to send Internet mail\r\n", recp);
+		if (CCC->logged_in) {
+                        if (CtdlCheckInternetMailPermission(&CCC->user)==0) {
+				cprintf("551 <%s> - you do not have permission to send Internet mail\r\n", 
+					ChrPtr(sSMTP->OneRcpt));
                                 free_recipients(valid);
                                 return;
                         }
@@ -592,18 +652,18 @@ void smtp_rcpt(char *argbuf) {
 	if (valid->num_internet > 0) {
 		if ( (sSMTP->message_originated_locally == 0)
 		   && (sSMTP->is_lmtp == 0) ) {
-			cprintf("551 <%s> - relaying denied\r\n", recp);
+			cprintf("551 <%s> - relaying denied\r\n", ChrPtr(sSMTP->OneRcpt));
 			free_recipients(valid);
 			return;
 		}
 	}
 
-	cprintf("250 RCPT ok <%s>\r\n", recp);
-	if (!IsEmptyStr(sSMTP->recipients)) {
-		strcat(sSMTP->recipients, ",");
+	cprintf("250 RCPT ok <%s>\r\n", ChrPtr(sSMTP->OneRcpt));
+	if (StrLength(sSMTP->recipients) > 0) {
+		StrBufAppendBufPlain(sSMTP->recipients, HKEY(","), 0);
 	}
-	strcat(sSMTP->recipients, recp);
-	sSMTP->number_of_recipients += 1;
+	StrBufAppendBuf(sSMTP->recipients, sSMTP->OneRcpt, 0);
+	sSMTP->number_of_recipients ++;
 	if (valid != NULL)  {
 		free_recipients(valid);
 	}
@@ -615,19 +675,20 @@ void smtp_rcpt(char *argbuf) {
 /*
  * Implements the DATA command
  */
-void smtp_data(void) {
+void smtp_data(long offset, long flags)
+{
+	struct CitContext *CCC = CC;
 	StrBuf *body;
-	char *defbody; //TODO: remove me
+	StrBuf *defbody; 
 	struct CtdlMessage *msg = NULL;
 	long msgnum = (-1L);
 	char nowstamp[SIZ];
 	struct recptypes *valid;
 	int scan_errors;
 	int i;
-	char result[SIZ];
 	citsmtp *sSMTP = SMTP;
 
-	if (IsEmptyStr(sSMTP->from)) {
+	if (StrLength(sSMTP->from) == 0) {
 		cprintf("503 Need MAIL command first.\r\n");
 		return;
 	}
@@ -640,30 +701,33 @@ void smtp_data(void) {
 	cprintf("354 Transmit message now - terminate with '.' by itself\r\n");
 	
 	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
-	defbody = malloc(4096);
+	defbody = NewStrBufPlain(NULL, SIZ);
 
 	if (defbody != NULL) {
-		if (sSMTP->is_lmtp && (CC->cs_UDSclientUID != -1)) {
-			snprintf(defbody, 4096,
-			       "Received: from %s (Citadel from userid %ld)\n"
-			       "	by %s; %s\n",
-			       sSMTP->helo_node,
-			       (long int) CC->cs_UDSclientUID,
-			       config.c_fqdn,
-			       nowstamp);
+		if (sSMTP->is_lmtp && (CCC->cs_UDSclientUID != -1)) {
+			StrBufPrintf(
+				defbody,
+				"Received: from %s (Citadel from userid %ld)\n"
+				"	by %s; %s\n",
+				ChrPtr(sSMTP->helo_node),
+				(long int) CCC->cs_UDSclientUID,
+				config.c_fqdn,
+				nowstamp);
 		}
 		else {
-			snprintf(defbody, 4096,
-				 "Received: from %s (%s [%s])\n"
-				 "	by %s; %s\n",
-				 sSMTP->helo_node,
-				 CC->cs_host,
-				 CC->cs_addr,
-				 config.c_fqdn,
-				 nowstamp);
+			StrBufPrintf(
+				defbody,
+				"Received: from %s (%s [%s])\n"
+				"	by %s; %s\n",
+				ChrPtr(sSMTP->helo_node),
+				CCC->cs_host,
+				CCC->cs_addr,
+				config.c_fqdn,
+				nowstamp);
 		}
 	}
 	body = CtdlReadMessageBodyBuf(HKEY("."), config.c_maxmsglen, defbody, 1, NULL);
+	FreeStrBuf(&defbody);
 	if (body == NULL) {
 		cprintf("550 Unable to save message: internal error.\r\n");
 		return;
@@ -682,24 +746,24 @@ void smtp_data(void) {
 	 * to something ugly like "0000058008.Sent Items>" when the message
 	 * is read with a Citadel client.
 	 */
-	if ( (CC->logged_in) && (config.c_rfc822_strict_from != CFG_SMTP_FROM_NOFILTER) ) {
+	if ( (CCC->logged_in) && (config.c_rfc822_strict_from != CFG_SMTP_FROM_NOFILTER) ) {
 		int validemail = 0;
 		
 		if (!IsEmptyStr(msg->cm_fields['F'])       &&
 		    ((config.c_rfc822_strict_from == CFG_SMTP_FROM_CORRECT) || 
 		     (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)    )  )
 		{
-			if (!IsEmptyStr(CC->cs_inet_email))
-				validemail = strcmp(CC->cs_inet_email, msg->cm_fields['F']) == 0;
+			if (!IsEmptyStr(CCC->cs_inet_email))
+				validemail = strcmp(CCC->cs_inet_email, msg->cm_fields['F']) == 0;
 			if ((!validemail) && 
-			    (!IsEmptyStr(CC->cs_inet_other_emails)))
+			    (!IsEmptyStr(CCC->cs_inet_other_emails)))
 			{
 				int num_secondary_emails = 0;
 				int i;
-				num_secondary_emails = num_tokens(CC->cs_inet_other_emails, '|');
+				num_secondary_emails = num_tokens(CCC->cs_inet_other_emails, '|');
 				for (i=0; i < num_secondary_emails && !validemail; ++i) {
 					char buf[256];
-					extract_token(buf, CC->cs_inet_other_emails,i,'|',sizeof CC->cs_inet_other_emails);
+					extract_token(buf, CCC->cs_inet_other_emails,i,'|',sizeof CCC->cs_inet_other_emails);
 					validemail = strcmp(buf, msg->cm_fields['F']) == 0;
 				}
 			}
@@ -715,14 +779,14 @@ void smtp_data(void) {
 		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
 		if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
 		if (msg->cm_fields['O'] != NULL) free(msg->cm_fields['O']);
-		msg->cm_fields['A'] = strdup(CC->user.fullname);
+		msg->cm_fields['A'] = strdup(CCC->user.fullname);
 		msg->cm_fields['N'] = strdup(config.c_nodename);
 		msg->cm_fields['H'] = strdup(config.c_humannode);
         	msg->cm_fields['O'] = strdup(MAILROOM);
 
 		if (!validemail) {
 			if (msg->cm_fields['F'] != NULL) free(msg->cm_fields['F']);
-			msg->cm_fields['F'] = strdup(CC->cs_inet_email);
+			msg->cm_fields['F'] = strdup(CCC->cs_inet_email);
 		}
 	}
 
@@ -730,19 +794,19 @@ void smtp_data(void) {
 	if (msg->cm_fields['P'] != NULL) {
 		free(msg->cm_fields['P']);
 	}
-	msg->cm_fields['P'] = strdup(sSMTP->from);
+	msg->cm_fields['P'] = strdup(ChrPtr(sSMTP->from));
 
 	/* Set the "envelope to" address */
 	if (msg->cm_fields['V'] != NULL) {
 		free(msg->cm_fields['V']);
 	}
-	msg->cm_fields['V'] = strdup(sSMTP->recipients);
+	msg->cm_fields['V'] = strdup(ChrPtr(sSMTP->recipients));
 
 	/* Submit the message into the Citadel system. */
 	valid = validate_recipients(
-		sSMTP->recipients,
+		ChrPtr(sSMTP->recipients),
 		smtp_get_Recipients(),
-		(sSMTP->is_lmtp)? POST_LMTP: (CC->logged_in)? POST_LOGGED_IN: POST_EXTERNAL
+		(sSMTP->is_lmtp)? POST_LMTP: (CCC->logged_in)? POST_LOGGED_IN: POST_EXTERNAL
 	);
 
 	/* If there are modules that want to scan this message before final
@@ -762,16 +826,16 @@ void smtp_data(void) {
 			msg->cm_fields['0'] = strdup("Message rejected by filter");
 		}
 
-		sprintf(result, "550 %s\r\n", msg->cm_fields['0']);
+		StrBufPrintf(sSMTP->OneRcpt, "550 %s\r\n", msg->cm_fields['0']);
 	}
 	
 	else {			/* Ok, we'll accept this message. */
 		msgnum = CtdlSubmitMsg(msg, valid, "", 0);
 		if (msgnum > 0L) {
-			sprintf(result, "250 Message accepted.\r\n");
+			StrBufPrintf(sSMTP->OneRcpt, "250 Message accepted.\r\n");
 		}
 		else {
-			sprintf(result, "550 Internal delivery error\r\n");
+			StrBufPrintf(sSMTP->OneRcpt, "550 Internal delivery error\r\n");
 		}
 	}
 
@@ -783,37 +847,37 @@ void smtp_data(void) {
 	 */
 	if (sSMTP->is_lmtp) {
 		for (i=0; i<sSMTP->number_of_recipients; ++i) {
-			cprintf("%s", result);
+			cputbuf(sSMTP->OneRcpt);
 		}
 	}
 	else {
-		cprintf("%s", result);
+		cputbuf(sSMTP->OneRcpt);
 	}
 
 	/* Write something to the syslog(which may or may not be where the
 	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).
 	 */
 	syslog((LOG_MAIL | LOG_INFO),
-		"%ld: from=<%s>, nrcpts=%d, relay=%s [%s], stat=%s",
-		msgnum,
-		sSMTP->from,
-		sSMTP->number_of_recipients,
-		CC->cs_host,
-		CC->cs_addr,
-		result
+	       "%ld: from=<%s>, nrcpts=%d, relay=%s [%s], stat=%s",
+	       msgnum,
+	       ChrPtr(sSMTP->from),
+	       sSMTP->number_of_recipients,
+	       CCC->cs_host,
+	       CCC->cs_addr,
+	       ChrPtr(sSMTP->OneRcpt)
 	);
 
 	/* Clean up */
 	CtdlFreeMessage(msg);
 	free_recipients(valid);
-	smtp_data_clear();	/* clear out the buffers now */
+	smtp_data_clear(0, 0);	/* clear out the buffers now */
 }
 
 
 /*
  * implements the STARTTLS command
  */
-void smtp_starttls(void)
+void smtp_starttls(long offset, long flags)
 {
 	char ok_response[SIZ];
 	char nosup_response[SIZ];
@@ -823,101 +887,89 @@ void smtp_starttls(void)
 	sprintf(nosup_response, "554 TLS not supported here\r\n");
 	sprintf(error_response, "554 Internal error\r\n");
 	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
-	smtp_rset(0);
+	smtp_rset(0, 0);
 }
 
 
 /* 
  * Main command loop for SMTP server sessions.
  */
-void smtp_command_loop(void) {
-	char cmdbuf[SIZ];
+void smtp_command_loop(void)
+{
+	struct CitContext *CCC = CC;
 	citsmtp *sSMTP = SMTP;
+	const char *pch, *pchs;
+	long i;
+	char CMD[MaxSMTPCmdLen + 1];
 
 	if (sSMTP == NULL) {
 		syslog(LOG_EMERG, "Session SMTP data is null.  WTF?  We will crash now.\n");
 		return cit_panic_backtrace (0);
 	}
 
-	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
+	time(&CCC->lastcmd);
+	if (CtdlClientGetLine(sSMTP->Cmd) < 1) {
 		syslog(LOG_CRIT, "SMTP: client disconnected: ending session.\n");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
-	syslog(LOG_INFO, "SMTP server: %s\n", cmdbuf);
-	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
+	syslog(LOG_DEBUG, "SMTP server: %s\n", ChrPtr(sSMTP->Cmd));
 
 	if (sSMTP->command_state == smtp_user) {
-		smtp_get_user(cmdbuf);
+		smtp_get_user(0);
 	}
 
 	else if (sSMTP->command_state == smtp_password) {
-		smtp_get_pass(cmdbuf);
+		smtp_get_pass(0, 0);
 	}
 
 	else if (sSMTP->command_state == smtp_plain) {
-		smtp_try_plain(cmdbuf);
+		smtp_try_plain(0, 0);
 	}
 
-	else if (!strncasecmp(cmdbuf, "AUTH", 4)) {
-		smtp_auth(&cmdbuf[5]);
+	pchs = pch = ChrPtr(sSMTP->Cmd);
+	i = 0;
+	while ((*pch != '\0') &&
+	       (!isblank(*pch)) && 
+	       (pch - pchs <= MaxSMTPCmdLen))
+	{
+		CMD[i] = toupper(*pch);
+		pch ++;
+		i++;
 	}
+	CMD[i] = '\0';
 
-	else if (!strncasecmp(cmdbuf, "DATA", 4)) {
-		smtp_data();
-	}
+	if ((*pch == '\0') ||
+	    (isblank(*pch)))
+	{
+		void *v;
 
-	else if (!strncasecmp(cmdbuf, "HELO", 4)) {
-		smtp_hello(&cmdbuf[5], 0);
-	}
+		if (GetHash(SMTPCmds, CMD, i, &v) &&
+		    (v != NULL))
+		{
+			smtp_handler_hook *h = (smtp_handler_hook*) v;
 
-	else if (!strncasecmp(cmdbuf, "EHLO", 4)) {
-		smtp_hello(&cmdbuf[5], 1);
-	}
+			if (isblank(pchs[i]))
+				i++;
 
-	else if (!strncasecmp(cmdbuf, "LHLO", 4)) {
-		smtp_hello(&cmdbuf[5], 2);
-	}
+			h->h(i, h->Flags);
 
-	else if (!strncasecmp(cmdbuf, "HELP", 4)) {
-		smtp_help();
+			return;
+		}
 	}
-
-	else if (!strncasecmp(cmdbuf, "MAIL", 4)) {
-		smtp_mail(&cmdbuf[5]);
-	}
-
-	else if (!strncasecmp(cmdbuf, "NOOP", 4)) {
-		cprintf("250 NOOP\r\n");
-	}
-
-	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
-		cprintf("221 Goodbye...\r\n");
-		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
-		return;
-	}
-
-	else if (!strncasecmp(cmdbuf, "RCPT", 4)) {
-		smtp_rcpt(&cmdbuf[5]);
-	}
-
-	else if (!strncasecmp(cmdbuf, "RSET", 4)) {
-		smtp_rset(1);
-	}
-#ifdef HAVE_OPENSSL
-	else if (!strcasecmp(cmdbuf, "STARTTLS")) {
-		smtp_starttls();
-	}
-#endif
-	else {
-		cprintf("502 I'm afraid I can't do that.\r\n");
-	}
-
-
+	cprintf("502 I'm afraid I can't do that.\r\n");
 }
 
+void smtp_noop(long offest, long Flags)
+{
+	cprintf("250 NOOP\r\n");
+}
+
+void smtp_quit(long offest, long Flags)
+{
+	cprintf("221 Goodbye...\r\n");
+	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
+}
 
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
@@ -926,16 +978,23 @@ void smtp_command_loop(void) {
  * This cleanup function blows away the temporary memory used by
  * the SMTP server.
  */
-void smtp_cleanup_function(void) {
+void smtp_cleanup_function(void)
+{
+	citsmtp *sSMTP = SMTP;
 
 	/* Don't do this stuff if this is not an SMTP session! */
 	if (CC->h_command_function != smtp_command_loop) return;
 
 	syslog(LOG_DEBUG, "Performing SMTP cleanup hook\n");
-	free(SMTP);
+
+	FreeStrBuf(&sSMTP->Cmd);
+	FreeStrBuf(&sSMTP->helo_node);
+	FreeStrBuf(&sSMTP->from);
+	FreeStrBuf(&sSMTP->recipients);
+	FreeStrBuf(&sSMTP->OneRcpt);
+
+	free(sSMTP);
 }
-
-
 
 const char *CitadelServiceSMTP_MTA="SMTP-MTA";
 const char *CitadelServiceSMTPS_MTA="SMTPs-MTA";
@@ -947,6 +1006,23 @@ CTDL_MODULE_INIT(smtp)
 {
 	if (!threading)
 	{
+		SMTPCmds = NewHash(1, NULL);
+		RegisterSmtpCMD("AUTH", smtp_auth, 0);
+		RegisterSmtpCMD("DATA", smtp_data, 0);
+		RegisterSmtpCMD("HELO", smtp_hello, HELO);
+		RegisterSmtpCMD("EHLO", smtp_hello, EHLO);
+		RegisterSmtpCMD("LHLO", smtp_hello, LHLO);
+		RegisterSmtpCMD("HELP", smtp_help, 0);
+		RegisterSmtpCMD("MAIL", smtp_mail, 0);
+		RegisterSmtpCMD("NOOP", smtp_noop, 0);
+		RegisterSmtpCMD("QUIT", smtp_quit, 0);
+		RegisterSmtpCMD("RCPT", smtp_rcpt, 0);
+		RegisterSmtpCMD("RSET", smtp_rset, 1);
+#ifdef HAVE_OPENSSL
+		RegisterSmtpCMD("STARTTLS", smtp_starttls, 0);
+#endif
+
+
 		CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
 					NULL,
 					smtp_mta_greeting,

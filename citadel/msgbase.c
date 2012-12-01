@@ -3618,7 +3618,7 @@ void flood_protect_quickie_message(const char *from,
 StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 			       long tlen,
 			       size_t maxlen,		/* maximum message length */
-			       char *exist,		/* if non-null, append to it;
+			       StrBuf *exist,		/* if non-null, append to it;
 							   exist is ALWAYS freed  */
 			       int crlf,		/* CRLF newlines instead of LF */
 			       int *sock		/* socket handle or 0 for this session's client socket */
@@ -3635,8 +3635,7 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 		Message = NewStrBufPlain(NULL, 4 * SIZ);
 	}
 	else {
-		Message = NewStrBufPlain(exist, -1);
-		free(exist);
+		Message = NewStrBufDup(exist);
 	}
 
 	/* Do we need to change leading ".." to "." for SMTP escaping? */
@@ -3699,7 +3698,7 @@ ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
 			  long tlen,
 			  size_t maxlen,		/* maximum message length */
 			  size_t expectlen,             /* if we expect a message, how long should it be? */
-			  char *exist,			/* if non-null, append to it;
+			  StrBuf *exist,		/* if non-null, append to it;
 						   	   exist is ALWAYS freed  */
 			  long eLen,            	/* length of exist */
 			  int crlf			/* CRLF newlines instead of LF */
@@ -3722,8 +3721,7 @@ ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
 		NewMsg->MsgBuf = NewStrBufPlain(NULL, len);
 	}
 	else {
-		NewMsg->MsgBuf = NewStrBufPlain(exist, eLen);
-		free(exist);
+		NewMsg->MsgBuf = NewStrBufDup(exist);
 	}
 	/* Do we need to change leading ".." to "." for SMTP escaping? */
 	if ((tlen == 1) && (*terminator == '.')) {
@@ -3856,7 +3854,7 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			  long tlen,
 			  size_t maxlen,		/* maximum message length */
-			  char *exist,		/* if non-null, append to it;
+			  StrBuf *exist,		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
 			  int crlf,		/* CRLF newlines instead of LF */
 			  int *sock		/* socket handle or 0 for this session's client socket */

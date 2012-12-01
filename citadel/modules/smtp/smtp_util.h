@@ -41,9 +41,11 @@ const char *smtp_get_Recipients(void);
 
 typedef struct _citsmtp {		/* Information about the current session */
 	int command_state;
-	char helo_node[SIZ];
-	char from[SIZ];
-	char recipients[SIZ];
+	StrBuf *Cmd;
+	StrBuf *helo_node;
+	StrBuf *from;
+	StrBuf *recipients;
+	StrBuf *OneRcpt;
 	int number_of_recipients;
 	int delivery_mode;
 	int message_originated_locally;
