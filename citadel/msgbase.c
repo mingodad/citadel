@@ -3597,6 +3597,8 @@ void flood_protect_quickie_message(const char *from,
 	cdb_store(CDB_USETABLE,
 		  SKEY(guid),
 		  &ut, sizeof(struct UseTable) );
+	
+	FreeStrBuf(&guid);
 
 	if (cdbut != NULL) return;
 	/* no, this message isn't sent recently; go ahead. */
