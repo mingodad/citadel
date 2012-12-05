@@ -1055,9 +1055,9 @@ HashList *GetGVEAHash(StrBuf *Target, WCTemplputParams *TP)
 				i = snprintf(N, sizeof(N), "%d", n);
 				StrBufTrim(Rcp);
 				VEA->Address = Rcp;
-				if (EnvelopeTo != NULL)
+				if (StrLength(EnvelopeTo) > 0)
 					VEA->IsDefault = strstr(ChrPtr(EnvelopeTo), ChrPtr(Rcp)) != NULL;
-				else if (DefaultFrom != NULL)
+				else if (StrLength(DefaultFrom) > 0)
 					VEA->IsDefault = !strcmp(ChrPtr(Rcp), ChrPtr(DefaultFrom));
 				else
 					VEA->IsDefault = 0;
