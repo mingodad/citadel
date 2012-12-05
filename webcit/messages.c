@@ -1335,6 +1335,7 @@ long l_cccc;
 long l_replyto;
 long l_node;
 long l_rfca;
+long l_nvto;
 
 const char *ReplyToModeStrings [3] = {
 	"reply",
@@ -1454,6 +1455,7 @@ void display_enter(void)
 		StrBuf *rcpt = NULL;
 		StrBuf *cccc = NULL;
 		StrBuf *replyto = NULL;
+		StrBuf *nvto = NULL;
 		serv_printf("MSG0 %ld|1", replying_to);	
 
 		StrBuf_ServGetln(Line);
@@ -1539,7 +1541,7 @@ void display_enter(void)
 				}
 				else if (which == l_replyto) {
 					replyto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}				
+				}
 				else if (which == l_rfca) {
 					StrBuf *FlatRFCA;
 					rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
@@ -1547,6 +1549,10 @@ void display_enter(void)
 					StrBuf_RFC822_to_Utf8(FlatRFCA, rfca, NULL, NULL);
 					FreeStrBuf(&rfca);
 					rfca = FlatRFCA;
+				}
+				else if (which == l_nvto) {
+					nvto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+					putbstr("nvto", nvto);
 				}
 			}
 
@@ -2071,6 +2077,7 @@ InitModule_MSG
 	l_replyto = FourHash("rep2", 4);
 	l_node = FourHash("node", 4);
 	l_rfca = FourHash("rfca", 4);
+	l_nvto = FourHash("nvto", 4);
 
 	return ;
 }

@@ -51,6 +51,7 @@ void DestroyMessageSummary(void *vMsg)
 	FreeStrBuf(&Msg->AllRcpt);
 	FreeStrBuf(&Msg->Room);
 	FreeStrBuf(&Msg->Rfca);
+	FreeStrBuf(&Msg->EnvTo);
 	FreeStrBuf(&Msg->OtherNode);
 
 	DeleteHash(&Msg->Attachments);	/* list of Attachments */
@@ -482,6 +483,21 @@ int Conditional_MAIL_SUMM_OTHERNODE(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
 	return StrLength(Msg->OtherNode) > 0;
+}
+
+void examine_nvto(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
+	FreeStrBuf(&Msg->EnvTo);
+	Msg->EnvTo = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_2_Utf8(Msg->EnvTo, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 }
 
 
@@ -1598,6 +1614,7 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("rfca"), examine_rfca, 0);
 	RegisterMsgHdr(HKEY("node"), examine_node, 0);
 	RegisterMsgHdr(HKEY("rcpt"), examine_rcpt, 0);
+	RegisterMsgHdr(HKEY("nvto"), examine_nvto, 0);
 	RegisterMsgHdr(HKEY("time"), examine_time, 0);
 	RegisterMsgHdr(HKEY("part"), examine_mime_part, 0);
 	RegisterMsgHdr(HKEY("text"), examine_text, 1);

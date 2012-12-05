@@ -88,30 +88,32 @@ char *msgkeys[] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, 
-	"from",
-	NULL, NULL, NULL,
-	"exti",
-	"rfca",
-	NULL, 
-	"hnod",
-	"msgn",
-	"jrnl",
-	"rep2",
-	"list",
-	"text",
-	"node",
-	"room",
-	"path",
-	NULL,
-	"rcpt",
-	"spec",
-	"time",
-	"subj",
-	NULL,
-	"wefw",
-	NULL,
-	"cccc",
-	NULL
+	"from", /* A */
+	NULL,   /* B */
+	NULL,   /* C */
+	NULL,   /* D */
+	"exti", /* E */
+	"rfca", /* F */
+	NULL,   /* G */
+	"hnod", /* H */
+	"msgn", /* I */
+	"jrnl", /* J */
+	"rep2", /* K */
+	"list", /* L */
+	"text", /* M */
+	"node", /* N */
+	"room", /* O */
+	"path", /* P */
+	NULL,   /* Q */
+	"rcpt", /* R */
+	"spec", /* S */
+	"time", /* T */
+	"subj", /* U */
+	"nvto", /* V */
+	"wefw", /* W */
+	NULL,   /* X */
+	"cccc", /* Y */
+	NULL    /* Z */
 };
 
 /*

@@ -47,6 +47,7 @@ typedef struct _message_summary {
 	StrBuf *AllRcpt;
 	StrBuf *Room;
 	StrBuf *Rfca;
+	StrBuf *EnvTo;
 	StrBuf *OtherNode;
 	const StrBuf *PartNum;
 
