@@ -411,10 +411,10 @@ void smtp_auth(long offset, long Flags)
 		return;
 	}
 
-	extract_token(method, ChrPtr(sSMTP->Cmd), 0, ' ', sizeof method);
+	extract_token(method, ChrPtr(sSMTP->Cmd) + offset, 0, ' ', sizeof method);
 
 	if (!strncasecmp(method, "login", 5) ) {
-		if (StrLength(sSMTP->Cmd) >= 7) {
+		if (StrLength(sSMTP->Cmd) - offset >= 7) {
 			smtp_get_user(6);
 		}
 		else {
@@ -427,18 +427,18 @@ void smtp_auth(long offset, long Flags)
 
 	if (!strncasecmp(method, "plain", 5) ) {
 		long len;
-		if (num_tokens(ChrPtr(sSMTP->Cmd), ' ') < 2) {
+		if (num_tokens(ChrPtr(sSMTP->Cmd) + offset, ' ') < 2) {
 			cprintf("334 \r\n");
 			SMTP->command_state = smtp_plain;
 			return;
 		}
 
 		len = extract_token(encoded_authstring, 
-				    ChrPtr(sSMTP->Cmd),
+				    ChrPtr(sSMTP->Cmd) + offset,
 				    1, ' ',
 				    sizeof encoded_authstring);
 		StrBufPlain(sSMTP->Cmd, encoded_authstring, len);
-		smtp_try_plain(offset, Flags);
+		smtp_try_plain(0, Flags);
 		return;
 	}
 
