@@ -1322,7 +1322,7 @@ long l_rfca;
 
 const char *ReplyToModeStrings [3] = {
 	"reply",
-	"replyalle",
+	"replyall",
 	"forward"
 };
 typedef enum _eReplyToNodes {
