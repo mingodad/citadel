@@ -1339,7 +1339,7 @@ long l_nvto;
 
 const char *ReplyToModeStrings [3] = {
 	"reply",
-	"replyalle",
+	"replyall",
 	"forward"
 };
 typedef enum _eReplyToNodes {
