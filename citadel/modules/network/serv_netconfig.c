@@ -347,15 +347,33 @@ void cmd_gnet(char *argbuf)
 	char buf[SIZ];
 	FILE *fp;
 
-	if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
-		/* users can edit the netconfigs for their own mailbox rooms */
-	}
-	else if (CtdlAccessCheck(ac_room_aide)) return;
 
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-	cprintf("%d Network settings for room #%ld <%s>\n",
-		LISTING_FOLLOWS,
-		CC->room.QRnumber, CC->room.QRname);
+	if (!IsEmptyStr(argbuf))
+	{
+		if (CtdlAccessCheck(ac_aide)) return;
+		if (strcmp(argbuf, FILE_MAILALIAS))
+		{
+			cprintf("%d No such file or directory\n",
+				ERROR + INTERNAL_ERROR);
+			return;
+		}
+		safestrncpy(filename, file_mail_aliases, sizeof(filename));
+		cprintf("%d Settings for <%s>\n",
+			LISTING_FOLLOWS,
+			filename);
+	}
+	else
+	{
+		if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
+			/* users can edit the netconfigs for their own mailbox rooms */
+		}
+		else if (CtdlAccessCheck(ac_room_aide)) return;
+		
+		assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+		cprintf("%d Network settings for room #%ld <%s>\n",
+			LISTING_FOLLOWS,
+			CC->room.QRnumber, CC->room.QRname);
+	}
 
 	fp = fopen(filename, "r");
 	if (fp != NULL) {
@@ -369,6 +387,14 @@ void cmd_gnet(char *argbuf)
 	cprintf("000\n");
 }
 
+#define nForceAliases 5
+const ConstStr ForceAliases[nForceAliases] = {
+	{HKEY("bbs,")},
+	{HKEY("root,")},
+	{HKEY("Auto,")},
+	{HKEY("postmaster,")},
+	{HKEY("abuse,")}
+};
 
 void cmd_snet(char *argbuf) {
 	char tempfilename[PATH_MAX];
@@ -378,17 +404,34 @@ void cmd_snet(char *argbuf) {
 	struct stat StatBuf;
 	long len;
 	int rc;
+	int IsMailAlias = 0;
+	int MailAliasesFound[nForceAliases];
 
 	unbuffer_output();
 
-	if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
-		/* users can edit the netconfigs for their own mailbox rooms */
+	if (!IsEmptyStr(argbuf))
+	{
+		if (CtdlAccessCheck(ac_aide)) return;
+		if (strcmp(argbuf, FILE_MAILALIAS))
+		{
+			cprintf("%d No such file or directory\n",
+				ERROR + INTERNAL_ERROR);
+			return;
+		}
+		safestrncpy(filename, file_mail_aliases, sizeof(filename));
+		memset(MailAliasesFound, 0, sizeof(MailAliasesFound));
+		IsMailAlias = 1;
 	}
-	else if (CtdlAccessCheck(ac_room_aide)) return;
-
-	len = assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-	memcpy(tempfilename, filename, len + 1);
-
+	else
+	{
+		if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
+			/* users can edit the netconfigs for their own mailbox rooms */
+		}
+		else if (CtdlAccessCheck(ac_room_aide)) return;
+		
+		len = assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+		memcpy(tempfilename, filename, len + 1);
+	}
 	memset(&StatBuf, 0, sizeof(struct stat));
 	if ((stat(filename, &StatBuf)  == -1) || (StatBuf.st_size == 0))
 		StatBuf.st_size = 80; /* Not there or empty? guess 80 chars line. */
@@ -433,6 +476,24 @@ void cmd_snet(char *argbuf) {
 	{
 		if ((rc == 3) && (strcmp(ChrPtr(Line), "000") == 0))
 			break;
+		if (IsMailAlias)
+		{
+			int i;
+
+			for (i = 0; i < nForceAliases; i++)
+			{
+				if ((!MailAliasesFound[i]) && 
+				    (strncmp(ForceAliases[i].Key, 
+					     ChrPtr(Line),
+					     ForceAliases[i].len) == 0)
+					)
+				    {
+					    MailAliasesFound[i] = 1;
+					    break;
+				    }
+			}
+		}
+
 		StrBufAppendBufPlain(Line, HKEY("\n"), 0);
 		write(TmpFD, ChrPtr(Line), StrLength(Line));
 		len += StrLength(Line);
@@ -440,6 +501,28 @@ void cmd_snet(char *argbuf) {
 	FreeStrBuf(&Line);
 	ftruncate(TmpFD, len);
 	close(TmpFD);
+
+	if (IsMailAlias)
+	{
+		int i, state;
+		/*
+		 * Sanity check whether all aliases required by the RFCs were set
+		 * else bail out.
+		 */
+		state = 1;
+		for (i = 0; i < nForceAliases; i++)
+		{
+			if (!MailAliasesFound[i]) 
+				state = 0;
+		}
+		if (state == 0)
+		{
+			cprintf("%d won't do this - you're missing an RFC required alias.\n",
+				ERROR + INTERNAL_ERROR);
+			unlink(tempfilename);
+			return;
+		}
+	}
 
 	/* Now copy the temp file to its permanent location.
 	 * (We copy instead of link because they may be on different filesystems)

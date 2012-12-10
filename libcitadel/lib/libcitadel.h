@@ -675,6 +675,8 @@ extern "C" {
 #define XMPPMORTUARY	"application/x-citadel-xmpp-mortuary"
 #define INTERNETCFG     "application/x-citadel-internet-config"
 
+#define FILE_MAILALIAS       "__MAIL_ALIAS__"
+
 #define LISTING_FOLLOWS		100
 #define CIT_OK			200
 #define MORE_DATA		300
