@@ -418,8 +418,9 @@ void cmd_snet(char *argbuf) {
 				ERROR + INTERNAL_ERROR);
 			return;
 		}
-		safestrncpy(filename, file_mail_aliases, sizeof(filename));
+		len = safestrncpy(filename, file_mail_aliases, sizeof(filename));
 		memset(MailAliasesFound, 0, sizeof(MailAliasesFound));
+		memcpy(tempfilename, filename, len + 1);
 		IsMailAlias = 1;
 	}
 	else
