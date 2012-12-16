@@ -1050,8 +1050,11 @@ void netedit(void) {
 	int i, num_addrs;
 	StrBuf *Line;
 	StrBuf *TmpBuf;
+	int malias = 0;
+	char sepchar = '|';
 	int Done;
 
+	line[0] = '\0';
         if (havebstr("force_room")) {
                 gotoroom(sbstr("force_room"));
 	}
@@ -1074,6 +1077,14 @@ void netedit(void) {
 		strcat(line, bstr("line"));
 		strcat(line, bstr("suffix"));
 	}
+	else if (havebstr("alias")) {
+		malias = 1;
+		sepchar = ',';
+		strcat(line, bstr("prefix"));
+		strcat(line, ",");
+		strcat(line, "room_");
+		strcat(line, ChrPtr(WC->CurRoom.name));
+	}
 	else {
 		output_headers(1, 1, 1, 0, 0, 0);	
 		do_template("room_edit");
@@ -1083,7 +1094,10 @@ void netedit(void) {
 
 	Line = NewStrBuf();
 	TmpBuf = NewStrBuf();
-	serv_puts("GNET");
+	if (malias)
+		serv_puts("GNET "FILE_MAILALIAS);
+	else
+		serv_puts("GNET");
 	StrBuf_ServGetln(Line);
 	if  (GetServerStatus(Line, NULL) != 1) {
 		AppendImportantMessage(SRV_STATUS_MSG(Line));	
@@ -1096,8 +1110,8 @@ void netedit(void) {
 
 	/** This loop works for add *or* remove.  Spiffy, eh? */
 	Done = 0;
-	extract_token(cmpb0, line, 0, '|', sizeof cmpb0);
-	extract_token(cmpb1, line, 1, '|', sizeof cmpb1);
+	extract_token(cmpb0, line, 0, sepchar, sizeof cmpb0);
+	extract_token(cmpb1, line, 1, sepchar, sizeof cmpb1);
 	while (!Done && StrBuf_ServGetln(Line)>=0) {
 		if ( (StrLength(Line)==3) && 
 		     !strcmp(ChrPtr(Line), "000")) 
@@ -1106,17 +1120,23 @@ void netedit(void) {
 		}
 		else
 		{
-			extract_token(cmpa0, ChrPtr(Line), 0, '|', sizeof cmpa0);
-			extract_token(cmpa1, ChrPtr(Line), 1, '|', sizeof cmpa1);
-			if ( (strcasecmp(cmpa0, cmpb0)) 
-			     || (strcasecmp(cmpa1, cmpb1)) ) {
+			if (StrLength(Line) == 0)
+				continue;
+
+			extract_token(cmpa0, ChrPtr(Line), 0, sepchar, sizeof cmpa0);
+			extract_token(cmpa1, ChrPtr(Line), 1, sepchar, sizeof cmpa1);
+			if ( (strcasecmp(cmpa0, cmpb0)) || (strcasecmp(cmpa1, cmpb1)) )
+			{
 				StrBufAppendBufPlain(Line, HKEY("\n"), 0);
 				StrBufAppendBuf(TmpBuf, Line, 0);
 			}
 		}
 	}
 
-	serv_puts("SNET");
+	if (malias)
+		serv_puts("SNET "FILE_MAILALIAS);
+	else
+		serv_puts("SNET");
 	StrBuf_ServGetln(Line);
 	if  (GetServerStatus(Line, NULL) != 4) {
 

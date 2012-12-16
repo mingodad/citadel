@@ -72,16 +72,37 @@
 						<tt><?%("COND:IS_HTTPS", 3, 1, 0, "https", "http")>://<?SERV:FQDN>/listsub</tt>
 					</td>
 				</tr>
-
 				<tr>
-					<td colspan="2" align="center">
-					        <input type="hidden" name="last_tabsel" value="<?TAB:N>">
-						<input type="hidden" name="nonce" value="<?NONCE>">
-						<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
-						<input type="submit" name="add_button" value="<?_("Save changes")>">
-					</td>
+				<tr>
+				  <td colspan="2" align="center">
+				    <input type="hidden" name="last_tabsel" value="<?TAB:N>">
+				    <input type="hidden" name="nonce" value="<?NONCE>">
+				    <input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
+				    <input type="submit" name="add_button" value="<?_("Save changes")>">
+				  </td>
 				</tr>
 			</table>
 		</form>
+		<table class="altern">
+		  <td colspan="2">
+		    <?_("Alternative public emailaddresses pointing to this room: ")>
+		  </td>
+		  <?ITERATE("ITERATE:THISROOM:MALIAS", ="room_edit_alias_removal", 0, 0, -1, "")>
+		  <tr>
+		    <td colspan="2">
+		      <form method="post" action="netedit">
+			<p>
+			  <input type="hidden" name="last_tabsel" value="<?TAB:N>">
+			  <input type="hidden" name="alias" value="room_<?THISROOM:NAME("X")>">
+			  <input type="hidden" name="nonce" value="<?NONCE>">
+			  <input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
+			  <input type="text" id="prefix" name="prefix">
+			  <input type="submit" name="add_button" value="<?_("Add")>">
+			</p>
+		      </form>
+		    </td>
+		  </tr>
+		</table>
+		
 	</center>
 </div>

@@ -320,6 +320,62 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	return rooms;
 }
 
+HashList *GetThisRoomMAlias(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	StrBuf *Line;
+	StrBuf *Token;
+	HashList *Aliases = NULL;
+	const char *pComma;
+	long aliaslen;
+	long locallen;
+	long State;
+	
+	serv_puts("GNET "FILE_MAILALIAS);
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, &State) == 1) 
+	{
+		int Done = 0;
+		int n = 0;
+
+		Aliases = NewHash(1, NULL);
+		while(!Done && (StrBuf_ServGetln(Line) >= 0))
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000"))
+			{
+				Done = 1;
+			}
+			else
+			{
+				pComma = strchr(ChrPtr(Line), ',');
+				if (pComma == NULL)
+					continue;
+				aliaslen = pComma - ChrPtr(Line);
+				locallen = StrLength(Line) - 1 - aliaslen;
+				if (locallen - 5 != StrLength(WCC->CurRoom.name))
+					continue;
+				if (strncmp(pComma + 1, "room_", 5) != 0)
+					continue;
+
+				if (strcasecmp(pComma + 6, ChrPtr(WCC->CurRoom.name)) != 0)
+					continue;
+				Token = NewStrBufPlain(ChrPtr(Line), aliaslen);
+				Put(Aliases, 
+				    IKEY(n),
+				    Token, 
+				    HFreeStrBuf);
+				n++; /* #0 is the type... */
+			}
+	}
+	else if (State == 550)
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
+
+	FreeStrBuf(&Line);
+
+	return Aliases;
+}
+
 HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
@@ -687,6 +743,7 @@ InitModule_ROOMLIST
 
 	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUFARR, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:MALIAS", 1, NULL, GetThisRoomMAlias, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
