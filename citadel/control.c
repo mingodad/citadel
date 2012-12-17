@@ -739,6 +739,88 @@ void cmd_conf(char *argbuf)
 	}
 }
 
+typedef struct __ConfType {
+	ConstStr Name;
+	long Type;
+}ConfType;
+
+ConfType CfgNames[] = {
+	{ {HKEY("localhost") },    0},
+	{ {HKEY("directory") },    0},
+	{ {HKEY("smarthost") },    2},
+	{ {HKEY("fallbackhost") }, 2},
+	{ {HKEY("rbl") },          3},
+	{ {HKEY("spamassassin") }, 3},
+	{ {HKEY("masqdomain") },   1},
+	{ {HKEY("clamav") },       3},
+	{ {HKEY("notify") },       3},
+	{ {NULL, 0}, 0}
+};
+
+HashList *CfgNameHash = NULL;
+void cmd_gvdn(char *argbuf)
+{
+	const ConfType *pCfg;
+	char *confptr;
+	long min = atol(argbuf);
+	const char *Pos = NULL;
+	const char *PPos = NULL;
+	const char *HKey;
+	long HKLen;
+	StrBuf *Line;
+	StrBuf *Config;
+	StrBuf *Cfg;
+	StrBuf *CfgToken;
+	HashList *List;
+	HashPos *It;
+	void *vptr;
+	
+	List = NewHash(1, NULL);
+	Cfg = NewStrBufPlain(config.c_fqdn, -1);
+	Put(List, SKEY(Cfg), Cfg, HFreeStrBuf);
+	Cfg = NULL;
+
+	confptr = CtdlGetSysConfig(INTERNETCFG);
+	Config = NewStrBufPlain(confptr, -1);
+	free(confptr);
+
+	Line = NewStrBufPlain(NULL, StrLength(Config));
+	CfgToken = NewStrBufPlain(NULL, StrLength(Config));
+	while (StrBufSipLine(Line, Config, &Pos))
+	{
+		if (Cfg == NULL)
+			Cfg = NewStrBufPlain(NULL, StrLength(Line));
+		PPos = NULL;
+		StrBufExtract_NextToken(Cfg, Line, &PPos, '|');
+		StrBufExtract_NextToken(CfgToken, Line, &PPos, '|');
+		if (GetHash(CfgNameHash, SKEY(CfgToken), &vptr) &&
+		    (vptr != NULL))
+		{
+			pCfg = (ConfType *) vptr;
+			if (pCfg->Type <= min)
+			{
+				Put(List, SKEY(Cfg), Cfg, HFreeStrBuf);
+				Cfg = NULL;
+			}
+		}
+	}
+
+	cprintf("%d Valid Domains\n", LISTING_FOLLOWS);
+	It = GetNewHashPos(List, 1);
+	while (GetNextHashPos(List, It, &HKLen, &HKey, &vptr))
+	{
+		cputbuf(vptr);
+		cprintf("\n");
+	}
+	cprintf("000\n");
+
+	DeleteHashPos(&It);
+	DeleteHash(&List);
+	FreeStrBuf(&Cfg);
+	FreeStrBuf(&Line);
+	FreeStrBuf(&CfgToken);
+	FreeStrBuf(&Config);
+}
 
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
@@ -748,6 +830,13 @@ void cmd_conf(char *argbuf)
 CTDL_MODULE_INIT(control)
 {
 	if (!threading) {
+		int i;
+
+		CfgNameHash = NewHash(1, NULL);
+		for (i = 0; CfgNames[i].Name.Key != NULL; i++)
+			Put(CfgNameHash, CKEY(CfgNames[i].Name), &CfgNames[i], reference_free_handler);
+
+		CtdlRegisterProtoHook(cmd_gvdn, "GVDN", "get valid domain names");
 		CtdlRegisterProtoHook(cmd_conf, "CONF", "get/set system configuration");
 	}
 	/* return our id for the Log */
