@@ -97,6 +97,11 @@
 			  <input type="hidden" name="nonce" value="<?NONCE>">
 			  <input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
 			  <input type="text" id="prefix" name="prefix">
+			  @ 
+			  <select size="1" name="aliasdomain">
+				  <option value=""><?_("All Domains")></option>
+				  <?ITERATE("ITERATE:VALID:DOMAINNAMES", ="room_edit_alias_domainname", 0, 0, -1, "")>
+			  </select>
 			  <input type="submit" name="add_button" value="<?_("Add")>">
 			</p>
 		      </form>

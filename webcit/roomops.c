@@ -1078,9 +1078,16 @@ void netedit(void) {
 		strcat(line, bstr("suffix"));
 	}
 	else if (havebstr("alias")) {
+		const char *domain;
 		malias = 1;
 		sepchar = ',';
+		domain = bstr("aliasdomain");
 		strcat(line, bstr("prefix"));
+		if (!IsEmptyStr(domain))
+		{
+			strcat(line, "@");
+			strcat(line, domain);
+		}
 		strcat(line, ",");
 		strcat(line, "room_");
 		strcat(line, ChrPtr(WC->CurRoom.name));
