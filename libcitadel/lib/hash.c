@@ -788,7 +788,7 @@ int GetHashKeys(HashList *Hash, char ***List)
  *  step-raster is provided.
  * @return the hash iterator
  */
-HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
+HashPos *GetNewHashPos(const HashList *Hash, int StepWidth)
 {
 	HashPos *Ret;
 	
@@ -940,7 +940,7 @@ void DeleteHashPos(HashPos **DelMe)
  * @param Data returns the Data found at HashPos
  * @return whether the item was found or not.
  */
-int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
+int GetNextHashPos(const HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
 {
 	long PayloadPos;
 
