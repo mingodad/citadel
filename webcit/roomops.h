@@ -78,6 +78,9 @@ typedef struct _folder {
 	int RoomAideLoaded;
 	StrBuf *RoomAide;
 
+/* only available if GNET contains this */
+	const StrBuf* RoomAlias; /* by what mail will this room send mail? */
+
 /* only available if GETR was run */
 	int XALoaded;
 	StrBuf *XAPass;

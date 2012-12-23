@@ -73,7 +73,6 @@
 					</td>
 				</tr>
 				<tr>
-				<tr>
 				  <td colspan="2" align="center">
 				    <input type="hidden" name="last_tabsel" value="<?TAB:N>">
 				    <input type="hidden" name="nonce" value="<?NONCE>">
@@ -83,6 +82,32 @@
 				</tr>
 			</table>
 		</form>
+
+		<table class="altern">
+		  <tr>
+		  <td colspan="2">
+		    <?_("Which from address should be used: ")>
+		  </td>
+		  </tr>
+		  <tr>
+		    <td colspan="2">
+		      <form method="post" action="netedit">
+			<p>
+			  <input type="hidden" name="last_tabsel" value="<?TAB:N>">
+			  <input type="hidden" name="alias" value="room_<?THISROOM:NAME("X")>">
+			  <input type="hidden" name="nonce" value="<?NONCE>">
+			  <input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
+			  <input type="hidden" name="prefix" value="roommailalias|">
+			  <select size="1" name="default_aliasdomain">
+				  <option value=""<?%("COND:THISROOM:ISALIAS:CONTEXTSTR", 1, #"eNotSet", "", ' selected="selected"', "")>><?_("none (not advised)")></option>
+		  <?ITERATE("ITERATE:THISROOM:POSSIBLE:MALIAS", ="room_edit_select_alias", 0, 0, -1, "")>
+			  </select>
+			  <input type="submit" name="add_button" value="<?_("Set")>">
+			</p>
+		      </form>
+		    </td>
+		  </tr>
+		</table>
 		<table class="altern">
 		  <td colspan="2">
 		    <?_("Alternative public emailaddresses pointing to this room: ")>

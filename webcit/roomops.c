@@ -1051,6 +1051,7 @@ void netedit(void) {
 	StrBuf *Line;
 	StrBuf *TmpBuf;
 	int malias = 0;
+	int malias_set_default = 0;
 	char sepchar = '|';
 	int Done;
 
@@ -1079,18 +1080,27 @@ void netedit(void) {
 	}
 	else if (havebstr("alias")) {
 		const char *domain;
-		malias = 1;
-		sepchar = ',';
 		domain = bstr("aliasdomain");
-		strcat(line, bstr("prefix"));
-		if (!IsEmptyStr(domain))
+		if ((domain == NULL) || IsEmptyStr(domain))
 		{
-			strcat(line, "@");
-			strcat(line, domain);
+			malias_set_default = 1;
+			strcpy(line, bstr("prefix"));
+			strcat(line, bstr("default_aliasdomain"));
 		}
-		strcat(line, ",");
-		strcat(line, "room_");
-		strcat(line, ChrPtr(WC->CurRoom.name));
+		else
+		{
+			malias = 1;
+			sepchar = ',';
+			strcat(line, bstr("prefix"));
+			if (!IsEmptyStr(domain))
+			{
+				strcat(line, "@");
+				strcat(line, domain);
+			}
+			strcat(line, ",");
+			strcat(line, "room_");
+			strcat(line, ChrPtr(WC->CurRoom.name));
+		}
 	}
 	else {
 		output_headers(1, 1, 1, 0, 0, 0);	
@@ -1130,12 +1140,23 @@ void netedit(void) {
 			if (StrLength(Line) == 0)
 				continue;
 
-			extract_token(cmpa0, ChrPtr(Line), 0, sepchar, sizeof cmpa0);
-			extract_token(cmpa1, ChrPtr(Line), 1, sepchar, sizeof cmpa1);
-			if ( (strcasecmp(cmpa0, cmpb0)) || (strcasecmp(cmpa1, cmpb1)) )
+			if (malias_set_default)
 			{
-				StrBufAppendBufPlain(Line, HKEY("\n"), 0);
-				StrBufAppendBuf(TmpBuf, Line, 0);
+				if (strncmp(ChrPtr(Line), HKEY("roommailalias|")) != 0)
+				{
+					StrBufAppendBufPlain(Line, HKEY("\n"), 0);
+					StrBufAppendBuf(TmpBuf, Line, 0);
+				}
+			}
+			else
+			{
+				extract_token(cmpa0, ChrPtr(Line), 0, sepchar, sizeof cmpa0);
+				extract_token(cmpa1, ChrPtr(Line), 1, sepchar, sizeof cmpa1);
+				if ( (strcasecmp(cmpa0, cmpb0)) || (strcasecmp(cmpa1, cmpb1)) )
+				{
+					StrBufAppendBufPlain(Line, HKEY("\n"), 0);
+					StrBufAppendBuf(TmpBuf, Line, 0);
+				}
 			}
 		}
 	}
@@ -1448,6 +1469,7 @@ InitModule_ROOMOPS
 	}
 	REGISTERTokenParamDefine(rssclient);
 	REGISTERTokenParamDefine(participate);
+	REGISTERTokenParamDefine(roommailalias);
 
 
 

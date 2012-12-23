@@ -58,6 +58,7 @@ enum RoomNetCfg {
 	pop3client,
 	rssclient,
 	participate,
+	roommailalias,
 	maxRoomNetCfg
 };
 
