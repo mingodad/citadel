@@ -34,7 +34,7 @@ typedef struct namelist namelist;
 
 struct namelist {
 	namelist *next;
-	char name[SIZ];
+	StrBuf *Value;
 };
 
 

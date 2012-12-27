@@ -31,8 +31,8 @@ typedef struct maplist maplist;
 
 struct maplist {
 	struct maplist *next;
-	char remote_nodename[SIZ];
-	char remote_roomname[SIZ];
+	StrBuf *remote_nodename;
+	StrBuf *remote_roomname;
 };
 
 
@@ -40,11 +40,10 @@ typedef struct SpoolControl SpoolControl;
 
 struct SpoolControl {
 	long lastsent;
-	namelist *listrecps;
-	namelist *digestrecps;
-	namelist *participates;
-	maplist *ignet_push_shares;
-	char *misc;
+	StrBuf *Sender;
+	StrBuf *RoomInfo;
+	namelist *NetConfigs[maxRoomNetCfg];
+	StrBuf *misc;
 	FILE *digestfp;
 	int num_msgs_spooled;
 

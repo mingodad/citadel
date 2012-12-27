@@ -81,131 +81,336 @@
 #include "netmail.h"
 #include "ctdl_module.h"
 
+
+HashList *CfgTypeHash = NULL;
+typedef struct CfgLineType CfgLineType;
+typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc);
+typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, SpoolControl *sc, namelist *data);
+typedef void (*CfgLineDeAllocator)(const CfgLineType *ThisOne, namelist **data);
+struct CfgLineType {
+	RoomNetCfg C;
+	CfgLineParser Parser;
+	CfgLineSerializer Serializer;
+	CfgLineDeAllocator DeAllocator;
+	ConstStr Str;
+	int IsSingleLine;
+};
+#define REGISTERRoomCfgType(a, p, uniq, s, d) RegisterRoomCfgType(#a, sizeof(#a) - 1, a, p, uniq, s, d);
+
+void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLineParser p, int uniq, CfgLineSerializer s, CfgLineDeAllocator d)
+{
+	CfgLineType *pCfg;
+
+	pCfg = (CfgLineType*) malloc(sizeof(CfgLineType));
+	pCfg->Parser = p;
+	pCfg->Serializer = s;
+	pCfg->C = eCfg;
+	pCfg->Str.Key = Name;
+	pCfg->Str.len = len;
+	pCfg->IsSingleLine = uniq;
+
+	if (CfgTypeHash == NULL)
+		CfgTypeHash = NewHash(1, NULL);
+	Put(CfgTypeHash, Name, len, pCfg, NULL);
+}
+
+const CfgLineType *GetCfgTypeByStr(const char *Key, long len)
+{
+	void *pv;
+	
+	if (GetHash(CfgTypeHash, Key, len, &pv) && (pv != NULL))
+	{
+		return (const CfgLineType *) pv;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+const CfgLineType *GetCfgTypeByEnum(RoomNetCfg eCfg, HashPos *It)
+{
+	const char *Key;
+	long len;
+	void *pv;
+	CfgLineType *pCfg;
+
+	RewindHashPos(CfgTypeHash, It, 1);
+	while (GetNextHashPos(CfgTypeHash, It, &len, &Key, &pv) && (pv != NULL))
+	{
+		pCfg = (CfgLineType*) pv;
+		if (pCfg->C == eCfg)
+			return pCfg;
+	}
+	return NULL;
+}
+void ParseDefault(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+{
+	namelist *nptr;
+
+	nptr = (namelist *)
+		malloc(sizeof(namelist));
+	nptr->next = sc->NetConfigs[ThisOne->C];
+	nptr->Value = NewStrBufPlain(LinePos, StrLength(Line) - ( LinePos - ChrPtr(Line)) );
+	sc->NetConfigs[ThisOne->C] = nptr;
+}
+
+void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+{
+	sc->lastsent = extract_long(LinePos, 0);
+}
+void ParseIgnetPushShare(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+{
+/*
+	extract_token(nodename, LinePos, 0, '|', sizeof nodename);
+	extract_token(roomname, LinePos, 1, '|', sizeof roomname);
+	mptr = (maplist *) malloc(sizeof(maplist));
+	mptr->next = sc->ignet_push_shares;
+	strcpy(mptr->remote_nodename, nodename);
+	strcpy(mptr->remote_roomname, roomname);
+	sc->ignet_push_shares = mptr;
+*/
+}
+
+void ParseRoomAlias(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+{
+/*
+	if (sc->sender != NULL)
+		continue; / * just one alowed... * /
+	extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
+	sc->sender = nptr;
+*/
+}
+
+void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+{
+
+	if (time(NULL) - extract_long(LinePos, 3) > EXP) {
+		//	skipthisline = 1;
+	}
+	else
+	{
+	}
+
+}
+void ParseUnSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+{
+	///int skipthisline = 0;
+	if (time(NULL) - extract_long(LinePos, 2) > EXP) {
+		//	skipthisline = 1;
+	}
+
+}
+
+void DeleteGenericCfgLine(const CfgLineType *ThisOne, namelist **data)
+{
+	FreeStrBuf(&(*data)->Value);
+	free(*data);
+	*data = NULL;
+}
 int read_spoolcontrol_file(SpoolControl **scc, char *filename)
 {
-	FILE *fp;
-	char instr[SIZ];
-	char buf[SIZ];
-	char nodename[256];
-	char roomname[ROOMNAMELEN];
-	size_t miscsize = 0;
-	size_t linesize = 0;
-	int skipthisline = 0;
-	namelist *nptr = NULL;
-	maplist *mptr = NULL;
+	int fd;
+	const char *ErrStr = NULL;
+	const char *Pos;
+	const CfgLineType *pCfg;
+	StrBuf *Line;
+	StrBuf *InStr;
 	SpoolControl *sc;
 
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
+	fd = open(filename, O_NONBLOCK|O_RDONLY);
+	if (fd == -1) {
+		*scc = NULL;
 		return 0;
 	}
 	sc = malloc(sizeof(SpoolControl));
 	memset(sc, 0, sizeof(SpoolControl));
 	*scc = sc;
 
-	while (fgets(buf, sizeof buf, fp) != NULL) {
-		buf[strlen(buf)-1] = 0;
+	while (StrBufTCP_read_line(Line, &fd, 0, &ErrStr) >= 0) {
+		if (StrLength(Line) == 0)
+			continue;
+		Pos = NULL;
+		InStr = NewStrBufPlain(NULL, StrLength(Line));
+		StrBufExtract_NextToken(InStr, Line, &Pos, '|');
 
-		extract_token(instr, buf, 0, '|', sizeof instr);
-		if (!strcasecmp(instr, strof(lastsent))) {
-			sc->lastsent = extract_long(buf, 1);
+		pCfg = GetCfgTypeByStr(SKEY(InStr));
+		if (pCfg != NULL)
+		{
+			pCfg->Parser(pCfg, Line, Pos, sc);
 		}
-		else if (!strcasecmp(instr, strof(listrecp))) {
-			nptr = (namelist *)
-				malloc(sizeof(namelist));
-			nptr->next = sc->listrecps;
-			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc->listrecps = nptr;
-		}
-		else if (!strcasecmp(instr, strof(participate))) {
-			nptr = (namelist *)
-				malloc(sizeof(namelist));
-			nptr->next = sc->participates;
-			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc->participates = nptr;
-		}
-		else if (!strcasecmp(instr, strof(digestrecp))) {
-			nptr = (namelist *)
-				malloc(sizeof(namelist));
-			nptr->next = sc->digestrecps;
-			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc->digestrecps = nptr;
-		}
-		else if (!strcasecmp(instr, strof(ignet_push_share))) {
-			extract_token(nodename, buf, 1, '|', sizeof nodename);
-			extract_token(roomname, buf, 2, '|', sizeof roomname);
-			mptr = (maplist *) malloc(sizeof(maplist));
-			mptr->next = sc->ignet_push_shares;
-			strcpy(mptr->remote_nodename, nodename);
-			strcpy(mptr->remote_roomname, roomname);
-			sc->ignet_push_shares = mptr;
-		}
-		else {
-			/* Preserve 'other' lines ... *unless* they happen to
-			 * be subscribe/unsubscribe pendings with expired
-			 * timestamps.
-			 */
-			skipthisline = 0;
-			if (!strncasecmp(buf, strof(subpending)"|", 11)) {
-				if (time(NULL) - extract_long(buf, 4) > EXP) {
-					skipthisline = 1;
-				}
+		else
+		{
+			if (sc->misc == NULL)
+			{
+				sc->misc = NewStrBufDup(Line);
 			}
-			if (!strncasecmp(buf, strof(unsubpending)"|", 13)) {
-				if (time(NULL) - extract_long(buf, 3) > EXP) {
-					skipthisline = 1;
-				}
-			}
-
-			if (skipthisline == 0) {
-				linesize = strlen(buf);
-				sc->misc = realloc(sc->misc,
-					(miscsize + linesize + 2) );
-				sprintf(&sc->misc[miscsize], "%s\n", buf);
-				miscsize = miscsize + linesize + 1;
+			else
+			{
+				if(StrLength(sc->misc) > 0)
+					StrBufAppendBufPlain(sc->misc, HKEY("\n"), 0);
+				StrBufAppendBuf(sc->misc, Line, 0);
 			}
 		}
-
-
 	}
-	fclose(fp);
+	if (fd > 0)
+		close(fd);
+	FreeStrBuf(&InStr);
+	FreeStrBuf(&Line);
 	return 1;
 }
 
+void SerializeLastSent(const CfgLineType *ThisOne, StrBuf *OutputBuffer, SpoolControl *sc, namelist *data)
+{
+	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
+	StrBufAppendPrintf(OutputBuffer, "|%ld\n", sc->lastsent);
+}
+
+void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, SpoolControl *sc, namelist *data)
+{
+	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
+	StrBufAppendBuf(OutputBuffer, data->Value, 0);
+	StrBufAppendBufPlain(OutputBuffer, HKEY("\n"), 0);
+}
+void SerializeIgnetPushShare(const CfgLineType *ThisOne, StrBuf *OutputBuffer, SpoolControl *sc, namelist *data)
+{
+	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
+/*
+			StrBufAppendPrintf(Cfg, "ignet_push_share|%s", sc->ignet_push_shares->remote_nodename);
+			if (!IsEmptyStr(sc->ignet_push_shares->remote_roomname)) {
+				StrBufAppendPrintf(Cfg, "|%s", sc->ignet_push_shares->remote_roomname);
+			}
+			StrBufAppendPrintf(Cfg, "\n");
+			mptr = sc->ignet_push_shares->next;
+			free(sc->ignet_push_shares);
+			sc->ignet_push_shares = mptr;
+*/
+	StrBufAppendBuf(OutputBuffer, data->Value, 0);
+	StrBufAppendBufPlain(OutputBuffer, HKEY("\n"), 0);
+}
+
+int save_spoolcontrol_file(SpoolControl *sc, char *filename)
+{
+	RoomNetCfg eCfg;
+	StrBuf *Cfg;
+	char tempfilename[PATH_MAX];
+	int TmpFD;
+	long len;
+	time_t unixtime;
+	struct timeval tv;
+	long reltid; /* if we don't have SYS_gettid, use "random" value */
+	StrBuf *OutBuffer;
+	int rc;
+	HashPos *CfgIt;
+
+	len = strlen(filename);
+	memcpy(tempfilename, filename, len + 1);
+
+
+#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
+	reltid = syscall(SYS_gettid);
+#endif
+	gettimeofday(&tv, NULL);
+	/* Promote to time_t; types differ on some OSes (like darwin) */
+	unixtime = tv.tv_sec;
+
+	sprintf(tempfilename + len, ".%ld-%ld", reltid, unixtime);
+	errno = 0;
+	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
+	Cfg = NewStrBuf();
+	if ((TmpFD < 0) || (errno != 0)) {
+		syslog(LOG_CRIT, "ERROR: cannot open %s: %s\n",
+			filename, strerror(errno));
+		unlink(tempfilename);
+		return 0;
+	}
+	else {
+		CfgIt = GetNewHashPos(CfgTypeHash, 1);
+		fchown(TmpFD, config.c_ctdluid, 0);
+		for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
+		{
+			const CfgLineType *pCfg;
+			pCfg = GetCfgTypeByEnum(eCfg, CfgIt);
+			if (pCfg->IsSingleLine)
+			{
+				pCfg->Serializer(pCfg, OutBuffer, sc, NULL);
+			}
+			else
+			{
+				namelist *pName = sc->NetConfigs[pCfg->C];
+				while (pName != NULL)
+				{
+					pCfg->Serializer(pCfg, OutBuffer, sc, pName);
+					pName = pName->next;
+				}
+				
+				
+			}
+
+		}
+		DeleteHashPos(&CfgIt);
+
+
+		if (sc->misc != NULL) {
+			StrBufAppendBuf(OutBuffer, sc->misc, 0);
+		}
+
+		rc = write(TmpFD, ChrPtr(OutBuffer), StrLength(OutBuffer));
+		if ((rc >=0 ) && (rc == StrLength(Cfg))) 
+		{
+			close(TmpFD);
+			rename(tempfilename, filename);
+			rc = 1;
+		}
+		else {
+			syslog(LOG_EMERG, 
+				      "unable to write %s; [%s]; not enough space on the disk?\n", 
+				      tempfilename, 
+				      strerror(errno));
+			close(TmpFD);
+			unlink(tempfilename);
+			rc = 0;
+		}
+		FreeStrBuf(&OutBuffer);
+		
+	}
+	return rc;
+}
+
+
+
 void free_spoolcontrol_struct(SpoolControl **scc)
 {
+	RoomNetCfg eCfg;
+	HashPos *CfgIt;
 	SpoolControl *sc;
-	namelist *nptr = NULL;
-	maplist *mptr = NULL;
 
 	sc = *scc;
-	while (sc->listrecps != NULL) {
-		nptr = sc->listrecps->next;
-		free(sc->listrecps);
-		sc->listrecps = nptr;
+	CfgIt = GetNewHashPos(CfgTypeHash, 1);
+	for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
+	{
+		const CfgLineType *pCfg;
+		namelist *pNext, *pName;
+		
+		pCfg = GetCfgTypeByEnum(eCfg, CfgIt);
+		pName= sc->NetConfigs[pCfg->C];
+		while (pName != NULL)
+		{
+			pNext = pName->next;
+			pCfg->DeAllocator(pCfg, &pName);
+			pName = pNext;
+		}
 	}
-	/* Do the same for digestrecps */
-	while (sc->digestrecps != NULL) {
-		nptr = sc->digestrecps->next;
-		free(sc->digestrecps);
-		sc->digestrecps = nptr;
-	}
-	/* Do the same for participates */
-	while (sc->participates != NULL) {
-		nptr = sc->participates->next;
-		free(sc->participates);
-		sc->participates = nptr;
-	}
-	while (sc->ignet_push_shares != NULL) {
-		mptr = sc->ignet_push_shares->next;
-		free(sc->ignet_push_shares);
-		sc->ignet_push_shares = mptr;
-	}
-	free(sc->misc);
+	DeleteHashPos(&CfgIt);
+
+	FreeStrBuf(&sc->Sender);
+	FreeStrBuf(&sc->RoomInfo);
+	FreeStrBuf(&sc->misc);
 	free(sc);
 	*scc=NULL;
 }
 
+#if 0
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 {
 	char tempfilename[PATH_MAX];
@@ -304,31 +509,34 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 	}
 	return 1;
 }
+#endif
 int is_recipient(SpoolControl *sc, const char *Name)
 {
+	const RoomNetCfg RecipientCfgs[] = {
+		listrecp,
+		digestrecp,
+		participate,
+		maxRoomNetCfg
+	};
+	int i;
 	namelist *nptr;
 	size_t len;
-
+	
 	len = strlen(Name);
-	nptr = sc->listrecps;
-	while (nptr != NULL) {
-		if (strncmp(Name, nptr->name, len)==0)
-			return 1;
-		nptr = nptr->next;
-	}
-	/* Do the same for digestrecps */
-	nptr = sc->digestrecps;
-	while (nptr != NULL) {
-		if (strncmp(Name, nptr->name, len)==0)
-			return 1;
-		nptr = nptr->next;
-	}
-	/* Do the same for participates */
-	nptr = sc->participates;
-	while (nptr != NULL) {
-		if (strncmp(Name, nptr->name, len)==0)
-			return 1;
-		nptr = nptr->next;
+	i = 0;
+	while (RecipientCfgs[i] != maxRoomNetCfg)
+	{
+		nptr = sc->NetConfigs[RecipientCfgs[i]];
+		
+		while (nptr != NULL)
+		{
+			if ((StrLength(nptr->Value) == len) && 
+			    (!strcmp(Name, ChrPtr(nptr->Value))))
+			{
+				return 1;
+			}
+			nptr = nptr->next;
+		}
 	}
 	return 0;
 }
@@ -371,7 +579,7 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 	sc->the_netmap = the_netmap;
 
 	/* If there are digest recipients, we have to build a digest */
-	if (sc->digestrecps != NULL) {
+	if (sc->NetConfigs[digestrecp] != NULL) {
 		sc->digestfp = tmpfile();
 		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 	}
@@ -400,7 +608,7 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 	}
 
 	/* Now rewrite the config file */
-	writenfree_spoolcontrol_file(&sc, filename);
+	//// todo writenfree_spoolcontrol_file(&sc, filename);
 	end_critical_section(S_NETCONFIGS);
 }
 
@@ -1006,6 +1214,17 @@ CTDL_MODULE_INIT(network_spool)
 {
 	if (!threading)
 	{
+//		REGISTERRoomCfgType(subpending, ParseSubPendingLine, 0, SerializeSubPendingLine, DeleteSubPendingLine); /// todo: move this to mailinglist manager
+//		REGISTERRoomCfgType(unsubpending, ParseUnSubPendingLine0, SerializeUnSubPendingLine, DeleteUnSubPendingLine); /// todo: move this to mailinglist manager
+//		REGISTERRoomCfgType(lastsent, ParseLastSent, 1, SerializeLastSent, DeleteLastSent);
+///		REGISTERRoomCfgType(ignet_push_share, ParseIgnetPushShare, 0, SerializeIgnetPushShare, DeleteIgnetPushShare); // todo: move this to the ignet client
+		REGISTERRoomCfgType(listrecp, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);
+		REGISTERRoomCfgType(digestrecp, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);
+		REGISTERRoomCfgType(pop3client, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);/// todo: implement pop3 specific parser
+		REGISTERRoomCfgType(rssclient, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine); /// todo: implement rss specific parser
+		REGISTERRoomCfgType(participate, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);
+		REGISTERRoomCfgType(roommailalias, ParseRoomAlias, 0, SerializeGeneric, DeleteGenericCfgLine);
+
 		create_spool_dirs();
 //////todo		CtdlRegisterCleanupHook(destroy_network_queue_room);
 	}

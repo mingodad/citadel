@@ -189,7 +189,7 @@ int network_usetable(struct CtdlMessage *msg)
 
 
 
-
+#if 0
 
 
 /*
@@ -271,6 +271,8 @@ int network_sync_to(char *target_node, long len)
 	return(num_spooled);
 }
 
+#endif
+
 
 /*
  * Implements the NSYN command
@@ -283,7 +285,7 @@ void cmd_nsyn(char *argbuf) {
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	len = extract_token(target_node, argbuf, 0, '|', sizeof target_node);
-	num_spooled = network_sync_to(target_node, len);
+	///// TODO num_spooled = network_sync_to(target_node, len);
 	if (num_spooled >= 0) {
 		cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
 	}
