@@ -48,7 +48,7 @@ typedef enum AXLevel {
 	AxAideU = 6
 }eUsrAxlvl;
 
-enum RoomNetCfg {
+typedef enum __RoomNetCfg {
 	subpending,
 	unsubpending,
 	lastsent, /* Server internal use only */
@@ -60,7 +60,7 @@ enum RoomNetCfg {
 	participate,
 	roommailalias,
 	maxRoomNetCfg
-};
+} RoomNetCfg;
 
 enum GNET_POP3_PARTS { /* pop3client splits into these columns: */
 	GNET_POP3_HOST = 1,
@@ -514,6 +514,7 @@ int GetHashKeys(HashList *Hash, char ***List);
 int dbg_PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry);
 HashPos *GetNewHashPos(const HashList *Hash, int StepWidth);
+void RewindHashPos(const HashList *Hash, HashPos *it, int StepWidth);
 int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At);
 int DeleteEntryFromHash(HashList *Hash, HashPos *At);
 int GetHashPosCounter(HashList *Hash, HashPos *At);

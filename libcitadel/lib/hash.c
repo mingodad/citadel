@@ -811,6 +811,30 @@ HashPos *GetNewHashPos(const HashList *Hash, int StepWidth)
 
 /**
  * @ingroup HashListAccess
+ * @brief resets a hash-linear iterator object
+ * @param Hash the list we reference
+ * @param StepWidth in which step width should we iterate?
+ * @param it the iterator object to manipulate
+ *  If negative, the last position matching the 
+ *  step-raster is provided.
+ * @return the hash iterator
+ */
+void RewindHashPos(const HashList *Hash, HashPos *it, int StepWidth)
+{
+	if (StepWidth != 0)
+		it->StepWidth = StepWidth;
+	else
+		it->StepWidth = 1;
+	if (it->StepWidth <  0) {
+		it->Position = Hash->nLookupTableItems - 1;
+	}
+	else {
+		it->Position = 0;
+	}
+}
+
+/**
+ * @ingroup HashListAccess
  * @brief Set iterator object to point to key. If not found, don't change iterator
  * @param Hash the list we reference
  * @param HKey key to search for
