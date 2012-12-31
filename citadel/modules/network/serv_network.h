@@ -30,12 +30,6 @@ extern int NetQDebugEnabled;
 			     "CC[%d]" FORMAT, \
 			     CCC->cs_pid)
 
-typedef struct namelist namelist;
-
-struct namelist {
-	namelist *next;
-	StrBuf *Value;
-};
 
 
 void free_netfilter_list(void);

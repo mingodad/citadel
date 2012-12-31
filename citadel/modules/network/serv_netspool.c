@@ -76,113 +76,44 @@
 #include "citadel_dirs.h"
 #include "threads.h"
 #include "context.h"
+
+#include "ctdl_module.h"
+
 #include "netconfig.h"
 #include "netspool.h"
 #include "netmail.h"
-#include "ctdl_module.h"
 
 
-HashList *CfgTypeHash = NULL;
-typedef struct CfgLineType CfgLineType;
-typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc);
-typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, SpoolControl *sc, namelist *data);
-typedef void (*CfgLineDeAllocator)(const CfgLineType *ThisOne, namelist **data);
-struct CfgLineType {
-	RoomNetCfg C;
-	CfgLineParser Parser;
-	CfgLineSerializer Serializer;
-	CfgLineDeAllocator DeAllocator;
-	ConstStr Str;
-	int IsSingleLine;
-};
-#define REGISTERRoomCfgType(a, p, uniq, s, d) RegisterRoomCfgType(#a, sizeof(#a) - 1, a, p, uniq, s, d);
 
-void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLineParser p, int uniq, CfgLineSerializer s, CfgLineDeAllocator d)
+
+void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
 {
-	CfgLineType *pCfg;
-
-	pCfg = (CfgLineType*) malloc(sizeof(CfgLineType));
-	pCfg->Parser = p;
-	pCfg->Serializer = s;
-	pCfg->C = eCfg;
-	pCfg->Str.Key = Name;
-	pCfg->Str.len = len;
-	pCfg->IsSingleLine = uniq;
-
-	if (CfgTypeHash == NULL)
-		CfgTypeHash = NewHash(1, NULL);
-	Put(CfgTypeHash, Name, len, pCfg, NULL);
+	rncfg->lastsent = extract_long(LinePos, 0);
 }
-
-const CfgLineType *GetCfgTypeByStr(const char *Key, long len)
-{
-	void *pv;
-	
-	if (GetHash(CfgTypeHash, Key, len, &pv) && (pv != NULL))
-	{
-		return (const CfgLineType *) pv;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-const CfgLineType *GetCfgTypeByEnum(RoomNetCfg eCfg, HashPos *It)
-{
-	const char *Key;
-	long len;
-	void *pv;
-	CfgLineType *pCfg;
-
-	RewindHashPos(CfgTypeHash, It, 1);
-	while (GetNextHashPos(CfgTypeHash, It, &len, &Key, &pv) && (pv != NULL))
-	{
-		pCfg = (CfgLineType*) pv;
-		if (pCfg->C == eCfg)
-			return pCfg;
-	}
-	return NULL;
-}
-void ParseDefault(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
-{
-	namelist *nptr;
-
-	nptr = (namelist *)
-		malloc(sizeof(namelist));
-	nptr->next = sc->NetConfigs[ThisOne->C];
-	nptr->Value = NewStrBufPlain(LinePos, StrLength(Line) - ( LinePos - ChrPtr(Line)) );
-	sc->NetConfigs[ThisOne->C] = nptr;
-}
-
-void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
-{
-	sc->lastsent = extract_long(LinePos, 0);
-}
-void ParseIgnetPushShare(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+void ParseIgnetPushShare(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
 {
 /*
 	extract_token(nodename, LinePos, 0, '|', sizeof nodename);
 	extract_token(roomname, LinePos, 1, '|', sizeof roomname);
 	mptr = (maplist *) malloc(sizeof(maplist));
-	mptr->next = sc->ignet_push_shares;
+	mptr->next = rncfg->RNCfg->ignet_push_shares;
 	strcpy(mptr->remote_nodename, nodename);
 	strcpy(mptr->remote_roomname, roomname);
-	sc->ignet_push_shares = mptr;
+	rncfg->RNCfg->ignet_push_shares = mptr;
 */
 }
 
-void ParseRoomAlias(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+void ParseRoomAlias(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
 {
 /*
-	if (sc->sender != NULL)
+	if (rncfg->RNCfg->sender != NULL)
 		continue; / * just one alowed... * /
 	extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-	sc->sender = nptr;
+	rncfg->RNCfg->sender = nptr;
 */
 }
 
-void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
 {
 
 	if (time(NULL) - extract_long(LinePos, 3) > EXP) {
@@ -193,7 +124,7 @@ void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *L
 	}
 
 }
-void ParseUnSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, SpoolControl *sc)
+void ParseUnSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
 {
 	///int skipthisline = 0;
 	if (time(NULL) - extract_long(LinePos, 2) > EXP) {
@@ -202,315 +133,31 @@ void ParseUnSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char 
 
 }
 
-void DeleteGenericCfgLine(const CfgLineType *ThisOne, namelist **data)
-{
-	FreeStrBuf(&(*data)->Value);
-	free(*data);
-	*data = NULL;
-}
-int read_spoolcontrol_file(SpoolControl **scc, char *filename)
-{
-	int fd;
-	const char *ErrStr = NULL;
-	const char *Pos;
-	const CfgLineType *pCfg;
-	StrBuf *Line;
-	StrBuf *InStr;
-	SpoolControl *sc;
 
-	fd = open(filename, O_NONBLOCK|O_RDONLY);
-	if (fd == -1) {
-		*scc = NULL;
-		return 0;
-	}
-	sc = malloc(sizeof(SpoolControl));
-	memset(sc, 0, sizeof(SpoolControl));
-	*scc = sc;
-
-	while (StrBufTCP_read_line(Line, &fd, 0, &ErrStr) >= 0) {
-		if (StrLength(Line) == 0)
-			continue;
-		Pos = NULL;
-		InStr = NewStrBufPlain(NULL, StrLength(Line));
-		StrBufExtract_NextToken(InStr, Line, &Pos, '|');
-
-		pCfg = GetCfgTypeByStr(SKEY(InStr));
-		if (pCfg != NULL)
-		{
-			pCfg->Parser(pCfg, Line, Pos, sc);
-		}
-		else
-		{
-			if (sc->misc == NULL)
-			{
-				sc->misc = NewStrBufDup(Line);
-			}
-			else
-			{
-				if(StrLength(sc->misc) > 0)
-					StrBufAppendBufPlain(sc->misc, HKEY("\n"), 0);
-				StrBufAppendBuf(sc->misc, Line, 0);
-			}
-		}
-	}
-	if (fd > 0)
-		close(fd);
-	FreeStrBuf(&InStr);
-	FreeStrBuf(&Line);
-	return 1;
-}
-
-void SerializeLastSent(const CfgLineType *ThisOne, StrBuf *OutputBuffer, SpoolControl *sc, namelist *data)
+void SerializeLastSent(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *RNCfg, RoomNetCfgLine *data)
 {
 	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
-	StrBufAppendPrintf(OutputBuffer, "|%ld\n", sc->lastsent);
+	StrBufAppendPrintf(OutputBuffer, "|%ld\n", RNCfg->lastsent);
 }
 
-void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, SpoolControl *sc, namelist *data)
-{
-	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
-	StrBufAppendBuf(OutputBuffer, data->Value, 0);
-	StrBufAppendBufPlain(OutputBuffer, HKEY("\n"), 0);
-}
-void SerializeIgnetPushShare(const CfgLineType *ThisOne, StrBuf *OutputBuffer, SpoolControl *sc, namelist *data)
+void SerializeIgnetPushShare(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *RNCfg, RoomNetCfgLine *data)
 {
 	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
 /*
-			StrBufAppendPrintf(Cfg, "ignet_push_share|%s", sc->ignet_push_shares->remote_nodename);
-			if (!IsEmptyStr(sc->ignet_push_shares->remote_roomname)) {
-				StrBufAppendPrintf(Cfg, "|%s", sc->ignet_push_shares->remote_roomname);
+			StrBufAppendPrintf(Cfg, "ignet_push_share|%s", RNCfg->ignet_push_shares->remote_nodename);
+			if (!IsEmptyStr(RNCfg->ignet_push_shares->remote_roomname)) {
+				StrBufAppendPrintf(Cfg, "|%s", RNCfg->ignet_push_shares->remote_roomname);
 			}
 			StrBufAppendPrintf(Cfg, "\n");
-			mptr = sc->ignet_push_shares->next;
-			free(sc->ignet_push_shares);
-			sc->ignet_push_shares = mptr;
+			mptr = RNCfg->ignet_push_shares->next;
+			free(RNCfg->ignet_push_shares);
+			RNCfg->ignet_push_shares = mptr;
 */
 	StrBufAppendBuf(OutputBuffer, data->Value, 0);
 	StrBufAppendBufPlain(OutputBuffer, HKEY("\n"), 0);
 }
 
-int save_spoolcontrol_file(SpoolControl *sc, char *filename)
-{
-	RoomNetCfg eCfg;
-	StrBuf *Cfg;
-	char tempfilename[PATH_MAX];
-	int TmpFD;
-	long len;
-	time_t unixtime;
-	struct timeval tv;
-	long reltid; /* if we don't have SYS_gettid, use "random" value */
-	StrBuf *OutBuffer;
-	int rc;
-	HashPos *CfgIt;
-
-	len = strlen(filename);
-	memcpy(tempfilename, filename, len + 1);
-
-
-#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
-	reltid = syscall(SYS_gettid);
-#endif
-	gettimeofday(&tv, NULL);
-	/* Promote to time_t; types differ on some OSes (like darwin) */
-	unixtime = tv.tv_sec;
-
-	sprintf(tempfilename + len, ".%ld-%ld", reltid, unixtime);
-	errno = 0;
-	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
-	Cfg = NewStrBuf();
-	if ((TmpFD < 0) || (errno != 0)) {
-		syslog(LOG_CRIT, "ERROR: cannot open %s: %s\n",
-			filename, strerror(errno));
-		unlink(tempfilename);
-		return 0;
-	}
-	else {
-		CfgIt = GetNewHashPos(CfgTypeHash, 1);
-		fchown(TmpFD, config.c_ctdluid, 0);
-		for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
-		{
-			const CfgLineType *pCfg;
-			pCfg = GetCfgTypeByEnum(eCfg, CfgIt);
-			if (pCfg->IsSingleLine)
-			{
-				pCfg->Serializer(pCfg, OutBuffer, sc, NULL);
-			}
-			else
-			{
-				namelist *pName = sc->NetConfigs[pCfg->C];
-				while (pName != NULL)
-				{
-					pCfg->Serializer(pCfg, OutBuffer, sc, pName);
-					pName = pName->next;
-				}
-				
-				
-			}
-
-		}
-		DeleteHashPos(&CfgIt);
-
-
-		if (sc->misc != NULL) {
-			StrBufAppendBuf(OutBuffer, sc->misc, 0);
-		}
-
-		rc = write(TmpFD, ChrPtr(OutBuffer), StrLength(OutBuffer));
-		if ((rc >=0 ) && (rc == StrLength(Cfg))) 
-		{
-			close(TmpFD);
-			rename(tempfilename, filename);
-			rc = 1;
-		}
-		else {
-			syslog(LOG_EMERG, 
-				      "unable to write %s; [%s]; not enough space on the disk?\n", 
-				      tempfilename, 
-				      strerror(errno));
-			close(TmpFD);
-			unlink(tempfilename);
-			rc = 0;
-		}
-		FreeStrBuf(&OutBuffer);
-		
-	}
-	return rc;
-}
-
-
-
-void free_spoolcontrol_struct(SpoolControl **scc)
-{
-	RoomNetCfg eCfg;
-	HashPos *CfgIt;
-	SpoolControl *sc;
-
-	sc = *scc;
-	CfgIt = GetNewHashPos(CfgTypeHash, 1);
-	for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
-	{
-		const CfgLineType *pCfg;
-		namelist *pNext, *pName;
-		
-		pCfg = GetCfgTypeByEnum(eCfg, CfgIt);
-		pName= sc->NetConfigs[pCfg->C];
-		while (pName != NULL)
-		{
-			pNext = pName->next;
-			pCfg->DeAllocator(pCfg, &pName);
-			pName = pNext;
-		}
-	}
-	DeleteHashPos(&CfgIt);
-
-	FreeStrBuf(&sc->Sender);
-	FreeStrBuf(&sc->RoomInfo);
-	FreeStrBuf(&sc->misc);
-	free(sc);
-	*scc=NULL;
-}
-
-#if 0
-int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
-{
-	char tempfilename[PATH_MAX];
-	int TmpFD;
-	SpoolControl *sc;
-	namelist *nptr = NULL;
-	maplist *mptr = NULL;
-	long len;
-	time_t unixtime;
-	struct timeval tv;
-	long reltid; /* if we don't have SYS_gettid, use "random" value */
-	StrBuf *Cfg;
-	int rc;
-
-	len = strlen(filename);
-	memcpy(tempfilename, filename, len + 1);
-
-
-#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
-	reltid = syscall(SYS_gettid);
-#endif
-	gettimeofday(&tv, NULL);
-	/* Promote to time_t; types differ on some OSes (like darwin) */
-	unixtime = tv.tv_sec;
-
-	sprintf(tempfilename + len, ".%ld-%ld", reltid, unixtime);
-	sc = *scc;
-	errno = 0;
-	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
-	Cfg = NewStrBuf();
-	if ((TmpFD < 0) || (errno != 0)) {
-		syslog(LOG_CRIT, "ERROR: cannot open %s: %s\n",
-			filename, strerror(errno));
-		free_spoolcontrol_struct(scc);
-		unlink(tempfilename);
-	}
-	else {
-		fchown(TmpFD, config.c_ctdluid, 0);
-		StrBufAppendPrintf(Cfg, "lastsent|%ld\n", sc->lastsent);
-		
-		/* Write out the listrecps while freeing from memory at the
-		 * same time.  Am I clever or what?  :)
-		 */
-		while (sc->listrecps != NULL) {
-		    StrBufAppendPrintf(Cfg, "listrecp|%s\n", sc->listrecps->name);
-			nptr = sc->listrecps->next;
-			free(sc->listrecps);
-			sc->listrecps = nptr;
-		}
-		/* Do the same for digestrecps */
-		while (sc->digestrecps != NULL) {
-			StrBufAppendPrintf(Cfg, "digestrecp|%s\n", sc->digestrecps->name);
-			nptr = sc->digestrecps->next;
-			free(sc->digestrecps);
-			sc->digestrecps = nptr;
-		}
-		/* Do the same for participates */
-		while (sc->participates != NULL) {
-			StrBufAppendPrintf(Cfg, "participate|%s\n", sc->participates->name);
-			nptr = sc->participates->next;
-			free(sc->participates);
-			sc->participates = nptr;
-		}
-		while (sc->ignet_push_shares != NULL) {
-			StrBufAppendPrintf(Cfg, "ignet_push_share|%s", sc->ignet_push_shares->remote_nodename);
-			if (!IsEmptyStr(sc->ignet_push_shares->remote_roomname)) {
-				StrBufAppendPrintf(Cfg, "|%s", sc->ignet_push_shares->remote_roomname);
-			}
-			StrBufAppendPrintf(Cfg, "\n");
-			mptr = sc->ignet_push_shares->next;
-			free(sc->ignet_push_shares);
-			sc->ignet_push_shares = mptr;
-		}
-		if (sc->misc != NULL) {
-			StrBufAppendBufPlain(Cfg, sc->misc, -1, 0);
-		}
-		free(sc->misc);
-
-		rc = write(TmpFD, ChrPtr(Cfg), StrLength(Cfg));
-		if ((rc >=0 ) && (rc == StrLength(Cfg))) 
-		{
-			close(TmpFD);
-			rename(tempfilename, filename);
-		}
-		else {
-			syslog(LOG_EMERG, 
-				      "unable to write %s; [%s]; not enough space on the disk?\n", 
-				      tempfilename, 
-				      strerror(errno));
-			close(TmpFD);
-			unlink(tempfilename);
-		}
-		FreeStrBuf(&Cfg);
-		free(sc);
-		*scc=NULL;
-	}
-	return 1;
-}
-#endif
-int is_recipient(SpoolControl *sc, const char *Name)
+int is_recipient(OneRoomNetCfg *RNCfg, const char *Name)
 {
 	const RoomNetCfg RecipientCfgs[] = {
 		listrecp,
@@ -519,14 +166,14 @@ int is_recipient(SpoolControl *sc, const char *Name)
 		maxRoomNetCfg
 	};
 	int i;
-	namelist *nptr;
+	RoomNetCfgLine *nptr;
 	size_t len;
 	
 	len = strlen(Name);
 	i = 0;
 	while (RecipientCfgs[i] != maxRoomNetCfg)
 	{
-		nptr = sc->NetConfigs[RecipientCfgs[i]];
+		nptr = RNCfg->NetConfigs[RecipientCfgs[i]];
 		
 		while (nptr != NULL)
 		{
@@ -579,13 +226,13 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 	sc->the_netmap = the_netmap;
 
 	/* If there are digest recipients, we have to build a digest */
-	if (sc->NetConfigs[digestrecp] != NULL) {
+	if (sc->RNCfg->NetConfigs[digestrecp] != NULL) {
 		sc->digestfp = tmpfile();
 		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 	}
 
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
+	CtdlForEachMessage(MSGS_GT, sc->RNCfg->lastsent, NULL, NULL, NULL,
 		network_spool_msg, sc);
 
 	/* If we wrote a digest, deliver it and then close it */
@@ -1214,16 +861,14 @@ CTDL_MODULE_INIT(network_spool)
 {
 	if (!threading)
 	{
-//		REGISTERRoomCfgType(subpending, ParseSubPendingLine, 0, SerializeSubPendingLine, DeleteSubPendingLine); /// todo: move this to mailinglist manager
-//		REGISTERRoomCfgType(unsubpending, ParseUnSubPendingLine0, SerializeUnSubPendingLine, DeleteUnSubPendingLine); /// todo: move this to mailinglist manager
-//		REGISTERRoomCfgType(lastsent, ParseLastSent, 1, SerializeLastSent, DeleteLastSent);
-///		REGISTERRoomCfgType(ignet_push_share, ParseIgnetPushShare, 0, SerializeIgnetPushShare, DeleteIgnetPushShare); // todo: move this to the ignet client
-		REGISTERRoomCfgType(listrecp, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);
-		REGISTERRoomCfgType(digestrecp, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);
-		REGISTERRoomCfgType(pop3client, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);/// todo: implement pop3 specific parser
-		REGISTERRoomCfgType(rssclient, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine); /// todo: implement rss specific parser
-		REGISTERRoomCfgType(participate, ParseDefault, 0, SerializeGeneric, DeleteGenericCfgLine);
-		REGISTERRoomCfgType(roommailalias, ParseRoomAlias, 0, SerializeGeneric, DeleteGenericCfgLine);
+//		CtdlREGISTERRoomCfgType(subpending, ParseSubPendingLine, 0, SerializeSubPendingLine, DeleteSubPendingLine); /// todo: move this to mailinglist manager
+//		CtdlREGISTERRoomCfgType(unsubpending, ParseUnSubPendingLine0, SerializeUnSubPendingLine, DeleteUnSubPendingLine); /// todo: move this to mailinglist manager
+//		CtdlREGISTERRoomCfgType(lastsent, ParseLastSent, 1, SerializeLastSent, DeleteLastSent);
+///		CtdlREGISTERRoomCfgType(ignet_push_share, ParseIgnetPushShare, 0, SerializeIgnetPushShare, DeleteIgnetPushShare); // todo: move this to the ignet client
+		CtdlREGISTERRoomCfgType(listrecp, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(digestrecp, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(participate, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(roommailalias, ParseRoomAlias, 0, SerializeGeneric, DeleteGenericCfgLine);
 
 		create_spool_dirs();
 //////todo		CtdlRegisterCleanupHook(destroy_network_queue_room);

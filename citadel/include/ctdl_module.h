@@ -378,6 +378,45 @@ struct config {
 extern struct config config;
 
 
+typedef struct CfgLineType CfgLineType;
+typedef struct RoomNetCfgLine RoomNetCfgLine;
+typedef struct OneRoomNetCfg OneRoomNetCfg;
+
+typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg);
+typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, OneRoomNetCfg *rncfg, RoomNetCfgLine *data);
+typedef void (*CfgLineDeAllocator)(const CfgLineType *ThisOne, RoomNetCfgLine **data);
+
+struct CfgLineType {
+	RoomNetCfg C;
+	CfgLineParser Parser;
+	CfgLineSerializer Serializer;
+	CfgLineDeAllocator DeAllocator;
+	ConstStr Str;
+	int IsSingleLine;
+};
+
+struct RoomNetCfgLine {
+	RoomNetCfgLine *next;
+	StrBuf *Value;
+};
+
+struct OneRoomNetCfg {
+	long lastsent;
+	StrBuf *Sender;
+	StrBuf *RoomInfo;
+	RoomNetCfgLine *NetConfigs[maxRoomNetCfg];
+	StrBuf *misc;
+};
+
+
+#define CtdlREGISTERRoomCfgType(a, p, uniq, s, d) RegisterRoomCfgType(#a, sizeof(#a) - 1, a, p, uniq, s, d);
+void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLineParser p, int uniq, CfgLineSerializer s, CfgLineDeAllocator d);
+void ParseGeneric(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *sc);
+void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *sc, RoomNetCfgLine *data);
+void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);
+
+
+
 
 /*
  * Expose API calls from user_ops.c

@@ -83,7 +83,7 @@ SOURCES=utils/aidepost.c utils/citmail.c \
 	locate_host.c md5.c auth.c msgbase.c parsedate.c \
 	room_ops.c euidindex.c server_main.c ldap.c \
 	support.c sysdep.c user_ops.c journaling.c threads.c \
-	context.c event_client.c
+	context.c event_client.c netconfig.c
 
 
 include Make_sources
@@ -138,7 +138,7 @@ SERV_OBJS = server_main.o utillib/citadel_dirs.o event_client.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o threads.o context.o \
 	clientsocket.o modules_init.o modules_upgrade.o $(SERV_MODULES) \
-	svn_revision.o ldap.o
+	svn_revision.o ldap.o netconfig.o
 
 citserver$(EXEEXT): $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver$(EXEEXT)

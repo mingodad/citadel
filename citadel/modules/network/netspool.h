@@ -39,11 +39,7 @@ struct maplist {
 typedef struct SpoolControl SpoolControl;
 
 struct SpoolControl {
-	long lastsent;
-	StrBuf *Sender;
-	StrBuf *RoomInfo;
-	namelist *NetConfigs[maxRoomNetCfg];
-	StrBuf *misc;
+	OneRoomNetCfg *RNCfg;
 	FILE *digestfp;
 	int num_msgs_spooled;
 
@@ -60,4 +56,4 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 void free_spoolcontrol_struct(SpoolControl **scc);
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename);
 int read_spoolcontrol_file(SpoolControl **scc, char *filename);
-int is_recipient(SpoolControl *sc, const char *Name);
+int is_recipient(OneRoomNetCfg *RNCfg, const char *Name);

@@ -76,10 +76,10 @@
 #include "citadel_dirs.h"
 #include "threads.h"
 #include "context.h"
+#include "ctdl_module.h"
 #include "netconfig.h"
 #include "netspool.h"
 #include "netmail.h"
-#include "ctdl_module.h"
 
 
 /*
@@ -95,7 +95,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	char *precps;
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
-	namelist *nptr;
+	RoomNetCfgLine *nptr;
 	char bounce_to[256];
 
 	if (sc->num_msgs_spooled < 1) {
@@ -151,7 +151,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
-	for (nptr = sc->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
+	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
 		recps_len = recps_len + StrLength(nptr->Value) + 2;
 	}
 
@@ -165,8 +165,8 @@ void network_deliver_digest(SpoolControl *sc) {
 	}
 
 	/* Each recipient */
-	for (nptr = sc->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->NetConfigs[digestrecp]) {
+	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
+		if (nptr != sc->RNCfg->NetConfigs[digestrecp]) {
 			StrBufAppendBufPlain(recps, HKEY(","), 0);
 		}
 		StrBufAppendBuf(recps, nptr->Value, 0);
@@ -200,18 +200,18 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	char *precps = NULL;
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
-	namelist *nptr;
+	RoomNetCfgLine *nptr;
 	char bounce_to[256];
 
 	/* Don't do this if there were no recipients! */
-	if (sc->NetConfigs[listrecp] == NULL) return;
+	if (sc->RNCfg->NetConfigs[listrecp] == NULL) return;
 
 	/* Now generate the delivery instructions */
 
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
-	for (nptr = sc->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
+	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
 		recps_len = recps_len + StrLength(nptr->Value) + 2;
 	}
 
@@ -225,8 +225,8 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	}
 
 	/* Each recipient */
-	for (nptr = sc->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->NetConfigs[listrecp]) {
+	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
+		if (nptr != sc->RNCfg->NetConfigs[listrecp]) {
 			StrBufAppendBufPlain(recps, HKEY(","), 0);
 		}
 		StrBufAppendBuf(recps, nptr->Value, 0);
@@ -263,7 +263,7 @@ void network_spool_msg(long msgnum,
 	int i;
 	char *newpath = NULL;
 	struct CtdlMessage *msg = NULL;
-	namelist *nptr;
+	RoomNetCfgLine *nptr;
 	maplist *mptr;
 	struct ser_ret sermsg;
 	FILE *fp;
@@ -280,7 +280,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process mailing list recipients
 	 */
-	if (sc->NetConfigs[listrecp] != NULL) {
+	if (sc->RNCfg->NetConfigs[listrecp] != NULL) {
 		/* Fetch the message.  We're going to need to modify it
 		 * in order to insert the [list name] in it, etc.
 		 */
@@ -393,7 +393,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process digest recipients
 	 */
-	if ((sc->NetConfigs[digestrecp] != NULL) && (sc->digestfp != NULL)) {
+	if ((sc->RNCfg->NetConfigs[digestrecp] != NULL) && (sc->digestfp != NULL)) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 			fprintf(sc->digestfp,
@@ -449,7 +449,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process client-side list participations for this room
 	 */
-	if (sc->NetConfigs[participate] != NULL) {
+	if (sc->RNCfg->NetConfigs[participate] != NULL) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 
@@ -498,7 +498,7 @@ void network_spool_msg(long msgnum,
 				/*
 				 * Figure out how big a buffer we need to alloc
 				 */
-				for (nptr = sc->NetConfigs[participate];
+				for (nptr = sc->RNCfg->NetConfigs[participate];
 				     nptr != NULL;
 				     nptr = nptr->next)
 				{
@@ -551,8 +551,8 @@ void network_spool_msg(long msgnum,
 		}
 
 		/* Now send it to every node */
-		if (sc->NetConfigs[ignet_push_share] != NULL)
-		for (mptr = (maplist*)sc->NetConfigs[ignet_push_share]; mptr != NULL;
+		if (sc->RNCfg->NetConfigs[ignet_push_share] != NULL)
+		for (mptr = (maplist*)sc->RNCfg->NetConfigs[ignet_push_share]; mptr != NULL;
 		    mptr = mptr->next) {
 
 			send = 1;
@@ -657,7 +657,7 @@ void network_spool_msg(long msgnum,
 	}
 
 	/* update lastsent */
-	sc->lastsent = msgnum;
+	sc->RNCfg->lastsent = msgnum;
 
 	/* Delete this message if delete-after-send is set */
 	if (delete_after_send) {

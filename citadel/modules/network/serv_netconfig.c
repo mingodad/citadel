@@ -77,8 +77,8 @@
 #include "threads.h"
 #include "context.h"
 #include "netconfig.h"
-#include "netspool.h"
 #include "ctdl_module.h"
+#include "netspool.h"
 
 
 
@@ -650,7 +650,7 @@ int netconfig_check_roomaccess(
 		return (ERROR + NO_SUCH_USER);
 	}
 	end_critical_section(S_NETCONFIGS);
-	found = is_recipient (sc, RemoteIdentifier);
+	found = is_recipient (sc->RNCfg, RemoteIdentifier);
 	free_spoolcontrol_struct(&sc);
 	if (found) {
 		return (0);

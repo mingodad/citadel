@@ -799,6 +799,7 @@ CTDL_MODULE_INIT(rssclient)
 {
 	if (threading)
 	{
+		CtdlREGISTERRoomCfgType(rssclient, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine); /// todo: implement rss specific parser
 		CtdlFillSystemContext(&rss_CC, "rssclient");
 		pthread_mutex_init(&RSSQueueMutex, NULL);
 		RSSQueueRooms = NewHash(1, lFlathash);

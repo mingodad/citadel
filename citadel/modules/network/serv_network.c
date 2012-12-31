@@ -76,10 +76,10 @@
 #include "citadel_dirs.h"
 #include "threads.h"
 #include "context.h"
+#include "ctdl_module.h"
 #include "netconfig.h"
 #include "netspool.h"
 #include "netmail.h"
-#include "ctdl_module.h"
 
 int NetQDebugEnabled = 0;
 struct CitContext networker_spool_CC;
