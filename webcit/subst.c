@@ -1525,8 +1525,14 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 	{
 		char *MinorPtr;
 
-#ifdef _DIRENT_HAVE_D_NAMELEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 		d_namelen = filedir_entry->d_namelen;
+
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
 		d_type = filedir_entry->d_type;
 #else
 
@@ -1539,7 +1545,6 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 #define IFTODT(mode)   (((mode) & 0170000) >> 12)
 #define DTTOIF(dirtype)        ((dirtype) << 12)
 #endif
-		d_namelen = strlen(filedir_entry->d_name);
 		d_type = DT_UNKNOWN;
 #endif
 		d_without_ext = d_namelen;
@@ -1561,7 +1566,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 			char path[PATH_MAX];
 			snprintf(path, PATH_MAX, "%s/%s", 
 				 ChrPtr(DirName), filedir_entry->d_name);
-			if (stat(path, &s) == 0) {
+			if (lstat(path, &s) == 0) {
 				d_type = IFTODT(s.st_mode);
 			}
 		}
@@ -1589,7 +1594,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 			LoadTemplateDir(SubDirectory, big, SubKey);
 
 			break;
-		case DT_LNK: /* TODO: check whether its a file or a directory */
+		case DT_LNK: 
 		case DT_REG:
 
 

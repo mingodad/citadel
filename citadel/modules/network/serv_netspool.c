@@ -83,6 +83,15 @@
 #include "netmail.h"
 
 
+#ifndef DT_UNKNOWN
+#define DT_UNKNOWN     0
+#define DT_DIR         4
+#define DT_REG         8
+#define DT_LNK         10
+
+#define IFTODT(mode)   (((mode) & 0170000) >> 12)
+#define DTTOIF(dirtype)        ((dirtype) << 12)
+#endif
 
 
 void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
@@ -513,9 +522,12 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	struct CitContext *CCC = CC;
 	DIR *dp;
 	struct dirent *d;
+	struct dirent *filedir_entry;
 	struct stat statbuf;
 	char filename[PATH_MAX];
 	static time_t last_spoolin_mtime = 0L;
+	int d_type = 0;
+        int d_namelen;
 
 	/*
 	 * Check the spoolin directory's modification time.  If it hasn't
@@ -535,8 +547,60 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	dp = opendir(ctdl_netin_dir);
 	if (dp == NULL) return;
 
-	while (d = readdir(dp), d != NULL) {
-		if ((strcmp(d->d_name, ".")) && (strcmp(d->d_name, ".."))) {
+	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
+	if (d == NULL) {
+		closedir(dp);
+		return;
+	}
+
+	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
+	       (filedir_entry != NULL))
+	{
+#ifdef _DIRENT_HAVE_D_NAMLEN
+		d_namelen = filedir_entry->d_namelen;
+
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+		d_type = filedir_entry->d_type;
+#else
+		d_type = DT_UNKNOWN;
+#endif
+		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
+			continue; /* Ignore backup files... */
+
+		if ((d_namelen == 1) && 
+		    (filedir_entry->d_name[0] == '.'))
+			continue;
+
+		if ((d_namelen == 2) && 
+		    (filedir_entry->d_name[0] == '.') &&
+		    (filedir_entry->d_name[1] == '.'))
+			continue;
+
+		if (d_type == DT_UNKNOWN) {
+			struct stat s;
+			char path[PATH_MAX];
+
+			snprintf(path,
+				 PATH_MAX,
+				 "%s/%s", 
+				 ctdl_netin_dir,
+				 filedir_entry->d_name);
+
+			if (lstat(path, &s) == 0) {
+				d_type = IFTODT(s.st_mode);
+			}
+		}
+
+		switch (d_type)
+		{
+		case DT_DIR:
+			break;
+		case DT_LNK: /* TODO: check whether its a file or a directory */
+		case DT_REG:
 			snprintf(filename, 
 				sizeof filename,
 				"%s/%s",
@@ -551,6 +615,7 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	}
 
 	closedir(dp);
+	free(d);
 }
 
 /*
@@ -574,6 +639,8 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	int i;
 	struct stat statbuf;
 	int nFailed = 0;
+	int d_type = 0;
+
 
 	/* Step 1: consolidate files in the outbound queue into one file per neighbor node */
 	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
@@ -593,21 +660,21 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-#ifdef _DIRENT_HAVE_D_NAMELEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 		d_namelen = filedir_entry->d_namelen;
+
 #else
-
-#ifndef DT_UNKNOWN
-#define DT_UNKNOWN     0
-#define DT_DIR         4
-#define DT_REG         8
-#define DT_LNK         10
-
-#define IFTODT(mode)   (((mode) & 0170000) >> 12)
-#define DTTOIF(dirtype)        ((dirtype) << 12)
-#endif
 		d_namelen = strlen(filedir_entry->d_name);
 #endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+		d_type = filedir_entry->d_type;
+#else
+		d_type = DT_UNKNOWN;
+#endif
+		if (d_type == DT_DIR)
+			continue;
+
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
 			continue; /* Ignore backup files... */
 
@@ -742,22 +809,21 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-#ifdef _DIRENT_HAVE_D_NAMELEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 		d_namelen = filedir_entry->d_namelen;
-		d_type = filedir_entry->d_type;
+
 #else
-
-#ifndef DT_UNKNOWN
-#define DT_UNKNOWN     0
-#define DT_DIR         4
-#define DT_REG         8
-#define DT_LNK         10
-
-#define IFTODT(mode)   (((mode) & 0170000) >> 12)
-#define DTTOIF(dirtype)        ((dirtype) << 12)
-#endif
 		d_namelen = strlen(filedir_entry->d_name);
 #endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+		d_type = filedir_entry->d_type;
+#else
+		d_type = DT_UNKNOWN;
+#endif
+		if (d_type == DT_DIR)
+			continue;
+
 		if ((d_namelen == 1) && 
 		    (filedir_entry->d_name[0] == '.'))
 			continue;

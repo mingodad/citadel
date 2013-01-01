@@ -92,6 +92,8 @@ void cmd_lbio(char *cmdbuf)
 	int dont_resolve_uids;
 	size_t d_namelen;
 	struct ctdluser usbuf;
+	int d_type = 0;
+
 
 	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 2);
 	if (d == NULL) {
@@ -110,22 +112,60 @@ void cmd_lbio(char *cmdbuf)
 	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-#ifdef _DIRENT_HAVE_D_NAMELEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 		d_namelen = filedir_entry->d_namelen;
+
 #else
 		d_namelen = strlen(filedir_entry->d_name);
 #endif
-		if (((d_namelen == 1) && (filedir_entry->d_name[0] == '.')) || 
-		    ((d_namelen == 2) && (filedir_entry->d_name[0] == '.') && (filedir_entry->d_name[1] == '.')))
+
+#ifdef _DIRENT_HAVE_D_TYPE
+		d_type = filedir_entry->d_type;
+#else
+
+#ifndef DT_UNKNOWN
+#define DT_UNKNOWN     0
+#define DT_DIR         4
+#define DT_REG         8
+#define DT_LNK         10
+
+#define IFTODT(mode)   (((mode) & 0170000) >> 12)
+#define DTTOIF(dirtype)        ((dirtype) << 12)
+#endif
+		d_type = DT_UNKNOWN;
+#endif
+		if ((d_namelen == 1) && 
+		    (filedir_entry->d_name[0] == '.'))
 			continue;
-		    
-		if (dont_resolve_uids) {
-			filedir_entry->d_name[d_namelen++] = '\n';
-			filedir_entry->d_name[d_namelen] = '\0';
-			client_write(filedir_entry->d_name, d_namelen);
+
+		if ((d_namelen == 2) && 
+		    (filedir_entry->d_name[0] == '.') &&
+		    (filedir_entry->d_name[1] == '.'))
+			continue;
+
+		if (d_type == DT_UNKNOWN) {
+			struct stat s;
+			char path[PATH_MAX];
+			snprintf(path, PATH_MAX, "%s/%s", 
+				 ctdl_bio_dir, filedir_entry->d_name);
+			if (lstat(path, &s) == 0) {
+				d_type = IFTODT(s.st_mode);
+			}
 		}
-		else if (CtdlGetUserByNumber(&usbuf,atol(filedir_entry->d_name))==0)
-			cprintf("%s\n", usbuf.fullname);
+		switch (d_type)
+		{
+		case DT_DIR:
+			break;
+		case DT_LNK:
+		case DT_REG:
+			if (dont_resolve_uids) {
+				filedir_entry->d_name[d_namelen++] = '\n';
+				filedir_entry->d_name[d_namelen] = '\0';
+				client_write(filedir_entry->d_name, d_namelen);
+			}
+			else if (CtdlGetUserByNumber(&usbuf,atol(filedir_entry->d_name))==0)
+				cprintf("%s\n", usbuf.fullname);
+		}
 	}
 	free(d);
 	closedir(filedir);

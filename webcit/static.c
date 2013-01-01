@@ -170,6 +170,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 
 	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
 	if (d == NULL) {
+		closedir(filedir);
 		return 0;
 	}
 
@@ -181,8 +182,14 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-#ifdef _DIRENT_HAVE_D_NAMELEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 		d_namelen = filedir_entry->d_namelen;
+
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
 		d_type = filedir_entry->d_type;
 #else
 
@@ -195,7 +202,6 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 #define IFTODT(mode)   (((mode) & 0170000) >> 12)
 #define DTTOIF(dirtype)        ((dirtype) << 12)
 #endif
-		d_namelen = strlen(filedir_entry->d_name);
 		d_type = DT_UNKNOWN;
 #endif
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
@@ -215,7 +221,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			char path[PATH_MAX];
 			snprintf(path, PATH_MAX, "%s/%s", 
 				DirName, filedir_entry->d_name);
-			if (stat(path, &s) == 0) {
+			if (lstat(path, &s) == 0) {
 				d_type = IFTODT(s.st_mode);
 			}
 		}
