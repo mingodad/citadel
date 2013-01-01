@@ -79,7 +79,6 @@
 
 #include "ctdl_module.h"
 
-#include "netconfig.h"
 #include "netspool.h"
 #include "netmail.h"
 
