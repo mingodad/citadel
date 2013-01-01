@@ -71,7 +71,6 @@
 #include "citadel_dirs.h"
 #include "threads.h"
 #include "context.h"
-#include "netconfig.h"
 #include "ctdl_module.h"
 
 struct CitContext networker_client_CC;
@@ -220,7 +219,7 @@ eNextState FinalizeNetworker(AsyncIO *IO)
 {
 	AsyncNetworker *NW = (AsyncNetworker *)IO->Data;
 
-	network_talking_to(SKEY(NW->node), NTT_REMOVE);
+	CtdlNetworkTalkingTo(SKEY(NW->node), NTT_REMOVE);
 
 	DeleteNetworker(IO->Data);
 	return eAbort;
@@ -957,7 +956,7 @@ static int NetworkerCount = 0;
 void RunNetworker(AsyncNetworker *NW)
 {
 	NW->n = NetworkerCount++;
-	network_talking_to(SKEY(NW->node), NTT_ADD);
+	CtdlNetworkTalkingTo(SKEY(NW->node), NTT_ADD);
 	syslog(LOG_DEBUG, "NW[%s][%ld]: polling\n", ChrPtr(NW->node), NW->n);
 	ParseURL(&NW->IO.ConnectMe, NW->Url, 504);
 
@@ -1021,7 +1020,7 @@ void network_poll_other_citadel_nodes(int full_poll, HashList *ignetcfg)
 		/* Use the string tokenizer to grab one line at a time */
 		if(server_shutting_down)
 			return;/* TODO free stuff*/
-		NodeConf *pNode = (NodeConf*) vCfg;
+		CtdlNodeConf *pNode = (CtdlNodeConf*) vCfg;
 		poll = 0;
 		NW = (AsyncNetworker*)malloc(sizeof(AsyncNetworker));
 		memset(NW, 0, sizeof(AsyncNetworker));
@@ -1057,7 +1056,7 @@ void network_poll_other_citadel_nodes(int full_poll, HashList *ignetcfg)
 				     ChrPtr(NW->secret),
 				     ChrPtr(NW->host),
 				     ChrPtr(NW->port));
-			if (!network_talking_to(SKEY(NW->node), NTT_CHECK))
+			if (!CtdlNetworkTalkingTo(SKEY(NW->node), NTT_CHECK))
 			{
 				RunNetworker(NW);
 				continue;
@@ -1087,7 +1086,7 @@ void network_do_clientqueue(void)
 		);
 	}
 
-	working_ignetcfg = load_ignetcfg();
+	working_ignetcfg = CtdlLoadIgNetCfg();
 	/*
 	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
 	 * then we poll everyone.  Otherwise we only poll nodes we have stuff

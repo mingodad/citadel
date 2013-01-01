@@ -4011,11 +4011,6 @@ struct CtdlMessage *CtdlMakeMessage(
 	return(msg);
 }
 
-extern int netconfig_check_roomaccess(
-	char *errmsgbuf, 
-	size_t n,
-	const char* RemoteIdentifier); /* TODO: find a smarter way */
-
 /*
  * Check to see whether we have permission to post a message in the current
  * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
@@ -4050,7 +4045,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(
 		}
 		if ((PostPublic!=POST_LMTP) &&(CC->room.QRflags2 & QR2_SMTP_PUBLIC) == 0) {
 
-			return netconfig_check_roomaccess(errmsgbuf, n, RemoteIdentifier);
+			return CtdlNetconfigCheckRoomaccess(errmsgbuf, n, RemoteIdentifier);
 		}
 		return (0);
 

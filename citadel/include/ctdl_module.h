@@ -416,7 +416,50 @@ void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomN
 void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);
 
 
+typedef struct _nodeconf {
+	int DeleteMe;
+	StrBuf *NodeName;
+	StrBuf *Secret;
+	StrBuf *Host;
+	StrBuf *Port;
+}CtdlNodeConf;
 
+HashList* CtdlLoadIgNetCfg(void);
+
+
+int CtdlNetconfigCheckRoomaccess(char *errmsgbuf, 
+				 size_t n,
+				 const char* RemoteIdentifier);
+
+
+typedef struct __NetMap {
+	StrBuf *NodeName;
+	time_t lastcontact;
+	StrBuf *NextHop;
+}CtdlNetMap;
+
+HashList* CtdlReadNetworkMap(void);
+StrBuf *CtdlSerializeNetworkMap(HashList *Map);
+void NetworkLearnTopology(char *node, char *path, HashList *the_netmap, int *netmap_changed);
+int CtdlIsValidNode(const StrBuf **nexthop,
+		    const StrBuf **secret,
+		    StrBuf *node,
+		    HashList *IgnetCfg,
+		    HashList *the_netmap);
+
+
+
+
+int CtdlNetworkTalkingTo(const char *nodename, long len, int operation);
+
+/*
+ * Operations that can be performed by network_talking_to()
+ */
+enum {
+        NTT_ADD,
+        NTT_REMOVE,
+        NTT_CHECK
+};
 
 /*
  * Expose API calls from user_ops.c

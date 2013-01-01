@@ -157,37 +157,6 @@ void SerializeIgnetPushShare(const CfgLineType *ThisOne, StrBuf *OutputBuffer, O
 	StrBufAppendBufPlain(OutputBuffer, HKEY("\n"), 0);
 }
 
-int is_recipient(OneRoomNetCfg *RNCfg, const char *Name)
-{
-	const RoomNetCfg RecipientCfgs[] = {
-		listrecp,
-		digestrecp,
-		participate,
-		maxRoomNetCfg
-	};
-	int i;
-	RoomNetCfgLine *nptr;
-	size_t len;
-	
-	len = strlen(Name);
-	i = 0;
-	while (RecipientCfgs[i] != maxRoomNetCfg)
-	{
-		nptr = RNCfg->NetConfigs[RecipientCfgs[i]];
-		
-		while (nptr != NULL)
-		{
-			if ((StrLength(nptr->Value) == len) && 
-			    (!strcmp(Name, ChrPtr(nptr->Value))))
-			{
-				return 1;
-			}
-			nptr = nptr->next;
-		}
-	}
-	return 0;
-}
-
 
 /*
  * Batch up and send all outbound traffic from the current room
@@ -313,11 +282,11 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 
 			/* route the message */
 			Buf = NewStrBufPlain(msg->cm_fields['D'], -1);
-			if (is_valid_node(&nexthop, 
-					  NULL, 
-					  Buf, 
-					  working_ignetcfg, 
-					  the_netmap) == 0) 
+			if (CtdlIsValidNode(&nexthop, 
+					    NULL, 
+					    Buf, 
+					    working_ignetcfg, 
+					    the_netmap) == 0) 
 			{
 				/* prepend our node to the path */
 				if (msg->cm_fields['P'] != NULL) {
@@ -389,10 +358,10 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 
 	/* Learn network topology from the path */
 	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
-		network_learn_topology(msg->cm_fields['N'], 
-				       msg->cm_fields['P'], 
-				       the_netmap, 
-				       netmap_changed);
+		NetworkLearnTopology(msg->cm_fields['N'], 
+				     msg->cm_fields['P'], 
+				     the_netmap, 
+				     netmap_changed);
 	}
 
 	/* Is the sending node giving us a very persuasive suggestion about
@@ -673,7 +642,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			 ChrPtr(NextHop));
 
 		QN_syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, ChrPtr(NextHop));
-		if (network_talking_to(SKEY(NextHop), NTT_CHECK)) {
+		if (CtdlNetworkTalkingTo(SKEY(NextHop), NTT_CHECK)) {
 			nFailed++;
 			QN_syslog(LOG_DEBUG,
 				  "Currently online with %s - skipping for now\n",
@@ -685,7 +654,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			size_t fsize;
 			int infd, outfd;
 			const char *err = NULL;
-			network_talking_to(SKEY(NextHop), NTT_ADD);
+			CtdlNetworkTalkingTo(SKEY(NextHop), NTT_ADD);
 
 			infd = open(filename, O_RDONLY);
 			if (infd == -1) {
@@ -694,7 +663,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 					  "failed to open %s for reading due to %s; skipping.\n",
 					  filename, strerror(errno)
 					);
-				network_talking_to(SKEY(NextHop), NTT_REMOVE);
+				CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 				continue;				
 			}
 			
@@ -714,7 +683,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 					  spooloutfilename, strerror(errno)
 					);
 				close(infd);
-				network_talking_to(SKEY(NextHop), NTT_REMOVE);
+				CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 				continue;
 			}
 
@@ -748,7 +717,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			FDIOBufferDelete(&FDIO);
 			close(infd);
 			close(outfd);
-			network_talking_to(SKEY(NextHop), NTT_REMOVE);
+			CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 		}
 	}
 	closedir(dp);
@@ -814,11 +783,11 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			filedir_entry->d_name
 		);
 
-		i = is_valid_node(&nexthop,
-				  NULL,
-				  NextHop,
-				  working_ignetcfg,
-				  the_netmap);
+		i = CtdlIsValidNode(&nexthop,
+				    NULL,
+				    NextHop,
+				    working_ignetcfg,
+				    the_netmap);
 	
 		if ( (i != 0) || (StrLength(nexthop) > 0) ) {
 			unlink(filename);

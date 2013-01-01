@@ -254,7 +254,7 @@ int network_sync_to(char *target_node, long len)
 	}
 
 	sc.working_ignetcfg = load_ignetcfg();
-	sc.the_netmap = read_network_map();
+	sc.the_netmap = CtdlReadNetworkMap();
 
 	/* Send ALL messages */
 	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
@@ -554,13 +554,13 @@ void network_do_queue(void)
 			return;
 	}
 	/* Load the IGnet Configuration into memory */
-	working_ignetcfg = load_ignetcfg();
+	working_ignetcfg = CtdlLoadIgNetCfg();
 
 	/*
 	 * Load the network map and filter list into memory.
 	 */
 	if (!server_shutting_down)
-		the_netmap = read_network_map();
+		the_netmap = CtdlReadNetworkMap();
 	if (!server_shutting_down)
 		load_network_filter_list();
 
@@ -612,7 +612,7 @@ void network_do_queue(void)
 
 	/* Save the network map back to disk */
 	if (netmap_changed) {
-		StrBuf *MapStr = SerializeNetworkMap(the_netmap);
+		StrBuf *MapStr = CtdlSerializeNetworkMap(the_netmap);
 		CtdlPutSysConfig(IGNETMAP, SmashStrBuf(&MapStr));
 	}
 
@@ -644,60 +644,6 @@ int network_room_handler (struct ctdlroom *room)
 	return 0;
 }
 
-int NTTDebugEnabled = 0;
-
-/*
- * network_talking_to()  --  concurrency checker
- */
-static HashList *nttlist = NULL;
-int network_talking_to(const char *nodename, long len, int operation) {
-
-	int retval = 0;
-	HashPos *Pos = NULL;
-	void *vdata;
-
-	begin_critical_section(S_NTTLIST);
-
-	switch(operation) {
-
-		case NTT_ADD:
-			if (nttlist == NULL) 
-				nttlist = NewHash(1, NULL);
-			Put(nttlist, nodename, len, NewStrBufPlain(nodename, len), HFreeStrBuf);
-			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: added <%s>\n", nodename);
-			break;
-		case NTT_REMOVE:
-			if ((nttlist == NULL) ||
-			    (GetCount(nttlist) == 0))
-				break;
-			Pos = GetNewHashPos(nttlist, 1);
-			if (GetHashPosFromKey (nttlist, nodename, len, Pos))
-				DeleteEntryFromHash(nttlist, Pos);
-			DeleteHashPos(&Pos);
-			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: removed <%s>\n", nodename);
-
-			break;
-
-		case NTT_CHECK:
-			if ((nttlist == NULL) ||
-			    (GetCount(nttlist) == 0))
-				break;
-			if (GetHash(nttlist, nodename, len, &vdata))
-				retval ++;
-			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: have [%d] <%s>\n", retval, nodename);
-			break;
-	}
-
-	end_critical_section(S_NTTLIST);
-	return(retval);
-}
-
-void cleanup_nttlist(void)
-{
-        begin_critical_section(S_NTTLIST);
-	DeleteHash(&nttlist);
-        end_critical_section(S_NTTLIST);
-}
 
 
 
@@ -709,7 +655,7 @@ void network_logout_hook(void)
 	 * If we were talking to a network node, we're not anymore...
 	 */
 	if (!IsEmptyStr(CCC->net_node)) {
-		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
+		CtdlNetworkTalkingTo(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
 		CCC->net_node[0] = '\0';
 	}
 }
@@ -718,7 +664,7 @@ void network_cleanup_function(void)
 	struct CitContext *CCC = CC;
 
 	if (!IsEmptyStr(CCC->net_node)) {
-		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
+		CtdlNetworkTalkingTo(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
 		CCC->net_node[0] = '\0';
 	}
 }
@@ -727,10 +673,7 @@ void network_cleanup_function(void)
 /*
  * Module entry point
  */
-void SetNTTDebugEnabled(const int n)
-{
-	NTTDebugEnabled = n;
-}
+
 void SetNetQDebugEnabled(const int n)
 {
 	NetQDebugEnabled = n;
@@ -741,9 +684,7 @@ CTDL_MODULE_INIT(network)
 	if (!threading)
 	{
 		CtdlFillSystemContext(&networker_spool_CC, "CitNetSpool");
-		CtdlRegisterDebugFlagHook(HKEY("networktalkingto"), SetNTTDebugEnabled, &NTTDebugEnabled);
 		CtdlRegisterDebugFlagHook(HKEY("networkqueue"), SetNetQDebugEnabled, &NetQDebugEnabled);
-		CtdlRegisterCleanupHook(cleanup_nttlist);
 		CtdlRegisterSessionHook(network_cleanup_function, EVT_STOP, PRIO_STOP + 30);
                 CtdlRegisterSessionHook(network_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 10);
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");

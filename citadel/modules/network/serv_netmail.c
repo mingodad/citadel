@@ -264,7 +264,7 @@ void network_spool_msg(long msgnum,
 	char *newpath = NULL;
 	struct CtdlMessage *msg = NULL;
 	RoomNetCfgLine *nptr;
-	maplist *mptr;
+	MapList *mptr;
 	struct ser_ret sermsg;
 	FILE *fp;
 	char filename[PATH_MAX];
@@ -466,11 +466,11 @@ void network_spool_msg(long msgnum,
 				}
 
 				Buf = NewStrBufPlain(msg->cm_fields['N'], -1);
-				if (is_valid_node(NULL,
-						  NULL,
-						  Buf,
-						  sc->working_ignetcfg,
-						  sc->the_netmap) == 0)
+				if (CtdlIsValidNode(NULL,
+						    NULL,
+						    Buf,
+						    sc->working_ignetcfg,
+						    sc->the_netmap) == 0)
 				{
 					ok_to_participate = 1;
 				}
@@ -552,18 +552,18 @@ void network_spool_msg(long msgnum,
 
 		/* Now send it to every node */
 		if (sc->RNCfg->NetConfigs[ignet_push_share] != NULL)
-		for (mptr = (maplist*)sc->RNCfg->NetConfigs[ignet_push_share]; mptr != NULL;
+		for (mptr = (MapList*)sc->RNCfg->NetConfigs[ignet_push_share]; mptr != NULL;
 		    mptr = mptr->next) {
 
 			send = 1;
 			NewStrBufDupAppendFlush(&Buf, mptr->remote_nodename, NULL, 1);
 
 			/* Check for valid node name */
-			if (is_valid_node(NULL,
-					  NULL,
-					  Buf,
-					  sc->working_ignetcfg,
-					  sc->the_netmap) != 0)
+			if (CtdlIsValidNode(NULL,
+					    NULL,
+					    Buf,
+					    sc->working_ignetcfg,
+					    sc->the_netmap) != 0)
 			{
 				QN_syslog(LOG_ERR,
 					  "Invalid node <%s>\n",

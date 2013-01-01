@@ -27,10 +27,10 @@
  *
  */
 
-typedef struct maplist maplist;
+typedef struct MapList MapList;
 
-struct maplist {
-	struct maplist *next;
+struct MapList {
+	MapList *next;
 	StrBuf *remote_nodename;
 	StrBuf *remote_roomname;
 };
@@ -56,4 +56,3 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 void free_spoolcontrol_struct(SpoolControl **scc);
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename);
 int read_spoolcontrol_file(SpoolControl **scc, char *filename);
-int is_recipient(OneRoomNetCfg *RNCfg, const char *Name);
