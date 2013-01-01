@@ -1,7 +1,7 @@
 /*
  * Header file for libcitadel
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2013 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 
-#define LIBCITADEL_VERSION_NUMBER	815
+#define LIBCITADEL_VERSION_NUMBER	816
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.

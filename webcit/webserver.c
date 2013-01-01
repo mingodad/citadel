@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 
 	/* Tell 'em who's in da house */
 	syslog(1, "%s", PACKAGE_STRING);
-	syslog(1, "Copyright (C) 1996-2012 by the citadel.org team");
+	syslog(1, "Copyright (C) 1996-2013 by the citadel.org team");
 	syslog(1, " ");
 	syslog(1, "This program is open source software: you can redistribute it and/or");
 	syslog(1, "modify it under the terms of the GNU General Public License, version 3.");
