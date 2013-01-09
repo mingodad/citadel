@@ -240,8 +240,8 @@ int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
 void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		int *result, int *view);
 void CtdlPutRoomLock(struct ctdlroom *qrbuf);
-void CtdlForEachRoom(void (*CallBack)(struct ctdlroom *EachRoom, void *out_data),
-	void *in_data);
+typedef void (*ForEachRoomCallBack)(struct ctdlroom *EachRoom, void *out_data);
+void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data);
 void CtdlDeleteRoom(struct ctdlroom *qrbuf);
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
 void CtdlUserGoto (char *where, int display_result, int transiently,

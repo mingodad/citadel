@@ -565,8 +565,7 @@ void lputfloor(struct floor *flbuf, int floor_num)
 /* 
  *  Traverse the room file...
  */
-void CtdlForEachRoom(void (*CallBack) (struct ctdlroom *EachRoom, void *out_data),
-		void *in_data)
+void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 {
 	struct ctdlroom qrbuf;
 	struct cdbdata *cdbqr;
@@ -582,7 +581,7 @@ void CtdlForEachRoom(void (*CallBack) (struct ctdlroom *EachRoom, void *out_data
 		cdb_free(cdbqr);
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE) {
-			(*CallBack)(&qrbuf, in_data);
+			CB(&qrbuf, in_data);
 		}
 	}
 }
