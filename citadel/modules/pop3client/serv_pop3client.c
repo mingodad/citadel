@@ -1263,7 +1263,7 @@ CTDL_MODULE_INIT(pop3client)
 	if (!threading)
 	{
 		CtdlFillSystemContext(&pop3_client_CC, "POP3aggr");
-		CtdlREGISTERRoomCfgType(pop3client, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine);/// todo: implement pop3 specific parser
+		CtdlREGISTERRoomCfgType(pop3client, ParseGeneric, 0, 3, SerializeGeneric, DeleteGenericCfgLine);
 		pthread_mutex_init(&POP3QueueMutex, NULL);
 		POP3QueueRooms = NewHash(1, lFlathash);
 		POP3FetchUrls = NewHash(1, NULL);

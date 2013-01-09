@@ -171,6 +171,7 @@ void upgrade_modules(void);
 	CTDL_MODULE_INIT(msgbase);
 	CTDL_MODULE_INIT(room_ops);
 	CTDL_MODULE_INIT(user_ops);
+	CTDL_MODULE_INIT(netconfig);
 EOF
 
 for i in serv_*.c
@@ -318,6 +319,11 @@ fi
 
 cd $CUR_DIR
 
+# this one has to be called last, else it will not find all hooks registered.
+cat <<EOF >> $C_FILE
+        pMod = CTDL_INIT_CALL(netconfig);
+        MOD_syslog(LOG_DEBUG, "Loaded module: %s\n", pMod);
+EOF
 /usr/bin/printf "\n\n" >> $C_FILE
 /usr/bin/printf "\tfor (filter = 1; filter != 0; filter = filter << 1)\n" >> $C_FILE
 /usr/bin/printf "\t\tif ((filter & DetailErrorFlags) != 0)\n" >> $C_FILE

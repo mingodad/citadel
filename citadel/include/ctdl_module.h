@@ -393,11 +393,13 @@ struct CfgLineType {
 	CfgLineDeAllocator DeAllocator;
 	ConstStr Str;
 	int IsSingleLine;
+	int nSegments;
 };
 
 struct RoomNetCfgLine {
 	RoomNetCfgLine *next;
-	StrBuf *Value;
+	int nValues;
+	StrBuf **Value;
 };
 
 struct OneRoomNetCfg {
@@ -409,8 +411,8 @@ struct OneRoomNetCfg {
 };
 
 
-#define CtdlREGISTERRoomCfgType(a, p, uniq, s, d) RegisterRoomCfgType(#a, sizeof(#a) - 1, a, p, uniq, s, d);
-void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLineParser p, int uniq, CfgLineSerializer s, CfgLineDeAllocator d);
+#define CtdlREGISTERRoomCfgType(a, p, uniq, nSegs, s, d) RegisterRoomCfgType(#a, sizeof(#a) - 1, a, p, uniq, nSegs, s, d);
+void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLineParser p, int uniq, int nSegments, CfgLineSerializer s, CfgLineDeAllocator d);
 void ParseGeneric(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *sc);
 void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *sc, RoomNetCfgLine *data);
 void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);

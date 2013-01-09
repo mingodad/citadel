@@ -94,21 +94,14 @@
 #endif
 
 
-void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
+void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
 {
-	rncfg->lastsent = extract_long(LinePos, 0);
-}
-void ParseIgnetPushShare(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
-{
-/*
-	extract_token(nodename, LinePos, 0, '|', sizeof nodename);
-	extract_token(roomname, LinePos, 1, '|', sizeof roomname);
-	mptr = (maplist *) malloc(sizeof(maplist));
-	mptr->next = rncfg->RNCfg->ignet_push_shares;
-	strcpy(mptr->remote_nodename, nodename);
-	strcpy(mptr->remote_roomname, roomname);
-	rncfg->RNCfg->ignet_push_shares = mptr;
-*/
+	RoomNetCfgLine *nptr;
+	nptr = (RoomNetCfgLine *)
+		malloc(sizeof(RoomNetCfgLine));
+	
+	OneRNCFG->lastsent = extract_long(LinePos, 0);
+	OneRNCFG->NetConfigs[ThisOne->C] = nptr;
 }
 
 void ParseRoomAlias(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
@@ -121,24 +114,19 @@ void ParseRoomAlias(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePo
 */
 }
 
-void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
+void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
 {
+	if (time(NULL) - extract_long(LinePos, 3) > EXP) 
+		return; /* expired subscription... */
 
-	if (time(NULL) - extract_long(LinePos, 3) > EXP) {
-		//	skipthisline = 1;
-	}
-	else
-	{
-	}
-
+	ParseGeneric(ThisOne, Line, LinePos, OneRNCFG);
 }
-void ParseUnSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
+void ParseUnSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
 {
-	///int skipthisline = 0;
-	if (time(NULL) - extract_long(LinePos, 2) > EXP) {
-		//	skipthisline = 1;
-	}
+	if (time(NULL) - extract_long(LinePos, 2) > EXP)
+		return; /* expired subscription... */
 
+	ParseGeneric(ThisOne, Line, LinePos, OneRNCFG);
 }
 
 
@@ -148,22 +136,13 @@ void SerializeLastSent(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoom
 	StrBufAppendPrintf(OutputBuffer, "|%ld\n", RNCfg->lastsent);
 }
 
-void SerializeIgnetPushShare(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *RNCfg, RoomNetCfgLine *data)
+void DeleteLastSent(const CfgLineType *ThisOne, RoomNetCfgLine **data)
 {
-	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
-/*
-			StrBufAppendPrintf(Cfg, "ignet_push_share|%s", RNCfg->ignet_push_shares->remote_nodename);
-			if (!IsEmptyStr(RNCfg->ignet_push_shares->remote_roomname)) {
-				StrBufAppendPrintf(Cfg, "|%s", RNCfg->ignet_push_shares->remote_roomname);
-			}
-			StrBufAppendPrintf(Cfg, "\n");
-			mptr = RNCfg->ignet_push_shares->next;
-			free(RNCfg->ignet_push_shares);
-			RNCfg->ignet_push_shares = mptr;
-*/
-	StrBufAppendBuf(OutputBuffer, data->Value, 0);
-	StrBufAppendBufPlain(OutputBuffer, HKEY("\n"), 0);
+	free(*data);
+	*data = NULL;
 }
+
+
 
 
 /*
@@ -192,7 +171,7 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 	begin_critical_section(S_NETCONFIGS);
 
 	/* Only do net processing for rooms that have netconfigs */
-	if (!read_spoolcontrol_file(&sc, filename))
+	if (!ReadRoomNetConfigFile(&sc, filename))
 	{
 		end_critical_section(S_NETCONFIGS);
 		return;
@@ -895,14 +874,14 @@ CTDL_MODULE_INIT(network_spool)
 {
 	if (!threading)
 	{
-//		CtdlREGISTERRoomCfgType(subpending, ParseSubPendingLine, 0, SerializeSubPendingLine, DeleteSubPendingLine); /// todo: move this to mailinglist manager
-//		CtdlREGISTERRoomCfgType(unsubpending, ParseUnSubPendingLine0, SerializeUnSubPendingLine, DeleteUnSubPendingLine); /// todo: move this to mailinglist manager
-//		CtdlREGISTERRoomCfgType(lastsent, ParseLastSent, 1, SerializeLastSent, DeleteLastSent);
-///		CtdlREGISTERRoomCfgType(ignet_push_share, ParseIgnetPushShare, 0, SerializeIgnetPushShare, DeleteIgnetPushShare); // todo: move this to the ignet client
-		CtdlREGISTERRoomCfgType(listrecp, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine);
-		CtdlREGISTERRoomCfgType(digestrecp, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine);
-		CtdlREGISTERRoomCfgType(participate, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine);
-		CtdlREGISTERRoomCfgType(roommailalias, ParseRoomAlias, 0, SerializeGeneric, DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(subpending,       ParseSubPendingLine,   0, 5, SerializeGeneric,  DeleteGenericCfgLine); /// todo: move this to mailinglist manager
+		CtdlREGISTERRoomCfgType(unsubpending,     ParseUnSubPendingLine, 0, 4, SerializeGeneric,  DeleteGenericCfgLine); /// todo: move this to mailinglist manager
+		CtdlREGISTERRoomCfgType(lastsent,         ParseLastSent,         1, 1, SerializeLastSent, DeleteLastSent);
+		CtdlREGISTERRoomCfgType(ignet_push_share, ParseGeneric,          0, 2, SerializeGeneric,  DeleteGenericCfgLine); // [remotenode|remoteroomname (optional)]// todo: move this to the ignet client
+		CtdlREGISTERRoomCfgType(listrecp,         ParseGeneric,          0, 1, SerializeGeneric,  DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(digestrecp,       ParseGeneric,          0, 1, SerializeGeneric,  DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(participate,      ParseGeneric,          0, 1, SerializeGeneric,  DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(roommailalias,    ParseRoomAlias,        0, 1, SerializeGeneric,  DeleteGenericCfgLine);
 
 		create_spool_dirs();
 //////todo		CtdlRegisterCleanupHook(destroy_network_queue_room);

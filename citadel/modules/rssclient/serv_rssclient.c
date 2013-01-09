@@ -797,10 +797,9 @@ void LogDebugEnableRSSClient(const int n)
 
 CTDL_MODULE_INIT(rssclient)
 {
-	if (threading)
+	if (!threading)
 	{
-		CtdlREGISTERRoomCfgType(rssclient, ParseGeneric, 0, SerializeGeneric, DeleteGenericCfgLine); /// todo: implement rss specific parser
-		CtdlFillSystemContext(&rss_CC, "rssclient");
+		CtdlREGISTERRoomCfgType(rssclient, ParseGeneric, 0, 1, SerializeGeneric, DeleteGenericCfgLine); /// todo: implement rss specific parser
 		pthread_mutex_init(&RSSQueueMutex, NULL);
 		RSSQueueRooms = NewHash(1, lFlathash);
 		RSSFetchUrls = NewHash(1, NULL);
@@ -808,6 +807,10 @@ CTDL_MODULE_INIT(rssclient)
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER, PRIO_AGGR + 300);
 		CtdlRegisterEVCleanupHook(rss_cleanup);
 		CtdlRegisterDebugFlagHook(HKEY("rssclient"), LogDebugEnableRSSClient, &RSSClientDebugEnabled);
+	}
+	else
+	{
+		CtdlFillSystemContext(&rss_CC, "rssclient");
 	}
 	return "rssclient";
 }
