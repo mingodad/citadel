@@ -226,6 +226,9 @@ long CtdlGetCurrentMessageNumber(void);
 /*
  * Expose various room operation functions from room_ops.c to the modules API
  */
+typedef struct CfgLineType CfgLineType;
+typedef struct RoomNetCfgLine RoomNetCfgLine;
+typedef struct OneRoomNetCfg OneRoomNetCfg;
 
 unsigned CtdlCreateRoom(char *new_room_name,
 			int new_room_type,
@@ -242,6 +245,11 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 void CtdlPutRoomLock(struct ctdlroom *qrbuf);
 typedef void (*ForEachRoomCallBack)(struct ctdlroom *EachRoom, void *out_data);
 void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data);
+typedef void (*ForEachRoomNetCfgCallBack)(struct ctdlroom *EachRoom, void *out_data, const OneRoomNetCfg *OneRNCFG);
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
+			   void *in_data,
+			   RoomNetCfg filter);
+
 void CtdlDeleteRoom(struct ctdlroom *qrbuf);
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
 void CtdlUserGoto (char *where, int display_result, int transiently,
@@ -378,10 +386,6 @@ struct config {
 extern struct config config;
 
 
-typedef struct CfgLineType CfgLineType;
-typedef struct RoomNetCfgLine RoomNetCfgLine;
-typedef struct OneRoomNetCfg OneRoomNetCfg;
-
 typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg);
 typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, OneRoomNetCfg *rncfg, RoomNetCfgLine *data);
 typedef void (*CfgLineDeAllocator)(const CfgLineType *ThisOne, RoomNetCfgLine **data);
@@ -417,6 +421,7 @@ void ParseGeneric(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos,
 void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *sc, RoomNetCfgLine *data);
 void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);
 
+const OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber);
 
 typedef struct _nodeconf {
 	int DeleteMe;

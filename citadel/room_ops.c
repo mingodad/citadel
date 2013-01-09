@@ -586,6 +586,40 @@ void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 	}
 }
 
+/* 
+ *  Traverse the room file...
+ */
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
+			   void *in_data,
+			   RoomNetCfg filter)
+{
+	struct ctdlroom qrbuf;
+	struct cdbdata *cdbqr;
+
+	cdb_rewind(CDB_ROOMS);
+
+	while (cdbqr = cdb_next_item(CDB_ROOMS), cdbqr != NULL) {
+		memset(&qrbuf, 0, sizeof(struct ctdlroom));
+		memcpy(&qrbuf, cdbqr->ptr,
+		       ((cdbqr->len > sizeof(struct ctdlroom)) ?
+			sizeof(struct ctdlroom) : cdbqr->len)
+		);
+		cdb_free(cdbqr);
+		room_sanity_check(&qrbuf);
+		if (qrbuf.QRflags & QR_INUSE)
+		{
+			const OneRoomNetCfg* RNCfg;
+			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
+			if ((RNCfg != NULL) &&
+			    ((filter == maxRoomNetCfg) ||
+			     (RNCfg->NetConfigs[filter] != NULL)))
+			{
+				CB(&qrbuf, in_data, RNCfg);
+			}
+		}
+	}
+}
+
 
 /*
  * delete_msglist()  -  delete room message pointers

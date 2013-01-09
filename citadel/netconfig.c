@@ -307,6 +307,13 @@ void FreeRoomNetworkStruct(OneRoomNetCfg **pOneRNCFG)
 	*pOneRNCFG=NULL;
 }
 
+const OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber)
+{
+	void *pv;
+	GetHash(RoomConfigs, LKEY(QRNumber), &pv);
+	return (OneRoomNetCfg*)pv;
+}
+
 
 void LoadAllNetConfigs(void)
 {
