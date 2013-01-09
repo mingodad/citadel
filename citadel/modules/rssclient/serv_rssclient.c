@@ -556,21 +556,13 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 /*
  * Scan a room's netconfig to determine whether it is requesting any RSS feeds
  */
-void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
+void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, const OneRoomNetCfg *OneRNCFG)
 {
-	StrBuf *CfgData=NULL;
-	StrBuf *CfgType;
-	StrBuf *Line;
+	const RoomNetCfgLine *pLine;
 	rss_room_counter *Count = NULL;
-	struct stat statbuf;
-	char filename[PATH_MAX];
-	int fd;
-	int Done;
 	rss_aggregator *RSSAggr = NULL;
 	rss_aggregator *use_this_RSSAggr = NULL;
 	void *vptr;
-	const char *CfgPtr, *lPtr;
-	const char *Err;
 
 	pthread_mutex_lock(&RSSQueueMutex);
 	if (GetHash(RSSQueueRooms, LKEY(qrbuf->QRnumber), &vptr))
@@ -584,143 +576,76 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	}
 	pthread_mutex_unlock(&RSSQueueMutex);
 
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
+	if (server_shutting_down) return;
 
-	if (server_shutting_down)
-		return;
+	pLine = OneRNCFG->NetConfigs[pop3client];
 
-	/* Only do net processing for rooms that have netconfigs */
-	fd = open(filename, 0);
-	if (fd <= 0) {
-		/* syslog(LOG_DEBUG,
-		   "rssclient: %s no config.\n",
-		   qrbuf->QRname); */
-		return;
-	}
-
-	if (server_shutting_down)
-		return;
-
-	if (fstat(fd, &statbuf) == -1) {
-		EVRSSQ_syslog(LOG_DEBUG,
-			      "ERROR: could not stat configfile '%s' - %s\n",
-			      filename,
-			      strerror(errno));
-		return;
-	}
-
-	if (server_shutting_down)
-		return;
-
-	CfgData = NewStrBufPlain(NULL, statbuf.st_size + 1);
-
-	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
-		close(fd);
-		FreeStrBuf(&CfgData);
-		EVRSSQ_syslog(LOG_ERR, "ERROR: reading config '%s' - %s<br>\n",
-			      filename, strerror(errno));
-		return;
-	}
-	close(fd);
-	if (server_shutting_down)
-		return;
-
-	CfgPtr = NULL;
-	CfgType = NewStrBuf();
-	Line = NewStrBufPlain(NULL, StrLength(CfgData));
-	Done = 0;
-	while (!Done)
+	while (pLine != NULL)
 	{
-		Done = StrBufSipLine(Line, CfgData, &CfgPtr) == 0;
-		if (StrLength(Line) > 0)
+		if (Count == NULL)
 		{
-			lPtr = NULL;
-			StrBufExtract_NextToken(CfgType, Line, &lPtr, '|');
-			if (!strcasecmp("rssclient", ChrPtr(CfgType)))
-			{
-				if (Count == NULL)
-				{
-					Count = malloc(
-						sizeof(rss_room_counter));
-					Count->count = 0;
-				}
-				Count->count ++;
-				RSSAggr = (rss_aggregator *) malloc(
-					sizeof(rss_aggregator));
-
-				memset (RSSAggr, 0, sizeof(rss_aggregator));
-				RSSAggr->QRnumber = qrbuf->QRnumber;
-				RSSAggr->roomlist_parts = 1;
-				RSSAggr->Url = NewStrBuf();
-
-				StrBufExtract_NextToken(RSSAggr->Url,
-							Line,
-							&lPtr,
-							'|');
-
-				pthread_mutex_lock(&RSSQueueMutex);
-				GetHash(RSSFetchUrls,
-					SKEY(RSSAggr->Url),
-					&vptr);
-
-				use_this_RSSAggr = (rss_aggregator *)vptr;
-				if (use_this_RSSAggr != NULL)
-				{
-					long *QRnumber;
-					StrBufAppendBufPlain(
-						use_this_RSSAggr->rooms,
-						qrbuf->QRname,
-						-1, 0);
-					if (use_this_RSSAggr->roomlist_parts==1)
-					{
-						use_this_RSSAggr->OtherQRnumbers
-							= NewHash(1, lFlathash);
-					}
-					QRnumber = (long*)malloc(sizeof(long));
-					*QRnumber = qrbuf->QRnumber;
-					Put(use_this_RSSAggr->OtherQRnumbers,
-					    LKEY(qrbuf->QRnumber),
-					    QRnumber,
-					    NULL);
-					use_this_RSSAggr->roomlist_parts++;
-
-					pthread_mutex_unlock(&RSSQueueMutex);
-
-					FreeStrBuf(&RSSAggr->Url);
-					free(RSSAggr);
-					RSSAggr = NULL;
-					continue;
-				}
-				pthread_mutex_unlock(&RSSQueueMutex);
-
-				RSSAggr->ItemType = RSS_UNSET;
-
-				RSSAggr->rooms = NewStrBufPlain(
-					qrbuf->QRname, -1);
-
-				pthread_mutex_lock(&RSSQueueMutex);
-
-				Put(RSSFetchUrls,
-				    SKEY(RSSAggr->Url),
-				    RSSAggr,
-				    DeleteRssCfg);
-
-				pthread_mutex_unlock(&RSSQueueMutex);
-			}
+			Count = malloc(
+				sizeof(rss_room_counter));
+			Count->count = 0;
 		}
-	}
-	if (Count != NULL)
-	{
-		Count->QRnumber = qrbuf->QRnumber;
+		Count->count ++;
+		RSSAggr = (rss_aggregator *) malloc(
+			sizeof(rss_aggregator));
+
+		memset (RSSAggr, 0, sizeof(rss_aggregator));
+		RSSAggr->QRnumber = qrbuf->QRnumber;
+		RSSAggr->roomlist_parts = 1;
+		RSSAggr->Url = NewStrBufDup(pLine->Value[1]);
+
 		pthread_mutex_lock(&RSSQueueMutex);
-		EVRSSQ_syslog(LOG_DEBUG, "client: [%ld] %s now starting.\n",
-			      qrbuf->QRnumber, qrbuf->QRname);
-		Put(RSSQueueRooms, LKEY(qrbuf->QRnumber), Count, NULL);
+		GetHash(RSSFetchUrls,
+			SKEY(RSSAggr->Url),
+			&vptr);
+
+		use_this_RSSAggr = (rss_aggregator *)vptr;
+		if (use_this_RSSAggr != NULL)
+		{
+			long *QRnumber;
+			StrBufAppendBufPlain(
+				use_this_RSSAggr->rooms,
+				qrbuf->QRname,
+				-1, 0);
+			if (use_this_RSSAggr->roomlist_parts==1)
+			{
+				use_this_RSSAggr->OtherQRnumbers
+					= NewHash(1, lFlathash);
+			}
+			QRnumber = (long*)malloc(sizeof(long));
+			*QRnumber = qrbuf->QRnumber;
+			Put(use_this_RSSAggr->OtherQRnumbers,
+			    LKEY(qrbuf->QRnumber),
+			    QRnumber,
+			    NULL);
+			use_this_RSSAggr->roomlist_parts++;
+
+			pthread_mutex_unlock(&RSSQueueMutex);
+
+			FreeStrBuf(&RSSAggr->Url);
+			free(RSSAggr);
+			RSSAggr = NULL;
+			continue;
+		}
+		pthread_mutex_unlock(&RSSQueueMutex);
+
+		RSSAggr->ItemType = RSS_UNSET;
+
+		RSSAggr->rooms = NewStrBufPlain(
+			qrbuf->QRname, -1);
+
+		pthread_mutex_lock(&RSSQueueMutex);
+
+		Put(RSSFetchUrls,
+		    SKEY(RSSAggr->Url),
+		    RSSAggr,
+		    DeleteRssCfg);
+
 		pthread_mutex_unlock(&RSSQueueMutex);
 	}
-	FreeStrBuf(&CfgData);
-	FreeStrBuf(&CfgType);
-	FreeStrBuf(&Line);
 }
 
 /*
@@ -764,7 +689,7 @@ void rssclient_scan(void) {
 
 	become_session(&rss_CC);
 	EVRSSQM_syslog(LOG_DEBUG, "rssclient started\n");
-	CtdlForEachRoom(rssclient_scan_room, NULL);
+	CtdlForEachNetCfgRoom(rssclient_scan_room, NULL, rssclient);
 
 	pthread_mutex_lock(&RSSQueueMutex);
 
