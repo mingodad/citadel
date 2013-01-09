@@ -983,22 +983,10 @@ int pop3_do_fetching(pop3aggr *cpptr)
 /*
  * Scan a room's netconfig to determine whether it requires POP3 aggregation
  */
-void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
+void pop3client_scan_room(struct ctdlroom *qrbuf, void *data, const OneRoomNetCfg *OneRNCFG)
 {
-	StrBuf *CfgData;
-	StrBuf *CfgType;
-	StrBuf *Line;
-
-	struct stat statbuf;
-	char filename[PATH_MAX];
-	int  fd;
-	int Done;
+	const RoomNetCfgLine *pLine;
 	void *vptr;
-	const char *CfgPtr, *lPtr;
-	const char *Err;
-
-//	pop3_room_counter *Count = NULL;
-//	pop3aggr *cpptr;
 
 	pthread_mutex_lock(&POP3QueueMutex);
 	if (GetHash(POP3QueueRooms, LKEY(qrbuf->QRnumber), &vptr))
@@ -1014,167 +1002,87 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data)
 
 	if (server_shutting_down) return;
 
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
+	pLine = OneRNCFG->NetConfigs[pop3client];
 
-	if (server_shutting_down)
-		return;
-
-	/* Only do net processing for rooms that have netconfigs */
-	fd = open(filename, 0);
-	if (fd <= 0) {
-		return;
-	}
-	if (server_shutting_down)
-		return;
-	if (fstat(fd, &statbuf) == -1) {
-		EVP3CQ_syslog(LOG_INFO,
-			      "ERROR: could not stat configfile '%s' - %s",
-			      filename,
-			      strerror(errno));
-		return;
-	}
-	if (server_shutting_down)
-		return;
-	CfgData = NewStrBufPlain(NULL, statbuf.st_size + 1);
-	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
-		close(fd);
-		FreeStrBuf(&CfgData);
-		EVP3CQ_syslog(LOG_INFO,
-			      "ERROR: reading config '%s' - %s",
-			      filename, strerror(errno));
-		return;
-	}
-	close(fd);
-	if (server_shutting_down)
-		return;
-
-	CfgPtr = NULL;
-	CfgType = NewStrBuf();
-	Line = NewStrBufPlain(NULL, StrLength(CfgData));
-	Done = 0;
-
-	while (!Done)
+	while (pLine != NULL)
 	{
-		Done = StrBufSipLine(Line, CfgData, &CfgPtr) == 0;
-		if (StrLength(Line) > 0)
-		{
-			lPtr = NULL;
-			StrBufExtract_NextToken(CfgType, Line, &lPtr, '|');
-			if (!strcasecmp("pop3client", ChrPtr(CfgType)))
-			{
-				pop3aggr *cptr;
-/*
-				if (Count == NULL)
-				{
-				Count = malloc(sizeof(pop3_room_counter));
-					Count->count = 0;
-				}
-				Count->count ++;
-*/
-				cptr = (pop3aggr *) malloc(sizeof(pop3aggr));
-				memset(cptr, 0, sizeof(pop3aggr));
-				///TODO do we need this? cptr->roomlist_parts=1;
-				cptr->RoomName =
-					NewStrBufPlain(qrbuf->QRname, -1);
-				cptr->pop3user =
-					NewStrBufPlain(NULL, StrLength(Line));
-				cptr->pop3pass =
-					NewStrBufPlain(NULL, StrLength(Line));
-				cptr->Url = NewStrBuf();
-				cptr->Host =
-					NewStrBufPlain(NULL, StrLength(Line));
+		pop3aggr *cptr;
 
-				StrBufExtract_NextToken(cptr->Host, Line, &lPtr, '|');
-				StrBufExtract_NextToken(cptr->pop3user,
-							Line,
-							&lPtr,
-							'|');
+		cptr = (pop3aggr *) malloc(sizeof(pop3aggr));
+		memset(cptr, 0, sizeof(pop3aggr));
+		///TODO do we need this? cptr->roomlist_parts=1;
+		cptr->RoomName = NewStrBufPlain(qrbuf->QRname, -1);
+		cptr->pop3user = NewStrBufDup(pLine->Value[1]);
+		cptr->pop3pass = NewStrBufDup(pLine->Value[2]);
+		cptr->Url = NewStrBuf();
+		cptr->Host = NewStrBufDup(pLine->Value[0]);
 
-				StrBufExtract_NextToken(cptr->pop3pass,
-							Line,
-							&lPtr,
-							'|');
+		cptr->keep = atol(ChrPtr(pLine->Value[3]));
+		cptr->interval = atol(ChrPtr(pLine->Value[4]));
 
-				cptr->keep = StrBufExtractNext_long(Line,
-								    &lPtr,
-								    '|');
+		StrBufAppendBufPlain(cptr->Url, HKEY("pop3://"), 0);
+		StrBufUrlescUPAppend(cptr->Url, cptr->pop3user, NULL);
+		StrBufAppendBufPlain(cptr->Url, HKEY(":"), 0);
+		StrBufUrlescUPAppend(cptr->Url, cptr->pop3pass, NULL);
+		StrBufAppendBufPlain(cptr->Url, HKEY("@"), 0);
+		StrBufAppendBuf(cptr->Url, cptr->Host, 0);
+		StrBufAppendBufPlain(cptr->Url, HKEY("/"), 0);
+		StrBufUrlescAppend(cptr->Url, cptr->RoomName, NULL);
 
-				cptr->interval = StrBufExtractNext_long(Line,
-									&lPtr,
-									'|');
-
-				StrBufAppendBufPlain(cptr->Url, HKEY("pop3://"), 0);
-				StrBufUrlescUPAppend(cptr->Url, cptr->pop3user, NULL);
-				StrBufAppendBufPlain(cptr->Url, HKEY(":"), 0);
-				StrBufUrlescUPAppend(cptr->Url, cptr->pop3pass, NULL);
-				StrBufAppendBufPlain(cptr->Url, HKEY("@"), 0);
-				StrBufAppendBuf(cptr->Url, cptr->Host, 0);
-				StrBufAppendBufPlain(cptr->Url, HKEY("/"), 0);
-				StrBufUrlescAppend(cptr->Url, cptr->RoomName, NULL);
-
-				ParseURL(&cptr->IO.ConnectMe, cptr->Url, 110);
+		ParseURL(&cptr->IO.ConnectMe, cptr->Url, 110);
 
 
 #if 0
 /* todo: we need to reunite the url to be shure. */
 
-				pthread_mutex_lock(&POP3ueueMutex);
-				GetHash(POP3FetchUrls, SKEY(ptr->Url), &vptr);
-				use_this_cptr = (pop3aggr *)vptr;
+		pthread_mutex_lock(&POP3ueueMutex);
+		GetHash(POP3FetchUrls, SKEY(ptr->Url), &vptr);
+		use_this_cptr = (pop3aggr *)vptr;
 
-				if (use_this_rncptr != NULL)
-				{
-					/* mustn't attach to an active session */
-					if (use_this_cptr->RefCount > 0)
-					{
-						DeletePOP3Cfg(cptr);
+		if (use_this_rncptr != NULL)
+		{
+			/* mustn't attach to an active session */
+			if (use_this_cptr->RefCount > 0)
+			{
+				DeletePOP3Cfg(cptr);
 ///						Count->count--;
-					}
-					else
-					{
-						long *QRnumber;
-						StrBufAppendBufPlain(
-							use_this_cptr->rooms,
-							qrbuf->QRname,
-							-1, 0);
-						if (use_this_cptr->roomlist_parts == 1)
-						{
-							use_this_cptr->OtherQRnumbers
-								= NewHash(1, lFlathash);
-						}
-						QRnumber = (long*)malloc(sizeof(long));
-						*QRnumber = qrbuf->QRnumber;
-						Put(use_this_cptr->OtherQRnumbers,
-						    LKEY(qrbuf->QRnumber),
-						    QRnumber,
-						    NULL);
-
-						use_this_cptr->roomlist_parts++;
-					}
-					pthread_mutex_unlock(&POP3QueueMutex);
-					continue;
-				}
-				pthread_mutex_unlock(&RSSQueueMutex);
-#endif
-				cptr->n = Pop3ClientID++;
-				pthread_mutex_lock(&POP3QueueMutex);
-				Put(POP3FetchUrls,
-				    SKEY(cptr->Url),
-				    cptr,
-				    DeletePOP3Aggregator);
-
-				pthread_mutex_unlock(&POP3QueueMutex);
-
 			}
+			else
+			{
+				long *QRnumber;
+				StrBufAppendBufPlain(
+					use_this_cptr->rooms,
+					qrbuf->QRname,
+					-1, 0);
+				if (use_this_cptr->roomlist_parts == 1)
+				{
+					use_this_cptr->OtherQRnumbers
+						= NewHash(1, lFlathash);
+				}
+				QRnumber = (long*)malloc(sizeof(long));
+				*QRnumber = qrbuf->QRnumber;
+				Put(use_this_cptr->OtherQRnumbers,
+				    LKEY(qrbuf->QRnumber),
+				    QRnumber,
+				    NULL);
 
+				use_this_cptr->roomlist_parts++;
+			}
+			pthread_mutex_unlock(&POP3QueueMutex);
+			continue;
 		}
+		pthread_mutex_unlock(&RSSQueueMutex);
+#endif
+		cptr->n = Pop3ClientID++;
+		pthread_mutex_lock(&POP3QueueMutex);
+		Put(POP3FetchUrls,
+		    SKEY(cptr->Url),
+		    cptr,
+		    DeletePOP3Aggregator);
 
-		///fclose(fp);
+		pthread_mutex_unlock(&POP3QueueMutex);
 
 	}
-	FreeStrBuf(&Line);
-	FreeStrBuf(&CfgType);
-	FreeStrBuf(&CfgData);
 }
 
 static int doing_pop3client = 0;
@@ -1212,7 +1120,7 @@ void pop3client_scan(void) {
 	doing_pop3client = 1;
 
 	EVP3CQM_syslog(LOG_DEBUG, "pop3client started");
-	CtdlForEachRoom(pop3client_scan_room, NULL);
+	CtdlForEachNetCfgRoom(pop3client_scan_room, NULL, pop3client);
 
 	pthread_mutex_lock(&POP3QueueMutex);
 	it = GetNewHashPos(POP3FetchUrls, 0);
@@ -1263,7 +1171,7 @@ CTDL_MODULE_INIT(pop3client)
 	if (!threading)
 	{
 		CtdlFillSystemContext(&pop3_client_CC, "POP3aggr");
-		CtdlREGISTERRoomCfgType(pop3client, ParseGeneric, 0, 3, SerializeGeneric, DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(pop3client, ParseGeneric, 0, 5, SerializeGeneric, DeleteGenericCfgLine);
 		pthread_mutex_init(&POP3QueueMutex, NULL);
 		POP3QueueRooms = NewHash(1, lFlathash);
 		POP3FetchUrls = NewHash(1, NULL);
