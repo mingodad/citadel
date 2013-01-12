@@ -420,6 +420,7 @@ void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLinePar
 void ParseGeneric(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *sc);
 void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *sc, RoomNetCfgLine *data);
 void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);
+RoomNetCfgLine *DuplicateOneGenericCfgLine(const RoomNetCfgLine *data);
 
 const OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber);
 

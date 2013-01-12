@@ -27,21 +27,13 @@
  *
  */
 
-typedef struct MapList MapList;
-
-struct MapList {
-	MapList *next;
-	StrBuf *remote_nodename;
-	StrBuf *remote_roomname;
-};
-
-
 typedef struct SpoolControl SpoolControl;
 
 struct SpoolControl {
-	OneRoomNetCfg *RNCfg;
+	RoomNetCfgLine *NetConfigs[maxRoomNetCfg];
 	FILE *digestfp;
 	int num_msgs_spooled;
+	long lastsent;
 
 	HashList *working_ignetcfg;
 	HashList *the_netmap;

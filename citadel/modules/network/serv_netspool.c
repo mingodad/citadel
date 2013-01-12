@@ -182,13 +182,13 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 	sc->the_netmap = the_netmap;
 
 	/* If there are digest recipients, we have to build a digest */
-	if (sc->RNCfg->NetConfigs[digestrecp] != NULL) {
+	if (sc->NetConfigs[digestrecp] != NULL) {
 		sc->digestfp = tmpfile();
 		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 	}
 
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_GT, sc->RNCfg->lastsent, NULL, NULL, NULL,
+	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
 		network_spool_msg, sc);
 
 	/* If we wrote a digest, deliver it and then close it */

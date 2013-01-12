@@ -150,8 +150,8 @@ void network_deliver_digest(SpoolControl *sc) {
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
-	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
-		recps_len = recps_len + StrLength(nptr->Value) + 2;
+	for (nptr = sc->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
+		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
 	}
 
 	recps = NewStrBufPlain(NULL, recps_len);
@@ -164,11 +164,11 @@ void network_deliver_digest(SpoolControl *sc) {
 	}
 
 	/* Each recipient */
-	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->RNCfg->NetConfigs[digestrecp]) {
+	for (nptr = sc->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
+		if (nptr != sc->NetConfigs[digestrecp]) {
 			StrBufAppendBufPlain(recps, HKEY(","), 0);
 		}
-		StrBufAppendBuf(recps, nptr->Value, 0);
+		StrBufAppendBuf(recps, nptr->Value[0], 0);
 	}
 
 	/* Where do we want bounces and other noise to be heard?
@@ -203,15 +203,15 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	char bounce_to[256];
 
 	/* Don't do this if there were no recipients! */
-	if (sc->RNCfg->NetConfigs[listrecp] == NULL) return;
+	if (sc->NetConfigs[listrecp] == NULL) return;
 
 	/* Now generate the delivery instructions */
 
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
-	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
-		recps_len = recps_len + StrLength(nptr->Value) + 2;
+	for (nptr = sc->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
+		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
 	}
 
 	recps = NewStrBufPlain(NULL, recps_len);
@@ -224,11 +224,11 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	}
 
 	/* Each recipient */
-	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->RNCfg->NetConfigs[listrecp]) {
+	for (nptr = sc->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
+		if (nptr != sc->NetConfigs[listrecp]) {
 			StrBufAppendBufPlain(recps, HKEY(","), 0);
 		}
-		StrBufAppendBuf(recps, nptr->Value, 0);
+		StrBufAppendBuf(recps, nptr->Value[0], 0);
 	}
 
 	/* Where do we want bounces and other noise to be heard?
@@ -256,6 +256,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 void network_spool_msg(long msgnum,
 		       void *userdata)
 {
+	RoomNetCfgLine* mptr;
 	struct CitContext *CCC = CC;
 	StrBuf *Buf = NULL;
 	SpoolControl *sc;
@@ -263,7 +264,6 @@ void network_spool_msg(long msgnum,
 	char *newpath = NULL;
 	struct CtdlMessage *msg = NULL;
 	RoomNetCfgLine *nptr;
-	MapList *mptr;
 	struct ser_ret sermsg;
 	FILE *fp;
 	char filename[PATH_MAX];
@@ -279,7 +279,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process mailing list recipients
 	 */
-	if (sc->RNCfg->NetConfigs[listrecp] != NULL) {
+	if (sc->NetConfigs[listrecp] != NULL) {
 		/* Fetch the message.  We're going to need to modify it
 		 * in order to insert the [list name] in it, etc.
 		 */
@@ -392,7 +392,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process digest recipients
 	 */
-	if ((sc->RNCfg->NetConfigs[digestrecp] != NULL) && (sc->digestfp != NULL)) {
+	if ((sc->NetConfigs[digestrecp] != NULL) && (sc->digestfp != NULL)) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 			fprintf(sc->digestfp,
@@ -448,7 +448,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process client-side list participations for this room
 	 */
-	if (sc->RNCfg->NetConfigs[participate] != NULL) {
+	if (sc->NetConfigs[participate] != NULL) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 
@@ -497,7 +497,7 @@ void network_spool_msg(long msgnum,
 				/*
 				 * Figure out how big a buffer we need to alloc
 				 */
-				for (nptr = sc->RNCfg->NetConfigs[participate];
+				for (nptr = sc->NetConfigs[participate];
 				     nptr != NULL;
 				     nptr = nptr->next)
 				{
@@ -505,7 +505,7 @@ void network_spool_msg(long msgnum,
 						free(msg->cm_fields['R']);
 					}
 					msg->cm_fields['R'] =
-						strdup(ChrPtr(nptr->Value));
+						strdup(ChrPtr(nptr->Value[0]));
 
 					valid = validate_recipients(msg->cm_fields['R'],
 								    NULL, 0);
@@ -550,12 +550,12 @@ void network_spool_msg(long msgnum,
 		}
 
 		/* Now send it to every node */
-		if (sc->RNCfg->NetConfigs[ignet_push_share] != NULL)
-		for (mptr = (MapList*)sc->RNCfg->NetConfigs[ignet_push_share]; mptr != NULL;
+		if (sc->NetConfigs[ignet_push_share] != NULL)
+		for (mptr = sc->NetConfigs[ignet_push_share]; mptr != NULL;
 		    mptr = mptr->next) {
 
 			send = 1;
-			NewStrBufDupAppendFlush(&Buf, mptr->remote_nodename, NULL, 1);
+			NewStrBufDupAppendFlush(&Buf, mptr->Value[0], NULL, 1);
 
 			/* Check for valid node name */
 			if (CtdlIsValidNode(NULL,
@@ -566,7 +566,7 @@ void network_spool_msg(long msgnum,
 			{
 				QN_syslog(LOG_ERR,
 					  "Invalid node <%s>\n",
-					  ChrPtr(mptr->remote_nodename));
+					  ChrPtr(mptr->Value[0]));
 
 				send = 0;
 			}
@@ -582,8 +582,8 @@ void network_spool_msg(long msgnum,
 						      sizeof buf);
 					
 					QN_syslog(LOG_DEBUG, "Compare <%s> to <%s>\n",
-						  buf, ChrPtr(mptr->remote_nodename)) ;
-					if (!strcasecmp(buf, ChrPtr(mptr->remote_nodename))) {
+						  buf, ChrPtr(mptr->Value[0])) ;
+					if (!strcasecmp(buf, ChrPtr(mptr->Value[0]))) {
 						send = 0;
 						break;
 					}
@@ -592,7 +592,7 @@ void network_spool_msg(long msgnum,
 				QN_syslog(LOG_INFO,
 					  "%sSending to %s\n",
 					  (send)?"":"Not ",
-					  ChrPtr(mptr->remote_nodename));
+					  ChrPtr(mptr->Value[0]));
 			}
 
 			/* Send the message */
@@ -606,9 +606,9 @@ void network_spool_msg(long msgnum,
 				if (msg->cm_fields['C'] != NULL) {
 					free(msg->cm_fields['C']);
 				}
-				if (StrLength(mptr->remote_roomname) > 0) {
+				if (StrLength(mptr->Value[0]) > 0) {
 					msg->cm_fields['C'] =
-						strdup(ChrPtr(mptr->remote_roomname));
+						strdup(ChrPtr(mptr->Value[0]));
 				}
 				else {
 					msg->cm_fields['C'] =
@@ -624,7 +624,7 @@ void network_spool_msg(long msgnum,
 						 sizeof(filename),
 						 "%s/%s@%lx%x",
 						 ctdl_netout_dir,
-						 ChrPtr(mptr->remote_nodename),
+						 ChrPtr(mptr->Value[0]),
 						 time(NULL),
 						 rand()
 					);
@@ -656,7 +656,7 @@ void network_spool_msg(long msgnum,
 	}
 
 	/* update lastsent */
-	sc->RNCfg->lastsent = msgnum;
+	///sc->lastsent = msgnum; ////// TODO
 
 	/* Delete this message if delete-after-send is set */
 	if (delete_after_send) {

@@ -184,13 +184,6 @@ int network_usetable(struct CtdlMessage *msg)
 
 
 
-
-
-
-
-#if 0
-
-
 /*
  * Send the *entire* contents of the current room to one specific network node,
  * ignoring anything we know about which messages have already undergone
@@ -199,60 +192,38 @@ int network_usetable(struct CtdlMessage *msg)
 int network_sync_to(char *target_node, long len)
 {
 	struct CitContext *CCC = CC;
+	const OneRoomNetCfg *OneRNCFG;
+	const RoomNetCfgLine *pCfgLine;
 	SpoolControl sc;
 	int num_spooled = 0;
-	int found_node = 0;
-	char buf[256];
-	char sc_type[256];
-	char sc_node[256];
-	char sc_room[256];
-	char filename[PATH_MAX];
-	FILE *fp;
 
 	/* Grab the configuration line we're looking for */
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 	begin_critical_section(S_NETCONFIGS);
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
-		end_critical_section(S_NETCONFIGS);
-		return(-1);
-	}
-	while (fgets(buf, sizeof buf, fp) != NULL)
+	OneRNCFG = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
+	if ((OneRNCFG == NULL) ||
+	    (OneRNCFG->NetConfigs[ignet_push_share] == NULL))
 	{
-		buf[strlen(buf)-1] = 0;
-
-		extract_token(sc_type, buf, 0, '|', sizeof sc_type);
-		if (strcasecmp(sc_type, "ignet_push_share"))
-			continue;
-
-		extract_token(sc_node, buf, 1, '|', sizeof sc_node);
-		if (strcasecmp(sc_node, target_node))
-			continue;
-
-		extract_token(sc_room, buf, 2, '|', sizeof sc_room);
-		found_node = 1;
-			
-		/* Concise syntax because we don't need a full linked-list */
-		memset(&sc, 0, sizeof(SpoolControl));
-		sc.ignet_push_shares = (maplist *)
-			malloc(sizeof(maplist));
-		sc.ignet_push_shares->next = NULL;
-		safestrncpy(sc.ignet_push_shares->remote_nodename,
-			    sc_node,
-			    sizeof sc.ignet_push_shares->remote_nodename);
-		safestrncpy(sc.ignet_push_shares->remote_roomname,
-			    sc_room,
-			    sizeof sc.ignet_push_shares->remote_roomname);
+		return -1;
 	}
-	fclose(fp);
+
+	pCfgLine = OneRNCFG->NetConfigs[ignet_push_share];
+	while (pCfgLine != NULL)
+	{
+		if (strcmp(ChrPtr(pCfgLine->Value[0]), target_node))
+			break;
+		pCfgLine = pCfgLine->next;
+	}
+	if (pCfgLine == NULL)
+	{
+		return -1;
+	}
+	memset(&sc, 0, sizeof(SpoolControl));
+
+	sc.NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
+
 	end_critical_section(S_NETCONFIGS);
 
-	if (!found_node) {
-		free(sc.ignet_push_shares);
-		return(-1);
-	}
-
-	sc.working_ignetcfg = load_ignetcfg();
+	sc.working_ignetcfg = CtdlLoadIgNetCfg();
 	sc.the_netmap = CtdlReadNetworkMap();
 
 	/* Send ALL messages */
@@ -260,7 +231,7 @@ int network_sync_to(char *target_node, long len)
 		network_spool_msg, &sc);
 
 	/* Concise cleanup because we know there's only one node in the sc */
-	free(sc.ignet_push_shares);
+	DeleteGenericCfgLine(NULL/*TODO*/, &sc.NetConfigs[ignet_push_share]);
 
 	DeleteHash(&sc.working_ignetcfg);
 	DeleteHash(&sc.the_netmap);
@@ -269,8 +240,6 @@ int network_sync_to(char *target_node, long len)
 		  num_spooled, target_node);
 	return(num_spooled);
 }
-
-#endif
 
 
 /*
@@ -284,7 +253,7 @@ void cmd_nsyn(char *argbuf) {
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	len = extract_token(target_node, argbuf, 0, '|', sizeof target_node);
-	///// TODO num_spooled = network_sync_to(target_node, len);
+	num_spooled = network_sync_to(target_node, len);
 	if (num_spooled >= 0) {
 		cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
 	}
