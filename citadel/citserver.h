@@ -12,11 +12,13 @@
 
 #include "serv_extensions.h"
 #include "context.h"
+#include "ctdl_module.h"
 
 /* Simple linked list structures ... used in a bunch of different places. */
 typedef struct RoomProcList RoomProcList;
 struct RoomProcList {
         struct RoomProcList *next;
+	const OneRoomNetCfg *OneRNCFG;
         char name[ROOMNAMELEN];
         char lcname[ROOMNAMELEN];
 	long namelen;

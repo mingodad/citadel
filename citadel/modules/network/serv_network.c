@@ -97,39 +97,6 @@ typedef struct __roomlists {
  */
 struct RoomProcList *rplist = NULL;
 
-int GetNetworkedRoomNumbers(const char *DirName, HashList *DirList)
-{
-	DIR *filedir = NULL;
-	struct dirent *d;
-	struct dirent *filedir_entry;
-	long RoomNR;
-	long Count = 0;
-		
-	filedir = opendir (DirName);
-	if (filedir == NULL) {
-		return 0;
-	}
-
-	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
-	if (d == NULL) {
-		return 0;
-	}
-
-	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
-	       (filedir_entry != NULL))
-	{
-		RoomNR = atol(filedir_entry->d_name);
-		if (RoomNR != 0) {
-			Count++;
-			Put(DirList, LKEY(RoomNR), &Count, reference_free_handler);
-		}
-	}
-	free(d);
-	closedir(filedir);
-	return Count;
-}
-
-
 
 
 /*
@@ -263,23 +230,13 @@ void cmd_nsyn(char *argbuf) {
 	}
 }
 
-
-
-/*
- * Batch up and send all outbound traffic from the current room
- */
-void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
+RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, const OneRoomNetCfg *OneRNCFG)
+{
 	int i;
 	struct RoomProcList *ptr;
-	long QRNum = qrbuf->QRnumber;
-	void *v;
-	roomlists *RP = (roomlists*) data;
-
-	if (!GetHash(RP->RoomsInterestedIn, LKEY(QRNum), &v))
-		return;
 
 	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
-	if (ptr == NULL) return;
+	if (ptr == NULL) return NULL;
 
 	ptr->namelen = strlen(qrbuf->QRname);
 	if (ptr->namelen > ROOMNAMELEN)
@@ -296,6 +253,20 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
 
 	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
+	ptr->OneRNCFG = OneRNCFG;
+	return ptr;
+}
+
+/*
+ * Batch up and send all outbound traffic from the current room
+ */
+void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, const OneRoomNetCfg *OneRNCfg)
+{
+	struct RoomProcList *ptr;
+	roomlists *RP = (roomlists*) data;
+
+	ptr = CreateRoomProcListEntry(qrbuf, OneRNCfg);
+
 	ptr->next = RP->rplist;
 	RP->rplist = ptr;
 }
@@ -303,34 +274,27 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_queue_room(struct ctdlroom *qrbuf, void *data) {
-	int i;
+int network_room_handler (struct ctdlroom *qrbuf)
+{
 	struct RoomProcList *ptr;
+	const OneRoomNetCfg* RNCfg;
 
 	if (qrbuf->QRdefaultview == VIEW_QUEUE)
-		return;
-	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
-	if (ptr == NULL) return;
+		return 1;
 
-	ptr->namelen = strlen(qrbuf->QRname);
-	if (ptr->namelen > ROOMNAMELEN)
-		ptr->namelen = ROOMNAMELEN - 1;
+	RNCfg = CtdlGetNetCfgForRoom(qrbuf->QRnumber);
+	if (RNCfg == NULL)
+		return 1;
 
-	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
-	ptr->name[ptr->namelen] = '\0';
-	ptr->QRNum = qrbuf->QRnumber;
-
-	for (i = 0; i < ptr->namelen; i++)
-	{
-		ptr->lcname[i] = tolower(ptr->name[i]);
-	}
-	ptr->lcname[ptr->namelen] = '\0';
-	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
+	ptr = CreateRoomProcListEntry(qrbuf, RNCfg);
+	if (ptr == NULL)
+		return 1;
 
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
 	end_critical_section(S_RPLIST);
+	return 1;
 }
 
 void destroy_network_queue_room(RoomProcList *rplist)
@@ -511,16 +475,7 @@ void network_do_queue(void)
 	RL.rplist = rplist;
 	rplist = NULL;
 	end_critical_section(S_RPLIST);
-
-	RL.RoomsInterestedIn = NewHash(1, lFlathash);
-	if (full_processing &&
-	    (GetNetworkedRoomNumbers(ctdl_netcfg_dir, RL.RoomsInterestedIn)==0))
-	{
-		doing_queue = 0;
-		DeleteHash(&RL.RoomsInterestedIn);
-		if (RL.rplist == NULL)
-			return;
-	}
+///TODO hm, check whether we have a config at all here?
 	/* Load the IGnet Configuration into memory */
 	working_ignetcfg = CtdlLoadIgNetCfg();
 
@@ -537,7 +492,7 @@ void network_do_queue(void)
 	 */
 	if (full_processing && !server_shutting_down) {
 		QNM_syslog(LOG_DEBUG, "network: loading outbound queue");
-		CtdlForEachRoom(network_queue_interesting_rooms, &RL);
+		CtdlForEachNetCfgRoom(network_queue_interesting_rooms, &RL, maxRoomNetCfg);
 	}
 
 	if ((RL.rplist != NULL) && (!server_shutting_down)) {
@@ -606,11 +561,6 @@ void network_do_queue(void)
 
 
 
-int network_room_handler (struct ctdlroom *room)
-{
-	network_queue_room(room, NULL);
-	return 0;
-}
 
 
 
