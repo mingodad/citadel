@@ -189,7 +189,10 @@ CTDL_MODULE_INIT(netfilter)
 {
 	if (!threading)
 	{
+/*
+  currently unsupported.
 		CtdlRegisterNetprocHook(filter_the_idiots);
+*/
 	}
 	
 	/* return our module name for the log */

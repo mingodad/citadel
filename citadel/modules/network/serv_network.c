@@ -484,8 +484,12 @@ void network_do_queue(void)
 	 */
 	if (!server_shutting_down)
 		the_netmap = CtdlReadNetworkMap();
+#if 0
+	/* filterlist isn't supported anymore
 	if (!server_shutting_down)
 		load_network_filter_list();
+	*/
+#endif
 
 	/* 
 	 * Go ahead and run the queue
