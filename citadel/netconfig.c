@@ -921,14 +921,14 @@ HashList* CtdlReadNetworkMap(void)
 	HashList   *Hash;
 	CtdlNetMap     *TheNetMap;
 
+	Hash = NewHash(1, NULL);
 	Cfg =  CtdlGetSysConfig(IGNETMAP);
 	if ((Cfg == NULL) || IsEmptyStr(Cfg)) {
 		if (Cfg != NULL)
 			free(Cfg);
-		return NULL;
+		return Hash;
 	}
 
-	Hash = NewHash(1, NULL);
 	Buf = NewStrBufPlain(Cfg, -1);
 	free(Cfg);
 	LineBuf = NewStrBufPlain(NULL, StrLength(Buf));
