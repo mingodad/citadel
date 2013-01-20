@@ -1320,6 +1320,7 @@ int DupCMField(int i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
 	if (NewMsg->cm_fields[i] == NULL)
 		return 0;
 	memcpy(NewMsg->cm_fields[i], OrgMsg->cm_fields[i], len);
+	NewMsg->cm_fields[i][len] = '\0';
 	return 1;
 }
 
@@ -1330,13 +1331,13 @@ struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
 
 	if (is_valid_message(OrgMsg) == 0) 
 		return NULL;
-	NewMsg = (struct CtdlMessage *)malloc(sizeof(struct CtdlMessage *));
+	NewMsg = (struct CtdlMessage *)malloc(sizeof(struct CtdlMessage));
 	if (NewMsg == NULL)
 		return NULL;
 
 	memcpy(NewMsg, OrgMsg, sizeof(struct CtdlMessage *));
 
-	memset(NewMsg->cm_fields, 0, sizeof(NewMsg->cm_fields));
+	memset(&NewMsg->cm_fields, 0, sizeof(char*) * 256);
 	
 	for (i = 0; i < 256; ++i)
 	{
