@@ -1312,6 +1312,48 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 	free(msg);
 }
 
+int DupCMField(int i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
+{
+	long len;
+	len = strlen(OrgMsg->cm_fields[i]);
+	NewMsg->cm_fields[i] = malloc(len + 1);
+	if (NewMsg->cm_fields[i] == NULL)
+		return 0;
+	memcpy(NewMsg->cm_fields[i], OrgMsg->cm_fields[i], len);
+	return 1;
+}
+
+struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
+{
+	int i;
+	struct CtdlMessage *NewMsg;
+
+	if (is_valid_message(OrgMsg) == 0) 
+		return NULL;
+	NewMsg = (struct CtdlMessage *)malloc(sizeof(struct CtdlMessage *));
+	if (NewMsg == NULL)
+		return NULL;
+
+	memcpy(NewMsg, OrgMsg, sizeof(struct CtdlMessage *));
+
+	memset(NewMsg->cm_fields, 0, sizeof(NewMsg->cm_fields));
+	
+	for (i = 0; i < 256; ++i)
+	{
+		if (OrgMsg->cm_fields[i] != NULL)
+		{
+			if (!DupCMField(i, OrgMsg, NewMsg))
+			{
+				CtdlFreeMessage(NewMsg);
+				return NULL;
+			}
+		}
+	}
+
+	return NewMsg;
+}
+
+
 
 /*
  * Pre callback function for multipart/alternative

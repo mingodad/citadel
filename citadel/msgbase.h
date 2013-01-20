@@ -160,6 +160,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 			unsigned int flags		/* Internal save flags */
 );
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
+struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void CtdlFreeMessageContents(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
