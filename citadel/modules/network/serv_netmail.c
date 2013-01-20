@@ -150,7 +150,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
-	for (nptr = sc->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
+	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
 		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
 	}
 
@@ -164,8 +164,8 @@ void network_deliver_digest(SpoolControl *sc) {
 	}
 
 	/* Each recipient */
-	for (nptr = sc->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->NetConfigs[digestrecp]) {
+	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
+		if (nptr != sc->RNCfg->NetConfigs[digestrecp]) {
 			StrBufAppendBufPlain(recps, HKEY(","), 0);
 		}
 		StrBufAppendBuf(recps, nptr->Value[0], 0);
@@ -203,14 +203,14 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	char bounce_to[256];
 
 	/* Don't do this if there were no recipients! */
-	if (sc->NetConfigs[listrecp] == NULL) return;
+	if (sc->RNCfg->NetConfigs[listrecp] == NULL) return;
 
 	/* Now generate the delivery instructions */
 
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
-	for (nptr = sc->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
+	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
 		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
 	}
 
@@ -224,8 +224,8 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	}
 
 	/* Each recipient */
-	for (nptr = sc->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->NetConfigs[listrecp]) {
+	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
+		if (nptr != sc->RNCfg->NetConfigs[listrecp]) {
 			StrBufAppendBufPlain(recps, HKEY(","), 0);
 		}
 		StrBufAppendBuf(recps, nptr->Value[0], 0);
@@ -279,7 +279,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process mailing list recipients
 	 */
-	if (sc->NetConfigs[listrecp] != NULL) {
+	if (sc->RNCfg->NetConfigs[listrecp] != NULL) {
 		/* Fetch the message.  We're going to need to modify it
 		 * in order to insert the [list name] in it, etc.
 		 */
@@ -392,7 +392,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process digest recipients
 	 */
-	if ((sc->NetConfigs[digestrecp] != NULL) && (sc->digestfp != NULL)) {
+	if ((sc->RNCfg->NetConfigs[digestrecp] != NULL) && (sc->digestfp != NULL)) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 			fprintf(sc->digestfp,
@@ -448,7 +448,7 @@ void network_spool_msg(long msgnum,
 	/*
 	 * Process client-side list participations for this room
 	 */
-	if (sc->NetConfigs[participate] != NULL) {
+	if (sc->RNCfg->NetConfigs[participate] != NULL) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 
@@ -497,7 +497,7 @@ void network_spool_msg(long msgnum,
 				/*
 				 * Figure out how big a buffer we need to alloc
 				 */
-				for (nptr = sc->NetConfigs[participate];
+				for (nptr = sc->RNCfg->NetConfigs[participate];
 				     nptr != NULL;
 				     nptr = nptr->next)
 				{
@@ -518,143 +518,145 @@ void network_spool_msg(long msgnum,
 		}
 	}
 
-	/*
-	 * Process IGnet push shares
-	 */
-	msg = CtdlFetchMessage(msgnum, 1);
-	if (msg != NULL) {
-		size_t newpath_len;
-
-		/* Prepend our node name to the Path field whenever
-		 * sending a message to another IGnet node
-		 */
-		if (msg->cm_fields['P'] == NULL) {
-			msg->cm_fields['P'] = strdup("username");
-		}
-		newpath_len = strlen(msg->cm_fields['P']) +
-			 strlen(config.c_nodename) + 2;
-		newpath = malloc(newpath_len);
-		snprintf(newpath, newpath_len, "%s!%s",
-			 config.c_nodename, msg->cm_fields['P']);
-		free(msg->cm_fields['P']);
-		msg->cm_fields['P'] = newpath;
-
+	if (sc->RNCfg->NetConfigs[ignet_push_share] != NULL)
+	{
 		/*
-		 * Determine if this message is set to be deleted
-		 * after sending out on the network
+		 * Process IGnet push shares
 		 */
-		if (msg->cm_fields['S'] != NULL) {
-			if (!strcasecmp(msg->cm_fields['S'], "CANCEL")) {
-				delete_after_send = 1;
+		msg = CtdlFetchMessage(msgnum, 1);
+		if (msg != NULL) {
+			size_t newpath_len;
+
+			/* Prepend our node name to the Path field whenever
+			 * sending a message to another IGnet node
+			 */
+			if (msg->cm_fields['P'] == NULL) {
+				msg->cm_fields['P'] = strdup("username");
 			}
-		}
+			newpath_len = strlen(msg->cm_fields['P']) +
+				strlen(config.c_nodename) + 2;
+			newpath = malloc(newpath_len);
+			snprintf(newpath, newpath_len, "%s!%s",
+				 config.c_nodename, msg->cm_fields['P']);
+			free(msg->cm_fields['P']);
+			msg->cm_fields['P'] = newpath;
 
-		/* Now send it to every node */
-		if (sc->NetConfigs[ignet_push_share] != NULL)
-		for (mptr = sc->NetConfigs[ignet_push_share]; mptr != NULL;
-		    mptr = mptr->next) {
-
-			send = 1;
-			NewStrBufDupAppendFlush(&Buf, mptr->Value[0], NULL, 1);
-
-			/* Check for valid node name */
-			if (CtdlIsValidNode(NULL,
-					    NULL,
-					    Buf,
-					    sc->working_ignetcfg,
-					    sc->the_netmap) != 0)
-			{
-				QN_syslog(LOG_ERR,
-					  "Invalid node <%s>\n",
-					  ChrPtr(mptr->Value[0]));
-
-				send = 0;
-			}
-
-			/* Check for split horizon */
-			QN_syslog(LOG_DEBUG, "Path is %s\n", msg->cm_fields['P']);
-			bang = num_tokens(msg->cm_fields['P'], '!');
-			if (bang > 1) {
-				for (i=0; i<(bang-1); ++i) {
-					extract_token(buf,
-						      msg->cm_fields['P'],
-						      i, '!',
-						      sizeof buf);
-					
-					QN_syslog(LOG_DEBUG, "Compare <%s> to <%s>\n",
-						  buf, ChrPtr(mptr->Value[0])) ;
-					if (!strcasecmp(buf, ChrPtr(mptr->Value[0]))) {
-						send = 0;
-						break;
-					}
+			/*
+			 * Determine if this message is set to be deleted
+			 * after sending out on the network
+			 */
+			if (msg->cm_fields['S'] != NULL) {
+				if (!strcasecmp(msg->cm_fields['S'], "CANCEL")) {
+					delete_after_send = 1;
 				}
-
-				QN_syslog(LOG_INFO,
-					  "%sSending to %s\n",
-					  (send)?"":"Not ",
-					  ChrPtr(mptr->Value[0]));
 			}
 
-			/* Send the message */
-			if (send == 1)
-			{
-				/*
-				 * Force the message to appear in the correct
-				 * room on the far end by setting the C field
-				 * correctly
-				 */
-				if (msg->cm_fields['C'] != NULL) {
-					free(msg->cm_fields['C']);
-				}
-				if (StrLength(mptr->Value[0]) > 0) {
-					msg->cm_fields['C'] =
-						strdup(ChrPtr(mptr->Value[0]));
-				}
-				else {
-					msg->cm_fields['C'] =
-						strdup(CC->room.QRname);
-				}
+			/* Now send it to every node */
+			if (sc->RNCfg->NetConfigs[ignet_push_share] != NULL)
+				for (mptr = sc->RNCfg->NetConfigs[ignet_push_share]; mptr != NULL;
+				     mptr = mptr->next) {
 
-				/* serialize it for transmission */
-				serialize_message(&sermsg, msg);
-				if (sermsg.len > 0) {
+					send = 1;
+					NewStrBufDupAppendFlush(&Buf, mptr->Value[0], NULL, 1);
 
-					/* write it to a spool file */
-					snprintf(filename,
-						 sizeof(filename),
-						 "%s/%s@%lx%x",
-						 ctdl_netout_dir,
-						 ChrPtr(mptr->Value[0]),
-						 time(NULL),
-						 rand()
-					);
-
-					QN_syslog(LOG_DEBUG,
-						  "Appending to %s\n",
-						  filename);
-
-					fp = fopen(filename, "ab");
-					if (fp != NULL) {
-						fwrite(sermsg.ser,
-							sermsg.len, 1, fp);
-						fclose(fp);
-					}
-					else {
+					/* Check for valid node name */
+					if (CtdlIsValidNode(NULL,
+							    NULL,
+							    Buf,
+							    sc->working_ignetcfg,
+							    sc->the_netmap) != 0)
+					{
 						QN_syslog(LOG_ERR,
-							  "%s: %s\n",
-							  filename,
-							  strerror(errno));
+							  "Invalid node <%s>\n",
+							  ChrPtr(mptr->Value[0]));
+
+						send = 0;
 					}
 
-					/* free the serialized version */
-					free(sermsg.ser);
+					/* Check for split horizon */
+					QN_syslog(LOG_DEBUG, "Path is %s\n", msg->cm_fields['P']);
+					bang = num_tokens(msg->cm_fields['P'], '!');
+					if (bang > 1) {
+						for (i=0; i<(bang-1); ++i) {
+							extract_token(buf,
+								      msg->cm_fields['P'],
+								      i, '!',
+								      sizeof buf);
+					
+							QN_syslog(LOG_DEBUG, "Compare <%s> to <%s>\n",
+								  buf, ChrPtr(mptr->Value[0])) ;
+							if (!strcasecmp(buf, ChrPtr(mptr->Value[0]))) {
+								send = 0;
+								break;
+							}
+						}
+
+						QN_syslog(LOG_INFO,
+							  "%sSending to %s\n",
+							  (send)?"":"Not ",
+							  ChrPtr(mptr->Value[0]));
+					}
+
+					/* Send the message */
+					if (send == 1)
+					{
+						/*
+						 * Force the message to appear in the correct
+						 * room on the far end by setting the C field
+						 * correctly
+						 */
+						if (msg->cm_fields['C'] != NULL) {
+							free(msg->cm_fields['C']);
+						}
+						if (StrLength(mptr->Value[0]) > 0) {
+							msg->cm_fields['C'] =
+								strdup(ChrPtr(mptr->Value[0]));
+						}
+						else {
+							msg->cm_fields['C'] =
+								strdup(CC->room.QRname);
+						}
+
+						/* serialize it for transmission */
+						serialize_message(&sermsg, msg);
+						if (sermsg.len > 0) {
+
+							/* write it to a spool file */
+							snprintf(filename,
+								 sizeof(filename),
+								 "%s/%s@%lx%x",
+								 ctdl_netout_dir,
+								 ChrPtr(mptr->Value[0]),
+								 time(NULL),
+								 rand()
+								);
+
+							QN_syslog(LOG_DEBUG,
+								  "Appending to %s\n",
+								  filename);
+
+							fp = fopen(filename, "ab");
+							if (fp != NULL) {
+								fwrite(sermsg.ser,
+								       sermsg.len, 1, fp);
+								fclose(fp);
+							}
+							else {
+								QN_syslog(LOG_ERR,
+									  "%s: %s\n",
+									  filename,
+									  strerror(errno));
+							}
+
+							/* free the serialized version */
+							free(sermsg.ser);
+						}
+
+					}
 				}
-
-			}
+			CtdlFreeMessage(msg);
 		}
-		CtdlFreeMessage(msg);
 	}
-
 	/* update lastsent */
 	///sc->lastsent = msgnum; ////// TODO
 

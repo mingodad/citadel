@@ -88,7 +88,6 @@ extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
 typedef struct __roomlists {
 	RoomProcList *rplist;
-	HashList *RoomsInterestedIn;
 }roomlists;
 /*
  * When we do network processing, it's accomplished in two passes; one to
@@ -159,21 +158,22 @@ int network_usetable(struct CtdlMessage *msg)
 int network_sync_to(char *target_node, long len)
 {
 	struct CitContext *CCC = CC;
-	const OneRoomNetCfg *OneRNCFG;
+	OneRoomNetCfg OneRNCFG;
+	OneRoomNetCfg *pRNCFG;
 	const RoomNetCfgLine *pCfgLine;
 	SpoolControl sc;
 	int num_spooled = 0;
 
 	/* Grab the configuration line we're looking for */
 	begin_critical_section(S_NETCONFIGS);
-	OneRNCFG = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
-	if ((OneRNCFG == NULL) ||
-	    (OneRNCFG->NetConfigs[ignet_push_share] == NULL))
+	pRNCFG = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
+	if ((pRNCFG == NULL) ||
+	    (pRNCFG->NetConfigs[ignet_push_share] == NULL))
 	{
 		return -1;
 	}
 
-	pCfgLine = OneRNCFG->NetConfigs[ignet_push_share];
+	pCfgLine = pRNCFG->NetConfigs[ignet_push_share];
 	while (pCfgLine != NULL)
 	{
 		if (strcmp(ChrPtr(pCfgLine->Value[0]), target_node))
@@ -185,8 +185,9 @@ int network_sync_to(char *target_node, long len)
 		return -1;
 	}
 	memset(&sc, 0, sizeof(SpoolControl));
-
-	sc.NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
+	memset(&OneRNCFG, 0, sizeof(OneRoomNetCfg));
+	sc.RNCfg = &OneRNCFG;
+	sc.RNCfg->NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
 
 	end_critical_section(S_NETCONFIGS);
 
@@ -198,7 +199,7 @@ int network_sync_to(char *target_node, long len)
 		network_spool_msg, &sc);
 
 	/* Concise cleanup because we know there's only one node in the sc */
-	DeleteGenericCfgLine(NULL/*TODO*/, &sc.NetConfigs[ignet_push_share]);
+	DeleteGenericCfgLine(NULL/*TODO*/, &sc.RNCfg->NetConfigs[ignet_push_share]);
 
 	DeleteHash(&sc.working_ignetcfg);
 	DeleteHash(&sc.the_netmap);
@@ -253,7 +254,7 @@ RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, const OneRoomNetCf
 
 	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
-	ptr->OneRNCFG = OneRNCFG;
+	ptr->OneRNCfg = OneRNCFG;
 	return ptr;
 }
 
@@ -440,7 +441,6 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 void network_do_queue(void)
 {
 	struct CitContext *CCC = CC;
-	static int doing_queue = 0;
 	static time_t last_run = 0L;
 	int full_processing = 1;
 	HashList *working_ignetcfg;
@@ -458,17 +458,6 @@ void network_do_queue(void)
 		       config.c_net_freq - (time(NULL)- last_run)
 		);
 	}
-
-	/*
-	 * This is a simple concurrency check to make sure only one queue run
-	 * is done at a time.  We could do this with a mutex, but since we
-	 * don't really require extremely fine granularity here, we'll do it
-	 * with a static variable instead.
-	 */
-	if (doing_queue) {
-		return;
-	}
-	doing_queue = 1;
 
 	become_session(&networker_spool_CC);
 	begin_critical_section(S_RPLIST);
@@ -506,7 +495,7 @@ void network_do_queue(void)
 		while (ptr != NULL && !server_shutting_down) {
 			
 			cmp = ptr->next;
-
+			/* filter duplicates from the list... */
 			while (cmp != NULL) {
 				if ((cmp->namelen > 0) &&
 				    (cmp->key == ptr->key) &&
@@ -557,9 +546,7 @@ void network_do_queue(void)
 	if (full_processing) {
 		last_run = time(NULL);
 	}
-	DeleteHash(&RL.RoomsInterestedIn);
 	destroy_network_queue_room(RL.rplist);
-	doing_queue = 0;
 }
 
 

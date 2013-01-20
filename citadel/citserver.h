@@ -18,7 +18,7 @@
 typedef struct RoomProcList RoomProcList;
 struct RoomProcList {
         struct RoomProcList *next;
-	const OneRoomNetCfg *OneRNCFG;
+	OneRoomNetCfg *OneRNCfg;
         char name[ROOMNAMELEN];
         char lcname[ROOMNAMELEN];
 	long namelen;

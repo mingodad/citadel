@@ -30,7 +30,7 @@
 typedef struct SpoolControl SpoolControl;
 
 struct SpoolControl {
-	RoomNetCfgLine *NetConfigs[maxRoomNetCfg];
+	OneRoomNetCfg *RNCfg;
 	FILE *digestfp;
 	int num_msgs_spooled;
 	long lastsent;

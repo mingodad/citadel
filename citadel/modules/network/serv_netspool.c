@@ -152,66 +152,86 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 			   HashList *working_ignetcfg,
 			   HashList *the_netmap)
 {
+	struct CitContext *CCC = CC;
 	char buf[SIZ];
-	char filename[PATH_MAX];
-	SpoolControl *sc;
+	SpoolControl sc;
 	int i;
+
+	if ((sc.RNCfg->NetConfigs[listrecp] == NULL) && 
+	    (sc.RNCfg->NetConfigs[digestrecp] == NULL) && 
+	    (sc.RNCfg->NetConfigs[participate] == NULL) && 
+	    (sc.RNCfg->NetConfigs[ignet_push_share] == NULL))
+	{
+		/* nothing to do for this room... */
+		return;
+	}
 
 	/*
 	 * If the room doesn't exist, don't try to perform its networking tasks.
 	 * Normally this should never happen, but once in a while maybe a room gets
 	 * queued for networking and then deleted before it can happen.
 	 */
-	if (CtdlGetRoom(&CC->room, room_to_spool->name) != 0) {
+	if (CtdlGetRoom(&CCC->room, room_to_spool->name) != 0) {
 		syslog(LOG_CRIT, "ERROR: cannot load <%s>\n", room_to_spool->name);
 		return;
 	}
 
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-	begin_critical_section(S_NETCONFIGS);
-
-	/* Only do net processing for rooms that have netconfigs */
-	if (!ReadRoomNetConfigFile(&sc, filename))
-	{
-		end_critical_section(S_NETCONFIGS);
-		return;
-	}
-	syslog(LOG_INFO, "Networking started for <%s>\n", CC->room.QRname);
-
-	sc->working_ignetcfg = working_ignetcfg;
-	sc->the_netmap = the_netmap;
+	
+	syslog(LOG_INFO, "Networking started for <%s>\n", CCC->room.QRname);
+	sc.RNCfg = room_to_spool->OneRNCfg;
+	sc.lastsent = room_to_spool->OneRNCfg->lastsent;
+	sc.working_ignetcfg = working_ignetcfg;
+	sc.the_netmap = the_netmap;
 
 	/* If there are digest recipients, we have to build a digest */
-	if (sc->NetConfigs[digestrecp] != NULL) {
-		sc->digestfp = tmpfile();
-		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
+	if (sc.RNCfg->NetConfigs[digestrecp] != NULL) {
+		sc.digestfp = tmpfile();
+		fprintf(sc.digestfp, "Content-type: text/plain\n\n");
 	}
 
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
-		network_spool_msg, sc);
+	CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL, NULL,
+		network_spool_msg, &sc);
 
 	/* If we wrote a digest, deliver it and then close it */
-	snprintf(buf, sizeof buf, "room_%s@%s",
-		CC->room.QRname, config.c_fqdn);
+	if (StrLength(sc.RNCfg->Sender) > 0)
+	{
+		long len;
+		len = StrLength(sc.RNCfg->Sender);
+		if (len + 1 > sizeof(buf))
+			len = sizeof(buf) - 1;
+		memcpy(buf, ChrPtr(sc.RNCfg->Sender), len);
+		buf[len] = '\0';
+	}
+	else
+	{
+		snprintf(buf, sizeof buf, "room_%s@%s",
+			 CCC->room.QRname, config.c_fqdn);
+	}
+
 	for (i=0; buf[i]; ++i) {
 		buf[i] = tolower(buf[i]);
 		if (isspace(buf[i])) buf[i] = '_';
 	}
-	if (sc->digestfp != NULL) {
-		fprintf(sc->digestfp,	" -----------------------------------"
-					"------------------------------------"
-					"-------\n"
-					"You are subscribed to the '%s' "
-					"list.\n"
-					"To post to the list: %s\n",
-					CC->room.QRname, buf
+	if (sc.digestfp != NULL) {
+		fprintf(sc.digestfp,
+			" -----------------------------------"
+			"------------------------------------"
+			"-------\n"
+			"You are subscribed to the '%s' "
+			"list.\n"
+			"To post to the list: %s\n",
+			CCC->room.QRname, buf
 		);
-		network_deliver_digest(sc);	/* deliver and close */
+		network_deliver_digest(&sc);	/* deliver and close */
 	}
 
 	/* Now rewrite the config file */
-	//// todo writenfree_spoolcontrol_file(&sc, filename);
+	if (sc.lastsent != room_to_spool->OneRNCfg->lastsent)
+	{
+		room_to_spool->OneRNCfg->lastsent = sc.lastsent;
+		room_to_spool->OneRNCfg->changed = 1;
+	}
 	end_critical_section(S_NETCONFIGS);
 }
 
