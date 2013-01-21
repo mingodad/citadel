@@ -608,7 +608,7 @@ void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE)
 		{
-			const OneRoomNetCfg* RNCfg;
+			OneRoomNetCfg* RNCfg;
 			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
 			if ((RNCfg != NULL) &&
 			    ((filter == maxRoomNetCfg) ||

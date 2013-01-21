@@ -983,7 +983,7 @@ int pop3_do_fetching(pop3aggr *cpptr)
 /*
  * Scan a room's netconfig to determine whether it requires POP3 aggregation
  */
-void pop3client_scan_room(struct ctdlroom *qrbuf, void *data, const OneRoomNetCfg *OneRNCFG)
+void pop3client_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCFG)
 {
 	const RoomNetCfgLine *pLine;
 	void *vptr;

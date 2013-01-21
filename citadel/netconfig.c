@@ -201,22 +201,22 @@ int ReadRoomNetConfigFile(OneRoomNetCfg **pOneRNCFG, char *filename)
 int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCFG, char *filename)
 {
 	RoomNetCfg eCfg;
-	StrBuf *Cfg;
+	StrBuf *Cfg = NULL;
+	StrBuf *OutBuffer = NULL;
 	char tempfilename[PATH_MAX];
 	int TmpFD;
 	long len;
 	time_t unixtime;
 	struct timeval tv;
 	long reltid; /* if we don't have SYS_gettid, use "random" value */
-	StrBuf *OutBuffer;
 	int rc;
 	HashPos *CfgIt;
 
 	len = strlen(filename);
 	memcpy(tempfilename, filename, len + 1);
 
-#if defined(HAVE_SYONERNCFGALL_H) && defined (SYS_gettid)
-	reltid = syOneRNCFGall(SYS_gettid);
+#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
+	reltid = syscall(SYS_gettid);
 #endif
 	gettimeofday(&tv, NULL);
 	/* Promote to time_t; types differ on some OSes (like darwin) */
@@ -230,9 +230,11 @@ int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCFG, char *filename)
 		syslog(LOG_CRIT, "ERROR: cannot open %s: %s\n",
 			filename, strerror(errno));
 		unlink(tempfilename);
+		FreeStrBuf(&Cfg);
 		return 0;
 	}
 	else {
+		OutBuffer = NewStrBuf();
 		CfgIt = GetNewHashPos(CfgTypeHash, 1);
 		fchown(TmpFD, config.c_ctdluid, 0);
 		for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
@@ -264,9 +266,10 @@ int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCFG, char *filename)
 		}
 
 		rc = write(TmpFD, ChrPtr(OutBuffer), StrLength(OutBuffer));
-		if ((rc >=0 ) && (rc == StrLength(Cfg))) 
+		if ((rc >=0 ) && (rc == StrLength(OutBuffer))) 
 		{
 			close(TmpFD);
+			unlink(filename);
 			rename(tempfilename, filename);
 			rc = 1;
 		}
@@ -282,7 +285,26 @@ int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCFG, char *filename)
 		FreeStrBuf(&OutBuffer);
 		
 	}
+	FreeStrBuf(&Cfg);
 	return rc;
+}
+
+void SaveModifiedRooms(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCfg)
+{
+	char filename[PATH_MAX];
+
+	if (OneRNCfg->changed)
+	{
+		assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
+		SaveRoomNetConfigFile(OneRNCfg, filename);
+		OneRNCfg->changed = 0;
+	}
+}
+void SaveChangedConfigs(void)
+{
+	CtdlForEachNetCfgRoom(SaveModifiedRooms,
+			      NULL, 
+			      maxRoomNetCfg);
 }
 
 
@@ -321,7 +343,7 @@ void FreeRoomNetworkStruct(OneRoomNetCfg **pOneRNCFG)
 	*pOneRNCFG=NULL;
 }
 
-const OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber)
+OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber)
 {
 	void *pv;
 	GetHash(RoomConfigs, LKEY(QRNumber), &pv);

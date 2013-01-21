@@ -245,10 +245,11 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 void CtdlPutRoomLock(struct ctdlroom *qrbuf);
 typedef void (*ForEachRoomCallBack)(struct ctdlroom *EachRoom, void *out_data);
 void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data);
-typedef void (*ForEachRoomNetCfgCallBack)(struct ctdlroom *EachRoom, void *out_data, const OneRoomNetCfg *OneRNCFG);
+typedef void (*ForEachRoomNetCfgCallBack)(struct ctdlroom *EachRoom, void *out_data, OneRoomNetCfg *OneRNCFG);
 void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
 			   void *in_data,
 			   RoomNetCfg filter);
+void SaveChangedConfigs(void);
 
 void CtdlDeleteRoom(struct ctdlroom *qrbuf);
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
@@ -423,7 +424,7 @@ void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomN
 void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);
 RoomNetCfgLine *DuplicateOneGenericCfgLine(const RoomNetCfgLine *data);
 
-const OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber);
+OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber);
 
 typedef struct _nodeconf {
 	int DeleteMe;

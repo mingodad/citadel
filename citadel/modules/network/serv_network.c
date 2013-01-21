@@ -231,7 +231,7 @@ void cmd_nsyn(char *argbuf) {
 	}
 }
 
-RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, const OneRoomNetCfg *OneRNCFG)
+RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, OneRoomNetCfg *OneRNCFG)
 {
 	int i;
 	struct RoomProcList *ptr;
@@ -261,7 +261,7 @@ RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, const OneRoomNetCf
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, const OneRoomNetCfg *OneRNCfg)
+void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCfg)
 {
 	struct RoomProcList *ptr;
 	roomlists *RP = (roomlists*) data;
@@ -278,7 +278,7 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, const O
 int network_room_handler (struct ctdlroom *qrbuf)
 {
 	struct RoomProcList *ptr;
-	const OneRoomNetCfg* RNCfg;
+	OneRoomNetCfg* RNCfg;
 
 	if (qrbuf->QRdefaultview == VIEW_QUEUE)
 		return 1;
@@ -547,6 +547,8 @@ void network_do_queue(void)
 		last_run = time(NULL);
 	}
 	destroy_network_queue_room(RL.rplist);
+	SaveChangedConfigs();
+
 }
 
 

@@ -157,6 +157,12 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 	SpoolControl sc;
 	int i;
 
+	memset(&sc, 0, sizeof(SpoolControl));
+	sc.RNCfg = room_to_spool->OneRNCfg;
+	sc.lastsent = room_to_spool->OneRNCfg->lastsent;
+	sc.working_ignetcfg = working_ignetcfg;
+	sc.the_netmap = the_netmap;
+
 	if ((sc.RNCfg->NetConfigs[listrecp] == NULL) && 
 	    (sc.RNCfg->NetConfigs[digestrecp] == NULL) && 
 	    (sc.RNCfg->NetConfigs[participate] == NULL) && 
@@ -178,10 +184,6 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 
 	
 	syslog(LOG_INFO, "Networking started for <%s>\n", CCC->room.QRname);
-	sc.RNCfg = room_to_spool->OneRNCfg;
-	sc.lastsent = room_to_spool->OneRNCfg->lastsent;
-	sc.working_ignetcfg = working_ignetcfg;
-	sc.the_netmap = the_netmap;
 
 	/* If there are digest recipients, we have to build a digest */
 	if (sc.RNCfg->NetConfigs[digestrecp] != NULL) {

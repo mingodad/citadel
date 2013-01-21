@@ -556,7 +556,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 /*
  * Scan a room's netconfig to determine whether it is requesting any RSS feeds
  */
-void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, const OneRoomNetCfg *OneRNCFG)
+void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCFG)
 {
 	const RoomNetCfgLine *pLine;
 	rss_room_counter *Count = NULL;
