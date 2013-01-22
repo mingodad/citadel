@@ -99,7 +99,7 @@ void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos
 	RoomNetCfgLine *nptr;
 	nptr = (RoomNetCfgLine *)
 		malloc(sizeof(RoomNetCfgLine));
-	
+	memset(nptr, 0, sizeof(RoomNetCfgLine));
 	OneRNCFG->lastsent = extract_long(LinePos, 0);
 	OneRNCFG->NetConfigs[ThisOne->C] = nptr;
 }
