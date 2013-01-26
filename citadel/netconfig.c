@@ -29,6 +29,10 @@
 #include <libcitadel.h>
 
 #include "include/ctdl_module.h"
+
+
+void vFreeRoomNetworkStruct(void *vOneRoomNetCfg);
+
 HashList *CfgTypeHash = NULL;
 HashList *RoomConfigs = NULL;
 /*-----------------------------------------------------------------------------*
@@ -114,6 +118,7 @@ void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomN
 	int i;
 
 	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
+	StrBufAppendBufPlain(OutputBuffer, HKEY("|"), 0);
 	for (i = 0; i < ThisOne->nSegments; i++)
 	{
 		StrBufAppendBuf(OutputBuffer, data->Value[i], 0);
@@ -312,6 +317,34 @@ void SaveChangedConfigs(void)
 			      NULL, 
 			      maxRoomNetCfg);
 }
+
+
+void AddRoomCfgLine(OneRoomNetCfg *OneRNCfg, struct ctdlroom *qrbuf, RoomNetCfg LineType, RoomNetCfgLine *Line)
+{
+	int new = 0;
+	RoomNetCfgLine **pLine;
+	char filename[PATH_MAX];
+
+	if (OneRNCfg == NULL)
+	{
+		new = 1;
+		OneRNCfg = (OneRoomNetCfg*) malloc(sizeof(OneRoomNetCfg));
+		memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
+	}
+	pLine = &OneRNCfg->NetConfigs[LineType];
+
+	while(*pLine != NULL) pLine = &((*pLine)->next);
+	*pLine = Line;
+
+	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
+	SaveRoomNetConfigFile(OneRNCfg, filename);
+	OneRNCfg->changed = 0;
+	if (new)
+	{
+		Put(RoomConfigs, LKEY(qrbuf->QRnumber), OneRNCfg, vFreeRoomNetworkStruct);
+	}
+}
+
 void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg)
 {
 	RoomNetCfg eCfg;

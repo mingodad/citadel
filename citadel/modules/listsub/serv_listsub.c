@@ -71,24 +71,60 @@ void listsub_generate_token(char *buf) {
 	CtdlEncodeBase64(buf, sourcebuf, strlen(sourcebuf), 0);
 }
 
+const RoomNetCfg ActiveSubscribers[] = {listrecp, digestrecp};
+
+int CountThisSubscriber(OneRoomNetCfg *OneRNCfg, StrBuf *email)
+{
+	RoomNetCfgLine *Line;
+	int found_sub = 0;
+	int i;
+
+	for (i = 0; i < sizeof (ActiveSubscribers); i++)
+	{
+		Line = OneRNCfg->NetConfigs[ActiveSubscribers[i]];
+		while (Line != NULL)
+		{
+			if (!strcmp(ChrPtr(email),
+				    ChrPtr(Line->Value[0])))
+			{
+				++found_sub;
+				break;					
+			}
+			Line = Line->next;
+		}
+	}
+	return found_sub;
+}
 
 /*
+	subpending,
+	unsubpending,
+	ignet_push_share,
+	listrecp,
+	digestrecp,
+	pop3client,
+	rssclient,
+	participate,
+	roommailalias,
+	maxRoomNetCfg
+
+/ *
  * Enter a subscription request
  */
-void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
+void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webpage) {
 	struct ctdlroom qrbuf;
-	FILE *ncfp;
-	char filename[256];
 	char token[256];
-	char confirmation_request[2048];
-	char buf[512];
-	char urlroom[ROOMNAMELEN];
-	char scancmd[64];
-	char scanemail[256];
+	char *pcf_req;
+	StrBuf *cf_req;
+	StrBuf *UrlRoom;
 	int found_sub = 0;
+	const char *RoomMailAddress;
+	OneRoomNetCfg *OneRNCfg;
+	RoomNetCfgLine *Line;
+	long RoomMailAddressLen;
 
-	if (CtdlGetRoom(&qrbuf, room) != 0) {
-		cprintf("%d There is no list called '%s'\n", ERROR + ROOM_NOT_FOUND, room);
+	if (CtdlGetRoom(&qrbuf, ChrPtr(*room)) != 0) {
+		cprintf("%d There is no list called '%s'\n", ERROR + ROOM_NOT_FOUND, ChrPtr(*room));
 		return;
 	}
 
@@ -99,137 +135,185 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 		return;
 	}
 
-	listsub_generate_token(token);
-
-	assoc_file_name(filename, sizeof filename, &qrbuf, ctdl_netcfg_dir);
-
 	/* 
 	 * Make sure the requested address isn't already subscribed
 	 */
 	begin_critical_section(S_NETCONFIGS);
-	ncfp = fopen(filename, "r");
-	if (ncfp != NULL) {
-		while (fgets(buf, sizeof buf, ncfp) != NULL) {
-			buf[strlen(buf)-1] = 0;
-			extract_token(scancmd, buf, 0, '|', sizeof scancmd);
-			extract_token(scanemail, buf, 1, '|', sizeof scanemail);
-			if ((!strcasecmp(scancmd, "listrecp"))
-			   || (!strcasecmp(scancmd, "digestrecp"))) {
-				if (!strcasecmp(scanemail, email)) {
-					++found_sub;
-				}
-			}
-		}
-		fclose(ncfp);
+
+	RoomMailAddress = qrbuf.QRname;
+	OneRNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
+	if (OneRNCfg!=NULL) {
+		found_sub = CountThisSubscriber(OneRNCfg, *email);
+		if (StrLength(OneRNCfg->Sender) > 0)
+			RoomMailAddress = ChrPtr(OneRNCfg->Sender);
 	}
-	end_critical_section(S_NETCONFIGS);
 
 	if (found_sub != 0) {
 		cprintf("%d '%s' is already subscribed to '%s'.\n",
 			ERROR + ALREADY_EXISTS,
-			email, qrbuf.QRname);
+			ChrPtr(*email),
+			RoomMailAddress);
+
+		end_critical_section(S_NETCONFIGS);
 		return;
 	}
 
 	/*
-	 * Now add it to the file
+	 * Now add it to the config
 	 */	
-	begin_critical_section(S_NETCONFIGS);
-	ncfp = fopen(filename, "a");
-	if (ncfp != NULL) {
-		fprintf(ncfp, "subpending|%s|%s|%s|%ld|%s\n",
-			email,
-			subtype,
-			token,
-			time(NULL),
-			webpage
-		);
-		fclose(ncfp);
-	}
-	end_critical_section(S_NETCONFIGS);
+	
+	RoomMailAddressLen = strlen(RoomMailAddress);
+	listsub_generate_token(token);
+	Line = (RoomNetCfgLine*)malloc(sizeof(RoomNetCfgLine));
+	memset(Line, 0, sizeof(RoomNetCfgLine));
+
+	Line->Value = (StrBuf**) malloc(sizeof(StrBuf*) * 5);
+	
+	Line->Value[0] = *email; *email = NULL;
+	Line->Value[1] = *subtype; *subtype = NULL;
+	Line->Value[2] = NewStrBufPlain(token, -1);
+	Line->Value[3] = NewStrBufPlain(NULL, 10);
+	StrBufPrintf(Line->Value[3], "%ld", time(NULL));
+	Line->Value[4] = *webpage; *webpage = NULL;
+	Line->nValues = 5;
+
+	AddRoomCfgLine(OneRNCfg, &qrbuf, subpending, Line);
 
 	/* Generate and send the confirmation request */
+	UrlRoom = NewStrBuf();
+	StrBufUrlescAppend(UrlRoom, NULL, qrbuf.QRname);
 
-	urlesc(urlroom, ROOMNAMELEN, qrbuf.QRname);
+	cf_req = NewStrBufPlain(NULL, 2048);
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("MIME-Version: 1.0\n"
+		     "Content-Type: multipart/alternative; boundary=\"__ctdlmultipart__\"\n"
+		     "\n"
+		     "This is a multipart message in MIME format.\n"
+		     "\n"
+		     "--__ctdlmultipart__\n"
+		     "Content-type: text/plain\n"
+		     "\n"
+		     "Someone (probably you) has submitted a request to subscribe\n"
+		     "<"), 0);
+	StrBufAppendBuf(cf_req, Line->Value[0], 0);
 
-	snprintf(confirmation_request, sizeof confirmation_request,
+	StrBufAppendBufPlain(cf_req, HKEY("> to the '"), 0);
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
 
-		"MIME-Version: 1.0\n"
-		"Content-Type: multipart/alternative; boundary=\"__ctdlmultipart__\"\n"
-		"\n"
-		"This is a multipart message in MIME format.\n"
-		"\n"
-		"--__ctdlmultipart__\n"
-		"Content-type: text/plain\n"
-		"\n"
-		"Someone (probably you) has submitted a request to subscribe\n"
-		"<%s> to the '%s' mailing list.\n"
-		"\n"
-		"Please go here to confirm this request:\n"
-		"  %s?room=%s&token=%s&cmd=confirm  \n"
-		"\n"
-		"If this request has been submitted in error and you do not\n"
-		"wish to receive the '%s' mailing list, simply do nothing,\n"
-		"and you will not receive any further mailings.\n"
-		"\n"
-		"--__ctdlmultipart__\n"
-		"Content-type: text/html\n"
-		"\n"
-		"<HTML><BODY>\n"
-		"Someone (probably you) has submitted a request to subscribe\n"
-		"&lt;%s&gt; to the <B>%s</B> mailing list.<BR><BR>\n"
-		"Please click here to confirm this request:<BR>\n"
-		"<A HREF=\"%s?room=%s&token=%s&cmd=confirm\">"
-		"%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
-		"If this request has been submitted in error and you do not\n"
-		"wish to receive the '%s' mailing list, simply do nothing,\n"
-		"and you will not receive any further mailings.\n"
-		"</BODY></HTML>\n"
-		"\n"
-		"--__ctdlmultipart__--\n",
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("' mailing list.\n"
+		     "\n"
+		     "Please go here to confirm this request:\n"
+		     "  "), 0);
+	StrBufAppendBuf(cf_req, Line->Value[4], 0);
 
-		email, qrbuf.QRname,
-		webpage, urlroom, token,
-		qrbuf.QRname,
+	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
+	StrBufAppendBuf(cf_req, UrlRoom, 0);
 
-		email, qrbuf.QRname,
-		webpage, urlroom, token,
-		webpage, urlroom, token,
-		qrbuf.QRname
-	);
+	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
+	StrBufAppendBuf(cf_req, Line->Value[2], 0);
 
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("&cmd=confirm  \n"
+		     "\n"
+		     "If this request has been submitted in error and you do not\n"
+		     "wish to receive the '"), 0);
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
+
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("' mailing list, simply do nothing,\n"
+		     "and you will not receive any further mailings.\n"
+		     "\n"
+		     "--__ctdlmultipart__\n"
+		     "Content-type: text/html\n"
+		     "\n"
+		     "<HTML><BODY>\n"
+		     "Someone (probably you) has submitted a request to subscribe\n"
+		     "&lt;"), 0);
+	StrBufAppendBuf(cf_req, Line->Value[0], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY( "&gt; to the <B>"), 0);
+
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
+
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("'</B> mailing list.<BR><BR>\n"
+		     "Please click here to confirm this request:<BR>\n"
+		     "<A HREF=\""), 0);
+	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
+	StrBufAppendBuf(cf_req, UrlRoom, 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
+	StrBufAppendBuf(cf_req, Line->Value[2], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("&cmd=confirm\">"), 0);
+	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
+	StrBufAppendBuf(cf_req, UrlRoom, 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
+	StrBufAppendBuf(cf_req, Line->Value[2], 0);
+
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("&cmd=confirm</A><BR><BR>\n"
+		     "If this request has been submitted in error and you do not\n"
+		     "wish to receive the '"), 0);
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
+	
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("' mailing list, simply do nothing,\n"
+		     "and you will not receive any further mailings.\n"
+		     "</BODY></HTML>\n"
+		     "\n"
+		     "--__ctdlmultipart__--\n"), 0);
+
+	end_critical_section(S_NETCONFIGS);
+
+	pcf_req = SmashStrBuf(&cf_req);
 	quickie_message(	/* This delivers the message */
 		"Citadel",
 		NULL,
-		email,
+		ChrPtr(*email),
 		NULL,
-		confirmation_request,
+		pcf_req,
 		FMT_RFC822,
 		"Please confirm your list subscription"
-	);
-
+		);
+	free(cf_req);
 	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
+
+	FreeStrBuf(&UrlRoom);
 }
 
 
 /*
  * Enter an unsubscription request
  */
-void do_unsubscribe(char *room, char *email, char *webpage) {
+void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 	struct ctdlroom qrbuf;
-	FILE *ncfp;
-	char filename[256];
 	char token[256];
-	char buf[512];
-	char confirmation_request[2048];
-	char urlroom[ROOMNAMELEN];
-	char scancmd[256];
-	char scanemail[256];
+	char *pcf_req;
+	StrBuf *cf_req;
+	StrBuf *UrlRoom;
 	int found_sub = 0;
+	const char *RoomMailAddress;
+	OneRoomNetCfg *OneRNCfg;
+	RoomNetCfgLine *Line;
+	long RoomMailAddressLen;
 
-	if (CtdlGetRoom(&qrbuf, room) != 0) {
+	if (CtdlGetRoom(&qrbuf, ChrPtr(*room)) != 0) {
 		cprintf("%d There is no list called '%s'\n",
-			ERROR + ROOM_NOT_FOUND, room);
+			ERROR + ROOM_NOT_FOUND, ChrPtr(*room));
 		return;
 	}
 
@@ -242,108 +326,156 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 
 	listsub_generate_token(token);
 
-	assoc_file_name(filename, sizeof filename, &qrbuf, ctdl_netcfg_dir);
-
 	/* 
 	 * Make sure there's actually a subscription there to remove
 	 */
 	begin_critical_section(S_NETCONFIGS);
-	ncfp = fopen(filename, "r");
-	if (ncfp != NULL) {
-		while (fgets(buf, sizeof buf, ncfp) != NULL) {
-			buf[strlen(buf)-1] = 0;
-			extract_token(scancmd, buf, 0, '|', sizeof scancmd);
-			extract_token(scanemail, buf, 1, '|', sizeof scanemail);
-			if ((!strcasecmp(scancmd, "listrecp"))
-			   || (!strcasecmp(scancmd, "digestrecp"))) {
-				if (!strcasecmp(scanemail, email)) {
-					++found_sub;
-				}
-			}
-		}
-		fclose(ncfp);
+	RoomMailAddress = qrbuf.QRname;
+	OneRNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
+	if (OneRNCfg!=NULL) {
+		found_sub = CountThisSubscriber(OneRNCfg, *email);
+		if (StrLength(OneRNCfg->Sender) > 0)
+			RoomMailAddress = ChrPtr(OneRNCfg->Sender);
 	}
-	end_critical_section(S_NETCONFIGS);
 
 	if (found_sub == 0) {
 		cprintf("%d '%s' is not subscribed to '%s'.\n",
 			ERROR + NO_SUCH_USER,
-			email, qrbuf.QRname);
+			ChrPtr(*email),
+			qrbuf.QRname);
+
+		end_critical_section(S_NETCONFIGS);
 		return;
 	}
 	
 	/* 
 	 * Ok, now enter the unsubscribe-pending entry.
 	 */
-	begin_critical_section(S_NETCONFIGS);
-	ncfp = fopen(filename, "a");
-	if (ncfp != NULL) {
-		fprintf(ncfp, "unsubpending|%s|%s|%ld|%s\n",
-			email,
-			token,
-			time(NULL),
-			webpage
-		);
-		fclose(ncfp);
-	}
-	end_critical_section(S_NETCONFIGS);
+	RoomMailAddressLen = strlen(RoomMailAddress);
+	listsub_generate_token(token);
+	Line = (RoomNetCfgLine*)malloc(sizeof(RoomNetCfgLine));
+	memset(Line, 0, sizeof(RoomNetCfgLine));
+
+	Line->Value = (StrBuf**) malloc(sizeof(StrBuf*) * 5);
+	
+	Line->Value[0] = *email; *email = NULL;
+	Line->Value[2] = NewStrBufPlain(token, -1);
+	Line->Value[3] = NewStrBufPlain(NULL, 10);
+	StrBufPrintf(Line->Value[3], "%ld", time(NULL));
+	Line->Value[4] = *webpage; *webpage = NULL;
+	Line->nValues = 5;
+
+	AddRoomCfgLine(OneRNCfg, &qrbuf, unsubpending, Line);
 
 	/* Generate and send the confirmation request */
+	UrlRoom = NewStrBuf();
+	StrBufUrlescAppend(UrlRoom, NULL, qrbuf.QRname);
 
-	urlesc(urlroom, ROOMNAMELEN, qrbuf.QRname);
+	cf_req = NewStrBufPlain(NULL, 2048);
 
-	snprintf(confirmation_request, sizeof confirmation_request,
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("MIME-Version: 1.0\n"
+		     "Content-Type: multipart/alternative; boundary=\"__ctdlmultipart__\"\n"
+		     "\n"
+		     "This is a multipart message in MIME format.\n"
+		     "\n"
+		     "--__ctdlmultipart__\n"
+		     "Content-type: text/plain\n"
+		     "\n"
+		     "Someone (probably you) has submitted a request to unsubscribe\n"
+		     "<"), 0);
+	StrBufAppendBuf(cf_req, Line->Value[0], 0);
 
-		"MIME-Version: 1.0\n"
-		"Content-Type: multipart/alternative; boundary=\"__ctdlmultipart__\"\n"
-		"\n"
-		"This is a multipart message in MIME format.\n"
-		"\n"
-		"--__ctdlmultipart__\n"
-		"Content-type: text/plain\n"
-		"\n"
-		"Someone (probably you) has submitted a request to unsubscribe\n"
-		"<%s> from the '%s' mailing list.\n"
-		"\n"
-		"Please go here to confirm this request:\n"
-		"  %s?room=%s&token=%s&cmd=confirm  \n"
-		"\n"
-		"If this request has been submitted in error and you do not\n"
-		"wish to unsubscribe from the '%s' mailing list, simply do nothing,\n"
-		"and the request will not be processed.\n"
-		"\n"
-		"--__ctdlmultipart__\n"
-		"Content-type: text/html\n"
-		"\n"
-		"<HTML><BODY>\n"
-		"Someone (probably you) has submitted a request to unsubscribe\n"
-		"&lt;%s&gt; from the <B>%s</B> mailing list.<BR><BR>\n"
-		"Please click here to confirm this request:<BR>\n"
-		"<A HREF=\"%s?room=%s&token=%s&cmd=confirm\">"
-		"%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
-		"If this request has been submitted in error and you do not\n"
-		"wish to unsubscribe from the '%s' mailing list, simply do nothing,\n"
-		"and the request will not be processed.\n"
-		"</BODY></HTML>\n"
-		"\n"
-		"--__ctdlmultipart__--\n",
 
-		email, qrbuf.QRname,
-		webpage, urlroom, token,
-		qrbuf.QRname,
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("> from the '"), 0);
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
 
-		email, qrbuf.QRname,
-		webpage, urlroom, token,
-		webpage, urlroom, token,
-		qrbuf.QRname
-	);
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("' mailing list.\n"
+		     "\n"
+		     "Please go here to confirm this request:\n  "), 0);
+	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
+	StrBufAppendBuf(cf_req, UrlRoom, 0);
+	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
+	StrBufAppendBuf(cf_req, Line->Value[2], 0);
 
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("&cmd=confirm  \n"
+		     "\n"
+		     "If this request has been submitted in error and you do not\n"
+		     "wish to unsubscribe from the '"), 0);
+
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
+
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("' mailing list, simply do nothing,\n"
+		     "and the request will not be processed.\n"
+		     "\n"
+		     "--__ctdlmultipart__\n"
+		     "Content-type: text/html\n"
+		     "\n"
+		     "<HTML><BODY>\n"
+		     "Someone (probably you) has submitted a request to unsubscribe\n"
+		     "&lt;"), 0);
+	StrBufAppendBuf(cf_req, Line->Value[0], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("&gt; from the <B>"), 0);
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
+
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("</B> mailing list.<BR><BR>\n"
+		     "Please click here to confirm this request:<BR>\n"
+		     "<A HREF=\""), 0);
+	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
+	StrBufAppendBuf(cf_req, UrlRoom, 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
+	StrBufAppendBuf(cf_req, Line->Value[2], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("&cmd=confirm\">"), 0);
+	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
+	StrBufAppendBuf(cf_req, UrlRoom, 0);
+
+	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
+	StrBufAppendBuf(cf_req, Line->Value[2], 0);
+
+
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("&cmd=confirm</A><BR><BR>\n"
+		     "If this request has been submitted in error and you do not\n"
+		     "wish to unsubscribe from the '"), 0);
+	StrBufAppendBufPlain(cf_req, RoomMailAddress, RoomMailAddressLen, 0);
+
+	StrBufAppendBufPlain(
+		cf_req,
+		HKEY("' mailing list, simply do nothing,\n"
+		     "and the request will not be processed.\n"
+		     "</BODY></HTML>\n"
+		     "\n"
+		     "--__ctdlmultipart__--\n"), 0);
+
+	end_critical_section(S_NETCONFIGS);
+
+	pcf_req = SmashStrBuf(&cf_req);
 	quickie_message(	/* This delivers the message */
 		"Citadel",
 		NULL,
-		email,
+		ChrPtr(*email),
 		NULL,
-		confirmation_request,
+		pcf_req,
 		FMT_RFC822,
 		"Please confirm your unsubscribe request"
 	);
@@ -352,31 +484,24 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 }
 
 
+const RoomNetCfg ConfirmSubscribers[] = {subpending, unsubpending};
+
 /*
  * Confirm a subscribe/unsubscribe request.
  */
-void do_confirm(char *room, char *token) {
+void do_confirm(StrBuf **room, StrBuf **token) {
 	struct ctdlroom qrbuf;
-	FILE *ncfp;
-	char filename[256];
-	char line_token[256];
-	long line_offset;
-	int line_length;
-	char buf[512];
-	char cmd[256];
-	char email[256] = "";
-	char subtype[128];
+	OneRoomNetCfg *OneRNCfg;
+	RoomNetCfgLine *Line;
+	RoomNetCfgLine *ConfirmLine;
+	RoomNetCfgLine **PrevLine;
 	int success = 0;
-	char address_to_unsubscribe[256] = "";
-	char scancmd[256];
-	char scanemail[256];
-	char *holdbuf = NULL;
-	int linelen = 0;
-	int buflen = 0;
-
-	if (CtdlGetRoom(&qrbuf, room) != 0) {
+	RoomNetCfg ConfirmType;
+	int i;
+	
+	if (CtdlGetRoom(&qrbuf, ChrPtr(*room)) != 0) {
 		cprintf("%d There is no list called '%s'\n",
-			ERROR + ROOM_NOT_FOUND, room);
+			ERROR + ROOM_NOT_FOUND, ChrPtr(*room));
 		return;
 	}
 
@@ -391,119 +516,100 @@ void do_confirm(char *room, char *token) {
 	 * Now start scanning this room's netconfig file for the
 	 * specified token.
 	 */
-	assoc_file_name(filename, sizeof filename, &qrbuf, ctdl_netcfg_dir);
 	begin_critical_section(S_NETCONFIGS);
-	ncfp = fopen(filename, "r+");
-	if (ncfp != NULL) {
-		while (line_offset = ftell(ncfp),
-		      (fgets(buf, sizeof buf, ncfp) != NULL) ) {
-			buf[strlen(buf)-1] = 0;
-			line_length = strlen(buf);
-			extract_token(cmd, buf, 0, '|', sizeof cmd);
-			if (!strcasecmp(cmd, "subpending")) {
-				extract_token(email, buf, 1, '|', sizeof email);
-				extract_token(subtype, buf, 2, '|', sizeof subtype);
-				extract_token(line_token, buf, 3, '|', sizeof line_token);
-				if (!strcasecmp(token, line_token)) {
-					if (!strcasecmp(subtype, "digest")) {
-						safestrncpy(buf, "digestrecp|", sizeof buf);
-					}
-					else {
-						safestrncpy(buf, "listrecp|", sizeof buf);
-					}
-					strcat(buf, email);
-					strcat(buf, "|");
-					/* SLEAZY HACK: pad the line out so
-				 	 * it's the same length as the line
-					 * we're replacing.
-				 	 */
-					while (strlen(buf) < line_length) {
-						strcat(buf, " ");
-					}
-					fseek(ncfp, line_offset, SEEK_SET);
-					fprintf(ncfp, "%s\n", buf);
-					++success;
-				}
+	OneRNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
+	if (OneRNCfg==NULL) {
+////TODO
+	}
+
+
+	ConfirmType = maxRoomNetCfg;
+	for (i = 0; i < sizeof (ConfirmSubscribers); i++)
+	{
+		PrevLine = &OneRNCfg->NetConfigs[ConfirmSubscribers[i]];
+		Line = *PrevLine;
+		while (Line != NULL)
+		{
+			if (!strcasecmp(ChrPtr(*token),
+					ChrPtr(Line->Value[2])))
+			{
+				*PrevLine = Line->next; /* Remove it from the list */
+				ConfirmLine = Line;
+				ConfirmType = ConfirmSubscribers[i];
+				i += 100; 
+				break;
 			}
-			if (!strcasecmp(cmd, "unsubpending")) {
-				extract_token(line_token, buf, 2, '|', sizeof line_token);
-				if (!strcasecmp(token, line_token)) {
-					extract_token(address_to_unsubscribe, buf, 1, '|',
-						sizeof address_to_unsubscribe);
+			PrevLine = &Line;
+			Line = Line->next;
+		}
+	}
+
+	if (ConfirmType == subpending) {
+		if (!strcasecmp(ChrPtr(ConfirmLine->Value[2]), 
+				("digest")))
+		{
+			ConfirmType = digestrecp;
+		}
+		else
+		{
+			ConfirmType = listrecp;
+		}
+
+		syslog(LOG_NOTICE, 
+		       "Mailing list: %s subscribed to %s with token %s\n", 
+		       ChrPtr(ConfirmLine->Value[0]), 
+		       qrbuf.QRname,
+		       ChrPtr(*token));
+
+		FreeStrBuf(&ConfirmLine->Value[1]);
+		FreeStrBuf(&ConfirmLine->Value[2]);
+		FreeStrBuf(&ConfirmLine->Value[3]);
+		FreeStrBuf(&ConfirmLine->Value[4]);
+		ConfirmLine->nValues = 5;
+
+		AddRoomCfgLine(OneRNCfg, &qrbuf, ConfirmType, ConfirmLine);
+		success = 1;
+	}
+	else if (ConfirmType == unsubpending) {
+		for (i = 0; i < sizeof (ActiveSubscribers); i++)
+		{
+			PrevLine = &OneRNCfg->NetConfigs[ActiveSubscribers[i]];
+			Line = *PrevLine;
+			while (Line != NULL)
+			{
+				if (!strcasecmp(ChrPtr(ConfirmLine->Value[0]),
+						ChrPtr(Line->Value[2])))
+				{
+					*PrevLine = Line->next; /* Remove it from the list */
+					i += 100; 
+					break;
 				}
+				PrevLine = &Line;
+				Line = Line->next;
 			}
 		}
-		fclose(ncfp);
+
+
+		syslog(LOG_NOTICE, 
+		       "Mailing list: %s unsubscribed to %s with token %s\n", 
+		       ChrPtr(ConfirmLine->Value[0]), 
+		       qrbuf.QRname,
+		       ChrPtr(*token));
+
+
+		if (Line != NULL) DeleteGenericCfgLine(NULL/*TODO*/, &Line);
+		DeleteGenericCfgLine(NULL/*TODO*/, &ConfirmLine);
+		AddRoomCfgLine(OneRNCfg, &qrbuf, ConfirmType, NULL);
+		success = 1;
 	}
+
 	end_critical_section(S_NETCONFIGS);
-
-	/*
-	 * If "address_to_unsubscribe" contains something, then we have to
-	 * make another pass at the file, stripping out lines referring to
-	 * that address.
-	 */
-	if (!IsEmptyStr(address_to_unsubscribe)) {
-		holdbuf = malloc(SIZ);
-		begin_critical_section(S_NETCONFIGS);
-		ncfp = fopen(filename, "r+");
-		if (ncfp != NULL) {
-			while (line_offset = ftell(ncfp),
-			      (fgets(buf, sizeof buf, ncfp) != NULL) ) {
-				buf[strlen(buf)-1]=0;
-				extract_token(scancmd, buf, 0, '|', sizeof scancmd);
-				extract_token(scanemail, buf, 1, '|', sizeof scanemail);
-				if ( (!strcasecmp(scancmd, "listrecp"))
-				   && (!strcasecmp(scanemail,
-						address_to_unsubscribe)) ) {
-					++success;
-				}
-				else if ( (!strcasecmp(scancmd, "digestrecp"))
-				   && (!strcasecmp(scanemail,
-						address_to_unsubscribe)) ) {
-					++success;
-				}
-				else if ( (!strcasecmp(scancmd, "subpending"))
-				   && (!strcasecmp(scanemail,
-						address_to_unsubscribe)) ) {
-					++success;
-				}
-				else if ( (!strcasecmp(scancmd, "unsubpending"))
-				   && (!strcasecmp(scanemail,
-						address_to_unsubscribe)) ) {
-					++success;
-				}
-				else {	/* Not relevant, so *keep* it! */
-					linelen = strlen(buf);
-					holdbuf = realloc(holdbuf,
-						(buflen + linelen + 2) );
-					strcpy(&holdbuf[buflen], buf);
-					buflen += linelen;
-					strcpy(&holdbuf[buflen], "\n");
-					buflen += 1;
-				}
-			}
-			fclose(ncfp);
-		}
-		ncfp = fopen(filename, "w");
-		if (ncfp != NULL) {
-			fwrite(holdbuf, buflen+1, 1, ncfp);
-			fclose(ncfp);
-		}
-		end_critical_section(S_NETCONFIGS);
-		free(holdbuf);
-	}
-
+	
 	/*
 	 * Did we do anything useful today?
 	 */
 	if (success) {
 		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
-		syslog(LOG_NOTICE, 
-			"Mailing list: %s %ssubscribed to %s with token %s\n", 
-			email, 
-			(!IsEmptyStr(address_to_unsubscribe)) ? "un" : "", 
-			room, 
-			token);
 	}
 	else {
 		cprintf("%d Invalid token.\n", ERROR + ILLEGAL_VALUE);
@@ -516,40 +622,35 @@ void do_confirm(char *room, char *token) {
 /* 
  * process subscribe/unsubscribe requests and confirmations
  */
-void cmd_subs(char *cmdbuf) {
+void cmd_subs(char *cmdbuf)
+{
+	const char *Pos = NULL;
+	StrBuf *Segments[20];
+	int i=1;
 
-	char opr[256];
-	char room[ROOMNAMELEN];
-	char email[256];
-	char subtype[256];
-	char token[256];
-	char webpage[256];
+	memset(Segments, 0, sizeof(StrBuf*) * 20);
+	Segments[0] = NewStrBufPlain(cmdbuf, -1);
+	while ((Pos != StrBufNOTNULL) && (i < 20))
+	{
+		Segments[i] = NewStrBufPlain(NULL, StrLength(Segments[0]));
+		StrBufExtract_NextToken(Segments[i], Segments[0], &Pos, '|');
+	}
 
-	extract_token(opr, cmdbuf, 0, '|', sizeof opr);
-	if (!strcasecmp(opr, "subscribe")) {
-		extract_token(subtype, cmdbuf, 3, '|', sizeof subtype);
-		if ( (strcasecmp(subtype, "list"))
-		   && (strcasecmp(subtype, "digest")) ) {
+	if (!strcasecmp(ChrPtr(Segments[1]), "subscribe")) {
+		if ( (strcasecmp(ChrPtr(Segments[4]), "list"))
+		   && (strcasecmp(ChrPtr(Segments[4]), "digest")) ) {
 			cprintf("%d Invalid subscription type '%s'\n",
-				ERROR + ILLEGAL_VALUE, subtype);
+				ERROR + ILLEGAL_VALUE, ChrPtr(Segments[4]));
 		}
 		else {
-			extract_token(room, cmdbuf, 1, '|', sizeof room);
-			extract_token(email, cmdbuf, 2, '|', sizeof email);
-			extract_token(webpage, cmdbuf, 4, '|', sizeof webpage);
-			do_subscribe(room, email, subtype, webpage);
+			do_subscribe(&Segments[2], &Segments[3], &Segments[4], &Segments[5]);
 		}
 	}
-	else if (!strcasecmp(opr, "unsubscribe")) {
-		extract_token(room, cmdbuf, 1, '|', sizeof room);
-		extract_token(email, cmdbuf, 2, '|', sizeof email);
-		extract_token(webpage, cmdbuf, 3, '|', sizeof webpage);
-		do_unsubscribe(room, email, webpage);
+	else if (!strcasecmp(ChrPtr(Segments[1]), "unsubscribe")) {
+		do_unsubscribe(&Segments[2], &Segments[3], &Segments[4]);
 	}
-	else if (!strcasecmp(opr, "confirm")) {
-		extract_token(room, cmdbuf, 1, '|', sizeof room);
-		extract_token(token, cmdbuf, 2, '|', sizeof token);
-		do_confirm(room, token);
+	else if (!strcasecmp(ChrPtr(Segments[1]), "confirm")) {
+		do_confirm(&Segments[2], &Segments[3]);
 	}
 	else {
 		cprintf("%d Invalid command\n", ERROR + ILLEGAL_VALUE);
