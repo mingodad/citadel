@@ -1492,6 +1492,10 @@ CTDL_MODULE_INIT(vcard)
 			if (rv == -1)
 				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]", 
 				       filename, strerror(errno));
+			rv = chmod(filename, 0600);
+			if (rv == -1)
+				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]", 
+				       filename, strerror(errno));
 		}
 
 		/* for postfix tcpdict */
