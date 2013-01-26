@@ -278,12 +278,13 @@ void room_sanity_check(struct ctdlroom *qrbuf)
 /*
  * CtdlGetRoom()  -  retrieve room data from disk
  */
-int CtdlGetRoom(struct ctdlroom *qrbuf, char *room_name)
+int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name)
 {
 	struct cdbdata *cdbqr;
 	char lowercase_name[ROOMNAMELEN];
 	char personal_lowercase_name[ROOMNAMELEN];
-	char *dptr, *sptr, *eptr;
+	const char *sptr;
+	char *dptr, *eptr;
 
 	dptr = lowercase_name;
 	sptr = room_name;

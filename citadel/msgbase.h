@@ -114,7 +114,7 @@ long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, const char *, int);
 
 void quickie_message(const char *from,
 		     const char *fromaddr,
-		     char *to,
+		     const char *to,
 		     char *room,
 		     const char *text, 
 		     int format_type,
@@ -122,7 +122,7 @@ void quickie_message(const char *from,
 
 void flood_protect_quickie_message(const char *from,
 				   const char *fromaddr,
-				   char *to,
+				   const char *to,
 				   char *room,
 				   const char *text, 
 				   int format_type,
