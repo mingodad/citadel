@@ -79,7 +79,7 @@ int CountThisSubscriber(OneRoomNetCfg *OneRNCfg, StrBuf *email)
 	int found_sub = 0;
 	int i;
 
-	for (i = 0; i < sizeof (ActiveSubscribers); i++)
+	for (i = 0; i < 2; i++)
 	{
 		Line = OneRNCfg->NetConfigs[ActiveSubscribers[i]];
 		while (Line != NULL)
@@ -97,18 +97,6 @@ int CountThisSubscriber(OneRoomNetCfg *OneRNCfg, StrBuf *email)
 }
 
 /*
-	subpending,
-	unsubpending,
-	ignet_push_share,
-	listrecp,
-	digestrecp,
-	pop3client,
-	rssclient,
-	participate,
-	roommailalias,
-	maxRoomNetCfg
-
-/ *
  * Enter a subscription request
  */
 void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webpage) {
@@ -289,7 +277,7 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 		FMT_RFC822,
 		"Please confirm your list subscription"
 		);
-	free(cf_req);
+	free(pcf_req);
 	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
 
 	FreeStrBuf(&UrlRoom);
@@ -524,7 +512,7 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 
 
 	ConfirmType = maxRoomNetCfg;
-	for (i = 0; i < sizeof (ConfirmSubscribers); i++)
+	for (i = 0; i < 2; i++)
 	{
 		PrevLine = &OneRNCfg->NetConfigs[ConfirmSubscribers[i]];
 		Line = *PrevLine;
@@ -571,7 +559,7 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		success = 1;
 	}
 	else if (ConfirmType == unsubpending) {
-		for (i = 0; i < sizeof (ActiveSubscribers); i++)
+		for (i = 0; i < 2; i++)
 		{
 			PrevLine = &OneRNCfg->NetConfigs[ActiveSubscribers[i]];
 			Line = *PrevLine;
@@ -634,6 +622,7 @@ void cmd_subs(char *cmdbuf)
 	{
 		Segments[i] = NewStrBufPlain(NULL, StrLength(Segments[0]));
 		StrBufExtract_NextToken(Segments[i], Segments[0], &Pos, '|');
+		i++;
 	}
 
 	if (!strcasecmp(ChrPtr(Segments[1]), "subscribe")) {
@@ -654,6 +643,11 @@ void cmd_subs(char *cmdbuf)
 	}
 	else {
 		cprintf("%d Invalid command\n", ERROR + ILLEGAL_VALUE);
+	}
+
+	for (; i>=0; i--)
+	{
+		FreeStrBuf(&Segments[i]);
 	}
 }
 

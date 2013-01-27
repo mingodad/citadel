@@ -132,7 +132,10 @@ void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data)
 {
 	int i;
 
-	for (i = 0; i < ThisOne->nSegments; i++)
+	if (*data == NULL)
+		return;
+
+	for (i = 0; i < (*data)->nValues; i++)
 	{
 		FreeStrBuf(&(*data)->Value[i]);
 	}
@@ -176,12 +179,12 @@ int ReadRoomNetConfigFile(OneRoomNetCfg **pOneRNCfg, char *filename)
 	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
 	*pOneRNCfg = OneRNCfg;
 	Line = NewStrBuf();
+	InStr = NewStrBuf();
 
 	while (StrBufTCP_read_line(Line, &fd, 0, &ErrStr) >= 0) {
 		if (StrLength(Line) == 0)
 			continue;
 		Pos = NULL;
-		InStr = NewStrBufPlain(NULL, StrLength(Line));
 		StrBufExtract_NextToken(InStr, Line, &Pos, '|');
 
 		pCfg = GetCfgTypeByStr(SKEY(InStr));
@@ -357,11 +360,18 @@ void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg)
 		RoomNetCfgLine *pNext, *pName;
 		
 		pCfg = GetCfgTypeByEnum(eCfg, CfgIt);
-		pName= OneRNCfg->NetConfigs[pCfg->C];
+		pName= OneRNCfg->NetConfigs[eCfg];
 		while (pName != NULL)
 		{
 			pNext = pName->next;
-			pCfg->DeAllocator(pCfg, &pName);
+			if (pCfg != NULL)
+			{
+				pCfg->DeAllocator(pCfg, &pName);
+			}
+			else
+			{
+				DeleteGenericCfgLine(NULL, &pName);
+			}
 			pName = pNext;
 		}
 	}
