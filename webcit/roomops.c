@@ -1142,7 +1142,7 @@ void netedit(void) {
 
 			if (malias_set_default)
 			{
-				if (strncmp(ChrPtr(Line), HKEY("roommailalias|")) != 0)
+				if (strncasecmp(ChrPtr(Line), HKEY("roommailalias|")) != 0)
 				{
 					StrBufAppendBufPlain(Line, HKEY("\n"), 0);
 					StrBufAppendBuf(TmpBuf, Line, 0);
