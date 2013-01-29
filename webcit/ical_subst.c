@@ -325,7 +325,8 @@ void render_MIME_ICS_TPL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundChar
 		      0,
 		      SuperTP.Tokens);
 	FlushStrBuf(Mime->Data);
-	DoTemplate(HKEY("ical_attachment_display"), Mime->Data, &SubTP);
+///	DoTemplate(HKEY("ical_attachment_display"), Mime->Data, &SubTP);
+	DoTemplate(HKEY("ical_edit"), Mime->Data, &SubTP);
 
 	/*/ cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum)); */
 
