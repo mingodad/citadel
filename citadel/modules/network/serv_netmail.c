@@ -80,6 +80,7 @@
 #include "netspool.h"
 #include "netmail.h"
 
+void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName);
 
 /*
  * Deliver digest messages
@@ -371,7 +372,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	}
 
 	/* Handle delivery */
-//			network_deliver_list(msg, sc, CC->room.QRname);
+	network_deliver_list(msg, sc, CC->room.QRname);
 	CtdlFreeMessage(msg);
 }
 
