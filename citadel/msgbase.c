@@ -1335,7 +1335,7 @@ struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
 	if (NewMsg == NULL)
 		return NULL;
 
-	memcpy(NewMsg, OrgMsg, sizeof(struct CtdlMessage *));
+	memcpy(NewMsg, OrgMsg, sizeof(struct CtdlMessage));
 
 	memset(&NewMsg->cm_fields, 0, sizeof(char*) * 256);
 	
