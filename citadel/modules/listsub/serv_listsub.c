@@ -109,6 +109,7 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 	const char *RoomMailAddress;
 	OneRoomNetCfg *OneRNCfg;
 	RoomNetCfgLine *Line;
+	const char *EmailSender = NULL;
 	long RoomMailAddressLen;
 
 	if (CtdlGetRoom(&qrbuf, ChrPtr(*room)) != 0) {
@@ -132,8 +133,9 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 	OneRNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
 	if (OneRNCfg!=NULL) {
 		found_sub = CountThisSubscriber(OneRNCfg, *email);
-		if (StrLength(OneRNCfg->Sender) > 0)
-			RoomMailAddress = ChrPtr(OneRNCfg->Sender);
+		if (StrLength(OneRNCfg->Sender) > 0) {
+		       EmailSender = RoomMailAddress = ChrPtr(OneRNCfg->Sender);
+		}
 	}
 
 	if (found_sub != 0) {
@@ -157,7 +159,7 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 
 	Line->Value = (StrBuf**) malloc(sizeof(StrBuf*) * 5);
 	
-	Line->Value[0] = *email; *email = NULL;
+	Line->Value[0] = NewStrBufDup(*email);
 	Line->Value[1] = *subtype; *subtype = NULL;
 	Line->Value[2] = NewStrBufPlain(token, -1);
 	Line->Value[3] = NewStrBufPlain(NULL, 10);
@@ -270,7 +272,7 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 	pcf_req = SmashStrBuf(&cf_req);
 	quickie_message(	/* This delivers the message */
 		"Citadel",
-		NULL,
+		EmailSender,
 		ChrPtr(*email),
 		NULL,
 		pcf_req,
@@ -289,6 +291,7 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
  */
 void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 	struct ctdlroom qrbuf;
+	const char *EmailSender = NULL;
 	char token[256];
 	char *pcf_req;
 	StrBuf *cf_req;
@@ -323,7 +326,7 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 	if (OneRNCfg!=NULL) {
 		found_sub = CountThisSubscriber(OneRNCfg, *email);
 		if (StrLength(OneRNCfg->Sender) > 0)
-			RoomMailAddress = ChrPtr(OneRNCfg->Sender);
+			EmailSender = RoomMailAddress = ChrPtr(OneRNCfg->Sender);
 	}
 
 	if (found_sub == 0) {
@@ -344,14 +347,14 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 	Line = (RoomNetCfgLine*)malloc(sizeof(RoomNetCfgLine));
 	memset(Line, 0, sizeof(RoomNetCfgLine));
 
-	Line->Value = (StrBuf**) malloc(sizeof(StrBuf*) * 5);
+	Line->Value = (StrBuf**) malloc(sizeof(StrBuf*) * 4);
 	
-	Line->Value[0] = *email; *email = NULL;
-	Line->Value[2] = NewStrBufPlain(token, -1);
-	Line->Value[3] = NewStrBufPlain(NULL, 10);
-	StrBufPrintf(Line->Value[3], "%ld", time(NULL));
-	Line->Value[4] = *webpage; *webpage = NULL;
-	Line->nValues = 5;
+	Line->Value[0] = NewStrBufDup(*email);
+	Line->Value[1] = NewStrBufPlain(token, -1);
+	Line->Value[2] = NewStrBufPlain(NULL, 10);
+	StrBufPrintf(Line->Value[2], "%ld", time(NULL));
+	Line->Value[3] = *webpage; *webpage = NULL;
+	Line->nValues = 4;
 
 	AddRoomCfgLine(OneRNCfg, &qrbuf, unsubpending, Line);
 
@@ -386,11 +389,11 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 		HKEY("' mailing list.\n"
 		     "\n"
 		     "Please go here to confirm this request:\n  "), 0);
-	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+	StrBufAppendBuf(cf_req, Line->Value[3], 0);
 	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
 	StrBufAppendBuf(cf_req, UrlRoom, 0);
 	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
-	StrBufAppendBuf(cf_req, Line->Value[2], 0);
+	StrBufAppendBuf(cf_req, Line->Value[1], 0);
 
 	StrBufAppendBufPlain(
 		cf_req,
@@ -422,22 +425,22 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 		HKEY("</B> mailing list.<BR><BR>\n"
 		     "Please click here to confirm this request:<BR>\n"
 		     "<A HREF=\""), 0);
-	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+	StrBufAppendBuf(cf_req, Line->Value[3], 0);
 
 	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
 	StrBufAppendBuf(cf_req, UrlRoom, 0);
 
 	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
-	StrBufAppendBuf(cf_req, Line->Value[2], 0);
+	StrBufAppendBuf(cf_req, Line->Value[1], 0);
 
 	StrBufAppendBufPlain(cf_req, HKEY("&cmd=confirm\">"), 0);
-	StrBufAppendBuf(cf_req, Line->Value[4], 0);
+	StrBufAppendBuf(cf_req, Line->Value[3], 0);
 
 	StrBufAppendBufPlain(cf_req, HKEY("?room="), 0);
 	StrBufAppendBuf(cf_req, UrlRoom, 0);
 
 	StrBufAppendBufPlain(cf_req, HKEY("&token="), 0);
-	StrBufAppendBuf(cf_req, Line->Value[2], 0);
+	StrBufAppendBuf(cf_req, Line->Value[1], 0);
 
 
 	StrBufAppendBufPlain(
@@ -460,7 +463,7 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 	pcf_req = SmashStrBuf(&cf_req);
 	quickie_message(	/* This delivers the message */
 		"Citadel",
-		NULL,
+		EmailSender,
 		ChrPtr(*email),
 		NULL,
 		pcf_req,
@@ -468,6 +471,8 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 		"Please confirm your unsubscribe request"
 	);
 
+	free(pcf_req);
+	FreeStrBuf(&UrlRoom);
 	cprintf("%d Unubscription noted; confirmation request sent\n", CIT_OK);
 }
 
@@ -481,10 +486,12 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 	struct ctdlroom qrbuf;
 	OneRoomNetCfg *OneRNCfg;
 	RoomNetCfgLine *Line;
-	RoomNetCfgLine *ConfirmLine;
+	RoomNetCfgLine *ConfirmLine = NULL;
+	RoomNetCfgLine *RemoveLine = NULL;
 	RoomNetCfgLine **PrevLine;
 	int success = 0;
 	RoomNetCfg ConfirmType;
+	const char *errmsg = "";
 	int i;
 	
 	if (CtdlGetRoom(&qrbuf, ChrPtr(*room)) != 0) {
@@ -500,65 +507,96 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		return;
 	}
 
+
+	if (StrLength(*token) == 0) {
+		cprintf("%d empty token.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
 	/*
 	 * Now start scanning this room's netconfig file for the
 	 * specified token.
 	 */
 	begin_critical_section(S_NETCONFIGS);
 	OneRNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
-	if (OneRNCfg==NULL) {
-////TODO
-	}
-
 
 	ConfirmType = maxRoomNetCfg;
-	for (i = 0; i < 2; i++)
+	if (OneRNCfg==NULL)
 	{
+		errmsg = "no networking config found";
+	}
+	else for (i = 0; i < 2; i++)
+	{
+		int offset;
+
+		if (ConfirmSubscribers[i] == subpending)
+			offset = 2;
+		else
+			offset = 1;
 		PrevLine = &OneRNCfg->NetConfigs[ConfirmSubscribers[i]];
 		Line = *PrevLine;
 		while (Line != NULL)
 		{
 			if (!strcasecmp(ChrPtr(*token),
-					ChrPtr(Line->Value[2])))
+					ChrPtr(Line->Value[offset])))
 			{
-				*PrevLine = Line->next; /* Remove it from the list */
 				ConfirmLine = Line;
+				*PrevLine = Line->next; /* Remove it from the list */
 				ConfirmType = ConfirmSubscribers[i];
+				ConfirmLine->next = NULL;
+
 				i += 100; 
 				break;
+
 			}
-			PrevLine = &Line;
+			PrevLine = &(*PrevLine)->next;
 			Line = Line->next;
+		}
+		if (ConfirmType == maxRoomNetCfg)
+		{
+			errmsg = "No active un/subscribe request found";
 		}
 	}
 
-	if (ConfirmType == subpending) {
-		if (!strcasecmp(ChrPtr(ConfirmLine->Value[2]), 
-				("digest")))
+	if (ConfirmType == subpending)
+	{
+		if (CountThisSubscriber(OneRNCfg, ConfirmLine->Value[0]) == 0)
 		{
-			ConfirmType = digestrecp;
+			if (!strcasecmp(ChrPtr(ConfirmLine->Value[2]), 
+					("digest")))
+			{
+				ConfirmType = digestrecp;
+			}
+			else /* "list" */
+			{
+				ConfirmType = listrecp;
+			}
+
+			syslog(LOG_NOTICE, 
+			       "Mailing list: %s subscribed to %s with token %s\n", 
+			       ChrPtr(ConfirmLine->Value[0]), 
+			       qrbuf.QRname,
+			       ChrPtr(*token));
+
+			FreeStrBuf(&ConfirmLine->Value[1]);
+			FreeStrBuf(&ConfirmLine->Value[2]);
+			FreeStrBuf(&ConfirmLine->Value[3]);
+			FreeStrBuf(&ConfirmLine->Value[4]);
+			ConfirmLine->nValues = 1;
+		
+			AddRoomCfgLine(OneRNCfg, &qrbuf, ConfirmType, ConfirmLine);
+			success = 1;
 		}
 		else
 		{
-			ConfirmType = listrecp;
+			/* whipe duplicate subscribe entry... */
+			OneRNCfg->changed = 1;
+			SaveChangedConfigs();
+			errmsg = "already subscribed";
 		}
-
-		syslog(LOG_NOTICE, 
-		       "Mailing list: %s subscribed to %s with token %s\n", 
-		       ChrPtr(ConfirmLine->Value[0]), 
-		       qrbuf.QRname,
-		       ChrPtr(*token));
-
-		FreeStrBuf(&ConfirmLine->Value[1]);
-		FreeStrBuf(&ConfirmLine->Value[2]);
-		FreeStrBuf(&ConfirmLine->Value[3]);
-		FreeStrBuf(&ConfirmLine->Value[4]);
-		ConfirmLine->nValues = 5;
-
-		AddRoomCfgLine(OneRNCfg, &qrbuf, ConfirmType, ConfirmLine);
-		success = 1;
 	}
-	else if (ConfirmType == unsubpending) {
+	else if (ConfirmType == unsubpending)
+	{
+
 		for (i = 0; i < 2; i++)
 		{
 			PrevLine = &OneRNCfg->NetConfigs[ActiveSubscribers[i]];
@@ -566,29 +604,37 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 			while (Line != NULL)
 			{
 				if (!strcasecmp(ChrPtr(ConfirmLine->Value[0]),
-						ChrPtr(Line->Value[2])))
+						ChrPtr(Line->Value[0])))
 				{
+					success = 1;
+					RemoveLine = Line;
 					*PrevLine = Line->next; /* Remove it from the list */
-					i += 100; 
-					break;
+					RemoveLine->next = NULL;
+					if (RemoveLine != NULL) 
+						DeleteGenericCfgLine(NULL/*TODO*/, &RemoveLine);
+					Line = *PrevLine;
+					continue;
 				}
-				PrevLine = &Line;
+				PrevLine = &(*PrevLine)->next;
 				Line = Line->next;
 			}
 		}
 
-
-		syslog(LOG_NOTICE, 
-		       "Mailing list: %s unsubscribed to %s with token %s\n", 
-		       ChrPtr(ConfirmLine->Value[0]), 
-		       qrbuf.QRname,
-		       ChrPtr(*token));
-
-
-		if (Line != NULL) DeleteGenericCfgLine(NULL/*TODO*/, &Line);
+		if (success) 
+		{
+			syslog(LOG_NOTICE, 
+			       "Mailing list: %s unsubscribed to %s with token %s\n", 
+			       ChrPtr(ConfirmLine->Value[0]), 
+			       qrbuf.QRname,
+			       ChrPtr(*token));
+		}
+		else
+		{
+			errmsg = "no subscriber found for this unsubscription request";
+		}
 		DeleteGenericCfgLine(NULL/*TODO*/, &ConfirmLine);
-		AddRoomCfgLine(OneRNCfg, &qrbuf, ConfirmType, NULL);
-		success = 1;
+		OneRNCfg->changed = 1;
+		SaveChangedConfigs();
 	}
 
 	end_critical_section(S_NETCONFIGS);
@@ -600,6 +646,8 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
 	}
 	else {
+		syslog(LOG_NOTICE, "failed processing (un)subscribe request: %s",
+		       errmsg);
 		cprintf("%d Invalid token.\n", ERROR + ILLEGAL_VALUE);
 	}
 
