@@ -529,7 +529,9 @@ void network_do_queue(void)
 	/* Save the network map back to disk */
 	if (netmap_changed) {
 		StrBuf *MapStr = CtdlSerializeNetworkMap(the_netmap);
-		CtdlPutSysConfig(IGNETMAP, SmashStrBuf(&MapStr));
+		char *pMapStr = SmashStrBuf(&MapStr);
+		CtdlPutSysConfig(IGNETMAP, pMapStr);
+		free(pMapStr);
 	}
 
 	/* combine singe message files into one spool entry per remote node. */
