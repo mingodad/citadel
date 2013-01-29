@@ -58,6 +58,7 @@ void do_housekeeping(void)
 {
 	wcsession *sptr, *ss;
 	wcsession *sessions_to_kill = NULL;
+	time_t the_time;
 
 	/*
 	 * Lock the session list, moving any candidates for euthanasia into
@@ -65,9 +66,12 @@ void do_housekeeping(void)
 	 */
 	CtdlLogResult(pthread_mutex_lock(&SessionListMutex));
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-
+		if (the_time == 0)
+			the_time = time(NULL);
 		/* Kill idle sessions */
-		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
+		if ((sptr->inuse == 0) && 
+		    ((the_time - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT))
+		{
 			syslog(3, "Timeout session %d", sptr->wc_session);
 			sptr->killthis = 1;
 		}
@@ -560,7 +564,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * If there were no qualifying sessions, then create a new one.
 	 */
-	if (TheSession == NULL) {
+	if ((TheSession == NULL) || (TheSession->killthis != 0)) {
 		TheSession = CreateSession(1, 0, &SessionList, Hdr, &SessionListMutex);
 	}
 
