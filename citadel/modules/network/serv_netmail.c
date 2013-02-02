@@ -82,21 +82,49 @@
 
 void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName);
 
+void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRNCfg)
+{
+	size_t recps_len = 0;
+	RoomNetCfgLine *nptr;
+	struct CitContext *CCC = CC;
+
+	/*
+	 * Figure out how big a buffer we need to allocate
+	 */
+	for (nptr = OneRNCfg->NetConfigs[Which]; nptr != NULL; nptr = nptr->next) {
+		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
+	}
+
+	*recps = NewStrBufPlain(NULL, recps_len);
+
+	if (*recps == NULL) {
+		QN_syslog(LOG_EMERG,
+			  "Cannot allocate %ld bytes for recps...\n",
+			  (long)recps_len);
+		abort();
+	}
+
+	/* Each recipient */
+	for (nptr = OneRNCfg->NetConfigs[Which]; nptr != NULL; nptr = nptr->next) {
+		if (nptr != OneRNCfg->NetConfigs[Which]) {
+			StrBufAppendBufPlain(*recps, HKEY(","), 0);
+		}
+		StrBufAppendBuf(*recps, nptr->Value[0], 0);
+	}
+}
+
 /*
  * Deliver digest messages
  */
 void network_deliver_digest(SpoolControl *sc)
 {
-	struct CitContext *CCC = CC;
 	char buf[SIZ];
 	int i;
 	struct CtdlMessage *msg = NULL;
 	long msglen;
 	StrBuf *recps = NULL;
 	char *precps;
-	size_t recps_len = SIZ;
 	struct recptypes *valid;
-	RoomNetCfgLine *nptr;
 	char bounce_to[256];
 
 	if (sc->num_msgs_spooled < 1) {
@@ -148,30 +176,7 @@ void network_deliver_digest(SpoolControl *sc)
 	sc->digestfp = NULL;
 
 	/* Now generate the delivery instructions */
-
-	/*
-	 * Figure out how big a buffer we need to allocate
-	 */
-	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
-		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
-	}
-
-	recps = NewStrBufPlain(NULL, recps_len);
-
-	if (recps == NULL) {
-		QN_syslog(LOG_EMERG,
-			  "Cannot allocate %ld bytes for recps...\n",
-			  (long)recps_len);
-		abort();
-	}
-
-	/* Each recipient */
-	for (nptr = sc->RNCfg->NetConfigs[digestrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->RNCfg->NetConfigs[digestrecp]) {
-			StrBufAppendBufPlain(recps, HKEY(","), 0);
-		}
-		StrBufAppendBuf(recps, nptr->Value[0], 0);
-	}
+	aggregate_recipients(&recps, digestrecp, sc->RNCfg);
 
 	/* Where do we want bounces and other noise to be heard?
 	 *Surely not the list members! */
@@ -381,12 +386,9 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
  */
 void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName)
 {
-	struct CitContext *CCC = CC;
 	StrBuf *recps = NULL;
 	char *precps = NULL;
-	size_t recps_len = SIZ;
 	struct recptypes *valid;
-	RoomNetCfgLine *nptr;
 	char bounce_to[256];
 
 	/* Don't do this if there were no recipients! */
@@ -397,26 +399,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
-	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
-		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
-	}
-
-	recps = NewStrBufPlain(NULL, recps_len);
-
-	if (recps == NULL) {
-		QN_syslog(LOG_EMERG,
-			  "Cannot allocate %ld bytes for recps...\n",
-			  (long)recps_len);
-		abort();
-	}
-
-	/* Each recipient */
-	for (nptr = sc->RNCfg->NetConfigs[listrecp]; nptr != NULL; nptr = nptr->next) {
-		if (nptr != sc->RNCfg->NetConfigs[listrecp]) {
-			StrBufAppendBufPlain(recps, HKEY(","), 0);
-		}
-		StrBufAppendBuf(recps, nptr->Value[0], 0);
-	}
+	aggregate_recipients(&recps, listrecp, sc->RNCfg);
 
 	/* Where do we want bounces and other noise to be heard?
 	 *  Surely not the list members! */
