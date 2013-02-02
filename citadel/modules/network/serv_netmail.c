@@ -88,12 +88,17 @@ void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRN
 	RoomNetCfgLine *nptr;
 	struct CitContext *CCC = CC;
 
+	*recps = NULL;
 	/*
 	 * Figure out how big a buffer we need to allocate
 	 */
 	for (nptr = OneRNCfg->NetConfigs[Which]; nptr != NULL; nptr = nptr->next) {
 		recps_len = recps_len + StrLength(nptr->Value[0]) + 2;
 	}
+
+	/* Nothing todo... */
+	if (recps_len == 0)
+		return;
 
 	*recps = NewStrBufPlain(NULL, recps_len);
 
@@ -426,7 +431,6 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	int i;
 	int ok_to_participate = 0;
 	StrBuf *Buf = NULL;
-	RoomNetCfgLine *nptr;
 	struct recptypes *valid;
 
 	/*
@@ -459,7 +463,11 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 			ok_to_participate = 1;
 		}
 	}
-	if (ok_to_participate) {
+	if (ok_to_participate)
+	{
+		StrBuf *recps = NULL;
+		char *precps;
+
 		if (msg->cm_fields['F'] != NULL) {
 			free(msg->cm_fields['F']);
 		}
@@ -478,26 +486,17 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 				msg->cm_fields['F'][i] = '_';
 			}
 		}
-		
-		/*
-		 * Figure out how big a buffer we need to alloc
-		 */
-		for (nptr = sc->RNCfg->NetConfigs[participate];
-		     nptr != NULL;
-		     nptr = nptr->next)
-		{
-			if (msg->cm_fields['R'] != NULL) {
-				free(msg->cm_fields['R']);
-			}
-			msg->cm_fields['R'] =
-				strdup(ChrPtr(nptr->Value[0]));
-			
-			valid = validate_recipients(msg->cm_fields['R'],
-						    NULL, 0);
-			
-			CtdlSubmitMsg(msg, valid, "", 0);
-			free_recipients(valid);
-		}
+
+		aggregate_recipients(&recps, participate, sc->RNCfg);
+		precps = SmashStrBuf(&recps);
+		valid = validate_recipients(precps, NULL, 0);
+
+		if (msg->cm_fields['R'] != NULL) {
+			free(msg->cm_fields['R']);
+		}/* TODO: check whether 'R' is set appropriate later. */
+
+		CtdlSubmitMsg(msg, valid, "", 0);
+		free_recipients(valid);
 	}
 	FreeStrBuf(&Buf);
 	CtdlFreeMessage(msg);
