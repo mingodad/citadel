@@ -64,7 +64,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	);
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		syslog(0, "get_serv_info(IDEN): unexpected answer [%s]\n",
+		syslog(LOG_WARNING, "get_serv_info(IDEN): unexpected answer [%s]\n",
 			ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 		return NULL;
@@ -78,7 +78,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	serv_puts("ICAL sgi|1");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		syslog(0, "get_serv_info(ICAL sgi|1): unexpected answer [%s]\n",
+		syslog(LOG_WARNING, "get_serv_info(ICAL sgi|1): unexpected answer [%s]\n",
 			ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 		return NULL;
@@ -88,7 +88,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	serv_puts("INFO");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
-		syslog(0, "get_serv_info(INFO sgi|1): unexpected answer [%s]\n",
+		syslog(LOG_WARNING, "get_serv_info(INFO sgi|1): unexpected answer [%s]\n",
 			ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 		return NULL;

@@ -73,7 +73,7 @@ void do_housekeeping(void)
 		if ((sptr->inuse == 0) && 
 		    ((the_time - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT))
 		{
-			syslog(3, "Timeout session %d", sptr->wc_session);
+			syslog(LOG_DEBUG, "Timeout session %d", sptr->wc_session);
 			sptr->killthis = 1;
 		}
 
@@ -100,7 +100,7 @@ void do_housekeeping(void)
 	 * Now free up and destroy the culled sessions.
 	 */
 	while (sessions_to_kill != NULL) {
-		syslog(3, "Destroying session %d", sessions_to_kill->wc_session);
+		syslog(LOG_DEBUG, "Destroying session %d", sessions_to_kill->wc_session);
 		sptr = sessions_to_kill->next;
 		session_destroy_modules(&sessions_to_kill);
 		sessions_to_kill = sptr;
@@ -618,7 +618,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
 
-	syslog(LOG_DEBUG, "HTTP: 200 [%ld.%06ld] %s %s",
+	syslog(LOG_INFO, "HTTP: 200 [%ld.%06ld] %s %s",
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 		ReqStrs[Hdr->HR.eReqType],

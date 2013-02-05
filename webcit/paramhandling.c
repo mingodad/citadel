@@ -51,7 +51,7 @@ void ParseURLParams(StrBuf *url)
 		}
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if(keylen >= sizeof(u->url_key)) {
-			syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
+			syslog(LOG_WARNING, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 			return;
 		}
 
@@ -59,7 +59,7 @@ void ParseURLParams(StrBuf *url)
 		memcpy(u->url_key, up, keylen);
 		u->url_key[keylen] = '\0';
 		if (keylen < 0) {
-			syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
+			syslog(LOG_WARNING, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 			free(u);
 			return;
 		}
@@ -71,7 +71,7 @@ void ParseURLParams(StrBuf *url)
 			u->url_data = NewStrBufPlain(aptr, len);
 			StrBufUnescape(u->url_data, 1);
 #ifdef DEBUG_URLSTRINGS
-			syslog(9, "%s = [%d]  %s\n", 
+			syslog(LOG_DEBUG, "%s = [%d]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -81,7 +81,7 @@ void ParseURLParams(StrBuf *url)
 			len = bptr - aptr;
 			u->url_data = NewStrBufPlain(aptr, len);
 			StrBufUnescape(u->url_data, 1);
-			syslog(1, "REJECTED because of __ is internal only: %s = [%d]  %s\n", 
+			syslog(LOG_WARNING, "REJECTED because of __ is internal only: %s = [%d]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -318,7 +318,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	long keylen;
 
 #ifdef DEBUG_URLSTRINGS
-	syslog(9, "upload_handler() name=%s, type=%s, len="SIZE_T_FMT, name, cbtype, length);
+	syslog(LOG_DEBUG, "upload_handler() name=%s, type=%s, len="SIZE_T_FMT, name, cbtype, length);
 #endif
 	if (WCC->Hdr->urlstrings == NULL)
 		WCC->Hdr->urlstrings = NewHash(1, NULL);
@@ -335,7 +335,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 		}
 		else {
-			syslog(1, "REJECTED because of __ is internal only: %s = [%d]  %s\n", 
+			syslog(LOG_INFO, "REJECTED because of __ is internal only: %s = [%d]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -343,7 +343,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			free_url(u);
 		}
 #ifdef DEBUG_URLSTRINGS
-		syslog(9, "Key: <%s> len: [%d] Data: <%s>", 
+		syslog(LOG_DEBUG, "Key: <%s> len: [%d] Data: <%s>", 
 			u->url_key, 
 			StrLength(u->url_data), 
 			ChrPtr(u->url_data));
@@ -357,7 +357,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		WCC->upload_filename = NewStrBufPlain(filename, -1);
 		safestrncpy(WCC->upload_content_type, cbtype, sizeof(WC->upload_content_type));
 #ifdef DEBUG_URLSTRINGS
-		syslog(9, "File: <%s> len: [%ld]", filename, length);
+		syslog(LOG_DEBUG, "File: <%s> len: [%ld]", filename, length);
 #endif
 		
 	}
@@ -370,7 +370,7 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 	wcsession *WCC = WC;
 
 	if(keylen >= sizeof(u->url_key)) {
-		syslog(1, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
+		syslog(LOG_WARNING, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
 		FreeStrBuf(&Value);
 		return;
 	}

@@ -576,7 +576,7 @@ TRYAGAIN:
 			serv_puts("000");
 		}
 		else 
-			syslog(1, "Error while creating user vcard: %s\n", ChrPtr(Buf));
+			syslog(LOG_WARNING, "Error while creating user vcard: %s\n", ChrPtr(Buf));
 		goto TRYAGAIN;
 	}
 	FreeStrBuf(&Buf);

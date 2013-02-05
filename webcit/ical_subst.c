@@ -434,7 +434,7 @@ HashList *iterate_FindConflict(StrBuf *Target, WCTemplputParams *TP)
 			}
 	}
 	FreeStrBuf(&Line);
-	syslog(9, "...done.\n");
+	syslog(LOG_DEBUG, "...done.\n");
 	return Conflicts;
 }
 

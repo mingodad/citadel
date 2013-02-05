@@ -869,13 +869,13 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 	urlp = GetCount(WCC->Directory);
 	delta = Folder->nRoomNameParts - urlp + 1;
 
-	syslog(0, "\n->%s: %d - %ld ", 
+	syslog(LOG_DEBUG, "\n->%s: %d - %ld ", 
 	       ChrPtr(Folder->name), 
 	       urlp, 
 	       Folder->nRoomNameParts);
 	/* list only the floors which are in relation to the dav_depth header */
 	if (WCC->Hdr->HR.dav_depth != delta) {
-		syslog(0, "1\n");
+		syslog(LOG_DEBUG, "1\n");
 		return 0;
 	}
 
@@ -895,7 +895,7 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 			{
 				DeleteHashPos(&it);
 
-				syslog(0, "3\n");
+				syslog(LOG_DEBUG, "3\n");
 				return 0;
 			}
 			Dir = (StrBuf*) vDir;
@@ -903,7 +903,7 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 				   ChrPtr(Dir)) != 0)
 			{
 				DeleteHashPos(&it);
-				syslog(0, "4\n");
+				syslog(LOG_DEBUG, "4\n");
 				return 0;
 			}
 		}
@@ -917,7 +917,7 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 		{
 			DeleteHashPos(&it);
 			
-			syslog(0, "5\n");
+			syslog(LOG_DEBUG, "5\n");
 			return WCC->Hdr->HR.dav_depth == 1;
 		}
 		DeleteHashPos(&it);

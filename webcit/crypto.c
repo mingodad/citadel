@@ -83,7 +83,7 @@ void init_ssl(void)
 		for (a = 0; a < CRYPTO_num_locks(); a++) {
 			SSLCritters[a] = malloc(sizeof(pthread_mutex_t));
 			if (!SSLCritters[a]) {
-				syslog(1,
+				syslog(LOG_EMERG,
 					"citserver: can't allocate memory!!\n");
 				/** Nothing's been initialized, just die */
 				ShutDownWebcit();
@@ -130,13 +130,13 @@ void init_ssl(void)
 	if (!strcasecmp(ctdlhost, "uds")) {
 		sprintf(buf, "%s/keys/citadel.key", ctdlport);
 		rv = symlink(buf, CTDL_KEY_PATH);
-		if (!rv) syslog(1, "%s\n", strerror(errno));
+		if (!rv) syslog(LOG_DEBUG, "%s\n", strerror(errno));
 		sprintf(buf, "%s/keys/citadel.csr", ctdlport);
 		rv = symlink(buf, CTDL_CSR_PATH);
-		if (!rv) syslog(1, "%s\n", strerror(errno));
+		if (!rv) syslog(LOG_DEBUG, "%s\n", strerror(errno));
 		sprintf(buf, "%s/keys/citadel.cer", ctdlport);
 		rv = symlink(buf, CTDL_CER_PATH);
-		if (!rv) syslog(1, "%s\n", strerror(errno));
+		if (!rv) syslog(LOG_DEBUG, "%s\n", strerror(errno));
 	}
 
 	/*
@@ -475,7 +475,7 @@ void endtls(void)
 	/* I don't think this is needed, and it crashes the server anyway
 	 *
 	 * 	if (ctx != NULL) {
-	 *		syslog(9, "Freeing CTX at %x\n", (int)ctx );
+	 *		syslog(LOG_DEBUG, "Freeing CTX at %x\n", (int)ctx );
 	 *		SSL_CTX_free(ctx);
 	 *	}
 	 */

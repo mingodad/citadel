@@ -599,7 +599,7 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 			StrBufDecodeBase64(Val);
 
 		}
-		syslog(1, "%s [%s][%s]",
+		syslog(LOG_DEBUG, "%s [%s][%s]",
 			firsttoken,
 			ChrPtr(Val),
 			v->prop[i].value);
@@ -607,11 +607,11 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 		{
 			eVC evc = (eVC) V;
 			Put(VC, IKEY(evc), Val, HFreeStrBuf);
-			syslog(1, "[%ul]\n", evc);
+			syslog(LOG_DEBUG, "[%ul]\n", evc);
 			Val = NULL;
 		}
 		else
-			syslog(1, "[]\n");
+			syslog(LOG_DEBUG, "[]\n");
 /*
 TODO: check for layer II
 		else 
