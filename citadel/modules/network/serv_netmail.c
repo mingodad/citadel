@@ -128,9 +128,11 @@ void network_deliver_digest(SpoolControl *sc)
 	struct CtdlMessage *msg = NULL;
 	long msglen;
 	StrBuf *recps = NULL;
-	char *precps;
 	struct recptypes *valid;
 	char bounce_to[256];
+
+	if (sc->Users[listrecp] == NULL)
+		return;
 
 	if (sc->num_msgs_spooled < 1) {
 		fclose(sc->digestfp);
@@ -181,6 +183,8 @@ void network_deliver_digest(SpoolControl *sc)
 	sc->digestfp = NULL;
 
 	/* Now generate the delivery instructions */
+	if (sc->Users[listrecp] == NULL)
+		return;
 	aggregate_recipients(&recps, digestrecp, sc->RNCfg);
 
 	/* Where do we want bounces and other noise to be heard?
@@ -188,9 +192,7 @@ void network_deliver_digest(SpoolControl *sc)
 	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
 
 	/* Now submit the message */
-	precps = SmashStrBuf(&recps);
-	valid = validate_recipients(precps, NULL, 0);
-	free(precps);
+	valid = validate_recipients(ChrPtr(sc->Users[listrecp]), NULL, 0);
 	if (valid != NULL) {
 		valid->bounce_to = strdup(bounce_to);
 		valid->envelope_from = strdup(bounce_to);
@@ -209,7 +211,7 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 	/*
 	 * Process digest recipients
 	 */
-	if ((sc->RNCfg->NetConfigs[digestrecp] == NULL) || 
+	if ((sc->Users[digestrecp] == NULL)||
 	    (sc->digestfp == NULL))
 		return;
 
@@ -268,6 +270,7 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 
 void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *delete_after_send)
 {
+	struct CitContext *CCC = CC;
 	int rlen;
 	char *pCh;
 	StrBuf *Subject, *FlatSubject;
@@ -277,7 +280,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	/*
 	 * Process mailing list recipients
 	 */
-	if (sc->RNCfg->NetConfigs[listrecp] == NULL) 
+	if (sc->Users[listrecp] == NULL)
 		return;
 
 	/* create our own copy of the message.
@@ -312,8 +315,8 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	msg->cm_fields['L'] = malloc(1024);
 	snprintf(msg->cm_fields['L'], 1024,
 		 "%s <%ld.list-id.%s>",
-		 CC->room.QRname,
-		 CC->room.QRnumber,
+		 CCC->room.QRname,
+		 CCC->room.QRnumber,
 		 config.c_fqdn
 		);
 
@@ -328,8 +331,8 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	FlatSubject = NewStrBufPlain(NULL, StrLength(Subject));
 	StrBuf_RFC822_to_Utf8(FlatSubject, Subject, NULL, NULL);
 
-	rlen = strlen(CC->room.QRname);
-	pCh  = strstr(ChrPtr(FlatSubject), CC->room.QRname);
+	rlen = strlen(CCC->room.QRname);
+	pCh  = strstr(ChrPtr(FlatSubject), CCC->room.QRname);
 	if ((pCh == NULL) ||
 	    (*(pCh + rlen) != ']') ||
 	    (pCh == ChrPtr(FlatSubject)) ||
@@ -339,7 +342,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 		StrBuf *tmp;
 		StrBufPlain(Subject, HKEY("["));
 		StrBufAppendBufPlain(Subject,
-				     CC->room.QRname,
+				     CCC->room.QRname,
 				     rlen, 0);
 		StrBufAppendBufPlain(Subject, HKEY("] "), 0);
 		StrBufAppendBuf(Subject, FlatSubject, 0);
@@ -372,7 +375,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 
 		msg->cm_fields['R'] = malloc(256);
 		snprintf(msg->cm_fields['R'], 256,
-			 "room_%s@%s", CC->room.QRname,
+			 "room_%s@%s", CCC->room.QRname,
 			 config.c_fqdn);
 		for (i=0; msg->cm_fields['R'][i]; ++i) {
 			if (isspace(msg->cm_fields['R'][i])) {
@@ -382,7 +385,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	}
 
 	/* Handle delivery */
-	network_deliver_list(msg, sc, CC->room.QRname);
+	network_deliver_list(msg, sc, CCC->room.QRname);
 	CtdlFreeMessage(msg);
 }
 
@@ -391,29 +394,21 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
  */
 void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName)
 {
-	StrBuf *recps = NULL;
-	char *precps = NULL;
 	struct recptypes *valid;
 	char bounce_to[256];
 
 	/* Don't do this if there were no recipients! */
-	if (sc->RNCfg->NetConfigs[listrecp] == NULL) return;
+	if (sc->Users[listrecp] == NULL)
+		return;
 
 	/* Now generate the delivery instructions */
-
-	/*
-	 * Figure out how big a buffer we need to allocate
-	 */
-	aggregate_recipients(&recps, listrecp, sc->RNCfg);
 
 	/* Where do we want bounces and other noise to be heard?
 	 *  Surely not the list members! */
 	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
 
 	/* Now submit the message */
-	precps = SmashStrBuf(&recps);
-	valid = validate_recipients(precps, NULL, 0);
-	free(precps);
+	valid = validate_recipients(ChrPtr(sc->Users[listrecp]), NULL, 0);
 	if (valid != NULL) {
 		valid->bounce_to = strdup(bounce_to);
 		valid->envelope_from = strdup(bounce_to);
@@ -436,7 +431,7 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	/*
 	 * Process client-side list participations for this room
 	 */
-	if (sc->RNCfg->NetConfigs[participate] == NULL)
+	if (sc->Users[participate] == NULL)
 		return;
 
 	msg = CtdlDuplicateMessage(omsg);
@@ -465,9 +460,6 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	}
 	if (ok_to_participate)
 	{
-		StrBuf *recps = NULL;
-		char *precps;
-
 		if (msg->cm_fields['F'] != NULL) {
 			free(msg->cm_fields['F']);
 		}
@@ -476,20 +468,22 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 		 * actual author with the email address of the
 		 * room itself, so the remote listserv doesn't
 		 * reject us.
-		 * FIXME  I want to be able to pick any address
 		 */
-		snprintf(msg->cm_fields['F'], SIZ,
-			 "room_%s@%s", CC->room.QRname,
-			 config.c_fqdn);
+		if (sc->Users[roommailalias] != NULL)
+			snprintf(msg->cm_fields['F'], SIZ,
+				 "%s", ChrPtr(sc->Users[roommailalias]));
+		else
+			snprintf(msg->cm_fields['F'], SIZ,
+				 "room_%s@%s", CC->room.QRname,
+				 config.c_fqdn);
+
 		for (i=0; msg->cm_fields['F'][i]; ++i) {
 			if (isspace(msg->cm_fields['F'][i])) {
 				msg->cm_fields['F'][i] = '_';
 			}
 		}
 
-		aggregate_recipients(&recps, participate, sc->RNCfg);
-		precps = SmashStrBuf(&recps);
-		valid = validate_recipients(precps, NULL, 0);
+		valid = validate_recipients(ChrPtr(sc->Users[participate]) , NULL, 0);
 
 		if (msg->cm_fields['R'] != NULL) {
 			free(msg->cm_fields['R']);
@@ -504,6 +498,8 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 
 void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long *delete_after_send)
 {
+	StrBuf *Recipient;
+	const char *Pos = NULL;
 	struct CtdlMessage *msg = NULL;
 	struct CitContext *CCC = CC;
 	struct ser_ret sermsg;
@@ -512,14 +508,14 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	FILE *fp;
 	size_t newpath_len;
 	char *newpath = NULL;
-	RoomNetCfgLine* mptr;
 	StrBuf *Buf = NULL;
 	int i;
 	int bang = 0;
 	int send = 1;
 
-	if (sc->RNCfg->NetConfigs[ignet_push_share] == NULL)
+	if (sc->Users[ignet_push_share] == NULL)
 		return;
+
 	/*
 	 * Process IGnet push shares
 	 */
@@ -551,12 +547,12 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	}
 
 	/* Now send it to every node */
-	for (mptr = sc->RNCfg->NetConfigs[ignet_push_share];
-	     mptr != NULL;
-	     mptr = mptr->next)
+	Recipient = NewStrBufPlain(NULL, StrLength(sc->Users[ignet_push_share]));
+	while ((Pos != StrBufNOTNULL) &&
+	       StrBufExtract_NextToken(Recipient, sc->Users[ignet_push_share], &Pos, '|'))
 	{
 		send = 1;
-		NewStrBufDupAppendFlush(&Buf, mptr->Value[0], NULL, 1);
+		NewStrBufDupAppendFlush(&Buf, Recipient, NULL, 1);
 			
 		/* Check for valid node name */
 		if (CtdlIsValidNode(NULL,
@@ -567,7 +563,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 		{
 			QN_syslog(LOG_ERR,
 				  "Invalid node <%s>\n",
-				  ChrPtr(mptr->Value[0]));
+				  ChrPtr(Recipient));
 			
 			send = 0;
 		}
@@ -583,8 +579,8 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 					      sizeof buf);
 
 				QN_syslog(LOG_DEBUG, "Compare <%s> to <%s>\n",
-					  buf, ChrPtr(mptr->Value[0])) ;
-				if (!strcasecmp(buf, ChrPtr(mptr->Value[0]))) {
+					  buf, ChrPtr(Recipient)) ;
+				if (!strcasecmp(buf, ChrPtr(Recipient))) {
 					send = 0;
 					break;
 				}
@@ -593,7 +589,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 			QN_syslog(LOG_INFO,
 				  "%sSending to %s\n",
 				  (send)?"":"Not ",
-				  ChrPtr(mptr->Value[0]));
+				  ChrPtr(Recipient));
 		}
 		
 		/* Send the message */
@@ -607,9 +603,9 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 			if (msg->cm_fields['C'] != NULL) {
 				free(msg->cm_fields['C']);
 			}
-			if (StrLength(mptr->Value[0]) > 0) {
+			if (StrLength(Recipient) > 0) {
 				msg->cm_fields['C'] =
-					strdup(ChrPtr(mptr->Value[0]));
+					strdup(ChrPtr(Recipient));
 			}
 			else {
 				msg->cm_fields['C'] =
@@ -625,7 +621,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 					 sizeof(filename),
 					 "%s/%s@%lx%x",
 					 ctdl_netout_dir,
-					 ChrPtr(mptr->Value[0]),
+					 ChrPtr(Recipient),
 					 time(NULL),
 					 rand()
 					);
@@ -653,6 +649,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 		}
 	}
 	FreeStrBuf(&Buf);
+	FreeStrBuf(&Recipient);
 	CtdlFreeMessage(msg);
 }
 

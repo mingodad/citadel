@@ -254,6 +254,7 @@ RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, OneRoomNetCfg *One
 
 	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
+	ptr->lastsent = OneRNCFG->lastsent;
 	ptr->OneRNCfg = OneRNCFG;
 	return ptr;
 }
@@ -265,6 +266,9 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, OneRoom
 {
 	struct RoomProcList *ptr;
 	roomlists *RP = (roomlists*) data;
+
+	if (!HaveSpoolConfig(OneRNCfg))
+		return;
 
 	ptr = CreateRoomProcListEntry(qrbuf, OneRNCfg);
 
@@ -287,10 +291,14 @@ int network_room_handler (struct ctdlroom *qrbuf)
 	if (RNCfg == NULL)
 		return 1;
 
+	if (!HaveSpoolConfig(RNCfg))
+		return 1;
+
 	ptr = CreateRoomProcListEntry(qrbuf, RNCfg);
 	if (ptr == NULL)
 		return 1;
 
+	ptr->OneRNCfg = NULL;
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
@@ -428,7 +436,16 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 }
 
 
-
+void free_network_spoolout_room(SpoolControl *sc)
+{
+	if (sc != NULL)
+	{
+		int i;
+		for (i = subpending; i < maxRoomNetCfg; i++)
+			FreeStrBuf(&sc->Users[i]);
+		free(sc);
+	}
+}
 
 
 
@@ -447,6 +464,8 @@ void network_do_queue(void)
 	HashList *the_netmap = NULL;
 	int netmap_changed = 0;
 	roomlists RL;
+	SpoolControl *sc = NULL;
+	SpoolControl *pSC;
 
 	/*
 	 * Run the full set of processing tasks no more frequently
@@ -508,14 +527,30 @@ void network_do_queue(void)
 			}
 
 			if (ptr->namelen > 0) {
-				network_spoolout_room(ptr, 
-						      working_ignetcfg,
-						      the_netmap);
+				InspectQueuedRoom(&sc,
+						  ptr, 
+						  working_ignetcfg,
+						  the_netmap);
 			}
 			ptr = ptr->next;
 		}
 	}
 
+
+	pSC = sc;
+	while (pSC != NULL)
+	{
+		network_spoolout_room(pSC);
+		pSC = pSC->next;
+	}
+
+	pSC = sc;
+	while (pSC != NULL)
+	{
+		sc = pSC->next;
+		free_network_spoolout_room(pSC);
+		pSC = sc;
+	}
 	/* If there is anything in the inbound queue, process it */
 	if (!server_shutting_down) {
 		network_do_spoolin(working_ignetcfg, 

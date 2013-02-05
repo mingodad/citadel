@@ -22,6 +22,7 @@ struct RoomProcList {
         char name[ROOMNAMELEN];
         char lcname[ROOMNAMELEN];
 	long namelen;
+	long lastsent;
 	long key;
 	long QRNum;
 };

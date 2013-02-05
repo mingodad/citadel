@@ -142,67 +142,122 @@ void DeleteLastSent(const CfgLineType *ThisOne, RoomNetCfgLine **data)
 	*data = NULL;
 }
 
+RoomNetCfg SpoolCfgs [4] = {
+	listrecp,
+	digestrecp,
+	participate,
+	ignet_push_share
+};
 
 
-
-/*
- * Batch up and send all outbound traffic from the current room
- */
-void network_spoolout_room(RoomProcList *room_to_spool, 		       
-			   HashList *working_ignetcfg,
-			   HashList *the_netmap)
+int HaveSpoolConfig(OneRoomNetCfg* RNCfg)
 {
-	struct CitContext *CCC = CC;
-	char buf[SIZ];
-	SpoolControl sc;
 	int i;
+	int interested = 0;
+	for (i=0; i < 4; i++) if (RNCfg->NetConfigs[SpoolCfgs[i]] == NULL) interested = 1;
+	return interested;
+}
 
-	memset(&sc, 0, sizeof(SpoolControl));
-	sc.RNCfg = room_to_spool->OneRNCfg;
-	sc.lastsent = room_to_spool->OneRNCfg->lastsent;
-	sc.working_ignetcfg = working_ignetcfg;
-	sc.the_netmap = the_netmap;
 
-	if ((sc.RNCfg->NetConfigs[listrecp] == NULL) && 
-	    (sc.RNCfg->NetConfigs[digestrecp] == NULL) && 
-	    (sc.RNCfg->NetConfigs[participate] == NULL) && 
-	    (sc.RNCfg->NetConfigs[ignet_push_share] == NULL))
-	{
-		/* nothing to do for this room... */
-		return;
-	}
+
+void InspectQueuedRoom(SpoolControl **pSC,
+		       RoomProcList *room_to_spool,     
+		       HashList *working_ignetcfg,
+		       HashList *the_netmap)
+{
+	SpoolControl *sc;
+	int i = 0;
+
+	sc = (SpoolControl*)malloc(sizeof(SpoolControl));
+	memset(sc, 0, sizeof(SpoolControl));
+	sc->RNCfg = room_to_spool->OneRNCfg;
+	sc->lastsent = room_to_spool->lastsent;
+	sc->working_ignetcfg = working_ignetcfg;
+	sc->the_netmap = the_netmap;
 
 	/*
 	 * If the room doesn't exist, don't try to perform its networking tasks.
 	 * Normally this should never happen, but once in a while maybe a room gets
 	 * queued for networking and then deleted before it can happen.
 	 */
-	if (CtdlGetRoom(&CCC->room, room_to_spool->name) != 0) {
+	if (CtdlGetRoom(&sc->room, room_to_spool->name) != 0) {
 		syslog(LOG_CRIT, "ERROR: cannot load <%s>\n", room_to_spool->name);
+		free(sc);
+		return;
+	}
+	if (sc->room.QRhighest <= sc->lastsent)
+	{
+		syslog(LOG_DEBUG, "nothing to do for <%s>\n", room_to_spool->name);
+		free(sc);
 		return;
 	}
 
+	if (sc->RNCfg == NULL)
+		sc->RNCfg = CtdlGetNetCfgForRoom(sc->room.QRnumber);
+
+	if (!HaveSpoolConfig(sc->RNCfg))
+	{
+		free(sc);
+		/* nothing to do for this room... */
+		return;
+	}
+
+	/* Now lets remember whats needed for the actual work... */
+
+	for (i=0; i < 4; i++)
+	{
+		aggregate_recipients(&sc->Users[SpoolCfgs[i]], SpoolCfgs[i], sc->RNCfg);
+	}
 	
+	if (StrLength(sc->RNCfg->Sender) > 0)
+		sc->Users[roommailalias] = NewStrBufDup(sc->RNCfg->Sender);
+
+	sc->next = *pSC;
+	*pSC = sc;
+
+}
+
+
+/*
+ * Batch up and send all outbound traffic from the current room
+ */
+void network_spoolout_room(SpoolControl *sc)
+{
+	struct CitContext *CCC = CC;
+	char buf[SIZ];
+	int i;
+	long lastsent;
+
+	/*
+	 * If the room doesn't exist, don't try to perform its networking tasks.
+	 * Normally this should never happen, but once in a while maybe a room gets
+	 * queued for networking and then deleted before it can happen.
+	 */
+	memcpy (&CCC->room, &sc->room, sizeof(ctdlroom));
+
 	syslog(LOG_INFO, "Networking started for <%s>\n", CCC->room.QRname);
 
 	/* If there are digest recipients, we have to build a digest */
-	if (sc.RNCfg->NetConfigs[digestrecp] != NULL) {
-		sc.digestfp = tmpfile();
-		fprintf(sc.digestfp, "Content-type: text/plain\n\n");
+	if (sc->Users[digestrecp] != NULL) {
+		sc->digestfp = tmpfile();
+		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 	}
 
+	/* remember where we started... */
+	lastsent = sc->lastsent;
+
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL, NULL,
-		network_spool_msg, &sc);
+	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
+		network_spool_msg, sc);
 
 	/* If we wrote a digest, deliver it and then close it */
-	if (StrLength(sc.RNCfg->Sender) > 0)
+	if (StrLength(sc->Users[roommailalias]) > 0)
 	{
 		long len;
-		len = StrLength(sc.RNCfg->Sender);
+		len = StrLength(sc->Users[roommailalias]);
 		if (len + 1 > sizeof(buf))
 			len = sizeof(buf) - 1;
-		memcpy(buf, ChrPtr(sc.RNCfg->Sender), len);
+		memcpy(buf, ChrPtr(sc->Users[roommailalias]), len);
 		buf[len] = '\0';
 	}
 	else
@@ -215,8 +270,8 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 		buf[i] = tolower(buf[i]);
 		if (isspace(buf[i])) buf[i] = '_';
 	}
-	if (sc.digestfp != NULL) {
-		fprintf(sc.digestfp,
+	if (sc->digestfp != NULL) {
+		fprintf(sc->digestfp,
 			" -----------------------------------"
 			"------------------------------------"
 			"-------\n"
@@ -225,14 +280,16 @@ void network_spoolout_room(RoomProcList *room_to_spool,
 			"To post to the list: %s\n",
 			CCC->room.QRname, buf
 		);
-		network_deliver_digest(&sc);	/* deliver and close */
+		network_deliver_digest(sc);	/* deliver and close */
 	}
 
 	/* Now rewrite the config file */
-	if (sc.lastsent != room_to_spool->OneRNCfg->lastsent)
+	if (sc->lastsent != lastsent)
 	{
-		room_to_spool->OneRNCfg->lastsent = sc.lastsent;
-		room_to_spool->OneRNCfg->changed = 1;
+		sc->RNCfg = CtdlGetNetCfgForRoom(sc->room.QRnumber);
+
+		sc->RNCfg->lastsent = sc->lastsent;
+		sc->RNCfg->changed = 1;
 	}
 	end_critical_section(S_NETCONFIGS);
 }

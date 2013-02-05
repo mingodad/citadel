@@ -31,20 +31,33 @@ typedef struct SpoolControl SpoolControl;
 
 struct SpoolControl {
 	OneRoomNetCfg *RNCfg;
+	struct ctdlroom room;
+	StrBuf *Users[maxRoomNetCfg];
 	FILE *digestfp;
 	int num_msgs_spooled;
 	long lastsent;
 
 	HashList *working_ignetcfg;
 	HashList *the_netmap;
+
+	SpoolControl *next;
 };
 
 
-void network_spoolout_room(RoomProcList *room_to_spool, 		       
-			   HashList *working_ignetcfg,
-			   HashList *the_netmap);
+void network_spoolout_room(SpoolControl *sc);
+
+void InspectQueuedRoom(SpoolControl **pSC,
+		       RoomProcList *room_to_spool,     
+		       HashList *working_ignetcfg,
+		       HashList *the_netmap);
+
+int HaveSpoolConfig(OneRoomNetCfg* RNCfg);
+
+
 void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *netmap_changed);
 void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netmap);
 void free_spoolcontrol_struct(SpoolControl **scc);
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename);
 int read_spoolcontrol_file(SpoolControl **scc, char *filename);
+
+void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRNCfg);
