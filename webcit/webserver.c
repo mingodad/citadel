@@ -229,17 +229,17 @@ int main(int argc, char **argv)
 	LoadIconDir(static_icon_dir);
 
 	/* Tell 'em who's in da house */
-	syslog(1, "%s", PACKAGE_STRING);
-	syslog(1, "Copyright (C) 1996-2013 by the citadel.org team");
-	syslog(1, " ");
-	syslog(1, "This program is open source software: you can redistribute it and/or");
-	syslog(1, "modify it under the terms of the GNU General Public License, version 3.");
-	syslog(1, " ");
-	syslog(1, "This program is distributed in the hope that it will be useful,");
-	syslog(1, "but WITHOUT ANY WARRANTY; without even the implied warranty of");
-	syslog(1, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
-	syslog(1, "GNU General Public License for more details.");
-	syslog(1, " ");
+	syslog(LOG_NOTICE, "%s", PACKAGE_STRING);
+	syslog(LOG_NOTICE, "Copyright (C) 1996-2013 by the citadel.org team");
+	syslog(LOG_NOTICE, " ");
+	syslog(LOG_NOTICE, "This program is open source software: you can redistribute it and/or");
+	syslog(LOG_NOTICE, "modify it under the terms of the GNU General Public License, version 3.");
+	syslog(LOG_NOTICE, " ");
+	syslog(LOG_NOTICE, "This program is distributed in the hope that it will be useful,");
+	syslog(LOG_NOTICE, "but WITHOUT ANY WARRANTY; without even the implied warranty of");
+	syslog(LOG_NOTICE, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
+	syslog(LOG_NOTICE, "GNU General Public License for more details.");
+	syslog(LOG_NOTICE, " ");
 
 	/* initialize various subsystems */
 

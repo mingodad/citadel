@@ -114,7 +114,7 @@ void check_thread_pool_size(void)
 		(num_threads_executing >= num_threads_existing)
 		&& (num_threads_existing < MAX_WORKER_THREADS)
 	) {
-		syslog(3, "%d of %d threads are executing.  Adding another worker thread.",
+		syslog(LOG_DEBUG, "%d of %d threads are executing.  Adding another worker thread.",
 			num_threads_executing,
 			num_threads_existing
 		);
@@ -219,11 +219,11 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	 */	
 	if (Hdr->HR.desired_session == 0) {
 		TheSession->wc_session = GenerateSessionID();
-		syslog(3, "Created new session %d", TheSession->wc_session);
+		syslog(LOG_DEBUG, "Created new session %d", TheSession->wc_session);
 	}
 	else {
 		TheSession->wc_session = Hdr->HR.desired_session;
-		syslog(3, "Re-created session %d", TheSession->wc_session);
+		syslog(LOG_DEBUG, "Re-created session %d", TheSession->wc_session);
 	}
 	Hdr->HR.Static = Static;
 	session_new_modules(TheSession);
@@ -399,7 +399,7 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 			memset(pHdr, 0, sizeof(OneHttpHeader));
 			pHdr->Val = Line;
 			Put(Hdr->HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
-			syslog(9, "%s", ChrPtr(Line));
+			syslog(LOG_DEBUG, "%s", ChrPtr(Line));
 			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
 			if (isbogus) break;
 			continue;
@@ -509,7 +509,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		wcsession *Bogus;
 		Bogus = CreateSession(0, 1, NULL, Hdr, NULL);
 		do_404();
-		syslog(9, "HTTP: 404 [%ld.%06ld] %s %s",
+		syslog(LOG_WARNING, "HTTP: 404 [%ld.%06ld] %s %s",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -530,7 +530,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
-		syslog(9, "HTTP: 200 [%ld.%06ld] %s %s",
+		syslog(LOG_DEBUG, "HTTP: 200 [%ld.%06ld] %s %s",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -610,7 +610,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
 
-	syslog(9, "HTTP: 200 [%ld.%06ld] %s %s",
+	syslog(LOG_DEBUG, "HTTP: 200 [%ld.%06ld] %s %s",
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 		ReqStrs[Hdr->HR.eReqType],
