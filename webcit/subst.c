@@ -162,6 +162,7 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	}
 	if (TP->Tokens != NULL) 
 	{
+<<<<<<< HEAD
 		syslog(1, "%s [%s]  (in '%s' line %ld); %s; [%s]\n", 
 			Type, 
 			Err, 
@@ -175,6 +176,21 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		syslog(1, "%s: %s;\n", 
 			Type, 
 			ChrPtr(Error));
+=======
+		syslog(LOG_WARNING, "%s [%s]  (in '%s' line %ld); %s; [%s]\n", 
+		       Type, 
+		       Err, 
+		       ChrPtr(TP->Tokens->FileName),
+		       TP->Tokens->Line, 
+		       ChrPtr(Error), 
+		       ChrPtr(TP->Tokens->FlatToken));
+	}
+	else 
+	{
+		syslog(LOG_WARNING, "%s: %s;\n", 
+		       Type, 
+		       ChrPtr(Error));
+>>>>>>> 156d3ea... SYSLOG: more places to correct the loglevel parameters.
 	}
 /*
 	if (Target == NULL) 
@@ -240,7 +256,7 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	FreeStrBuf(&Error);
 /*
 	if (dbg_backtrace_template_errors)
-		wc_backtrace(); 
+		wc_backtrace(LOG_DEBUG); 
 */
 }
 
@@ -261,7 +277,7 @@ void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
 	StrBufVAppendPrintf(Error, Format, arg_ptr);
 	va_end(arg_ptr);
 
-	syslog(1, "%s", ChrPtr(Error));
+	syslog(LOG_WARNING, "%s", ChrPtr(Error));
 
 	WCC = WC;
 	if (WCC->WFBuf == NULL) WCC->WFBuf = NewStrBuf();
@@ -275,7 +291,7 @@ void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
 	FreeStrBuf(&Error);
 /*
 	if (dbg_backtrace_template_errors)
-		wc_backtrace(); 
+		wc_backtrace(LOG_DEBUG); 
 */
 }
 
@@ -521,7 +537,7 @@ long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long df
 		LogTemplateError(Target, 
 				 "TokenParameter", N, TP, 
 				 "invalid token %d. this shouldn't have come till here.\n", N);
-		wc_backtrace(); 
+		wc_backtrace(LOG_DEBUG); 
 		return 0;
 	}
 
@@ -747,7 +763,7 @@ int GetNextParameter(StrBuf *Buf,
 		}
 		pche = pch;
 		if (*pch != quote) {
-			syslog(1, "Error (in '%s' line %ld); "
+			syslog(LOG_WARNING, "Error (in '%s' line %ld); "
 				"evaluating template param [%s] in Token [%s]\n",
 				ChrPtr(pTmpl->FileName),
 				Tokens->Line,
@@ -761,8 +777,13 @@ int GetNextParameter(StrBuf *Buf,
 		else {
 			StrBufPeek(Buf, pch, -1, '\0');		
 			if (LoadTemplates > 1) {			
+<<<<<<< HEAD
 				syslog(1,
 					"DBG: got param [%s] %d %d\n", 
+=======
+				syslog(LOG_DEBUG,
+					"DBG: got param [%s] "SIZE_T_FMT" "SIZE_T_FMT"\n", 
+>>>>>>> 156d3ea... SYSLOG: more places to correct the loglevel parameters.
 					pchs, pche - pchs, strlen(pchs)
 				);
 			}
@@ -793,7 +814,7 @@ int GetNextParameter(StrBuf *Buf,
 		else {
 			Parm->lvalue = 0;
 /* TODO whUT?
-			syslog(1, "Error (in '%s' line %ld); "
+			syslog(LOG_DEBUG, "Error (in '%s' line %ld); "
 				"evaluating long template param [%s] in Token [%s]\n",
 				ChrPtr(pTmpl->FileName),
 				Tokens->Line,
@@ -1262,13 +1283,13 @@ void *load_template(StrBuf *Target, WCTemplate *NewTemplate)
 
 	fd = open(ChrPtr(NewTemplate->FileName), O_RDONLY);
 	if (fd <= 0) {
-		syslog(1, "ERROR: could not open template '%s' - %s\n",
+		syslog(LOG_WARNING, "ERROR: could not open template '%s' - %s\n",
 			ChrPtr(NewTemplate->FileName), strerror(errno));
 		return NULL;
 	}
 
 	if (fstat(fd, &statbuf) == -1) {
-		syslog(1, "ERROR: could not stat template '%s' - %s\n",
+		syslog(LOG_WARNING, "ERROR: could not stat template '%s' - %s\n",
 			ChrPtr(NewTemplate->FileName), strerror(errno));
 		return NULL;
 	}
@@ -1276,7 +1297,7 @@ void *load_template(StrBuf *Target, WCTemplate *NewTemplate)
 	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size + 1);
 	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
-		syslog(1, "ERROR: reading template '%s' - %s<br>\n",
+		syslog(LOG_WARNING, "ERROR: reading template '%s' - %s<br>\n",
 			ChrPtr(NewTemplate->FileName), strerror(errno));
 		return NULL;
 	}
@@ -1476,7 +1497,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 			StrBufAppendBufPlain(Key, filedir_entry->d_name, MinorPtr - filedir_entry->d_name, 0);
 
 			if (LoadTemplates >= 1)
-				syslog(1, "%s %s\n", ChrPtr(FileName), ChrPtr(Key));
+				syslog(LOG_DEBUG, "%s %s\n", ChrPtr(FileName), ChrPtr(Key));
 			prepare_template(FileName, Key, big);
 		default:
 			break;
@@ -1570,7 +1591,7 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 	void *vVar;
 	
 /* much output, since pName is not terminated...
-	syslog(1,"Doing token: %s\n",Token->pName);
+	syslog(LOG_DEBUG,"Doing token: %s\n",Token->pName);
 */
 
 	switch (TP->Tokens->Flags) {
@@ -1654,7 +1675,7 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 
 	if (LoadTemplates != 0) {			
 		if (LoadTemplates > 1)
-			syslog(1, "DBG: ----- loading:  [%s] ------ \n", 
+			syslog(LOG_DEBUG, "DBG: ----- loading:  [%s] ------ \n", 
 				ChrPtr(Tmpl->FileName));
 		pTmpl = duplicate_template(Tmpl);
 		if(load_template(Target, pTmpl) == NULL) {
@@ -1738,14 +1759,14 @@ const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCT
 
 	if (len == 0)
 	{
-		syslog(1, "Can't to load a template with empty name!\n");
+		syslog(LOG_WARNING, "Can't to load a template with empty name!\n");
 		StrBufAppendPrintf(Target, "<pre>\nCan't to load a template with empty name!\n</pre>");
 		return NULL;
 	}
 
 	if (!GetHash(StaticLocal, templatename, len, &vTmpl) &&
 	    !GetHash(Static, templatename, len, &vTmpl)) {
-		syslog(1, "didn't find Template [%s] %ld %ld\n", templatename, len , (long)strlen(templatename));
+		syslog(LOG_WARNING, "didn't find Template [%s] %ld %ld\n", templatename, len , (long)strlen(templatename));
 		StrBufAppendPrintf(Target, "<pre>\ndidn't find Template [%s] %ld %ld\n</pre>", 
 				   templatename, len, 
 				   (long)strlen(templatename));
@@ -2063,7 +2084,7 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP
 	if (res == Neg)
 		rc = TP->Tokens->Params[1]->lvalue;
 	if (LoadTemplates > 5) 
-		syslog(1, "<%s> : %d %d==%d\n", 
+		syslog(LOG_DEBUG, "<%s> : %d %d==%d\n", 
 			ChrPtr(TP->Tokens->FlatToken), 
 			rc, res, Neg);
 	return rc;
@@ -2395,7 +2416,7 @@ void RegisterSortFunc(const char *name, long len,
 	NewSort->GroupChange = GroupChange;
 	NewSort->ContextType = ContextType;
 	if (ContextType == CTX_NONE) {
-		syslog(1, "sorting requires a context. CTX_NONE won't make it.\n");
+		syslog(LOG_WARNING, "sorting requires a context. CTX_NONE won't make it.\n");
 		exit(1);
 	}
 		
@@ -2444,7 +2465,7 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 			LogTemplateError(
 				NULL, "Sorting", ERR_PARM1, TP,
 				"Illegal default sort: [%s]", Default);
-			wc_backtrace();
+			wc_backtrace(LOG_WARNING);
 		}
 	}
 	SortBy = (SortStruct*)vSortBy;
@@ -2689,7 +2710,7 @@ void dbg_print_longvector(long *LongVector)
 			StrBufAppendPrintf(Buf, "%d: %ld]\n", i, LongVector[i]);
 
 	}
-	syslog(1, "%s", ChrPtr(Buf));
+	syslog(LOG_DEBUG, "%s", ChrPtr(Buf));
 	FreeStrBuf(&Buf);
 }
 

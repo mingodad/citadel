@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 				if (gethostname
 				    (&server_cookie[strlen(server_cookie)],
 				     200) != 0) {
-					syslog(2, "gethostname: %s", strerror(errno));
+					syslog(LOG_INFO, "gethostname: %s", strerror(errno));
 					free(server_cookie);
 				}
 			}
@@ -250,16 +250,16 @@ int main(int argc, char **argv)
 		FILE *fd;
 		StrBufAppendBufPlain(I18nDump, HKEY("}\n"), 0);
 	        if (StrLength(I18nDump) < 50) {
-			syslog(1, "*******************************************************************\n");
-			syslog(1, "*   No strings found in templates!  Are you sure they're there?   *\n");
-			syslog(1, "*******************************************************************\n");
+			syslog(LOG_INFO, "*******************************************************************\n");
+			syslog(LOG_INFO, "*   No strings found in templates!  Are you sure they're there?   *\n");
+			syslog(LOG_INFO, "*******************************************************************\n");
 			return -1;
 		}
 		fd = fopen(I18nDumpFile, "w");
 	        if (fd == NULL) {
-			syslog(1, "***********************************************\n");
-			syslog(1, "*   unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
-			syslog(1, "***********************************************\n");
+			syslog(LOG_INFO, "***********************************************\n");
+			syslog(LOG_INFO, "*   unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
+			syslog(LOG_INFO, "***********************************************\n");
 			return -1;
 		}
 		fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 	 * wcsession struct to which the thread is currently bound.
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
-		syslog(1, "Can't create TSD key: %s", strerror(errno));
+		syslog(LOG_EMERG, "Can't create TSD key: %s", strerror(errno));
 	}
 	InitialiseSemaphores();
 
@@ -291,7 +291,7 @@ int main(int argc, char **argv)
 	 */
 #ifdef HAVE_OPENSSL
 	if (pthread_key_create(&ThreadSSL, NULL) != 0) {
-		syslog(1, "Can't create TSD key: %s", strerror(errno));
+		syslog(LOG_EMERG, "Can't create TSD key: %s", strerror(errno));
 	}
 #endif
 
@@ -302,11 +302,11 @@ int main(int argc, char **argv)
 	 */
 
 	if (!IsEmptyStr(uds_listen_path)) {
-		syslog(2, "Attempting to create listener socket at %s...", uds_listen_path);
+		syslog(LOG_DEBUG, "Attempting to create listener socket at %s...", uds_listen_path);
 		msock = webcit_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
 	}
 	else {
-		syslog(2, "Attempting to bind to port %d...", http_port);
+		syslog(LOG_DEBUG, "Attempting to bind to port %d...", http_port);
 		msock = webcit_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
 	}
 	if (msock < 0)
@@ -315,7 +315,7 @@ int main(int argc, char **argv)
 		return -msock;
 	}
 
-	syslog(2, "Listening on socket %d", msock);
+	syslog(LOG_INFO, "Listening on socket %d", msock);
 	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&SessionListMutex, NULL);

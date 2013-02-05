@@ -98,7 +98,7 @@ int ical_ctdl_is_overlap(
 		return(1);
 	}
 
-	/* syslog(9, "Comparing t1start %d:%d t1end %d:%d t2start %d:%d t2end %d:%d \n",
+	/* syslog(LOG_DEBUG, "Comparing t1start %d:%d t1end %d:%d t2start %d:%d t2end %d:%d \n",
 		t1start.hour, t1start.minute, t1end.hour, t1end.minute,
 		t2start.hour, t2start.minute, t2end.hour, t2end.minute);
 	*/
@@ -107,11 +107,11 @@ int ical_ctdl_is_overlap(
 
 	/* If event 1 ends before event 2 starts, we're in the clear. */
 	if (icaltime_compare(t1end, t2start) <= 0) return(0);
-	/* syslog(9, "first passed\n"); */
+	/* syslog(LOG_DEBUG, "first passed\n"); */
 
 	/* If event 2 ends before event 1 starts, we're also ok. */
 	if (icaltime_compare(t2end, t1start) <= 0) return(0);
-	/* syslog(9, "second passed\n"); */
+	/* syslog(LOG_DEBUG, "second passed\n"); */
 
 	/* Otherwise, they overlap. */
 	return(1);

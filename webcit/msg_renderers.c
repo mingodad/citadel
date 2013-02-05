@@ -882,7 +882,7 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 				Hdr = (headereval*)vHdr;
 				Hdr->evaluator(Msg, Value, FoundCharset);
 			}
-			else syslog(1, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
+			else syslog(LOG_WARNING, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
 		}
 		FreeStrBuf(&Token);
 		FreeStrBuf(&Value);
@@ -1043,7 +1043,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		else {
 			ctdl_iconv_open("UTF-8", ChrPtr(cs), &ic);
 			if (ic == (iconv_t)(-1) ) {
-				syslog(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
+				syslog(LOG_WARNING, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
 					__FILE__, __LINE__, ChrPtr(Mime->Charset), strerror(errno));
 			}
 		}

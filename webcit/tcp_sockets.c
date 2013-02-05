@@ -25,7 +25,7 @@ long MaxRead = -1; /* should we do READ scattered or all at once? */
  */
 RETSIGTYPE timeout(int signum)
 {
-	syslog(1, "Connection timed out; unable to reach citserver\n");
+	syslog(LOG_WARNING, "Connection timed out; unable to reach citserver\n");
 	/* no exit here, since we need to server the connection unreachable thing. exit(3); */
 }
 
@@ -44,12 +44,12 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		syslog(1, "Can't create socket [%s]: %s\n", sockpath, strerror(errno));
+		syslog(LOG_WARNING, "Can't create socket [%s]: %s\n", sockpath, strerror(errno));
 		return(-1);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		syslog(1, "Can't connect [%s]: %s\n", sockpath, strerror(errno));
+		syslog(LOG_WARNING, "Can't connect [%s]: %s\n", sockpath, strerror(errno));
 		close(s);
 		return(-1);
 	}
@@ -75,7 +75,7 @@ int tcp_connectsock(char *host, char *service)
 	if ((service == NULL) || IsEmptyStr(service))
 		return (-1);
 
-	syslog(9, "tcp_connectsock(%s,%s)\n", host, service);
+	syslog(LOG_DEBUG, "tcp_connectsock(%s,%s)\n", host, service);
 
 	memset(&hints, 0x00, sizeof(hints));
 	hints.ai_flags = AI_NUMERICSERV;
@@ -101,7 +101,7 @@ int tcp_connectsock(char *host, char *service)
 
 	rc = getaddrinfo(host, service, &hints, &res);
 	if (rc != 0) {
-		syslog(1, "%s: %s\n", host, gai_strerror(rc));
+		syslog(LOG_DEBUG, "%s: %s\n", host, gai_strerror(rc));
 		freeaddrinfo(res);
 		return(-1);
 	}
@@ -111,13 +111,13 @@ int tcp_connectsock(char *host, char *service)
 	 */
 	for (ai = res; ai != NULL; ai = ai->ai_next) {
 
-		if (ai->ai_family == AF_INET) syslog(9, "Trying IPv4\n");
-		else if (ai->ai_family == AF_INET6) syslog(9, "Trying IPv6\n");
-		else syslog(9, "This is going to fail.\n");
+		if (ai->ai_family == AF_INET) syslog(LOG_DEBUG, "Trying IPv4\n");
+		else if (ai->ai_family == AF_INET6) syslog(LOG_DEBUG, "Trying IPv6\n");
+		else syslog(LOG_WARNING, "This is going to fail.\n");
 
 		s = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (s < 0) {
-			syslog(1, "socket() failed: %s\n", strerror(errno));
+			syslog(LOG_WARNING, "socket() failed: %s\n", strerror(errno));
 			freeaddrinfo(res);
 			return(-1);
 		}
@@ -127,7 +127,7 @@ int tcp_connectsock(char *host, char *service)
 			return(s);
 		}
 		else {
-			syslog(1, "connect() failed: %s\n", strerror(errno));
+			syslog(LOG_WARNING, "connect() failed: %s\n", strerror(errno));
 			close(s);
 		}
 	}
@@ -153,7 +153,7 @@ int serv_getln(char *strbuf, int bufsize)
 	FlushStrBuf(WCC->MigrateReadLineBuf);
 	strbuf[len] = '\0';
 #ifdef SERV_TRACE
-	syslog(9, "%3d<<<%s\n", WC->serv_sock, strbuf);
+	syslog(LOG_DEBUG, "%3d<<<%s\n", WC->serv_sock, strbuf);
 #endif
 	return len;
 }
@@ -177,9 +177,9 @@ int StrBuf_ServGetln(StrBuf *buf)
 					       &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "StrBuf_ServGetln(): Server connection broken: %s\n",
+		syslog(LOG_INFO, "StrBuf_ServGetln(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
-		wc_backtrace();
+		wc_backtrace(LOG_INFO);
 		if (WCC->serv_sock > 0) close(WCC->serv_sock);
 		WCC->serv_sock = (-1);
 		WCC->connected = 0;
@@ -191,7 +191,7 @@ int StrBuf_ServGetln(StrBuf *buf)
 		long pos = 0;
 		if (WCC->ReadPos != NULL)
 			pos = WCC->ReadPos - ChrPtr(WCC->ReadBuf);
-		syslog(9, "%3d<<<[%ld]%s\n", WC->serv_sock, pos, ChrPtr(buf));
+		syslog(LOG_DEBUG, "%3d<<<[%ld]%s\n", WC->serv_sock, pos, ChrPtr(buf));
 	}
 #endif
 	return rc;
@@ -213,9 +213,9 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 				    &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "StrBuf_ServGetBLOBBuffered(): Server connection broken: %s\n",
+		syslog(LOG_INFO, "StrBuf_ServGetBLOBBuffered(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
-		wc_backtrace();
+		wc_backtrace(LOG_INFO);
 		if (WCC->serv_sock > 0) close(WCC->serv_sock);
 		WCC->serv_sock = (-1);
 		WCC->connected = 0;
@@ -223,7 +223,7 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 	}
 #ifdef SERV_TRACE
         else
-                syslog(9, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
+                syslog(LOG_DEBUG, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
 #endif
 
 	return rc;
@@ -239,9 +239,9 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	rc = StrBufReadBLOB(buf, &WCC->serv_sock, 1, BlobSize, &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "StrBuf_ServGetBLOB(): Server connection broken: %s\n",
+		syslog(LOG_INFO, "StrBuf_ServGetBLOB(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
-		wc_backtrace();
+		wc_backtrace(LOG_INFO);
 		if (WCC->serv_sock > 0) close(WCC->serv_sock);
 		WCC->serv_sock = (-1);
 		WCC->connected = 0;
@@ -249,7 +249,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	}
 #ifdef SERV_TRACE
         else
-                syslog(9, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
+                syslog(LOG_DEBUG, "%3d<<<BLOB: %d bytes\n", WC->serv_sock, StrLength(buf));
 #endif
 
 	return rc;
@@ -273,12 +273,12 @@ void FlushReadBuf (void)
 		pche = pch + len;
 		if (WCC->ReadPos != pche)
 		{
-			syslog(1,
+			syslog(LOG_EMERG,
 				"ERROR: somebody didn't eat his soup! Remaing Chars: %ld [%s]\n", 
 				(long)(pche - WCC->ReadPos),
 				pche
 			);
-			syslog(1, 
+			syslog(LOG_EMERG, 
 				"--------------------------------------------------------------------------------\n"
 				"Whole buf: [%s]\n"
 				"--------------------------------------------------------------------------------\n", 
@@ -311,7 +311,7 @@ int serv_write(const char *buf, int nbytes)
 			       nbytes - bytes_written);
 		if (retval < 1) {
 			const char *ErrStr = strerror(errno);
-			syslog(1, "serv_write(): Server connection broken: %s\n",
+			syslog(LOG_INFO, "serv_write(): Server connection broken: %s\n",
 				(ErrStr)?ErrStr:"");
 			if (WCC->serv_sock > 0) close(WCC->serv_sock);
 			WCC->serv_sock = (-1);
@@ -332,7 +332,7 @@ int serv_write(const char *buf, int nbytes)
 int serv_puts(const char *string)
 {
 #ifdef SERV_TRACE
-	syslog(9, "%3d>>>%s\n", WC->serv_sock, string);
+	syslog(LOG_DEBUG, "%3d>>>%s\n", WC->serv_sock, string);
 #endif
 	FlushReadBuf();
 
@@ -348,7 +348,7 @@ int serv_puts(const char *string)
 int serv_putbuf(const StrBuf *string)
 {
 #ifdef SERV_TRACE
-	syslog(9, "%3d>>>%s\n", WC->serv_sock, ChrPtr(string));
+	syslog(LOG_DEBUG, "%3d>>>%s\n", WC->serv_sock, ChrPtr(string));
 #endif
 	FlushReadBuf();
 
@@ -381,7 +381,7 @@ int serv_printf(const char *format,...)
 	buf[len] = '\0';
 	rc = serv_write(buf, len);
 #ifdef SERV_TRACE
-	syslog(9, ">>>%s", buf);
+	syslog(LOG_DEBUG, ">>>%s", buf);
 #endif
 	return rc;
 }
@@ -420,8 +420,8 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 			this_block = StrTol(Buf);
 			rc = StrBuf_ServGetBLOBBuffered(Ret, this_block);
 			if (rc < 0) {
-				syslog(1, "Server connection broken during download\n");
-				wc_backtrace();
+				syslog(LOG_INFO, "Server connection broken during download\n");
+				wc_backtrace(LOG_INFO);
 				if (WCC->serv_sock > 0) close(WCC->serv_sock);
 				WCC->serv_sock = (-1);
 				WCC->connected = 0;
@@ -545,7 +545,7 @@ retry:
 	{
 		ip_version = 4;
 		if (inet_pton(AF_INET, ip_addr, &sin4.sin_addr) <= 0) {
-			syslog(1, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
+			syslog(LOG_WARNING, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
 			return (-WC_EXIT_BIND);
 		}
 	}
@@ -553,13 +553,13 @@ retry:
 	{
 		ip_version = 6;
 		if (inet_pton(AF_INET6, ip_addr, &sin6.sin6_addr) <= 0) {
-			syslog(1, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
+			syslog(LOG_WARNING, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
 			return (-WC_EXIT_BIND);
 		}
 	}
 
 	if (port_number == 0) {
-		syslog(1, "Cannot start: no port number specified.\n");
+		syslog(LOG_WARNING, "Cannot start: no port number specified.\n");
 		return (-WC_EXIT_BIND);
 	}
 	sin6.sin6_port = htons((u_short) port_number);
@@ -569,12 +569,15 @@ retry:
 
 	s = socket( ((ip_version == 6) ? PF_INET6 : PF_INET), SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
+<<<<<<< HEAD
 		if (IsDefault && (errno == EAFNOSUPPORT))
 		{
 			s = 0;
 			ip_addr = ipv4broadcast;
 			goto retry;
 		}
+=======
+>>>>>>> 156d3ea... SYSLOG: more places to correct the loglevel parameters.
 		syslog(LOG_WARNING, "Can't create a listening socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
@@ -590,13 +593,13 @@ retry:
 	}
 
 	if (b < 0) {
-		syslog(1, "Can't bind: %s\n", strerror(errno));
+		syslog(LOG_EMERG, "Can't bind: %s\n", strerror(errno));
 		close(s);
 		return (-WC_EXIT_BIND);
 	}
 
 	if (listen(s, queue_len) < 0) {
-		syslog(1, "Can't listen: %s\n", strerror(errno));
+		syslog(LOG_EMERG, "Can't listen: %s\n", strerror(errno));
 		close(s);
 		return (-WC_EXIT_BIND);
 	}
@@ -621,7 +624,7 @@ int webcit_uds_server(char *sockpath, int queue_len)
 
 	i = unlink(sockpath);
 	if ((i != 0) && (errno != ENOENT)) {
-		syslog(1, "webcit: can't unlink %s: %s\n",
+		syslog(LOG_WARNING, "webcit: can't unlink %s: %s\n",
 			sockpath, strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
@@ -632,18 +635,18 @@ int webcit_uds_server(char *sockpath, int queue_len)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		syslog(1, "webcit: Can't create a unix domain socket: %s\n", strerror(errno));
+		syslog(LOG_WARNING, "webcit: Can't create a unix domain socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		syslog(1, "webcit: Can't bind: %s\n", strerror(errno));
+		syslog(LOG_WARNING, "webcit: Can't bind: %s\n", strerror(errno));
 		close(s);
 		return (-WC_EXIT_BIND);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		syslog(1, "webcit: Can't listen: %s\n", strerror(errno));
+		syslog(LOG_WARNING, "webcit: Can't listen: %s\n", strerror(errno));
 		close(s);
 		return (-WC_EXIT_BIND);
 	}
@@ -703,7 +706,7 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 				return 1;
 			}
 			else {
-				syslog(2, "client_read_ssl() failed\n");
+				syslog(LOG_INFO, "client_read_ssl() failed\n");
 				return -1;
 			}
 		}
@@ -721,9 +724,9 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 					O_TERM,
 					&Error);
 	if (retval < 0) {
-		syslog(2, "client_read() failed: %s\n",
+		syslog(LOG_INFO, "client_read() failed: %s\n",
 			Error);
-		wc_backtrace();
+		wc_backtrace(LOG_DEBUG);
 		return retval;
 	}
 
@@ -760,7 +763,7 @@ long end_burst(void)
 			hprintf("Content-encoding: gzip\r\n");
 		else {
 			syslog(LOG_ALERT, "Compression failed: %d [%s] sending uncompressed\n", errno, strerror(errno));
-			wc_backtrace();
+			wc_backtrace(LOG_INFO);
 		}
 	}
 
@@ -794,7 +797,7 @@ long end_burst(void)
                         FD_ZERO(&wset);
                         FD_SET(WCC->Hdr->http_sock, &wset);
                         if (select(WCC->Hdr->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
-                                syslog(2, "client_write: Socket select failed (%s)\n", strerror(errno));
+                                syslog(LOG_DEBUG, "client_write: Socket select failed (%s)\n", strerror(errno));
                                 return -1;
                         }
                 }
@@ -803,8 +806,8 @@ long end_burst(void)
 		    (res = write(WCC->Hdr->http_sock, 
 				 ptr,
 				 count)) == -1) {
-                        syslog(2, "client_write: Socket write failed (%s)\n", strerror(errno));
-		        wc_backtrace();
+                        syslog(LOG_DEBUG, "client_write: Socket write failed (%s)\n", strerror(errno));
+		        wc_backtrace(LOG_INFO);
                         return res;
                 }
                 count -= res;
@@ -820,7 +823,7 @@ long end_burst(void)
                         FD_ZERO(&wset);
                         FD_SET(WCC->Hdr->http_sock, &wset);
                         if (select(WCC->Hdr->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
-                                syslog(2, "client_write: Socket select failed (%s)\n", strerror(errno));
+                                syslog(LOG_INFO, "client_write: Socket select failed (%s)\n", strerror(errno));
                                 return -1;
                         }
                 }
@@ -829,8 +832,8 @@ long end_burst(void)
 		    (res = write(WCC->Hdr->http_sock, 
 				 ptr,
 				 count)) == -1) {
-                        syslog(2, "client_write: Socket write failed (%s)\n", strerror(errno));
-			wc_backtrace();
+                        syslog(LOG_INFO, "client_write: Socket write failed (%s)\n", strerror(errno));
+			wc_backtrace(LOG_INFO);
                         return res;
                 }
                 count -= res;

@@ -27,5 +27,5 @@ void locate_host(StrBuf *tbuf, int client_socket)
 	getpeername(client_socket, (struct sockaddr *)&clientaddr, &addrlen);
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen, clienthost, sizeof(clienthost), NULL, 0, 0);
         StrBufAppendBufPlain(tbuf, clienthost, -1, 0);
-	syslog(9, "Client is at %s\n", clienthost);
+	syslog(LOG_DEBUG, "Client is at %s\n", clienthost);
 }

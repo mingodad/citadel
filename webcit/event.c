@@ -93,7 +93,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	get_pref_long("weekstart", &weekstart, 17);
 	if (weekstart > 6) weekstart = 0;
 
-	syslog(9, "display_edit_individual_event(%ld) calview=%s year=%s month=%s day=%s\n",
+	syslog(LOG_DEBUG, "display_edit_individual_event(%ld) calview=%s year=%s month=%s day=%s\n",
 		msgnum, bstr("calview"), bstr("year"), bstr("month"), bstr("day")
 	);
 

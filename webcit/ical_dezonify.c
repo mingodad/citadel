@@ -24,11 +24,11 @@ icaltimezone *get_default_icaltimezone(void) {
                 zone = icaltimezone_get_builtin_timezone(default_zone_name);
         }
         if (!zone) {
-		syslog(1, "Unable to load '%s' time zone.  Defaulting to UTC.\n", default_zone_name);
+		syslog(LOG_WARNING, "Unable to load '%s' time zone.  Defaulting to UTC.\n", default_zone_name);
                 zone = icaltimezone_get_utc_timezone();
 	}
 	if (!zone) {
-		syslog(1, "Unable to load UTC time zone!\n");
+		syslog(LOG_EMERG, "Unable to load UTC time zone!\n");
 	}
         return zone;
 }
@@ -64,19 +64,19 @@ void ical_dezonify_backend(icalcomponent *cal,
 		/* Convert it to an icaltimezone type. */
 		if (tzid != NULL) {
 #ifdef DBG_ICAL
-			syslog(9, "                * Stringy supplied timezone is: '%s'\n", tzid);
+			syslog(LOG_DEBUG, "                * Stringy supplied timezone is: '%s'\n", tzid);
 #endif
 			if ( (!strcasecmp(tzid, "UTC")) || (!strcasecmp(tzid, "GMT")) ) {
 				utc_declared_as_tzid = 1;
 #ifdef DBG_ICAL
-				syslog(9, "                * ...and we handle that internally.\n");
+				syslog(LOG_DEBUG, "                * ...and we handle that internally.\n");
 #endif
 			}
 			else {
 				/* try attached first */
 				t = icalcomponent_get_timezone(cal, tzid);
 #ifdef DBG_ICAL
-				syslog(9, "                * ...and I %s have tzdata for that zone.\n",
+				syslog(LOG_DEBUG, "                * ...and I %s have tzdata for that zone.\n",
 					(t ? "DO" : "DO NOT")
 				);
 #endif
@@ -85,7 +85,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 					t = icaltimezone_get_builtin_timezone(tzid);
 #ifdef DBG_ICAL
 					if (t) {
-						syslog(9, "                * Using system tzdata!\n");
+						syslog(LOG_DEBUG, "                * Using system tzdata!\n");
 					}
 #endif
 				}
@@ -113,18 +113,18 @@ void ical_dezonify_backend(icalcomponent *cal,
 	}
 
 #ifdef DBG_ICAL
-	syslog(9, "                * Was: %s\n", icaltime_as_ical_string(TheTime));
+	syslog(LOG_DEBUG, "                * Was: %s\n", icaltime_as_ical_string(TheTime));
 #endif
 
 	if (TheTime.is_utc) {
 #ifdef DBG_ICAL
-		syslog(9, "                * This property is ALREADY UTC.\n");
+		syslog(LOG_DEBUG, "                * This property is ALREADY UTC.\n");
 #endif
 	}
 
 	else if (utc_declared_as_tzid) {
 #ifdef DBG_ICAL
-		syslog(9, "                * Replacing '%s' TZID with 'Z' suffix.\n", tzid);
+		syslog(LOG_DEBUG, "                * Replacing '%s' TZID with 'Z' suffix.\n", tzid);
 #endif
 		TheTime.is_utc = 1;
 	}
@@ -133,12 +133,12 @@ void ical_dezonify_backend(icalcomponent *cal,
 		/* Do the conversion. */
 		if (t != NULL) {
 #ifdef DBG_ICAL
-			syslog(9, "                * Timezone prop found.  Converting to UTC.\n");
+			syslog(LOG_DEBUG, "                * Timezone prop found.  Converting to UTC.\n");
 #endif
 		}
 		else {
 #ifdef DBG_ICAL
-			syslog(9, "                * Converting default timezone to UTC.\n");
+			syslog(LOG_DEBUG, "                * Converting default timezone to UTC.\n");
 #endif
 		}
 
@@ -151,7 +151,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
 #ifdef DBG_ICAL
-	syslog(9, "                * Now: %s\n", icaltime_as_ical_string(TheTime));
+	syslog(LOG_DEBUG, "                * Now: %s\n", icaltime_as_ical_string(TheTime));
 #endif
 
 	/* Now add the converted property back in. */
@@ -219,7 +219,7 @@ void ical_dezonify(icalcomponent *cal) {
 	icalcomponent *vt = NULL;
 
 #ifdef DBG_ICAL
-	syslog(9, "ical_dezonify() started\n");
+	syslog(LOG_DEBUG, "ical_dezonify() started\n");
 #endif
 
 	/* Convert all times to UTC */
@@ -233,7 +233,7 @@ void ical_dezonify(icalcomponent *cal) {
 	}
 
 #ifdef DBG_ICAL
-	syslog(9, "ical_dezonify() completed\n");
+	syslog(LOG_DEBUG, "ical_dezonify() completed\n");
 #endif
 }
 

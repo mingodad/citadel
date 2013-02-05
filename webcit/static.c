@@ -59,7 +59,7 @@ unsigned char OnePixelGif[37] = {
 HashList *StaticFilemappings[4] = {NULL, NULL, NULL, NULL};
 /*
   {
-  syslog(9, "Suspicious request. Ignoring.");
+  syslog(LOG_DEBUG, "Suspicious request. Ignoring.");
   hprintf("HTTP/1.1 404 Security check failed\r\n");
   hprintf("Content-Type: text/plain\r\n\r\n");
   wc_printf("You have sent a malformed or invalid request.\r\n");
@@ -94,7 +94,7 @@ void output_static(const char *what)
 	content_type = GuessMimeByFilename(what, len);
 	fd = open(what, O_RDONLY);
 	if (fd <= 0) {
-		syslog(9, "output_static('%s') [%s]  -- NOT FOUND --\n", what, ChrPtr(WC->Hdr->this_page));
+		syslog(LOG_INFO, "output_static('%s') [%s]  -- NOT FOUND --\n", what, ChrPtr(WC->Hdr->this_page));
 		if (strstr(content_type, "image/") != NULL)
 		{
 			output_error_pic("the file you requsted is gone.", strerror(errno));
@@ -109,7 +109,7 @@ void output_static(const char *what)
 		}
 	} else {
 		if (fstat(fd, &statbuf) == -1) {
-			syslog(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
+			syslog(LOG_INFO, "output_static('%s')  -- FSTAT FAILED --\n", what);
 			if (strstr(content_type, "image/") != NULL)
 			{
 				output_error_pic("Stat failed!", strerror(errno));
@@ -131,7 +131,7 @@ void output_static(const char *what)
 		if (StrBufReadBLOB(WC->WBuf, &fd, 1, bytes, &Err) < 0)
 		{
 			if (fd > 0) close(fd);
-			syslog(9, "output_static('%s')  -- FREAD FAILED (%s) --\n", what, strerror(errno));
+			syslog(LOG_INFO, "output_static('%s')  -- FREAD FAILED (%s) --\n", what, strerror(errno));
 				hprintf("HTTP/1.1 500 internal server error \r\n");
 				hprintf("Content-Type: text/plain\r\n");
 				end_burst();
@@ -254,7 +254,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			StrBufAppendBufPlain(OneWebName, filedir_entry->d_name, d_namelen, 0);
 
 			Put(DirList, SKEY(OneWebName), FileName, HFreeStrBuf);
-			/* syslog(9, "[%s | %s]\n", ChrPtr(OneWebName), ChrPtr(FileName)); */
+			/* syslog(LOG_DEBUG, "[%s | %s]\n", ChrPtr(OneWebName), ChrPtr(FileName)); */
 			break;
 		default:
 			break;
@@ -301,7 +301,7 @@ void output_static_safe(HashList *DirList)
 		output_static(ChrPtr(File));
 	}
 	else {
-		syslog(1, "output_static_safe() file %s not found. \n", 
+		syslog(LOG_INFO, "output_static_safe() file %s not found. \n", 
 			ChrPtr(WCC->Hdr->HR.ReqLine));
 		MimeType =  GuessMimeByFilename(SKEY(WCC->Hdr->HR.ReqLine));
 		if (strstr(MimeType, "image/") != NULL)

@@ -67,7 +67,7 @@ void _DBG_QR(long QR)
 		i = i << 1;
 		j++;
 	}
-	syslog(9, "DBG: QR-Vec [%ld] [%s]\n", QR, ChrPtr(QRVec));
+	syslog(LOG_DEBUG, "DBG: QR-Vec [%ld] [%s]\n", QR, ChrPtr(QRVec));
 	FreeStrBuf(&QRVec);
 }
 
@@ -90,7 +90,7 @@ void _DBG_QR2(long QR2)
 		i = i << 1;
 		j++;
 	}
-	syslog(9, "DBG: QR2-Vec [%ld] [%s]\n", QR2, ChrPtr(QR2Vec));
+	syslog(LOG_DEBUG, "DBG: QR2-Vec [%ld] [%s]\n", QR2, ChrPtr(QR2Vec));
 	FreeStrBuf(&QR2Vec);
 }
 
