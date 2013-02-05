@@ -64,6 +64,7 @@ void do_housekeeping(void)
 	 * Lock the session list, moving any candidates for euthanasia into
 	 * a separate list.
 	 */
+	the_time = 0;
 	CtdlLogResult(pthread_mutex_lock(&SessionListMutex));
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 		if (the_time == 0)
@@ -212,6 +213,7 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	memset(TheSession, 0, sizeof(wcsession));
 	TheSession->Hdr = Hdr;
 	TheSession->serv_sock = (-1);
+	TheSession->lastreq = time(NULL);;
 
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
@@ -492,6 +494,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	struct timeval tx_start;
 	struct timeval tx_finish;
 	int session_may_be_reused = 1;
+	time_t now;
 	
 	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
 
@@ -589,11 +592,12 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * Bind to the session and perform the transaction
 	 */
+	now = time(NULL);;
 	CtdlLogResult(pthread_mutex_lock(&TheSession->SessionMutex));
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
-	TheSession->inuse = 1;					/* mark the session as bound */
-	TheSession->lastreq = time(NULL);			/* log */
+	TheSession->inuse = 1;				/* mark the session as bound */
+	TheSession->lastreq = now;			/* log */
 	TheSession->Hdr = Hdr;
 
 	/*
