@@ -233,7 +233,7 @@ void http_redirect(const char *whichpage) {
  */
 void http_transmit_thing(const char *content_type, int is_static)
 {
-	syslog(9, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
+	syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
 
 	hprintf("Content-type: %s\r\n"
