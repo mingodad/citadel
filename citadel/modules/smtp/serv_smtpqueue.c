@@ -1005,7 +1005,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 							 n,
 							 RelayUrls);
 
-				if (KeepBuffers) HaveBuffers = 1;
+				if (KeepBuffers) HaveBuffers++;
 
 				i++;
 			}
@@ -1047,7 +1047,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 							 n,
 							 RelayUrls);
 
-				if (KeepBuffers) HaveBuffers = 1;
+				if (KeepBuffers) HaveBuffers++;
 
 				i++;
 			}
