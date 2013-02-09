@@ -31,6 +31,12 @@
 #define SIZE_T_FMT "%ld"
 #endif
 
+#if SIZEOF_LOFF_T == SIZEOF_LONG 
+#define LOFF_T_FMT "%ld"
+#else
+#define LOFF_T_FMT "%lld"
+#endif
+
 void cputbuf(const StrBuf *Buf);
 
 #ifdef __GNUC__

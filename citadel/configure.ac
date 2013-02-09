@@ -406,6 +406,7 @@ AC_CHECK_SIZEOF(short, 0)
 AC_CHECK_SIZEOF(int, 0)
 AC_CHECK_SIZEOF(long, 0)
 AC_CHECK_SIZEOF(size_t, 0)
+AC_CHECK_SIZEOF(loff_t, 0)
 dnl AC_CHECK_SIZEOF(long long, 0)
 
 dnl Checks for libraries.

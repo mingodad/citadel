@@ -378,7 +378,7 @@ eNextState NWC_SendREAD(AsyncNetworker *NW)
 			SetNWCState(IO, eNWCVSFail);
 			return eAbort;
 		}
-		StrBufPrintf(NW->IO.SendBuf.Buf, "READ %ld|%ld\n",
+		StrBufPrintf(NW->IO.SendBuf.Buf, "READ "LOFF_T_FMT"|%ld\n",
 			     NW->IO.IOB.TotalSentAlready,
 			     NW->IO.IOB.TotalSendSize);
 /*
@@ -561,7 +561,7 @@ eNextState NWC_ReadNUOPReply(AsyncNetworker *NW)
 eNextState NWC_SendWRIT(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
-	StrBufPrintf(NW->IO.SendBuf.Buf, "WRIT %ld\n", 
+	StrBufPrintf(NW->IO.SendBuf.Buf, "WRIT "LOFF_T_FMT"\n", 
 		     NW->IO.IOB.TotalSendSize - NW->IO.IOB.TotalSentAlready);
 	NWC_DBG_SEND();
 	return eSendReply;
