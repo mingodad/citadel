@@ -843,7 +843,6 @@ int CtdlNetconfigCheckRoomaccess(
 	const char* RemoteIdentifier)
 {
 	OneRoomNetCfg *RNCfg;
-	char filename[SIZ];
 	int found;
 
 	if (RemoteIdentifier == NULL)
@@ -852,18 +851,18 @@ int CtdlNetconfigCheckRoomaccess(
 		return (ERROR + USERNAME_REQUIRED);
 	}
 
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 	begin_critical_section(S_NETCONFIGS);
-	if (!ReadRoomNetConfigFile(&RNCfg, filename))
+	RNCfg = CtdlGetNetCfgForRoom (CC->room.QRnumber);
+	if (RNCfg == NULL)
 	{
 		end_critical_section(S_NETCONFIGS);
 		snprintf(errmsgbuf, n,
 			 "This mailing list only accepts posts from subscribers.");
 		return (ERROR + NO_SUCH_USER);
 	}
-	end_critical_section(S_NETCONFIGS);
 	found = is_recipient (RNCfg, RemoteIdentifier);
-	vFreeRoomNetworkStruct(&RNCfg);
+	end_critical_section(S_NETCONFIGS);
+
 	if (found) {
 		return (0);
 	}
