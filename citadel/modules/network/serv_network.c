@@ -272,8 +272,11 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, OneRoom
 
 	ptr = CreateRoomProcListEntry(qrbuf, OneRNCfg);
 
-	ptr->next = RP->rplist;
-	RP->rplist = ptr;
+	if (ptr != NULL)
+	{
+		ptr->next = RP->rplist;
+		RP->rplist = ptr;
+	}
 }
 
 /*
