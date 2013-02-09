@@ -82,8 +82,9 @@
 
 void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName);
 
-void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRNCfg)
+void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRNCfg, long nSegments)
 {
+	int i;
 	size_t recps_len = 0;
 	RoomNetCfgLine *nptr;
 	struct CitContext *CCC = CC;
@@ -112,7 +113,8 @@ void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRN
 	/* Each recipient */
 	for (nptr = OneRNCfg->NetConfigs[Which]; nptr != NULL; nptr = nptr->next) {
 		if (nptr != OneRNCfg->NetConfigs[Which]) {
-			StrBufAppendBufPlain(*recps, HKEY(","), 0);
+			for (i = 0; i < nSegments; i++)
+				StrBufAppendBufPlain(*recps, HKEY(","), i);
 		}
 		StrBufAppendBuf(*recps, nptr->Value[0], 0);
 	}
@@ -127,7 +129,6 @@ void network_deliver_digest(SpoolControl *sc)
 	int i;
 	struct CtdlMessage *msg = NULL;
 	long msglen;
-	StrBuf *recps = NULL;
 	struct recptypes *valid;
 	char bounce_to[256];
 
@@ -185,7 +186,6 @@ void network_deliver_digest(SpoolControl *sc)
 	/* Now generate the delivery instructions */
 	if (sc->Users[listrecp] == NULL)
 		return;
-	aggregate_recipients(&recps, digestrecp, sc->RNCfg);
 
 	/* Where do we want bounces and other noise to be heard?
 	 *Surely not the list members! */
@@ -499,6 +499,7 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long *delete_after_send)
 {
 	StrBuf *Recipient;
+	StrBuf *RemoteRoom;
 	const char *Pos = NULL;
 	struct CtdlMessage *msg = NULL;
 	struct CitContext *CCC = CC;
@@ -548,9 +549,11 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 
 	/* Now send it to every node */
 	Recipient = NewStrBufPlain(NULL, StrLength(sc->Users[ignet_push_share]));
+	RemoteRoom = NewStrBufPlain(NULL, StrLength(sc->Users[ignet_push_share]));
 	while ((Pos != StrBufNOTNULL) &&
-	       StrBufExtract_NextToken(Recipient, sc->Users[ignet_push_share], &Pos, '|'))
+	       StrBufExtract_NextToken(Recipient, sc->Users[ignet_push_share], &Pos, ','))
 	{
+		StrBufExtract_NextToken(RemoteRoom, sc->Users[ignet_push_share], &Pos, ',');
 		send = 1;
 		NewStrBufDupAppendFlush(&Buf, Recipient, NULL, 1);
 			
@@ -603,9 +606,9 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 			if (msg->cm_fields['C'] != NULL) {
 				free(msg->cm_fields['C']);
 			}
-			if (StrLength(Recipient) > 0) {
+			if (StrLength(RemoteRoom) > 0) {
 				msg->cm_fields['C'] =
-					strdup(ChrPtr(Recipient));
+					strdup(ChrPtr(RemoteRoom));
 			}
 			else {
 				msg->cm_fields['C'] =
@@ -650,6 +653,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	}
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&Recipient);
+	FreeStrBuf(&RemoteRoom);
 	CtdlFreeMessage(msg);
 }
 

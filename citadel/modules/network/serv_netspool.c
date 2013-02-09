@@ -142,13 +142,16 @@ void DeleteLastSent(const CfgLineType *ThisOne, RoomNetCfgLine **data)
 	*data = NULL;
 }
 
-RoomNetCfg SpoolCfgs [4] = {
+static const RoomNetCfg SpoolCfgs [4] = {
 	listrecp,
 	digestrecp,
 	participate,
 	ignet_push_share
 };
 
+static const long SpoolCfgsCopyN [4] = {
+	1, 1, 1, 2
+};
 
 int HaveSpoolConfig(OneRoomNetCfg* RNCfg)
 {
@@ -206,7 +209,10 @@ void InspectQueuedRoom(SpoolControl **pSC,
 
 	for (i=0; i < 4; i++)
 	{
-		aggregate_recipients(&sc->Users[SpoolCfgs[i]], SpoolCfgs[i], sc->RNCfg);
+		aggregate_recipients(&sc->Users[SpoolCfgs[i]],
+				     SpoolCfgs[i],
+				     sc->RNCfg,
+				     SpoolCfgsCopyN[i]);
 	}
 	
 	if (StrLength(sc->RNCfg->Sender) > 0)
