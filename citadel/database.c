@@ -89,6 +89,7 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 {
 	if (!IsEmptyStr(msg)) {
 		syslog(LOG_DEBUG, "DB: %s", msg);
+		cit_backtrace();
 	}
 }
 
@@ -97,6 +98,7 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 void cdb_verbose_err(const DB_ENV *dbenv, const char *errpfx, const char *msg)
 {
 	syslog(LOG_ALERT, "DB: %s", msg);
+	cit_backtrace();
 }
 
 
@@ -142,6 +144,7 @@ static void txbegin(DB_TXN ** tid)
 static void dbpanic(DB_ENV * env, int errval)
 {
 	syslog(LOG_EMERG, "bdb(): PANIC: %s", db_strerror(errval));
+	cit_backtrace();
 }
 
 static void cclose(DBC * cursor)
