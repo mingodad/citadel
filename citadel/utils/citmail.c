@@ -228,7 +228,9 @@ int main(int argc, char **argv) {
 		if (debug) fprintf(stderr, "citmail: error parsing hostname\n");
 		cleanup(3);
 	}
-	*ep = '\0';
+	else
+		*ep = '\0';
+
 	strncpy(hostname, sp, sizeof hostname);
 
 	snprintf(fromline, sizeof fromline, "From: %s@%s", pw->pw_name, hostname);
