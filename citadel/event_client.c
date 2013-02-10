@@ -1039,7 +1039,7 @@ void InitIOStruct(AsyncIO *IO,
 	IO->Data          = Data;
 
 	IO->CitContext    = CloneContext(CC);
-	IO->CitContext->session_specific_data = (char*) Data;
+	IO->CitContext->session_specific_data = Data;
 	IO->CitContext->IO = IO;
 
 	IO->NextState     = NextState;
@@ -1077,7 +1077,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 	IO->Data          = Data;
 
 	IO->CitContext    = CloneContext(CC);
-	IO->CitContext->session_specific_data = (char*) Data;
+	IO->CitContext->session_specific_data = Data;
 	IO->CitContext->IO = IO;
 
 	IO->SendDone      = SendDone;
