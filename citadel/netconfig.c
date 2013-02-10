@@ -165,7 +165,7 @@ int ReadRoomNetConfigFile(OneRoomNetCfg **pOneRNCfg, char *filename)
 	const CfgLineType *pCfg;
 	StrBuf *Line;
 	StrBuf *InStr;
-	OneRoomNetCfg *OneRNCfg;
+	OneRoomNetCfg *OneRNCfg = NULL;
 
 	fd = open(filename, O_NONBLOCK|O_RDONLY);
 	if (fd == -1) {
@@ -173,7 +173,10 @@ int ReadRoomNetConfigFile(OneRoomNetCfg **pOneRNCfg, char *filename)
 		return 0;
 	}
 	if (*pOneRNCfg != NULL)
+	{
 		OneRNCfg = *pOneRNCfg;
+		FreeRoomNetworkStructContent (OneRNCfg);
+	}
 	else
 		OneRNCfg = malloc(sizeof(OneRoomNetCfg));
 	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
