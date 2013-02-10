@@ -32,6 +32,7 @@
 
 
 void vFreeRoomNetworkStruct(void *vOneRoomNetCfg);
+void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg);
 
 HashList *CfgTypeHash = NULL;
 HashList *RoomConfigs = NULL;
