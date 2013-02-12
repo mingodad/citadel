@@ -579,6 +579,7 @@ void CtdlDestroyEVCleanupHooks(void)
 	{
 		MODM_syslog(LOG_DEBUG, "Destroyed cleanup function\n");
 		p = cur->next;
+		cur->h_function_pointer();
 		free(cur);
 		cur = p;
 	}

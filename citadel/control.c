@@ -826,7 +826,10 @@ void cmd_gvdn(char *argbuf)
 /*                      MODULE INITIALIZATION STUFF                          */
 /*****************************************************************************/
 
-
+void control_cleanup(void)
+{
+	DeleteHash(&CfgNameHash);
+}
 CTDL_MODULE_INIT(control)
 {
 	if (!threading) {
@@ -838,6 +841,8 @@ CTDL_MODULE_INIT(control)
 
 		CtdlRegisterProtoHook(cmd_gvdn, "GVDN", "get valid domain names");
 		CtdlRegisterProtoHook(cmd_conf, "CONF", "get/set system configuration");
+		CtdlRegisterCleanupHook(control_cleanup);
+
 	}
 	/* return our id for the Log */
 	return "control";

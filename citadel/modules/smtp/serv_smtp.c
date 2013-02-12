@@ -1007,6 +1007,7 @@ CTDL_MODULE_INIT(smtp)
 	if (!threading)
 	{
 		SMTPCmds = NewHash(1, NULL);
+		
 		RegisterSmtpCMD("AUTH", smtp_auth, 0);
 		RegisterSmtpCMD("DATA", smtp_data, 0);
 		RegisterSmtpCMD("HELO", smtp_hello, HELO);
@@ -1060,6 +1061,7 @@ CTDL_MODULE_INIT(smtp)
 					NULL,
 					CitadelServiceSMTP_LMTP_UNF);
 
+		CtdlRegisterCleanupHook(smtp_cleanup);
 		CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP, PRIO_STOP + 250);
 	}
 	
