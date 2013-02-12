@@ -134,7 +134,7 @@ struct CitContext {
 	int msg4_dont_decode;
 
 	/* Dynamically allocated session data */
-	char *session_specific_data;		/* Used by individual protocol modules */
+	void *session_specific_data;		/* Used by individual protocol modules */
 	struct cit_ical *CIT_ICAL;		/* calendaring data */
 	struct ma_info *ma;			/* multipart/alternative data */
 	const char *ServiceName;		/* readable purpose of this session */
