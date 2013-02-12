@@ -129,6 +129,8 @@ cat <<EOF >> $H_FILE
 EOF
 done
 
+grep CTDL_MODULE_UPGRADE *.c modules/*/*.c  |$SED 's;.*(\(.*\));\CTDL_MODULE_UPGRADE(\1)\;\n;' >> $H_FILE
+
 cat <<EOF >> $H_FILE
 
 
@@ -150,7 +152,7 @@ cat <<EOF  >$MOD_FILE
 SERV_MODULES = \\
 EOF
 
-echo modules/*/*.c | $SED "s;\.c ;.o \\\\\n;g" >> $MOD_FILE
+echo modules/*/*.c | $SED -e "s;\.c ;.o \\\\\n;g" -e "s;\.c;.o;" >> $MOD_FILE
 echo >> $MOD_FILE
 
 
@@ -169,7 +171,6 @@ cat <<EOF  >$SRC_FILE
 
 SOURCES = \\
 EOF
-
 
 echo modules/*/*.c | $SED "s;\.c ;.c \\\\\n;g" >> $SRC_FILE
 echo >> $SRC_FILE
@@ -213,7 +214,7 @@ EOF
 
 # Add this entry point to the .c file
 
-grep CTDL_MODULE_UPGRADE *.c modules/*/*.c  |$SED 's;.*(\(.*\));\tpMod = CTDL_UPGRADE_CALL(\1)\;\n\tMOD_syslog(LOG_INFO, "%s\\n", pmod)\;\n;' >> $U_FILE
+grep CTDL_MODULE_UPGRADE *.c modules/*/*.c  |$SED 's;.*(\(.*\));\tpMod = CTDL_UPGRADE_CALL(\1)\;\n\tMOD_syslog(LOG_INFO, "%s\\n", pMod)\;\n;' >> $U_FILE
 
 #close the upgrade file
 /usr/bin/printf "}\n" >> $U_FILE

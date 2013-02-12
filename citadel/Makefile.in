@@ -31,7 +31,6 @@ all: buildinfo $(TARGETS)
 EXEEXT=@EXEEXT@
 
 SERVER_TARGETS=citserver$(EXEEXT)
-SERV_MODULES= ical_dezonify.o
 
 include Make_modules
 
@@ -133,7 +132,7 @@ SERV_OBJS = server_main.o utillib/citadel_dirs.o event_client.o \
 	$(DATABASE:.c=.o) domain.o \
 	control.o config.o support.o room_ops.o \
 	file_ops.o msgbase.o euidindex.o \
-	locate_host.o housekeeping.o \
+	locate_host.o housekeeping.o ical_dezonify.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o threads.o context.o \
 	clientsocket.o modules_init.o modules_upgrade.o $(SERV_MODULES) \
