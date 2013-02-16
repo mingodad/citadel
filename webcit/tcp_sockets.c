@@ -532,6 +532,7 @@ retry:
 		|| (IsEmptyStr(ip_addr))
 		|| (!strcmp(ip_addr, "*"))
 	) {
+		IsDefault = 1;
 		ip_version = 6;
 		sin6.sin6_addr = in6addr_any;
 	}
