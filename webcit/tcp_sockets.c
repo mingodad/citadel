@@ -512,14 +512,17 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
  * port_number	port number to bind
  * queue_len	number of incoming connections to allow in the queue
  */
-int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
+int webcit_tcp_server(const char *ip_addr, int port_number, int queue_len)
 {
+	const char *ipv4broadcast = "0.0.0.0";
+	int IsDefault = 0;
 	struct protoent *p;
 	struct sockaddr_in6 sin6;
 	struct sockaddr_in sin4;
 	int s, i, b;
 	int ip_version = 6;
 
+retry:
 	memset(&sin6, 0, sizeof(sin6));
 	memset(&sin4, 0, sizeof(sin4));
 	sin6.sin6_family = AF_INET6;
@@ -566,7 +569,13 @@ int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	s = socket( ((ip_version == 6) ? PF_INET6 : PF_INET), SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
-		syslog(1, "Can't create a listening socket: %s\n", strerror(errno));
+		if (IsDefault && (errno == EAFNOSUPPORT))
+		{
+			s = 0;
+			ip_addr = ipv4broadcast;
+			goto retry;
+		}
+		syslog(LOG_WARNING, "Can't create a listening socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
 	/* Set some socket options that make sense. */
