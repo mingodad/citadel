@@ -223,6 +223,94 @@ void InspectQueuedRoom(SpoolControl **pSC,
 
 }
 
+void CalcListID(SpoolControl *sc)
+{
+	const char *err;
+	int fd;
+	struct CitContext *CCC = CC;
+	char filename[PATH_MAX];
+#define MAX_LISTIDLENGTH 150
+
+	assoc_file_name(filename, sizeof filename, &sc->room, ctdl_info_dir);
+	fd = open(filename, 0);
+
+	if (fd != 0) {
+		struct stat stbuf;
+
+		fstat(fd, &stbuf);
+		if (stbuf.st_size > 0)
+		{
+			sc->RoomInfo = NewStrBufPlain(NULL, stbuf.st_size + 1);
+			StrBufReadBLOB(sc->RoomInfo, &fd, 0, stbuf.st_size, &err);
+		}
+		close(fd);
+	}
+
+	sc->ListID = NewStrBufPlain(NULL, 1024);
+	if (StrLength(sc->RoomInfo) > 0)
+	{
+		const char *Pos = NULL;
+		StrBufSipLine(sc->ListID, sc->RoomInfo, &Pos);
+
+		if (StrLength(sc->ListID) > MAX_LISTIDLENGTH)
+		{
+			StrBufCutAt(sc->ListID, MAX_LISTIDLENGTH, NULL);
+			StrBufAppendBufPlain(sc->ListID, HKEY("..."), 0);
+		}
+		StrBufAsciify(sc->ListID, ' ');
+	}
+	else
+	{
+		StrBufAppendBufPlain(sc->ListID, CCC->room.QRname, -1, 0);
+	}
+
+	StrBufAppendBufPlain(sc->ListID, HKEY("<"), 0);
+
+	if (StrLength(sc->Users[roommailalias]) > 0)
+	{
+		long Pos;
+		const char *AtPos;
+
+		Pos = StrLength(sc->ListID);
+		StrBufAppendBuf(sc->ListID, sc->Users[roommailalias], 0);
+		AtPos = strchr(ChrPtr(sc->ListID) + Pos, '@');
+
+		if (AtPos != NULL)
+		{
+			StrBufPeek(sc->ListID, AtPos, 0, '.');
+		}
+	}
+	else
+	{
+		StrBufAppendBufPlain(sc->ListID, HKEY("room_"), 0);
+		StrBufAppendBufPlain(sc->ListID, sc->room.QRname, -1, 0);
+		StrBufAppendBufPlain(sc->ListID, HKEY("."), 0);
+		StrBufAppendBufPlain(sc->ListID, config.c_fqdn, -1, 0);
+		/*
+		 * this used to be:
+		 * roomname <Room-Number.list-id.fqdn>
+		 * according to rfc2919.txt it only has to be a uniq identifier
+		 * under the domain of the system; 
+		 * in general MUAs use it to calculate the reply address nowadays.
+		 */
+	}
+	StrBufAppendBufPlain(sc->ListID, HKEY(">"), 0);
+
+	if (StrLength(sc->Users[roommailalias]) == 0)
+	{
+		sc->Users[roommailalias] = NewStrBuf();
+		
+		StrBufPrintf(sc->Users[roommailalias],
+			     "room_%s@%s",
+			     CCC->room.QRname,
+			     config.c_fqdn);
+
+		StrBufAsciify(sc->Users[roommailalias], '_');
+		StrBufLowerCase(sc->Users[roommailalias]);
+	}
+
+}
+
 
 /*
  * Batch up and send all outbound traffic from the current room
@@ -248,6 +336,8 @@ void network_spoolout_room(SpoolControl *sc)
 		sc->digestfp = tmpfile();
 		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 	}
+
+	CalcListID(sc);
 
 	/* remember where we started... */
 	lastsent = sc->lastsent;
