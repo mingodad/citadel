@@ -176,7 +176,7 @@ int network_sync_to(char *target_node, long len)
 	pCfgLine = pRNCFG->NetConfigs[ignet_push_share];
 	while (pCfgLine != NULL)
 	{
-		if (strcmp(ChrPtr(pCfgLine->Value[0]), target_node))
+		if (!strcmp(ChrPtr(pCfgLine->Value[0]), target_node))
 			break;
 		pCfgLine = pCfgLine->next;
 	}
@@ -189,12 +189,12 @@ int network_sync_to(char *target_node, long len)
 	sc.RNCfg = &OneRNCFG;
 	sc.RNCfg->NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
 
+	CalcListID(&sc);
+
 	end_critical_section(S_NETCONFIGS);
 
 	sc.working_ignetcfg = CtdlLoadIgNetCfg();
 	sc.the_netmap = CtdlReadNetworkMap();
-
-	CalcListID(&sc);
 
 	/* Send ALL messages */
 	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
@@ -205,6 +205,7 @@ int network_sync_to(char *target_node, long len)
 
 	DeleteHash(&sc.working_ignetcfg);
 	DeleteHash(&sc.the_netmap);
+	free_spoolcontrol_struct_members(&sc);
 
 	QN_syslog(LOG_NOTICE, "Synchronized %d messages to <%s>\n",
 		  num_spooled, target_node);
@@ -441,19 +442,6 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 }
 
 
-void free_network_spoolout_room(SpoolControl *sc)
-{
-	if (sc != NULL)
-	{
-		int i;
-		for (i = subpending; i < maxRoomNetCfg; i++)
-			FreeStrBuf(&sc->Users[i]);
-		free(sc);
-	}
-}
-
-
-
 
 /*
  * network_do_queue()
@@ -553,7 +541,7 @@ void network_do_queue(void)
 	while (pSC != NULL)
 	{
 		sc = pSC->next;
-		free_network_spoolout_room(pSC);
+		free_spoolcontrol_struct(&pSC);
 		pSC = sc;
 	}
 	/* If there is anything in the inbound queue, process it */

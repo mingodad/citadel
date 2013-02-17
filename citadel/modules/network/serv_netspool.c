@@ -237,8 +237,8 @@ void CalcListID(SpoolControl *sc)
 	if (fd != 0) {
 		struct stat stbuf;
 
-		fstat(fd, &stbuf);
-		if (stbuf.st_size > 0)
+		if ((fstat(fd, &stbuf) == 0) &&
+		    (stbuf.st_size > 0))
 		{
 			sc->RoomInfo = NewStrBufPlain(NULL, stbuf.st_size + 1);
 			StrBufReadBLOB(sc->RoomInfo, &fd, 0, stbuf.st_size, &err);
@@ -1017,6 +1017,21 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	closedir(dp);
 }
 
+void free_spoolcontrol_struct(SpoolControl **sc)
+{
+	free_spoolcontrol_struct_members(*sc);
+	free(*sc);
+	*sc = NULL;
+}
+
+void free_spoolcontrol_struct_members(SpoolControl *sc)
+{
+	int i;
+	FreeStrBuf(&sc->RoomInfo);
+	FreeStrBuf(&sc->ListID);
+	for (i = 0; i < maxRoomNetCfg; i++)
+		FreeStrBuf(&sc->Users[i]);
+}
 
 
 

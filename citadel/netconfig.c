@@ -146,16 +146,19 @@ void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data)
 }
 RoomNetCfgLine *DuplicateOneGenericCfgLine(const RoomNetCfgLine *data)
 {
+	int i;
 	RoomNetCfgLine *NewData;
 
 	NewData = (RoomNetCfgLine*)malloc(sizeof(RoomNetCfgLine));
-	int i;
+	memset(NewData, 0, sizeof(RoomNetCfgLine));
 	NewData->Value = (StrBuf **)malloc(sizeof(StrBuf*) * data->nValues);
+	memset(NewData->Value, 0, sizeof(StrBuf*) * data->nValues);
 
 	for (i = 0; i < data->nValues; i++)
 	{
 		NewData->Value[i] = NewStrBufDup(data->Value[i]);
 	}
+	NewData->nValues = data->nValues;
 	return NewData;
 }
 int ReadRoomNetConfigFile(OneRoomNetCfg **pOneRNCfg, char *filename)
