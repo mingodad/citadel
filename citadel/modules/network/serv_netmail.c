@@ -120,13 +120,58 @@ void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRN
 	}
 }
 
+static void ListCalculateSubject(struct CtdlMessage *msg)
+{
+	struct CitContext *CCC = CC;
+	StrBuf *Subject, *FlatSubject;
+	int rlen;
+	char *pCh;
+
+	if (msg->cm_fields['U'] == NULL) {
+		Subject = NewStrBufPlain(HKEY("(no subject)"));
+	}
+	else {
+		Subject = NewStrBufPlain(
+			msg->cm_fields['U'], -1);
+	}
+	FlatSubject = NewStrBufPlain(NULL, StrLength(Subject));
+	StrBuf_RFC822_to_Utf8(FlatSubject, Subject, NULL, NULL);
+
+	rlen = strlen(CCC->room.QRname);
+	pCh  = strstr(ChrPtr(FlatSubject), CCC->room.QRname);
+	if ((pCh == NULL) ||
+	    (*(pCh + rlen) != ']') ||
+	    (pCh == ChrPtr(FlatSubject)) ||
+	    (*(pCh - 1) != '[')
+		)
+	{
+		StrBuf *tmp;
+		StrBufPlain(Subject, HKEY("["));
+		StrBufAppendBufPlain(Subject,
+				     CCC->room.QRname,
+				     rlen, 0);
+		StrBufAppendBufPlain(Subject, HKEY("] "), 0);
+		StrBufAppendBuf(Subject, FlatSubject, 0);
+		/* so we can free the right one swap them */
+		tmp = Subject;
+		Subject = FlatSubject;
+		FlatSubject = tmp;
+		StrBufRFC2047encode(&Subject, FlatSubject);
+	}
+
+	if (msg->cm_fields['U'] != NULL)
+		free (msg->cm_fields['U']);
+	msg->cm_fields['U'] = SmashStrBuf(&Subject);
+
+	FreeStrBuf(&FlatSubject);
+}
+
 /*
  * Deliver digest messages
  */
 void network_deliver_digest(SpoolControl *sc)
 {
 	char buf[SIZ];
-	int i;
 	struct CtdlMessage *msg = NULL;
 	long msglen;
 	struct recptypes *valid;
@@ -152,22 +197,12 @@ void network_deliver_digest(SpoolControl *sc)
 	msg->cm_fields['A'] = strdup(CC->room.QRname);
 	snprintf(buf, sizeof buf, "[%s]", CC->room.QRname);
 	msg->cm_fields['U'] = strdup(buf);
-	sprintf(buf, "room_%s@%s", CC->room.QRname, config.c_fqdn);
-	for (i=0; buf[i]; ++i) {
-		if (isspace(buf[i])) buf[i]='_';
-		buf[i] = tolower(buf[i]);
-	}
-	msg->cm_fields['F'] = strdup(buf);
-	msg->cm_fields['R'] = strdup(buf);
+
+	CtdlMsgSetCM_Fields(msg, 'F', SKEY(sc->Users[roommailalias]));
+	CtdlMsgSetCM_Fields(msg, 'R', SKEY(sc->Users[roommailalias]));
 
 	/* Set the 'List-ID' header */
-	msg->cm_fields['L'] = malloc(1024);
-	snprintf(msg->cm_fields['L'], 1024,
-		 "%s <%ld.list-id.%s>",
-		 CC->room.QRname,
-		 CC->room.QRnumber,
-		 config.c_fqdn
-		);
+	CtdlMsgSetCM_Fields(msg, 'L', SKEY(sc->ListID));
 
 	/*
 	 * Go fetch the contents of the digest
@@ -270,12 +305,7 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 
 void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *delete_after_send)
 {
-	struct CitContext *CCC = CC;
-	int rlen;
-	char *pCh;
-	StrBuf *Subject, *FlatSubject;
 	struct CtdlMessage *msg = NULL;
-	int i;
 
 	/*
 	 * Process mailing list recipients
@@ -308,60 +338,8 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 		msg->cm_fields['K'] =
 			strdup (msg->cm_fields['V']);
 	}
-	/* Set the 'List-ID' header */
-	if (msg->cm_fields['L'] != NULL) {
-		free(msg->cm_fields['L']);
-	}
-	msg->cm_fields['L'] = malloc(1024);
-	snprintf(msg->cm_fields['L'], 1024,
-		 "%s <%ld.list-id.%s>",
-		 CCC->room.QRname,
-		 CCC->room.QRnumber,
-		 config.c_fqdn
-		);
 
-	/* Prepend "[List name]" to the subject */
-	if (msg->cm_fields['U'] == NULL) {
-		Subject = NewStrBufPlain(HKEY("(no subject)"));
-	}
-	else {
-		Subject = NewStrBufPlain(
-			msg->cm_fields['U'], -1);
-	}
-	FlatSubject = NewStrBufPlain(NULL, StrLength(Subject));
-	StrBuf_RFC822_to_Utf8(FlatSubject, Subject, NULL, NULL);
-
-	rlen = strlen(CCC->room.QRname);
-	pCh  = strstr(ChrPtr(FlatSubject), CCC->room.QRname);
-	if ((pCh == NULL) ||
-	    (*(pCh + rlen) != ']') ||
-	    (pCh == ChrPtr(FlatSubject)) ||
-	    (*(pCh - 1) != '[')
-		)
-	{
-		StrBuf *tmp;
-		StrBufPlain(Subject, HKEY("["));
-		StrBufAppendBufPlain(Subject,
-				     CCC->room.QRname,
-				     rlen, 0);
-		StrBufAppendBufPlain(Subject, HKEY("] "), 0);
-		StrBufAppendBuf(Subject, FlatSubject, 0);
-		/* so we can free the right one swap them */
-		tmp = Subject;
-		Subject = FlatSubject;
-		FlatSubject = tmp;
-		StrBufRFC2047encode(&Subject, FlatSubject);
-	}
-
-	if (msg->cm_fields['U'] != NULL)
-		free (msg->cm_fields['U']);
-	msg->cm_fields['U'] = SmashStrBuf(&Subject);
-
-	FreeStrBuf(&FlatSubject);
-
-	/* else we won't modify the buffer, since the
-	 * roomname is already here.
-	 */
+	CtdlMsgSetCM_Fields(msg, 'F', SKEY(sc->Users[roommailalias]));
 
 	/* if there is no other recipient, Set the recipient
 	 * of the list message to the email address of the
@@ -370,22 +348,18 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	if ((msg->cm_fields['R'] == NULL) ||
 	    IsEmptyStr(msg->cm_fields['R']))
 	{
-		if (msg->cm_fields['R'] != NULL)
-			free(msg->cm_fields['R']);
-
-		msg->cm_fields['R'] = malloc(256);
-		snprintf(msg->cm_fields['R'], 256,
-			 "room_%s@%s", CCC->room.QRname,
-			 config.c_fqdn);
-		for (i=0; msg->cm_fields['R'][i]; ++i) {
-			if (isspace(msg->cm_fields['R'][i])) {
-				msg->cm_fields['R'][i] = '_';
-			}
-		}
+		CtdlMsgSetCM_Fields(msg, 'R', SKEY(sc->Users[roommailalias]));
 	}
 
+	/* Set the 'List-ID' header */
+	CtdlMsgSetCM_Fields(msg, 'L', SKEY(sc->ListID));
+
+
+	/* Prepend "[List name]" to the subject */
+	ListCalculateSubject(msg);
+
 	/* Handle delivery */
-	network_deliver_list(msg, sc, CCC->room.QRname);
+	network_deliver_list(msg, sc, CC->room.QRname);
 	CtdlFreeMessage(msg);
 }
 
@@ -423,7 +397,6 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, long *delete_after_send)
 {
 	struct CtdlMessage *msg = NULL;
-	int i;
 	int ok_to_participate = 0;
 	StrBuf *Buf = NULL;
 	struct recptypes *valid;
@@ -460,35 +433,16 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	}
 	if (ok_to_participate)
 	{
-		if (msg->cm_fields['F'] != NULL) {
-			free(msg->cm_fields['F']);
-		}
-		msg->cm_fields['F'] = malloc(SIZ);
 		/* Replace the Internet email address of the
 		 * actual author with the email address of the
 		 * room itself, so the remote listserv doesn't
 		 * reject us.
 		 */
-		if (sc->Users[roommailalias] != NULL)
-			snprintf(msg->cm_fields['F'], SIZ,
-				 "%s", ChrPtr(sc->Users[roommailalias]));
-		else
-			snprintf(msg->cm_fields['F'], SIZ,
-				 "room_%s@%s", CC->room.QRname,
-				 config.c_fqdn);
-
-		for (i=0; msg->cm_fields['F'][i]; ++i) {
-			if (isspace(msg->cm_fields['F'][i])) {
-				msg->cm_fields['F'][i] = '_';
-			}
-		}
+		CtdlMsgSetCM_Fields(msg, 'F', SKEY(sc->Users[roommailalias]));
 
 		valid = validate_recipients(ChrPtr(sc->Users[participate]) , NULL, 0);
 
-		if (msg->cm_fields['R'] != NULL) {
-			free(msg->cm_fields['R']);
-		}/* TODO: check whether 'R' is set appropriate later. */
-
+		CtdlMsgSetCM_Fields(msg, 'R', SKEY(sc->Users[roommailalias]));
 		CtdlSubmitMsg(msg, valid, "", 0);
 		free_recipients(valid);
 	}

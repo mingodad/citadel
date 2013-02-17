@@ -25,7 +25,7 @@ ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 endif
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP -D TECH_PREVIEW
+	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP -D TECH_PREVIEW -Wcast-align
 	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
 	EXTRA_ARGS = --with-backtrace
 	ifneq (,$(findstring event,$(DEB_BUILD_OPTIONS)))

@@ -1704,7 +1704,7 @@ void cmd_seta(char *new_ra)
  */
 void cmd_rinf(char *gargs)
 {
-	char filename[128];
+	char filename[PATH_MAX];
 	char buf[SIZ];
 	FILE *info_fp;
 

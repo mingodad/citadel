@@ -33,6 +33,8 @@ struct SpoolControl {
 	OneRoomNetCfg *RNCfg;
 	struct ctdlroom room;
 	StrBuf *Users[maxRoomNetCfg];
+	StrBuf *RoomInfo;
+	StrBuf *ListID;
 	FILE *digestfp;
 	int num_msgs_spooled;
 	long lastsent;
