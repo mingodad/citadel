@@ -4561,6 +4561,10 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 
 			continue;
 		}
+		else
+		{
+			nSuccessLess++;
+		}
 	}
 	*Pos = NULL;
 	if (pLF != NULL) {
