@@ -387,6 +387,7 @@ void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg)
 	FreeStrBuf(&OneRNCfg->Sender);
 	FreeStrBuf(&OneRNCfg->RoomInfo);
 	FreeStrBuf(&OneRNCfg->misc);
+	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
 }
 void vFreeRoomNetworkStruct(void *vOneRoomNetCfg)
 {
@@ -718,7 +719,6 @@ void cmd_snet(char *argbuf)
 		RNCfg = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
 		if (RNCfg != NULL)
 		{
-			FreeRoomNetworkStructContent(RNCfg);
 			ReadRoomNetConfigFile(&RNCfg, filename);
 		}
 		else

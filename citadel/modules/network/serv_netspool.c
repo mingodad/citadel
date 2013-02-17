@@ -106,12 +106,11 @@ void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos
 
 void ParseRoomAlias(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
 {
-/*
-	if (rncfg->RNCfg->sender != NULL)
-		continue; / * just one alowed... * /
-	extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-	rncfg->RNCfg->sender = nptr;
-*/
+	if (rncfg->Sender != NULL)
+		return;
+
+	ParseGeneric(ThisOne, Line, LinePos, rncfg);
+	rncfg->Sender = NewStrBufDup(rncfg->NetConfigs[roommailalias]->Value[0]);
 }
 
 void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
