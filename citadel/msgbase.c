@@ -116,6 +116,15 @@ char *msgkeys[] = {
 	NULL    /* Z */
 };
 
+void CtdlMsgSetCM_Fields(struct CtdlMessage *Msg, const char which, const char *buf, long length)
+{
+	if (Msg->cm_fields[which] != NULL)
+		free (Msg->cm_fields[which]);
+	Msg->cm_fields[which] = malloc(length + 1);
+	memcpy(Msg->cm_fields[which], buf, length);
+	Msg->cm_fields[which][length] = '\0';
+}
+
 /*
  * This function is self explanatory.
  * (What can I say, I'm in a weird mood today...)
