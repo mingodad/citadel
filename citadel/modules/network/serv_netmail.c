@@ -320,25 +320,8 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 
 	msg = CtdlDuplicateMessage(omsg);
 
-	if (msg->cm_fields['K'] != NULL)
-		free(msg->cm_fields['K']);
-	if (msg->cm_fields['V'] == NULL){
-		/* local message, no enVelope */
-		StrBuf *Buf;
-		Buf = NewStrBuf();
-		StrBufAppendBufPlain(Buf,
-				     msg->cm_fields['O']
-				     , -1, 0);
-		StrBufAppendBufPlain(Buf, HKEY("@"), 0);
-		StrBufAppendBufPlain(Buf, config.c_fqdn, -1, 0);
 
-		msg->cm_fields['K'] = SmashStrBuf(&Buf);
-	}
-	else {
-		msg->cm_fields['K'] =
-			strdup (msg->cm_fields['V']);
-	}
-
+	CtdlMsgSetCM_Fields(msg, 'K', SKEY(sc->Users[roommailalias]));
 	CtdlMsgSetCM_Fields(msg, 'F', SKEY(sc->Users[roommailalias]));
 
 	/* if there is no other recipient, Set the recipient
