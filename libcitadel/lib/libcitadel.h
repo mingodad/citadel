@@ -207,6 +207,7 @@ int FLUSHStrBuf(StrBuf *buf); /* expensive but doesn't leave content behind for 
 const char *ChrPtr(const StrBuf *Str);
 int StrLength(const StrBuf *Str);
 #define SKEY(a) ChrPtr(a), StrLength(a)
+void StrBufAsciify(StrBuf *Buf, const char repl);
 long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
 long StrBufPook(StrBuf *Buf, const char* ptr, long nThChar, long nChars, char PookValue);
 

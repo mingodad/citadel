@@ -2540,6 +2540,23 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 	return Target->BufUsed;
 }
 
+
+/**
+ * @ingroup StrBuf_DeEnCoder
+ * @brief replace all non-Ascii characters by another
+ * @param Buf buffer to inspect
+ * @param repl charater to stamp over non ascii chars
+ */
+void StrBufAsciify(StrBuf *Buf, const char repl)
+{
+	long offset;
+
+	for (offset = 0; offset < Buf->BufUsed; offset ++)
+		if (!isascii(Buf->buf[offset]))
+			Buf->buf[offset] = repl;
+	
+}
+
 /**
  * @ingroup StrBuf_DeEnCoder
  * @brief unhide special chars hidden to the HTML escaper
