@@ -63,3 +63,5 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename);
 int read_spoolcontrol_file(SpoolControl **scc, char *filename);
 
 void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRNCfg, long nSegments);
+
+void CalcListID(SpoolControl *sc);

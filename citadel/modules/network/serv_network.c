@@ -194,6 +194,8 @@ int network_sync_to(char *target_node, long len)
 	sc.working_ignetcfg = CtdlLoadIgNetCfg();
 	sc.the_netmap = CtdlReadNetworkMap();
 
+	CalcListID(&sc);
+
 	/* Send ALL messages */
 	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		network_spool_msg, &sc);
