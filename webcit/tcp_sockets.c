@@ -36,6 +36,7 @@ RETSIGTYPE timeout(int signum)
 int uds_connectsock(char *sockpath)
 {
 	struct sockaddr_un addr;
+	int fdflags;
 	int s;
 
 	memset(&addr, 0, sizeof(addr));
@@ -52,6 +53,25 @@ int uds_connectsock(char *sockpath)
 		syslog(LOG_WARNING, "Can't connect [%s]: %s\n", sockpath, strerror(errno));
 		close(s);
 		return(-1);
+	}
+
+	fdflags = fcntl(s, F_GETFL);
+	if (fdflags < 0) {
+		syslog(LOG_ERR,
+		       "unable to get socket %d flags! %s \n",
+		       s,
+		       strerror(errno));
+		close(s);
+		return -1;
+	}
+	fdflags = fdflags | O_NONBLOCK;
+	if (fcntl(s, F_SETFL, fdflags) < 0) {
+		syslog(LOG_ERR,
+		       "unable to set socket %d nonblocking flags! %s \n",
+		       s,
+		       strerror(errno));
+		close(s);
+		return -1;
 	}
 
 	return s;
@@ -123,7 +143,28 @@ int tcp_connectsock(char *host, char *service)
 		}
 		rc = connect(s, ai->ai_addr, ai->ai_addrlen);
 		if (rc >= 0) {
+			int fdflags;
 			freeaddrinfo(res);
+
+			fdflags = fcntl(rc, F_GETFL);
+			if (fdflags < 0) {
+				syslog(LOG_ERR,
+				       "unable to get socket %d flags! %s \n",
+				       rc,
+				       strerror(errno));
+				close(rc);
+				return -1;
+			}
+			fdflags = fdflags | O_NONBLOCK;
+			if (fcntl(rc, F_SETFL, fdflags) < 0) {
+				syslog(LOG_ERR,
+				       "unable to set socket %d nonblocking flags! %s \n",
+				       rc,
+				       strerror(errno));
+				close(s);
+				return -1;
+			}
+
 			return(s);
 		}
 		else {
@@ -153,7 +194,7 @@ int serv_getln(char *strbuf, int bufsize)
 	FlushStrBuf(WCC->MigrateReadLineBuf);
 	strbuf[len] = '\0';
 #ifdef SERV_TRACE
-	syslog(LOG_DEBUG, "%3d<<<%s\n", WC->serv_sock, strbuf);
+	syslog(LOG_DEBUG, "%3d<<<%s\n", WCC->serv_sock, strbuf);
 #endif
 	return len;
 }
