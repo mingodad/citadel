@@ -37,6 +37,27 @@
 			</td></tr>
 		</table>
 
+		<table border="0" width="100%" cellpadding="5">
+			<td valign="top">
+			    <table class="altern">
+			      <tr><th><?_("Posts to this room will be sent to these mailing lists")></th></tr>
+			      <tr><td><?_("All messages posted / mailed into this room will be sent to these email addresses. If you link this with mailinglist subscriptions, make shure the default sender address below matches the subscribed address. You will see your messages twice once the mailinglist sends it back to you.")></td></tr>
+			      <?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_participate_removal", 0, 0, -1, #"participate")>
+			    </table>
+			<br>
+			<form method="post" action="netedit">
+			  <p>
+			        <input type="hidden" name="last_tabsel" value="<?TAB:N>">
+				<input type="hidden" name="prefix" value="participate|">
+				<input type="hidden" name="nonce" value="<?NONCE>">
+				<input type="hidden" name="go" value="<?THISROOM:NAME("X")>">
+				<input type="text" id="add_as_digestrecp" name="line">
+				<input type="submit" name="add_button" value="<?_("Add")>">
+			  </p>
+			</form>
+			</td></tr>
+		</table>
+
 		<!-- Pop open an address book - begin -->
 		<div align="right">
 			<a href="javascript:PopOpenAddressBook('add_as_listrecp|<?_("List")>|add_as_digestrecp|<?_("Digest")>')"
