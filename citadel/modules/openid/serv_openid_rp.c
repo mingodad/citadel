@@ -211,7 +211,14 @@ void cmd_oidl(char *argbuf) {
 	struct cdbdata *cdboi;
 	long usernum = 0L;
 
+	if (config.c_disable_newu)
+	{
+		cprintf("%d this system does not support openid.\n",
+			ERROR + CMD_NOT_SUPPORTED);
+		return;
+	}
 	if (CtdlAccessCheck(ac_logged_in)) return;
+
 	cdb_rewind(CDB_OPENID);
 	cprintf("%d Associated OpenIDs:\n", LISTING_FOLLOWS);
 
@@ -236,6 +243,12 @@ void cmd_oida(char *argbuf) {
 	long usernum;
 	struct ctdluser usbuf;
 
+	if (config.c_disable_newu)
+	{
+		cprintf("%d this system does not support openid.\n",
+			ERROR + CMD_NOT_SUPPORTED);
+		return;
+	}
 	if (CtdlAccessCheck(ac_aide)) return;
 	cdb_rewind(CDB_OPENID);
 	cprintf("%d List of all OpenIDs in the database:\n", LISTING_FOLLOWS);
@@ -265,6 +278,12 @@ void cmd_oida(char *argbuf) {
 void cmd_oidc(char *argbuf) {
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
+	if (config.c_disable_newu)
+	{
+		cprintf("%d this system does not support openid.\n",
+			ERROR + CMD_NOT_SUPPORTED);
+		return;
+	}
 	if ( (!oiddata) || (!oiddata->verified) ) {
 		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
 		return;
@@ -292,6 +311,12 @@ void cmd_oidd(char *argbuf) {
 	int this_is_mine = 0;
 	long usernum = 0L;
 
+	if (config.c_disable_newu)
+	{
+		cprintf("%d this system does not support openid.\n",
+			ERROR + CMD_NOT_SUPPORTED);
+		return;
+	}
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	extract_token(id_to_detach, argbuf, 0, '|', sizeof id_to_detach);
 	if (IsEmptyStr(id_to_detach)) {
@@ -807,6 +832,12 @@ void cmd_oids(char *argbuf) {
 	ctdl_openid *oiddata;
 	int discovery_succeeded = 0;
 
+	if (config.c_disable_newu)
+	{
+		cprintf("%d this system does not support openid.\n",
+			ERROR + CMD_NOT_SUPPORTED);
+		return;
+	}
 	Free_ctdl_openid ((ctdl_openid**)&CCC->openid_data);
 
 	CCC->openid_data = oiddata = malloc(sizeof(ctdl_openid));
@@ -932,6 +963,12 @@ void cmd_oidf(char *argbuf) {
 	void *Value;
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
+	if (config.c_disable_newu)
+	{
+		cprintf("%d this system does not support openid.\n",
+			ERROR + CMD_NOT_SUPPORTED);
+		return;
+	}
 	if (oiddata == NULL) {
 		cprintf("%d run OIDS first.\n", ERROR + INTERNAL_ERROR);
 		return;
