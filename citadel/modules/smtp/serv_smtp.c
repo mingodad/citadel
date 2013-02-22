@@ -304,20 +304,59 @@ void smtp_hello(long offset, long which_command)
 
 
 /*
+ * Backend function for smtp_webcit_preferences_hack().
+ * Look at a message and determine if it's the preferences file.
+ */
+void smtp_webcit_preferences_hack_backend(long msgnum, void *userdata) {
+	struct CtdlMessage *msg;
+	char **webcit_conf = (char **) userdata;
+
+	if (*webcit_conf) {
+		return;	// already got it
+	}
+
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) {
+		return;
+	}
+
+	if ( (msg->cm_fields['U']) && (!strcasecmp(msg->cm_fields['U'], "__ WebCit Preferences __")) ) {
+		/* This is it!  Change ownership of the message text so it doesn't get freed. */
+		*webcit_conf = (char *)msg->cm_fields['M'];
+		msg->cm_fields['M'] = NULL;
+	}
+	CtdlFreeMessage(msg);
+}
+
+
+/*
  * The configuration item for the user's preferred display name for outgoing email is, unfortunately,
  * stored in the account's WebCit configuration.  We have to fetch it now.
+ */
 void smtp_webcit_preferences_hack(void) {
 	char config_roomname[ROOMNAMELEN];
+	char *webcit_conf = NULL;
 
 	snprintf(config_roomname, sizeof config_roomname, "%010ld.%s", CC->user.usernum, USERCONFIGROOM);
 	if (CtdlGetRoom(&CC->room, config_roomname) != 0) {
 		return;
 	}
 
-	// FIXME ... finish this
+	/*
+	 * Find the WebCit configuration message
+	 */
 
+	CtdlForEachMessage(MSGS_ALL, 1, NULL, NULL, NULL, smtp_webcit_preferences_hack_backend, (void *)&webcit_conf);
+
+	if (!webcit_conf) {
+		return;
+	}
+
+	/* FIXME : now do something with this data */
+
+	free(webcit_conf);
+	abort();
 }
- */
 
 
 
@@ -405,7 +444,7 @@ void smtp_try_plain(long offset, long Flags)
 
 	if (result == login_ok) {
 		if (CtdlTryPassword(pass, len) == pass_ok) {
-			/* smtp_webcit_preferences_hack(); */
+			smtp_webcit_preferences_hack();
 			smtp_auth_greeting(offset, Flags);
 			return;
 		}
