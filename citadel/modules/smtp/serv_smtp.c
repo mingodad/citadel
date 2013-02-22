@@ -303,6 +303,23 @@ void smtp_hello(long offset, long which_command)
 }
 
 
+/*
+ * The configuration item for the user's preferred display name for outgoing email is, unfortunately,
+ * stored in the account's WebCit configuration.  We have to fetch it now.
+void smtp_webcit_preferences_hack(void) {
+	char config_roomname[ROOMNAMELEN];
+
+	snprintf(config_roomname, sizeof config_roomname, "%010ld.%s", CC->user.usernum, USERCONFIGROOM);
+	if (CtdlGetRoom(&CC->room, config_roomname) != 0) {
+		return;
+	}
+
+	// FIXME ... finish this
+
+}
+ */
+
+
 
 /*
  * Implement HELP command.
@@ -388,6 +405,7 @@ void smtp_try_plain(long offset, long Flags)
 
 	if (result == login_ok) {
 		if (CtdlTryPassword(pass, len) == pass_ok) {
+			/* smtp_webcit_preferences_hack(); */
 			smtp_auth_greeting(offset, Flags);
 			return;
 		}
