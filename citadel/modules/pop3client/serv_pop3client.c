@@ -1083,6 +1083,7 @@ void pop3client_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *One
 		    DeletePOP3Aggregator);
 
 		pthread_mutex_unlock(&POP3QueueMutex);
+		pLine = pLine->next;
 
 	}
 }
