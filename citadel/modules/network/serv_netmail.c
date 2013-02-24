@@ -322,7 +322,6 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 
 
 	CtdlMsgSetCM_Fields(msg, 'K', SKEY(sc->Users[roommailalias]));
-	CtdlMsgSetCM_Fields(msg, 'F', SKEY(sc->Users[roommailalias]));
 
 	/* if there is no other recipient, Set the recipient
 	 * of the list message to the email address of the

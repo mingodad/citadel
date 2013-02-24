@@ -157,6 +157,11 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *Msg)
 		if ((Msg->pCurrRelay == NULL) ||
 		    (Msg->pCurrRelay->User == NULL))
 			Msg->State ++; /* Skip auth... */
+		if (Msg->pCurrRelay != NULL)
+		{
+			if (strstr(ChrPtr(Msg->IO.IOBuf), "LOGIN") != NULL)
+				Msg->SendLogin = 1;
+		}
 	}
 	/* else we fall back to 'helo' */
 	return eSendReply;
@@ -184,6 +189,11 @@ eNextState SMTPC_read_HELO_reply(SmtpOutMsg *Msg)
 		else
 			SMTP_VERROR(5);
 	}
+	if (Msg->pCurrRelay != NULL)
+	{
+		if (strstr(ChrPtr(Msg->IO.IOBuf), "LOGIN") != NULL)
+			Msg->SendLogin = 1;
+	}
 	if ((Msg->pCurrRelay == NULL) ||
 	    (Msg->pCurrRelay->User == NULL))
 		Msg->State ++; /* Skip auth... */
@@ -202,17 +212,44 @@ eNextState SMTPC_send_auth(SmtpOutMsg *Msg)
 		Msg->State ++; /* Skip auth, shouldn't even come here!... */
 	else {
 		/* Do an AUTH command if necessary */
-		sprintf(buf, "%s%c%s%c%s",
-			Msg->pCurrRelay->User, '\0',
-			Msg->pCurrRelay->User, '\0',
-			Msg->pCurrRelay->Pass);
+		if (Msg->SendLogin)
+		{
+			sprintf(buf, "%s",
+				Msg->pCurrRelay->User);
 
-		CtdlEncodeBase64(encoded, buf,
-				 strlen(Msg->pCurrRelay->User) * 2 +
-				 strlen(Msg->pCurrRelay->Pass) + 2, 0);
-
-		StrBufPrintf(Msg->IO.SendBuf.Buf,
-			     "AUTH PLAIN %s\r\n", encoded);
+			CtdlEncodeBase64(encoded, buf,
+					 strlen(Msg->pCurrRelay->User) * 2 +
+					 strlen(Msg->pCurrRelay->Pass) + 2, 0);
+			
+			StrBufPrintf(Msg->IO.SendBuf.Buf,
+				     "AUTH LOGIN %s\r\n",
+				     encoded);
+			sprintf(buf, "%s",
+				Msg->pCurrRelay->Pass);
+			
+			CtdlEncodeBase64(encoded, buf,
+					 strlen(Msg->pCurrRelay->User) * 2 +
+					 strlen(Msg->pCurrRelay->Pass) + 2, 0);
+			
+			StrBufAppendPrintf(Msg->IO.SendBuf.Buf,
+					   "%s\r\n",
+					   encoded);
+		}
+		else
+		{
+			sprintf(buf, "%s%c%s%c%s",
+				Msg->pCurrRelay->User, '\0',
+				Msg->pCurrRelay->User, '\0',
+				Msg->pCurrRelay->Pass);
+			
+			CtdlEncodeBase64(encoded, buf,
+					 strlen(Msg->pCurrRelay->User) * 2 +
+					 strlen(Msg->pCurrRelay->Pass) + 2, 0);
+			
+			StrBufPrintf(Msg->IO.SendBuf.Buf,
+				     "AUTH PLAIN %s\r\n",
+				     encoded);
+		}
 	}
 	SMTP_DBG_SEND();
 	return eReadMessage;

@@ -29,7 +29,7 @@
 #include <libcitadel.h>
 
 #include "include/ctdl_module.h"
-
+#include "serv_extensions.h"
 
 void vFreeRoomNetworkStruct(void *vOneRoomNetCfg);
 void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg);
@@ -576,7 +576,6 @@ const ConstStr ForceAliases[nForceAliases] = {
 	{HKEY("postmaster,")},
 	{HKEY("abuse,")}
 };
-
 void cmd_snet(char *argbuf)
 {
 	struct CitContext *CCC = CC;
@@ -726,6 +725,8 @@ void cmd_snet(char *argbuf)
 			ReadRoomNetConfigFile(&RNCfg, filename);
 			Put(RoomConfigs, LKEY(CCC->room.QRnumber), RNCfg, vFreeRoomNetworkStruct);
 		}
+
+		PerformRoomHooks(&CCC->room);
 	}
 	end_critical_section(S_NETCONFIGS);
 }
