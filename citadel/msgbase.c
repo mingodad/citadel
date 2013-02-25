@@ -1147,7 +1147,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 			return;
 		}
 	
-		rv = fwrite(content, length, 1, CC->download_fp);
+		rv = fwrite(content, length, 1, CCC->download_fp);
 		if (rv <= 0) {
 			MSG_syslog(LOG_EMERG, "mime_download(): Couldn't write: %s\n",
 				   strerror(errno));
