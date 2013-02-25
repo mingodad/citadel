@@ -208,6 +208,12 @@ void cmd_open(char *cmdbuf)
 			ERROR + FILE_NOT_FOUND);
 		return;
 	}
+	if (strstr(filename, "../") != NULL)
+	{
+		cprintf("%d syntax error.\n",
+			ERROR + ILLEGAL_VALUE);
+		return;
+	}
 
 	if (CC->download_fp != NULL) {
 		cprintf("%d You already have a download file open.\n",
@@ -289,6 +295,13 @@ void cmd_oimg(char *cmdbuf)
 				filename[a] = '_';
 			}
 		}
+		if (strstr(filename, "../") != NULL)
+		{
+			cprintf("%d syntax error.\n",
+				ERROR + ILLEGAL_VALUE);
+			return;
+		}
+
 		snprintf(pathname, sizeof pathname,
 				 "%s/%s",
 				 ctdl_image_dir,
