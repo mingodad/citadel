@@ -113,6 +113,11 @@
 #define SMTP_DBG_READ() \
 	EVS_syslog(LOG_DEBUG, "< %s\n", ChrPtr(Msg->IO.IOBuf))
 
+/*
+ * if a Read handler wants to skip to a specific part use this macro.
+ * the -1 is here since the auto-forward following has to be taken into account.
+ */
+#define READ_NEXT_STATE(state) Msg->State = state - 1
 
 /*****************************************************************************/
 /*                     SMTP CLIENT STATE CALLBACKS                           */
@@ -151,11 +156,16 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *Msg)
 	SMTP_DBG_READ();
 
 	if (SMTP_IS_STATE('2')) {
-		Msg->State ++;
+		READ_NEXT_STATE(eSMTPAuth);
 
 		if ((Msg->pCurrRelay == NULL) ||
 		    (Msg->pCurrRelay->User == NULL))
-			Msg->State ++; /* Skip auth... */
+			READ_NEXT_STATE(eFROM); /* Skip auth... */
+		if (Msg->pCurrRelay != NULL)
+		{
+			if (strstr(ChrPtr(Msg->IO.IOBuf), "LOGIN") != NULL)
+				Msg->SendLogin = 1;
+		}
 	}
 	/* else we fall back to 'helo' */
 	return eSendReply;
@@ -185,7 +195,7 @@ eNextState SMTPC_read_HELO_reply(SmtpOutMsg *Msg)
 	}
 	if ((Msg->pCurrRelay == NULL) ||
 	    (Msg->pCurrRelay->User == NULL))
-		Msg->State ++; /* Skip auth... */
+		READ_NEXT_STATE(eFROM); /* Skip auth... */
 
 	return eSendReply;
 }
@@ -198,26 +208,129 @@ eNextState SMTPC_send_auth(SmtpOutMsg *Msg)
 
 	if ((Msg->pCurrRelay == NULL) ||
 	    (Msg->pCurrRelay->User == NULL))
-		Msg->State ++; /* Skip auth, shouldn't even come here!... */
+		READ_NEXT_STATE(eFROM); /* Skip auth, shouldn't even come here!... */
 	else {
 		/* Do an AUTH command if necessary */
-		sprintf(buf, "%s%c%s%c%s",
-			Msg->pCurrRelay->User, '\0',
-			Msg->pCurrRelay->User, '\0',
-			Msg->pCurrRelay->Pass);
-
-		CtdlEncodeBase64(encoded, buf,
-				 strlen(Msg->pCurrRelay->User) * 2 +
-				 strlen(Msg->pCurrRelay->Pass) + 2, 0);
-
-		StrBufPrintf(Msg->IO.SendBuf.Buf,
-			     "AUTH PLAIN %s\r\n", encoded);
+		if (Msg->SendLogin)
+		{
+			StrBufPlain(Msg->IO.SendBuf.Buf,
+				    HKEY("AUTH LOGIN\r\n"));
+		}
+		else
+		{
+			sprintf(buf, "%s%c%s%c%s",
+				Msg->pCurrRelay->User, '\0',
+				Msg->pCurrRelay->User, '\0',
+				Msg->pCurrRelay->Pass);
+			
+			CtdlEncodeBase64(encoded, buf,
+					 strlen(Msg->pCurrRelay->User) * 2 +
+					 strlen(Msg->pCurrRelay->Pass) + 2, 0);
+			
+			StrBufPrintf(Msg->IO.SendBuf.Buf,
+				     "AUTH PLAIN %s\r\n",
+				     encoded);
+		}
 	}
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
 
+
 eNextState SMTPC_read_auth_reply(SmtpOutMsg *Msg)
+{
+	AsyncIO *IO = &Msg->IO;
+	/* Do an AUTH command if necessary */
+
+	SMTP_DBG_READ();
+
+	if (Msg->SendLogin)
+	{
+		if (!SMTP_IS_STATE('3'))
+			SMTP_VERROR(5);
+	}
+	else
+	{
+		if (!SMTP_IS_STATE('2')) {
+			if (SMTP_IS_STATE('4'))
+				SMTP_VERROR(4);
+			else
+				SMTP_VERROR(5);
+		}
+		READ_NEXT_STATE(eFROM);
+	}
+	return eSendReply;
+}
+
+
+eNextState SMTPC_send_authplain_1(SmtpOutMsg *Msg)
+{
+	AsyncIO *IO = &Msg->IO;
+	char buf[SIZ];
+	char encoded[1024];
+	long encodedlen;
+
+	sprintf(buf, "%s",
+		Msg->pCurrRelay->User);
+	
+	encodedlen = CtdlEncodeBase64(
+		encoded,
+		Msg->pCurrRelay->User,
+		strlen(Msg->pCurrRelay->User),
+		0);
+
+	StrBufPlain(Msg->IO.SendBuf.Buf,
+		    encoded,
+		    encodedlen);
+
+	StrBufAppendBufPlain(Msg->IO.SendBuf.Buf,
+			     HKEY("\r\n"), 0);
+
+	SMTP_DBG_SEND();
+
+	return eReadMessage;
+}
+eNextState SMTPC_read_auth_plain_reply_1(SmtpOutMsg *Msg)
+{
+	AsyncIO *IO = &Msg->IO;
+	/* Do an AUTH command if necessary */
+
+	SMTP_DBG_READ();
+
+	if (!SMTP_IS_STATE('3'))
+		SMTP_VERROR(5);
+	return eSendReply;
+}
+
+
+eNextState SMTPC_send_authplain_2(SmtpOutMsg *Msg)
+{
+	AsyncIO *IO = &Msg->IO;
+	char buf[SIZ];
+	char encoded[1024];
+	long encodedlen;
+
+	sprintf(buf, "%s",
+		Msg->pCurrRelay->Pass);
+	
+	encodedlen = CtdlEncodeBase64(
+		encoded,
+		Msg->pCurrRelay->User,
+		strlen(Msg->pCurrRelay->User),
+		0);
+
+	StrBufPlain(Msg->IO.SendBuf.Buf,
+		    encoded,
+		    encodedlen);
+
+	StrBufAppendBufPlain(Msg->IO.SendBuf.Buf,
+			     HKEY("\r\n"), 0);
+
+	SMTP_DBG_SEND();
+
+	return eReadMessage;
+}
+eNextState SMTPC_read_auth_plain_reply_2(SmtpOutMsg *Msg)
 {
 	AsyncIO *IO = &Msg->IO;
 	/* Do an AUTH command if necessary */
@@ -320,6 +433,10 @@ eNextState SMTPC_send_data_body(SmtpOutMsg *Msg)
 	Buf = Msg->IO.SendBuf.Buf;
 	Msg->IO.SendBuf.Buf = Msg->msgtext;
 	Msg->msgtext = Buf;
+	/* 
+	 * sending the message itself doesn't use this state machine.
+	 * so we have to operate it here by ourselves.
+	 */
 	Msg->State ++;
 
 	return eSendMore;
@@ -403,6 +520,8 @@ SMTPReadHandler ReadHandlers[eMaxSMTPC] = {
 	SMTPC_read_EHLO_reply,
 	SMTPC_read_HELO_reply,
 	SMTPC_read_auth_reply,
+	SMTPC_read_auth_plain_reply_1,
+	SMTPC_read_auth_plain_reply_2,
 	SMTPC_read_FROM_reply,
 	SMTPC_read_RCPT_reply,
 	SMTPC_read_DATAcmd_reply,
@@ -415,6 +534,8 @@ SMTPSendHandler SendHandlers[eMaxSMTPC] = {
 	SMTPC_send_EHLO,
 	STMPC_send_HELO,
 	SMTPC_send_auth,
+	SMTPC_send_authplain_1,
+	SMTPC_send_authplain_2,
 	SMTPC_send_FROM,
 	SMTPC_send_RCPT,
 	SMTPC_send_DATAcmd,
@@ -430,6 +551,8 @@ const double SMTP_C_ReadTimeouts[eMaxSMTPC] = {
 	30., /* EHLO */
 	30., /* HELO */
 	30., /* Auth */
+	30., /* Auth */
+	30., /* Auth */
 	30., /* From */
 	90., /* RCPT */
 	30., /* DATA */
@@ -441,6 +564,8 @@ const double SMTP_C_SendTimeouts[eMaxSMTPC] = {
 	90., /* Greeting... */
 	30., /* EHLO */
 	30., /* HELO */
+	30., /* Auth */
+	30., /* Auth */
 	30., /* Auth */
 	30., /* From */
 	30., /* RCPT */
@@ -455,6 +580,8 @@ const ConstStr ReadErrors[eMaxSMTPC + 1] = {
 	{HKEY("Connection broken during SMTP EHLO")},
 	{HKEY("Connection broken during SMTP HELO")},
 	{HKEY("Connection broken during SMTP AUTH")},
+	{HKEY("Connection broken during SMTP AUTH PLAIN I")},
+	{HKEY("Connection broken during SMTP AUTH PLAIN II")},
 	{HKEY("Connection broken during SMTP MAIL FROM")},
 	{HKEY("Connection broken during SMTP RCPT")},
 	{HKEY("Connection broken during SMTP DATA")},

@@ -22,6 +22,8 @@ typedef enum _eSMTP_C_States {
 	eEHLO,
 	eHELO,
 	eSMTPAuth,
+	eSMTPAuthPlain1,
+	eSMTPAuthPlain2,
 	eFROM,
 	eRCPT,
 	eDATA,
@@ -67,6 +69,7 @@ typedef struct _stmp_out_msg {
 	char name[1024];
 	char mailfrom[1024];
 
+	long SendLogin;
 	long Flags;
 } SmtpOutMsg;
 
