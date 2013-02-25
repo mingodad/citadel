@@ -22,6 +22,8 @@ typedef enum _eSMTP_C_States {
 	eEHLO,
 	eHELO,
 	eSMTPAuth,
+	eSMTPAuthPlain1,
+	eSMTPAuthPlain2,
 	eFROM,
 	eRCPT,
 	eDATA,
