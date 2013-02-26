@@ -162,21 +162,6 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	}
 	if (TP->Tokens != NULL) 
 	{
-<<<<<<< HEAD
-		syslog(1, "%s [%s]  (in '%s' line %ld); %s; [%s]\n", 
-			Type, 
-			Err, 
-			ChrPtr(TP->Tokens->FileName),
-			TP->Tokens->Line, 
-			ChrPtr(Error), 
-			ChrPtr(TP->Tokens->FlatToken));
-	}
-	else 
-	{
-		syslog(1, "%s: %s;\n", 
-			Type, 
-			ChrPtr(Error));
-=======
 		syslog(LOG_WARNING, "%s [%s]  (in '%s' line %ld); %s; [%s]\n", 
 		       Type, 
 		       Err, 
@@ -190,7 +175,6 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		syslog(LOG_WARNING, "%s: %s;\n", 
 		       Type, 
 		       ChrPtr(Error));
->>>>>>> 156d3ea... SYSLOG: more places to correct the loglevel parameters.
 	}
 /*
 	if (Target == NULL) 
@@ -777,13 +761,8 @@ int GetNextParameter(StrBuf *Buf,
 		else {
 			StrBufPeek(Buf, pch, -1, '\0');		
 			if (LoadTemplates > 1) {			
-<<<<<<< HEAD
-				syslog(1,
-					"DBG: got param [%s] %d %d\n", 
-=======
 				syslog(LOG_DEBUG,
-					"DBG: got param [%s] "SIZE_T_FMT" "SIZE_T_FMT"\n", 
->>>>>>> 156d3ea... SYSLOG: more places to correct the loglevel parameters.
+					"DBG: got param [%s] %d %d\n", 
 					pchs, pche - pchs, strlen(pchs)
 				);
 			}

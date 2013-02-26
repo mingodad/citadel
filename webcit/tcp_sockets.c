@@ -569,15 +569,12 @@ retry:
 
 	s = socket( ((ip_version == 6) ? PF_INET6 : PF_INET), SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
-<<<<<<< HEAD
 		if (IsDefault && (errno == EAFNOSUPPORT))
 		{
 			s = 0;
 			ip_addr = ipv4broadcast;
 			goto retry;
 		}
-=======
->>>>>>> 156d3ea... SYSLOG: more places to correct the loglevel parameters.
 		syslog(LOG_WARNING, "Can't create a listening socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
