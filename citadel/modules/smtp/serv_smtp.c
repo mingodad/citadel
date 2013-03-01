@@ -444,7 +444,7 @@ void smtp_try_plain(long offset, long Flags)
 
 	if (result == login_ok) {
 		if (CtdlTryPassword(pass, len) == pass_ok) {
-			smtp_webcit_preferences_hack();
+////			smtp_webcit_preferences_hack();
 			smtp_auth_greeting(offset, Flags);
 			return;
 		}
@@ -516,8 +516,6 @@ void smtp_auth(long offset, long Flags)
  * Set do_response to nonzero to output the SMTP RSET response code.
  */
 void smtp_rset(long offset, long do_response) {
-	int is_lmtp;
-	int is_unfiltered;
 	citsmtp *sSMTP = SMTP;
 
 	/*
@@ -525,10 +523,21 @@ void smtp_rset(long offset, long do_response) {
 	 * but we need to preserve this one little piece of information, so
 	 * we save it for later.
 	 */
-	is_lmtp = sSMTP->is_lmtp;
-	is_unfiltered = sSMTP->is_unfiltered;
 
-	memset(sSMTP, 0, sizeof(citsmtp));
+	FlushStrBuf(sSMTP->Cmd);
+	FlushStrBuf(sSMTP->helo_node);
+	FlushStrBuf(sSMTP->from);
+	FlushStrBuf(sSMTP->recipients);
+	FlushStrBuf(sSMTP->OneRcpt);
+
+	sSMTP->command_state = 0;
+	sSMTP->number_of_recipients = 0;
+	sSMTP->delivery_mode = 0;
+	sSMTP->message_originated_locally = 0;
+	sSMTP->is_msa = 0;
+	/*
+	 * we must remember is_lmtp & is_unfiltered.
+	 */
 
 	/*
 	 * It is somewhat ambiguous whether we want to log out when a RSET
@@ -540,12 +549,6 @@ void smtp_rset(long offset, long do_response) {
 	 *	logout(CC);
 	 * }
 	 */
-
-	/*
-	 * Reinstate this little piece of information we saved (see above).
-	 */
-	sSMTP->is_lmtp = is_lmtp;
-	sSMTP->is_unfiltered = is_unfiltered;
 
 	if (do_response) {
 		cprintf("250 Zap!\r\n");
