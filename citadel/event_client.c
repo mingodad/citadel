@@ -370,7 +370,22 @@ void PostInbound(AsyncIO *IO)
 	case eSendMore:
 		assert(IO->SendDone);
 		IO->NextState = IO->SendDone(IO);
-		ev_io_start(event_base, &IO->send_event);
+		switch (IO->NextState)
+		{
+		case eSendFile:
+		case eSendReply:
+		case eSendMore:
+		case eReadMessage:
+		case eReadPayload:
+		case eReadMore:
+		case eReadFile:
+			ev_io_start(event_base, &IO->send_event);
+			break;
+		case eDBQuery:
+ 			StopClientWatchers(IO, 0);
+		default:
+			break;
+		}
 		break;
 	case eReadPayload:
 	case eReadMore:
