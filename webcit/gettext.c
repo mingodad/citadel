@@ -441,7 +441,7 @@ void TmplGettext(StrBuf *Target, WCTemplputParams *TP)
 const char *get_selected_language(void) {
 #ifdef ENABLE_NLS
 #ifdef HAVE_USELOCALE
-	return AvailLang[WC->selected_language];
+	return AvailLangLoaded[WC->selected_language];
 #else
 	return "en";
 #endif
