@@ -18,7 +18,7 @@
 /* actual supported locales */
 const char *AvailLang[] = {
 	"C",
-	"ar_AR",
+	"ar_AE",
 	"bg_BG",
 	"cs_CZ",
 	"en_US",
