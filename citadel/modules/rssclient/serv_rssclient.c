@@ -164,7 +164,9 @@ void DeleteRssCfg(void *vptr)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator *)vptr;
 	AsyncIO *IO = &RSSAggr->IO;
-	EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying\n");
+
+	if (IO->CitContext != NULL)
+		EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying\n");
 
 	FreeStrBuf(&RSSAggr->Url);
 	FreeStrBuf(&RSSAggr->rooms);
@@ -483,18 +485,27 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	if (StrLength(guid) > 40)
 		StrBufCutAt(guid, 40, NULL);
 	/* Find out if we've already seen this item */
-	memcpy(ut.ut_msgid, SKEY(guid));
-	ut.ut_timestamp = time(NULL);
 
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
 #ifndef DEBUG_RSS
+	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
 	if (cdbut != NULL) {
-		/* Item has already been seen */
-		EVRSSC_syslog(LOG_DEBUG,
-			      "%s has already been seen\n",
-			      ChrPtr(Ctx->Url));
+                memcpy(&ut, cdbut->ptr,
+                       ((cdbut->len > sizeof(struct UseTable)) ?
+                        sizeof(struct UseTable) : cdbut->len));
+
+		if (IO->Now - ut.ut_timestamp  > 
+		    60 * 60 * 24 * 4)
+		{
+			/* Item has already been seen in the last 4 days */
+			EVRSSC_syslog(LOG_DEBUG,
+				      "%s has already been seen\n",
+				      ChrPtr(Ctx->Url));
+		}
 		cdb_free(cdbut);
 	}
+
+	memcpy(ut.ut_msgid, SKEY(guid));
+	ut.ut_timestamp = IO->Now;
 
 	/* rewrite the record anyway, to update the timestamp */
 	cdb_store(CDB_USETABLE,
@@ -578,10 +589,12 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 
 	if (server_shutting_down) return;
 
-	pLine = OneRNCFG->NetConfigs[pop3client];
+	pLine = OneRNCFG->NetConfigs[rssclient];
 
 	while (pLine != NULL)
 	{
+		const char *lPtr = NULL;
+
 		if (Count == NULL)
 		{
 			Count = malloc(
@@ -595,7 +608,11 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 		memset (RSSAggr, 0, sizeof(rss_aggregator));
 		RSSAggr->QRnumber = qrbuf->QRnumber;
 		RSSAggr->roomlist_parts = 1;
-		RSSAggr->Url = NewStrBufDup(pLine->Value[1]);
+		RSSAggr->Url = NewStrBufPlain(NULL, StrLength(pLine->Value[0]));
+		StrBufExtract_NextToken(RSSAggr->Url,
+					pLine->Value[0],
+					&lPtr,
+					'|');
 
 		pthread_mutex_lock(&RSSQueueMutex);
 		GetHash(RSSFetchUrls,
@@ -628,6 +645,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 			FreeStrBuf(&RSSAggr->Url);
 			free(RSSAggr);
 			RSSAggr = NULL;
+			pLine = pLine->next;
 			continue;
 		}
 		pthread_mutex_unlock(&RSSQueueMutex);
@@ -645,6 +663,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 		    DeleteRssCfg);
 
 		pthread_mutex_unlock(&RSSQueueMutex);
+		pLine = pLine->next;
 	}
 }
 
