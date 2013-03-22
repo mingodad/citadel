@@ -332,6 +332,17 @@ eNextState POP3C_GetListOneLine(pop3aggr *RecvMsg)
 		return eSendReply;
 
 	}
+
+	/*
+	 * work around buggy pop3 servers which send
+	 * empty lines in their listings.
+	*/
+	if ((StrLength(RecvMsg->IO.IOBuf) == 0) ||
+	    !isdigit(ChrPtr(RecvMsg->IO.IOBuf)[0]))
+	{
+		return eReadMore;
+	}
+
 	OneMsg = (FetchItem*) malloc(sizeof(FetchItem));
 	memset(OneMsg, 0, sizeof(FetchItem));
 	OneMsg->MSGID = atol(ChrPtr(RecvMsg->IO.IOBuf));
