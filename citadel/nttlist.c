@@ -23,6 +23,7 @@
  *                 Network maps: evaluate other nodes                          *
  *-----------------------------------------------------------------------------*/
 int NTTDebugEnabled = 0;
+int NTTDumpEnabled = 0;
 
 /*
  * network_talking_to()  --  concurrency checker
@@ -67,6 +68,29 @@ int CtdlNetworkTalkingTo(const char *nodename, long len, int operation)
 			break;
 	}
 
+	if (NTTDumpEnabled)
+	{
+		HashPos *It;
+		StrBuf *NTTDump;
+		long len;
+		const char *Key;
+		void *v;
+		NTTDump = NewStrBuf ();
+
+		It = GetNewHashPos(nttlist, 0);
+		while (GetNextHashPos(nttlist, It, &len, &Key, &v))
+		{
+			if (StrLength(NTTDump) > 0)
+				StrBufAppendBufPlain(NTTDump, HKEY("|"), 0);
+			StrBufAppendBuf(NTTDump, (StrBuf*) v, 0);
+		}
+		DeleteHashPos(&It);
+
+		syslog(LOG_DEBUG, "nttlist: Dump: [%d] <%s>\n", 
+		       GetCount(nttlist),
+		       ChrPtr(NTTDump));
+		FreeStrBuf(&NTTDump);
+	}
 	end_critical_section(S_NTTLIST);
 	return(retval);
 }
@@ -88,6 +112,11 @@ void SetNTTDebugEnabled(const int n)
 	NTTDebugEnabled = n;
 }
 
+void SetNTTDumpEnabled(const int n)
+{
+	NTTDumpEnabled = n;
+}
+
 
 
 /*
@@ -98,6 +127,7 @@ CTDL_MODULE_INIT(nttlist)
 	if (!threading)
 	{
 		CtdlRegisterDebugFlagHook(HKEY("networktalkingto"), SetNTTDebugEnabled, &NTTDebugEnabled);
+		CtdlRegisterDebugFlagHook(HKEY("dumpnetworktalkingto"), SetNTTDumpEnabled, &NTTDumpEnabled);
 
 		CtdlRegisterCleanupHook(cleanup_nttlist);
 	}
