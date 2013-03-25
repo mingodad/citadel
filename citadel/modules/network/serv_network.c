@@ -184,11 +184,24 @@ int network_sync_to(char *target_node, long len)
 	{
 		return -1;
 	}
+
 	memset(&sc, 0, sizeof(SpoolControl));
 	memset(&OneRNCFG, 0, sizeof(OneRoomNetCfg));
 	sc.RNCfg = &OneRNCFG;
 	sc.RNCfg->NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
+	sc.Users[ignet_push_share] = NewStrBufPlain(NULL,
+						    StrLength(pCfgLine->Value[0]) +
+						    StrLength(pCfgLine->Value[1]) + 10);
+	StrBufAppendBuf(sc.Users[ignet_push_share], 
+			pCfgLine->Value[0],
+			0);
+	StrBufAppendBufPlain(sc.Users[ignet_push_share], 
+			     HKEY(","),
+			     0);
 
+	StrBufAppendBuf(sc.Users[ignet_push_share], 
+			pCfgLine->Value[1],
+			0);
 	CalcListID(&sc);
 
 	end_critical_section(S_NETCONFIGS);

@@ -923,6 +923,11 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			do {} while ((FileMoveChunked(&FDIO, &err) > 0) && (err == NULL));
 			if (err == NULL) {
 				unlink(filename);
+				QN_syslog(LOG_DEBUG,
+					  "Spoolfile %s now %ld k\n",
+					  spooloutfilename,
+					  (dsize + fsize)/1024
+					);				
 			}
 			else {
 				nFailed++;

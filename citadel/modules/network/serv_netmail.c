@@ -526,7 +526,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 			}
 			
 			QN_syslog(LOG_INFO,
-				  "%sSending to %s\n",
+				  " %sSending to %s\n",
 				  (send)?"":"Not ",
 				  ChrPtr(Recipient));
 		}
@@ -600,6 +600,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 void network_spool_msg(long msgnum,
 		       void *userdata)
 {
+	struct CitContext *CCC = CC;
 	struct CtdlMessage *msg = NULL;
 	long delete_after_send = 0;	/* Set to 1 to delete after spooling */
 	SpoolControl *sc;
@@ -608,6 +609,13 @@ void network_spool_msg(long msgnum,
 
 	msg = CtdlFetchMessage(msgnum, 1);
 
+	if (msg == NULL)
+	{
+		QN_syslog(LOG_ERR,
+			  "failed to load Message <%ld> from disk\n",
+			  msgnum);
+		return;
+	}
 	network_process_list(sc, msg, &delete_after_send);
 	network_process_digest(sc, msg, &delete_after_send);
 	network_process_participate(sc, msg, &delete_after_send);
