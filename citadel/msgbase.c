@@ -1213,6 +1213,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	MSG_syslog(LOG_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
+		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Failed!\n", msgnum, with_body);
 		return NULL;
 	}
 	mptr = dmsgtext->ptr;
