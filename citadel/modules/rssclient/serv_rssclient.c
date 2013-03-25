@@ -570,7 +570,6 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCFG)
 {
 	const RoomNetCfgLine *pLine;
-	rss_room_counter *Count = NULL;
 	rss_aggregator *RSSAggr = NULL;
 	rss_aggregator *use_this_RSSAggr = NULL;
 	void *vptr;
@@ -595,13 +594,6 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 	{
 		const char *lPtr = NULL;
 
-		if (Count == NULL)
-		{
-			Count = malloc(
-				sizeof(rss_room_counter));
-			Count->count = 0;
-		}
-		Count->count ++;
 		RSSAggr = (rss_aggregator *) malloc(
 			sizeof(rss_aggregator));
 
