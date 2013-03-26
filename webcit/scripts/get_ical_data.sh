@@ -4,6 +4,11 @@ if test -f /usr/include/libical/ical.h; then
     ICAL=/usr/include/libical/ical.h
 fi
 
+if test ! -f ${ICAL}; then 
+    echo "failed to locate libical headers - please install the libical development packages or heardes"
+    exit 500
+fi
+
 ICALTYPES="icalproperty_kind"\
 " icalcomponent_kind"\
 " icalrequeststatus"\

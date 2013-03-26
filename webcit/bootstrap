@@ -6,31 +6,32 @@
 # Remove any vestiges of pre-6.05 build environments
 rm -f .libs modules *.so *.lo *.la 2>/dev/null
 
-./scripts/get_ical_data.sh
+if ./scripts/get_ical_data.sh; then
 
-echo ... running aclocal ...
-aclocal
-
-echo ... running autoconf ...
-autoconf
+    echo ... running aclocal ...
+    aclocal
+    
+    echo ... running autoconf ...
+    autoconf
 
 # If your autoconf version changes, the autom4te.cache stuff will mess you up.
 # Get rid of it.
-echo ... removing autoheader cache files ...
-rm -rf autom4te*.cache
+    echo ... removing autoheader cache files ...
+    rm -rf autom4te*.cache
+    
+    echo ... running autoheader ...
+    autoheader
+    
+    echo ... mk_module_init.sh ...
+    ./scripts/mk_module_init.sh
 
-echo ... running autoheader ...
-autoheader
 
-echo ... mk_module_init.sh ...
-./scripts/mk_module_init.sh
-
-
-echo
-echo This script has been tested with autoconf 2.53 and
-echo automake 1.5. Other versions may work, but I recommend the latest
-echo compatible versions of these.
-echo
-echo Also note that autoconf and automake should be configured
-echo with the same prefix.
-echo
+    echo
+    echo This script has been tested with autoconf 2.53 and
+    echo automake 1.5. Other versions may work, but I recommend the latest
+    echo compatible versions of these.
+    echo
+    echo Also note that autoconf and automake should be configured
+    echo with the same prefix.
+    echo
+fi
