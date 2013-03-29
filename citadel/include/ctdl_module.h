@@ -77,7 +77,7 @@
 		SUBJECT) 
 
 
-#define CtdlAideFPMessage(TEXT, SUBJECT, N, STR, STRLEN) \
+#define CtdlAideFPMessage(TEXT, SUBJECT, N, STR, STRLEN, ccid, ioid, TIME) \
 	flood_protect_quickie_message(			 \
 		"Citadel",				 \
 		NULL,					 \
@@ -88,7 +88,10 @@
 		SUBJECT,				 \
 		N,					 \
 		STR,					 \
-		STRLEN)
+		STRLEN,					 \
+		ccid,					 \
+		ioid,					 \
+		TIME)
 /*
  * Hook functions available to modules.
  */

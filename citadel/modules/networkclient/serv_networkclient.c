@@ -209,7 +209,9 @@ eNextState SendFailureMessage(AsyncIO *IO)
 	CtdlAideFPMessage(
 		ChrPtr(NW->IO.ErrMsg),
 		"Networker error",
-		2, strs, (long*) &lens);
+		2, strs, (long*) &lens,
+		IO->Now,
+		IO->ID, CCID);
 	
 	return eAbort;
 }

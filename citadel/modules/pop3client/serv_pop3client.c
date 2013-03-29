@@ -373,7 +373,6 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 	long HKLen;
 	const char *HKey;
 	void *vData;
-	struct cdbdata *cdbut;
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 
 	if((RecvMsg->Pos != NULL) &&
@@ -383,32 +382,19 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 			  &HKey,
 			  &vData))
 	{
-		struct UseTable ut;
 		if (server_shutting_down)
 			return eAbort;
 
-		RecvMsg->CurrMsg = (FetchItem*) vData;
-		EVP3CCS_syslog(LOG_DEBUG,
-			       "CHECKING: whether %s has already been seen: ",
-			       ChrPtr(RecvMsg->CurrMsg->MsgUID));
-
-		/* Find out if we've already seen this item */
-		safestrncpy(ut.ut_msgid,
-			    ChrPtr(RecvMsg->CurrMsg->MsgUID),
-			    sizeof(ut.ut_msgid));
-		ut.ut_timestamp = time(NULL);/// TODO: libev timestamp!
-
-		cdbut = cdb_fetch(CDB_USETABLE, SKEY(RecvMsg->CurrMsg->MsgUID));
-		if (cdbut != NULL) {
+		if (CheckIfAlreadySeen("POP3 Item Seen",
+				       RecvMsg->CurrMsg->MsgUID,
+				       IO->Now,
+				       IO->Now, //// todo
+				       eCheckUpdate,
+				       IO->ID, CCID)
+		    != 0)
+		{
 			/* Item has already been seen */
-			EVP3CCSM_syslog(LOG_DEBUG, "YES\n");
-			cdb_free(cdbut);
-
-			/* rewrite the record anyway, to update the timestamp */
-			cdb_store(CDB_USETABLE,
-				  SKEY(RecvMsg->CurrMsg->MsgUID),
-				  &ut, sizeof(struct UseTable) );
-			RecvMsg->CurrMsg->NeedFetch = 0; ////TODO0;
+			RecvMsg->CurrMsg->NeedFetch = 0;
 		}
 		else
 		{
@@ -548,21 +534,17 @@ eNextState POP3C_ReadMessageBodyFollowing(pop3aggr *RecvMsg)
 eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 {
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
-	struct UseTable ut;
 
 	EVP3CCS_syslog(LOG_DEBUG,
 		       "MARKING: %s as seen: ",
 		       ChrPtr(RecvMsg->CurrMsg->MsgUID));
+	CheckIfAlreadySeen("POP3 Item Seen",
+			   RecvMsg->CurrMsg->MsgUID,
+			   IO->Now,
+			   IO->Now, //// todo
+			   eWrite,
+			   IO->ID, CCID);
 
-	safestrncpy(ut.ut_msgid,
-		    ChrPtr(RecvMsg->CurrMsg->MsgUID),
-		    sizeof(ut.ut_msgid));
-	ut.ut_timestamp = time(NULL); /* TODO: use libev time */
-	cdb_store(CDB_USETABLE,
-		  ChrPtr(RecvMsg->CurrMsg->MsgUID),
-		  StrLength(RecvMsg->CurrMsg->MsgUID),
-		  &ut,
-		  sizeof(struct UseTable) );
 	StopDBWatchers(IO);
 	return QueueEventContext(&RecvMsg->IO, POP3_C_ReAttachToFetchMessages);
 }

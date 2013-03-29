@@ -371,10 +371,8 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 	CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
 
 	/* write the uidl to the use table so we don't store this item again */
-	cdb_store(CDB_USETABLE,
-		  SKEY(RSSAggr->ThisMsg->MsgGUID),
-		  &RSSAggr->ThisMsg->ut,
-		  sizeof(struct UseTable) );
+
+	CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, IO->ID, CCID);
 
 	if (GetNextHashPos(RSSAggr->Messages,
 			   RSSAggr->Pos,
@@ -389,27 +387,23 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
 	const char *Key;
 	long len;
-	struct cdbdata *cdbut;
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
 	/* Find out if we've already seen this item */
-	strcpy(Ctx->ThisMsg->ut.ut_msgid,
-	       ChrPtr(Ctx->ThisMsg->MsgGUID)); /// TODO
-	Ctx->ThisMsg->ut.ut_timestamp = time(NULL);
-
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(Ctx->ThisMsg->MsgGUID));
+// todo: expiry?
 #ifndef DEBUG_RSS
-	if (cdbut != NULL) {
+	if (CheckIfAlreadySeen("RSS Item Seen",
+			       Ctx->ThisMsg->MsgGUID,
+			       IO->Now,
+			       IO->Now - USETABLE_ANTIEXPIRE,
+			       eCheckUpdate,
+			       IO->ID, CCID)
+	    != 0)
+	{
 		/* Item has already been seen */
 		EVRSSC_syslog(LOG_DEBUG,
 			  "%s has already been seen\n",
 			  ChrPtr(Ctx->ThisMsg->MsgGUID));
-		cdb_free(cdbut);
-
-		/* rewrite the record anyway, to update the timestamp */
-		cdb_store(CDB_USETABLE,
-			  SKEY(Ctx->ThisMsg->MsgGUID),
-			  &Ctx->ThisMsg->ut, sizeof(struct UseTable) );
 
 		if (GetNextHashPos(Ctx->Messages,
 				   Ctx->Pos,
@@ -427,15 +421,14 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 		NextDBOperation(IO, RSSSaveMessage);
 		return eSendMore;
 	}
+	return eSendMore;
 }
 
 eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 {
-	struct UseTable ut;
 	u_char rawdigest[MD5_DIGEST_LEN];
 	struct MD5Context md5context;
 	StrBuf *guid;
-	struct cdbdata *cdbut;
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
 	if (IO->HttpReq.httpcode != 200)
@@ -464,7 +457,9 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 		CtdlAideFPMessage(
 			ChrPtr(ErrMsg),
 			"RSS Aggregation run failure",
-			2, strs, (long*) &lens);
+			2, strs, (long*) &lens,
+			IO->Now,
+			IO->ID, CCID);
 		FreeStrBuf(&ErrMsg);
 		return eAbort;
 	}
@@ -487,32 +482,20 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	/* Find out if we've already seen this item */
 
 #ifndef DEBUG_RSS
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
-	if (cdbut != NULL) {
-                memcpy(&ut, cdbut->ptr,
-                       ((cdbut->len > sizeof(struct UseTable)) ?
-                        sizeof(struct UseTable) : cdbut->len));
 
-		if (IO->Now - ut.ut_timestamp  > 
-		    60 * 60 * 24 * 4)
-		{
-			/* Item has already been seen in the last 4 days */
-			EVRSSC_syslog(LOG_DEBUG,
-				      "%s has already been seen\n",
-				      ChrPtr(Ctx->Url));
-		}
-		cdb_free(cdbut);
+	if (CheckIfAlreadySeen("RSS Whole",
+			       guid,
+			       IO->Now,
+			       IO->Now - USETABLE_ANTIEXPIRE,
+			       eCheckUpdate,
+			       IO->ID, CCID)
+	    != 0)
+	{
+		FreeStrBuf(&guid);
+
+		return eAbort;
 	}
-
-	memcpy(ut.ut_msgid, SKEY(guid));
-	ut.ut_timestamp = IO->Now;
-
-	/* rewrite the record anyway, to update the timestamp */
-	cdb_store(CDB_USETABLE,
-		  SKEY(guid),
-		  &ut, sizeof(struct UseTable) );
 	FreeStrBuf(&guid);
-	if (cdbut != NULL) return eAbort;
 #endif
 	return RSSAggregator_ParseReply(IO);
 }

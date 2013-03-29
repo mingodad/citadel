@@ -926,7 +926,8 @@ void cmd_netp(char *cmdbuf)
 		CtdlAideFPMessage(
 			err_buf,
 			"IGNet Networking.",
-			2, strs, (long*) &lens);
+			2, strs, (long*) &lens,
+			time(NULL));
 
 		DeleteHash(&working_ignetcfg);
 		FreeStrBuf(&NodeStr);
@@ -951,7 +952,9 @@ void cmd_netp(char *cmdbuf)
 		CtdlAideFPMessage(
 			err_buf,
 			"IGNet Networking.",
-			2, strs, (long*) &lens);
+			2, strs,
+			(long*) &lens,
+			time(NULL));
 
 		DeleteHash(&working_ignetcfg);
 		FreeStrBuf(&NodeStr);

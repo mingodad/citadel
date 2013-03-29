@@ -129,7 +129,10 @@ void flood_protect_quickie_message(const char *from,
 				   const char *subject,
 				   int nCriterions,
 				   const char **CritStr,
-				   long *CritStrLen);
+				   long *CritStrLen,
+				   long ccid,
+				   long ioid,
+				   time_t NOW);
 
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);

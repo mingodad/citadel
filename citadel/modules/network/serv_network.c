@@ -106,10 +106,9 @@ struct RoomProcList *rplist = NULL;
  */
 int network_usetable(struct CtdlMessage *msg)
 {
+	StrBuf *msgid;
 	struct CitContext *CCC = CC;
-	char msgid[SIZ];
-	struct cdbdata *cdbut;
-	struct UseTable ut;
+	time_t now;
 
 	/* Bail out if we can't generate a message ID */
 	if (msg == NULL) {
@@ -123,28 +122,29 @@ int network_usetable(struct CtdlMessage *msg)
 	}
 
 	/* Generate the message ID */
-	strcpy(msgid, msg->cm_fields['I']);
-	if (haschar(msgid, '@') == 0) {
-		strcat(msgid, "@");
+	msgid = NewStrBufPlain(msg->cm_fields['I'], -1);
+	if (haschar(ChrPtr(msgid), '@') == 0) {
+		StrBufAppendBufPlain(msgid, HKEY("@"), 0);
 		if (msg->cm_fields['N'] != NULL) {
-			strcat(msgid, msg->cm_fields['N']);
+			StrBufAppendBufPlain(msgid, msg->cm_fields['N'], -1, 0);
 		}
 		else {
+			FreeStrBuf(&msgid);
 			return(0);
 		}
 	}
-
-	cdbut = cdb_fetch(CDB_USETABLE, msgid, strlen(msgid));
-	if (cdbut != NULL) {
-		cdb_free(cdbut);
-		QN_syslog(LOG_DEBUG, "network_usetable() : we already have %s\n", msgid);
+	now = time(NULL);
+	if (CheckIfAlreadySeen("Networker Import",
+			       msgid,
+			       now, 0,
+			       eCheckUpdate,
+			       CCC->cs_pid, 0) != 0)
+	{
+		FreeStrBuf(&msgid);
 		return(1);
 	}
+	FreeStrBuf(&msgid);
 
-	/* If we got to this point, it's unique: add it. */
-	strcpy(ut.ut_msgid, msgid);
-	ut.ut_timestamp = time(NULL);
-	cdb_store(CDB_USETABLE, msgid, strlen(msgid), &ut, sizeof(struct UseTable) );
 	return(0);
 }
 

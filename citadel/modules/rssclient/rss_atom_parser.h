@@ -66,7 +66,6 @@ typedef struct __networker_save_message {
 	struct CtdlMessage Msg;
 	StrBuf *MsgGUID;
 	StrBuf *Message;
-	struct UseTable ut;
 
 	StrBuf *author_email;
 	StrBuf *author_or_creator;

@@ -906,3 +906,84 @@ void cdb_trunc(int cdb)
 		}
 	}
 }
+
+int SeentDebugEnabled = 0;
+
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (SeentDebugEnabled != 0))
+#define SEENM_syslog(LEVEL, FORMAT)					\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "IO[%ld]CC[%ld] SEEN[%s][%d] " FORMAT,	\
+			     ioid, ccid, Facility, cType)
+
+time_t CheckIfAlreadySeen(const char *Facility,
+			  StrBuf *guid,
+			  time_t now,
+			  time_t antiexpire,
+			  eCheckType cType,
+			  long ccid,
+			  long ioid)
+{
+	struct UseTable ut;
+	struct cdbdata *cdbut;
+
+	if (cType != eWrite)
+	{
+		time_t InDBTimeStamp = 0;
+		SEENM_syslog(LOG_DEBUG, "Loading");
+		cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
+		if (cdbut != NULL) {
+			memcpy(&ut, cdbut->ptr,
+			       ((cdbut->len > sizeof(struct UseTable)) ?
+				sizeof(struct UseTable) : cdbut->len));
+			
+			if (ut.ut_timestamp > antiexpire)
+			{
+				SEENM_syslog(LOG_DEBUG, "Found - Not expired.");
+				cdb_free(cdbut);
+				return ut.ut_timestamp;
+			}
+			else
+			{
+				SEENM_syslog(LOG_DEBUG, "Found - Expired.");
+				InDBTimeStamp = ut.ut_timestamp;
+				cdb_free(cdbut);
+			}
+		}
+		else
+		{
+			SEENM_syslog(LOG_DEBUG, "not Found");
+		}
+
+		if (cType == eCheckExist)
+			return InDBTimeStamp;
+	}
+
+	memcpy(ut.ut_msgid, SKEY(guid));
+	ut.ut_timestamp = now;
+
+	SEENM_syslog(LOG_DEBUG, "Saving");
+	/* rewrite the record anyway, to update the timestamp */
+	cdb_store(CDB_USETABLE,
+		  SKEY(guid),
+		  &ut, sizeof(struct UseTable) );
+
+	SEENM_syslog(LOG_DEBUG, "Done Saving");
+	return 0;
+}
+
+
+void LogDebugEnableSeenEnable(const int n)
+{
+	SeentDebugEnabled = n;
+}
+
+CTDL_MODULE_INIT(database)
+{
+	if (!threading)
+	{
+		CtdlRegisterDebugFlagHook(HKEY("SeenDebug"), LogDebugEnableSeenEnable, &SeentDebugEnabled);
+	}
+
+	/* return our module id for the log */
+ 	return "database";
+}

@@ -3606,18 +3606,18 @@ void flood_protect_quickie_message(const char *from,
 				   const char *subject,
 				   int nCriterions,
 				   const char **CritStr,
-				   long *CritStrLen)
+				   long *CritStrLen,
+				   long ccid,
+				   long ioid,
+				   time_t NOW)
 {
 	int i;
-	struct UseTable ut;
 	u_char rawdigest[MD5_DIGEST_LEN];
 	struct MD5Context md5context;
 	StrBuf *guid;
-	struct cdbdata *cdbut;
 	char timestamp[64];
 	long tslen;
-	time_t ts = time(NULL);
-	time_t tsday = ts / (8*60*60); /* just care for a day... */
+	time_t tsday = NOW / (8*60*60); /* just care for a day... */
 
 	tslen = snprintf(timestamp, sizeof(timestamp), "%ld", tsday);
 	MD5Init(&md5context);
@@ -3635,27 +3635,22 @@ void flood_protect_quickie_message(const char *from,
 	StrBufAppendBufPlain(guid, HKEY("_fldpt"), 0);
 	if (StrLength(guid) > 40)
 		StrBufCutAt(guid, 40, NULL);
-	/* Find out if we've already sent a similar message */
-	memcpy(ut.ut_msgid, SKEY(guid));
-	ut.ut_timestamp = ts;
 
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
-
-	if (cdbut != NULL) {
+	if (CheckIfAlreadySeen("FPAideMessage",
+			       guid,
+			       NOW,
+			       tsday,
+			       eUpdate,
+			       ccid,
+			       ioid)!= 0)
+	{
+		FreeStrBuf(&guid);
 		/* yes, we did. flood protection kicks in. */
 		syslog(LOG_DEBUG,
 		       "not sending message again\n");
-		cdb_free(cdbut);
+		return;
 	}
-
-	/* rewrite the record anyway, to update the timestamp */
-	cdb_store(CDB_USETABLE,
-		  SKEY(guid),
-		  &ut, sizeof(struct UseTable) );
-	
 	FreeStrBuf(&guid);
-
-	if (cdbut != NULL) return;
 	/* no, this message isn't sent recently; go ahead. */
 	quickie_message(from,
 			fromaddr,
