@@ -233,7 +233,7 @@ void CalcListID(SpoolControl *sc)
 	assoc_file_name(filename, sizeof filename, &sc->room, ctdl_info_dir);
 	fd = open(filename, 0);
 
-	if (fd != 0) {
+	if (fd > 0) {
 		struct stat stbuf;
 
 		if ((fstat(fd, &stbuf) == 0) &&
