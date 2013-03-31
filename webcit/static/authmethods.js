@@ -38,16 +38,7 @@ function GetLoggedInFirst(destination_url) {
 	new Ajax.Request(p, { method: 'get' } );
 
 	/* If not logged in, go modal and ask the user to log in first. */
-	new Ajax.Updater(
-		'md-content',
-		'do_template?template=get_logged_in',
-                {
-                        method: 'get',
-			onSuccess: function() {
-				toggleModal(1);
-			}
-                }
-        );
+        toggleModal(1);
 }
 
 
