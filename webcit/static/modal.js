@@ -69,7 +69,7 @@ if ( isSafari ) {
 // need to do some special stuff to handle MSIE.
 
 
-var toggleModal = function (b) {
+function toggleModal (b) {
 
 	if (modalShowing && b) return;
 	if (!modalShowing && !b) return;
