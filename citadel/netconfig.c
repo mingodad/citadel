@@ -927,6 +927,7 @@ void cmd_netp(char *cmdbuf)
 			err_buf,
 			"IGNet Networking.",
 			2, strs, (long*) &lens,
+			CCC->cs_pid, 0,
 			time(NULL));
 
 		DeleteHash(&working_ignetcfg);
@@ -954,6 +955,7 @@ void cmd_netp(char *cmdbuf)
 			"IGNet Networking.",
 			2, strs,
 			(long*) &lens,
+			CCC->cs_pid, 0,
 			time(NULL));
 
 		DeleteHash(&working_ignetcfg);
