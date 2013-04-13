@@ -154,7 +154,14 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 {
 	const char *Status;
 	SmtpOutMsg *Msg = IO->Data;
-	
+	StrBuf *StatusMessage;
+
+	if (Msg->MyQEntry->AllStatusMessages != NULL)
+		StatusMessage = Msg->MyQEntry->AllStatusMessages;
+	else
+		StatusMessage = Msg->MyQEntry->StatusMessage;
+
+
 	if (Msg->MyQEntry->Status == 2) {
 		SetSMTPState(IO, eSTMPfinished);
 		Status = "Delivery successful.";
@@ -175,7 +182,7 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 		   Msg->user,
 		   Msg->node,
 		   Msg->name,
-		   ChrPtr(Msg->MyQEntry->StatusMessage));
+		   ChrPtr(StatusMessage));
 
 
 	Msg->IDestructQueItem = DecreaseQReference(Msg->MyQItem);
@@ -204,7 +211,7 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 	Msg->MyQItem->QueMsgID = -1;
 
 	if (Msg->IDestructQueItem)
-		smtpq_do_bounce(Msg->MyQItem, Msg->msgtext, Msg->pCurrRelay);
+		smtpq_do_bounce(Msg->MyQItem, StatusMessage, Msg->msgtext, Msg->pCurrRelay);
 
 	if (Msg->nRemain > 0)
 	{
