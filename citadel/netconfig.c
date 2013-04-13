@@ -839,6 +839,7 @@ int is_recipient(OneRoomNetCfg *RNCfg, const char *Name)
 			}
 			nptr = nptr->next;
 		}
+		i++;
 	}
 	return 0;
 }
