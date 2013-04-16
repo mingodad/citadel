@@ -1115,10 +1115,13 @@ typedef struct KillOtherSessionContext {
 
 eNextState KillTerminate(AsyncIO *IO)
 {
+	long id;
 	KillOtherSessionContext *Ctx = (KillOtherSessionContext*)IO->Data;
 	EV_syslog(LOG_DEBUG, "%s Exit\n", __FUNCTION__);
+	id = IO->ID;
 	FreeAsyncIOContents(IO);
 	memset(Ctx, 0, sizeof(KillOtherSessionContext));
+	IO->ID = id; /* just for the case we want to analyze it in a coredump */
 	free(Ctx);
 	return eAbort;
 
