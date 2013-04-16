@@ -917,18 +917,39 @@ void close_masters (void)
 
 		if (serviceptr->tcp_port > 0)
 		{
-			syslog(LOG_INFO, "Closing %d listener on port %d\n",
+			const char *Text;
+
+			if (serviceptr->msock == -1)
+				Text = "not closing again";
+			else
+				Text = "Closing";
+					
+			syslog(LOG_INFO, "%s %d listener on port %d\n",
+			       Text,
 			       serviceptr->msock,
 			       serviceptr->tcp_port);
 			serviceptr->tcp_port = 0;
 		}
 		
 		if (serviceptr->sockpath != NULL)
-			syslog(LOG_INFO, "Closing %d listener on '%s'\n",
+		{
+			if (serviceptr->msock == -1)
+				Text = "not closing again";
+			else
+				Text = "Closing";
+
+			syslog(LOG_INFO, "%s %d listener on '%s'\n",
+			       Text,
 			       serviceptr->msock,
 			       serviceptr->sockpath);
+		}
+
                 if (serviceptr->msock != -1)
+		{
 			close(serviceptr->msock);
+			serviceptr->msock = -1;
+		}
+
 		/* If it's a Unix domain socket, remove the file. */
 		if (serviceptr->sockpath != NULL) {
 			unlink(serviceptr->sockpath);
