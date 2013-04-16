@@ -908,7 +908,8 @@ int client_getln(char *buf, int bufsize)
 void close_masters (void)
 {
 	struct ServiceFunctionHook *serviceptr;
-	
+	const char *Text;
+
 	/*
 	 * close all protocol master sockets
 	 */
@@ -917,8 +918,6 @@ void close_masters (void)
 
 		if (serviceptr->tcp_port > 0)
 		{
-			const char *Text;
-
 			if (serviceptr->msock == -1)
 				Text = "not closing again";
 			else
