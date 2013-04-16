@@ -460,7 +460,12 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 			2, strs, (long*) &lens,
 			IO->Now,
 			IO->ID, CCID);
+		
 		FreeStrBuf(&ErrMsg);
+		EVRSSC_syslog(LOG_DEBUG,
+			      "RSS feed returned an invalid http status code. <%s><HTTP %ld>\n",
+			      ChrPtr(Ctx->Url),
+			      IO->HttpReq.httpcode);
 		return eAbort;
 	}
 
@@ -493,6 +498,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	{
 		FreeStrBuf(&guid);
 
+		EVRSSC_syslog(LOG_DEBUG, "RSS feed already seen. <%s>\n", ChrPtr(Ctx->Url));
 		return eAbort;
 	}
 	FreeStrBuf(&guid);
@@ -682,21 +688,29 @@ void rssclient_scan(void) {
 	}
 
 	become_session(&rss_CC);
-	EVRSSQM_syslog(LOG_DEBUG, "rssclient started\n");
+	EVRSSQM_syslog(LOG_DEBUG, "rssclient started");
 	CtdlForEachNetCfgRoom(rssclient_scan_room, NULL, rssclient);
 
-	pthread_mutex_lock(&RSSQueueMutex);
-
-	it = GetNewHashPos(RSSFetchUrls, 0);
-	while (!server_shutting_down &&
-	       GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) &&
-	       (vrptr != NULL)) {
-		rptr = (rss_aggregator *)vrptr;
-		if (!rss_do_fetching(rptr))
-			UnlinkRSSAggregator(rptr);
+	if (GetCount(RSSFetchUrls) > 0)
+	{
+		pthread_mutex_lock(&RSSQueueMutex);
+		EVRSSQ_syslog(LOG_DEBUG,
+			       "rssclient starting %d Clients",
+			       GetCount(RSSFetchUrls));
+		
+		it = GetNewHashPos(RSSFetchUrls, 0);
+		while (!server_shutting_down &&
+		       GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) &&
+		       (vrptr != NULL)) {
+			rptr = (rss_aggregator *)vrptr;
+			if (!rss_do_fetching(rptr))
+				UnlinkRSSAggregator(rptr);
+		}
+		DeleteHashPos(&it);
+		pthread_mutex_unlock(&RSSQueueMutex);
 	}
-	DeleteHashPos(&it);
-	pthread_mutex_unlock(&RSSQueueMutex);
+	else
+		EVRSSQM_syslog(LOG_DEBUG, "Nothing to do.");
 
 	EVRSSQM_syslog(LOG_DEBUG, "rssclient ended\n");
 	return;
