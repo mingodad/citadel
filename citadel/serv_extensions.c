@@ -1229,18 +1229,29 @@ void CtdlShutdownServiceHooks(void)
 
 void CtdlDestroyServiceHook(void)
 {
+	const char *Text;
 	ServiceFunctionHook *cur, *p;
 
 	cur = ServiceHookTable;
 	while (cur != NULL)
 	{
-		close(cur->msock);
+		if (cur->msock != -1)
+		{
+			close(cur->msock);
+			Text = "Closed";
+		}
+		else
+		{
+			Text = " Not closing again";
+		}
+
 		if (cur->sockpath) {
-			MOD_syslog(LOG_INFO, "Closed UNIX domain socket %s\n",
+			MOD_syslog(LOG_INFO, "%s UNIX domain socket %s\n",
+				   Text,
 				   cur->sockpath);
 			unlink(cur->sockpath);
 		} else if (cur->tcp_port) {
-			MOD_syslog(LOG_INFO, "Closed TCP port %d\n", cur->tcp_port);
+			MOD_syslog(LOG_INFO, "%s TCP port %d\n", Text, cur->tcp_port);
 		} else {
 			MOD_syslog(LOG_INFO, "Destroyed service \"%s\"\n", cur->ServiceName);
 		}
