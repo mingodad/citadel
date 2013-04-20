@@ -1381,7 +1381,8 @@ SKIP_SELECT:
 
 		pthread_mutex_lock(&ThreadCountMutex);
 		--active_workers;
-		if (active_workers + config.c_min_workers < num_workers)
+		if ((active_workers + config.c_min_workers < num_workers) &&
+		    (num_workers > config.c_min_workers))
 		{
 			num_workers--;
 			pthread_mutex_unlock(&ThreadCountMutex);
