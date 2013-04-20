@@ -1157,7 +1157,9 @@ void *worker_thread(void *blah) {
 	CitContext *con = NULL;         /* Temporary context pointer */
 	int i;
 
+	pthread_mutex_lock(&ThreadCountMutex);
 	++num_workers;
+	pthread_mutex_unlock(&ThreadCountMutex);
 
 	while (!server_shutting_down) {
 
@@ -1339,7 +1341,10 @@ do_select:	force_purge = 0;
 
 SKIP_SELECT:
 		/* We're bound to a session */
+		pthread_mutex_lock(&ThreadCountMutex);
 		++active_workers;
+		pthread_mutex_unlock(&ThreadCountMutex);
+
 		if (bind_me != NULL) {
 			become_session(bind_me);
 
@@ -1373,11 +1378,22 @@ SKIP_SELECT:
 
 		dead_session_purge(force_purge);
 		do_housekeeping();
+
+		pthread_mutex_lock(&ThreadCountMutex);
 		--active_workers;
+		if (active_workers + config.c_min_workers < num_workers)
+		{
+			num_workers--;
+			pthread_mutex_unlock(&ThreadCountMutex);
+			return (NULL);
+		}
+		pthread_mutex_unlock(&ThreadCountMutex);
 	}
 
 	/* If control reaches this point, the server is shutting down */
+	pthread_mutex_lock(&ThreadCountMutex);
 	--num_workers;
+	pthread_mutex_unlock(&ThreadCountMutex);
 	return(NULL);
 }
 
