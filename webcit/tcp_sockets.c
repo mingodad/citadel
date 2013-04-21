@@ -36,7 +36,6 @@ RETSIGTYPE timeout(int signum)
 int uds_connectsock(char *sockpath)
 {
 	struct sockaddr_un addr;
-	int fdflags;
 	int s;
 
 	memset(&addr, 0, sizeof(addr));
@@ -54,26 +53,6 @@ int uds_connectsock(char *sockpath)
 		close(s);
 		return(-1);
 	}
-
-	fdflags = fcntl(s, F_GETFL);
-	if (fdflags < 0) {
-		syslog(LOG_ERR,
-		       "unable to get socket %d flags! %s \n",
-		       s,
-		       strerror(errno));
-		close(s);
-		return -1;
-	}
-	fdflags = fdflags | O_NONBLOCK;
-	if (fcntl(s, F_SETFL, fdflags) < 0) {
-		syslog(LOG_ERR,
-		       "unable to set socket %d nonblocking flags! %s \n",
-		       s,
-		       strerror(errno));
-		close(s);
-		return -1;
-	}
-
 	return s;
 }
 
