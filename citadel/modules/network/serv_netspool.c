@@ -924,7 +924,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			if (err == NULL) {
 				unlink(filename);
 				QN_syslog(LOG_DEBUG,
-					  "Spoolfile %s now %ld k\n",
+					  "Spoolfile %s now "SIZE_T_FMT" k\n",
 					  spooloutfilename,
 					  (dsize + fsize)/1024
 					);				
