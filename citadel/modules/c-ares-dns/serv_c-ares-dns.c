@@ -268,6 +268,7 @@ void QueryCb(void *arg,
 {
 	AsyncIO *IO = arg;
 
+	SetEVState(IO, eCaresStart);
 	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 
 	EV_DNS_LOGT_STOP(DNS.timeout);
@@ -298,6 +299,7 @@ void QueryCb(void *arg,
 
 void QueryCbDone(AsyncIO *IO)
 {
+	SetEVState(IO, eCaresDoneIO);
 	EV_DNS_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 
 	EV_DNS_LOGT_STOP(DNS.timeout);
@@ -309,6 +311,7 @@ void QueryCbDone(AsyncIO *IO)
 
 void DestructCAres(AsyncIO *IO)
 {
+	SetEVState(IO, eCaresX);
 	EVNC_syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 
 	EVNC_syslog(LOG_DEBUG, "C-ARES: - stopping %s %d %p \n", "DNS.recv_event", IO->DNS.recv_event.fd, &IO->DNS.recv_event);

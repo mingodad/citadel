@@ -32,6 +32,38 @@ typedef struct AsyncIO AsyncIO;
 typedef struct CitContext CitContext;
 #endif
 
+typedef enum __eIOState { 
+	eDBQ,
+	eQDBNext,
+	eDBAttach,
+	eDBNext,
+	eDBStop,
+	eDBX,
+	eDBTerm,
+	eIOQ,
+	eIOAttach,
+	eIOConnectSock,
+	eIOAbort,
+	eIOTimeout,
+	eIOConnfail,
+	eIOConnfailNow,
+	eIOConnNow,
+	eIOConnWait,
+	eCurlQ,
+	eCurlStart,
+	eCurlShutdown,
+	eCurlNewIO,
+	eCurlGotIO,
+	eCurlGotData,
+	eCurlGotStatus,
+	eCaresStart,
+	eCaresDoneIO,
+	eCaresFinished,
+	eCaresX,
+	eKill,
+	eExit
+}eIOState;
+
 typedef enum _eNextState {
 	eSendDNSQuery,
 	eReadDNSReply,
@@ -51,6 +83,8 @@ typedef enum _eNextState {
 	eTerminateConnection,
 	eAbort
 }eNextState;
+
+void SetEVState(AsyncIO *IO, eIOState State);
 
 typedef eNextState (*IO_CallBack)(AsyncIO *IO);
 typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
