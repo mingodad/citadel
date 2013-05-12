@@ -111,7 +111,8 @@ ConstStr RSSStates[] = {
 static void SetRSSState(AsyncIO *IO, RSSState State)
 {
 	CitContext* CCC = IO->CitContext;
-	memcpy(CCC->cs_clientname, RSSStates[State].Key, RSSStates[State].len + 1);
+	if (CCC != NULL)
+		memcpy(CCC->cs_clientname, RSSStates[State].Key, RSSStates[State].len + 1);
 }
 
 void DeleteRoomReference(long QRnumber)

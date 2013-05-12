@@ -101,7 +101,8 @@ void SetEVState(AsyncIO *IO, eIOState State)
 {
 
 	CitContext* CCC = IO->CitContext;
-	memcpy(CCC->lastcmdname, IOStates[State].Key, IOStates[State].len + 1);
+	if (CCC != NULL)
+		memcpy(CCC->lastcmdname, IOStates[State].Key, IOStates[State].len + 1);
 
 }
 

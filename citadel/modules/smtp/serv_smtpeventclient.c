@@ -108,7 +108,8 @@ ConstStr SMTPStates[] = {
 void SetSMTPState(AsyncIO *IO, smtpstate State)
 {
 	CitContext* CCC = IO->CitContext;
-	memcpy(CCC->cs_clientname, SMTPStates[State].Key, SMTPStates[State].len + 1);
+	if (CCC != NULL)
+		memcpy(CCC->cs_clientname, SMTPStates[State].Key, SMTPStates[State].len + 1);
 }
 
 int SMTPClientDebugEnabled = 0;
