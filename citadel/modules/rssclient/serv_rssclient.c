@@ -93,6 +93,27 @@ int RSSClientDebugEnabled = 0;
 	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]RSS" FORMAT,		\
 			     IO->ID, N)
 
+typedef enum _RSSState {
+	eRSSCreated,
+	eRSSFetching,
+	eRSSFailure,
+	eRSSParsing,
+	eRSSUT
+} RSSState;
+ConstStr RSSStates[] = {
+	{HKEY("Aggregator created")},
+	{HKEY("Fetching content")},
+	{HKEY("Failed")},
+	{HKEY("parsing content")},
+	{HKEY("checking usetable")}
+};
+
+static void SetRSSState(AsyncIO *IO, RSSState State)
+{
+	CitContext* CCC = IO->CitContext;
+	memcpy(CCC->cs_clientname, RSSStates[State].Key, RSSStates[State].len + 1);
+}
+
 void DeleteRoomReference(long QRnumber)
 {
 	HashPos *At;
@@ -392,6 +413,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	/* Find out if we've already seen this item */
 // todo: expiry?
 #ifndef DEBUG_RSS
+	SetRSSState(IO, eRSSUT);
 	if (CheckIfAlreadySeen("RSS Item Seen",
 			       Ctx->ThisMsg->MsgGUID,
 			       IO->Now,
@@ -404,6 +426,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 		EVRSSC_syslog(LOG_DEBUG,
 			  "%s has already been seen\n",
 			  ChrPtr(Ctx->ThisMsg->MsgGUID));
+		SetRSSState(IO, eRSSParsing);
 
 		if (GetNextHashPos(Ctx->Messages,
 				   Ctx->Pos,
@@ -418,6 +441,8 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	else
 #endif
 	{
+		SetRSSState(IO, eRSSParsing);
+
 		NextDBOperation(IO, RSSSaveMessage);
 		return eSendMore;
 	}
@@ -437,6 +462,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 		long lens[2];
 		const char *strs[2];
 
+		SetRSSState(IO, eRSSFailure);
 		ErrMsg = NewStrBuf();
 		EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
 			      IO->HttpReq.httpcode);
@@ -468,6 +494,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 			      IO->HttpReq.httpcode);
 		return eAbort;
 	}
+	SetRSSState(IO, eRSSUT);
 
 	MD5Init(&md5context);
 
@@ -503,6 +530,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	}
 	FreeStrBuf(&guid);
 #endif
+	SetRSSState(IO, eRSSParsing);
 	return RSSAggregator_ParseReply(IO);
 }
 
@@ -540,6 +568,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 		EVRSSCM_syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return 0;
 	}
+	SetRSSState(IO, eRSSCreated);
 
 	safestrncpy(((CitContext*)RSSAggr->IO.CitContext)->cs_host,
 		    ChrPtr(RSSAggr->Url),
@@ -549,6 +578,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 	ParseURL(&RSSAggr->IO.ConnectMe, RSSAggr->Url, 80);
 	CurlPrepareURL(RSSAggr->IO.ConnectMe);
 
+	SetRSSState(IO, eRSSFetching);
 	QueueCurlContext(&RSSAggr->IO);
 	return 1;
 }
