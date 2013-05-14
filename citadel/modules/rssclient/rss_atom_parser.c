@@ -62,7 +62,7 @@ void rss_remember_item(rss_item *ri, rss_aggregator *Cfg);
 
 int RSSAtomParserDebugEnabled = 0;
 
-#define N ((rss_aggregator*)IO->Data)->QRnumber
+#define N ((rss_aggregator*)IO->Data)->Cfg.QRnumber
 
 #define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (RSSAtomParserDebugEnabled != 0))
 

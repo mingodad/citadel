@@ -694,7 +694,7 @@ int PurgeVisits(void) {
  * Purge the use table of old entries.
  *
  */
-int PurgeUseTable(void) {
+int PurgeUseTable(StrBuf *ErrMsg) {
 	int purged = 0;
 	struct cdbdata *cdbut;
 	struct UseTable ut;
@@ -702,6 +702,12 @@ int PurgeUseTable(void) {
 	struct UPurgeList *uptr; 
 
 	/* Phase 1: traverse through the table, discovering old records... */
+	if (CheckTDAPVeto(CDB_USETABLE, ErrMsg))
+	{
+		syslog(LOG_DEBUG, "Purge use table: VETO!");
+		return 0;
+	}
+
 	syslog(LOG_DEBUG, "Purge use table: phase 1");
 	cdb_rewind(CDB_USETABLE);
 	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
@@ -899,8 +905,13 @@ void purge_databases(void)
 
 	if (!server_shutting_down)
 	{
-		retval = PurgeUseTable();
+		StrBuf *ErrMsg;
+
+		ErrMsg = NewStrBuf ();
+		retval = PurgeUseTable(ErrMsg);
        		syslog(LOG_NOTICE, "Purged %d entries from the use table.", retval);
+////TODO: fix errmsg
+		FreeStrBuf(&ErrMsg);
 	}
 
 	if (!server_shutting_down)

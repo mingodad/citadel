@@ -979,6 +979,7 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyCleanupHooks();
 	CtdlDestroyFixedOutputHooks();	
 	CtdlDestroySessionHooks();
+	CtdlDestroyTDAPVetoHooks();
 	CtdlDestroyServiceHook();
 	CtdlDestroyRoomHooks();
 	CtdlDestroySearchHooks();

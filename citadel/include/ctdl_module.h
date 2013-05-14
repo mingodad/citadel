@@ -120,6 +120,10 @@
 #define PRIO_UNSTEALTH 45000
 /* Priorities for EVT_STEALTH */
 #define PRIO_STEALTH 50000
+void CtdlRegisterTDAPVetoHook(int (*fcn_ptr)(StrBuf*), int EventType, int Priority);
+void CtdlUnregisterTDAPVetoHook(int (*fcn_ptr) (StrBuf*), int EventType);
+
+
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType, int Priority);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlShutdownServiceHooks(void);

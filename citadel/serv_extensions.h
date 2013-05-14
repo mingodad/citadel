@@ -63,6 +63,9 @@ char *Dynamic_Module_Init(void);
 void CtdlDestroySessionHooks(void);
 void PerformSessionHooks(int EventType);
 
+int CheckTDAPVeto (int DBType, StrBuf *ErrMsg);
+void CtdlDestroyTDAPVetoHooks(void);
+
 void CtdlDestroyUserHooks(void);
 void PerformUserHooks(struct ctdluser *usbuf, int EventType);
 

@@ -56,7 +56,8 @@ struct LogFunctionHook {
 	int loglevel;
 	void (*h_function_pointer) (char *);
 };
-extern LogFunctionHook *LogHookTable;
+
+LogFunctionHook *LogHookTable = NULL;
 
 typedef struct FixedOutputHook FixedOutputHook;
 struct FixedOutputHook {
@@ -64,7 +65,23 @@ struct FixedOutputHook {
 	char content_type[64];
 	void (*h_function_pointer) (char *, int);
 };
-extern FixedOutputHook *FixedOutputTable;
+FixedOutputHook *FixedOutputTable = NULL;
+
+
+
+/*
+ * TDAPVetoHookFunctionHook extensions are used for any type of hook for which
+ * may prevent the autopurger to run for this specific data class.
+ * the function should at least LOG_INFO that it does so.
+ */
+typedef struct TDAPVetoHookFunctionHook TDAPVetoHookFunctionHook;
+struct TDAPVetoHookFunctionHook {
+	TDAPVetoHookFunctionHook *next;
+	int Priority;
+	int (*h_function_pointer) (StrBuf *);
+	int eventtype;
+};
+TDAPVetoHookFunctionHook *TDAPVetoHookTable = NULL;
 
 
 
@@ -81,8 +98,7 @@ struct SessionFunctionHook {
 	void (*h_function_pointer) (void);
 	int eventtype;
 };
-extern SessionFunctionHook *SessionHookTable;
-
+SessionFunctionHook *SessionHookTable = NULL;
 
 /*
  * UserFunctionHook extensions are used for any type of hook which implements
@@ -95,7 +111,7 @@ struct UserFunctionHook {
 	void (*h_function_pointer) (struct ctdluser *usbuf);
 	int eventtype;
 };
-extern UserFunctionHook *UserHookTable;
+UserFunctionHook *UserHookTable = NULL;
 
 /*
  * MessageFunctionHook extensions are used for hooks which implement handlers
@@ -107,7 +123,7 @@ struct MessageFunctionHook {
 	int (*h_function_pointer) (struct CtdlMessage *msg);
 	int eventtype;
 };
-extern MessageFunctionHook *MessageHookTable;
+MessageFunctionHook *MessageHookTable = NULL;
 
 
 /*
@@ -119,7 +135,7 @@ struct NetprocFunctionHook {
 	NetprocFunctionHook *next;
 	int (*h_function_pointer) (struct CtdlMessage *msg, char *target_room);
 };
-extern NetprocFunctionHook *NetprocHookTable;
+NetprocFunctionHook *NetprocHookTable = NULL;
 
 
 /*
@@ -131,7 +147,7 @@ struct DeleteFunctionHook {
 	DeleteFunctionHook *next;
 	void (*h_function_pointer) (char *target_room, long msgnum);
 };
-extern DeleteFunctionHook *DeleteHookTable;
+DeleteFunctionHook *DeleteHookTable = NULL;
 
 
 /*
@@ -146,7 +162,7 @@ struct XmsgFunctionHook {
 	int (*h_function_pointer) (char *, char *, char *, char *);
 	int order;
 };
-extern XmsgFunctionHook *XmsgHookTable;
+XmsgFunctionHook *XmsgHookTable = NULL;
 
 
 
@@ -160,7 +176,7 @@ struct RoomFunctionHook {
 	RoomFunctionHook *next;
 	int (*fcn_ptr) (struct ctdlroom *);
 };
-extern RoomFunctionHook *RoomHookTable;
+RoomFunctionHook *RoomHookTable = NULL;
 
 
 
@@ -170,21 +186,12 @@ struct SearchFunctionHook {
 	void (*fcn_ptr) (int *, long **, const char *);
 	char *name;
 };
-extern SearchFunctionHook *SearchFunctionHookTable;
-
+SearchFunctionHook *SearchFunctionHookTable = NULL;
 
 CleanupFunctionHook *CleanupHookTable = NULL;
 CleanupFunctionHook *EVCleanupHookTable = NULL;
-SessionFunctionHook *SessionHookTable = NULL;
-UserFunctionHook *UserHookTable = NULL;
-XmsgFunctionHook *XmsgHookTable = NULL;
-MessageFunctionHook *MessageHookTable = NULL;
-NetprocFunctionHook *NetprocHookTable = NULL;
-DeleteFunctionHook *DeleteHookTable = NULL;
+
 ServiceFunctionHook *ServiceHookTable = NULL;
-FixedOutputHook *FixedOutputTable = NULL;
-RoomFunctionHook *RoomHookTable = NULL;
-SearchFunctionHook *SearchFunctionHookTable = NULL;
 
 typedef struct ProtoFunctionHook ProtoFunctionHook;
 struct ProtoFunctionHook {
@@ -584,6 +591,75 @@ void CtdlDestroyEVCleanupHooks(void)
 		cur = p;
 	}
 	EVCleanupHookTable = NULL;
+}
+
+void CtdlRegisterTDAPVetoHook(int (*fcn_ptr) (StrBuf*), int EventType, int Priority)
+{
+	TDAPVetoHookFunctionHook *newfcn;
+
+	newfcn = (TDAPVetoHookFunctionHook *)
+	    malloc(sizeof(TDAPVetoHookFunctionHook));
+	newfcn->Priority = Priority;
+	newfcn->h_function_pointer = fcn_ptr;
+	newfcn->eventtype = EventType;
+
+	TDAPVetoHookFunctionHook **pfcn;
+	pfcn = &TDAPVetoHookTable;
+	while ((*pfcn != NULL) && 
+	       ((*pfcn)->Priority < newfcn->Priority) &&
+	       ((*pfcn)->next != NULL))
+		pfcn = &(*pfcn)->next;
+		
+	newfcn->next = *pfcn;
+	*pfcn = newfcn;
+	
+	MOD_syslog(LOG_DEBUG, "Registered a new TDAP Veto function (type %d Priority %d)\n",
+		   EventType, Priority);
+}
+
+
+void CtdlUnregisterTDAPVetoHook(int (*fcn_ptr) (StrBuf*), int EventType)
+{
+	TDAPVetoHookFunctionHook *cur, *p, *last;
+	last = NULL;
+	cur = TDAPVetoHookTable;
+	while  (cur != NULL) {
+		if ((fcn_ptr == cur->h_function_pointer) &&
+		    (EventType == cur->eventtype))
+		{
+			MOD_syslog(LOG_DEBUG, "Unregistered TDAP Veto function (type %d)\n",
+				   EventType);
+			p = cur->next;
+
+			free(cur);
+			cur = NULL;
+
+			if (last != NULL)
+				last->next = p;
+			else 
+				TDAPVetoHookTable = p;
+			cur = p;
+		}
+		else {
+			last = cur;
+			cur = cur->next;
+		}
+	}
+}
+
+void CtdlDestroyTDAPVetoHooks(void)
+{
+	TDAPVetoHookFunctionHook *cur, *p;
+
+	cur = TDAPVetoHookTable;
+	while (cur != NULL)
+	{
+		MODM_syslog(LOG_DEBUG, "Destroyed TDAP Veto function\n");
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+	TDAPVetoHookTable = NULL;
 }
 
 
@@ -1330,6 +1406,18 @@ void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_st
 	*num_msgs = 0;
 }
 
+int CheckTDAPVeto (int DBType, StrBuf *ErrMsg)
+{
+	int Result = 0;
+	TDAPVetoHookFunctionHook *fcn = NULL;
+
+	for (fcn = TDAPVetoHookTable; (fcn != NULL) && (Result == 0); fcn = fcn->next) {
+		if (fcn->eventtype == DBType) {
+			Result = (*fcn->h_function_pointer) (ErrMsg);
+		}
+	}
+	return Result;
+}
 
 void PerformSessionHooks(int EventType)
 {
