@@ -464,7 +464,7 @@ void UpdateLastKnownGood(pRSSConfig *pCfg, time_t now)
 			if (RSSCfg == pCfg->pCfg)
 				break;
 
-			RSSCfg = RSSCfg->Next;
+			RSSCfg = RSSCfg->next;
 		}
 		if (RSSCfg != NULL)
 		{
@@ -695,7 +695,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 
 			pthread_mutex_unlock(&RSSQueueMutex);
 
-			RSSCfg = RSSCfg->Next;
+			RSSCfg = RSSCfg->next;
 			continue;
 		}
 		pthread_mutex_unlock(&RSSQueueMutex);
@@ -722,7 +722,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 		    DeleteRssCfg);
 
 		pthread_mutex_unlock(&RSSQueueMutex);
-		RSSCfg = RSSCfg->Next;
+		RSSCfg = RSSCfg->next;
 	}
 }
 
@@ -830,7 +830,7 @@ void rssclient_veto_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg 
 			StrBufAppendBuf(Info->ErrMsg, RSSCfg->Url, 0);
 			StrBufAppendBufPlain(Info->ErrMsg, HKEY(">\n"), 0);
 		}
-		RSSCfg = RSSCfg->Next;
+		RSSCfg = RSSCfg->next;
 	}
 }
 
@@ -862,7 +862,7 @@ void ParseRSSClientCfgLine(const CfgLineType *ThisOne, StrBuf *Line, const char 
 	RSSCfg->last_known_good = StrBufExtractNext_long(Line, &LinePos, '|');
 
 
-	RSSCfg->Next = (RSSCfgLine *)OneRNCFG->NetConfigs[ThisOne->C];
+	RSSCfg->next = (RSSCfgLine *)OneRNCFG->NetConfigs[ThisOne->C];
 	OneRNCFG->NetConfigs[ThisOne->C] = (RoomNetCfgLine*) RSSCfg;
 }
 

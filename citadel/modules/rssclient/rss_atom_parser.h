@@ -81,9 +81,9 @@ typedef struct __networker_save_message {
 
 typedef struct RSSCfgLine RSSCfgLine;
 struct RSSCfgLine {
+	RSSCfgLine *next;
 	StrBuf *Url;
 	time_t last_known_good;
-	RSSCfgLine *Next;
 };
 
 typedef struct __pRSSConfig {
