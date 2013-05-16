@@ -878,7 +878,7 @@ void SerializeRSSClientCfgLine(const CfgLineType *ThisOne, StrBuf *OutputBuffer,
 
 void DeleteRSSClientCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data)
 {
-	RSSCfgLine *RSSCfg = (RSSCfgLine*) data;
+	RSSCfgLine *RSSCfg = (RSSCfgLine*) *data;
 
 	FreeStrBuf(&RSSCfg->Url);
 	free(*data);
