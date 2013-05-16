@@ -539,8 +539,10 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 		if (it != NULL)
 		{
 			void *vptr;
-			GetNextHashPos(Ctx->OtherQRnumbers, it, &len, &Key, &vptr);
-			pCfg = vptr;
+			if (GetNextHashPos(Ctx->OtherQRnumbers, it, &len, &Key, &vptr))
+				pCfg = vptr;
+			else
+				pCfg = NULL;
 		}
 		else 
 			pCfg = NULL;
@@ -589,6 +591,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 eNextState RSSAggregator_FinishHttp(AsyncIO *IO)
 {
+	StopCurlWatchers(IO);
 	return QueueDBOperation(IO, RSSAggregator_AnalyseReply);
 }
 
