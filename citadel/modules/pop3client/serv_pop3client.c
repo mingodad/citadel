@@ -158,6 +158,44 @@ void HfreeFetchItem(void *vItem)
 	free(Item);
 }
 
+
+
+typedef enum _POP3State {
+	eCreated,
+	eGreeting,
+	eUser,
+	ePassword,
+	eListing,
+	eUseTable,
+	eGetMsgID,
+	eGetMsg,
+	eStoreMsg,
+	eDelete,
+	eQuit
+} POP3State;
+
+ConstStr POP3States[] = {
+	{HKEY("Aggregator created")},
+	{HKEY("Reading Greeting")},
+	{HKEY("Sending User")},
+	{HKEY("Sending Password")},
+	{HKEY("Listing")},
+	{HKEY("Fetching Usetable")},
+	{HKEY("Get MSG ID")},
+	{HKEY("Get Message")},
+	{HKEY("Store Msg")},
+	{HKEY("Delete Upstream")},
+	{HKEY("Quit")}
+};
+
+static void SetPOP3State(AsyncIO *IO, POP3State State)
+{
+	CitContext* CCC = IO->CitContext;
+	if (CCC != NULL)
+		memcpy(CCC->cs_clientname, POP3States[State].Key, POP3States[State].len + 1);
+}
+
+
 struct pop3aggr {
 	AsyncIO	 IO;
 
@@ -240,6 +278,7 @@ eNextState FailAggregationRun(AsyncIO *IO)
 eNextState POP3C_ReadGreeting(pop3aggr *RecvMsg)
 {
 	AsyncIO *IO = &RecvMsg->IO;
+	SetPOP3State(IO, eGreeting);
 	POP3C_DBG_READ();
 	/* Read the server greeting */
 	if (!POP3C_OK) return eTerminateConnection;
@@ -249,6 +288,7 @@ eNextState POP3C_ReadGreeting(pop3aggr *RecvMsg)
 eNextState POP3C_SendUser(pop3aggr *RecvMsg)
 {
 	AsyncIO *IO = &RecvMsg->IO;
+	SetPOP3State(IO, eUser);
 	/* Identify ourselves.  NOTE: we have to append a CR to each command.
 	 *  The LF will automatically be appended by sock_puts().  Believe it
 	 * or not, leaving out the CR will cause problems if the server happens
@@ -272,6 +312,7 @@ eNextState POP3C_GetUserState(pop3aggr *RecvMsg)
 eNextState POP3C_SendPassword(pop3aggr *RecvMsg)
 {
 	AsyncIO *IO = &RecvMsg->IO;
+	SetPOP3State(IO, ePassword);
 	/* Password */
 	StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 		     "PASS %s\r\n", ChrPtr(RecvMsg->pop3pass));
@@ -291,6 +332,8 @@ eNextState POP3C_GetPassState(pop3aggr *RecvMsg)
 eNextState POP3C_SendListCommand(pop3aggr *RecvMsg)
 {
 	AsyncIO *IO = &RecvMsg->IO;
+	SetPOP3State(IO, eListing);
+
 	/* Get the list of messages */
 	StrBufPlain(RecvMsg->IO.SendBuf.Buf, HKEY("LIST\r\n"));
 	POP3C_DBG_SEND();
@@ -375,6 +418,8 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 	void *vData;
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
 
+	SetPOP3State(IO, eUseTable);
+
 	if((RecvMsg->Pos != NULL) &&
 	   GetNextHashPos(RecvMsg->MsgNumbers,
 			  RecvMsg->Pos,
@@ -421,6 +466,7 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 	const char *HKey;
 	void *vData;
 
+	SetPOP3State(IO, eGetMsgID);
 #if 0
 	int rc;
 	rc = TestValidateHash(RecvMsg->MsgNumbers);
@@ -490,6 +536,8 @@ eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 	const char *HKey;
 	void *vData;
 
+	SetPOP3State(IO, eGetMsg);
+
 	RecvMsg->CurrMsg = NULL;
 	while ((RecvMsg->Pos != NULL) && 
 	       GetNextHashPos(RecvMsg->MsgNumbers,
@@ -534,6 +582,8 @@ eNextState POP3C_ReadMessageBodyFollowing(pop3aggr *RecvMsg)
 eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 {
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
+
+	SetPOP3State(IO, eStoreMsg);
 
 	EVP3CCS_syslog(LOG_DEBUG,
 		       "MARKING: %s as seen: ",
@@ -584,6 +634,9 @@ eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 eNextState POP3C_SendDelete(pop3aggr *RecvMsg)
 {
 	AsyncIO *IO = &RecvMsg->IO;
+
+	SetPOP3State(IO, eDelete);
+
 	if (!RecvMsg->keep) {
 		StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
 			     "DELE %ld\r\n", RecvMsg->CurrMsg->MSGID);
@@ -606,6 +659,8 @@ eNextState POP3C_ReadDeleteState(pop3aggr *RecvMsg)
 eNextState POP3C_SendQuit(pop3aggr *RecvMsg)
 {
 	AsyncIO *IO = &RecvMsg->IO;
+	SetPOP3State(IO, eQuit);
+
 	/* Log out */
 	StrBufPlain(RecvMsg->IO.SendBuf.Buf,
 		    HKEY("QUIT\r\n3)"));
