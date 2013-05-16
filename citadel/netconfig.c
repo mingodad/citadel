@@ -1174,11 +1174,11 @@ void destroy_network_cfgs(void)
 	HashList *pCfgTypeHash = CfgTypeHash;
 	HashList *pRoomConfigs = RoomConfigs;
 
-	CfgTypeHash = NULL;
 	RoomConfigs = NULL;
-	
-	DeleteHash(&pCfgTypeHash);
 	DeleteHash(&pRoomConfigs);
+
+	CfgTypeHash = NULL;
+	DeleteHash(&pCfgTypeHash);
 }
 
 /*
