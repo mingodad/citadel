@@ -11,12 +11,11 @@ and smash your kneecaps with a ball pean hammer.   THIS IS UNSUPPORTED.
 
 Still with us?  Ok, here's how to make it work.
 
-* Your Citadel server needs to be r7737 or newer (Citadel 7.63 or newer
-  will do just fine).  That's where we fixed a bug that prevents internal
-  programs from deleting messages.  Without this fix, messages won't get
-  deleted from your spam and ham folders, and they'll just pile up
-  forever and get resubmitted to sa-learn on every run.  Don't let this
-  happen to you.
+* Your Citadel server needs to be version 7.63 or newer.  That's where we
+  we fixed a bug that prevents internal programs from deleting messages.
+  Without this fix, messages won't get deleted from your spam and ham folers,
+  and they'll just pile up forever and get resubmitted to sa-learn on every
+  run.  Don't let this happen to you.
 
 * Back up your data.  I may have hidden an "rm -fr /" in here somewhere
   just to mess with your head, and I'm brutally unforgiving of people who
