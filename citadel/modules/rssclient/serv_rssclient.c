@@ -592,7 +592,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 eNextState RSSAggregator_FinishHttp(AsyncIO *IO)
 {
 	StopCurlWatchers(IO);
-	return QueueDBOperation(IO, RSSAggregator_AnalyseReply);
+	return CurlQueueDBOperation(IO, RSSAggregator_AnalyseReply);
 }
 
 /*

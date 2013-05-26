@@ -278,9 +278,11 @@ void FreeAsyncIOContents(AsyncIO *IO);
 
 eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
+eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 void StopDBWatchers(AsyncIO *IO);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueCurlContext(AsyncIO *IO);
+eNextState DBQueueEventContext(AsyncIO *IO, IO_CallBack CB);
 
 eNextState EvConnectSock(AsyncIO *IO,
 			 double conn_timeout,
@@ -342,6 +344,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 void KillAsyncIOContext(AsyncIO *IO);
 void StopCurlWatchers(AsyncIO *IO);
 
+eNextState CurlQueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 
 eNextState ReAttachIO(AsyncIO *IO,
 		      void *pData,

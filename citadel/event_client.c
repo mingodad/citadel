@@ -295,6 +295,17 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	return eSendReply;
 }
 
+eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB)
+{
+	StopClientWatchers(IO, 0);
+	return QueueDBOperation(IO, CB);
+}
+eNextState DBQueueEventContext(AsyncIO *IO, IO_CallBack CB)
+{
+	StopDBWatchers(IO);
+	return QueueEventContext(IO, CB);
+}
+
 extern eNextState evcurl_handle_start(AsyncIO *IO);
 
 eNextState QueueCurlContext(AsyncIO *IO)
@@ -333,6 +344,13 @@ eNextState QueueCurlContext(AsyncIO *IO)
 	EVM_syslog(LOG_DEBUG, "EVENT Q Done.\n");
 	return eSendReply;
 }
+
+eNextState CurlQueueDBOperation(AsyncIO *IO, IO_CallBack CB)
+{
+	StopCurlWatchers(IO);
+	return QueueDBOperation(IO, CB);
+}
+
 
 void DestructCAres(AsyncIO *IO);
 void FreeAsyncIOContents(AsyncIO *IO)

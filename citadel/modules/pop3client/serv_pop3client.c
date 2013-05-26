@@ -454,8 +454,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 		/* ok, now we know them all,
 		 * continue with reading the actual messages. */
 		DeleteHashPos(&RecvMsg->Pos);
-		StopDBWatchers(IO);
-		return QueueEventContext(IO, POP3_C_ReAttachToFetchMessages);
+		return DBQueueEventContext(IO, POP3_C_ReAttachToFetchMessages);
 	}
 }
 
@@ -492,8 +491,8 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 		DeleteHashPos(&RecvMsg->Pos);
 		/// done receiving uidls.. start looking them up now.
 		RecvMsg->Pos = GetNewHashPos(RecvMsg->MsgNumbers, 0);
-		return QueueDBOperation(&RecvMsg->IO,
-					POP3_FetchNetworkUsetableEntry);
+		return EventQueueDBOperation(&RecvMsg->IO,
+					     POP3_FetchNetworkUsetableEntry);
 	}
 	return eReadMore; /* TODO */
 }
@@ -595,8 +594,7 @@ eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 			   eWrite,
 			   IO->ID, CCID);
 
-	StopDBWatchers(IO);
-	return QueueEventContext(&RecvMsg->IO, POP3_C_ReAttachToFetchMessages);
+	return DBQueueEventContext(&RecvMsg->IO, POP3_C_ReAttachToFetchMessages);
 }
 eNextState POP3C_SaveMsg(AsyncIO *IO)
 {
@@ -627,8 +625,7 @@ eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 	EVP3CM_syslog(LOG_DEBUG, "Converting message...");
 	RecvMsg->CurrMsg->Msg =
 		convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
-	StopClientWatchers(IO, 0);
-	return QueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg);
+	return EventQueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg);
 }
 
 eNextState POP3C_SendDelete(pop3aggr *RecvMsg)
