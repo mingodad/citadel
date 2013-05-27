@@ -418,7 +418,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	if (CheckIfAlreadySeen("RSS Item Seen",
 			       Ctx->ThisMsg->MsgGUID,
 			       IO->Now,
-			       IO->Now - USETABLE_ANTIEXPIRE,
+			       IO->Now - USETABLE_ANTIEXPIRE_HIRES,
 			       eCheckUpdate,
 			       IO->ID, CCID)
 	    != 0)
