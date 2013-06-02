@@ -193,9 +193,6 @@ gotstatus(int nnrun)
 			switch(IO->SendDone(IO))
 			{
 			case eDBQuery:
-				curl_easy_cleanup(IO->HttpReq.chnd);
-				IO->HttpReq.chnd = NULL;
-				break;
 			case eSendDNSQuery:
 			case eReadDNSReply:
 			case eConnect:
@@ -206,8 +203,6 @@ gotstatus(int nnrun)
 			case eReadMore:
 			case eReadPayload:
 			case eReadFile:
-				curl_easy_cleanup(IO->HttpReq.chnd);
-				IO->HttpReq.chnd = NULL;
 				break;
 			case eTerminateConnection:
 			case eAbort:

@@ -403,6 +403,9 @@ void StopCurlWatchers(AsyncIO *IO)
 	ev_io_stop(event_base, &IO->send_event);
 	ev_io_stop(event_base, &IO->recv_event);
 
+	curl_easy_cleanup(IO->HttpReq.chnd);
+	IO->HttpReq.chnd = NULL;
+
 	if (IO->SendBuf.fd != 0) {
 		close(IO->SendBuf.fd);
 	}
