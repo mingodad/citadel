@@ -394,7 +394,7 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 	/* write the uidl to the use table so we don't store this item again */
 
-	CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, IO->ID, CCID);
+	CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, CCID, IO->ID);
 
 	if (GetNextHashPos(RSSAggr->Messages,
 			   RSSAggr->Pos,
@@ -420,7 +420,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 			       IO->Now,
 			       IO->Now - USETABLE_ANTIEXPIRE_HIRES,
 			       eCheckUpdate,
-			       IO->ID, CCID)
+			       CCID, IO->ID)
 	    != 0)
 	{
 		/* Item has already been seen */
@@ -575,7 +575,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 			       IO->Now,
 			       IO->Now - USETABLE_ANTIEXPIRE,
 			       eCheckUpdate,
-			       IO->ID, CCID)
+			       CCID, IO->ID)
 	    != 0)
 	{
 		FreeStrBuf(&guid);
@@ -591,7 +591,6 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 eNextState RSSAggregator_FinishHttp(AsyncIO *IO)
 {
-	StopCurlWatchers(IO);
 	return CurlQueueDBOperation(IO, RSSAggregator_AnalyseReply);
 }
 
