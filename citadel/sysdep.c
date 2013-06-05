@@ -1125,6 +1125,87 @@ int convert_login(char NameToConvert[]) {
 
 
 
+void HuntBadSession(void)
+{
+	int highest;
+	CitContext *ptr;
+	fd_set readfds;
+	struct timeval tv;
+	struct ServiceFunctionHook *serviceptr;
+
+
+
+	/* Next, add all of the client sockets. */
+	begin_critical_section(S_SESSION_TABLE);
+	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+		if ((ptr->state == CON_SYS) && (ptr->client_socket == 0))
+			continue;
+		/* Initialize the fdset. */
+		FD_ZERO(&readfds);
+		highest = 0;
+		tv.tv_sec = 0;		/* wake up every second if no input */
+		tv.tv_usec = 0;
+
+		/* Don't select on dead sessions, only truly idle ones */
+		if (	(ptr->state == CON_IDLE)
+			&& (ptr->kill_me == 0)
+			&& (ptr->client_socket > 0)
+			) {
+			FD_SET(ptr->client_socket, &readfds);
+			if (ptr->client_socket > highest)
+				highest = ptr->client_socket;
+			
+			if ((select(highest + 1, &readfds, NULL, NULL, &tv) < 0) &&
+			    (errno == EBADF))
+			{
+				/* Gotcha! */
+				syslog(LOG_EMERG,
+				       "Killing Session CC[%d] bad FD: [%d:%d] User[%s] Host[%s:%s]\n",
+				       ptr->cs_pid,
+				       ptr->client_socket,
+				       ptr->is_local_socket,
+				       ptr->curr_user,
+				       ptr->cs_host,ptr->cs_addr);
+
+				ptr->kill_me = 1;
+				ptr->client_socket = -1;
+				break;
+			}
+		}
+		
+	}
+	end_critical_section(S_SESSION_TABLE);
+
+
+	/* First, add the various master sockets to the fdset. */
+	for (serviceptr = ServiceHookTable; serviceptr != NULL; serviceptr = serviceptr->next ) {
+
+		/* Initialize the fdset. */
+		highest = 0;
+		tv.tv_sec = 0;		/* wake up every second if no input */
+		tv.tv_usec = 0;
+
+		FD_SET(serviceptr->msock, &readfds);
+		if (serviceptr->msock > highest) {
+			highest = serviceptr->msock;
+		}
+		if ((select(highest + 1, &readfds, NULL, NULL, &tv) < 0) &&
+		    (errno == EBADF))
+		{
+			/* Gotcha! server socket dead? commit suicide! */
+			syslog(LOG_EMERG,
+			       "Found bad FD: %d and its a server socket! Shutting Down!\n",
+			       serviceptr->msock);
+
+			server_shutting_down = 1;
+			break;
+		}
+	}
+
+
+}
+
+
 /* 
  * This loop just keeps going and going and going...
  */
@@ -1216,7 +1297,8 @@ do_select:	force_purge = 0;
 		 */
 		if (retval < 0) {
 			if (errno == EBADF) {
-				syslog(LOG_NOTICE, "select() failed: (%s)\n", strerror(errno));
+				syslog(LOG_EMERG, "select() failed: (%s)\n", strerror(errno));
+				HuntBadSession ();
 				goto do_select;
 			}
 			if (errno != EINTR) {
