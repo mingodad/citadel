@@ -923,24 +923,25 @@ time_t CheckIfAlreadySeen(const char *Facility,
 			  long ccid,
 			  long ioid)
 {
+	time_t InDBTimeStamp = 0;
 	struct UseTable ut;
 	struct cdbdata *cdbut;
 
 	if (cType != eWrite)
 	{
-		time_t InDBTimeStamp = 0;
 		SEENM_syslog(LOG_DEBUG, "Loading");
 		cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
 		if (cdbut != NULL) {
 			memcpy(&ut, cdbut->ptr,
 			       ((cdbut->len > sizeof(struct UseTable)) ?
 				sizeof(struct UseTable) : cdbut->len));
-			
-			if (ut.ut_timestamp > antiexpire)
+			InDBTimeStamp = ut.ut_timestamp;
+
+			if (InDBTimeStamp < antiexpire)
 			{
 				SEENM_syslog(LOG_DEBUG, "Found - Not expired.");
 				cdb_free(cdbut);
-				return ut.ut_timestamp;
+				return InDBTimeStamp;
 			}
 			else
 			{
@@ -968,7 +969,7 @@ time_t CheckIfAlreadySeen(const char *Facility,
 		  &ut, sizeof(struct UseTable) );
 
 	SEENM_syslog(LOG_DEBUG, "Done Saving");
-	return 0;
+	return InDBTimeStamp;
 }
 
 
