@@ -4719,6 +4719,10 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			}
 			else {
 				while ((i < num_msgs) && (msglist[i] < dmsgnums[j])) i++;
+
+				if (i >= num_msgs)
+					continue;
+
 				if (msglist[i] == dmsgnums[j]) {
 					delete_this |= 0x01;
 				}
