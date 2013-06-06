@@ -274,10 +274,21 @@ void AppendLink(StrBuf *Message,
 }
 
 
-void rss_format_item(networker_save_message *SaveMsg)
+int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 {
 	StrBuf *Message;
 	int msglen = 0;
+
+	if (StrLength(SaveMsg->description) + 
+	    StrLength(SaveMsg->link) + 
+	    StrLength(SaveMsg->linkTitle) + 
+	    StrLength(SaveMsg->reLink) +
+	    StrLength(SaveMsg->reLinkTitle) +
+	    StrLength(SaveMsg->title) == 0)
+	{
+		EVRSSCM_syslog(LOG_INFO, "Refusing to save empty message.");
+		return 0;
+	}
 
 	if (SaveMsg->author_or_creator != NULL) {
 
@@ -375,8 +386,8 @@ void rss_format_item(networker_save_message *SaveMsg)
 	AppendLink(Message, SaveMsg->reLink, SaveMsg->reLinkTitle, "Reply to this");
 	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
 
-
 	SaveMsg->Message = Message;
+	return 1;
 }
 
 eNextState RSSSaveMessage(AsyncIO *IO)
@@ -385,16 +396,17 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 	const char *Key;
 	rss_aggregator *RSSAggr = (rss_aggregator *) IO->Data;
 
-	rss_format_item(RSSAggr->ThisMsg);
+	if (rss_format_item(IO, RSSAggr->ThisMsg))
+	{
+		RSSAggr->ThisMsg->Msg.cm_fields['M'] =
+			SmashStrBuf(&RSSAggr->ThisMsg->Message);
 
-	RSSAggr->ThisMsg->Msg.cm_fields['M'] =
-		SmashStrBuf(&RSSAggr->ThisMsg->Message);
-
-	CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
-
-	/* write the uidl to the use table so we don't store this item again */
-
-	CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, CCID, IO->ID);
+		CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
+		
+		/* write the uidl to the use table so we don't store this item again */
+		
+		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, CCID, IO->ID);
+	}
 
 	if (GetNextHashPos(RSSAggr->Messages,
 			   RSSAggr->Pos,
