@@ -394,6 +394,8 @@ void StopClientWatchers(AsyncIO *IO, int CloseFD)
 
 void StopCurlWatchers(AsyncIO *IO)
 {
+	EVM_syslog(LOG_DEBUG, "EVENT StopCurlWatchers \n");
+
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	ev_timer_stop(event_base, &IO->conn_fail);
 	ev_idle_stop(event_base, &IO->unwind_stack);
