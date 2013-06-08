@@ -117,6 +117,12 @@ void aggregate_recipients(StrBuf **recps, RoomNetCfg Which, OneRoomNetCfg *OneRN
 				StrBufAppendBufPlain(*recps, HKEY(","), i);
 		}
 		StrBufAppendBuf(*recps, nptr->Value[0], 0);
+		if (Which == ignet_push_share)
+		{
+			StrBufAppendBufPlain(*recps, HKEY(","), 0);
+			StrBufAppendBuf(*recps, nptr->Value[1], 0);
+
+		}
 	}
 }
 
