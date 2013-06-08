@@ -395,6 +395,7 @@ void network_spoolout_room(SpoolControl *sc)
  */
 void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg, HashList *the_netmap, int *netmap_changed)
 {
+	long len;
 	struct CitContext *CCC = CC;
 	StrBuf *Buf = NULL;
 	struct CtdlMessage *msg = NULL;
@@ -433,8 +434,10 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 
 	for (pos = 3; pos < size; ++pos) {
 		field = buffer[pos];
-		msg->cm_fields[field] = strdup(&buffer[pos+1]);
-		pos = pos + strlen(&buffer[(int)pos]);
+		len = strlen(buffer + pos + 1);
+		msg->cm_fields[field] = malloc(len + 1);
+		memcpy (msg->cm_fields[field], buffer+ pos + 1, len + 1);
+		pos = pos + len + 1;
 	}
 
 	/* Check for message routing */
