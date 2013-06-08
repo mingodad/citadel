@@ -111,13 +111,8 @@ int network_usetable(struct CtdlMessage *msg)
 	time_t now;
 
 	/* Bail out if we can't generate a message ID */
-	if (msg == NULL) {
-		return(0);
-	}
-	if (msg->cm_fields['I'] == NULL) {
-		return(0);
-	}
-	if (IsEmptyStr(msg->cm_fields['I'])) {
+	if ((msg == NULL) || (msg->cm_fields['I'] == NULL) || (IsEmptyStr(msg->cm_fields['I'])))
+	{
 		return(0);
 	}
 
