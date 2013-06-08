@@ -4804,12 +4804,12 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			regcomp(&re, content_type, 0);
 			need_to_free_re = 1;
 		}
-	MSG_syslog(LOG_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s)\n",
+	MSG_syslog(LOG_DEBUG, " CtdlDeleteMessages(%s, %d msgs, %s)\n",
 		   room_name, num_dmsgnums, content_type);
 
 	/* get room record, obtaining a lock... */
 	if (CtdlGetRoomLock(&qrbuf, room_name) != 0) {
-		MSG_syslog(LOG_ERR, "CtdlDeleteMessages(): Room <%s> not found\n",
+		MSG_syslog(LOG_ERR, " CtdlDeleteMessages(): Room <%s> not found\n",
 			   room_name);
 		if (need_to_free_re) regfree(&re);
 		return (0);	/* room not found */
@@ -4836,14 +4836,13 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			StrBuf *dbg = NewStrBuf();
 			for (i = 0; i < num_dmsgnums; i++)
 				StrBufAppendPrintf(dbg, ", %ld", dmsgnums[i]);
-			MSG_syslog(LOG_DEBUG, "Deleting before: %s", ChrPtr(dbg));
+			MSG_syslog(LOG_DEBUG, " Deleting before: %s", ChrPtr(dbg));
 			FreeStrBuf(&dbg);
 		}
 */
 		i = 0; j = 0;
 		while ((i < num_msgs) && (have_more_del)) {
 			delete_this = 0x00;
-
 
 			/* Set/clear a bit for each criterion */
 
@@ -4887,7 +4886,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			StrBuf *dbg = NewStrBuf();
 			for (i = 0; i < num_deleted; i++)
 				StrBufAppendPrintf(dbg, ", %ld", dellist[i]);
-			MSG_syslog(LOG_DEBUG, "Deleting: %s", ChrPtr(dbg));
+			MSG_syslog(LOG_DEBUG, " Deleting: %s", ChrPtr(dbg));
 			FreeStrBuf(&dbg);
 		}
 */
@@ -4919,7 +4918,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	/* Now free the memory we used, and go away. */
 	if (msglist != NULL) free(msglist);
 	if (dellist != NULL) free(dellist);
-	MSG_syslog(LOG_DEBUG, "%d message(s) deleted.\n", num_deleted);
+	MSG_syslog(LOG_DEBUG, " %d message(s) deleted.\n", num_deleted);
 	if (need_to_free_re) regfree(&re);
 	return (num_deleted);
 }
