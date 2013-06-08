@@ -659,6 +659,7 @@ int sort_msglist_cmp(const void *m1, const void *m2) {
 int sort_msglist(long listptrs[], int oldcount)
 {
 	int numitems;
+	int i = 0;
 
 	numitems = oldcount;
 	if (numitems < 2) {
@@ -669,9 +670,12 @@ int sort_msglist(long listptrs[], int oldcount)
 	qsort(listptrs, numitems, sizeof(long), sort_msglist_cmp);
 
 	/* and yank any nulls */
-	while ((numitems > 0) && (listptrs[0] == 0L)) {
-		memmove(&listptrs[0], &listptrs[1], (sizeof(long) * (numitems - 1)));
-		--numitems;
+	while ((i < numitems) && (listptrs[i] == 0L)) i++;
+
+	if (i > 0)
+	{
+		memmove(&listptrs[0], &listptrs[i], (sizeof(long) * (numitems - i)));
+		numitems-=i;
 	}
 
 	return (numitems);
