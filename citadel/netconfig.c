@@ -1172,9 +1172,12 @@ int CtdlIsValidNode(const StrBuf **nexthop,
 void destroy_network_cfgs(void)
 {
 	HashList *pCfgTypeHash = CfgTypeHash;
-	HashList *pRoomConfigs = RoomConfigs;
+	HashList *pRoomConfigs;
 
+	begin_critical_section(S_NETCONFIGS);
+	pRoomConfigs = RoomConfigs;
 	RoomConfigs = NULL;
+	end_critical_section(S_NETCONFIGS);
 	DeleteHash(&pRoomConfigs);
 
 	CfgTypeHash = NULL;
