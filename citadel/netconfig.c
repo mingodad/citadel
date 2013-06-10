@@ -176,6 +176,9 @@ int ReadRoomNetConfigFile(OneRoomNetCfg **pOneRNCfg, char *filename)
 		*pOneRNCfg = NULL;
 		return 0;
 	}
+	fchown(fd, CTDLUID, (-1));
+	fchmod(fd, 0600);
+
 	if (*pOneRNCfg != NULL)
 	{
 		OneRNCfg = *pOneRNCfg;
