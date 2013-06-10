@@ -515,7 +515,7 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n, char **Author, char **Address)
  * instructions for "5" codes (permanent fatal errors) and produce/deliver
  * a "bounce" message (delivery status notification).
  */
-void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *StatusMessage, StrBuf *OMsgTxt, ParsedURL *Relay)
+void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 {
 	static int seq = 0;
 	
@@ -569,7 +569,10 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *StatusMessage, StrBuf *OMsgTxt
 			StrBufAppendBufPlain(Msg, HKEY(" "), 0);
 			StrBufAppendBuf(Msg, ThisItem->Recipient, 0);
 			StrBufAppendBufPlain(Msg, HKEY(": "), 0);
-			StrBufAppendBuf(Msg, StatusMessage, 0);
+			if (ThisItem->AllStatusMessages != NULL)
+				StrBufAppendBuf(Msg, ThisItem->AllStatusMessages, 0);
+			else
+				StrBufAppendBuf(Msg, ThisItem->StatusMessage, 0);
 			StrBufAppendBufPlain(Msg, HKEY("\r\n"), 0);
 		}
 	}

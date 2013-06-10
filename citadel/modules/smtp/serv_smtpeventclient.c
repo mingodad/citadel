@@ -212,7 +212,7 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 	Msg->MyQItem->QueMsgID = -1;
 
 	if (Msg->IDestructQueItem)
-		smtpq_do_bounce(Msg->MyQItem, StatusMessage, Msg->msgtext, Msg->pCurrRelay);
+		smtpq_do_bounce(Msg->MyQItem, Msg->msgtext, Msg->pCurrRelay);
 
 	if (Msg->nRemain > 0)
 	{
