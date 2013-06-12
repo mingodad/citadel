@@ -289,7 +289,6 @@ void CalcListID(SpoolControl *sc)
 		StrBufAppendBuf(sc->ListID, RoomName, 0);
 		StrBufAppendBufPlain(sc->ListID, HKEY("."), 0);
 		StrBufAppendBufPlain(sc->ListID, config.c_fqdn, -1, 0);
-		FreeStrBuf(&RoomName);
 		/*
 		 * this used to be:
 		 * roomname <Room-Number.list-id.fqdn>
@@ -312,6 +311,7 @@ void CalcListID(SpoolControl *sc)
 		StrBufLowerCase(sc->Users[roommailalias]);
 	}
 
+	FreeStrBuf(&RoomName);
 }
 
 
