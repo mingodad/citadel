@@ -163,6 +163,11 @@ gotstatus(int nnrun)
 				EVCURL_syslog(LOG_ERR,
 					      "error performing request: %s\n",
 					      curl_easy_strerror(sta));
+				if (sta == CURLE_OPERATION_TIMEDOUT)
+				{
+					IO->SendBuf.fd = 0;
+					IO->RecvBuf.fd = 0;
+				}
 			}
 			sta = curl_easy_getinfo(chnd,
 						CURLINFO_RESPONSE_CODE,
