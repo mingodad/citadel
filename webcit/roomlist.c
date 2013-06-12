@@ -427,6 +427,7 @@ HashList *GetThisRoomPossibleMAlias(StrBuf *Target, WCTemplputParams *TP)
 	HashList *Domains;
 	StrBuf *Line;
 	StrBuf *Token;
+	StrBuf *RoomName;
 	HashList *PossibleAliases = NULL;
 	
 	const char *pComma;
@@ -441,12 +442,15 @@ HashList *GetThisRoomPossibleMAlias(StrBuf *Target, WCTemplputParams *TP)
 		return NULL;
 	PossibleAliases = NewHash(1, NULL);
 	Line = NewStrBuf();
+	RoomName = NewStrBufDup(WCC->CurRoom.name);
+	StrBufAsciify(RoomName, '_');
+	StrBufReplaceChars(RoomName, ' ', '_');
 
 	AppendPossibleAliasWithDomain(PossibleAliases,
 				      &n,
 				      Domains,
 				      HKEY("room_"),
-				      SKEY(WCC->CurRoom.name));
+				      SKEY(RoomName));
 
 
 	serv_puts("GNET "FILE_MAILALIAS);
@@ -502,7 +506,7 @@ HashList *GetThisRoomPossibleMAlias(StrBuf *Target, WCTemplputParams *TP)
 		AppendImportantMessage(_("Higher access is required to access this function."), -1);
 
 	FreeStrBuf(&Line);
-
+	FreeStrBuf(&RoomName);
 	return PossibleAliases;
 }
 
