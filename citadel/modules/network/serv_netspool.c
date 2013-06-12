@@ -224,6 +224,7 @@ void InspectQueuedRoom(SpoolControl **pSC,
 
 void CalcListID(SpoolControl *sc)
 {
+	StrBuf *RoomName;
 	const char *err;
 	int fd;
 	struct CitContext *CCC = CC;
@@ -264,6 +265,9 @@ void CalcListID(SpoolControl *sc)
 	}
 
 	StrBufAppendBufPlain(sc->ListID, HKEY("<"), 0);
+	RoomName = NewStrBufPlain (sc->room.QRname, -1);
+	StrBufAsciify(RoomName, '_');
+	StrBufReplaceChars(RoomName, ' ', '_');
 
 	if (StrLength(sc->Users[roommailalias]) > 0)
 	{
@@ -282,9 +286,10 @@ void CalcListID(SpoolControl *sc)
 	else
 	{
 		StrBufAppendBufPlain(sc->ListID, HKEY("room_"), 0);
-		StrBufAppendBufPlain(sc->ListID, sc->room.QRname, -1, 0);
+		StrBufAppendBuf(sc->ListID, RoomName, 0);
 		StrBufAppendBufPlain(sc->ListID, HKEY("."), 0);
 		StrBufAppendBufPlain(sc->ListID, config.c_fqdn, -1, 0);
+		FreeStrBuf(&RoomName);
 		/*
 		 * this used to be:
 		 * roomname <Room-Number.list-id.fqdn>
@@ -299,12 +304,11 @@ void CalcListID(SpoolControl *sc)
 	{
 		sc->Users[roommailalias] = NewStrBuf();
 		
-		StrBufPrintf(sc->Users[roommailalias],
-			     "room_%s@%s",
-			     CCC->room.QRname,
-			     config.c_fqdn);
+		StrBufAppendBufPlain(sc->Users[roommailalias], HKEY("room_"), 0);
+		StrBufAppendBuf(sc->Users[roommailalias], RoomName, 0);
+		StrBufAppendBufPlain(sc->Users[roommailalias], HKEY("@"), 0);
+		StrBufAppendBufPlain(sc->Users[roommailalias], config.c_fqdn, -1, 0);
 
-		StrBufAsciify(sc->Users[roommailalias], '_');
 		StrBufLowerCase(sc->Users[roommailalias]);
 	}
 
