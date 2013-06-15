@@ -515,14 +515,23 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 		strs[1] = ChrPtr(Ctx->rooms);
 		lens[1] = StrLength(Ctx->rooms);
+
+		if (IO->HttpReq.CurlError == NULL)
+			IO->HttpReq.CurlError = "";
+
 		StrBufPrintf(ErrMsg,
 			     "Error while RSS-Aggregation Run of %s\n"
 			     " need a 200, got a %ld !\n"
+			     " Curl Error message: \n%s / %s\n"
 			     " Response text was: \n"
 			     " \n %s\n",
 			     ChrPtr(Ctx->Url),
 			     IO->HttpReq.httpcode,
-			     ChrPtr(IO->HttpReq.ReplyData));
+			     IO->HttpReq.errdesc,
+			     IO->HttpReq.CurlError,
+			     ChrPtr(IO->HttpReq.ReplyData)
+			);
+
 		CtdlAideFPMessage(
 			ChrPtr(ErrMsg),
 			"RSS Aggregation run failure",

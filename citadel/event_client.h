@@ -124,6 +124,7 @@ typedef struct _evcurl_request_data
 	CURL			*chnd;
 	struct curl_slist	*headers;
 	char			 errdesc[CURL_ERROR_SIZE];
+	const char		*CurlError;
 
 	int			 attached;
 

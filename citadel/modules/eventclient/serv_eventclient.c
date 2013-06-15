@@ -161,9 +161,10 @@ gotstatus(int nnrun)
 				EVCURL_syslog(LOG_ERR,
 					      "error description: %s\n",
 					      IO->HttpReq.errdesc);
+				IO->HttpReq.CurlError = curl_easy_strerror(sta);
 				EVCURL_syslog(LOG_ERR,
 					      "error performing request: %s\n",
-					      curl_easy_strerror(sta));
+					      IO->HttpReq.CurlError);
 				if (sta == CURLE_OPERATION_TIMEDOUT)
 				{
 					IO->SendBuf.fd = 0;
