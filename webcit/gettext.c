@@ -427,10 +427,11 @@ void initialize_locales(void) {
 
 #endif	/* ENABLE_NLS */
 
-
 void TmplGettext(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendBufPlain(Target, _(TP->Tokens->Params[0]->Start), -1, 0);
+	const char *Text = _(TP->Tokens->Params[0]->Start);
+
+	StrBufAppendTemplateStr(Target, TP, Text, 1);
 }
 
 

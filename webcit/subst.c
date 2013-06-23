@@ -43,6 +43,7 @@ const char EmptyStr[]="";
 #define SV_PREEVALUATED 6
 
 
+
 /*
  * Dynamic content for variable substitution in templates
  */
@@ -1203,10 +1204,10 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		}
 		break;
 	case SV_GETTEXT:
-		if (NewToken->nParameters !=1) {
+		if ((NewToken->nParameters < 1) || (NewToken->nParameters > 2)) {
 			LogTemplateError(                               
 				NULL, "Gettext", ERR_NAME, &TP,
-				"requires exactly 1 parameter, you gave %d params", 
+				"requires 1 or 2 parameter, you gave %d params", 
 				NewToken->nParameters);
 			NewToken->Flags = 0;
 			break;
@@ -2534,7 +2535,6 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 	{
 ////	TODO jetzt	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
 //		SubTP.Filter.ControlContextType = ;
-
 		StrTabbedDialog(Target, nTabs, TabNames);
 		for (i = 0; i < ntabs; i++) {
 			memset(&TS, 0, sizeof(tab_struct));
