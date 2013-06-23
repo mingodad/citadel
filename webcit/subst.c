@@ -486,7 +486,6 @@ void GetTemplateTokenString(StrBuf *Target,
 			    long *len)
 {
 	StrBuf *Buf;
-///	WCTemplputParams SubTP;
 
 	if (N >= TP->Tokens->nParameters) {
 		LogTemplateError(Target, 
@@ -1846,7 +1845,7 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 			done = 1;
 		}
 		else {
-			int TokenRc;
+			int TokenRc = 0;
 
 			StrBufAppendBufPlain(
 				Target, pData, 
@@ -2533,8 +2532,6 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 	}
 	StackContext (TP, &SubTP, &TS, CTX_TAB, 0, NULL);
 	{
-////	TODO jetzt	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
-//		SubTP.Filter.ControlContextType = ;
 		StrTabbedDialog(Target, nTabs, TabNames);
 		for (i = 0; i < ntabs; i++) {
 			memset(&TS, 0, sizeof(tab_struct));
