@@ -758,7 +758,7 @@ void StrBufAppendTemplateStr(StrBuf *Target,
 		break;
 */
 	default:
-		StrBufAppendBufPlain(Target, Source, 0, 0);
+		StrBufAppendBufPlain(Target, Source, -1, 0);
 	}
 }
 
