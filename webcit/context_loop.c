@@ -633,9 +633,9 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	 * table from getting bombarded with new sessions when, for example, a web
 	 * spider crawls the site without using cookies.
 	 */
-	if ((session_may_be_reused) && (!WC->logged_in)) {
-		WC->wc_session = 0;			/* flag as available for re-use */
-		TheSession->selected_language = 0;	/* clear any non-default language setting */
+	if ((session_may_be_reused) && (!TheSession->logged_in)) {
+		TheSession->wc_session = 0;		/* flag as available for re-use */
+		TheSession->selected_language = -1;	/* clear any non-default language setting */
 	}
 
 	TheSession->Hdr = NULL;

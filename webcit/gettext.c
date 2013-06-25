@@ -262,7 +262,12 @@ void set_selected_language(const char *lang) {
 void go_selected_language(void) {
 #ifdef HAVE_USELOCALE
 	wcsession *WCC = WC;
-	if (WCC->selected_language < 0) return;
+	if (WCC->selected_language < 0)
+	{
+		httplang_to_locale(WCC->Hdr->HR.browser_language, WCC);
+		if (WCC->selected_language < 0)
+			return;
+	}
 	uselocale(wc_locales[WCC->selected_language]);	/* switch locales */
 	textdomain(textdomain(NULL));			/* clear the cache */
 #else
