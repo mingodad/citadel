@@ -76,6 +76,7 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 	LangStruct wanted_locales[SEARCH_LANG];
 	LangStruct *ls;
 
+	long len;
 	int i = 0;
 	int j = 0;
 	/* size_t len = strlen(LocaleString); */
@@ -124,22 +125,22 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 		StrBufExtract_token(SBuf, Buf, 0, ';');
 
 		/* get the lang part, which should be allways there */
-		extract_token(&ls->lang[0], 
+		extract_token(ls->lang, 
 			      ChrPtr(SBuf), 
 			      0, '-', 
 			      sizeof(ls->lang));
 
 		/* get the area code if any. */
 		if (StrBufNum_tokens(SBuf, '-') > 1) {
-			extract_token(&ls->region[0], 
+			extract_token(ls->region, 
 				      ChrPtr(SBuf), 
 				      1, '-', 
 				      sizeof(ls->region)
 			);
 		}
 		else { /* no ara code? use lang code */
-			blen=strlen(&ls->lang[0]);
-			memcpy(&ls->region[0], ls->lang, blen);
+			blen = strlen(ls->lang);
+			memcpy(ls->region, ls->lang, blen);
 			ls->region[blen] = '\0';
 		}
 
@@ -151,25 +152,26 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 			chars = toupper(ls->region[j]);
 			ls->region[j] = (char)chars; /* todo ? */
 		}
-		snprintf(&lbuf[0], 
+		snprintf(lbuf,
 			 sizeof(lbuf), 
 			 "%s_%s", 
-			 &ls->lang[0], 
-			 &ls->region[0]);
+			 ls->lang, 
+			 ls->region);
 			
 		/* check if we have this lang */
 		ls->availability = 1;
 		ls->selectedlang = -1;
+		len = strlen(ls->lang);
 		for (j = 0; j < nLocalesLoaded; j++) {
 			int result;
 			/* match against the LANG part */
-			result = strcasecmp(&ls->lang[0], AvailLangLoaded[j]);
-			if ((result < 0) && (result < ls->availability)){
+			result = strncasecmp(ls->lang, AvailLangLoaded[j], len);
+			if ((result == 0) && (result < ls->availability)){
 				ls->availability = result;
 				ls->selectedlang = j;
 			}
 			/* match against lang and locale */
-			if (0 == strcasecmp(&lbuf[0], AvailLangLoaded[j])){
+			if (0 == strcasecmp(lbuf, AvailLangLoaded[j])){
 				ls->availability = 0;
 				ls->selectedlang = j;
 				j = nLocalesLoaded;
@@ -197,7 +199,7 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 		nBest=0;
 	}
 	sess->selected_language = nBest;
-	syslog(LOG_DEBUG, "language found: %s", AvailLangLoaded[WC->selected_language]);
+	syslog(LOG_DEBUG, "language found: %s", AvailLangLoaded[sess->selected_language]);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&SBuf);
 }
