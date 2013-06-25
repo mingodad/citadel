@@ -17,7 +17,7 @@
 #ifdef ENABLE_NLS
 /* actual supported locales */
 const char *AvailLang[] = {
-	"C",
+	"en_US",
 	"ar_AE",
 	"bg_BG",
 	"cs_CZ",
@@ -317,7 +317,8 @@ void initialize_locales(void) {
 		if ((language != NULL) && (strcmp(AvailLang[i], language) != 0))
 			continue;
 		if (i == 0) {
-			sprintf(buf, "%s", AvailLang[i]);	/* locale 0 (C) is ascii, not utf-8 */
+			sprintf(buf, "C");	/* locale 0 (C) is ascii, not utf-8 */
+			
 		}
 		else {
 			sprintf(buf, "%s.UTF8", AvailLang[i]);
@@ -332,7 +333,7 @@ void initialize_locales(void) {
 			syslog(LOG_NOTICE, "locale for %s disabled: %s", buf, strerror(errno));
 		}
 		else {
-			syslog(LOG_INFO, "Found locale: %s", buf);
+			syslog(LOG_INFO, "Found locale: %s - %s", buf, AvailLang[i]);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
