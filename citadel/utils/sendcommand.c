@@ -163,6 +163,7 @@ int main(int argc, char **argv)
 			break;
 		case 'w':
 			watchdog = atoi(optarg);
+			break;
 		default:
 			fprintf(stderr, "sendcommand: usage: sendcommand [-h server_dir] [-w watchdog_timeout]\n");
 			return(1);
