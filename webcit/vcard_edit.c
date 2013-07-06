@@ -137,7 +137,8 @@ wc_mime_attachment *load_vcard(message_summary *Msg)
 	if (VCMime == NULL)
 		return NULL;
 
-	MimeLoadData(VCMime);
+	if (VCMime->Data == NULL)
+		MimeLoadData(VCMime);
 	return VCMime;
 }
 
