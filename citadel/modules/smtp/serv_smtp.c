@@ -625,9 +625,13 @@ void smtp_mail(long offset, long flags) {
 	 */
 	else if (config.c_allow_spoofing == 0) {
 		process_rfc822_addr(ChrPtr(sSMTP->from), user, node, name);
+		syslog(LOG_DEBUG, "Claimed envelope sender is '%s' == '%s' @ '%s' ('%s')",
+			ChrPtr(sSMTP->from), user, node, name
+		);
 		if (CtdlHostAlias(node) != hostalias_nomatch) {
 			cprintf("550 You must log in to send mail from %s\r\n", node);
 			FlushStrBuf(sSMTP->from);
+			syslog(LOG_DEBUG, "Rejecting unauthenticated mail from %s", node);
 			return;
 		}
 	}
