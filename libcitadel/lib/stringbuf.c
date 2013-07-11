@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2013 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1144,29 +1144,31 @@ void StrBufSpaceToBlank(StrBuf *Buf)
 
 void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
 {
-	const char *pBuff;
 	const char *pLeft;
 	const char *pRight;
 
-	if ((Buf == NULL) || (Buf->buf == NULL))
+	if ((Buf == NULL) || (Buf->buf == NULL)) {
+		StrBufCutAt(Buf, 0, Buf->buf);
 		return;
-	pLeft = pBuff = Buf->buf;
-	while (pBuff != NULL) {
-		pLeft = pBuff;
-		pBuff = strchr(pBuff, leftboundary);
-		if (pBuff != NULL)
-			pBuff++;
 	}
-		
-	if (pLeft != NULL)
-		pBuff = pLeft;
-	else
-		pBuff = Buf->buf;
-	pRight = strchr(pBuff, rightboundary);
-	if (pRight != NULL)
+
+	pRight = strchr(Buf->buf, rightboundary);
+	if (pRight != NULL) {
 		StrBufCutAt(Buf, 0, pRight);
-	if (pLeft != NULL)
-		StrBufCutLeft(Buf, pLeft - Buf->buf);
+	}
+	else {
+		StrBufCutAt(Buf, 0, Buf->buf);
+		return;
+	}
+
+	pLeft = strrchr(ChrPtr(Buf), leftboundary);
+	if (pLeft != NULL) {
+		StrBufCutLeft(Buf, pLeft - Buf->buf + 1);
+	}
+	else {
+		StrBufCutAt(Buf, 0, Buf->buf);
+		return;
+	}
 }
 
 
