@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 
-#define LIBCITADEL_VERSION_NUMBER	816
+#define LIBCITADEL_VERSION_NUMBER	817
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
