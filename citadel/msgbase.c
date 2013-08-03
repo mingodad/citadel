@@ -3021,6 +3021,10 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	size_t wlen, fieldlen;
 	int i;
 	static char *forder = FORDER;
+	int n = sizeof(FORDER) - 1;
+	long lengths[sizeof(FORDER)];
+	
+	memset(lengths, 0, sizeof(lengths));
 
 	/*
 	 * Check for valid message format
@@ -3033,9 +3037,12 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	}
 
 	ret->len = 3;
-	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL)
-				     ret->len = ret->len +
-					     strlen(msg->cm_fields[(int)forder[i]]) + 2;
+	for (i=0; i<n; ++i)
+		if (msg->cm_fields[(int)forder[i]] != NULL)
+		{
+			lengths[i] = strlen(msg->cm_fields[(int)forder[i]]);
+			ret->len += lengths[i] + 2;
+		}
 
 	ret->ser = malloc(ret->len);
 	if (ret->ser == NULL) {
@@ -3051,12 +3058,19 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	ret->ser[2] = msg->cm_format_type;
 	wlen = 3;
 
-	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
-			fieldlen = strlen(msg->cm_fields[(int)forder[i]]);
+	for (i=0; i<n; ++i)
+		if (msg->cm_fields[(int)forder[i]] != NULL)
+		{
+			fieldlen = lengths[i];
 			ret->ser[wlen++] = (char)forder[i];
-			safestrncpy((char *)&ret->ser[wlen], msg->cm_fields[(int)forder[i]], fieldlen+1);
+
+			memcpy(&ret->ser[wlen],
+			       msg->cm_fields[(int)forder[i]],
+			       fieldlen+1);
+
 			wlen = wlen + fieldlen + 1;
 		}
+
 	if (ret->len != wlen) {
 		MSG_syslog(LOG_ERR, "ERROR: len=%ld wlen=%ld\n",
 			   (long)ret->len, (long)wlen);

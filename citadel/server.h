@@ -297,7 +297,8 @@ struct UseTable {
 /* Preferred field order 							*/
 /*               **********			Important fields		*/
 /*                         ***************	Semi-important fields		*/
-/*                                        * 	Message text (MUST be last)	*/
-#define FORDER	"IPTAFONHRDBCEWJGKLQSVXZYUM"
+/*                                        **    internal only                   */
+/*                                          * 	Message text (MUST be last)	*/
+#define FORDER	"IPTAFONHRDBCEWJGKLQSVXZYU12M"
 
 #endif /* SERVER_H */
