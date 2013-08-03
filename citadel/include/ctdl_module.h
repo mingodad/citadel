@@ -365,7 +365,7 @@ struct config {
 	int c_pop3s_port;
 	int c_smtps_port;
 	char c_auto_cull;
-	char c_instant_expunge;
+	char c_niu_5;
 	char c_allow_spoofing;
 	char c_journal_email;
 	char c_journal_pubmsgs;

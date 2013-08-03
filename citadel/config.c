@@ -61,7 +61,6 @@ void brand_new_installation_set_defaults(void) {
 	safestrncpy(config.c_aideroom, "Aide", sizeof config.c_aideroom);
 	config.c_port_number = 504;
 	config.c_sleeping = 900;
-	config.c_instant_expunge = 1;
 
 	if (config.c_ctdluid == 0) {
 		pw = getpwnam("citadel");

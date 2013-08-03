@@ -195,14 +195,8 @@ void imap_do_store(citimap_command *Cmd) {
 	}
 
 	free(ss_msglist);
-
-	/*
-	 * The following two commands implement "instant expunge" if enabled.
-	 */
-	if (config.c_instant_expunge) {
-		imap_do_expunge();
-		imap_rescan_msgids();
-	}
+	imap_do_expunge();		// Citadel always expunges immediately.
+	imap_rescan_msgids();
 }
 
 

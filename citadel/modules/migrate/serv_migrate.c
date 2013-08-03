@@ -442,7 +442,6 @@ void migr_do_export(void) {
 	cprintf("<c_pop3s_port>%d</c_pop3s_port>\n", config.c_pop3s_port);
 	cprintf("<c_smtps_port>%d</c_smtps_port>\n", config.c_smtps_port);
 	cprintf("<c_auto_cull>%d</c_auto_cull>\n", config.c_auto_cull);
-	cprintf("<c_instant_expunge>%d</c_instant_expunge>\n", config.c_instant_expunge);
 	cprintf("<c_allow_spoofing>%d</c_allow_spoofing>\n", config.c_allow_spoofing);
 	cprintf("<c_journal_email>%d</c_journal_email>\n", config.c_journal_email);
 	cprintf("<c_journal_pubmsgs>%d</c_journal_pubmsgs>\n", config.c_journal_pubmsgs);
@@ -676,7 +675,6 @@ void migr_xml_end(void *data, const char *el) {
 	else if (!strcasecmp(el, "c_pop3s_port"))		config.c_pop3s_port = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_smtps_port"))		config.c_smtps_port = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_auto_cull"))		config.c_auto_cull = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_instant_expunge"))		config.c_instant_expunge = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_allow_spoofing"))		config.c_allow_spoofing = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_journal_email"))		config.c_journal_email = atoi(migr_chardata);
 	else if (!strcasecmp(el, "c_journal_pubmsgs"))		config.c_journal_pubmsgs = atoi(migr_chardata);

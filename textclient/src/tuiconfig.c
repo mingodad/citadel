@@ -221,9 +221,6 @@ void do_system_configuration(CtdlIPC *ipc)
 	snprintf(sc[57], sizeof sc[57], "%d", (boolprompt(
 		"Perform RBL checks at greeting instead of after RCPT",
 		atoi(&sc[57][0]))));
-	snprintf(sc[44], sizeof sc[44], "%d", (boolprompt(
-		"Instantly expunge deleted IMAP messages",
-		atoi(&sc[44][0]))));
 
 	/* LDAP settings */
 	if (ipc->ServInfo.supports_ldap) {
