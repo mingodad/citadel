@@ -419,13 +419,13 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
+#ifndef DEBUG_RSS
 	const char *Key;
 	long len;
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
 	/* Find out if we've already seen this item */
 // todo: expiry?
-#ifndef DEBUG_RSS
 	SetRSSState(IO, eRSSUT);
 	if (CheckIfAlreadySeen("RSS Item Seen",
 			       Ctx->ThisMsg->MsgGUID,
