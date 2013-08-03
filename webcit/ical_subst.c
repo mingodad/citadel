@@ -549,10 +549,10 @@ InitModule_ICAL_SUBST
 (void)
 {
 	RegisterCTX(CTX_ICAL);
-//*
+/*
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS_TPL, 1, 501);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS_TPL, 1, 500);
-//*/
+*/
 
 	CreateIcalComponendKindLookup ();
  	RegisterConditional("COND:ICAL:PROPERTY", 1, cond_ICalHaveItem, CTX_ICAL);

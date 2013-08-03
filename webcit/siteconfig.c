@@ -187,7 +187,7 @@ CfgMapping ServerConfig[] = {
 	{CFG_STR, 0, 0, "", HKEY("c_smtps_port")},
 	{CFG_YES, 0, 0, "", HKEY("c_enable_fulltext")},
 	{CFG_YES, 0, 0, "", HKEY("c_auto_cull")},
-	{CFG_YES, 0, 0, "", HKEY("c_instant_expunge")},
+	{CFG_YES, 0, 0, "", HKEY("reserved3")},
 	{CFG_YES, 0, 0, "", HKEY("c_allow_spoofing")},
 	{CFG_YES, 0, 0, "", HKEY("c_journal_email")},
 	{CFG_YES, 0, 0, "", HKEY("c_journal_pubmsgs")},

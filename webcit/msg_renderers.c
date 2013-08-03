@@ -1590,7 +1590,7 @@ InitModule_MSGRENDERERS
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 0, 150);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard, 1, 201);
 	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard, 1, 200);
-/*
+//*
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS, 1, 501);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS, 1, 500);
 //*/

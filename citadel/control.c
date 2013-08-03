@@ -392,7 +392,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_smtps_port);
 		cprintf("%d\n", config.c_enable_fulltext);
 		cprintf("%d\n", config.c_auto_cull);
-		cprintf("%d\n", config.c_instant_expunge);
+		cprintf("1\n");
 		cprintf("%d\n", config.c_allow_spoofing);
 		cprintf("%d\n", config.c_journal_email);
 		cprintf("%d\n", config.c_journal_pubmsgs);
@@ -599,7 +599,7 @@ void cmd_conf(char *argbuf)
 				config.c_auto_cull = atoi(buf);
 				break;
 			case 44:
-				config.c_instant_expunge = atoi(buf);
+				/* niu */
 				break;
 			case 45:
 				config.c_allow_spoofing = atoi(buf);
