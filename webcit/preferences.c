@@ -119,7 +119,7 @@ void GetPrefTypes(HashList *List)
 			Pref->Type = PrefType;
 			Pref->eFlatPrefType = Pref->Type->eType;
 
-			syslog(1, "Loading [%s]with type [%d] [\"%s\"]\n",
+			syslog(LOG_DEBUG, "Loading [%s]with type [%d] [\"%s\"]\n",
 				ChrPtr(Pref->Key),
 				Pref->Type->eType,
 				ChrPtr(Pref->Val));
@@ -147,7 +147,7 @@ void GetPrefTypes(HashList *List)
 
 			if (PrefType->OnLoad != NULL){
 
-				syslog(1, "Loading with: -> %s(\"%s\", %ld)\n",
+				syslog(LOG_DEBUG, "Loading with: -> %s(\"%s\", %ld)\n",
 					ChrPtr(PrefType->OnLoadName),
 					ChrPtr(Pref->Val),
 					Pref->lval);
@@ -208,7 +208,7 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 			else 
 			{
 				StrBufTrim(ReadBuf);
-				syslog(1, "ignoring spurious preference line: [%s]\n", 
+				syslog(LOG_INFO, "ignoring spurious preference line: [%s]\n", 
 					ChrPtr(ReadBuf));
 				DestroyPreference(Data);
 				LastData = NULL;
@@ -571,7 +571,7 @@ void set_preference_backend(const char *key, size_t keylen,
 		Pref->Type = PrefType;
 		Pref->eFlatPrefType = PrefType->eType;
 		if (Pref->Type->eType != lPrefType)
-			syslog(1, "warning: saving preference with wrong type [%s] %d != %ld \n",
+			syslog(LOG_WARNING, "warning: saving preference with wrong type [%s] %d != %ld \n",
 				key, Pref->Type->eType, lPrefType);
 		switch (Pref->Type->eType)
 		{
@@ -1003,6 +1003,28 @@ int ConditionalHasPreference(StrBuf *Target, WCTemplputParams *TP)
 /********************************************************************************
  *                 preferences stored discrete in citserver
  ********************************************************************************/
+CtxType CTX_VEA = CTX_NONE;
+typedef struct __ValidEmailAddress {
+	StrBuf *Address;
+	int IsDefault;
+}ValidEmailAddress;
+
+void DeleteValidEmailAddress(void *v)
+{
+	ValidEmailAddress *VEA = (ValidEmailAddress*)v;
+	FreeStrBuf(&VEA->Address);
+	free(VEA);
+}
+void tmplput_VEA(StrBuf *Target, WCTemplputParams *TP)
+{
+	ValidEmailAddress* VEA = (ValidEmailAddress*) CTX((CTX_VEA));
+	StrBufAppendTemplate(Target, TP, VEA->Address, 0);
+}
+int ConditionalPreferenceIsDefaulVEA(StrBuf *Target, WCTemplputParams *TP)
+{
+	ValidEmailAddress* VEA = (ValidEmailAddress*) CTX((CTX_VEA));
+	return VEA->IsDefault;
+}
 HashList *GetGVEAHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Rcp;
@@ -1010,7 +1032,12 @@ HashList *GetGVEAHash(StrBuf *Target, WCTemplputParams *TP)
 	int Done = 0;
 	int i, n = 1;
 	char N[64];
+	StrBuf *DefaultFrom = NULL;
+	const StrBuf *EnvelopeTo;
+	ValidEmailAddress *VEA;
 
+	get_preference("defaultfrom", &DefaultFrom);
+	EnvelopeTo = sbstr("nvto");
 	Rcp = NewStrBuf();
 	serv_puts("GVEA");
 	StrBuf_ServGetln(Rcp);
@@ -1024,9 +1051,18 @@ HashList *GetGVEAHash(StrBuf *Target, WCTemplputParams *TP)
 				Done = 1;
 			}
 			else {
+				VEA = (ValidEmailAddress*) malloc(sizeof(ValidEmailAddress));
 				i = snprintf(N, sizeof(N), "%d", n);
 				StrBufTrim(Rcp);
-				Put(List, N, i, Rcp, HFreeStrBuf);
+				VEA->Address = Rcp;
+				if (StrLength(EnvelopeTo) > 0)
+					VEA->IsDefault = strstr(ChrPtr(EnvelopeTo), ChrPtr(Rcp)) != NULL;
+				else if (StrLength(DefaultFrom) > 0)
+					VEA->IsDefault = !strcmp(ChrPtr(Rcp), ChrPtr(DefaultFrom));
+				else
+					VEA->IsDefault = 0;
+
+				Put(List, N, i, VEA, DeleteValidEmailAddress);
 				Rcp = NewStrBuf();
 			}
 			n++;
@@ -1176,6 +1212,8 @@ void
 InitModule_PREFERENCES
 (void)
 {
+	RegisterCTX(CTX_VEA);
+
 	WebcitAddUrlHandler(HKEY("set_preferences"), "", 0, set_preferences, 0);
 	WebcitAddUrlHandler(HKEY("change_start_page"), "", 0, change_start_page, 0);
 
@@ -1188,12 +1226,15 @@ InitModule_PREFERENCES
 	
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, NULL, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
-	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHasPreference, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:SET"), 4, ConditionalHasRoomPreference, CTX_NONE);
+	RegisterConditional("COND:PREF", 4, ConditionalPreference, CTX_NONE);
+	RegisterConditional("COND:PREF:SET", 4, ConditionalHasPreference, CTX_NONE);
+	RegisterConditional("COND:ROOM:SET", 4, ConditionalHasRoomPreference, CTX_NONE);
 	
 	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
-			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_VEA, CTX_NONE, IT_NOFLAG);
+	RegisterNamespace("PREF:VALID:EMAIL:ADDR:STR", 1, 1, tmplput_VEA, NULL, CTX_VEA);
+	RegisterConditional("COND:PREF:VALID:EMAIL:ADDR:STR", 4, ConditionalPreferenceIsDefaulVEA, CTX_VEA);
+
 	RegisterIterator("PREF:VALID:EMAIL:NAME", 0, NULL, 
 			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 

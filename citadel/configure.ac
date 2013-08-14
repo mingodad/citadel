@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.52)
-AC_INIT([Citadel], [8.13], [http://www.citadel.org/])
+AC_INIT([Citadel], [8.20], [http://www.citadel.org/])
 AC_REVISION([$Revision: 5108 $])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_CONFIG_HEADER(sysdep.h)
@@ -406,6 +406,7 @@ AC_CHECK_SIZEOF(short, 0)
 AC_CHECK_SIZEOF(int, 0)
 AC_CHECK_SIZEOF(long, 0)
 AC_CHECK_SIZEOF(size_t, 0)
+AC_CHECK_SIZEOF(loff_t, 0)
 dnl AC_CHECK_SIZEOF(long long, 0)
 
 dnl Checks for libraries.

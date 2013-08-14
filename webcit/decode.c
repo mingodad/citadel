@@ -67,12 +67,12 @@ void utf8ify_rfc822_string(char **buf) {
 	char encoding[16];
 	char istr[1024];
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;			/**< Buffer of characters to be converted */
-	char *obuf;			/**< Buffer for converted characters */
-	size_t ibuflen;			/**< Length of input buffer */
-	size_t obuflen;			/**< Length of output buffer */
-	char *isav;			/**< Saved pointer to input buffer */
-	char *osav;			/**< Saved pointer to output buffer */
+	char *ibuf;			/* Buffer of characters to be converted */
+	char *obuf;			/* Buffer for converted characters */
+	size_t ibuflen;			/* Length of input buffer */
+	size_t obuflen;			/* Length of output buffer */
+	char *isav;			/* Saved pointer to input buffer */
+	char *osav;			/* Saved pointer to output buffer */
 	int passes = 0;
 	int i, len, delta;
 	int illegal_non_rfc2047_encoding = 0;
@@ -174,10 +174,10 @@ void utf8ify_rfc822_string(char **buf) {
 
 		ibuf = malloc(1024);
 		isav = ibuf;
-		if (!strcasecmp(encoding, "B")) {	/**< base64 */
+		if (!strcasecmp(encoding, "B")) {	/* base64 */
 			ibuflen = CtdlDecodeBase64(ibuf, istr, strlen(istr));
 		}
-		else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
+		else if (!strcasecmp(encoding, "Q")) {	/* quoted-printable */
 			size_t len;
 			long pos;
 			
@@ -192,7 +192,7 @@ void utf8ify_rfc822_string(char **buf) {
 			ibuflen = CtdlDecodeQuotedPrintable(ibuf, istr, len);
 		}
 		else {
-			strcpy(ibuf, istr);		/**< unknown encoding */
+			strcpy(ibuf, istr);		/* unknown encoding */
 			ibuflen = strlen(istr);
 		}
 
@@ -254,16 +254,15 @@ inline void utf8ify_rfc822_string(char **a){};
 
 
 
-/**
- * \brief	RFC2047-encode a header field if necessary.
- *		If no non-ASCII characters are found, the string
- *		will be copied verbatim without encoding.
+/*
+ * RFC2047-encode a header field if necessary.
+ * If no non-ASCII characters are found, the string will be copied verbatim without encoding.
+ * Returns encoded length; -1 if non success.
  *
- * \param	target		Target buffer.
- * \param	maxlen		Maximum size of target buffer.
- * \param	source		Source string to be encoded.
- * \param       SourceLen       Length of the source string
- * \returns     encoded length; -1 if non success.
+ * target		Target buffer.
+ * maxlen		Maximum size of target buffer.
+ * source		Source string to be encoded.
+ * SourceLen		Length of the source string
  */
 int webcit_rfc2047encode(char *target, int maxlen, char *source, long SourceLen)
 {

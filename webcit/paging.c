@@ -144,7 +144,7 @@ InitModule_PAGING
 	WebcitAddUrlHandler(HKEY("display_page"), "", 0, display_page, 0);
 	WebcitAddUrlHandler(HKEY("page_user"), "", 0, page_user, 0);
 	WebcitAddUrlHandler(HKEY("ajax_send_instant_message"), "", 0, ajax_send_instant_message, AJAX);
-	RegisterConditional(HKEY("COND:PAGE:WAITING"), 0, Conditional_PAGE_WAITING, CTX_NONE);
+	RegisterConditional("COND:PAGE:WAITING", 0, Conditional_PAGE_WAITING, CTX_NONE);
 }
 
 

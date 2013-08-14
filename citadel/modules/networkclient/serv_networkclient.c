@@ -5,18 +5,12 @@
  * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ *  it under the terms of the GNU General Public License, version 3.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
  * This is a fairly high-level type of critical section.  It ensures that no
@@ -71,19 +65,11 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "serv_network.h"
 #include "clientsocket.h"
 #include "file_ops.h"
 #include "citadel_dirs.h"
 #include "threads.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "context.h"
-
-#include "netconfig.h"
 #include "ctdl_module.h"
 
 struct CitContext networker_client_CC;
@@ -223,7 +209,9 @@ eNextState SendFailureMessage(AsyncIO *IO)
 	CtdlAideFPMessage(
 		ChrPtr(NW->IO.ErrMsg),
 		"Networker error",
-		2, strs, (long*) &lens);
+		2, strs, (long*) &lens,
+		IO->Now,
+		IO->ID, CCID);
 	
 	return eAbort;
 }
@@ -232,7 +220,7 @@ eNextState FinalizeNetworker(AsyncIO *IO)
 {
 	AsyncNetworker *NW = (AsyncNetworker *)IO->Data;
 
-	network_talking_to(SKEY(NW->node), NTT_REMOVE);
+	CtdlNetworkTalkingTo(SKEY(NW->node), NTT_REMOVE);
 
 	DeleteNetworker(IO->Data);
 	return eAbort;
@@ -392,7 +380,7 @@ eNextState NWC_SendREAD(AsyncNetworker *NW)
 			SetNWCState(IO, eNWCVSFail);
 			return eAbort;
 		}
-		StrBufPrintf(NW->IO.SendBuf.Buf, "READ %ld|%ld\n",
+		StrBufPrintf(NW->IO.SendBuf.Buf, "READ "LOFF_T_FMT"|%ld\n",
 			     NW->IO.IOB.TotalSentAlready,
 			     NW->IO.IOB.TotalSendSize);
 /*
@@ -575,7 +563,7 @@ eNextState NWC_ReadNUOPReply(AsyncNetworker *NW)
 eNextState NWC_SendWRIT(AsyncNetworker *NW)
 {
 	AsyncIO *IO = &NW->IO;
-	StrBufPrintf(NW->IO.SendBuf.Buf, "WRIT %ld\n", 
+	StrBufPrintf(NW->IO.SendBuf.Buf, "WRIT "LOFF_T_FMT"\n", 
 		     NW->IO.IOB.TotalSendSize - NW->IO.IOB.TotalSentAlready);
 	NWC_DBG_SEND();
 	return eSendReply;
@@ -969,7 +957,7 @@ static int NetworkerCount = 0;
 void RunNetworker(AsyncNetworker *NW)
 {
 	NW->n = NetworkerCount++;
-	network_talking_to(SKEY(NW->node), NTT_ADD);
+	CtdlNetworkTalkingTo(SKEY(NW->node), NTT_ADD);
 	syslog(LOG_DEBUG, "NW[%s][%ld]: polling\n", ChrPtr(NW->node), NW->n);
 	ParseURL(&NW->IO.ConnectMe, NW->Url, 504);
 
@@ -1033,7 +1021,7 @@ void network_poll_other_citadel_nodes(int full_poll, HashList *ignetcfg)
 		/* Use the string tokenizer to grab one line at a time */
 		if(server_shutting_down)
 			return;/* TODO free stuff*/
-		NodeConf *pNode = (NodeConf*) vCfg;
+		CtdlNodeConf *pNode = (CtdlNodeConf*) vCfg;
 		poll = 0;
 		NW = (AsyncNetworker*)malloc(sizeof(AsyncNetworker));
 		memset(NW, 0, sizeof(AsyncNetworker));
@@ -1069,7 +1057,7 @@ void network_poll_other_citadel_nodes(int full_poll, HashList *ignetcfg)
 				     ChrPtr(NW->secret),
 				     ChrPtr(NW->host),
 				     ChrPtr(NW->port));
-			if (!network_talking_to(SKEY(NW->node), NTT_CHECK))
+			if (!CtdlNetworkTalkingTo(SKEY(NW->node), NTT_CHECK))
 			{
 				RunNetworker(NW);
 				continue;
@@ -1099,7 +1087,7 @@ void network_do_clientqueue(void)
 		);
 	}
 
-	working_ignetcfg = load_ignetcfg();
+	working_ignetcfg = CtdlLoadIgNetCfg();
 	/*
 	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
 	 * then we poll everyone.  Otherwise we only poll nodes we have stuff

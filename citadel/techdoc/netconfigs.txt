@@ -90,6 +90,8 @@ to use this option you are on your own.
  
  
  INSTRUCTION:  pop3client
- SYNTAX:       pop3client|hostname|username|password
+ SYNTAX:       pop3client|hostname|username|password|keep|interval
    Periodically fetch messages from a remote POP3 account and store them in this
 room.  Messages will be deleted from the remote account once successfully stored.
+if Keep is set, messages won't be erased on the remote host.
+Interval can specify a bigger value than the system configs value.

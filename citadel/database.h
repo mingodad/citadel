@@ -51,5 +51,21 @@ struct CtdlCompressHeader {
 	size_t compressed_len;
 };
 
+typedef enum __eCheckType {
+	eCheckExist,
+	eCheckUpdate,
+	eUpdate,
+	eWrite
+}eCheckType;
+
+time_t CheckIfAlreadySeen(const char *Facility,
+			  StrBuf *guid,
+			  time_t now,
+			  time_t antiexpire,
+			  eCheckType cType,
+			  long ccid,
+			  long ioid);
+
+
 #endif /* DATABASE_H */
 

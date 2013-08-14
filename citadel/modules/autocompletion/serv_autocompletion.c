@@ -216,7 +216,8 @@ void cmd_auto(char *argbuf) {
 }
 
 
-CTDL_MODULE_INIT(autocompletion) {
+CTDL_MODULE_INIT(autocompletion)
+{
 	if (!threading)
 	{
 		CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");

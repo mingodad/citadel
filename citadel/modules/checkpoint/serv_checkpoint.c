@@ -33,7 +33,8 @@
 #include "ctdl_module.h"
 #include "context.h"
 
-CTDL_MODULE_INIT(checkpoint) {
+CTDL_MODULE_INIT(checkpoint)
+{
 	if (threading)
 	{
 		CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER, PRIO_CLEANUP + 10);

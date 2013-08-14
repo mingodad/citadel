@@ -342,16 +342,16 @@ InitModule_GROUPDAV
 
 	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_dav_HOSTNAME, NULL, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:DAV:NS"), 0, Conditional_DAV_NS,  CTX_NONE);
+	RegisterConditional("COND:DAV:NS", 0, Conditional_DAV_NS,  CTX_NONE);
 
 	RegisterIterator("DAV:NS", 0, DavNamespaces, NULL, 
 			 NULL, NULL, CTX_DAVNS, CTX_NONE, IT_NOFLAG
 	);
 
-	RegisterConditional(HKEY("COND:DAV:NSCURRENT"), 0, Conditional_DAV_NSCURRENT,  CTX_DAVNS);
+	RegisterConditional("COND:DAV:NSCURRENT", 0, Conditional_DAV_NSCURRENT,  CTX_DAVNS);
 	RegisterNamespace("DAV:NAMESPACE", 0, 1, tmplput_DAV_NAMESPACE, NULL, CTX_NONE);
 
 	RegisterHeaderHandler(HKEY("IF-MATCH"), Header_HandleIfMatch);
 	RegisterHeaderHandler(HKEY("DEPTH"), Header_HandleDepth);
-	RegisterConditional(HKEY("COND:DAV:DEPTH"), 1, Conditional_DAV_DEPTH,  CTX_NONE);
+	RegisterConditional("COND:DAV:DEPTH", 1, Conditional_DAV_DEPTH,  CTX_NONE);
 }

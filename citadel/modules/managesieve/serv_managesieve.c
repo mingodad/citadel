@@ -8,19 +8,13 @@
  *
  * Copyright (c) 2007-2012 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -68,17 +62,11 @@
 #include "clientsocket.h"
 #include "locate_host.h"
 #include "citadel_dirs.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
-
 #include "ctdl_module.h"
 #include "serv_sieve.h"
 
 
-/**
+/*
  * http://tools.ietf.org/html/draft-martin-managesieve-06
  *
  * this is the draft this code tries to implement.

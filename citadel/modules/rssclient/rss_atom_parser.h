@@ -66,7 +66,6 @@ typedef struct __networker_save_message {
 	struct CtdlMessage Msg;
 	StrBuf *MsgGUID;
 	StrBuf *Message;
-	struct UseTable ut;
 
 	StrBuf *author_email;
 	StrBuf *author_or_creator;
@@ -80,6 +79,18 @@ typedef struct __networker_save_message {
 	StrBuf *reLinkTitle;
 } networker_save_message;
 
+typedef struct RSSCfgLine RSSCfgLine;
+struct RSSCfgLine {
+	RSSCfgLine *next;
+	StrBuf *Url;
+	time_t last_known_good;
+};
+
+typedef struct __pRSSConfig {
+	const RSSCfgLine *pCfg;
+	long		 QRnumber;
+}pRSSConfig;
+
 struct rss_aggregator {
 	AsyncIO    	 IO;
 	XML_Parser 	 xp;
@@ -91,7 +102,7 @@ struct rss_aggregator {
 	time_t		 next_poll;
 	StrBuf		*Url;
 	StrBuf		*rooms;
-	long		 QRnumber;
+	pRSSConfig       Cfg;
 	HashList	*OtherQRnumbers;
 		   	
 	StrBuf		*CData;

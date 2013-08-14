@@ -1,7 +1,7 @@
 /*
  * Header file for libcitadel
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2013 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 
-#define LIBCITADEL_VERSION_NUMBER	813
+#define LIBCITADEL_VERSION_NUMBER	820
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -48,7 +48,7 @@ typedef enum AXLevel {
 	AxAideU = 6
 }eUsrAxlvl;
 
-enum RoomNetCfg {
+typedef enum __RoomNetCfg {
 	subpending,
 	unsubpending,
 	lastsent, /* Server internal use only */
@@ -58,8 +58,9 @@ enum RoomNetCfg {
 	pop3client,
 	rssclient,
 	participate,
+	roommailalias,
 	maxRoomNetCfg
-};
+} RoomNetCfg;
 
 enum GNET_POP3_PARTS { /* pop3client splits into these columns: */
 	GNET_POP3_HOST = 1,
@@ -206,6 +207,7 @@ int FLUSHStrBuf(StrBuf *buf); /* expensive but doesn't leave content behind for 
 const char *ChrPtr(const StrBuf *Str);
 int StrLength(const StrBuf *Str);
 #define SKEY(a) ChrPtr(a), StrLength(a)
+void StrBufAsciify(StrBuf *Buf, const char repl);
 long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
 long StrBufPook(StrBuf *Buf, const char* ptr, long nThChar, long nChars, char PookValue);
 
@@ -512,14 +514,15 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);
 int GetHashKeys(HashList *Hash, char ***List);
 int dbg_PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry);
-HashPos *GetNewHashPos(HashList *Hash, int StepWidth);
+HashPos *GetNewHashPos(const HashList *Hash, int StepWidth);
+void RewindHashPos(const HashList *Hash, HashPos *it, int StepWidth);
 int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At);
 int DeleteEntryFromHash(HashList *Hash, HashPos *At);
 int GetHashPosCounter(HashList *Hash, HashPos *At);
 void DeleteHashPos(HashPos **DelMe);
 int NextHashPos(HashList *Hash, HashPos *At);
 int GetHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data);
-int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data);
+int GetNextHashPos(const HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data);
 int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **Data);
 void SortByHashKey(HashList *Hash, int Order);
 void SortByHashKeyStr(HashList *Hash);
@@ -674,6 +677,8 @@ extern "C" {
 #define SIEVECONFIG	"application/x-citadel-sieve-config"
 #define XMPPMORTUARY	"application/x-citadel-xmpp-mortuary"
 #define INTERNETCFG     "application/x-citadel-internet-config"
+
+#define FILE_MAILALIAS       "__MAIL_ALIAS__"
 
 #define LISTING_FOLLOWS		100
 #define CIT_OK			200

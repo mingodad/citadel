@@ -22,6 +22,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+#include <libcitadel.h>
+
 #include "auth.h"
 #include "config.h"
 #include "citadel_dirs.h"

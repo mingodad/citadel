@@ -1,14 +1,77 @@
-abc
+<div class="mimepart">
 
-<?ICAL:ITEM(#"ICAL_SUMMARY_PROPERTY", "X")>
+<div id="rsvp<?BSTR("divname")>_title">
+<img src="static/webcit_icons/essen/32x32/calendar.png">
+<span>
+&nbsp;&nbsp;
+<??("COND:ICAL:METHOD", 1, #"ICAL_METHOD_REQUEST")><??("COND:ICAL:METHOD", 2, #"ICAL_METHOD_REPLY")><??("COND:ICAL:METHOD", 3, #"ICAL_METHOD_PUBLISH")>
+<?_("This is an unknown type of calendar item.")>
+<??("X", 1)><??("X", 2)><??("X", 3)>
+<?!("COND:ICAL:METHOD", 11, #"ICAL_METHOD_REQUEST")>
+<?_("Meeting invitation")>
+<?!("X", 11)>
+<?!("COND:ICAL:METHOD", 12, #"ICAL_METHOD_REPLY")>
+<?_("Attendee's reply to your invitation")>
+<?!("X", 12)>
+<?!("COND:ICAL:METHOD", 13, #"ICAL_METHOD_PUBLISH")>
+<?_("Published event")>
+<?!("X", 13)>
+</span>
+</div>
 
-cde
 
-<?ICAL:ITEM(#"ICAL_LOCATION_PROPERTY", "X")>
+<?--("------------------------------")>
+<div><dl>
+<?!("COND:ICAL:PROPERTY", 44, #"ICAL_SUMMARY_PROPERTY")><dt><?_("Summary:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 44)>
+<?!("COND:ICAL:PROPERTY", 55, #"ICAL_LOCATION_PROPERTY")><dt><?_("Location:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 55)>
 
-efg
+<?--("------------------------------")>
+<?!("COND:ICAL:IS:A", 66, #"ICAL_VEVENT_COMPONENT")>
+<?!("COND:ICAL:DT:PROPERTY", 67, #"ICAL_DTSTART_PROPERTY")>
+<?!("COND:ICAL:DT:ISDATE", 68)><dt><?_("Date:")></dt><dd><?ICAL:DT:DATE()></dd><?!("X", 68)>
+<??("COND:ICAL:DT:ISDATE", 69)><dt><?_("Starting date/time:")></dt><dd><?ICAL:DT:DATETIME()></dd><??("X", 69)>
+<?!("X", 67)>
+<?!("COND:ICAL:DT:PROPERTY", 77, #"ICAL_DTEND_PROPERTY")><dt><?_("Ending date/time:")></dt><dd><?ICAL:DT:DATETIME()></dd><?!("X", 77)>
+<?!("X", 66)>
 
 
-<?ICAL:ITEM(#"ICAL_DESCRIPTION_PROPERTY", "X")>
+<?!("COND:ICAL:PROPERTY", 88, #"ICAL_DESCRIPTION_PROPERTY")><dt><?_("Description:")></dt><dd><?ICAL:PROPERTY:STR("X")></dd><?!("X", 88)>
 
-hij
+<?--("Unusual string syntax used here in order to re-use existing translations")>
+<?!("COND:ICAL:PROPERTY", 99, #"ICAL_RRULE_PROPERTY")><dt><?_("Recurrence")></dt><dd><?_("This is a recurring event")>.</dd><?!("X", 99)>
+
+
+<?ITERATE("ICAL:ATTENDEES", ="ical_attachment_display_attendees")>
+
+</dl></div>
+
+<?--("If this is a REQUEST, display conflicts and buttons")>
+<?!("COND:ICAL:METHOD", 110, #"ICAL_METHOD_REQUEST")>
+<?ITERATE("ICAL:CONFLICT", ="ical_attachment_display_conflict")>
+<?--("Display the Accept/Decline buttons")>
+<p id="rsvp<?BSTR("divname")>_question">
+<?_("How would you like to respond to this invitation?")>
+&nbsp;&nbsp;&nbsp;<span class="button_link">
+<a href="javascript:RespondToInvitation('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Accept');"><?_("Accept")></a>
+</span>&nbsp;&nbsp;&nbsp;<span class="button_link">
+<a href="javascript:RespondToInvitation('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Tentative');"><?_("Tentative")></a>
+</span>&nbsp;&nbsp;&nbsp;<span class="button_link">
+<a href="javascript:RespondToInvitation('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Decline');"><?_("Decline")></a>
+</span></p>
+<??("X", 110)>
+
+<?--("If this is a REPLY, display update button")>
+<?!("COND:ICAL:METHOD", 120, #"ICAL_METHOD_REPLY")>
+<p id="rsvp<?BSTR("divname")>_question" >
+<?_("Click <i>Update</i> to accept this reply and update your calendar.")>
+&nbsp;&nbsp;&nbsp;<span class="button_link">
+<a href="javascript:HandleRSVP('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Update');"><?_("Update")></a>
+</span>&nbsp;&nbsp;&nbsp;<span class="button_link">
+<a href="javascript:HandleRSVP('rsvp<?BSTR("divname")>_question','rsvp<?BSTR("divname")>_title','<?BSTR("msgnum")>','<?BSTR("cal_partnum")>','Ignore');"><?_("Ignore")></a>
+</span></p>
+<?!("X", 120)>
+
+<?--("Trailing HTML for the display of this object")>
+<?--("if (recursion_level == 0) {")>
+<p>&nbsp;</p></div>
+<?--("}")>

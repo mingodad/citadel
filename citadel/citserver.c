@@ -65,11 +65,6 @@
 #include "euidindex.h"
 #include "context.h"
 #include "svn_revision.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "ctdl_module.h"
 
 char *unique_session_numbers;
@@ -284,7 +279,9 @@ void cmd_info(char *cmdbuf) {
 	cprintf("0\n"); /* 1 = no, this server is not LDAP-enabled */
 #endif
 
-	if (config.c_auth_mode == AUTHMODE_NATIVE) {
+	if ((config.c_auth_mode == AUTHMODE_NATIVE) &&
+	    (config.c_disable_newu == 0))
+	{
 		cprintf("%d\n", config.c_disable_newu);
 	}
 	else {

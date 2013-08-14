@@ -68,12 +68,12 @@ void init_ssl(void)
 	}
 
 	if (!RAND_status()) {
-		syslog(3, "PRNG not adequately seeded, won't do SSL/TLS\n");
+		syslog(LOG_WARNING, "PRNG not adequately seeded, won't do SSL/TLS\n");
 		return;
 	}
 	SSLCritters = malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t *));
 	if (!SSLCritters) {
-		syslog(1, "citserver: can't allocate memory!!\n");
+		syslog(LOG_ERR, "citserver: can't allocate memory!!\n");
 		/* Nothing's been initialized, just die */
 		ShutDownWebcit();
 		exit(WC_EXIT_SSL);
@@ -83,7 +83,7 @@ void init_ssl(void)
 		for (a = 0; a < CRYPTO_num_locks(); a++) {
 			SSLCritters[a] = malloc(sizeof(pthread_mutex_t));
 			if (!SSLCritters[a]) {
-				syslog(1,
+				syslog(LOG_EMERG,
 					"citserver: can't allocate memory!!\n");
 				/** Nothing's been initialized, just die */
 				ShutDownWebcit();
@@ -100,13 +100,13 @@ void init_ssl(void)
 	SSL_load_error_strings();
 	ssl_method = SSLv23_server_method();
 	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {
-		syslog(3, "SSL_CTX_new failed: %s\n", ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_WARNING, "SSL_CTX_new failed: %s\n", ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 
-	syslog(9, "Requesting cipher list: %s\n", ssl_cipher_list);
+	syslog(LOG_INFO, "Requesting cipher list: %s\n", ssl_cipher_list);
 	if (!(SSL_CTX_set_cipher_list(ssl_ctx, ssl_cipher_list))) {
-		syslog(3, "SSL_CTX_set_cipher_list failed: %s\n", ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_WARNING, "SSL_CTX_set_cipher_list failed: %s\n", ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 
@@ -130,27 +130,27 @@ void init_ssl(void)
 	if (!strcasecmp(ctdlhost, "uds")) {
 		sprintf(buf, "%s/keys/citadel.key", ctdlport);
 		rv = symlink(buf, CTDL_KEY_PATH);
-		if (!rv) syslog(1, "%s\n", strerror(errno));
+		if (!rv) syslog(LOG_DEBUG, "%s\n", strerror(errno));
 		sprintf(buf, "%s/keys/citadel.csr", ctdlport);
 		rv = symlink(buf, CTDL_CSR_PATH);
-		if (!rv) syslog(1, "%s\n", strerror(errno));
+		if (!rv) syslog(LOG_DEBUG, "%s\n", strerror(errno));
 		sprintf(buf, "%s/keys/citadel.cer", ctdlport);
 		rv = symlink(buf, CTDL_CER_PATH);
-		if (!rv) syslog(1, "%s\n", strerror(errno));
+		if (!rv) syslog(LOG_DEBUG, "%s\n", strerror(errno));
 	}
 
 	/*
 	 * If we still don't have a private key, generate one.
 	 */
 	if (access(CTDL_KEY_PATH, R_OK) != 0) {
-		syslog(5, "Generating RSA key pair.\n");
+		syslog(LOG_INFO, "Generating RSA key pair.\n");
 		rsa = RSA_generate_key(1024,	/* modulus size */
 					65537,	/* exponent */
 					NULL,	/* no callback */
 					NULL	/* no callback */
 		);
 		if (rsa == NULL) {
-			syslog(3, "Key generation failed: %s\n", ERR_reason_error_string(ERR_get_error()));
+			syslog(LOG_WARNING, "Key generation failed: %s\n", ERR_reason_error_string(ERR_get_error()));
 		}
 		if (rsa != NULL) {
 			fp = fopen(CTDL_KEY_PATH, "w");
@@ -164,14 +164,14 @@ void init_ssl(void)
 							NULL,	/* no callbk */
 							NULL	/* no callbk */
 				) != 1) {
-					syslog(3, "Cannot write key: %s\n",
+					syslog(LOG_WARNING, "Cannot write key: %s\n",
 						ERR_reason_error_string(ERR_get_error()));
 					unlink(CTDL_KEY_PATH);
 				}
 				fclose(fp);
 			}
 			else {
-				syslog(3, "Cannot write key: %s\n", CTDL_KEY_PATH);
+				syslog(LOG_WARNING, "Cannot write key: %s\n", CTDL_KEY_PATH);
 				ShutDownWebcit();
 				exit(0);
 			}
@@ -185,7 +185,7 @@ void init_ssl(void)
 	 * the CSR in this step so that the next step may commence.
 	 */
 	if ( (access(CTDL_CER_PATH, R_OK) != 0) && (access(CTDL_CSR_PATH, R_OK) != 0) ) {
-		syslog(5, "Generating a certificate signing request.\n");
+		syslog(LOG_INFO, "Generating a certificate signing request.\n");
 
 		/*
 		 * Read our key from the file.  No, we don't just keep this
@@ -266,7 +266,7 @@ void init_ssl(void)
 
 					/* Sign the CSR */
 					if (!X509_REQ_sign(req, pk, EVP_md5())) {
-						syslog(3, "X509_REQ_sign(): error\n");
+						syslog(LOG_WARNING, "X509_REQ_sign(): error\n");
 					}
 					else {
 						/* Write it to disk. */	
@@ -277,7 +277,7 @@ void init_ssl(void)
 							fclose(fp);
 						}
 						else {
-							syslog(3, "Cannot write key: %s\n", CTDL_CSR_PATH);
+							syslog(LOG_WARNING, "Cannot write key: %s\n", CTDL_CSR_PATH);
 							ShutDownWebcit();
 							exit(0);
 						}
@@ -291,7 +291,7 @@ void init_ssl(void)
 		}
 
 		else {
-			syslog(3, "Unable to read private key.\n");
+			syslog(LOG_WARNING, "Unable to read private key.\n");
 		}
 	}
 
@@ -301,7 +301,7 @@ void init_ssl(void)
 	 * Generate a self-signed certificate if we don't have one.
 	 */
 	if (access(CTDL_CER_PATH, R_OK) != 0) {
-		syslog(5, "Generating a self-signed certificate.\n");
+		syslog(LOG_INFO, "Generating a self-signed certificate.\n");
 
 		/* Same deal as before: always read the key from disk because
 		 * it may or may not have just been generated.
@@ -342,7 +342,7 @@ void init_ssl(void)
 					
 					/* Sign the cert */
 					if (!X509_sign(cer, pk, EVP_md5())) {
-						syslog(3, "X509_sign(): error\n");
+						syslog(LOG_WARNING, "X509_sign(): error\n");
 					}
 					else {
 						/* Write it to disk. */	
@@ -353,7 +353,7 @@ void init_ssl(void)
 							fclose(fp);
 						}
 						else {
-							syslog(3, "Cannot write key: %s\n", CTDL_CER_PATH);
+							syslog(LOG_WARNING, "Cannot write key: %s\n", CTDL_CER_PATH);
 							ShutDownWebcit();
 							exit(0);
 						}
@@ -374,7 +374,7 @@ void init_ssl(void)
 	SSL_CTX_use_certificate_chain_file(ssl_ctx, CTDL_CER_PATH);
 	SSL_CTX_use_PrivateKey_file(ssl_ctx, CTDL_KEY_PATH, SSL_FILETYPE_PEM);
 	if ( !SSL_CTX_check_private_key(ssl_ctx) ) {
-		syslog(3, "Cannot install certificate: %s\n",
+		syslog(LOG_WARNING, "Cannot install certificate: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 	}
 	
@@ -394,11 +394,11 @@ int starttls(int sock) {
 		return(1);
 	}
 	if (!(newssl = SSL_new(ssl_ctx))) {
-		syslog(3, "SSL_new failed: %s\n", ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_WARNING, "SSL_new failed: %s\n", ERR_reason_error_string(ERR_get_error()));
 		return(2);
 	}
 	if (!(SSL_set_fd(newssl, sock))) {
-		syslog(3, "SSL_set_fd failed: %s\n", ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_WARNING, "SSL_set_fd failed: %s\n", ERR_reason_error_string(ERR_get_error()));
 		SSL_free(newssl);
 		return(3);
 	}
@@ -415,10 +415,10 @@ int starttls(int sock) {
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
 		if (ssl_error_reason == NULL) {
-			syslog(3, "SSL_accept failed: errval=%ld, retval=%d %s\n", errval, retval, strerror(errval));
+			syslog(LOG_WARNING, "SSL_accept failed: errval=%ld, retval=%d %s\n", errval, retval, strerror(errval));
 		}
 		else {
-			syslog(3, "SSL_accept failed: %s\n", ssl_error_reason);
+			syslog(LOG_WARNING, "SSL_accept failed: %s\n", ssl_error_reason);
 		}
 		sleeeeeeeeeep(1);
 		retval = SSL_accept(newssl);
@@ -430,27 +430,27 @@ int starttls(int sock) {
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
 		if (ssl_error_reason == NULL) {
-			syslog(3, "SSL_accept failed: errval=%ld, retval=%d (%s)\n", errval, retval, strerror(errval));
+			syslog(LOG_WARNING, "SSL_accept failed: errval=%ld, retval=%d (%s)\n", errval, retval, strerror(errval));
 		}
 		else {
-			syslog(3, "SSL_accept failed: %s\n", ssl_error_reason);
+			syslog(LOG_WARNING, "SSL_accept failed: %s\n", ssl_error_reason);
 		}
 		SSL_free(newssl);
 		newssl = NULL;
 		return(4);
 	}
 	else {
-		syslog(15, "SSL_accept success\n");
+		syslog(LOG_INFO, "SSL_accept success\n");
 	}
 	/*r = */BIO_set_close(newssl->rbio, BIO_NOCLOSE);
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl), &alg_bits);
-	syslog(15, "SSL/TLS using %s on %s (%d of %d bits)\n",
+	syslog(LOG_INFO, "SSL/TLS using %s on %s (%d of %d bits)\n",
 		SSL_CIPHER_get_name(SSL_get_current_cipher(newssl)),
 		SSL_CIPHER_get_version(SSL_get_current_cipher(newssl)),
 		bits, alg_bits);
 
 	pthread_setspecific(ThreadSSL, newssl);
-	syslog(15, "SSL started\n");
+	syslog(LOG_INFO, "SSL started\n");
 	return(0);
 }
 
@@ -468,14 +468,14 @@ void endtls(void)
 
 	if (THREADSSL == NULL) return;
 
-	syslog(15, "Ending SSL/TLS\n");
+	syslog(LOG_INFO, "Ending SSL/TLS\n");
 	SSL_shutdown(THREADSSL);
 	/*ctx = */SSL_get_SSL_CTX(THREADSSL);
 
 	/* I don't think this is needed, and it crashes the server anyway
 	 *
 	 * 	if (ctx != NULL) {
-	 *		syslog(9, "Freeing CTX at %x\n", (int)ctx );
+	 *		syslog(LOG_DEBUG, "Freeing CTX at %x\n", (int)ctx );
 	 *		SSL_CTX_free(ctx);
 	 *	}
 	 */
@@ -517,7 +517,7 @@ void client_write_ssl(const StrBuf *Buf)
 	while (nremain > 0) {
 		if (SSL_want_write(THREADSSL)) {
 			if ((SSL_read(THREADSSL, junk, 0)) < 1) {
-				syslog(9, "SSL_read in client_write: %s\n",
+				syslog(LOG_WARNING, "SSL_read in client_write: %s\n",
 						ERR_reason_error_string(ERR_get_error()));
 			}
 		}
@@ -530,9 +530,9 @@ void client_write_ssl(const StrBuf *Buf)
 				sleeeeeeeeeep(1);
 				continue;
 			}
-			syslog(9, "SSL_write got error %ld, ret %d\n", errval, retval);
+			syslog(LOG_WARNING, "SSL_write got error %ld, ret %d\n", errval, retval);
 			if (retval == -1) {
-				syslog(9, "errno is %d\n", errno);
+				syslog(LOG_WARNING, "errno is %d\n", errno);
 			}
 			endtls();
 			return;
@@ -557,7 +557,7 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 	while (1) {
 		if (SSL_want_read(pssl)) {
 			if ((SSL_write(pssl, junk, 0)) < 1) {
-				syslog(9, "SSL_write in client_read\n");
+				syslog(LOG_WARNING, "SSL_write in client_read\n");
 			}
 		}
 		rlen = SSL_read(pssl, sbuf, sizeof(sbuf));
@@ -569,7 +569,7 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 				sleeeeeeeeeep(1);
 				continue;
 			}
-			syslog(9, "SSL_read got error %ld\n", errval);
+			syslog(LOG_WARNING, "SSL_read got error %ld\n", errval);
 			endtls();
 			return (-1);
 		}

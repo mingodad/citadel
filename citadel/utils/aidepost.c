@@ -22,11 +22,6 @@
 #include "citadel.h"
 #include "citadel_dirs.h"
 
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
-
 /*
  * Simplified function to generate a message in our format
  */

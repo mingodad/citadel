@@ -64,7 +64,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	);
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		syslog(0, "get_serv_info(IDEN): unexpected answer [%s]\n",
+		syslog(LOG_WARNING, "get_serv_info(IDEN): unexpected answer [%s]\n",
 			ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 		return NULL;
@@ -78,7 +78,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	serv_puts("ICAL sgi|1");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		syslog(0, "get_serv_info(ICAL sgi|1): unexpected answer [%s]\n",
+		syslog(LOG_WARNING, "get_serv_info(ICAL sgi|1): unexpected answer [%s]\n",
 			ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 		return NULL;
@@ -88,7 +88,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	serv_puts("INFO");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
-		syslog(0, "get_serv_info(INFO sgi|1): unexpected answer [%s]\n",
+		syslog(LOG_WARNING, "get_serv_info(INFO sgi|1): unexpected answer [%s]\n",
 			ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 		return NULL;
@@ -701,11 +701,11 @@ InitModule_SERVFUNC
 	if (is_uds)
 		snprintf(serv_sock_name, PATH_MAX, "%s/citadel.socket", ctdlport);
 
-	RegisterConditional(HKEY("COND:SERV:OPENID"), 2, conditional_serv_supports_openid, CTX_NONE);
-	RegisterConditional(HKEY("COND:SERV:NEWU"), 2, conditional_serv_newuser_disabled, CTX_NONE);
-	RegisterConditional(HKEY("COND:SERV:FULLTEXT_ENABLED"), 2, conditional_serv_fulltext_enabled, CTX_NONE);
-	RegisterConditional(HKEY("COND:SERV:LDAP_ENABLED"), 2, conditional_serv_ldap_enabled, CTX_NONE);
-        RegisterConditional(HKEY("COND:SERV:SUPPORTS_GUEST"), 2, conditional_serv_supports_guest, CTX_NONE);
+	RegisterConditional("COND:SERV:OPENID", 2, conditional_serv_supports_openid, CTX_NONE);
+	RegisterConditional("COND:SERV:NEWU", 2, conditional_serv_newuser_disabled, CTX_NONE);
+	RegisterConditional("COND:SERV:FULLTEXT_ENABLED", 2, conditional_serv_fulltext_enabled, CTX_NONE);
+	RegisterConditional("COND:SERV:LDAP_ENABLED", 2, conditional_serv_ldap_enabled, CTX_NONE);
+        RegisterConditional("COND:SERV:SUPPORTS_GUEST", 2, conditional_serv_supports_guest, CTX_NONE);
 	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip, NULL, CTX_NONE);
 	RegisterNamespace("SERV:NODENAME", 0, 1, tmplput_serv_nodename, NULL, CTX_NONE);
 	RegisterNamespace("SERV:HUMANNODE", 0, 1, tmplput_serv_humannode, NULL, CTX_NONE);

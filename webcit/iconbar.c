@@ -315,10 +315,10 @@ InitModule_ICONBAR
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), "", 0, commit_iconbar, 0);
 	WebcitAddUrlHandler(HKEY("toggle_wholist_expanded_state"), "", 0, toggle_wholist_expanded_state, AJAX);
 	WebcitAddUrlHandler(HKEY("toggle_roomlist_expanded_state"), "", 0, toggle_roomlist_expanded_state, AJAX);
-	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
+	RegisterConditional("COND:ICONBAR:ACTIVE", 3, ConditionalIsActiveStylesheet, CTX_NONE);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:ICONBAR:WHOLISTEXPANDED"), 0, ConditionalWholistExpanded, CTX_NONE);
-	RegisterConditional(HKEY("COND:ICONBAR:ROOMLISTEXPANDED"), 0, ConditionalRoomlistExpanded, CTX_NONE);
+	RegisterConditional("COND:ICONBAR:WHOLISTEXPANDED", 0, ConditionalWholistExpanded, CTX_NONE);
+	RegisterConditional("COND:ICONBAR:ROOMLISTEXPANDED", 0, ConditionalRoomlistExpanded, CTX_NONE);
 
 	RegisterPreference("iconbar", _("Iconbar Setting"), PRF_STRING, LoadIconSettings);
 	l = 1;

@@ -73,10 +73,6 @@
 #include <sys/select.h>
 #endif
 
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "ctdl_module.h"
 #include "threads.h"
 #include "user_ops.h"
@@ -912,7 +908,8 @@ int client_getln(char *buf, int bufsize)
 void close_masters (void)
 {
 	struct ServiceFunctionHook *serviceptr;
-	
+	const char *Text;
+
 	/*
 	 * close all protocol master sockets
 	 */
@@ -921,18 +918,37 @@ void close_masters (void)
 
 		if (serviceptr->tcp_port > 0)
 		{
-			syslog(LOG_INFO, "Closing %d listener on port %d\n",
+			if (serviceptr->msock == -1)
+				Text = "not closing again";
+			else
+				Text = "Closing";
+					
+			syslog(LOG_INFO, "%s %d listener on port %d\n",
+			       Text,
 			       serviceptr->msock,
 			       serviceptr->tcp_port);
 			serviceptr->tcp_port = 0;
 		}
 		
 		if (serviceptr->sockpath != NULL)
-			syslog(LOG_INFO, "Closing %d listener on '%s'\n",
+		{
+			if (serviceptr->msock == -1)
+				Text = "not closing again";
+			else
+				Text = "Closing";
+
+			syslog(LOG_INFO, "%s %d listener on '%s'\n",
+			       Text,
 			       serviceptr->msock,
 			       serviceptr->sockpath);
+		}
+
                 if (serviceptr->msock != -1)
+		{
 			close(serviceptr->msock);
+			serviceptr->msock = -1;
+		}
+
 		/* If it's a Unix domain socket, remove the file. */
 		if (serviceptr->sockpath != NULL) {
 			unlink(serviceptr->sockpath);
@@ -963,6 +979,7 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyCleanupHooks();
 	CtdlDestroyFixedOutputHooks();	
 	CtdlDestroySessionHooks();
+	CtdlDestroyTDAPVetoHooks();
 	CtdlDestroyServiceHook();
 	CtdlDestroyRoomHooks();
 	CtdlDestroySearchHooks();
@@ -1125,6 +1142,87 @@ int convert_login(char NameToConvert[]) {
 
 
 
+void HuntBadSession(void)
+{
+	int highest;
+	CitContext *ptr;
+	fd_set readfds;
+	struct timeval tv;
+	struct ServiceFunctionHook *serviceptr;
+
+
+
+	/* Next, add all of the client sockets. */
+	begin_critical_section(S_SESSION_TABLE);
+	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+		if ((ptr->state == CON_SYS) && (ptr->client_socket == 0))
+			continue;
+		/* Initialize the fdset. */
+		FD_ZERO(&readfds);
+		highest = 0;
+		tv.tv_sec = 0;		/* wake up every second if no input */
+		tv.tv_usec = 0;
+
+		/* Don't select on dead sessions, only truly idle ones */
+		if (	(ptr->state == CON_IDLE)
+			&& (ptr->kill_me == 0)
+			&& (ptr->client_socket > 0)
+			) {
+			FD_SET(ptr->client_socket, &readfds);
+			if (ptr->client_socket > highest)
+				highest = ptr->client_socket;
+			
+			if ((select(highest + 1, &readfds, NULL, NULL, &tv) < 0) &&
+			    (errno == EBADF))
+			{
+				/* Gotcha! */
+				syslog(LOG_EMERG,
+				       "Killing Session CC[%d] bad FD: [%d:%d] User[%s] Host[%s:%s]\n",
+				       ptr->cs_pid,
+				       ptr->client_socket,
+				       ptr->is_local_socket,
+				       ptr->curr_user,
+				       ptr->cs_host,ptr->cs_addr);
+
+				ptr->kill_me = 1;
+				ptr->client_socket = -1;
+				break;
+			}
+		}
+		
+	}
+	end_critical_section(S_SESSION_TABLE);
+
+
+	/* First, add the various master sockets to the fdset. */
+	for (serviceptr = ServiceHookTable; serviceptr != NULL; serviceptr = serviceptr->next ) {
+
+		/* Initialize the fdset. */
+		highest = 0;
+		tv.tv_sec = 0;		/* wake up every second if no input */
+		tv.tv_usec = 0;
+
+		FD_SET(serviceptr->msock, &readfds);
+		if (serviceptr->msock > highest) {
+			highest = serviceptr->msock;
+		}
+		if ((select(highest + 1, &readfds, NULL, NULL, &tv) < 0) &&
+		    (errno == EBADF))
+		{
+			/* Gotcha! server socket dead? commit suicide! */
+			syslog(LOG_EMERG,
+			       "Found bad FD: %d and its a server socket! Shutting Down!\n",
+			       serviceptr->msock);
+
+			server_shutting_down = 1;
+			break;
+		}
+	}
+
+
+}
+
+
 /* 
  * This loop just keeps going and going and going...
  */
@@ -1141,7 +1239,9 @@ void *worker_thread(void *blah) {
 	CitContext *con = NULL;         /* Temporary context pointer */
 	int i;
 
+	pthread_mutex_lock(&ThreadCountMutex);
 	++num_workers;
+	pthread_mutex_unlock(&ThreadCountMutex);
 
 	while (!server_shutting_down) {
 
@@ -1216,7 +1316,8 @@ do_select:	force_purge = 0;
 		 */
 		if (retval < 0) {
 			if (errno == EBADF) {
-				syslog(LOG_NOTICE, "select() failed: (%s)\n", strerror(errno));
+				syslog(LOG_EMERG, "select() failed: (%s)\n", strerror(errno));
+				HuntBadSession ();
 				goto do_select;
 			}
 			if (errno != EINTR) {
@@ -1323,7 +1424,10 @@ do_select:	force_purge = 0;
 
 SKIP_SELECT:
 		/* We're bound to a session */
+		pthread_mutex_lock(&ThreadCountMutex);
 		++active_workers;
+		pthread_mutex_unlock(&ThreadCountMutex);
+
 		if (bind_me != NULL) {
 			become_session(bind_me);
 
@@ -1357,11 +1461,23 @@ SKIP_SELECT:
 
 		dead_session_purge(force_purge);
 		do_housekeeping();
+
+		pthread_mutex_lock(&ThreadCountMutex);
 		--active_workers;
+		if ((active_workers + config.c_min_workers < num_workers) &&
+		    (num_workers > config.c_min_workers))
+		{
+			num_workers--;
+			pthread_mutex_unlock(&ThreadCountMutex);
+			return (NULL);
+		}
+		pthread_mutex_unlock(&ThreadCountMutex);
 	}
 
 	/* If control reaches this point, the server is shutting down */
+	pthread_mutex_lock(&ThreadCountMutex);
 	--num_workers;
+	pthread_mutex_unlock(&ThreadCountMutex);
 	return(NULL);
 }
 

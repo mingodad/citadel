@@ -518,7 +518,7 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n, char **Author, char **Address)
 void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 {
 	static int seq = 0;
-
+	
 	struct CtdlMessage *bmsg = NULL;
 	StrBuf *boundary;
 	StrBuf *Msg = NULL;
@@ -569,7 +569,10 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 			StrBufAppendBufPlain(Msg, HKEY(" "), 0);
 			StrBufAppendBuf(Msg, ThisItem->Recipient, 0);
 			StrBufAppendBufPlain(Msg, HKEY(": "), 0);
-			StrBufAppendBuf(Msg, ThisItem->StatusMessage, 0);
+			if (ThisItem->AllStatusMessages != NULL)
+				StrBufAppendBuf(Msg, ThisItem->AllStatusMessages, 0);
+			else
+				StrBufAppendBuf(Msg, ThisItem->StatusMessage, 0);
 			StrBufAppendBufPlain(Msg, HKEY("\r\n"), 0);
 		}
 	}
@@ -829,7 +832,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	StrBuf *Msg =NULL;
 
 	if (mynumsessions > max_sessions_for_outbound_smtp) {
-		SMTPC_syslog(LOG_DEBUG,
+		SMTPC_syslog(LOG_INFO,
 			     "skipping because of num jobs %d > %d max_sessions_for_outbound_smtp",
 			     mynumsessions,
 			     max_sessions_for_outbound_smtp);
@@ -940,13 +943,23 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	    (((MyQItem->ActiveDeliveries * 2)  < max_sessions_for_outbound_smtp)))
 	{
 		/* abort delivery for another time. */
-		SMTPC_syslog(LOG_DEBUG,
+		SMTPC_syslog(LOG_INFO,
 			     "SMTP Queue: skipping because of num jobs %d + %ld > %d max_sessions_for_outbound_smtp",
 			     mynumsessions,
 			     MyQItem->ActiveDeliveries,
 			     max_sessions_for_outbound_smtp);
 
-		FreeQueItem(&MyQItem);
+		It = GetNewHashPos(MyQItem->MailQEntries, 0);
+		pthread_mutex_lock(&ActiveQItemsLock);
+		{
+			if (GetHashPosFromKey(ActiveQItems,
+					      LKEY(MyQItem->MessageID),
+					      It))
+			{
+				DeleteEntryFromHash(ActiveQItems, It);
+			}
+		}
+		pthread_mutex_unlock(&ActiveQItemsLock);
 
 		return;
 	}
@@ -995,7 +1008,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 							 n,
 							 RelayUrls);
 
-				if (KeepBuffers) HaveBuffers = 1;
+				if (KeepBuffers) HaveBuffers++;
 
 				i++;
 			}
@@ -1037,7 +1050,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 							 n,
 							 RelayUrls);
 
-				if (KeepBuffers) HaveBuffers = 1;
+				if (KeepBuffers) HaveBuffers++;
 
 				i++;
 			}

@@ -328,9 +328,9 @@ InitModule_WHO
 	RegisterNamespace("WHO:NSESSIONS",   0, 1, tmplput_who_nsessions, NULL, CTX_WHO);
 	RegisterNamespace("WHO:NSESSIONS",   0, 1, tmplput_who_nsessions, NULL, CTX_WHO);
 
-	RegisterConditional(HKEY("WHO:IDLE"),      1, conditional_who_idle, CTX_WHO);
-	RegisterConditional(HKEY("WHO:NSESSIONS"), 1, conditional_who_nsessions, CTX_WHO);
-	RegisterConditional(HKEY("WHO:ISME"),      1, conditional_who_isme, CTX_WHO);
-	RegisterConditional(HKEY("WHO:REALROOM"),  1, conditional_who_realroom, CTX_WHO);
-	RegisterConditional(HKEY("WHO:REALHOST"),  1, conditional_who_realhost, CTX_WHO);
+	RegisterConditional("WHO:IDLE",      1, conditional_who_idle, CTX_WHO);
+	RegisterConditional("WHO:NSESSIONS", 1, conditional_who_nsessions, CTX_WHO);
+	RegisterConditional("WHO:ISME",      1, conditional_who_isme, CTX_WHO);
+	RegisterConditional("WHO:REALROOM",  1, conditional_who_realroom, CTX_WHO);
+	RegisterConditional("WHO:REALHOST",  1, conditional_who_realhost, CTX_WHO);
 }

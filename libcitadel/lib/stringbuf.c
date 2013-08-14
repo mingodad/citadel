@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2013 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -362,7 +362,12 @@ long StrBufShrinkToFit(StrBuf *Buf, int Force)
 	if (Force || 
 	    (Buf->BufUsed + (Buf->BufUsed / 3) > Buf->BufSize))
 	{
-		char *TmpBuf = (char*) malloc(Buf->BufUsed + 1);
+		char *TmpBuf;
+
+		TmpBuf = (char*) malloc(Buf->BufUsed + 1);
+		if (TmpBuf == NULL)
+			return -1;
+
 		memcpy (TmpBuf, Buf->buf, Buf->BufUsed + 1);
 		Buf->BufSize = Buf->BufUsed + 1;
 		free(Buf->buf);
@@ -381,7 +386,15 @@ StrBuf* NewStrBuf(void)
 	StrBuf *NewBuf;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
+
 	NewBuf->buf = (char*) malloc(BaseStrBufSize);
+	if (NewBuf->buf == NULL)
+	{
+		free(NewBuf);
+		return NULL;
+	}
 	NewBuf->buf[0] = '\0';
 	NewBuf->BufSize = BaseStrBufSize;
 	NewBuf->BufUsed = 0;
@@ -406,7 +419,16 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 		return NewStrBuf();
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
+
 	NewBuf->buf = (char*) malloc(CopyMe->BufSize);
+	if (NewBuf->buf == NULL)
+	{
+		free(NewBuf);
+		return NULL;
+	}
+
 	memcpy(NewBuf->buf, CopyMe->buf, CopyMe->BufUsed + 1);
 	NewBuf->BufUsed = CopyMe->BufUsed;
 	NewBuf->BufSize = CopyMe->BufSize;
@@ -502,6 +524,9 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 	size_t CopySize;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
+
 	if (nChars < 0)
 		CopySize = strlen((ptr != NULL)?ptr:"");
 	else
@@ -595,6 +620,8 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 	StrBuf *NewBuf;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	if (NewBuf == NULL)
+		return NULL;
 	NewBuf->buf = (char*) StringConstant;
 	NewBuf->BufSize = SizeOfStrConstant;
 	NewBuf->BufUsed = SizeOfStrConstant;
@@ -1023,16 +1050,18 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 	}
 	if (Offset + nChars < Source->BufUsed)
 	{
-		if (nChars >= dest->BufSize)
-			IncreaseBuf(dest, 0, nChars + 1);
+		if ((nChars >= dest->BufSize) && 
+		    (IncreaseBuf(dest, 0, nChars + 1) == -1))
+			return 0;
 		memcpy(dest->buf, Source->buf + Offset, nChars);
 		dest->BufUsed = nChars;
 		dest->buf[dest->BufUsed] = '\0';
 		return nChars;
 	}
 	NCharsRemain = Source->BufUsed - Offset;
-	if (NCharsRemain  >= dest->BufSize)
-		IncreaseBuf(dest, 0, NCharsRemain + 1);
+	if ((NCharsRemain  >= dest->BufSize) && 
+	    (IncreaseBuf(dest, 0, NCharsRemain + 1) == -1))
+		return 0;
 	memcpy(dest->buf, Source->buf + Offset, NCharsRemain);
 	dest->BufUsed = NCharsRemain;
 	dest->buf[dest->BufUsed] = '\0';
@@ -1144,29 +1173,31 @@ void StrBufSpaceToBlank(StrBuf *Buf)
 
 void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
 {
-	const char *pBuff;
 	const char *pLeft;
 	const char *pRight;
 
-	if ((Buf == NULL) || (Buf->buf == NULL))
+	if ((Buf == NULL) || (Buf->buf == NULL)) {
+		StrBufCutAt(Buf, 0, Buf->buf);
 		return;
-	pLeft = pBuff = Buf->buf;
-	while (pBuff != NULL) {
-		pLeft = pBuff;
-		pBuff = strchr(pBuff, leftboundary);
-		if (pBuff != NULL)
-			pBuff++;
 	}
-		
-	if (pLeft != NULL)
-		pBuff = pLeft;
-	else
-		pBuff = Buf->buf;
-	pRight = strchr(pBuff, rightboundary);
-	if (pRight != NULL)
+
+	pRight = strchr(Buf->buf, rightboundary);
+	if (pRight != NULL) {
 		StrBufCutAt(Buf, 0, pRight);
-	if (pLeft != NULL)
-		StrBufCutLeft(Buf, pLeft - Buf->buf);
+	}
+	else {
+		StrBufCutAt(Buf, 0, Buf->buf);
+		return;
+	}
+
+	pLeft = strrchr(ChrPtr(Buf), leftboundary);
+	if (pLeft != NULL) {
+		StrBufCutLeft(Buf, pLeft - Buf->buf + 1);
+	}
+	else {
+		StrBufCutAt(Buf, 0, Buf->buf);
+		return;
+	}
 }
 
 
@@ -2511,6 +2542,23 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 	return Target->BufUsed;
 }
 
+
+/**
+ * @ingroup StrBuf_DeEnCoder
+ * @brief replace all non-Ascii characters by another
+ * @param Buf buffer to inspect
+ * @param repl charater to stamp over non ascii chars
+ */
+void StrBufAsciify(StrBuf *Buf, const char repl)
+{
+	long offset;
+
+	for (offset = 0; offset < Buf->BufUsed; offset ++)
+		if (!isascii(Buf->buf[offset]))
+			Buf->buf[offset] = repl;
+	
+}
+
 /**
  * @ingroup StrBuf_DeEnCoder
  * @brief unhide special chars hidden to the HTML escaper
@@ -2604,9 +2652,14 @@ int StrBufDecodeBase64(StrBuf *Buf)
 {
 	char *xferbuf;
 	size_t siz;
-	if (Buf == NULL) return -1;
+
+	if (Buf == NULL)
+		return -1;
 
 	xferbuf = (char*) malloc(Buf->BufSize);
+	if (xferbuf == NULL)
+		return -1;
+
 	*xferbuf = '\0';
 	siz = CtdlDecodeBase64(xferbuf,
 			       Buf->buf,
@@ -4316,10 +4369,11 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 			nSuccessLess = 0;
 			buf->BufUsed += rlen;
 			buf->buf[buf->BufUsed] = '\0';
-			if (buf->BufUsed + 10 > buf->BufSize) {
-				IncreaseBuf(buf, 1, -1);
-			}
 			pch = strchr(buf->buf, '\n');
+			if ((pch == NULL) &&
+			    (buf->BufUsed + 10 > buf->BufSize) &&
+			    (IncreaseBuf(buf, 1, -1) == -1))
+				return -1;
 			continue;
 		}
 		
@@ -4509,6 +4563,10 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 
 			continue;
 		}
+		else
+		{
+			nSuccessLess++;
+		}
 	}
 	*Pos = NULL;
 	if (pLF != NULL) {
@@ -4645,9 +4703,12 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	int nSuccessLess = 0;
 	int MaxTries;
 
-	if ((Blob == NULL) || (*fd == -1) || (IOBuf == NULL) || (Pos == NULL))
+	if ((Blob == NULL)  ||
+	    (*fd == -1)     ||
+	    (IOBuf == NULL) ||
+	    (Pos == NULL))
 	{
-		if (*Pos != NULL)
+		if (Pos != NULL)
 			*Pos = NULL;
 		*Error = ErrRBB_BLOBFPreConditionFailed;
 		return -1;

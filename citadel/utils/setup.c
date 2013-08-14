@@ -334,7 +334,8 @@ void important_message(const char *title, const char *msgtext)
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		printf("       %s \n\n%s\n\n", title, msgtext);
 		printf("%s", _("Press return to continue..."));
-		if (fgets(buf, sizeof buf, stdin));
+		if (fgets(buf, sizeof buf, stdin))
+			;
 		break;
 
 	case UI_DIALOG:

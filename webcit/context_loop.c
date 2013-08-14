@@ -58,17 +58,22 @@ void do_housekeeping(void)
 {
 	wcsession *sptr, *ss;
 	wcsession *sessions_to_kill = NULL;
+	time_t the_time;
 
 	/*
 	 * Lock the session list, moving any candidates for euthanasia into
 	 * a separate list.
 	 */
+	the_time = 0;
 	CtdlLogResult(pthread_mutex_lock(&SessionListMutex));
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-
+		if (the_time == 0)
+			the_time = time(NULL);
 		/* Kill idle sessions */
-		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
-			syslog(3, "Timeout session %d", sptr->wc_session);
+		if ((sptr->inuse == 0) && 
+		    ((the_time - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT))
+		{
+			syslog(LOG_DEBUG, "Timeout session %d", sptr->wc_session);
 			sptr->killthis = 1;
 		}
 
@@ -95,7 +100,7 @@ void do_housekeeping(void)
 	 * Now free up and destroy the culled sessions.
 	 */
 	while (sessions_to_kill != NULL) {
-		syslog(3, "Destroying session %d", sessions_to_kill->wc_session);
+		syslog(LOG_DEBUG, "Destroying session %d", sessions_to_kill->wc_session);
 		sptr = sessions_to_kill->next;
 		session_destroy_modules(&sessions_to_kill);
 		sessions_to_kill = sptr;
@@ -114,7 +119,7 @@ void check_thread_pool_size(void)
 		(num_threads_executing >= num_threads_existing)
 		&& (num_threads_existing < MAX_WORKER_THREADS)
 	) {
-		syslog(3, "%d of %d threads are executing.  Adding another worker thread.",
+		syslog(LOG_DEBUG, "%d of %d threads are executing.  Adding another worker thread.",
 			num_threads_executing,
 			num_threads_existing
 		);
@@ -208,6 +213,7 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	memset(TheSession, 0, sizeof(wcsession));
 	TheSession->Hdr = Hdr;
 	TheSession->serv_sock = (-1);
+	TheSession->lastreq = time(NULL);;
 
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
@@ -219,11 +225,11 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	 */	
 	if (Hdr->HR.desired_session == 0) {
 		TheSession->wc_session = GenerateSessionID();
-		syslog(3, "Created new session %d", TheSession->wc_session);
+		syslog(LOG_DEBUG, "Created new session %d", TheSession->wc_session);
 	}
 	else {
 		TheSession->wc_session = Hdr->HR.desired_session;
-		syslog(3, "Re-created session %d", TheSession->wc_session);
+		syslog(LOG_DEBUG, "Re-created session %d", TheSession->wc_session);
 	}
 	Hdr->HR.Static = Static;
 	session_new_modules(TheSession);
@@ -399,7 +405,7 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 			memset(pHdr, 0, sizeof(OneHttpHeader));
 			pHdr->Val = Line;
 			Put(Hdr->HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
-			syslog(9, "%s", ChrPtr(Line));
+			syslog(LOG_DEBUG, "%s", ChrPtr(Line));
 			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
 			if (isbogus) break;
 			continue;
@@ -488,6 +494,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	struct timeval tx_start;
 	struct timeval tx_finish;
 	int session_may_be_reused = 1;
+	time_t now;
 	
 	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
 
@@ -509,7 +516,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		wcsession *Bogus;
 		Bogus = CreateSession(0, 1, NULL, Hdr, NULL);
 		do_404();
-		syslog(9, "HTTP: 404 [%ld.%06ld] %s %s",
+		syslog(LOG_WARNING, "HTTP: 404 [%ld.%06ld] %s %s",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -530,7 +537,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
-		syslog(9, "HTTP: 200 [%ld.%06ld] %s %s",
+		syslog(LOG_DEBUG, "HTTP: 200 [%ld.%06ld] %s %s",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -560,7 +567,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * If there were no qualifying sessions, then create a new one.
 	 */
-	if (TheSession == NULL) {
+	if ((TheSession == NULL) || (TheSession->killthis != 0)) {
 		TheSession = CreateSession(1, 0, &SessionList, Hdr, &SessionListMutex);
 	}
 
@@ -585,11 +592,12 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * Bind to the session and perform the transaction
 	 */
+	now = time(NULL);;
 	CtdlLogResult(pthread_mutex_lock(&TheSession->SessionMutex));
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
-	TheSession->inuse = 1;					/* mark the session as bound */
-	TheSession->lastreq = time(NULL);			/* log */
+	TheSession->inuse = 1;				/* mark the session as bound */
+	TheSession->lastreq = now;			/* log */
 	TheSession->Hdr = Hdr;
 
 	/*
@@ -610,7 +618,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
 
-	syslog(9, "HTTP: 200 [%ld.%06ld] %s %s",
+	syslog(LOG_INFO, "HTTP: 200 [%ld.%06ld] %s %s",
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 		ReqStrs[Hdr->HR.eReqType],
@@ -625,9 +633,9 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	 * table from getting bombarded with new sessions when, for example, a web
 	 * spider crawls the site without using cookies.
 	 */
-	if ((session_may_be_reused) && (!WC->logged_in)) {
-		WC->wc_session = 0;			/* flag as available for re-use */
-		TheSession->selected_language = 0;	/* clear any non-default language setting */
+	if ((session_may_be_reused) && (!TheSession->logged_in)) {
+		TheSession->wc_session = 0;		/* flag as available for re-use */
+		TheSession->selected_language = -1;	/* clear any non-default language setting */
 	}
 
 	TheSession->Hdr = NULL;

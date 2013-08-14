@@ -373,7 +373,8 @@ void WildFireSerializePayload(StrBuf *JsonBuffer, StrBuf *OutBuf, int *MsgCount,
 	const char *Cat;
 	StrBuf *Header;
 
-	Header = NewStrBuf();
+	if (OutBuf == NULL)
+		Header = NewStrBuf();
 	if (*MsgCount == 0) {
 		if (OutBuf != NULL) {
 			StrBufAppendBufPlain(OutBuf, 

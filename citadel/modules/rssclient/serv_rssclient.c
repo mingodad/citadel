@@ -69,7 +69,7 @@ struct CitContext rss_CC;
 
 struct rssnetcfg *rnclist = NULL;
 int RSSClientDebugEnabled = 0;
-#define N ((rss_aggregator*)IO->Data)->QRnumber
+#define N ((rss_aggregator*)IO->Data)->Cfg.QRnumber
 
 #define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (RSSClientDebugEnabled != 0))
 
@@ -92,6 +92,28 @@ int RSSClientDebugEnabled = 0;
 #define EVRSSCSM_syslog(LEVEL, FORMAT)					\
 	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]RSS" FORMAT,		\
 			     IO->ID, N)
+
+typedef enum _RSSState {
+	eRSSCreated,
+	eRSSFetching,
+	eRSSFailure,
+	eRSSParsing,
+	eRSSUT
+} RSSState;
+ConstStr RSSStates[] = {
+	{HKEY("Aggregator created")},
+	{HKEY("Fetching content")},
+	{HKEY("Failed")},
+	{HKEY("parsing content")},
+	{HKEY("checking usetable")}
+};
+
+static void SetRSSState(AsyncIO *IO, RSSState State)
+{
+	CitContext* CCC = IO->CitContext;
+	if (CCC != NULL)
+		memcpy(CCC->cs_clientname, RSSStates[State].Key, RSSStates[State].len + 1);
+}
 
 void DeleteRoomReference(long QRnumber)
 {
@@ -119,7 +141,7 @@ void DeleteRoomReference(long QRnumber)
 
 void UnlinkRooms(rss_aggregator *RSSAggr)
 {
-	DeleteRoomReference(RSSAggr->QRnumber);
+	DeleteRoomReference(RSSAggr->Cfg.QRnumber);
 	if (RSSAggr->OtherQRnumbers != NULL)
 	{
 		long HKLen;
@@ -135,8 +157,8 @@ void UnlinkRooms(rss_aggregator *RSSAggr)
 				      &vData) &&
 		       (vData != NULL))
 		{
-			long *lData = (long*) vData;
-			DeleteRoomReference(*lData);
+			pRSSConfig *Data = (pRSSConfig*) vData;
+			DeleteRoomReference(Data->QRnumber);
 		}
 
 		DeleteHashPos(&At);
@@ -164,7 +186,9 @@ void DeleteRssCfg(void *vptr)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator *)vptr;
 	AsyncIO *IO = &RSSAggr->IO;
-	EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying\n");
+
+	if (IO->CitContext != NULL)
+		EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying\n");
 
 	FreeStrBuf(&RSSAggr->Url);
 	FreeStrBuf(&RSSAggr->rooms);
@@ -250,10 +274,21 @@ void AppendLink(StrBuf *Message,
 }
 
 
-void rss_format_item(networker_save_message *SaveMsg)
+int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 {
 	StrBuf *Message;
 	int msglen = 0;
+
+	if (StrLength(SaveMsg->description) + 
+	    StrLength(SaveMsg->link) + 
+	    StrLength(SaveMsg->linkTitle) + 
+	    StrLength(SaveMsg->reLink) +
+	    StrLength(SaveMsg->reLinkTitle) +
+	    StrLength(SaveMsg->title) == 0)
+	{
+		EVRSSCM_syslog(LOG_INFO, "Refusing to save empty message.");
+		return 0;
+	}
 
 	if (SaveMsg->author_or_creator != NULL) {
 
@@ -351,8 +386,8 @@ void rss_format_item(networker_save_message *SaveMsg)
 	AppendLink(Message, SaveMsg->reLink, SaveMsg->reLinkTitle, "Reply to this");
 	StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
 
-
 	SaveMsg->Message = Message;
+	return 1;
 }
 
 eNextState RSSSaveMessage(AsyncIO *IO)
@@ -361,18 +396,17 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 	const char *Key;
 	rss_aggregator *RSSAggr = (rss_aggregator *) IO->Data;
 
-	rss_format_item(RSSAggr->ThisMsg);
+	if (rss_format_item(IO, RSSAggr->ThisMsg))
+	{
+		RSSAggr->ThisMsg->Msg.cm_fields['M'] =
+			SmashStrBuf(&RSSAggr->ThisMsg->Message);
 
-	RSSAggr->ThisMsg->Msg.cm_fields['M'] =
-		SmashStrBuf(&RSSAggr->ThisMsg->Message);
-
-	CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
-
-	/* write the uidl to the use table so we don't store this item again */
-	cdb_store(CDB_USETABLE,
-		  SKEY(RSSAggr->ThisMsg->MsgGUID),
-		  &RSSAggr->ThisMsg->ut,
-		  sizeof(struct UseTable) );
+		CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
+		
+		/* write the uidl to the use table so we don't store this item again */
+		
+		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, CCID, IO->ID);
+	}
 
 	if (GetNextHashPos(RSSAggr->Messages,
 			   RSSAggr->Pos,
@@ -385,29 +419,27 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
+#ifndef DEBUG_RSS
 	const char *Key;
 	long len;
-	struct cdbdata *cdbut;
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
 	/* Find out if we've already seen this item */
-	strcpy(Ctx->ThisMsg->ut.ut_msgid,
-	       ChrPtr(Ctx->ThisMsg->MsgGUID)); /// TODO
-	Ctx->ThisMsg->ut.ut_timestamp = time(NULL);
-
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(Ctx->ThisMsg->MsgGUID));
-#ifndef DEBUG_RSS
-	if (cdbut != NULL) {
+// todo: expiry?
+	SetRSSState(IO, eRSSUT);
+	if (CheckIfAlreadySeen("RSS Item Seen",
+			       Ctx->ThisMsg->MsgGUID,
+			       IO->Now,
+			       IO->Now - USETABLE_ANTIEXPIRE_HIRES,
+			       eCheckUpdate,
+			       CCID, IO->ID)
+	    != 0)
+	{
 		/* Item has already been seen */
 		EVRSSC_syslog(LOG_DEBUG,
 			  "%s has already been seen\n",
 			  ChrPtr(Ctx->ThisMsg->MsgGUID));
-		cdb_free(cdbut);
-
-		/* rewrite the record anyway, to update the timestamp */
-		cdb_store(CDB_USETABLE,
-			  SKEY(Ctx->ThisMsg->MsgGUID),
-			  &Ctx->ThisMsg->ut, sizeof(struct UseTable) );
+		SetRSSState(IO, eRSSParsing);
 
 		if (GetNextHashPos(Ctx->Messages,
 				   Ctx->Pos,
@@ -422,18 +454,49 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	else
 #endif
 	{
+		SetRSSState(IO, eRSSParsing);
+
 		NextDBOperation(IO, RSSSaveMessage);
 		return eSendMore;
 	}
+	return eSendMore;
+}
+
+void UpdateLastKnownGood(pRSSConfig *pCfg, time_t now)
+{
+	OneRoomNetCfg* pRNCfg;
+	begin_critical_section(S_NETCONFIGS);
+	pRNCfg = CtdlGetNetCfgForRoom (pCfg->QRnumber);
+	if (pRNCfg != NULL)
+	{
+		RSSCfgLine *RSSCfg = (RSSCfgLine *)pRNCfg->NetConfigs[rssclient];
+
+		while (RSSCfg != NULL)
+		{
+			if (RSSCfg == pCfg->pCfg)
+				break;
+
+			RSSCfg = RSSCfg->next;
+		}
+		if (RSSCfg != NULL)
+		{
+			pRNCfg->changed = 1;
+			RSSCfg->last_known_good = now;
+		}
+	}
+
+	end_critical_section(S_NETCONFIGS);
 }
 
 eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 {
-	struct UseTable ut;
+	HashPos *it = NULL;
+	long len;
+	const char *Key;
+	pRSSConfig *pCfg;
 	u_char rawdigest[MD5_DIGEST_LEN];
 	struct MD5Context md5context;
 	StrBuf *guid;
-	struct cdbdata *cdbut;
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
 	if (IO->HttpReq.httpcode != 200)
@@ -442,6 +505,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 		long lens[2];
 		const char *strs[2];
 
+		SetRSSState(IO, eRSSFailure);
 		ErrMsg = NewStrBuf();
 		EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
 			      IO->HttpReq.httpcode);
@@ -451,21 +515,62 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 		strs[1] = ChrPtr(Ctx->rooms);
 		lens[1] = StrLength(Ctx->rooms);
+
+		if (IO->HttpReq.CurlError == NULL)
+			IO->HttpReq.CurlError = "";
+
 		StrBufPrintf(ErrMsg,
 			     "Error while RSS-Aggregation Run of %s\n"
 			     " need a 200, got a %ld !\n"
+			     " Curl Error message: \n%s / %s\n"
 			     " Response text was: \n"
 			     " \n %s\n",
 			     ChrPtr(Ctx->Url),
 			     IO->HttpReq.httpcode,
-			     ChrPtr(IO->HttpReq.ReplyData));
+			     IO->HttpReq.errdesc,
+			     IO->HttpReq.CurlError,
+			     ChrPtr(IO->HttpReq.ReplyData)
+			);
+
 		CtdlAideFPMessage(
 			ChrPtr(ErrMsg),
 			"RSS Aggregation run failure",
-			2, strs, (long*) &lens);
+			2, strs, (long*) &lens,
+			IO->Now,
+			IO->ID, CCID);
+		
 		FreeStrBuf(&ErrMsg);
+		EVRSSC_syslog(LOG_DEBUG,
+			      "RSS feed returned an invalid http status code. <%s><HTTP %ld>\n",
+			      ChrPtr(Ctx->Url),
+			      IO->HttpReq.httpcode);
 		return eAbort;
 	}
+
+	pCfg = &Ctx->Cfg;
+
+	while (pCfg != NULL)
+	{
+		UpdateLastKnownGood (pCfg, IO->Now);
+		if ((Ctx->roomlist_parts > 1) && 
+		    (it == NULL))
+		{
+			it = GetNewHashPos(RSSFetchUrls, 0);
+		}
+		if (it != NULL)
+		{
+			void *vptr;
+			if (GetNextHashPos(Ctx->OtherQRnumbers, it, &len, &Key, &vptr))
+				pCfg = vptr;
+			else
+				pCfg = NULL;
+		}
+		else 
+			pCfg = NULL;
+	}
+	DeleteHashPos (&it);
+
+	SetRSSState(IO, eRSSUT);
 
 	MD5Init(&md5context);
 
@@ -483,32 +588,31 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	if (StrLength(guid) > 40)
 		StrBufCutAt(guid, 40, NULL);
 	/* Find out if we've already seen this item */
-	memcpy(ut.ut_msgid, SKEY(guid));
-	ut.ut_timestamp = time(NULL);
 
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
 #ifndef DEBUG_RSS
-	if (cdbut != NULL) {
-		/* Item has already been seen */
-		EVRSSC_syslog(LOG_DEBUG,
-			      "%s has already been seen\n",
-			      ChrPtr(Ctx->Url));
-		cdb_free(cdbut);
-	}
 
-	/* rewrite the record anyway, to update the timestamp */
-	cdb_store(CDB_USETABLE,
-		  SKEY(guid),
-		  &ut, sizeof(struct UseTable) );
+	if (CheckIfAlreadySeen("RSS Whole",
+			       guid,
+			       IO->Now,
+			       IO->Now - USETABLE_ANTIEXPIRE,
+			       eCheckUpdate,
+			       CCID, IO->ID)
+	    != 0)
+	{
+		FreeStrBuf(&guid);
+
+		EVRSSC_syslog(LOG_DEBUG, "RSS feed already seen. <%s>\n", ChrPtr(Ctx->Url));
+		return eAbort;
+	}
 	FreeStrBuf(&guid);
-	if (cdbut != NULL) return eAbort;
 #endif
+	SetRSSState(IO, eRSSParsing);
 	return RSSAggregator_ParseReply(IO);
 }
 
 eNextState RSSAggregator_FinishHttp(AsyncIO *IO)
 {
-	return QueueDBOperation(IO, RSSAggregator_AnalyseReply);
+	return CurlQueueDBOperation(IO, RSSAggregator_AnalyseReply);
 }
 
 /*
@@ -540,6 +644,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 		EVRSSCM_syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return 0;
 	}
+	SetRSSState(IO, eRSSCreated);
 
 	safestrncpy(((CitContext*)RSSAggr->IO.CitContext)->cs_host,
 		    ChrPtr(RSSAggr->Url),
@@ -549,6 +654,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 	ParseURL(&RSSAggr->IO.ConnectMe, RSSAggr->Url, 80);
 	CurlPrepareURL(RSSAggr->IO.ConnectMe);
 
+	SetRSSState(IO, eRSSFetching);
 	QueueCurlContext(&RSSAggr->IO);
 	return 1;
 }
@@ -556,21 +662,12 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 /*
  * Scan a room's netconfig to determine whether it is requesting any RSS feeds
  */
-void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
+void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCFG)
 {
-	StrBuf *CfgData=NULL;
-	StrBuf *CfgType;
-	StrBuf *Line;
-	rss_room_counter *Count = NULL;
-	struct stat statbuf;
-	char filename[PATH_MAX];
-	int fd;
-	int Done;
+	const RSSCfgLine *RSSCfg = (RSSCfgLine *)OneRNCFG->NetConfigs[rssclient];
 	rss_aggregator *RSSAggr = NULL;
 	rss_aggregator *use_this_RSSAggr = NULL;
 	void *vptr;
-	const char *CfgPtr, *lPtr;
-	const char *Err;
 
 	pthread_mutex_lock(&RSSQueueMutex);
 	if (GetHash(RSSQueueRooms, LKEY(qrbuf->QRnumber), &vptr))
@@ -584,143 +681,72 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	}
 	pthread_mutex_unlock(&RSSQueueMutex);
 
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
+	if (server_shutting_down) return;
 
-	if (server_shutting_down)
-		return;
-
-	/* Only do net processing for rooms that have netconfigs */
-	fd = open(filename, 0);
-	if (fd <= 0) {
-		/* syslog(LOG_DEBUG,
-		   "rssclient: %s no config.\n",
-		   qrbuf->QRname); */
-		return;
-	}
-
-	if (server_shutting_down)
-		return;
-
-	if (fstat(fd, &statbuf) == -1) {
-		EVRSSQ_syslog(LOG_DEBUG,
-			      "ERROR: could not stat configfile '%s' - %s\n",
-			      filename,
-			      strerror(errno));
-		return;
-	}
-
-	if (server_shutting_down)
-		return;
-
-	CfgData = NewStrBufPlain(NULL, statbuf.st_size + 1);
-
-	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
-		close(fd);
-		FreeStrBuf(&CfgData);
-		EVRSSQ_syslog(LOG_ERR, "ERROR: reading config '%s' - %s<br>\n",
-			      filename, strerror(errno));
-		return;
-	}
-	close(fd);
-	if (server_shutting_down)
-		return;
-
-	CfgPtr = NULL;
-	CfgType = NewStrBuf();
-	Line = NewStrBufPlain(NULL, StrLength(CfgData));
-	Done = 0;
-	while (!Done)
+	while (RSSCfg != NULL)
 	{
-		Done = StrBufSipLine(Line, CfgData, &CfgPtr) == 0;
-		if (StrLength(Line) > 0)
-		{
-			lPtr = NULL;
-			StrBufExtract_NextToken(CfgType, Line, &lPtr, '|');
-			if (!strcasecmp("rssclient", ChrPtr(CfgType)))
-			{
-				if (Count == NULL)
-				{
-					Count = malloc(
-						sizeof(rss_room_counter));
-					Count->count = 0;
-				}
-				Count->count ++;
-				RSSAggr = (rss_aggregator *) malloc(
-					sizeof(rss_aggregator));
-
-				memset (RSSAggr, 0, sizeof(rss_aggregator));
-				RSSAggr->QRnumber = qrbuf->QRnumber;
-				RSSAggr->roomlist_parts = 1;
-				RSSAggr->Url = NewStrBuf();
-
-				StrBufExtract_NextToken(RSSAggr->Url,
-							Line,
-							&lPtr,
-							'|');
-
-				pthread_mutex_lock(&RSSQueueMutex);
-				GetHash(RSSFetchUrls,
-					SKEY(RSSAggr->Url),
-					&vptr);
-
-				use_this_RSSAggr = (rss_aggregator *)vptr;
-				if (use_this_RSSAggr != NULL)
-				{
-					long *QRnumber;
-					StrBufAppendBufPlain(
-						use_this_RSSAggr->rooms,
-						qrbuf->QRname,
-						-1, 0);
-					if (use_this_RSSAggr->roomlist_parts==1)
-					{
-						use_this_RSSAggr->OtherQRnumbers
-							= NewHash(1, lFlathash);
-					}
-					QRnumber = (long*)malloc(sizeof(long));
-					*QRnumber = qrbuf->QRnumber;
-					Put(use_this_RSSAggr->OtherQRnumbers,
-					    LKEY(qrbuf->QRnumber),
-					    QRnumber,
-					    NULL);
-					use_this_RSSAggr->roomlist_parts++;
-
-					pthread_mutex_unlock(&RSSQueueMutex);
-
-					FreeStrBuf(&RSSAggr->Url);
-					free(RSSAggr);
-					RSSAggr = NULL;
-					continue;
-				}
-				pthread_mutex_unlock(&RSSQueueMutex);
-
-				RSSAggr->ItemType = RSS_UNSET;
-
-				RSSAggr->rooms = NewStrBufPlain(
-					qrbuf->QRname, -1);
-
-				pthread_mutex_lock(&RSSQueueMutex);
-
-				Put(RSSFetchUrls,
-				    SKEY(RSSAggr->Url),
-				    RSSAggr,
-				    DeleteRssCfg);
-
-				pthread_mutex_unlock(&RSSQueueMutex);
-			}
-		}
-	}
-	if (Count != NULL)
-	{
-		Count->QRnumber = qrbuf->QRnumber;
 		pthread_mutex_lock(&RSSQueueMutex);
-		EVRSSQ_syslog(LOG_DEBUG, "client: [%ld] %s now starting.\n",
-			      qrbuf->QRnumber, qrbuf->QRname);
-		Put(RSSQueueRooms, LKEY(qrbuf->QRnumber), Count, NULL);
+		GetHash(RSSFetchUrls,
+			SKEY(RSSCfg->Url),
+			&vptr);
+
+		use_this_RSSAggr = (rss_aggregator *)vptr;
+		if (use_this_RSSAggr != NULL)
+		{
+			pRSSConfig *pRSSCfg;
+
+			StrBufAppendBufPlain(
+				use_this_RSSAggr->rooms,
+				qrbuf->QRname,
+				-1, 0);
+			if (use_this_RSSAggr->roomlist_parts==1)
+			{
+				use_this_RSSAggr->OtherQRnumbers
+					= NewHash(1, lFlathash);
+			}
+
+			pRSSCfg = (pRSSConfig *) malloc(sizeof(pRSSConfig));
+
+			pRSSCfg->QRnumber = qrbuf->QRnumber;
+			pRSSCfg->pCfg = RSSCfg;
+
+			Put(use_this_RSSAggr->OtherQRnumbers,
+			    LKEY(qrbuf->QRnumber),
+			    pRSSCfg,
+			    NULL);
+			use_this_RSSAggr->roomlist_parts++;
+
+			pthread_mutex_unlock(&RSSQueueMutex);
+
+			RSSCfg = RSSCfg->next;
+			continue;
+		}
 		pthread_mutex_unlock(&RSSQueueMutex);
+
+		RSSAggr = (rss_aggregator *) malloc(
+			sizeof(rss_aggregator));
+
+		memset (RSSAggr, 0, sizeof(rss_aggregator));
+		RSSAggr->Cfg.QRnumber = qrbuf->QRnumber;
+		RSSAggr->Cfg.pCfg = RSSCfg;
+		RSSAggr->roomlist_parts = 1;
+		RSSAggr->Url = NewStrBufDup(RSSCfg->Url);
+
+		RSSAggr->ItemType = RSS_UNSET;
+
+		RSSAggr->rooms = NewStrBufPlain(
+			qrbuf->QRname, -1);
+
+		pthread_mutex_lock(&RSSQueueMutex);
+
+		Put(RSSFetchUrls,
+		    SKEY(RSSAggr->Url),
+		    RSSAggr,
+		    DeleteRssCfg);
+
+		pthread_mutex_unlock(&RSSQueueMutex);
+		RSSCfg = RSSCfg->next;
 	}
-	FreeStrBuf(&CfgData);
-	FreeStrBuf(&CfgType);
-	FreeStrBuf(&Line);
 }
 
 /*
@@ -763,21 +789,29 @@ void rssclient_scan(void) {
 	}
 
 	become_session(&rss_CC);
-	EVRSSQM_syslog(LOG_DEBUG, "rssclient started\n");
-	CtdlForEachRoom(rssclient_scan_room, NULL);
+	EVRSSQM_syslog(LOG_DEBUG, "rssclient started");
+	CtdlForEachNetCfgRoom(rssclient_scan_room, NULL, rssclient);
 
-	pthread_mutex_lock(&RSSQueueMutex);
-
-	it = GetNewHashPos(RSSFetchUrls, 0);
-	while (!server_shutting_down &&
-	       GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) &&
-	       (vrptr != NULL)) {
-		rptr = (rss_aggregator *)vrptr;
-		if (!rss_do_fetching(rptr))
-			UnlinkRSSAggregator(rptr);
+	if (GetCount(RSSFetchUrls) > 0)
+	{
+		pthread_mutex_lock(&RSSQueueMutex);
+		EVRSSQ_syslog(LOG_DEBUG,
+			       "rssclient starting %d Clients",
+			       GetCount(RSSFetchUrls));
+		
+		it = GetNewHashPos(RSSFetchUrls, 0);
+		while (!server_shutting_down &&
+		       GetNextHashPos(RSSFetchUrls, it, &len, &Key, &vrptr) &&
+		       (vrptr != NULL)) {
+			rptr = (rss_aggregator *)vrptr;
+			if (!rss_do_fetching(rptr))
+				UnlinkRSSAggregator(rptr);
+		}
+		DeleteHashPos(&it);
+		pthread_mutex_unlock(&RSSQueueMutex);
 	}
-	DeleteHashPos(&it);
-	pthread_mutex_unlock(&RSSQueueMutex);
+	else
+		EVRSSQM_syslog(LOG_DEBUG, "Nothing to do.");
 
 	EVRSSQM_syslog(LOG_DEBUG, "rssclient ended\n");
 	return;
@@ -795,11 +829,93 @@ void LogDebugEnableRSSClient(const int n)
 	RSSClientDebugEnabled = n;
 }
 
+
+typedef struct __RSSVetoInfo {
+	StrBuf *ErrMsg;
+	time_t Now;
+	int Veto;
+}RSSVetoInfo;
+
+void rssclient_veto_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCFG)
+{
+	RSSVetoInfo *Info = (RSSVetoInfo *) data;
+	const RSSCfgLine *RSSCfg = (RSSCfgLine *)OneRNCFG->NetConfigs[rssclient];
+
+	while (RSSCfg != NULL)
+	{
+		if ((RSSCfg->last_known_good != 0) &&
+		    (RSSCfg->last_known_good + USETABLE_ANTIEXPIRE < Info->Now))
+		{
+			StrBufAppendPrintf(Info->ErrMsg,
+					   "RSS feed not seen for a %d days:: <",
+					   (Info->Now - RSSCfg->last_known_good) / (24 * 60 * 60));
+
+			StrBufAppendBuf(Info->ErrMsg, RSSCfg->Url, 0);
+			StrBufAppendBufPlain(Info->ErrMsg, HKEY(">\n"), 0);
+		}
+		RSSCfg = RSSCfg->next;
+	}
+}
+
+int RSSCheckUsetableVeto(StrBuf *ErrMsg)
+{
+	RSSVetoInfo Info;
+
+	Info.ErrMsg = ErrMsg;
+	Info.Now = time (NULL);
+	Info.Veto = 0;
+
+	CtdlForEachNetCfgRoom(rssclient_veto_scan_room, &Info, rssclient);
+
+	return Info.Veto;;
+}
+
+
+
+
+void ParseRSSClientCfgLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
+{
+	RSSCfgLine *RSSCfg;
+
+	RSSCfg = (RSSCfgLine *) malloc (sizeof(RSSCfgLine));
+	RSSCfg->Url = NewStrBufPlain (NULL, StrLength (Line));
+	
+
+	StrBufExtract_NextToken(RSSCfg->Url, Line, &LinePos, '|');
+	RSSCfg->last_known_good = StrBufExtractNext_long(Line, &LinePos, '|');
+
+
+	RSSCfg->next = (RSSCfgLine *)OneRNCFG->NetConfigs[ThisOne->C];
+	OneRNCFG->NetConfigs[ThisOne->C] = (RoomNetCfgLine*) RSSCfg;
+}
+
+void SerializeRSSClientCfgLine(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *RNCfg, RoomNetCfgLine *data)
+{
+	RSSCfgLine *RSSCfg = (RSSCfgLine*) data;
+
+	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
+	StrBufAppendBufPlain(OutputBuffer, HKEY("|"), 0);
+	StrBufAppendBufPlain(OutputBuffer, SKEY(RSSCfg->Url), 0);
+	StrBufAppendPrintf(OutputBuffer, "|%ld\n", RSSCfg->last_known_good);
+}
+
+void DeleteRSSClientCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data)
+{
+	RSSCfgLine *RSSCfg = (RSSCfgLine*) *data;
+
+	FreeStrBuf(&RSSCfg->Url);
+	free(*data);
+	*data = NULL;
+}
+
+
 CTDL_MODULE_INIT(rssclient)
 {
-	if (threading)
+	if (!threading)
 	{
-		CtdlFillSystemContext(&rss_CC, "rssclient");
+		CtdlRegisterTDAPVetoHook (RSSCheckUsetableVeto, CDB_USETABLE, 0);
+
+		CtdlREGISTERRoomCfgType(rssclient, ParseRSSClientCfgLine, 0, 1, SerializeRSSClientCfgLine, DeleteRSSClientCfgLine);
 		pthread_mutex_init(&RSSQueueMutex, NULL);
 		RSSQueueRooms = NewHash(1, lFlathash);
 		RSSFetchUrls = NewHash(1, NULL);
@@ -807,6 +923,10 @@ CTDL_MODULE_INIT(rssclient)
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER, PRIO_AGGR + 300);
 		CtdlRegisterEVCleanupHook(rss_cleanup);
 		CtdlRegisterDebugFlagHook(HKEY("rssclient"), LogDebugEnableRSSClient, &RSSClientDebugEnabled);
+	}
+	else
+	{
+		CtdlFillSystemContext(&rss_CC, "rssclient");
 	}
 	return "rssclient";
 }

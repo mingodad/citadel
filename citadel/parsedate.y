@@ -7,7 +7,7 @@
 **  <rsalz@osf.org> and Jim Berets <jberets@bbn.com> in August, 1990.
 **  Further revised (removed obsolete constructs and cleaned up timezone
 **  names) in August, 1991, by Rich.  Paul Eggert <eggert@twinsun.com>
-**  helped in September, 1992.  Art Cancro <ajc@uncensored.citadel.org> cleaned
+**  helped in September, 1992.  Art Cancro <ajc@citadel.org> cleaned
 **  it up for ANSI C in December, 1999.
 **
 **  This grammar has six shift/reduce conflicts.

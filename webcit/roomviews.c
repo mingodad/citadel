@@ -93,7 +93,7 @@ int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
 {
 	folder *Folder = (folder *)CTX(CTX_ROOMS);
 
-	syslog(0, "-> %s: %d\n", ChrPtr(Folder->name), Folder->view);
+	syslog(LOG_DEBUG, "-> %s: %d\n", ChrPtr(Folder->name), Folder->view);
 
 	return ((Folder->view == VIEW_CALENDAR) || 
 		(Folder->view == VIEW_TASKS) || 
@@ -258,17 +258,17 @@ InitModule_ROOMVIEWS
 	RegisterNamespace("THISROOM:VIEW_STRING", 0, 1, tmplput_CurrentRoomViewString, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:VIEW_STRING", 1, 2, tmplput_RoomViewString, NULL, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:ALLOWED_DEFAULT_VIEW"), 0, ConditionalIsAllowedDefaultView, CTX_NONE);
-	RegisterConditional(HKEY("COND:THISROOM:DEFAULT_VIEW"), 0, ConditionalThisRoomDefView, CTX_NONE);
+	RegisterConditional("COND:ALLOWED_DEFAULT_VIEW", 0, ConditionalIsAllowedDefaultView, CTX_NONE);
+	RegisterConditional("COND:THISROOM:DEFAULT_VIEW", 0, ConditionalThisRoomDefView, CTX_NONE);
 	RegisterNamespace("THISROOM:DEFAULT_VIEW", 0, 0, tmplput_CurrentRoomDefView, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:INFO:DEFVIEW", 0, 1, tmplput_ROOM_DEFVIEW, NULL, CTX_ROOMS);
 
-	RegisterConditional(HKEY("COND:ROOM:TYPE_IS"), 0, ConditionalIsRoomtype, CTX_NONE);
+	RegisterConditional("COND:ROOM:TYPE_IS", 0, ConditionalIsRoomtype, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:THISROOM:HAVE_VIEW"), 0, ConditionalThisRoomHaveView, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:DAV_CONTENT"), 0, ConditionalRoomHasGroupdavContent, CTX_ROOMS);
+	RegisterConditional("COND:THISROOM:HAVE_VIEW", 0, ConditionalThisRoomHaveView, CTX_NONE);
+	RegisterConditional("COND:ROOM:DAV_CONTENT", 0, ConditionalRoomHasGroupdavContent, CTX_ROOMS);
 
-	RegisterConditional(HKEY("COND:THISROOM:CURR_VIEW"), 0, ConditionalThisRoomCurrView, CTX_NONE);
+	RegisterConditional("COND:THISROOM:CURR_VIEW", 0, ConditionalThisRoomCurrView, CTX_NONE);
 	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, NULL, CTX_ROOMS);
 
 	RegisterNamespace("ROOM:INFO:COLLECTIONTYPE", 0, 1, tmplput_ROOM_COLLECTIONTYPE, NULL, CTX_ROOMS);

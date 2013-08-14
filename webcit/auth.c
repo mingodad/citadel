@@ -390,7 +390,7 @@ void finalize_openid_login(void)
 
 	/* Something went VERY wrong if we get to this point */
 	else {
-		syslog(1, "finalize_openid_login() failed to do anything.  This is a code problem.\n");
+		syslog(LOG_DEBUG, "finalize_openid_login() failed to do anything.  This is a code problem.\n");
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
@@ -462,7 +462,7 @@ void do_welcome(void)
 	if (StrLength(Buf) == 0) {
 		StrBufAppendBufPlain(Buf, "dotgoto?room=_BASEROOM_", -1, 0);
 	}
-	syslog(9, "Redirecting to user's start page: %s\n", ChrPtr(Buf));
+	syslog(LOG_DEBUG, "Redirecting to user's start page: %s\n", ChrPtr(Buf));
 	http_redirect(ChrPtr(Buf));
 }
 
@@ -684,7 +684,7 @@ void display_reg(int during_login)
 	Buf = NewStrBuf();
 	memset(&Room, 0, sizeof(folder));
 	if (goto_config_room(Buf, &Room) != 0) {
-		syslog(9, "display_reg() exiting because goto_config_room() failed\n");
+		syslog(LOG_WARNING, "display_reg() exiting because goto_config_room() failed\n");
 		if (during_login) {
 			pop_destination();
 		}
@@ -700,7 +700,7 @@ void display_reg(int during_login)
 	FreeStrBuf(&Buf);
 	vcard_msgnum = locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 	if (vcard_msgnum < 0L) {
-		syslog(9, "display_reg() exiting because locate_user_vcard_in_this_room() failed\n");
+		syslog(LOG_WARNING, "display_reg() exiting because locate_user_vcard_in_this_room() failed\n");
 		if (during_login) {
 			pop_destination();
 		}
@@ -835,7 +835,7 @@ void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
 			hdr->HR.got_auth = AUTH_BASIC;
 		}
 		else 
-			syslog(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
+			syslog(LOG_WARNING, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
 	}
 }
 
@@ -949,9 +949,9 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("ajax_login_newuser"), "", 0, ajax_login_newuser, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("switch_language"), "", 0, switch_language, ANONYMOUS);
-	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
-	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
-	RegisterConditional(HKEY("COND:MAY_CREATE_ROOM"), 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
+	RegisterConditional("COND:AIDE", 2, ConditionalAide, CTX_NONE);
+	RegisterConditional("COND:LOGGEDIN", 2, ConditionalIsLoggedIn, CTX_NONE);
+	RegisterConditional("COND:MAY_CREATE_ROOM", 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
 	return;
 }
 

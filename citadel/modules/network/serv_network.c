@@ -5,18 +5,12 @@
  * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ *  it under the terms of the GNU General Public License, version 3.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
  * This is a fairly high-level type of critical section.  It ensures that no
@@ -81,16 +75,10 @@
 #include "file_ops.h"
 #include "citadel_dirs.h"
 #include "threads.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "context.h"
-#include "netconfig.h"
+#include "ctdl_module.h"
 #include "netspool.h"
 #include "netmail.h"
-#include "ctdl_module.h"
 
 int NetQDebugEnabled = 0;
 struct CitContext networker_spool_CC;
@@ -100,7 +88,6 @@ extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
 typedef struct __roomlists {
 	RoomProcList *rplist;
-	HashList *RoomsInterestedIn;
 }roomlists;
 /*
  * When we do network processing, it's accomplished in two passes; one to
@@ -108,39 +95,6 @@ typedef struct __roomlists {
  * is global; we have a mutex that keeps it safe.
  */
 struct RoomProcList *rplist = NULL;
-
-int GetNetworkedRoomNumbers(const char *DirName, HashList *DirList)
-{
-	DIR *filedir = NULL;
-	struct dirent *d;
-	struct dirent *filedir_entry;
-	long RoomNR;
-	long Count = 0;
-		
-	filedir = opendir (DirName);
-	if (filedir == NULL) {
-		return 0;
-	}
-
-	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
-	if (d == NULL) {
-		return 0;
-	}
-
-	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
-	       (filedir_entry != NULL))
-	{
-		RoomNR = atol(filedir_entry->d_name);
-		if (RoomNR != 0) {
-			Count++;
-			Put(DirList, LKEY(RoomNR), &Count, reference_free_handler);
-		}
-	}
-	free(d);
-	closedir(filedir);
-	return Count;
-}
-
 
 
 
@@ -152,54 +106,42 @@ int GetNetworkedRoomNumbers(const char *DirName, HashList *DirList)
  */
 int network_usetable(struct CtdlMessage *msg)
 {
+	StrBuf *msgid;
 	struct CitContext *CCC = CC;
-	char msgid[SIZ];
-	struct cdbdata *cdbut;
-	struct UseTable ut;
+	time_t now;
 
 	/* Bail out if we can't generate a message ID */
-	if (msg == NULL) {
-		return(0);
-	}
-	if (msg->cm_fields['I'] == NULL) {
-		return(0);
-	}
-	if (IsEmptyStr(msg->cm_fields['I'])) {
+	if ((msg == NULL) || (msg->cm_fields['I'] == NULL) || (IsEmptyStr(msg->cm_fields['I'])))
+	{
 		return(0);
 	}
 
 	/* Generate the message ID */
-	strcpy(msgid, msg->cm_fields['I']);
-	if (haschar(msgid, '@') == 0) {
-		strcat(msgid, "@");
+	msgid = NewStrBufPlain(msg->cm_fields['I'], -1);
+	if (haschar(ChrPtr(msgid), '@') == 0) {
+		StrBufAppendBufPlain(msgid, HKEY("@"), 0);
 		if (msg->cm_fields['N'] != NULL) {
-			strcat(msgid, msg->cm_fields['N']);
+			StrBufAppendBufPlain(msgid, msg->cm_fields['N'], -1, 0);
 		}
 		else {
+			FreeStrBuf(&msgid);
 			return(0);
 		}
 	}
-
-	cdbut = cdb_fetch(CDB_USETABLE, msgid, strlen(msgid));
-	if (cdbut != NULL) {
-		cdb_free(cdbut);
-		QN_syslog(LOG_DEBUG, "network_usetable() : we already have %s\n", msgid);
+	now = time(NULL);
+	if (CheckIfAlreadySeen("Networker Import",
+			       msgid,
+			       now, 0,
+			       eCheckUpdate,
+			       CCC->cs_pid, 0) != 0)
+	{
+		FreeStrBuf(&msgid);
 		return(1);
 	}
+	FreeStrBuf(&msgid);
 
-	/* If we got to this point, it's unique: add it. */
-	strcpy(ut.ut_msgid, msgid);
-	ut.ut_timestamp = time(NULL);
-	cdb_store(CDB_USETABLE, msgid, strlen(msgid), &ut, sizeof(struct UseTable) );
 	return(0);
 }
-
-
-
-
-
-
-
 
 
 
@@ -211,71 +153,67 @@ int network_usetable(struct CtdlMessage *msg)
 int network_sync_to(char *target_node, long len)
 {
 	struct CitContext *CCC = CC;
+	OneRoomNetCfg OneRNCFG;
+	OneRoomNetCfg *pRNCFG;
+	const RoomNetCfgLine *pCfgLine;
 	SpoolControl sc;
 	int num_spooled = 0;
-	int found_node = 0;
-	char buf[256];
-	char sc_type[256];
-	char sc_node[256];
-	char sc_room[256];
-	char filename[PATH_MAX];
-	FILE *fp;
 
 	/* Grab the configuration line we're looking for */
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
 	begin_critical_section(S_NETCONFIGS);
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
-		end_critical_section(S_NETCONFIGS);
-		return(-1);
-	}
-	while (fgets(buf, sizeof buf, fp) != NULL)
+	pRNCFG = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
+	if ((pRNCFG == NULL) ||
+	    (pRNCFG->NetConfigs[ignet_push_share] == NULL))
 	{
-		buf[strlen(buf)-1] = 0;
-
-		extract_token(sc_type, buf, 0, '|', sizeof sc_type);
-		if (strcasecmp(sc_type, "ignet_push_share"))
-			continue;
-
-		extract_token(sc_node, buf, 1, '|', sizeof sc_node);
-		if (strcasecmp(sc_node, target_node))
-			continue;
-
-		extract_token(sc_room, buf, 2, '|', sizeof sc_room);
-		found_node = 1;
-			
-		/* Concise syntax because we don't need a full linked-list */
-		memset(&sc, 0, sizeof(SpoolControl));
-		sc.ignet_push_shares = (maplist *)
-			malloc(sizeof(maplist));
-		sc.ignet_push_shares->next = NULL;
-		safestrncpy(sc.ignet_push_shares->remote_nodename,
-			    sc_node,
-			    sizeof sc.ignet_push_shares->remote_nodename);
-		safestrncpy(sc.ignet_push_shares->remote_roomname,
-			    sc_room,
-			    sizeof sc.ignet_push_shares->remote_roomname);
+		return -1;
 	}
-	fclose(fp);
+
+	pCfgLine = pRNCFG->NetConfigs[ignet_push_share];
+	while (pCfgLine != NULL)
+	{
+		if (!strcmp(ChrPtr(pCfgLine->Value[0]), target_node))
+			break;
+		pCfgLine = pCfgLine->next;
+	}
+	if (pCfgLine == NULL)
+	{
+		return -1;
+	}
+
+	memset(&sc, 0, sizeof(SpoolControl));
+	memset(&OneRNCFG, 0, sizeof(OneRoomNetCfg));
+	sc.RNCfg = &OneRNCFG;
+	sc.RNCfg->NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
+	sc.Users[ignet_push_share] = NewStrBufPlain(NULL,
+						    StrLength(pCfgLine->Value[0]) +
+						    StrLength(pCfgLine->Value[1]) + 10);
+	StrBufAppendBuf(sc.Users[ignet_push_share], 
+			pCfgLine->Value[0],
+			0);
+	StrBufAppendBufPlain(sc.Users[ignet_push_share], 
+			     HKEY(","),
+			     0);
+
+	StrBufAppendBuf(sc.Users[ignet_push_share], 
+			pCfgLine->Value[1],
+			0);
+	CalcListID(&sc);
+
 	end_critical_section(S_NETCONFIGS);
 
-	if (!found_node) {
-		free(sc.ignet_push_shares);
-		return(-1);
-	}
-
-	sc.working_ignetcfg = load_ignetcfg();
-	sc.the_netmap = read_network_map();
+	sc.working_ignetcfg = CtdlLoadIgNetCfg();
+	sc.the_netmap = CtdlReadNetworkMap();
 
 	/* Send ALL messages */
 	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		network_spool_msg, &sc);
 
 	/* Concise cleanup because we know there's only one node in the sc */
-	free(sc.ignet_push_shares);
+	DeleteGenericCfgLine(NULL/*TODO*/, &sc.RNCfg->NetConfigs[ignet_push_share]);
 
 	DeleteHash(&sc.working_ignetcfg);
 	DeleteHash(&sc.the_netmap);
+	free_spoolcontrol_struct_members(&sc);
 
 	QN_syslog(LOG_NOTICE, "Synchronized %d messages to <%s>\n",
 		  num_spooled, target_node);
@@ -304,23 +242,13 @@ void cmd_nsyn(char *argbuf) {
 	}
 }
 
-
-
-/*
- * Batch up and send all outbound traffic from the current room
- */
-void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
+RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, OneRoomNetCfg *OneRNCFG)
+{
 	int i;
 	struct RoomProcList *ptr;
-	long QRNum = qrbuf->QRnumber;
-	void *v;
-	roomlists *RP = (roomlists*) data;
-
-	if (!GetHash(RP->RoomsInterestedIn, LKEY(QRNum), &v))
-		return;
 
 	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
-	if (ptr == NULL) return;
+	if (ptr == NULL) return NULL;
 
 	ptr->namelen = strlen(qrbuf->QRname);
 	if (ptr->namelen > ROOMNAMELEN)
@@ -337,41 +265,59 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data) {
 
 	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
-	ptr->next = RP->rplist;
-	RP->rplist = ptr;
+	ptr->lastsent = OneRNCFG->lastsent;
+	ptr->OneRNCfg = OneRNCFG;
+	return ptr;
 }
 
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_queue_room(struct ctdlroom *qrbuf, void *data) {
-	int i;
+void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCfg)
+{
 	struct RoomProcList *ptr;
+	roomlists *RP = (roomlists*) data;
+
+	if (!HaveSpoolConfig(OneRNCfg))
+		return;
+
+	ptr = CreateRoomProcListEntry(qrbuf, OneRNCfg);
+
+	if (ptr != NULL)
+	{
+		ptr->next = RP->rplist;
+		RP->rplist = ptr;
+	}
+}
+
+/*
+ * Batch up and send all outbound traffic from the current room
+ */
+int network_room_handler (struct ctdlroom *qrbuf)
+{
+	struct RoomProcList *ptr;
+	OneRoomNetCfg* RNCfg;
 
 	if (qrbuf->QRdefaultview == VIEW_QUEUE)
-		return;
-	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
-	if (ptr == NULL) return;
+		return 1;
 
-	ptr->namelen = strlen(qrbuf->QRname);
-	if (ptr->namelen > ROOMNAMELEN)
-		ptr->namelen = ROOMNAMELEN - 1;
+	RNCfg = CtdlGetNetCfgForRoom(qrbuf->QRnumber);
+	if (RNCfg == NULL)
+		return 1;
 
-	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
-	ptr->name[ptr->namelen] = '\0';
-	ptr->QRNum = qrbuf->QRnumber;
+	if (!HaveSpoolConfig(RNCfg))
+		return 1;
 
-	for (i = 0; i < ptr->namelen; i++)
-	{
-		ptr->lcname[i] = tolower(ptr->name[i]);
-	}
-	ptr->lcname[ptr->namelen] = '\0';
-	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
+	ptr = CreateRoomProcListEntry(qrbuf, RNCfg);
+	if (ptr == NULL)
+		return 1;
 
+	ptr->OneRNCfg = NULL;
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
 	end_critical_section(S_RPLIST);
+	return 1;
 }
 
 void destroy_network_queue_room(RoomProcList *rplist)
@@ -505,10 +451,6 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 
 
 
-
-
-
-
 /*
  * network_do_queue()
  * 
@@ -517,13 +459,14 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 void network_do_queue(void)
 {
 	struct CitContext *CCC = CC;
-	static int doing_queue = 0;
 	static time_t last_run = 0L;
 	int full_processing = 1;
 	HashList *working_ignetcfg;
 	HashList *the_netmap = NULL;
 	int netmap_changed = 0;
 	roomlists RL;
+	SpoolControl *sc = NULL;
+	SpoolControl *pSC;
 
 	/*
 	 * Run the full set of processing tasks no more frequently
@@ -536,49 +479,33 @@ void network_do_queue(void)
 		);
 	}
 
-	/*
-	 * This is a simple concurrency check to make sure only one queue run
-	 * is done at a time.  We could do this with a mutex, but since we
-	 * don't really require extremely fine granularity here, we'll do it
-	 * with a static variable instead.
-	 */
-	if (doing_queue) {
-		return;
-	}
-	doing_queue = 1;
-
 	become_session(&networker_spool_CC);
 	begin_critical_section(S_RPLIST);
 	RL.rplist = rplist;
 	rplist = NULL;
 	end_critical_section(S_RPLIST);
-
-	RL.RoomsInterestedIn = NewHash(1, lFlathash);
-	if (full_processing &&
-	    (GetNetworkedRoomNumbers(ctdl_netcfg_dir, RL.RoomsInterestedIn)==0))
-	{
-		doing_queue = 0;
-		DeleteHash(&RL.RoomsInterestedIn);
-		if (RL.rplist == NULL)
-			return;
-	}
+///TODO hm, check whether we have a config at all here?
 	/* Load the IGnet Configuration into memory */
-	working_ignetcfg = load_ignetcfg();
+	working_ignetcfg = CtdlLoadIgNetCfg();
 
 	/*
 	 * Load the network map and filter list into memory.
 	 */
 	if (!server_shutting_down)
-		the_netmap = read_network_map();
+		the_netmap = CtdlReadNetworkMap();
+#if 0
+	/* filterlist isn't supported anymore
 	if (!server_shutting_down)
 		load_network_filter_list();
+	*/
+#endif
 
 	/* 
 	 * Go ahead and run the queue
 	 */
 	if (full_processing && !server_shutting_down) {
 		QNM_syslog(LOG_DEBUG, "network: loading outbound queue");
-		CtdlForEachRoom(network_queue_interesting_rooms, &RL);
+		CtdlForEachNetCfgRoom(network_queue_interesting_rooms, &RL, maxRoomNetCfg);
 	}
 
 	if ((RL.rplist != NULL) && (!server_shutting_down)) {
@@ -588,7 +515,7 @@ void network_do_queue(void)
 		while (ptr != NULL && !server_shutting_down) {
 			
 			cmp = ptr->next;
-
+			/* filter duplicates from the list... */
 			while (cmp != NULL) {
 				if ((cmp->namelen > 0) &&
 				    (cmp->key == ptr->key) &&
@@ -601,14 +528,30 @@ void network_do_queue(void)
 			}
 
 			if (ptr->namelen > 0) {
-				network_spoolout_room(ptr, 
-						      working_ignetcfg,
-						      the_netmap);
+				InspectQueuedRoom(&sc,
+						  ptr, 
+						  working_ignetcfg,
+						  the_netmap);
 			}
 			ptr = ptr->next;
 		}
 	}
 
+
+	pSC = sc;
+	while (pSC != NULL)
+	{
+		network_spoolout_room(pSC);
+		pSC = pSC->next;
+	}
+
+	pSC = sc;
+	while (pSC != NULL)
+	{
+		sc = pSC->next;
+		free_spoolcontrol_struct(&pSC);
+		pSC = sc;
+	}
 	/* If there is anything in the inbound queue, process it */
 	if (!server_shutting_down) {
 		network_do_spoolin(working_ignetcfg, 
@@ -621,8 +564,10 @@ void network_do_queue(void)
 
 	/* Save the network map back to disk */
 	if (netmap_changed) {
-		StrBuf *MapStr = SerializeNetworkMap(the_netmap);
-		CtdlPutSysConfig(IGNETMAP, SmashStrBuf(&MapStr));
+		StrBuf *MapStr = CtdlSerializeNetworkMap(the_netmap);
+		char *pMapStr = SmashStrBuf(&MapStr);
+		CtdlPutSysConfig(IGNETMAP, pMapStr);
+		free(pMapStr);
 	}
 
 	/* combine singe message files into one spool entry per remote node. */
@@ -639,74 +584,15 @@ void network_do_queue(void)
 	if (full_processing) {
 		last_run = time(NULL);
 	}
-	DeleteHash(&RL.RoomsInterestedIn);
 	destroy_network_queue_room(RL.rplist);
-	doing_queue = 0;
+	SaveChangedConfigs();
+
 }
 
 
 
 
-int network_room_handler (struct ctdlroom *room)
-{
-	network_queue_room(room, NULL);
-	return 0;
-}
 
-int NTTDebugEnabled = 0;
-
-/*
- * network_talking_to()  --  concurrency checker
- */
-static HashList *nttlist = NULL;
-int network_talking_to(const char *nodename, long len, int operation) {
-
-	int retval = 0;
-	HashPos *Pos = NULL;
-	void *vdata;
-
-	begin_critical_section(S_NTTLIST);
-
-	switch(operation) {
-
-		case NTT_ADD:
-			if (nttlist == NULL) 
-				nttlist = NewHash(1, NULL);
-			Put(nttlist, nodename, len, NewStrBufPlain(nodename, len), HFreeStrBuf);
-			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: added <%s>\n", nodename);
-			break;
-		case NTT_REMOVE:
-			if ((nttlist == NULL) ||
-			    (GetCount(nttlist) == 0))
-				break;
-			Pos = GetNewHashPos(nttlist, 1);
-			if (GetHashPosFromKey (nttlist, nodename, len, Pos))
-				DeleteEntryFromHash(nttlist, Pos);
-			DeleteHashPos(&Pos);
-			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: removed <%s>\n", nodename);
-
-			break;
-
-		case NTT_CHECK:
-			if ((nttlist == NULL) ||
-			    (GetCount(nttlist) == 0))
-				break;
-			if (GetHash(nttlist, nodename, len, &vdata))
-				retval ++;
-			if (NTTDebugEnabled) syslog(LOG_DEBUG, "nttlist: have [%d] <%s>\n", retval, nodename);
-			break;
-	}
-
-	end_critical_section(S_NTTLIST);
-	return(retval);
-}
-
-void cleanup_nttlist(void)
-{
-        begin_critical_section(S_NTTLIST);
-	DeleteHash(&nttlist);
-        end_critical_section(S_NTTLIST);
-}
 
 
 
@@ -718,7 +604,7 @@ void network_logout_hook(void)
 	 * If we were talking to a network node, we're not anymore...
 	 */
 	if (!IsEmptyStr(CCC->net_node)) {
-		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
+		CtdlNetworkTalkingTo(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
 		CCC->net_node[0] = '\0';
 	}
 }
@@ -727,7 +613,7 @@ void network_cleanup_function(void)
 	struct CitContext *CCC = CC;
 
 	if (!IsEmptyStr(CCC->net_node)) {
-		network_talking_to(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
+		CtdlNetworkTalkingTo(CCC->net_node, strlen(CCC->net_node), NTT_REMOVE);
 		CCC->net_node[0] = '\0';
 	}
 }
@@ -736,10 +622,7 @@ void network_cleanup_function(void)
 /*
  * Module entry point
  */
-void SetNTTDebugEnabled(const int n)
-{
-	NTTDebugEnabled = n;
-}
+
 void SetNetQDebugEnabled(const int n)
 {
 	NetQDebugEnabled = n;
@@ -750,9 +633,7 @@ CTDL_MODULE_INIT(network)
 	if (!threading)
 	{
 		CtdlFillSystemContext(&networker_spool_CC, "CitNetSpool");
-		CtdlRegisterDebugFlagHook(HKEY("networktalkingto"), SetNTTDebugEnabled, &NTTDebugEnabled);
 		CtdlRegisterDebugFlagHook(HKEY("networkqueue"), SetNetQDebugEnabled, &NetQDebugEnabled);
-		CtdlRegisterCleanupHook(cleanup_nttlist);
 		CtdlRegisterSessionHook(network_cleanup_function, EVT_STOP, PRIO_STOP + 30);
                 CtdlRegisterSessionHook(network_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 10);
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");

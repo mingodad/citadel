@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 1996-2013 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 /* URL / Mime Post parsing -> paramhandling.c */
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset,
@@ -39,4 +51,7 @@ const char *Bstr(const char *key, size_t keylen);
 /* if you want to ease some parts by just parametring yourself... */
 #define putbstr(a, b) PutBstr(a, sizeof(a) - 1, b)
 void PutBstr(const char *key, long keylen, StrBuf *Value);
+
+#define putlbstr(a, b) PutlBstr(a, sizeof(a) - 1, b)
+void PutlBstr(const char *key, long keylen, long Value);
 

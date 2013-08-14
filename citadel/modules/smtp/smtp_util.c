@@ -94,7 +94,7 @@ const char *smtp_get_Recipients(void)
 
 	if (sSMTP == NULL)
 		return NULL;
-	else return sSMTP->from;
+	else return ChrPtr(sSMTP->from);
 }
 
 

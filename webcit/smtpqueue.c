@@ -296,19 +296,20 @@ void QItem_Handle_Attempted(OneQueItem *Item, StrBuf *Line, const char **Pos)
 
 
 
-
-
-
-
-void render_QUEUE(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_QUEUE(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = CTX(CTX_MIME_ATACH);
 	WCTemplputParams SubTP;
+	OneQueItem* Context;
 
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_MAILQITEM;
-	SubTP.Context = DeserializeQueueItem(Mime->Data, Mime->msgnum);
-	DoTemplate(HKEY("view_mailq_message"),NULL, &SubTP);
-	FreeQueItem ((OneQueItem**)&SubTP.Context);
+	Context = DeserializeQueueItem(Mime->Data, Mime->msgnum);
+	StackContext(TP, &SubTP, Context, CTX_MAILQITEM, 0, TP->Tokens);
+	{
+		DoTemplate(HKEY("view_mailq_message"), NULL, &SubTP);
+	}
+	UnStackContext(&SubTP);
+
+	FreeQueItem (&Context);
 }
 
 void
@@ -385,6 +386,7 @@ int qview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	wcsession *WCC = WC;
 	WCTemplputParams SubTP;
 
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	if (yesbstr("ListOnly"))
 		DoTemplate(HKEY("view_mailq_footer_listonly"),NULL, &SubTP);
 	else
@@ -427,7 +429,7 @@ InitModule_SMTP_QUEUE
 	RegisterNamespace("MAILQ:SUBMITTED", 0, 0, tmplput_MailQSubmitted, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:ENVELOPEFROM", 0, 1, tmplput_MailQEnvelopeFrom, NULL, CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:SRCROOM", 0, 1, tmplput_MailQSourceRoom, NULL, CTX_MAILQITEM);
-	RegisterConditional(HKEY("COND:MAILQ:HAVESRCROOM"), 0, Conditional_MailQ_HaveSourceRoom,  CTX_MAILQITEM);
+	RegisterConditional("COND:MAILQ:HAVESRCROOM", 0, Conditional_MailQ_HaveSourceRoom,  CTX_MAILQITEM);
 	RegisterNamespace("MAILQ:RETRY", 0, 0, tmplput_MailQRetry, NULL, CTX_MAILQITEM);
 
 	RegisterNamespace("MAILQ:RCPT:ADDR", 0, 1, tmplput_MailQRCPT, NULL, CTX_MAILQ_RCPT);

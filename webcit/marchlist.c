@@ -246,7 +246,7 @@ void
 InitModule_MARCHLIST
 (void)
 {
-	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto, CTX_NONE);
+	RegisterConditional("COND:UNGOTO", 0, ConditionalHaveUngoto, CTX_NONE);
 	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, NULL, CTX_NONE);
 
 	WebcitAddUrlHandler(HKEY("gotonext"), "", 0, _gotonext, NEED_URL);

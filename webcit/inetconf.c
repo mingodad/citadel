@@ -73,7 +73,7 @@ void load_inetconf(void)
 			GetHash(WCC->InetCfg, ChrPtr(CfgToken), StrLength(CfgToken), &vHash);
 			Hash = (HashList*) vHash;
 			if (Hash == NULL) {
-				syslog(1, "ERROR Loading inet config line: [%s]\n", 
+				syslog(LOG_WARNING, "ERROR Loading inet config line: [%s]\n", 
 					ChrPtr(Buf));
 				FreeStrBuf(&Value);
 				continue;
@@ -201,6 +201,48 @@ HashList *GetInetConfHash(StrBuf *Target, WCTemplputParams *TP)
 	return vHash;
 }
 
+
+HashList *GetValidDomainNames(StrBuf *Target, WCTemplputParams *TP) 
+{
+	StrBuf *Line;
+	HashList *ValidDomainNames = NULL;
+	long State;
+	int gvdnlevel = 0;
+	
+	serv_printf("GVDN %d", gvdnlevel);
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, &State) == 1) 
+	{
+		int Done = 0;
+		int n = 0;
+
+		ValidDomainNames = NewHash(1, NULL);
+		while(!Done && (StrBuf_ServGetln(Line) >= 0))
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000"))
+			{
+				Done = 1;
+			}
+			else
+			{
+				Put(ValidDomainNames, 
+				    IKEY(n),
+				    NewStrBufDup(Line), 
+				    HFreeStrBuf);
+				n++; /* #0 is the type... */
+			}
+	}
+	else if (State == 550)
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
+
+	FreeStrBuf(&Line);
+
+	return ValidDomainNames;
+}
+
+
+
 void 
 InitModule_INETCONF
 (void)
@@ -208,4 +250,6 @@ InitModule_INETCONF
 	WebcitAddUrlHandler(HKEY("save_inetconf"), "", 0, new_save_inetconf, 0);
 	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("SERVCFG:FLUSHINETCFG",0, 0, DeleteInetConfHash, NULL, CTX_NONE);
+	RegisterIterator("ITERATE:VALID:DOMAINNAMES", 1, NULL, GetValidDomainNames, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+
 }

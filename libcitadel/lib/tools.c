@@ -573,7 +573,7 @@ void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 	};
 
-	strcpy(buf, "");
+	*buf = '\0';
 	localtime_r(&thetime, &tm);
 
 	hour = tm.tm_hour;
@@ -835,7 +835,7 @@ void urlesc(char *outbuf, size_t oblen, char *strbuf)
 	int a, b, c, len, eclen, olen;
 	char *ec = " +#&;`'|*?-~<>^()[]{}/$\"\\";
 
-	strcpy(outbuf, "");
+	*outbuf = '\0';
 	len = strlen(strbuf);
 	eclen = strlen(ec);
 	olen = 0;

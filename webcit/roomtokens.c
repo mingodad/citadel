@@ -618,10 +618,10 @@ InitModule_ROOMTOKENS
 	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, NULL, CTX_FLOORS);
 	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, NULL, CTX_ROOMS);
 
-	RegisterConditional(HKEY("COND:FLOOR:ISSUBROOM"), 0, ConditionalFloorIsSUBROOM, CTX_FLOORS);
-	RegisterConditional(HKEY("COND:FLOOR:NROOMS"), 1, ConditionalFloorHaveNRooms, CTX_FLOORS);
-	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
-	RegisterConditional(HKEY("COND:FLOOR:ISVIRTUAL"), 0, ConditionalFloorIsVirtual, CTX_FLOORS);
+	RegisterConditional("COND:FLOOR:ISSUBROOM", 0, ConditionalFloorIsSUBROOM, CTX_FLOORS);
+	RegisterConditional("COND:FLOOR:NROOMS", 1, ConditionalFloorHaveNRooms, CTX_FLOORS);
+	RegisterConditional("COND:ROOM:REST:ISSUBFLOOR", 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
+	RegisterConditional("COND:FLOOR:ISVIRTUAL", 0, ConditionalFloorIsVirtual, CTX_FLOORS);
 
 	/**** Room... ******/
         /**** Name ******/
@@ -630,26 +630,26 @@ InitModule_ROOMTOKENS
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, NULL, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:INFO:IS_INBOX"), 0, ConditionalRoomIsInbox, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:INFO:TYPE_IS"), 0, ConditionalRoomIsType, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:INFO:NAME_IS"), 1, ConditionalRoomIsName, CTX_ROOMS);
+	RegisterConditional("COND:ROOM:INFO:IS_INBOX", 0, ConditionalRoomIsInbox, CTX_ROOMS);
+	RegisterConditional("COND:ROOM:INFO:TYPE_IS", 0, ConditionalRoomIsType, CTX_ROOMS);
+	RegisterConditional("COND:ROOM:INFO:NAME_IS", 1, ConditionalRoomIsName, CTX_ROOMS);
 
 	/****** Properties ******/
 	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, NULL, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR"), 0, ConditionalThisRoomHas_QRFlag, CTX_NONE);
-	RegisterConditional(HKEY("COND:THISROOM:EDIT"), 0, ConditionalRoom_MayEdit, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAG:QR"), 0, ConditionalRoomHas_QRFlag, CTX_ROOMS);
+	RegisterConditional("COND:THISROOM:FLAG:QR", 0, ConditionalThisRoomHas_QRFlag, CTX_NONE);
+	RegisterConditional("COND:THISROOM:EDIT", 0, ConditionalRoom_MayEdit, CTX_NONE);
+	RegisterConditional("COND:ROOM:FLAG:QR", 0, ConditionalRoomHas_QRFlag, CTX_ROOMS);
 
-	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR2"), 0, ConditionalThisRoomHas_QRFlag2, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAG:QR2"), 0, ConditionalRoomHas_QRFlag2, CTX_ROOMS);
+	RegisterConditional("COND:THISROOM:FLAG:QR2", 0, ConditionalThisRoomHas_QRFlag2, CTX_NONE);
+	RegisterConditional("COND:ROOM:FLAG:QR2", 0, ConditionalRoomHas_QRFlag2, CTX_ROOMS);
 
-	RegisterConditional(HKEY("COND:ROOM:FLAG:UA"), 0, ConditionalRoomHas_UAFlag, CTX_ROOMS);
+	RegisterConditional("COND:ROOM:FLAG:UA", 0, ConditionalRoomHas_UAFlag, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:RAFLAGS", 0, 1, tmplput_ROOM_RAFLAGS, NULL, CTX_ROOMS);
 
 
 	RegisterNamespace("ROOM:INFO:LISTORDER", 0, 1, tmplput_ROOM_LISTORDER, NULL, CTX_ROOMS);
 	RegisterNamespace("THISROOM:ORDER", 0, 0, tmplput_ThisRoomOrder, NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:THISROOM:ORDER"), 0, ConditionalThisRoomOrder, CTX_NONE);
+	RegisterConditional("COND:THISROOM:ORDER", 0, ConditionalThisRoomOrder, CTX_NONE);
 
 	RegisterNamespace("ROOM:INFO:LASTCHANGE", 0, 1, tmplput_ROOM_LASTCHANGE, NULL, CTX_ROOMS);
 
@@ -658,19 +658,19 @@ InitModule_ROOMTOKENS
 
 	RegisterNamespace("THISROOM:PASS", 0, 1, tmplput_ThisRoomPass, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:AIDE", 0, 1, tmplput_ThisRoomAide, NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
-	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
+	RegisterConditional("COND:ROOMAIDE", 2, ConditionalRoomAide, CTX_NONE);
+	RegisterConditional("COND:ACCESS:DELETE", 2, ConditionalRoomAcessDelete, CTX_NONE);
+	RegisterConditional("COND:ROOM:EDITACCESS", 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
-	RegisterConditional(HKEY("COND:THISROOM:HAVE_PIC"), 0, ConditionalThisRoomXHavePic, CTX_NONE);
+	RegisterConditional("COND:THISROOM:HAVE_PIC", 0, ConditionalThisRoomXHavePic, CTX_NONE);
 
 	RegisterNamespace("THISROOM:INFOTEXT", 1, 2, tmplput_ThisRoomInfoText, NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:THISROOM:HAVE_INFOTEXT"), 0, ConditionalThisRoomXHaveInfoText, CTX_NONE);
+	RegisterConditional("COND:THISROOM:HAVE_INFOTEXT", 0, ConditionalThisRoomXHaveInfoText, CTX_NONE);
 
 	RegisterNamespace("THISROOM:FILES:N", 0, 1, tmplput_ThisRoomXNFiles, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:FILES:STR", 0, 1, tmplput_ThisRoomX_FileString, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_ThisRoomDirectory, NULL, CTX_NONE);
 
 	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, NULL, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:THIS:THAT:ROOM"), 0, ConditionalIsThisThatRoom, CTX_ROOMS);
+	RegisterConditional("COND:THIS:THAT:ROOM", 0, ConditionalIsThisThatRoom, CTX_ROOMS);
 }

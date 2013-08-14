@@ -88,31 +88,42 @@ char *msgkeys[] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, 
-	"from",
-	NULL, NULL, NULL,
-	"exti",
-	"rfca",
-	NULL, 
-	"hnod",
-	"msgn",
-	"jrnl",
-	"rep2",
-	"list",
-	"text",
-	"node",
-	"room",
-	"path",
-	NULL,
-	"rcpt",
-	"spec",
-	"time",
-	"subj",
-	NULL,
-	"wefw",
-	NULL,
-	"cccc",
-	NULL
+	"from", /* A */
+	NULL,   /* B */
+	NULL,   /* C */
+	NULL,   /* D */
+	"exti", /* E */
+	"rfca", /* F */
+	NULL,   /* G */
+	"hnod", /* H */
+	"msgn", /* I */
+	"jrnl", /* J */
+	"rep2", /* K */
+	"list", /* L */
+	"text", /* M */
+	"node", /* N */
+	"room", /* O */
+	"path", /* P */
+	NULL,   /* Q */
+	"rcpt", /* R */
+	"spec", /* S */
+	"time", /* T */
+	"subj", /* U */
+	"nvto", /* V */
+	"wefw", /* W */
+	NULL,   /* X */
+	"cccc", /* Y */
+	NULL    /* Z */
 };
+
+void CtdlMsgSetCM_Fields(struct CtdlMessage *Msg, const char which, const char *buf, long length)
+{
+	if (Msg->cm_fields[which] != NULL)
+		free (Msg->cm_fields[which]);
+	Msg->cm_fields[which] = malloc(length + 1);
+	memcpy(Msg->cm_fields[which], buf, length);
+	Msg->cm_fields[which][length] = '\0';
+}
 
 /*
  * This function is self explanatory.
@@ -1136,7 +1147,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 			return;
 		}
 	
-		rv = fwrite(content, length, 1, CC->download_fp);
+		rv = fwrite(content, length, 1, CCC->download_fp);
 		if (rv <= 0) {
 			MSG_syslog(LOG_EMERG, "mime_download(): Couldn't write: %s\n",
 				   strerror(errno));
@@ -1202,6 +1213,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	MSG_syslog(LOG_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
+		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Failed!\n", msgnum, with_body);
 		return NULL;
 	}
 	mptr = dmsgtext->ptr;
@@ -1309,6 +1321,49 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 	CtdlFreeMessageContents(msg);
 	free(msg);
 }
+
+int DupCMField(int i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
+{
+	long len;
+	len = strlen(OrgMsg->cm_fields[i]);
+	NewMsg->cm_fields[i] = malloc(len + 1);
+	if (NewMsg->cm_fields[i] == NULL)
+		return 0;
+	memcpy(NewMsg->cm_fields[i], OrgMsg->cm_fields[i], len);
+	NewMsg->cm_fields[i][len] = '\0';
+	return 1;
+}
+
+struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
+{
+	int i;
+	struct CtdlMessage *NewMsg;
+
+	if (is_valid_message(OrgMsg) == 0) 
+		return NULL;
+	NewMsg = (struct CtdlMessage *)malloc(sizeof(struct CtdlMessage));
+	if (NewMsg == NULL)
+		return NULL;
+
+	memcpy(NewMsg, OrgMsg, sizeof(struct CtdlMessage));
+
+	memset(&NewMsg->cm_fields, 0, sizeof(char*) * 256);
+	
+	for (i = 0; i < 256; ++i)
+	{
+		if (OrgMsg->cm_fields[i] != NULL)
+		{
+			if (!DupCMField(i, OrgMsg, NewMsg))
+			{
+				CtdlFreeMessage(NewMsg);
+				return NULL;
+			}
+		}
+	}
+
+	return NewMsg;
+}
+
 
 
 /*
@@ -2966,6 +3021,10 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	size_t wlen, fieldlen;
 	int i;
 	static char *forder = FORDER;
+	int n = sizeof(FORDER) - 1;
+	long lengths[sizeof(FORDER)];
+	
+	memset(lengths, 0, sizeof(lengths));
 
 	/*
 	 * Check for valid message format
@@ -2978,9 +3037,12 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	}
 
 	ret->len = 3;
-	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL)
-				     ret->len = ret->len +
-					     strlen(msg->cm_fields[(int)forder[i]]) + 2;
+	for (i=0; i<n; ++i)
+		if (msg->cm_fields[(int)forder[i]] != NULL)
+		{
+			lengths[i] = strlen(msg->cm_fields[(int)forder[i]]);
+			ret->len += lengths[i] + 2;
+		}
 
 	ret->ser = malloc(ret->len);
 	if (ret->ser == NULL) {
@@ -2996,12 +3058,19 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	ret->ser[2] = msg->cm_format_type;
 	wlen = 3;
 
-	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
-			fieldlen = strlen(msg->cm_fields[(int)forder[i]]);
+	for (i=0; i<n; ++i)
+		if (msg->cm_fields[(int)forder[i]] != NULL)
+		{
+			fieldlen = lengths[i];
 			ret->ser[wlen++] = (char)forder[i];
-			safestrncpy((char *)&ret->ser[wlen], msg->cm_fields[(int)forder[i]], fieldlen+1);
+
+			memcpy(&ret->ser[wlen],
+			       msg->cm_fields[(int)forder[i]],
+			       fieldlen+1);
+
 			wlen = wlen + fieldlen + 1;
 		}
+
 	if (ret->len != wlen) {
 		MSG_syslog(LOG_ERR, "ERROR: len=%ld wlen=%ld\n",
 			   (long)ret->len, (long)wlen);
@@ -3497,7 +3566,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
  */
 void quickie_message(const char *from,
 		     const char *fromaddr,
-		     char *to,
+		     const char *to,
 		     char *room,
 		     const char *text, 
 		     int format_type,
@@ -3544,25 +3613,25 @@ void quickie_message(const char *from,
 
 void flood_protect_quickie_message(const char *from,
 				   const char *fromaddr,
-				   char *to,
+				   const char *to,
 				   char *room,
 				   const char *text, 
 				   int format_type,
 				   const char *subject,
 				   int nCriterions,
 				   const char **CritStr,
-				   long *CritStrLen)
+				   long *CritStrLen,
+				   long ccid,
+				   long ioid,
+				   time_t NOW)
 {
 	int i;
-	struct UseTable ut;
 	u_char rawdigest[MD5_DIGEST_LEN];
 	struct MD5Context md5context;
 	StrBuf *guid;
-	struct cdbdata *cdbut;
 	char timestamp[64];
 	long tslen;
-	time_t ts = time(NULL);
-	time_t tsday = ts / (8*60*60); /* just care for a day... */
+	time_t tsday = NOW / (8*60*60); /* just care for a day... */
 
 	tslen = snprintf(timestamp, sizeof(timestamp), "%ld", tsday);
 	MD5Init(&md5context);
@@ -3580,25 +3649,22 @@ void flood_protect_quickie_message(const char *from,
 	StrBufAppendBufPlain(guid, HKEY("_fldpt"), 0);
 	if (StrLength(guid) > 40)
 		StrBufCutAt(guid, 40, NULL);
-	/* Find out if we've already sent a similar message */
-	memcpy(ut.ut_msgid, SKEY(guid));
-	ut.ut_timestamp = ts;
 
-	cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
-
-	if (cdbut != NULL) {
+	if (CheckIfAlreadySeen("FPAideMessage",
+			       guid,
+			       NOW,
+			       tsday,
+			       eUpdate,
+			       ccid,
+			       ioid)!= 0)
+	{
+		FreeStrBuf(&guid);
 		/* yes, we did. flood protection kicks in. */
 		syslog(LOG_DEBUG,
 		       "not sending message again\n");
-		cdb_free(cdbut);
+		return;
 	}
-
-	/* rewrite the record anyway, to update the timestamp */
-	cdb_store(CDB_USETABLE,
-		  SKEY(guid),
-		  &ut, sizeof(struct UseTable) );
-
-	if (cdbut != NULL) return;
+	FreeStrBuf(&guid);
 	/* no, this message isn't sent recently; go ahead. */
 	quickie_message(from,
 			fromaddr,
@@ -3616,7 +3682,7 @@ void flood_protect_quickie_message(const char *from,
 StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 			       long tlen,
 			       size_t maxlen,		/* maximum message length */
-			       char *exist,		/* if non-null, append to it;
+			       StrBuf *exist,		/* if non-null, append to it;
 							   exist is ALWAYS freed  */
 			       int crlf,		/* CRLF newlines instead of LF */
 			       int *sock		/* socket handle or 0 for this session's client socket */
@@ -3633,8 +3699,7 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 		Message = NewStrBufPlain(NULL, 4 * SIZ);
 	}
 	else {
-		Message = NewStrBufPlain(exist, -1);
-		free(exist);
+		Message = NewStrBufDup(exist);
 	}
 
 	/* Do we need to change leading ".." to "." for SMTP escaping? */
@@ -3697,7 +3762,7 @@ ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
 			  long tlen,
 			  size_t maxlen,		/* maximum message length */
 			  size_t expectlen,             /* if we expect a message, how long should it be? */
-			  char *exist,			/* if non-null, append to it;
+			  StrBuf *exist,		/* if non-null, append to it;
 						   	   exist is ALWAYS freed  */
 			  long eLen,            	/* length of exist */
 			  int crlf			/* CRLF newlines instead of LF */
@@ -3720,8 +3785,7 @@ ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
 		NewMsg->MsgBuf = NewStrBufPlain(NULL, len);
 	}
 	else {
-		NewMsg->MsgBuf = NewStrBufPlain(exist, eLen);
-		free(exist);
+		NewMsg->MsgBuf = NewStrBufDup(exist);
 	}
 	/* Do we need to change leading ".." to "." for SMTP escaping? */
 	if ((tlen == 1) && (*terminator == '.')) {
@@ -3854,7 +3918,7 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			  long tlen,
 			  size_t maxlen,		/* maximum message length */
-			  char *exist,		/* if non-null, append to it;
+			  StrBuf *exist,		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
 			  int crlf,		/* CRLF newlines instead of LF */
 			  int *sock		/* socket handle or 0 for this session's client socket */
@@ -4009,11 +4073,6 @@ struct CtdlMessage *CtdlMakeMessage(
 	return(msg);
 }
 
-extern int netconfig_check_roomaccess(
-	char *errmsgbuf, 
-	size_t n,
-	const char* RemoteIdentifier); /* TODO: find a smarter way */
-
 /*
  * Check to see whether we have permission to post a message in the current
  * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
@@ -4048,7 +4107,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(
 		}
 		if ((PostPublic!=POST_LMTP) &&(CC->room.QRflags2 & QR2_SMTP_PUBLIC) == 0) {
 
-			return netconfig_check_roomaccess(errmsgbuf, n, RemoteIdentifier);
+			return CtdlNetconfigCheckRoomaccess(errmsgbuf, n, RemoteIdentifier);
 		}
 		return (0);
 
@@ -4759,12 +4818,12 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			regcomp(&re, content_type, 0);
 			need_to_free_re = 1;
 		}
-	MSG_syslog(LOG_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s)\n",
+	MSG_syslog(LOG_DEBUG, " CtdlDeleteMessages(%s, %d msgs, %s)\n",
 		   room_name, num_dmsgnums, content_type);
 
 	/* get room record, obtaining a lock... */
 	if (CtdlGetRoomLock(&qrbuf, room_name) != 0) {
-		MSG_syslog(LOG_ERR, "CtdlDeleteMessages(): Room <%s> not found\n",
+		MSG_syslog(LOG_ERR, " CtdlDeleteMessages(): Room <%s> not found\n",
 			   room_name);
 		if (need_to_free_re) regfree(&re);
 		return (0);	/* room not found */
@@ -4791,14 +4850,13 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			StrBuf *dbg = NewStrBuf();
 			for (i = 0; i < num_dmsgnums; i++)
 				StrBufAppendPrintf(dbg, ", %ld", dmsgnums[i]);
-			MSG_syslog(LOG_DEBUG, "Deleting before: %s", ChrPtr(dbg));
+			MSG_syslog(LOG_DEBUG, " Deleting before: %s", ChrPtr(dbg));
 			FreeStrBuf(&dbg);
 		}
 */
 		i = 0; j = 0;
 		while ((i < num_msgs) && (have_more_del)) {
 			delete_this = 0x00;
-
 
 			/* Set/clear a bit for each criterion */
 
@@ -4810,6 +4868,10 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			}
 			else {
 				while ((i < num_msgs) && (msglist[i] < dmsgnums[j])) i++;
+
+				if (i >= num_msgs)
+					continue;
+
 				if (msglist[i] == dmsgnums[j]) {
 					delete_this |= 0x01;
 				}
@@ -4838,7 +4900,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			StrBuf *dbg = NewStrBuf();
 			for (i = 0; i < num_deleted; i++)
 				StrBufAppendPrintf(dbg, ", %ld", dellist[i]);
-			MSG_syslog(LOG_DEBUG, "Deleting: %s", ChrPtr(dbg));
+			MSG_syslog(LOG_DEBUG, " Deleting: %s", ChrPtr(dbg));
 			FreeStrBuf(&dbg);
 		}
 */
@@ -4870,7 +4932,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	/* Now free the memory we used, and go away. */
 	if (msglist != NULL) free(msglist);
 	if (dellist != NULL) free(dellist);
-	MSG_syslog(LOG_DEBUG, "%d message(s) deleted.\n", num_deleted);
+	MSG_syslog(LOG_DEBUG, " %d message(s) deleted.\n", num_deleted);
 	if (need_to_free_re) regfree(&re);
 	return (num_deleted);
 }

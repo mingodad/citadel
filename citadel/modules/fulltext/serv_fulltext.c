@@ -142,9 +142,8 @@ void ft_index_message(long msgnum, int op) {
 	CtdlFreeMessage(msg);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
-	syslog(LOG_DEBUG, "Wordbreaking message %ld...", msgnum);
-	if ((msgtext == NULL) || (StrLength(msgtext) == 0)) {
-		syslog(LOG_ALERT, "This message has a zero length.  Probable data corruption.");
+	if (msgtext != NULL) {
+		syslog(LOG_DEBUG, "Wordbreaking message %ld (%d bytes)", msgnum, StrLength(msgtext));
 	}
 	txt = SmashStrBuf(&msgtext);
 	wordbreaker(txt, &num_tokens, &tokens);

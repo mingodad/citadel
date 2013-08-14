@@ -167,7 +167,7 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 			{
 				DeleteHashPos(&itd);
 				
-				syslog(0, "5\n");
+				syslog(LOG_DEBUG, "5\n");
 				continue;
 			}
 			DeleteHashPos(&itd);
@@ -178,7 +178,7 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 			{
 				DeleteHashPos(&itd);
 				
-				syslog(0, "5\n");
+				syslog(LOG_DEBUG, "5\n");
 				continue;
 			}
 			DeleteHashPos(&itfl);

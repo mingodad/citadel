@@ -108,7 +108,8 @@ ConstStr SMTPStates[] = {
 void SetSMTPState(AsyncIO *IO, smtpstate State)
 {
 	CitContext* CCC = IO->CitContext;
-	memcpy(CCC->cs_clientname, SMTPStates[State].Key, SMTPStates[State].len + 1);
+	if (CCC != NULL)
+		memcpy(CCC->cs_clientname, SMTPStates[State].Key, SMTPStates[State].len + 1);
 }
 
 int SMTPClientDebugEnabled = 0;
@@ -154,7 +155,14 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 {
 	const char *Status;
 	SmtpOutMsg *Msg = IO->Data;
-	
+	StrBuf *StatusMessage;
+
+	if (Msg->MyQEntry->AllStatusMessages != NULL)
+		StatusMessage = Msg->MyQEntry->AllStatusMessages;
+	else
+		StatusMessage = Msg->MyQEntry->StatusMessage;
+
+
 	if (Msg->MyQEntry->Status == 2) {
 		SetSMTPState(IO, eSTMPfinished);
 		Status = "Delivery successful.";
@@ -175,7 +183,7 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 		   Msg->user,
 		   Msg->node,
 		   Msg->name,
-		   ChrPtr(Msg->MyQEntry->StatusMessage));
+		   ChrPtr(StatusMessage));
 
 
 	Msg->IDestructQueItem = DecreaseQReference(Msg->MyQItem);
@@ -246,7 +254,7 @@ eNextState Terminate(AsyncIO *IO)
 eNextState FinalizeMessageSend(SmtpOutMsg *Msg)
 {
 	/* hand over to DB Queue */
-	return QueueDBOperation(&Msg->IO, FinalizeMessageSend_DB);
+	return EventQueueDBOperation(&Msg->IO, FinalizeMessageSend_DB);
 }
 
 eNextState FailOneAttempt(AsyncIO *IO)

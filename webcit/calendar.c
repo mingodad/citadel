@@ -178,7 +178,7 @@ void cal_process_object(StrBuf *Target,
 		StrBufAppendPrintf(Target, _("Attendee:"));
 		StrBufAppendPrintf(Target, "</dt><dd>");
 		ch = icalproperty_get_attendee(p);
-		if ((ch != NULL) && !strncasecmp(buf, "MAILTO:", 7)) {
+		if ((ch != NULL) && !strncasecmp(ch, "MAILTO:", 7)) {
 
 			/** screen name or email address */
 			safestrncpy(buf, ch + 7, sizeof(buf));
@@ -205,7 +205,7 @@ void cal_process_object(StrBuf *Target,
 	if (the_method == ICAL_METHOD_REQUEST) {
 
 		/* Check for conflicts */
-		syslog(9, "Checking server calendar for conflicts...\n");
+		syslog(LOG_DEBUG, "Checking server calendar for conflicts...\n");
 		serv_printf("ICAL conflicts|%ld|%s|", msgnum, cal_partnum);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
@@ -233,7 +233,7 @@ void cal_process_object(StrBuf *Target,
 				StrBufAppendPrintf(Target, "</dd>\n");
 			}
 		}
-		syslog(9, "...done.\n");
+		syslog(LOG_DEBUG, "...done.\n");
 
 		StrBufAppendPrintf(Target, "</dl>");
 
@@ -601,7 +601,7 @@ void display_individual_cal(icalcomponent *event, long msgnum, char *from, int u
 		}
 	}
 	icalrecur_iterator_free(ritr);
-	/* syslog(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
+	/* syslog(LOG_DEBUG, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
 }
 
 
@@ -858,7 +858,7 @@ void do_freebusy(void)
 		who[len-4] = 0;
 	}
 
-	syslog(9, "freebusy requested for <%s>\n", who);
+	syslog(LOG_INFO, "freebusy requested for <%s>\n", who);
 	serv_printf("ICAL freebusy|%s", who);
 	serv_getln(buf, sizeof buf);
 

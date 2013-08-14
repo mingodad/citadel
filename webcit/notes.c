@@ -435,8 +435,10 @@ int notes_Cleanup(void **ViewSpecific)
 	return 0;
 }
 
-void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MIME_VNote(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = CTX(CTX_MIME_ATACH);
+
 	if (StrLength(Mime->Data) == 0)
 		MimeLoadData(Mime);
 	if (StrLength(Mime->Data) > 0) {

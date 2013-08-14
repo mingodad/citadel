@@ -5,6 +5,11 @@
 #include "webcit.h"
 #include "webserver.h"
 
+typedef enum __eRoomParamType {
+	eNotSet,
+	eDomain,
+	eAlias
+}eRoomParamType;
 
 HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -13,7 +18,7 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 	long State;
 	HashList *Whok = NULL;
 	int Done = 0;
-	int n;
+	int n = 0;
 
 	serv_puts("WHOK");
 	Line = NewStrBuf();
@@ -181,6 +186,7 @@ void FlushIgnetCfgs(folder *room)
 			DeleteHash(&room->IgnetCfgs[i]);
 	}
 	memset(&room->IgnetCfgs, 0, sizeof(HashList *) * (maxRoomNetCfg + 1));
+	room->RoomAlias = NULL;
 
 }
 
@@ -320,6 +326,191 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	return rooms;
 }
 
+HashList *GetThisRoomMAlias(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	StrBuf *Line;
+	StrBuf *Token;
+	HashList *Aliases = NULL;
+	const char *pComma;
+	long aliaslen;
+	long locallen;
+	long State;
+	
+	serv_puts("GNET "FILE_MAILALIAS);
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, &State) == 1) 
+	{
+		int Done = 0;
+		int n = 0;
+
+		Aliases = NewHash(1, NULL);
+		while(!Done && (StrBuf_ServGetln(Line) >= 0))
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000"))
+			{
+				Done = 1;
+			}
+			else
+			{
+				pComma = strchr(ChrPtr(Line), ',');
+				if (pComma == NULL)
+					continue;
+				aliaslen = pComma - ChrPtr(Line);
+				locallen = StrLength(Line) - 1 - aliaslen;
+				if (locallen - 5 != StrLength(WCC->CurRoom.name))
+					continue;
+				if (strncmp(pComma + 1, "room_", 5) != 0)
+					continue;
+
+				if (strcasecmp(pComma + 6, ChrPtr(WCC->CurRoom.name)) != 0)
+					continue;
+				Token = NewStrBufPlain(ChrPtr(Line), aliaslen);
+				Put(Aliases, 
+				    IKEY(n),
+				    Token, 
+				    HFreeStrBuf);
+				n++;
+			}
+	}
+	else if (State == 550)
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
+
+	FreeStrBuf(&Line);
+
+	return Aliases;
+}
+
+
+void AppendPossibleAliasWithDomain(
+	HashList *PossibleAliases,
+	long *nPossibleAliases,
+	const HashList *Domains, 
+	const char *prefix,
+	long len,
+	const char* Alias,
+	long AliasLen)
+{
+	const StrBuf *OneDomain;
+	StrBuf *Line;
+	HashPos *It = NULL;
+	const char *Key;
+	long KLen;
+	void *pV;
+	int n;
+
+	It = GetNewHashPos(Domains, 1);
+	n = *nPossibleAliases;
+	while (GetNextHashPos(Domains, It, &KLen, &Key, &pV))
+	{
+		OneDomain = (const StrBuf*) pV;
+		Line = NewStrBuf();
+		StrBufAppendBufPlain(Line, prefix, len, 0);
+		StrBufAppendBufPlain(Line, Alias, AliasLen, 0);
+		StrBufAppendBufPlain(Line, HKEY("@"), 0);
+		StrBufAppendBuf(Line, OneDomain, 0);
+
+		Put(PossibleAliases, 
+		    IKEY(n),
+		    Line, 
+		    HFreeStrBuf);
+		n++;
+	}
+	DeleteHashPos(&It);
+	*nPossibleAliases = n;
+}
+
+HashList *GetThisRoomPossibleMAlias(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	HashList *Domains;
+	StrBuf *Line;
+	StrBuf *Token;
+	StrBuf *RoomName;
+	HashList *PossibleAliases = NULL;
+	
+	const char *pComma;
+	const char *pAt;
+	long aliaslen;
+	long locallen;
+	long State;
+	long n = 0;
+
+	Domains = GetValidDomainNames(Target, TP);
+	if (Domains == NULL)
+		return NULL;
+	PossibleAliases = NewHash(1, NULL);
+	Line = NewStrBuf();
+	RoomName = NewStrBufDup(WCC->CurRoom.name);
+	StrBufAsciify(RoomName, '_');
+	StrBufReplaceChars(RoomName, ' ', '_');
+
+	AppendPossibleAliasWithDomain(PossibleAliases,
+				      &n,
+				      Domains,
+				      HKEY("room_"),
+				      SKEY(RoomName));
+
+
+	serv_puts("GNET "FILE_MAILALIAS);
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, &State) == 1) 
+	{
+		int Done = 0;
+
+		while(!Done && (StrBuf_ServGetln(Line) >= 0))
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000"))
+			{
+				Done = 1;
+			}
+			else
+			{
+				pComma = strchr(ChrPtr(Line), ',');
+				if (pComma == NULL)
+					continue;
+				aliaslen = pComma - ChrPtr(Line);
+				locallen = StrLength(Line) - 1 - aliaslen;
+				if (locallen - 5 != StrLength(WCC->CurRoom.name))
+					continue;
+				if (strncmp(pComma + 1, "room_", 5) != 0)
+					continue;
+
+				if (strcasecmp(pComma + 6, ChrPtr(WCC->CurRoom.name)) != 0)
+					continue;
+				pAt = strchr(ChrPtr(Line), '@');
+				if ((pAt == NULL) || (pAt > pComma))
+				{
+					AppendPossibleAliasWithDomain(PossibleAliases,
+								      &n,
+								      Domains,
+								      HKEY(""),
+								      ChrPtr(Line),
+								      aliaslen);
+					n++;
+				}
+				else
+				{
+					
+					Token = NewStrBufPlain(ChrPtr(Line), aliaslen);
+					Put(PossibleAliases,
+					    IKEY(n),
+					    Token,
+					    HFreeStrBuf);
+					n++;
+				}
+			}
+	}
+	else if (State == 550)
+		AppendImportantMessage(_("Higher access is required to access this function."), -1);
+
+	FreeStrBuf(&Line);
+	FreeStrBuf(&RoomName);
+	return PossibleAliases;
+}
+
+
 HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
@@ -345,8 +536,12 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 	{
 		const char *Pos = NULL;
 		int Done = 0;
+		int HaveRoomMailAlias = 0;
 
 		while(!Done && (StrBuf_ServGetln(Line) >= 0))
+		{
+			if (StrLength(Line) == 0)
+				continue;
 			if ( (StrLength(Line)==3) && 
 			     !strcmp(ChrPtr(Line), "000"))
 			{
@@ -356,6 +551,12 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 			{
 				StrBufExtract_NextToken(Token, Line, &Pos, '|');
 				PutTo = GetTokenDefine(SKEY(Token), -1);
+				if (PutTo == roommailalias)
+				{
+					if (HaveRoomMailAlias > 0)
+						continue; /* Only ONE alias possible! */
+					HaveRoomMailAlias++;
+				}
 				if ((PutTo >= 0) && 
 				    (PutTo < maxRoomNetCfg) &&
 				    (Pos != StrBufNOTNULL))
@@ -381,6 +582,10 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 					while (Pos != StrBufNOTNULL) {
 						Content = NewStrBuf();
 						StrBufExtract_NextToken(Content, Line, &Pos, '|');
+
+						if ((PutTo == roommailalias) && n == 1)
+							WCC->CurRoom.RoomAlias = Content;
+
 						Put(SubH, 
 						    IKEY(n),
 						    Content, 
@@ -390,6 +595,7 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 				}
 				Pos = NULL;
 			}
+		}
 	}
 	else if (State == 550)
 		AppendImportantMessage(_("Higher access is required to access this function."), -1);
@@ -593,6 +799,60 @@ int CompareRooms(const folder *room1, const folder *room2)
 	return CompareRoomListByFloorRoomPrivFirst(room1, room2);
 }
 
+int ConditionalThisRoomIsStrBufContextAlias(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession       *WCC = WC;
+	const char      *pVal;
+	long             len;
+	eRoomParamType   ParamType;
+
+	ParamType = GetTemplateTokenNumber(Target, TP, 2, eNotSet);
+	GetTemplateTokenString(Target, TP, 3, &pVal, &len);
+
+	if (ParamType == eNotSet)
+	{
+		return StrLength(WCC->CurRoom.RoomAlias) == 0;
+	}
+	else if (ParamType == eDomain)
+	{
+		const StrBuf *CtxStr = (const StrBuf*) CTX(CTX_STRBUF);
+		const char *pAt;
+
+		if (CtxStr == NULL) 
+			return 0;
+		
+		if (StrLength(WCC->CurRoom.RoomAlias) == 0)
+			return 0;
+
+		if (strncmp(ChrPtr(WCC->CurRoom.RoomAlias), "room_", 5) != 0)
+			return 0;
+
+		pAt = strchr(ChrPtr(WCC->CurRoom.RoomAlias), '@');
+		if (pAt == NULL)
+			return 0;
+		return strcmp(pAt + 1, ChrPtr(CtxStr)) == 0;
+	}
+	else if (ParamType == eAlias)
+	{
+		const StrBuf *CtxStr = (const StrBuf*) CTX(CTX_STRBUF);
+
+		if (CtxStr == NULL) 
+			return 0;
+		
+		if (StrLength(WCC->CurRoom.RoomAlias) == 0)
+			return 0;
+
+		return strcmp(ChrPtr(WCC->CurRoom.RoomAlias), ChrPtr(CtxStr)) == 0;
+	}
+	else
+	{
+		LogTemplateError(Target, "TokenParameter", 2, TP, 
+				 "Invalid paramtype; need one of [eNotSet|eDomain|eAlias]");
+		return 0;
+	}
+
+}
+
 int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
@@ -613,13 +873,13 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 	urlp = GetCount(WCC->Directory);
 	delta = Folder->nRoomNameParts - urlp + 1;
 
-	syslog(0, "\n->%s: %d - %ld ", 
+	syslog(LOG_DEBUG, "\n->%s: %d - %ld ", 
 	       ChrPtr(Folder->name), 
 	       urlp, 
 	       Folder->nRoomNameParts);
 	/* list only the floors which are in relation to the dav_depth header */
 	if (WCC->Hdr->HR.dav_depth != delta) {
-		syslog(0, "1\n");
+		syslog(LOG_DEBUG, "1\n");
 		return 0;
 	}
 
@@ -639,7 +899,7 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 			{
 				DeleteHashPos(&it);
 
-				syslog(0, "3\n");
+				syslog(LOG_DEBUG, "3\n");
 				return 0;
 			}
 			Dir = (StrBuf*) vDir;
@@ -647,7 +907,7 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 				   ChrPtr(Dir)) != 0)
 			{
 				DeleteHashPos(&it);
-				syslog(0, "4\n");
+				syslog(LOG_DEBUG, "4\n");
 				return 0;
 			}
 		}
@@ -661,7 +921,7 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 		{
 			DeleteHashPos(&it);
 			
-			syslog(0, "5\n");
+			syslog(LOG_DEBUG, "5\n");
 			return WCC->Hdr->HR.dav_depth == 1;
 		}
 		DeleteHashPos(&it);
@@ -687,6 +947,8 @@ InitModule_ROOMLIST
 
 	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUFARR, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:MALIAS", 1, NULL, GetThisRoomMAlias, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:POSSIBLE:MALIAS", 1, NULL, GetThisRoomPossibleMAlias, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
@@ -694,9 +956,14 @@ InitModule_ROOMLIST
 	RegisterIterator("LPRM", 0, NULL, GetRoomListHashLPRM, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
 
+	REGISTERTokenParamDefine(eNotSet);
+	REGISTERTokenParamDefine(eDomain);
+	REGISTERTokenParamDefine(eAlias);
 
 
-	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBROOM"), 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
+	RegisterConditional("COND:ROOM:REST:ISSUBROOM", 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
+
+	RegisterConditional("COND:THISROOM:ISALIAS:CONTEXTSTR", 0, ConditionalThisRoomIsStrBufContextAlias, CTX_NONE);
 
 	RegisterSortFunc(HKEY("byfloorroom"),
 			 NULL, 0,

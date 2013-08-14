@@ -45,12 +45,6 @@
 #endif
 #include <limits.h>
 
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
-
 #include <libcitadel.h>
 
 #include "server.h"
@@ -83,7 +77,7 @@
 		SUBJECT) 
 
 
-#define CtdlAideFPMessage(TEXT, SUBJECT, N, STR, STRLEN) \
+#define CtdlAideFPMessage(TEXT, SUBJECT, N, STR, STRLEN, ccid, ioid, TIME) \
 	flood_protect_quickie_message(			 \
 		"Citadel",				 \
 		NULL,					 \
@@ -94,7 +88,10 @@
 		SUBJECT,				 \
 		N,					 \
 		STR,					 \
-		STRLEN)
+		STRLEN,					 \
+		ccid,					 \
+		ioid,					 \
+		TIME)
 /*
  * Hook functions available to modules.
  */
@@ -123,6 +120,10 @@
 #define PRIO_UNSTEALTH 45000
 /* Priorities for EVT_STEALTH */
 #define PRIO_STEALTH 50000
+void CtdlRegisterTDAPVetoHook(int (*fcn_ptr)(StrBuf*), int EventType, int Priority);
+void CtdlUnregisterTDAPVetoHook(int (*fcn_ptr) (StrBuf*), int EventType);
+
+
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType, int Priority);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlShutdownServiceHooks(void);
@@ -232,6 +233,9 @@ long CtdlGetCurrentMessageNumber(void);
 /*
  * Expose various room operation functions from room_ops.c to the modules API
  */
+typedef struct CfgLineType CfgLineType;
+typedef struct RoomNetCfgLine RoomNetCfgLine;
+typedef struct OneRoomNetCfg OneRoomNetCfg;
 
 unsigned CtdlCreateRoom(char *new_room_name,
 			int new_room_type,
@@ -240,14 +244,20 @@ unsigned CtdlCreateRoom(char *new_room_name,
 			int really_create,
 			int avoid_access,
 			int new_room_view);
-int CtdlGetRoom(struct ctdlroom *qrbuf, char *room_name);
+int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name);
 int CtdlGetRoomLock(struct ctdlroom *qrbuf, char *room_name);
 int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
 void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		int *result, int *view);
 void CtdlPutRoomLock(struct ctdlroom *qrbuf);
-void CtdlForEachRoom(void (*CallBack)(struct ctdlroom *EachRoom, void *out_data),
-	void *in_data);
+typedef void (*ForEachRoomCallBack)(struct ctdlroom *EachRoom, void *out_data);
+void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data);
+typedef void (*ForEachRoomNetCfgCallBack)(struct ctdlroom *EachRoom, void *out_data, OneRoomNetCfg *OneRNCFG);
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
+			   void *in_data,
+			   RoomNetCfg filter);
+void SaveChangedConfigs(void);
+
 void CtdlDeleteRoom(struct ctdlroom *qrbuf);
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
 void CtdlUserGoto (char *where, int display_result, int transiently,
@@ -355,7 +365,7 @@ struct config {
 	int c_pop3s_port;
 	int c_smtps_port;
 	char c_auto_cull;
-	char c_instant_expunge;
+	char c_niu_5;
 	char c_allow_spoofing;
 	char c_journal_email;
 	char c_journal_pubmsgs;
@@ -384,6 +394,90 @@ struct config {
 extern struct config config;
 
 
+typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg);
+typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, OneRoomNetCfg *rncfg, RoomNetCfgLine *data);
+typedef void (*CfgLineDeAllocator)(const CfgLineType *ThisOne, RoomNetCfgLine **data);
+
+struct CfgLineType {
+	RoomNetCfg C;
+	CfgLineParser Parser;
+	CfgLineSerializer Serializer;
+	CfgLineDeAllocator DeAllocator;
+	ConstStr Str;
+	int IsSingleLine;
+	int nSegments;
+};
+
+struct RoomNetCfgLine {
+	RoomNetCfgLine *next;
+	int nValues;
+	StrBuf **Value;
+};
+
+struct OneRoomNetCfg {
+	long lastsent;
+	long changed;
+	StrBuf *Sender;
+	StrBuf *RoomInfo;
+	RoomNetCfgLine *NetConfigs[maxRoomNetCfg];
+	StrBuf *misc;
+};
+
+
+#define CtdlREGISTERRoomCfgType(a, p, uniq, nSegs, s, d) RegisterRoomCfgType(#a, sizeof(#a) - 1, a, p, uniq, nSegs, s, d);
+void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLineParser p, int uniq, int nSegments, CfgLineSerializer s, CfgLineDeAllocator d);
+void ParseGeneric(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *sc);
+void SerializeGeneric(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *sc, RoomNetCfgLine *data);
+void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);
+RoomNetCfgLine *DuplicateOneGenericCfgLine(const RoomNetCfgLine *data);
+void AddRoomCfgLine(OneRoomNetCfg *OneRNCfg, struct ctdlroom *qrbuf, RoomNetCfg LineType, RoomNetCfgLine *Line);
+
+OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber);
+
+typedef struct _nodeconf {
+	int DeleteMe;
+	StrBuf *NodeName;
+	StrBuf *Secret;
+	StrBuf *Host;
+	StrBuf *Port;
+}CtdlNodeConf;
+
+HashList* CtdlLoadIgNetCfg(void);
+
+
+int CtdlNetconfigCheckRoomaccess(char *errmsgbuf, 
+				 size_t n,
+				 const char* RemoteIdentifier);
+
+
+typedef struct __NetMap {
+	StrBuf *NodeName;
+	time_t lastcontact;
+	StrBuf *NextHop;
+}CtdlNetMap;
+
+HashList* CtdlReadNetworkMap(void);
+StrBuf *CtdlSerializeNetworkMap(HashList *Map);
+void NetworkLearnTopology(char *node, char *path, HashList *the_netmap, int *netmap_changed);
+int CtdlIsValidNode(const StrBuf **nexthop,
+		    const StrBuf **secret,
+		    StrBuf *node,
+		    HashList *IgnetCfg,
+		    HashList *the_netmap);
+
+
+
+
+int CtdlNetworkTalkingTo(const char *nodename, long len, int operation);
+
+/*
+ * Operations that can be performed by network_talking_to()
+ */
+enum {
+        NTT_ADD,
+        NTT_REMOVE,
+        NTT_CHECK
+};
 
 /*
  * Expose API calls from user_ops.c

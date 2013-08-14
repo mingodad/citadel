@@ -3,7 +3,7 @@
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
  *
- * Copyright (c) 1996-2012 by the citadel.org team
+ * Copyright (c) 1996-2013 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -233,7 +233,7 @@ void http_redirect(const char *whichpage) {
  */
 void http_transmit_thing(const char *content_type, int is_static)
 {
-	syslog(9, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
+	syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
 
 	hprintf("Content-type: %s\r\n"
@@ -467,7 +467,7 @@ void push_destination(void) {
 
 	FreeStrBuf(&WCC->PushedDestination);
 	WCC->PushedDestination = NewStrBufDup(SBSTR("url"));
-	syslog(9, "Push: %s", ChrPtr(WCC->PushedDestination));
+	syslog(LOG_DEBUG, "Push: %s", ChrPtr(WCC->PushedDestination));
 	wc_printf("OK");
 }
 
@@ -505,7 +505,7 @@ void pop_destination(void) {
 	/*
 	 * All righty then!  We have a destination saved, so go there now.
 	 */
-	syslog(9, "Pop: %s", ChrPtr(WCC->PushedDestination));
+	syslog(LOG_DEBUG, "Pop: %s", ChrPtr(WCC->PushedDestination));
 	http_redirect(ChrPtr(WCC->PushedDestination));
 }
 
@@ -625,11 +625,11 @@ void session_loop(void)
 
 	/* If the client sent a nonce that is incorrect, kill the request. */
 	if (havebstr("nonce")) {
-		syslog(9, "Comparing supplied nonce %s to session nonce %d", 
+		syslog(LOG_DEBUG, "Comparing supplied nonce %s to session nonce %d", 
 			bstr("nonce"), WCC->nonce
 		);
 		if (ibstr("nonce") != WCC->nonce) {
-			syslog(9, "Ignoring request with mismatched nonce.");
+			syslog(LOG_INFO, "Ignoring request with mismatched nonce.");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
@@ -705,18 +705,18 @@ void session_loop(void)
 	 */
 	if (havebstr("go")) {
 		int ret;
-		syslog(9, "Explicit room selection: %s", bstr("go"));
+		syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("go"));
 		ret = gotoroom(sbstr("go"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			syslog(1, "Unable to change to [%s]; Reason: %d", bstr("go"), ret);
+			syslog(LOG_DEBUG, "Unable to change to [%s]; Reason: %d", bstr("go"), ret);
 		}
 	}
 	else if (havebstr("gotofirst")) {
 		int ret;
-		syslog(9, "Explicit room selection: %s", bstr("gotofirst"));
+		syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("gotofirst"));
 		ret = gotoroom(sbstr("gotofirst"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			syslog(1, "Unable to change to [%s]; Reason: %d", bstr("gotofirst"), ret);
+			syslog(LOG_INFO, "Unable to change to [%s]; Reason: %d", bstr("gotofirst"), ret);
 		}
 	}
 
@@ -727,13 +727,13 @@ void session_loop(void)
 	else if ( (StrLength(WCC->CurRoom.name) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
 		int ret;
 
-		syslog(9, "We are in '%s' but cookie indicates '%s', going there...",
+		syslog(LOG_DEBUG, "We are in '%s' but cookie indicates '%s', going there...",
 			ChrPtr(WCC->CurRoom.name),
 			ChrPtr(WCC->Hdr->c_roomname)
 		);
 		ret = gotoroom(WCC->Hdr->c_roomname);	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			syslog(1, "COOKIEGOTO: Unable to change to [%s]; Reason: %d",
+			syslog(LOG_DEBUG, "COOKIEGOTO: Unable to change to [%s]; Reason: %d",
 				ChrPtr(WCC->Hdr->c_roomname), ret);
 		}
 	}
@@ -800,7 +800,7 @@ void display_default_landing_page(void) {
 		/* default action */
 
 		if (havebstr("go")) {
-			syslog(9, "Explicit room selection: %s", bstr("go"));
+			syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("go"));
 			StrBuf *teh_room = NewStrBufPlain(bstr("go"), strlen(bstr("go")));
 			smart_goto(teh_room);
 			FreeStrBuf(&teh_room);
@@ -906,9 +906,9 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("pop"), "", 0, pop_destination, 0);
 
 	WebcitAddUrlHandler(HKEY("401"), "", 0, authorization_required, ANONYMOUS|COOKIEUNNEEDED);
-	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
-	RegisterConditional(HKEY("COND:REST:DEPTH"), 0, Conditional_REST_DEPTH, CTX_NONE);
-	RegisterConditional(HKEY("COND:IS_HTTPS"), 0, Conditional_IS_HTTPS, CTX_NONE);
+	RegisterConditional("COND:IMPMSG", 0, ConditionalImportantMesage, CTX_NONE);
+	RegisterConditional("COND:REST:DEPTH", 0, Conditional_REST_DEPTH, CTX_NONE);
+	RegisterConditional("COND:IS_HTTPS", 0, Conditional_IS_HTTPS, CTX_NONE);
 
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, NULL, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);
@@ -919,11 +919,11 @@ InitModule_WEBCIT
 	
 	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
 	if (!access(dir, R_OK)) {
-		syslog(9, "Using local Stylesheet [%s]", dir);
+		syslog(LOG_INFO, "Using local Stylesheet [%s]", dir);
 		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\" />"));
 	}
 	else
-		syslog(9, "No Site-local Stylesheet [%s] installed.", dir);
+		syslog(LOG_INFO, "No Site-local Stylesheet [%s] installed.", dir);
 
 }
 

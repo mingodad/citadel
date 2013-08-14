@@ -63,6 +63,7 @@ pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 struct thread_tsd masterTSD;
 int server_shutting_down = 0;			/* set to nonzero during shutdown */
 
+pthread_mutex_t ThreadCountMutex;;
 
 
 void InitializeSemaphores(void)
@@ -191,6 +192,8 @@ void go_threading(void)
 		abort();
 	}
 
+	pthread_mutex_init(&ThreadCountMutex, NULL);
+
 	/* Second call to module init functions now that threading is up */
 	initialise_modules(1);
 
@@ -198,10 +201,10 @@ void go_threading(void)
 	CtdlThreadCreate(worker_thread);
 
 	/* The supervisor thread monitors worker threads and spawns more of them if it finds that
-	 * they are all in use.  FIXME make the 256 max threads a configurable value.
+	 * they are all in use.
 	 */
 	while (!server_shutting_down) {
-		if ((active_workers == num_workers) && (num_workers < 256)) {
+		if ((active_workers == num_workers) && (num_workers < config.c_max_workers)) {
 			CtdlThreadCreate(worker_thread);
 		}
 		usleep(1000000);

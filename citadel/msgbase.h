@@ -114,7 +114,7 @@ long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, const char *, int);
 
 void quickie_message(const char *from,
 		     const char *fromaddr,
-		     char *to,
+		     const char *to,
 		     char *room,
 		     const char *text, 
 		     int format_type,
@@ -122,14 +122,17 @@ void quickie_message(const char *from,
 
 void flood_protect_quickie_message(const char *from,
 				   const char *fromaddr,
-				   char *to,
+				   const char *to,
 				   char *room,
 				   const char *text, 
 				   int format_type,
 				   const char *subject,
 				   int nCriterions,
 				   const char **CritStr,
-				   long *CritStrLen);
+				   long *CritStrLen,
+				   long ccid,
+				   long ioid,
+				   time_t NOW);
 
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);
@@ -160,6 +163,8 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 			unsigned int flags		/* Internal save flags */
 );
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
+struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg);
+void CtdlMsgSetCM_Fields(struct CtdlMessage *Msg, const char which, const char *buf, long length);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void CtdlFreeMessageContents(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
@@ -168,11 +173,11 @@ void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
 			int do_repl_check, struct CtdlMessage *supplied_msg, int suppress_refcount_adj);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
-char *CtdlReadMessageBody(char *terminator, long tlen, size_t maxlen, char *exist, int crlf, int *sock);
+char *CtdlReadMessageBody(char *terminator, long tlen, size_t maxlen, StrBuf *exist, int crlf, int *sock);
 StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 			       long tlen,
 			       size_t maxlen,		/* maximum message length */
-			       char *exist,		/* if non-null, append to it;
+			       StrBuf *exist,		/* if non-null, append to it;
 							   exist is ALWAYS freed  */
 			       int crlf,		/* CRLF newlines instead of LF */
 			       int *sock		/* socket handle or 0 for this session's client socket */
@@ -263,7 +268,7 @@ ReadAsyncMsg *NewAsyncMsg(const char *terminator,	/* token signalling EOT */
 			  long tlen,
 			  size_t expectlen,             /* if we expect a message, how long should it be? */
 			  size_t maxlen,		/* maximum message length */
-			  char *exist,			/* if non-null, append to it;
+			  StrBuf *exist,		/* if non-null, append to it;
 						   	   exist is ALWAYS freed  */
 			  long eLen,            	/* length of exist */
 			  int crlf			/* CRLF newlines instead of LF */

@@ -278,12 +278,13 @@ void room_sanity_check(struct ctdlroom *qrbuf)
 /*
  * CtdlGetRoom()  -  retrieve room data from disk
  */
-int CtdlGetRoom(struct ctdlroom *qrbuf, char *room_name)
+int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name)
 {
 	struct cdbdata *cdbqr;
 	char lowercase_name[ROOMNAMELEN];
 	char personal_lowercase_name[ROOMNAMELEN];
-	char *dptr, *sptr, *eptr;
+	const char *sptr;
+	char *dptr, *eptr;
 
 	dptr = lowercase_name;
 	sptr = room_name;
@@ -565,8 +566,7 @@ void lputfloor(struct floor *flbuf, int floor_num)
 /* 
  *  Traverse the room file...
  */
-void CtdlForEachRoom(void (*CallBack) (struct ctdlroom *EachRoom, void *out_data),
-		void *in_data)
+void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 {
 	struct ctdlroom qrbuf;
 	struct cdbdata *cdbqr;
@@ -582,7 +582,41 @@ void CtdlForEachRoom(void (*CallBack) (struct ctdlroom *EachRoom, void *out_data
 		cdb_free(cdbqr);
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE) {
-			(*CallBack)(&qrbuf, in_data);
+			CB(&qrbuf, in_data);
+		}
+	}
+}
+
+/* 
+ *  Traverse the room file...
+ */
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
+			   void *in_data,
+			   RoomNetCfg filter)
+{
+	struct ctdlroom qrbuf;
+	struct cdbdata *cdbqr;
+
+	cdb_rewind(CDB_ROOMS);
+
+	while (cdbqr = cdb_next_item(CDB_ROOMS), cdbqr != NULL) {
+		memset(&qrbuf, 0, sizeof(struct ctdlroom));
+		memcpy(&qrbuf, cdbqr->ptr,
+		       ((cdbqr->len > sizeof(struct ctdlroom)) ?
+			sizeof(struct ctdlroom) : cdbqr->len)
+		);
+		cdb_free(cdbqr);
+		room_sanity_check(&qrbuf);
+		if (qrbuf.QRflags & QR_INUSE)
+		{
+			OneRoomNetCfg* RNCfg;
+			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
+			if ((RNCfg != NULL) &&
+			    ((filter == maxRoomNetCfg) ||
+			     (RNCfg->NetConfigs[filter] != NULL)))
+			{
+				CB(&qrbuf, in_data, RNCfg);
+			}
 		}
 	}
 }
@@ -625,6 +659,7 @@ int sort_msglist_cmp(const void *m1, const void *m2) {
 int sort_msglist(long listptrs[], int oldcount)
 {
 	int numitems;
+	int i = 0;
 
 	numitems = oldcount;
 	if (numitems < 2) {
@@ -635,9 +670,12 @@ int sort_msglist(long listptrs[], int oldcount)
 	qsort(listptrs, numitems, sizeof(long), sort_msglist_cmp);
 
 	/* and yank any nulls */
-	while ((numitems > 0) && (listptrs[0] == 0L)) {
-		memmove(&listptrs[0], &listptrs[1], (sizeof(long) * (numitems - 1)));
-		--numitems;
+	while ((i < numitems) && (listptrs[i] == 0L)) i++;
+
+	if (i > 0)
+	{
+		memmove(&listptrs[0], &listptrs[i], (sizeof(long) * (numitems - i)));
+		numitems-=i;
 	}
 
 	return (numitems);
@@ -1670,7 +1708,7 @@ void cmd_seta(char *new_ra)
  */
 void cmd_rinf(char *gargs)
 {
-	char filename[128];
+	char filename[PATH_MAX];
 	char buf[SIZ];
 	FILE *info_fp;
 

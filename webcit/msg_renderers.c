@@ -51,6 +51,7 @@ void DestroyMessageSummary(void *vMsg)
 	FreeStrBuf(&Msg->AllRcpt);
 	FreeStrBuf(&Msg->Room);
 	FreeStrBuf(&Msg->Rfca);
+	FreeStrBuf(&Msg->EnvTo);
 	FreeStrBuf(&Msg->OtherNode);
 
 	DeleteHash(&Msg->Attachments);	/* list of Attachments */
@@ -484,6 +485,21 @@ int Conditional_MAIL_SUMM_OTHERNODE(StrBuf *Target, WCTemplputParams *TP)
 	return StrLength(Msg->OtherNode) > 0;
 }
 
+void examine_nvto(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
+	FreeStrBuf(&Msg->EnvTo);
+	Msg->EnvTo = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_2_Utf8(Msg->EnvTo, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
+}
+
 
 void examine_rcpt(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -571,8 +587,9 @@ void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, WCTemplputParams *TP)
 
 
 
-void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	const StrBuf *TemplateMime;
 
 	if (Mime->Data == NULL) 
@@ -593,8 +610,9 @@ void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset
 */
 }
 
-void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	wcsession *WCC = WC;
 	if (StrLength(Mime->Data) == 0)
 		MimeLoadData(Mime);
@@ -619,8 +637,9 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 
 }
 
-void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MIME_ICS(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	if (StrLength(Mime->Data) == 0) {
 		MimeLoadData(Mime);
 	}
@@ -711,8 +730,10 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 }
 
 
-void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
+void evaluate_mime_part(StrBuf *Target, WCTemplputParams *TP)
 {
+	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	void *vMimeRenderer;
 
 	/* just print the root-node */
@@ -849,7 +870,7 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 				Hdr = (headereval*)vHdr;
 				Hdr->evaluator(Msg, Value, FoundCharset);
 			}
-			else syslog(1, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
+			else syslog(LOG_WARNING, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
 		}
 		FreeStrBuf(&Token);
 		FreeStrBuf(&Value);
@@ -956,23 +977,25 @@ void tmplput_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_variformat(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
 	/* Messages in legacy Citadel variformat get handled thusly... */
-	StrBuf *Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
-	FmOut(Target, "JUSTIFY", Mime->Data);
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
+	StrBuf *TTarget = NewStrBufPlain(NULL, StrLength(Mime->Data));
+	FmOut(TTarget, "JUSTIFY", Mime->Data);
 	FreeStrBuf(&Mime->Data);
-	Mime->Data = Target;
+	Mime->Data = TTarget;
 }
 
-void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_text_plain(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;
 	StrBuf *Line;
 	StrBuf *Line1;
 	StrBuf *Line2;
-	StrBuf *Target;
+	StrBuf *TTarget;
 	long Linecount;
 	long nEmptyLines;
 	int bn = 0;
@@ -1010,7 +1033,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		else {
 			ctdl_iconv_open("UTF-8", ChrPtr(cs), &ic);
 			if (ic == (iconv_t)(-1) ) {
-				syslog(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
+				syslog(LOG_WARNING, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
 					__FILE__, __LINE__, ChrPtr(Mime->Charset), strerror(errno));
 			}
 		}
@@ -1019,7 +1042,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	Line = NewStrBufPlain(NULL, SIZ);
 	Line1 = NewStrBufPlain(NULL, SIZ);
 	Line2 = NewStrBufPlain(NULL, SIZ);
-	Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
+	TTarget = NewStrBufPlain(NULL, StrLength(Mime->Data));
 	Linecount = 0;
 	nEmptyLines = 0;
 	if (StrLength(Mime->Data) > 0) 
@@ -1046,26 +1069,26 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 			if (StrLength(Line) == 0) {
 				if (Linecount == 0)
 					continue;
-				StrBufAppendBufPlain(Target, HKEY("<tt></tt><br>\n"), 0);
+				StrBufAppendBufPlain(TTarget, HKEY("<tt></tt><br>\n"), 0);
 
 				nEmptyLines ++;
 				continue;
 			}
 			nEmptyLines = 0;
 			for (i = bn; i < bq; i++)				
-				StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
+				StrBufAppendBufPlain(TTarget, HKEY("<blockquote>"), 0);
 			for (i = bq; i < bn; i++)				
-				StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
+				StrBufAppendBufPlain(TTarget, HKEY("</blockquote>"), 0);
 #ifdef HAVE_ICONV
 			if (ConvertIt) {
 				StrBufConvert(Line, Line1, &ic);
 			}
 #endif
-			StrBufAppendBufPlain(Target, HKEY("<tt>"), 0);
+			StrBufAppendBufPlain(TTarget, HKEY("<tt>"), 0);
 			UrlizeText(Line1, Line, Line2);
 
-			StrEscAppend(Target, Line1, NULL, 0, 0);
-			StrBufAppendBufPlain(Target, HKEY("</tt><br>\n"), 0);
+			StrEscAppend(TTarget, Line1, NULL, 0, 0);
+			StrBufAppendBufPlain(TTarget, HKEY("</tt><br>\n"), 0);
 			bn = bq;
 			Linecount ++;
 		}
@@ -1073,11 +1096,11 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	       (BufPtr != NULL));
 
 	if (nEmptyLines > 0)
-		StrBufCutRight(Target, nEmptyLines * (sizeof ("<tt></tt><br>\n") - 1));
+		StrBufCutRight(TTarget, nEmptyLines * (sizeof ("<tt></tt><br>\n") - 1));
 	for (i = 0; i < bn; i++)				
-		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
+		StrBufAppendBufPlain(TTarget, HKEY("</blockquote>"), 0);
 
-	StrBufAppendBufPlain(Target, HKEY("</i><br>"), 0);
+	StrBufAppendBufPlain(TTarget, HKEY("</i><br>"), 0);
 #ifdef HAVE_ICONV
 	if (ic != (iconv_t)(-1) ) {
 		iconv_close(ic);
@@ -1085,7 +1108,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 #endif
 
 	FreeStrBuf(&Mime->Data);
-	Mime->Data = Target;
+	Mime->Data = TTarget;
 	FlushStrBuf(Mime->ContentType);
 	StrBufAppendBufPlain(Mime->ContentType, HKEY("text/html"), 0);
 	FlushStrBuf(Mime->Charset);
@@ -1095,8 +1118,9 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	FreeStrBuf(&Line2);
 }
 
-void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_html(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	StrBuf *Buf;
 
 	if (StrLength(Mime->Data) == 0)
@@ -1113,8 +1137,9 @@ void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCh
 	Mime->Data = Buf;
 }
 
-void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+void render_MAIL_UNKNOWN(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	/* Unknown weirdness */
 	FlushStrBuf(Mime->Data);
 	StrBufAppendBufPlain(Mime->Data, _("I don't know how to display "), -1, 0);
@@ -1195,7 +1220,7 @@ void tmplput_MIME_Data(StrBuf *Target, WCTemplputParams *TP)
 {
 	wc_mime_attachment *mime = (wc_mime_attachment*) CTX(CTX_MIME_ATACH);
 	if (mime->Renderer != NULL)
-		mime->Renderer->f(mime, NULL, NULL);
+		mime->Renderer->f(Target, TP, NULL);
 	StrBufAppendTemplate(Target, TP, mime->Data, 0);
 	/* TODO: check whether we need to load it now? */
 }
@@ -1517,22 +1542,22 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  NULL, CTX_NONE);
 	RegisterNamespace("MAIL:EDITTEXT", 1, 2, tmplput_EDIT_MAIL_BODY,  NULL, CTX_NONE);
 	RegisterNamespace("MAIL:EDITWIKI", 1, 2, tmplput_EDIT_WIKI_BODY,  NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:CCCC"), 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:REPLYTO"), 0, Conditional_MAIL_SUMM_REPLYTO,  CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:SUBJECT"), 0, Conditional_MAIL_SUMM_SUBJECT, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:ANON"), 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:TO"), 0, Conditional_MAIL_SUMM_TO, CTX_MAILSUM);	
-	RegisterConditional(HKEY("COND:MAIL:SUBJ"), 0, Conditional_MAIL_SUMM_SUBJ, CTX_MAILSUM);	
+	RegisterConditional("COND:MAIL:SUMM:RFCA", 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:CCCC", 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:REPLYTO", 0, Conditional_MAIL_SUMM_REPLYTO,  CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:UNREAD", 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:H_NODE", 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:OTHERNODE", 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:SUMM:SUBJECT", 0, Conditional_MAIL_SUMM_SUBJECT, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:ANON", 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:TO", 0, Conditional_MAIL_SUMM_TO, CTX_MAILSUM);	
+	RegisterConditional("COND:MAIL:SUBJ", 0, Conditional_MAIL_SUMM_SUBJ, CTX_MAILSUM);	
 
 	/* do we have mimetypes to iterate over? */
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH"), 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:SUBMESSAGES"), 0, Conditional_MAIL_MIME_SUBMESSAGES, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:LINKS"), 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:ATT"), 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH", 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 0, Conditional_MAIL_MIME_SUBMESSAGES, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH:LINKS", 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
+	RegisterConditional("COND:MAIL:MIME:ATTACH:ATT", 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:SUBMESSAGES", 0, NULL, iterate_get_mime_Submessages, 
@@ -1565,10 +1590,10 @@ InitModule_MSGRENDERERS
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 0, 150);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard, 1, 201);
 	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard, 1, 200);
-/*
+//*
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS, 1, 501);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS, 1, 500);
-*/
+//*/
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat, 1, 2);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain, 1, 3);
 	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain, 1, 1);
@@ -1589,6 +1614,7 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("rfca"), examine_rfca, 0);
 	RegisterMsgHdr(HKEY("node"), examine_node, 0);
 	RegisterMsgHdr(HKEY("rcpt"), examine_rcpt, 0);
+	RegisterMsgHdr(HKEY("nvto"), examine_nvto, 0);
 	RegisterMsgHdr(HKEY("time"), examine_time, 0);
 	RegisterMsgHdr(HKEY("part"), examine_mime_part, 0);
 	RegisterMsgHdr(HKEY("text"), examine_text, 1);

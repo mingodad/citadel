@@ -32,6 +32,38 @@ typedef struct AsyncIO AsyncIO;
 typedef struct CitContext CitContext;
 #endif
 
+typedef enum __eIOState { 
+	eDBQ,
+	eQDBNext,
+	eDBAttach,
+	eDBNext,
+	eDBStop,
+	eDBX,
+	eDBTerm,
+	eIOQ,
+	eIOAttach,
+	eIOConnectSock,
+	eIOAbort,
+	eIOTimeout,
+	eIOConnfail,
+	eIOConnfailNow,
+	eIOConnNow,
+	eIOConnWait,
+	eCurlQ,
+	eCurlStart,
+	eCurlShutdown,
+	eCurlNewIO,
+	eCurlGotIO,
+	eCurlGotData,
+	eCurlGotStatus,
+	eCaresStart,
+	eCaresDoneIO,
+	eCaresFinished,
+	eCaresX,
+	eKill,
+	eExit
+}eIOState;
+
 typedef enum _eNextState {
 	eSendDNSQuery,
 	eReadDNSReply,
@@ -51,6 +83,8 @@ typedef enum _eNextState {
 	eTerminateConnection,
 	eAbort
 }eNextState;
+
+void SetEVState(AsyncIO *IO, eIOState State);
 
 typedef eNextState (*IO_CallBack)(AsyncIO *IO);
 typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
@@ -90,6 +124,7 @@ typedef struct _evcurl_request_data
 	CURL			*chnd;
 	struct curl_slist	*headers;
 	char			 errdesc[CURL_ERROR_SIZE];
+	const char		*CurlError;
 
 	int			 attached;
 
@@ -244,9 +279,11 @@ void FreeAsyncIOContents(AsyncIO *IO);
 
 eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
+eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 void StopDBWatchers(AsyncIO *IO);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 eNextState QueueCurlContext(AsyncIO *IO);
+eNextState DBQueueEventContext(AsyncIO *IO, IO_CallBack CB);
 
 eNextState EvConnectSock(AsyncIO *IO,
 			 double conn_timeout,
@@ -308,6 +345,7 @@ int InitcURLIOStruct(AsyncIO *IO,
 void KillAsyncIOContext(AsyncIO *IO);
 void StopCurlWatchers(AsyncIO *IO);
 
+eNextState CurlQueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 
 eNextState ReAttachIO(AsyncIO *IO,
 		      void *pData,

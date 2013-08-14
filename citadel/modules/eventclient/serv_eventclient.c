@@ -147,6 +147,7 @@ gotstatus(int nnrun)
 					      IO);
 				continue;
 			}
+			SetEVState(IO, eCurlGotStatus);
 
 			EVCURLM_syslog(LOG_DEBUG, "request complete\n");
 
@@ -160,9 +161,15 @@ gotstatus(int nnrun)
 				EVCURL_syslog(LOG_ERR,
 					      "error description: %s\n",
 					      IO->HttpReq.errdesc);
+				IO->HttpReq.CurlError = curl_easy_strerror(sta);
 				EVCURL_syslog(LOG_ERR,
 					      "error performing request: %s\n",
-					      curl_easy_strerror(sta));
+					      IO->HttpReq.CurlError);
+				if (sta == CURLE_OPERATION_TIMEDOUT)
+				{
+					IO->SendBuf.fd = 0;
+					IO->RecvBuf.fd = 0;
+				}
 			}
 			sta = curl_easy_getinfo(chnd,
 						CURLINFO_RESPONSE_CODE,
@@ -186,15 +193,12 @@ gotstatus(int nnrun)
 					      "%s\n",
 					      curl_multi_strerror(msta));
 
-		       ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
+			ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
 
 			IO->HttpReq.attached = 0;
 			switch(IO->SendDone(IO))
 			{
 			case eDBQuery:
-				curl_easy_cleanup(IO->HttpReq.chnd);
-				IO->HttpReq.chnd = NULL;
-				break;
 			case eSendDNSQuery:
 			case eReadDNSReply:
 			case eConnect:
@@ -205,8 +209,6 @@ gotstatus(int nnrun)
 			case eReadMore:
 			case eReadPayload:
 			case eReadFile:
-				curl_easy_cleanup(IO->HttpReq.chnd);
-				IO->HttpReq.chnd = NULL;
 				break;
 			case eTerminateConnection:
 			case eAbort:
@@ -272,9 +274,11 @@ got_out(struct ev_loop *loop, ev_io *ioev, int events)
 }
 
 static size_t
-gotdata(void *data, size_t size, size_t nmemb, void *cglobal) {
+gotdata(void *data, size_t size, size_t nmemb, void *cglobal)
+{
 	AsyncIO *IO = (AsyncIO*) cglobal;
 
+	SetEVState(IO, eCurlGotData);
 	if (IO->HttpReq.ReplyData == NULL)
 	{
 		IO->HttpReq.ReplyData = NewStrBufPlain(NULL, SIZ);
@@ -323,6 +327,7 @@ gotwatchsock(CURL *easy,
 			return -1;
 		}
 		IO = (AsyncIO *) f;
+		SetEVState(IO, eCurlNewIO);
 		EVCURL_syslog(LOG_DEBUG,
 			      "EVCURL: got socket for URL: %s\n",
 			      IO->ConnectMe->PlainUrl);
@@ -338,6 +343,7 @@ gotwatchsock(CURL *easy,
 		curl_multi_assign(mhnd, fd, IO);
 	}
 
+	SetEVState(IO, eCurlGotIO);
 	IO->Now = ev_now(event_base);
 
 	Action = "";
@@ -495,6 +501,8 @@ static void IOcurl_abort_shutdown_callback(struct ev_loop *loop,
 
 	if (IO == NULL)
 		return;
+
+	SetEVState(IO, eCurlShutdown);
 	IO->Now = ev_now(event_base);
 	EVCURL_syslog(LOG_DEBUG, "EVENT Curl: %s\n", __FUNCTION__);
 
@@ -523,6 +531,7 @@ evcurl_handle_start(AsyncIO *IO)
 	CURLcode sta;
 	CURL *chnd;
 
+	SetEVState(IO, eCurlStart);
 	chnd = IO->HttpReq.chnd;
 	EVCURL_syslog(LOG_DEBUG,
 		  "EVCURL: Loading URL: %s\n", IO->ConnectMe->PlainUrl);
@@ -630,6 +639,8 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		}
 		if (h->IO->StartIO == 0.0)
 			h->IO->StartIO = Now;
+
+		SetEVState(h->IO, eIOAttach);
 
 		Ctx = h->IO->CitContext;
 		become_session(Ctx);
@@ -779,6 +790,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 			h->IO->StartDB = Now;
 		h->IO->Now = Now;
 
+		SetEVState(h->IO, eDBAttach);
 		Ctx = h->IO->CitContext;
 		become_session(Ctx);
 		ev_cleanup_start(event_db, &h->IO->db_abort_by_shutdown);

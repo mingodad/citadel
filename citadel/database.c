@@ -89,6 +89,7 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 {
 	if (!IsEmptyStr(msg)) {
 		syslog(LOG_DEBUG, "DB: %s", msg);
+		cit_backtrace();
 	}
 }
 
@@ -97,6 +98,7 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 void cdb_verbose_err(const DB_ENV *dbenv, const char *errpfx, const char *msg)
 {
 	syslog(LOG_ALERT, "DB: %s", msg);
+	cit_backtrace();
 }
 
 
@@ -142,6 +144,7 @@ static void txbegin(DB_TXN ** tid)
 static void dbpanic(DB_ENV * env, int errval)
 {
 	syslog(LOG_EMERG, "bdb(): PANIC: %s", db_strerror(errval));
+	cit_backtrace();
 }
 
 static void cclose(DBC * cursor)
@@ -902,4 +905,86 @@ void cdb_trunc(int cdb)
 			/* txcommit(tid); */
 		}
 	}
+}
+
+int SeentDebugEnabled = 0;
+
+#define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (SeentDebugEnabled != 0))
+#define SEENM_syslog(LEVEL, FORMAT)					\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "IO[%ld]CC[%ld] SEEN[%s][%d] " FORMAT,	\
+			     ioid, ccid, Facility, cType)
+
+time_t CheckIfAlreadySeen(const char *Facility,
+			  StrBuf *guid,
+			  time_t now,
+			  time_t antiexpire,
+			  eCheckType cType,
+			  long ccid,
+			  long ioid)
+{
+	time_t InDBTimeStamp = 0;
+	struct UseTable ut;
+	struct cdbdata *cdbut;
+
+	if (cType != eWrite)
+	{
+		SEENM_syslog(LOG_DEBUG, "Loading");
+		cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
+		if (cdbut != NULL) {
+			memcpy(&ut, cdbut->ptr,
+			       ((cdbut->len > sizeof(struct UseTable)) ?
+				sizeof(struct UseTable) : cdbut->len));
+			InDBTimeStamp = ut.ut_timestamp;
+
+			if (InDBTimeStamp < antiexpire)
+			{
+				SEENM_syslog(LOG_DEBUG, "Found - Not expired.");
+				cdb_free(cdbut);
+				return InDBTimeStamp;
+			}
+			else
+			{
+				SEENM_syslog(LOG_DEBUG, "Found - Expired.");
+				InDBTimeStamp = ut.ut_timestamp;
+				cdb_free(cdbut);
+			}
+		}
+		else
+		{
+			SEENM_syslog(LOG_DEBUG, "not Found");
+		}
+
+		if (cType == eCheckExist)
+			return InDBTimeStamp;
+	}
+
+	memcpy(ut.ut_msgid, SKEY(guid));
+	ut.ut_timestamp = now;
+
+	SEENM_syslog(LOG_DEBUG, "Saving");
+	/* rewrite the record anyway, to update the timestamp */
+	cdb_store(CDB_USETABLE,
+		  SKEY(guid),
+		  &ut, sizeof(struct UseTable) );
+
+	SEENM_syslog(LOG_DEBUG, "Done Saving");
+	return InDBTimeStamp;
+}
+
+
+void LogDebugEnableSeenEnable(const int n)
+{
+	SeentDebugEnabled = n;
+}
+
+CTDL_MODULE_INIT(database)
+{
+	if (!threading)
+	{
+		CtdlRegisterDebugFlagHook(HKEY("SeenDebug"), LogDebugEnableSeenEnable, &SeentDebugEnabled);
+	}
+
+	/* return our module id for the log */
+ 	return "database";
 }

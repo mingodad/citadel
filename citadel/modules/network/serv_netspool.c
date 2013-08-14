@@ -5,18 +5,12 @@
  * Copyright (c) 2000-2012 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ *  it under the terms of the GNU General Public License, version 3.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
  * This is a fairly high-level type of critical section.  It ensures that no
@@ -81,340 +75,321 @@
 #include "file_ops.h"
 #include "citadel_dirs.h"
 #include "threads.h"
-
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
-
 #include "context.h"
-#include "netconfig.h"
-#include "netspool.h"
-#include "netmail.h"
+
 #include "ctdl_module.h"
 
-
-	
-
-int read_spoolcontrol_file(SpoolControl **scc, char *filename)
-{
-	FILE *fp;
-	char instr[SIZ];
-	char buf[SIZ];
-	char nodename[256];
-	char roomname[ROOMNAMELEN];
-	size_t miscsize = 0;
-	size_t linesize = 0;
-	int skipthisline = 0;
-	namelist *nptr = NULL;
-	maplist *mptr = NULL;
-	SpoolControl *sc;
-
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
-		return 0;
-	}
-	sc = malloc(sizeof(SpoolControl));
-	memset(sc, 0, sizeof(SpoolControl));
-	*scc = sc;
-
-	while (fgets(buf, sizeof buf, fp) != NULL) {
-		buf[strlen(buf)-1] = 0;
-
-		extract_token(instr, buf, 0, '|', sizeof instr);
-		if (!strcasecmp(instr, strof(lastsent))) {
-			sc->lastsent = extract_long(buf, 1);
-		}
-		else if (!strcasecmp(instr, strof(listrecp))) {
-			nptr = (namelist *)
-				malloc(sizeof(namelist));
-			nptr->next = sc->listrecps;
-			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc->listrecps = nptr;
-		}
-		else if (!strcasecmp(instr, strof(participate))) {
-			nptr = (namelist *)
-				malloc(sizeof(namelist));
-			nptr->next = sc->participates;
-			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc->participates = nptr;
-		}
-		else if (!strcasecmp(instr, strof(digestrecp))) {
-			nptr = (namelist *)
-				malloc(sizeof(namelist));
-			nptr->next = sc->digestrecps;
-			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
-			sc->digestrecps = nptr;
-		}
-		else if (!strcasecmp(instr, strof(ignet_push_share))) {
-			extract_token(nodename, buf, 1, '|', sizeof nodename);
-			extract_token(roomname, buf, 2, '|', sizeof roomname);
-			mptr = (maplist *) malloc(sizeof(maplist));
-			mptr->next = sc->ignet_push_shares;
-			strcpy(mptr->remote_nodename, nodename);
-			strcpy(mptr->remote_roomname, roomname);
-			sc->ignet_push_shares = mptr;
-		}
-		else {
-			/* Preserve 'other' lines ... *unless* they happen to
-			 * be subscribe/unsubscribe pendings with expired
-			 * timestamps.
-			 */
-			skipthisline = 0;
-			if (!strncasecmp(buf, strof(subpending)"|", 11)) {
-				if (time(NULL) - extract_long(buf, 4) > EXP) {
-					skipthisline = 1;
-				}
-			}
-			if (!strncasecmp(buf, strof(unsubpending)"|", 13)) {
-				if (time(NULL) - extract_long(buf, 3) > EXP) {
-					skipthisline = 1;
-				}
-			}
-
-			if (skipthisline == 0) {
-				linesize = strlen(buf);
-				sc->misc = realloc(sc->misc,
-					(miscsize + linesize + 2) );
-				sprintf(&sc->misc[miscsize], "%s\n", buf);
-				miscsize = miscsize + linesize + 1;
-			}
-		}
+#include "netspool.h"
+#include "netmail.h"
 
 
-	}
-	fclose(fp);
-	return 1;
-}
+#ifndef DT_UNKNOWN
+#define DT_UNKNOWN     0
+#define DT_DIR         4
+#define DT_REG         8
+#define DT_LNK         10
 
-void free_spoolcontrol_struct(SpoolControl **scc)
-{
-	SpoolControl *sc;
-	namelist *nptr = NULL;
-	maplist *mptr = NULL;
-
-	sc = *scc;
-	while (sc->listrecps != NULL) {
-		nptr = sc->listrecps->next;
-		free(sc->listrecps);
-		sc->listrecps = nptr;
-	}
-	/* Do the same for digestrecps */
-	while (sc->digestrecps != NULL) {
-		nptr = sc->digestrecps->next;
-		free(sc->digestrecps);
-		sc->digestrecps = nptr;
-	}
-	/* Do the same for participates */
-	while (sc->participates != NULL) {
-		nptr = sc->participates->next;
-		free(sc->participates);
-		sc->participates = nptr;
-	}
-	while (sc->ignet_push_shares != NULL) {
-		mptr = sc->ignet_push_shares->next;
-		free(sc->ignet_push_shares);
-		sc->ignet_push_shares = mptr;
-	}
-	free(sc->misc);
-	free(sc);
-	*scc=NULL;
-}
-
-int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
-{
-	char tempfilename[PATH_MAX];
-	int TmpFD;
-	SpoolControl *sc;
-	namelist *nptr = NULL;
-	maplist *mptr = NULL;
-	long len;
-	time_t unixtime;
-	struct timeval tv;
-	long reltid; /* if we don't have SYS_gettid, use "random" value */
-	StrBuf *Cfg;
-	int rc;
-
-	len = strlen(filename);
-	memcpy(tempfilename, filename, len + 1);
-
-
-#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
-	reltid = syscall(SYS_gettid);
+#define IFTODT(mode)   (((mode) & 0170000) >> 12)
+#define DTTOIF(dirtype)        ((dirtype) << 12)
 #endif
-	gettimeofday(&tv, NULL);
-	/* Promote to time_t; types differ on some OSes (like darwin) */
-	unixtime = tv.tv_sec;
 
-	sprintf(tempfilename + len, ".%ld-%ld", reltid, unixtime);
-	sc = *scc;
-	errno = 0;
-	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
-	Cfg = NewStrBuf();
-	if ((TmpFD < 0) || (errno != 0)) {
-		syslog(LOG_CRIT, "ERROR: cannot open %s: %s\n",
-			filename, strerror(errno));
-		free_spoolcontrol_struct(scc);
-		unlink(tempfilename);
-	}
-	else {
-		fchown(TmpFD, config.c_ctdluid, 0);
-		StrBufAppendPrintf(Cfg, "lastsent|%ld\n", sc->lastsent);
-		
-		/* Write out the listrecps while freeing from memory at the
-		 * same time.  Am I clever or what?  :)
-		 */
-		while (sc->listrecps != NULL) {
-		    StrBufAppendPrintf(Cfg, "listrecp|%s\n", sc->listrecps->name);
-			nptr = sc->listrecps->next;
-			free(sc->listrecps);
-			sc->listrecps = nptr;
-		}
-		/* Do the same for digestrecps */
-		while (sc->digestrecps != NULL) {
-			StrBufAppendPrintf(Cfg, "digestrecp|%s\n", sc->digestrecps->name);
-			nptr = sc->digestrecps->next;
-			free(sc->digestrecps);
-			sc->digestrecps = nptr;
-		}
-		/* Do the same for participates */
-		while (sc->participates != NULL) {
-			StrBufAppendPrintf(Cfg, "participate|%s\n", sc->participates->name);
-			nptr = sc->participates->next;
-			free(sc->participates);
-			sc->participates = nptr;
-		}
-		while (sc->ignet_push_shares != NULL) {
-			StrBufAppendPrintf(Cfg, "ignet_push_share|%s", sc->ignet_push_shares->remote_nodename);
-			if (!IsEmptyStr(sc->ignet_push_shares->remote_roomname)) {
-				StrBufAppendPrintf(Cfg, "|%s", sc->ignet_push_shares->remote_roomname);
-			}
-			StrBufAppendPrintf(Cfg, "\n");
-			mptr = sc->ignet_push_shares->next;
-			free(sc->ignet_push_shares);
-			sc->ignet_push_shares = mptr;
-		}
-		if (sc->misc != NULL) {
-			StrBufAppendBufPlain(Cfg, sc->misc, -1, 0);
-		}
-		free(sc->misc);
 
-		rc = write(TmpFD, ChrPtr(Cfg), StrLength(Cfg));
-		if ((rc >=0 ) && (rc == StrLength(Cfg))) 
-		{
-			close(TmpFD);
-			rename(tempfilename, filename);
-		}
-		else {
-			syslog(LOG_EMERG, 
-				      "unable to write %s; [%s]; not enough space on the disk?\n", 
-				      tempfilename, 
-				      strerror(errno));
-			close(TmpFD);
-			unlink(tempfilename);
-		}
-		FreeStrBuf(&Cfg);
-		free(sc);
-		*scc=NULL;
-	}
-	return 1;
-}
-int is_recipient(SpoolControl *sc, const char *Name)
+void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
 {
-	namelist *nptr;
-	size_t len;
+	RoomNetCfgLine *nptr;
+	nptr = (RoomNetCfgLine *)
+		malloc(sizeof(RoomNetCfgLine));
+	memset(nptr, 0, sizeof(RoomNetCfgLine));
+	OneRNCFG->lastsent = extract_long(LinePos, 0);
+	OneRNCFG->NetConfigs[ThisOne->C] = nptr;
+}
 
-	len = strlen(Name);
-	nptr = sc->listrecps;
-	while (nptr != NULL) {
-		if (strncmp(Name, nptr->name, len)==0)
-			return 1;
-		nptr = nptr->next;
-	}
-	/* Do the same for digestrecps */
-	nptr = sc->digestrecps;
-	while (nptr != NULL) {
-		if (strncmp(Name, nptr->name, len)==0)
-			return 1;
-		nptr = nptr->next;
-	}
-	/* Do the same for participates */
-	nptr = sc->participates;
-	while (nptr != NULL) {
-		if (strncmp(Name, nptr->name, len)==0)
-			return 1;
-		nptr = nptr->next;
-	}
-	return 0;
+void ParseRoomAlias(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg)
+{
+	if (rncfg->Sender != NULL)
+		return;
+
+	ParseGeneric(ThisOne, Line, LinePos, rncfg);
+	rncfg->Sender = NewStrBufDup(rncfg->NetConfigs[roommailalias]->Value[0]);
+}
+
+void ParseSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
+{
+	if (time(NULL) - extract_long(LinePos, 3) > EXP) 
+		return; /* expired subscription... */
+
+	ParseGeneric(ThisOne, Line, LinePos, OneRNCFG);
+}
+void ParseUnSubPendingLine(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
+{
+	if (time(NULL) - extract_long(LinePos, 2) > EXP)
+		return; /* expired subscription... */
+
+	ParseGeneric(ThisOne, Line, LinePos, OneRNCFG);
 }
 
 
-/*
- * Batch up and send all outbound traffic from the current room
- */
-void network_spoolout_room(RoomProcList *room_to_spool, 		       
-			   HashList *working_ignetcfg,
-			   HashList *the_netmap)
+void SerializeLastSent(const CfgLineType *ThisOne, StrBuf *OutputBuffer, OneRoomNetCfg *RNCfg, RoomNetCfgLine *data)
 {
-	char buf[SIZ];
-	char filename[PATH_MAX];
-	SpoolControl *sc;
+	StrBufAppendBufPlain(OutputBuffer, CKEY(ThisOne->Str), 0);
+	StrBufAppendPrintf(OutputBuffer, "|%ld\n", RNCfg->lastsent);
+}
+
+void DeleteLastSent(const CfgLineType *ThisOne, RoomNetCfgLine **data)
+{
+	free(*data);
+	*data = NULL;
+}
+
+static const RoomNetCfg SpoolCfgs [4] = {
+	listrecp,
+	digestrecp,
+	participate,
+	ignet_push_share
+};
+
+static const long SpoolCfgsCopyN [4] = {
+	1, 1, 1, 2
+};
+
+int HaveSpoolConfig(OneRoomNetCfg* RNCfg)
+{
 	int i;
+	int interested = 0;
+	for (i=0; i < 4; i++) if (RNCfg->NetConfigs[SpoolCfgs[i]] == NULL) interested = 1;
+	return interested;
+}
+
+
+
+void InspectQueuedRoom(SpoolControl **pSC,
+		       RoomProcList *room_to_spool,     
+		       HashList *working_ignetcfg,
+		       HashList *the_netmap)
+{
+	SpoolControl *sc;
+	int i = 0;
+
+	sc = (SpoolControl*)malloc(sizeof(SpoolControl));
+	memset(sc, 0, sizeof(SpoolControl));
+	sc->RNCfg = room_to_spool->OneRNCfg;
+	sc->lastsent = room_to_spool->lastsent;
+	sc->working_ignetcfg = working_ignetcfg;
+	sc->the_netmap = the_netmap;
 
 	/*
 	 * If the room doesn't exist, don't try to perform its networking tasks.
 	 * Normally this should never happen, but once in a while maybe a room gets
 	 * queued for networking and then deleted before it can happen.
 	 */
-	if (CtdlGetRoom(&CC->room, room_to_spool->name) != 0) {
+	if (CtdlGetRoom(&sc->room, room_to_spool->name) != 0) {
 		syslog(LOG_CRIT, "ERROR: cannot load <%s>\n", room_to_spool->name);
+		free(sc);
 		return;
 	}
-
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-	begin_critical_section(S_NETCONFIGS);
-
-	/* Only do net processing for rooms that have netconfigs */
-	if (!read_spoolcontrol_file(&sc, filename))
+	if (sc->room.QRhighest <= sc->lastsent)
 	{
-		end_critical_section(S_NETCONFIGS);
+		syslog(LOG_DEBUG, "nothing to do for <%s>\n", room_to_spool->name);
+		free(sc);
 		return;
 	}
-	syslog(LOG_INFO, "Networking started for <%s>\n", CC->room.QRname);
 
-	sc->working_ignetcfg = working_ignetcfg;
-	sc->the_netmap = the_netmap;
+	if (sc->RNCfg == NULL)
+		sc->RNCfg = CtdlGetNetCfgForRoom(sc->room.QRnumber);
+
+	if (!HaveSpoolConfig(sc->RNCfg))
+	{
+		free(sc);
+		/* nothing to do for this room... */
+		return;
+	}
+
+	/* Now lets remember whats needed for the actual work... */
+
+	for (i=0; i < 4; i++)
+	{
+		aggregate_recipients(&sc->Users[SpoolCfgs[i]],
+				     SpoolCfgs[i],
+				     sc->RNCfg,
+				     SpoolCfgsCopyN[i]);
+	}
+	
+	if (StrLength(sc->RNCfg->Sender) > 0)
+		sc->Users[roommailalias] = NewStrBufDup(sc->RNCfg->Sender);
+
+	sc->next = *pSC;
+	*pSC = sc;
+
+}
+
+void CalcListID(SpoolControl *sc)
+{
+	StrBuf *RoomName;
+	const char *err;
+	int fd;
+	struct CitContext *CCC = CC;
+	char filename[PATH_MAX];
+#define MAX_LISTIDLENGTH 150
+
+	assoc_file_name(filename, sizeof filename, &sc->room, ctdl_info_dir);
+	fd = open(filename, 0);
+
+	if (fd > 0) {
+		struct stat stbuf;
+
+		if ((fstat(fd, &stbuf) == 0) &&
+		    (stbuf.st_size > 0))
+		{
+			sc->RoomInfo = NewStrBufPlain(NULL, stbuf.st_size + 1);
+			StrBufReadBLOB(sc->RoomInfo, &fd, 0, stbuf.st_size, &err);
+		}
+		close(fd);
+	}
+
+	sc->ListID = NewStrBufPlain(NULL, 1024);
+	if (StrLength(sc->RoomInfo) > 0)
+	{
+		const char *Pos = NULL;
+		StrBufSipLine(sc->ListID, sc->RoomInfo, &Pos);
+
+		if (StrLength(sc->ListID) > MAX_LISTIDLENGTH)
+		{
+			StrBufCutAt(sc->ListID, MAX_LISTIDLENGTH, NULL);
+			StrBufAppendBufPlain(sc->ListID, HKEY("..."), 0);
+		}
+		StrBufAsciify(sc->ListID, ' ');
+	}
+	else
+	{
+		StrBufAppendBufPlain(sc->ListID, CCC->room.QRname, -1, 0);
+	}
+
+	StrBufAppendBufPlain(sc->ListID, HKEY("<"), 0);
+	RoomName = NewStrBufPlain (sc->room.QRname, -1);
+	StrBufAsciify(RoomName, '_');
+	StrBufReplaceChars(RoomName, ' ', '_');
+
+	if (StrLength(sc->Users[roommailalias]) > 0)
+	{
+		long Pos;
+		const char *AtPos;
+
+		Pos = StrLength(sc->ListID);
+		StrBufAppendBuf(sc->ListID, sc->Users[roommailalias], 0);
+		AtPos = strchr(ChrPtr(sc->ListID) + Pos, '@');
+
+		if (AtPos != NULL)
+		{
+			StrBufPeek(sc->ListID, AtPos, 0, '.');
+		}
+	}
+	else
+	{
+		StrBufAppendBufPlain(sc->ListID, HKEY("room_"), 0);
+		StrBufAppendBuf(sc->ListID, RoomName, 0);
+		StrBufAppendBufPlain(sc->ListID, HKEY("."), 0);
+		StrBufAppendBufPlain(sc->ListID, config.c_fqdn, -1, 0);
+		/*
+		 * this used to be:
+		 * roomname <Room-Number.list-id.fqdn>
+		 * according to rfc2919.txt it only has to be a uniq identifier
+		 * under the domain of the system; 
+		 * in general MUAs use it to calculate the reply address nowadays.
+		 */
+	}
+	StrBufAppendBufPlain(sc->ListID, HKEY(">"), 0);
+
+	if (StrLength(sc->Users[roommailalias]) == 0)
+	{
+		sc->Users[roommailalias] = NewStrBuf();
+		
+		StrBufAppendBufPlain(sc->Users[roommailalias], HKEY("room_"), 0);
+		StrBufAppendBuf(sc->Users[roommailalias], RoomName, 0);
+		StrBufAppendBufPlain(sc->Users[roommailalias], HKEY("@"), 0);
+		StrBufAppendBufPlain(sc->Users[roommailalias], config.c_fqdn, -1, 0);
+
+		StrBufLowerCase(sc->Users[roommailalias]);
+	}
+
+	FreeStrBuf(&RoomName);
+}
+
+
+/*
+ * Batch up and send all outbound traffic from the current room
+ */
+void network_spoolout_room(SpoolControl *sc)
+{
+	struct CitContext *CCC = CC;
+	char buf[SIZ];
+	int i;
+	long lastsent;
+
+	/*
+	 * If the room doesn't exist, don't try to perform its networking tasks.
+	 * Normally this should never happen, but once in a while maybe a room gets
+	 * queued for networking and then deleted before it can happen.
+	 */
+	memcpy (&CCC->room, &sc->room, sizeof(ctdlroom));
+
+	syslog(LOG_INFO, "Networking started for <%s>\n", CCC->room.QRname);
 
 	/* If there are digest recipients, we have to build a digest */
-	if (sc->digestrecps != NULL) {
+	if (sc->Users[digestrecp] != NULL) {
 		sc->digestfp = tmpfile();
 		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 	}
+
+	CalcListID(sc);
+
+	/* remember where we started... */
+	lastsent = sc->lastsent;
 
 	/* Do something useful */
 	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
 		network_spool_msg, sc);
 
 	/* If we wrote a digest, deliver it and then close it */
-	snprintf(buf, sizeof buf, "room_%s@%s",
-		CC->room.QRname, config.c_fqdn);
+	if (StrLength(sc->Users[roommailalias]) > 0)
+	{
+		long len;
+		len = StrLength(sc->Users[roommailalias]);
+		if (len + 1 > sizeof(buf))
+			len = sizeof(buf) - 1;
+		memcpy(buf, ChrPtr(sc->Users[roommailalias]), len);
+		buf[len] = '\0';
+	}
+	else
+	{
+		snprintf(buf, sizeof buf, "room_%s@%s",
+			 CCC->room.QRname, config.c_fqdn);
+	}
+
 	for (i=0; buf[i]; ++i) {
 		buf[i] = tolower(buf[i]);
 		if (isspace(buf[i])) buf[i] = '_';
 	}
 	if (sc->digestfp != NULL) {
-		fprintf(sc->digestfp,	" -----------------------------------"
-					"------------------------------------"
-					"-------\n"
-					"You are subscribed to the '%s' "
-					"list.\n"
-					"To post to the list: %s\n",
-					CC->room.QRname, buf
+		fprintf(sc->digestfp,
+			" -----------------------------------"
+			"------------------------------------"
+			"-------\n"
+			"You are subscribed to the '%s' "
+			"list.\n"
+			"To post to the list: %s\n",
+			CCC->room.QRname, buf
 		);
 		network_deliver_digest(sc);	/* deliver and close */
 	}
 
 	/* Now rewrite the config file */
-	writenfree_spoolcontrol_file(&sc, filename);
+	if (sc->lastsent != lastsent)
+	{
+		sc->RNCfg = CtdlGetNetCfgForRoom(sc->room.QRnumber);
+
+		sc->RNCfg->lastsent = sc->lastsent;
+		sc->RNCfg->changed = 1;
+	}
 	end_critical_section(S_NETCONFIGS);
 }
 
@@ -424,6 +399,7 @@ void network_spoolout_room(RoomProcList *room_to_spool,
  */
 void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg, HashList *the_netmap, int *netmap_changed)
 {
+	long len;
 	struct CitContext *CCC = CC;
 	StrBuf *Buf = NULL;
 	struct CtdlMessage *msg = NULL;
@@ -462,8 +438,10 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 
 	for (pos = 3; pos < size; ++pos) {
 		field = buffer[pos];
-		msg->cm_fields[field] = strdup(&buffer[pos+1]);
-		pos = pos + strlen(&buffer[(int)pos]);
+		len = strlen(buffer + pos + 1);
+		msg->cm_fields[field] = malloc(len + 1);
+		memcpy (msg->cm_fields[field], buffer+ pos + 1, len + 1);
+		pos = pos + len + 1;
 	}
 
 	/* Check for message routing */
@@ -472,11 +450,11 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 
 			/* route the message */
 			Buf = NewStrBufPlain(msg->cm_fields['D'], -1);
-			if (is_valid_node(&nexthop, 
-					  NULL, 
-					  Buf, 
-					  working_ignetcfg, 
-					  the_netmap) == 0) 
+			if (CtdlIsValidNode(&nexthop, 
+					    NULL, 
+					    Buf, 
+					    working_ignetcfg, 
+					    the_netmap) == 0) 
 			{
 				/* prepend our node to the path */
 				if (msg->cm_fields['P'] != NULL) {
@@ -548,10 +526,10 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 
 	/* Learn network topology from the path */
 	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
-		network_learn_topology(msg->cm_fields['N'], 
-				       msg->cm_fields['P'], 
-				       the_netmap, 
-				       netmap_changed);
+		NetworkLearnTopology(msg->cm_fields['N'], 
+				     msg->cm_fields['P'], 
+				     the_netmap, 
+				     netmap_changed);
 	}
 
 	/* Is the sending node giving us a very persuasive suggestion about
@@ -704,9 +682,12 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	struct CitContext *CCC = CC;
 	DIR *dp;
 	struct dirent *d;
+	struct dirent *filedir_entry;
 	struct stat statbuf;
 	char filename[PATH_MAX];
 	static time_t last_spoolin_mtime = 0L;
+	int d_type = 0;
+        int d_namelen;
 
 	/*
 	 * Check the spoolin directory's modification time.  If it hasn't
@@ -726,8 +707,60 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	dp = opendir(ctdl_netin_dir);
 	if (dp == NULL) return;
 
-	while (d = readdir(dp), d != NULL) {
-		if ((strcmp(d->d_name, ".")) && (strcmp(d->d_name, ".."))) {
+	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
+	if (d == NULL) {
+		closedir(dp);
+		return;
+	}
+
+	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
+	       (filedir_entry != NULL))
+	{
+#ifdef _DIRENT_HAVE_D_NAMLEN
+		d_namelen = filedir_entry->d_namelen;
+
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+		d_type = filedir_entry->d_type;
+#else
+		d_type = DT_UNKNOWN;
+#endif
+		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
+			continue; /* Ignore backup files... */
+
+		if ((d_namelen == 1) && 
+		    (filedir_entry->d_name[0] == '.'))
+			continue;
+
+		if ((d_namelen == 2) && 
+		    (filedir_entry->d_name[0] == '.') &&
+		    (filedir_entry->d_name[1] == '.'))
+			continue;
+
+		if (d_type == DT_UNKNOWN) {
+			struct stat s;
+			char path[PATH_MAX];
+
+			snprintf(path,
+				 PATH_MAX,
+				 "%s/%s", 
+				 ctdl_netin_dir,
+				 filedir_entry->d_name);
+
+			if (lstat(path, &s) == 0) {
+				d_type = IFTODT(s.st_mode);
+			}
+		}
+
+		switch (d_type)
+		{
+		case DT_DIR:
+			break;
+		case DT_LNK: /* TODO: check whether its a file or a directory */
+		case DT_REG:
 			snprintf(filename, 
 				sizeof filename,
 				"%s/%s",
@@ -742,6 +775,7 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	}
 
 	closedir(dp);
+	free(d);
 }
 
 /*
@@ -765,6 +799,8 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	int i;
 	struct stat statbuf;
 	int nFailed = 0;
+	int d_type = 0;
+
 
 	/* Step 1: consolidate files in the outbound queue into one file per neighbor node */
 	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
@@ -784,21 +820,21 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-#ifdef _DIRENT_HAVE_D_NAMELEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 		d_namelen = filedir_entry->d_namelen;
+
 #else
-
-#ifndef DT_UNKNOWN
-#define DT_UNKNOWN     0
-#define DT_DIR         4
-#define DT_REG         8
-#define DT_LNK         10
-
-#define IFTODT(mode)   (((mode) & 0170000) >> 12)
-#define DTTOIF(dirtype)        ((dirtype) << 12)
-#endif
 		d_namelen = strlen(filedir_entry->d_name);
 #endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+		d_type = filedir_entry->d_type;
+#else
+		d_type = DT_UNKNOWN;
+#endif
+		if (d_type == DT_DIR)
+			continue;
+
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
 			continue; /* Ignore backup files... */
 
@@ -832,7 +868,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			 ChrPtr(NextHop));
 
 		QN_syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, ChrPtr(NextHop));
-		if (network_talking_to(SKEY(NextHop), NTT_CHECK)) {
+		if (CtdlNetworkTalkingTo(SKEY(NextHop), NTT_CHECK)) {
 			nFailed++;
 			QN_syslog(LOG_DEBUG,
 				  "Currently online with %s - skipping for now\n",
@@ -844,7 +880,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			size_t fsize;
 			int infd, outfd;
 			const char *err = NULL;
-			network_talking_to(SKEY(NextHop), NTT_ADD);
+			CtdlNetworkTalkingTo(SKEY(NextHop), NTT_ADD);
 
 			infd = open(filename, O_RDONLY);
 			if (infd == -1) {
@@ -853,7 +889,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 					  "failed to open %s for reading due to %s; skipping.\n",
 					  filename, strerror(errno)
 					);
-				network_talking_to(SKEY(NextHop), NTT_REMOVE);
+				CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 				continue;				
 			}
 			
@@ -873,7 +909,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 					  spooloutfilename, strerror(errno)
 					);
 				close(infd);
-				network_talking_to(SKEY(NextHop), NTT_REMOVE);
+				CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 				continue;
 			}
 
@@ -894,6 +930,11 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			do {} while ((FileMoveChunked(&FDIO, &err) > 0) && (err == NULL));
 			if (err == NULL) {
 				unlink(filename);
+				QN_syslog(LOG_DEBUG,
+					  "Spoolfile %s now "SIZE_T_FMT" k\n",
+					  spooloutfilename,
+					  (dsize + fsize)/1024
+					);				
 			}
 			else {
 				nFailed++;
@@ -907,7 +948,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			FDIOBufferDelete(&FDIO);
 			close(infd);
 			close(outfd);
-			network_talking_to(SKEY(NextHop), NTT_REMOVE);
+			CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 		}
 	}
 	closedir(dp);
@@ -933,22 +974,21 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	while ((readdir_r(dp, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
-#ifdef _DIRENT_HAVE_D_NAMELEN
+#ifdef _DIRENT_HAVE_D_NAMLEN
 		d_namelen = filedir_entry->d_namelen;
-		d_type = filedir_entry->d_type;
+
 #else
-
-#ifndef DT_UNKNOWN
-#define DT_UNKNOWN     0
-#define DT_DIR         4
-#define DT_REG         8
-#define DT_LNK         10
-
-#define IFTODT(mode)   (((mode) & 0170000) >> 12)
-#define DTTOIF(dirtype)        ((dirtype) << 12)
-#endif
 		d_namelen = strlen(filedir_entry->d_name);
 #endif
+
+#ifdef _DIRENT_HAVE_D_TYPE
+		d_type = filedir_entry->d_type;
+#else
+		d_type = DT_UNKNOWN;
+#endif
+		if (d_type == DT_DIR)
+			continue;
+
 		if ((d_namelen == 1) && 
 		    (filedir_entry->d_name[0] == '.'))
 			continue;
@@ -973,11 +1013,11 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			filedir_entry->d_name
 		);
 
-		i = is_valid_node(&nexthop,
-				  NULL,
-				  NextHop,
-				  working_ignetcfg,
-				  the_netmap);
+		i = CtdlIsValidNode(&nexthop,
+				    NULL,
+				    NextHop,
+				    working_ignetcfg,
+				    the_netmap);
 	
 		if ( (i != 0) || (StrLength(nexthop) > 0) ) {
 			unlink(filename);
@@ -988,6 +1028,21 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	closedir(dp);
 }
 
+void free_spoolcontrol_struct(SpoolControl **sc)
+{
+	free_spoolcontrol_struct_members(*sc);
+	free(*sc);
+	*sc = NULL;
+}
+
+void free_spoolcontrol_struct_members(SpoolControl *sc)
+{
+	int i;
+	FreeStrBuf(&sc->RoomInfo);
+	FreeStrBuf(&sc->ListID);
+	for (i = 0; i < maxRoomNetCfg; i++)
+		FreeStrBuf(&sc->Users[i]);
+}
 
 
 
@@ -1020,6 +1075,15 @@ CTDL_MODULE_INIT(network_spool)
 {
 	if (!threading)
 	{
+		CtdlREGISTERRoomCfgType(subpending,       ParseSubPendingLine,   0, 5, SerializeGeneric,  DeleteGenericCfgLine); /// todo: move this to mailinglist manager
+		CtdlREGISTERRoomCfgType(unsubpending,     ParseUnSubPendingLine, 0, 4, SerializeGeneric,  DeleteGenericCfgLine); /// todo: move this to mailinglist manager
+		CtdlREGISTERRoomCfgType(lastsent,         ParseLastSent,         1, 1, SerializeLastSent, DeleteLastSent);
+		CtdlREGISTERRoomCfgType(ignet_push_share, ParseGeneric,          0, 2, SerializeGeneric,  DeleteGenericCfgLine); // [remotenode|remoteroomname (optional)]// todo: move this to the ignet client
+		CtdlREGISTERRoomCfgType(listrecp,         ParseGeneric,          0, 1, SerializeGeneric,  DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(digestrecp,       ParseGeneric,          0, 1, SerializeGeneric,  DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(participate,      ParseGeneric,          0, 1, SerializeGeneric,  DeleteGenericCfgLine);
+		CtdlREGISTERRoomCfgType(roommailalias,    ParseRoomAlias,        0, 1, SerializeGeneric,  DeleteGenericCfgLine);
+
 		create_spool_dirs();
 //////todo		CtdlRegisterCleanupHook(destroy_network_queue_room);
 	}

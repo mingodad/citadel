@@ -1,8 +1,20 @@
+/*
+ * Copyright (c) 1996-2013 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 
 #define VIRTUAL_MY_FLOOR -1
 
 /*
- * \brief This struct holds a list of rooms for \\\<G\\\>oto operations.
+ * This struct holds a list of rooms for "Goto" operations.
  */
 struct march {
 	struct march *next;       /* pointer to next in linked list */
@@ -11,9 +23,8 @@ struct march {
 	int march_order;          /* sequence in which we are to visit this room */
 };
 
-/* *
- * \brief	This struct holds a list of rooms for client display.
- *		It is a binary tree.
+/*
+ * This struct holds a list of rooms for client display. It is a binary tree.
  */
 struct roomlisting {
 	struct roomlisting *lnext;	/* pointer to 'left' tree node */
@@ -35,8 +46,8 @@ typedef struct _floor {
 	long AlphaN;
 } Floor;
 
-/**
- * \brief  Data structure for roomlist-to-folderlist conversion 
+/*
+ * Data structure for roomlist-to-folderlist conversion 
  */
 struct __ofolder {
 	int floor;      /* which floor is it on */
@@ -51,8 +62,8 @@ struct __ofolder {
 
 
 
-/**
- * \brief  Data structure for roomlist-to-folderlist conversion 
+/*
+ * Data structure for roomlist-to-folderlist conversion 
  */
 typedef struct _folder {
 	/* Data citserver tells us about the room */
@@ -77,6 +88,9 @@ typedef struct _folder {
 
 	int RoomAideLoaded;
 	StrBuf *RoomAide;
+
+/* only available if GNET contains this */
+	const StrBuf* RoomAlias; /* by what mail will this room send mail? */
 
 /* only available if GETR was run */
 	int XALoaded;
@@ -105,7 +119,7 @@ typedef struct _folder {
 	int BumpUsers; /* if SETR set to 1 to make all users who knew this room to forget about it. */
 
 	HashList *IgnetCfgs[maxRoomNetCfg + 1];
-}folder;
+} folder;
 
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
 void vDeleteFolder(void *vFolder);

@@ -188,8 +188,12 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	void *vHdr;
 	long len;
 	const char *Key;
+	WCTemplputParams SuperTP;
 	WCTemplputParams SubTP;
 	StrBuf *Error = NULL;
+
+	memset(&SuperTP, 0, sizeof(WCTemplputParams));
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
 
 	Buf = NewStrBuf();
 	FoundCharset = NewStrBuf();
@@ -211,38 +215,46 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	StrBufTrim(Buf);
 	StrBufLowerCase(Buf);
 
-	/* Locate a renderer capable of converting this MIME part into HTML */
-	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
-	    (vHdr != NULL)) {
-		RenderMimeFuncStruct *Render;
-		Render = (RenderMimeFuncStruct*)vHdr;
-		Render->f(Msg->MsgBody, NULL, FoundCharset);
-	}
-
-	if (StrLength(Msg->reply_references)> 0) {
-		/* Trim down excessively long lists of thread references.  We eliminate the
-		 * second one in the list so that the thread root remains intact.
-		 */
-		int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
-		int rrlen = StrLength(Msg->reply_references);
-		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-			StrBufRemove_token(Msg->reply_references, 1, '|');
-		}
-	}
-
-	/* now check if we need to translate some mimeparts, and remove the duplicate */
-	it = GetNewHashPos(Msg->AllAttach, 0);
-	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
-	       (vMime != NULL)) {
-		wc_mime_attachment *Mime = (wc_mime_attachment*) vMime;
-		evaluate_mime_part(Msg, Mime);
-	}
-	DeleteHashPos(&it);
-	StackContext(NULL, &SubTP, Msg, CTX_MAILSUM, 0, NULL);
+	StackContext(NULL, &SuperTP, Msg, CTX_MAILSUM, 0, NULL);
 	{
-		*OutMime = DoTemplate(tmpl, tmpllen, Target, &SubTP);
+		/* Locate a renderer capable of converting this MIME part into HTML */
+		if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
+		    (vHdr != NULL)) {
+			RenderMimeFuncStruct *Render;
+			
+			StackContext(&SuperTP, &SubTP, Msg->MsgBody, CTX_MIME_ATACH, 0, NULL);
+			{
+				Render = (RenderMimeFuncStruct*)vHdr;
+				Render->f(Target, &SubTP, FoundCharset);
+			}
+			UnStackContext(&SubTP);
+		}
+		
+		if (StrLength(Msg->reply_references)> 0) {
+			/* Trim down excessively long lists of thread references.  We eliminate the
+			 * second one in the list so that the thread root remains intact.
+			 */
+			int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
+			int rrlen = StrLength(Msg->reply_references);
+			if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+				StrBufRemove_token(Msg->reply_references, 1, '|');
+			}
+		}
+
+		/* now check if we need to translate some mimeparts, and remove the duplicate */
+		it = GetNewHashPos(Msg->AllAttach, 0);
+		while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
+		       (vMime != NULL)) {
+			StackContext(&SuperTP, &SubTP, vMime, CTX_MIME_ATACH, 0, NULL);
+			{
+				evaluate_mime_part(Target, &SubTP);
+			}
+			UnStackContext(&SubTP);
+		}
+		DeleteHashPos(&it);
+		*OutMime = DoTemplate(tmpl, tmpllen, Target, &SuperTP);
 	}
-	UnStackContext(&SubTP);
+	UnStackContext(&SuperTP);
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
@@ -519,7 +531,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 			StrBufCutLeft(Buf, nBuf + 1);
 			Eval->f(Msg, Buf);
 		}
-		else syslog(1, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
+		else syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
 	}
 	return Msg;
 }
@@ -1042,7 +1054,7 @@ void post_message(void)
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatusMsg(Buf, NULL, 1, 2) != 2) {
 				/* You probably don't even have a dumb Drafts folder */
-				syslog(9, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf) + 4);
+				syslog(LOG_DEBUG, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf) + 4);
 				AppendImportantMessage(_("Saved to Drafts failed: "), -1);
 				display_enter();
 				FreeStrBuf(&Buf);
@@ -1116,7 +1128,7 @@ void post_message(void)
 		}
 		else 
 		{
-			syslog(9, "%s\n", ChrPtr(CmdBuf));
+			syslog(LOG_DEBUG, "%s\n", ChrPtr(CmdBuf));
 			serv_puts(ChrPtr(CmdBuf));
 			FreeStrBuf(&CmdBuf);
 
@@ -1153,7 +1165,7 @@ void post_message(void)
 				}
 				dont_post = lbstr("postseq");
 			} else {
-				syslog(9, "%s:%d: server post error: %s", __FILE__, __LINE__, ChrPtr(Buf) + 4);
+				syslog(LOG_DEBUG, "%s:%d: server post error: %s", __FILE__, __LINE__, ChrPtr(Buf) + 4);
 				AppendImportantMessage(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
 				display_enter();
 				if (saving_to_drafts) gotoroom(WCC->CurRoom.name);
@@ -1208,16 +1220,16 @@ void upload_attachment(void) {
 	void *v;
 	wc_mime_attachment *att;
 
-	syslog(9, "upload_attachment()\n");
+	syslog(LOG_DEBUG, "upload_attachment()\n");
 	wc_printf("upload_attachment()<br>\n");
 
 	if (WCC->upload_length <= 0) {
-		syslog(9, "ERROR no attachment was uploaded\n");
+		syslog(LOG_DEBUG, "ERROR no attachment was uploaded\n");
 		wc_printf("ERROR no attachment was uploaded<br>\n");
 		return;
 	}
 
-	syslog(9, "Client is uploading %d bytes\n", WCC->upload_length);
+	syslog(LOG_DEBUG, "Client is uploading %d bytes\n", WCC->upload_length);
 	wc_printf("Client is uploading %d bytes<br>\n", WCC->upload_length);
 	att = malloc(sizeof(wc_mime_attachment));
 	memset(att, 0, sizeof(wc_mime_attachment ));
@@ -1323,10 +1335,11 @@ long l_cccc;
 long l_replyto;
 long l_node;
 long l_rfca;
+long l_nvto;
 
 const char *ReplyToModeStrings [3] = {
 	"reply",
-	"replyalle",
+	"replyall",
 	"forward"
 };
 typedef enum _eReplyToNodes {
@@ -1442,6 +1455,7 @@ void display_enter(void)
 		StrBuf *rcpt = NULL;
 		StrBuf *cccc = NULL;
 		StrBuf *replyto = NULL;
+		StrBuf *nvto = NULL;
 		serv_printf("MSG0 %ld|1", replying_to);	
 
 		StrBuf_ServGetln(Line);
@@ -1527,7 +1541,7 @@ void display_enter(void)
 				}
 				else if (which == l_replyto) {
 					replyto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}				
+				}
 				else if (which == l_rfca) {
 					StrBuf *FlatRFCA;
 					rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
@@ -1535,6 +1549,10 @@ void display_enter(void)
 					StrBuf_RFC822_to_Utf8(FlatRFCA, rfca, NULL, NULL);
 					FreeStrBuf(&rfca);
 					rfca = FlatRFCA;
+				}
+				else if (which == l_nvto) {
+					nvto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+					putbstr("nvto", nvto);
 				}
 			}
 
@@ -2059,6 +2077,7 @@ InitModule_MSG
 	l_replyto = FourHash("rep2", 4);
 	l_node = FourHash("node", 4);
 	l_rfca = FourHash("rfca", 4);
+	l_nvto = FourHash("nvto", 4);
 
 	return ;
 }

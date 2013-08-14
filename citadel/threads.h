@@ -45,4 +45,7 @@ void go_threading(void);
 void InitializeMasterTSD(void);
 void CtdlThreadCreate(void *(*start_routine)(void*));
 
+
+extern pthread_mutex_t ThreadCountMutex;;
+
 #endif // THREADS_H

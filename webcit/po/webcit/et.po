@@ -11,12 +11,17 @@ msgstr ""
 "PO-Revision-Date: 2010-10-22 14:52+0000\n"
 "Last-Translator: Rait Lotamõis <rait@kuma.ee>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: ee\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2012-08-01 04:33+0000\n"
+"X-Generator: Launchpad (build 15719)\n"
+"Language: ee\n"
+
+#: ../../auth.c:683
+#, c-format
+msgid "Current access level: %d (%s)\n"
+msgstr "Hetke juurdepääsutase: %d (%s)\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
@@ -1338,11 +1343,6 @@ msgstr "käib kah"
 #: ../../auth.c:665
 msgid "strong"
 msgstr "tugev"
-
-#: ../../auth.c:683
-#, c-format
-msgid "Current access level: %d (%s)\n"
-msgstr "Hetke juurdepääsutase: %d (%s)\n"
 
 #: ../../auth.c:691
 msgid "Select access level for this user:"
