@@ -53,10 +53,13 @@
 }
 
 .msgbuttons {
+	display: none;
 	float: right;
 	font-size: 80%;
 	line-height: 2em;
 }
+
+div.message:hover .msgbuttons { display: inline; }
 
 .msgbuttons a {
 	font-size: x-small;
