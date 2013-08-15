@@ -3955,14 +3955,17 @@ void FDIOBufferDelete(FDIOBuffer *FDB)
 #ifdef LINUX_SPLICE
 	if (EnableSplice)
 	{
-		close(FDB->SplicePipe[0]);
-		close(FDB->SplicePipe[1]);
+		if (FDB->SplicePipe[0] > 0)
+			close(FDB->SplicePipe[0]);
+		if (FDB->SplicePipe[1] > 0)
+			close(FDB->SplicePipe[1]);
 	}
 	else
 #endif
 		FreeStrBuf(&FDB->ChunkBuffer);
 	
-	close(FDB->OtherFD);
+	if (FDB->OtherFD > 0)
+		close(FDB->OtherFD);
 	memset(FDB, 0, sizeof(FDIOBuffer));	
 }
 
