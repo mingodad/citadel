@@ -628,7 +628,7 @@ void network_process_file(char *filename,
 	long msgend = (-1L);
 	long msgcur = 0L;
 	int ch;
-
+	int nMessages = 0;
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL) {
@@ -657,6 +657,7 @@ void network_process_file(char *filename,
 		}
 
 		++msgcur;
+		nMessages ++;
 	}
 
 	msgend = msgcur - 1;
@@ -667,7 +668,14 @@ void network_process_file(char *filename,
 					working_ignetcfg,
 					the_netmap,
 					netmap_changed);
+		nMessages ++;
 	}
+
+	if (nMessages > 0)
+		QN_syslog(LOG_INFO,
+			  "network: processed %d messages in %s\n",
+			  nMessages,
+			  filename);
 
 	fclose(fp);
 	unlink(filename);
