@@ -238,12 +238,12 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 	/* now add anyone we find into the hashlist */
 
 	/* skip past the headers */
-	ptr = strstr(msg->cm_fields['M'], "\n\n");
+	ptr = strstr(msg->cm_fields[eMesageText], "\n\n");
 	if (ptr != NULL) {
 		ptr += 2;
 	}
 	else {
-		ptr = strstr(msg->cm_fields['M'], "\n\r\n");
+		ptr = strstr(msg->cm_fields[eMesageText], "\n\r\n");
 		if (ptr != NULL) {
 			ptr += 3;
 		}

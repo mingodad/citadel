@@ -125,7 +125,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");
+			fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "Bcc");
 			if (fieldptr != NULL) {
 				if (bmstrcasestr(fieldptr, itemlist[pos+1].Key)) {
 					match = 1;
@@ -142,9 +142,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields['T'] != NULL) {
+			if (msg->cm_fields[eTimestamp] != NULL) {
 				if (imap_datecmp(itemlist[pos+1].Key,
-						atol(msg->cm_fields['T'])) < 0) {
+						atol(msg->cm_fields[eTimestamp])) < 0) {
 					match = 1;
 				}
 			}
@@ -168,7 +168,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 				need_to_free_msg = 1;
 			}
 			if (msg != NULL) {
-				if (bmstrcasestr(msg->cm_fields['M'], itemlist[pos+1].Key)) {
+				if (bmstrcasestr(msg->cm_fields[eMesageText], itemlist[pos+1].Key)) {
 					match = 1;
 				}
 			}
@@ -183,14 +183,14 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			fieldptr = msg->cm_fields['Y'];
+			fieldptr = msg->cm_fields[eCarbonCopY];
 			if (fieldptr != NULL) {
 				if (bmstrcasestr(fieldptr, itemlist[pos+1].Key)) {
 					match = 1;
 				}
 			}
 			else {
-				fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+				fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "Cc");
 				if (fieldptr != NULL) {
 					if (bmstrcasestr(fieldptr, itemlist[pos+1].Key)) {
 						match = 1;
@@ -229,10 +229,10 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (bmstrcasestr(msg->cm_fields['A'], itemlist[pos+1].Key)) {
+			if (bmstrcasestr(msg->cm_fields[eAuthor], itemlist[pos+1].Key)) {
 				match = 1;
 			}
-			if (bmstrcasestr(msg->cm_fields['F'], itemlist[pos+1].Key)) {
+			if (bmstrcasestr(msg->cm_fields[erFc822Addr], itemlist[pos+1].Key)) {
 				match = 1;
 			}
 		}
@@ -281,7 +281,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (strlen(msg->cm_fields['M']) > atoi(itemlist[pos+1].Key)) {
+			if (strlen(msg->cm_fields[eMesageText]) > atoi(itemlist[pos+1].Key)) {
 				match = 1;
 			}
 		}
@@ -308,9 +308,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields['T'] != NULL) {
+			if (msg->cm_fields[eTimestamp] != NULL) {
 				if (imap_datecmp(itemlist[pos+1].Key,
-						atol(msg->cm_fields['T'])) == 0) {
+						atol(msg->cm_fields[eTimestamp])) == 0) {
 					match = 1;
 				}
 			}
@@ -338,9 +338,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields['T'] != NULL) {
+			if (msg->cm_fields[eTimestamp] != NULL) {
 				if (imap_datecmp(itemlist[pos+1].Key,
-						atol(msg->cm_fields['T'])) < 0) {
+						atol(msg->cm_fields[eTimestamp])) < 0) {
 					match = 1;
 				}
 			}
@@ -354,9 +354,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields['T'] != NULL) {
+			if (msg->cm_fields[eTimestamp] != NULL) {
 				if (imap_datecmp(itemlist[pos+1].Key,
-						atol(msg->cm_fields['T'])) == 0) {
+						atol(msg->cm_fields[eTimestamp])) == 0) {
 					match = 1;
 				}
 			}
@@ -370,9 +370,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields['T'] != NULL) {
+			if (msg->cm_fields[eTimestamp] != NULL) {
 				if (imap_datecmp(itemlist[pos+1].Key,
-						atol(msg->cm_fields['T'])) >= 0) {
+						atol(msg->cm_fields[eTimestamp])) >= 0) {
 					match = 1;
 				}
 			}
@@ -386,9 +386,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields['T'] != NULL) {
+			if (msg->cm_fields[eTimestamp] != NULL) {
 				if (imap_datecmp(itemlist[pos+1].Key,
-						atol(msg->cm_fields['T'])) >= 0) {
+						atol(msg->cm_fields[eTimestamp])) >= 0) {
 					match = 1;
 				}
 			}
@@ -402,7 +402,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (strlen(msg->cm_fields['M']) < atoi(itemlist[pos+1].Key)) {
+			if (strlen(msg->cm_fields[eMesageText]) < atoi(itemlist[pos+1].Key)) {
 				match = 1;
 			}
 		}
@@ -415,7 +415,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (bmstrcasestr(msg->cm_fields['U'], itemlist[pos+1].Key)) {
+			if (bmstrcasestr(msg->cm_fields[eMsgSubject], itemlist[pos+1].Key)) {
 				match = 1;
 			}
 		}
@@ -443,7 +443,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (bmstrcasestr(msg->cm_fields['R'], itemlist[pos+1].Key)) {
+			if (bmstrcasestr(msg->cm_fields[eRecipient], itemlist[pos+1].Key)) {
 				match = 1;
 			}
 		}

@@ -62,7 +62,7 @@ void hunt_for_autocomplete(long msgnum, char *search_string) {
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 
-	v = vcard_load(msg->cm_fields['M']);
+	v = vcard_load(msg->cm_fields[eMesageText]);
 	CtdlFreeMessage(msg);
 
 	/*

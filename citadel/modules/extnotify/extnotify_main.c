@@ -185,8 +185,8 @@ eNotifyType extNotify_getConfigMessage(char *username,
 	for (a = 0; a < num_msgs; ++a) {
 		msg = CtdlFetchMessage(msglist[a], 1);
 		if (msg != NULL) {
-			if ((msg->cm_fields['U'] != NULL) &&
-			    (strncasecmp(msg->cm_fields['U'],
+			if ((msg->cm_fields[eMsgSubject] != NULL) &&
+			    (strncasecmp(msg->cm_fields[eMsgSubject],
 					 PAGER_CONFIG_MESSAGE,
 					 strlen(PAGER_CONFIG_MESSAGE)) == 0))
 			{
@@ -204,8 +204,8 @@ eNotifyType extNotify_getConfigMessage(char *username,
 	// Do a simple string search to see if 'funambol' is selected as the
 	// type. This string would be at the very top of the message contents.
 
-	configMsg = msg->cm_fields['M'];
-	msg->cm_fields['M'] = NULL;
+	configMsg = msg->cm_fields[eMesageText];
+	msg->cm_fields[eMesageText] = NULL;
 	CtdlFreeMessage(msg);
 
 	/* here we would find the pager number... */
@@ -280,14 +280,14 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	Ctx = (NotifyContext*) usrdata;
 
 	msg = CtdlFetchMessage(NotifyMsgnum, 1);
-	if ( msg->cm_fields['2'] != NULL)
+	if ( msg->cm_fields[eExtnotify] != NULL)
 	{
 		Type = extNotify_getConfigMessage(
-			msg->cm_fields['2'],
+			msg->cm_fields[eExtnotify],
 			&PagerNo,
 			&FreeMe);
 
-		pch = strstr(msg->cm_fields['M'], "msgid|");
+		pch = strstr(msg->cm_fields[eMesageText], "msgid|");
 		if (pch != NULL)
 			msgnum = atol(pch + sizeof("msgid"));
 
@@ -303,8 +303,8 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 			notify_http_server(remoteurl,
 					   file_funambol_msg,
 					   strlen(file_funambol_msg),/*GNA*/
-					   msg->cm_fields['2'],
-					   msg->cm_fields['I'],
+					   msg->cm_fields[eExtnotify],
+					   msg->cm_fields[emessageId],
 					   msgnum,
 					   NULL);
 			break;
@@ -336,8 +336,8 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 				notify_http_server(URLBuf,
 						   ChrPtr(FileBuf),
 						   StrLength(FileBuf),
-						   msg->cm_fields['2'],
-						   msg->cm_fields['I'],
+						   msg->cm_fields[eExtnotify],
+						   msg->cm_fields[emessageId],
 						   msgnum,
 						   NULL);
 			}
@@ -351,7 +351,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 
 			commandSiz = sizeof(config.c_pager_program) +
 				strlen(PagerNo) +
-				strlen(msg->cm_fields['2']) + 5;
+				strlen(msg->cm_fields[eExtnotify]) + 5;
 
 			command = malloc(commandSiz);
 
@@ -360,7 +360,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 				 "%s %s -u %s",
 				 config.c_pager_program,
 				 PagerNo,
-				 msg->cm_fields['2']);
+				 msg->cm_fields[eExtnotify]);
 
 			system(command);
 			free(command);

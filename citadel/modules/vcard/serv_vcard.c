@@ -94,12 +94,12 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg, int (*callback)(c
 	int instance = 0;
 	int found_something = 0;
 
-	if (msg->cm_fields['A'] == NULL) return;
-	if (msg->cm_fields['N'] == NULL) return;
+	if (msg->cm_fields[eAuthor] == NULL) return;
+	if (msg->cm_fields[eNodeName] == NULL) return;
 	snprintf(citadel_address, sizeof citadel_address, "%s @ %s",
-		msg->cm_fields['A'], msg->cm_fields['N']);
+		msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
 
-	v = vcard_load(msg->cm_fields['M']);
+	v = vcard_load(msg->cm_fields[eMesageText]);
 	if (v == NULL) return;
 
 	/* Go through the vCard searching for *all* instances of
@@ -373,10 +373,10 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* Ok, if we got this far, look into the situation further... */
 
-	ptr = msg->cm_fields['M'];
+	ptr = msg->cm_fields[eMesageText];
 	if (ptr == NULL) return(0);
 
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*vcard_extract_vcard,
 		NULL, NULL,
@@ -425,10 +425,10 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		CtdlDeleteMessages(CCC->room.QRname, NULL, 0, "[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$");
 
 		/* Make the author of the message the name of the user. */
-		if (msg->cm_fields['A'] != NULL) {
-			free(msg->cm_fields['A']);
+		if (msg->cm_fields[eAuthor] != NULL) {
+			free(msg->cm_fields[eAuthor]);
 		}
-		msg->cm_fields['A'] = strdup(usbuf.fullname);
+		msg->cm_fields[eAuthor] = strdup(usbuf.fullname);
 	}
 
 	/* Insert or replace RFC2739-compliant free/busy URL */
@@ -451,23 +451,23 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* Enforce local UID policy if applicable */
 	if (yes_my_citadel_config) {
-		snprintf(buf, sizeof buf, VCARD_EXT_FORMAT, msg->cm_fields['A'], NODENAME);
+		snprintf(buf, sizeof buf, VCARD_EXT_FORMAT, msg->cm_fields[eAuthor], NODENAME);
 		vcard_set_prop(v, "UID", buf, 0);
 	}
 
 	/* 
 	 * Set the EUID of the message to the UID of the vCard.
 	 */
-	if (msg->cm_fields['E'] != NULL)
+	if (msg->cm_fields[eExclusiveID] != NULL)
 	{
-		free(msg->cm_fields['E']);
-		msg->cm_fields['E'] = NULL;
+		free(msg->cm_fields[eExclusiveID]);
+		msg->cm_fields[eExclusiveID] = NULL;
 	}
 	s = vcard_get_prop(v, "UID", 1, 0, 0);
 	if (s != NULL) {
-		msg->cm_fields['E'] = strdup(s);
-		if (msg->cm_fields['U'] == NULL) {
-			msg->cm_fields['U'] = strdup(s);
+		msg->cm_fields[eExclusiveID] = strdup(s);
+		if (msg->cm_fields[eMsgSubject] == NULL) {
+			msg->cm_fields[eMsgSubject] = strdup(s);
 		}
 	}
 
@@ -479,17 +479,17 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		s = vcard_get_prop(v, "N", 1, 0, 0);
 	}
 	if (s != NULL) {
-		if (msg->cm_fields['U'] != NULL) {
-			free(msg->cm_fields['U']);
+		if (msg->cm_fields[eMsgSubject] != NULL) {
+			free(msg->cm_fields[eMsgSubject]);
 		}
-		msg->cm_fields['U'] = strdup(s);
+		msg->cm_fields[eMsgSubject] = strdup(s);
 	}
 
 	/* Re-serialize it back into the msg body */
 	ser = vcard_serialize(v);
 	if (ser != NULL) {
-		msg->cm_fields['M'] = realloc(msg->cm_fields['M'], strlen(ser) + 1024);
-		sprintf(msg->cm_fields['M'],
+		msg->cm_fields[eMesageText] = realloc(msg->cm_fields[eMesageText], strlen(ser) + 1024);
+		sprintf(msg->cm_fields[eMesageText],
 			"Content-type: " VCARD_MIME_TYPE
 			"\r\n\r\n%s\r\n", ser);
 		free(ser);
@@ -538,7 +538,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 	if (!is_UserConf && !is_GAB) return(0);
 
-	ptr = msg->cm_fields['M'];
+	ptr = msg->cm_fields[eMesageText];
 	if (ptr == NULL) return(0);
 
 	NewStrBufDupAppendFlush(&CCC->StatusMessage, NULL, NULL, 0);
@@ -557,12 +557,12 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 * copy it to the Global Address Book room.
 			 */
 
-			I = atol(msg->cm_fields['3']);
+			I = atol(msg->cm_fields[eVltMsgNum]);
 			if (I <= 0L) return(0);
 
 			/* Store our Internet return address in memory */
 			if (is_MY_UserConf) {
-				v = vcard_load(msg->cm_fields['M']);
+				v = vcard_load(msg->cm_fields[eMesageText]);
 				extract_inet_email_addrs(CCC->cs_inet_email, sizeof CCC->cs_inet_email,
 						CCC->cs_inet_other_emails, sizeof CCC->cs_inet_other_emails,
 						v, 1);
@@ -652,7 +652,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 	msg = CtdlFetchMessage(VCmsgnum, 1);
 	if (msg == NULL) return vcard_new();
 
-	v = vcard_load(msg->cm_fields['M']);
+	v = vcard_load(msg->cm_fields[eMesageText]);
 	CtdlFreeMessage(msg);
 	return v;
 }
@@ -905,16 +905,16 @@ void vcard_purge(struct ctdluser *usbuf) {
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 0;
-	msg->cm_fields['A'] = strdup(usbuf->fullname);
-	msg->cm_fields['O'] = strdup(ADDRESS_BOOK_ROOM);
-	msg->cm_fields['N'] = strdup(NODENAME);
-	msg->cm_fields['M'] = strdup("Purge this vCard\n");
+	msg->cm_fields[eAuthor] = strdup(usbuf->fullname);
+	msg->cm_fields[eOriginalRoom] = strdup(ADDRESS_BOOK_ROOM);
+	msg->cm_fields[eNodeName] = strdup(NODENAME);
+	msg->cm_fields[eMesageText] = strdup("Purge this vCard\n");
 
 	snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
-			msg->cm_fields['A'], NODENAME);
-	msg->cm_fields['E'] = strdup(buf);
+			msg->cm_fields[eAuthor], NODENAME);
+	msg->cm_fields[eExclusiveID] = strdup(buf);
 
-	msg->cm_fields['S'] = strdup("CANCEL");
+	msg->cm_fields[eSpecialField] = strdup("CANCEL");
 
 	CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM, QP_EADDR);
 	CtdlFreeMessage(msg);
@@ -936,7 +936,7 @@ int vcard_extract_from_network(struct CtdlMessage *msg, char *target_room) {
 
 	if (msg->cm_format_type != 4) return(0);
 
-	ptr = msg->cm_fields['M'];
+	ptr = msg->cm_fields[eMesageText];
 	if (ptr == NULL) return(0);
 	while (ptr != NULL) {
 	
@@ -979,7 +979,7 @@ void vcard_delete_remove(char *room, long msgnum) {
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 
-	ptr = msg->cm_fields['M'];
+	ptr = msg->cm_fields[eMesageText];
 	if (ptr == NULL) goto EOH;
 	while (ptr != NULL) {
 		linelen = strcspn(ptr, "\n");
@@ -1102,7 +1102,7 @@ void dvca_callback(long msgnum, void *userdata) {
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*dvca_mime_callback,	/* callback function */
 		NULL, NULL,
@@ -1325,7 +1325,7 @@ void strip_addresses_already_have(long msgnum, void *userdata) {
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
-	v = vcard_load(msg->cm_fields['M']);
+	v = vcard_load(msg->cm_fields[eMesageText]);
 	CtdlFreeMessage(msg);
 
 	i = 0;
@@ -1377,12 +1377,12 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			vmsg->cm_magic = CTDLMESSAGE_MAGIC;
 			vmsg->cm_anon_type = MES_NORMAL;
 			vmsg->cm_format_type = FMT_RFC822;
-			vmsg->cm_fields['A'] = strdup("Citadel");
-			vmsg->cm_fields['E'] =  strdup(vcard_get_prop(v, "UID", 1, 0, 0));
+			vmsg->cm_fields[eAuthor] = strdup("Citadel");
+			vmsg->cm_fields[eExclusiveID] =  strdup(vcard_get_prop(v, "UID", 1, 0, 0));
 			ser = vcard_serialize(v);
 			if (ser != NULL) {
-				vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
-				sprintf(vmsg->cm_fields['M'],
+				vmsg->cm_fields[eMesageText] = malloc(strlen(ser) + 1024);
+				sprintf(vmsg->cm_fields[eMesageText],
 					"Content-type: " VCARD_MIME_TYPE
 					"\r\n\r\n%s\r\n", ser);
 				free(ser);

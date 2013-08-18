@@ -162,8 +162,8 @@ void rebuild_euid_index_for_msg(long msgnum, void *userdata) {
 
 	msg = CtdlFetchMessage(msgnum, 0);
 	if (msg == NULL) return;
-	if (msg->cm_fields['E'] != NULL) {
-		index_message_by_euid(msg->cm_fields['E'], &CC->room, msgnum);
+	if (msg->cm_fields[eExclusiveID] != NULL) {
+		index_message_by_euid(msg->cm_fields[eExclusiveID], &CC->room, msgnum);
 	}
 	CtdlFreeMessage(msg);
 }

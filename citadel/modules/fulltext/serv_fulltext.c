@@ -126,7 +126,7 @@ void ft_index_message(long msgnum, int op) {
 		return;
 	}
 
-	if (msg->cm_fields['1'] != NULL) {
+	if (msg->cm_fields[eSuppressIdx] != NULL) {
 		syslog(LOG_DEBUG, "ft_index_message() excluded msg %ld", msgnum);
 		CtdlFreeMessage(msg);
 		return;

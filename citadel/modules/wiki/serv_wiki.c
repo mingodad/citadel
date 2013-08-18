@@ -100,31 +100,31 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	if (msg->cm_format_type != 4) return(0);
 
 	/* If there's no EUID we can't do this.  Reject the post. */
-	if (msg->cm_fields['E'] == NULL) return(1);
+	if (msg->cm_fields[eExclusiveID] == NULL) return(1);
 
-	snprintf(history_page, sizeof history_page, "%s_HISTORY_", msg->cm_fields['E']);
+	snprintf(history_page, sizeof history_page, "%s_HISTORY_", msg->cm_fields[eExclusiveID]);
 
 	/* Make sure we're saving a real wiki page rather than a wiki history page.
 	 * This is important in order to avoid recursing infinitely into this hook.
 	 */
-	if (	(strlen(msg->cm_fields['E']) >= 9)
-		&& (!strcasecmp(&msg->cm_fields['E'][strlen(msg->cm_fields['E'])-9], "_HISTORY_"))
+	if (	(strlen(msg->cm_fields[eExclusiveID]) >= 9)
+		&& (!strcasecmp(&msg->cm_fields[eExclusiveID][strlen(msg->cm_fields[eExclusiveID])-9], "_HISTORY_"))
 	) {
 		syslog(LOG_DEBUG, "History page not being historied\n");
 		return(0);
 	}
 
 	/* If there's no message text, obviously this is all b0rken and shouldn't happen at all */
-	if (msg->cm_fields['M'] == NULL) return(0);
+	if (msg->cm_fields[eMesageText] == NULL) return(0);
 
 	/* Set the message subject identical to the page name */
-	if (msg->cm_fields['U'] != NULL) {
-		free(msg->cm_fields['U']);
+	if (msg->cm_fields[eMsgSubject] != NULL) {
+		free(msg->cm_fields[eMsgSubject]);
 	}
-	msg->cm_fields['U'] = strdup(msg->cm_fields['E']);
+	msg->cm_fields[eMsgSubject] = strdup(msg->cm_fields[eExclusiveID]);
 
 	/* See if we can retrieve the previous version. */
-	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields['E'], &CCC->room);
+	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields[eExclusiveID], &CCC->room);
 	if (old_msgnum > 0L) {
 		old_msg = CtdlFetchMessage(old_msgnum, 1);
 	}
@@ -132,13 +132,13 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		old_msg = NULL;
 	}
 
-	if ((old_msg != NULL) && (old_msg->cm_fields['M'] == NULL)) {	/* old version is corrupt? */
+	if ((old_msg != NULL) && (old_msg->cm_fields[eMesageText] == NULL)) {	/* old version is corrupt? */
 		CtdlFreeMessage(old_msg);
 		old_msg = NULL;
 	}
 	
 	/* If no changes were made, don't bother saving it again */
-	if ((old_msg != NULL) && (!strcmp(msg->cm_fields['M'], old_msg->cm_fields['M']))) {
+	if ((old_msg != NULL) && (!strcmp(msg->cm_fields[eMesageText], old_msg->cm_fields[eMesageText]))) {
 		CtdlFreeMessage(old_msg);
 		return(1);
 	}
@@ -152,13 +152,13 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	if (old_msg != NULL) {
 		fp = fopen(diff_old_filename, "w");
-		rv = fwrite(old_msg->cm_fields['M'], strlen(old_msg->cm_fields['M']), 1, fp);
+		rv = fwrite(old_msg->cm_fields[eMesageText], strlen(old_msg->cm_fields[eMesageText]), 1, fp);
 		fclose(fp);
 		CtdlFreeMessage(old_msg);
 	}
 
 	fp = fopen(diff_new_filename, "w");
-	rv = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
+	rv = fwrite(msg->cm_fields[eMesageText], strlen(msg->cm_fields[eMesageText]), 1, fp);
 	fclose(fp);
 
 	snprintf(diff_cmd, sizeof diff_cmd,
@@ -217,14 +217,14 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		history_msg->cm_magic = CTDLMESSAGE_MAGIC;
 		history_msg->cm_anon_type = MES_NORMAL;
 		history_msg->cm_format_type = FMT_RFC822;
-		history_msg->cm_fields['A'] = strdup("Citadel");
-		history_msg->cm_fields['R'] = strdup(CCC->room.QRname);
-		history_msg->cm_fields['E'] = strdup(history_page);
-		history_msg->cm_fields['U'] = strdup(history_page);
-		history_msg->cm_fields['1'] = strdup("1");		/* suppress full text indexing */
+		history_msg->cm_fields[eAuthor] = strdup("Citadel");
+		history_msg->cm_fields[eRecipient] = strdup(CCC->room.QRname);
+		history_msg->cm_fields[eExclusiveID] = strdup(history_page);
+		history_msg->cm_fields[eMsgSubject] = strdup(history_page);
+		history_msg->cm_fields[eSuppressIdx] = strdup("1");		/* suppress full text indexing */
 		snprintf(boundary, sizeof boundary, "Citadel--Multipart--%04x--%08lx", getpid(), time(NULL));
-		history_msg->cm_fields['M'] = malloc(1024);
-		snprintf(history_msg->cm_fields['M'], 1024,
+		history_msg->cm_fields[eMesageText] = malloc(1024);
+		snprintf(history_msg->cm_fields[eMesageText], 1024,
 			"Content-type: multipart/mixed; boundary=\"%s\"\n\n"
 			"This is a Citadel wiki history encoded as multipart MIME.\n"
 			"Each part is comprised of a diff script representing one change set.\n"
@@ -240,9 +240,9 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	/* Remove the Message-ID from the old version of the history message.  This will cause a brand
 	 * new one to be generated, avoiding an uninitentional hit of the loop zapper when we replicate.
 	 */
-	if (history_msg->cm_fields['I'] != NULL) {
-		free(history_msg->cm_fields['I']);
-		history_msg->cm_fields['I'] = NULL;
+	if (history_msg->cm_fields[emessageId] != NULL) {
+		free(history_msg->cm_fields[emessageId]);
+		history_msg->cm_fields[emessageId] = NULL;
 	}
 
 	/* Figure out the boundary string.  We do this even when we generated the
@@ -250,7 +250,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	 */
 	strcpy(boundary, "");
 
-	ptr = history_msg->cm_fields['M'];
+	ptr = history_msg->cm_fields[eMesageText];
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
 		if (*ptr != 0) {
@@ -280,10 +280,10 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	 */
 	if (!IsEmptyStr(boundary)) {
 		snprintf(prefixed_boundary, sizeof prefixed_boundary, "--%s", boundary);
-		history_msg->cm_fields['M'] = realloc(history_msg->cm_fields['M'],
-			strlen(history_msg->cm_fields['M']) + strlen(diffbuf) + 1024
+		history_msg->cm_fields[eMesageText] = realloc(history_msg->cm_fields[eMesageText],
+			strlen(history_msg->cm_fields[eMesageText]) + strlen(diffbuf) + 1024
 		);
-		ptr = bmstrcasestr(history_msg->cm_fields['M'], prefixed_boundary);
+		ptr = bmstrcasestr(history_msg->cm_fields[eMesageText], prefixed_boundary);
 		if (ptr != NULL) {
 			char *the_rest_of_it = strdup(ptr);
 			char uuid[64];
@@ -313,9 +313,9 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 			free(the_rest_of_it);
 		}
 
-		history_msg->cm_fields['T'] = realloc(history_msg->cm_fields['T'], 32);
-		if (history_msg->cm_fields['T'] != NULL) {
-			snprintf(history_msg->cm_fields['T'], 32, "%ld", time(NULL));
+		history_msg->cm_fields[eTimestamp] = realloc(history_msg->cm_fields[eTimestamp], 32);
+		if (history_msg->cm_fields[eTimestamp] != NULL) {
+			snprintf(history_msg->cm_fields[eTimestamp], 32, "%ld", time(NULL));
 		}
 	
 		CtdlSubmitMsg(history_msg, NULL, "", 0);
@@ -377,7 +377,7 @@ void wiki_history(char *pagename) {
 		msg = NULL;
 	}
 
-	if ((msg != NULL) && (msg->cm_fields['M'] == NULL)) {
+	if ((msg != NULL) && (msg->cm_fields[eMesageText] == NULL)) {
 		CtdlFreeMessage(msg);
 		msg = NULL;
 	}
@@ -389,7 +389,7 @@ void wiki_history(char *pagename) {
 
 	
 	cprintf("%d Revision history for '%s'\n", LISTING_FOLLOWS, pagename);
-	mime_parser(msg->cm_fields['M'], NULL, *wiki_history_callback, NULL, NULL, NULL, 0);
+	mime_parser(msg->cm_fields[eMesageText], NULL, *wiki_history_callback, NULL, NULL, NULL, 0);
 	cprintf("000\n");
 
 	CtdlFreeMessage(msg);
@@ -509,7 +509,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		msg = NULL;
 	}
 
-	if ((msg != NULL) && (msg->cm_fields['M'] == NULL)) {
+	if ((msg != NULL) && (msg->cm_fields[eMesageText] == NULL)) {
 		CtdlFreeMessage(msg);
 		msg = NULL;
 	}
@@ -524,7 +524,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	CtdlMakeTempFileName(temp, sizeof temp);
 	fp = fopen(temp, "w");
 	if (fp != NULL) {
-		r = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
+		r = fwrite(msg->cm_fields[eMesageText], strlen(msg->cm_fields[eMesageText]), 1, fp);
 		fclose(fp);
 	}
 	else {
@@ -543,7 +543,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		msg = NULL;
 	}
 
-	if ((msg != NULL) && (msg->cm_fields['M'] == NULL)) {
+	if ((msg != NULL) && (msg->cm_fields[eMesageText] == NULL)) {
 		CtdlFreeMessage(msg);
 		msg = NULL;
 	}
@@ -562,7 +562,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	hecbd.stop_when = rev;
 	striplt(hecbd.stop_when);
 
-	mime_parser(msg->cm_fields['M'], NULL, *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
+	mime_parser(msg->cm_fields[eMesageText], NULL, *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
 	CtdlFreeMessage(msg);
 
 	/* Were we successful? */
@@ -585,17 +585,17 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			fseek(fp, 0L, SEEK_END);
 			len = ftell(fp);
 			fseek(fp, 0L, SEEK_SET);
-			msg->cm_fields['M'] = malloc(len + 1);
-			rv = fread(msg->cm_fields['M'], len, 1, fp);
+			msg->cm_fields[eMesageText] = malloc(len + 1);
+			rv = fread(msg->cm_fields[eMesageText], len, 1, fp);
 			syslog(LOG_DEBUG, "did %d blocks of %ld bytes\n", rv, len);
-			msg->cm_fields['M'][len] = 0;
+			msg->cm_fields[eMesageText][len] = 0;
 			fclose(fp);
 		}
 		if (len <= 0) {
 			msgnum = (-1L);
 		}
 		else if (!strcasecmp(operation, "fetch")) {
-			msg->cm_fields['A'] = strdup("Citadel");
+			msg->cm_fields[eAuthor] = strdup("Citadel");
 			CtdlCreateRoom(wwm, 5, "", 0, 1, 1, VIEW_BBS);	/* Not an error if already exists */
 			msgnum = CtdlSubmitMsg(msg, NULL, wwm, 0);	/* Store the revision here */
 
@@ -619,12 +619,12 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		}
 		else if (!strcasecmp(operation, "revert")) {
 			snprintf(timestamp, sizeof timestamp, "%ld", time(NULL));
-			msg->cm_fields['T'] = strdup(timestamp);
-			msg->cm_fields['A'] = strdup(CC->user.fullname);
-			msg->cm_fields['F'] = strdup(CC->cs_inet_email);
-			msg->cm_fields['O'] = strdup(CC->room.QRname);
-			msg->cm_fields['N'] = strdup(NODENAME);
-			msg->cm_fields['E'] = strdup(pagename);
+			msg->cm_fields[eTimestamp] = strdup(timestamp);
+			msg->cm_fields[eAuthor] = strdup(CC->user.fullname);
+			msg->cm_fields[erFc822Addr] = strdup(CC->cs_inet_email);
+			msg->cm_fields[eOriginalRoom] = strdup(CC->room.QRname);
+			msg->cm_fields[eNodeName] = strdup(NODENAME);
+			msg->cm_fields[eExclusiveID] = strdup(pagename);
 			msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Replace the current revision */
 		}
 		else {

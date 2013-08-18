@@ -700,11 +700,11 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 	bmsg->cm_anon_type = MES_NORMAL;
 	bmsg->cm_format_type = FMT_RFC822;
 
-	bmsg->cm_fields['O'] = strdup(MAILROOM);
-	bmsg->cm_fields['A'] = strdup("Citadel");
-	bmsg->cm_fields['N'] = strdup(config.c_nodename);
-	bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
-	bmsg->cm_fields['M'] = SmashStrBuf(&BounceMB);
+	bmsg->cm_fields[eOriginalRoom] = strdup(MAILROOM);
+	bmsg->cm_fields[eAuthor] = strdup("Citadel");
+	bmsg->cm_fields[eNodeName] = strdup(config.c_nodename);
+	bmsg->cm_fields[eMsgSubject] = strdup("Delivery Status Notification (Failure)");
+	bmsg->cm_fields[eMesageText] = SmashStrBuf(&BounceMB);
 
 	/* First try the user who sent the message */
 	if (StrLength(MyQItem->BounceTo) == 0) {
@@ -848,7 +848,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		return;
 	}
 
-	pch = instr = msg->cm_fields['M'];
+	pch = instr = msg->cm_fields[eMesageText];
 
 	/* Strip out the headers (no not amd any other non-instruction) line */
 	while (pch != NULL) {

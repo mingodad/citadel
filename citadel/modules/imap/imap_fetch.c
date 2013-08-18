@@ -110,8 +110,8 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 	time_t msgdate;
 
 	if (!msg) return;
-	if (msg->cm_fields['T'] != NULL) {
-		msgdate = atol(msg->cm_fields['T']);
+	if (msg->cm_fields[eTimestamp] != NULL) {
+		msgdate = atol(msg->cm_fields[eTimestamp]);
 	}
 	else {
 		msgdate = time(NULL);
@@ -355,12 +355,12 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 
 	/* For everything else, we do stuff. */
 	IAPuts("(("); /* open double-parens */
-	plain_imap_strout(msg->cm_fields['A']);	/* personal name */
+	plain_imap_strout(msg->cm_fields[eAuthor]);	/* personal name */
 	IAPuts(" NIL ");	/* source route (not used) */
 
 
-	if (msg->cm_fields['F'] != NULL) {
-		process_rfc822_addr(msg->cm_fields['F'], user, node, name);
+	if (msg->cm_fields[erFc822Addr] != NULL) {
+		process_rfc822_addr(msg->cm_fields[erFc822Addr], user, node, name);
 		plain_imap_strout(user);		/* mailbox name (user id) */
 		IAPuts(" ");
 		if (!strcasecmp(node, config.c_nodename)) {
@@ -371,9 +371,9 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 		}
 	}
 	else {
-		plain_imap_strout(msg->cm_fields['A']); /* mailbox name (user id) */
+		plain_imap_strout(msg->cm_fields[eAuthor]); /* mailbox name (user id) */
 		IAPuts(" ");
-		plain_imap_strout(msg->cm_fields['N']);	/* host name */
+		plain_imap_strout(msg->cm_fields[eNodeName]);	/* host name */
 	}
 	
 	IAPuts(")) "); /* close double-parens */
@@ -445,8 +445,8 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	if (!msg) return;
 
 	/* Parse the message date into an IMAP-format date string */
-	if (msg->cm_fields['T'] != NULL) {
-		msgdate = atol(msg->cm_fields['T']);
+	if (msg->cm_fields[eTimestamp] != NULL) {
+		msgdate = atol(msg->cm_fields[eTimestamp]);
 	}
 	else {
 		msgdate = time(NULL);
@@ -466,14 +466,14 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	IAPuts(" ");
 
 	/* Subject */
-	plain_imap_strout(msg->cm_fields['U']);
+	plain_imap_strout(msg->cm_fields[eMsgSubject]);
 	IAPuts(" ");
 
 	/* From */
 	imap_output_envelope_from(msg);
 
 	/* Sender (default to same as 'From' if not present) */
-	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Sender");
+	fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "Sender");
 	if (fieldptr != NULL) {
 		imap_output_envelope_addr(fieldptr);
 		free(fieldptr);
@@ -483,7 +483,7 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	}
 
 	/* Reply-to */
-	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Reply-to");
+	fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "Reply-to");
 	if (fieldptr != NULL) {
 		imap_output_envelope_addr(fieldptr);
 		free(fieldptr);
@@ -493,53 +493,53 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	}
 
 	/* To */
-	imap_output_envelope_addr(msg->cm_fields['R']);
+	imap_output_envelope_addr(msg->cm_fields[eRecipient]);
 
 	/* Cc (we do it this way because there might be a legacy non-Citadel Cc: field present) */
-	fieldptr = msg->cm_fields['Y'];
+	fieldptr = msg->cm_fields[eCarbonCopY];
 	if (fieldptr != NULL) {
 		imap_output_envelope_addr(fieldptr);
 	}
 	else {
-		fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+		fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "Cc");
 		imap_output_envelope_addr(fieldptr);
 		if (fieldptr != NULL) free(fieldptr);
 	}
 
 	/* Bcc */
-	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");
+	fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "Bcc");
 	imap_output_envelope_addr(fieldptr);
 	if (fieldptr != NULL) free(fieldptr);
 
 	/* In-reply-to */
-	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "In-reply-to");
+	fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "In-reply-to");
 	plain_imap_strout(fieldptr);
 	IAPuts(" ");
 	if (fieldptr != NULL) free(fieldptr);
 
 	/* message ID */
-	len = strlen(msg->cm_fields['I']);
+	len = strlen(msg->cm_fields[emessageId]);
 	
 	if ((len == 0) || (
-		    (msg->cm_fields['I'][0] == '<') && 
-		    (msg->cm_fields['I'][len - 1] == '>'))
+		    (msg->cm_fields[emessageId][0] == '<') && 
+		    (msg->cm_fields[emessageId][len - 1] == '>'))
 		)
 	{
-		plain_imap_strout(msg->cm_fields['I']);
+		plain_imap_strout(msg->cm_fields[emessageId]);
 	}
 	else 
 	{
 		char *Buf = malloc(len + 3);
 		long pos = 0;
 		
-		if (msg->cm_fields['I'][0] != '<')
+		if (msg->cm_fields[emessageId][0] != '<')
 		{
 			Buf[pos] = '<';
 			pos ++;
 		}
-		memcpy(&Buf[pos], msg->cm_fields['I'], len);
+		memcpy(&Buf[pos], msg->cm_fields[emessageId], len);
 		pos += len;
-		if (msg->cm_fields['I'][len] != '>')
+		if (msg->cm_fields[emessageId][len] != '>')
 		{
 			Buf[pos] = '>';
 			pos++;
@@ -752,7 +752,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	 * (Note value of 1 passed as 'dont_decode' so client gets it encoded)
 	 */
 	else {
-		mime_parser(msg->cm_fields['M'], NULL,
+		mime_parser(msg->cm_fields[eMesageText], NULL,
 			    *imap_load_part, NULL, NULL,
 			    section,
 			    1
@@ -1019,7 +1019,7 @@ void imap_fetch_bodystructure (long msgnum, const char *item,
 
 	/* For messages already stored in RFC822 format, we have to parse. */
 	IAPuts("BODYSTRUCTURE ");
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 			NULL,
 			*imap_fetch_bodystructure_part,	/* part */
 			*imap_fetch_bodystructure_pre,	/* pre-multi */

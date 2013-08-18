@@ -307,36 +307,36 @@ int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 		if (!FromAt && StrLength (SaveMsg->author_email) > 0)
 		{
 			StrBufRFC2047encode(&Encoded, SaveMsg->author_or_creator);
-			SaveMsg->Msg.cm_fields['A'] = SmashStrBuf(&Encoded);
-			SaveMsg->Msg.cm_fields['P'] =
+			SaveMsg->Msg.cm_fields[eAuthor] = SmashStrBuf(&Encoded);
+			SaveMsg->Msg.cm_fields[eMessagePath] =
 				SmashStrBuf(&SaveMsg->author_email);
 		}
 		else
 		{
 			if (FromAt)
 			{
-				SaveMsg->Msg.cm_fields['A'] =
+				SaveMsg->Msg.cm_fields[eAuthor] =
 					SmashStrBuf(&SaveMsg->author_or_creator);
-				SaveMsg->Msg.cm_fields['P'] =
-					strdup(SaveMsg->Msg.cm_fields['A']);
+				SaveMsg->Msg.cm_fields[eMessagePath] =
+					strdup(SaveMsg->Msg.cm_fields[eAuthor]);
 			}
 			else
 			{
 				StrBufRFC2047encode(&Encoded,
 						    SaveMsg->author_or_creator);
-				SaveMsg->Msg.cm_fields['A'] =
+				SaveMsg->Msg.cm_fields[eAuthor] =
 					SmashStrBuf(&Encoded);
-				SaveMsg->Msg.cm_fields['P'] =
+				SaveMsg->Msg.cm_fields[eMessagePath] =
 					strdup("rss@localhost");
 
 			}
 		}
 	}
 	else {
-		SaveMsg->Msg.cm_fields['A'] = strdup("rss");
+		SaveMsg->Msg.cm_fields[eAuthor] = strdup("rss");
 	}
 
-	SaveMsg->Msg.cm_fields['N'] = strdup(NODENAME);
+	SaveMsg->Msg.cm_fields[eNodeName] = strdup(NODENAME);
 	if (SaveMsg->title != NULL) {
 		long len;
 		char *Sbj;
@@ -358,7 +358,7 @@ int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 		StrBufTrim(Encoded);
 		StrBufRFC2047encode(&QPEncoded, Encoded);
 
-		SaveMsg->Msg.cm_fields['U'] = SmashStrBuf(&QPEncoded);
+		SaveMsg->Msg.cm_fields[eMsgSubject] = SmashStrBuf(&QPEncoded);
 		FreeStrBuf(&Encoded);
 	}
 	if (SaveMsg->link == NULL)
@@ -398,7 +398,7 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 	if (rss_format_item(IO, RSSAggr->ThisMsg))
 	{
-		RSSAggr->ThisMsg->Msg.cm_fields['M'] =
+		RSSAggr->ThisMsg->Msg.cm_fields[eMesageText] =
 			SmashStrBuf(&RSSAggr->ThisMsg->Message);
 
 		CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);

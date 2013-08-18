@@ -320,10 +320,10 @@ void smtp_webcit_preferences_hack_backend(long msgnum, void *userdata) {
 		return;
 	}
 
-	if ( (msg->cm_fields['U']) && (!strcasecmp(msg->cm_fields['U'], "__ WebCit Preferences __")) ) {
+	if ( (msg->cm_fields[eMsgSubject]) && (!strcasecmp(msg->cm_fields[eMsgSubject], "__ WebCit Preferences __")) ) {
 		/* This is it!  Change ownership of the message text so it doesn't get freed. */
-		*webcit_conf = (char *)msg->cm_fields['M'];
-		msg->cm_fields['M'] = NULL;
+		*webcit_conf = (char *)msg->cm_fields[eMesageText];
+		msg->cm_fields[eMesageText] = NULL;
 	}
 	CtdlFreeMessage(msg);
 }
@@ -813,12 +813,12 @@ void smtp_data(long offset, long flags)
 	if ( (CCC->logged_in) && (config.c_rfc822_strict_from != CFG_SMTP_FROM_NOFILTER) ) {
 		int validemail = 0;
 		
-		if (!IsEmptyStr(msg->cm_fields['F'])       &&
+		if (!IsEmptyStr(msg->cm_fields[erFc822Addr])       &&
 		    ((config.c_rfc822_strict_from == CFG_SMTP_FROM_CORRECT) || 
 		     (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)    )  )
 		{
 			if (!IsEmptyStr(CCC->cs_inet_email))
-				validemail = strcmp(CCC->cs_inet_email, msg->cm_fields['F']) == 0;
+				validemail = strcmp(CCC->cs_inet_email, msg->cm_fields[erFc822Addr]) == 0;
 			if ((!validemail) && 
 			    (!IsEmptyStr(CCC->cs_inet_other_emails)))
 			{
@@ -828,43 +828,43 @@ void smtp_data(long offset, long flags)
 				for (i=0; i < num_secondary_emails && !validemail; ++i) {
 					char buf[256];
 					extract_token(buf, CCC->cs_inet_other_emails,i,'|',sizeof CCC->cs_inet_other_emails);
-					validemail = strcmp(buf, msg->cm_fields['F']) == 0;
+					validemail = strcmp(buf, msg->cm_fields[erFc822Addr]) == 0;
 				}
 			}
 		}
 
 		if (!validemail && (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)) {
-			syslog(LOG_ERR, "invalid sender '%s' - rejecting this message", msg->cm_fields['F']);
-			cprintf("550 Invalid sender '%s' - rejecting this message.\r\n", msg->cm_fields['F']);
+			syslog(LOG_ERR, "invalid sender '%s' - rejecting this message", msg->cm_fields[erFc822Addr]);
+			cprintf("550 Invalid sender '%s' - rejecting this message.\r\n", msg->cm_fields[erFc822Addr]);
 			return;
 		}
 
-		if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
-		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
-		if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
-		if (msg->cm_fields['O'] != NULL) free(msg->cm_fields['O']);
-		msg->cm_fields['A'] = strdup(CCC->user.fullname);
-		msg->cm_fields['N'] = strdup(config.c_nodename);
-		msg->cm_fields['H'] = strdup(config.c_humannode);
-        	msg->cm_fields['O'] = strdup(MAILROOM);
+		if (msg->cm_fields[eAuthor] != NULL) free(msg->cm_fields[eAuthor]);
+		if (msg->cm_fields[eNodeName] != NULL) free(msg->cm_fields[eNodeName]);
+		if (msg->cm_fields[eHumanNode] != NULL) free(msg->cm_fields[eHumanNode]);
+		if (msg->cm_fields[eOriginalRoom] != NULL) free(msg->cm_fields[eOriginalRoom]);
+		msg->cm_fields[eAuthor] = strdup(CCC->user.fullname);
+		msg->cm_fields[eNodeName] = strdup(config.c_nodename);
+		msg->cm_fields[eHumanNode] = strdup(config.c_humannode);
+        	msg->cm_fields[eOriginalRoom] = strdup(MAILROOM);
 
 		if (!validemail) {
-			if (msg->cm_fields['F'] != NULL) free(msg->cm_fields['F']);
-			msg->cm_fields['F'] = strdup(CCC->cs_inet_email);
+			if (msg->cm_fields[erFc822Addr] != NULL) free(msg->cm_fields[erFc822Addr]);
+			msg->cm_fields[erFc822Addr] = strdup(CCC->cs_inet_email);
 		}
 	}
 
 	/* Set the "envelope from" address */
-	if (msg->cm_fields['P'] != NULL) {
-		free(msg->cm_fields['P']);
+	if (msg->cm_fields[eMessagePath] != NULL) {
+		free(msg->cm_fields[eMessagePath]);
 	}
-	msg->cm_fields['P'] = strdup(ChrPtr(sSMTP->from));
+	msg->cm_fields[eMessagePath] = strdup(ChrPtr(sSMTP->from));
 
 	/* Set the "envelope to" address */
-	if (msg->cm_fields['V'] != NULL) {
-		free(msg->cm_fields['V']);
+	if (msg->cm_fields[eenVelopeTo] != NULL) {
+		free(msg->cm_fields[eenVelopeTo]);
 	}
-	msg->cm_fields['V'] = strdup(ChrPtr(sSMTP->recipients));
+	msg->cm_fields[eenVelopeTo] = strdup(ChrPtr(sSMTP->recipients));
 
 	/* Submit the message into the Citadel system. */
 	valid = validate_recipients(
@@ -886,11 +886,11 @@ void smtp_data(long offset, long flags)
 
 	if (scan_errors > 0) {	/* We don't want this message! */
 
-		if (msg->cm_fields['0'] == NULL) {
-			msg->cm_fields['0'] = strdup("Message rejected by filter");
+		if (msg->cm_fields[eErrorMsg] == NULL) {
+			msg->cm_fields[eErrorMsg] = strdup("Message rejected by filter");
 		}
 
-		StrBufPrintf(sSMTP->OneRcpt, "550 %s\r\n", msg->cm_fields['0']);
+		StrBufPrintf(sSMTP->OneRcpt, "550 %s\r\n", msg->cm_fields[eErrorMsg]);
 	}
 	
 	else {			/* Ok, we'll accept this message. */

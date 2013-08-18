@@ -165,13 +165,13 @@ int spam_assassin(struct CtdlMessage *msg) {
 
 		sprintf(cur,"\r\nX-Spam-Status: %s, score=%s required=%s\r\n", sastatus, sascore, saoutof);
 		headerlen = strlen(buf);
-		oldmsgsize = strlen(msg->cm_fields['M']) + 1;
+		oldmsgsize = strlen(msg->cm_fields[eMesageText]) + 1;
 		newmsgsize = headerlen + oldmsgsize;
 
-		msg->cm_fields['M'] = realloc(msg->cm_fields['M'], newmsgsize);
+		msg->cm_fields[eMesageText] = realloc(msg->cm_fields[eMesageText], newmsgsize);
 
-		memmove(msg->cm_fields['M']+headerlen,msg->cm_fields['M'],oldmsgsize);
-		memcpy(msg->cm_fields['M'],buf,headerlen);
+		memmove(msg->cm_fields[eMesageText]+headerlen,msg->cm_fields[eMesageText],oldmsgsize);
+		memcpy(msg->cm_fields[eMesageText],buf,headerlen);
 
 	} else {
                 syslog(LOG_DEBUG, "reject spam code used");
@@ -180,10 +180,10 @@ int spam_assassin(struct CtdlMessage *msg) {
 		}
 
 		if (is_spam) {
-			if (msg->cm_fields['0'] != NULL) {
-				free(msg->cm_fields['0']);
+			if (msg->cm_fields[eErrorMsg] != NULL) {
+				free(msg->cm_fields[eErrorMsg]);
 			}
-			msg->cm_fields['0'] = strdup("message rejected by spam filter");
+			msg->cm_fields[eErrorMsg] = strdup("message rejected by spam filter");
 		}
 	}
 

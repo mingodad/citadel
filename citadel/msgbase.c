@@ -116,7 +116,47 @@ char *msgkeys[] = {
 	NULL    /* Z */
 };
 
-void CtdlMsgSetCM_Fields(struct CtdlMessage *Msg, const char which, const char *buf, long length)
+eMsgField FieldOrder[]  = {
+/* Important fields */
+	emessageId   ,
+	eMessagePath ,
+	eTimestamp   ,
+	eAuthor      ,
+	erFc822Addr  ,
+	eOriginalRoom,
+	eNodeName    ,
+	eHumanNode   ,
+	eRecipient   ,
+	eDestination ,
+/* Semi-important fields */
+	eBig_message ,
+	eRemoteRoom  ,
+	eExclusiveID ,
+	eWeferences  ,
+	eJournal     ,
+/* G is not used yet, may become virus signature*/
+	eReplyTo     ,
+	eListID      ,
+/* Q is not used yet */
+	eSpecialField,
+	eenVelopeTo  ,
+/* X is not used yet */
+/* Z is not used yet */
+	eCarbonCopY  ,
+	eMsgSubject  ,
+/* internal only */
+	eErrorMsg    ,
+	eSuppressIdx ,
+	eExtnotify   ,
+/* Message text (MUST be last) */
+	eMesageText 
+/* Not saved to disk: 
+	eVltMsgNum
+*/
+};
+
+static const long NDiskFields = sizeof(FieldOrder) / sizeof(eMsgField);
+void CtdlMsgSetCM_Fields(struct CtdlMessage *Msg, eMsgField which, const char *buf, long length)
 {
 	if (Msg->cm_fields[which] != NULL)
 		free (Msg->cm_fields[which]);
@@ -289,11 +329,11 @@ void headers_listing(long msgnum, void *userdata)
 
 	cprintf("%ld|%s|%s|%s|%s|%s|\n",
 		msgnum,
-		(msg->cm_fields['T'] ? msg->cm_fields['T'] : "0"),
-		(msg->cm_fields['A'] ? msg->cm_fields['A'] : ""),
-		(msg->cm_fields['N'] ? msg->cm_fields['N'] : ""),
-		(msg->cm_fields['F'] ? msg->cm_fields['F'] : ""),
-		(msg->cm_fields['U'] ? msg->cm_fields['U'] : "")
+		(msg->cm_fields[eTimestamp] ? msg->cm_fields[eTimestamp] : "0"),
+		(msg->cm_fields[eAuthor] ? msg->cm_fields[eAuthor] : ""),
+		(msg->cm_fields[eNodeName] ? msg->cm_fields[eNodeName] : ""),
+		(msg->cm_fields[erFc822Addr] ? msg->cm_fields[erFc822Addr] : ""),
+		(msg->cm_fields[eMsgSubject] ? msg->cm_fields[eMsgSubject] : "")
 	);
 	CtdlFreeMessage(msg);
 }
@@ -313,8 +353,8 @@ void headers_euid(long msgnum, void *userdata)
 
 	cprintf("%ld|%s|%s\n", 
 		msgnum, 
-		(msg->cm_fields['E'] ? msg->cm_fields['E'] : ""),
-		(msg->cm_fields['T'] ? msg->cm_fields['T'] : "0"));
+		(msg->cm_fields[eExclusiveID] ? msg->cm_fields[eExclusiveID] : ""),
+		(msg->cm_fields[eTimestamp] ? msg->cm_fields[eTimestamp] : "0"));
 	CtdlFreeMessage(msg);
 }
 
@@ -1260,16 +1300,16 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * so go ahead and fetch that.  Failing that, just set a dummy
 	 * body so other code doesn't barf.
 	 */
-	if ( (ret->cm_fields['M'] == NULL) && (with_body) ) {
+	if ( (ret->cm_fields[eMesageText] == NULL) && (with_body) ) {
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
-			ret->cm_fields['M'] = dmsgtext->ptr;
+			ret->cm_fields[eMesageText] = dmsgtext->ptr;
 			dmsgtext->ptr = NULL;
 			cdb_free(dmsgtext);
 		}
 	}
-	if (ret->cm_fields['M'] == NULL) {
-		ret->cm_fields['M'] = strdup("\r\n\r\n (no text)\r\n");
+	if (ret->cm_fields[eMesageText] == NULL) {
+		ret->cm_fields[eMesageText] = strdup("\r\n\r\n (no text)\r\n");
 	}
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
@@ -1787,7 +1827,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	if (section) if (!IsEmptyStr(section)) if (strcmp(section, "0")) {
 		memset(&encap, 0, sizeof encap);
 		safestrncpy(encap.desired_section, section, sizeof encap.desired_section);
-		mime_parser(TheMessage->cm_fields['M'],
+		mime_parser(TheMessage->cm_fields[eMesageText],
 			NULL,
 			*extract_encapsulated_message,
 			NULL, NULL, (void *)&encap, 0
@@ -1795,13 +1835,13 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 		if ((Author != NULL) && (*Author == NULL))
 		{
-			*Author = TheMessage->cm_fields['A'];
-			TheMessage->cm_fields['A'] = NULL;
+			*Author = TheMessage->cm_fields[eAuthor];
+			TheMessage->cm_fields[eAuthor] = NULL;
 		}
 		if ((Address != NULL) && (*Address == NULL))
 		{	
-			*Address = TheMessage->cm_fields['F'];
-			TheMessage->cm_fields['F'] = NULL;
+			*Address = TheMessage->cm_fields[erFc822Addr];
+			TheMessage->cm_fields[erFc822Addr] = NULL;
 		}
 		CtdlFreeMessage(TheMessage);
 		TheMessage = NULL;
@@ -1835,13 +1875,13 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf, flags);
 	if ((Author != NULL) && (*Author == NULL))
 	{
-		*Author = TheMessage->cm_fields['A'];
-		TheMessage->cm_fields['A'] = NULL;
+		*Author = TheMessage->cm_fields[eAuthor];
+		TheMessage->cm_fields[eAuthor] = NULL;
 	}
 	if ((Address != NULL) && (*Address == NULL))
 	{	
-		*Address = TheMessage->cm_fields['F'];
-		TheMessage->cm_fields['F'] = NULL;
+		*Address = TheMessage->cm_fields[erFc822Addr];
+		TheMessage->cm_fields[erFc822Addr] = NULL;
 	}
 
 	CtdlFreeMessage(TheMessage);
@@ -2005,16 +2045,15 @@ void OutputCtdlMsgHeaders(
 	struct CtdlMessage *TheMessage,
 	int do_proto)		/* do Citadel protocol responses? */
 {
-	char allkeys[30];
-	int i, k, n;
+	int i;
 	int suppress_f = 0;
 	char buf[SIZ];
 	char display_name[256];
 
 	/* begin header processing loop for Citadel message format */
 	safestrncpy(display_name, "<unknown>", sizeof display_name);
-	if (TheMessage->cm_fields['A']) {
-		strcpy(buf, TheMessage->cm_fields['A']);
+	if (TheMessage->cm_fields[eAuthor]) {
+		strcpy(buf, TheMessage->cm_fields[eAuthor]);
 		if (TheMessage->cm_anon_type == MES_ANONONLY) {
 			safestrncpy(display_name, "****", sizeof display_name);
 		}
@@ -2038,35 +2077,37 @@ void OutputCtdlMsgHeaders(
 	 * local Citadel network.
 	 */
 	suppress_f = 0;
-	if (TheMessage->cm_fields['N'] != NULL)
-		if (!IsEmptyStr(TheMessage->cm_fields['N']))
-			if (haschar(TheMessage->cm_fields['N'], '.') == 0) {
+	if (TheMessage->cm_fields[eNodeName] != NULL)
+		if (!IsEmptyStr(TheMessage->cm_fields[eNodeName]))
+			if (haschar(TheMessage->cm_fields[eNodeName], '.') == 0) {
 				suppress_f = 1;
 			}
 
 	/* Now spew the header fields in the order we like them. */
-	n = safestrncpy(allkeys, FORDER, sizeof allkeys);
-	for (i=0; i<n; ++i) {
-		k = (int) allkeys[i];
-		if (k != 'M') {
-			if ( (TheMessage->cm_fields[k] != NULL)
-			     && (msgkeys[k] != NULL) ) {
-				if ((k == 'V') || (k == 'R') || (k == 'Y')) {
-					sanitize_truncated_recipient(TheMessage->cm_fields[k]);
+	for (i=0; i< NDiskFields; ++i) {
+		eMsgField Field;
+		Field = FieldOrder[i];
+		if (Field != eMesageText) {
+			if ( (TheMessage->cm_fields[Field] != NULL)
+			     && (msgkeys[Field] != NULL) ) {
+				if ((Field == eenVelopeTo) ||
+				    (Field == eRecipient) ||
+				    (Field == eCarbonCopY)) {
+					sanitize_truncated_recipient(TheMessage->cm_fields[Field]);
 				}
-				if (k == 'A') {
+				if (Field == eAuthor) {
 					if (do_proto) cprintf("%s=%s\n",
-							      msgkeys[k],
+							      msgkeys[Field],
 							      display_name);
 				}
-				else if ((k == 'F') && (suppress_f)) {
+				else if ((Field == erFc822Addr) && (suppress_f)) {
 					/* do nothing */
 				}
 				/* Masquerade display name if needed */
 				else {
 					if (do_proto) cprintf("%s=%s\n",
-							      msgkeys[k],
-							      TheMessage->cm_fields[k]
+							      msgkeys[Field],
+							      TheMessage->cm_fields[Field]
 						);
 				}
 			}
@@ -2097,7 +2138,7 @@ void OutputRFC822MsgHeaders(
 		if (TheMessage->cm_fields[i]) {
 			mptr = mpptr = TheMessage->cm_fields[i];
 				
-			if (i == 'A') {
+			if (i == eAuthor) {
 				safestrncpy(luser, mptr, sizeof_luser);
 				safestrncpy(suser, mptr, sizeof_suser);
 			}
@@ -2111,7 +2152,7 @@ void OutputRFC822MsgHeaders(
 			else if (i == 'P') {
 				cprintf("Return-Path: %s%s", mptr, nl);
 			}
-			else if (i == 'L') {
+			else if (i == eListID) {
 				cprintf("List-ID: %s%s", mptr, nl);
 			}
 			else if (i == 'V') {
@@ -2129,7 +2170,7 @@ void OutputRFC822MsgHeaders(
 			}
 			else if (i == 'I')
 				safestrncpy(mid, mptr, sizeof_mid); /// TODO: detect @ here and copy @nodename in if not found.
-			else if (i == 'F')
+			else if (i == erFc822Addr)
 				safestrncpy(fuser, mptr, sizeof_fuser);
 			/* else if (i == 'O')
 			   cprintf("X-Citadel-Room: %s%s",
@@ -2173,7 +2214,7 @@ void OutputRFC822MsgHeaders(
 					}
 				}
 			}
-			else if (i == 'K') {
+			else if (i == eReplyTo) {
 				hptr = mptr;
 				while ((*hptr != '\0') && isspace(*hptr))
 					hptr ++;
@@ -2205,7 +2246,7 @@ void Dump_RFC822HeadersBody(
 	int nllen = strlen(nl);
 	char *mptr;
 
-	mptr = TheMessage->cm_fields['M'];
+	mptr = TheMessage->cm_fields[eMesageText];
 
 
 	prev_ch = '\0';
@@ -2286,7 +2327,7 @@ void DumpFormatFixed(
 	int nllen = strlen (nl);
 	char *mptr;
 
-	mptr = TheMessage->cm_fields['M'];
+	mptr = TheMessage->cm_fields[eMesageText];
 	
 	if (mode == MT_MIME) {
 		cprintf("Content-type: text/plain\n\n");
@@ -2388,8 +2429,8 @@ int CtdlOutputPreLoadedMsg(
 	/* Suppress envelope recipients if required to avoid disclosing BCC addresses.
 	 * Pad it with spaces in order to avoid changing the RFC822 length of the message.
 	 */
-	if ( (flags & SUPPRESS_ENV_TO) && (TheMessage->cm_fields['V'] != NULL) ) {
-		memset(TheMessage->cm_fields['V'], ' ', strlen(TheMessage->cm_fields['V']));
+	if ( (flags & SUPPRESS_ENV_TO) && (TheMessage->cm_fields[eenVelopeTo] != NULL) ) {
+		memset(TheMessage->cm_fields[eenVelopeTo], ' ', strlen(TheMessage->cm_fields[eenVelopeTo]));
 	}
 		
 	/* Are we downloading a MIME component? */
@@ -2404,7 +2445,7 @@ int CtdlOutputPreLoadedMsg(
 				ERROR + RESOURCE_BUSY);
 		} else {
 			/* Parse the message text component */
-			mptr = TheMessage->cm_fields['M'];
+			mptr = TheMessage->cm_fields[eMesageText];
 			mime_parser(mptr, NULL, *mime_download, NULL, NULL, NULL, 0);
 			/* If there's no file open by this time, the requested
 			 * section wasn't found, so print an error
@@ -2431,7 +2472,7 @@ int CtdlOutputPreLoadedMsg(
 			/* Parse the message text component */
 			int found_it = 0;
 
-			mptr = TheMessage->cm_fields['M'];
+			mptr = TheMessage->cm_fields[eMesageText];
 			mime_parser(mptr, NULL, *mime_spew_section, NULL, NULL, (void *)&found_it, 0);
 			/* If section wasn't found, print an error
 			 */
@@ -2529,7 +2570,7 @@ START_TEXT:
 	/* Tell the client about the MIME parts in this message */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
-			mptr = TheMessage->cm_fields['M'];
+			mptr = TheMessage->cm_fields[eMesageText];
 			memset(&ma, 0, sizeof(struct ma_info));
 			mime_parser(mptr, NULL,
 				(do_proto ? *list_this_part : NULL),
@@ -2570,7 +2611,7 @@ START_TEXT:
 	 * message to the reader's screen width.
 	 */
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
-		mptr = TheMessage->cm_fields['M'];
+		mptr = TheMessage->cm_fields[eMesageText];
 
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/x-citadel-variformat\n\n");
@@ -2876,8 +2917,8 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 				ReplicationChecks(msg);
 		
 				/* If the message has an Exclusive ID, index that... */
-				if (msg->cm_fields['E'] != NULL) {
-					index_message_by_euid(msg->cm_fields['E'], &CCC->room, msgid);
+				if (msg->cm_fields[eExclusiveID] != NULL) {
+					index_message_by_euid(msg->cm_fields[eExclusiveID], &CCC->room, msgid);
 				}
 
 				/* Free up the memory we may have allocated */
@@ -2953,16 +2994,16 @@ long send_message(struct CtdlMessage *msg) {
 		);
 
 	/* Generate an ID if we don't have one already */
-	if (msg->cm_fields['I']==NULL) {
-		msg->cm_fields['I'] = strdup(msgidbuf);
+	if (msg->cm_fields[emessageId]==NULL) {
+		msg->cm_fields[emessageId] = strdup(msgidbuf);
 	}
 
 	/* If the message is big, set its body aside for storage elsewhere */
-	if (msg->cm_fields['M'] != NULL) {
-		if (strlen(msg->cm_fields['M']) > BIGMSG) {
+	if (msg->cm_fields[eMesageText] != NULL) {
+		if (strlen(msg->cm_fields[eMesageText]) > BIGMSG) {
 			is_bigmsg = 1;
-			holdM = msg->cm_fields['M'];
-			msg->cm_fields['M'] = NULL;
+			holdM = msg->cm_fields[eMesageText];
+			msg->cm_fields[eMesageText] = NULL;
 		}
 	}
 
@@ -2970,7 +3011,7 @@ long send_message(struct CtdlMessage *msg) {
 	serialize_message(&smr, msg);
 
 	if (is_bigmsg) {
-		msg->cm_fields['M'] = holdM;
+		msg->cm_fields[eMesageText] = holdM;
 	}
 
 	if (smr.len == 0) {
@@ -3020,9 +3061,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	struct CitContext *CCC = CC;
 	size_t wlen, fieldlen;
 	int i;
-	static char *forder = FORDER;
-	int n = sizeof(FORDER) - 1;
-	long lengths[sizeof(FORDER)];
+	long lengths[NDiskFields];
 	
 	memset(lengths, 0, sizeof(lengths));
 
@@ -3037,10 +3076,10 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	}
 
 	ret->len = 3;
-	for (i=0; i<n; ++i)
-		if (msg->cm_fields[(int)forder[i]] != NULL)
+	for (i=0; i < NDiskFields; ++i)
+		if (msg->cm_fields[FieldOrder[i]] != NULL)
 		{
-			lengths[i] = strlen(msg->cm_fields[(int)forder[i]]);
+			lengths[i] = strlen(msg->cm_fields[FieldOrder[i]]);
 			ret->len += lengths[i] + 2;
 		}
 
@@ -3058,14 +3097,14 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	ret->ser[2] = msg->cm_format_type;
 	wlen = 3;
 
-	for (i=0; i<n; ++i)
-		if (msg->cm_fields[(int)forder[i]] != NULL)
+	for (i=0; i < NDiskFields; ++i)
+		if (msg->cm_fields[FieldOrder[i]] != NULL)
 		{
 			fieldlen = lengths[i];
-			ret->ser[wlen++] = (char)forder[i];
+			ret->ser[wlen++] = (char)FieldOrder[i];
 
 			memcpy(&ret->ser[wlen],
-			       msg->cm_fields[(int)forder[i]],
+			       msg->cm_fields[FieldOrder[i]],
 			       fieldlen+1);
 
 			wlen = wlen + fieldlen + 1;
@@ -3095,12 +3134,12 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 
 	/* No exclusive id?  Don't do anything. */
 	if (msg == NULL) return;
-	if (msg->cm_fields['E'] == NULL) return;
-	if (IsEmptyStr(msg->cm_fields['E'])) return;
+	if (msg->cm_fields[eExclusiveID] == NULL) return;
+	if (IsEmptyStr(msg->cm_fields[eExclusiveID])) return;
 	/*MSG_syslog(LOG_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
-	  msg->cm_fields['E'], CCC->room.QRname);*/
+	  msg->cm_fields[eExclusiveID], CCC->room.QRname);*/
 
-	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields['E'], &CCC->room);
+	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields[eExclusiveID], &CCC->room);
 	if (old_msgnum > 0L) {
 		MSG_syslog(LOG_DEBUG, "ReplicationChecks() replacing message %ld\n", old_msgnum);
 		CtdlDeleteMessages(CCC->room.QRname, &old_msgnum, 1, "");
@@ -3152,24 +3191,24 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If this message has no timestamp, we take the liberty of
 	 * giving it one, right now.
 	 */
-	if (msg->cm_fields['T'] == NULL) {
+	if (msg->cm_fields[eTimestamp] == NULL) {
 		snprintf(generated_timestamp, sizeof generated_timestamp, "%ld", (long)time(NULL));
-		msg->cm_fields['T'] = strdup(generated_timestamp);
+		msg->cm_fields[eTimestamp] = strdup(generated_timestamp);
 	}
 
 	/* If this message has no path, we generate one.
 	 */
-	if (msg->cm_fields['P'] == NULL) {
-		if (msg->cm_fields['A'] != NULL) {
-			msg->cm_fields['P'] = strdup(msg->cm_fields['A']);
-			for (a=0; !IsEmptyStr(&msg->cm_fields['P'][a]); ++a) {
-				if (isspace(msg->cm_fields['P'][a])) {
-					msg->cm_fields['P'][a] = ' ';
+	if (msg->cm_fields[eMessagePath] == NULL) {
+		if (msg->cm_fields[eAuthor] != NULL) {
+			msg->cm_fields[eMessagePath] = strdup(msg->cm_fields[eAuthor]);
+			for (a=0; !IsEmptyStr(&msg->cm_fields[eMessagePath][a]); ++a) {
+				if (isspace(msg->cm_fields[eMessagePath][a])) {
+					msg->cm_fields[eMessagePath][a] = ' ';
 				}
 			}
 		}
 		else {
-			msg->cm_fields['P'] = strdup("unknown");
+			msg->cm_fields[eMessagePath] = strdup("unknown");
 		}
 	}
 
@@ -3181,7 +3220,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Learn about what's inside, because it's what's inside that counts */
-	if (msg->cm_fields['M'] == NULL) {
+	if (msg->cm_fields[eMesageText] == NULL) {
 		MSGM_syslog(LOG_ERR, "ERROR: attempt to save message with NULL body\n");
 		return(-2);
 	}
@@ -3195,7 +3234,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		break;
 	case 4:
 		strcpy(content_type, "text/plain");
-		mptr = bmstrcasestr(msg->cm_fields['M'], "Content-type:");
+		mptr = bmstrcasestr(msg->cm_fields[eMesageText], "Content-type:");
 		if (mptr != NULL) {
 			char *aptr;
 			safestrncpy(content_type, &mptr[13], sizeof content_type);
@@ -3245,8 +3284,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/*
 	 * If this message has no O (room) field, generate one.
 	 */
-	if (msg->cm_fields['O'] == NULL) {
-		msg->cm_fields['O'] = strdup(CCC->room.QRname);
+	if (msg->cm_fields[eOriginalRoom] == NULL) {
+		msg->cm_fields[eOriginalRoom] = strdup(CCC->room.QRname);
 	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
@@ -3341,7 +3380,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		snprintf(bounce_to, sizeof bounce_to, "%s@%s", CCC->user.fullname, config.c_nodename);
 	}
 	else {
-		snprintf(bounce_to, sizeof bounce_to, "%s@%s", msg->cm_fields['A'], msg->cm_fields['N']);
+		snprintf(bounce_to, sizeof bounce_to, "%s@%s", msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
 	}
 
 	/* If this is private, local mail, make a copy in the
@@ -3375,11 +3414,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					imsg->cm_magic = CTDLMESSAGE_MAGIC;
 					imsg->cm_anon_type = MES_NORMAL;
 					imsg->cm_format_type = FMT_RFC822;
-					imsg->cm_fields['U'] = strdup("QMSG");
-					imsg->cm_fields['A'] = strdup("Citadel");
-					imsg->cm_fields['J'] = strdup("do not journal");
-					imsg->cm_fields['M'] = instr;	/* imsg owns this memory now */
-					imsg->cm_fields['2'] = strdup(recipient);
+					imsg->cm_fields[eMsgSubject] = strdup("QMSG");
+					imsg->cm_fields[eAuthor] = strdup("Citadel");
+					imsg->cm_fields[eJournal] = strdup("do not journal");
+					imsg->cm_fields[eMesageText] = instr;	/* imsg owns this memory now */
+					imsg->cm_fields[eExtnotify] = strdup(recipient);
 					CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM, 0);
 					CtdlFreeMessage(imsg);
 				}
@@ -3392,12 +3431,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Perform "after save" hooks */
 	MSGM_syslog(LOG_DEBUG, "Performing after-save hooks\n");
-	if (msg->cm_fields['3'] != NULL) free(msg->cm_fields['3']);
-	msg->cm_fields['3'] = malloc(20);
-	snprintf(msg->cm_fields['3'], 20, "%ld", newmsgid);
+	if (msg->cm_fields[eVltMsgNum] != NULL) free(msg->cm_fields[eVltMsgNum]);
+	msg->cm_fields[eVltMsgNum] = malloc(20);
+	snprintf(msg->cm_fields[eVltMsgNum], 20, "%ld", newmsgid);
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
-	free(msg->cm_fields['3']);
-	msg->cm_fields['3'] = NULL;
+	free(msg->cm_fields[eVltMsgNum]);
+	msg->cm_fields[eVltMsgNum] = NULL;
 
 	/* For IGnet mail, we have to save a new copy into the spooler for
 	 * each recipient, with the R and D fields set to the recipient and
@@ -3412,12 +3451,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			extract_token(recipient, recps->recp_ignet, i,
 				      '|', sizeof recipient);
 
-			hold_R = msg->cm_fields['R'];
-			hold_D = msg->cm_fields['D'];
-			msg->cm_fields['R'] = malloc(SIZ);
-			msg->cm_fields['D'] = malloc(128);
-			extract_token(msg->cm_fields['R'], recipient, 0, '@', SIZ);
-			extract_token(msg->cm_fields['D'], recipient, 1, '@', 128);
+			hold_R = msg->cm_fields[eRecipient];
+			hold_D = msg->cm_fields[eDestination];
+			msg->cm_fields[eRecipient] = malloc(SIZ);
+			msg->cm_fields[eDestination] = malloc(128);
+			extract_token(msg->cm_fields[eRecipient], recipient, 0, '@', SIZ);
+			extract_token(msg->cm_fields[eDestination], recipient, 1, '@', 128);
 		
 			serialize_message(&smr, msg);
 			if (smr.len > 0) {
@@ -3437,10 +3476,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 				free(smr.ser);
 			}
 
-			free(msg->cm_fields['R']);
-			free(msg->cm_fields['D']);
-			msg->cm_fields['R'] = hold_R;
-			msg->cm_fields['D'] = hold_D;
+			free(msg->cm_fields[eRecipient]);
+			free(msg->cm_fields[eDestination]);
+			msg->cm_fields[eRecipient] = hold_R;
+			msg->cm_fields[eDestination] = hold_D;
 		}
 
 	/* Go back to the room we started from */
@@ -3496,10 +3535,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_magic = CTDLMESSAGE_MAGIC;
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
-		imsg->cm_fields['U'] = strdup("QMSG");
-		imsg->cm_fields['A'] = strdup("Citadel");
-		imsg->cm_fields['J'] = strdup("do not journal");
-		imsg->cm_fields['M'] = SmashStrBuf(&SpoolMsg);	/* imsg owns this memory now */
+		imsg->cm_fields[eMsgSubject] = strdup("QMSG");
+		imsg->cm_fields[eAuthor] = strdup("Citadel");
+		imsg->cm_fields[eJournal] = strdup("do not journal");
+		imsg->cm_fields[eMesageText] = SmashStrBuf(&SpoolMsg);	/* imsg owns this memory now */
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 		CtdlFreeMessage(imsg);
 	}
@@ -3527,7 +3566,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/*
 	 * Determine whether this message qualifies for journaling.
 	 */
-	if (msg->cm_fields['J'] != NULL) {
+	if (msg->cm_fields[eJournal] != NULL) {
 		qualified_for_journaling = 0;
 	}
 	else {
@@ -3582,29 +3621,29 @@ void quickie_message(const char *from,
 	msg->cm_format_type = format_type;
 
 	if (from != NULL) {
-		msg->cm_fields['A'] = strdup(from);
+		msg->cm_fields[eAuthor] = strdup(from);
 	}
 	else if (fromaddr != NULL) {
-		msg->cm_fields['A'] = strdup(fromaddr);
-		if (strchr(msg->cm_fields['A'], '@')) {
-			*strchr(msg->cm_fields['A'], '@') = 0;
+		msg->cm_fields[eAuthor] = strdup(fromaddr);
+		if (strchr(msg->cm_fields[eAuthor], '@')) {
+			*strchr(msg->cm_fields[eAuthor], '@') = 0;
 		}
 	}
 	else {
-		msg->cm_fields['A'] = strdup("Citadel");
+		msg->cm_fields[eAuthor] = strdup("Citadel");
 	}
 
-	if (fromaddr != NULL) msg->cm_fields['F'] = strdup(fromaddr);
-	if (room != NULL) msg->cm_fields['O'] = strdup(room);
-	msg->cm_fields['N'] = strdup(NODENAME);
+	if (fromaddr != NULL) msg->cm_fields[erFc822Addr] = strdup(fromaddr);
+	if (room != NULL) msg->cm_fields[eOriginalRoom] = strdup(room);
+	msg->cm_fields[eNodeName] = strdup(NODENAME);
 	if (to != NULL) {
-		msg->cm_fields['R'] = strdup(to);
+		msg->cm_fields[eRecipient] = strdup(to);
 		recp = validate_recipients(to, NULL, 0);
 	}
 	if (subject != NULL) {
-		msg->cm_fields['U'] = strdup(subject);
+		msg->cm_fields[eMsgSubject] = strdup(subject);
 	}
-	msg->cm_fields['M'] = strdup(text);
+	msg->cm_fields[eMesageText] = strdup(text);
 
 	CtdlSubmitMsg(msg, recp, room, 0);
 	CtdlFreeMessage(msg);
@@ -3983,16 +4022,16 @@ struct CtdlMessage *CtdlMakeMessage(
 	if (my_email == NULL) my_email = "";
 
 	if (!IsEmptyStr(my_email)) {
-		msg->cm_fields['P'] = strdup(my_email);
+		msg->cm_fields[eMessagePath] = strdup(my_email);
 	}
 	else {
 		snprintf(buf, sizeof buf, "%s", author->fullname);
-		msg->cm_fields['P'] = strdup(buf);
+		msg->cm_fields[eMessagePath] = strdup(buf);
 	}
-	convert_spaces_to_underscores(msg->cm_fields['P']);
+	convert_spaces_to_underscores(msg->cm_fields[eMessagePath]);
 
 	snprintf(buf, sizeof buf, "%ld", (long)time(NULL));	/* timestamp */
-	msg->cm_fields['T'] = strdup(buf);
+	msg->cm_fields[eTimestamp] = strdup(buf);
 
 	if ((fake_name != NULL) && (fake_name[0])) {		/* author */
 		FakeAuthor = NewStrBufPlain (fake_name, -1);
@@ -4001,34 +4040,34 @@ struct CtdlMessage *CtdlMakeMessage(
 		FakeAuthor = NewStrBufPlain (author->fullname, -1);
 	}
 	StrBufRFC2047encode(&FakeEncAuthor, FakeAuthor);
-	msg->cm_fields['A'] = SmashStrBuf(&FakeEncAuthor);
+	msg->cm_fields[eAuthor] = SmashStrBuf(&FakeEncAuthor);
 	FreeStrBuf(&FakeAuthor);
 
 	if (CC->room.QRflags & QR_MAILBOX) {		/* room */
-		msg->cm_fields['O'] = strdup(&CC->room.QRname[11]);
+		msg->cm_fields[eOriginalRoom] = strdup(&CC->room.QRname[11]);
 	}
 	else {
-		msg->cm_fields['O'] = strdup(CC->room.QRname);
+		msg->cm_fields[eOriginalRoom] = strdup(CC->room.QRname);
 	}
 
-	msg->cm_fields['N'] = strdup(NODENAME);		/* nodename */
-	msg->cm_fields['H'] = strdup(HUMANNODE);		/* hnodename */
+	msg->cm_fields[eNodeName] = strdup(NODENAME);		/* nodename */
+	msg->cm_fields[eHumanNode] = strdup(HUMANNODE);		/* hnodename */
 
 	if ((recipient != NULL) && (recipient[0] != 0)) {
-		msg->cm_fields['R'] = strdup(recipient);
+		msg->cm_fields[eRecipient] = strdup(recipient);
 	}
 	if ((recp_cc != NULL) && (recp_cc[0] != 0)) {
-		msg->cm_fields['Y'] = strdup(recp_cc);
+		msg->cm_fields[eCarbonCopY] = strdup(recp_cc);
 	}
 	if (dest_node[0] != 0) {
-		msg->cm_fields['D'] = strdup(dest_node);
+		msg->cm_fields[eDestination] = strdup(dest_node);
 	}
 
 	if (!IsEmptyStr(my_email)) {
-		msg->cm_fields['F'] = strdup(my_email);
+		msg->cm_fields[erFc822Addr] = strdup(my_email);
 	}
 	else if ( (author == &CC->user) && (!IsEmptyStr(CC->cs_inet_email)) ) {
-		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
+		msg->cm_fields[erFc822Addr] = strdup(CC->cs_inet_email);
 	}
 
 	if (subject != NULL) {
@@ -4044,30 +4083,30 @@ struct CtdlMessage *CtdlMakeMessage(
 			       (IsAscii = isascii(subject[i]) != 0 ))
 				i++;
 			if (IsAscii != 0)
-				msg->cm_fields['U'] = strdup(subject);
+				msg->cm_fields[eMsgSubject] = strdup(subject);
 			else /* ok, we've got utf8 in the string. */
 			{
-				msg->cm_fields['U'] = rfc2047encode(subject, length);
+				msg->cm_fields[eMsgSubject] = rfc2047encode(subject, length);
 			}
 
 		}
 	}
 
 	if (supplied_euid != NULL) {
-		msg->cm_fields['E'] = strdup(supplied_euid);
+		msg->cm_fields[eExclusiveID] = strdup(supplied_euid);
 	}
 
 	if ((references != NULL) && (!IsEmptyStr(references))) {
-		if (msg->cm_fields['W'] != NULL)
-			free(msg->cm_fields['W']);
-		msg->cm_fields['W'] = strdup(references);
+		if (msg->cm_fields[eWeferences] != NULL)
+			free(msg->cm_fields[eWeferences]);
+		msg->cm_fields[eWeferences] = strdup(references);
 	}
 
 	if (preformatted_text != NULL) {
-		msg->cm_fields['M'] = preformatted_text;
+		msg->cm_fields[eMesageText] = preformatted_text;
 	}
 	else {
-		msg->cm_fields['M'] = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
+		msg->cm_fields[eMesageText] = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
 	}
 
 	return(msg);
@@ -4754,7 +4793,7 @@ void cmd_ent0(char *entargs)
 		 * to the actual mail address so others get a valid
 		 * reply-to-header.
 		 */
-		msg->cm_fields['V'] = strdup(valid->recp_orgroom);
+		msg->cm_fields[eenVelopeTo] = strdup(valid->recp_orgroom);
 	}
 
 	if (msg != NULL) {
@@ -4772,8 +4811,8 @@ void cmd_ent0(char *entargs)
 				client_write(HKEY("Internal error.\n"));
 			}
 
-			if (msg->cm_fields['E'] != NULL) {
-				cprintf("%s\n", msg->cm_fields['E']);
+			if (msg->cm_fields[eExclusiveID] != NULL) {
+				cprintf("%s\n", msg->cm_fields[eExclusiveID]);
 			} else {
 				cprintf("\n");
 			}
@@ -5441,13 +5480,13 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 4;
-	msg->cm_fields['A'] = strdup(CCC->user.fullname);
-	msg->cm_fields['O'] = strdup(req_room);
-	msg->cm_fields['N'] = strdup(config.c_nodename);
-	msg->cm_fields['H'] = strdup(config.c_humannode);
+	msg->cm_fields[eAuthor] = strdup(CCC->user.fullname);
+	msg->cm_fields[eOriginalRoom] = strdup(req_room);
+	msg->cm_fields[eNodeName] = strdup(config.c_nodename);
+	msg->cm_fields[eHumanNode] = strdup(config.c_humannode);
 	msg->cm_flags = flags;
 	
-	msg->cm_fields['M'] = encoded_message;
+	msg->cm_fields[eMesageText] = encoded_message;
 
 	/* Create the requested room if we have to. */
 	if (CtdlGetRoom(&qrbuf, roomname) != 0) {
@@ -5506,7 +5545,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	else {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
-			conf = strdup(msg->cm_fields['M']);
+			conf = strdup(msg->cm_fields[eMesageText]);
 			CtdlFreeMessage(msg);
 		}
 		else {

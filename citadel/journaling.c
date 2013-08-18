@@ -59,7 +59,7 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 	struct jnlq *jptr = NULL;
 
 	/* Avoid double journaling! */
-	if (msg->cm_fields['J'] != NULL) {
+	if (msg->cm_fields[eJournal] != NULL) {
 		FreeStrBuf(&saved_rfc822_version);
 		return;
 	}
@@ -71,11 +71,11 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 	}
 	memset(jptr, 0, sizeof(struct jnlq));
 	if (recps != NULL) memcpy(&jptr->recps, recps, sizeof(struct recptypes));
-	if (msg->cm_fields['A'] != NULL) jptr->from = strdup(msg->cm_fields['A']);
-	if (msg->cm_fields['N'] != NULL) jptr->node = strdup(msg->cm_fields['N']);
-	if (msg->cm_fields['F'] != NULL) jptr->rfca = strdup(msg->cm_fields['F']);
-	if (msg->cm_fields['U'] != NULL) jptr->subj = strdup(msg->cm_fields['U']);
-	if (msg->cm_fields['I'] != NULL) jptr->msgn = strdup(msg->cm_fields['I']);
+	if (msg->cm_fields[eAuthor] != NULL) jptr->from = strdup(msg->cm_fields[eAuthor]);
+	if (msg->cm_fields[eNodeName] != NULL) jptr->node = strdup(msg->cm_fields[eNodeName]);
+	if (msg->cm_fields[erFc822Addr] != NULL) jptr->rfca = strdup(msg->cm_fields[erFc822Addr]);
+	if (msg->cm_fields[eMsgSubject] != NULL) jptr->subj = strdup(msg->cm_fields[eMsgSubject]);
+	if (msg->cm_fields[emessageId] != NULL) jptr->msgn = strdup(msg->cm_fields[emessageId]);
 	jptr->rfc822 = SmashStrBuf(&saved_rfc822_version);
 
 	/* Add to the queue */
@@ -150,11 +150,11 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			journal_msg->cm_magic = CTDLMESSAGE_MAGIC;
 			journal_msg->cm_anon_type = MES_NORMAL;
 			journal_msg->cm_format_type = FMT_RFC822;
-			journal_msg->cm_fields['J'] = strdup("is journal");
-			journal_msg->cm_fields['A'] = jmsg->from;
-			journal_msg->cm_fields['N'] = jmsg->node;
-			journal_msg->cm_fields['F'] = jmsg->rfca;
-			journal_msg->cm_fields['U'] = jmsg->subj;
+			journal_msg->cm_fields[eJournal] = strdup("is journal");
+			journal_msg->cm_fields[eAuthor] = jmsg->from;
+			journal_msg->cm_fields[eNodeName] = jmsg->node;
+			journal_msg->cm_fields[erFc822Addr] = jmsg->rfca;
+			journal_msg->cm_fields[eMsgSubject] = jmsg->subj;
 
 			sprintf(mime_boundary, "--Citadel-Journal-%08lx-%04x--", time(NULL), ++seq);
 			message_text = malloc(strlen(jmsg->rfc822) + sizeof(struct recptypes) + 1024);
@@ -177,16 +177,16 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			,
 				mime_boundary,
 				mime_boundary,
-				( journal_msg->cm_fields['A'] ? journal_msg->cm_fields['A'] : "(null)" )
+				( journal_msg->cm_fields[eAuthor] ? journal_msg->cm_fields[eAuthor] : "(null)" )
 			);
 
-			if (journal_msg->cm_fields['F']) {
+			if (journal_msg->cm_fields[erFc822Addr]) {
 				sprintf(&message_text[strlen(message_text)], "<%s>",
-					journal_msg->cm_fields['F']);
+					journal_msg->cm_fields[erFc822Addr]);
 			}
-			else if (journal_msg->cm_fields['N']) {
+			else if (journal_msg->cm_fields[eNodeName]) {
 				sprintf(&message_text[strlen(message_text)], "@ %s",
-					journal_msg->cm_fields['N']);
+					journal_msg->cm_fields[eNodeName]);
 			}
 
 			sprintf(&message_text[strlen(message_text)],
@@ -238,7 +238,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 				mime_boundary
 			);
 
-			journal_msg->cm_fields['M'] = message_text;
+			journal_msg->cm_fields[eMesageText] = message_text;
 			free(jmsg->rfc822);
 			free(jmsg->msgn);
 			

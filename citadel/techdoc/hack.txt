@@ -48,7 +48,7 @@ a separate Citadel password.
  
  usernum -- these are assigned sequentially, and NEVER REUSED.  This is
 important because it allows us to use this number in other data structures
-without having to worry about users being added/removed later on, as you'll
+ without having to worry about users being added/removed later on, as you'll
 see later in this document.
  
  
@@ -227,73 +227,98 @@ can do wildcard matching without worrying about unpacking binary data such
 as message ID's first.  To provide later downward compatability
 all software should be written to IGNORE fields not currently defined.
 
-		  The type bytes currently defined are: 	
+		  The type bytes currently defined are:
 
-BYTE	Mnemonic	Comments
+BYTE	Mnemonic	Enum / Comments
 
-A	Author		Name of originator of message.
-B	Big message	This is a flag which indicates that the message is
-                        big, and Citadel is storing the body in a separate
-                        record.  You will never see this field because the
-                        internal API handles it.
-D	Destination	Contains name of the system this message should
+A	Author		eAuthor
+			Name of originator of message.
+B	Big message	eBig_message
+	    		This is a flag which indicates that the message is
+			big, and Citadel is storing the body in a separate
+			record.  You will never see this field because the
+			internal API handles it.
+C	RemoteRoom	eRemoteRoom
+			when sent via Citadel Networking, this is the room
+			its going to be put on the remote site.
+D	Destination	eDestination
+			Contains name of the system this message should
 			be sent to, for mail routing (private mail only).
-E	Exclusive ID	A persistent alphanumeric Message ID used for
+E	Exclusive ID	eExclusiveID
+		  	A persistent alphanumeric Message ID used for
 			network replication.  When a message arrives that
 			contains an Exclusive ID, any existing messages which
 			contain the same Exclusive ID and are *older* than this
 			message should be deleted.  If there exist any messages
 			with the same Exclusive ID that are *newer*, then this
 			message should be dropped.
-F	rFc822 address	For Internet mail, this is the delivery address of the
+F	rFc822 address	erFc822Addr
+	       		For Internet mail, this is the delivery address of the
 			message author.
-H	Human node name	Human-readable name of system message originated on.
-I	Message ID	An RFC822-compatible message ID for this message.
-J	Journal		The presence of this field indicates that the message
+H	Human node name	eHumanNode
+	      	   	Human-readable name of system message originated on.
+I	Message ID	emessageId
+			An RFC822-compatible message ID for this message.
+J	Journal		eJournal
+			The presence of this field indicates that the message
 			is disqualified from being journaled, perhaps because
 			it is itself a journalized message and we wish to
 			avoid double journaling.
-K       Reply-To        the Reply-To header for mailinglist outbound messages
-L	List-ID		Mailing list identification, as per RFC 2919
-M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
-                        null terminated as always.
-N	Nodename	Contains node name of system message originated on.
-O	Room		Room of origin.
-P	Path		Complete path of message, as in the UseNet news
+K	Reply-To	eReplyTo
+			the Reply-To header for mailinglist outbound messages
+L	List-ID		eListID
+			Mailing list identification, as per RFC 2919
+M	Message Text	eMesageText
+			Normal ASCII, newlines seperated by CR's or LF's,
+			null terminated as always.
+N	Nodename	eNodeName
+			Contains node name of system message originated on.
+O	Room		eOriginalRoom - Room of origin.
+P	Path		eMessagePath
+			Complete path of message, as in the UseNet news
 			standard.  A user should be able to send Internet mail
 			to this path. (Note that your system name will not be
 			tacked onto this until you're sending the message to
 			someone else)
-R	Recipient	Only present in Mail messages.
-S       Special field   Only meaningful for messages being spooled over a
-                        network.  Usually means that the message isn't really
-                        a message, but rather some other network function:
-                        -> "S" followed by "FILE" (followed by a null, of
-                           course) means that the message text is actually an
-                           IGnet/Open file transfer.  (OBSOLETE)
+R	Recipient	eRecipient - Only present in Mail messages.
+S	Special field	eSpecialField
+			Only meaningful for messages being spooled over a
+			network.  Usually means that the message isn't really
+			a message, but rather some other network function:
+			-> "S" followed by "FILE" (followed by a null, of
+			   course) means that the message text is actually an
+			   IGnet/Open file transfer.  (OBSOLETE)
 			-> "S" followed by "CANCEL" means that this message
 			   should be deleted from the local message base once
 			   it has been replicated to all network systems.
-T	date/Time	Unix timestamp containing the creation date/time of
+T	date/Time	eTimestamp
+			Unix timestamp containing the creation date/time of
 			the message.
-U       sUbject         Optional.  Developers may choose whether they wish to
-                        generate or display subject fields.
-V	enVelope-to	The recipient specified in incoming SMTP messages.
-W	Wefewences	Previous message ID's for conversation threading.  When
+U	sUbject		eMsgSubject - Optional.
+			Developers may choose whether they wish to
+			generate or display subject fields.
+V	enVelope-to	eenVelopeTo
+			The recipient specified in incoming SMTP messages.
+W	Wefewences	eWeferences
+			Previous message ID's for conversation threading.  When
 			converting from RFC822 we use References: if present, or
 			In-Reply-To: otherwise.
 			(Who in extnotify spool messages which don't need to know
 			other message ids)
-Y	carbon copY	Optional, and only in Mail messages.
-0	Error		This field is typically never found in a message on
+Y	carbon copY	eCarbonCopY
+	       		Optional, and only in Mail messages.
+0	Error		eErrorMsg
+			This field is typically never found in a message on
 			disk or in transit.  Message scanning modules are
 			expected to fill in this field when rejecting a message
 			with an explanation as to what happened (virus found,
 			message looks like spam, etc.)
-1	suppress index	The presence of this field indicates that the message is
+1	suppress index	eSuppressIdx
+		 	The presence of this field indicates that the message is
 			disqualified from being added to the full text index.
-2	extnotify	Used internally by the serv_extnotify module.
-3	msgnum		Used internally to pass the local message number in the
+2	extnotify	eExtnotify - Used internally by the serv_extnotify module.
+3	msgnum		eVltMsgNum
+			Used internally to pass the local message number in the
 			database to after-save hooks.  Discarded afterwards.
   
 			EXAMPLE

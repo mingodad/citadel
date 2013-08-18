@@ -1,5 +1,3 @@
-
-
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -138,8 +136,8 @@ enum {
 	S_NETSPOOL,
 	S_XMPP_QUEUE,
 	S_SCHEDULE_LIST,
- 	S_SINGLE_USER,
-  	S_LDAP,
+	S_SINGLE_USER,
+	S_LDAP,
 	S_IM_LOGS,
 	MAX_SEMAPHORES
 };
@@ -167,7 +165,7 @@ enum {
 /*
  * Message format types in the database
  */
-#define	FMT_CITADEL	0	/* Citadel vari-format (proprietary) */
+#define FMT_CITADEL	0	/* Citadel vari-format (proprietary) */
 #define FMT_FIXED	1	/* Fixed format (proprietary)        */
 #define FMT_RFC822	4	/* Standard (headers are in M field) */
 
@@ -198,7 +196,7 @@ struct cdbdata {
 };
 
 
-/* 
+/*
  * Event types can't be enum'ed, because they must remain consistent between
  * builds (to allow for binary modules built somewhere else)
  */
@@ -275,12 +273,12 @@ struct arcq {
 };
 
 
-/* 
+/*
  * Serialization routines use this struct to return a pointer and a length
  */
 struct ser_ret {
-        size_t len;
-        unsigned char *ser;
+	size_t len;
+	unsigned char *ser;
 };
 
 
@@ -294,11 +292,40 @@ struct UseTable {
 
 
 
-/* Preferred field order 							*/
+/* Preferred field order							*/
 /*               **********			Important fields		*/
 /*                         ***************	Semi-important fields		*/
-/*                                        **    internal only                   */
-/*                                          * 	Message text (MUST be last)	*/
-#define FORDER	"IPTAFONHRDBCEWJGKLQSVXZYU12M"
+/*                                        **	internal only                   */
+/*                                          *	Message text (MUST be last)	*/
+///#define FORDER	"IPTAFONHRDBCEWJGKLQSVXZYU12M"
+
+typedef enum _MsgField {
+	eAuthor       = 'A',
+	eBig_message  = 'B',
+	eRemoteRoom   = 'C',
+	eDestination  = 'D',
+	eExclusiveID  = 'E',
+	erFc822Addr   = 'F',
+	eHumanNode    = 'H',
+	emessageId    = 'I',
+	eJournal      = 'J',
+	eReplyTo      = 'K',
+	eListID       = 'L',
+	eMesageText   = 'M',
+	eNodeName     = 'N',
+	eOriginalRoom = 'O',
+	eMessagePath  = 'P',
+	eRecipient    = 'R',
+	eSpecialField = 'S',
+	eTimestamp    = 'T',
+	eMsgSubject   = 'U',
+	eenVelopeTo   = 'V',
+	eWeferences   = 'W',
+	eCarbonCopY   = 'Y',
+	eErrorMsg     = '0',
+	eSuppressIdx  = '1',
+	eExtnotify    = '2',
+	eVltMsgNum    = '3'
+}eMsgField;
 
 #endif /* SERVER_H */

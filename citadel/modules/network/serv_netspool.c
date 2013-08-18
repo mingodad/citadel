@@ -445,11 +445,11 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	}
 
 	/* Check for message routing */
-	if (msg->cm_fields['D'] != NULL) {
-		if (strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
+	if (msg->cm_fields[eDestination] != NULL) {
+		if (strcasecmp(msg->cm_fields[eDestination], config.c_nodename)) {
 
 			/* route the message */
-			Buf = NewStrBufPlain(msg->cm_fields['D'], -1);
+			Buf = NewStrBufPlain(msg->cm_fields[eDestination], -1);
 			if (CtdlIsValidNode(&nexthop, 
 					    NULL, 
 					    Buf, 
@@ -457,16 +457,16 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 					    the_netmap) == 0) 
 			{
 				/* prepend our node to the path */
-				if (msg->cm_fields['P'] != NULL) {
-					oldpath = msg->cm_fields['P'];
-					msg->cm_fields['P'] = NULL;
+				if (msg->cm_fields[eMessagePath] != NULL) {
+					oldpath = msg->cm_fields[eMessagePath];
+					msg->cm_fields[eMessagePath] = NULL;
 				}
 				else {
 					oldpath = strdup("unknown_user");
 				}
 				size = strlen(oldpath) + SIZ;
-				msg->cm_fields['P'] = malloc(size);
-				snprintf(msg->cm_fields['P'], size, "%s!%s",
+				msg->cm_fields[eMessagePath] = malloc(size);
+				snprintf(msg->cm_fields[eMessagePath], size, "%s!%s",
 					config.c_nodename, oldpath);
 				free(oldpath);
 
@@ -525,9 +525,9 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	}
 
 	/* Learn network topology from the path */
-	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
-		NetworkLearnTopology(msg->cm_fields['N'], 
-				     msg->cm_fields['P'], 
+	if ((msg->cm_fields[eNodeName] != NULL) && (msg->cm_fields[eMessagePath] != NULL)) {
+		NetworkLearnTopology(msg->cm_fields[eNodeName], 
+				     msg->cm_fields[eMessagePath], 
 				     the_netmap, 
 				     netmap_changed);
 	}
@@ -535,13 +535,13 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	/* Is the sending node giving us a very persuasive suggestion about
 	 * which room this message should be saved in?  If so, go with that.
 	 */
-	if (msg->cm_fields['C'] != NULL) {
-		safestrncpy(target_room, msg->cm_fields['C'], sizeof target_room);
+	if (msg->cm_fields[eRemoteRoom] != NULL) {
+		safestrncpy(target_room, msg->cm_fields[eRemoteRoom], sizeof target_room);
 	}
 
 	/* Otherwise, does it have a recipient?  If so, validate it... */
-	else if (msg->cm_fields['R'] != NULL) {
-		recp = validate_recipients(msg->cm_fields['R'], NULL, 0);
+	else if (msg->cm_fields[eRecipient] != NULL) {
+		recp = validate_recipients(msg->cm_fields[eRecipient], NULL, 0);
 		if (recp != NULL) if (recp->num_error != 0) {
 			network_bounce(msg,
 				"A message you sent could not be delivered due to an invalid address.\n"
@@ -555,20 +555,20 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	}
 
 	/* Our last shot at finding a home for this message is to see if
-	 * it has the O field (Originating room) set.
+	 * it has the eOriginalRoom (O) field (Originating room) set.
 	 */
-	else if (msg->cm_fields['O'] != NULL) {
-		safestrncpy(target_room, msg->cm_fields['O'], sizeof target_room);
+	else if (msg->cm_fields[eOriginalRoom] != NULL) {
+		safestrncpy(target_room, msg->cm_fields[eOriginalRoom], sizeof target_room);
 	}
 
 	/* Strip out fields that are only relevant during transit */
-	if (msg->cm_fields['D'] != NULL) {
-		free(msg->cm_fields['D']);
-		msg->cm_fields['D'] = NULL;
+	if (msg->cm_fields[eDestination] != NULL) {
+		free(msg->cm_fields[eDestination]);
+		msg->cm_fields[eDestination] = NULL;
 	}
-	if (msg->cm_fields['C'] != NULL) {
-		free(msg->cm_fields['C']);
-		msg->cm_fields['C'] = NULL;
+	if (msg->cm_fields[eRemoteRoom] != NULL) {
+		free(msg->cm_fields[eRemoteRoom]);
+		msg->cm_fields[eRemoteRoom] = NULL;
 	}
 
 	/* save the message into a room */

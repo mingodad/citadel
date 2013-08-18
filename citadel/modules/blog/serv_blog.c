@@ -72,18 +72,18 @@ int blog_upload_beforesave(struct CtdlMessage *msg) {
 	/* 
 	 * If the message doesn't have an EUID, give it one.
 	 */
-	if (msg->cm_fields['E'] == NULL)
+	if (msg->cm_fields[eExclusiveID] == NULL)
 	{
 		char uuid[BLOG_EUIDBUF_SIZE];
 		generate_uuid(uuid);
-		msg->cm_fields['E'] = strdup(uuid);
+		msg->cm_fields[eExclusiveID] = strdup(uuid);
 	}
 
 	/*
 	 * We also want to define a maximum length, whether we generated it or not.
 	 */
-	else if (strlen(msg->cm_fields['E']) >= BLOG_EUIDBUF_SIZE) {
-		msg->cm_fields['E'][BLOG_EUIDBUF_SIZE-1] = 0;
+	else if (strlen(msg->cm_fields[eExclusiveID]) >= BLOG_EUIDBUF_SIZE) {
+		msg->cm_fields[eExclusiveID][BLOG_EUIDBUF_SIZE-1] = 0;
 	}
 
 	/* Now allow the save to complete. */

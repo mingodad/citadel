@@ -675,7 +675,7 @@ void rss_remember_item(rss_item *ri, rss_aggregator *RSSAggr)
 	/* gather the cheaply computed information now... */
 
 	if (ri->guid != NULL) {
-		SaveMsg->Msg.cm_fields['E'] = strdup(ChrPtr(ri->guid));
+		SaveMsg->Msg.cm_fields[eExclusiveID] = strdup(ChrPtr(ri->guid));
 	}
 
 	SaveMsg->MsgGUID = guid;
@@ -683,11 +683,11 @@ void rss_remember_item(rss_item *ri, rss_aggregator *RSSAggr)
 	if (ri->pubdate <= 0) {
 		ri->pubdate = time(NULL); /// TODO: use event time!
 	}
-	SaveMsg->Msg.cm_fields['T'] = malloc(64);
-	snprintf(SaveMsg->Msg.cm_fields['T'], 64, "%ld", ri->pubdate);
+	SaveMsg->Msg.cm_fields[eTimestamp] = malloc(64);
+	snprintf(SaveMsg->Msg.cm_fields[eTimestamp], 64, "%ld", ri->pubdate);
 	if (ri->channel_title != NULL) {
 		if (StrLength(ri->channel_title) > 0) {
-			SaveMsg->Msg.cm_fields['O'] =
+			SaveMsg->Msg.cm_fields[eOriginalRoom] =
 				strdup(ChrPtr(ri->channel_title));
 		}
 	}

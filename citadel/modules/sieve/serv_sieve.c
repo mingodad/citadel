@@ -583,37 +583,37 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	my.u = u;				/* Hand off a pointer to the rest of this info */
 
 	/* Keep track of the recipient so we can do handling based on it later */
-	process_rfc822_addr(msg->cm_fields['R'], my.recp_user, my.recp_node, my.recp_name);
+	process_rfc822_addr(msg->cm_fields[eRecipient], my.recp_user, my.recp_node, my.recp_name);
 
 	/* Keep track of the sender so we can use it for REJECT and VACATION responses */
-	if (msg->cm_fields['F'] != NULL) {
-		safestrncpy(my.sender, msg->cm_fields['F'], sizeof my.sender);
+	if (msg->cm_fields[erFc822Addr] != NULL) {
+		safestrncpy(my.sender, msg->cm_fields[erFc822Addr], sizeof my.sender);
 	}
-	else if ( (msg->cm_fields['A'] != NULL) && (msg->cm_fields['N'] != NULL) ) {
-		snprintf(my.sender, sizeof my.sender, "%s@%s", msg->cm_fields['A'], msg->cm_fields['N']);
+	else if ( (msg->cm_fields[eAuthor] != NULL) && (msg->cm_fields[eNodeName] != NULL) ) {
+		snprintf(my.sender, sizeof my.sender, "%s@%s", msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
 	}
-	else if (msg->cm_fields['A'] != NULL) {
-		safestrncpy(my.sender, msg->cm_fields['A'], sizeof my.sender);
+	else if (msg->cm_fields[eAuthor] != NULL) {
+		safestrncpy(my.sender, msg->cm_fields[eAuthor], sizeof my.sender);
 	}
 	else {
 		strcpy(my.sender, "");
 	}
 
 	/* Keep track of the subject so we can use it for VACATION responses */
-	if (msg->cm_fields['U'] != NULL) {
-		safestrncpy(my.subject, msg->cm_fields['U'], sizeof my.subject);
+	if (msg->cm_fields[eMsgSubject] != NULL) {
+		safestrncpy(my.subject, msg->cm_fields[eMsgSubject], sizeof my.subject);
 	}
 	else {
 		strcpy(my.subject, "");
 	}
 
 	/* Keep track of the envelope-from address (use body-from if not found) */
-	if (msg->cm_fields['P'] != NULL) {
-		safestrncpy(my.envelope_from, msg->cm_fields['P'], sizeof my.envelope_from);
+	if (msg->cm_fields[eMessagePath] != NULL) {
+		safestrncpy(my.envelope_from, msg->cm_fields[eMessagePath], sizeof my.envelope_from);
 		stripallbut(my.envelope_from, '<', '>');
 	}
-	else if (msg->cm_fields['F'] != NULL) {
-		safestrncpy(my.envelope_from, msg->cm_fields['F'], sizeof my.envelope_from);
+	else if (msg->cm_fields[erFc822Addr] != NULL) {
+		safestrncpy(my.envelope_from, msg->cm_fields[erFc822Addr], sizeof my.envelope_from);
 		stripallbut(my.envelope_from, '<', '>');
 	}
 	else {
@@ -630,15 +630,15 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 
 	/* Keep track of the envelope-to address (use body-to if not found) */
-	if (msg->cm_fields['V'] != NULL) {
-		safestrncpy(my.envelope_to, msg->cm_fields['V'], sizeof my.envelope_to);
+	if (msg->cm_fields[eenVelopeTo] != NULL) {
+		safestrncpy(my.envelope_to, msg->cm_fields[eenVelopeTo], sizeof my.envelope_to);
 		stripallbut(my.envelope_to, '<', '>');
 	}
-	else if (msg->cm_fields['R'] != NULL) {
-		safestrncpy(my.envelope_to, msg->cm_fields['R'], sizeof my.envelope_to);
-		if (msg->cm_fields['D'] != NULL) {
+	else if (msg->cm_fields[eRecipient] != NULL) {
+		safestrncpy(my.envelope_to, msg->cm_fields[eRecipient], sizeof my.envelope_to);
+		if (msg->cm_fields[eDestination] != NULL) {
 			strcat(my.envelope_to, "@");
-			strcat(my.envelope_to, msg->cm_fields['D']);
+			strcat(my.envelope_to, msg->cm_fields[eDestination]);
 		}
 		stripallbut(my.envelope_to, '<', '>');
 	}
@@ -754,8 +754,8 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 		return;
 	}
 
-	conf = msg->cm_fields['M'];
-	msg->cm_fields['M'] = NULL;
+	conf = msg->cm_fields[eMesageText];
+	msg->cm_fields[eMesageText] = NULL;
 	CtdlFreeMessage(msg);
 
 	if (conf != NULL) {

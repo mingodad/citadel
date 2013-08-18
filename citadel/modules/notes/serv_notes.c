@@ -106,7 +106,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 	 * any existing message containing that UUID.
 	 */
 	strcpy(uuid, "");
-	p = msg->cm_fields['M'];
+	p = msg->cm_fields[eMesageText];
 	a = strlen(p);
 	while (--a > 0) {
 		if (!strncasecmp(p, "X-KOrg-Note-Id: ", 16)) {	/* Found it */
@@ -121,15 +121,15 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 			syslog(LOG_DEBUG, "UUID of note is: %s\n", uuid);
 			if (!IsEmptyStr(uuid)) {
 
-				if (msg->cm_fields['E'] != NULL) {
-					free(msg->cm_fields['E']);
+				if (msg->cm_fields[eExclusiveID] != NULL) {
+					free(msg->cm_fields[eExclusiveID]);
 				}
-				msg->cm_fields['E'] = strdup(uuid);
+				msg->cm_fields[eExclusiveID] = strdup(uuid);
 
-				if (msg->cm_fields['U'] != NULL) {
-					free(msg->cm_fields['U']);
+				if (msg->cm_fields[eMsgSubject] != NULL) {
+					free(msg->cm_fields[eMsgSubject]);
 				}
-				msg->cm_fields['U'] = strdup(uuid);
+				msg->cm_fields[eMsgSubject] = strdup(uuid);
 			}
 		}
 		p++;
@@ -137,7 +137,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 
 	/* Modern clients are using vNote format.  Check for one... */
 
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*notes_extract_vnote,
 		NULL, NULL,
@@ -151,21 +151,21 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 
 	if (v->uid) if (!IsEmptyStr(v->uid)) {
 		syslog(LOG_DEBUG, "UID of vNote is: %s\n", v->uid);
-		if (msg->cm_fields['E'] != NULL) {
-			free(msg->cm_fields['E']);
+		if (msg->cm_fields[eExclusiveID] != NULL) {
+			free(msg->cm_fields[eExclusiveID]);
 		}
-		msg->cm_fields['E'] = strdup(v->uid);
+		msg->cm_fields[eExclusiveID] = strdup(v->uid);
 	}
 
 	/* Set the message Subject to the vNote Summary */
 
 	if (v->summary) if (!IsEmptyStr(v->summary)) {
-		if (msg->cm_fields['U'] != NULL) {
-			free(msg->cm_fields['U']);
+		if (msg->cm_fields[eMsgSubject] != NULL) {
+			free(msg->cm_fields[eMsgSubject]);
 		}
-		msg->cm_fields['U'] = strdup(v->summary);
-		if (strlen(msg->cm_fields['U']) > 72) {
-			strcpy(&msg->cm_fields['U'][68], "...");
+		msg->cm_fields[eMsgSubject] = strdup(v->summary);
+		if (strlen(msg->cm_fields[eMsgSubject]) > 72) {
+			strcpy(&msg->cm_fields[eMsgSubject][68], "...");
 		}
 	}
 

@@ -149,29 +149,29 @@ int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
 		zap_room = 0;
 		zap_node = 0;
 
-		if (msg->cm_fields['A'] != NULL) {
-			if ( (!strcasecmp(msg->cm_fields['A'], fptr->fl_user))
+		if (msg->cm_fields[eAuthor] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields[eAuthor], fptr->fl_user))
 			   || (fptr->fl_user[0] == 0) ) {
 				zap_user = 1;
 			}
 		}
 
-		if (msg->cm_fields['C'] != NULL) {
-			if ( (!strcasecmp(msg->cm_fields['C'], fptr->fl_room))
+		if (msg->cm_fields[eRemoteRoom] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields[eRemoteRoom], fptr->fl_room))
 			   || (fptr->fl_room[0] == 0) ) {
 				zap_room = 1;
 			}
 		}
 
-		if (msg->cm_fields['O'] != NULL) {
-			if ( (!strcasecmp(msg->cm_fields['O'], fptr->fl_room))
+		if (msg->cm_fields[eOriginalRoom] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields[eOriginalRoom], fptr->fl_room))
 			   || (fptr->fl_room[0] == 0) ) {
 				zap_room = 1;
 			}
 		}
 
-		if (msg->cm_fields['N'] != NULL) {
-			if ( (!strcasecmp(msg->cm_fields['N'], fptr->fl_node))
+		if (msg->cm_fields[eNodeName] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields[eNodeName], fptr->fl_node))
 			   || (fptr->fl_node[0] == 0) ) {
 				zap_node = 1;
 			}

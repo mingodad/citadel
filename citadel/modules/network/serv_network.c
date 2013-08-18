@@ -111,17 +111,17 @@ int network_usetable(struct CtdlMessage *msg)
 	time_t now;
 
 	/* Bail out if we can't generate a message ID */
-	if ((msg == NULL) || (msg->cm_fields['I'] == NULL) || (IsEmptyStr(msg->cm_fields['I'])))
+	if ((msg == NULL) || (msg->cm_fields[emessageId] == NULL) || (IsEmptyStr(msg->cm_fields[emessageId])))
 	{
 		return(0);
 	}
 
 	/* Generate the message ID */
-	msgid = NewStrBufPlain(msg->cm_fields['I'], -1);
+	msgid = NewStrBufPlain(msg->cm_fields[emessageId], -1);
 	if (haschar(ChrPtr(msgid), '@') == 0) {
 		StrBufAppendBufPlain(msgid, HKEY("@"), 0);
-		if (msg->cm_fields['N'] != NULL) {
-			StrBufAppendBufPlain(msgid, msg->cm_fields['N'], -1, 0);
+		if (msg->cm_fields[eNodeName] != NULL) {
+			StrBufAppendBufPlain(msgid, msg->cm_fields[eNodeName], -1, 0);
 		}
 		else {
 			FreeStrBuf(&msgid);
@@ -366,64 +366,64 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 	/* 
 	 * Give it a fresh message ID
 	 */
-	if (msg->cm_fields['I'] != NULL) {
-		free(msg->cm_fields['I']);
+	if (msg->cm_fields[emessageId] != NULL) {
+		free(msg->cm_fields[emessageId]);
 	}
 	snprintf(buf, sizeof buf, "%ld.%04lx.%04x@%s",
 		(long)time(NULL), (long)getpid(), ++serialnum, config.c_fqdn);
-	msg->cm_fields['I'] = strdup(buf);
+	msg->cm_fields[emessageId] = strdup(buf);
 
 	/*
 	 * FIXME ... right now we're just sending a bounce; we really want to
 	 * include the text of the bounced message.
 	 */
-	if (msg->cm_fields['M'] != NULL) {
-		free(msg->cm_fields['M']);
+	if (msg->cm_fields[eMesageText] != NULL) {
+		free(msg->cm_fields[eMesageText]);
 	}
-	msg->cm_fields['M'] = strdup(reason);
+	msg->cm_fields[eMesageText] = strdup(reason);
 	msg->cm_format_type = 0;
 
 	/*
 	 * Turn the message around
 	 */
-	if (msg->cm_fields['R'] == NULL) {
-		free(msg->cm_fields['R']);
+	if (msg->cm_fields[eRecipient] == NULL) {
+		free(msg->cm_fields[eRecipient]);
 	}
 
-	if (msg->cm_fields['D'] == NULL) {
-		free(msg->cm_fields['D']);
+	if (msg->cm_fields[eDestination] == NULL) {
+		free(msg->cm_fields[eDestination]);
 	}
 
 	snprintf(recipient, sizeof recipient, "%s@%s",
-		msg->cm_fields['A'], msg->cm_fields['N']);
+		msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
 
-	if (msg->cm_fields['A'] == NULL) {
-		free(msg->cm_fields['A']);
+	if (msg->cm_fields[eAuthor] == NULL) {
+		free(msg->cm_fields[eAuthor]);
 	}
 
-	if (msg->cm_fields['N'] == NULL) {
-		free(msg->cm_fields['N']);
+	if (msg->cm_fields[eNodeName] == NULL) {
+		free(msg->cm_fields[eNodeName]);
 	}
 
-	if (msg->cm_fields['U'] == NULL) {
-		free(msg->cm_fields['U']);
+	if (msg->cm_fields[eMsgSubject] == NULL) {
+		free(msg->cm_fields[eMsgSubject]);
 	}
 
-	msg->cm_fields['A'] = strdup(BOUNCESOURCE);
-	msg->cm_fields['N'] = strdup(config.c_nodename);
-	msg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
+	msg->cm_fields[eAuthor] = strdup(BOUNCESOURCE);
+	msg->cm_fields[eNodeName] = strdup(config.c_nodename);
+	msg->cm_fields[eMsgSubject] = strdup("Delivery Status Notification (Failure)");
 
 	/* prepend our node to the path */
-	if (msg->cm_fields['P'] != NULL) {
-		oldpath = msg->cm_fields['P'];
-		msg->cm_fields['P'] = NULL;
+	if (msg->cm_fields[eMessagePath] != NULL) {
+		oldpath = msg->cm_fields[eMessagePath];
+		msg->cm_fields[eMessagePath] = NULL;
 	}
 	else {
 		oldpath = strdup("unknown_user");
 	}
 	size = strlen(oldpath) + SIZ;
-	msg->cm_fields['P'] = malloc(size);
-	snprintf(msg->cm_fields['P'], size, "%s!%s", config.c_nodename, oldpath);
+	msg->cm_fields[eMessagePath] = malloc(size);
+	snprintf(msg->cm_fields[eMessagePath], size, "%s!%s", config.c_nodename, oldpath);
 	free(oldpath);
 
 	/* Now submit the message */

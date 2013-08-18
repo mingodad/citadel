@@ -140,13 +140,13 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = 4;
-		msg->cm_fields['A'] = strdup(CC->user.fullname);
-		msg->cm_fields['O'] = strdup(CC->room.QRname);
-		msg->cm_fields['N'] = strdup(config.c_nodename);
-		msg->cm_fields['H'] = strdup(config.c_humannode);
-		msg->cm_fields['M'] = malloc(strlen(ser) + 40);
-		strcpy(msg->cm_fields['M'], "Content-type: text/calendar\r\n\r\n");
-		strcat(msg->cm_fields['M'], ser);
+		msg->cm_fields[eAuthor] = strdup(CC->user.fullname);
+		msg->cm_fields[eOriginalRoom] = strdup(CC->room.QRname);
+		msg->cm_fields[eNodeName] = strdup(config.c_nodename);
+		msg->cm_fields[eHumanNode] = strdup(config.c_humannode);
+		msg->cm_fields[eMesageText] = malloc(strlen(ser) + 40);
+		strcpy(msg->cm_fields[eMesageText], "Content-type: text/calendar\r\n\r\n");
+		strcat(msg->cm_fields[eMesageText], ser);
 	
 		/* Now write the data */
 		CtdlSubmitMsg(msg, NULL, "", QP_EADDR);
@@ -376,7 +376,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, partnum);
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_locate_part,		/* callback function */
 		NULL, NULL,
@@ -632,7 +632,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 		return(2);			/* internal error */
 	}
 	oec.c = NULL;
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_locate_original_event,	/* callback function */
 		NULL, NULL,
@@ -719,7 +719,7 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, partnum);
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_locate_part,		/* callback function */
 		NULL, NULL,
@@ -1151,7 +1151,7 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, "_HUNT_");
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_locate_part,		/* callback function */
 		NULL, NULL,
@@ -1220,7 +1220,7 @@ void ical_conflicts(long msgnum, char *partnum) {
 
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, partnum);
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_locate_part,		/* callback function */
 		NULL, NULL,
@@ -1401,7 +1401,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, "_HUNT_");
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_locate_part,		/* callback function */
 		NULL, NULL,
@@ -1602,7 +1602,7 @@ void ical_getics_backend(long msgnum, void *data) {
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, "_HUNT_");
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_locate_part,		/* callback function */
 		NULL, NULL,
@@ -2336,10 +2336,10 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 			if (p != NULL) {
 				safestrncpy(buf, icalproperty_get_comment(p), sizeof buf);
 				if (!IsEmptyStr(buf)) {
-					if (msg->cm_fields['E'] != NULL) {
-						free(msg->cm_fields['E']);
+					if (msg->cm_fields[eExclusiveID] != NULL) {
+						free(msg->cm_fields[eExclusiveID]);
 					}
-					msg->cm_fields['E'] = strdup(buf);
+					msg->cm_fields[eExclusiveID] = strdup(buf);
 					syslog(LOG_DEBUG, "Saving calendar UID <%s>\n", buf);
 				}
 			}
@@ -2350,10 +2350,10 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 			if (p != NULL) {
 				safestrncpy(buf, icalproperty_get_comment(p), sizeof buf);
 				if (!IsEmptyStr(buf)) {
-					if (msg->cm_fields['U'] != NULL) {
-						free(msg->cm_fields['U']);
+					if (msg->cm_fields[eMsgSubject] != NULL) {
+						free(msg->cm_fields[eMsgSubject]);
 					}
-					msg->cm_fields['U'] = rfc2047encode(buf, strlen(buf));
+					msg->cm_fields[eMsgSubject] = rfc2047encode(buf, strlen(buf));
 				}
 			}
 
@@ -2364,11 +2364,11 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 				time_t idtstart;
 				idtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
 				if (idtstart > 0) {
-					if (msg->cm_fields['T'] != NULL) {
-						free(msg->cm_fields['T']);
+					if (msg->cm_fields[eTimestamp] != NULL) {
+						free(msg->cm_fields[eTimestamp]);
 					}
-					msg->cm_fields['T'] = strdup("000000000000000000");
-					sprintf(msg->cm_fields['T'], "%ld", idtstart);
+					msg->cm_fields[eTimestamp] = strdup("000000000000000000");
+					sprintf(msg->cm_fields[eTimestamp], "%ld", idtstart);
 				}
 			}
 
@@ -2405,12 +2405,12 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 		return(1);		/* You tried to save a non-RFC822 message! */
 	}
 
-	if (msg->cm_fields['M'] == NULL) {
+	if (msg->cm_fields[eMesageText] == NULL) {
 		return(1);		/* You tried to save a null message! */
 	}
 
 	/* Do all of our lovely back-end parsing */
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_obj_beforesave_backend,
 		NULL, NULL,
@@ -2476,10 +2476,10 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 	if (msg->cm_format_type != 4) return(1);
 
 	/* Reject null messages */
-	if (msg->cm_fields['M'] == NULL) return(1);
+	if (msg->cm_fields[eMesageText] == NULL) return(1);
 	
 	/* Now recurse through it looking for our icalendar data */
-	mime_parser(msg->cm_fields['M'],
+	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
 		*ical_obj_aftersave_backend,
 		NULL, NULL,

@@ -66,8 +66,8 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 	char *conf;
 	char buf[SIZ];
 	
-	if (msg->cm_fields['M']==NULL) return;
-	conf = strdup(msg->cm_fields['M']);
+	if (msg->cm_fields[eMesageText]==NULL) return;
+	conf = strdup(msg->cm_fields[eMesageText]);
 
 	if (conf != NULL) {
 		do {
@@ -92,10 +92,10 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
 	 */
-	if (strcasecmp(msg->cm_fields['O'], SYSCONFIGROOM)) return(0);
+	if (strcasecmp(msg->cm_fields[eOriginalRoom], SYSCONFIGROOM)) return(0);
 	if (msg->cm_format_type != 4) return(0);
 
-	ptr = msg->cm_fields['M'];
+	ptr = msg->cm_fields[eMesageText];
 	while (ptr != NULL) {
 	
 		linelen = strcspn(ptr, "\n");

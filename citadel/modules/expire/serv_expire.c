@@ -199,7 +199,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 
 			msg = CtdlFetchMessage(delnum, 0); /* dont need body */
 			if (msg != NULL) {
-				xtime = atol(msg->cm_fields['T']);
+				xtime = atol(msg->cm_fields[eTimestamp]);
 				CtdlFreeMessage(msg);
 			} else {
 				xtime = 0L;

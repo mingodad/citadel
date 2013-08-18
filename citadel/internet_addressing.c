@@ -590,8 +590,8 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		parsed_date = parsedate(value);
 		if (parsed_date < 0L) parsed_date = time(NULL);
 		snprintf(buf, sizeof buf, "%ld", (long)parsed_date );
-		if (msg->cm_fields['T'] == NULL)
-			msg->cm_fields['T'] = strdup(buf);
+		if (msg->cm_fields[eTimestamp] == NULL)
+			msg->cm_fields[eTimestamp] = strdup(buf);
 		processed = 1;
 	}
 
@@ -599,89 +599,89 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		process_rfc822_addr(value, user, node, name);
 		syslog(LOG_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof addr, "%s@%s", user, node);
-		if (msg->cm_fields['A'] == NULL)
-			msg->cm_fields['A'] = strdup(name);
-		if (msg->cm_fields['F'] == NULL)
-			msg->cm_fields['F'] = strdup(addr);
+		if (msg->cm_fields[eAuthor] == NULL)
+			msg->cm_fields[eAuthor] = strdup(name);
+		if (msg->cm_fields[erFc822Addr] == NULL)
+			msg->cm_fields[erFc822Addr] = strdup(addr);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Subject")) {
-		if (msg->cm_fields['U'] == NULL)
-			msg->cm_fields['U'] = strndup(value, valuelen);
+		if (msg->cm_fields[eMsgSubject] == NULL)
+			msg->cm_fields[eMsgSubject] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "List-ID")) {
-		if (msg->cm_fields['L'] == NULL)
-			msg->cm_fields['L'] = strndup(value, valuelen);
+		if (msg->cm_fields[eListID] == NULL)
+			msg->cm_fields[eListID] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "To")) {
-		if (msg->cm_fields['R'] == NULL)
-			msg->cm_fields['R'] = strndup(value, valuelen);
+		if (msg->cm_fields[eRecipient] == NULL)
+			msg->cm_fields[eRecipient] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "CC")) {
-		if (msg->cm_fields['Y'] == NULL)
-			msg->cm_fields['Y'] = strndup(value, valuelen);
+		if (msg->cm_fields[eCarbonCopY] == NULL)
+			msg->cm_fields[eCarbonCopY] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Message-ID")) {
-		if (msg->cm_fields['I'] != NULL) {
+		if (msg->cm_fields[emessageId] != NULL) {
 			syslog(LOG_WARNING, "duplicate message id\n");
 		}
 
-		if (msg->cm_fields['I'] == NULL) {
-			msg->cm_fields['I'] = strndup(value, valuelen);
+		if (msg->cm_fields[emessageId] == NULL) {
+			msg->cm_fields[emessageId] = strndup(value, valuelen);
 
 			/* Strip angle brackets */
-			while (haschar(msg->cm_fields['I'], '<') > 0) {
-				strcpy(&msg->cm_fields['I'][0],
-					&msg->cm_fields['I'][1]);
+			while (haschar(msg->cm_fields[emessageId], '<') > 0) {
+				strcpy(&msg->cm_fields[emessageId][0],
+					&msg->cm_fields[emessageId][1]);
 			}
-			for (i = 0; i<strlen(msg->cm_fields['I']); ++i)
-				if (msg->cm_fields['I'][i] == '>')
-					msg->cm_fields['I'][i] = 0;
+			for (i = 0; i<strlen(msg->cm_fields[emessageId]); ++i)
+				if (msg->cm_fields[emessageId][i] == '>')
+					msg->cm_fields[emessageId][i] = 0;
 		}
 
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Return-Path")) {
-		if (msg->cm_fields['P'] == NULL)
-			msg->cm_fields['P'] = strndup(value, valuelen);
+		if (msg->cm_fields[eMessagePath] == NULL)
+			msg->cm_fields[eMessagePath] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Envelope-To")) {
-		if (msg->cm_fields['V'] == NULL)
-			msg->cm_fields['V'] = strndup(value, valuelen);
+		if (msg->cm_fields[eenVelopeTo] == NULL)
+			msg->cm_fields[eenVelopeTo] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "References")) {
-		if (msg->cm_fields['W'] != NULL) {
-			free(msg->cm_fields['W']);
+		if (msg->cm_fields[eWeferences] != NULL) {
+			free(msg->cm_fields[eWeferences]);
 		}
-		msg->cm_fields['W'] = strndup(value, valuelen);
+		msg->cm_fields[eWeferences] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Reply-To")) {
-		if (msg->cm_fields['K'] != NULL) {
-			free(msg->cm_fields['K']);
+		if (msg->cm_fields[eReplyTo] != NULL) {
+			free(msg->cm_fields[eReplyTo]);
 		}
-		msg->cm_fields['K'] = strndup(value, valuelen);
+		msg->cm_fields[eReplyTo] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "In-reply-to")) {
-		if (msg->cm_fields['W'] == NULL) {		/* References: supersedes In-reply-to: */
-			msg->cm_fields['W'] = strndup(value, valuelen);
+		if (msg->cm_fields[eWeferences] == NULL) {		/* References: supersedes In-reply-to: */
+			msg->cm_fields[eWeferences] = strndup(value, valuelen);
 		}
 		processed = 1;
 	}
@@ -818,21 +818,21 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
 	if (pos < totalend)
 		StrBufAppendBufPlain(OtherHeaders, pos, totalend - pos, 0);
 	FreeStrBuf(rfc822);
-	msg->cm_fields['M'] = SmashStrBuf(&OtherHeaders);
+	msg->cm_fields[eMesageText] = SmashStrBuf(&OtherHeaders);
 
 	/* Follow-up sanity checks... */
 
 	/* If there's no timestamp on this message, set it to now. */
-	if (msg->cm_fields['T'] == NULL) {
+	if (msg->cm_fields[eTimestamp] == NULL) {
 		snprintf(buf, sizeof buf, "%ld", (long)time(NULL));
-		msg->cm_fields['T'] = strdup(buf);
+		msg->cm_fields[eTimestamp] = strdup(buf);
 	}
 
 	/* If a W (references, or rather, Wefewences) field is present, we
 	 * have to convert it from RFC822 format to Citadel format.
 	 */
-	if (msg->cm_fields['W'] != NULL) {
-		convert_references_to_wefewences(msg->cm_fields['W']);
+	if (msg->cm_fields[eWeferences] != NULL) {
+		convert_references_to_wefewences(msg->cm_fields[eWeferences]);
 	}
 
 	return msg;
@@ -1018,20 +1018,20 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 	char user[256], node[256], name[256];
 	int is_harvestable;
 	int i, j, h;
-	int field = 0;
+	eMsgField field = 0;
 
 	if (msg == NULL) return(NULL);
 
 	is_harvestable = 1;
 	strcpy(addr, "");	
-	if (msg->cm_fields['A'] != NULL) {
-		strcat(addr, msg->cm_fields['A']);
+	if (msg->cm_fields[eAuthor] != NULL) {
+		strcat(addr, msg->cm_fields[eAuthor]);
 	}
-	if (msg->cm_fields['F'] != NULL) {
+	if (msg->cm_fields[erFc822Addr] != NULL) {
 		strcat(addr, " <");
-		strcat(addr, msg->cm_fields['F']);
+		strcat(addr, msg->cm_fields[erFc822Addr]);
 		strcat(addr, ">");
-		if (IsDirectory(msg->cm_fields['F'], 0)) {
+		if (IsDirectory(msg->cm_fields[erFc822Addr], 0)) {
 			is_harvestable = 0;
 		}
 	}
@@ -1047,8 +1047,8 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 
 	/* Scan both the R (To) and Y (CC) fields */
 	for (i = 0; i < 2; ++i) {
-		if (i == 0) field = 'R' ;
-		if (i == 1) field = 'Y' ;
+		if (i == 0) field = eRecipient;
+		if (i == 1) field = eCarbonCopY;
 
 		if (msg->cm_fields[field] != NULL) {
 			for (j=0; j<num_tokens(msg->cm_fields[field], ','); ++j) {

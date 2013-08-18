@@ -180,10 +180,10 @@ int clamd(struct CtdlMessage *msg) {
 	}
 
 	if (is_virus) {
-		if (msg->cm_fields['0'] != NULL) {
-			free(msg->cm_fields['0']);
+		if (msg->cm_fields[eErrorMsg] != NULL) {
+			free(msg->cm_fields[eErrorMsg]);
 		}
-		msg->cm_fields['0'] = strdup("message rejected by virus filter");
+		msg->cm_fields[eErrorMsg] = strdup("message rejected by virus filter");
 	}
 
 bail:	close(sock);

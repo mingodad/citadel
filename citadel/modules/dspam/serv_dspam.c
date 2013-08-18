@@ -168,8 +168,8 @@ void dspam_do_msg(long msgnum, void *userdata)
 	{
 /* Copy to a safe place */
 
-		msg->cm_fields['G'] = malloc (CTX->signature->length * 2);
-		CtdlEncodeBase64(msg->cm_fields['G'], CTX->signature->data, CTX->signature->length, 0);
+		msg->cm_fields[eErrorMsg] = malloc (CTX->signature->length * 2);
+		CtdlEncodeBase64(msg->cm_fields[eErrorMsg], CTX->signature->data, CTX->signature->length, 0);
 	}
 	free(msgtext);
 

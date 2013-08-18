@@ -97,8 +97,10 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 /* Verbose logging callback */
 void cdb_verbose_err(const DB_ENV *dbenv, const char *errpfx, const char *msg)
 {
+	int *FOO = NULL;
 	syslog(LOG_ALERT, "DB: %s", msg);
 	cit_backtrace();
+	*FOO = 1;
 }
 
 

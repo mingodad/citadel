@@ -384,12 +384,12 @@ void imap_append(int num_parms, ConstStr *Params) {
 	 */
 	if (CC->logged_in) {
 	   if ( ((CC->room.QRflags & QR_MAILBOX) == 0) && (config.c_imap_keep_from == 0)) {
-		if (msg->cm_fields['A'] != NULL) free(msg->cm_fields['A']);
-		if (msg->cm_fields['N'] != NULL) free(msg->cm_fields['N']);
-		if (msg->cm_fields['H'] != NULL) free(msg->cm_fields['H']);
-		msg->cm_fields['A'] = strdup(CC->user.fullname);
-		msg->cm_fields['N'] = strdup(config.c_nodename);
-		msg->cm_fields['H'] = strdup(config.c_humannode);
+		if (msg->cm_fields[eAuthor] != NULL) free(msg->cm_fields[eAuthor]);
+		if (msg->cm_fields[eNodeName] != NULL) free(msg->cm_fields[eNodeName]);
+		if (msg->cm_fields[eHumanNode] != NULL) free(msg->cm_fields[eHumanNode]);
+		msg->cm_fields[eAuthor] = strdup(CC->user.fullname);
+		msg->cm_fields[eNodeName] = strdup(config.c_nodename);
+		msg->cm_fields[eHumanNode] = strdup(config.c_humannode);
 	    }
 	}
 
