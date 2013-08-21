@@ -1,18 +1,23 @@
 <?!("COND:ITERATE:FIRSTN", 1)>
-	<tr><td valign=top><?=("box_begin_1")>
-	<?ROOM:INFO:FLOOR:NAME><?=("box_begin_2")>
+	<div class="row">
+		<?=("box_begin_1")><?ROOM:INFO:FLOOR:NAME>
+		<?=("box_begin_2")>
 <?!("X", 1)>
 <?!("COND:ITERATE:ISGROUPCHANGE", 2)>
-	<?=("box_end")><br>
+		<?=("box_end")>
 	<?!("COND:ITERATE:ISGROUPCHANGE", 3, 2)>
-		</td><td valign=top>
+		<span class="here_be_gab"></span>
 	<?!("X", 3)>
-	<?=("box_begin_1")>
-	<?ROOM:INFO:FLOOR:NAME><?=("box_begin_2")>
+		<?=("box_begin_1")><?ROOM:INFO:FLOOR:NAME>
+		<?=("box_begin_2")>
 <?!("X", 2)>
-&nbsp;<a href="dotgoto?room=<?ROOM:INFO:NAME("U")>"><span class="<?%("COND:ROOM:FLAG:UA", 4, #"UA_HASNEWMSGS", 0, "roomlist_new", "roomlist_old")>">
-<?ROOM:INFO:LEVELNTIMES("&nbsp;&nbsp;&nbsp;")><?ROOM:INFO:BASENAME("X")></span></a>
-<?%("COND:ROOM:INFO:IS_INBOX", 5, 0, 0, _"(INBOX)", "")><br>
+			<a href="dotgoto?room=<?ROOM:INFO:NAME("U")>">
+				<span class="<?%("COND:ROOM:FLAG:UA", 4, #"UA_HASNEWMSGS", 0, "roomlist_new", "roomlist_old")>">
+					<?ROOM:INFO:LEVELNTIMES("&nbsp;&nbsp;&nbsp;")>
+					<?ROOM:INFO:BASENAME("X")>
+				</span>
+</a>
+<?%("COND:ROOM:INFO:IS_INBOX", 5, 0, 0, _"(INBOX)", "")>
 <?!("COND:ITERATE:LASTN", 2)>
-	<?=("box_end")></td></tr>
+	<?=("box_end")></div>
 <??("X", 2)>
