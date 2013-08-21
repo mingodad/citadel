@@ -11,27 +11,6 @@
 @import url("service.css");
 @import url("blog.css");
 
-html{
-	padding: 0;
-	margin: 0;
-	width: 100%;
-/*	background: -webkit-gradient(linear, left top, left bottom, ⏎from(#fff), to(#7D858C));
-	background: -webkit-linear-gradient(top, #fff, #7D858C);
-	background: -moz-linear-gradient(top, #fff, #7D858C);
-	background: -o-linear-gradient(top, #fff, #7D858C);
-	background: linear-gradient(top, #fff, #7D858C);
-	-pie-background: linear-gradient(#fff, #7D858C);
-	behavior: url(/static/styles/PIE.htc);*/
-}
-
-body {
-	padding: 0;
-	margin: 0;
-	width: 100%;
-}
-
-img {border: none;}
-
 li {list-style: none;}
 
 table.altern {}     
@@ -40,7 +19,69 @@ table.altern .even, .table-alt-row {
 	background-color: #EDEDE0;
 }
 
-
-#global {}
-
 .ctdlTemplate { display: none }
+
+#content {position:relative; top: 100px;}
+/***** Screen 1200px *****/
+.top			 								{ margin:0 auto; margin-top:30px; }	
+.base											{ margin:0 auto; margin-bottom:40px; }	
+
+/***** Navigation *****/
+a.iconbar-btn { display:none; float:left; }
+a.iconbar-btn img { margin:0 0 0 16px; padding:0; width:32px; height:auto; cursor:pointer; float:left; }
+
+ul.nav 											{ margin:0; padding:0; font-size:12px; list-style:none; float:left; text-align:left; border-bottom: 1px solid #333; width:100%; }
+ul.nav li										{ margin:0 16px 0 0; padding:0; display:block; text-align:left; float:left; background-image:none; }
+ul.nav li a										{ padding:0 0 3px 0; text-decoration:none; line-height:30px; color:#333; }
+ul.nav li a:hover,
+ul.nav li a.current								{ padding:0 0 3px 0; border-bottom:5px solid #333; text-decoration:none; line-height:30px; color:#333; }
+
+/***** Screen Bigger than 960px *****/
+@media only screen and (min-width:1200px) {
+
+}
+
+/***** Tablet (Smaller than 959px) *****/
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+	#banner {width:768px; margin-right: -384px;}
+	#content {top: 100px}
+	/***** Logo, Btn & Phone Menu Btn *****/
+
+	/***** Navigation *****/
+	
+	ul.nav 											{ font-size:11px; }
+	ul.nav li										{ margin:0 18px 0 0; }
+}
+
+
+
+/***** Phone (portrait 300px) *****/
+@media only screen and (max-width: 767px) {
+	#banner	{width: 300px; margin-right: -150px;}
+	#content {top: 120px}
+	.citlogo {height:30%; width: auto;}
+
+	/***** Logo, Btn & Phone Menu Btn *****/
+	a.iconbar-btn { margin:0 0 0 6px; display:inline; }
+
+	/***** Navigation *****/
+	#iconbar_container { margin:0 auto; display:none; background:none; width:100%; background-color:#000; }
+
+	ul.nav 											{ margin:16px 0 20px 0; padding:0; font-size:12px; list-style:none; float:left; text-align:left; border-bottom: 1px solid #FFF; width:100%; }
+	ul.nav li										{ margin:0 30px 0 0; padding:0; display:block; text-align:left; float:left; }
+	ul.nav li a										{ padding:0 0 3px 0; text-decoration:none; line-height:30px; color:#FFF; }
+	ul.nav li a:hover,
+	ul.nav li a.current								{ padding:0 0 3px 0; border-bottom:5px solid #333; text-decoration:none; line-height:30px; color:#FFF; }
+}
+	
+/***** Phone (landscape 420px) *****/
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+	#banner	{width: 456px; margin-right: -228px;}
+	#content {top: 100px}
+	.citlogo {height:30%; width: auto;}
+}
+
+/***** Retina *****/
+@media only screen and (-webkit-min-device-pixel-ratio:1.5) {
+
+}

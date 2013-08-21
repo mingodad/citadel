@@ -1,15 +1,10 @@
-#iconbar {
-	position: fixed;
-	top: 4em;
-	max-width: 8em;
-        padding: 2em 0.5em;
-	z-index: 2;
-/*	overflow: auto;
-/*	overflow-x: hidden !important; */
-	background-color: #fff; /*important when you are on small screens*/
-}
+#iconbar {}
 
-#iconbar_container {}
+#iconbar_container {
+	padding:0 0 10px 0;
+	overflow:hidden;
+	height:auto;
+}
 
 .iconbar_text {}
 
@@ -19,7 +14,6 @@
 	padding: 0;
 	margin: 0;
 	border: none;
-	list-style: none;
 	font-size: 90%;
 }
 

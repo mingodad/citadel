@@ -1,8 +1,5 @@
 .box {
 	background-color: transparent;
-	width: 100%;
-	padding: 0;
-	margin: 0;
 	border: 1px solid #5C646B;
 	border-radius: 0 0 3px 3px;
 	-webkit-border-radius: 0 0 3px 3px;
@@ -34,7 +31,6 @@
 .boxcontent {
 	text-align: left;
 	padding: 0.5em;
-	background-color: #FEFFFC;
 	color: #000;
 	border-top: 1px solid #5C646B;
 }

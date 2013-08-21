@@ -1,32 +1,24 @@
 #banner {
-	z-index: 100;
-	top: 0;
 	position: fixed;
-	width: 100%; 
+	width: 1200px;
+	right: 50%;
+	margin-right: -600px;
+	z-index: 10; 
 	color: #424b52; /* set "#banner a" accordingly below */
+}
+
+#banner>#navbar>.grid_10 {
+	background-color: #DFE5DD
+}
+
+#room_banner{
+	background-color: #c2c2c2;
+	padding-top: 10px;
+}
+
+.citadel_logo {
 	background-color: #fff;
-	padding: 0;
-	margin: 0;
-	overflow: hidden;
-	max-height: 7em;
-}
-
-#room_banner{ 
-	min-width: 50em;
-	max-width: 90em;
-	margin: 0.5em 0.5em 0 0.5em;
-}
-
-#citlogo { 
-	float: left;
-	margin: 0;
-}
-
-.logo_citadel {border: none }
-
-.logo_citadel img{
-        background-color: #edede0;
-        border: 2px solid #edede0;
+        border: 2px solid #fff;
         -khtml-border-radius: 8px;
         -moz-border-radius: 8px;
         border-radius: 8px;
@@ -34,12 +26,10 @@
 } 
 
 #room_definition {
-	float: left;
 	margin-left: 1.5em;
 }
 
 #room_descriptor ul {
-	float: right;
 	margin: 0;
 }
 
@@ -54,7 +44,6 @@
 #banner a { color: #424b52; }
 
 .banner h1, .banner h2 {
-	float: left;
 	display: inline;
 	font-size: 150%;
 	margin: 0;
@@ -82,8 +71,6 @@
 #room_infos img.close_infos { float: right }
 
 #room_details {
-	clear: both;
-	float: left;
 	margin: 0.3em;
 }
 
@@ -95,7 +82,6 @@
 #searchomatic form {display: inline}
 
 #actiondiv {
-	float: right;
 	text-align: right;
 	font-size: 70%;
 }

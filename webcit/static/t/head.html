@@ -5,18 +5,41 @@
 		<title><?THISROOM:NAME> - <?SERV:HUMANNODE></title>
 		<meta name="MSSmartTagsPreventParsing" content="TRUE" >
 		<meta http-equiv="X-UA-Compatible" content="IE=8" >
+		
 		<meta name="keywords" content="groupware messaging collaboration" >
+		<?THISROOM:FEED:RSSMETA>
+
+		<!-- Mobile Specific Metas -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" > 
+	
+		<script type="text/javascript">
+			var browser			= navigator.userAgent;
+			var browserRegex	= /(Android|BlackBerry|IEMobile|Nokia|iP(ad|hone|od)|Opera M(obi|ini))/;
+			var isMobile		= false;
+			if(browser.match(browserRegex)) {
+				isMobile			= true;
+				addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
+					function hideURLbar(){
+					window.scrollTo(0,1);
+				}
+			}
+		</script>
+
+		<!-- CSS -->
+		<link href="static/styles/base.css" rel="stylesheet" type="text/css">
+		<link href="static/styles/amazium.css" rel="stylesheet" type="text/css">		
 		<link href="static/styles/webcit.css" rel="stylesheet" type="text/css">
 		<link href="static/styles/datepicker.css" rel="stylesheet" type="text/css">
-		<?THISROOM:FEED:RSSMETA>
 
 		<link href="do_template?template=iconbar_user" rel="stylesheet" type="text/css">
 		<link href="static/styles/iconbaricns.css" rel="<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_displayas", "", "alternate ")>stylesheet" type="text/css" id="style_iconbar_icns" title="Default iconbar">
 		<link href="static/styles/iconbarpiconly.css" rel="<?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_displayas", "","alternate ")>stylesheet" type="text/css" id="style_iconbar_piconly" title="Iconbar without text">
+		
 		<?CSSLOCAL>
 		<!--[if lte IE 8]>
 			<style type="text/css">@import url(static/styles/ie_lte8.css);</style>
 		<![endif]-->
+	
 		<script type="text/javascript" src="static/prototype.js"></script> 
 		<script type="text/javascript" src="static/scriptaculous.js"></script> 
 		<script type="text/javascript" src="static/datepicker-dev.js"></script>
@@ -51,5 +74,4 @@
 	</div>
 </div>
 <!-- end modal box -->
-<?ICONBAR>
 <!--("end head.html")-->

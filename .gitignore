@@ -10,3 +10,5 @@ tmp
 webcit_*
 citadel_*
 libcitadel_*
+.DS_Store
+._*

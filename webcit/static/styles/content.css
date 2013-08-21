@@ -1,11 +1,4 @@
-#content {
-	position: absolute;
-	top: 6em;
-	left: 9em;
-	right: 0;
-	min-width: 50em;
-	overflow-y: auto;
-}
+#content {}
 
 
 .boxcontent table {

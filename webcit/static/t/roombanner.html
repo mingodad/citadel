@@ -1,9 +1,9 @@
 <!-- start roombanner.html -->
-<div id="room_banner" class="banner">
-		<div id="citlogo" class="logo_citadel">
-			<img src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>">
+	<div id="room_banner" class="row">
+		<div id="citlogo" class="grid_2">
+			<img class="citadel_logo" src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>">
 		</div>
-		<div id="room_definition">
+		<div id="room_definition" class="grid_6">
 			<div id="room_descriptor">
 				<?=("room_view_picture")>
 				<h1 id="rmname"><a href="/readnew?go=<?THISROOM:NAME("U")>"><?THISROOM:NAME("X")></a></h1>
@@ -18,18 +18,18 @@
 				<?!("COND:ROOM:TYPE_IS", 11, #"VIEW_MAILBOX")><span id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></span><?!("X", 11)>
 				<?!("COND:THISROOM:FLAG:QR", 9, #"QR_DIRECTORY")><?!("COND:THISROOM:FLAG:QR", 10, #"QR_VISDIR")>
 					<span id="numfiles"><a href="do_template?template=files">
-						<img src="/static/webcit_icons/essen/16x16/file.png" alt="File">
+						<img src="/static/webcit_icons/dusseldorf/16x16/file.png" alt="File">
 						<?THISROOM:FILES:N> <?THISROOM:FILES:STR></a>
 					</span>
 				<?!("X", 10)><?!("X", 9)>
 				 <?!("COND:ROOM:TYPE_IS", 12, #"VIEW_MAILBOX")>
 					<span class="search" id="searchomatic">
-						 <img src="/static/webcit_icons/essen/16x16/search.png" alt="File">
+						 <img src="/static/webcit_icons/dusseldorf/16x16/search.png" alt="File">
 						<?=("searchomatic")></span>
 				<?!("X", 12)>
 			</div>
 		</div>
-		<div id="actiondiv">
+		<div id="actiondiv" class="grid_4">
 			<ul class="room_actions">
 				<li class="logstatus"><?=("loggedinas")></li>
 				<li class="view"><?=("viewomatic")></li>
@@ -41,5 +41,5 @@
 				<?!("X",1)>
 			</ul>
 		</div>
-</div>
-<!-- end roombanner.html -->
+	</div>
+<!-- end roombanner.html, #iconbar is now inside of #navbar -->

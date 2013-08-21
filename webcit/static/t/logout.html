@@ -5,14 +5,15 @@ window.location='/';
 </script>				
 <?!("X", 1)>
 
-<div id="logout_screen">
-<div class="box">
-<div class="boxlabel"><?_("Log off")></div>
-<div class="boxcontent">
-<?SERV:MESG("goodbye")>
-
-<hr /><div class="buttons"> 
-<span class="button_link"><a href=".">
-<?_("Log in again")>
-</a></span>
-</div></div></div>
+<div id="logout_screen" class="row">
+	<div class="box offset_3 grid_6">
+		<div class="boxlabel"><?_("Log off")></div>
+		<div class="boxcontent">
+			<?SERV:MESG("goodbye")>
+			<hr /><div class="buttons"> 
+			<span class="button_link">
+				<a href="."><?_("Log in again")></a>
+			</span>
+		</div>
+	</div>
+</div>
