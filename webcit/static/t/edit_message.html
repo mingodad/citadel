@@ -1,214 +1,236 @@
 <?=("head")>
 <?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <?ROOMBANNER>
-<div id="content">
+<div id="content" class="row">
 
-<div id="attachments_form">
-    <div id="loading">
-      <p><img src="static/webcit_icons/throbber.gif" alt=""></p>
-      <p><?_("Loading")></p>
-    </div>
-</div>
+	<div id="attachments_form" class="offset_4 grid_4">
+    		<div id="loading">
+      			<p><img src="static/webcit_icons/throbber.gif" alt=""></p>
+      			<p><?_("Loading")></p>
+    		</div>
+	</div>
 
-<div class="entmsg" id="entmsg"><form name="enterform" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="post">
-<input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
-<input type="hidden" name="return_to" value="<?BSTR("return_to")>">
-<input type="hidden" name="nonce" value="<?NONCE>">
-<input type="hidden" name="force_room" value="<?THISROOM:NAME("X")>">
-<input type="hidden" name="references" value="<?BSTR("references")>">
-<input type="hidden" name="page" value="<?BSTR("page")>">
-<input type="hidden" name="submit_action" value="">
+	<div class="entmsg offset_2 grid_6" id="entmsg">
+	<form name="enterform" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="post">
+		<input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
+		<input type="hidden" name="return_to" value="<?BSTR("return_to")>">
+		<input type="hidden" name="nonce" value="<?NONCE>">
+		<input type="hidden" name="force_room" value="<?THISROOM:NAME("X")>">
+		<input type="hidden" name="references" value="<?BSTR("references")>">
+		<input type="hidden" name="page" value="<?BSTR("page")>">
+		<input type="hidden" name="submit_action" value="">
 
-<table width="100%" class="edit_msg_table">
-<tr><th><label for="from_id"><i><?_("from")></i></label></th><td>
+		<!-- The message head: -->
+		<table width="100%" class="edit_msg_table">
+			<!-- From: -->
+			<tr><th><label for="from_id"><i><?_("from")></i></label></th><td>
+				<??("COND:BSTR", 4, "__RCPTREQUIRED")>
+				<select name="display_name" size=1 id="from_id">
+					<?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_handle_select")>
+					<?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
+						<option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
+					<?!("X", 3)>
+				</select>
+				<??("X", 4)>
 
-<??("COND:BSTR", 4, "__RCPTREQUIRED")>
-<select name="display_name" size=1 id="from_id">
-<?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_handle_select")>
-<?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
-<option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
-<?!("X", 3)>
-</select>
-<??("X", 4)>
+				<?!("COND:BSTR", 5, "__RCPTREQUIRED")>
+				<select name="display_name" size=1 id="from_id">
+					<?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_sender_name_select")>
+					<?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
+						<option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
+					<?!("X", 3)>
+				</select>
 
-<?!("COND:BSTR", 5, "__RCPTREQUIRED")>
-<select name="display_name" size=1 id="from_id">
-<?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_sender_name_select")>
-<?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
-<option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
-<?!("X", 3)>
-</select>
+				<select name="my_email_addr" size=1>
+					<?ITERATE("PREF:VALID:EMAIL:ADDR", ="prefs_section_msg_sender_from_select")>
+				</select>
+				<?!("X", 4)>
 
-<select name="my_email_addr" size=1>
-<?ITERATE("PREF:VALID:EMAIL:ADDR", ="prefs_section_msg_sender_from_select")>
-</select>
-<?!("X", 4)>
+ 				<i><?_("in")></i> <?THISROOM:NAME></td></tr>
+			</td>
 
- <i><?_("in")></i> <?THISROOM:NAME></td></tr>
+		<?!("COND:BSTR", 5, "__RCPTREQUIRED")>
+			<!-- To: -->
+			<tr><th><label for="recp_id"> <?_("To:")></label></th><td>
+				<input autocomplete="off" type="text" name="recp" id="recp_id" value="<?BSTR("recp", "H")>" size=45 maxlength=1000 />
+     					<div class="auto_complete" id="recp_name_choices"></div>
+  			</td></tr>
+			<!-- CC: -->
+			<tr><th><label for="cc_id"><?_("CC:")></label></th><td>
+				<input autocomplete="off" type="text" name="cc" id="cc_id" value="<?BSTR("cc", "H")>" size=45 maxlength=1000 />
+    				<div class="auto_complete" id="cc_name_choices"></div>
+  			</td></tr>
+			<!-- BCC: -->
+			<tr><th><label for="bcc_id"><?_("BCC:")></label></th>
+  				<td><input autocomplete="off" type="text" name="bcc" id="bcc_id" value="<?BSTR("bcc", "H")>" size=45 maxlength=1000 />
+   					<div class="auto_complete" id="bcc_name_choices"></div>
+  			</td></tr>
+		<??("X", 5)>		
 
-<?!("COND:BSTR", 5, "__RCPTREQUIRED")>
-<tr>
-  <th><label for="recp_id"> <?_("To:")></label></th>
-  <td><input autocomplete="off" type="text" name="recp" id="recp_id" value="<?BSTR("recp", "H")>" size=45 maxlength=1000 />
-     <div class="auto_complete" id="recp_name_choices"></div>
-  </td>
-</tr>
-<tr>
-  <th><label for="cc_id"><?_("CC:")></label></th>
-  <td><input autocomplete="off" type="text" name="cc" id="cc_id" value="<?BSTR("cc", "H")>" size=45 maxlength=1000 />
-    <div class="auto_complete" id="cc_name_choices"></div>
-  </td>
-</tr>
-<tr>
-  <th><label for="bcc_id"><?_("BCC:")></label></th>
-  <td><input autocomplete="off" type="text" name="bcc" id="bcc_id" value="<?BSTR("bcc", "H")>" size=45 maxlength=1000 />
-   <div class="auto_complete" id="bcc_name_choices"></div>
-  </td>
-</tr>
-<??("X", 5)>		
-<tr>
-  <th><label for="subject_id" > 
-      <?%("COND:BSTR", 6, "__SUBJREQUIRED", 0, _("Subject (optional):"), _("Subject:")>
-  </label></th>
-  <td>
-    <input type="text" name="subject" id="subject_id" value="<?BSTR("subject", "H")>" size=45 maxlength=70>
-  </td>
-</tr>
-</td></tr>
-</table>
+			<!-- Subject: -->
+			<tr>
+				<th><label for="subject_id" > 
+      					<?%("COND:BSTR", 6, "__SUBJREQUIRED", 0, _("Subject (optional):"), _("Subject:")>
+  				</label></th>
+  				<td>
+    					<input type="text" name="subject" id="subject_id" value="<?BSTR("subject", "H")>" size=45 maxlength=70>
+  				</td>
+			</tr>
+		</table>
 
-<input type="hidden" name="sig_inserted" value="yes">
+		<input type="hidden" name="sig_inserted" value="yes">
 
-<textarea name="msgtext" id="msgtext" cols="80" rows="15">
-<?BSTR("msgtext", "X")><?!("COND:BSTR", 1, "fwdquote")>&lt;br /&gt;
-  &lt;div align=center&gt;
-    &lt;i&gt;
-      <?_("--- forwarded message ---")>
-    &lt;/i&gt;
-  &lt;/div&gt;
-  <?MAIL:QUOTETEXT("fwdquote", "X")>
-&lt;br /&gt;<?!("X", 1)><?!("COND:BSTR", 2, "replyquote")>
-&lt;br /&gt;
-    <?MAIL:QUOTETEXT("replyquote", "X")>
-&lt;br /&gt;<?!("X", 2)><?!("COND:BSTR", 3, "edit")><?MAIL:EDITTEXT("edit", "X")><?!("X", 3)>
-<??("COND:BSTR", 4, "edit")><??("COND:BSTR", 5, "sig_inserted", "yes")><?!("COND:PREF", 6, "use_sig", "yes")>
-&lt;br&gt;&lt;p&gt;--&nbsp;&lt;br&gt;<?PREF:VALUE("signature","H")>
-      &lt;/p&gt;
-<?!("X", 6)><??("X", 5)><?!("X", 4)><?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><?MAIL:EDITWIKI("X")><?!("X", 7)>
-</textarea>
+		<!-- preparing the content of the message before loading the editor --->
+		<textarea name="msgtext" id="msgtext" cols="80" rows="15">
+			<?BSTR("msgtext", "X")>
+			<?!("COND:BSTR", 1, "fwdquote")>
+				&lt;br /&gt;
+  				&lt;div align=center&gt;
+    				&lt;i&gt;
+      				<?_("--- forwarded message ---")>
+    				&lt;/i&gt;
+  				&lt;/div&gt;
+  				<?MAIL:QUOTETEXT("fwdquote", "X")>
+				&lt;br /&gt;
+			<?!("X", 1)>
+			<?!("COND:BSTR", 2, "replyquote")>
+				&lt;br /&gt;
+    				<?MAIL:QUOTETEXT("replyquote", "X")>
+				&lt;br /&gt;
+			<?!("X", 2)>
+			<?!("COND:BSTR", 3, "edit")>
+				<?MAIL:EDITTEXT("edit", "X")>
+			<?!("X", 3)>
+			<??("COND:BSTR", 4, "edit")>
+				<??("COND:BSTR", 5, "sig_inserted", "yes")>
+					<?!("COND:PREF", 6, "use_sig", "yes")>
+						&lt;br&gt;
+						&lt;p&gt;--&nbsp;&lt;br&gt;
+							<?PREF:VALUE("signature","H")>
+      						&lt;/p&gt;
+					<?!("X", 6)>
+				<??("X", 5)>
+			<?!("X", 4)>
+			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")>
+				<?MAIL:EDITWIKI("X")>
+			<?!("X", 7)>
+		</textarea>
+		<!-- loading the actual wysiwig editor now: -->
+		<?=("richedit")>
 
-<?=("richedit")>
+	</form>
 
-</form>
+	<!-- the navbar replacement: -->
+	<div style="display:none" id="submit-o-matic"><ul>
+		<li>
+			<a href="javascript:submit_post('post');">
+				<img src="static/webcit_icons/essen/16x16/check.png" alt=""">
+				<span class="navbar_link hide-phone">
+					<?!("COND:BSTR", 1, "__RCPTREQUIRED")><?_("Send message")><?!("X", 1)>
+					<??("COND:BSTR", 2, "__RCPTREQUIRED")><?_("Post message")><?!("X", 2)>
+				</span>
+			</a>
+		</li>
+		<li>
+			<a href="javascript:submit_post('draft');">
+				<img src="static/webcit_icons/essen/16x16/draft.png" alt=""">
+				<span class="navbar_link hide-phone">
+					<?_("Save to Drafts")>
+				</span>
+			</a>
+		</li>
+		<li>
+			<a href="javascript:show_attachments_form();">
+				<img src="static/webcit_icons/essen/16x16/attachement.png" alt=""">
+				<span class="navbar_link hide-phone">
+					<?_("Attachments:")>
+					<span id="num_attachments" class="show-phone"><?MSG:NATTACH></span>
+				</span>
+			</a>
+		</li>
+		<li>
+			<a href="javascript:submit_post('cancel');">
+				<img src="static/webcit_icons/essen/16x16/abort.png" alt="">
+				<span class="navbar_link hide-phone">
+					<?_("Cancel")>
+				</span>
+			</a>
+		</li>
+		<?!("COND:BSTR", 1, "__RCPTREQUIRED")><li>
+			<a href="javascript:PopOpenAddressBook('recp_id|<?_("To:")>|cc_id|<?_("CC:")>|bcc_id|<?_("BCC:")>');">
+				<img src="static/webcit_icons/essen/16x16/contact.png" alt=""">
+				<span class="navbar_link">
+					<?_("Contacts")>
+				</span>
+			</a>
+		</li><?!("X", 1)>
+	</div>
 
-<div style="display:none" id="submit-o-matic"><ul>
-<li>
-	<a href="javascript:submit_post('post');">
-		<img src="static/webcit_icons/essen/16x16/check.png" alt=""">
-		<span class="navbar_link">
-		<?!("COND:BSTR", 1, "__RCPTREQUIRED")><?_("Send message")><?!("X", 1)>
-		<??("COND:BSTR", 2, "__RCPTREQUIRED")><?_("Post message")><?!("X", 2)>
-		</span>
-	</a>
-</li>
-<li>
-	<a href="javascript:submit_post('draft');">
-		<img src="static/webcit_icons/essen/16x16/draft.png" alt=""">
-		<span class="navbar_link">
-		<?_("Save to Drafts")>
-		</span>
-	</a>
-</li>
-<li>
-	<a href="javascript:show_attachments_form();">
-		<img src="static/webcit_icons/essen/16x16/attachement.png" alt=""">
-		<span class="navbar_link">
-		<?_("Attachments:")>
-		<span id="num_attachments"><?MSG:NATTACH></span>
-		</span>
-	</a>
-</li>
-<li>
-	<a href="javascript:submit_post('cancel');">
-		<img src="static/webcit_icons/essen/16x16/abort.png" alt="">
-		<span class="navbar_link">
-		<?_("Cancel")>
-		</span>
-	</a>
-</li>
-<?!("COND:BSTR", 1, "__RCPTREQUIRED")><li>
-	<a href="javascript:PopOpenAddressBook('recp_id|<?_("To:")>|cc_id|<?_("CC:")>|bcc_id|<?_("BCC:")>');">
-		<img src="static/webcit_icons/essen/16x16/contact.png" alt=""">
-		<span class="navbar_link">
-		<?_("Contacts")>
-		</span>
-	</a>
-</li><?!("X", 1)>
-</div>
-<script type="text/javascript">	
+	<script type="text/javascript">	
+		$("navbar").innerHTML = $("submit-o-matic").innerHTML;
+		<?!("COND:BSTR", 1, "__RCPTREQUIRED")>
+			activate_entmsg_autocompleters();
+		<?!("X", 1)>
 
-	$("navbar").innerHTML = $("submit-o-matic").innerHTML;
-	<?!("COND:BSTR", 1, "__RCPTREQUIRED")>
-		activate_entmsg_autocompleters();
-	<?!("X", 1)>
+		function submit_post(which_action) {
+			document.enterform.submit_action.value = which_action;
+			document.enterform.submit();
+		}
 
-	function submit_post(which_action) {
-		document.enterform.submit_action.value = which_action;
-		document.enterform.submit();
-	}
+		function hide_attachments_form() {
+			$('attachments_form').style.display = 'none';
+			update_attachment_count();
+		}
 
-	function hide_attachments_form() {
-		$('attachments_form').style.display = 'none';
-		update_attachment_count();
-	}
+		function show_attachments_form() {
+			$('attachments_form').style.display = 'block';
 
-	function show_attachments_form() {
-		$('attachments_form').style.display = 'block';
-
-		p = 'template=edit_message_attachments_pane&r=' + CtdlRandomString();
-		new Ajax.Updater(
-			'attachments_form',
-			'do_template',
-			{
-				method: 'get',
-				parameters: p,
-				evalScripts: true
-			}
-		);
-	}
-
-	function update_attachment_count() {
-		p = 'r=' + CtdlRandomString();
-		new Ajax.Updater(
-			'num_attachments',
-			'show_num_attachments',
-			{
-				method: 'get',
-				parameters: p
-			}
-		);
-	}
-
-	function remove_attachment(which_one) {
-		p = 'which_attachment=' + which_one + '&r=' + CtdlRandomString();
-		new Ajax.Updater(
-			'gonna_upload_this',
-			'remove_attachment',
-			{
-				method: 'get',
-				parameters: p,
-				onComplete: function(){
-					show_attachments_form();
-					update_attachment_count();
+			p = 'template=edit_message_attachments_pane&r=' + CtdlRandomString();
+			new Ajax.Updater(
+				'attachments_form',
+				'do_template',
+				{
+					method: 'get',
+					parameters: p,
+					evalScripts: true
 				}
-			}
-		);
-	}
+			);
+		}
 
-</script>
+		function update_attachment_count() {
+			p = 'r=' + CtdlRandomString();
+			new Ajax.Updater(
+				'num_attachments',
+				'show_num_attachments',
+				{
+					method: 'get',
+					parameters: p
+				}
+			);
+		}
+
+		function remove_attachment(which_one) {
+			p = 'which_attachment=' + which_one + '&r=' + CtdlRandomString();
+			new Ajax.Updater(
+				'gonna_upload_this',
+				'remove_attachment',
+				{
+					method: 'get',
+					parameters: p,
+					onComplete: function(){
+						show_attachments_form();
+						update_attachment_count();
+					}
+				}
+			);
+		}
+	</script>
+	<!-- closing entmsg div: -->
+	</div>
+<!-- cloasing content div: -->
 </div>
+<!-- #global ends here-->
 </div>
-</div>
+
 <?=("addressbook_popup")>
-
 <?=("trailing")>

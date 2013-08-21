@@ -8,11 +8,11 @@
 </script>
 
 <div id="banner">
-	<div id="room_banner" class="banner">
-		<div id="citlogo" class="logo_citadel">
-			<img src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>">
+	<div id="room_banner" class="row">
+		<div id="citlogo" class="grid_2">
+			<img class="citadel_logo" src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>">
 		</div>
-		<div id="room_definition">
+		<div id="room_definition" class="grid_6">
 			<div id="room_descriptor">
 				<img class="roompic" alt="" src="static/webcit_icons/essen/32x32/user.png">
 				<h1 id="rmname"><?_("Users currently on ")><?SERV:HUMANNODE></h1>
@@ -21,23 +21,28 @@
 				<span><?_("Click on a name to read user info.")></span>
 			</div>
 		</div>
-		<div id="actiondiv">
+		<div id="actiondiv" class="grid_4">
 			<ul class="room_actions">
 				<li><?=("loggedinas")></li>
 			</ul>
 		</div>
 	</div>
-	<div id="navbar"><ul><li>
-		<span class="navbar_link"><?_("Click on")>
-		<img align="middle" src="static/webcit_icons/essen/16x16/chat.png" alt="(p)">
-		<?_("to send an instant message to that user.")></span>
-	</li></ul></div>
+	<div id="navbar" class="row">
+		<ul class="offset_2 grid_6"><li>
+			<img align="middle" src="static/webcit_icons/essen/16x16/chat.png" alt="(p)">
+			<span class="navbar_link hide-phone"><?_("Click on")>
+				<?_("to send an instant message to that user.")>
+			</span>
+		</li></ul>
+	</div>
 </div>
-<div id="content" class="service who_is_online">
-	<div id="who_inner"><img src="static/webcit_icons/throbber.gif"></div>	
-</div>
-<script type="text/javascript">
- new Ajax.PeriodicalUpdater('who_inner', 'do_template?template=who_box_list_static',
+<div id="content" class="service who_is_online row">
+	<div id="who_inner" class="offset_2 grid_6">
+		<img src="static/webcit_icons/throbber.gif"></div>	
+	</div>
+	<script type="text/javascript">
+ 		new Ajax.PeriodicalUpdater('who_inner', 'do_template?template=who_box_list_static',
                             { method: 'get', frequency: 30 }  );
-</script>
+	</script>
+
 <?=("trailing")>

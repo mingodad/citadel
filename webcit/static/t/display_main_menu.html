@@ -3,19 +3,19 @@
                 <script type="text/javascript" src="static/summaryview.js"></script> 
                 <script type="text/javascript" src="static/zapduplicates.js"></script> 
 <?ROOMBANNER>
-<div id="content">
-<table width="100%" cellspacing="10" cellpadding="0">
-<tr><td colspan="2" class="advanced">
-  <?DOBOXED("menu_basic_commands", _("Basic commands"))>
-</td></tr>
-<tr valign=top><td width="50%">
-  <?DOBOXED("menu_your_info", _("Your info"))>
-</td><td width="50%">
-  <?DOBOXED("menu_advanced_roomcommands", _("Advanced room commands"))>
-</td></tr>
-</table>
+<div id="content"">
+	<div class="row">
+  		<?DOBOXED("menu_basic_commands", _("Basic commands"))>
+	</div>
+	<div class="row">
+		<div class="offset_2 grid_4">
+  			<?DOBOXED("menu_your_info", _("Your info"))>
+		</div>
+		<div class="grid_4">
+  			<?DOBOXED("menu_advanced_roomcommands", _("Advanced room commands"))>
+		</div>
+	</div>
 </div>
 
 </div>
-
 <?=("trailing")>
