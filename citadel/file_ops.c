@@ -545,6 +545,8 @@ void cmd_ucls(char *cmd)
 			);
 
 			if (link(CC->upl_path, final_filename) == 0) {
+				syslog(LOG_INFO, "UCLS: updoaded %s\n",
+				       final_filename);
 				unlink(CC->upl_path);
 			}
 			else {
@@ -552,6 +554,7 @@ void cmd_ucls(char *cmd)
 					CC->upl_path, final_filename, strerror(errno)
 				);
 			}
+			
 
 			/* FIXME ... here we need to trigger a network run */
 		}

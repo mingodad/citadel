@@ -327,10 +327,20 @@ eNextState NWC_ReadNDOPReply(AsyncNetworker *NW)
 	NWC_DBG_READ();
 	if (ChrPtr(NW->IO.IOBuf)[0] == '2')
 	{
+		int LogLevel = LOG_DEBUG;
 
 		NW->IO.IOB.TotalSentAlready = 0;
+
 		TotalSendSize = atol (ChrPtr(NW->IO.IOBuf) + 4);
-		EVN_syslog(LOG_DEBUG, "Expecting to transfer %d bytes\n", TotalSendSize);
+
+		if (TotalSendSize > 0)
+			LogLevel = LOG_INFO;
+
+		EVN_syslog(LogLevel,
+			   "Expecting to transfer %d bytes to %s\n",
+			   TotalSendSize,
+			   ChrPtr(NW->tempFileName));
+
 		if (TotalSendSize <= 0) {
 			NW->State = eNUOP - 1;
 		}
@@ -434,7 +444,13 @@ eNextState NWC_ReadREADBlob(AsyncNetworker *NW)
 			       ChrPtr(NW->SpoolFileName), 
 			       strerror(errno));
 		}
-	
+		else {
+			EVN_syslog(LOG_INFO, 
+			       "moved %s to %s\n",
+			       ChrPtr(NW->tempFileName), 
+			       ChrPtr(NW->SpoolFileName));
+		}
+
 		unlink(ChrPtr(NW->tempFileName));
 		rc = NWC_DispatchWriteDone(&NW->IO);
 		NW->State --;
@@ -463,6 +479,12 @@ eNextState NWC_ReadREADBlobDone(AsyncNetworker *NW)
 			       ChrPtr(NW->tempFileName), 
 			       ChrPtr(NW->SpoolFileName), 
 			       strerror(errno));
+		}
+		else {
+			EVN_syslog(LOG_INFO, 
+			       "moved %s to %s\n",
+			       ChrPtr(NW->tempFileName), 
+			       ChrPtr(NW->SpoolFileName));
 		}
 	
 		unlink(ChrPtr(NW->tempFileName));
@@ -542,6 +564,14 @@ eNextState NWC_SendNUOP(AsyncNetworker *NW)
 		if (fd > 0) close(fd);
 		return rc;
 	}
+	else
+       	{
+		EVN_syslog(LOG_INFO,
+			   "sending %s to %s\n", 
+			   ChrPtr(NW->SpoolFileName),
+			   ChrPtr(NW->node));
+	}
+
 	FDIOBufferInit(&NW->IO.IOB, &NW->IO.SendBuf, fd, TotalSendSize);
 
 	StrBufPlain(NW->IO.SendBuf.Buf, HKEY("NUOP\n"));
@@ -618,7 +648,12 @@ eNextState NWC_ReadUCLS(AsyncNetworker *NW)
 	AsyncIO *IO = &NW->IO;
 	NWC_DBG_READ();
 
-	EVN_syslog(LOG_NOTICE, "Sent %ld octets to <%s>\n", NW->IO.IOB.ChunkSize, ChrPtr(NW->node));
+	EVN_syslog(LOG_NOTICE,
+		   "Sent %s [%ld] octets to <%s>\n",
+		   ChrPtr(NW->SpoolFileName),
+		   NW->IO.IOB.ChunkSize,
+		   ChrPtr(NW->node));
+
 	if (ChrPtr(NW->IO.IOBuf)[0] == '2') {
 		EVN_syslog(LOG_DEBUG, "Removing <%s>\n", ChrPtr(NW->SpoolFileName));
 		unlink(ChrPtr(NW->SpoolFileName));

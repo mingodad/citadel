@@ -3934,9 +3934,17 @@ long IOBufferStrLength(IOBuffer *FB)
 	return StrLength(FB->Buf) - (FB->ReadWritePointer - FB->Buf->buf);
 }
 
-void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
+inline static void FDIOBufferFlush(FDIOBuffer *FDB)
 {
 	memset(FDB, 0, sizeof(FDIOBuffer));
+	FDB->OtherFD = -1;
+	FDB->SplicePipe[0] = -1;
+	FDB->SplicePipe[1] = -1;
+}
+
+void FDIOBufferInit(FDIOBuffer *FDB, IOBuffer *IO, int FD, long TotalSendSize)
+{
+	FDIOBufferFlush(FDB);
 	FDB->ChunkSize = 
 		FDB->TotalSendSize = TotalSendSize;
 	FDB->IOB = IO;
@@ -3955,15 +3963,18 @@ void FDIOBufferDelete(FDIOBuffer *FDB)
 #ifdef LINUX_SPLICE
 	if (EnableSplice)
 	{
-		close(FDB->SplicePipe[0]);
-		close(FDB->SplicePipe[1]);
+		if (FDB->SplicePipe[0] > 0)
+			close(FDB->SplicePipe[0]);
+		if (FDB->SplicePipe[1] > 0)
+			close(FDB->SplicePipe[1]);
 	}
 	else
 #endif
 		FreeStrBuf(&FDB->ChunkBuffer);
 	
-	close(FDB->OtherFD);
-	memset(FDB, 0, sizeof(FDIOBuffer));	
+	if (FDB->OtherFD > 0)
+		close(FDB->OtherFD);
+	FDIOBufferFlush(FDB);
 }
 
 int FileSendChunked(FDIOBuffer *FDB, const char **Err)
