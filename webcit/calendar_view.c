@@ -564,7 +564,7 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	/* Outer (to get the background color) */
-	wc_printf("<div class=\"calendar_outer_frame\">");
+	wc_printf("<div class=\"calendar_outer_frame offset_2\">");
 	wc_printf("<div>\n");
 
 	localtime_r(&previous_month, &tm);
@@ -692,7 +692,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	}
 
 	/* Outer frame (to get the background color) */
-	wc_printf("<div id=\"calendar_outer_frame\">\n");
+	wc_printf("<div class=\"calendar_outer_frame offset_2\">\n");
 	wc_printf("<div>\n");
 
 	localtime_r(&previous_month, &tm);
