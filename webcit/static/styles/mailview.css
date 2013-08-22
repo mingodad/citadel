@@ -81,7 +81,6 @@
         overflow: hidden;
         cursor: s-resize;
         height: 8px;
-	margin: 0 1em;
         background-image: url(/static/webcit_icons/resizegrippy.gif);
         background-position: center;
         background-repeat: no-repeat;

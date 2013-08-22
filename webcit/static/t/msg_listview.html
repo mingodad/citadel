@@ -3,23 +3,23 @@
 	var is_safe_mode = <?%("COND:PREF", 1, :"mailbox", "client-nosort", "true", "false")>;
 	var sortmode = ""; /*"<?PREF:ROOM:VALUE("sort")>";*/
 </script>
-<div id="message_listview">
-	<div id="message_list_hdr">      
+<div id="message_listview" class="row">
+	<div id="message_list_hdr" class="offset_2 grid_10">      
 		<table><tr>
 			<th class="col1" id="mlh_subject"><?_("Subject")></th>
 			<th class="col2" id="mlh_from"><?_("Sender")></th>
 			<th class="col3" id="mlh_date"><?_("Date")></th>
 		</tr></table>
 	</div>
-	<div id="summary_view">
+	<div id="summary_view" class="offset_2 grid_10">
 		<table id="message_list_body" class="mailbox_summary"><tr style="display: none;"><td colspan="4"></td></tr></table>
 		<div id="loading">
 			<p><img src="static/webcit_icons/throbber.gif" alt=""></p>
 			<p><?_("Loading messages from server, please wait")></p>
 		</div>
 	</div>
-	<div id="resize_msglist"></div>
-	<div id="preview_pane"></div>
+	<div id="resize_msglist" class="offset_2 grid_10"></div>
+	<div id="preview_pane" class="offset_2 grid_10"></div>
 	<div class="ctdlTemplate" id="listViewContextMenu">
 		<?_("Open in new window")><br>
 		<?_("Move")><br>
