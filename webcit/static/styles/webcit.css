@@ -11,67 +11,74 @@
 @import url("service.css");
 @import url("blog.css");
 
-li {list-style: none;}
+.ctdlTemplate	{ display: none }
 
-table.altern {}     
-      
-table.altern .even, .table-alt-row {       
-	background-color: #EDEDE0;
-}
-
-.ctdlTemplate { display: none }
-
-#content {position:relative; top: 100px;}
 /***** Screen 1200px *****/
-.top			 								{ margin:0 auto; margin-top:30px; }	
-.base											{ margin:0 auto; margin-bottom:40px; }	
+.top		{ margin:0 auto; margin-top:30px; }	
+.base		{ margin:0 auto; margin-bottom:40px; }	
 
-/***** Navigation *****/
+/***** Wicked Magic begins here *****/
+
 
 /***** Screen Bigger than 960px *****/
 @media only screen and (min-width:1200px) {
-
+	/* This is the magic that makes banner and iconbar fixed on big screen */
+	#banner		{ position: fixed; width: 1200px; right: 50%; margin-right: -600px; z-index: 10; }
+	#iconbar 	{ position: fixed }
+	#content	{ position:relative; top: 103px;}
 }
+
+/***** Your moms screen!  *****/
+@media only screen and (min-width: 960px) and (max-width: 1199px) {
+	#banner         { position: fixed; width: 1200px; right: 50%; margin-right: -600px; z-index: 10; }
+        #iconbar        { position: fixed }
+	#content	{ position:relative; top: 103px;}
+}	
 
 /***** Tablet (Smaller than 959px) *****/
 @media only screen and (min-width: 768px) and (max-width: 959px) {
-	#banner {width:768px; margin-right: -384px;}
-	#content {top: 100px}
+	#iconbar	{ display: none; width: 759px; margin: 0 auto }
 	/***** Logo, Btn & Phone Menu Btn *****/
+	a.iconbar-btn	{ margin:0 0 0 6px; display:inline; }
 
 	/***** Navigation *****/
-	
-	ul.nav 											{ font-size:11px; }
-	ul.nav li										{ margin:0 18px 0 0; }
+	#iconbar_menu		{ margin:0 auto; background:none; width:100%; background-color:#000; display: inline-block;}
+	.ib_button		{ display: inline; float: left; }
+	ul.nav 			{ font-size:11px; }
+	ul.nav li		{ margin:0 18px 0 0; }
 }
-
 
 
 /***** Phone (portrait 300px) *****/
 @media only screen and (max-width: 767px) {
-	#banner	{width: 300px; margin-right: -150px;}
-	#content {top: 120px}
-	
+	#iconbar        { display: none }
 	/***** Logo, Btn & Phone Menu Btn *****/
-	a.iconbar-btn { margin:0 0 0 6px; display:inline; }
-
+	a.iconbar-btn	{ margin:0 0 0 6px; display:inline; }
 	/***** Navigation *****/
-	#iconbar_container { margin:0 auto; display:none; background:none; width:100%; background-color:#000; }
-
-	ul.nav 											{ margin:16px 0 20px 0; padding:0; font-size:12px; list-style:none; float:left; text-align:left; border-bottom: 1px solid #FFF; width:100%; }
-	ul.nav li										{ margin:0 30px 0 0; padding:0; display:block; text-align:left; float:left; }
-	ul.nav li a										{ padding:0 0 3px 0; text-decoration:none; line-height:30px; color:#FFF; }
+	#iconbar_container      { margin:0 auto; background:none; width:100%; background-color:#000; }
+	
+	ul.nav 			{ margin:16px 0 20px 0; padding:0; font-size:12px; list-style:none; float:left; text-align:left; border-bottom: 1px solid #FFF; width:100%; }
+	ul.nav li		{ margin:0 30px 0 0; padding:0; display:block; text-align:left; float:left; }
+	ul.nav li a		{ padding:0 0 3px 0; text-decoration:none; line-height:30px; color:#FFF; }
 	ul.nav li a:hover,
-	ul.nav li a.current								{ padding:0 0 3px 0; border-bottom:5px solid #333; text-decoration:none; line-height:30px; color:#FFF; }
+	ul.nav li a.current	{ padding:0 0 3px 0; border-bottom:5px solid #333; text-decoration:none; line-height:30px; color:#FFF; }
 }
 	
 /***** Phone (landscape 420px) *****/
 @media only screen and (min-width: 480px) and (max-width: 767px) {
-	#banner	{width: 456px; margin-right: -228px;}
-	#content {top: 100px}
+	#iconbar        { display: none }
+	/***** Logo, Btn & Phone Menu Btn *****/
+        a.iconbar-btn   { margin:0 0 0 6px; display:inline; }
+        /***** Navigation *****/
+        #iconbar_container      { margin:0 auto; background:none; width:100%; background-color:#000; }
+
+        ul.nav                  { margin:16px 0 20px 0; padding:0; font-size:12px; list-style:none; float:left; text-align:left; border-bottom: 1px solid #FFF; width:100%; }
+        ul.nav li               { margin:0 30px 0 0; padding:0; display:block; text-align:left; float:left; }
+        ul.nav li a             { padding:0 0 3px 0; text-decoration:none; line-height:30px; color:#FFF; }
+        ul.nav li a:hover,
+        ul.nav li a.current     { padding:0 0 3px 0; border-bottom:5px solid #333; text-decoration:none; line-height:30px; color:#FFF; }
 }
 
 /***** Retina *****/
 @media only screen and (-webkit-min-device-pixel-ratio:1.5) {
-
 }
