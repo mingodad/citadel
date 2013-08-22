@@ -1,11 +1,4 @@
-#banner {
-	position: fixed;
-	width: 1200px;
-	right: 50%;
-	margin-right: -600px;
-	z-index: 10; 
-	color: #424b52; /* set "#banner a" accordingly below */
-}
+#banner { color: #424b52 } /* set "#banner a" accordingly below */
 
 #room_banner {
 	background-color: #c2c2c2;
