@@ -585,7 +585,7 @@ void calendar_month_view(int year, int month, int day) {
 	wc_printf("</div>\n");
 
 	/* Inner table (the real one) */
-	wc_printf("<table id=\"inner_month\" class=\”offset_2 grid_10\"><tr>");
+	wc_printf("<table id=\"inner_month\" class=\"offset_2 grid_10\"><tr>");
 	wc_printf("<th class=\"calendar_th_noday\"></th>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
