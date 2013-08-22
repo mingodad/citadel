@@ -1,4 +1,4 @@
-@import url("typographie.css");
+@import url("typography.css");
 @import url("box.css");
 @import url("banner.css");
 @import url("navbar.css");
@@ -51,8 +51,7 @@ table.altern .even, .table-alt-row {
 @media only screen and (max-width: 767px) {
 	#banner	{width: 300px; margin-right: -150px;}
 	#content {top: 120px}
-	.citlogo {height:30%; width: auto;}
-
+	
 	/***** Logo, Btn & Phone Menu Btn *****/
 	a.iconbar-btn { margin:0 0 0 6px; display:inline; }
 
@@ -70,7 +69,6 @@ table.altern .even, .table-alt-row {
 @media only screen and (min-width: 480px) and (max-width: 767px) {
 	#banner	{width: 456px; margin-right: -228px;}
 	#content {top: 100px}
-	.citlogo {height:30%; width: auto;}
 }
 
 /***** Retina *****/
