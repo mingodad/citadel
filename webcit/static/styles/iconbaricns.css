@@ -1,47 +1,16 @@
-.ib_button {
-    min-height: 20px;
-    background-repeat: no-repeat !important;
-    background-position: 4px 2px;
-}
-
 #expand_roomlist, #expand_wholist {vertical-align: middle}
 
-#ib_summary {
-	background-image: url("/static/webcit_icons/essen/16x16/summary.png");
-}
-#ib_inbox {
-	background-image: url("/static/webcit_icons/essen/16x16/email.png");
-}
-#ib_calendar {
-	background-image: url("/static/webcit_icons/essen/16x16/calendar.png");
-}
-#ib_contacts {
-	background-image: url("/static/webcit_icons/essen/16x16/contact.png");
-}
-#ib_notes {
-	background-image: url("/static/webcit_icons/essen/16x16/note.png");
-}
-#ib_tasks {
-	background-image: url("/static/webcit_icons/essen/16x16/task.png");
-}
-#ib_rooms {
-	background-image: url("/static/webcit_icons/essen/16x16/room.png");
-}
-#ib_users {
-	background-image: url("/static/webcit_icons/essen/16x16/user.png");
-}
-#ib_chat {
-	background-image: url("/static/webcit_icons/essen/16x16/chat.png");
-}
-#ib_advanced, #ib_admin {
-	background-image: url("/static/webcit_icons/essen/16x16/config.png");
-}
-#ib_aide {
-	background-image: url("/static/webcit_icons/essen/16x16/config.png");
-}
-#ib_logoff {
-	background-image: url("/static/webcit_icons/essen/16x16/logout.png");
-}
-#ib_login {
-	background-image: url("/static/webcit_icons/essen/16x16/login.png");
-}
+#ib_summary	{ background-image: url("/static/webcit_icons/essen/16x16/summary.png") }
+#ib_inbox	{ background-image: url("/static/webcit_icons/essen/16x16/email.png") }
+#ib_calendar	{ background-image: url("/static/webcit_icons/essen/16x16/calendar.png") }
+#ib_contacts	{ background-image: url("/static/webcit_icons/essen/16x16/contact.png") }
+#ib_notes	{ background-image: url("/static/webcit_icons/essen/16x16/note.png") }
+#ib_tasks	{ background-image: url("/static/webcit_icons/essen/16x16/task.png") }
+#ib_rooms	{ background-image: url("/static/webcit_icons/essen/16x16/room.png") }
+#ib_users	{ background-image: url("/static/webcit_icons/essen/16x16/user.png") }
+#ib_chat	{ background-image: url("/static/webcit_icons/essen/16x16/chat.png") }
+#ib_advanced,
+#ib_admin	{ background-image: url("/static/webcit_icons/essen/16x16/config.png") }
+#ib_aide	{ background-image: url("/static/webcit_icons/essen/16x16/config.png") }
+#ib_logoff	{ background-image: url("/static/webcit_icons/essen/16x16/logout.png") }
+#ib_login	{ background-image: url("/static/webcit_icons/essen/16x16/login.png") }

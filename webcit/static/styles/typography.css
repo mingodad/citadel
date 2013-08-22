@@ -1,0 +1,69 @@
+body {
+	color: #333;
+	font: 13px Verdana, Geneva, "Deja Vu Sans", "Bitstream Vera Sans", Tahoma, sans-serif;
+	-webkit-font-smoothing:antialiased;
+	-webkit-text-size-adjust:none;
+}
+/***** Typography *****/
+
+h1, h2, h3, h4, h5, h6				{ margin:0; padding:0; font-family: Futura, "URW Gothic L", "Trebuchet MS", Arial, sans-serif; font-weight:normal; }
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a	{ font-weight:inherit; }
+h1									{ margin:0 0 10px 0; padding:0; font-size:32px; line-height:36px; color:#333; }
+h2									{ margin:0 0 10px 0; padding:0; font-size:28px; line-height:32px; color:#333; }
+h3									{ margin:0 0 10px 0; padding:0; font-size:22px; line-height:26px; color:#333; }
+h4									{ margin:0 0 10px 0; padding:0; font-size:18px; line-height:22px; color:#333; }
+h5									{ margin:0 0 10px 0; padding:0; font-size:14px; line-height:16px; color:#333; }
+h6									{ margin:0 0 10px 0; padding:0; font-size:12px; line-height:16px; color:#333; }
+
+p									{ margin:0; padding:0 0 10px 0; line-height:20px; }
+
+strong								{ font-weight:bold; color:#333; }
+em									{ font-style:italic; color:#666; }
+small 								{ font-size:80%; }
+sup, sub							{ height:0; line-height:5px; vertical-align:baseline; _vertical-align:bottom; position:relative; font-size:80%; }
+sup									{ bottom:5px; }
+sub									{ top:5px; }
+code, pre							{ padding:0 3px 2px; color:#333; font-size:11px; }
+code								{ padding:0 4px 2px 4px; background-color:#000; border:1px solid #000; color:#f1f1f1; }
+
+
+/***** Links *****/
+
+a:link 								{ color:#333; text-decoration:none; outline:0; transition-property:color .1s linear 0s; -moz-transition:color .1s linear 0s; -webkit-transition:color .1s linear 0s; -o-transition:color .1s linear 0s; }
+a:visited 							{ color:#333; text-decoration:none; outline:0; }
+a:active 							{ color:#333; text-decoration:none; outline:0; }
+a:hover 			 				{ color:#999; text-decoration:underline; outline:0; }
+a:focus 							{ -moz-outline-style:none; }
+
+/*
+ * a:link, .calendar a:visited { color: #0e73e3 } /*color: #2F65DD;
+ * a:active { color: #3E65AF }
+ * a:visited { color: #70342e }
+*/
+
+/***** Blockquotes *****/
+
+blockquote, blockquote p 			{ font-size:12px; line-height:24px; color:#777; font-style:italic; }
+blockquote 							{ margin:10px 0 15px 0; padding:0 0 0 5px; border-left:1px solid #747474; }
+blockquote cite 					{ display:block; font-size:12px; color:#555; }
+blockquote cite:before 				{ content:"\2014 \0020"; }
+blockquote cite a,
+blockquote cite a:visited,
+blockquote cite a:visited 			{ color:#555; }
+blockquote span						{ width:15px; display:inline-block; }
+blockquote, q 						{ quotes:none; }
+blockquote:before, blockquote:after,
+q:before, q:after 					{ content:''; content:none; }
+
+.text-big							{ color:#a2bd30; font-weight:bold; line-height:26px; }
+.text-left    						{ text-align:left; }
+.text-right    						{ text-align:right; }
+.text-center   						{ text-align:center; }
+.text-justify  						{ text-align:justify; }
+
+.normal								{ font-weight:normal; }
+.bold          						{ font-weight:bold; }
+.italic        						{ font-style:italic; }
+.underline     						{ border-bottom:1px solid; }
+.highlight     						{ padding:0 3px 2px; color:#333; font-size:11px; background:#00deff; font-weight:bold; }
+.intro								{ font-size:130%; line-height:130%; }

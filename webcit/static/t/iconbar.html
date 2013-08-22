@@ -1,87 +1,90 @@
 <div id="iconbar" class="grid_2">
 	<div id="iconbar_container">
-  		<div id="iconbar_menu">
-			<ul id="button">
-				<li id="ib_summary" class="ib_button">
-    					<a class="ib_button_link" href="summary" title="<?_("Your summary page")>">
-						<span><?_("Summary")></span>
-					</a>
-				</li>
-			<??("COND:LOGGEDIN",3)>
-				<li id="ib_inbox" class="ib_button">
-    					<a class="ib_button_link" href="dotgoto?room=_MAIL_" title="<?_("Go to your email inbox")>">
-						<span><?_("Mail")></span>
-					</a>
-				</li>
-				<li id="ib_calendar" class="ib_button">
-    					<a class="ib_button_link" href="dotgoto?room=_CALENDAR_" title="<?_("Go to your personal calendar")>">
-						<span><?_("Calendar")></span>
-    					</a>
-				</li>
-				<li id="ib_contacts" class="ib_button">
-    					<a class="ib_button_link" href="dotgoto?room=_CONTACTS_" title="<?_("Go to your personal address book")>">
-						<span><?_("Contacts")></span>
-					</a>
-				</li>
-				<li id="ib_notes" class="ib_button">
-    					<a class="ib_button_link" href="dotgoto?room=_NOTES_" title="<?_("Go to your personal notes")>">
-						<span><?_("Notes")></span>
-					</a>
-				</li>
-				<li id="ib_tasks" class="ib_button">
-					<a class="ib_button_link" href="dotgoto?room=_TASKS_" title="<?_("Go to your personal task list")>">
-						<span><?_("Tasks")></span>
-					</a>
-				</li>
-			<??("X",3)>
-				<li id="ib_rooms" class="ib_button">
-					<a class="ib_button_link" href="knrooms?template=knrooms?SortBy=byfloorroom?SortOrder=1" title="<?_("List all your accessible rooms")>">
-						<img id="expand_roomlist"
-							src=<?%("COND:ICONBAR:ROOMLISTEXPANDED", 1, 1, 1, '"static/webcit_icons/collapse.gif" alt="-"', '"static/webcit_icons/expand.gif" alt="+"')>
+  		<ul id="iconbar_menu">
+			<li id="ib_summary" class="ib_button">
+    				<a class="ib_button_link" href="summary" title="<?_("Your summary page")>">
+					<span><?_("Summary")></span>
+				</a>
+			</li>
+		<??("COND:LOGGEDIN",3)>
+			<li id="ib_inbox" class="ib_button">
+    				<a class="ib_button_link" href="dotgoto?room=_MAIL_" title="<?_("Go to your email inbox")>">
+					<span><?_("Mail")></span>
+				</a>
+			</li>
+			<li id="ib_calendar" class="ib_button">
+    				<a class="ib_button_link" href="dotgoto?room=_CALENDAR_" title="<?_("Go to your personal calendar")>">
+					<span><?_("Calendar")></span>
+    				</a>
+			</li>
+			<li id="ib_contacts" class="ib_button">
+				<a class="ib_button_link" href="dotgoto?room=_CONTACTS_" title="<?_("Go to your personal address book")>">
+					<span><?_("Contacts")></span>
+				</a>
+			</li>
+			<li id="ib_notes" class="ib_button">
+				<a class="ib_button_link" href="dotgoto?room=_NOTES_" title="<?_("Go to your personal notes")>">
+					<span><?_("Notes")></span>
+				</a>
+			</li>
+			<li id="ib_tasks" class="ib_button">
+				<a class="ib_button_link" href="dotgoto?room=_TASKS_" title="<?_("Go to your personal task list")>">
+					<span><?_("Tasks")></span>
+				</a>
+			</li>
+		<??("X",3)>
+
+			<li id="ib_rooms" class="ib_button">
+				<a class="ib_button_link" href="knrooms?template=knrooms?SortBy=byfloorroom?SortOrder=1" title="<?_("List all your accessible rooms")>">
+					<img id="expand_roomlist"
+						src=<?%("COND:ICONBAR:ROOMLISTEXPANDED", 1, 1, 1, '"static/webcit_icons/collapse.gif" alt="-"', '"static/webcit_icons/expand.gif" alt="+"')>
 						onClick="return toggle_roomlist();">
 						<span><?_("Rooms")></span>
-					</a>
-					<div id="roomlist"><?_("Loading")></div>
-				</li>
-				<li id="ib_users" class="ib_button">
-					<a class="ib_button_link" href="do_template?template=who" title="<?_("See who is online right now")>">
-						<img id="expand_wholist"
-							src=<?%("COND:ICONBAR:WHOLISTEXPANDED", 1, 1, 1, '"static/webcit_icons/collapse.gif" alt="-"', '"static/webcit_icons/expand.gif" alt="+"')>
-						onClick="return toggle_wholist();">
-						<span><?_("Online users")></span>
-					</a>
-					<ul id="online_users"><li><?_("Loading")></li></ul>
-				</li>
-			<??("COND:LOGGEDIN",5)>
-				<li id="ib_chat" class="ib_button"><a class="ib_button_link" href="chat"><span><?_("Chat")></span></a></li>
+				</a>
+				<div id="roomlist"><?_("Loading")></div>
+			</li>
+			<li id="ib_users" class="ib_button">
+				<a class="ib_button_link" href="do_template?template=who" title="<?_("See who is online right now")>">
+					<img id="expand_wholist"
+						src=<?%("COND:ICONBAR:WHOLISTEXPANDED", 1, 1, 1, '"static/webcit_icons/collapse.gif" alt="-"', '"static/webcit_icons/expand.gif" alt="+"')>
+					onClick="return toggle_wholist();">
+					<span><?_("Online users")></span>
+				</a>
+				<ul id="online_users"><li><?_("Loading")></li></ul>
+			</li>
+
+		<??("COND:LOGGEDIN",5)>
+			<li id="ib_chat" class="ib_button"><a class="ib_button_link" href="chat"><span><?_("Chat")></span></a></li>
 				<li id="ib_advanced" class="ib_button">
 					<a class="ib_button_link" href="do_template?template=display_main_menu" title="<?_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")>">
 						<span><?_("Advanced")></span>
 					</a>
 				</li>
-			<??("X",5)>
-			<??("COND:AIDE", 1)>
-				<li id="ib_admin" class="ib_button">
-					<a class="ib_button_link" href="do_template?template=aide_display_menu" title="<?_("Room and system administration functions")>">
-						<span><?_("Administration")></span>
-					</a>
-				</li>
-			<??("X",1)>
-			</ul>
-		</div>
-	<??("COND:LOGGEDIN",2)>
-		<div id="ib_logoff" class="ib_button">
-			<a class="ib_button_link" href="javascript:ConfirmLogoff()" title="<?_("Log off")>"><span><?_("Log off")></span></a>
-		</div>
+		<??("X",5)>
+
+		<??("COND:AIDE", 1)>
+			<li id="ib_admin" class="ib_button">
+				<a class="ib_button_link" href="do_template?template=aide_display_menu" title="<?_("Room and system administration functions")>">
+					<span><?_("Administration")></span>
+				</a>
+			</li>
+		<??("X",1)>
+
+		<??("COND:LOGGEDIN",2)>
+			<li id="ib_logoff" class="ib_button">
+				<a class="ib_button_link" href="javascript:ConfirmLogoff()" title="<?_("Log off")>"><span><?_("Log off")></span></a>
+			</li>
+		<??("X",2)>
+
+		<?!("COND:LOGGEDIN",4)>
+		<li id="ib_login" class="ib_button">
+				<a class="ib_button_link" href="javascript:GetLoggedInFirst('do_welcome')" title="<?_("Log in")>"><span><?_("Log in")></span></a>
+			</li>
+		<?!("X",4)>
+		</ul>
 		<div id="customize" class="iconbar_text">
   			<span><a href="do_template?template=iconbar_edit"><?_("customize this menu")></a></span>
 		</div>
-	<??("X",2)>
-	<?!("COND:LOGGEDIN",4)>
-		<div id="ib_login" class="ib_button">
-			<a class="ib_button_link" href="javascript:GetLoggedInFirst('do_welcome')" title="<?_("Log in")>"><span><?_("Log in")></span></a>
-		</div>
-	<?!("X",4)>
 		<div class="ctdlTemplate">
 			<span id="rmlist_template"><?_("switch to room list")></span>
 			<span id="mnlist_template"><?_("switch to menu")></span>

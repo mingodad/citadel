@@ -564,8 +564,8 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	/* Outer (to get the background color) */
-	wc_printf("<div class=\"calendar_outer_frame offset_2\">");
-	wc_printf("<div>\n");
+	wc_printf("<div class=\"calendar_outer_frame row\">");
+	wc_printf("<div class=\"calendar_top_bar offset_6 grid_2\">\n");
 
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
@@ -585,7 +585,7 @@ void calendar_month_view(int year, int month, int day) {
 	wc_printf("</div>\n");
 
 	/* Inner table (the real one) */
-	wc_printf("<table id=\"inner_month\"><tr>");
+	wc_printf("<table id=\"inner_month offset_2 grid_10\"><tr>");
 	wc_printf("<th class=\"calendar_th_noday\"></th>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
@@ -692,7 +692,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	}
 
 	/* Outer frame (to get the background color) */
-	wc_printf("<div class=\"calendar_outer_frame offset_2\">\n");
+	wc_printf("<div class=\"calendar_outer_frame offset_2 grid_10\">\n");
 	wc_printf("<div>\n");
 
 	localtime_r(&previous_month, &tm);

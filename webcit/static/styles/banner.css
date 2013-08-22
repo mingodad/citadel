@@ -7,16 +7,14 @@
 	color: #424b52; /* set "#banner a" accordingly below */
 }
 
-#banner>#navbar>.grid_10 {
-	background-color: #DFE5DD
-}
-
-#room_banner{
+#room_banner {
 	background-color: #c2c2c2;
 	padding-top: 10px;
+	border-bottom: 1px solid #424b52;
 }
 
 .citadel_logo {
+	margin-left: 16px;
 	background-color: #fff;
         border: 2px solid #fff;
         -khtml-border-radius: 8px;
@@ -43,25 +41,9 @@
 
 #banner a { color: #424b52; }
 
-.banner h1, .banner h2 {
-	display: inline;
-	font-size: 150%;
-	margin: 0;
-}
+#banner a:hover { text-decoration: none }
 
 /*#banner #rmname { white-space: nowrap; } */
-
-.banner h2, .banner .titlebar { font-size: 120% }
-
-.banner .infos, #room_infos {
-        /*position: absolute;
-        top: 1em;
-	left: 18em;*/
-	display: inline;
-	margin: 0.5em;
-	cursor: help;
-}
-
 
 #room_infos {
 	z-index: 10;
@@ -86,12 +68,7 @@
 	font-size: 70%;
 }
 
-.banner ul.room_actions {
-	display: inline;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
+#banner ul.room_actions { margin: 0; }
 
 .banner ul.room_actions li {white-space: nowrap }
 

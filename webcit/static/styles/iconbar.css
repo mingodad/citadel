@@ -1,16 +1,12 @@
 #iconbar {}
 
-#iconbar_container {
-	padding:0 0 10px 0;
-	overflow:hidden;
-	height:auto;
-}
+#iconbar_container {}
 
 .iconbar_text {}
 
 .iconbar_text > span { 	cursor: pointer }
 
-#iconbar_menu ul {
+#iconbar_menu {
 	padding: 0;
 	margin: 0;
 	border: none;
@@ -19,15 +15,16 @@
 
 .ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
 	display: block;
-	margin-left: 24px;
-	line-height: 20px; /*adjust with iconbarics.css*/
+	margin-left: 1.5em;
+	line-height: 1.5em; /*adjust with iconbarics.css*/
 	text-decoration: none;
 	color: #4d555c;
 }
 
-.ib_button{
-	display: block;
- }
+.ib_button {
+	background-position: 16px;
+	margin: 0.3em;
+}
 
 .ib_button_link:hover, #button li:hover, #ib_logoff:hover, #ib_login:hover {color: #7d858c}
 	/* color: #5c646b */

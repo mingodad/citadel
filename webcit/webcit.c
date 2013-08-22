@@ -193,8 +193,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 	}
 
 	if (do_room_banner) {
-		wc_printf("<div id=\"content\" class=\"row\">\n");
-		wc_printf("<div id=\"abgrund\" class=\"grid_2\"></div>\n");
+		wc_printf("<div id=\"content\">\n");
 	}
 }
 
