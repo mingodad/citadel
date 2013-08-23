@@ -1,5 +1,6 @@
 .box {
 	background-color: transparent;
+	margin-bottom: 1em;
 	border: 1px solid #5C646B;
 	border-radius: 0 0 3px 3px;
 	-webkit-border-radius: 0 0 3px 3px;
