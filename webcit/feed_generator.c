@@ -278,7 +278,7 @@ void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendPrintf(Target, "<a type=\"application/rss+xml\" href=\"");
 	StrBufAppendBuf(Target, FeedLink, 0);
-	StrBufAppendPrintf(Target, "\"><img src=\"static/webcit_icons/essen/16x16/rss.png\" alt=\"RSS\">");
+	StrBufAppendPrintf(Target, "\"><img src=\"static/webcit_icons/dusseldorf/16x16/feed.png\" alt=\"RSS\">");
 	StrBufAppendPrintf(Target, "</a>");
 	FreeStrBuf(&FeedLink);
 }

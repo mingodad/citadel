@@ -1,15 +1,15 @@
 <tr class="<?ITERATE:ODDEVEN>">
 	<!-- link to page this user -->
-	<td width="5%"><a href="display_page?recp=<?WHO:NAME("X")>">
-   		<img align="middle" src="static/webcit_icons/essen/16x16/chat.png" alt="(p)"></a> 
+	<td width="18px"><a href="display_page?recp=<?WHO:NAME("X")>">
+   		<img align="middle" src="static/webcit_icons/dusseldorf/16x16/comment.png" alt="(p)"></a> 
 	</td>
 	<!-- idle flag -->
-	<td width="5%">
+	<td width="18px">
 		<?!("WHO:IDLE", 4)>
-			<img align="middle" src="static/webcit_icons/essen/16x16/user.png" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)">
+			<img align="middle" src="static/webcit_icons/dusseldorf/16x16/user.png" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)">
 		<?!("X", 4)>
 		<??("WHO:IDLE", 5)>
-			<img align="middle" src="static/webcit_icons/essen/16x16/activeuser.png" alt="(<?_("active")>)">
+			<img align="middle" src="static/webcit_icons/dusseldorf/16x16/busy.png" alt="(<?_("active")>)">
 		<?!("X", 5)>
 	</td>
 	<td>
