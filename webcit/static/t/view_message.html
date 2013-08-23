@@ -1,50 +1,49 @@
-<div class="message">
-<?!("COND:ROOM:TYPE_IS", 13, #"VIEW_BBS")><a name="<?MAIL:SUMM:N>"></a><??("X", 13)>
-<??("COND:ROOM:TYPE_IS", 12, #"VIEW_WIKI")><!-- skip headers for wiki rooms -->
-<div class="message_header">
-<?!("COND:ROOM:TYPE_IS", 14, #"VIEW_BBS")><a href="<?MAIL:SUMM:PERMALINK>">[#]</a><??("X", 14)>
- <span><?MAIL:SUMM:DATEFULL></span>
- <?_("from ")>
- <??("COND:MAIL:ANON",1)>
-   <?!("COND:MAIL:SUMM:RFCA", 2)><a href="do_template?template=user_show?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
-   <??("COND:MAIL:SUMM:RFCA", 3)><a href="do_template?template=user_show?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> 
-      <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
- <??("X", 1)>
- <?!("COND:MAIL:ANON", 4)>****<??("X", 4)>
- <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)>
-<?!("COND:MAIL:SUMM:CCCC", 6)><br><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
-<?!("COND:MAIL:SUBJ", 7)><br><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
- <p id="msg<?MAIL:SUMM:N>" class="msgbuttons">
-<?!("COND:ROOM:TYPE_IS", 15, #"VIEW_MAILBOX")>
- <a href="display_enter?edit=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:TO("U")>?cc=<?MAIL:SUMM:CCCC("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "", "")>?force_room=_MAIL_"><span>[</span><?_("Edit")><span>]</span></a> 
-<?!("X", 15)>
-<?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")>
-	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>'));"><span>[</span><?_("Reply")><span>]</span></a> 
-	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
-<?!("X", 8)>
-<??("COND:ROOM:TYPE_IS", 9, #"VIEW_BBS")>
-	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=reply?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("Reply")><span>]</span></a> 
-	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=replyall?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("ReplyAll")><span>]</span></a> 
-	<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=forward?replying_to=<?MAIL:SUMM:N>?fwdquote=<?MAIL:SUMM:N>'));"><span>[</span><?_("Forward")><span>]</span></a> 
-<??("X", 9)>
-<?!("COND:ROOM:EDITACCESS", 16)>
-   <a href="do_template?template=msg_confirm_move?msgid=<?MAIL:SUMM:N>"><span>[</span><?_("Move")><span>]</span></a> 
-   <a href="delete_msg?msgid=<?MAIL:SUMM:N>" onclick="return confirm('<?_("Delete this message?")>');"><span>[</span><?_("Delete")><span>]</span> </a> 
-<??("X", 16)>
-   <a href="#" onclick="window.open('msgheaders/<?MAIL:SUMM:N>', 'headers<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Headers")><span>]</span></a>
-   <a href="#" onclick="window.open('printmsg/<?MAIL:SUMM:N>', 'print<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Print")><span>]</span></a>
- </p>
-</div>
-<?!("X", 12)>
-<div class="message_content"><div>
-<?MAIL:BODY>
-<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
-<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", ="view_message_inline_attach")>
-<?!("X", 10)>
-<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
-<?ITERATE("MAIL:MIME:ATTACH:LINKS", ="view_message_list_attach")>
-<?!("X", 11)>
+<div class="row"><div class="message offset_2 grid_6">
+	<?!("COND:ROOM:TYPE_IS", 13, #"VIEW_BBS")><a name="<?MAIL:SUMM:N>"></a><??("X", 13)>
+	<??("COND:ROOM:TYPE_IS", 12, #"VIEW_WIKI")><!-- skip headers for wiki rooms -->
+	<div class="message_header">
+		<?!("COND:ROOM:TYPE_IS", 14, #"VIEW_BBS")><a href="<?MAIL:SUMM:PERMALINK>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/library.png" alt="[#]"></a><??("X", 14)>
+ 		<?_("from ")>
+ 		<??("COND:MAIL:ANON",1)>
+   			<?!("COND:MAIL:SUMM:RFCA", 2)><a href="do_template?template=user_show?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
+   			<??("COND:MAIL:SUMM:RFCA", 3)><a href="do_template?template=user_show?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> 
+      			<??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
+ 		<??("X", 1)>
+ 		<?!("COND:MAIL:ANON", 4)>****<??("X", 4)>
+ 		<?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)>
+		<?!("COND:MAIL:SUMM:CCCC", 6)><br><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
+		<?!("COND:MAIL:SUBJ", 7)><br><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
+		<span class="msg_date"><?MAIL:SUMM:DATEFULL></span>
+ 		<span id="msg<?MAIL:SUMM:N>" class="msgbuttons">
+			<?!("COND:ROOM:TYPE_IS", 15, #"VIEW_MAILBOX")>
+ 				<a href="display_enter?edit=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:TO("U")>?cc=<?MAIL:SUMM:CCCC("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "", "")>?force_room=_MAIL_" title="<?_("Edit")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/pencil.png" alt="<?_("Edit")>"></a>
+			<?!("X", 15)>
+			<?!("COND:ROOM:TYPE_IS", 8, #"VIEW_BBS")>
+				<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>'));" title="<?_("Reply")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/pen.png" alt="<?_("Reply")>"></a> 
+				<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));" title="<?_("ReplyQuoted")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/communication.png" alt="<?_("ReplyQuoted")>"></a> 
+			<?!("X", 8)>
+			<??("COND:ROOM:TYPE_IS", 9, #"VIEW_BBS")>
+				<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=reply?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));" title="<?_("Reply")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/user.png" alt="<?_("Reply")>"></a> 
+				<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=replyall?replying_to=<?MAIL:SUMM:N>?replyquote=<?MAIL:SUMM:N>'));" title="<?_("ReplyAll")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/customers.png" alt="<?_("ReplyAll")>"></a>
+				<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter?replying_mode=forward?replying_to=<?MAIL:SUMM:N>?fwdquote=<?MAIL:SUMM:N>'));" title="<?_("Forward")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/milestone.png" alt="<?_("Forward")>"></a>
+			<??("X", 9)>
+			<?!("COND:ROOM:EDITACCESS", 16)>
+   				<a href="do_template?template=msg_confirm_move?msgid=<?MAIL:SUMM:N>" title="<?_("Move")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/shipping.png" alt="<?_("Move")>"></a>
+   				<a href="delete_msg?msgid=<?MAIL:SUMM:N>" onclick="return confirm('<?_("Delete this message?")>');" title="<?_("Delete")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/brainstorming.png" alt="<?_("Delete")>"></a>> 
+			<??("X", 16)>
+   				<a href="#" onclick="window.open('msgheaders/<?MAIL:SUMM:N>', 'headers<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); " title="<?_("Headers")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/flag.png" alt="<?_("Headers")>"></a>
+   				<a href="#" onclick="window.open('printmsg/<?MAIL:SUMM:N>', 'print<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); " title="<?_("Print")>"><img class="msg_link_icon" src="static/webcit_icons/dusseldorf/16x16/print.png" alt="<?_("Print")>"></a>
+ 		</span>
+	</div>
+	<?!("X", 12)>
 
-</div>
-</div>
-</div>
+	<div class="message_content"><div>
+		<?MAIL:BODY>
+		<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
+			<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", ="view_message_inline_attach")>
+		<?!("X", 10)>
+		<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
+			<?ITERATE("MAIL:MIME:ATTACH:LINKS", ="view_message_list_attach")>
+		<?!("X", 11)>
+	</div></div>
+</div></div>

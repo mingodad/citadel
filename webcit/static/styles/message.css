@@ -1,13 +1,11 @@
 .message, .entmsg{
+	margin-bottom: 1em;
 	background-color: #deded0;
-	margin: 0.5em 1em;
 /*	border: 1px solid #5C646B; */
 	-webkit-box-shadow: #666 0px 2px 3px;
 	-moz-box-shadow: #666 0px 2px 3px;
 	box-shadow: #666 0px 2px 3px;
 /*	behavior: url(/static/styles/PIE.htc);*/
-	max-width: 42em;
-	min-width: 25em;
 }
 
 .entmsg { min-height: 25em; }
@@ -23,12 +21,19 @@
 	clear: both;
 }
 
-
 .message_subject {
-	font-size: medium;
+	font-size: normal;
 	font-style: italic;
 	float: left;
 }
+
+.msg_link_icon {
+	border: 0px;
+	margin: 0;
+	padding: 0;
+}
+
+.msg_date {float:right;}
 
 .message_header span, .message_header a { font-weight: bold; }
 
@@ -36,7 +41,6 @@
         margin: 3px 0;
         padding: 0;
 }
-
 
 .message_content > div > div { text-align: justify !important }
 
@@ -55,16 +59,15 @@
 .msgbuttons {
 	display: none;
 	float: right;
-	font-size: 80%;
-	line-height: 2em;
+	margin-right: 1em;	
 }
 
-div.message:hover .msgbuttons { display: inline; }
+div.message_header:hover .msgbuttons { display: inline; }
 
 .msgbuttons a {
 	font-size: x-small;
 	display: inline-block;
-	margin-left: 0.3em;
+	margin-left: 0.5em;
 }
 
 /* Blockquotes in messages need to be distingushable */
@@ -129,10 +132,10 @@ blockquote pre {
 
 /* --- End of blockquoting block --- */
 
-
-.message img {
-	max-width: 700px;
-	padding: 10px;
+.message_content img {
+	max-width: 95%;
+	height: auto;
+	padding: 0.5em;
 	background-color: #fff;
 	border: 1px solid #5C646B;
 	box-shadow: #666 0px 2px 3px;
@@ -140,8 +143,7 @@ blockquote pre {
 	-moz-box-shadow: #666 0px 2px 3px;
 }
 
+
 #attachments_form { 
 	display: none;
-	max-width: 42em;
-        min-width: 25em;
 }
