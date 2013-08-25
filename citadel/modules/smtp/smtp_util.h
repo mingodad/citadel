@@ -20,21 +20,16 @@
  * The VRFY and EXPN commands have been removed from this implementation
  * because nobody uses these commands anymore, except for spammers.
  *
- * Copyright (c) 1998-2012 by the citadel.org team
+ * Copyright (c) 1998-2013 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  
- *  
- *  
  */
 
 const char *smtp_get_Recipients(void);
@@ -52,7 +47,9 @@ typedef struct _citsmtp {		/* Information about the current session */
 	int is_lmtp;
 	int is_unfiltered;
 	int is_msa;
-}citsmtp;
+	StrBuf *preferred_sender_email;
+	StrBuf *preferred_sender_name;
+} citsmtp;
 
 #define SMTP		((citsmtp *)CC->session_specific_data)
 
