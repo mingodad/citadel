@@ -388,10 +388,12 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 	 */
 	if (msg->cm_fields['R'] == NULL) {
 		free(msg->cm_fields['R']);
+		msg->cm_fields['R'] = NULL;
 	}
 
 	if (msg->cm_fields['D'] == NULL) {
 		free(msg->cm_fields['D']);
+		msg->cm_fields['D'] = NULL;
 	}
 
 	snprintf(recipient, sizeof recipient, "%s@%s",
