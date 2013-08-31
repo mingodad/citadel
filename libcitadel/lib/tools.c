@@ -445,9 +445,9 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 /*
  * if we send out non ascii subjects, we encode it this way.
  */
-char *rfc2047encode(char *line, long length)
+char *rfc2047encode(const char *line, long length)
 {
-	char *AlreadyEncoded;
+	const char *AlreadyEncoded;
 	char *result;
 	long end;
 #define UTF8_HEADER "=?UTF-8?B?"

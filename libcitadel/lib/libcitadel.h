@@ -441,7 +441,7 @@ char *bmstrcasestr_len(char *text, size_t textlen, const char *pattern, size_t p
 const char *cbmstrcasestr(const char *text, const char *pattern);
 const char *cbmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen);
 void CtdlMakeTempFileName(char *name, int len);
-char *rfc2047encode(char *line, long length);
+char *rfc2047encode(const char *line, long length);
 int is_msg_in_mset(const char *mset, long msgnum);
 int pattern2(char *search, char *patn);
 void stripltlen(char *, int *);
