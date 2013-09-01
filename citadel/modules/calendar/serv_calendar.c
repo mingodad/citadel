@@ -30,6 +30,7 @@
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "serv_calendar.h"
+#include "room_ops.h"
 #include "euidindex.h"
 #include "ical_dezonify.h"
 
