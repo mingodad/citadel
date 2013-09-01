@@ -196,6 +196,7 @@ void get_config(void) {
 	}
 }
 
+long config_msgnum = 0;
 
 /*
  * Occasionally, we will need to write the config file, because some operations
@@ -217,3 +218,62 @@ void put_config(void)
 	}
 	syslog(LOG_EMERG, "%s: %s", file_citadel_config, strerror(errno));
 }
+
+
+
+void CtdlGetSysConfigBackend(long msgnum, void *userdata) {
+	config_msgnum = msgnum;
+}
+
+
+char *CtdlGetSysConfig(char *sysconfname) {
+	char hold_rm[ROOMNAMELEN];
+	long msgnum;
+	char *conf;
+	struct CtdlMessage *msg;
+	char buf[SIZ];
+	
+	strcpy(hold_rm, CC->room.QRname);
+	if (CtdlGetRoom(&CC->room, SYSCONFIGROOM) != 0) {
+		CtdlGetRoom(&CC->room, hold_rm);
+		return NULL;
+	}
+
+
+	/* We want the last (and probably only) config in this room */
+	begin_critical_section(S_CONFIG);
+	config_msgnum = (-1L);
+	CtdlForEachMessage(MSGS_LAST, 1, NULL, sysconfname, NULL,
+			   CtdlGetSysConfigBackend, NULL);
+	msgnum = config_msgnum;
+	end_critical_section(S_CONFIG);
+
+	if (msgnum < 0L) {
+		conf = NULL;
+	}
+	else {
+		msg = CtdlFetchMessage(msgnum, 1);
+		if (msg != NULL) {
+			conf = strdup(msg->cm_fields[eMesageText]);
+			CM_Free(msg);
+		}
+		else {
+			conf = NULL;
+		}
+	}
+
+	CtdlGetRoom(&CC->room, hold_rm);
+
+	if (conf != NULL) do {
+			extract_token(buf, conf, 0, '\n', sizeof buf);
+			strcpy(conf, &conf[strlen(buf)+1]);
+		} while ( (!IsEmptyStr(conf)) && (!IsEmptyStr(buf)) );
+
+	return(conf);
+}
+
+
+void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
+	CtdlWriteObject(SYSCONFIGROOM, sysconfname, sysconfdata, (strlen(sysconfdata)+1), NULL, 0, 1, 0);
+}
+

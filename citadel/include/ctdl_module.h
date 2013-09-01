@@ -528,9 +528,6 @@ void CtdlUserLogout(void);
 /*
  * Expose API calls from msgbase.c
  */
-char *CtdlGetSysConfig(char *sysconfname);
-void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
-
 
 
 
