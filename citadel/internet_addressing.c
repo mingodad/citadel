@@ -553,7 +553,6 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 	int i;
 	const char *colonpos = NULL;
 	int processed = 0;
-	char buf[SIZ];
 	char user[1024];
 	char node[1024];
 	char name[1024];
@@ -589,44 +588,44 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 	if (!strcasecmp(key, "Date")) {
 		parsed_date = parsedate(value);
 		if (parsed_date < 0L) parsed_date = time(NULL);
-		snprintf(buf, sizeof buf, "%ld", (long)parsed_date );
+
 		if (msg->cm_fields[eTimestamp] == NULL)
-			msg->cm_fields[eTimestamp] = strdup(buf);
+			CM_SetFieldLONG(msg, eTimestamp, parsed_date);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "From")) {
 		process_rfc822_addr(value, user, node, name);
 		syslog(LOG_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
-		snprintf(addr, sizeof addr, "%s@%s", user, node);
+		snprintf(addr, sizeof(addr), "%s@%s", user, node);
 		if (msg->cm_fields[eAuthor] == NULL)
-			msg->cm_fields[eAuthor] = strdup(name);
+			CM_SetField(msg, eAuthor, name, strlen(name));
 		if (msg->cm_fields[erFc822Addr] == NULL)
-			msg->cm_fields[erFc822Addr] = strdup(addr);
+			CM_SetField(msg, erFc822Addr, addr, strlen(addr));
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Subject")) {
 		if (msg->cm_fields[eMsgSubject] == NULL)
-			msg->cm_fields[eMsgSubject] = strndup(value, valuelen);
+			CM_SetField(msg, eMsgSubject, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "List-ID")) {
 		if (msg->cm_fields[eListID] == NULL)
-			msg->cm_fields[eListID] = strndup(value, valuelen);
+			CM_SetField(msg, eListID, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "To")) {
 		if (msg->cm_fields[eRecipient] == NULL)
-			msg->cm_fields[eRecipient] = strndup(value, valuelen);
+			CM_SetField(msg, eRecipient, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "CC")) {
 		if (msg->cm_fields[eCarbonCopY] == NULL)
-			msg->cm_fields[eCarbonCopY] = strndup(value, valuelen);
+			CM_SetField(msg, eCarbonCopY, value, valuelen);
 		processed = 1;
 	}
 
@@ -634,18 +633,25 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		if (msg->cm_fields[emessageId] != NULL) {
 			syslog(LOG_WARNING, "duplicate message id\n");
 		}
+		else {
+			char *pValue;
+			long pValueLen;
 
-		if (msg->cm_fields[emessageId] == NULL) {
-			msg->cm_fields[emessageId] = strndup(value, valuelen);
-
+			pValue = value;
+			pValueLen = valuelen;
 			/* Strip angle brackets */
-			while (haschar(msg->cm_fields[emessageId], '<') > 0) {
-				strcpy(&msg->cm_fields[emessageId][0],
-					&msg->cm_fields[emessageId][1]);
+			while (haschar(pValue, '<') > 0) {
+				pValue ++;
+				pValueLen --;
 			}
-			for (i = 0; i<strlen(msg->cm_fields[emessageId]); ++i)
-				if (msg->cm_fields[emessageId][i] == '>')
-					msg->cm_fields[emessageId][i] = 0;
+
+			for (i = 0; i <= pValueLen; ++i)
+				if (pValue[i] == '>') {
+					pValueLen = i;
+					break;
+				}
+
+			CM_SetField(msg, emessageId, pValue, pValueLen);
 		}
 
 		processed = 1;
@@ -653,36 +659,29 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 
 	else if (!strcasecmp(key, "Return-Path")) {
 		if (msg->cm_fields[eMessagePath] == NULL)
-			msg->cm_fields[eMessagePath] = strndup(value, valuelen);
+			CM_SetField(msg, eMessagePath, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Envelope-To")) {
 		if (msg->cm_fields[eenVelopeTo] == NULL)
-			msg->cm_fields[eenVelopeTo] = strndup(value, valuelen);
+			CM_SetField(msg, eenVelopeTo, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "References")) {
-		if (msg->cm_fields[eWeferences] != NULL) {
-			free(msg->cm_fields[eWeferences]);
-		}
-		msg->cm_fields[eWeferences] = strndup(value, valuelen);
+		CM_SetField(msg, eWeferences, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Reply-To")) {
-		if (msg->cm_fields[eReplyTo] != NULL) {
-			free(msg->cm_fields[eReplyTo]);
-		}
-		msg->cm_fields[eReplyTo] = strndup(value, valuelen);
+		CM_SetField(msg, eReplyTo, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "In-reply-to")) {
-		if (msg->cm_fields[eWeferences] == NULL) {		/* References: supersedes In-reply-to: */
-			msg->cm_fields[eWeferences] = strndup(value, valuelen);
-		}
+		if (msg->cm_fields[eWeferences] == NULL) /* References: supersedes In-reply-to: */
+			CM_SetField(msg, eWeferences, value, valuelen);
 		processed = 1;
 	}
 
@@ -690,7 +689,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 
 	/* Clean up and move on. */
 	free(key);	/* Don't free 'value', it's actually the same buffer */
-	return(processed);
+	return processed;
 }
 
 
@@ -749,7 +748,6 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
 	struct CtdlMessage *msg;
 	const char *pos, *beg, *end, *totalend;
 	int done, alldone = 0;
-	char buf[SIZ];
 	int converted;
 	StrBuf *OtherHeaders;
 
@@ -818,20 +816,20 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
 	if (pos < totalend)
 		StrBufAppendBufPlain(OtherHeaders, pos, totalend - pos, 0);
 	FreeStrBuf(rfc822);
-	msg->cm_fields[eMesageText] = SmashStrBuf(&OtherHeaders);
+	CM_SetAsFieldSB(msg, eMesageText, &OtherHeaders);
 
 	/* Follow-up sanity checks... */
 
 	/* If there's no timestamp on this message, set it to now. */
 	if (msg->cm_fields[eTimestamp] == NULL) {
-		snprintf(buf, sizeof buf, "%ld", (long)time(NULL));
-		msg->cm_fields[eTimestamp] = strdup(buf);
+		CM_SetFieldLONG(msg, eTimestamp, time(NULL));
 	}
 
 	/* If a W (references, or rather, Wefewences) field is present, we
 	 * have to convert it from RFC822 format to Citadel format.
 	 */
 	if (msg->cm_fields[eWeferences] != NULL) {
+		/// todo: API!
 		convert_references_to_wefewences(msg->cm_fields[eWeferences]);
 	}
 

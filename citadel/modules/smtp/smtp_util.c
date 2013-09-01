@@ -161,10 +161,10 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	bmsg->cm_magic = CTDLMESSAGE_MAGIC;
 	bmsg->cm_anon_type = MES_NORMAL;
 	bmsg->cm_format_type = FMT_RFC822;
-	bmsg->cm_fields[eAuthor] = strdup("Citadel");
-	bmsg->cm_fields[eOriginalRoom] = strdup(MAILROOM);
-	bmsg->cm_fields[eNodeName] = strdup(config.c_nodename);
-	bmsg->cm_fields[eMsgSubject] = strdup("Delivery Status Notification (Failure)");
+	CM_SetField(bmsg, eAuthor, HKEY("Citadel"));
+	CM_SetField(bmsg, eOriginalRoom, HKEY(MAILROOM));
+	CM_SetField(bmsg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+	CM_SetField(bmsg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
 	StrBufAppendBufPlain(
 		BounceMB,
 		HKEY("Content-type: multipart/mixed; boundary=\""), 0);
@@ -286,9 +286,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
-	if (bmsg->cm_fields[eAuthor] != NULL)
-		free(bmsg->cm_fields[eAuthor]);
-	bmsg->cm_fields[eAuthor] = SmashStrBuf(&BounceMB);
+	CM_SetAsFieldSB(bmsg, eMesageText, &BounceMB);
 	/* Deliver the bounce if there's anything worth mentioning */
 	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {

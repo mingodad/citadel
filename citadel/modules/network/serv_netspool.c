@@ -160,7 +160,23 @@ int HaveSpoolConfig(OneRoomNetCfg* RNCfg)
 	return interested;
 }
 
+void Netmap_AddMe(struct CtdlMessage *msg, const char *defl, long defllen)
+{
+	long node_len;
+	char buf[SIZ];
 
+	/* prepend our node to the path */
+	if (msg->cm_fields[eMessagePath] == NULL) {
+		CM_SetField(msg, eMessagePath, defl, defllen);
+	}
+	node_len = strlen(config.c_nodename);
+	if (node_len >= SIZ) 
+		node_len = SIZ - 1;
+	memcpy(buf, config.c_nodename, node_len);
+	buf[node_len] = '!';
+	buf[node_len + 1] = '\0';
+	CM_PrependToField(msg, eMessagePath, buf, node_len + 1);
+}
 
 void InspectQueuedRoom(SpoolControl **pSC,
 		       RoomProcList *room_to_spool,     
@@ -408,7 +424,6 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	struct recptypes *recp = NULL;
 	char target_room[ROOMNAMELEN];
 	struct ser_ret sermsg;
-	char *oldpath = NULL;
 	char filename[PATH_MAX];
 	FILE *fp;
 	const StrBuf *nexthop = NULL;
@@ -439,8 +454,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	for (pos = 3; pos < size; ++pos) {
 		field = buffer[pos];
 		len = strlen(buffer + pos + 1);
-		msg->cm_fields[field] = malloc(len + 1);
-		memcpy (msg->cm_fields[field], buffer+ pos + 1, len + 1);
+		CM_SetField(msg, field, buffer + pos + 1, len);
 		pos = pos + len + 1;
 	}
 
@@ -456,19 +470,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 					    working_ignetcfg, 
 					    the_netmap) == 0) 
 			{
-				/* prepend our node to the path */
-				if (msg->cm_fields[eMessagePath] != NULL) {
-					oldpath = msg->cm_fields[eMessagePath];
-					msg->cm_fields[eMessagePath] = NULL;
-				}
-				else {
-					oldpath = strdup("unknown_user");
-				}
-				size = strlen(oldpath) + SIZ;
-				msg->cm_fields[eMessagePath] = malloc(size);
-				snprintf(msg->cm_fields[eMessagePath], size, "%s!%s",
-					config.c_nodename, oldpath);
-				free(oldpath);
+				Netmap_AddMe(msg, HKEY("unknown_user"));
 
 				/* serialize the message */
 				serialize_message(&sermsg, msg);
@@ -562,14 +564,8 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	}
 
 	/* Strip out fields that are only relevant during transit */
-	if (msg->cm_fields[eDestination] != NULL) {
-		free(msg->cm_fields[eDestination]);
-		msg->cm_fields[eDestination] = NULL;
-	}
-	if (msg->cm_fields[eRemoteRoom] != NULL) {
-		free(msg->cm_fields[eRemoteRoom]);
-		msg->cm_fields[eRemoteRoom] = NULL;
-	}
+	CM_FlushField(msg, eDestination);
+	CM_FlushField(msg, eRemoteRoom);
 
 	/* save the message into a room */
 	if (PerformNetprocHooks(msg, target_room) == 0) {

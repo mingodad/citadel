@@ -156,13 +156,109 @@ eMsgField FieldOrder[]  = {
 };
 
 static const long NDiskFields = sizeof(FieldOrder) / sizeof(eMsgField);
-void CtdlMsgSetCM_Fields(struct CtdlMessage *Msg, eMsgField which, const char *buf, long length)
+void CM_SetField(struct CtdlMessage *Msg, eMsgField which, const char *buf, long length)
 {
 	if (Msg->cm_fields[which] != NULL)
 		free (Msg->cm_fields[which]);
 	Msg->cm_fields[which] = malloc(length + 1);
 	memcpy(Msg->cm_fields[which], buf, length);
 	Msg->cm_fields[which][length] = '\0';
+}
+
+void CM_SetFieldLONG(struct CtdlMessage *Msg, eMsgField which, long lvalue)
+{
+	char buf[128];
+	long len;
+	len = snprintf(buf, sizeof(buf), "%ld", lvalue);
+	CM_SetField(Msg, which, buf, len);
+}
+void CM_CutFieldAt(struct CtdlMessage *Msg, eMsgField WhichToCut, long maxlen)
+{
+	if (Msg->cm_fields[WhichToCut] == NULL)
+		return;
+
+	if (strlen(Msg->cm_fields[WhichToCut]) > maxlen)
+		Msg->cm_fields[WhichToCut][maxlen] = '\0';
+}
+
+void CM_FlushField(struct CtdlMessage *Msg, eMsgField which)
+{
+	if (Msg->cm_fields[which] != NULL)
+		free (Msg->cm_fields[which]);
+	Msg->cm_fields[which] = NULL;
+}
+
+void CM_CopyField(struct CtdlMessage *Msg, eMsgField WhichToPutTo, eMsgField WhichtToCopy)
+{
+	long len;
+	if (Msg->cm_fields[WhichToPutTo] != NULL)
+		free (Msg->cm_fields[WhichToPutTo]);
+
+	if (Msg->cm_fields[WhichtToCopy] != NULL)
+	{
+		len = strlen(Msg->cm_fields[WhichtToCopy]);
+		Msg->cm_fields[WhichToPutTo] = malloc(len + 1);
+		memcpy(Msg->cm_fields[WhichToPutTo], Msg->cm_fields[WhichToPutTo], len);
+		Msg->cm_fields[WhichToPutTo][len] = '\0';
+	}
+	else
+		Msg->cm_fields[WhichToPutTo] = NULL;
+}
+
+
+void CM_PrependToField(struct CtdlMessage *Msg, eMsgField which, const char *buf, long length)
+{
+	if (Msg->cm_fields[which] != NULL) {
+		long oldmsgsize;
+		long newmsgsize;
+		char *new;
+
+		oldmsgsize = strlen(Msg->cm_fields[which]) + 1;
+		newmsgsize = length + oldmsgsize;
+
+		new = malloc(newmsgsize);
+		memcpy(new, buf, length);
+		memcpy(new + length, Msg->cm_fields[which], oldmsgsize);
+		free(Msg->cm_fields[which]);
+		Msg->cm_fields[which] = new;
+	}
+	else {
+		Msg->cm_fields[which] = malloc(length + 1);
+		memcpy(Msg->cm_fields[which], buf, length);
+		Msg->cm_fields[which][length] = '\0';
+	}
+}
+
+void CM_SetAsField(struct CtdlMessage *Msg, eMsgField which, char **buf, long length)
+{
+	if (Msg->cm_fields[which] != NULL)
+		free (Msg->cm_fields[which]);
+
+	Msg->cm_fields[which] = *buf;
+	*buf = NULL;
+}
+
+void CM_SetAsFieldSB(struct CtdlMessage *Msg, eMsgField which, StrBuf **buf)
+{
+	if (Msg->cm_fields[which] != NULL)
+		free (Msg->cm_fields[which]);
+
+	Msg->cm_fields[which] = SmashStrBuf(buf);
+}
+
+void CM_GetAsField(struct CtdlMessage *Msg, eMsgField which, char **ret, long *retlen)
+{
+	if (Msg->cm_fields[which] != NULL)
+	{
+		*retlen = strlen(Msg->cm_fields[which]);
+		*ret = Msg->cm_fields[which];
+		Msg->cm_fields[which] = NULL;
+	}
+	else
+	{
+		*ret = NULL;
+		*retlen = 0;
+	}
 }
 
 /*
@@ -943,12 +1039,12 @@ void cmd_msgs(char *cmdbuf)
 		template->cm_anon_type = MES_NORMAL;
 
 		while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
+			long tValueLen;
 			extract_token(tfield, buf, 0, '|', sizeof tfield);
-			extract_token(tvalue, buf, 1, '|', sizeof tvalue);
+			tValueLen = extract_token(tvalue, buf, 1, '|', sizeof tvalue);
 			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
 				if (!strcasecmp(tfield, msgkeys[i])) {
-					template->cm_fields[i] =
-						strdup(tvalue);
+					CM_SetField(template, i, tvalue, tValueLen);
 				}
 			}
 		}
@@ -1283,13 +1379,15 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * have just processed the 'M' (message text) field.
 	 */
 	do {
+		long len;
 		if (mptr >= upper_bound) {
 			break;
 		}
 		field_header = *mptr++;
-		ret->cm_fields[field_header] = strdup(mptr);
+		len = strlen(mptr);
+		CM_SetField(ret, field_header, mptr, len);
 
-		while (*mptr++ != 0);	/* advance to next field */
+		mptr += len + 1;	/* advance to next field */
 
 	} while ((mptr < upper_bound) && (field_header != 'M'));
 
@@ -1303,13 +1401,12 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	if ( (ret->cm_fields[eMesageText] == NULL) && (with_body) ) {
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
-			ret->cm_fields[eMesageText] = dmsgtext->ptr;
-			dmsgtext->ptr = NULL;
+			CM_SetAsField(ret, eMesageText, &dmsgtext->ptr, dmsgtext->len);
 			cdb_free(dmsgtext);
 		}
 	}
 	if (ret->cm_fields[eMesageText] == NULL) {
-		ret->cm_fields[eMesageText] = strdup("\r\n\r\n (no text)\r\n");
+		CM_SetField(ret, eMesageText, HKEY("\r\n\r\n (no text)\r\n"));
 	}
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
@@ -1362,7 +1459,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 	free(msg);
 }
 
-int DupCMField(int i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
+int DupCMField(eMsgField i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
 {
 	long len;
 	len = strlen(OrgMsg->cm_fields[i]);
@@ -1856,7 +1953,6 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			 * encapsulated message instead of the top-level
 			 * message.  Isn't that neat?
 			 */
-
 		}
 		else {
 			if (do_proto) {
@@ -2981,21 +3077,22 @@ long send_message(struct CtdlMessage *msg) {
 	long newmsgid;
 	long retval;
 	char msgidbuf[256];
+	long msgidbuflen;
 	struct ser_ret smr;
 	int is_bigmsg = 0;
 	char *holdM = NULL;
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
-	snprintf(msgidbuf, sizeof msgidbuf, "%08lX-%08lX@%s",
-		 (long unsigned int) time(NULL),
-		 (long unsigned int) newmsgid,
-		 config.c_fqdn
+	msgidbuflen = snprintf(msgidbuf, sizeof msgidbuf, "%08lX-%08lX@%s",
+			       (long unsigned int) time(NULL),
+			       (long unsigned int) newmsgid,
+			       config.c_fqdn
 		);
 
 	/* Generate an ID if we don't have one already */
 	if (msg->cm_fields[emessageId]==NULL) {
-		msg->cm_fields[emessageId] = strdup(msgidbuf);
+		CM_SetField(msg, emessageId, msgidbuf, msgidbuflen);
 	}
 
 	/* If the message is big, set its body aside for storage elsewhere */
@@ -3158,7 +3255,6 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	)
 {
 	char submit_filename[128];
-	char generated_timestamp[32];
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
@@ -3192,15 +3288,14 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * giving it one, right now.
 	 */
 	if (msg->cm_fields[eTimestamp] == NULL) {
-		snprintf(generated_timestamp, sizeof generated_timestamp, "%ld", (long)time(NULL));
-		msg->cm_fields[eTimestamp] = strdup(generated_timestamp);
+		CM_SetFieldLONG(msg, eTimestamp, time(NULL));
 	}
 
 	/* If this message has no path, we generate one.
 	 */
 	if (msg->cm_fields[eMessagePath] == NULL) {
 		if (msg->cm_fields[eAuthor] != NULL) {
-			msg->cm_fields[eMessagePath] = strdup(msg->cm_fields[eAuthor]);
+			CM_CopyField(msg, eMessagePath, eAuthor);
 			for (a=0; !IsEmptyStr(&msg->cm_fields[eMessagePath][a]); ++a) {
 				if (isspace(msg->cm_fields[eMessagePath][a])) {
 					msg->cm_fields[eMessagePath][a] = ' ';
@@ -3208,12 +3303,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			}
 		}
 		else {
-			msg->cm_fields[eMessagePath] = strdup("unknown");
+			CM_SetField(msg,eMessagePath, HKEY("unknown"));
 		}
 	}
 
 	if (force == NULL) {
-		strcpy(force_room, "");
+		force_room[0] = '\0';
 	}
 	else {
 		strcpy(force_room, force);
@@ -3285,7 +3380,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * If this message has no O (room) field, generate one.
 	 */
 	if (msg->cm_fields[eOriginalRoom] == NULL) {
-		msg->cm_fields[eOriginalRoom] = strdup(CCC->room.QRname);
+		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
 	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
@@ -3388,8 +3483,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if ((recps != NULL) && (recps->num_local > 0))
 		for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
-			extract_token(recipient, recps->recp_local, i,
-				      '|', sizeof recipient);
+			long recipientlen;
+			recipientlen = extract_token(recipient,
+						     recps->recp_local, i,
+						     '|', sizeof recipient);
 			MSG_syslog(LOG_DEBUG, "Delivering private local mail to <%s>\n",
 			       recipient);
 			if (CtdlGetUser(&userbuf, recipient) == 0) {
@@ -3400,13 +3497,17 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					/* Generate a instruction message for the Funambol notification
 					 * server, in the same style as the SMTP queue
 					 */
+					long instrlen;
 					instr_alloc = 1024;
 					instr = malloc(instr_alloc);
-					snprintf(instr, instr_alloc,
-						 "Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-						 "bounceto|%s\n",
-						 SPOOLMIME, newmsgid, (long)time(NULL),
-						 bounce_to
+					instrlen = snprintf(
+						instr, instr_alloc,
+						"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+						"bounceto|%s\n",
+						SPOOLMIME,
+						newmsgid,
+						(long)time(NULL), //todo: time() is expensive!
+						bounce_to
 						);
 				
 					imsg = malloc(sizeof(struct CtdlMessage));
@@ -3414,11 +3515,11 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					imsg->cm_magic = CTDLMESSAGE_MAGIC;
 					imsg->cm_anon_type = MES_NORMAL;
 					imsg->cm_format_type = FMT_RFC822;
-					imsg->cm_fields[eMsgSubject] = strdup("QMSG");
-					imsg->cm_fields[eAuthor] = strdup("Citadel");
-					imsg->cm_fields[eJournal] = strdup("do not journal");
-					imsg->cm_fields[eMesageText] = instr;	/* imsg owns this memory now */
-					imsg->cm_fields[eExtnotify] = strdup(recipient);
+					CM_SetField(imsg, eMsgSubject, HKEY("QMSG"));
+					CM_SetField(imsg, eAuthor, HKEY("Citadel"));
+					CM_SetField(imsg, eJournal, HKEY("do not journal"));
+					CM_SetAsField(imsg, eMesageText, &instr, instrlen);
+					CM_SetField(imsg, eExtnotify, recipient, recipientlen);
 					CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM, 0);
 					CtdlFreeMessage(imsg);
 				}

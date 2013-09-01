@@ -839,32 +839,21 @@ void smtp_data(long offset, long flags)
 			return;
 		}
 
-		if (msg->cm_fields[eAuthor] != NULL) free(msg->cm_fields[eAuthor]);
-		if (msg->cm_fields[eNodeName] != NULL) free(msg->cm_fields[eNodeName]);
-		if (msg->cm_fields[eHumanNode] != NULL) free(msg->cm_fields[eHumanNode]);
-		if (msg->cm_fields[eOriginalRoom] != NULL) free(msg->cm_fields[eOriginalRoom]);
-		msg->cm_fields[eAuthor] = strdup(CCC->user.fullname);
-		msg->cm_fields[eNodeName] = strdup(config.c_nodename);
-		msg->cm_fields[eHumanNode] = strdup(config.c_humannode);
-        	msg->cm_fields[eOriginalRoom] = strdup(MAILROOM);
+		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
+		CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+		CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
+        	CM_SetField(msg, eOriginalRoom, HKEY(MAILROOM));
 
 		if (!validemail) {
-			if (msg->cm_fields[erFc822Addr] != NULL) free(msg->cm_fields[erFc822Addr]);
-			msg->cm_fields[erFc822Addr] = strdup(CCC->cs_inet_email);
+			CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
 		}
 	}
 
 	/* Set the "envelope from" address */
-	if (msg->cm_fields[eMessagePath] != NULL) {
-		free(msg->cm_fields[eMessagePath]);
-	}
-	msg->cm_fields[eMessagePath] = strdup(ChrPtr(sSMTP->from));
+	CM_SetField(msg, eMessagePath, SKEY(sSMTP->from));
 
 	/* Set the "envelope to" address */
-	if (msg->cm_fields[eenVelopeTo] != NULL) {
-		free(msg->cm_fields[eenVelopeTo]);
-	}
-	msg->cm_fields[eenVelopeTo] = strdup(ChrPtr(sSMTP->recipients));
+	CM_SetField(msg, eenVelopeTo, SKEY(sSMTP->recipients));
 
 	/* Submit the message into the Citadel system. */
 	valid = validate_recipients(
@@ -887,7 +876,7 @@ void smtp_data(long offset, long flags)
 	if (scan_errors > 0) {	/* We don't want this message! */
 
 		if (msg->cm_fields[eErrorMsg] == NULL) {
-			msg->cm_fields[eErrorMsg] = strdup("Message rejected by filter");
+			CM_SetField(msg, eErrorMsg, HKEY("Message rejected by filter"));
 		}
 
 		StrBufPrintf(sSMTP->OneRcpt, "550 %s\r\n", msg->cm_fields[eErrorMsg]);

@@ -222,8 +222,8 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
-		msg->cm_fields[eMesageText] = SmashStrBuf(&Msg->QMsgData);
-		msg->cm_fields[eMsgSubject] = strdup("QMSG");
+		CM_SetAsFieldSB(msg, eMesageText, &Msg->QMsgData);
+		CM_SetField(msg, eMsgSubject, HKEY("QMSG"));
 		Msg->MyQItem->QueMsgID =
 			CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 		EVS_syslog(LOG_DEBUG, "%ld", Msg->MyQItem->QueMsgID);

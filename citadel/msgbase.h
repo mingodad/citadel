@@ -164,7 +164,16 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 );
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
 struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg);
-void CtdlMsgSetCM_Fields(struct CtdlMessage *Msg, eMsgField which, const char *buf, long length);
+void CM_SetField       (struct CtdlMessage *Msg, eMsgField which, const char *buf, long length);
+void CM_SetFieldLONG   (struct CtdlMessage *Msg, eMsgField which, long lvalue);
+void CM_CopyField      (struct CtdlMessage *Msg, eMsgField WhichToPutTo, eMsgField WhichtToCopy);
+void CM_CutFieldAt     (struct CtdlMessage *Msg, eMsgField WhichToCut, long maxlen);
+void CM_FlushField     (struct CtdlMessage *Msg, eMsgField which);
+void CM_SetAsField     (struct CtdlMessage *Msg, eMsgField which, char **buf, long length);
+void CM_SetAsFieldSB   (struct CtdlMessage *Msg, eMsgField which, StrBuf **buf);
+void CM_GetAsField     (struct CtdlMessage *Msg, eMsgField which, char **ret, long *retlen);
+void CM_PrependToField (struct CtdlMessage *Msg, eMsgField which, const char *buf, long length);
+
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void CtdlFreeMessageContents(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);

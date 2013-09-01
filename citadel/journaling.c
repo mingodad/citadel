@@ -123,8 +123,10 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 
 	struct CtdlMessage *journal_msg = NULL;
 	struct recptypes *journal_recps = NULL;
-	char *message_text = NULL;
+	StrBuf *message_text = NULL;
 	char mime_boundary[256];
+	long mblen;
+	long rfc822len;
 	char recipient[256];
 	char inetemail[256];
 	static int seq = 0;
@@ -150,14 +152,17 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			journal_msg->cm_magic = CTDLMESSAGE_MAGIC;
 			journal_msg->cm_anon_type = MES_NORMAL;
 			journal_msg->cm_format_type = FMT_RFC822;
-			journal_msg->cm_fields[eJournal] = strdup("is journal");
-			journal_msg->cm_fields[eAuthor] = jmsg->from;
-			journal_msg->cm_fields[eNodeName] = jmsg->node;
-			journal_msg->cm_fields[erFc822Addr] = jmsg->rfca;
-			journal_msg->cm_fields[eMsgSubject] = jmsg->subj;
+			CM_SetField(journal_msg, eJournal, HKEY("is journal"));
+			CM_SetField(journal_msg, eAuthor, jmsg->from, strlen(jmsg->from));
+			CM_SetField(journal_msg, eNodeName, jmsg->node, strlen(jmsg->node));
+			CM_SetField(journal_msg, erFc822Addr, jmsg->rfca, strlen(jmsg->rfca));
+			CM_SetField(journal_msg, eMsgSubject, jmsg->subj, strlen(jmsg->subj));
 
-			sprintf(mime_boundary, "--Citadel-Journal-%08lx-%04x--", time(NULL), ++seq);
-			message_text = malloc(strlen(jmsg->rfc822) + sizeof(struct recptypes) + 1024);
+			mblen = snprintf(mime_boundary, sizeof(mime_boundary),
+					 "--Citadel-Journal-%08lx-%04x--", time(NULL), ++seq);
+			rfc822len = strlen(jmsg->rfc822);
+		       
+			message_text = NewStrBufPlain(NULL, rfc822len + sizeof(struct recptypes) + 1024);
 
 			/*
 			 * Here is where we begin to compose the journalized message.
@@ -165,45 +170,69 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			 *       requested by a paying customer, and yes, it is intentionally
 			 *       spelled wrong.  Do NOT remove or change it.
 			 */
-			sprintf(message_text,
-				"Content-type: multipart/mixed; boundary=\"%s\"\r\n"
-				"Content-Identifer: ExJournalReport\r\n"
-				"MIME-Version: 1.0\r\n"
-				"\n"
-				"--%s\r\n"
-				"Content-type: text/plain\r\n"
-				"\r\n"
-				"Sender: %s "
-			,
-				mime_boundary,
-				mime_boundary,
-				( journal_msg->cm_fields[eAuthor] ? journal_msg->cm_fields[eAuthor] : "(null)" )
-			);
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("Content-type: multipart/mixed; boundary=\""), 0);
+
+			StrBufAppendBufPlain(message_text, mime_boundary, mblen, 0);
+
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("\"\r\n"
+				     "Content-Identifer: ExJournalReport\r\n"
+				     "MIME-Version: 1.0\r\n"
+				     "\n"
+				     "--"), 0);
+
+			StrBufAppendBufPlain(message_text, mime_boundary, mblen, 0);
+
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("\r\n"
+				     "Content-type: text/plain\r\n"
+				     "\r\n"
+				     "Sender: "), 0);
+
+			if (journal_msg->cm_fields[eAuthor])
+				StrBufAppendBufPlain(
+					message_text, 
+					journal_msg->cm_fields[eAuthor], -1, 0);
+			else
+				StrBufAppendBufPlain(
+					message_text, 
+					HKEY("(null)"), 0);
 
 			if (journal_msg->cm_fields[erFc822Addr]) {
-				sprintf(&message_text[strlen(message_text)], "<%s>",
-					journal_msg->cm_fields[erFc822Addr]);
+				StrBufAppendPrintf(message_text, " <%s>",
+						   journal_msg->cm_fields[erFc822Addr]);
 			}
 			else if (journal_msg->cm_fields[eNodeName]) {
-				sprintf(&message_text[strlen(message_text)], "@ %s",
-					journal_msg->cm_fields[eNodeName]);
+				StrBufAppendPrintf(message_text, " @ %s",
+						   journal_msg->cm_fields[eNodeName]);
 			}
+			else
+				StrBufAppendBufPlain(
+					message_text, 
+					HKEY(" "), 0);
 
-			sprintf(&message_text[strlen(message_text)],
-				"\r\n"
-				"Message-ID: <%s>\r\n"
-				"Recipients:\r\n"
-			,
-				jmsg->msgn
-			);
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("\r\n"
+				     "Message-ID: <"), 0);
+
+			StrBufAppendBufPlain(message_text, jmsg->msgn, -1, 0);
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY(">\r\n"
+				     "Recipients:\r\n"), 0);
 
 			if (jmsg->recps.num_local > 0) {
 				for (i=0; i<jmsg->recps.num_local; ++i) {
 					extract_token(recipient, jmsg->recps.recp_local,
 							i, '|', sizeof recipient);
 					local_to_inetemail(inetemail, recipient, sizeof inetemail);
-					sprintf(&message_text[strlen(message_text)],
-						"	%s <%s>\r\n", recipient, inetemail);
+					StrBufAppendPrintf(message_text, 
+							   "	%s <%s>\r\n", recipient, inetemail);
 				}
 			}
 
@@ -211,8 +240,8 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 				for (i=0; i<jmsg->recps.num_ignet; ++i) {
 					extract_token(recipient, jmsg->recps.recp_ignet,
 							i, '|', sizeof recipient);
-					sprintf(&message_text[strlen(message_text)],
-						"	%s\r\n", recipient);
+					StrBufAppendPrintf(message_text, 
+							   "	%s\r\n", recipient);
 				}
 			}
 
@@ -220,27 +249,41 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 				for (i=0; i<jmsg->recps.num_internet; ++i) {
 					extract_token(recipient, jmsg->recps.recp_internet,
 							i, '|', sizeof recipient);
-					sprintf(&message_text[strlen(message_text)],
+					StrBufAppendPrintf(message_text, 
 						"	%s\r\n", recipient);
 				}
 			}
 
-			sprintf(&message_text[strlen(message_text)],
-				"\r\n"
-				"--%s\r\n"
-				"Content-type: message/rfc822\r\n"
-				"\r\n"
-				"%s"
-				"--%s--\r\n"
-			,
-				mime_boundary,
-				jmsg->rfc822,
-				mime_boundary
-			);
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("\r\n"
+				     "--"), 0);
 
-			journal_msg->cm_fields[eMesageText] = message_text;
+			StrBufAppendBufPlain(message_text, mime_boundary, mblen, 0);
+
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("\r\n"
+				     "Content-type: message/rfc822\r\n"
+				     "\r\n"), 0);
+
+			StrBufAppendBufPlain(message_text, jmsg->rfc822, rfc822len, 0);
+
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("--"), 0);
+
+			StrBufAppendBufPlain(message_text, mime_boundary, mblen, 0);
+
+			StrBufAppendBufPlain(
+				message_text, 
+				HKEY("--\r\n"), 0);
+
+			CM_SetAsFieldSB(journal_msg, eMesageText, &message_text);
 			free(jmsg->rfc822);
 			free(jmsg->msgn);
+			jmsg->rfc822 = NULL;
+			jmsg->msgn = NULL;
 			
 			/* Submit journal message */
 			CtdlSubmitMsg(journal_msg, journal_recps, "", 0);

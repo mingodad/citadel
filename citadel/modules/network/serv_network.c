@@ -348,14 +348,13 @@ void destroy_network_queue_room_locked (void)
 void network_bounce(struct CtdlMessage *msg, char *reason)
 {
 	struct CitContext *CCC = CC;
-	char *oldpath = NULL;
 	char buf[SIZ];
 	char bouncesource[SIZ];
 	char recipient[SIZ];
 	struct recptypes *valid = NULL;
 	char force_room[ROOMNAMELEN];
 	static int serialnum = 0;
-	size_t size;
+	long len;
 
 	QNM_syslog(LOG_DEBUG, "entering network_bounce()\n");
 
@@ -366,65 +365,37 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 	/* 
 	 * Give it a fresh message ID
 	 */
-	if (msg->cm_fields[emessageId] != NULL) {
-		free(msg->cm_fields[emessageId]);
-	}
-	snprintf(buf, sizeof buf, "%ld.%04lx.%04x@%s",
-		(long)time(NULL), (long)getpid(), ++serialnum, config.c_fqdn);
-	msg->cm_fields[emessageId] = strdup(buf);
+	len = snprintf(buf, sizeof(buf),
+		       "%ld.%04lx.%04x@%s",
+		       (long)time(NULL),
+		       (long)getpid(),
+		       ++serialnum,
+		       config.c_fqdn);
+
+	CM_SetField(msg, emessageId, buf, len);
 
 	/*
 	 * FIXME ... right now we're just sending a bounce; we really want to
 	 * include the text of the bounced message.
 	 */
-	if (msg->cm_fields[eMesageText] != NULL) {
-		free(msg->cm_fields[eMesageText]);
-	}
-	msg->cm_fields[eMesageText] = strdup(reason);
+	CM_SetField(msg, eMesageText, reason, strlen(reason));
 	msg->cm_format_type = 0;
 
 	/*
 	 * Turn the message around
 	 */
-	if (msg->cm_fields[eRecipient] == NULL) {
-		free(msg->cm_fields[eRecipient]);
-	}
+	CM_FlushField(msg, eRecipient);
+	CM_FlushField(msg, eDestination);
 
-	if (msg->cm_fields[eDestination] == NULL) {
-		free(msg->cm_fields[eDestination]);
-	}
+	len = snprintf(recipient, sizeof(recipient), "%s@%s",
+		       msg->cm_fields[eAuthor],
+		       msg->cm_fields[eNodeName]);
 
-	snprintf(recipient, sizeof recipient, "%s@%s",
-		msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
+	CM_SetField(msg, eAuthor, HKEY(BOUNCESOURCE));
+	CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+	CM_SetField(msg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
 
-	if (msg->cm_fields[eAuthor] == NULL) {
-		free(msg->cm_fields[eAuthor]);
-	}
-
-	if (msg->cm_fields[eNodeName] == NULL) {
-		free(msg->cm_fields[eNodeName]);
-	}
-
-	if (msg->cm_fields[eMsgSubject] == NULL) {
-		free(msg->cm_fields[eMsgSubject]);
-	}
-
-	msg->cm_fields[eAuthor] = strdup(BOUNCESOURCE);
-	msg->cm_fields[eNodeName] = strdup(config.c_nodename);
-	msg->cm_fields[eMsgSubject] = strdup("Delivery Status Notification (Failure)");
-
-	/* prepend our node to the path */
-	if (msg->cm_fields[eMessagePath] != NULL) {
-		oldpath = msg->cm_fields[eMessagePath];
-		msg->cm_fields[eMessagePath] = NULL;
-	}
-	else {
-		oldpath = strdup("unknown_user");
-	}
-	size = strlen(oldpath) + SIZ;
-	msg->cm_fields[eMessagePath] = malloc(size);
-	snprintf(msg->cm_fields[eMessagePath], size, "%s!%s", config.c_nodename, oldpath);
-	free(oldpath);
+	Netmap_AddMe(msg, HKEY("unknown_user"));
 
 	/* Now submit the message */
 	valid = validate_recipients(recipient, NULL, 0);

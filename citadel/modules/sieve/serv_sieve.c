@@ -746,6 +746,7 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 	struct sdm_userdata *u = (struct sdm_userdata *) userdata;
 	struct CtdlMessage *msg;
 	char *conf;
+	long conflen;
 
 	u->config_msgnum = msgnum;
 	msg = CtdlFetchMessage(msgnum, 1);
@@ -754,8 +755,8 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 		return;
 	}
 
-	conf = msg->cm_fields[eMesageText];
-	msg->cm_fields[eMesageText] = NULL;
+	CM_GetAsField(msg, eMesageText, &conf, &conflen);
+
 	CtdlFreeMessage(msg);
 
 	if (conf != NULL) {

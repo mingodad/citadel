@@ -459,16 +459,17 @@ void flush_individual_conversation(struct imlog *im) {
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = FMT_RFC822;
 	if (!IsEmptyStr(im->usernames[0])) {
-		msg->cm_fields[eAuthor] = strdup(im->usernames[0]);
+		CM_SetField(msg, eAuthor, im->usernames[0], strlen(im->usernames[0]));
 	} else {
-		msg->cm_fields[eAuthor] = strdup("Citadel");
+		CM_SetField(msg, eAuthor, HKEY("Citadel"));
 	}
 	if (!IsEmptyStr(im->usernames[1])) {
-		msg->cm_fields[eRecipient] = strdup(im->usernames[1]);
+		CM_SetField(msg, eRecipient, im->usernames[1], strlen(im->usernames[1]));
 	}
-	msg->cm_fields[eOriginalRoom] = strdup(PAGELOGROOM);
-	msg->cm_fields[eNodeName] = strdup(NODENAME);
-	msg->cm_fields[eMesageText] = SmashStrBuf(&im->conversation);	/* we own this memory now */
+
+	CM_SetField(msg, eOriginalRoom, HKEY(PAGELOGROOM));
+	CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
+	CM_SetAsFieldSB(msg, eMesageText, &im->conversation);	/* we own this memory now */
 
 	/* Start with usernums[1] because it's guaranteed to be higher than usernums[0],
 	 * so if there's only one party, usernums[0] will be zero but usernums[1] won't.

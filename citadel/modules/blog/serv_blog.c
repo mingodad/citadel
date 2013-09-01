@@ -74,18 +74,16 @@ int blog_upload_beforesave(struct CtdlMessage *msg) {
 	 */
 	if (msg->cm_fields[eExclusiveID] == NULL)
 	{
-		char uuid[BLOG_EUIDBUF_SIZE];
+		char uuid[SIZ];
 		generate_uuid(uuid);
-		msg->cm_fields[eExclusiveID] = strdup(uuid);
+		CM_SetField(msg, eExclusiveID, uuid, strlen(uuid));
 	}
 
 	/*
 	 * We also want to define a maximum length, whether we generated it or not.
 	 */
-	else if (strlen(msg->cm_fields[eExclusiveID]) >= BLOG_EUIDBUF_SIZE) {
-		msg->cm_fields[eExclusiveID][BLOG_EUIDBUF_SIZE-1] = 0;
-	}
-
+	CM_CutFieldAt(msg, eExclusiveID, BLOG_EUIDBUF_SIZE - 1);
+	
 	/* Now allow the save to complete. */
 	return(0);
 }

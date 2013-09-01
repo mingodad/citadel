@@ -120,16 +120,9 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 
 			syslog(LOG_DEBUG, "UUID of note is: %s\n", uuid);
 			if (!IsEmptyStr(uuid)) {
+				CM_SetField(msg, eExclusiveID, uuid, strlen(uuid));
 
-				if (msg->cm_fields[eExclusiveID] != NULL) {
-					free(msg->cm_fields[eExclusiveID]);
-				}
-				msg->cm_fields[eExclusiveID] = strdup(uuid);
-
-				if (msg->cm_fields[eMsgSubject] != NULL) {
-					free(msg->cm_fields[eMsgSubject]);
-				}
-				msg->cm_fields[eMsgSubject] = strdup(uuid);
+				CM_CopyField(msg, eMsgSubject, eExclusiveID);
 			}
 		}
 		p++;
@@ -149,23 +142,19 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 
 	/* Set the message EUID to the vNote UID */
 
-	if (v->uid) if (!IsEmptyStr(v->uid)) {
+	if ((v->uid) && (!IsEmptyStr(v->uid))) {
 		syslog(LOG_DEBUG, "UID of vNote is: %s\n", v->uid);
-		if (msg->cm_fields[eExclusiveID] != NULL) {
-			free(msg->cm_fields[eExclusiveID]);
-		}
-		msg->cm_fields[eExclusiveID] = strdup(v->uid);
+		CM_SetField(msg, eExclusiveID, v->uid, strlen(v->uid));
 	}
 
 	/* Set the message Subject to the vNote Summary */
 
-	if (v->summary) if (!IsEmptyStr(v->summary)) {
-		if (msg->cm_fields[eMsgSubject] != NULL) {
-			free(msg->cm_fields[eMsgSubject]);
-		}
-		msg->cm_fields[eMsgSubject] = strdup(v->summary);
+	if ((v->summary) && (!IsEmptyStr(v->summary))) {
+		CM_SetField(msg, eMsgSubject, v->summary, strlen(v->summary));
+
 		if (strlen(msg->cm_fields[eMsgSubject]) > 72) {
 			strcpy(&msg->cm_fields[eMsgSubject][68], "...");
+			CM_CutFieldAt(msg, eMsgSubject, 72);
 		}
 	}
 

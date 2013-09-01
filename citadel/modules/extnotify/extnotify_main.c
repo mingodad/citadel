@@ -154,6 +154,7 @@ eNotifyType extNotify_getConfigMessage(char *username,
 	int num_msgs = 0;
 	int a;
 	char *configMsg;
+	long clen;
 	char *pch;
 
 	// Get the user
@@ -204,8 +205,7 @@ eNotifyType extNotify_getConfigMessage(char *username,
 	// Do a simple string search to see if 'funambol' is selected as the
 	// type. This string would be at the very top of the message contents.
 
-	configMsg = msg->cm_fields[eMesageText];
-	msg->cm_fields[eMesageText] = NULL;
+	CM_GetAsField(msg, eMesageText, &configMsg, &clen);
 	CtdlFreeMessage(msg);
 
 	/* here we would find the pager number... */

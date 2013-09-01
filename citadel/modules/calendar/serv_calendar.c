@@ -98,6 +98,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
  */
 void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	char *ser = NULL;
+	long serlen;
 	icalcomponent *encaps = NULL;
 	struct CtdlMessage *msg = NULL;
 	icalcomponent *tmp=NULL;
@@ -119,13 +120,15 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	ser = icalcomponent_as_ical_string_r(cal);
 	if (ser == NULL) return;
 
+	serlen = strlen(ser);
+
 	/* If the caller supplied a user, write to that user's default calendar room */
 	if (u) {
 		/* This handy API function does all the work for us. */
 		CtdlWriteObject(USERCALENDARROOM,	/* which room */
 			"text/calendar",	/* MIME type */
 			ser,			/* data */
-			strlen(ser)+1,		/* length */
+			serlen + 1,		/* length */
 			u,			/* which user */
 			0,			/* not binary */
 			0,			/* don't delete others of this type */
@@ -135,18 +138,24 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 
 	/* If the caller did not supply a user, write to the currently selected room */
 	if (!u) {
+		struct CitContext *CCC = CC;
+		StrBuf *MsgBody;
+
 		msg = malloc(sizeof(struct CtdlMessage));
 		memset(msg, 0, sizeof(struct CtdlMessage));
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = 4;
-		msg->cm_fields[eAuthor] = strdup(CC->user.fullname);
-		msg->cm_fields[eOriginalRoom] = strdup(CC->room.QRname);
-		msg->cm_fields[eNodeName] = strdup(config.c_nodename);
-		msg->cm_fields[eHumanNode] = strdup(config.c_humannode);
-		msg->cm_fields[eMesageText] = malloc(strlen(ser) + 40);
-		strcpy(msg->cm_fields[eMesageText], "Content-type: text/calendar\r\n\r\n");
-		strcat(msg->cm_fields[eMesageText], ser);
+		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
+		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
+		CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+		CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
+
+		MsgBody = NewStrBufPlain(NULL, serlen + 100);
+		StrBufAppendBufPlain(MsgBody, HKEY("Content-type: text/calendar\r\n\r\n"), 0);
+		StrBufAppendBufPlain(MsgBody, ser, serlen, 0);
+
+		CM_SetAsFieldSB(msg, eMesageText, &MsgBody);
 	
 		/* Now write the data */
 		CtdlSubmitMsg(msg, NULL, "", QP_EADDR);
@@ -183,7 +192,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	struct CtdlMessage *msg = NULL;
 	struct recptypes *valid = NULL;
 
-	strcpy(organizer_string, "");
+	*organizer_string = '\0';
 	strcpy(summary_string, "Calendar item");
 
 	if (request == NULL) {
@@ -2285,10 +2294,10 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, char *cbcharset, size_t length,
 		char *encoding, char *cbid, void *cbuserdata)
 {
+	const char* pch;
 	icalcomponent *cal, *nested_event, *nested_todo, *whole_cal;
 	icalproperty *p;
 	char new_uid[256] = "";
-	char buf[1024] = "";
 	struct CtdlMessage *msg = (struct CtdlMessage *) cbuserdata;
 
 	if (!msg) return;
@@ -2334,13 +2343,10 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 				p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
 			}
 			if (p != NULL) {
-				safestrncpy(buf, icalproperty_get_comment(p), sizeof buf);
-				if (!IsEmptyStr(buf)) {
-					if (msg->cm_fields[eExclusiveID] != NULL) {
-						free(msg->cm_fields[eExclusiveID]);
-					}
-					msg->cm_fields[eExclusiveID] = strdup(buf);
-					syslog(LOG_DEBUG, "Saving calendar UID <%s>\n", buf);
+				pch = icalproperty_get_comment(p);
+				if (!IsEmptyStr(pch)) {
+					CM_SetField(msg, eExclusiveID, pch, strlen(pch));
+					syslog(LOG_DEBUG, "Saving calendar UID <%s>\n", pch);
 				}
 			}
 
@@ -2348,12 +2354,12 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 
 			p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
 			if (p != NULL) {
-				safestrncpy(buf, icalproperty_get_comment(p), sizeof buf);
-				if (!IsEmptyStr(buf)) {
-					if (msg->cm_fields[eMsgSubject] != NULL) {
-						free(msg->cm_fields[eMsgSubject]);
-					}
-					msg->cm_fields[eMsgSubject] = rfc2047encode(buf, strlen(buf));
+				pch = icalproperty_get_comment(p);
+				if (!IsEmptyStr(pch)) {
+					char *subj;
+
+					subj = rfc2047encode(pch, strlen(pch));
+					CM_SetAsField(msg, eMsgSubject, &subj, strlen(subj));
 				}
 			}
 
@@ -2364,11 +2370,7 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 				time_t idtstart;
 				idtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
 				if (idtstart > 0) {
-					if (msg->cm_fields[eTimestamp] != NULL) {
-						free(msg->cm_fields[eTimestamp]);
-					}
-					msg->cm_fields[eTimestamp] = strdup("000000000000000000");
-					sprintf(msg->cm_fields[eTimestamp], "%ld", idtstart);
+					CM_SetFieldLONG(msg, eTimestamp, idtstart);
 				}
 			}
 

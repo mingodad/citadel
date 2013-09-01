@@ -165,9 +165,7 @@ static void ListCalculateSubject(struct CtdlMessage *msg)
 		StrBufRFC2047encode(&Subject, FlatSubject);
 	}
 
-	if (msg->cm_fields[eMsgSubject] != NULL)
-		free (msg->cm_fields[eMsgSubject]);
-	msg->cm_fields[eMsgSubject] = SmashStrBuf(&Subject);
+	CM_SetAsFieldSB(msg, eMsgSubject, &Subject);
 
 	FreeStrBuf(&FlatSubject);
 }
@@ -177,7 +175,10 @@ static void ListCalculateSubject(struct CtdlMessage *msg)
  */
 void network_deliver_digest(SpoolControl *sc)
 {
+	struct CitContext *CCC = CC;
+	long len;
 	char buf[SIZ];
+	char *pbuf;
 	struct CtdlMessage *msg = NULL;
 	long msglen;
 	struct recptypes *valid;
@@ -198,17 +199,16 @@ void network_deliver_digest(SpoolControl *sc)
 	msg->cm_format_type = FMT_RFC822;
 	msg->cm_anon_type = MES_NORMAL;
 
-	sprintf(buf, "%ld", time(NULL));
-	msg->cm_fields[eTimestamp] = strdup(buf);
-	msg->cm_fields[eAuthor] = strdup(CC->room.QRname);
-	snprintf(buf, sizeof buf, "[%s]", CC->room.QRname);
-	msg->cm_fields[eMsgSubject] = strdup(buf);
+	CM_SetFieldLONG(msg, eTimestamp, time(NULL));
+	CM_SetField(msg, eAuthor, CCC->room.QRname, strlen(CCC->room.QRname));
+	len = snprintf(buf, sizeof buf, "[%s]", CCC->room.QRname);
+	CM_SetField(msg, eMsgSubject, buf, len);
 
-	CtdlMsgSetCM_Fields(msg, erFc822Addr, SKEY(sc->Users[roommailalias]));
-	CtdlMsgSetCM_Fields(msg, eRecipient, SKEY(sc->Users[roommailalias]));
+	CM_SetField(msg, erFc822Addr, SKEY(sc->Users[roommailalias]));
+	CM_SetField(msg, eRecipient, SKEY(sc->Users[roommailalias]));
 
 	/* Set the 'List-ID' header */
-	CtdlMsgSetCM_Fields(msg, eListID, SKEY(sc->ListID));
+	CM_SetField(msg, eListID, SKEY(sc->ListID));
 
 	/*
 	 * Go fetch the contents of the digest
@@ -216,11 +216,11 @@ void network_deliver_digest(SpoolControl *sc)
 	fseek(sc->digestfp, 0L, SEEK_END);
 	msglen = ftell(sc->digestfp);
 
-	msg->cm_fields[eMesageText] = malloc(msglen + 1);
+	pbuf = malloc(msglen + 1);
 	fseek(sc->digestfp, 0L, SEEK_SET);
-	fread(msg->cm_fields[eMesageText], (size_t)msglen, 1, sc->digestfp);
-	msg->cm_fields[eMesageText][msglen] = '\0';
-
+	fread(pbuf, (size_t)msglen, 1, sc->digestfp);
+	pbuf[msglen] = '\0';
+	CM_SetAsField(msg, eMesageText, &pbuf, msglen);
 	fclose(sc->digestfp);
 	sc->digestfp = NULL;
 
@@ -327,7 +327,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	msg = CtdlDuplicateMessage(omsg);
 
 
-	CtdlMsgSetCM_Fields(msg, eListID, SKEY(sc->Users[roommailalias]));
+	CM_SetField(msg, eListID, SKEY(sc->Users[roommailalias]));
 
 	/* if there is no other recipient, Set the recipient
 	 * of the list message to the email address of the
@@ -336,11 +336,11 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	if ((msg->cm_fields[eRecipient] == NULL) ||
 	    IsEmptyStr(msg->cm_fields[eRecipient]))
 	{
-		CtdlMsgSetCM_Fields(msg, eRecipient, SKEY(sc->Users[roommailalias]));
+		CM_SetField(msg, eRecipient, SKEY(sc->Users[roommailalias]));
 	}
 
 	/* Set the 'List-ID' header */
-	CtdlMsgSetCM_Fields(msg, eListID, SKEY(sc->ListID));
+	CM_SetField(msg, eListID, SKEY(sc->ListID));
 
 
 	/* Prepend "[List name]" to the subject */
@@ -426,11 +426,11 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 		 * room itself, so the remote listserv doesn't
 		 * reject us.
 		 */
-		CtdlMsgSetCM_Fields(msg, erFc822Addr, SKEY(sc->Users[roommailalias]));
+		CM_SetField(msg, erFc822Addr, SKEY(sc->Users[roommailalias]));
 
 		valid = validate_recipients(ChrPtr(sc->Users[participate]) , NULL, 0);
 
-		CtdlMsgSetCM_Fields(msg, eRecipient, SKEY(sc->Users[roommailalias]));
+		CM_SetField(msg, eRecipient, SKEY(sc->Users[roommailalias]));
 		CtdlSubmitMsg(msg, valid, "", 0);
 		free_recipients(valid);
 	}
@@ -449,8 +449,6 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	char buf[SIZ];
 	char filename[PATH_MAX];
 	FILE *fp;
-	size_t newpath_len;
-	char *newpath = NULL;
 	StrBuf *Buf = NULL;
 	int i;
 	int bang = 0;
@@ -467,18 +465,8 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	/* Prepend our node name to the Path field whenever
 	 * sending a message to another IGnet node
 	 */
-	if (msg->cm_fields[eMessagePath] == NULL)
-	{
-		msg->cm_fields[eMessagePath] = strdup("username");
-	}
-	newpath_len = strlen(msg->cm_fields[eMessagePath]) +
-		strlen(config.c_nodename) + 2;
-	newpath = malloc(newpath_len);
-	snprintf(newpath, newpath_len, "%s!%s",
-		 config.c_nodename, msg->cm_fields[eMessagePath]);
-	free(msg->cm_fields[eMessagePath]);
-	msg->cm_fields[eMessagePath] = newpath;
-	
+	Netmap_AddMe(msg, HKEY("username"));
+
 	/*
 	 * Determine if this message is set to be deleted
 	 * after sending out on the network
@@ -545,16 +533,11 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 			 * room on the far end by setting the C field
 			 * correctly
 			 */
-			if (msg->cm_fields[eRemoteRoom] != NULL) {
-				free(msg->cm_fields[eRemoteRoom]);
-			}
 			if (StrLength(RemoteRoom) > 0) {
-				msg->cm_fields[eRemoteRoom] =
-					strdup(ChrPtr(RemoteRoom));
+				CM_SetField(msg, eRemoteRoom, SKEY(RemoteRoom));
 			}
 			else {
-				msg->cm_fields[eRemoteRoom] =
-					strdup(CC->room.QRname);
+				CM_SetField(msg, eRemoteRoom, CCC->room.QRname, strlen(CCC->room.QRname));
 			}
 			
 			/* serialize it for transmission */

@@ -371,7 +371,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (Imap->selected) {
-		strcpy(savedroom, CC->room.QRname);
+		strcpy(savedroom, CCC->room.QRname);
 	}
 	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
@@ -382,14 +382,12 @@ void imap_append(int num_parms, ConstStr *Params) {
 	 * For now, we allow "forgeries" if the room is one of the user's
 	 * private mailboxes.
 	 */
-	if (CC->logged_in) {
-	   if ( ((CC->room.QRflags & QR_MAILBOX) == 0) && (config.c_imap_keep_from == 0)) {
-		if (msg->cm_fields[eAuthor] != NULL) free(msg->cm_fields[eAuthor]);
-		if (msg->cm_fields[eNodeName] != NULL) free(msg->cm_fields[eNodeName]);
-		if (msg->cm_fields[eHumanNode] != NULL) free(msg->cm_fields[eHumanNode]);
-		msg->cm_fields[eAuthor] = strdup(CC->user.fullname);
-		msg->cm_fields[eNodeName] = strdup(config.c_nodename);
-		msg->cm_fields[eHumanNode] = strdup(config.c_humannode);
+	if (CCC->logged_in) {
+	   if ( ((CCC->room.QRflags & QR_MAILBOX) == 0) && (config.c_imap_keep_from == 0)) {
+
+		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
+		CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+		CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
 	    }
 	}
 

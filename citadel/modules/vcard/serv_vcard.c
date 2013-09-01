@@ -425,10 +425,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		CtdlDeleteMessages(CCC->room.QRname, NULL, 0, "[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$");
 
 		/* Make the author of the message the name of the user. */
-		if (msg->cm_fields[eAuthor] != NULL) {
-			free(msg->cm_fields[eAuthor]);
-		}
-		msg->cm_fields[eAuthor] = strdup(usbuf.fullname);
+		CM_SetField(msg, eAuthor, usbuf.fullname, strlen(usbuf.fullname));
 	}
 
 	/* Insert or replace RFC2739-compliant free/busy URL */
@@ -458,16 +455,13 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	/* 
 	 * Set the EUID of the message to the UID of the vCard.
 	 */
-	if (msg->cm_fields[eExclusiveID] != NULL)
-	{
-		free(msg->cm_fields[eExclusiveID]);
-		msg->cm_fields[eExclusiveID] = NULL;
-	}
+	CM_FlushField(msg, eExclusiveID);
+
 	s = vcard_get_prop(v, "UID", 1, 0, 0);
 	if (s != NULL) {
-		msg->cm_fields[eExclusiveID] = strdup(s);
+		CM_SetField(msg, eExclusiveID, s, strlen(s));
 		if (msg->cm_fields[eMsgSubject] == NULL) {
-			msg->cm_fields[eMsgSubject] = strdup(s);
+			CM_CopyField(msg, eMsgSubject, eExclusiveID);
 		}
 	}
 
@@ -479,19 +473,22 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		s = vcard_get_prop(v, "N", 1, 0, 0);
 	}
 	if (s != NULL) {
-		if (msg->cm_fields[eMsgSubject] != NULL) {
-			free(msg->cm_fields[eMsgSubject]);
-		}
-		msg->cm_fields[eMsgSubject] = strdup(s);
+		CM_SetField(msg, eMsgSubject, s, strlen(s));
 	}
 
 	/* Re-serialize it back into the msg body */
 	ser = vcard_serialize(v);
 	if (ser != NULL) {
-		msg->cm_fields[eMesageText] = realloc(msg->cm_fields[eMesageText], strlen(ser) + 1024);
-		sprintf(msg->cm_fields[eMesageText],
-			"Content-type: " VCARD_MIME_TYPE
-			"\r\n\r\n%s\r\n", ser);
+		StrBuf *buf;
+		long serlen;
+
+		serlen = strlen(ser);
+		buf = NewStrBufPlain(NULL, serlen + 1024);
+
+		StrBufAppendBufPlain(buf, HKEY("Content-type: " VCARD_MIME_TYPE "\r\n\r\n"), 0);
+		StrBufAppendBufPlain(buf, ser, serlen, 0);
+		StrBufAppendBufPlain(buf, HKEY("\r\n"), 0);
+		CM_SetAsFieldSB(msg, eMesageText, &buf);
 		free(ser);
 	}
 
@@ -897,6 +894,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 void vcard_purge(struct ctdluser *usbuf) {
 	struct CtdlMessage *msg;
 	char buf[SIZ];
+	long len;
 
 	msg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	if (msg == NULL) return;
@@ -905,16 +903,16 @@ void vcard_purge(struct ctdluser *usbuf) {
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 0;
-	msg->cm_fields[eAuthor] = strdup(usbuf->fullname);
-	msg->cm_fields[eOriginalRoom] = strdup(ADDRESS_BOOK_ROOM);
-	msg->cm_fields[eNodeName] = strdup(NODENAME);
-	msg->cm_fields[eMesageText] = strdup("Purge this vCard\n");
+	CM_SetField(msg, eAuthor, usbuf->fullname, strlen(usbuf->fullname));
+	CM_SetField(msg, eOriginalRoom, HKEY(ADDRESS_BOOK_ROOM));
+	CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
+	CM_SetField(msg, eMesageText, HKEY("Purge this vCard\n"));
 
-	snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
-			msg->cm_fields[eAuthor], NODENAME);
-	msg->cm_fields[eExclusiveID] = strdup(buf);
+	len = snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
+		       msg->cm_fields[eAuthor], NODENAME);
+	CM_SetField(msg, eExclusiveID, buf, len);
 
-	msg->cm_fields[eSpecialField] = strdup("CANCEL");
+	CM_SetField(msg, eSpecialField, HKEY("CANCEL"));
 
 	CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM, QP_EADDR);
 	CtdlFreeMessage(msg);
@@ -1372,19 +1370,27 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 		striplt(recipient);
 		v = vcard_new_from_rfc822_addr(recipient);
 		if (v != NULL) {
+			const char *s;
 			vmsg = malloc(sizeof(struct CtdlMessage));
 			memset(vmsg, 0, sizeof(struct CtdlMessage));
 			vmsg->cm_magic = CTDLMESSAGE_MAGIC;
 			vmsg->cm_anon_type = MES_NORMAL;
 			vmsg->cm_format_type = FMT_RFC822;
-			vmsg->cm_fields[eAuthor] = strdup("Citadel");
-			vmsg->cm_fields[eExclusiveID] =  strdup(vcard_get_prop(v, "UID", 1, 0, 0));
+			CM_SetField(vmsg, eAuthor, HKEY("Citadel"));
+			s = vcard_get_prop(v, "UID", 1, 0, 0);
+			CM_SetField(vmsg, eExclusiveID, s, strlen(s));
 			ser = vcard_serialize(v);
 			if (ser != NULL) {
-				vmsg->cm_fields[eMesageText] = malloc(strlen(ser) + 1024);
-				sprintf(vmsg->cm_fields[eMesageText],
-					"Content-type: " VCARD_MIME_TYPE
-					"\r\n\r\n%s\r\n", ser);
+				StrBuf *buf;
+				long serlen;
+				
+				serlen = strlen(ser);
+				buf = NewStrBufPlain(NULL, serlen + 1024);
+
+				StrBufAppendBufPlain(buf, HKEY("Content-type: " VCARD_MIME_TYPE "\r\n\r\n"), 0);
+				StrBufAppendBufPlain(buf, ser, serlen, 0);
+				StrBufAppendBufPlain(buf, HKEY("\r\n"), 0);
+				CM_SetAsFieldSB(vmsg, eMesageText, &buf);
 				free(ser);
 			}
 			vcard_free(v);
