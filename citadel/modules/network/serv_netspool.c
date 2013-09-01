@@ -473,7 +473,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 				Netmap_AddMe(msg, HKEY("unknown_user"));
 
 				/* serialize the message */
-				serialize_message(&sermsg, msg);
+				CtdlSerializeMessage(&sermsg, msg);
 
 				/* now send it */
 				if (StrLength(nexthop) == 0) {

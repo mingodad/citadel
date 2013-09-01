@@ -8,6 +8,34 @@ struct internet_address_list {
 	char ial_name[SIZ];
 };
 
+/* Data structure returned by validate_recipients() */
+struct recptypes {
+	int recptypes_magic;
+        int num_local;
+        int num_internet;
+        int num_ignet;
+	int num_room;
+        int num_error;
+	char *errormsg;
+	char *recp_local;
+	char *recp_internet;
+	char *recp_ignet;
+	char *recp_room;
+	char *recp_orgroom;
+	char *display_recp;
+	char *bounce_to;
+	char *envelope_from;
+	char *sending_room;
+};
+
+#define RECPTYPES_MAGIC 0xfeeb
+
+struct recptypes *validate_recipients(const char *recipients,
+ 				      const char *RemoteIdentifier, 
+				      int Flags);
+
+void free_recipients(struct recptypes *);
+
 
 int fuzzy_match(struct ctdluser *us, char *matchstring);
 void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name);

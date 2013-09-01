@@ -59,27 +59,6 @@ struct repl {			/* Info for replication checking */
 };
 
 
-/* Data structure returned by validate_recipients() */
-struct recptypes {
-	int recptypes_magic;
-        int num_local;
-        int num_internet;
-        int num_ignet;
-	int num_room;
-        int num_error;
-	char *errormsg;
-	char *recp_local;
-	char *recp_internet;
-	char *recp_ignet;
-	char *recp_room;
-	char *recp_orgroom;
-	char *display_recp;
-	char *bounce_to;
-	char *envelope_from;
-	char *sending_room;
-};
-
-#define RECPTYPES_MAGIC 0xfeeb
 
 /*
  * This is a list of "harvested" email addresses that we might want to
@@ -94,17 +73,8 @@ struct addresses_to_be_filed {
 
 extern struct addresses_to_be_filed *atbf;
 
-void cmd_msgs (char *cmdbuf);
-
 void memfmout (char *mptr, const char *nl);
 void output_mime_parts(char *);
-void cmd_msg0 (char *cmdbuf);
-void cmd_msg2 (char *cmdbuf);
-void cmd_msg3 (char *cmdbuf);
-void cmd_msg4 (char *cmdbuf);
-void cmd_msgp (char *cmdbuf);
-void cmd_opna (char *cmdbuf);
-void cmd_dlat (char *cmdbuf);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
 long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, const char *, int);
@@ -131,9 +101,6 @@ void flood_protect_quickie_message(const char *from,
 				   long ioid,
 				   time_t NOW);
 
-void cmd_ent0 (char *entargs);
-void cmd_dele (char *delstr);
-void cmd_move (char *args);
 void GetMetaData(struct MetaData *, long);
 void PutMetaData(struct MetaData *);
 void AdjRefCount(long, int);
@@ -177,7 +144,7 @@ void CM_Free           (struct CtdlMessage *msg);
 void CM_FreeContents   (struct CtdlMessage *msg);
 int  CM_IsValidMsg     (struct CtdlMessage *msg);
 
-void serialize_message(struct ser_ret *, struct CtdlMessage *);
+void CtdlSerializeMessage(struct ser_ret *, struct CtdlMessage *);
 void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
 			int do_repl_check, struct CtdlMessage *supplied_msg, int suppress_refcount_adj);
@@ -228,11 +195,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		struct ctdluser *which_user, struct ctdlroom *which_room);
 void CtdlGetSeen(char *buf, int which_set);
 
-struct recptypes *validate_recipients(const char *recipients,
- 				      const char *RemoteIdentifier, 
-				      int Flags);
-
-void free_recipients(struct recptypes *);
 
 struct CtdlMessage *CtdlMakeMessage(
         struct ctdluser *author,        /* author's user structure */

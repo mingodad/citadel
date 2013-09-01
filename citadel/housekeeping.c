@@ -49,6 +49,7 @@
 #include "room_ops.h"
 #include "database.h"
 #include "msgbase.h"
+#include "internet_addressing.h"
 #include "journaling.h"
 
 #include "ctdl_module.h"

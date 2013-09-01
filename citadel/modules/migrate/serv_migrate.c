@@ -297,7 +297,7 @@ void migr_export_message(long msgnum) {
 	client_write("<msg_meta_content_type>", 23); xml_strout(smi.meta_content_type); client_write("</msg_meta_content_type>\n", 25);
 
 	client_write("<msg_text>", 10);
-	serialize_message(&smr, msg);
+	CtdlSerializeMessage(&smr, msg);
 	CM_Free(msg);
 
 	/* Predict the buffer size we need.  Expand the buffer if necessary. */

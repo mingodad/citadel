@@ -18,6 +18,7 @@
  * 
  */
 
+#include "internet_addressing.h"
 
 #define RSS_UNSET       (1<<0)
 #define RSS_RSS         (1<<1)

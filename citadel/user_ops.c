@@ -61,6 +61,7 @@
 #include "context.h"
 #include "ctdl_module.h"
 #include "user_ops.h"
+#include "internet_addressing.h"
 
 /* These pipes are used to talk to the chkpwd daemon, which is forked during startup */
 int chkpwd_write_pipe[2];

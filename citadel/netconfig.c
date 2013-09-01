@@ -30,6 +30,7 @@
 
 #include "include/ctdl_module.h"
 #include "serv_extensions.h"
+#include "config.h"
 
 void vFreeRoomNetworkStruct(void *vOneRoomNetCfg);
 void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg);

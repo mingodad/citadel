@@ -540,7 +540,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 			}
 			
 			/* serialize it for transmission */
-			serialize_message(&sermsg, msg);
+			CtdlSerializeMessage(&sermsg, msg);
 			if (sermsg.len > 0) {
 				
 				/* write it to a spool file */
