@@ -63,6 +63,7 @@
 #include "user_ops.h"
 #include "database.h"
 #include "msgbase.h"
+#include "room_ops.h"
 #include "internet_addressing.h"
 #include "serv_vcard.h"
 #include "citadel_ldap.h"

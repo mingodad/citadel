@@ -218,22 +218,6 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 			   int crlf,		/* 0=LF, 1=CRLF */
 			   int flags		/* should the bessage be exported clean? */
 );
-int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
-int CtdlDoIHavePermissionToReadMessagesInThisRoom(void);
-
-enum {
-	POST_LOGGED_IN,
-	POST_EXTERNAL,
-	CHECK_EXISTANCE,
-	POST_LMTP
-};
-
-int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, 
-	size_t n, 
-	const char* RemoteIdentifier,
-	int PostPublic,
-	int is_reply
-);
 
 
 /* values for which_set */
@@ -266,7 +250,6 @@ struct CtdlMessage *CtdlMakeMessage(
         char *preformatted_text,        /* ...or NULL to read text from client */
 	char *references		/* Thread references */
 );
-int CtdlCheckInternetMailPermission(struct ctdluser *who);
 int CtdlIsMe(char *addr, int addr_buf_len);
 
 /* 

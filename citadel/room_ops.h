@@ -14,3 +14,18 @@ void list_roomname(struct ctdlroom *qrbuf, int ra, int current_view, int default
 void convert_room_name_macros(char *towhere, size_t maxlen);
 
 
+typedef enum _POST_TYPE{
+	POST_LOGGED_IN,
+	POST_EXTERNAL,
+	CHECK_EXISTANCE,
+	POST_LMTP
+}PostType;
+
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, 
+	size_t n, 
+	const char* RemoteIdentifier,
+	PostType PostPublic,
+	int is_reply
+);
+int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
+int CtdlDoIHavePermissionToReadMessagesInThisRoom(void);

@@ -53,6 +53,7 @@
 #include "config.h"
 #include "user_ops.h"
 #include "database.h"
+#include "room_ops.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "serv_imap.h"

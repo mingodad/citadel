@@ -69,6 +69,7 @@
 #include "config.h"
 #include "control.h"
 #include "user_ops.h"
+#include "room_ops.h"
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"

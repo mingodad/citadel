@@ -1795,20 +1795,6 @@ int check_cached_msglist(long msgnum) {
 }
 
 
-/* 
- * Determine whether the currently logged in session has permission to read
- * messages in the current room.
- */
-int CtdlDoIHavePermissionToReadMessagesInThisRoom(void) {
-	if (	(!(CC->logged_in))
-		&& (!(CC->internal_pgm))
-		&& (!config.c_guest_logins)
-	) {
-		return(om_not_logged_in);
-	}
-	return(om_ok);
-}
-
 
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
@@ -4182,102 +4168,6 @@ struct CtdlMessage *CtdlMakeMessage(
 	return(msg);
 }
 
-/*
- * Check to see whether we have permission to post a message in the current
- * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
- * returns 0 on success.
- */
-int CtdlDoIHavePermissionToPostInThisRoom(
-	char *errmsgbuf, 
-	size_t n, 
-	const char* RemoteIdentifier,
-	int PostPublic,
-	int is_reply
-	) {
-	int ra;
-
-	if (!(CC->logged_in) && 
-	    (PostPublic == POST_LOGGED_IN)) {
-		snprintf(errmsgbuf, n, "Not logged in.");
-		return (ERROR + NOT_LOGGED_IN);
-	}
-	else if (PostPublic == CHECK_EXISTANCE) {
-		return (0); // We're Evaling whether a recipient exists
-	}
-	else if (!(CC->logged_in)) {
-		
-		if ((CC->room.QRflags & QR_READONLY)) {
-			snprintf(errmsgbuf, n, "Not logged in.");
-			return (ERROR + NOT_LOGGED_IN);
-		}
-		if (CC->room.QRflags2 & QR2_MODERATED) {
-			snprintf(errmsgbuf, n, "Not logged in Moderation feature not yet implemented!");
-			return (ERROR + NOT_LOGGED_IN);
-		}
-		if ((PostPublic!=POST_LMTP) &&(CC->room.QRflags2 & QR2_SMTP_PUBLIC) == 0) {
-
-			return CtdlNetconfigCheckRoomaccess(errmsgbuf, n, RemoteIdentifier);
-		}
-		return (0);
-
-	}
-
-	if ((CC->user.axlevel < AxProbU)
-	    && ((CC->room.QRflags & QR_MAILBOX) == 0)) {
-		snprintf(errmsgbuf, n, "Need to be validated to enter (except in %s> to sysop)", MAILROOM);
-		return (ERROR + HIGHER_ACCESS_REQUIRED);
-	}
-
-	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
-
-	if (ra & UA_POSTALLOWED) {
-		strcpy(errmsgbuf, "OK to post or reply here");
-		return(0);
-	}
-
-	if ( (ra & UA_REPLYALLOWED) && (is_reply) ) {
-		/*
-		 * To be thorough, we ought to check to see if the message they are
-		 * replying to is actually a valid one in this room, but unless this
-		 * actually becomes a problem we'll go with high performance instead.
-		 */
-		strcpy(errmsgbuf, "OK to reply here");
-		return(0);
-	}
-
-	if ( (ra & UA_REPLYALLOWED) && (!is_reply) ) {
-		/* Clarify what happened with a better error message */
-		snprintf(errmsgbuf, n, "You may only reply to existing messages here.");
-		return (ERROR + HIGHER_ACCESS_REQUIRED);
-	}
-
-	snprintf(errmsgbuf, n, "Higher access is required to post in this room.");
-	return (ERROR + HIGHER_ACCESS_REQUIRED);
-
-}
-
-
-/*
- * Check to see if the specified user has Internet mail permission
- * (returns nonzero if permission is granted)
- */
-int CtdlCheckInternetMailPermission(struct ctdluser *who) {
-
-	/* Do not allow twits to send Internet mail */
-	if (who->axlevel <= AxProbU) return(0);
-
-	/* Globally enabled? */
-	if (config.c_restrict == 0) return(1);
-
-	/* User flagged ok? */
-	if (who->flags & US_INTERNET) return(2);
-
-	/* Admin level access? */
-	if (who->axlevel >= AxAideU) return(3);
-
-	/* No mail for you! */
-	return(0);
-}
 
 
 /*
@@ -5045,22 +4935,6 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	if (need_to_free_re) regfree(&re);
 	return (num_deleted);
 }
-
-
-
-/*
- * Check whether the current user has permission to delete messages from
- * the current room (returns 1 for yes, 0 for no)
- */
-int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void) {
-	int ra;
-	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
-	if (ra & UA_DELETEALLOWED) return(1);
-	return(0);
-}
-
-
-
 
 /*
  * Delete message from current room

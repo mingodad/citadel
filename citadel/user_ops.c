@@ -369,6 +369,29 @@ void MailboxName(char *buf, size_t n, const struct ctdluser *who, const char *pr
 
 
 /*
+ * Check to see if the specified user has Internet mail permission
+ * (returns nonzero if permission is granted)
+ */
+int CtdlCheckInternetMailPermission(struct ctdluser *who) {
+
+	/* Do not allow twits to send Internet mail */
+	if (who->axlevel <= AxProbU) return(0);
+
+	/* Globally enabled? */
+	if (config.c_restrict == 0) return(1);
+
+	/* User flagged ok? */
+	if (who->flags & US_INTERNET) return(2);
+
+	/* Admin level access? */
+	if (who->axlevel >= AxAideU) return(3);
+
+	/* No mail for you! */
+	return(0);
+}
+
+
+/*
  * Is the user currently logged in an Admin?
  */
 int is_aide(void)

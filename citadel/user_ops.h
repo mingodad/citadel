@@ -14,6 +14,7 @@ void putuser (struct ctdluser *) __attribute__ ((deprecated));
 void lputuser (struct ctdluser *) __attribute__ ((deprecated));
 int is_aide (void);
 int is_room_aide (void);
+int CtdlCheckInternetMailPermission(struct ctdluser *who);
 /* getuserbynumber is deprecated, use CtdlGetUserByNumber instead */
 int getuserbynumber (struct ctdluser *usbuf, long int number) __attribute__ ((deprecated));
 void rebuild_usersbynumber(void);

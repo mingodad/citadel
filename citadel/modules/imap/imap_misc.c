@@ -52,6 +52,7 @@
 #include "user_ops.h"
 #include "database.h"
 #include "msgbase.h"
+#include "room_ops.h"
 #include "internet_addressing.h"
 #include "serv_imap.h"
 #include "imap_tools.h"
