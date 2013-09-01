@@ -269,6 +269,90 @@ void CM_GetAsField(struct CtdlMessage *Msg, eMsgField which, char **ret, long *r
 }
 
 /*
+ * Returns 1 if the supplied pointer points to a valid Citadel message.
+ * If the pointer is NULL or the magic number check fails, returns 0.
+ */
+int is_valid_message(struct CtdlMessage *msg) {
+	if (msg == NULL)
+		return 0;
+	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
+		struct CitContext *CCC = CC;
+		MSGM_syslog(LOG_WARNING, "is_valid_message() -- self-check failed\n");
+		return 0;
+	}
+	return 1;
+}
+
+void CtdlFreeMessageContents(struct CtdlMessage *msg)
+{
+	int i;
+
+	for (i = 0; i < 256; ++i)
+		if (msg->cm_fields[i] != NULL) {
+			free(msg->cm_fields[i]);
+		}
+
+	msg->cm_magic = 0;	/* just in case */
+}
+/*
+ * 'Destructor' for struct CtdlMessage
+ */
+void CtdlFreeMessage(struct CtdlMessage *msg)
+{
+	if (is_valid_message(msg) == 0) 
+	{
+		if (msg != NULL) free (msg);
+		return;
+	}
+	CtdlFreeMessageContents(msg);
+	free(msg);
+}
+
+int DupCMField(eMsgField i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
+{
+	long len;
+	len = strlen(OrgMsg->cm_fields[i]);
+	NewMsg->cm_fields[i] = malloc(len + 1);
+	if (NewMsg->cm_fields[i] == NULL)
+		return 0;
+	memcpy(NewMsg->cm_fields[i], OrgMsg->cm_fields[i], len);
+	NewMsg->cm_fields[i][len] = '\0';
+	return 1;
+}
+
+struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
+{
+	int i;
+	struct CtdlMessage *NewMsg;
+
+	if (is_valid_message(OrgMsg) == 0) 
+		return NULL;
+	NewMsg = (struct CtdlMessage *)malloc(sizeof(struct CtdlMessage));
+	if (NewMsg == NULL)
+		return NULL;
+
+	memcpy(NewMsg, OrgMsg, sizeof(struct CtdlMessage));
+
+	memset(&NewMsg->cm_fields, 0, sizeof(char*) * 256);
+	
+	for (i = 0; i < 256; ++i)
+	{
+		if (OrgMsg->cm_fields[i] != NULL)
+		{
+			if (!DupCMField(i, OrgMsg, NewMsg))
+			{
+				CtdlFreeMessage(NewMsg);
+				return NULL;
+			}
+		}
+	}
+
+	return NewMsg;
+}
+
+
+
+/*
  * This function is self explanatory.
  * (What can I say, I'm in a weird mood today...)
  */
@@ -1423,89 +1507,6 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	}
 
 	return (ret);
-}
-
-
-/*
- * Returns 1 if the supplied pointer points to a valid Citadel message.
- * If the pointer is NULL or the magic number check fails, returns 0.
- */
-int is_valid_message(struct CtdlMessage *msg) {
-	if (msg == NULL)
-		return 0;
-	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
-		struct CitContext *CCC = CC;
-		MSGM_syslog(LOG_WARNING, "is_valid_message() -- self-check failed\n");
-		return 0;
-	}
-	return 1;
-}
-
-void CtdlFreeMessageContents(struct CtdlMessage *msg)
-{
-	int i;
-
-	for (i = 0; i < 256; ++i)
-		if (msg->cm_fields[i] != NULL) {
-			free(msg->cm_fields[i]);
-		}
-
-	msg->cm_magic = 0;	/* just in case */
-}
-/*
- * 'Destructor' for struct CtdlMessage
- */
-void CtdlFreeMessage(struct CtdlMessage *msg)
-{
-	if (is_valid_message(msg) == 0) 
-	{
-		if (msg != NULL) free (msg);
-		return;
-	}
-	CtdlFreeMessageContents(msg);
-	free(msg);
-}
-
-int DupCMField(eMsgField i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
-{
-	long len;
-	len = strlen(OrgMsg->cm_fields[i]);
-	NewMsg->cm_fields[i] = malloc(len + 1);
-	if (NewMsg->cm_fields[i] == NULL)
-		return 0;
-	memcpy(NewMsg->cm_fields[i], OrgMsg->cm_fields[i], len);
-	NewMsg->cm_fields[i][len] = '\0';
-	return 1;
-}
-
-struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
-{
-	int i;
-	struct CtdlMessage *NewMsg;
-
-	if (is_valid_message(OrgMsg) == 0) 
-		return NULL;
-	NewMsg = (struct CtdlMessage *)malloc(sizeof(struct CtdlMessage));
-	if (NewMsg == NULL)
-		return NULL;
-
-	memcpy(NewMsg, OrgMsg, sizeof(struct CtdlMessage));
-
-	memset(&NewMsg->cm_fields, 0, sizeof(char*) * 256);
-	
-	for (i = 0; i < 256; ++i)
-	{
-		if (OrgMsg->cm_fields[i] != NULL)
-		{
-			if (!DupCMField(i, OrgMsg, NewMsg))
-			{
-				CtdlFreeMessage(NewMsg);
-				return NULL;
-			}
-		}
-	}
-
-	return NewMsg;
 }
 
 
