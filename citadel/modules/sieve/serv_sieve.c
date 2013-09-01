@@ -134,7 +134,7 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 	CtdlSubmitMsg(msg, valid, NULL, 0);
 	cs->cancel_implicit_keep = 1;
 	free_recipients(valid);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	return SIEVE2_OK;
 }
 
@@ -655,7 +655,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 		strcat(my.envelope_to, config.c_fqdn);
 	}
 
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	
 	SVM_syslog(LOG_DEBUG, "Calling sieve2_execute()");
 	res = sieve2_execute(sieve2_context, &my);
@@ -757,7 +757,7 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 
 	CM_GetAsField(msg, eMesageText, &conf, &conflen);
 
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	if (conf != NULL) {
 		parse_sieve_config(conf, u);

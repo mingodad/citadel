@@ -189,7 +189,7 @@ void vcard_add_to_directory(long msgnum, void *data) {
 		vcard_extract_internet_addresses(msg, vcard_directory_add_user);
 	}
 
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 
@@ -650,7 +650,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 	if (msg == NULL) return vcard_new();
 
 	v = vcard_load(msg->cm_fields[eMesageText]);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	return v;
 }
 
@@ -915,7 +915,7 @@ void vcard_purge(struct ctdluser *usbuf) {
 	CM_SetField(msg, eSpecialField, HKEY("CANCEL"));
 
 	CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM, QP_EADDR);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 
@@ -998,7 +998,7 @@ void vcard_delete_remove(char *room, long msgnum) {
 		if (ptr != NULL) ++ptr;
 	}
 
-EOH:	CtdlFreeMessage(msg);
+EOH:	CM_Free(msg);
 }
 
 
@@ -1113,7 +1113,7 @@ void dvca_callback(long msgnum, void *userdata) {
 		NULL,			/* user data */
 		0
 	);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 
@@ -1330,7 +1330,7 @@ void strip_addresses_already_have(long msgnum, void *userdata) {
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 	v = vcard_load(msg->cm_fields[eMesageText]);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	i = 0;
 	while (value = vcard_get_prop(v, "email", 1, i++, 0), value != NULL) {
@@ -1403,7 +1403,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 
 			syslog(LOG_DEBUG, "Adding contact: %s", recipient);
 			CtdlSubmitMsg(vmsg, NULL, aptr->roomname, QP_EADDR);
-			CtdlFreeMessage(vmsg);
+			CM_Free(vmsg);
 		}
 	}
 

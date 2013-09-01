@@ -227,7 +227,7 @@ eNextState FinalizeMessageSend_DB(AsyncIO *IO)
 		Msg->MyQItem->QueMsgID =
 			CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 		EVS_syslog(LOG_DEBUG, "%ld", Msg->MyQItem->QueMsgID);
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 	}
 	else {
 		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM,

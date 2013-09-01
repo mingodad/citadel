@@ -483,7 +483,7 @@ void flush_individual_conversation(struct imlog *im) {
 	snprintf(roomname, sizeof roomname, "%010ld.%s", im->usernums[1], PAGELOGROOM);
 	CtdlCreateRoom(roomname, 5, "", 0, 1, 1, VIEW_BBS);
 	msgnum = CtdlSubmitMsg(msg, NULL, roomname, 0);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/* If there is a valid user number in usernums[0], save a copy for them too. */
 	if (im->usernums[0] > 0) {

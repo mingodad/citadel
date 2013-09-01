@@ -259,7 +259,7 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 		}
 	}
 
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 

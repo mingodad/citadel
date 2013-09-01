@@ -327,7 +327,7 @@ void smtp_webcit_preferences_hack_backend(long msgnum, void *userdata) {
 		*webcit_conf = (char *)msg->cm_fields[eMesageText];
 		msg->cm_fields[eMesageText] = NULL;
 	}
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 
@@ -923,7 +923,7 @@ void smtp_data(long offset, long flags)
 	);
 
 	/* Clean up */
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	free_recipients(valid);
 	smtp_data_clear(0, 0);	/* clear out the buffers now */
 }

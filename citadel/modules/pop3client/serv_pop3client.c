@@ -613,7 +613,7 @@ eNextState POP3C_SaveMsg(AsyncIO *IO)
 		 * so we don't fetch this message again
 		 */
 	}
-	CtdlFreeMessage(RecvMsg->CurrMsg->Msg);
+	CM_Free(RecvMsg->CurrMsg->Msg);
 
 	RecvMsg->count ++;
 	return NextDBOperation(&RecvMsg->IO, POP3C_StoreMsgRead);

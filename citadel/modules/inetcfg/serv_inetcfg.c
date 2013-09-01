@@ -122,7 +122,7 @@ void inetcfg_init_backend(long msgnum, void *userdata) {
        	msg = CtdlFetchMessage(msgnum, 1);
        	if (msg != NULL) {
 		inetcfg_setTo(msg);
-               	CtdlFreeMessage(msg);
+               	CM_Free(msg);
 	}
 }
 

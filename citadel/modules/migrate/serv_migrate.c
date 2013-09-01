@@ -298,7 +298,7 @@ void migr_export_message(long msgnum) {
 
 	client_write("<msg_text>", 10);
 	serialize_message(&smr, msg);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/* Predict the buffer size we need.  Expand the buffer if necessary. */
 	int encoded_len = smr.len * 15 / 10 ;

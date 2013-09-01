@@ -239,7 +239,7 @@ void network_deliver_digest(SpoolControl *sc)
 		valid->envelope_from = strdup(bounce_to);
 		CtdlSubmitMsg(msg, valid, NULL, 0);
 	}
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	free_recipients(valid);
 }
 
@@ -256,7 +256,7 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 	    (sc->digestfp == NULL))
 		return;
 
-	msg = CtdlDuplicateMessage(omsg);
+	msg = CM_Duplicate(omsg);
 	if (msg != NULL) {
 		fprintf(sc->digestfp,
 			" -----------------------------------"
@@ -304,7 +304,7 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 		FreeStrBuf(&CC->redirect_buffer);
 
 		sc->num_msgs_spooled += 1;
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 	}
 }
 
@@ -324,7 +324,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	 * in order to insert the [list name] in it, etc.
 	 */
 
-	msg = CtdlDuplicateMessage(omsg);
+	msg = CM_Duplicate(omsg);
 
 
 	CM_SetField(msg, eListID, SKEY(sc->Users[roommailalias]));
@@ -347,7 +347,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 
 	/* Handle delivery */
 	network_deliver_list(msg, sc, CC->room.QRname);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 /*
@@ -377,7 +377,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 		CtdlSubmitMsg(msg, valid, NULL, 0);
 		free_recipients(valid);
 	}
-	/* Do not call CtdlFreeMessage(msg) here; the caller will free it. */
+	/* Do not call CM_Free(msg) here; the caller will free it. */
 }
 
 
@@ -394,7 +394,7 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	if (sc->Users[participate] == NULL)
 		return;
 
-	msg = CtdlDuplicateMessage(omsg);
+	msg = CM_Duplicate(omsg);
 
 	/* Only send messages which originated on our own
 	 * Citadel network, otherwise we'll end up sending the
@@ -434,7 +434,7 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 		free_recipients(valid);
 	}
 	FreeStrBuf(&Buf);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long *delete_after_send)
@@ -459,7 +459,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	/*
 	 * Process IGnet push shares
 	 */
-	msg = CtdlDuplicateMessage(omsg);
+	msg = CM_Duplicate(omsg);
 
 	/* Prepend our node name to the Path field whenever
 	 * sending a message to another IGnet node
@@ -578,7 +578,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&Recipient);
 	FreeStrBuf(&RemoteRoom);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 
@@ -609,7 +609,7 @@ void network_spool_msg(long msgnum,
 	network_process_participate(sc, msg, &delete_after_send);
 	network_process_ignetpush(sc, msg, &delete_after_send);
 	
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/* update lastsent */
 	sc->lastsent = msgnum;

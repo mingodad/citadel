@@ -318,6 +318,6 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 		}
 	}
 	FreeStrBuf(&boundary);
-	CtdlFreeMessage(bmsg);
+	CM_Free(bmsg);
 	syslog(LOG_DEBUG, "Done processing bounces\n");
 }

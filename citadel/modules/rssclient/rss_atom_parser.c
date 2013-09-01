@@ -602,7 +602,7 @@ void FreeNetworkSaveMessage (void *vMsg)
 {
 	networker_save_message *Msg = (networker_save_message *) vMsg;
 
-	CtdlFreeMessageContents(&Msg->Msg);
+	CM_FreeContents(&Msg->Msg);
 	FreeStrBuf(&Msg->Message);
 	FreeStrBuf(&Msg->MsgGUID);
 

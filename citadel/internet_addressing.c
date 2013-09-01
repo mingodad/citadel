@@ -731,7 +731,7 @@ void convert_references_to_wefewences(char *str) {
 /*
  * Convert an RFC822 message (headers + body) to a CtdlMessage structure.
  * NOTE: the supplied buffer becomes part of the CtdlMessage structure, and
- * will be deallocated when CtdlFreeMessage() is called.  Therefore, the
+ * will be deallocated when CM_Free() is called.  Therefore, the
  * supplied buffer should be DEREFERENCED.  It should not be freed or used
  * again.
  */

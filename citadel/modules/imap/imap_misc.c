@@ -427,7 +427,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	}
 
 	/* We don't need this buffer anymore */
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	if (new_message_flags != NULL) {
 		imap_do_append_flags(new_msgnum, new_message_flags);

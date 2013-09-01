@@ -193,7 +193,7 @@ eNotifyType extNotify_getConfigMessage(char *username,
 			{
 				break;
 			}
-			CtdlFreeMessage(msg);
+			CM_Free(msg);
 			msg = NULL;
 		}
 	}
@@ -206,7 +206,7 @@ eNotifyType extNotify_getConfigMessage(char *username,
 	// type. This string would be at the very top of the message contents.
 
 	CM_GetAsField(msg, eMesageText, &configMsg, &clen);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/* here we would find the pager number... */
 	pch = strchr(configMsg, '\n');
@@ -372,7 +372,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	}
 	if (FreeMe != NULL)
 		free(FreeMe);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	todelete[0] = NotifyMsgnum;
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 }

@@ -200,7 +200,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 			msg = CtdlFetchMessage(delnum, 0); /* dont need body */
 			if (msg != NULL) {
 				xtime = atol(msg->cm_fields[eTimestamp]);
-				CtdlFreeMessage(msg);
+				CM_Free(msg);
 			} else {
 				xtime = 0L;
 			}
@@ -773,7 +773,7 @@ int PurgeEuidIndexTable(void) {
 
 		msg = CtdlFetchMessage(msgnum, 0);
 		if (msg != NULL) {
-			CtdlFreeMessage(msg);	/* it still exists, so do nothing */
+			CM_Free(msg);	/* it still exists, so do nothing */
 		}
 		else {
 			eptr = (struct EPurgeList *) malloc(sizeof(struct EPurgeList));

@@ -163,7 +163,8 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 			unsigned int flags		/* Internal save flags */
 );
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
-struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg);
+struct CtdlMessage * CM_Duplicate
+                       (struct CtdlMessage *OrgMsg);
 int  CM_IsEmpty        (struct CtdlMessage *Msg, eMsgField which);
 void CM_SetField       (struct CtdlMessage *Msg, eMsgField which, const char *buf, long length);
 void CM_SetFieldLONG   (struct CtdlMessage *Msg, eMsgField which, long lvalue);
@@ -175,10 +176,11 @@ void CM_SetAsFieldSB   (struct CtdlMessage *Msg, eMsgField which, StrBuf **buf);
 void CM_GetAsField     (struct CtdlMessage *Msg, eMsgField which, char **ret, long *retlen);
 void CM_PrependToField (struct CtdlMessage *Msg, eMsgField which, const char *buf, long length);
 
-void CtdlFreeMessage(struct CtdlMessage *msg);
-void CtdlFreeMessageContents(struct CtdlMessage *msg);
+void CM_Free           (struct CtdlMessage *msg);
+void CM_FreeContents   (struct CtdlMessage *msg);
+int  CM_IsValidMsg     (struct CtdlMessage *msg);
+
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
-int is_valid_message(struct CtdlMessage *);
 void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
 			int do_repl_check, struct CtdlMessage *supplied_msg, int suppress_refcount_adj);

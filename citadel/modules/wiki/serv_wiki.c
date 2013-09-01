@@ -132,13 +132,13 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	if ((old_msg != NULL) && (CM_IsEmpty(old_msg, eMesageText))) {	/* old version is corrupt? */
-		CtdlFreeMessage(old_msg);
+		CM_Free(old_msg);
 		old_msg = NULL;
 	}
 	
 	/* If no changes were made, don't bother saving it again */
 	if ((old_msg != NULL) && (!strcmp(msg->cm_fields[eMesageText], old_msg->cm_fields[eMesageText]))) {
-		CtdlFreeMessage(old_msg);
+		CM_Free(old_msg);
 		return(1);
 	}
 
@@ -153,7 +153,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		fp = fopen(diff_old_filename, "w");
 		rv = fwrite(old_msg->cm_fields[eMesageText], strlen(old_msg->cm_fields[eMesageText]), 1, fp);
 		fclose(fp);
-		CtdlFreeMessage(old_msg);
+		CM_Free(old_msg);
 	}
 
 	fp = fopen(diff_new_filename, "w");
@@ -342,7 +342,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	free(diffbuf);
-	CtdlFreeMessage(history_msg);
+	CM_Free(history_msg);
 	return(0);
 }
 
@@ -395,7 +395,7 @@ void wiki_history(char *pagename) {
 	}
 
 	if ((msg != NULL) && CM_IsEmpty(msg, eMesageText)) {
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 		msg = NULL;
 	}
 
@@ -409,7 +409,7 @@ void wiki_history(char *pagename) {
 	mime_parser(msg->cm_fields[eMesageText], NULL, *wiki_history_callback, NULL, NULL, NULL, 0);
 	cprintf("000\n");
 
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	return;
 }
 
@@ -527,7 +527,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	}
 
 	if ((msg != NULL) && CM_IsEmpty(msg, eMesageText)) {
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 		msg = NULL;
 	}
 
@@ -547,7 +547,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	else {
 		syslog(LOG_ALERT, "Cannot open %s: %s\n", temp, strerror(errno));
 	}
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/* Get the revision history */
 
@@ -561,7 +561,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	}
 
 	if ((msg != NULL) && CM_IsEmpty(msg, eMesageText)) {
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 		msg = NULL;
 	}
 
@@ -580,7 +580,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	striplt(hecbd.stop_when);
 
 	mime_parser(msg->cm_fields[eMesageText], NULL, *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/* Were we successful? */
 	if (hecbd.done == 0) {
@@ -649,7 +649,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			/* Theoretically it is impossible to get here, but throw an error anyway */
 			msgnum = (-1L);
 		}
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 		if (msgnum >= 0L) {
 			cprintf("%d %ld\n", CIT_OK, msgnum);		/* Give the client a msgnum */
 		}

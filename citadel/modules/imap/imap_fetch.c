@@ -790,7 +790,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	iaputs(&Imap->cached_body[pstart], pbytes);
 
 	if (msg != NULL) {
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 	}
 
 	/* Mark this message as "seen" *unless* this is a "peek" operation */
@@ -1084,7 +1084,7 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 		 */
 		else if (!strcasecmp(Cmd->Params[i].Key, "BODYSTRUCTURE")) {
 			if ((msg != NULL) && (!body_loaded)) {
-				CtdlFreeMessage(msg);	/* need the whole thing */
+				CM_Free(msg);	/* need the whole thing */
 				msg = NULL;
 			}
 			if (msg == NULL) {
@@ -1115,7 +1115,7 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 	IAPuts(")\r\n");
 	unbuffer_output();
 	if (msg != NULL) {
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 	}
 }
 

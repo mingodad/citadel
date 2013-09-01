@@ -159,7 +159,7 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	
 		/* Now write the data */
 		CtdlSubmitMsg(msg, NULL, "", QP_EADDR);
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 	}
 
 	/* In either case, now we can free the serialized calendar object */
@@ -311,7 +311,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 		if (msg != NULL) {
 			valid = validate_recipients(organizer_string, NULL, 0);
 			CtdlSubmitMsg(msg, valid, "", QP_EADDR);
-			CtdlFreeMessage(msg);
+			CM_Free(msg);
 			free_recipients(valid);
 		}
 	}
@@ -396,7 +396,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 	/* We're done with the incoming message, because we now have a
 	 * calendar object in memory.
 	 */
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/*
 	 * Here is the real meat of this function.  Handle the event.
@@ -648,7 +648,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 		&oec,				/* user data */
 		0
 	);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	original_event = oec.c;
 	if (original_event == NULL) {
@@ -688,7 +688,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 		if (msg != NULL) {
 			CIT_ICAL->avoid_sending_invitations = 1;
 			CtdlSubmitMsg(msg, NULL, roomname, QP_EADDR);
-			CtdlFreeMessage(msg);
+			CM_Free(msg);
 			CIT_ICAL->avoid_sending_invitations = 0;
 		}
 	}
@@ -739,7 +739,7 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 	/* We're done with the incoming message, because we now have a
 	 * calendar object in memory.
 	 */
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/*
 	 * Here is the real meat of this function.  Handle the event.
@@ -1167,7 +1167,7 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 		(void *) &ird,			/* user data */
 		0
 	);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	if (ird.cal == NULL) return;
 
@@ -1237,7 +1237,7 @@ void ical_conflicts(long msgnum, char *partnum) {
 		0
 	);
 
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	if (ird.cal != NULL) {
 		ical_hunt_for_conflicts(ird.cal);
@@ -1417,7 +1417,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
 		(void *) &ird,			/* user data */
 		0
 	);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	if (ird.cal) {
 		ical_add_to_freebusy(fb, ird.cal);		/* Add VEVENT times to VFREEBUSY */
@@ -1618,7 +1618,7 @@ void ical_getics_backend(long msgnum, void *data) {
 		(void *) &ird,			/* user data */
 		0
 	);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	if (ird.cal == NULL) return;
 
@@ -2210,7 +2210,7 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 		if (msg != NULL) {
 			valid = validate_recipients(attendees_string, NULL, 0);
 			CtdlSubmitMsg(msg, valid, "", QP_EADDR);
-			CtdlFreeMessage(msg);
+			CM_Free(msg);
 			free_recipients(valid);
 		}
 	}

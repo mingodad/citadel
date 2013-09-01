@@ -165,7 +165,7 @@ void rebuild_euid_index_for_msg(long msgnum, void *userdata) {
 	if (!CM_IsEmpty(msg, eExclusiveID)) {
 		index_message_by_euid(msg->cm_fields[eExclusiveID], &CC->room, msgnum);
 	}
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 

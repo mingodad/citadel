@@ -63,7 +63,7 @@ void hunt_for_autocomplete(long msgnum, char *search_string) {
 	if (msg == NULL) return;
 
 	v = vcard_load(msg->cm_fields[eMesageText]);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	/*
 	 * Try to match from a friendly name (the "fn" field).  If there is

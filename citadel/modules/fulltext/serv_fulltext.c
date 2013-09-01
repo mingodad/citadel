@@ -128,7 +128,7 @@ void ft_index_message(long msgnum, int op) {
 
 	if (!CM_IsEmpty(msg, eSuppressIdx)) {
 		syslog(LOG_DEBUG, "ft_index_message() excluded msg %ld", msgnum);
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 		return;
 	}
 
@@ -139,7 +139,7 @@ void ft_index_message(long msgnum, int op) {
 	 */
 	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_ALL, 0, 1, 0);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	if (msgtext != NULL) {

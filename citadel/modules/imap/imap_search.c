@@ -531,7 +531,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	if (need_to_free_msg) {
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 	}
 	return(match);
 }

@@ -272,18 +272,18 @@ void CM_GetAsField(struct CtdlMessage *Msg, eMsgField which, char **ret, long *r
  * Returns 1 if the supplied pointer points to a valid Citadel message.
  * If the pointer is NULL or the magic number check fails, returns 0.
  */
-int is_valid_message(struct CtdlMessage *msg) {
+int CM_IsValidMsg(struct CtdlMessage *msg) {
 	if (msg == NULL)
 		return 0;
 	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
 		struct CitContext *CCC = CC;
-		MSGM_syslog(LOG_WARNING, "is_valid_message() -- self-check failed\n");
+		MSGM_syslog(LOG_WARNING, "CM_IsValidMsg() -- self-check failed\n");
 		return 0;
 	}
 	return 1;
 }
 
-void CtdlFreeMessageContents(struct CtdlMessage *msg)
+void CM_FreeContents(struct CtdlMessage *msg)
 {
 	int i;
 
@@ -297,18 +297,18 @@ void CtdlFreeMessageContents(struct CtdlMessage *msg)
 /*
  * 'Destructor' for struct CtdlMessage
  */
-void CtdlFreeMessage(struct CtdlMessage *msg)
+void CM_Free(struct CtdlMessage *msg)
 {
-	if (is_valid_message(msg) == 0) 
+	if (CM_IsValidMsg(msg) == 0) 
 	{
 		if (msg != NULL) free (msg);
 		return;
 	}
-	CtdlFreeMessageContents(msg);
+	CM_FreeContents(msg);
 	free(msg);
 }
 
-int DupCMField(eMsgField i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
+int CM_DupField(eMsgField i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewMsg)
 {
 	long len;
 	len = strlen(OrgMsg->cm_fields[i]);
@@ -320,12 +320,12 @@ int DupCMField(eMsgField i, struct CtdlMessage *OrgMsg, struct CtdlMessage *NewM
 	return 1;
 }
 
-struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
+struct CtdlMessage * CM_Duplicate(struct CtdlMessage *OrgMsg)
 {
 	int i;
 	struct CtdlMessage *NewMsg;
 
-	if (is_valid_message(OrgMsg) == 0) 
+	if (CM_IsValidMsg(OrgMsg) == 0) 
 		return NULL;
 	NewMsg = (struct CtdlMessage *)malloc(sizeof(struct CtdlMessage));
 	if (NewMsg == NULL)
@@ -339,9 +339,9 @@ struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg)
 	{
 		if (OrgMsg->cm_fields[i] != NULL)
 		{
-			if (!DupCMField(i, OrgMsg, NewMsg))
+			if (!CM_DupField(i, OrgMsg, NewMsg))
 			{
-				CtdlFreeMessage(NewMsg);
+				CM_Free(NewMsg);
 				return NULL;
 			}
 		}
@@ -522,7 +522,7 @@ void headers_listing(long msgnum, void *userdata)
 		(!CM_IsEmpty(msg, erFc822Addr) ? msg->cm_fields[erFc822Addr] : ""),
 		(!CM_IsEmpty(msg, eMsgSubject) ? msg->cm_fields[eMsgSubject] : "")
 	);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 /*
@@ -542,7 +542,7 @@ void headers_euid(long msgnum, void *userdata)
 		msgnum, 
 		(!CM_IsEmpty(msg, eExclusiveID) ? msg->cm_fields[eExclusiveID] : ""),
 		(!CM_IsEmpty(msg, eTimestamp) ? msg->cm_fields[eTimestamp] : "0"));
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 
@@ -942,7 +942,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 					if (CtdlMsgCmp(msg, compare)) {
 						msglist[a] = 0L;
 					}
-					CtdlFreeMessage(msg);
+					CM_Free(msg);
 				}
 			}
 		}
@@ -1152,7 +1152,7 @@ void cmd_msgs(char *cmdbuf)
 			   template,
 			   CallBack,
 			   NULL);
-	if (template != NULL) CtdlFreeMessage(template);
+	if (template != NULL) CM_Free(template);
 	cprintf("000\n");
 }
 
@@ -1502,7 +1502,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
 	if (PerformMessageHooks(ret, EVT_BEFOREREAD) > 0) {
-		CtdlFreeMessage(ret);
+		CM_Free(ret);
 		return NULL;
 	}
 
@@ -1948,7 +1948,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			*Address = TheMessage->cm_fields[erFc822Addr];
 			TheMessage->cm_fields[erFc822Addr] = NULL;
 		}
-		CtdlFreeMessage(TheMessage);
+		CM_Free(TheMessage);
 		TheMessage = NULL;
 
 		if (encap.msg) {
@@ -1988,7 +1988,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		TheMessage->cm_fields[erFc822Addr] = NULL;
 	}
 
-	CtdlFreeMessage(TheMessage);
+	CM_Free(TheMessage);
 
 	return(retcode);
 }
@@ -2523,7 +2523,7 @@ int CtdlOutputPreLoadedMsg(
 	strcpy(mid, "unknown");
 	nl = (crlf ? "\r\n" : "\n");
 
-	if (!is_valid_message(TheMessage)) {
+	if (!CM_IsValidMsg(TheMessage)) {
 		MSGM_syslog(LOG_ERR,
 			    "ERROR: invalid preloaded message for output\n");
 		cit_backtrace ();
@@ -2813,7 +2813,7 @@ void cmd_msg3(char *cmdbuf)
 	}
 
 	serialize_message(&smr, msg);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 
 	if (smr.len == 0) {
 		cprintf("%d Unable to serialize message\n",
@@ -3027,7 +3027,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 
 				/* Free up the memory we may have allocated */
 				if (msg != supplied_msg) {
-					CtdlFreeMessage(msg);
+					CM_Free(msg);
 				}
 			}
 	
@@ -3173,7 +3173,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	/*
 	 * Check for valid message format
 	 */
-	if (is_valid_message(msg) == 0) {
+	if (CM_IsValidMsg(msg) == 0) {
 		MSGM_syslog(LOG_ERR, "serialize_message() aborting due to invalid message\n");
 		ret->len = 0;
 		ret->ser = NULL;
@@ -3290,7 +3290,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	int rv = 0;
 
 	MSGM_syslog(LOG_DEBUG, "CtdlSubmitMsg() called\n");
-	if (is_valid_message(msg) == 0) return(-1);	/* self check */
+	if (CM_IsValidMsg(msg) == 0) return(-1);	/* self check */
 
 	/* If this message has no timestamp, we take the liberty of
 	 * giving it one, right now.
@@ -3529,7 +3529,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					CM_SetAsField(imsg, eMesageText, &instr, instrlen);
 					CM_SetField(imsg, eExtnotify, recipient, recipientlen);
 					CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM, 0);
-					CtdlFreeMessage(imsg);
+					CM_Free(imsg);
 				}
 			}
 			else {
@@ -3647,7 +3647,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_fields[eJournal] = strdup("do not journal");
 		imsg->cm_fields[eMesageText] = SmashStrBuf(&SpoolMsg);	/* imsg owns this memory now */
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
-		CtdlFreeMessage(imsg);
+		CM_Free(imsg);
 	}
 
 	/*
@@ -3753,7 +3753,7 @@ void quickie_message(const char *from,
 	msg->cm_fields[eMesageText] = strdup(text);
 
 	CtdlSubmitMsg(msg, recp, room, 0);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	if (recp != NULL) free_recipients(recp);
 }
 
@@ -4090,7 +4090,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
  * (NOTE: if you supply 'preformatted_text', the buffer you give it
  * will become part of the message.  This means you are no longer
  * responsible for managing that memory -- it will be freed along with
- * the rest of the fields when CtdlFreeMessage() is called.)
+ * the rest of the fields when CM_Free() is called.)
  */
 
 struct CtdlMessage *CtdlMakeMessage(
@@ -4926,7 +4926,7 @@ void cmd_ent0(char *entargs)
 			cprintf("000\n");
 		}
 
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 	}
 	if (valid != NULL) {
 		free_recipients(valid);
@@ -5611,7 +5611,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 	}
 	/* Now write the data */
 	CtdlSubmitMsg(msg, NULL, roomname, 0);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 }
 
 
@@ -5653,7 +5653,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 			conf = strdup(msg->cm_fields[eMesageText]);
-			CtdlFreeMessage(msg);
+			CM_Free(msg);
 		}
 		else {
 			conf = NULL;

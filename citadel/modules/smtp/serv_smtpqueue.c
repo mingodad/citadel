@@ -730,7 +730,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 	/* Free up the memory we used */
 	free_recipients(valid);
 	FreeStrBuf(&boundary);
-	CtdlFreeMessage(bmsg);
+	CM_Free(bmsg);
 	SMTPCM_syslog(LOG_DEBUG, "Done processing bounces\n");
 }
 
@@ -859,7 +859,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		}
 	}
 	PlainQItem = NewStrBufPlain(instr, -1);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	MyQItem = DeserializeQueueItem(PlainQItem, msgnum);
 	FreeStrBuf(&PlainQItem);
 

@@ -497,7 +497,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 					QN_syslog(LOG_ERR, "%s: %s\n", filename, strerror(errno));
 				}
 				free(sermsg.ser);
-				CtdlFreeMessage(msg);
+				CM_Free(msg);
 				FreeStrBuf(&Buf);
 				return;
 			}
@@ -522,7 +522,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	 * connected that it's inevitable.)
 	 */
 	if (network_usetable(msg) != 0) {
-		CtdlFreeMessage(msg);
+		CM_Free(msg);
 		return;
 	}
 
@@ -572,7 +572,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 		msg->cm_flags = CM_SKIP_HOOKS;
 		CtdlSubmitMsg(msg, recp, target_room, 0);
 	}
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	free_recipients(recp);
 }
 

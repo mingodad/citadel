@@ -416,7 +416,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 
 	/* Clean up */
 	if (valid != NULL) free_recipients(valid);
-	CtdlFreeMessage(msg);
+	CM_Free(msg);
 	QNM_syslog(LOG_DEBUG, "leaving network_bounce()\n");
 }
 
