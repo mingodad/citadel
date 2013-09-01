@@ -97,8 +97,7 @@ extern struct addresses_to_be_filed *atbf;
 int alias (char *name);
 void cmd_msgs (char *cmdbuf);
 void cmd_isme (char *cmdbuf);
-void help_subst (char *strbuf, char *source, char *dest);
-void do_help_subst (char *buffer);
+
 void memfmout (char *mptr, const char *nl);
 void output_mime_parts(char *);
 void cmd_msg0 (char *cmdbuf);

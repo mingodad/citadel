@@ -36,6 +36,7 @@
 #include <curl/curl.h>
 
 #include "citadel.h"
+#include "citserver.h"
 #include "citadel_dirs.h"
 #include "clientsocket.h"
 #include "sysdep.h"

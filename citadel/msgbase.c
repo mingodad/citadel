@@ -1157,43 +1157,6 @@ void cmd_msgs(char *cmdbuf)
 }
 
 
-
-
-/* 
- * help_subst()  -  support routine for help file viewer
- */
-void help_subst(char *strbuf, char *source, char *dest)
-{
-	char workbuf[SIZ];
-	int p;
-
-	while (p = pattern2(strbuf, source), (p >= 0)) {
-		strcpy(workbuf, &strbuf[p + strlen(source)]);
-		strcpy(&strbuf[p], dest);
-		strcat(strbuf, workbuf);
-	}
-}
-
-
-void do_help_subst(char *buffer)
-{
-	char buf2[16];
-
-	help_subst(buffer, "^nodename", config.c_nodename);
-	help_subst(buffer, "^humannode", config.c_humannode);
-	help_subst(buffer, "^fqdn", config.c_fqdn);
-	help_subst(buffer, "^username", CC->user.fullname);
-	snprintf(buf2, sizeof buf2, "%ld", CC->user.usernum);
-	help_subst(buffer, "^usernum", buf2);
-	help_subst(buffer, "^sysadm", config.c_sysadm);
-	help_subst(buffer, "^variantname", CITADEL);
-	snprintf(buf2, sizeof buf2, "%d", config.c_maxsessions);
-	help_subst(buffer, "^maxsessions", buf2);
-	help_subst(buffer, "^bbsdir", ctdl_message_dir);
-}
-
-
-
 /*
  * memfmout()  -  Citadel text formatter and paginator.
  *	     Although the original purpose of this routine was to format

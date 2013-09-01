@@ -48,6 +48,9 @@ void citproto_begin_admin_session(void);
 void GenerateRoomDisplay(char *real_room,
                         CitContext *viewed,
                         CitContext *viewer);
+
+void help_subst (char *strbuf, char *source, char *dest);
+
 extern int panic_fd;
 char CtdlCheckExpress(void);
 extern time_t server_startup_time;
