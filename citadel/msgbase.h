@@ -94,9 +94,7 @@ struct addresses_to_be_filed {
 
 extern struct addresses_to_be_filed *atbf;
 
-int alias (char *name);
 void cmd_msgs (char *cmdbuf);
-void cmd_isme (char *cmdbuf);
 
 void memfmout (char *mptr, const char *nl);
 void output_mime_parts(char *);

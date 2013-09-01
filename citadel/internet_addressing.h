@@ -12,6 +12,10 @@ struct internet_address_list {
 int fuzzy_match(struct ctdluser *us, char *matchstring);
 void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name);
 char *rfc822_fetch_field(const char *rfc822, const char *fieldname);
+void sanitize_truncated_recipient(char *str);
+char *qp_encode_email_addrs(char *source);
+int alias (char *name);
+
 
 int IsDirectory(char *addr, int allow_masq_domains);
 void CtdlDirectoryInit(void);
