@@ -176,9 +176,6 @@ int spam_assassin(struct CtdlMessage *msg) {
 		}
 
 		if (is_spam) {
-			if (msg->cm_fields[eErrorMsg] != NULL) {
-				free(msg->cm_fields[eErrorMsg]);
-			}
 			CM_SetField(msg, eErrorMsg, HKEY("message rejected by spam filter"));
 		}
 	}

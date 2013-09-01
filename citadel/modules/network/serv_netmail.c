@@ -133,7 +133,7 @@ static void ListCalculateSubject(struct CtdlMessage *msg)
 	int rlen;
 	char *pCh;
 
-	if (msg->cm_fields[eMsgSubject] == NULL) {
+	if (CM_IsEmpty(msg, eMsgSubject)) {
 		Subject = NewStrBufPlain(HKEY("(no subject)"));
 	}
 	else {
@@ -263,23 +263,23 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 			"------------------------------------"
 			"-------\n");
 		fprintf(sc->digestfp, "From: ");
-		if (msg->cm_fields[eAuthor] != NULL) {
+		if (!CM_IsEmpty(msg, eAuthor)) {
 			fprintf(sc->digestfp,
 				"%s ",
 				msg->cm_fields[eAuthor]);
 		}
-		if (msg->cm_fields[erFc822Addr] != NULL) {
+		if (!CM_IsEmpty(msg, erFc822Addr)) {
 			fprintf(sc->digestfp,
 				"<%s> ",
 				msg->cm_fields[erFc822Addr]);
 		}
-		else if (msg->cm_fields[eNodeName] != NULL) {
+		else if (!CM_IsEmpty(msg, eNodeName)) {
 			fprintf(sc->digestfp,
 				"@%s ",
 				msg->cm_fields[eNodeName]);
 		}
 		fprintf(sc->digestfp, "\n");
-		if (msg->cm_fields[eMsgSubject] != NULL) {
+		if (!CM_IsEmpty(msg, eMsgSubject)) {
 			fprintf(sc->digestfp,
 				"Subject: %s\n",
 				msg->cm_fields[eMsgSubject]);
@@ -333,8 +333,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
 	 * of the list message to the email address of the
 	 * room itself.
 	 */
-	if ((msg->cm_fields[eRecipient] == NULL) ||
-	    IsEmptyStr(msg->cm_fields[eRecipient]))
+	if (CM_IsEmpty(msg, eRecipient))
 	{
 		CM_SetField(msg, eRecipient, SKEY(sc->Users[roommailalias]));
 	}
@@ -403,7 +402,7 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	 * is rude...
 	 */
 	ok_to_participate = 0;
-	if (msg->cm_fields[eNodeName] != NULL) {
+	if (!CM_IsEmpty(msg, eNodeName)) {
 		if (!strcasecmp(msg->cm_fields[eNodeName],
 				config.c_nodename)) {
 			ok_to_participate = 1;
@@ -471,7 +470,7 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 	 * Determine if this message is set to be deleted
 	 * after sending out on the network
 	 */
-	if (msg->cm_fields[eSpecialField] != NULL) {
+	if (!CM_IsEmpty(msg, eSpecialField)) {
 		if (!strcasecmp(msg->cm_fields[eSpecialField], "CANCEL")) {
 			*delete_after_send = 1;
 		}

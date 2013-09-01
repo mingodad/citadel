@@ -101,7 +101,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	if (msg->cm_format_type != 4) return(0);
 
 	/* If there's no EUID we can't do this.  Reject the post. */
-	if (msg->cm_fields[eExclusiveID] == NULL) return(1);
+	if (CM_IsEmpty(msg, eExclusiveID)) return(1);
 
 	history_page_len = snprintf(history_page, sizeof history_page,
 				    "%s_HISTORY_", msg->cm_fields[eExclusiveID]);
@@ -117,7 +117,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	/* If there's no message text, obviously this is all b0rken and shouldn't happen at all */
-	if (msg->cm_fields[eMesageText] == NULL) return(0);
+	if (CM_IsEmpty(msg, eMesageText)) return(0);
 
 	/* Set the message subject identical to the page name */
 	CM_CopyField(msg, eMsgSubject, eExclusiveID);
@@ -131,7 +131,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		old_msg = NULL;
 	}
 
-	if ((old_msg != NULL) && (old_msg->cm_fields[eMesageText] == NULL)) {	/* old version is corrupt? */
+	if ((old_msg != NULL) && (CM_IsEmpty(old_msg, eMesageText))) {	/* old version is corrupt? */
 		CtdlFreeMessage(old_msg);
 		old_msg = NULL;
 	}
@@ -394,7 +394,7 @@ void wiki_history(char *pagename) {
 		msg = NULL;
 	}
 
-	if ((msg != NULL) && (msg->cm_fields[eMesageText] == NULL)) {
+	if ((msg != NULL) && CM_IsEmpty(msg, eMesageText)) {
 		CtdlFreeMessage(msg);
 		msg = NULL;
 	}
@@ -526,7 +526,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		msg = NULL;
 	}
 
-	if ((msg != NULL) && (msg->cm_fields[eMesageText] == NULL)) {
+	if ((msg != NULL) && CM_IsEmpty(msg, eMesageText)) {
 		CtdlFreeMessage(msg);
 		msg = NULL;
 	}
@@ -560,7 +560,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		msg = NULL;
 	}
 
-	if ((msg != NULL) && (msg->cm_fields[eMesageText] == NULL)) {
+	if ((msg != NULL) && CM_IsEmpty(msg, eMesageText)) {
 		CtdlFreeMessage(msg);
 		msg = NULL;
 	}

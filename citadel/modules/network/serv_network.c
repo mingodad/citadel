@@ -111,7 +111,7 @@ int network_usetable(struct CtdlMessage *msg)
 	time_t now;
 
 	/* Bail out if we can't generate a message ID */
-	if ((msg == NULL) || (msg->cm_fields[emessageId] == NULL) || (IsEmptyStr(msg->cm_fields[emessageId])))
+	if ((msg == NULL) || CM_IsEmpty(msg, emessageId))
 	{
 		return(0);
 	}
@@ -120,7 +120,7 @@ int network_usetable(struct CtdlMessage *msg)
 	msgid = NewStrBufPlain(msg->cm_fields[emessageId], -1);
 	if (haschar(ChrPtr(msgid), '@') == 0) {
 		StrBufAppendBufPlain(msgid, HKEY("@"), 0);
-		if (msg->cm_fields[eNodeName] != NULL) {
+		if (!CM_IsEmpty(msg, eNodeName)) {
 			StrBufAppendBufPlain(msgid, msg->cm_fields[eNodeName], -1, 0);
 		}
 		else {

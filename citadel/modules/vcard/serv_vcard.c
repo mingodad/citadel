@@ -94,8 +94,8 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg, int (*callback)(c
 	int instance = 0;
 	int found_something = 0;
 
-	if (msg->cm_fields[eAuthor] == NULL) return;
-	if (msg->cm_fields[eNodeName] == NULL) return;
+	if (CM_IsEmpty(msg, eAuthor)) return;
+	if (CM_IsEmpty(msg, eNodeName)) return;
 	snprintf(citadel_address, sizeof citadel_address, "%s @ %s",
 		msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
 
@@ -330,7 +330,6 @@ void vcard_extract_vcard(char *name, char *filename, char *partnum, char *disp,
  */
 int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	struct CitContext *CCC = CC;
-	char *ptr;
 	char *s;
 	char buf[SIZ];
 	struct ctdluser usbuf;
@@ -373,8 +372,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* Ok, if we got this far, look into the situation further... */
 
-	ptr = msg->cm_fields[eMesageText];
-	if (ptr == NULL) return(0);
+	if (CM_IsEmpty(msg, eMesageText)) return(0);
 
 	mime_parser(msg->cm_fields[eMesageText],
 		NULL,
@@ -460,7 +458,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	s = vcard_get_prop(v, "UID", 1, 0, 0);
 	if (s != NULL) {
 		CM_SetField(msg, eExclusiveID, s, strlen(s));
-		if (msg->cm_fields[eMsgSubject] == NULL) {
+		if (CM_IsEmpty(msg, eMsgSubject)) {
 			CM_CopyField(msg, eMsgSubject, eExclusiveID);
 		}
 	}
@@ -535,8 +533,10 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 	if (!is_UserConf && !is_GAB) return(0);
 
+	if (CM_IsEmpty(msg, eMesageText))
+		return 0;
+
 	ptr = msg->cm_fields[eMesageText];
-	if (ptr == NULL) return(0);
 
 	NewStrBufDupAppendFlush(&CCC->StatusMessage, NULL, NULL, 0);
 
@@ -934,8 +934,11 @@ int vcard_extract_from_network(struct CtdlMessage *msg, char *target_room) {
 
 	if (msg->cm_format_type != 4) return(0);
 
+	if (CM_IsEmpty(msg, eMesageText))
+		return 0;
+
 	ptr = msg->cm_fields[eMesageText];
-	if (ptr == NULL) return(0);
+
 	while (ptr != NULL) {
 	
 		linelen = strcspn(ptr, "\n");
@@ -977,8 +980,11 @@ void vcard_delete_remove(char *room, long msgnum) {
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 
+	if (CM_IsEmpty(msg, eMesageText))
+		goto EOH;
+
 	ptr = msg->cm_fields[eMesageText];
-	if (ptr == NULL) goto EOH;
+
 	while (ptr != NULL) {
 		linelen = strcspn(ptr, "\n");
 		if (linelen == 0) goto EOH;

@@ -186,7 +186,7 @@ eNotifyType extNotify_getConfigMessage(char *username,
 	for (a = 0; a < num_msgs; ++a) {
 		msg = CtdlFetchMessage(msglist[a], 1);
 		if (msg != NULL) {
-			if ((msg->cm_fields[eMsgSubject] != NULL) &&
+			if (!CM_IsEmpty(msg, eMsgSubject) &&
 			    (strncasecmp(msg->cm_fields[eMsgSubject],
 					 PAGER_CONFIG_MESSAGE,
 					 strlen(PAGER_CONFIG_MESSAGE)) == 0))
@@ -280,7 +280,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	Ctx = (NotifyContext*) usrdata;
 
 	msg = CtdlFetchMessage(NotifyMsgnum, 1);
-	if ( msg->cm_fields[eExtnotify] != NULL)
+	if (!CM_IsEmpty(msg, eExtnotify))
 	{
 		Type = extNotify_getConfigMessage(
 			msg->cm_fields[eExtnotify],

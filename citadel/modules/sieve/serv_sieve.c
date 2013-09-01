@@ -586,13 +586,13 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	process_rfc822_addr(msg->cm_fields[eRecipient], my.recp_user, my.recp_node, my.recp_name);
 
 	/* Keep track of the sender so we can use it for REJECT and VACATION responses */
-	if (msg->cm_fields[erFc822Addr] != NULL) {
+	if (!CM_IsEmpty(msg, erFc822Addr)) {
 		safestrncpy(my.sender, msg->cm_fields[erFc822Addr], sizeof my.sender);
 	}
-	else if ( (msg->cm_fields[eAuthor] != NULL) && (msg->cm_fields[eNodeName] != NULL) ) {
+	else if ( (!CM_IsEmpty(msg, eAuthor)) && (!CM_IsEmpty(msg, eNodeName)) ) {
 		snprintf(my.sender, sizeof my.sender, "%s@%s", msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
 	}
-	else if (msg->cm_fields[eAuthor] != NULL) {
+	else if (!CM_IsEmpty(msg, eAuthor)) {
 		safestrncpy(my.sender, msg->cm_fields[eAuthor], sizeof my.sender);
 	}
 	else {
@@ -600,7 +600,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 
 	/* Keep track of the subject so we can use it for VACATION responses */
-	if (msg->cm_fields[eMsgSubject] != NULL) {
+	if (!CM_IsEmpty(msg, eMsgSubject)) {
 		safestrncpy(my.subject, msg->cm_fields[eMsgSubject], sizeof my.subject);
 	}
 	else {
@@ -608,11 +608,11 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 
 	/* Keep track of the envelope-from address (use body-from if not found) */
-	if (msg->cm_fields[eMessagePath] != NULL) {
+	if (!CM_IsEmpty(msg, eMessagePath)) {
 		safestrncpy(my.envelope_from, msg->cm_fields[eMessagePath], sizeof my.envelope_from);
 		stripallbut(my.envelope_from, '<', '>');
 	}
-	else if (msg->cm_fields[erFc822Addr] != NULL) {
+	else if (!CM_IsEmpty(msg, erFc822Addr)) {
 		safestrncpy(my.envelope_from, msg->cm_fields[erFc822Addr], sizeof my.envelope_from);
 		stripallbut(my.envelope_from, '<', '>');
 	}
@@ -630,13 +630,13 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 
 	/* Keep track of the envelope-to address (use body-to if not found) */
-	if (msg->cm_fields[eenVelopeTo] != NULL) {
+	if (!CM_IsEmpty(msg, eenVelopeTo)) {
 		safestrncpy(my.envelope_to, msg->cm_fields[eenVelopeTo], sizeof my.envelope_to);
 		stripallbut(my.envelope_to, '<', '>');
 	}
-	else if (msg->cm_fields[eRecipient] != NULL) {
+	else if (!CM_IsEmpty(msg, eRecipient)) {
 		safestrncpy(my.envelope_to, msg->cm_fields[eRecipient], sizeof my.envelope_to);
-		if (msg->cm_fields[eDestination] != NULL) {
+		if (!CM_IsEmpty(msg, eDestination)) {
 			strcat(my.envelope_to, "@");
 			strcat(my.envelope_to, msg->cm_fields[eDestination]);
 		}

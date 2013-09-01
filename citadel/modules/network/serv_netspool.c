@@ -166,7 +166,7 @@ void Netmap_AddMe(struct CtdlMessage *msg, const char *defl, long defllen)
 	char buf[SIZ];
 
 	/* prepend our node to the path */
-	if (msg->cm_fields[eMessagePath] == NULL) {
+	if (CM_IsEmpty(msg, eMessagePath)) {
 		CM_SetField(msg, eMessagePath, defl, defllen);
 	}
 	node_len = strlen(config.c_nodename);
@@ -459,7 +459,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	}
 
 	/* Check for message routing */
-	if (msg->cm_fields[eDestination] != NULL) {
+	if (!CM_IsEmpty(msg, eDestination)) {
 		if (strcasecmp(msg->cm_fields[eDestination], config.c_nodename)) {
 
 			/* route the message */
@@ -527,7 +527,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	}
 
 	/* Learn network topology from the path */
-	if ((msg->cm_fields[eNodeName] != NULL) && (msg->cm_fields[eMessagePath] != NULL)) {
+	if (!CM_IsEmpty(msg, eNodeName) && !CM_IsEmpty(msg, eMessagePath)) {
 		NetworkLearnTopology(msg->cm_fields[eNodeName], 
 				     msg->cm_fields[eMessagePath], 
 				     the_netmap, 
@@ -537,12 +537,12 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	/* Is the sending node giving us a very persuasive suggestion about
 	 * which room this message should be saved in?  If so, go with that.
 	 */
-	if (msg->cm_fields[eRemoteRoom] != NULL) {
+	if (!CM_IsEmpty(msg, eRemoteRoom)) {
 		safestrncpy(target_room, msg->cm_fields[eRemoteRoom], sizeof target_room);
 	}
 
 	/* Otherwise, does it have a recipient?  If so, validate it... */
-	else if (msg->cm_fields[eRecipient] != NULL) {
+	else if (!CM_IsEmpty(msg, eRecipient)) {
 		recp = validate_recipients(msg->cm_fields[eRecipient], NULL, 0);
 		if (recp != NULL) if (recp->num_error != 0) {
 			network_bounce(msg,
@@ -559,7 +559,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	/* Our last shot at finding a home for this message is to see if
 	 * it has the eOriginalRoom (O) field (Originating room) set.
 	 */
-	else if (msg->cm_fields[eOriginalRoom] != NULL) {
+	else if (!CM_IsEmpty(msg, eOriginalRoom)) {
 		safestrncpy(target_room, msg->cm_fields[eOriginalRoom], sizeof target_room);
 	}
 

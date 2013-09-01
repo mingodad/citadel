@@ -59,7 +59,7 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 	struct jnlq *jptr = NULL;
 
 	/* Avoid double journaling! */
-	if (msg->cm_fields[eJournal] != NULL) {
+	if (!CM_IsEmpty(msg, eJournal)) {
 		FreeStrBuf(&saved_rfc822_version);
 		return;
 	}
@@ -71,11 +71,11 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 	}
 	memset(jptr, 0, sizeof(struct jnlq));
 	if (recps != NULL) memcpy(&jptr->recps, recps, sizeof(struct recptypes));
-	if (msg->cm_fields[eAuthor] != NULL) jptr->from = strdup(msg->cm_fields[eAuthor]);
-	if (msg->cm_fields[eNodeName] != NULL) jptr->node = strdup(msg->cm_fields[eNodeName]);
-	if (msg->cm_fields[erFc822Addr] != NULL) jptr->rfca = strdup(msg->cm_fields[erFc822Addr]);
-	if (msg->cm_fields[eMsgSubject] != NULL) jptr->subj = strdup(msg->cm_fields[eMsgSubject]);
-	if (msg->cm_fields[emessageId] != NULL) jptr->msgn = strdup(msg->cm_fields[emessageId]);
+	if (!CM_IsEmpty(msg, eAuthor)) jptr->from = strdup(msg->cm_fields[eAuthor]);
+	if (!CM_IsEmpty(msg, eNodeName)) jptr->node = strdup(msg->cm_fields[eNodeName]);
+	if (!CM_IsEmpty(msg, erFc822Addr)) jptr->rfca = strdup(msg->cm_fields[erFc822Addr]);
+	if (!CM_IsEmpty(msg, eMsgSubject)) jptr->subj = strdup(msg->cm_fields[eMsgSubject]);
+	if (!CM_IsEmpty(msg, emessageId)) jptr->msgn = strdup(msg->cm_fields[emessageId]);
 	jptr->rfc822 = SmashStrBuf(&saved_rfc822_version);
 
 	/* Add to the queue */
@@ -193,7 +193,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 				     "\r\n"
 				     "Sender: "), 0);
 
-			if (journal_msg->cm_fields[eAuthor])
+			if (CM_IsEmpty(journal_msg, eAuthor))
 				StrBufAppendBufPlain(
 					message_text, 
 					journal_msg->cm_fields[eAuthor], -1, 0);
@@ -202,11 +202,11 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 					message_text, 
 					HKEY("(null)"), 0);
 
-			if (journal_msg->cm_fields[erFc822Addr]) {
+			if (!CM_IsEmpty(journal_msg, erFc822Addr)) {
 				StrBufAppendPrintf(message_text, " <%s>",
 						   journal_msg->cm_fields[erFc822Addr]);
 			}
-			else if (journal_msg->cm_fields[eNodeName]) {
+			else if (!CM_IsEmpty(journal_msg, eNodeName)) {
 				StrBufAppendPrintf(message_text, " @ %s",
 						   journal_msg->cm_fields[eNodeName]);
 			}

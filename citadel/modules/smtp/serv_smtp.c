@@ -320,7 +320,9 @@ void smtp_webcit_preferences_hack_backend(long msgnum, void *userdata) {
 		return;
 	}
 
-	if ( (msg->cm_fields[eMsgSubject]) && (!strcasecmp(msg->cm_fields[eMsgSubject], "__ WebCit Preferences __")) ) {
+	if ( !CM_IsEmpty(msg, eMsgSubject) &&
+	     (!strcasecmp(msg->cm_fields[eMsgSubject], "__ WebCit Preferences __")))
+	{
 		/* This is it!  Change ownership of the message text so it doesn't get freed. */
 		*webcit_conf = (char *)msg->cm_fields[eMesageText];
 		msg->cm_fields[eMesageText] = NULL;
@@ -813,7 +815,7 @@ void smtp_data(long offset, long flags)
 	if ( (CCC->logged_in) && (config.c_rfc822_strict_from != CFG_SMTP_FROM_NOFILTER) ) {
 		int validemail = 0;
 		
-		if (!IsEmptyStr(msg->cm_fields[erFc822Addr])       &&
+		if (!CM_IsEmpty(msg, erFc822Addr)       &&
 		    ((config.c_rfc822_strict_from == CFG_SMTP_FROM_CORRECT) || 
 		     (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)    )  )
 		{
@@ -875,7 +877,7 @@ void smtp_data(long offset, long flags)
 
 	if (scan_errors > 0) {	/* We don't want this message! */
 
-		if (msg->cm_fields[eErrorMsg] == NULL) {
+		if (CM_IsEmpty(msg, eErrorMsg)) {
 			CM_SetField(msg, eErrorMsg, HKEY("Message rejected by filter"));
 		}
 

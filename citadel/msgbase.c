@@ -156,6 +156,13 @@ eMsgField FieldOrder[]  = {
 };
 
 static const long NDiskFields = sizeof(FieldOrder) / sizeof(eMsgField);
+
+int CM_IsEmpty(struct CtdlMessage *Msg, eMsgField which)
+{
+	return !((Msg->cm_fields[which] != NULL) &&
+		 (Msg->cm_fields[which][0] != '\0'));
+}
+
 void CM_SetField(struct CtdlMessage *Msg, eMsgField which, const char *buf, long length)
 {
 	if (Msg->cm_fields[which] != NULL)
@@ -425,11 +432,11 @@ void headers_listing(long msgnum, void *userdata)
 
 	cprintf("%ld|%s|%s|%s|%s|%s|\n",
 		msgnum,
-		(msg->cm_fields[eTimestamp] ? msg->cm_fields[eTimestamp] : "0"),
-		(msg->cm_fields[eAuthor] ? msg->cm_fields[eAuthor] : ""),
-		(msg->cm_fields[eNodeName] ? msg->cm_fields[eNodeName] : ""),
-		(msg->cm_fields[erFc822Addr] ? msg->cm_fields[erFc822Addr] : ""),
-		(msg->cm_fields[eMsgSubject] ? msg->cm_fields[eMsgSubject] : "")
+		(!CM_IsEmpty(msg, eTimestamp) ? msg->cm_fields[eTimestamp] : "0"),
+		(!CM_IsEmpty(msg, eAuthor) ? msg->cm_fields[eAuthor] : ""),
+		(!CM_IsEmpty(msg, eNodeName) ? msg->cm_fields[eNodeName] : ""),
+		(!CM_IsEmpty(msg, erFc822Addr) ? msg->cm_fields[erFc822Addr] : ""),
+		(!CM_IsEmpty(msg, eMsgSubject) ? msg->cm_fields[eMsgSubject] : "")
 	);
 	CtdlFreeMessage(msg);
 }
@@ -449,8 +456,8 @@ void headers_euid(long msgnum, void *userdata)
 
 	cprintf("%ld|%s|%s\n", 
 		msgnum, 
-		(msg->cm_fields[eExclusiveID] ? msg->cm_fields[eExclusiveID] : ""),
-		(msg->cm_fields[eTimestamp] ? msg->cm_fields[eTimestamp] : "0"));
+		(!CM_IsEmpty(msg, eExclusiveID) ? msg->cm_fields[eExclusiveID] : ""),
+		(!CM_IsEmpty(msg, eTimestamp) ? msg->cm_fields[eTimestamp] : "0"));
 	CtdlFreeMessage(msg);
 }
 
@@ -1398,14 +1405,14 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * so go ahead and fetch that.  Failing that, just set a dummy
 	 * body so other code doesn't barf.
 	 */
-	if ( (ret->cm_fields[eMesageText] == NULL) && (with_body) ) {
+	if ( (CM_IsEmpty(ret, eMesageText)) && (with_body) ) {
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
 			CM_SetAsField(ret, eMesageText, &dmsgtext->ptr, dmsgtext->len);
 			cdb_free(dmsgtext);
 		}
 	}
-	if (ret->cm_fields[eMesageText] == NULL) {
+	if (CM_IsEmpty(ret, eMesageText)) {
 		CM_SetField(ret, eMesageText, HKEY("\r\n\r\n (no text)\r\n"));
 	}
 
@@ -2148,7 +2155,7 @@ void OutputCtdlMsgHeaders(
 
 	/* begin header processing loop for Citadel message format */
 	safestrncpy(display_name, "<unknown>", sizeof display_name);
-	if (TheMessage->cm_fields[eAuthor]) {
+	if (!CM_IsEmpty(TheMessage, eAuthor)) {
 		strcpy(buf, TheMessage->cm_fields[eAuthor]);
 		if (TheMessage->cm_anon_type == MES_ANONONLY) {
 			safestrncpy(display_name, "****", sizeof display_name);
@@ -2173,18 +2180,18 @@ void OutputCtdlMsgHeaders(
 	 * local Citadel network.
 	 */
 	suppress_f = 0;
-	if (TheMessage->cm_fields[eNodeName] != NULL)
-		if (!IsEmptyStr(TheMessage->cm_fields[eNodeName]))
-			if (haschar(TheMessage->cm_fields[eNodeName], '.') == 0) {
-				suppress_f = 1;
-			}
+	if (!CM_IsEmpty(TheMessage, eNodeName) &&
+	    (haschar(TheMessage->cm_fields[eNodeName], '.') == 0))
+	{
+		suppress_f = 1;
+	}
 
 	/* Now spew the header fields in the order we like them. */
 	for (i=0; i< NDiskFields; ++i) {
 		eMsgField Field;
 		Field = FieldOrder[i];
 		if (Field != eMesageText) {
-			if ( (TheMessage->cm_fields[Field] != NULL)
+			if ( (!CM_IsEmpty(TheMessage, Field))
 			     && (msgkeys[Field] != NULL) ) {
 				if ((Field == eenVelopeTo) ||
 				    (Field == eRecipient) ||
@@ -2525,7 +2532,7 @@ int CtdlOutputPreLoadedMsg(
 	/* Suppress envelope recipients if required to avoid disclosing BCC addresses.
 	 * Pad it with spaces in order to avoid changing the RFC822 length of the message.
 	 */
-	if ( (flags & SUPPRESS_ENV_TO) && (TheMessage->cm_fields[eenVelopeTo] != NULL) ) {
+	if ( (flags & SUPPRESS_ENV_TO) && (!CM_IsEmpty(TheMessage, eenVelopeTo)) ) {
 		memset(TheMessage->cm_fields[eenVelopeTo], ' ', strlen(TheMessage->cm_fields[eenVelopeTo]));
 	}
 		
@@ -3013,7 +3020,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 				ReplicationChecks(msg);
 		
 				/* If the message has an Exclusive ID, index that... */
-				if (msg->cm_fields[eExclusiveID] != NULL) {
+				if (!CM_IsEmpty(msg, eExclusiveID)) {
 					index_message_by_euid(msg->cm_fields[eExclusiveID], &CCC->room, msgid);
 				}
 
@@ -3091,12 +3098,12 @@ long send_message(struct CtdlMessage *msg) {
 		);
 
 	/* Generate an ID if we don't have one already */
-	if (msg->cm_fields[emessageId]==NULL) {
+	if (CM_IsEmpty(msg, emessageId)) {
 		CM_SetField(msg, emessageId, msgidbuf, msgidbuflen);
 	}
 
 	/* If the message is big, set its body aside for storage elsewhere */
-	if (msg->cm_fields[eMesageText] != NULL) {
+	if (!CM_IsEmpty(msg, eMesageText)) {
 		if (strlen(msg->cm_fields[eMesageText]) > BIGMSG) {
 			is_bigmsg = 1;
 			holdM = msg->cm_fields[eMesageText];
@@ -3231,8 +3238,8 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 
 	/* No exclusive id?  Don't do anything. */
 	if (msg == NULL) return;
-	if (msg->cm_fields[eExclusiveID] == NULL) return;
-	if (IsEmptyStr(msg->cm_fields[eExclusiveID])) return;
+	if (CM_IsEmpty(msg, eExclusiveID)) return;
+
 	/*MSG_syslog(LOG_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
 	  msg->cm_fields[eExclusiveID], CCC->room.QRname);*/
 
@@ -3287,14 +3294,14 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If this message has no timestamp, we take the liberty of
 	 * giving it one, right now.
 	 */
-	if (msg->cm_fields[eTimestamp] == NULL) {
+	if (CM_IsEmpty(msg, eTimestamp)) {
 		CM_SetFieldLONG(msg, eTimestamp, time(NULL));
 	}
 
 	/* If this message has no path, we generate one.
 	 */
-	if (msg->cm_fields[eMessagePath] == NULL) {
-		if (msg->cm_fields[eAuthor] != NULL) {
+	if (CM_IsEmpty(msg, eMessagePath)) {
+		if (!CM_IsEmpty(msg, eAuthor)) {
 			CM_CopyField(msg, eMessagePath, eAuthor);
 			for (a=0; !IsEmptyStr(&msg->cm_fields[eMessagePath][a]); ++a) {
 				if (isspace(msg->cm_fields[eMessagePath][a])) {
@@ -3303,7 +3310,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			}
 		}
 		else {
-			CM_SetField(msg,eMessagePath, HKEY("unknown"));
+			CM_SetField(msg, eMessagePath, HKEY("unknown"));
 		}
 	}
 
@@ -3315,7 +3322,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Learn about what's inside, because it's what's inside that counts */
-	if (msg->cm_fields[eMesageText] == NULL) {
+	if (CM_IsEmpty(msg, eMesageText)) {
 		MSGM_syslog(LOG_ERR, "ERROR: attempt to save message with NULL body\n");
 		return(-2);
 	}
@@ -3379,7 +3386,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/*
 	 * If this message has no O (room) field, generate one.
 	 */
-	if (msg->cm_fields[eOriginalRoom] == NULL) {
+	if (CM_IsEmpty(msg, eOriginalRoom)) {
 		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
 	}
 
@@ -3532,12 +3539,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Perform "after save" hooks */
 	MSGM_syslog(LOG_DEBUG, "Performing after-save hooks\n");
-	if (msg->cm_fields[eVltMsgNum] != NULL) free(msg->cm_fields[eVltMsgNum]);
-	msg->cm_fields[eVltMsgNum] = malloc(20);
-	snprintf(msg->cm_fields[eVltMsgNum], 20, "%ld", newmsgid);
+
+	CM_SetFieldLONG(msg, eVltMsgNum, newmsgid);
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
-	free(msg->cm_fields[eVltMsgNum]);
-	msg->cm_fields[eVltMsgNum] = NULL;
+	CM_FlushField(msg, eVltMsgNum);
 
 	/* For IGnet mail, we have to save a new copy into the spooler for
 	 * each recipient, with the R and D fields set to the recipient and
@@ -3667,7 +3672,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/*
 	 * Determine whether this message qualifies for journaling.
 	 */
-	if (msg->cm_fields[eJournal] != NULL) {
+	if (!CM_IsEmpty(msg, eJournal)) {
 		qualified_for_journaling = 0;
 	}
 	else {
@@ -4912,7 +4917,7 @@ void cmd_ent0(char *entargs)
 				client_write(HKEY("Internal error.\n"));
 			}
 
-			if (msg->cm_fields[eExclusiveID] != NULL) {
+			if (!CM_IsEmpty(msg, eExclusiveID)) {
 				cprintf("%s\n", msg->cm_fields[eExclusiveID]);
 			} else {
 				cprintf("\n");

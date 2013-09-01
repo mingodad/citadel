@@ -589,7 +589,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		parsed_date = parsedate(value);
 		if (parsed_date < 0L) parsed_date = time(NULL);
 
-		if (msg->cm_fields[eTimestamp] == NULL)
+		if (CM_IsEmpty(msg, eTimestamp))
 			CM_SetFieldLONG(msg, eTimestamp, parsed_date);
 		processed = 1;
 	}
@@ -598,39 +598,39 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		process_rfc822_addr(value, user, node, name);
 		syslog(LOG_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof(addr), "%s@%s", user, node);
-		if (msg->cm_fields[eAuthor] == NULL)
+		if (CM_IsEmpty(msg, eAuthor))
 			CM_SetField(msg, eAuthor, name, strlen(name));
-		if (msg->cm_fields[erFc822Addr] == NULL)
+		if (CM_IsEmpty(msg, erFc822Addr))
 			CM_SetField(msg, erFc822Addr, addr, strlen(addr));
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Subject")) {
-		if (msg->cm_fields[eMsgSubject] == NULL)
+		if (CM_IsEmpty(msg, eMsgSubject))
 			CM_SetField(msg, eMsgSubject, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "List-ID")) {
-		if (msg->cm_fields[eListID] == NULL)
+		if (CM_IsEmpty(msg, eListID))
 			CM_SetField(msg, eListID, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "To")) {
-		if (msg->cm_fields[eRecipient] == NULL)
+		if (CM_IsEmpty(msg, eRecipient))
 			CM_SetField(msg, eRecipient, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "CC")) {
-		if (msg->cm_fields[eCarbonCopY] == NULL)
+		if (CM_IsEmpty(msg, eCarbonCopY))
 			CM_SetField(msg, eCarbonCopY, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Message-ID")) {
-		if (msg->cm_fields[emessageId] != NULL) {
+		if (!CM_IsEmpty(msg, emessageId)) {
 			syslog(LOG_WARNING, "duplicate message id\n");
 		}
 		else {
@@ -658,13 +658,13 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 	}
 
 	else if (!strcasecmp(key, "Return-Path")) {
-		if (msg->cm_fields[eMessagePath] == NULL)
+		if (CM_IsEmpty(msg, eMessagePath))
 			CM_SetField(msg, eMessagePath, value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Envelope-To")) {
-		if (msg->cm_fields[eenVelopeTo] == NULL)
+		if (CM_IsEmpty(msg, eenVelopeTo))
 			CM_SetField(msg, eenVelopeTo, value, valuelen);
 		processed = 1;
 	}
@@ -680,7 +680,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 	}
 
 	else if (!strcasecmp(key, "In-reply-to")) {
-		if (msg->cm_fields[eWeferences] == NULL) /* References: supersedes In-reply-to: */
+		if (CM_IsEmpty(msg, eWeferences)) /* References: supersedes In-reply-to: */
 			CM_SetField(msg, eWeferences, value, valuelen);
 		processed = 1;
 	}
@@ -821,14 +821,14 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
 	/* Follow-up sanity checks... */
 
 	/* If there's no timestamp on this message, set it to now. */
-	if (msg->cm_fields[eTimestamp] == NULL) {
+	if (CM_IsEmpty(msg, eTimestamp)) {
 		CM_SetFieldLONG(msg, eTimestamp, time(NULL));
 	}
 
 	/* If a W (references, or rather, Wefewences) field is present, we
 	 * have to convert it from RFC822 format to Citadel format.
 	 */
-	if (msg->cm_fields[eWeferences] != NULL) {
+	if (!CM_IsEmpty(msg, eWeferences)) {
 		/// todo: API!
 		convert_references_to_wefewences(msg->cm_fields[eWeferences]);
 	}
@@ -1022,10 +1022,10 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 
 	is_harvestable = 1;
 	strcpy(addr, "");	
-	if (msg->cm_fields[eAuthor] != NULL) {
+	if (!CM_IsEmpty(msg, eAuthor)) {
 		strcat(addr, msg->cm_fields[eAuthor]);
 	}
-	if (msg->cm_fields[erFc822Addr] != NULL) {
+	if (!CM_IsEmpty(msg, erFc822Addr)) {
 		strcat(addr, " <");
 		strcat(addr, msg->cm_fields[erFc822Addr]);
 		strcat(addr, ">");
@@ -1048,7 +1048,7 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 		if (i == 0) field = eRecipient;
 		if (i == 1) field = eCarbonCopY;
 
-		if (msg->cm_fields[field] != NULL) {
+		if (!CM_IsEmpty(msg, field)) {
 			for (j=0; j<num_tokens(msg->cm_fields[field], ','); ++j) {
 				extract_token(addr, msg->cm_fields[field], j, ',', sizeof addr);
 				if (strstr(addr, "=?") != NULL)

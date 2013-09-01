@@ -2407,7 +2407,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 		return(1);		/* You tried to save a non-RFC822 message! */
 	}
 
-	if (msg->cm_fields[eMesageText] == NULL) {
+	if (CM_IsEmpty(msg, eMesageText)) {
 		return(1);		/* You tried to save a null message! */
 	}
 
@@ -2478,7 +2478,7 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 	if (msg->cm_format_type != 4) return(1);
 
 	/* Reject null messages */
-	if (msg->cm_fields[eMesageText] == NULL) return(1);
+	if (CM_IsEmpty(msg, eMesageText)) return(1);
 	
 	/* Now recurse through it looking for our icalendar data */
 	mime_parser(msg->cm_fields[eMesageText],

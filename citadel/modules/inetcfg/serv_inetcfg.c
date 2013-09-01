@@ -66,7 +66,7 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 	char *conf;
 	char buf[SIZ];
 	
-	if (msg->cm_fields[eMesageText]==NULL) return;
+	if (CM_IsEmpty(msg, eMesageText)) return;
 	conf = strdup(msg->cm_fields[eMesageText]);
 
 	if (conf != NULL) {

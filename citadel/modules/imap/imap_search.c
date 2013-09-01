@@ -142,7 +142,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields[eTimestamp] != NULL) {
+			if (!CM_IsEmpty(msg, eTimestamp)) {
 				if (imap_datecmp(itemlist[pos+1].Key,
 						atol(msg->cm_fields[eTimestamp])) < 0) {
 					match = 1;
@@ -308,7 +308,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields[eTimestamp] != NULL) {
+			if (!CM_IsEmpty(msg, eTimestamp)) {
 				if (imap_datecmp(itemlist[pos+1].Key,
 						atol(msg->cm_fields[eTimestamp])) == 0) {
 					match = 1;
@@ -338,7 +338,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields[eTimestamp] != NULL) {
+			if (!CM_IsEmpty(msg, eTimestamp)) {
 				if (imap_datecmp(itemlist[pos+1].Key,
 						atol(msg->cm_fields[eTimestamp])) < 0) {
 					match = 1;
@@ -354,7 +354,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields[eTimestamp] != NULL) {
+			if (!CM_IsEmpty(msg, eTimestamp)) {
 				if (imap_datecmp(itemlist[pos+1].Key,
 						atol(msg->cm_fields[eTimestamp])) == 0) {
 					match = 1;
@@ -370,7 +370,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields[eTimestamp] != NULL) {
+			if (!CM_IsEmpty(msg, eTimestamp)) {
 				if (imap_datecmp(itemlist[pos+1].Key,
 						atol(msg->cm_fields[eTimestamp])) >= 0) {
 					match = 1;
@@ -386,7 +386,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (msg->cm_fields[eTimestamp] != NULL) {
+			if (!CM_IsEmpty(msg, eTimestamp)) {
 				if (imap_datecmp(itemlist[pos+1].Key,
 						atol(msg->cm_fields[eTimestamp])) >= 0) {
 					match = 1;

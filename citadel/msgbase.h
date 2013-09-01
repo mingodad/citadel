@@ -164,6 +164,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 );
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
 struct CtdlMessage * CtdlDuplicateMessage(struct CtdlMessage *OrgMsg);
+int  CM_IsEmpty        (struct CtdlMessage *Msg, eMsgField which);
 void CM_SetField       (struct CtdlMessage *Msg, eMsgField which, const char *buf, long length);
 void CM_SetFieldLONG   (struct CtdlMessage *Msg, eMsgField which, long lvalue);
 void CM_CopyField      (struct CtdlMessage *Msg, eMsgField WhichToPutTo, eMsgField WhichtToCopy);

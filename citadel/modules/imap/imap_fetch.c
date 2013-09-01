@@ -110,7 +110,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 	time_t msgdate;
 
 	if (!msg) return;
-	if (msg->cm_fields[eTimestamp] != NULL) {
+	if (!CM_IsEmpty(msg, eTimestamp)) {
 		msgdate = atol(msg->cm_fields[eTimestamp]);
 	}
 	else {
@@ -359,7 +359,7 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 	IAPuts(" NIL ");	/* source route (not used) */
 
 
-	if (msg->cm_fields[erFc822Addr] != NULL) {
+	if (!CM_IsEmpty(msg, erFc822Addr)) {
 		process_rfc822_addr(msg->cm_fields[erFc822Addr], user, node, name);
 		plain_imap_strout(user);		/* mailbox name (user id) */
 		IAPuts(" ");
@@ -445,7 +445,7 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	if (!msg) return;
 
 	/* Parse the message date into an IMAP-format date string */
-	if (msg->cm_fields[eTimestamp] != NULL) {
+	if (!CM_IsEmpty(msg, eTimestamp)) {
 		msgdate = atol(msg->cm_fields[eTimestamp]);
 	}
 	else {

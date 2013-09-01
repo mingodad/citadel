@@ -149,28 +149,28 @@ int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
 		zap_room = 0;
 		zap_node = 0;
 
-		if (msg->cm_fields[eAuthor] != NULL) {
+		if (!CM_IsEmpty(msg, eAuthor)) {
 			if ( (!strcasecmp(msg->cm_fields[eAuthor], fptr->fl_user))
 			   || (fptr->fl_user[0] == 0) ) {
 				zap_user = 1;
 			}
 		}
 
-		if (msg->cm_fields[eRemoteRoom] != NULL) {
+		if (!CM_IsEmpty(msg, eRemoteRoom)) {
 			if ( (!strcasecmp(msg->cm_fields[eRemoteRoom], fptr->fl_room))
 			   || (fptr->fl_room[0] == 0) ) {
 				zap_room = 1;
 			}
 		}
 
-		if (msg->cm_fields[eOriginalRoom] != NULL) {
+		if (!CM_IsEmpty(msg, eOriginalRoom)) {
 			if ( (!strcasecmp(msg->cm_fields[eOriginalRoom], fptr->fl_room))
 			   || (fptr->fl_room[0] == 0) ) {
 				zap_room = 1;
 			}
 		}
 
-		if (msg->cm_fields[eNodeName] != NULL) {
+		if (!CM_IsEmpty(msg, eNodeName)) {
 			if ( (!strcasecmp(msg->cm_fields[eNodeName], fptr->fl_node))
 			   || (fptr->fl_node[0] == 0) ) {
 				zap_node = 1;

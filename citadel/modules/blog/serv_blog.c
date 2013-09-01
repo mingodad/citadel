@@ -72,7 +72,7 @@ int blog_upload_beforesave(struct CtdlMessage *msg) {
 	/* 
 	 * If the message doesn't have an EUID, give it one.
 	 */
-	if (msg->cm_fields[eExclusiveID] == NULL)
+	if (CM_IsEmpty(msg, eExclusiveID))
 	{
 		char uuid[SIZ];
 		generate_uuid(uuid);
