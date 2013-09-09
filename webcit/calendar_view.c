@@ -17,8 +17,8 @@
 #include "calendar.h"
 
 /* These define how high the hour rows are in the day view */
-#define TIMELINE	30
-#define EXTRATIMELINE	(TIMELINE / 2)
+#define TIMELINE	22
+#define EXTRATIMELINE	22
 
 void embeddable_mini_calendar(int year, int month)
 {
