@@ -265,6 +265,7 @@ eNextState EvaluateResult(AsyncIO *IO)
 		CtdlAideMessage(ChrPtr(ErrMsg),
 				"External notifier: "
 				"unable to contact notification host!");
+		FreeStrBuf(&ErrMsg);
 	}
 
 	syslog(LOG_DEBUG, "Funambol notified\n");
@@ -301,7 +302,7 @@ eNextState EvaluateResult(AsyncIO *IO)
 	///if (SOAPMessage != NULL) free(SOAPMessage);
 	///if (buf != NULL) free(buf);
 	///FreeStrBuf (&ReplyBuf);
-	return 0;
+	return eTerminateConnection;
 }
 
 eNextState ExtNotifyTerminateDB(AsyncIO *IO)
