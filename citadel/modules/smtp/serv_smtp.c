@@ -20,15 +20,15 @@
  * The VRFY and EXPN commands have been removed from this implementation
  * because nobody uses these commands anymore, except for spammers.
  *
- * Copyright (c) 1998-2012 by the citadel.org team
+ * Copyright (c) 1998-2013 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *  
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -148,6 +148,8 @@ void smtp_greeting(int is_msa)
 	sSMTP->from = NewStrBufPlain(NULL, SIZ);
 	sSMTP->recipients = NewStrBufPlain(NULL, SIZ);
 	sSMTP->OneRcpt = NewStrBufPlain(NULL, SIZ);
+	sSMTP->preferred_sender_email = NULL;
+	sSMTP->preferred_sender_name = NULL;
 
 	/* If this config option is set, reject connections from problem
 	 * addresses immediately instead of after they execute a RCPT
@@ -339,6 +341,7 @@ void smtp_webcit_preferences_hack_backend(long msgnum, void *userdata) {
 void smtp_webcit_preferences_hack(void) {
 	char config_roomname[ROOMNAMELEN];
 	char *webcit_conf = NULL;
+	citsmtp *sSMTP = SMTP;
 
 	snprintf(config_roomname, sizeof config_roomname, "%010ld.%s", CC->user.usernum, USERCONFIGROOM);
 	if (CtdlGetRoom(&CC->room, config_roomname) != 0) {
@@ -355,10 +358,24 @@ void smtp_webcit_preferences_hack(void) {
 		return;
 	}
 
-	/* FIXME : now do something with this data */
+	/* Parse the webcit configuration and attempt to do something useful with it */
+	char *str = webcit_conf;
+	char *saveptr = str;
+	char *this_line = NULL;
+	while (this_line = strtok_r(str, "\n", &saveptr), this_line != NULL) {
+		str = NULL;
+		if (!strncasecmp(this_line, "defaultfrom|", 12)) {
+			sSMTP->preferred_sender_email = NewStrBufPlain(&this_line[12], -1);
+		}
+		if (!strncasecmp(this_line, "defaultname|", 12)) {
+			sSMTP->preferred_sender_name = NewStrBufPlain(&this_line[12], -1);
+		}
+		if ((!strncasecmp(this_line, "defaultname|", 12)) && (sSMTP->preferred_sender_name == NULL)) {
+			sSMTP->preferred_sender_name = NewStrBufPlain(&this_line[12], -1);
+		}
 
+	}
 	free(webcit_conf);
-	abort();
 }
 
 
@@ -447,7 +464,7 @@ void smtp_try_plain(long offset, long Flags)
 
 	if (result == login_ok) {
 		if (CtdlTryPassword(pass, len) == pass_ok) {
-////			smtp_webcit_preferences_hack();
+			smtp_webcit_preferences_hack();
 			smtp_auth_greeting(offset, Flags);
 			return;
 		}
@@ -842,13 +859,19 @@ void smtp_data(long offset, long flags)
 			return;
 		}
 
-		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 		CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
 		CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
         	CM_SetField(msg, eOriginalRoom, HKEY(MAILROOM));
+		if (sSMTP->preferred_sender_name != NULL)
+			CM_SetFieldSB(msg, eAuthor, sSMTP->preferred_sender_name);
+		else 
+			CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 
 		if (!validemail) {
-			CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
+			if((sSMTP->preferred_sender_email != NULL)
+				CM_SetFieldSB(msg, erFc822Addr, sSMTP->preferred_sender_email)) 
+			else
+				CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
 		}
 	}
 
@@ -1048,6 +1071,8 @@ void smtp_cleanup_function(void)
 	FreeStrBuf(&sSMTP->from);
 	FreeStrBuf(&sSMTP->recipients);
 	FreeStrBuf(&sSMTP->OneRcpt);
+	FreeStrBuf(&sSMTP->preferred_sender_email);
+	FreeStrBuf(&sSMTP->preferred_sender_name);
 
 	free(sSMTP);
 }

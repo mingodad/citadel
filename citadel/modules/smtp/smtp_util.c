@@ -287,6 +287,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
 	CM_SetAsFieldSB(bmsg, eMesageText, &BounceMB);
+
 	/* Deliver the bounce if there's anything worth mentioning */
 	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {

@@ -1,7 +1,7 @@
 /*
  * parse urlparts and post data
  *
- * Copyright (c) 1996-2012 by the citadel.org team
+ * Copyright (c) 1996-2013 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -15,6 +15,10 @@
 #include "webcit.h"
 #include "webserver.h"
 
+/* uncomment to see all parameters sent to the server by the browser. */
+/* #define DEBUG_URLSTRINGS */
+
+
 void free_url(void *U)
 {
 	urlcontent *u = (urlcontent*) U;
@@ -27,19 +31,21 @@ void free_url(void *U)
  */
 void ParseURLParams(StrBuf *url)
 {
-	const char *aptr, *bptr, *eptr, *up;
-	int len, keylen;
-	urlcontent *u;
+	const char *aptr, *bptr, *eptr, *up = NULL;
+	int len, keylen = 0;
+	urlcontent *u = NULL;
 	wcsession *WCC = WC;
 
-	if (WCC->Hdr->urlstrings == NULL)
+	if (WCC->Hdr->urlstrings == NULL) {
 		WCC->Hdr->urlstrings = NewHash(1, NULL);
+	}
 	eptr = ChrPtr(url) + StrLength(url);
 	up = ChrPtr(url);
 	while ((up < eptr) && (!IsEmptyStr(up))) {
 		aptr = up;
-		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
+		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '=')) {
 			aptr++;
+		}
 		if (*aptr != '=') {
 			return;
 		}
@@ -50,16 +56,17 @@ void ParseURLParams(StrBuf *url)
 			bptr++;
 		}
 		keylen = aptr - up - 1; /* -1 -> '=' */
-		if(keylen >= sizeof(u->url_key)) {
-			syslog(LOG_WARNING, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
-			return;
+		if (keylen > sizeof(u->url_key)) {
+			syslog(LOG_WARNING, "%s:%d: invalid url_key of size %d in string size %d",
+				__FILE__, __LINE__, keylen, sizeof(u->url_key)
+			);
 		}
 
 		u = (urlcontent *) malloc(sizeof(urlcontent));
 		memcpy(u->url_key, up, keylen);
 		u->url_key[keylen] = '\0';
 		if (keylen < 0) {
-			syslog(LOG_WARNING, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
+			syslog(LOG_WARNING, "%s:%d: invalid url_key of size %d", __FILE__, __LINE__, keylen);
 			free(u);
 			return;
 		}
@@ -357,7 +364,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		WCC->upload_filename = NewStrBufPlain(filename, -1);
 		safestrncpy(WCC->upload_content_type, cbtype, sizeof(WC->upload_content_type));
 #ifdef DEBUG_URLSTRINGS
-		syslog(LOG_DEBUG, "File: <%s> len: [%ld]", filename, length);
+		syslog(LOG_DEBUG, "File: <%s> len: [%ld]", filename, (long int)length);
 #endif
 		
 	}
@@ -367,10 +374,9 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 void PutBstr(const char *key, long keylen, StrBuf *Value)
 {
 	urlcontent *u;
-	wcsession *WCC = WC;
 
 	if(keylen >= sizeof(u->url_key)) {
-		syslog(LOG_WARNING, "invalid url_key from %s", ChrPtr(WCC->Hdr->HR.browser_host));
+		syslog(LOG_WARNING, "%s:%d: invalid url_key of size %ld", __FILE__, __LINE__, keylen);
 		FreeStrBuf(&Value);
 		return;
 	}

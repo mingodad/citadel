@@ -1,7 +1,7 @@
 /*
  * main header file for ctdlsh
  *
- * Copyright (c) 2009-2012 by the citadel.org team
+ * Copyright (c) 2009-2013 by the citadel.org team
  * This program is open source software, cheerfully made available to
  * you under the terms of the GNU General Public License version 3.
  */
@@ -28,7 +28,9 @@
  * Set to the location of Citadel
  * FIXME this needs to be configurable
  */
+#ifndef CTDLDIR
 #define CTDLDIR	"/usr/local/citadel"
+#endif
 
 typedef int ctdlsh_cmdfunc_t(int, char *);
 
