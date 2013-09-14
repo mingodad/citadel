@@ -45,9 +45,6 @@ void do_async_loop(void);
 void begin_session(struct CitContext *con);
 void citproto_begin_session(void);
 void citproto_begin_admin_session(void);
-void GenerateRoomDisplay(char *real_room,
-                        CitContext *viewed,
-                        CitContext *viewer);
 
 void help_subst (char *strbuf, char *source, char *dest);
 

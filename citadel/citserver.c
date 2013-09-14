@@ -368,36 +368,6 @@ int CtdlIsPublicClient(void)
 
 
 
-
-/* Don't show the names of private rooms unless the viewing
- * user also knows the rooms.
- */
-void GenerateRoomDisplay(char *real_room,
-			CitContext *viewed,
-			CitContext *viewer) {
-
-	int ra;
-
-	strcpy(real_room, viewed->room.QRname);
-	if (viewed->room.QRflags & QR_MAILBOX) {
-		strcpy(real_room, &real_room[11]);
-	}
-	if (viewed->room.QRflags & QR_PRIVATE) {
-		CtdlRoomAccess(&viewed->room, &viewer->user, &ra, NULL);
-		if ( (ra & UA_KNOWN) == 0) {
-			strcpy(real_room, " ");
-		}
-	}
-
-	if (viewed->cs_flags & CS_CHAT) {
-		while (strlen(real_room) < 14) {
-			strcat(real_room, " ");
-		}
-		strcpy(&real_room[14], "<chat>");
-	}
-
-}
-
 /*
  * Convenience function.
  */
