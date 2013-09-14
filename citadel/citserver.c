@@ -443,84 +443,6 @@ int CtdlAccessCheck(int required_level) {
 
 
 
-/*
- * Shut down the server
- */
-void cmd_down(char *argbuf) {
-	char *Reply ="%d Shutting down server.  Goodbye.\n";
-
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	if (!IsEmptyStr(argbuf))
-	{
-		int state = CIT_OK;
-		restart_server = extract_int(argbuf, 0);
-		
-		if (restart_server > 0)
-		{
-			Reply = "%d citserver will now shut down and automatically restart.\n";
-		}
-		if ((restart_server > 0) && !running_as_daemon)
-		{
-			syslog(LOG_ERR, "The user requested restart, but not running as daemon! Geronimooooooo!\n");
-			Reply = "%d Warning: citserver is not running in daemon mode and is therefore unlikely to restart automatically.\n";
-			state = ERROR;
-		}
-		cprintf(Reply, state);
-	}
-	else
-	{
-		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN); 
-	}
-	CC->kill_me = KILLME_SERVER_SHUTTING_DOWN;
-	server_shutting_down = 1;
-}
-
-
-/*
- * Halt the server without exiting the server process.
- */
-void cmd_halt(char *argbuf) {
-
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	cprintf("%d Halting server.  Goodbye.\n", CIT_OK);
-	server_shutting_down = 1;
-	shutdown_and_halt = 1;
-}
-
-
-/*
- * Schedule or cancel a server shutdown
- */
-void cmd_scdn(char *argbuf)
-{
-	int new_state;
-	int state = CIT_OK;
-	char *Reply = "%d %d\n";
-
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	new_state = extract_int(argbuf, 0);
-	if ((new_state == 2) || (new_state == 3))
-	{
-		restart_server = 1;
-		if (!running_as_daemon)
-		{
-			syslog(LOG_ERR, "The user requested restart, but not running as deamon! Geronimooooooo!\n");
-			Reply = "%d %d Warning, not running in deamon mode. maybe we will come up again, but don't lean on it.\n";
-			state = ERROR;
-		}
-
-		restart_server = extract_int(argbuf, 0);
-		new_state -= 2;
-	}
-	if ((new_state == 0) || (new_state == 1)) {
-		ScheduledShutdown = new_state;
-	}
-	cprintf(Reply, state, ScheduledShutdown);
-}
-
 
 
 /*
@@ -707,18 +629,3 @@ void do_async_loop(void) {
 	PerformSessionHooks(EVT_ASYNC);
 }
 
-
-/*****************************************************************************/
-/*                      MODULE INITIALIZATION STUFF                          */
-/*****************************************************************************/
-
-CTDL_MODULE_INIT(citserver)
-{
-	if (!threading) {
-		CtdlRegisterProtoHook(cmd_down, "DOWN", "perform a server shutdown");
-		CtdlRegisterProtoHook(cmd_halt, "HALT", "halt the server without exiting the server process");
-		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "schedule or cancel a server shutdown");
-	}
-        /* return our id for the Log */
-	return "citserver";
-}
