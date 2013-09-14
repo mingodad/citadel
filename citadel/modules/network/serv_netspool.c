@@ -72,7 +72,6 @@
 #include "internet_addressing.h"
 #include "serv_network.h"
 #include "clientsocket.h"
-#include "file_ops.h"
 #include "citadel_dirs.h"
 #include "threads.h"
 #include "context.h"

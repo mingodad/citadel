@@ -49,7 +49,6 @@
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"
-#include "file_ops.h"
 #include "control.h"
 #include "msgbase.h"
 #include "config.h"
@@ -763,21 +762,6 @@ void CtdlUserLogout(void)
 	CON_syslog(LOG_DEBUG, "CtdlUserLogout() logging out <%s> from session %d",
 		   CCC->curr_user, CCC->cs_pid
 	);
-
-	/*
-	 * If there is a download in progress, abort it.
-	 */
-	if (CCC->download_fp != NULL) {
-		fclose(CCC->download_fp);
-		CCC->download_fp = NULL;
-	}
-
-	/*
-	 * If there is an upload in progress, abort it.
-	 */
-	if (CCC->upload_fp != NULL) {
-		abort_upl(CCC);
-	}
 
 	/* Run any hooks registered by modules... */
 	PerformSessionHooks(EVT_LOGOUT);

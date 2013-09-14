@@ -30,7 +30,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "config.h"
-#include "file_ops.h"
+#include "files.h"
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"
@@ -778,6 +778,26 @@ void cmd_nuop(char *cmdbuf)
 	CC->upload_type = UPL_NET;
 	cprintf("%d Ok\n", CIT_OK);
 }
+void files_logout_hook(void)
+{
+        CitContext *CCC = MyContext();
+
+	/*
+	 * If there is a download in progress, abort it.
+	 */
+	if (CCC->download_fp != NULL) {
+		fclose(CCC->download_fp);
+		CCC->download_fp = NULL;
+	}
+
+	/*
+	 * If there is an upload in progress, abort it.
+	 */
+	if (CCC->upload_fp != NULL) {
+		abort_upl(CCC);
+	}
+
+}
 
 
 /*****************************************************************************/
@@ -787,6 +807,7 @@ void cmd_nuop(char *cmdbuf)
 CTDL_MODULE_INIT(file_ops)
 {
 	if (!threading) {
+                CtdlRegisterSessionHook(files_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 8);
 
 		CtdlRegisterProtoHook(cmd_delf, "DELF", "Delete a file");
 		CtdlRegisterProtoHook(cmd_movf, "MOVF", "Move a file");

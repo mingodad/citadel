@@ -49,7 +49,6 @@
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"
-#include "file_ops.h"
 #include "control.h"
 #include "msgbase.h"
 #include "config.h"

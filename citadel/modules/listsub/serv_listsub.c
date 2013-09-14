@@ -48,7 +48,6 @@
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "clientsocket.h"
-#include "file_ops.h"
 #include "ctdl_module.h"
 
 /*

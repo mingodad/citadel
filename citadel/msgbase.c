@@ -52,7 +52,6 @@
 #include "citserver.h"
 #include "room_ops.h"
 #include "user_ops.h"
-#include "file_ops.h"
 #include "config.h"
 #include "control.h"
 #include "genstamp.h"
@@ -1028,7 +1027,9 @@ void list_this_suff(char *name, char *filename, char *partnum, char *disp,
 
 /*
  * Callback function for mime parser that opens a section for downloading
+ * we use serv_files function here: 
  */
+extern void OpenCmdResult(char *filename, const char *mime_type);
 void mime_download(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
 		   char *encoding, char *cbid, void *cbuserdata)

@@ -76,7 +76,7 @@ SOURCES=utils/aidepost.c utils/citmail.c \
 	utils/ctdlmigrate.c utils/base64.c utils/chkpwd.c \
 	utillib/citadel_dirs.c \
 	citserver.c clientsocket.c config.c control.c $(DATABASE) \
-	domain.c serv_extensions.c file_ops.c genstamp.c \
+	domain.c serv_extensions.c genstamp.c \
 	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
 	locate_host.c auth.c msgbase.c parsedate.c \
 	room_ops.c euidindex.c server_main.c ldap.c \
@@ -131,7 +131,7 @@ SERV_OBJS = server_main.o utillib/citadel_dirs.o event_client.o \
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
 	$(DATABASE:.c=.o) domain.o \
 	control.o config.o support.o room_ops.o \
-	file_ops.o msgbase.o euidindex.o \
+	msgbase.o euidindex.o \
 	locate_host.o housekeeping.o ical_dezonify.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o threads.o context.o \

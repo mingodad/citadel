@@ -52,7 +52,7 @@
 #include "citserver.h"
 #include "room_ops.h"
 #include "user_ops.h"
-#include "file_ops.h"
+#include "files.h"
 #include "config.h"
 #include "control.h"
 #include "genstamp.h"
