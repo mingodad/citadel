@@ -38,7 +38,6 @@
 
 #include <ctype.h>
 #include <string.h>
-#include <dirent.h>
 #include <errno.h>
 #include <limits.h>
 #include <netdb.h>
@@ -368,173 +367,6 @@ int CtdlIsPublicClient(void)
 
 
 
-/* 
- * help_subst()  -  support routine for help file viewer
- */
-void help_subst(char *strbuf, char *source, char *dest)
-{
-	char workbuf[SIZ];
-	int p;
-
-	while (p = pattern2(strbuf, source), (p >= 0)) {
-		strcpy(workbuf, &strbuf[p + strlen(source)]);
-		strcpy(&strbuf[p], dest);
-		strcat(strbuf, workbuf);
-	}
-}
-
-void do_help_subst(char *buffer)
-{
-	char buf2[16];
-
-	help_subst(buffer, "^nodename", config.c_nodename);
-	help_subst(buffer, "^humannode", config.c_humannode);
-	help_subst(buffer, "^fqdn", config.c_fqdn);
-	help_subst(buffer, "^username", CC->user.fullname);
-	snprintf(buf2, sizeof buf2, "%ld", CC->user.usernum);
-	help_subst(buffer, "^usernum", buf2);
-	help_subst(buffer, "^sysadm", config.c_sysadm);
-	help_subst(buffer, "^variantname", CITADEL);
-	snprintf(buf2, sizeof buf2, "%d", config.c_maxsessions);
-	help_subst(buffer, "^maxsessions", buf2);
-	help_subst(buffer, "^bbsdir", ctdl_message_dir);
-}
-
-
-typedef const char *ccharp;
-/*
- * display system messages or help
- */
-void cmd_mesg(char *mname)
-{
-	FILE *mfp;
-	char targ[256];
-	char buf[256];
-	char buf2[256];
-	char *dirs[2];
-	DIR *dp;
-	struct dirent *d;
-
-	extract_token(buf, mname, 0, '|', sizeof buf);
-
-	dirs[0] = strdup(ctdl_message_dir);
-	dirs[1] = strdup(ctdl_hlp_dir);
-
-	snprintf(buf2, sizeof buf2, "%s.%d.%d",
-		buf, CC->cs_clientdev, CC->cs_clienttyp);
-
-	/* If the client requested "?" then produce a listing */
-	if (!strcmp(buf, "?")) {
-		cprintf("%d %s\n", LISTING_FOLLOWS, buf);
-		dp = opendir(dirs[1]);
-		if (dp != NULL) {
-			while (d = readdir(dp), d != NULL) {
-				if (d->d_name[0] != '.') {
-					cprintf(" %s\n", d->d_name);
-				}
-			}
-			closedir(dp);
-		}
-		cprintf("000\n");
-		free(dirs[0]);
-		free(dirs[1]);
-		return;
-	}
-
-	/* Otherwise, look for the requested file by name. */
-	else {
-		mesg_locate(targ, sizeof targ, buf2, 2, (const ccharp*)dirs);
-		if (IsEmptyStr(targ)) {
-			snprintf(buf2, sizeof buf2, "%s.%d",
-							buf, CC->cs_clientdev);
-			mesg_locate(targ, sizeof targ, buf2, 2,
-				    (const ccharp*)dirs);
-			if (IsEmptyStr(targ)) {
-				mesg_locate(targ, sizeof targ, buf, 2,
-					    (const ccharp*)dirs);
-			}	
-		}
-	}
-
-	free(dirs[0]);
-	free(dirs[1]);
-
-	if (IsEmptyStr(targ)) {
-		cprintf("%d '%s' not found.  (Searching in %s and %s)\n",
-			ERROR + FILE_NOT_FOUND,
-			mname,
-			ctdl_message_dir,
-			ctdl_hlp_dir
-		);
-		return;
-	}
-
-	mfp = fopen(targ, "r");
-	if (mfp==NULL) {
-		cprintf("%d Cannot open '%s': %s\n",
-			ERROR + INTERNAL_ERROR, targ, strerror(errno));
-		return;
-	}
-	cprintf("%d %s\n", LISTING_FOLLOWS,buf);
-
-	while (fgets(buf, (sizeof buf - 1), mfp) != NULL) {
-		buf[strlen(buf)-1] = 0;
-		do_help_subst(buf);
-		cprintf("%s\n",buf);
-	}
-
-	fclose(mfp);
-	cprintf("000\n");
-}
-
-
-/*
- * enter system messages or help
- */
-void cmd_emsg(char *mname)
-{
-	FILE *mfp;
-	char targ[256];
-	char buf[256];
-	char *dirs[2];
-	int a;
-
-	unbuffer_output();
-
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	extract_token(buf, mname, 0, '|', sizeof buf);
-	for (a=0; !IsEmptyStr(&buf[a]); ++a) {		/* security measure */
-		if (buf[a] == '/') buf[a] = '.';
-	}
-
-	dirs[0] = strdup(ctdl_message_dir);
-	dirs[1] = strdup(ctdl_hlp_dir);
-
-	mesg_locate(targ, sizeof targ, buf, 2, (const ccharp*)dirs);
-	free(dirs[0]);
-	free(dirs[1]);
-
-	if (IsEmptyStr(targ)) {
-		snprintf(targ, sizeof targ, 
-				 "%s/%s",
-				 ctdl_hlp_dir, buf);
-	}
-
-	mfp = fopen(targ,"w");
-	if (mfp==NULL) {
-		cprintf("%d Cannot open '%s': %s\n",
-			ERROR + INTERNAL_ERROR, targ, strerror(errno));
-		return;
-	}
-	cprintf("%d %s\n", SEND_LISTING, targ);
-
-	while (client_getln(buf, sizeof buf) >=0 && strcmp(buf, "000")) {
-		fprintf(mfp, "%s\n", buf);
-	}
-
-	fclose(mfp);
-}
 
 
 /* Don't show the names of private rooms unless the viewing
@@ -883,10 +715,6 @@ void do_async_loop(void) {
 CTDL_MODULE_INIT(citserver)
 {
 	if (!threading) {
-
-		CtdlRegisterProtoHook(cmd_mesg, "MESG", "fetch system banners");
-		CtdlRegisterProtoHook(cmd_emsg, "EMSG", "submit system banners");
-;
 		CtdlRegisterProtoHook(cmd_down, "DOWN", "perform a server shutdown");
 		CtdlRegisterProtoHook(cmd_halt, "HALT", "halt the server without exiting the server process");
 		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "schedule or cancel a server shutdown");
