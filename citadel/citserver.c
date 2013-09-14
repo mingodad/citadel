@@ -368,52 +368,6 @@ int CtdlIsPublicClient(void)
 
 
 
-/*
- * Convenience function.
- */
-int CtdlAccessCheck(int required_level) {
-
-	if (CC->internal_pgm) return(0);
-	if (required_level >= ac_internal) {
-		cprintf("%d This is not a user-level command.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return(-1);
-	}
-
-	if ((required_level >= ac_logged_in_or_guest) && (CC->logged_in == 0) && (!config.c_guest_logins)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return(-1);
-	}
-
-	if ((required_level >= ac_logged_in) && (CC->logged_in == 0)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return(-1);
-	}
-
-	if (CC->user.axlevel >= AxAideU) return(0);
- 	if (required_level >= ac_aide) {
-		cprintf("%d This command requires Admin access.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return(-1);
-	}
-
-	if (is_room_aide()) return(0);
-	if (required_level >= ac_room_aide) {
-		cprintf("%d This command requires Admin or Room Admin access.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return(-1);
-	}
-
-	/* shhh ... succeed quietly */
-	return(0);
-}
-
-
-
-
-
-
-
 
 /*
  * Back-end function for starting a session
