@@ -42,12 +42,6 @@ int DebugModules = 0;
  * Structure defentitions for hook tables
  */
 
-typedef struct __LogDebugEntry {
-	CtdlDbgFunction F;
-	const char *Name;
-	long Len;
-	const int *LogP;
-} LogDebugEntry;
 HashList *LogDebugEntryTable = NULL;
 
 typedef struct LogFunctionHook LogFunctionHook;
@@ -390,52 +384,6 @@ void CtdlSetDebugLogFacilities(const char **Str, long n)
 		}
 
 		DeleteHashPos(&Pos);
-	}
-}
-void cmd_log_get(char *argbuf)
-{
-	long HKLen;
-	const char *ch;
-	HashPos *Pos;
-	void *vptr;
-
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	cprintf("%d Log modules enabled:\n", LISTING_FOLLOWS);
-
-	Pos = GetNewHashPos(LogDebugEntryTable, 0);
-
-	while (GetNextHashPos(LogDebugEntryTable, Pos, &HKLen, &ch, &vptr)) {
-		LogDebugEntry *E = (LogDebugEntry*)vptr;
-		cprintf("%s|%d\n", ch, *E->LogP);
-	}
-	
-	DeleteHashPos(&Pos);
-	cprintf("000\n");
-}
-void cmd_log_set(char *argbuf)
-{
-	void *vptr;
-	int lset;
-	int wlen;
-	char which[SIZ] = "";
-
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	wlen = extract_token(which, argbuf, 0, '|', sizeof(which));
-	if (wlen < 0) wlen = 0;
-	lset = extract_int(argbuf, 1);
-	if (lset != 0) lset = 1;
-	if (GetHash(LogDebugEntryTable, which, wlen, &vptr) && 
-	    (vptr != NULL))
-	{
-		LogDebugEntry *E = (LogDebugEntry*)vptr;
-		E->F(lset);
-		cprintf("%d %s|%d\n", CIT_OK, which, lset);
-	}
-	else {
-		cprintf("%d Log setting %s not known\n", 
-			ERROR, which);
 	}
 }
 void CtdlDestroyDebugTable(void)
@@ -1564,9 +1512,6 @@ CTDL_MODULE_INIT(modules)
 {
 	if (!threading) {
 		CtdlRegisterDebugFlagHook(HKEY("modules"), DebugModulesEnable, &DebugModules);
-
-		CtdlRegisterProtoHook(cmd_log_get, "LOGP", "Print Log-parameters");
-		CtdlRegisterProtoHook(cmd_log_set, "LOGS", "Set Log-parameters");
 	}
 	return "modules";
 }

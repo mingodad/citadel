@@ -56,6 +56,13 @@ struct CleanupFunctionHook {
 extern CleanupFunctionHook *CleanupHookTable;
 
 
+typedef struct __LogDebugEntry {
+	CtdlDbgFunction F;
+	const char *Name;
+	long Len;
+	const int *LogP;
+} LogDebugEntry;
+extern HashList *LogDebugEntryTable;
 void initialize_server_extensions(void);
 int DLoader_Exec_Cmd(char *cmdbuf);
 char *Dynamic_Module_Init(void);

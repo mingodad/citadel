@@ -66,6 +66,52 @@
 #include "svn_revision.h"
 #include "ctdl_module.h"
 
+void cmd_log_get(char *argbuf)
+{
+	long HKLen;
+	const char *ch;
+	HashPos *Pos;
+	void *vptr;
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	cprintf("%d Log modules enabled:\n", LISTING_FOLLOWS);
+
+	Pos = GetNewHashPos(LogDebugEntryTable, 0);
+
+	while (GetNextHashPos(LogDebugEntryTable, Pos, &HKLen, &ch, &vptr)) {
+		LogDebugEntry *E = (LogDebugEntry*)vptr;
+		cprintf("%s|%d\n", ch, *E->LogP);
+	}
+	
+	DeleteHashPos(&Pos);
+	cprintf("000\n");
+}
+void cmd_log_set(char *argbuf)
+{
+	void *vptr;
+	int lset;
+	int wlen;
+	char which[SIZ] = "";
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	wlen = extract_token(which, argbuf, 0, '|', sizeof(which));
+	if (wlen < 0) wlen = 0;
+	lset = extract_int(argbuf, 1);
+	if (lset != 0) lset = 1;
+	if (GetHash(LogDebugEntryTable, which, wlen, &vptr) && 
+	    (vptr != NULL))
+	{
+		LogDebugEntry *E = (LogDebugEntry*)vptr;
+		E->F(lset);
+		cprintf("%d %s|%d\n", CIT_OK, which, lset);
+	}
+	else {
+		cprintf("%d Log setting %s not known\n", 
+			ERROR, which);
+	}
+}
 
 
 /*
@@ -154,6 +200,9 @@ void cmd_scdn(char *argbuf)
 CTDL_MODULE_INIT(syscmd)
 {
 	if (!threading) {
+		CtdlRegisterProtoHook(cmd_log_get, "LOGP", "Print Log-parameters");
+		CtdlRegisterProtoHook(cmd_log_set, "LOGS", "Set Log-parameters");
+
 		CtdlRegisterProtoHook(cmd_down, "DOWN", "perform a server shutdown");
 		CtdlRegisterProtoHook(cmd_halt, "HALT", "halt the server without exiting the server process");
 		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "schedule or cancel a server shutdown");
