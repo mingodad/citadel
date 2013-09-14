@@ -49,7 +49,7 @@
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"
-#include "file_ops.h"
+#include "svn_revision.h"
 #include "control.h"
 #include "msgbase.h"
 #include "config.h"
@@ -167,6 +167,7 @@ void cmd_more(char *argbuf) {
  */
 void cmd_iden(char *argbuf)
 {
+        CitContext *CCC = MyContext();
 	int dev_code;
 	int cli_code;
 	int rev_level;
@@ -187,17 +188,17 @@ void cmd_iden(char *argbuf)
 	from_host[sizeof from_host - 1] = 0;
 	if (num_parms(argbuf)>=5) extract_token(from_host, argbuf, 4, '|', sizeof from_host);
 
-	CC->cs_clientdev = dev_code;
-	CC->cs_clienttyp = cli_code;
-	CC->cs_clientver = rev_level;
-	safestrncpy(CC->cs_clientname, desc, sizeof CC->cs_clientname);
-	CC->cs_clientname[31] = 0;
+	CCC->cs_clientdev = dev_code;
+	CCC->cs_clienttyp = cli_code;
+	CCC->cs_clientver = rev_level;
+	safestrncpy(CCC->cs_clientname, desc, sizeof CCC->cs_clientname);
+	CCC->cs_clientname[31] = 0;
 
 	/* For local sockets and public clients, trust the hostname supplied by the client */
-	if ( (CC->is_local_socket) || (is_public_client()) ) {
-		safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
-		CC->cs_host[sizeof CC->cs_host - 1] = 0;
-		CC->cs_addr[0] = 0;
+	if ( (CCC->is_local_socket) || (CtdlIsPublicClient()) ) {
+		safestrncpy(CCC->cs_host, from_host, sizeof CCC->cs_host);
+		CCC->cs_host[sizeof CCC->cs_host - 1] = 0;
+		CCC->cs_addr[0] = 0;
 	}
 
 	syslog(LOG_NOTICE, "Client %d/%d/%01d.%02d (%s) from %s\n",
@@ -206,7 +207,7 @@ void cmd_iden(char *argbuf)
 		(rev_level / 100),
 		(rev_level % 100),
 		desc,
-		CC->cs_host
+		CCC->cs_host
 	);
 	cprintf("%d Ok\n",CIT_OK);
 }

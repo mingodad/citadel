@@ -60,7 +60,6 @@
 #include "support.h"
 #include "locate_host.h"
 #include "room_ops.h"
-#include "file_ops.h"
 #include "control.h"
 #include "euidindex.h"
 #include "context.h"
@@ -273,7 +272,7 @@ char CtdlCheckExpress(void) {
  * (for example, to show the location of the user rather than the location
  * of the client).
  */
-int is_public_client(void)
+int CtdlIsPublicClient(void)
 {
 	char buf[1024];
 	char addrbuf[1024];

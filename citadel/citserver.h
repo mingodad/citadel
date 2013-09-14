@@ -53,5 +53,6 @@ void help_subst (char *strbuf, char *source, char *dest);
 
 extern int panic_fd;
 char CtdlCheckExpress(void);
+int CtdlIsPublicClient(void);
 extern time_t server_startup_time;
 extern int openid_level_supported;
