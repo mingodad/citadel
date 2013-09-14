@@ -355,25 +355,6 @@ int CtdlIsMe(char *addr, int addr_buf_len)
 }
 
 
-/*
- * Citadel protocol command to do the same
- */
-void cmd_isme(char *argbuf) {
-	char addr[256];
-
-	if (CtdlAccessCheck(ac_logged_in)) return;
-	extract_token(addr, argbuf, 0, '|', sizeof addr);
-
-	if (CtdlIsMe(addr, sizeof addr)) {
-		cprintf("%d %s\n", CIT_OK, addr);
-	}
-	else {
-		cprintf("%d Not you.\n", ERROR + ILLEGAL_VALUE);
-	}
-
-}
-
-
 /* If the last item in a list of recipients was truncated to a partial address,
  * remove it completely in order to avoid choking libSieve
  */
@@ -1702,13 +1683,4 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 		return(NULL);
 	}
 	return(coll);
-}
-
-
-CTDL_MODULE_INIT(internet_addressing)
-{
-	if (!threading) {
-		CtdlRegisterProtoHook(cmd_isme, "ISME", "Determine whether an email address belongs to a user");
-	}
-	return "internet_addressing";
 }

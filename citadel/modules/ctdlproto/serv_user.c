@@ -699,6 +699,25 @@ void cmd_asup(char *cmdbuf)
 
 
 /*
+ * Citadel protocol command to do the same
+ */
+void cmd_isme(char *argbuf) {
+	char addr[256];
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract_token(addr, argbuf, 0, '|', sizeof addr);
+
+	if (CtdlIsMe(addr, sizeof addr)) {
+		cprintf("%d %s\n", CIT_OK, addr);
+	}
+	else {
+		cprintf("%d Not you.\n", ERROR + ILLEGAL_VALUE);
+	}
+
+}
+
+
+/*
  * Set the preferred view for the current user/room combination
  */
 void cmd_view(char *cmdbuf) {
@@ -804,6 +823,7 @@ CTDL_MODULE_INIT(serv_user)
 		CtdlRegisterProtoHook(cmd_view, "VIEW", "Set preferred view for user/room combination");
 		CtdlRegisterProtoHook(cmd_renu, "RENU", "Rename a user");
 		CtdlRegisterProtoHook(cmd_newu, "NEWU", "Log in as a new user");
+		CtdlRegisterProtoHook(cmd_isme, "ISME", "Determine whether an email address belongs to a user");
 	}
 	/* return our Subversion id for the Log */
 	return "user";
