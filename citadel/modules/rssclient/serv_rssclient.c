@@ -290,7 +290,7 @@ int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 		return 0;
 	}
 
-	memset(&SaveMsg->Msg, 0, sizeof (struct CtdlMessage));
+	CM_Flush(&SaveMsg->Msg);
 
 	if (SaveMsg->author_or_creator != NULL) {
 

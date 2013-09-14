@@ -135,6 +135,7 @@ void CM_SetFieldLONG   (struct CtdlMessage *Msg, eMsgField which, long lvalue);
 void CM_CopyField      (struct CtdlMessage *Msg, eMsgField WhichToPutTo, eMsgField WhichtToCopy);
 void CM_CutFieldAt     (struct CtdlMessage *Msg, eMsgField WhichToCut, long maxlen);
 void CM_FlushField     (struct CtdlMessage *Msg, eMsgField which);
+void CM_Flush          (struct CtdlMessage *Msg);
 void CM_SetAsField     (struct CtdlMessage *Msg, eMsgField which, char **buf, long length);
 void CM_SetAsFieldSB   (struct CtdlMessage *Msg, eMsgField which, StrBuf **buf);
 void CM_GetAsField     (struct CtdlMessage *Msg, eMsgField which, char **ret, long *retlen);

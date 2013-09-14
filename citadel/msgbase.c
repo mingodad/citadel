@@ -193,6 +193,18 @@ void CM_FlushField(struct CtdlMessage *Msg, eMsgField which)
 		free (Msg->cm_fields[which]);
 	Msg->cm_fields[which] = NULL;
 }
+void CM_Flush(struct CtdlMessage *Msg)
+{
+	int i;
+
+	if (CM_IsValidMsg(Msg) == 0) 
+		return;
+
+	for (i = 0; i < 256; ++i)
+	{
+		CM_FlushField(Msg, i);
+	}
+}
 
 void CM_CopyField(struct CtdlMessage *Msg, eMsgField WhichToPutTo, eMsgField WhichtToCopy)
 {
@@ -204,7 +216,7 @@ void CM_CopyField(struct CtdlMessage *Msg, eMsgField WhichToPutTo, eMsgField Whi
 	{
 		len = strlen(Msg->cm_fields[WhichtToCopy]);
 		Msg->cm_fields[WhichToPutTo] = malloc(len + 1);
-		memcpy(Msg->cm_fields[WhichToPutTo], Msg->cm_fields[WhichToPutTo], len);
+		memcpy(Msg->cm_fields[WhichToPutTo], Msg->cm_fields[WhichtToCopy], len);
 		Msg->cm_fields[WhichToPutTo][len] = '\0';
 	}
 	else
