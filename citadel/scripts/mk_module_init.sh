@@ -30,7 +30,7 @@ U_FILE="$CUR_DIR/modules_upgrade.c"
 
 /usr/bin/printf "Scanning extension modules for entry points.\n"
 
-STATIC_FIRST_MODULES="citserver control modules euidindex file_ops msgbase room_ops user_ops nttlist database internet_addressing"
+STATIC_FIRST_MODULES="citserver control modules euidindex file_ops msgbase user_ops nttlist database internet_addressing"
 DYNAMIC_MODULES=`grep CTDL_MODULE_INIT modules/*/*.c |$SED 's;.*(\(.*\));\1;'`
 if test -d user_modules; then 
     USER_MODULES=`grep CTDL_MODULE_INIT user_modules/*/*.c |$SED 's;.*(\(.*\));\1;'`
