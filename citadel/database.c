@@ -185,7 +185,7 @@ void cdb_check_handles(void)
 /*
  * Cull the database logs
  */
-static void cdb_cull_logs(void)
+void cdb_cull_logs(void)
 {
 	u_int32_t flags;
 	int ret;
@@ -219,15 +219,6 @@ static void cdb_cull_logs(void)
 		}
 		free(list);
 	}
-}
-
-/*
- * Manually initiate log file cull.
- */
-void cmd_cull(char *argbuf) {
-	if (CtdlAccessCheck(ac_internal)) return;
-	cdb_cull_logs();
-	cprintf("%d Database log file cull completed.\n", CIT_OK);
 }
 
 
@@ -437,7 +428,6 @@ void cdb_chmod_data(void) {
 	}
 
 	syslog(LOG_DEBUG, "open_databases() finished\n");
-	CtdlRegisterProtoHook(cmd_cull, "CULL", "Cull database logs");
 }
 
 

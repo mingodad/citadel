@@ -33,6 +33,8 @@ void *checkpoint_thread(void *arg);
 void cdb_chmod_data(void);
 void cdb_checkpoint(void);
 void check_handles(void *arg);
+void cdb_cull_logs(void);
+
 
 /*
  * Database records beginning with this magic number are assumed to

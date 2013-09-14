@@ -192,6 +192,16 @@ void cmd_scdn(char *argbuf)
 	cprintf(Reply, state, ScheduledShutdown);
 }
 
+/*
+ * Manually initiate log file cull.
+ */
+void cmd_cull(char *argbuf) {
+	if (CtdlAccessCheck(ac_internal)) return;
+	cdb_cull_logs();
+	cprintf("%d Database log file cull completed.\n", CIT_OK);
+}
+
+
 
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
@@ -206,6 +216,8 @@ CTDL_MODULE_INIT(syscmd)
 		CtdlRegisterProtoHook(cmd_down, "DOWN", "perform a server shutdown");
 		CtdlRegisterProtoHook(cmd_halt, "HALT", "halt the server without exiting the server process");
 		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "schedule or cancel a server shutdown");
+
+		CtdlRegisterProtoHook(cmd_cull, "CULL", "Cull database logs");
 	}
         /* return our id for the Log */
 	return "syscmd";
