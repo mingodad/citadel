@@ -12,53 +12,12 @@
  * GNU General Public License for more details.
  */
 
-#include "sysdep.h"
-#include <errno.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <pwd.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <syslog.h>
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <string.h>
-#include <limits.h>
-#include <libcitadel.h>
-#include "auth.h"
-#include "citadel.h"
-#include "server.h"
-#include "database.h"
-#include "sysdep_decls.h"
 #include "support.h"
-#include "room_ops.h"
 #include "control.h"
-#include "msgbase.h"
-#include "config.h"
-#include "citserver.h"
-#include "citadel_dirs.h"
-#include "genstamp.h"
-#include "threads.h"
-#include "citadel_ldap.h"
-#include "context.h"
 #include "ctdl_module.h"
+
+#include "citserver.h"
+
 #include "user_ops.h"
 #include "internet_addressing.h"
 

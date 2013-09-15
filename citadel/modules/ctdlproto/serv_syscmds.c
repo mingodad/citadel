@@ -13,57 +13,10 @@
  * GNU General Public License for more details.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#if HAVE_BACKTRACE
-#include <execinfo.h>
-#endif
-
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <limits.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "sysdep_decls.h"
-#include "threads.h"
-#include "citserver.h"
-#include "config.h"
-#include "database.h"
-#include "housekeeping.h"
-#include "user_ops.h"
-#include "msgbase.h"
-#include "support.h"
-#include "locate_host.h"
-#include "room_ops.h"
-#include "control.h"
-#include "euidindex.h"
-#include "context.h"
-#include "svn_revision.h"
+
+#include "serv_extensions.h"
 #include "ctdl_module.h"
 
 void cmd_log_get(char *argbuf)

@@ -12,44 +12,13 @@
  * GNU General Public License for more details.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <sys/stat.h>
-#include <ctype.h>
-#include <string.h>
 #include <dirent.h>	/* for cmd_rdir to read contents of the directory */
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <limits.h>
-#include <errno.h>
-#include "citadel.h"
 #include <libcitadel.h>
-#include "server.h"
-#include "database.h"
-#include "config.h"
-#include "room_ops.h"
-#include "sysdep_decls.h"
-#include "support.h"
-#include "msgbase.h"
-#include "citserver.h"
-#include "control.h"
-#include "citadel_dirs.h"
-#include "threads.h"
 
+#include "citserver.h"
 #include "ctdl_module.h"
-#include "user_ops.h"
+#include "room_ops.h"
 
 /*
  * Back-back-end for all room listing commands

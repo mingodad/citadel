@@ -2,46 +2,14 @@
  * Server functions which handle file transfers and room directories.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <ctype.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <dirent.h>
-#include <limits.h>
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "config.h"
-#include "files.h"
-#include "sysdep_decls.h"
-#include "support.h"
-#include "room_ops.h"
-#include "msgbase.h"
-#include "citserver.h"
-#include "threads.h"
+#include <dirent.h>
+
 #include "ctdl_module.h"
+#include "citserver.h"
+#include "support.h"
 #include "user_ops.h"
-
-
 
 /*
  * Server command to delete a file from a room's directory

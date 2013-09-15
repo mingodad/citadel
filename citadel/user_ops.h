@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <syslog.h>
+
 int hash (char *str);
 /* getuser is deprecated, use CtdlGetUser instead */
 int getuser (struct ctdluser *, char *) __attribute__ ((deprecated));
@@ -18,7 +19,6 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who);
 /* getuserbynumber is deprecated, use CtdlGetUserByNumber instead */
 int getuserbynumber (struct ctdluser *usbuf, long int number) __attribute__ ((deprecated));
 void rebuild_usersbynumber(void);
-void cmd_user (char *cmdbuf);
 void session_startup (void);
 void logged_in_response(void);
 int purge_user (char *pname);

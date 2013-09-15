@@ -64,7 +64,6 @@ void sysdep_master_cleanup (void);
 void kill_session (int session_to_kill);
 void start_daemon (int do_close_stdio);
 void checkcrash(void);
-void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void init_master_fdset(void);
 void *worker_thread(void *);
