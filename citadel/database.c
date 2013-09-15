@@ -27,16 +27,8 @@
 /*****************************************************************************/
 
 #include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <dirent.h>
-#include <syslog.h>
 #include <zlib.h>
 
 #ifdef HAVE_DB_H
@@ -54,17 +46,10 @@
 
 
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "citserver.h"
-#include "database.h"
-#include "msgbase.h"
-#include "sysdep_decls.h"
-#include "threads.h"
-#include "config.h"
-#include "control.h"
 
 #include "ctdl_module.h"
+#include "control.h"
+#include "citserver.h"
 
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */

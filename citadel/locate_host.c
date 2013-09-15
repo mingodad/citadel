@@ -13,30 +13,18 @@
  */
 
 #include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
 #include <stdio.h>
+#include <syslog.h>
 #include <ctype.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <limits.h>
-#include <netdb.h>
-#include <string.h>
-#include <errno.h>
-#include <syslog.h>
-#include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "locate_host.h"
-#include "sysdep_decls.h"
-#include "config.h"
-#include "domain.h"
-#include "context.h"
-#include "ctdl_module.h"
 
+#include <libcitadel.h>
+
+
+#include "context.h"
 #ifdef HAVE_RESOLV_H
 #include <arpa/nameser.h>
 #ifdef HAVE_ARPA_NAMESER_COMPAT_H
@@ -44,6 +32,9 @@
 #endif
 #include <resolv.h>
 #endif
+
+#include "domain.h"
+#include "locate_host.h"
 
 /** START:some missing macros on OpenBSD 3.9 */
 #ifndef NS_CMPRSFLGS

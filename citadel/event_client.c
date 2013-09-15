@@ -9,61 +9,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
 #include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <termios.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <pwd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <syslog.h>
 
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-#include <sys/wait.h>
-#include <ctype.h>
+#include <stdio.h>
 #include <string.h>
-#include <limits.h>
+#include <syslog.h>
+#include <assert.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <assert.h>
-#if HAVE_BACKTRACE
-#include <execinfo.h>
-#endif
 
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "citserver.h"
-#include "support.h"
-#include "config.h"
-#include "control.h"
-#include "user_ops.h"
-#include "database.h"
-#include "msgbase.h"
-#include "internet_addressing.h"
-#include "genstamp.h"
-#include "domain.h"
-#include "clientsocket.h"
-#include "locate_host.h"
-#include "citadel_dirs.h"
 
-#include "event_client.h"
 #include "ctdl_module.h"
-
+#include "event_client.h"
 
 ConstStr IOStates[] = {
 	{HKEY("DB Queue")},

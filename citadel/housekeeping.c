@@ -12,48 +12,14 @@
  * GNU General Public License for more details.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <fcntl.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <limits.h>
-#include <sys/types.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
-#include <syslog.h>
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "serv_extensions.h"
-#include "citserver.h"
-#include "config.h"
-#include "housekeeping.h"
-#include "sysdep_decls.h"
-#include "room_ops.h"
-#include "database.h"
-#include "msgbase.h"
-#include "internet_addressing.h"
-#include "journaling.h"
 
 #include "ctdl_module.h"
-#include "threads.h"
+#include "serv_extensions.h"
+#include "room_ops.h"
+#include "internet_addressing.h"
+#include "journaling.h"
 
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {

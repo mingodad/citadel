@@ -3,16 +3,12 @@
  */
 
 #include "sysdep.h"
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <libcitadel.h>
+
 #include "citadel.h"
-#include "server.h"
 #include "support.h"
 
 /*

@@ -13,13 +13,8 @@
  */
 
 #include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <syslog.h>
-
 #ifdef HAVE_RESOLV_H
 #include <arpa/nameser.h>
 #ifdef HAVE_ARPA_NAMESER_COMPAT_H
@@ -31,7 +26,6 @@
 #include "sysdep_decls.h"
 #include "citadel.h"
 #include "domain.h"
-#include "server.h"
 #include "internet_addressing.h"
 
 

@@ -11,68 +11,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <signal.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <syslog.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <limits.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <sys/un.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
 #include <grp.h>
-#include <pwd.h>
-#ifdef HAVE_SYS_PRCTL_H
-#include <sys/prctl.h>
-#endif
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "serv_extensions.h"
-#include "sysdep_decls.h"
-#include "threads.h"
+
 #include "citserver.h"
-#include "support.h"
+#include "svn_revision.h"
+#include "modules_init.h"
 #include "config.h"
 #include "control.h"
-#include "database.h"
-#include "user_ops.h"
-#include "housekeeping.h"
-#include "svn_revision.h"
+#include "serv_extensions.h"
 #include "citadel_dirs.h"
-
-#include "context.h"
-
-#include "modules_init.h"
-#include "ecrash.h"
-
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
+#include "user_ops.h"
 
 const char *CitadelServiceUDS="citadel-UDS";
 const char *CitadelServiceTCP="citadel-TCP";

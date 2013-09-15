@@ -13,17 +13,9 @@
  */
 
 #include "sysdep.h"
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <limits.h>
 #include <sys/utsname.h>
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
 #include "config.h"
 #include "ctdl_module.h"
 

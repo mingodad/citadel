@@ -12,48 +12,15 @@
  * GNU General Public License for more details.
  */
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <sys/types.h>
 #include <errno.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
+#include <stdio.h>
 #include <syslog.h>
-
-#include "sysdep.h"
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#ifdef HAVE_SYSCALL_H
-# include <syscall.h>
-#else 
-# if HAVE_SYS_SYSCALL_H
-#  include <sys/syscall.h>
-# endif
-#endif
-
 #include <libcitadel.h>
-
-#include "threads.h"
-#include "ctdl_module.h"
 #include "modules_init.h"
-#include "housekeeping.h"
-#include "config.h"
-#include "citserver.h"
-#include "sysdep_decls.h"
+#include "serv_extensions.h"
+#include "ctdl_module.h"
 #include "context.h"
-#include "event_client.h"
+#include "threads.h"
 
 
 int num_workers = 0;				/* Current number of worker threads */

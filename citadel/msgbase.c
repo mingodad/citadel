@@ -12,57 +12,25 @@
  * GNU General Public License for more details.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
+
 #include <stdio.h>
-#include <fcntl.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-
-#include <ctype.h>
-#include <string.h>
-#include <limits.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <regex.h>
+#include <libcitadel.h>
 
 #include "md5.h"
 
-#include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "serv_extensions.h"
-#include "database.h"
-#include "msgbase.h"
-#include "support.h"
-#include "sysdep_decls.h"
+#include "ctdl_module.h"
 #include "citserver.h"
+#include "control.h"
+#include "clientsocket.h"
+#include "genstamp.h"
 #include "room_ops.h"
 #include "user_ops.h"
-#include "config.h"
-#include "control.h"
-#include "genstamp.h"
+
 #include "internet_addressing.h"
 #include "euidindex.h"
+#include "msgbase.h"
 #include "journaling.h"
-#include "citadel_dirs.h"
-#include "clientsocket.h"
-#include "threads.h"
-
-#include "ctdl_module.h"
 
 struct addresses_to_be_filed *atbf = NULL;
 

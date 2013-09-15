@@ -15,29 +15,10 @@
  * GNU General Public License for more details.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <string.h>
-#include <pwd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <syslog.h>
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "sysdep_decls.h"
-#include "config.h"
-#include "clientsocket.h"
 #include "ctdl_module.h"
+#include "clientsocket.h"
 
 int sock_connect(char *host, char *service)
 {

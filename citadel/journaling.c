@@ -2,49 +2,16 @@
  * Message journaling functions.
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <fcntl.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-
-#include <ctype.h>
-#include <string.h>
-#include <limits.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <sys/stat.h>
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "database.h"
-#include "msgbase.h"
-#include "support.h"
-#include "sysdep_decls.h"
-#include "citserver.h"
-#include "room_ops.h"
-#include "user_ops.h"
-#include "config.h"
-#include "control.h"
-#include "genstamp.h"
-#include "internet_addressing.h"
-#include "serv_vcard.h"			/* Needed for vcard_getuser and extract_inet_email_addrs */
-#include "journaling.h"
 
 #include "ctdl_module.h"
-#include "threads.h"
+
+#include "citserver.h"
+#include "user_ops.h"
+#include "serv_vcard.h"			/* Needed for vcard_getuser and extract_inet_email_addrs */
+#include "internet_addressing.h"
+#include "journaling.h"
 
 struct jnlq *jnlq = NULL;	/* journal queue */
 
