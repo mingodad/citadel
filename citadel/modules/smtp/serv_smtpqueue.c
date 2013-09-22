@@ -853,7 +853,10 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	/* Strip out the headers (no not amd any other non-instruction) line */
 	while (pch != NULL) {
 		pch = strchr(pch, '\n');
-		if ((pch != NULL) && (*(pch + 1) == '\n')) {
+		if ((pch != NULL) &&
+		    ((*(pch + 1) == '\n') ||
+		     (*(pch + 1) == '\r')))
+		{
 			instr = pch + 2;
 			pch = NULL;
 		}
