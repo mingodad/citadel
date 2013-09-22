@@ -24,6 +24,7 @@
 #include "serv_extensions.h"
 #include "citadel_dirs.h"
 #include "user_ops.h"
+#include "ecrash.h"
 
 const char *CitadelServiceUDS="citadel-UDS";
 const char *CitadelServiceTCP="citadel-TCP";
