@@ -18,6 +18,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+#endif
 
 #include <libcitadel.h>
 
