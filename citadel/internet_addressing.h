@@ -1,5 +1,6 @@
 
 #include "server.h"
+#include "ctdl_module.h"
 
 struct internet_address_list {
 	struct internet_address_list *next;
@@ -8,33 +9,12 @@ struct internet_address_list {
 	char ial_name[SIZ];
 };
 
-/* Data structure returned by validate_recipients() */
-struct recptypes {
-	int recptypes_magic;
-        int num_local;
-        int num_internet;
-        int num_ignet;
-	int num_room;
-        int num_error;
-	char *errormsg;
-	char *recp_local;
-	char *recp_internet;
-	char *recp_ignet;
-	char *recp_room;
-	char *recp_orgroom;
-	char *display_recp;
-	char *bounce_to;
-	char *envelope_from;
-	char *sending_room;
-};
 
-#define RECPTYPES_MAGIC 0xfeeb
-
-struct recptypes *validate_recipients(const char *recipients,
+recptypes *validate_recipients(const char *recipients,
  				      const char *RemoteIdentifier, 
 				      int Flags);
 
-void free_recipients(struct recptypes *);
+void free_recipients(recptypes *);
 
 
 int fuzzy_match(struct ctdluser *us, char *matchstring);
@@ -53,6 +33,7 @@ int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen);
 struct CtdlMessage *convert_internet_message(char *rfc822);
 struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822);
 
+int CtdlIsMe(char *addr, int addr_buf_len);
 int CtdlHostAlias(char *fqdn);
 char *harvest_collected_addresses(struct CtdlMessage *msg);
 

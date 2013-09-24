@@ -523,7 +523,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 	StrBuf *boundary;
 	StrBuf *Msg = NULL;
 	StrBuf *BounceMB;
-	struct recptypes *valid;
+	recptypes *valid;
 	time_t now;
 
 	HashPos *It;
@@ -1205,6 +1205,70 @@ void cmd_smtp(char *argbuf) {
 
 }
 
+int smtp_aftersave(struct CtdlMessage *msg,
+		   recptypes *recps)
+{
+	/* For internet mail, generate delivery instructions.
+	 * Yes, this is recursive.  Deal with it.  Infinite recursion does
+	 * not happen because the delivery instructions message does not
+	 * contain a recipient.
+	 */
+	if ((recps != NULL) && (recps->num_internet > 0)) {
+		struct CtdlMessage *imsg = NULL;
+		char recipient[SIZ];
+		CitContext *CCC = MyContext();
+		StrBuf *SpoolMsg = NewStrBuf();
+		long nTokens;
+		int i;
+
+		MSGM_syslog(LOG_DEBUG, "Generating delivery instructions\n");
+
+		StrBufPrintf(SpoolMsg,
+			     "Content-type: "SPOOLMIME"\n"
+			     "\n"
+			     "msgid|%s\n"
+			     "submitted|%ld\n"
+			     "bounceto|%s\n",
+			     msg->cm_fields[eVltMsgNum],
+			     (long)time(NULL),
+			     recps->bounce_to);
+
+		if (recps->envelope_from != NULL) {
+			StrBufAppendBufPlain(SpoolMsg, HKEY("envelope_from|"), 0);
+			StrBufAppendBufPlain(SpoolMsg, recps->envelope_from, -1, 0);
+			StrBufAppendBufPlain(SpoolMsg, HKEY("\n"), 0);
+		}
+		if (recps->sending_room != NULL) {
+			StrBufAppendBufPlain(SpoolMsg, HKEY("source_room|"), 0);
+			StrBufAppendBufPlain(SpoolMsg, recps->sending_room, -1, 0);
+			StrBufAppendBufPlain(SpoolMsg, HKEY("\n"), 0);
+		}
+
+		nTokens = num_tokens(recps->recp_internet, '|');
+	  	for (i = 0; i < nTokens; i++) {
+			long len;
+			len = extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
+			if (len > 0) {
+				StrBufAppendBufPlain(SpoolMsg, HKEY("remote|"), 0);
+				StrBufAppendBufPlain(SpoolMsg, recipient, len, 0);
+				StrBufAppendBufPlain(SpoolMsg, HKEY("|0||\n"), 0);
+			}
+		}
+
+		imsg = malloc(sizeof(struct CtdlMessage));
+		memset(imsg, 0, sizeof(struct CtdlMessage));
+		imsg->cm_magic = CTDLMESSAGE_MAGIC;
+		imsg->cm_anon_type = MES_NORMAL;
+		imsg->cm_format_type = FMT_RFC822;
+		CM_SetField(imsg, eMsgSubject, HKEY("QMSG"));
+		CM_SetField(imsg, eAuthor, HKEY("Citadel"));
+		CM_SetField(imsg, eJournal, HKEY("do not journal"));
+		CM_SetAsFieldSB(imsg, eMesageText, &SpoolMsg);
+		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
+		CM_Free(imsg);
+	}
+	return 0;
+}
 
 CTDL_MODULE_INIT(smtp_queu)
 {
@@ -1224,8 +1288,7 @@ CTDL_MODULE_INIT(smtp_queu)
 		if ((pstr != NULL) && (*pstr != '\0'))
 			delay_msec = atol(pstr) * 1000; /* this many seconds. */
 
-
-
+		CtdlRegisterMessageHook(smtp_aftersave, EVT_AFTERSAVE);
 
 		CtdlFillSystemContext(&smtp_queue_CC, "SMTP_Send");
 		ActiveQItems = NewHash(1, lFlathash);

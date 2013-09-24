@@ -110,7 +110,7 @@ struct rss_aggregator {
 	StrBuf		*Key;
 
 	rss_item   	*Item;
-	struct recptypes recp;
+	recptypes	 recp;
 	HashPos         *Pos;
 	HashList        *Messages;
 	networker_save_message *ThisMsg;

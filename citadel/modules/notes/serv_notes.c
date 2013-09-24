@@ -80,7 +80,7 @@ void notes_extract_vnote(char *name, char *filename, char *partnum, char *disp,
  * and modern vNote format notes) and does its best to learn the subject (summary)
  * and EUID (uid) of the note for Citadel's own nefarious purposes.
  */
-int serv_notes_beforesave(struct CtdlMessage *msg)
+int serv_notes_beforesave(struct CtdlMessage *msg, recptypes *recp)
 {
 	char *p;
 	int a, i;

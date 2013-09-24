@@ -20,7 +20,7 @@ struct jnlq *jnlq = NULL;	/* journal queue */
  */
 void JournalBackgroundSubmit(struct CtdlMessage *msg,
 			StrBuf *saved_rfc822_version,
-			struct recptypes *recps) {
+			recptypes *recps) {
 
 	struct jnlq *jptr = NULL;
 
@@ -36,7 +36,7 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 		return;
 	}
 	memset(jptr, 0, sizeof(struct jnlq));
-	if (recps != NULL) memcpy(&jptr->recps, recps, sizeof(struct recptypes));
+	if (recps != NULL) memcpy(&jptr->recps, recps, sizeof(recptypes));
 	if (!CM_IsEmpty(msg, eAuthor)) jptr->from = strdup(msg->cm_fields[eAuthor]);
 	if (!CM_IsEmpty(msg, eNodeName)) jptr->node = strdup(msg->cm_fields[eNodeName]);
 	if (!CM_IsEmpty(msg, erFc822Addr)) jptr->rfca = strdup(msg->cm_fields[erFc822Addr]);
@@ -88,7 +88,7 @@ void local_to_inetemail(char *inetemail, char *localuser, size_t inetemail_len) 
 void JournalRunQueueMsg(struct jnlq *jmsg) {
 
 	struct CtdlMessage *journal_msg = NULL;
-	struct recptypes *journal_recps = NULL;
+	recptypes *journal_recps = NULL;
 	StrBuf *message_text = NULL;
 	char mime_boundary[256];
 	long mblen;
@@ -128,7 +128,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 					 "--Citadel-Journal-%08lx-%04x--", time(NULL), ++seq);
 			rfc822len = strlen(jmsg->rfc822);
 		       
-			message_text = NewStrBufPlain(NULL, rfc822len + sizeof(struct recptypes) + 1024);
+			message_text = NewStrBufPlain(NULL, rfc822len + sizeof(recptypes) + 1024);
 
 			/*
 			 * Here is where we begin to compose the journalized message.

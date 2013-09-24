@@ -185,13 +185,13 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	icalproperty *summary = NULL;
 	char summary_string[SIZ];
 	icalproperty *me_attend = NULL;
-	struct recptypes *recp = NULL;
+	recptypes *recp = NULL;
 	icalparameter *partstat = NULL;
 	char *serialized_reply = NULL;
 	char *reply_message_text = NULL;
 	const char *ch;
 	struct CtdlMessage *msg = NULL;
-	struct recptypes *valid = NULL;
+	recptypes *valid = NULL;
 
 	*organizer_string = '\0';
 	strcpy(summary_string, "Calendar item");
@@ -1439,7 +1439,7 @@ void ical_freebusy(char *who) {
 	icalcomponent *encaps = NULL;
 	icalcomponent *fb = NULL;
 	int found_user = (-1);
-	struct recptypes *recp = NULL;
+	recptypes *recp = NULL;
 	char buf[256];
 	char host[256];
 	char type[256];
@@ -1999,7 +1999,7 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	icalcomponent *encaps = NULL;
 	char *request_message_text = NULL;
 	struct CtdlMessage *msg = NULL;
-	struct recptypes *valid = NULL;
+	recptypes *valid = NULL;
 	char attendees_string[SIZ];
 	int num_attendees = 0;
 	char this_attendee[256];
@@ -2393,7 +2393,7 @@ void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
  * If the message is being saved, we also set various message header fields
  * using data found in the iCalendar object.
  */
-int ical_obj_beforesave(struct CtdlMessage *msg)
+int ical_obj_beforesave(struct CtdlMessage *msg, recptypes *recp)
 {
 	/* First determine if this is a calendar or tasks room */
 	if (  (CC->room.QRdefaultview != VIEW_CALENDAR)
@@ -2461,7 +2461,7 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
  * (This will start back end tasks such as automatic generation of invitations,
  * if such actions are appropriate.)
  */
-int ical_obj_aftersave(struct CtdlMessage *msg)
+int ical_obj_aftersave(struct CtdlMessage *msg, recptypes *recp)
 {
 	char roomname[ROOMNAMELEN];
 

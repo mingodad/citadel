@@ -70,7 +70,7 @@
 /*
  * Connect to the clamd server and scan a message.
  */
-int clamd(struct CtdlMessage *msg) {
+int clamd(struct CtdlMessage *msg, recptypes *recp) {
 	int sock = (-1);
 	int streamsock = (-1);
 	char clamhosts[SIZ];

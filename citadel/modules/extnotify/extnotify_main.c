@@ -465,12 +465,56 @@ void create_extnotify_queue(void) {
 	}
 }
 
+int extnotify_after_mbox_save(struct CtdlMessage *msg,
+			      recptypes *recps)
+
+{
+	/* If this is private, local mail, make a copy in the
+	 * recipient's mailbox and bump the reference count.
+	 */
+	if (!IsEmptyStr(config.c_funambol_host) || !IsEmptyStr(config.c_pager_program))
+	{
+		/* Generate a instruction message for the Funambol notification
+		 * server, in the same style as the SMTP queue
+		 */
+		StrBuf *instr;
+		struct CtdlMessage *imsg;
+
+		instr = NewStrBufPlain(NULL, 1024);
+		StrBufPrintf(instr,
+			     "Content-type: "SPOOLMIME"\n"
+			     "\n"
+			     "msgid|%s\n"
+			     "submitted|%ld\n"
+			     "bounceto|%s\n",
+			     msg->cm_fields[eVltMsgNum],
+			     (long)time(NULL), //todo: time() is expensive!
+			     recps->bounce_to
+			);
+				
+		imsg = malloc(sizeof(struct CtdlMessage));
+		memset(imsg, 0, sizeof(struct CtdlMessage));
+		imsg->cm_magic = CTDLMESSAGE_MAGIC;
+		imsg->cm_anon_type = MES_NORMAL;
+		imsg->cm_format_type = FMT_RFC822;
+		CM_SetField(imsg, eMsgSubject, HKEY("QMSG"));
+		CM_SetField(imsg, eAuthor, HKEY("Citadel"));
+		CM_SetField(imsg, eJournal, HKEY("do not journal"));
+		CM_SetAsFieldSB(imsg, eMesageText, &instr);
+		CM_SetField(imsg, eExtnotify, recps->recp_local, strlen(recps->recp_local));
+		CtdlSubmitMsg(imsg, NULL, FNBL_QUEUE_ROOM, 0);
+		CM_Free(imsg);
+	}
+	return 0;
+}
 
 CTDL_MODULE_INIT(extnotify)
 {
 	if (!threading)
 	{
 		create_extnotify_queue();
+		CtdlRegisterMessageHook(extnotify_after_mbox_save, EVT_AFTERUSRMBOXSAVE);
+
 		CtdlRegisterSessionHook(do_extnotify_queue, EVT_TIMER, PRIO_SEND + 10);
 	}
 	/* return our module name for the log */

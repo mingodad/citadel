@@ -119,7 +119,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	time_t submitted = 0L;
 	struct CtdlMessage *bmsg = NULL;
 	int give_up = 0;
-	struct recptypes *valid;
+	recptypes *valid;
 	int successful_bounce = 0;
 	static int seq = 0;
 	StrBuf *BounceMB;

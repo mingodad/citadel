@@ -204,7 +204,7 @@ struct AsyncIO {
 	/* Saving / loading a message async from / to disk */
 	ReadAsyncMsg *ReadMsg;
 	struct CtdlMessage *AsyncMsg;
-	struct recptypes *AsyncRcp;
+	recptypes *AsyncRcp;
 
 	/* Context specific data; Hint: put AsyncIO in there */
 	void *Data;        /* application specific data */

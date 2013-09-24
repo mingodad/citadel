@@ -221,7 +221,7 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 	int ret;
-	struct recptypes *valid;
+	recptypes *valid;
 	struct ctdluser temp;
 
 	if (num_parms != 4) {

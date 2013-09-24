@@ -70,6 +70,7 @@ typedef struct _stmp_out_msg {
 	char mailfrom[1024];
 	long SendLogin;
 	long Flags;
+	long IsRelay;
 } SmtpOutMsg;
 
 

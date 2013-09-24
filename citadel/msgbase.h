@@ -77,7 +77,7 @@ void memfmout (char *mptr, const char *nl);
 void output_mime_parts(char *);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
-long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, const char *, int);
+long CtdlSubmitMsg(struct CtdlMessage *, recptypes *, const char *, int);
 
 void quickie_message(const char *from,
 		     const char *fromaddr,
@@ -211,7 +211,29 @@ struct CtdlMessage *CtdlMakeMessage(
         char *preformatted_text,        /* ...or NULL to read text from client */
 	char *references		/* Thread references */
 );
-int CtdlIsMe(char *addr, int addr_buf_len);
+
+struct CtdlMessage *CtdlMakeMessageLen(
+	struct ctdluser *author,	/* author's user structure */
+	char *recipient,		/* NULL if it's not mail */
+	long rcplen,
+	char *recp_cc,			/* NULL if it's not mail */
+	long cclen,
+	char *room,			/* room where it's going */
+	long roomlen,
+	int type,			/* see MES_ types in header file */
+	int format_type,		/* variformat, plain text, MIME... */
+	char *fake_name,		/* who we're masquerading as */
+	long fnlen,
+	char *my_email,			/* which of my email addresses to use (empty is ok) */
+	long myelen,
+	char *subject,			/* Subject (optional) */
+	long subjlen,
+	char *supplied_euid,		/* ...or NULL if this is irrelevant */
+	long euidlen,
+	char *preformatted_text,	/* ...or NULL to read text from client */
+	long textlen,
+	char *references,		/* Thread references */
+	long reflen);
 
 /* 
  * loading messages async via an FD: 

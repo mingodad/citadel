@@ -70,7 +70,7 @@
 /*
  * Connect to the SpamAssassin server and scan a message.
  */
-int spam_assassin(struct CtdlMessage *msg) {
+int spam_assassin(struct CtdlMessage *msg, recptypes *recp) {
 	int sock = (-1);
 	char sahosts[SIZ];
 	int num_sahosts;

@@ -70,7 +70,7 @@ char *wwm = "9999999999.WikiWaybackMachine";
  * Before allowing a wiki page save to execute, we have to perform version control.
  * This involves fetching the old version of the page if it exists.
  */
-int wiki_upload_beforesave(struct CtdlMessage *msg) {
+int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	struct CitContext *CCC = CC;
 	long old_msgnum = (-1L);
 	struct CtdlMessage *old_msg = NULL;

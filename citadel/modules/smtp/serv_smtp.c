@@ -668,7 +668,7 @@ void smtp_rcpt(long offset, long flags)
 {
 	struct CitContext *CCC = CC;
 	char message_to_spammer[SIZ];
-	struct recptypes *valid = NULL;
+	recptypes *valid = NULL;
 	citsmtp *sSMTP = SMTP;
 
 	if (StrLength(sSMTP->from) == 0) {
@@ -767,7 +767,7 @@ void smtp_data(long offset, long flags)
 	struct CtdlMessage *msg = NULL;
 	long msgnum = (-1L);
 	char nowstamp[SIZ];
-	struct recptypes *valid;
+	recptypes *valid;
 	int scan_errors;
 	int i;
 	citsmtp *sSMTP = SMTP;
@@ -896,7 +896,7 @@ void smtp_data(long offset, long flags)
 		scan_errors = 0;
 	}
 	else {
-		scan_errors = PerformMessageHooks(msg, EVT_SMTPSCAN);
+		scan_errors = PerformMessageHooks(msg, valid, EVT_SMTPSCAN);
 	}
 
 	if (scan_errors > 0) {	/* We don't want this message! */

@@ -350,7 +350,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 	char buf[SIZ];
 	char bouncesource[SIZ];
 	char recipient[SIZ];
-	struct recptypes *valid = NULL;
+	recptypes *valid = NULL;
 	char force_room[ROOMNAMELEN];
 	static int serialnum = 0;
 	long len;
@@ -589,6 +589,80 @@ void network_cleanup_function(void)
 }
 
 
+int ignet_aftersave(struct CtdlMessage *msg,
+		    recptypes *recps)	/* recipients (if mail) */
+{
+	/* For IGnet mail, we have to save a new copy into the spooler for
+	 * each recipient, with the R and D fields set to the recipient and
+	 * destination-node.  This has two ugly side effects: all other
+	 * recipients end up being unlisted in this recipient's copy of the
+	 * message, and it has to deliver multiple messages to the same
+	 * node.  We'll revisit this again in a year or so when everyone has
+	 * a network spool receiver that can handle the new style messages.
+	 */
+	if ((recps != NULL) && (recps->num_ignet > 0))
+	{
+		char *recipient;
+		int rv = 0;
+		struct ser_ret smr;
+		FILE *network_fp = NULL;
+		char submit_filename[128];
+		static int seqnum = 1;
+		int i;
+		char *hold_R, *hold_D, *RBuf, *DBuf;
+		long hrlen, hdlen, rblen, dblen, count, rlen;
+		CitContext *CCC = MyContext();
+
+		CM_GetAsField(msg, eRecipient, &hold_R, &hrlen);;
+		CM_GetAsField(msg, eDestination, &hold_D, &hdlen);;
+
+		count = num_tokens(recps->recp_ignet, '|');
+		rlen = strlen(recps->recp_ignet);
+		recipient = malloc(rlen + 1);
+		RBuf = malloc(rlen + 1);
+		DBuf = malloc(rlen + 1);
+		for (i=0; i<count; ++i) {
+			extract_token(recipient, recps->recp_ignet, i,
+				      '|', rlen + 1);
+
+			rblen = extract_token(RBuf, recipient, 0, '@', rlen + 1);
+			dblen = extract_token(DBuf, recipient, 1, '@', rlen + 1);
+		
+			CM_SetAsField(msg, eRecipient, &RBuf, rblen);;
+			CM_SetAsField(msg, eDestination, &DBuf, dblen);;
+			CtdlSerializeMessage(&smr, msg);
+			if (smr.len > 0) {
+				snprintf(submit_filename, sizeof submit_filename,
+					 "%s/netmail.%04lx.%04x.%04x",
+					 ctdl_netin_dir,
+					 (long) getpid(),
+					 CCC->cs_pid,
+					 ++seqnum);
+
+				network_fp = fopen(submit_filename, "wb+");
+				if (network_fp != NULL) {
+					rv = fwrite(smr.ser, smr.len, 1, network_fp);
+					if (rv == -1) {
+						MSG_syslog(LOG_EMERG, "CtdlSubmitMsg(): Couldn't write network spool file: %s\n",
+							   strerror(errno));
+					}
+					fclose(network_fp);
+				}
+				free(smr.ser);
+			}
+			CM_GetAsField(msg, eRecipient, &RBuf, &rblen);;
+			CM_GetAsField(msg, eDestination, &DBuf, &dblen);;
+		}
+		free(RBuf);
+		free(DBuf);
+		free(recipient);
+		CM_SetAsField(msg, eRecipient, &hold_R, hrlen);
+		CM_SetAsField(msg, eDestination, &hold_D, hdlen);
+		return 1;
+	}
+	return 0;
+}
+
 /*
  * Module entry point
  */
@@ -602,6 +676,8 @@ CTDL_MODULE_INIT(network)
 {
 	if (!threading)
 	{
+		CtdlRegisterMessageHook(ignet_aftersave, EVT_AFTERSAVE);
+
 		CtdlFillSystemContext(&networker_spool_CC, "CitNetSpool");
 		CtdlRegisterDebugFlagHook(HKEY("networkqueue"), SetNetQDebugEnabled, &NetQDebugEnabled);
 		CtdlRegisterSessionHook(network_cleanup_function, EVT_STOP, PRIO_STOP + 30);

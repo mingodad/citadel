@@ -1,6 +1,6 @@
 struct jnlq {
 	struct jnlq *next;
-	struct recptypes recps;
+	recptypes recps;
 	char *from;
 	char *node;
 	char *rfca;
@@ -11,6 +11,6 @@ struct jnlq {
 
 void JournalBackgroundSubmit(struct CtdlMessage *msg,
                         StrBuf *saved_rfc822_version,
-                        struct recptypes *recps);
+                        recptypes *recps);
 void JournalRunQueueMsg(struct jnlq *jmsg);
 void JournalRunQueue(void);

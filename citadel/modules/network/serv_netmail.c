@@ -180,7 +180,7 @@ void network_deliver_digest(SpoolControl *sc)
 	char *pbuf;
 	struct CtdlMessage *msg = NULL;
 	long msglen;
-	struct recptypes *valid;
+	recptypes *valid;
 	char bounce_to[256];
 
 	if (sc->Users[listrecp] == NULL)
@@ -354,7 +354,7 @@ void network_process_list(SpoolControl *sc, struct CtdlMessage *omsg, long *dele
  */
 void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char *RoomName)
 {
-	struct recptypes *valid;
+	recptypes *valid;
 	char bounce_to[256];
 
 	/* Don't do this if there were no recipients! */
@@ -385,7 +385,7 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	struct CtdlMessage *msg = NULL;
 	int ok_to_participate = 0;
 	StrBuf *Buf = NULL;
-	struct recptypes *valid;
+	recptypes *valid;
 
 	/*
 	 * Process client-side list participations for this room

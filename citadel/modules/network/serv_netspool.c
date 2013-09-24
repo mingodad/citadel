@@ -420,7 +420,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	struct CtdlMessage *msg = NULL;
 	long pos;
 	int field;
-	struct recptypes *recp = NULL;
+	recptypes *recp = NULL;
 	char target_room[ROOMNAMELEN];
 	struct ser_ret sermsg;
 	char filename[PATH_MAX];

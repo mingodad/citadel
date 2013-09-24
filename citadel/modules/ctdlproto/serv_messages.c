@@ -332,10 +332,10 @@ void cmd_ent0(char *entargs)
 	int anonymous = 0;
 	char errmsg[SIZ];
 	int err = 0;
-	struct recptypes *valid = NULL;
-	struct recptypes *valid_to = NULL;
-	struct recptypes *valid_cc = NULL;
-	struct recptypes *valid_bcc = NULL;
+	recptypes *valid = NULL;
+	recptypes *valid_to = NULL;
+	recptypes *valid_cc = NULL;
+	recptypes *valid_bcc = NULL;
 	char subject[SIZ];
 	int subject_required = 0;
 	int do_confirm = 0;

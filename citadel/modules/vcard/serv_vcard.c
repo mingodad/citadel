@@ -329,7 +329,7 @@ void vcard_extract_vcard(char *name, char *filename, char *partnum, char *disp,
  * function accordingly (delete the user's existing vCard in the config room
  * and in the global address book).
  */
-int vcard_upload_beforesave(struct CtdlMessage *msg) {
+int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	struct CitContext *CCC = CC;
 	char *s;
 	char buf[SIZ];
@@ -504,7 +504,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
  * function accordingly (copy the vCard from the config room to the global
  * address book).
  */
-int vcard_upload_aftersave(struct CtdlMessage *msg) {
+int vcard_upload_aftersave(struct CtdlMessage *msg, recptypes *recp) {
 	struct CitContext *CCC = CC;
 	char *ptr;
 	int linelen;
@@ -1172,7 +1172,7 @@ void check_get(void) {
 	
 	if (strncasecmp(cmdbuf, "GET ", 4)==0)
 	{
-		struct recptypes *rcpt;
+		recptypes *rcpt;
 		char *argbuf = &cmdbuf[4];
 		
 		extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);

@@ -134,10 +134,10 @@ void CtdlUnregisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
 void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *, char *), int order);
 void CtdlUnregisterXmsgHook(int (*fcn_ptr)(char *, char *, char *, char *), int order);
 
-void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
+void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *, recptypes*),
 							int EventType);
-void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
-							int EventType);
+void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *, recptypes *),
+			       int EventType);
 
 void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
 void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
@@ -535,6 +535,7 @@ void CtdlUserLogout(void);
  * Expose API calls from euidindex.c
  */
 long CtdlLocateMessageByEuid(char *euid, struct ctdlroom *qrbuf);
+
 
 
 #endif /* CTDL_MODULE_H */

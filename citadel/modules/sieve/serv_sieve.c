@@ -106,7 +106,7 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 {
 	struct ctdl_sieve *cs = (struct ctdl_sieve *)my;
 	struct CtdlMessage *msg = NULL;
-	struct recptypes *valid = NULL;
+	recptypes *valid = NULL;
 	char recp[256];
 
 	safestrncpy(recp, sieve2_getvalue_string(s, "address"), sizeof recp);

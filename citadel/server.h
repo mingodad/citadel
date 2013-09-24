@@ -21,12 +21,35 @@ struct CtdlMessage {
 	char cm_anon_type;		/* Anonymous or author-visible */
 	char cm_format_type;		/* Format type */
 	char *cm_fields[256];		/* Data fields */
+	long cm_lengths[256];		/* size of datafields */
 	unsigned int cm_flags;		/* How to handle (NOT SAVED TO DISK) */
 };
 
 #define	CTDLMESSAGE_MAGIC		0x159d
 #define	CM_SKIP_HOOKS	0x01		/* Don't run server-side handlers */
 
+
+/* Data structure returned by validate_recipients() */
+typedef struct __recptypes {
+	int recptypes_magic;
+        int num_local;
+        int num_internet;
+        int num_ignet;
+	int num_room;
+        int num_error;
+	char *errormsg;
+	char *recp_local;
+	char *recp_internet;
+	char *recp_ignet;
+	char *recp_room;
+	char *recp_orgroom;
+	char *display_recp;
+	char *bounce_to;
+	char *envelope_from;
+	char *sending_room;
+} recptypes;
+
+#define RECPTYPES_MAGIC 0xfeeb
 
 
 #define CTDLEXIT_SHUTDOWN	0	/* Normal shutdown; do NOT auto-restart */
@@ -224,6 +247,7 @@ struct cdbdata {
 #define EVT_BEFORESAVE	201
 #define EVT_AFTERSAVE	202
 #define EVT_SMTPSCAN	203	/* called before submitting a msg from SMTP */
+#define EVT_AFTERUSRMBOXSAVE 204 /* called afte a message was saved into a users inbox */
 /* Priority levels for paging functions (lower is better) */
 enum {
 	XMSG_PRI_LOCAL,		/* Other users on -this- server */

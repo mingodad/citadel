@@ -356,7 +356,7 @@ eNextState mx_connect_ip(AsyncIO *IO)
 	SmtpOutMsg *Msg = IO->Data;
 	SetSMTPState(IO, eSTMPconnecting);
 
-	EVS_syslog(LOG_DEBUG, "%s\n", __FUNCTION__);
+	EVS_syslog(LOG_DEBUG, "%s(%s)\n", __FUNCTION__, (Msg->IsRelay)? "Relay":"Remote");
 
 	IO->ConnectMe = Msg->pCurrRelay;
 	Msg->State = eConnectMX;
@@ -656,6 +656,7 @@ void smtp_try_one_queue_entry(OneQueItem *MyQItem,
 					  resolve_mx_records);
 		}
 		else { /* oh... via relay host */
+			Msg->IsRelay = 1;
 			if (Msg->pCurrRelay->IsIP) {
 				SetSMTPState(&Msg->IO, eSTMPconnecting);
 				QueueEventContext(&Msg->IO,
