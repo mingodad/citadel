@@ -1985,6 +1985,45 @@ void StrBufHexEscAppend(StrBuf *OutBuf, const StrBuf *In, const unsigned char *P
 	*pt = '\0';
 }
 
+void StrBufBase64Append(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn, long PlainInLen, int linebreaks)
+{
+	const char *pch;
+	char *pt;
+	int len;
+	long ExpectLen;
+	
+	if (((In == NULL) && (PlainIn == NULL)) || (OutBuf == NULL) )
+		return;
+	if (PlainIn != NULL) {
+		if (PlainInLen < 0)
+			len = strlen(PlainIn);
+		else
+			len = PlainInLen;
+		pch = PlainIn;
+	}
+	else {
+		pch = In->buf;
+		len = In->BufUsed;
+	}
+
+	if (len == 0) 
+		return;
+
+	ExpectLen = ((len * 134) / 100) + OutBuf->BufUsed;
+
+	if (ExpectLen > OutBuf->BufSize)
+		if (IncreaseBuf(OutBuf, 1, ExpectLen) < ExpectLen)
+			return;
+
+	pt = OutBuf->buf + OutBuf->BufUsed;
+
+	len = CtdlEncodeBase64(pt, pch, len, linebreaks);
+
+	pt += len;
+	OutBuf->BufUsed += len;
+	*pt = '\0';
+}
+
 /** 
  * @ingroup StrBuf_DeEnCoder
  * @brief append a string in hex encoding to the buffer
