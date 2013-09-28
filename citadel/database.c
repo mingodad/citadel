@@ -908,7 +908,7 @@ time_t CheckIfAlreadySeen(const char *Facility,
 	{
 		SEENM_syslog(LOG_DEBUG, "Loading");
 		cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
-		if (cdbut != NULL) {
+		if ((cdbut != NULL) && (cdbut->ptr != NULL)) {
 			memcpy(&ut, cdbut->ptr,
 			       ((cdbut->len > sizeof(struct UseTable)) ?
 				sizeof(struct UseTable) : cdbut->len));
