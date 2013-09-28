@@ -293,7 +293,7 @@ void imap_add_single_msgid(long msgnum, void *userdata)
 	if (Imap->num_msgs > Imap->num_alloc) {
 		Imap->num_alloc += REALLOC_INCREMENT;
 		Imap->msgids = realloc(Imap->msgids, (Imap->num_alloc * sizeof(long)) );
-		Imap->flags = realloc(Imap->flags, (Imap->num_alloc * sizeof(long)) );
+		Imap->flags = realloc(Imap->flags, (Imap->num_alloc * sizeof(unsigned int *)) );
 	}
 	Imap->msgids[Imap->num_msgs - 1] = msgnum;
 	Imap->flags[Imap->num_msgs - 1] = 0;
@@ -328,7 +328,7 @@ void imap_load_msgids(void)
 	}
 
 	if (Imap->num_msgs) {
-		Imap->flags = malloc(Imap->num_alloc * sizeof(long));
+		Imap->flags = malloc(Imap->num_alloc * sizeof(unsigned int *));
 		memset(Imap->flags, 0, (Imap->num_alloc * sizeof(long)) );
 	}
 
