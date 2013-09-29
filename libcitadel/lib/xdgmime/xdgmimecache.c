@@ -709,6 +709,8 @@ _xdg_mime_cache_get_mime_type_for_file (const char  *file_name,
    * be large and need getting from a stream instead of just reading it all
    * in. */
   max_extent = _xdg_mime_cache_get_max_buffer_extents ();
+  if (max_extent == 0)
+    return XDG_MIME_TYPE_UNKNOWN;
   data = malloc (max_extent);
   if (data == NULL)
     return XDG_MIME_TYPE_UNKNOWN;
