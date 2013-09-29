@@ -420,9 +420,8 @@ void imap_list(int num_parms, ConstStr *Params)
 	 */
 	for (i=0; i<ImapFilter.num_patterns; ++i) {
 		FreeStrBuf(&ImapFilter.patterns[i]);
-		free(ImapFilter.patterns);
-
 	}
+	free(ImapFilter.patterns);
 
 	IReplyPrintf("OK %s completed", ImapFilter.verb);
 }
