@@ -1004,6 +1004,7 @@ void smtp_command_loop(void)
 
 	else if (sSMTP->command_state == smtp_plain) {
 		smtp_try_plain(0, 0);
+		return;
 	}
 
 	pchs = pch = ChrPtr(sSMTP->Cmd);
