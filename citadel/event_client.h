@@ -223,7 +223,7 @@ extern int DebugCAres;
 
 #define EDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugEventLoop != 0))
 
-#define CCID ((CitContext*)IO->CitContext)->cs_pid
+#define CCID ((CitContext*)IO->CitContext)?((CitContext*)IO->CitContext)->cs_pid:-1
 
 #define EVQ_syslog(LEVEL, FORMAT, ...)					\
 	EDBGLOG (LEVEL) syslog(LEVEL, "IOQ " FORMAT, __VA_ARGS__)
