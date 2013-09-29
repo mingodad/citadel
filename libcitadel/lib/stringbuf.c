@@ -1177,7 +1177,6 @@ void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
 	const char *pRight;
 
 	if ((Buf == NULL) || (Buf->buf == NULL)) {
-		StrBufCutAt(Buf, 0, Buf->buf);
 		return;
 	}
 
