@@ -941,7 +941,6 @@ void memfmout(
 			MSGM_syslog(LOG_ERR, "memfmout(): aborting due to write failure.\n");
 			return;
 		}
-		len = 0;
 		client_write(nl, nllen);
 		column = 0;
 	}
