@@ -604,7 +604,7 @@ void cmd_ent0(char *entargs)
 		 * to the actual mail address so others get a valid
 		 * reply-to-header.
 		 */
-		msg->cm_fields[eenVelopeTo] = strdup(valid->recp_orgroom);
+		CM_SetField(msg, eenVelopeTo, valid->recp_orgroom, strlen(valid->recp_orgroom));
 	}
 
 	if (msg != NULL) {

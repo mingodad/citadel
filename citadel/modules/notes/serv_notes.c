@@ -107,7 +107,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg, recptypes *recp)
 	 */
 	strcpy(uuid, "");
 	p = msg->cm_fields[eMesageText];
-	a = strlen(p);
+	a = msg->cm_lengths[eMesageText];
 	while (--a > 0) {
 		if (!strncasecmp(p, "X-KOrg-Note-Id: ", 16)) {	/* Found it */
 			safestrncpy(uuid, p + 16, sizeof(uuid));
@@ -152,7 +152,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg, recptypes *recp)
 	if ((v->summary) && (!IsEmptyStr(v->summary))) {
 		CM_SetField(msg, eMsgSubject, v->summary, strlen(v->summary));
 
-		if (strlen(msg->cm_fields[eMsgSubject]) > 72) {
+		if (msg->cm_lengths[eMsgSubject] > 72) {
 			strcpy(&msg->cm_fields[eMsgSubject][68], "...");
 			CM_CutFieldAt(msg, eMsgSubject, 72);
 		}

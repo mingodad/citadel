@@ -281,7 +281,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (strlen(msg->cm_fields[eMesageText]) > atoi(itemlist[pos+1].Key)) {
+			if (msg->cm_lengths[eMesageText] > atoi(itemlist[pos+1].Key)) {
 				match = 1;
 			}
 		}
@@ -402,7 +402,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
-			if (strlen(msg->cm_fields[eMesageText]) < atoi(itemlist[pos+1].Key)) {
+			if (msg->cm_lengths[eMesageText] < atoi(itemlist[pos+1].Key)) {
 				match = 1;
 			}
 		}

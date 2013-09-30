@@ -136,8 +136,7 @@ static void ListCalculateSubject(struct CtdlMessage *msg)
 		Subject = NewStrBufPlain(HKEY("(no subject)"));
 	}
 	else {
-		Subject = NewStrBufPlain(
-			msg->cm_fields[eMsgSubject], -1);
+		Subject = NewStrBufPlain(CM_KEY(msg, eMsgSubject));
 	}
 	FlatSubject = NewStrBufPlain(NULL, StrLength(Subject));
 	StrBuf_RFC822_to_Utf8(FlatSubject, Subject, NULL, NULL);
@@ -407,7 +406,7 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 			ok_to_participate = 1;
 		}
 		
-		Buf = NewStrBufPlain(msg->cm_fields[eNodeName], -1);
+		Buf = NewStrBufPlain(CM_KEY(msg, eNodeName));
 		if (CtdlIsValidNode(NULL,
 				    NULL,
 				    Buf,

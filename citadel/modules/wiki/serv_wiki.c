@@ -110,8 +110,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	/* Make sure we're saving a real wiki page rather than a wiki history page.
 	 * This is important in order to avoid recursing infinitely into this hook.
 	 */
-	if (	(strlen(msg->cm_fields[eExclusiveID]) >= 9)
-		&& (!strcasecmp(&msg->cm_fields[eExclusiveID][strlen(msg->cm_fields[eExclusiveID])-9], "_HISTORY_"))
+	if (	(msg->cm_lengths[eExclusiveID] >= 9)
+		&& (!strcasecmp(&msg->cm_fields[eExclusiveID][msg->cm_lengths[eExclusiveID]-9], "_HISTORY_"))
 	) {
 		syslog(LOG_DEBUG, "History page not being historied\n");
 		return(0);
@@ -152,13 +152,13 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 
 	if (old_msg != NULL) {
 		fp = fopen(diff_old_filename, "w");
-		rv = fwrite(old_msg->cm_fields[eMesageText], strlen(old_msg->cm_fields[eMesageText]), 1, fp);
+		rv = fwrite(old_msg->cm_fields[eMesageText], old_msg->cm_lengths[eMesageText], 1, fp);
 		fclose(fp);
 		CM_Free(old_msg);
 	}
 
 	fp = fopen(diff_new_filename, "w");
-	rv = fwrite(msg->cm_fields[eMesageText], strlen(msg->cm_fields[eMesageText]), 1, fp);
+	rv = fwrite(msg->cm_fields[eMesageText], msg->cm_lengths[eMesageText], 1, fp);
 	fclose(fp);
 
 	snprintf(diff_cmd, sizeof diff_cmd,
@@ -542,7 +542,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	CtdlMakeTempFileName(temp, sizeof temp);
 	fp = fopen(temp, "w");
 	if (fp != NULL) {
-		r = fwrite(msg->cm_fields[eMesageText], strlen(msg->cm_fields[eMesageText]), 1, fp);
+		r = fwrite(msg->cm_fields[eMesageText], msg->cm_lengths[eMesageText], 1, fp);
 		fclose(fp);
 	}
 	else {

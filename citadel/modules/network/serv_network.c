@@ -116,11 +116,11 @@ int network_usetable(struct CtdlMessage *msg)
 	}
 
 	/* Generate the message ID */
-	msgid = NewStrBufPlain(msg->cm_fields[emessageId], -1);
+	msgid = NewStrBufPlain(CM_KEY(msg, emessageId));
 	if (haschar(ChrPtr(msgid), '@') == 0) {
 		StrBufAppendBufPlain(msgid, HKEY("@"), 0);
 		if (!CM_IsEmpty(msg, eNodeName)) {
-			StrBufAppendBufPlain(msgid, msg->cm_fields[eNodeName], -1, 0);
+			StrBufAppendBufPlain(msgid, CM_KEY(msg, eNodeName), 0);
 		}
 		else {
 			FreeStrBuf(&msgid);

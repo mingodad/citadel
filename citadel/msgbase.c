@@ -1592,13 +1592,13 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 		if ((Author != NULL) && (*Author == NULL))
 		{
-			*Author = TheMessage->cm_fields[eAuthor];
-			TheMessage->cm_fields[eAuthor] = NULL;
+			long len;
+			CM_GetAsField(TheMessage, eAuthor, Author, &len);
 		}
 		if ((Address != NULL) && (*Address == NULL))
 		{	
-			*Address = TheMessage->cm_fields[erFc822Addr];
-			TheMessage->cm_fields[erFc822Addr] = NULL;
+			long len;
+			CM_GetAsField(TheMessage, erFc822Addr, Address, &len);
 		}
 		CM_Free(TheMessage);
 		TheMessage = NULL;
@@ -1631,13 +1631,13 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		retcode = CtdlOutputPreLoadedMsg(TheMessage, mode, headers_only, do_proto, crlf, flags);
 	if ((Author != NULL) && (*Author == NULL))
 	{
-		*Author = TheMessage->cm_fields[eAuthor];
-		TheMessage->cm_fields[eAuthor] = NULL;
+		long len;
+		CM_GetAsField(TheMessage, eAuthor, Author, &len);
 	}
 	if ((Address != NULL) && (*Address == NULL))
 	{	
-		*Address = TheMessage->cm_fields[erFc822Addr];
-		TheMessage->cm_fields[erFc822Addr] = NULL;
+		long len;
+		CM_GetAsField(TheMessage, erFc822Addr, Address, &len);
 	}
 
 	CM_Free(TheMessage);
@@ -2036,7 +2036,7 @@ int CtdlOutputPreLoadedMsg(
 	 * Pad it with spaces in order to avoid changing the RFC822 length of the message.
 	 */
 	if ( (flags & SUPPRESS_ENV_TO) && (!CM_IsEmpty(TheMessage, eenVelopeTo)) ) {
-		memset(TheMessage->cm_fields[eenVelopeTo], ' ', strlen(TheMessage->cm_fields[eenVelopeTo]));
+		memset(TheMessage->cm_fields[eenVelopeTo], ' ', TheMessage->cm_lengths[eenVelopeTo]);
 	}
 		
 	/* Are we downloading a MIME component? */
@@ -2456,7 +2456,7 @@ long send_message(struct CtdlMessage *msg) {
 	struct ser_ret smr;
 	int is_bigmsg = 0;
 	char *holdM = NULL;
-	long oldMLen = 0;
+	long holdMLen = 0;
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
@@ -2477,7 +2477,7 @@ long send_message(struct CtdlMessage *msg) {
 			is_bigmsg = 1;
 			holdM = msg->cm_fields[eMesageText];
 			msg->cm_fields[eMesageText] = NULL;
-			oldMLen = msg->cm_lengths[eMesageText];
+			holdMLen = msg->cm_lengths[eMesageText];
 			msg->cm_lengths[eMesageText] = 0;
 		}
 	}
@@ -2487,6 +2487,7 @@ long send_message(struct CtdlMessage *msg) {
 
 	if (is_bigmsg) {
 		msg->cm_fields[eMesageText] = holdM;
+		msg->cm_lengths[eMesageText] = holdMLen;
 	}
 
 	if (smr.len == 0) {
@@ -2506,7 +2507,7 @@ long send_message(struct CtdlMessage *msg) {
 				  &newmsgid,
 				  (int)sizeof(long),
 				  holdM,
-				  (oldMLen + 1)
+				  (holdMLen + 1)
 				);
 		}
 		retval = newmsgid;
@@ -2965,29 +2966,31 @@ void quickie_message(const char *from,
 	msg->cm_format_type = format_type;
 
 	if (from != NULL) {
-		msg->cm_fields[eAuthor] = strdup(from);
+		CM_SetField(msg, eAuthor, from, strlen(from));
 	}
 	else if (fromaddr != NULL) {
-		msg->cm_fields[eAuthor] = strdup(fromaddr);
-		if (strchr(msg->cm_fields[eAuthor], '@')) {
-			*strchr(msg->cm_fields[eAuthor], '@') = 0;
+		char *pAt;
+		CM_SetField(msg, eAuthor, fromaddr, strlen(fromaddr));
+		pAt = strchr(msg->cm_fields[eAuthor], '@');
+		if (pAt != NULL) {
+			CM_CutFieldAt(msg, eAuthor, pAt - msg->cm_fields[eAuthor]);
 		}
 	}
 	else {
 		msg->cm_fields[eAuthor] = strdup("Citadel");
 	}
 
-	if (fromaddr != NULL) msg->cm_fields[erFc822Addr] = strdup(fromaddr);
-	if (room != NULL) msg->cm_fields[eOriginalRoom] = strdup(room);
-	msg->cm_fields[eNodeName] = strdup(NODENAME);
+	if (fromaddr != NULL) CM_SetField(msg, erFc822Addr, fromaddr, strlen(fromaddr));
+	if (room != NULL) CM_SetField(msg, eOriginalRoom, room, strlen(room));
+	CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
 	if (to != NULL) {
-		msg->cm_fields[eRecipient] = strdup(to);
+		CM_SetField(msg, eRecipient, to, strlen(to));
 		recp = validate_recipients(to, NULL, 0);
 	}
 	if (subject != NULL) {
-		msg->cm_fields[eMsgSubject] = strdup(subject);
+		CM_SetField(msg, eMsgSubject, subject, strlen(subject));
 	}
-	msg->cm_fields[eMesageText] = strdup(text);
+	CM_SetField(msg, eMesageText, text, strlen(text));
 
 	CtdlSubmitMsg(msg, recp, room, 0);
 	CM_Free(msg);

@@ -351,7 +351,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 
 			commandSiz = sizeof(config.c_pager_program) +
 				strlen(PagerNo) +
-				strlen(msg->cm_fields[eExtnotify]) + 5;
+				msg->cm_lengths[eExtnotify] + 5;
 
 			command = malloc(commandSiz);
 

@@ -462,7 +462,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 		if (strcasecmp(msg->cm_fields[eDestination], config.c_nodename)) {
 
 			/* route the message */
-			Buf = NewStrBufPlain(msg->cm_fields[eDestination], -1);
+			Buf = NewStrBufPlain(CM_KEY(msg,eDestination));
 			if (CtdlIsValidNode(&nexthop, 
 					    NULL, 
 					    Buf, 

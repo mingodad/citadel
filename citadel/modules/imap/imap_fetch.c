@@ -518,7 +518,7 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	if (fieldptr != NULL) free(fieldptr);
 
 	/* message ID */
-	len = strlen(msg->cm_fields[emessageId]);
+	len = msg->cm_lengths[emessageId];
 	
 	if ((len == 0) || (
 		    (msg->cm_fields[emessageId][0] == '<') && 
