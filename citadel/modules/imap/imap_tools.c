@@ -552,11 +552,12 @@ int imap_parameterize(citimap_command *Cmd)
 
 /* Convert a struct ctdlroom to an IMAP-compatible mailbox name. */
 
-void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
+long imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 {
 	char* bufend = buf+bufsize;
 	struct floor *fl;
 	char* p = buf;
+	const char *pend;
 
 	/* For mailboxes, just do it straight.
 	 * Do the Cyrus-compatible thing: all private folders are
@@ -565,13 +566,17 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 	if (qrbuf->QRflags & QR_MAILBOX)
 	{
 		if (strcasecmp(qrbuf->QRname+11, MAILROOM) == 0)
-			toimap(p, bufend, "INBOX");
+		{
+			pend = toimap(p, bufend, "INBOX");
+			return pend - p;
+		}
 		else
 		{
 			p = toimap(p, bufend, "INBOX");
 			if (p < bufend)
 				*p++ = '/';
-			toimap(p, bufend, qrbuf->QRname+11);
+			pend = toimap(p, bufend, qrbuf->QRname+11);
+			return pend - p;
 		}
 	}
 	else
@@ -582,7 +587,8 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 		p = toimap(p, bufend, fl->f_name);
 		if (p < bufend)
 			*p++ = '/';
-		toimap(p, bufend, qrbuf->QRname);
+		pend = toimap(p, bufend, qrbuf->QRname);
+		return pend - p;
 	}
 }
 
@@ -680,33 +686,6 @@ exit:
 	IMAP_syslog(LOG_DEBUG, "(That translates to \"%s\")", rbuf);
 	return(ret);
 }
-
-/*
- * Output a struct internet_address_list in the form an IMAP client wants
- */
-void imap_ial_out(struct internet_address_list *ialist)
-{
-	struct internet_address_list *iptr;
-
-	if (ialist == NULL) {
-		IAPuts("NIL");
-		return;
-	}
-	IAPuts("(");
-
-	for (iptr = ialist; iptr != NULL; iptr = iptr->next) {
-		IAPuts("(");
-		plain_imap_strout(iptr->ial_name);
-		IAPuts(" NIL ");
-		plain_imap_strout(iptr->ial_user);
-		IAPuts(" ");
-		plain_imap_strout(iptr->ial_node);
-		IAPuts(")");
-	}
-
-	IAPuts(")");
-}
-
 
 
 /*
@@ -976,42 +955,6 @@ void IReplyPrintf(const char *Format, ...)
 	StrBufAppendBufPlain(Imap->Reply, 
 			     HKEY("\r\n"), 0);
 	
-}
-
-
-
-/* Output a string to the IMAP client, either as a literal or quoted.
- * (We do a literal if it has any double-quotes or backslashes.) */
-
-void plain_imap_strout(char *buf)
-{
-	int i;
-	int is_literal = 0;
-	long Len;
-	citimap *Imap = IMAP;
-
-	if (buf == NULL) {	/* yeah, we handle this */
-		IAPuts("NIL");
-		return;
-	}
-
-	Len = strlen(buf);
-	for (i = 0; i < Len; ++i) {
-		if ((buf[i] == '\"') || (buf[i] == '\\'))
-			is_literal = 1;
-	}
-
-	if (is_literal) {
-		StrBufAppendPrintf(Imap->Reply, "{%ld}\r\n", Len);
-		StrBufAppendBufPlain(Imap->Reply, buf, Len, 0);
-	} else {
-		StrBufAppendBufPlain(Imap->Reply, 
-				     HKEY("\""), 0);
-		StrBufAppendBufPlain(Imap->Reply, 
-				     buf, Len, 0);
-		StrBufAppendBufPlain(Imap->Reply, 
-				     HKEY("\""), 0);
-	}
 }
 
 

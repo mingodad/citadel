@@ -355,25 +355,25 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 
 	/* For everything else, we do stuff. */
 	IAPuts("(("); /* open double-parens */
-	plain_imap_strout(msg->cm_fields[eAuthor]);	/* personal name */
+	IPutMsgField(eAuthor);	/* personal name */
 	IAPuts(" NIL ");	/* source route (not used) */
 
 
 	if (!CM_IsEmpty(msg, erFc822Addr)) {
 		process_rfc822_addr(msg->cm_fields[erFc822Addr], user, node, name);
-		plain_imap_strout(user);		/* mailbox name (user id) */
+		IPutStr(user, strlen(user));		/* mailbox name (user id) */
 		IAPuts(" ");
 		if (!strcasecmp(node, config.c_nodename)) {
-			plain_imap_strout(config.c_fqdn);
+			IPutStr(config.c_fqdn, strlen(config.c_fqdn));
 		}
 		else {
-			plain_imap_strout(node);		/* host name */
+			IPutStr(node, strlen(node));		/* host name */
 		}
 	}
 	else {
-		plain_imap_strout(msg->cm_fields[eAuthor]); /* mailbox name (user id) */
+		IPutMsgField(eAuthor); /* mailbox name (user id) */
 		IAPuts(" ");
-		plain_imap_strout(msg->cm_fields[eNodeName]);	/* host name */
+		IPutMsgField(eNodeName);	/* host name */
 	}
 	
 	IAPuts(")) "); /* close double-parens */
@@ -416,11 +416,11 @@ void imap_output_envelope_addr(char *addr) {
 		striplt(individual_addr);
 		process_rfc822_addr(individual_addr, user, node, name);
 		IAPuts("(");
-		plain_imap_strout(name);
+		IPutStr(name, strlen(name));
 		IAPuts(" NIL ");
-		plain_imap_strout(user);
+		IPutStr(user, strlen(user));
 		IAPuts(" ");
-		plain_imap_strout(node);
+		IPutStr(node, strlen(node));
 		IAPuts(")");
 		if (i < (num_addrs-1)) 
 			IAPuts(" ");
@@ -451,8 +451,8 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	else {
 		msgdate = time(NULL);
 	}
-	datestring(datestringbuf, sizeof datestringbuf,
-		msgdate, DATESTRING_IMAP);
+	len = datestring(datestringbuf, sizeof datestringbuf,
+			 msgdate, DATESTRING_IMAP);
 
 	/* Now start spewing data fields.  The order is important, as it is
 	 * defined by the protocol specification.  Nonexistent fields must
@@ -462,11 +462,11 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	IAPuts("ENVELOPE (");
 
 	/* Date */
-	plain_imap_strout(datestringbuf);
+	IPutStr(datestringbuf, len);
 	IAPuts(" ");
 
 	/* Subject */
-	plain_imap_strout(msg->cm_fields[eMsgSubject]);
+	IPutMsgField(eMsgSubject);
 	IAPuts(" ");
 
 	/* From */
@@ -513,7 +513,7 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 
 	/* In-reply-to */
 	fieldptr = rfc822_fetch_field(msg->cm_fields[eMesageText], "In-reply-to");
-	plain_imap_strout(fieldptr);
+	IPutStr(fieldptr, (fieldptr)?strlen(fieldptr):0);
 	IAPuts(" ");
 	if (fieldptr != NULL) free(fieldptr);
 
@@ -525,7 +525,7 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 		    (msg->cm_fields[emessageId][len - 1] == '>'))
 		)
 	{
-		plain_imap_strout(msg->cm_fields[emessageId]);
+		IPutMsgField(emessageId);
 	}
 	else 
 	{
@@ -822,14 +822,14 @@ void imap_fetch_bodystructure_post(
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		char *cbid, void *cbuserdata
 		) {
-
+	long len;
 	char subtype[128];
 
 	IAPuts(" ");
 
 	/* disposition */
-	extract_token(subtype, cbtype, 1, '/', sizeof subtype);
-	plain_imap_strout(subtype);
+	len = extract_token(subtype, cbtype, 1, '/', sizeof subtype);
+	IPutStr(subtype, len);
 
 	/* body language */
 	/* IAPuts(" NIL"); We thought we needed this at one point, but maybe we don't... */
@@ -855,56 +855,57 @@ void imap_fetch_bodystructure_part(
 	size_t i;
 	char cbmaintype[128];
 	char cbsubtype[128];
+	long cbmaintype_len;
+	long cbsubtype_len;
 
 	if (cbtype != NULL) if (!IsEmptyStr(cbtype)) have_cbtype = 1;
 	if (have_cbtype) {
-		extract_token(cbmaintype, cbtype, 0, '/', sizeof cbmaintype);
-		extract_token(cbsubtype, cbtype, 1, '/', sizeof cbsubtype);
+		cbmaintype_len = extract_token(cbmaintype, cbtype, 0, '/', sizeof cbmaintype);
+		cbsubtype_len = extract_token(cbsubtype, cbtype, 1, '/', sizeof cbsubtype);
 	}
 	else {
 		strcpy(cbmaintype, "TEXT");
+		cbmaintype_len = 4;
 		strcpy(cbsubtype, "PLAIN");
+		cbsubtype_len = 5;
 	}
 
 	IAPuts("(");
-	plain_imap_strout(cbmaintype);					/* body type */
+	IPutStr(cbmaintype, cbmaintype_len);			/* body type */
 	IAPuts(" ");
-	plain_imap_strout(cbsubtype);						/* body subtype */
+	IPutStr(cbsubtype, cbsubtype_len);			/* body subtype */
 	IAPuts(" ");
 
-	IAPuts("(");							/* begin body parameter list */
+	IAPuts("(");						/* begin body parameter list */
 
 	/* "NAME" must appear as the first parameter.  This is not required by IMAP,
 	 * but the Asterisk voicemail application blindly assumes that NAME will be in
 	 * the first position.  If it isn't, it rejects the message.
 	 */
-	if (name != NULL) if (!IsEmptyStr(name)) {
+	if ((name != NULL) && (!IsEmptyStr(name))) {
 		IAPuts("\"NAME\" ");
-		plain_imap_strout(name);
+		IPutStr(name, strlen(name));
 		IAPuts(" ");
 	}
 
 	IAPuts("\"CHARSET\" ");
-	if (cbcharset == NULL) {
-		plain_imap_strout("US-ASCII");
-	}
-	else if (cbcharset[0] == 0) {
-		plain_imap_strout("US-ASCII");
+	if ((cbcharset == NULL) || (cbcharset[0] == 0)){
+		IPutStr(HKEY("US-ASCII"));
 	}
 	else {
-		plain_imap_strout(cbcharset);
+		IPutStr(cbcharset, strlen(cbcharset));
 	}
-	IAPuts(") ");							/* end body parameter list */
+	IAPuts(") ");						/* end body parameter list */
 
 	IAPuts("NIL ");						/* Body ID */
 	IAPuts("NIL ");						/* Body description */
 
-	if (encoding != NULL) if (encoding[0] != 0)  have_encoding = 1;
+	if ((encoding != NULL) && (encoding[0] != 0))  have_encoding = 1;
 	if (have_encoding) {
-		plain_imap_strout(encoding);
+		IPutStr(encoding, strlen(encoding));
 	}
 	else {
-		plain_imap_strout("7BIT");
+		IPutStr(HKEY("7BIT"));
 	}
 	IAPuts(" ");
 
@@ -935,18 +936,15 @@ void imap_fetch_bodystructure_part(
 	IAPuts("NIL ");
 
 	/* Disposition */
-	if (disp == NULL) {
-		IAPuts("NIL");
-	}
-	else if (IsEmptyStr(disp)) {
+	if ((disp == NULL) || IsEmptyStr(disp)) {
 		IAPuts("NIL");
 	}
 	else {
 		IAPuts("(");
-		plain_imap_strout(disp);
-		if (filename != NULL) if (!IsEmptyStr(filename)) {
+		IPutStr(disp, strlen(disp));
+		if ((filename != NULL) && (!IsEmptyStr(filename))) {
 			IAPuts(" (\"FILENAME\" ");
-			plain_imap_strout(filename);
+			IPutStr(filename, strlen(filename));
 			IAPuts(")");
 		}
 		IAPuts(")");

@@ -2,14 +2,6 @@
 #include "server.h"
 #include "ctdl_module.h"
 
-struct internet_address_list {
-	struct internet_address_list *next;
-	char ial_user[SIZ];
-	char ial_node[SIZ];
-	char ial_name[SIZ];
-};
-
-
 recptypes *validate_recipients(const char *recipients,
  				      const char *RemoteIdentifier, 
 				      int Flags);

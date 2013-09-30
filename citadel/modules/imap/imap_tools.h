@@ -24,10 +24,8 @@ int CmdAdjust(citimap_command *Cmd,
 void imap_strout(ConstStr *args);
 void imap_strbuffer(StrBuf *Reply, ConstStr *args);
 void plain_imap_strbuffer(StrBuf *Reply, char *buf);
-void plain_imap_strout(char *buf);
 int imap_parameterize(citimap_command *Cmd);
-void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf);
-void imap_ial_out(struct internet_address_list *ialist);
+long imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf);
 int imap_roomname(char *buf, int bufsize, const char *foldername);
 int imap_is_message_set(const char *);
 int imap_mailbox_matches_pattern(const char *pattern, char *mailboxname);
@@ -53,5 +51,5 @@ void IReplyPrintf(const char *Format, ...);
 void IPutStr(const char *Msg, long Len);
 #define IPutCStr(_ConstStr) IPutStr(CKEY(_ConstStr))
 #define IPutCParamStr(n) IPutStr(CKEY(Params[n]))
-
+#define IPutMsgField(Which) IPutStr(CM_KEY(msg, Which))
 void IUnbuffer (void);

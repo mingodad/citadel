@@ -192,7 +192,7 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 			imap_acl_flags(rights, ra);
 			if (StrLength(rights) > 0) {
 				IAPuts(" ");
-				plain_imap_strout(temp.fullname);
+				IPutStr(temp.fullname, strlen(temp.fullname));
 				IAPuts(" ");
 				iaputs(SKEY( rights));
 			}

@@ -97,7 +97,7 @@ void imap_list_floors(char *verb, int num_patterns, StrBuf **patterns)
 			}
 			if (match) {
 				IAPrintf("* %s (\\NoSelect \\HasChildren) \"/\" ", verb);
-				plain_imap_strout(fl->f_name);
+				IPutStr(fl->f_name, (fl->f_name)?strlen(fl->f_name):0);
 				IAPuts("\r\n");
 			}
 		}
@@ -168,7 +168,8 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	}
 
 	if (yes_output_this_room) {
-		imap_mailboxname(MailboxName, sizeof MailboxName, qrbuf);
+		long len;
+		len = imap_mailboxname(MailboxName, sizeof MailboxName, qrbuf);
 		match = 0;
 		for (i=0; i<ImapFilter->num_patterns; ++i) {
 			if (imap_mailbox_matches_pattern(ChrPtr(ImapFilter->patterns[i]), MailboxName)) {
@@ -177,7 +178,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 		}
 		if (match) {
 			IAPrintf("* %s (%s) \"/\" ", ImapFilter->verb, return_options);
-			plain_imap_strout(MailboxName);
+			IPutStr(MailboxName, len);
 			IAPuts("\r\n");
 		}
 	}

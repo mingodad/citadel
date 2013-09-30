@@ -985,6 +985,7 @@ void imap_close(int num_parms, ConstStr *Params)
  */
 void imap_namespace(int num_parms, ConstStr *Params)
 {
+	long len;
 	int i;
 	struct floor *fl;
 	int floors = 0;
@@ -1005,8 +1006,8 @@ void imap_namespace(int num_parms, ConstStr *Params)
 		if (fl->f_flags & F_INUSE) {
 			/* if (floors > 0) IAPuts(" "); samjam says this confuses javamail */
 			IAPuts("(");
-			snprintf(Namespace, sizeof(Namespace), "%s/", fl->f_name);
-			plain_imap_strout(Namespace);
+			len = snprintf(Namespace, sizeof(Namespace), "%s/", fl->f_name);
+			IPutStr(Namespace, len);
 			IAPuts(" \"/\")");
 			++floors;
 		}
@@ -1158,6 +1159,7 @@ int imap_grabroom(char *returned_roomname, const char *foldername, int zapped_ok
  */
 void imap_status(int num_parms, ConstStr *Params)
 {
+	long len;
 	int ret;
 	char roomname[ROOMNAMELEN];
 	char imaproomname[SIZ];
@@ -1186,9 +1188,9 @@ void imap_status(int num_parms, ConstStr *Params)
 	 * names and simply spew all possible data items.  It's far easier to
 	 * code and probably saves us some processing time too.
 	 */
-	imap_mailboxname(imaproomname, sizeof imaproomname, &CC->room);
+	len = imap_mailboxname(imaproomname, sizeof imaproomname, &CC->room);
 	IAPuts("* STATUS ");
-	       plain_imap_strout(imaproomname);
+	IPutStr(imaproomname, len);
 	IAPrintf(" (MESSAGES %d ", msgs);
 	IAPrintf("RECENT %d ", new);	/* Initially, new==recent */
 	IAPrintf("UIDNEXT %ld ", CitControl.MMhighest + 1);

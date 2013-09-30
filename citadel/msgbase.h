@@ -145,6 +145,8 @@ void CM_Free           (struct CtdlMessage *msg);
 void CM_FreeContents   (struct CtdlMessage *msg);
 int  CM_IsValidMsg     (struct CtdlMessage *msg);
 
+#define CM_KEY(Message, Which) Message->cm_fields[Which], Message->cm_lengths[Which]
+
 void CtdlSerializeMessage(struct ser_ret *, struct CtdlMessage *);
 void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
