@@ -407,7 +407,7 @@ void wiki_history(char *pagename) {
 
 	
 	cprintf("%d Revision history for '%s'\n", LISTING_FOLLOWS, pagename);
-	mime_parser(msg->cm_fields[eMesageText], NULL, *wiki_history_callback, NULL, NULL, NULL, 0);
+	mime_parser(CM_RANGE(msg, eMesageText), *wiki_history_callback, NULL, NULL, NULL, 0);
 	cprintf("000\n");
 
 	CM_Free(msg);
@@ -580,7 +580,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	hecbd.stop_when = rev;
 	striplt(hecbd.stop_when);
 
-	mime_parser(msg->cm_fields[eMesageText], NULL, *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
+	mime_parser(CM_RANGE(msg, eMesageText), *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
 	CM_Free(msg);
 
 	/* Were we successful? */

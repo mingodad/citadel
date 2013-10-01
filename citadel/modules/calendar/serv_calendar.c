@@ -386,12 +386,11 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, partnum);
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_locate_part,		/* callback function */
-		NULL, NULL,
-		(void *) &ird,			/* user data */
-		0
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_locate_part,		/* callback function */
+		    NULL, NULL,
+		    (void *) &ird,			/* user data */
+		    0
 	);
 
 	/* We're done with the incoming message, because we now have a
@@ -642,12 +641,11 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 		return(2);			/* internal error */
 	}
 	oec.c = NULL;
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_locate_original_event,	/* callback function */
-		NULL, NULL,
-		&oec,				/* user data */
-		0
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_locate_original_event,	/* callback function */
+		    NULL, NULL,
+		    &oec,				/* user data */
+		    0
 	);
 	CM_Free(msg);
 
@@ -729,13 +727,12 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, partnum);
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_locate_part,		/* callback function */
-		NULL, NULL,
-		(void *) &ird,			/* user data */
-		0
-	);
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_locate_part,		/* callback function */
+		    NULL, NULL,
+		    (void *) &ird,			/* user data */
+		    0
+		);
 
 	/* We're done with the incoming message, because we now have a
 	 * calendar object in memory.
@@ -1161,12 +1158,11 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, "_HUNT_");
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_locate_part,		/* callback function */
-		NULL, NULL,
-		(void *) &ird,			/* user data */
-		0
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_locate_part,		/* callback function */
+		    NULL, NULL,
+		    (void *) &ird,			/* user data */
+		    0
 	);
 	CM_Free(msg);
 
@@ -1230,13 +1226,12 @@ void ical_conflicts(long msgnum, char *partnum) {
 
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, partnum);
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_locate_part,		/* callback function */
-		NULL, NULL,
-		(void *) &ird,			/* user data */
-		0
-	);
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_locate_part,		/* callback function */
+		    NULL, NULL,
+		    (void *) &ird,			/* user data */
+		    0
+		);
 
 	CM_Free(msg);
 
@@ -1411,13 +1406,12 @@ void ical_freebusy_backend(long msgnum, void *data) {
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, "_HUNT_");
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_locate_part,		/* callback function */
-		NULL, NULL,
-		(void *) &ird,			/* user data */
-		0
-	);
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_locate_part,		/* callback function */
+		    NULL, NULL,
+		    (void *) &ird,			/* user data */
+		    0
+		);
 	CM_Free(msg);
 
 	if (ird.cal) {
@@ -1612,12 +1606,11 @@ void ical_getics_backend(long msgnum, void *data) {
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
 	strcpy(ird.desired_partnum, "_HUNT_");
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_locate_part,		/* callback function */
-		NULL, NULL,
-		(void *) &ird,			/* user data */
-		0
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_locate_part,		/* callback function */
+		    NULL, NULL,
+		    (void *) &ird,			/* user data */
+		    0
 	);
 	CM_Free(msg);
 
@@ -2413,13 +2406,12 @@ int ical_obj_beforesave(struct CtdlMessage *msg, recptypes *recp)
 	}
 
 	/* Do all of our lovely back-end parsing */
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_obj_beforesave_backend,
-		NULL, NULL,
-		(void *)msg,
-		0
-	);
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_obj_beforesave_backend,
+		    NULL, NULL,
+		    (void *)msg,
+		    0
+		);
 
 	return(0);
 }
@@ -2482,13 +2474,12 @@ int ical_obj_aftersave(struct CtdlMessage *msg, recptypes *recp)
 	if (CM_IsEmpty(msg, eMesageText)) return(1);
 	
 	/* Now recurse through it looking for our icalendar data */
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*ical_obj_aftersave_backend,
-		NULL, NULL,
-		NULL,
-		0
-	);
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *ical_obj_aftersave_backend,
+		    NULL, NULL,
+		    NULL,
+		    0
+		);
 
 	return(0);
 }

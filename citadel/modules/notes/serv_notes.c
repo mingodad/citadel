@@ -130,12 +130,11 @@ int serv_notes_beforesave(struct CtdlMessage *msg, recptypes *recp)
 
 	/* Modern clients are using vNote format.  Check for one... */
 
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*notes_extract_vnote,
-		NULL, NULL,
-		&v,		/* user data ptr - put the vnote here */
-		0
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *notes_extract_vnote,
+		    NULL, NULL,
+		    &v,		/* user data ptr - put the vnote here */
+		    0
 	);
 
 	if (v == NULL) return(0);	/* no vNotes were found in this message */

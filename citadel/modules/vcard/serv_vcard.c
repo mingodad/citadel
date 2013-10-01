@@ -375,12 +375,11 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 
 	if (CM_IsEmpty(msg, eMesageText)) return(0);
 
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*vcard_extract_vcard,
-		NULL, NULL,
-		&v,		/* user data ptr - put the vcard here */
-		0
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *vcard_extract_vcard,
+		    NULL, NULL,
+		    &v,		/* user data ptr - put the vcard here */
+		    0
 	);
 
 	if (v == NULL) return(0);	/* no vCards were found in this message */
@@ -1107,13 +1106,12 @@ void dvca_callback(long msgnum, void *userdata) {
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
-	mime_parser(msg->cm_fields[eMesageText],
-		NULL,
-		*dvca_mime_callback,	/* callback function */
-		NULL, NULL,
-		NULL,			/* user data */
-		0
-	);
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *dvca_mime_callback,	/* callback function */
+		    NULL, NULL,
+		    NULL,			/* user data */
+		    0
+		);
 	CM_Free(msg);
 }
 

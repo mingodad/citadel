@@ -1584,11 +1584,10 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	if (section) if (!IsEmptyStr(section)) if (strcmp(section, "0")) {
 		memset(&encap, 0, sizeof encap);
 		safestrncpy(encap.desired_section, section, sizeof encap.desired_section);
-		mime_parser(TheMessage->cm_fields[eMesageText],
-			NULL,
-			*extract_encapsulated_message,
-			NULL, NULL, (void *)&encap, 0
-		);
+		mime_parser(CM_RANGE(TheMessage, eMesageText),
+			    *extract_encapsulated_message,
+			    NULL, NULL, (void *)&encap, 0
+			);
 
 		if ((Author != NULL) && (*Author == NULL))
 		{
@@ -2004,7 +2003,6 @@ int CtdlOutputPreLoadedMsg(
 ) {
 	struct CitContext *CCC = CC;
 	int i;
-	char *mptr = NULL;
 	const char *nl;	/* newline string */
 	struct ma_info ma;
 
@@ -2051,8 +2049,8 @@ int CtdlOutputPreLoadedMsg(
 				ERROR + RESOURCE_BUSY);
 		} else {
 			/* Parse the message text component */
-			mptr = TheMessage->cm_fields[eMesageText];
-			mime_parser(mptr, NULL, *mime_download, NULL, NULL, NULL, 0);
+			mime_parser(CM_RANGE(TheMessage, eMesageText),
+				    *mime_download, NULL, NULL, NULL, 0);
 			/* If there's no file open by this time, the requested
 			 * section wasn't found, so print an error
 			 */
@@ -2078,8 +2076,8 @@ int CtdlOutputPreLoadedMsg(
 			/* Parse the message text component */
 			int found_it = 0;
 
-			mptr = TheMessage->cm_fields[eMesageText];
-			mime_parser(mptr, NULL, *mime_spew_section, NULL, NULL, (void *)&found_it, 0);
+			mime_parser(CM_RANGE(TheMessage, eMesageText),
+				    *mime_spew_section, NULL, NULL, (void *)&found_it, 0);
 			/* If section wasn't found, print an error
 			 */
 			if (!found_it) {
@@ -2176,9 +2174,8 @@ START_TEXT:
 	/* Tell the client about the MIME parts in this message */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
-			mptr = TheMessage->cm_fields[eMesageText];
 			memset(&ma, 0, sizeof(struct ma_info));
-			mime_parser(mptr, NULL,
+			mime_parser(CM_RANGE(TheMessage, eMesageText),
 				(do_proto ? *list_this_part : NULL),
 				(do_proto ? *list_this_pref : NULL),
 				(do_proto ? *list_this_suff : NULL),
@@ -2217,12 +2214,10 @@ START_TEXT:
 	 * message to the reader's screen width.
 	 */
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
-		mptr = TheMessage->cm_fields[eMesageText];
-
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/x-citadel-variformat\n\n");
 		}
-		memfmout(mptr, nl);
+		memfmout(TheMessage->cm_fields[eMesageText], nl);
 	}
 
 	/* If the message on disk is format 4 (MIME), we've gotta hand it
@@ -2238,17 +2233,17 @@ START_TEXT:
 			strcpy(ma.chosen_part, "1");
 			ma.chosen_pref = 9999;
 			ma.dont_decode = CCC->msg4_dont_decode;
-			mime_parser(mptr, NULL,
-				*choose_preferred, *fixed_output_pre,
-				*fixed_output_post, (void *)&ma, 1);
-			mime_parser(mptr, NULL,
-				*output_preferred, NULL, NULL, (void *)&ma, 1);
+			mime_parser(CM_RANGE(TheMessage, eMesageText),
+				    *choose_preferred, *fixed_output_pre,
+				    *fixed_output_post, (void *)&ma, 1);
+			mime_parser(CM_RANGE(TheMessage, eMesageText),
+				    *output_preferred, NULL, NULL, (void *)&ma, 1);
 		}
 		else {
 			ma.use_fo_hooks = 1;
-			mime_parser(mptr, NULL,
-				*fixed_output, *fixed_output_pre,
-				*fixed_output_post, (void *)&ma, 0);
+			mime_parser(CM_RANGE(TheMessage, eMesageText),
+				    *fixed_output, *fixed_output_pre,
+				    *fixed_output_post, (void *)&ma, 0);
 		}
 
 	}

@@ -752,7 +752,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	 * (Note value of 1 passed as 'dont_decode' so client gets it encoded)
 	 */
 	else {
-		mime_parser(msg->cm_fields[eMesageText], NULL,
+		mime_parser(CM_RANGE(msg, eMesageText),
 			    *imap_load_part, NULL, NULL,
 			    section,
 			    1
@@ -1017,13 +1017,12 @@ void imap_fetch_bodystructure (long msgnum, const char *item,
 
 	/* For messages already stored in RFC822 format, we have to parse. */
 	IAPuts("BODYSTRUCTURE ");
-	mime_parser(msg->cm_fields[eMesageText],
-			NULL,
-			*imap_fetch_bodystructure_part,	/* part */
-			*imap_fetch_bodystructure_pre,	/* pre-multi */
-			*imap_fetch_bodystructure_post,	/* post-multi */
-			NULL,
-			1);	/* don't decode -- we want it as-is */
+	mime_parser(CM_RANGE(msg, eMesageText),
+		    *imap_fetch_bodystructure_part,	/* part */
+		    *imap_fetch_bodystructure_pre,	/* pre-multi */
+		    *imap_fetch_bodystructure_post,	/* post-multi */
+		    NULL,
+		    1);	/* don't decode -- we want it as-is */
 }
 
 
