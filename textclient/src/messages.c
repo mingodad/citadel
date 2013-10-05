@@ -687,22 +687,30 @@ int read_message(CtdlIPC *ipc,
 	}
 
 	/* Extract URL's */
+	static char *urlprefixes[] = {
+		"http://",
+		"https://",
+		"ftp://"
+	};
+	int p = 0;
 	num_urls = 0;	/* Start with a clean slate */
-	searchptr = message->text;
-	while ( (searchptr != NULL) && (num_urls < MAXURLS) ) {
-		searchptr = strstr(searchptr, "http://");
-		if (searchptr != NULL) {
-			safestrncpy(urls[num_urls], searchptr, sizeof(urls[num_urls]));
-			for (i = 0; i < strlen(urls[num_urls]); i++) {
-				ch = urls[num_urls][i];
-				if (ch == '>' || ch == '\"' || ch == ')' ||
-				    ch == ' ' || ch == '\n') {
-					urls[num_urls][i] = 0;
-					break;
+	for (p=0; p<(sizeof urlprefixes / sizeof(char *)); ++p) {
+		searchptr = message->text;
+		while ( (searchptr != NULL) && (num_urls < MAXURLS) ) {
+			searchptr = strstr(searchptr, urlprefixes[p]);
+			if (searchptr != NULL) {
+				safestrncpy(urls[num_urls], searchptr, sizeof(urls[num_urls]));
+				for (i = 0; i < strlen(urls[num_urls]); i++) {
+					ch = urls[num_urls][i];
+					if (ch == '>' || ch == '\"' || ch == ')' ||
+					    ch == ' ' || ch == '\n') {
+						urls[num_urls][i] = 0;
+						break;
+					}
 				}
+				num_urls++;
+				++searchptr;
 			}
-			num_urls++;
-			++searchptr;
 		}
 	}
 
