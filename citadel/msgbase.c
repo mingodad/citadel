@@ -2117,7 +2117,7 @@ int CtdlOutputPreLoadedMsg(
 	strcpy(suser, "");
 	strcpy(luser, "");
 	strcpy(fuser, "");
-	strcpy(snode, NODENAME);
+	memcpy(snode, CFG_KEY(c_nodename) + 1);
 	if (mode == MT_RFC822) 
 		OutputRFC822MsgHeaders(
 			TheMessage,
@@ -2977,7 +2977,7 @@ void quickie_message(const char *from,
 
 	if (fromaddr != NULL) CM_SetField(msg, erFc822Addr, fromaddr, strlen(fromaddr));
 	if (room != NULL) CM_SetField(msg, eOriginalRoom, room, strlen(room));
-	CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
 	if (to != NULL) {
 		CM_SetField(msg, eRecipient, to, strlen(to));
 		recp = validate_recipients(to, NULL, 0);
@@ -3437,8 +3437,8 @@ struct CtdlMessage *CtdlMakeMessageLen(
 		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
 	}
 
-	CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
-	CM_SetField(msg, eHumanNode, HUMANNODE, strlen(HUMANNODE));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+	CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
 
 	if (rcplen > 0) {
 		CM_SetField(msg, eRecipient, recipient, rcplen);
@@ -3970,8 +3970,8 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 	msg->cm_format_type = 4;
 	CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 	CM_SetField(msg, eOriginalRoom, req_room, strlen(req_room));
-	CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
-	CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+	CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
 	msg->cm_flags = flags;
 	
 	CM_SetAsFieldSB(msg, eMesageText, &encoded_message);

@@ -702,7 +702,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 
 	CM_SetField(bmsg, eOriginalRoom, HKEY(MAILROOM));
 	CM_SetField(bmsg, eAuthor, HKEY("Citadel"));
-	CM_SetField(bmsg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+	CM_SetField(bmsg, eNodeName, CFG_KEY(c_nodename));
 	CM_SetField(bmsg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
 	CM_SetAsFieldSB(bmsg, eMesageText, &BounceMB);
 

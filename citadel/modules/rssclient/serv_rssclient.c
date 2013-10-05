@@ -333,7 +333,7 @@ int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 		CM_SetField(&SaveMsg->Msg, eAuthor, HKEY("rss"));
 	}
 
-	CM_SetField(&SaveMsg->Msg, eNodeName, NODENAME, strlen(NODENAME));
+	CM_SetField(&SaveMsg->Msg, eNodeName, CFG_KEY(c_nodename));
 	if (SaveMsg->title != NULL) {
 		long len;
 		char *Sbj;

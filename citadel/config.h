@@ -19,4 +19,3 @@ void put_config(void);
 
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
-

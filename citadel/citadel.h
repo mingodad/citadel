@@ -98,16 +98,6 @@ struct march {
 	int march_access;
 };
 
-#define NODENAME		config.c_nodename
-#define FQDN			config.c_fqdn
-#define HUMANNODE		config.c_humannode
-#define PHONENUM		config.c_phonenum
-#define CTDLUID			config.c_ctdluid
-#define CREATAIDE		config.c_creataide
-#define REGISCALL		config.c_regiscall
-#define TWITDETECT		config.c_twitdetect
-#define TWITROOM		config.c_twitroom
-#define RESTRICT_INTERNET	config.c_restrict
 
 /*
  * User records.

@@ -859,8 +859,8 @@ void smtp_data(long offset, long flags)
 			return;
 		}
 
-		CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
-		CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
+		CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+		CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
         	CM_SetField(msg, eOriginalRoom, HKEY(MAILROOM));
 		if (sSMTP->preferred_sender_name != NULL)
 			CM_SetField(msg, eAuthor, SKEY(sSMTP->preferred_sender_name));

@@ -387,8 +387,8 @@ void imap_append(int num_parms, ConstStr *Params) {
 	   if ( ((CCC->room.QRflags & QR_MAILBOX) == 0) && (config.c_imap_keep_from == 0)) {
 
 		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
-		CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
-		CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
+		CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+		CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
 	    }
 	}
 

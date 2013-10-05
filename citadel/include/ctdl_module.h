@@ -390,9 +390,48 @@ struct config {
 	int c_spam_flag_only;
 	int c_guest_logins;
 };
+struct configlen {
+	long c_nodename;
+	long c_fqdn;
+	long c_humannode;
+	long c_phonenum;
+	long c_twitroom;
+	long c_moreprompt;
+	long c_site_location;
+	long c_sysadm;
+	long c_niu_2;
+	long c_ip_addr;
+	long c_logpages;
+	long c_baseroom;
+	long c_aideroom;
+	long c_ldap_host;
+	long c_ldap_base_dn;
+	long c_ldap_bind_dn;
+	long c_ldap_bind_pw;
+	long c_journal_dest;
+	long c_default_cal_zone;
+	long c_funambol_host;
+	long c_funambol_source;
+	long c_funambol_auth;
+	long c_master_user;
+	long c_master_pass;
+	long c_pager_program;
+};
 
 extern struct config config;
+extern struct configlen configlen;
 
+
+#define NODENAME		config.c_nodename
+#define FQDN			config.c_fqdn
+#define CTDLUID			config.c_ctdluid
+#define CREATAIDE		config.c_creataide
+#define REGISCALL		config.c_regiscall
+#define TWITDETECT		config.c_twitdetect
+#define TWITROOM		config.c_twitroom
+#define RESTRICT_INTERNET	config.c_restrict
+
+#define CFG_KEY(which) config.which, configlen.which
 
 typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg);
 typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, OneRoomNetCfg *rncfg, RoomNetCfgLine *data);

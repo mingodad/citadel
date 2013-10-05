@@ -20,6 +20,7 @@
 #include "ctdl_module.h"
 
 struct config config;
+struct configlen configlen;
 
 /*
  * Put some sane default values into our configuration.  Some will be overridden when we run setup.
@@ -32,25 +33,25 @@ void brand_new_installation_set_defaults(void) {
 
 	/* Determine our host name, in case we need to use it as a default */
 	uname(&my_utsname);
-
+	memset(&configlen, 0, sizeof(struct configlen));
 	/* set some sample/default values in place of blanks... */
-	extract_token(config.c_nodename, my_utsname.nodename, 0, '.', sizeof config.c_nodename);
+	configlen.c_nodename = extract_token(config.c_nodename, my_utsname.nodename, 0, '.', sizeof config.c_nodename);
 	if (IsEmptyStr(config.c_fqdn) ) {
 		if ((he = gethostbyname(my_utsname.nodename)) != NULL) {
-			safestrncpy(config.c_fqdn, he->h_name, sizeof config.c_fqdn);
+			configlen.c_fqdn = safestrncpy(config.c_fqdn, he->h_name, sizeof config.c_fqdn);
 		}
 		else {
-			safestrncpy(config.c_fqdn, my_utsname.nodename, sizeof config.c_fqdn);
+			configlen.c_fqdn = safestrncpy(config.c_fqdn, my_utsname.nodename, sizeof config.c_fqdn);
 		}
 	}
 
-	safestrncpy(config.c_humannode, "Citadel Server", sizeof config.c_humannode);
-	safestrncpy(config.c_phonenum, "US 800 555 1212", sizeof config.c_phonenum);
+	configlen.c_humannode = safestrncpy(config.c_humannode, "Citadel Server", sizeof config.c_humannode);
+	configlen.c_phonenum = safestrncpy(config.c_phonenum, "US 800 555 1212", sizeof config.c_phonenum);
 	config.c_initax = 4;
-	safestrncpy(config.c_moreprompt, "<more>", sizeof config.c_moreprompt);
-	safestrncpy(config.c_twitroom, "Trashcan", sizeof config.c_twitroom);
-	safestrncpy(config.c_baseroom, BASEROOM, sizeof config.c_baseroom);
-	safestrncpy(config.c_aideroom, "Aide", sizeof config.c_aideroom);
+	configlen.c_moreprompt = safestrncpy(config.c_moreprompt, "<more>", sizeof config.c_moreprompt);
+	configlen.c_twitroom = safestrncpy(config.c_twitroom, "Trashcan", sizeof config.c_twitroom);
+	configlen.c_baseroom = safestrncpy(config.c_baseroom, BASEROOM, sizeof config.c_baseroom);
+	configlen.c_aideroom = safestrncpy(config.c_aideroom, "Aide", sizeof config.c_aideroom);
 	config.c_port_number = 504;
 	config.c_sleeping = 900;
 
@@ -92,7 +93,34 @@ void brand_new_installation_set_defaults(void) {
 	config.c_xmpp_s2s_port = 5269;
 }
 
-
+void setcfglen(void)
+{
+	configlen.c_nodename = strlen(config.c_nodename);
+	configlen.c_fqdn = strlen(config.c_fqdn);
+	configlen.c_humannode = strlen(config.c_humannode);
+	configlen.c_phonenum = strlen(config.c_phonenum);
+	configlen.c_twitroom = strlen(config.c_twitroom);
+	configlen.c_moreprompt = strlen(config.c_moreprompt);
+	configlen.c_site_location = strlen(config.c_site_location);
+	configlen.c_sysadm = strlen(config.c_sysadm);
+	configlen.c_niu_2 = strlen(config.c_niu_2);
+	configlen.c_ip_addr = strlen(config.c_ip_addr);
+	configlen.c_logpages = strlen(config.c_logpages);
+	configlen.c_baseroom = strlen(config.c_baseroom);
+	configlen.c_aideroom = strlen(config.c_aideroom);
+	configlen.c_ldap_host = strlen(config.c_ldap_host);
+	configlen.c_ldap_base_dn = strlen(config.c_ldap_base_dn);
+	configlen.c_ldap_bind_dn = strlen(config.c_ldap_bind_dn);
+	configlen.c_ldap_bind_pw = strlen(config.c_ldap_bind_pw);
+	configlen.c_journal_dest = strlen(config.c_journal_dest);
+	configlen.c_default_cal_zone = strlen(config.c_default_cal_zone);
+	configlen.c_funambol_host = strlen(config.c_funambol_host);
+	configlen.c_funambol_source = strlen(config.c_funambol_source);
+	configlen.c_funambol_auth = strlen(config.c_funambol_auth);
+	configlen.c_master_user = strlen(config.c_master_user);
+	configlen.c_master_pass = strlen(config.c_master_pass);
+	configlen.c_pager_program = strlen(config.c_pager_program);
+}
 
 /*
  * get_config() is called during the initialization of Citadel server.
@@ -123,6 +151,7 @@ void get_config(void) {
 			);
 		}
 		fclose(cfp);
+		setcfglen();
 	}
 	else {
 		brand_new_installation_set_defaults();

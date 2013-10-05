@@ -149,8 +149,8 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 		msg->cm_format_type = 4;
 		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
-		CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
-		CM_SetField(msg, eHumanNode, config.c_humannode, strlen(config.c_humannode));
+		CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+		CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
 
 		MsgBody = NewStrBufPlain(NULL, serlen + 100);
 		StrBufAppendBufPlain(MsgBody, HKEY("Content-type: text/calendar\r\n\r\n"), 0);

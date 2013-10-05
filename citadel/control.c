@@ -397,20 +397,20 @@ void cmd_conf(char *argbuf)
 		while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000")) {
 			switch (a) {
 			case 0:
-				safestrncpy(config.c_nodename, buf,
-					    sizeof config.c_nodename);
+				configlen.c_nodename = safestrncpy(config.c_nodename, buf,
+								   sizeof config.c_nodename);
 				break;
 			case 1:
-				safestrncpy(config.c_fqdn, buf,
-					    sizeof config.c_fqdn);
+				configlen.c_fqdn = safestrncpy(config.c_fqdn, buf,
+							       sizeof config.c_fqdn);
 				break;
 			case 2:
-				safestrncpy(config.c_humannode, buf,
-					    sizeof config.c_humannode);
+				configlen.c_humannode = safestrncpy(config.c_humannode, buf,
+								    sizeof config.c_humannode);
 				break;
 			case 3:
-				safestrncpy(config.c_phonenum, buf,
-					    sizeof config.c_phonenum);
+				configlen.c_phonenum = safestrncpy(config.c_phonenum, buf,
+								   sizeof config.c_phonenum);
 				break;
 			case 4:
 				config.c_creataide = atoi(buf);
@@ -436,12 +436,12 @@ void cmd_conf(char *argbuf)
 					config.c_twitdetect = 1;
 				break;
 			case 9:
-				safestrncpy(config.c_twitroom, buf,
-					    sizeof config.c_twitroom);
+				configlen.c_twitroom = safestrncpy(config.c_twitroom, buf,
+								   sizeof config.c_twitroom);
 				break;
 			case 10:
-				safestrncpy(config.c_moreprompt, buf,
-					    sizeof config.c_moreprompt);
+				configlen.c_moreprompt = safestrncpy(config.c_moreprompt, buf,
+								     sizeof config.c_moreprompt);
 				break;
 			case 11:
 				config.c_restrict = atoi(buf);
@@ -449,12 +449,13 @@ void cmd_conf(char *argbuf)
 					config.c_restrict = 1;
 				break;
 			case 12:
-				safestrncpy(config.c_site_location, buf,
-					    sizeof config.c_site_location);
+				configlen.c_site_location = safestrncpy(
+					config.c_site_location, buf,
+					sizeof config.c_site_location);
 				break;
 			case 13:
-				safestrncpy(config.c_sysadm, buf,
-					    sizeof config.c_sysadm);
+				configlen.c_sysadm = safestrncpy(config.c_sysadm, buf,
+								 sizeof config.c_sysadm);
 				break;
 			case 14:
 				config.c_maxsessions = atoi(buf);
@@ -471,8 +472,8 @@ void cmd_conf(char *argbuf)
 				config.c_roompurge = atoi(buf);
 				break;
 			case 18:
-				safestrncpy(config.c_logpages, buf,
-					    sizeof config.c_logpages);
+				configlen.c_logpages = safestrncpy(config.c_logpages, buf,
+								   sizeof config.c_logpages);
 				break;
 			case 19:
 				config.c_createax = atoi(buf);
@@ -521,34 +522,34 @@ void cmd_conf(char *argbuf)
 				break;
 			case 31:
 				if ((config.c_purge_hour >= 0)
-				   && (config.c_purge_hour <= 23)) {
+				    && (config.c_purge_hour <= 23)) {
 					config.c_purge_hour = atoi(buf);
 				}
 				break;
 #ifdef HAVE_LDAP
 			case 32:
-				safestrncpy(config.c_ldap_host, buf,
-					    sizeof config.c_ldap_host);
+				configlen.c_ldap_host = safestrncpy(config.c_ldap_host, buf,
+								    sizeof config.c_ldap_host);
 				break;
 			case 33:
 				config.c_ldap_port = atoi(buf);
 				break;
 			case 34:
-				safestrncpy(config.c_ldap_base_dn, buf,
-					    sizeof config.c_ldap_base_dn);
+				configlen.c_ldap_base_dn = safestrncpy(config.c_ldap_base_dn, buf,
+								       sizeof config.c_ldap_base_dn);
 				break;
 			case 35:
-				safestrncpy(config.c_ldap_bind_dn, buf,
-					    sizeof config.c_ldap_bind_dn);
+				configlen.c_ldap_bind_dn = safestrncpy(config.c_ldap_bind_dn, buf,
+								       sizeof config.c_ldap_bind_dn);
 				break;
 			case 36:
-				safestrncpy(config.c_ldap_bind_pw, buf,
-					    sizeof config.c_ldap_bind_pw);
+				configlen.c_ldap_bind_pw = safestrncpy(config.c_ldap_bind_pw, buf,
+								       sizeof config.c_ldap_bind_pw);
 				break;
 #endif
 			case 37:
-				safestrncpy(config.c_ip_addr, buf,
-						sizeof config.c_ip_addr);
+				configlen.c_ip_addr = safestrncpy(config.c_ip_addr, buf,
+								  sizeof config.c_ip_addr);
 			case 38:
 				config.c_msa_port = atoi(buf);
 				break;
@@ -580,11 +581,12 @@ void cmd_conf(char *argbuf)
 				config.c_journal_pubmsgs = atoi(buf);
 				break;
 			case 48:
-				safestrncpy(config.c_journal_dest, buf,
-						sizeof config.c_journal_dest);
+				configlen.c_journal_dest = safestrncpy(config.c_journal_dest, buf,
+								       sizeof config.c_journal_dest);
 			case 49:
-				safestrncpy(config.c_default_cal_zone, buf,
-						sizeof config.c_default_cal_zone);
+				configlen.c_default_cal_zone = safestrncpy(
+					config.c_default_cal_zone, buf,
+					sizeof config.c_default_cal_zone);
 				break;
 			case 50:
 				config.c_pftcpdict_port = atoi(buf);
@@ -595,35 +597,38 @@ void cmd_conf(char *argbuf)
 			case 52:
 				config.c_auth_mode = atoi(buf);
 			case 53:
-				safestrncpy(config.c_funambol_host, buf,
+				configlen.c_funambol_host = safestrncpy(
+					config.c_funambol_host, buf,
 					sizeof config.c_funambol_host);
 				break;
 			case 54:
 				config.c_funambol_port = atoi(buf);
 				break;
 			case 55:
-				safestrncpy(config.c_funambol_source,
-					buf, 
+				configlen.c_funambol_source = safestrncpy(
+					config.c_funambol_source, buf, 
 					sizeof config.c_funambol_source);
 				break;
 			case 56:
-				safestrncpy(config.c_funambol_auth,
-					buf,
+				configlen.c_funambol_auth = safestrncpy(
+					config.c_funambol_auth, buf,
 					sizeof config.c_funambol_auth);
 				break;
 			case 57:
 				config.c_rbl_at_greeting = atoi(buf);
 				break;
 			case 58:
-				safestrncpy(config.c_master_user, buf, sizeof config.c_master_user);
+				configlen.c_master_user = safestrncpy(
+					config.c_master_user,
+					buf, sizeof config.c_master_user);
 				break;
 			case 59:
-				safestrncpy(config.c_master_pass, buf, sizeof config.c_master_pass);
+				configlen.c_master_pass = safestrncpy(
+					config.c_master_pass, buf, sizeof config.c_master_pass);
 				break;
 			case 60:
-				safestrncpy(config.c_pager_program,
-					buf,
-					sizeof config.c_pager_program);
+				configlen.c_pager_program = safestrncpy(
+					config.c_pager_program,	buf, sizeof config.c_pager_program);
 				break;
 			case 61:
 				config.c_imap_keep_from = atoi(buf);

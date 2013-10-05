@@ -905,7 +905,7 @@ void vcard_purge(struct ctdluser *usbuf) {
 	msg->cm_format_type = 0;
 	CM_SetField(msg, eAuthor, usbuf->fullname, strlen(usbuf->fullname));
 	CM_SetField(msg, eOriginalRoom, HKEY(ADDRESS_BOOK_ROOM));
-	CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
 	CM_SetField(msg, eMesageText, HKEY("Purge this vCard\n"));
 
 	len = snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,

@@ -391,7 +391,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 		       msg->cm_fields[eNodeName]);
 
 	CM_SetField(msg, eAuthor, HKEY(BOUNCESOURCE));
-	CM_SetField(msg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
 	CM_SetField(msg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
 
 	Netmap_AddMe(msg, HKEY("unknown_user"));

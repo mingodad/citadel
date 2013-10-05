@@ -567,10 +567,12 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 
 	/* If a "master user" is defined, handle its authentication if specified */
 	CC->is_master = 0;
-	if (strlen(config.c_master_user) > 0) if (strlen(config.c_master_pass) > 0) if (authname) {
-		if (!strcasecmp(authname, config.c_master_user)) {
-			CC->is_master = 1;
-		}
+	if ((configlen.c_master_user > 0) && 
+	    (configlen.c_master_pass > 0) &&
+	    (authname != NULL) &&
+	    (!strcasecmp(authname, config.c_master_user)))
+	{
+		CC->is_master = 1;
 	}
 
 	/* Continue attempting user validation... */

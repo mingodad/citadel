@@ -468,7 +468,7 @@ void flush_individual_conversation(struct imlog *im) {
 	}
 
 	CM_SetField(msg, eOriginalRoom, HKEY(PAGELOGROOM));
-	CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
 	CM_SetAsFieldSB(msg, eMesageText, &im->conversation);	/* we own this memory now */
 
 	/* Start with usernums[1] because it's guaranteed to be higher than usernums[0],

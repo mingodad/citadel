@@ -163,7 +163,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	bmsg->cm_format_type = FMT_RFC822;
 	CM_SetField(bmsg, eAuthor, HKEY("Citadel"));
 	CM_SetField(bmsg, eOriginalRoom, HKEY(MAILROOM));
-	CM_SetField(bmsg, eNodeName, config.c_nodename, strlen(config.c_nodename));
+	CM_SetField(bmsg, eNodeName, CFG_KEY(c_nodename));
 	CM_SetField(bmsg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
 	StrBufAppendBufPlain(
 		BounceMB,

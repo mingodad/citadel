@@ -642,7 +642,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 			CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
 			CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
-			CM_SetField(msg, eNodeName, NODENAME, strlen(NODENAME));
+			CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
 			CM_SetField(msg, eExclusiveID, pagename, strlen(pagename));
 			msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Replace the current revision */
 		}

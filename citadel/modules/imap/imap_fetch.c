@@ -364,7 +364,7 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 		IPutStr(user, strlen(user));		/* mailbox name (user id) */
 		IAPuts(" ");
 		if (!strcasecmp(node, config.c_nodename)) {
-			IPutStr(config.c_fqdn, strlen(config.c_fqdn));
+			IPutStr(CFG_KEY(c_fqdn));
 		}
 		else {
 			IPutStr(node, strlen(node));		/* host name */
