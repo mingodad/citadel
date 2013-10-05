@@ -1821,9 +1821,11 @@ void mimepart(int force_download)
 	if (GetServerStatus(Buf, &ErrorDetail) == 2) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
-		if (!force_download) {
-			StrBufExtract_token(ContentType, Buf, 3, '|');
-		}
+		StrBufExtract_token(ContentType, Buf, 3, '|');
+		CheckGZipCompressionAllowed (SKEY(ContentType));
+		if (force_download)
+			FlushStrBuf(ContentType);
+
 
 		serv_read_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
@@ -1834,9 +1836,11 @@ void mimepart(int force_download)
 			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
 				StrBufExtract_token(Buf, WCC->Hdr->HR.ReqLine, 2, '/');
 				CT = GuessMimeByFilename(SKEY(Buf));
+				CheckGZipCompressionAllowed (CT, strlen(CT));
 			}
 			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
 				CT = GuessMimeType(SKEY(WCC->WBuf));
+				CheckGZipCompressionAllowed (CT, strlen(CT));
 			}
 		}
 		http_transmit_thing(CT, 0);

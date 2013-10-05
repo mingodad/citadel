@@ -79,8 +79,10 @@ char ctdl_key_dir[PATH_MAX]=SSL_DIR;
 char file_crpt_file_key[PATH_MAX]="";
 char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
+char file_etc_mimelist[PATH_MAX]="";
 
 const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/* nailed to what configure gives us. */
+char etc_dir[PATH_MAX];
 char static_dir[PATH_MAX];		/* calculated on startup */
 char static_local_dir[PATH_MAX];		/* calculated on startup */
 char static_icon_dir[PATH_MAX];          /* where should we find our mime icons? */
@@ -92,6 +94,62 @@ char  *static_dirs[]={				/* needs same sort order as the web mapping */
 };
 
 int ExitPipe[2];
+HashList *GZMimeBlackList = NULL; /* mimetypes which shouldn't be gzip compressed */
+
+void LoadMimeBlacklist(void)
+{
+	StrBuf *MimeBlackLine;
+	IOBuffer IOB;
+	eReadState state;
+	
+	memset(&IOB, 0, sizeof(IOBuffer));
+	IOB.fd = open(file_etc_mimelist, O_RDONLY);
+
+	IOB.Buf = NewStrBuf();
+	MimeBlackLine = NewStrBuf();
+	GZMimeBlackList = NewHash(1, NULL);
+
+	do
+	{
+		state = StrBufChunkSipLine(MimeBlackLine, &IOB);
+
+		switch (state)
+		{
+		case eMustReadMore:
+			if (StrBuf_read_one_chunk_callback(IOB.fd, 0, &IOB) <= 0)
+				state = eReadFail;
+			break;
+		case eReadSuccess:
+			if ((StrLength(MimeBlackLine) > 1) && 
+			    (*ChrPtr(MimeBlackLine) != '#'))
+			{
+				Put(GZMimeBlackList, SKEY(MimeBlackLine),
+				    (void*) 1, reference_free_handler);
+			}
+			FlushStrBuf(MimeBlackLine);
+			break;
+		case eReadFail:
+			break;
+		case eBufferNotEmpty:
+			break;
+		}
+	}
+	while (state != eReadFail);
+
+	close(IOB.fd);
+	
+	FreeStrBuf(&IOB.Buf);
+	FreeStrBuf(&MimeBlackLine);
+}
+
+void CheckGZipCompressionAllowed(const char *MimeType, long MLen)
+{
+	void *v;
+	wcsession *WCC = WC;
+
+	if (WCC->Hdr->HR.gzip_ok)
+	    WCC->Hdr->HR.gzip_ok = GetHash(GZMimeBlackList, MimeType, MLen, &v) == 0;
+}
 
 void InitialiseSemaphores(void)
 {
@@ -485,6 +543,15 @@ webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdi
 		 sizeof file_crpt_file_cer, 
 		 "%s/citadel.cer",
 		 ctdl_key_dir);
+
+
+	basedir=ETCDIR;
+	COMPUTE_DIRECTORY(etc_dir);
+	StripSlashes(etc_dir, 1);
+	snprintf(file_etc_mimelist,
+		 sizeof file_etc_mimelist, 
+		 "%s/nogz-mimetypes.txt",
+		 etc_dir);
 
 	/* we should go somewhere we can leave our coredump, if enabled... */
 	syslog(LOG_INFO, "Changing directory to %s\n", socket_dir);

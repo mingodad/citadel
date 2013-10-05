@@ -486,12 +486,14 @@ if test "$prefix" = NONE; then
 	wwwdir=$ac_default_prefix
 	rundir=$ac_default_prefix
 	editordir=$ac_default_prefix/tiny_mce
+	etcdir=$ac_default_prefix
 else
 	localedir=$prefix
 	wwwdir=$prefix
 	datadir=$prefix
 	rundir=$prefix
 	editordir=$prefix/tiny_mce
+	etcdir=$prefix
 fi
 
 dnl where to put the locale files
@@ -551,6 +553,18 @@ AC_ARG_WITH(editordir,
 			]
 )
 AC_DEFINE_UNQUOTED(EDITORDIR, "$editordir", [where to find our mail editor])
+
+dnl Checks where to find our configs
+AC_ARG_WITH(etcdir, 
+		    [  --with-etcdir             directory to read our configs],
+			[ if test "x$withval" != "xno" ; then
+				etcdir=$withval
+			  fi
+			]
+)
+AC_DEFINE_UNQUOTED(ETCDIR, "$etcdir", [where to find our configs])
+ETCDIR=$etcdir
+AC_SUBST(ETCDIR)
 
 abs_srcdir="`cd $srcdir && pwd`"
 abs_builddir="`pwd`"

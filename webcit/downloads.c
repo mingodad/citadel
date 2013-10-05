@@ -270,12 +270,13 @@ void download_file(void)
 	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
-		if (!force_download) {
-			StrBufExtract_token(ContentType, Buf, 3, '|');
-		}
+		StrBufExtract_token(ContentType, Buf, 3, '|');
 		serv_read_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
 		StrBuf_ServGetln(Buf);
+		CheckGZipCompressionAllowed (SKEY(ContentType));
+		if (force_download)
+			FlushStrBuf(ContentType);
 		http_transmit_thing(ChrPtr(ContentType), 0);
 	} else {
 		StrBufCutLeft(Buf, 4);
@@ -397,6 +398,7 @@ void output_image(void)
 			/** Write it to the browser */
 			if (!IsEmptyStr(MimeType))
 			{
+				CheckGZipCompressionAllowed (MimeType, strlen(MimeType));
 				http_transmit_thing(MimeType, 0);
 				FreeStrBuf(&Buf);
 				return;

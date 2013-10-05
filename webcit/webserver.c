@@ -56,6 +56,7 @@ extern StrBuf *I18nDump;
 void InitTemplateCache(void);
 extern int LoadTemplates;
 
+void LoadMimeBlacklist(void);
 
 /*
  * Here's where it all begins.
@@ -223,6 +224,7 @@ int main(int argc, char **argv)
 	}
 
 	webcit_calc_dirs_n_files(relh, basedir, home, webcitdir, relhome);
+	LoadMimeBlacklist();
 	LoadIconDir(static_icon_dir);
 
 	/* Tell 'em who's in da house */

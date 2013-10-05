@@ -61,6 +61,7 @@ endif
 		--with-editordir=/usr/share/tinymce/www/ \
 		--with-rundir=/var/run/citadel \
                 --with-ssldir=/etc/ssl/webcit/ \
+		--with-etcdir=/etc/citadel \
 		--with-ssl \
 		--with-datadir=/var/run/citadel \
 		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
@@ -94,7 +95,7 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	$(MAKE) install-bin install-locale install-wwwdata DESTDIR=$(DESTDIR)
+	$(MAKE) install-bin install-locale install-wwwdata install-cfg DESTDIR=$(DESTDIR)
 	chmod a-x -R $(DESTDIR)/usr/share/citadel-webcit/static/*
 	find $(DESTDIR)/usr/share/locale/ -name webcit.mo -exec chmod a-x {} \;
 	rm $(DESTDIR)/usr/share/citadel-webcit/static/prototype.js

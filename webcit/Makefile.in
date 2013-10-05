@@ -18,6 +18,7 @@ PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
 LOCALEDIR=@LOCALEDIR@
 WWWDIR=@WWWDIR@
+ETCDIR=@ETCDIR@
 HEADERS=calendar.h  dav.h  messages.h  modules_init.h  paramhandling.h  preferences.h  roomops.h  subst.h  sysdep.h  tcp_sockets.h  utils.h  webcit.h  webserver.h
 
 # End of configuration section
@@ -104,7 +105,7 @@ $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 $(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
 
-install:  install-bin install-setupbin install-wwwdata install-tinymce install-locale
+install:  install-bin install-setupbin install-wwwdata install-tinymce install-locale install-cfg
 
 install-bin:
 	test -d $(DESTDIR)$(prefix) || mkdir -p $(DESTDIR)$(prefix)
@@ -114,6 +115,9 @@ install-bin:
 		ln -s $(DESTDIR)$(prefix)/webcit $(DESTDIR)$(prefix)/webserver; \
 	fi
 
+install-cfg:
+	test -d $(DESTDIR)$(ETCDIR) || mkdir -p $(DESTDIR)$(ETCDIR)
+	$(INSTALL) nogz-mimetypes.txt $(DESTDIR)/$(ETCDIR)/nogz-mimetypes.txt
 
 install-setupbin: install-bin
 	$(INSTALL) setup $(DESTDIR)$(prefix)/setup

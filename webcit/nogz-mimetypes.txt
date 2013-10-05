@@ -1,0 +1,4 @@
+# all mimetypes enlisted in this file won't be gzipped on the fly.
+application/gzip
+video/mpeg
+video/mkv

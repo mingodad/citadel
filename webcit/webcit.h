@@ -581,6 +581,7 @@ void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
 void end_critical_section(int which_one);
 
+void CheckGZipCompressionAllowed(const char *MimeType, long MLen);
 
 extern void do_404(void);
 void http_redirect(const char *);
