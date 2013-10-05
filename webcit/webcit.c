@@ -314,6 +314,11 @@ void authorization_required(void)
 		PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software)
 	);
 	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", ChrPtr(WC->serv_info->serv_humannode));
+
+	/* if this is a false cookie authentication, remove it to avoid endless loops. */
+	if (StrLength(WCC->Hdr->HR.RawCookie) > 0)
+		stuff_to_cookie(1);
+
 	hprintf("Content-Type: text/html\r\n");
 	begin_burst();
 	wc_printf("<h1>");
