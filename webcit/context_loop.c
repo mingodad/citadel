@@ -714,6 +714,31 @@ void Header_HandleAcceptEncoding(StrBuf *Line, ParsedHttpHdrs *hdr)
 		hdr->HR.gzip_ok = 1;
 	}
 }
+
+void Header_HandleContentRange(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	const char *PRange = ChrPtr(Line);
+
+	while ((*PRange != '=') && (*PRange != '\0'))
+		PRange ++;
+	if (*PRange == '=')
+		PRange ++;
+	if ((*PRange == '\0'))
+		return;
+	hdr->HaveRange = 1;
+	hdr->RangeStart = atol(PRange);
+
+	while (isdigit(*PRange))
+		PRange++;
+
+	if (*PRange == '-')
+		PRange ++;
+	if ((*PRange == '\0'))
+		hdr->RangeTil = -1;
+	else
+		hdr->RangeTil = atol(PRange);
+}
+
 const char *ReqStrs[eNONE] = {
 	"GET",
 	"POST",
@@ -798,6 +823,7 @@ void
 InitModule_CONTEXT
 (void)
 {
+	RegisterHeaderHandler(HKEY("RANGE"), Header_HandleContentRange);
 	RegisterHeaderHandler(HKEY("CONTENT-LENGTH"), Header_HandleContentLength);
 	RegisterHeaderHandler(HKEY("CONTENT-TYPE"), Header_HandleContentType);
 	RegisterHeaderHandler(HKEY("X-FORWARDED-HOST"), Header_HandleXFFHost); /* Apache way... */

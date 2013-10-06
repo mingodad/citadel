@@ -501,7 +501,7 @@ void ssl_lock(int mode, int n, const char *file, int line)
 /*
  * Send binary data to the client encrypted.
  */
-void client_write_ssl(const StrBuf *Buf)
+int client_write_ssl(const StrBuf *Buf)
 {
 	const char *buf;
 	int retval;
@@ -509,7 +509,7 @@ void client_write_ssl(const StrBuf *Buf)
 	long nbytes;
 	char junk[1];
 
-	if (THREADSSL == NULL) return;
+	if (THREADSSL == NULL) return -1;
 
 	nbytes = nremain = StrLength(Buf);
 	buf = ChrPtr(Buf);
@@ -535,10 +535,11 @@ void client_write_ssl(const StrBuf *Buf)
 				syslog(LOG_WARNING, "errno is %d\n", errno);
 			}
 			endtls();
-			return;
+			return -1;
 		}
 		nremain -= retval;
 	}
+	return 0;
 }
 
 

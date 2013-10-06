@@ -389,6 +389,10 @@ typedef struct _HdrRefs {
 
 typedef struct _ParsedHttpHdrs {
 	int http_sock;				/* HTTP server socket */
+	long HaveRange;
+	long RangeStart;
+	long RangeTil;
+	long TotalBytes;
 	const char *Pos;
 	StrBuf *ReadBuf;
 
@@ -564,7 +568,7 @@ void ssl_lock(int mode, int n, const char *file, int line);
 int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
 int client_read_sslbuffer(StrBuf *buf, int timeout);
-void client_write_ssl(const StrBuf *Buf);
+int client_write_ssl(const StrBuf *Buf);
 #endif
 
 extern int is_https;
@@ -691,6 +695,7 @@ extern char *days[];
 long locate_user_vcard_in_this_room(message_summary **VCMsg,
 				    wc_mime_attachment **VCAtt);
 void http_transmit_thing(const char *content_type, int is_static);
+void http_transmit_headers(const char *content_type, int is_static, long is_chunked);
 long unescape_input(char *buf);
 void check_thread_pool_size(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);

@@ -271,13 +271,15 @@ void download_file(void)
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
 		StrBufExtract_token(ContentType, Buf, 3, '|');
-		serv_read_binary(WCC->WBuf, bytes, Buf);
-		serv_puts("CLOS");
-		StrBuf_ServGetln(Buf);
+
 		CheckGZipCompressionAllowed (SKEY(ContentType));
 		if (force_download)
 			FlushStrBuf(ContentType);
-		http_transmit_thing(ChrPtr(ContentType), 0);
+
+		serv_read_binary_to_http(ContentType, bytes, 0, 0);
+		serv_puts("CLOS");
+		StrBuf_ServGetln(Buf);
+//		http_transmit_thing(ChrPtr(ContentType), 0);
 	} else {
 		StrBufCutLeft(Buf, 4);
 		hprintf("HTTP/1.1 404 %s\n", ChrPtr(Buf));

@@ -141,7 +141,11 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 	wcsession *WCC = WC;
 	char httpnow[128];
 
-	hprintf("HTTP/1.1 200 OK\n");
+	if (WCC->Hdr->HaveRange > 1)
+		hprintf("HTTP/1.1 206 Partial Content\r\n");
+	else
+		hprintf("HTTP/1.1 200 OK\r\n");
+
 	http_datestring(httpnow, sizeof httpnow, time(NULL));
 
 	if (do_httpheaders) {
@@ -243,6 +247,27 @@ void http_transmit_thing(const char *content_type, int is_static)
 		PACKAGE_STRING);
 
 	end_burst();
+}
+
+void http_transmit_headers(const char *content_type, int is_static, long is_chunked)
+{
+	wcsession *WCC = WC;
+	syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
+	output_headers(0, 0, 0, 0, 0, is_static);
+
+	if (WCC->Hdr->HaveRange)
+		hprintf("Accept-Ranges: bytes\r\n"
+			"Content-Range: bytes %ld-%ld/%ld\r\n",
+			WCC->Hdr->RangeStart,
+			WCC->Hdr->RangeTil,
+			WCC->Hdr->TotalBytes);
+
+	hprintf("Content-type: %s\r\n"
+		"Server: "PACKAGE_STRING"\r\n"
+		"%s"
+		"Connection: close\r\n\r\n",
+		content_type,
+		(is_chunked)?"Transfer-Encoding: chunked\r\n":"");
 }
 
 

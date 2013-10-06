@@ -40,6 +40,7 @@ int serv_write(const char *buf, int nbytes);
 int serv_putbuf(const StrBuf *string);
 int serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
+void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static, int detect_mime);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
