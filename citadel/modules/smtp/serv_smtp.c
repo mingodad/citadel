@@ -622,7 +622,7 @@ void smtp_mail(long offset, long flags) {
 	 * address so we don't have to contend with the empty string causing
 	 * other code to fail when it's expecting something there.
 	 */
-	if (StrLength(sSMTP->from)) {
+	if (StrLength(sSMTP->from) == 0) {
 		StrBufPlain(sSMTP->from, HKEY("someone@example.com"));
 	}
 
