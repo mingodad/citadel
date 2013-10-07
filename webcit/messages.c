@@ -1803,6 +1803,7 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
  */
 void mimepart(int force_download)
 {
+	int detect_mime = 0;
 	long msgnum;
 	long ErrorDetail;
 	StrBuf *att;
@@ -1824,26 +1825,29 @@ void mimepart(int force_download)
 		StrBufExtract_token(ContentType, Buf, 3, '|');
 		CheckGZipCompressionAllowed (SKEY(ContentType));
 		if (force_download)
+		{
 			FlushStrBuf(ContentType);
-
+			detect_mime = 0;
+		}
+		else
+		{
+			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream"))
+			{
+				StrBufExtract_token(Buf, WCC->Hdr->HR.ReqLine, 2, '/');
+				CT = GuessMimeByFilename(SKEY(Buf));
+				StrBufPlain(ContentType, CT, -1);
+			}
+			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream"))
+			{
+				detect_mime = 1;
+			}
+		}
+		serv_read_binary_to_http(ContentType, bytes, 0, detect_mime);
 
 		serv_read_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
 		StrBuf_ServGetln(Buf);
 		CT = ChrPtr(ContentType);
-
-		if (!force_download) {
-			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
-				StrBufExtract_token(Buf, WCC->Hdr->HR.ReqLine, 2, '/');
-				CT = GuessMimeByFilename(SKEY(Buf));
-				CheckGZipCompressionAllowed (CT, strlen(CT));
-			}
-			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
-				CT = GuessMimeType(SKEY(WCC->WBuf));
-				CheckGZipCompressionAllowed (CT, strlen(CT));
-			}
-		}
-		http_transmit_thing(CT, 0);
 	} else {
 		StrBufCutLeft(Buf, 4);
 		switch (ErrorDetail) {
@@ -1863,7 +1867,12 @@ void mimepart(int force_download)
 			hprintf("HTTP/1.1 500 %s\n", ChrPtr(Buf));
 			break;
 		}
-		output_headers(0, 0, 0, 0, 0, 0);
+
+		hprintf("Pragma: no-cache\r\n"
+			"Cache-Control: no-store\r\n"
+			"Expires: -1\r\n"
+		);
+
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
 		wc_printf(_("An error occurred while retrieving this part: %s\n"), 

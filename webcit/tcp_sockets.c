@@ -495,22 +495,69 @@ int client_write(StrBuf *ThisBuf)
 	return 0;
 }
 
+
+int
+read_serv_chunk(
+
+	StrBuf *Buf,
+	size_t total_len,
+	size_t *bytes_read
+	)
+{
+	int rc;
+	int ServerRc;
+	wcsession *WCC = WC;
+
+	serv_printf("READ "SIZE_T_FMT"|"SIZE_T_FMT, *bytes_read, total_len-(*bytes_read));
+	if ( (rc = StrBuf_ServGetln(Buf) > 0) &&
+	     (ServerRc = GetServerStatus(Buf, NULL), ServerRc == 6) ) 
+	{
+		size_t this_block = 0;
+
+		if (rc < 0)
+			return rc;
+
+		StrBufCutLeft(Buf, 4);
+		this_block = StrTol(Buf);
+		rc = StrBuf_ServGetBLOBBuffered(WCC->WBuf, this_block);
+		if (rc < 0) {
+			syslog(LOG_INFO, "Server connection broken during download\n");
+			wc_backtrace(LOG_INFO);
+			if (WCC->serv_sock > 0) close(WCC->serv_sock);
+			WCC->serv_sock = (-1);
+			WCC->connected = 0;
+			WCC->logged_in = 0;
+			return rc;
+		}
+		*bytes_read += rc;
+	}
+	return 6;
+}
+
+static inline int send_http(StrBuf *Buf)
+{
+#ifdef HAVE_OPENSSL
+	if (is_https)
+		return client_write_ssl(Buf);
+	else
+#endif
+		return client_write(Buf);
+}
 /*
  * Read binary data from server into memory using a series of server READ commands.
  * returns the read content as StrBuf
  */
 void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static, int detect_mime)
 {
+	int ServerRc = 6;
 	wcsession *WCC = WC;
 	size_t bytes_read = 0;
-	size_t this_block = 0;
-	int rc = 6;
-	int ServerRc = 6;
 	int first = 1;
 	int chunked = 0;
 	StrBuf *BufHeader;
 	StrBuf *Buf;
 
+	Buf = NewStrBuf();
 
 	if (WCC->Hdr->HaveRange)
 	{
@@ -529,43 +576,67 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	{
 		BufHeader=NewStrBuf();
 	}
-	Buf = NewStrBuf();
 
-	http_transmit_headers(ChrPtr(MimeType), is_static, chunked);
-#ifdef HAVE_OPENSSL
-	if (is_https)
-		client_write_ssl(WCC->HBuf);
-	else
-#endif
-		client_write(WCC->HBuf);
+	if ((detect_mime != 0) && (bytes_read != 0))
+	{
+		/* need to read first chunk to detect mime, though the client doesn't care */
+		size_t bytes_read = 0;
+		const char *CT;
+
+		ServerRc = read_serv_chunk(
+			Buf,
+			total_len,
+			&bytes_read);
+
+		if (ServerRc != 6)
+		{
+			FreeStrBuf(&Buf);
+			return;
+		}
+		CT = GuessMimeType(SKEY(WCC->WBuf));
+		FlushStrBuf(WCC->WBuf);
+		StrBufPlain(MimeType, CT, -1);
+		detect_mime = 0;
+		FreeStrBuf(&Buf);
+	}
+
+	if (!detect_mime)
+	{
+		http_transmit_headers(ChrPtr(MimeType), is_static, chunked);
+		
+		if (send_http(WCC->HBuf) < 0)
+		{
+			FreeStrBuf(&Buf);
+			return;
+		}
+	}
 
 	while ((bytes_read < total_len) && (ServerRc == 6)) {
 
 		if (WCC->serv_sock==-1) {
 			FlushStrBuf(WCC->WBuf); 
+			FreeStrBuf(&Buf);
 			return;
 		}
 
-		serv_printf("READ "SIZE_T_FMT"|"SIZE_T_FMT, bytes_read, total_len-bytes_read);
-		if ( (rc = StrBuf_ServGetln(Buf) > 0) &&
-		     (ServerRc = GetServerStatus(Buf, NULL), ServerRc == 6) ) 
+		ServerRc = read_serv_chunk(
+			Buf,
+			total_len,
+			&bytes_read);
+		if (ServerRc != 6)
+			break;
+
+		if (detect_mime)
 		{
-			if (rc < 0)
-				return;
-			StrBufCutLeft(Buf, 4);
-			this_block = StrTol(Buf);
-			rc = StrBuf_ServGetBLOBBuffered(WCC->WBuf, this_block);
-			if (rc < 0) {
-				syslog(LOG_INFO, "Server connection broken during download\n");
-				wc_backtrace(LOG_INFO);
-				if (WCC->serv_sock > 0) close(WCC->serv_sock);
-				WCC->serv_sock = (-1);
-				WCC->connected = 0;
-				WCC->logged_in = 0;
-				return;
-			}
-			bytes_read += rc;
+			const char *CT;
+			detect_mime = 0;
 			
+			CT = GuessMimeType(SKEY(WCC->WBuf));
+			StrBufPlain(MimeType, CT, -1);
+			http_transmit_headers(ChrPtr(MimeType), is_static, chunked);
+			
+			if (send_http(WCC->HBuf) < 0)
+				break;
 		}
 
 		if (chunked)
@@ -573,40 +644,26 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			StrBufPrintf(BufHeader, "%s%x\r\n", 
 				     (first)?"":"\r\n",
 				     StrLength (WCC->WBuf));
-#ifdef HAVE_OPENSSL
-			if (is_https)
-				rc = client_write_ssl(BufHeader);
-			else
-#endif
-				rc = client_write(BufHeader);
-			if (rc < 0)
+			if (send_http(BufHeader) < 0)
 				break;
 		}
 
-#ifdef HAVE_OPENSSL
-		if (is_https)
-			rc = client_write_ssl(WCC->WBuf);
-		else
-#endif
-			rc = client_write(WCC->WBuf);
-
-		if (rc < 0)
+		if (send_http(WCC->WBuf) < 0)
 			break;
-		first = 0;
+
 		FlushStrBuf(WCC->WBuf);
 	}
 
 	if (chunked)
 	{
-		StrBufPrintf(BufHeader, "\r\n0\r\n\r\n");
-#ifdef HAVE_OPENSSL
-		if (is_https)
-			rc = client_write_ssl(BufHeader);
-		else
-#endif
-			rc = client_write(BufHeader);
+		StrBufPlain(BufHeader, HKEY("\r\n0\r\n\r\n"));
+		if (send_http(BufHeader) < 0)
+		{
+			FreeStrBuf(&Buf);
+			return;
+		}
 	}
-
+	FreeStrBuf(&Buf);
 }
 
 int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
