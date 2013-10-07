@@ -206,14 +206,16 @@ void put_config(void)
 	FILE *cfp;
 	int blocks_written = 0;
 
-	if ((cfp = fopen(file_citadel_config, "w")) != NULL) {
+	cfp = fopen(file_citadel_config, "w");
+	if (cfp != NULL) {
 		blocks_written = fwrite((char *) &config, sizeof(struct config), 1, cfp);
 		if (blocks_written == 1) {
-			fclose(cfp);
 			chown(file_citadel_config, CTDLUID, (-1));
 			chmod(file_citadel_config, 0600);
+			fclose(cfp);
 			return;
 		}
+		fclose(cfp);
 	}
 	syslog(LOG_EMERG, "%s: %s", file_citadel_config, strerror(errno));
 }

@@ -725,7 +725,7 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	       (filedir_entry != NULL))
 	{
 #ifdef _DIRENT_HAVE_D_NAMLEN
-		d_namelen = filedir_entry->d_namelen;
+		d_namelen = filedir_entry->d_namlen;
 
 #else
 		d_namelen = strlen(filedir_entry->d_name);
@@ -829,7 +829,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 	       (filedir_entry != NULL))
 	{
 #ifdef _DIRENT_HAVE_D_NAMLEN
-		d_namelen = filedir_entry->d_namelen;
+		d_namelen = filedir_entry->d_namlen;
 
 #else
 		d_namelen = strlen(filedir_entry->d_name);
