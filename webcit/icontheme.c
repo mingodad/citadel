@@ -84,7 +84,7 @@ int LoadThemeDir(const char *DirName)
 	       (filedir_entry != NULL))
 	{
 #ifdef _DIRENT_HAVE_D_NAMELEN
-		d_namelen = filedir_entry->d_namelen;
+		d_namelen = filedir_entry->d_namlen;
 		d_type = filedir_entry->d_type;
 #else
 

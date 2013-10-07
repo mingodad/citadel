@@ -1526,8 +1526,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 		char *MinorPtr;
 
 #ifdef _DIRENT_HAVE_D_NAMLEN
-		d_namelen = filedir_entry->d_namelen;
-
+		d_namelen = filedir_entry->d_namlen;
 #else
 		d_namelen = strlen(filedir_entry->d_name);
 #endif

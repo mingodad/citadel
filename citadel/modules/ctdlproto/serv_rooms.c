@@ -427,7 +427,7 @@ void cmd_rdir(char *cmdbuf)
 		if (strcasecmp(filedir_entry->d_name, "filedir") && filedir_entry->d_name[0] != '.')
 		{
 #ifdef _DIRENT_HAVE_D_NAMELEN
-			d_namelen = filedir_entry->d_namelen;
+			d_namelen = filedir_entry->d_namlen;
 #else
 			d_namelen = strlen(filedir_entry->d_name);
 #endif
