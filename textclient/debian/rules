@@ -133,9 +133,9 @@ binary-common:
 	dh_installchangelogs
 	dh_installdocs
 	dh_installdebconf	
-	dh_installinit --name=citadel
+	dh_installinit --name=textclient
 	dh_installman
-	dh_strip --dbg-package=citadel-dbg
+	dh_strip --dbg-package=citadel-textclient-dbg
 	dh_link
 	dh_compress 
 	dh_fixperms
