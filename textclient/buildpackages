@@ -1,0 +1,119 @@
+#!/bin/bash
+# find out the package version from conf
+if test -f Makefile; then
+    make distclean
+fi
+
+#./bootstrap
+
+export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;CITADEL;"`
+
+PACKAGE_VERSION=`cat packageversion`
+DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
+ACTUAL_DIR=`pwd`
+
+
+rm -rf debian/textclient debian/citadel-common debian/citadel-doc debian/citadel-mta debian/citadel-server debian/citadel-suite debian/tmp
+if echo "$ACTUAL_DIR" |grep -q "$CITADEL_VERSION"; then
+	echo "directory ($ACTUAL_DIR) naming scheme seems right. nothing done."
+else
+	done=false
+	if test -L "$ACTUAL_DIR"; then 
+		SYMLINK_=`pwd`
+		SYMLINK=`ls -l $SYMLINK_|sed "s;.*-> ;;"`
+		if ls -l $SYMLINK_|grep -q "$CITADEL_VERSION"; then
+			done=true
+		fi
+	else
+		SYMLINK=`pwd|sed "s;.*/;;"`
+	fi
+	if test "$done" = "false"; then 
+		cd ..
+		if test ! -L "textclient-$CITADEL_VERSION"; then
+			ln -sf textclient "textclient-$CITADEL_VERSION"
+		fi
+		cd "textclient-$CITADEL_VERSION"
+	else
+		cd "../textclient-$CITADEL_VERSION"
+	fi
+	
+fi
+
+
+case $1 in
+    debian)
+	if grep -q "($CITADEL_VERSION" debian/changelog; then
+	    echo rebuilding package.
+	else
+	    echo "Upstream Version higher than local."
+	    
+	fi
+	if test "$2" == "src"; then
+	    cd ..
+	    rm -rf tmp
+	    mkdir tmp
+	    cp -rL textclient-$CITADEL_VERSION tmp
+	    cd tmp/textclient-$CITADEL_VERSION
+	    rm -rf `find -name .svn ` svn*tmp config.log config.status
+	    find -type f -exec chmod a-x {} \;
+	    chmod a+x configure *.sh *.sh.in debian/rules debian/*inst* debian/rules mkinstalldirs
+	    cd ..
+	    tar -chzf textclient_${CITADEL_VERSION}.orig.tar.gz textclient-${CITADEL_VERSION}/ --exclude "debian/*"
+	    pwd
+	    cd  textclient-${CITADEL_VERSION}; debuild -S -sa -kw.goesgens@outgesourced.org
+	else
+	    fakeroot dpkg-buildpackage
+	fi
+	;;
+    csw)
+	if !test -d ~/pkgs/; then
+	    mkdir ~/pkgs
+	fi
+	echo "
+PKG=CSWcitadel-textclient
+NAME=citadel - The groupware server for Web 2.0
+VERSION=${PACKAGE_VERSION}
+CATEGORY=application
+VENDOR=http://www.citadel.org/  packaged for CSW by Wilfried Goesgens
+HOTLINE=https://uncensored.citadel.org/ Room citadel support
+EMAIL=citadel@outgesourced.org
+" >~/pkgs/citadel
+	export LDFLAGS='-L/opt/csw/lib -L /usr/local/lib'
+	export CFLAGS='-I/opt/csw/include -I/usr/local/include  -DDISABLE_CURSES'
+	./configure \
+	    --with-db=/opt/csw/bdb44 \
+	    --with-ical=/usr/local/ \
+	    --with-prefix=/opt/csw/ \
+	    --with-datadir=/opt/csw/var/lib/citadel \
+	    --with-sysconfdir=/opt/csw/etc/citadel \
+	    --with-ssldir=/opt/csw/etc/ssl/citadel/ \
+	    --with-spooldir=/opt/csw/var/spool/citadel \
+	    --with-rundir=/opt/csw/var/run/citadel \
+	    --with-docdir=/opt/csw/share/doc/citadel-doc/ \
+	    --with-pam \
+	    --with-zlib \
+	    --with-ldap \
+	    --with-libsieve
+	    
+	gmake citserver aidepost msgform citmail userlist sendcommand base64 whobbs citadel
+	gmake DESTDIR=$ACTUAL_DIR/cswstage install-new
+	
+
+
+	;;
+    sourcedist)
+	cd ..; tar \
+	    --exclude ".gitignore" \
+	    --exclude "*.lo" \
+	    --exclude "*.o" \
+	    --exclude "*.d" \
+	    --exclude "autom4te.cache/*" \
+	    --exclude "debian/*" \
+	    --exclude "sysdep.h" \
+	    \
+	    -chvzf textclient-$CITADEL_VERSION.tar.gz textclient-$CITADEL_VERSION/
+	;;
+	*)
+		echo "Not yet implemented. we have: debian "
+		;;
+esac
