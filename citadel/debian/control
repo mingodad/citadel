@@ -74,16 +74,6 @@ Description: complete and feature-rich groupware server (mail transport agent)
  .
  See the 'citadel-server' package for more informations.
 
-Package: citadel-client
-Architecture: any
-Recommends: shared-mime-info
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
-Description: complete and feature-rich groupware server (command line client)
- This is package contains the command line client for Citadel, a complete and
- feature-rich open source groupware platform.
- .
- See the 'citadel-server' package for more informations.
-
 Package: citadel-doc
 Section: doc
 Architecture: all
@@ -101,7 +91,6 @@ Architecture: any
 Depends: ${misc:Depends},
          citadel-server (= ${binary:Version}),
          citadel-mta (= ${binary:Version}),
-         citadel-client (= ${binary:Version})
 Description: complete and feature-rich groupware server - debugging symbols
  Citadel is a complete and feature-rich open source groupware platform.
   * Email, calendaring/scheduling, address books
