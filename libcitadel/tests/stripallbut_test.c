@@ -93,6 +93,7 @@ static void TestStripAllBut(void) {
 	};
 
 	char foo[128];
+	StrBuf *Test = NewStrBuf();;
 
 	for (i=0; i<(sizeof(teststrings) / sizeof (char *)); ++i) {
 		strcpy(foo, teststrings[i]);
@@ -100,6 +101,15 @@ static void TestStripAllBut(void) {
 
 		CU_ASSERT_STRING_EQUAL(foo, strippedstrings[i]);
 		CU_ASSERT_EQUAL(strlen(foo), strippedlens[i]);
+
+
+		StrBufPlain(Test, teststrings[i], -1);
+		StrBufStripAllBut(Test, '<', '>');
+
+		CU_ASSERT_STRING_EQUAL(ChrPtr(Test), strippedstrings[i]);
+		CU_ASSERT_EQUAL(StrLength(Test), strippedlens[i]);
+
+		printf("[%s] -> [%s][%s][%s]\n", teststrings[i], foo, ChrPtr(Test), strippedstrings[i]);
 	}
 }
 

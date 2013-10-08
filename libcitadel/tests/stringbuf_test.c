@@ -621,7 +621,7 @@ static void AddStrBufSimpleTests(void)
 
 int main(int argc, char* argv[])
 {
-	int i;
+	///int i;
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	StartLibCitadel(8);

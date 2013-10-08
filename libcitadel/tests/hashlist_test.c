@@ -253,7 +253,7 @@ static void TestMSetHashlist (void)
 					     ChrPtr(MSetStr), 
 					     MessageNumbers[nTest][InMSet][j]);
 				CU_FAIL(ChrPtr(Assert));
-				printf(ChrPtr(Assert));
+				printf("%s", ChrPtr(Assert));
 			}
 			else
 			{
@@ -273,7 +273,7 @@ static void TestMSetHashlist (void)
 					     ChrPtr(MSetStr), 
 					     MessageNumbers[nTest][NotInMSet][j]);
 				CU_FAIL(ChrPtr(Assert));
-				printf(ChrPtr(Assert));
+				printf("%s", ChrPtr(Assert));
 			}
 			else
 			{

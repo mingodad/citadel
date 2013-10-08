@@ -137,7 +137,6 @@ static void worker_entry(testfunc F)
 {
 	int ssock;
 	int i = 0;
-	int fail_this_transaction = 0;
 	int ret;
 	struct timeval tv;
 	fd_set readset, tempset;
@@ -150,7 +149,6 @@ static void worker_entry(testfunc F)
 
 	do {
 		/* Only one thread can accept at a time */
-		fail_this_transaction = 0;
 		ssock = -1; 
 		errno = EAGAIN;
 		do {
