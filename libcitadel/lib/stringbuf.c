@@ -1184,18 +1184,10 @@ void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
 	if (pRight != NULL) {
 		StrBufCutAt(Buf, 0, pRight);
 	}
-	else {
-		StrBufCutAt(Buf, 0, Buf->buf);
-		return;
-	}
 
 	pLeft = strrchr(ChrPtr(Buf), leftboundary);
 	if (pLeft != NULL) {
 		StrBufCutLeft(Buf, pLeft - Buf->buf + 1);
-	}
-	else {
-		StrBufCutAt(Buf, 0, Buf->buf);
-		return;
 	}
 }
 
