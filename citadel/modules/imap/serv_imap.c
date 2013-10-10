@@ -329,7 +329,7 @@ void imap_load_msgids(void)
 
 	if (Imap->num_msgs) {
 		Imap->flags = malloc(Imap->num_alloc * sizeof(unsigned int));
-		memset(Imap->flags, 0, (Imap->num_alloc * sizeof(long)) );
+		memset(Imap->flags, 0, (Imap->num_alloc * sizeof(unsigned int)) );
 	}
 
 	imap_set_seen_flags(0);
