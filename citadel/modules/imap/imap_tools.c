@@ -576,7 +576,7 @@ long imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 			if (p < bufend)
 				*p++ = '/';
 			pend = toimap(p, bufend, qrbuf->QRname+11);
-			return pend - p;
+			return pend - buf;
 		}
 	}
 	else
