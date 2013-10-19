@@ -568,7 +568,7 @@ long imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 		if (strcasecmp(qrbuf->QRname+11, MAILROOM) == 0)
 		{
 			pend = toimap(p, bufend, "INBOX");
-			return pend - p;
+			return pend - buf;
 		}
 		else
 		{
@@ -588,7 +588,7 @@ long imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 		if (p < bufend)
 			*p++ = '/';
 		pend = toimap(p, bufend, qrbuf->QRname);
-		return pend - p;
+		return pend - buf;
 	}
 }
 
