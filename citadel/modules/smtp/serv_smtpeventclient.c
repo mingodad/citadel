@@ -127,6 +127,7 @@ void DeleteSmtpOutMsg(void *v)
 		Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);
 	FreeURL(&Msg->Relay);
 	FreeStrBuf(&Msg->msgtext);
+	FreeStrBuf(&Msg->MultiLineBuf);
 	FreeAsyncIOContents(&Msg->IO);
 	memset (Msg, 0, sizeof(SmtpOutMsg)); /* just to be shure... */
 	free(Msg);
@@ -863,7 +864,16 @@ eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 			if (StrLength(IO->IOBuf) < 4)
 				continue;
 			if (ChrPtr(IO->IOBuf)[3] == '-')
+			{
+				SmtpOutMsg *Msg;
+				Msg = (SmtpOutMsg *)IO->Data;
+				if (Msg->MultiLineBuf == NULL)
+					Msg->MultiLineBuf = NewStrBuf ();
+				else
+					StrBufAppendBufPlain(Msg->MultiLineBuf, HKEY("\n"), 0);
+				StrBufAppendBuf(Msg->MultiLineBuf, IO->IOBuf, 0);
 				Finished = eBufferNotEmpty;
+			}
 			else
 				return Finished;
 			break;
