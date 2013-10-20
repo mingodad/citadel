@@ -5,7 +5,7 @@ dnl
 dnl Ensure that libcitadel is configured with autoconf 2.52 or newer
 AC_PREREQ(2.52)
 
-AC_INIT(libcitadel, 4.8.20, http://uncensored.citadel.org)
+AC_INIT(libcitadel, 4.8.21, http://uncensored.citadel.org)
 
 AC_CONFIG_SRCDIR(Makefile.in)
 AC_CONFIG_AUX_DIR(conftools)
@@ -23,7 +23,7 @@ dnl If the API changes incompatibly set LIBAGE back to 0
 dnl
 
 LIBCURRENT=4
-LIBREVISION=820
+LIBREVISION=821
 LIBAGE=0
 
 sinclude(conftools/libtool.m4)
