@@ -6,7 +6,7 @@ fi
 
 ./bootstrap
 
-export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;LIBCITADEL;"  -e "s;3.;;"`
+export `grep PACKAGE_VERSION= configure |sed -e "s;';;g" -e "s;PACKAGE;LIBCITADEL;"  -e "s;4.;;"`
 
 DATE=`date '+%a, %d %b %Y %H:%I:00 %z'`
 ACTUAL_DIR=`pwd`
