@@ -326,8 +326,8 @@ eNextState SMTPC_send_authplain_2(SmtpOutMsg *Msg)
 	
 	encodedlen = CtdlEncodeBase64(
 		encoded,
-		Msg->pCurrRelay->User,
-		strlen(Msg->pCurrRelay->User),
+		Msg->pCurrRelay->Pass,
+		strlen(Msg->pCurrRelay->Pass),
 		0);
 
 	StrBufPlain(Msg->IO.SendBuf.Buf,
