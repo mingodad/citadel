@@ -166,6 +166,11 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *Msg)
 		{
 			if (strstr(ChrPtr(Msg->IO.IOBuf), "LOGIN") != NULL)
 				Msg->SendLogin = 1;
+			else if ((Msg->MultiLineBuf != NULL) &&
+				 strstr(ChrPtr(Msg->MultiLineBuf), "LOGIN") != NULL)
+			{
+				Msg->SendLogin = 1;
+			}
 		}
 	}
 	/* else we fall back to 'helo' */
