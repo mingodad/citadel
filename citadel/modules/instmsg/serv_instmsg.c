@@ -110,9 +110,6 @@ void log_instant_message(struct CitContext *me, struct CitContext *them, char *m
 		this_im->next = imlist;
 		imlist = this_im;
 		StrBufAppendBufPlain(this_im->conversation, HKEY(
-			"Content-type: text/html\r\n"
-			"Content-transfer-encoding: 7bit\r\n"
-			"\r\n"
 			"<html><body>\r\n"
 			), 0);
 	}
@@ -446,12 +443,25 @@ void flush_individual_conversation(struct imlog *im) {
 	struct CtdlMessage *msg;
 	long msgnum = 0;
 	char roomname[ROOMNAMELEN];
+	StrBuf *MsgBuf, *FullMsgBuf;
 
 	StrBufAppendBufPlain(im->conversation, HKEY(
 		"</body>\r\n"
 		"</html>\r\n"
 		), 0
 	);
+
+	MsgBuf = StrBufRFC2047encodeMessage(im->conversation);
+	FlushStrBuf(im->conversation);
+	FullMsgBuf = NewStrBufPlain(NULL, StrLength(im->conversation) + 100);
+
+	StrBufAppendBufPlain(FullMsgBuf, HKEY(
+			"Content-type: text/html; charset=UTF-8\r\n"
+			"Content-Transfer-Encoding: quoted-printable\r\n"
+			"\r\n"
+			), 0);
+	StrBufAppendBuf (FullMsgBuf, MsgBuf, 0);
+	FreeStrBuf(&MsgBuf);
 
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
@@ -469,7 +479,7 @@ void flush_individual_conversation(struct imlog *im) {
 
 	CM_SetField(msg, eOriginalRoom, HKEY(PAGELOGROOM));
 	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
-	CM_SetAsFieldSB(msg, eMesageText, &im->conversation);	/* we own this memory now */
+	CM_SetAsFieldSB(msg, eMesageText, &FullMsgBuf);	/* we own this memory now */
 
 	/* Start with usernums[1] because it's guaranteed to be higher than usernums[0],
 	 * so if there's only one party, usernums[0] will be zero but usernums[1] won't.
