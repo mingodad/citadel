@@ -2882,6 +2882,97 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 	return (*target)->BufUsed;;
 }
 
+/**
+ * @ingroup StrBuf_DeEnCoder
+ * @brief	Quoted-Printable encode a message; make it < 80 columns width.
+ * @param	source		Source string to be encoded.
+ * @returns     buffer with encoded message.
+ */
+StrBuf *StrBufRFC2047encodeMessage(const StrBuf *EncodeMe)
+{
+	StrBuf *OutBuf;
+	char *Optr, *OEptr;
+	const char *ptr, *eptr;
+	unsigned char ch;
+	int LinePos;
+
+	OutBuf = NewStrBufPlain(NULL, StrLength(EncodeMe) * 4);
+	Optr = OutBuf->buf;
+	OEptr = OutBuf->buf + OutBuf->BufSize;
+	ptr = EncodeMe->buf;
+	eptr = EncodeMe->buf + EncodeMe->BufUsed;
+	LinePos = 0;
+
+	while (ptr < eptr)
+	{
+		if (Optr + 4 >= OEptr)
+		{
+			long Offset;
+			Offset = Optr - OutBuf->buf;
+			IncreaseBuf(OutBuf, 1, 0);
+			Optr = OutBuf->buf + Offset;
+			OEptr = OutBuf->buf + OutBuf->BufSize;
+		}
+		if ((*ptr == '\r') || (*ptr == '\n'))
+		{
+			/* ignore carriage returns */
+			ptr ++;
+		}
+		else if (*ptr == 10) {
+			/* hard line break */
+			if ((LinePos > 0) && (isspace(*(Optr-1))))
+			{
+				memcpy(Optr, HKEY("=0A"));
+				Optr += 3;
+			}
+			ptr ++;
+			LinePos = 0;
+		}
+		else if (( (*ptr >= 32) && (*ptr <= 60) ) ||
+			 ( (*ptr >= 62) && (*ptr <= 126) ))
+		{
+			*Optr = *ptr;
+			Optr ++;
+			ptr ++;
+			LinePos ++;
+		}
+		else {
+			ch = *ptr;
+			*Optr = '=';
+			Optr ++;
+			*Optr = HexList[ch][0];
+			Optr ++;
+			*Optr = HexList[ch][1];
+			Optr ++;
+			LinePos += 3;
+			ptr ++;
+		}
+
+		if (LinePos > 72) {
+			/* soft line break */
+			if (isspace(*(Optr - 1))) {
+				ch = *(Optr - 1);
+				Optr --;
+				*Optr = '=';
+				Optr ++;
+				*Optr = HexList[ch][0];
+				Optr ++;
+				*Optr = HexList[ch][1];
+				Optr ++;
+				LinePos += 3;
+			}
+			*Optr = '=';
+			Optr ++;
+			*Optr = '\n';
+			Optr ++;
+			LinePos = 0;
+		}
+	}
+	*Optr = '\0';
+	OutBuf->BufUsed = Optr - OutBuf->buf;
+
+	return OutBuf;
+}
 
 
 static void AddRecipient(StrBuf *Target, 

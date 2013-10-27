@@ -321,6 +321,33 @@ static void TestEncodeEmailSTDIN(void)
 	FreeStrBuf(&Source);
 }
 
+static void StrBufRFC2047encodeMessageStdin(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Target;
+	StrBuf *Source;
+	StrBuf *Src;
+
+	Source = NewStrBuf();
+	Src = NewStrBuf();
+
+	printf("[");
+	while (fdin == 0) {
+
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		StrBufAppendBuf(Src, Source, 0);
+		StrBufAppendBufPlain(Src, HKEY("\n"), 0);
+				
+	}
+
+	Target = StrBufRFC2047encodeMessage(Src);
+
+	printf("Target: \n%s\n", ChrPtr(Target));
+	FreeStrBuf(&Source);
+	FreeStrBuf(&Src);
+	FreeStrBuf(&Target);
+}
 
 static void TestHTML2ASCII_line(void)
 {
@@ -389,6 +416,9 @@ static void AddStrBufSimlpeTests(void)
 				     break;
 			     case 'U':
 				     pTest = CU_add_test(pGroup, "TestUrlescEncodeStdin", TestUrlescEncodeStdin);
+				     break;
+			     case 'R':
+				     pTest = CU_add_test(pGroup, "StrBufRFC2047encodeMessageStdin", StrBufRFC2047encodeMessageStdin);
 				     break;
 			     default:
 				     printf("%c not supported!\n", OutputEscapeAs);
