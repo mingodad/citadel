@@ -247,11 +247,16 @@ int rbl_check(char *message_to_spammer)
 	char tbuf[256] = "";
 	int suffix_pos = 0;
 	int rbl;
+	int rc;
 	int num_rbl;
 	char rbl_domains[SIZ];
 	char txt_answer[1024];
+	struct timeval tx_start;
+	struct timeval tx_finish;
 
+	rc = 0;
 	strcpy(message_to_spammer, "ok");
+	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
 
 	if ((strchr(CC->cs_addr, '.')) && (!strchr(CC->cs_addr, ':'))) {
 		int a1, a2, a3, a4;
@@ -269,12 +274,15 @@ int rbl_check(char *message_to_spammer)
 		/* tedious code to expand and reverse an IPv6 address */
 		safestrncpy(tbuf, CC->cs_addr, sizeof tbuf);
 		num_colons = haschar(tbuf, ':');
-		if ((num_colons < 2) || (num_colons > 7)) return(0);	/* badly formed address */
+		if ((num_colons < 2) || (num_colons > 7))
+			goto finish_rbl;	/* badly formed address */
 
 		/* expand the "::" shorthand */
 		while (num_colons < 7) {
 			ptr = strstr(tbuf, "::");
-			if (!ptr) return(0);				/* badly formed address */
+			if (!ptr)
+				goto finish_rbl;				/* badly formed address */
+
 			++ptr;
 			strcpy(workbuf, ptr);
 			strcpy(ptr, ":");
@@ -291,7 +299,8 @@ int rbl_check(char *message_to_spammer)
 
 			memcpy(&tbuf[ (i*4) + (4-strlen(tokbuf)) ], tokbuf, strlen(tokbuf) );
 		}
-		if (strlen(tbuf) != 32) return(0);
+		if (strlen(tbuf) != 32)
+			goto finish_rbl;
 
 		/* now reverse it and add dots */
 		strcpy(workbuf, tbuf);
@@ -303,12 +312,15 @@ int rbl_check(char *message_to_spammer)
 		suffix_pos = 64;
 	}
 	else {
-		return(0);	/* unknown address format */
+		goto finish_rbl;	/* unknown address format */
 	}
 
 	/* See if we have any RBL domains configured */
 	num_rbl = get_hosts(rbl_domains, "rbl");
-	if (num_rbl < 1) return(0);
+	if (num_rbl < 1)
+	{
+		goto finish_rbl;
+	}
 
 	/* Try all configured RBL's */
         for (rbl=0; rbl<num_rbl; ++rbl) {
@@ -317,11 +329,19 @@ int rbl_check(char *message_to_spammer)
 		if (rblcheck_backend(tbuf, txt_answer, sizeof txt_answer)) {
 			strcpy(message_to_spammer, txt_answer);
 			syslog(LOG_INFO, "RBL: %s\n", txt_answer);
-			return(1);
+			rc = 1;
 		}
 	}
+finish_rbl:
+	/* How long did this transaction take? */
+	gettimeofday(&tx_finish, NULL);
 
-	return(0);
+	syslog(LOG_WARNING, "RBL [%ld.%06ld] %s",
+	       ((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+	       ((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
+	       (rc)?"Found":"none Found");
+
+	return rc;
 }
 			
 
