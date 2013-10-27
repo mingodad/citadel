@@ -166,6 +166,11 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *Msg)
 		{
 			if (strstr(ChrPtr(Msg->IO.IOBuf), "LOGIN") != NULL)
 				Msg->SendLogin = 1;
+			else if ((Msg->MultiLineBuf != NULL) &&
+				 strstr(ChrPtr(Msg->MultiLineBuf), "LOGIN") != NULL)
+			{
+				Msg->SendLogin = 1;
+			}
 		}
 	}
 	/* else we fall back to 'helo' */
@@ -321,8 +326,8 @@ eNextState SMTPC_send_authplain_2(SmtpOutMsg *Msg)
 	
 	encodedlen = CtdlEncodeBase64(
 		encoded,
-		Msg->pCurrRelay->User,
-		strlen(Msg->pCurrRelay->User),
+		Msg->pCurrRelay->Pass,
+		strlen(Msg->pCurrRelay->Pass),
 		0);
 
 	StrBufPlain(Msg->IO.SendBuf.Buf,

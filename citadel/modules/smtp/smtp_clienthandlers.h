@@ -62,6 +62,7 @@ typedef struct _stmp_out_msg {
 	ParsedURL *pCurrRelay;
 	StrBuf *msgtext;
 	StrBuf *QMsgData;
+	StrBuf *MultiLineBuf;
 	const char *envelope_from;
 
 	char user[1024];
