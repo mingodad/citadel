@@ -64,6 +64,15 @@ enum {
 	XMPP_EVT_LOGOUT
 };
 
+
+typedef void (*xmpp_handler_func)(void *data, const char *supplied_el, const char **attr);
+
+typedef struct __xmpp_handler {
+	int               Flags;
+	xmpp_handler_func Handler;
+}xmpp_handler;
+
+
 void xmpp_cleanup_function(void);
 void xmpp_greeting(void);
 void xmpp_command_loop(void);

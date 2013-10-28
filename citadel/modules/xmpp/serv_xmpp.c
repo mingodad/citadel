@@ -63,6 +63,8 @@
 #endif
 
 struct xmpp_event *xmpp_queue = NULL;
+HashList *XMPP_StartHandlers = NULL;
+HashList *XMPP_EndHandlers = NULL;
 
 int XMPPSrvDebugEnable = 0;
 
@@ -232,16 +234,79 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	CC->is_async = 1;		/* XMPP sessions are inherently async-capable */
 }
 
+void xmpp_start_query(void *data, const char *supplied_el, const char **attr)
+{
+	XMPP->iq_query_xmlns[0] = 0;
+	safestrncpy(XMPP->iq_query_xmlns, supplied_el, sizeof XMPP->iq_query_xmlns);
+}
 
-void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
-	char el[256];
-	char *sep = NULL;
+void xmpp_start_bind(void *data, const char *supplied_el, const char **attr)
+{
+	XMPP->bind_requested = 1;
+}
+
+void xmpp_start_iq(void *data, const char *supplied_el, const char **attr)
+{
+	int i;
+	for (i=0; attr[i] != NULL; i+=2) {
+		if (!strcasecmp(attr[i], "type")) {
+			safestrncpy(XMPP->iq_type, attr[i+1], sizeof XMPP->iq_type);
+		}
+		else if (!strcasecmp(attr[i], "id")) {
+			safestrncpy(XMPP->iq_id, attr[i+1], sizeof XMPP->iq_id);
+		}
+		else if (!strcasecmp(attr[i], "from")) {
+			safestrncpy(XMPP->iq_from, attr[i+1], sizeof XMPP->iq_from);
+		}
+		else if (!strcasecmp(attr[i], "to")) {
+			safestrncpy(XMPP->iq_to, attr[i+1], sizeof XMPP->iq_to);
+		}
+	}
+}
+
+void xmpp_start_auth(void *data, const char *supplied_el, const char **attr)
+{
 	int i;
 
+	XMPP->sasl_auth_mech[0] = 0;
+	for (i=0; attr[i] != NULL; i+=2) {
+		if (!strcasecmp(attr[i], "mechanism")) {
+			safestrncpy(XMPP->sasl_auth_mech, attr[i+1], sizeof XMPP->sasl_auth_mech);
+		}
+	}
+}
+
+void xmpp_start_message(void *data, const char *supplied_el, const char **attr)
+{
+	int i;
+
+	for (i=0; attr[i] != NULL; i+=2) {
+		if (!strcasecmp(attr[i], "to")) {
+			safestrncpy(XMPP->message_to, attr[i+1], sizeof XMPP->message_to);
+		}
+	}
+}
+
+void xmpp_start_html(void *data, const char *supplied_el, const char **attr)
+{
+	++XMPP->html_tag_level;
+}
+
+void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
+{
+	char el[256];
+	long newlen;
+	long len;
+	char *sep = NULL;
+	void *pv;
+	
 	/* Axe the namespace, we don't care about it */
-	safestrncpy(el, supplied_el, sizeof el);
-	while (sep = strchr(el, ':'), sep) {
-		strcpy(el, ++sep);
+	newlen = len = safestrncpy(el, supplied_el, sizeof el);
+	while (sep = strchr(el, ':'), sep)
+	{
+		newlen -= ++sep - el;
+		memmove(el, sep, newlen + 1);
+		len = newlen;
 	}
 
 	/*
@@ -251,69 +316,247 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 	}
 	uncomment for more verbosity */
 
-	if (!strcasecmp(el, "stream")) {
-		xmpp_stream_start(data, supplied_el, attr);
+	if (GetHash(XMPP_StartHandlers, el, len, &pv))
+	{
+		xmpp_handler *h;
+		h = (xmpp_handler*) pv;
+		h->Handler(data, supplied_el, attr);
 	}
 
-	else if (!strcasecmp(el, "query")) {
-		XMPP->iq_query_xmlns[0] = 0;
-		safestrncpy(XMPP->iq_query_xmlns, supplied_el, sizeof XMPP->iq_query_xmlns);
-	}
+}
 
-	else if (!strcasecmp(el, "bind")) {
-		XMPP->bind_requested = 1;
-	}
-
-	else if (!strcasecmp(el, "iq")) {
-		for (i=0; attr[i] != NULL; i+=2) {
-			if (!strcasecmp(attr[i], "type")) {
-				safestrncpy(XMPP->iq_type, attr[i+1], sizeof XMPP->iq_type);
-			}
-			else if (!strcasecmp(attr[i], "id")) {
-				safestrncpy(XMPP->iq_id, attr[i+1], sizeof XMPP->iq_id);
-			}
-			else if (!strcasecmp(attr[i], "from")) {
-				safestrncpy(XMPP->iq_from, attr[i+1], sizeof XMPP->iq_from);
-			}
-			else if (!strcasecmp(attr[i], "to")) {
-				safestrncpy(XMPP->iq_to, attr[i+1], sizeof XMPP->iq_to);
-			}
-		}
-	}
-
-	else if (!strcasecmp(el, "auth")) {
-		XMPP->sasl_auth_mech[0] = 0;
-		for (i=0; attr[i] != NULL; i+=2) {
-			if (!strcasecmp(attr[i], "mechanism")) {
-				safestrncpy(XMPP->sasl_auth_mech, attr[i+1], sizeof XMPP->sasl_auth_mech);
-			}
-		}
-	}
-
-	else if (!strcasecmp(el, "message")) {
-		for (i=0; attr[i] != NULL; i+=2) {
-			if (!strcasecmp(attr[i], "to")) {
-				safestrncpy(XMPP->message_to, attr[i+1], sizeof XMPP->message_to);
-			}
-		}
-	}
-
-	else if (!strcasecmp(el, "html")) {
-		++XMPP->html_tag_level;
+void xmpp_end_resource(void *data, const char *supplied_el, const char **attr)
+{
+	if (XMPP->chardata_len > 0) {
+		safestrncpy(XMPP->iq_client_resource, XMPP->chardata,
+			    sizeof XMPP->iq_client_resource);
+		striplt(XMPP->iq_client_resource);
 	}
 }
 
+void xmpp_end_username(void *data, const char *supplied_el, const char **attr)
+{
+	/* NON SASL ONLY */
+	if (XMPP->chardata_len > 0) {
+		safestrncpy(XMPP->iq_client_username, XMPP->chardata,
+			    sizeof XMPP->iq_client_username);
+		striplt(XMPP->iq_client_username);
+	}
+}
 
+void xmpp_end_password(void *data, const char *supplied_el, const char **attr)
+{		/* NON SASL ONLY */
+	if (XMPP->chardata_len > 0) {
+		safestrncpy(XMPP->iq_client_password, XMPP->chardata,
+			    sizeof XMPP->iq_client_password);
+		striplt(XMPP->iq_client_password);
+	}
+}
 
-void xmpp_xml_end(void *data, const char *supplied_el) {
-	char el[256];
-	char *sep = NULL;
+void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
+{
 	char xmlbuf[256];
+	/*
+	 * iq type="get" (handle queries)
+	 */
+	if (!strcasecmp(XMPP->iq_type, "get"))
+	{
+		/*
+		 * Query on a namespace
+		 */
+		if (!IsEmptyStr(XMPP->iq_query_xmlns)) {
+			xmpp_query_namespace(XMPP->iq_id, XMPP->iq_from,
+					     XMPP->iq_to, XMPP->iq_query_xmlns);
+		}
+		
+		/*
+		 * ping ( http://xmpp.org/extensions/xep-0199.html )
+		 */
+		else if (XMPP->ping_requested) {
+			cprintf("<iq type=\"result\" ");
+			if (!IsEmptyStr(XMPP->iq_from)) {
+				cprintf("to=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_from, sizeof xmlbuf));
+			}
+			if (!IsEmptyStr(XMPP->iq_to)) {
+				cprintf("from=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_to, sizeof xmlbuf));
+			}
+			cprintf("id=\"%s\"/>", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
+		}
+
+		/*
+		 * Unknown query ... return the XML equivalent of a blank stare
+		 */
+		else {
+/*
+			XMPP_syslog(LOG_DEBUG,
+				    "Unknown query <%s> - returning <service-unavailable/>\n",
+				    el
+				);
+*/
+			cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
+			cprintf("<error code=\"503\" type=\"cancel\">"
+				"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+				"</error>"
+				);
+			cprintf("</iq>");
+		}
+	}
+
+	/*
+	 * Non SASL authentication
+	 */
+	else if (
+		(!strcasecmp(XMPP->iq_type, "set"))
+		&& (!strcasecmp(XMPP->iq_query_xmlns, "jabber:iq:auth:query"))
+		) {
+		
+		xmpp_non_sasl_authenticate(
+			XMPP->iq_id,
+			XMPP->iq_client_username,
+			XMPP->iq_client_password,
+			XMPP->iq_client_resource
+			);
+	}
+
+	/*
+	 * If this <iq> stanza was a "bind" attempt, process it ...
+	 */
+	else if (
+		(XMPP->bind_requested)
+		&& (!IsEmptyStr(XMPP->iq_id))
+		&& (!IsEmptyStr(XMPP->iq_client_resource))
+		&& (CC->logged_in)
+		) {
+
+		/* Generate the "full JID" of the client resource */
+
+		snprintf(XMPP->client_jid, sizeof XMPP->client_jid,
+			 "%s/%s",
+			 CC->cs_inet_email,
+			 XMPP->iq_client_resource
+			);
+
+		/* Tell the client what its JID is */
+
+		cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
+		cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">");
+		cprintf("<jid>%s</jid>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
+		cprintf("</bind>");
+		cprintf("</iq>");
+	}
+
+	else if (XMPP->iq_session) {
+		cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
+		cprintf("</iq>");
+	}
+
+	else {
+		cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
+		cprintf("<error>Don't know howto do '%s'!</error>", xmlesc(xmlbuf, XMPP->iq_type, sizeof xmlbuf));
+		cprintf("</iq>");
+	}
+
+	/* Now clear these fields out so they don't get used by a future stanza */
+	XMPP->iq_id[0] = 0;
+	XMPP->iq_from[0] = 0;
+	XMPP->iq_to[0] = 0;
+	XMPP->iq_type[0] = 0;
+	XMPP->iq_client_resource[0] = 0;
+	XMPP->iq_session = 0;
+	XMPP->iq_query_xmlns[0] = 0;
+	XMPP->bind_requested = 0;
+	XMPP->ping_requested = 0;
+}
+
+
+void xmpp_end_auth(void *data, const char *supplied_el, const char **attr)
+{
+	/* Try to authenticate (this function is responsible for the output stanza) */
+	xmpp_sasl_auth(XMPP->sasl_auth_mech, (XMPP->chardata != NULL ? XMPP->chardata : "") );
+	
+	/* Now clear these fields out so they don't get used by a future stanza */
+	XMPP->sasl_auth_mech[0] = 0;
+}
+
+void xmpp_end_session(void *data, const char *supplied_el, const char **attr)
+{
+	XMPP->iq_session = 1;
+}
+
+void xmpp_end_presence(void *data, const char *supplied_el, const char **attr)
+{
+	/* Respond to a <presence> update by firing back with presence information
+	 * on the entire wholist.  Check this assumption, it's probably wrong.
+	 */
+	xmpp_wholist_presence_dump();
+}
+
+void xmpp_end_body(void *data, const char *supplied_el, const char **attr)
+{
+	if (XMPP->html_tag_level == 0)
+	{
+		if (XMPP->message_body != NULL)
+		{
+			free(XMPP->message_body);
+			XMPP->message_body = NULL;
+		}
+		if (XMPP->chardata_len > 0) {
+			XMPP->message_body = strdup(XMPP->chardata);
+		}
+	}
+}
+
+void xmpp_end_message(void *data, const char *supplied_el, const char **attr)
+{
+	xmpp_send_message(XMPP->message_to, XMPP->message_body);
+	XMPP->html_tag_level = 0;
+}
+
+void xmpp_end_html(void *data, const char *supplied_el, const char **attr)
+{
+	--XMPP->html_tag_level;
+}
+
+void xmpp_end_starttls(void *data, const char *supplied_el, const char **attr)
+{
+#ifdef HAVE_OPENSSL
+	cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
+#else
+	cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	CC->kill_me = KILLME_NO_CRYPTO;
+#endif
+}
+
+void xmpp_end_ping(void *data, const char *supplied_el, const char **attr)
+{
+	XMPP->ping_requested = 1;
+}
+
+void xmpp_end_stream(void *data, const char *supplied_el, const char **attr)
+{
+	XMPPM_syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
+	xmpp_massacre_roster();
+	cprintf("</stream>\n");
+	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
+}
+
+void xmpp_xml_end(void *data, const char *supplied_el)
+{
+	char el[256];
+	long len;
+	long newlen;
+	char *sep = NULL;
+	void *pv;
 
 	/* Axe the namespace, we don't care about it */
-	safestrncpy(el, supplied_el, sizeof el);
+	newlen = len = safestrncpy(el, supplied_el, sizeof el);
 	while (sep = strchr(el, ':'), sep) {
-		strcpy(el, ++sep);
+
+		newlen -= ++sep - el;
+		memmove(el, sep, newlen + 1);
+		len = newlen;
 	}
 
 	/*
@@ -323,205 +566,14 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	}
 	uncomment for more verbosity */
 
-	if (!strcasecmp(el, "resource")) {
-		if (XMPP->chardata_len > 0) {
-			safestrncpy(XMPP->iq_client_resource, XMPP->chardata,
-				sizeof XMPP->iq_client_resource);
-			striplt(XMPP->iq_client_resource);
-		}
+	if (GetHash(XMPP_EndHandlers, el, len, &pv))
+	{
+		xmpp_handler *h;
+		h = (xmpp_handler*) pv;
+		h->Handler(data, supplied_el, NULL);
 	}
-
-	else if (!strcasecmp(el, "username")) {		/* NON SASL ONLY */
-		if (XMPP->chardata_len > 0) {
-			safestrncpy(XMPP->iq_client_username, XMPP->chardata,
-				sizeof XMPP->iq_client_username);
-			striplt(XMPP->iq_client_username);
-		}
-	}
-
-	else if (!strcasecmp(el, "password")) {		/* NON SASL ONLY */
-		if (XMPP->chardata_len > 0) {
-			safestrncpy(XMPP->iq_client_password, XMPP->chardata,
-				sizeof XMPP->iq_client_password);
-			striplt(XMPP->iq_client_password);
-		}
-	}
-
-	else if (!strcasecmp(el, "iq")) {
-
-		/*
-		 * iq type="get" (handle queries)
-		 */
-		if (!strcasecmp(XMPP->iq_type, "get")) {
-
-			/*
-			 * Query on a namespace
-			 */
-			if (!IsEmptyStr(XMPP->iq_query_xmlns)) {
-				xmpp_query_namespace(XMPP->iq_id, XMPP->iq_from,
-						XMPP->iq_to, XMPP->iq_query_xmlns);
-			}
-
-			/*
-			 * ping ( http://xmpp.org/extensions/xep-0199.html )
-			 */
-			else if (XMPP->ping_requested) {
-				cprintf("<iq type=\"result\" ");
-				if (!IsEmptyStr(XMPP->iq_from)) {
-					cprintf("to=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_from, sizeof xmlbuf));
-				}
-				if (!IsEmptyStr(XMPP->iq_to)) {
-					cprintf("from=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_to, sizeof xmlbuf));
-				}
-				cprintf("id=\"%s\"/>", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-			}
-
-			/*
-			 * Unknown query ... return the XML equivalent of a blank stare
-			 */
-			else {
-				XMPP_syslog(LOG_DEBUG,
-					    "Unknown query <%s> - returning <service-unavailable/>\n",
-					    el
-				);
-				cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-				cprintf("<error code=\"503\" type=\"cancel\">"
-					"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
-					"</error>"
-				);
-				cprintf("</iq>");
-			}
-		}
-
-		/*
-		 * Non SASL authentication
-		 */
-		else if (
-			(!strcasecmp(XMPP->iq_type, "set"))
-			&& (!strcasecmp(XMPP->iq_query_xmlns, "jabber:iq:auth:query"))
-			) {
-
-			xmpp_non_sasl_authenticate(
-				XMPP->iq_id,
-				XMPP->iq_client_username,
-				XMPP->iq_client_password,
-				XMPP->iq_client_resource
-			);
-		}	
-
-		/*
-		 * If this <iq> stanza was a "bind" attempt, process it ...
-		 */
-		else if (
-			(XMPP->bind_requested)
-			&& (!IsEmptyStr(XMPP->iq_id))
-			&& (!IsEmptyStr(XMPP->iq_client_resource))
-			&& (CC->logged_in)
-			) {
-
-			/* Generate the "full JID" of the client resource */
-
-			snprintf(XMPP->client_jid, sizeof XMPP->client_jid,
-				"%s/%s",
-				CC->cs_inet_email,
-				XMPP->iq_client_resource
-			);
-
-			/* Tell the client what its JID is */
-
-			cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-			cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">");
-			cprintf("<jid>%s</jid>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
-			cprintf("</bind>");
-			cprintf("</iq>");
-		}
-
-		else if (XMPP->iq_session) {
-			cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-			cprintf("</iq>");
-		}
-
-		else {
-			cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-			cprintf("<error>Don't know howto do '%s'!</error>", xmlesc(xmlbuf, XMPP->iq_type, sizeof xmlbuf));
-			cprintf("</iq>");
-		}
-
-		/* Now clear these fields out so they don't get used by a future stanza */
-		XMPP->iq_id[0] = 0;
-		XMPP->iq_from[0] = 0;
-		XMPP->iq_to[0] = 0;
-		XMPP->iq_type[0] = 0;
-		XMPP->iq_client_resource[0] = 0;
-		XMPP->iq_session = 0;
-		XMPP->iq_query_xmlns[0] = 0;
-		XMPP->bind_requested = 0;
-		XMPP->ping_requested = 0;
-	}
-
-	else if (!strcasecmp(el, "auth")) {
-
-		/* Try to authenticate (this function is responsible for the output stanza) */
-		xmpp_sasl_auth(XMPP->sasl_auth_mech, (XMPP->chardata != NULL ? XMPP->chardata : "") );
-
-		/* Now clear these fields out so they don't get used by a future stanza */
-		XMPP->sasl_auth_mech[0] = 0;
-	}
-
-	else if (!strcasecmp(el, "session")) {
-		XMPP->iq_session = 1;
-	}
-
-	else if (!strcasecmp(el, "presence")) {
-
-		/* Respond to a <presence> update by firing back with presence information
-		 * on the entire wholist.  Check this assumption, it's probably wrong.
-		 */
-		xmpp_wholist_presence_dump();
-	}
-
-	else if ( (!strcasecmp(el, "body")) && (XMPP->html_tag_level == 0) ) {
-		if (XMPP->message_body != NULL) {
-			free(XMPP->message_body);
-			XMPP->message_body = NULL;
-		}
-		if (XMPP->chardata_len > 0) {
-			XMPP->message_body = strdup(XMPP->chardata);
-		}
-	}
-
-	else if (!strcasecmp(el, "message")) {
-		xmpp_send_message(XMPP->message_to, XMPP->message_body);
-		XMPP->html_tag_level = 0;
-	}
-
-	else if (!strcasecmp(el, "html")) {
-		--XMPP->html_tag_level;
-	}
-
-	else if (!strcasecmp(el, "starttls")) {
-#ifdef HAVE_OPENSSL
-		cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-		CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
-		if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
-#else
-		cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-		CC->kill_me = KILLME_NO_CRYPTO;
-#endif
-	}
-
-	else if (!strcasecmp(el, "ping")) {
-		XMPP->ping_requested = 1;
-	}
-
-	else if (!strcasecmp(el, "stream")) {
-		XMPPM_syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
-		xmpp_massacre_roster();
-		cprintf("</stream>\n");
-		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
-	}
-
-	else {
+	else
+	{
 		XMPP_syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
 	}
 
@@ -662,6 +714,37 @@ void LogXMPPSrvDebugEnable(const int n)
 }
 const char *CitadelServiceXMPP="XMPP";
 extern void xmpp_cleanup_events(void);
+
+
+
+/******************************************************************************
+ *                    XMPP handler registering logic                           *
+ ******************************************************************************/
+
+void AddXMPPStartHandler(const char *key,
+			 long len,
+			 xmpp_handler_func Handler,
+			 int Flags)
+{
+	xmpp_handler *h;
+	h = (xmpp_handler*) malloc(sizeof (xmpp_handler));
+	h->Flags = Flags;
+	h->Handler = Handler;
+	Put(XMPP_StartHandlers, key, len, h, NULL);
+}
+
+void AddXMPPEndHandler(const char *key,
+		       long len,
+		       xmpp_handler_func Handler,
+		       int Flags)
+{
+	xmpp_handler *h;
+	h = (xmpp_handler*) malloc(sizeof (xmpp_handler));
+	h->Flags = Flags;
+	h->Handler = Handler;
+	Put(XMPP_EndHandlers, key, len, h, NULL);
+}
+
 CTDL_MODULE_INIT(xmpp)
 {
 	if (!threading) {
@@ -670,8 +753,36 @@ CTDL_MODULE_INIT(xmpp)
 					xmpp_greeting,
 					xmpp_command_loop,
 					xmpp_async_loop,
-					CitadelServiceXMPP
-		);
+					CitadelServiceXMPP);
+
+
+		XMPP_StartHandlers = NewHash(1, NULL);
+		XMPP_EndHandlers = NewHash(1, NULL);
+
+		AddXMPPEndHandler(HKEY("resource"),	 xmpp_end_resource, 0);
+		AddXMPPEndHandler(HKEY("username"),	 xmpp_end_username, 0);
+		AddXMPPEndHandler(HKEY("password"),	 xmpp_end_password, 0);
+		AddXMPPEndHandler(HKEY("iq"),		 xmpp_end_iq, 0);
+		AddXMPPEndHandler(HKEY("auth"),		 xmpp_end_auth, 0);
+		AddXMPPEndHandler(HKEY("session"),	 xmpp_end_session, 0);
+		AddXMPPEndHandler(HKEY("presence"),	 xmpp_end_presence, 0);
+		AddXMPPEndHandler(HKEY("body"),		 xmpp_end_body, 0);
+		AddXMPPEndHandler(HKEY("message"),	 xmpp_end_message, 0);
+		AddXMPPEndHandler(HKEY("html"),		 xmpp_end_html, 0);
+		AddXMPPEndHandler(HKEY("starttls"),	 xmpp_end_starttls, 0);
+		AddXMPPEndHandler(HKEY("ping"),		 xmpp_end_ping, 0);
+		AddXMPPEndHandler(HKEY("stream"),	 xmpp_end_stream, 0);
+
+
+		AddXMPPStartHandler(HKEY("stream"),	xmpp_stream_start, 0);
+		AddXMPPStartHandler(HKEY("query"),	xmpp_start_query, 0);
+		AddXMPPStartHandler(HKEY("bind"),	xmpp_start_bind, 0);
+		AddXMPPStartHandler(HKEY("iq"),		xmpp_start_iq, 0);
+		AddXMPPStartHandler(HKEY("auth"),	xmpp_start_auth, 0);
+		AddXMPPStartHandler(HKEY("message"),	xmpp_start_message, 0);
+		AddXMPPStartHandler(HKEY("html"),	xmpp_start_html, 0);
+
+
 		CtdlRegisterDebugFlagHook(HKEY("serv_xmpp"), LogXMPPSrvDebugEnable, &XMPPSrvDebugEnable);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP, PRIO_STOP + 70);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN, PRIO_LOGIN + 90);
