@@ -989,11 +989,17 @@ void unfold_rfc822_field(char **field, char **FieldEnd)
 	     sField < pFieldEnd; 
 	     pField++, sField++)
 	{
-		if ((*sField=='\r') || (*sField=='\n')) {
-		    sField++;
-		    if  (*sField == '\n')
-			sField++;
-		    *pField = *sField;
+		if ((*sField=='\r') || (*sField=='\n'))
+		{
+			int offset = 1;
+
+			if  (*(sField+1) == '\n')
+				offset++;
+
+			if (sField + offset == pFieldEnd)
+				break;
+
+			*pField = *sField + offset;
 		}
 		else {
 			if (*sField=='\"') quote = 1 - quote;
