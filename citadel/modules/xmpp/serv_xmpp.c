@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <pwd.h>
@@ -42,6 +43,7 @@
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
+#define SHOW_ME_VAPPEND_PRINTF
 #include <libcitadel.h>
 #include <expat.h>
 #include "citadel.h"
@@ -68,6 +70,37 @@ HashList *XMPP_EndHandlers = NULL;
 
 int XMPPSrvDebugEnable = 0;
 
+void XUnbuffer(void)
+{
+	citxmpp *Xmpp = XMPP;
+
+	cputbuf(Xmpp->OutBuf);
+	FlushStrBuf(Xmpp->OutBuf);
+}
+
+void XPutBody(const char *Str, long Len)
+{
+	StrBufXMLEscAppend(XMPP->OutBuf, NULL, Str, Len, 0);
+}
+
+void XPutProp(const char *Str, long Len)
+{
+	StrEscAppend(XMPP->OutBuf, NULL, Str, 0, 1);
+}
+
+void XPut(const char *Str, long Len)
+{
+	StrBufAppendBufPlain(XMPP->OutBuf, Str, Len, 0);
+}
+#define XPUT(CONSTSTR) XPut(CONSTSTR, sizeof(CONSTSTR) -1)
+
+void XPrintf(const char *Format, ...)
+{
+        va_list arg_ptr;
+        va_start(arg_ptr, Format);
+	StrBufVAppendPrintf(XMPP->OutBuf, Format, arg_ptr);
+	va_end(arg_ptr);
+}
 
 
 #ifdef HAVE_XML_STOPPARSER
@@ -83,137 +116,40 @@ static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
 }
 #endif
 
-static inline int XMPP_GetUtf8SequenceLength(const char *CharS, const char *CharE)
-{
-	/* if this is is migrated to strbuf, remove this copy. */
-	int n = 0;
-        unsigned char test = (1<<7);
-
-	if ((*CharS & 0xC0) != 0xC0) 
-		return 1;
-
-	while ((n < 8) && 
-	       ((test & ((unsigned char)*CharS)) != 0)) 
-	{
-		test = test >> 1;
-		n ++;
-	}
-	if ((n > 6) || ((CharE - CharS) < n))
-		n = 0;
-	return n;
-}
-
-
-/*
- * Given a source string and a target buffer, returns the string
- * properly escaped for insertion into an XML stream.  Returns a
- * pointer to the target buffer for convenience.
- *
- * BUG: this does not properly handle UTF-8
- */
-char *xmlesc(char *buf, char *str, int bufsiz)
-{
-	char *ptr;
-	char *eiptr;
-	unsigned char ch;
-	int inlen;
-	int len = 0;
-	int IsUtf8Sequence;
-
-	if (!buf) return(NULL);
-	buf[0] = 0;
-	len = 0;
-	if (!str) {
-		return(buf);
-	}
-
-	inlen = strlen(str);
-	eiptr = str + inlen;
-
-	for (ptr=str; *ptr; ptr++) {
-		ch = *ptr;
-		if (ch == '<') {
-			strcpy(&buf[len], "&lt;");
-			len += 4;
-		}
-		else if (ch == '>') {
-			strcpy(&buf[len], "&gt;");
-			len += 4;
-		}
-		else if (ch == '&') {
-			strcpy(&buf[len], "&amp;");
-			len += 5;
-		}
-		else if ((ch >= 0x20) && (ch <= 0x7F)) {
-			buf[len++] = ch;
-			buf[len] = 0;
-		}
-		else if (ch < 0x20) {
-			/* we probably shouldn't be doing this */
-			buf[len++] = '_';
-			buf[len] = 0;
-		}
-		else {
-			char oct[32];
-
-			IsUtf8Sequence =  XMPP_GetUtf8SequenceLength(&buf[len], eiptr);
-			if (IsUtf8Sequence)
-			{
-				while (IsUtf8Sequence > 0){
-					buf[len] = *ptr;
-					len ++;
-					if (--IsUtf8Sequence)
-						ptr++;
-				}
-				buf[len] = '\0';
-			}
-			else
-			{
-				sprintf(oct, "&#%o;", ch);
-				strcpy(&buf[len], oct);
-				len += strlen(oct);
-			}
-		}
-		if ((len + 6) > bufsiz) {
-			return(buf);
-		}
-	}
-	return(buf);
-}
-
-
 /*
  * We have just received a <stream> tag from the client, so send them ours
  */
 void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 {
-	char xmlbuf[256];
+	citxmpp *Xmpp = XMPP;
 
 	while (*attr) {
 		if (!strcasecmp(attr[0], "to")) {
-			safestrncpy(XMPP->server_name, attr[1], sizeof XMPP->server_name);
+			safestrncpy(Xmpp->server_name, attr[1], sizeof Xmpp->server_name);
 		}
 		attr += 2;
 	}
 
-	cprintf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	XPUT("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
-   	cprintf("<stream:stream ");
-	cprintf("from=\"%s\" ", xmlesc(xmlbuf, XMPP->server_name, sizeof xmlbuf));
-	cprintf("id=\"%08x\" ", CC->cs_pid);
-	cprintf("version=\"1.0\" ");
-	cprintf("xmlns:stream=\"http://etherx.jabber.org/streams\" ");
-	cprintf("xmlns=\"jabber:client\">");
+   	XPUT("<stream:stream ");
+	XPUT("from=\"");
+	XPutProp(Xmpp->server_name, strlen(Xmpp->server_name));
+	XPUT("\" id=\"");
+	XPrintf("%08x\" ", CC->cs_pid);
+	XPUT("version=\"1.0\" "
+		  "xmlns:stream=\"http://etherx.jabber.org/streams\" "
+		  "xmlns=\"jabber:client\">");
 
 	/* The features of this stream are... */
-	cprintf("<stream:features>");
+	XPUT("<stream:features>");
 
 	/*
 	 * TLS encryption (but only if it isn't already active)
 	 */ 
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) {
-		cprintf("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
+		XPUT("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
 	}
 #endif
 
@@ -222,14 +158,13 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 		xmpp_output_auth_mechs();
 
 		/* Also offer non-SASL authentication */
-		cprintf("<auth xmlns=\"http://jabber.org/features/iq-auth\"/>");
+		XPUT("<auth xmlns=\"http://jabber.org/features/iq-auth\"/>");
 	}
 
 	/* Offer binding and sessions as part of our feature set */
-	cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>");
-	cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
-
-	cprintf("</stream:features>");
+	XPUT("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>"
+		  "<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>"
+		  "</stream:features>");
 
 	CC->is_async = 1;		/* XMPP sessions are inherently async-capable */
 }
@@ -322,7 +257,7 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 		h = (xmpp_handler*) pv;
 		h->Handler(data, supplied_el, attr);
 	}
-
+	XUnbuffer();
 }
 
 void xmpp_end_resource(void *data, const char *supplied_el, const char **attr)
@@ -355,32 +290,39 @@ void xmpp_end_password(void *data, const char *supplied_el, const char **attr)
 
 void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 {
-	char xmlbuf[256];
+	citxmpp *Xmpp = XMPP;
+
 	/*
 	 * iq type="get" (handle queries)
 	 */
-	if (!strcasecmp(XMPP->iq_type, "get"))
+	if (!strcasecmp(Xmpp->iq_type, "get"))
 	{
 		/*
 		 * Query on a namespace
 		 */
-		if (!IsEmptyStr(XMPP->iq_query_xmlns)) {
-			xmpp_query_namespace(XMPP->iq_id, XMPP->iq_from,
-					     XMPP->iq_to, XMPP->iq_query_xmlns);
+		if (!IsEmptyStr(Xmpp->iq_query_xmlns)) {
+			xmpp_query_namespace(Xmpp->iq_id, Xmpp->iq_from,
+					     Xmpp->iq_to, Xmpp->iq_query_xmlns);
 		}
 		
 		/*
 		 * ping ( http://xmpp.org/extensions/xep-0199.html )
 		 */
-		else if (XMPP->ping_requested) {
-			cprintf("<iq type=\"result\" ");
-			if (!IsEmptyStr(XMPP->iq_from)) {
-				cprintf("to=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_from, sizeof xmlbuf));
+		else if (Xmpp->ping_requested) {
+			XPUT("<iq type=\"result\" ");
+			if (!IsEmptyStr(Xmpp->iq_from)) {
+				XPUT("to=\"");
+				XPutProp(Xmpp->iq_from, strlen(Xmpp->iq_from));
+				XPUT("\" ");
 			}
-			if (!IsEmptyStr(XMPP->iq_to)) {
-				cprintf("from=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_to, sizeof xmlbuf));
+			if (!IsEmptyStr(Xmpp->iq_to)) {
+				XPUT("from=\"");
+				XPutProp(Xmpp->iq_to, strlen(Xmpp->iq_to));
+				XPUT("\" ");
 			}
-			cprintf("id=\"%s\"/>", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
+			XPUT("id=\"");
+			XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+			XPUT("\"/>");
 		}
 
 		/*
@@ -388,17 +330,18 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 		 */
 		else {
 /*
-			XMPP_syslog(LOG_DEBUG,
+			Xmpp_syslog(LOG_DEBUG,
 				    "Unknown query <%s> - returning <service-unavailable/>\n",
 				    el
 				);
 */
-			cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-			cprintf("<error code=\"503\" type=\"cancel\">"
-				"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
-				"</error>"
-				);
-			cprintf("</iq>");
+			XPUT("<iq type=\"error\" id=\"");
+			XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+			XPUT("\">"
+			     "<error code=\"503\" type=\"cancel\">"
+			     "<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+			     "</error>"
+			     "</iq>");
 		}
 	}
 
@@ -406,15 +349,15 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 	 * Non SASL authentication
 	 */
 	else if (
-		(!strcasecmp(XMPP->iq_type, "set"))
-		&& (!strcasecmp(XMPP->iq_query_xmlns, "jabber:iq:auth:query"))
+		(!strcasecmp(Xmpp->iq_type, "set"))
+		&& (!strcasecmp(Xmpp->iq_query_xmlns, "jabber:iq:auth:query"))
 		) {
 		
 		xmpp_non_sasl_authenticate(
-			XMPP->iq_id,
-			XMPP->iq_client_username,
-			XMPP->iq_client_password,
-			XMPP->iq_client_resource
+			Xmpp->iq_id,
+			Xmpp->iq_client_username,
+			Xmpp->iq_client_password,
+			Xmpp->iq_client_resource
 			);
 	}
 
@@ -422,50 +365,60 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 	 * If this <iq> stanza was a "bind" attempt, process it ...
 	 */
 	else if (
-		(XMPP->bind_requested)
-		&& (!IsEmptyStr(XMPP->iq_id))
-		&& (!IsEmptyStr(XMPP->iq_client_resource))
+		(Xmpp->bind_requested)
+		&& (!IsEmptyStr(Xmpp->iq_id))
+		&& (!IsEmptyStr(Xmpp->iq_client_resource))
 		&& (CC->logged_in)
 		) {
 
 		/* Generate the "full JID" of the client resource */
 
-		snprintf(XMPP->client_jid, sizeof XMPP->client_jid,
+		snprintf(Xmpp->client_jid, sizeof Xmpp->client_jid,
 			 "%s/%s",
 			 CC->cs_inet_email,
-			 XMPP->iq_client_resource
+			 Xmpp->iq_client_resource
 			);
 
 		/* Tell the client what its JID is */
 
-		cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-		cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">");
-		cprintf("<jid>%s</jid>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
-		cprintf("</bind>");
-		cprintf("</iq>");
+		XPUT("<iq type=\"result\" id=\"");
+		XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+		XPUT("\">"
+		     "<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">");
+		XPUT("<jid>");
+		XPutBody(Xmpp->client_jid, strlen(Xmpp->client_jid));
+		XPUT("</jid>"
+		     "</bind>"
+		     "</iq>");
 	}
 
-	else if (XMPP->iq_session) {
-		cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-		cprintf("</iq>");
+	else if (Xmpp->iq_session) {
+		XPUT("<iq type=\"result\" id=\"");
+		XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+		XPUT("\">"
+		     "</iq>");
 	}
 
 	else {
-		cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
-		cprintf("<error>Don't know howto do '%s'!</error>", xmlesc(xmlbuf, XMPP->iq_type, sizeof xmlbuf));
-		cprintf("</iq>");
+		XPUT("<iq type=\"error\" id=\"");
+		XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+		XPUT("\">");
+		XPUT("<error>Don't know howto do '");
+		XPutBody(Xmpp->iq_type, strlen(Xmpp->iq_type));
+		XPUT("'!</error>"
+		     "</iq>");
 	}
 
 	/* Now clear these fields out so they don't get used by a future stanza */
-	XMPP->iq_id[0] = 0;
-	XMPP->iq_from[0] = 0;
-	XMPP->iq_to[0] = 0;
-	XMPP->iq_type[0] = 0;
-	XMPP->iq_client_resource[0] = 0;
-	XMPP->iq_session = 0;
-	XMPP->iq_query_xmlns[0] = 0;
-	XMPP->bind_requested = 0;
-	XMPP->ping_requested = 0;
+	Xmpp->iq_id[0] = 0;
+	Xmpp->iq_from[0] = 0;
+	Xmpp->iq_to[0] = 0;
+	Xmpp->iq_type[0] = 0;
+	Xmpp->iq_client_resource[0] = 0;
+	Xmpp->iq_session = 0;
+	Xmpp->iq_query_xmlns[0] = 0;
+	Xmpp->bind_requested = 0;
+	Xmpp->ping_requested = 0;
 }
 
 
@@ -483,14 +436,6 @@ void xmpp_end_session(void *data, const char *supplied_el, const char **attr)
 	XMPP->iq_session = 1;
 }
 
-void xmpp_end_presence(void *data, const char *supplied_el, const char **attr)
-{
-	/* Respond to a <presence> update by firing back with presence information
-	 * on the entire wholist.  Check this assumption, it's probably wrong.
-	 */
-	xmpp_wholist_presence_dump();
-}
-
 void xmpp_end_body(void *data, const char *supplied_el, const char **attr)
 {
 	if (XMPP->html_tag_level == 0)
@@ -506,12 +451,6 @@ void xmpp_end_body(void *data, const char *supplied_el, const char **attr)
 	}
 }
 
-void xmpp_end_message(void *data, const char *supplied_el, const char **attr)
-{
-	xmpp_send_message(XMPP->message_to, XMPP->message_body);
-	XMPP->html_tag_level = 0;
-}
-
 void xmpp_end_html(void *data, const char *supplied_el, const char **attr)
 {
 	--XMPP->html_tag_level;
@@ -520,11 +459,11 @@ void xmpp_end_html(void *data, const char *supplied_el, const char **attr)
 void xmpp_end_starttls(void *data, const char *supplied_el, const char **attr)
 {
 #ifdef HAVE_OPENSSL
-	cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	XPUT("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
 #else
-	cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	XPUT("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 	CC->kill_me = KILLME_NO_CRYPTO;
 #endif
 }
@@ -538,7 +477,7 @@ void xmpp_end_stream(void *data, const char *supplied_el, const char **attr)
 {
 	XMPPM_syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
 	xmpp_massacre_roster();
-	cprintf("</stream>\n");
+	XPUT("</stream>\n");
 	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 }
 
@@ -581,6 +520,7 @@ void xmpp_xml_end(void *data, const char *supplied_el)
 	if (XMPP->chardata_alloc > 0) {
 		XMPP->chardata[0] = 0;
 	}
+	XUnbuffer();
 }
 
 
@@ -765,14 +705,11 @@ CTDL_MODULE_INIT(xmpp)
 		AddXMPPEndHandler(HKEY("iq"),		 xmpp_end_iq, 0);
 		AddXMPPEndHandler(HKEY("auth"),		 xmpp_end_auth, 0);
 		AddXMPPEndHandler(HKEY("session"),	 xmpp_end_session, 0);
-		AddXMPPEndHandler(HKEY("presence"),	 xmpp_end_presence, 0);
 		AddXMPPEndHandler(HKEY("body"),		 xmpp_end_body, 0);
-		AddXMPPEndHandler(HKEY("message"),	 xmpp_end_message, 0);
 		AddXMPPEndHandler(HKEY("html"),		 xmpp_end_html, 0);
 		AddXMPPEndHandler(HKEY("starttls"),	 xmpp_end_starttls, 0);
 		AddXMPPEndHandler(HKEY("ping"),		 xmpp_end_ping, 0);
 		AddXMPPEndHandler(HKEY("stream"),	 xmpp_end_stream, 0);
-
 
 		AddXMPPStartHandler(HKEY("stream"),	xmpp_stream_start, 0);
 		AddXMPPStartHandler(HKEY("query"),	xmpp_start_query, 0);

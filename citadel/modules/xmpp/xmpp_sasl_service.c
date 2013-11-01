@@ -113,9 +113,9 @@ int xmpp_auth_plain(char *authstring)
  * Output the list of SASL mechanisms offered by this stream.
  */
 void xmpp_output_auth_mechs(void) {
-	cprintf("<mechanisms xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
-	cprintf("<mechanism>PLAIN</mechanism>");
-	cprintf("</mechanisms>");
+	XPUT("<mechanisms xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
+	     "<mechanism>PLAIN</mechanism>"
+	     "</mechanisms>");
 }
 
 /*
@@ -124,28 +124,28 @@ void xmpp_output_auth_mechs(void) {
 void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 
 	if (strcasecmp(sasl_auth_mech, "PLAIN")) {
-		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
-		cprintf("<invalid-mechanism/>");
-		cprintf("</failure>");
+		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
+		     "<invalid-mechanism/>"
+		     "</failure>");
 		return;
 	}
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */
 
 	if (CC->nologin) {
-		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
-		cprintf("<system-shutdown/>");
-		cprintf("</failure>");
+		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
+		     "<system-shutdown/>"
+		     "</failure>");
 	}
 
 	else if (xmpp_auth_plain(authstring) == 0) {
-		cprintf("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
+		XPUT("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
 	}
 
 	else {
-		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
-		cprintf("<not-authorized/>");
-		cprintf("</failure>");
+		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
+		     "<not-authorized/>"
+		     "</failure>");
 	}
 }
 
@@ -156,7 +156,6 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
  */
 void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
 	int result;
-	char xmlbuf[256];
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */
 
@@ -164,16 +163,20 @@ void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, cha
 	if (result == login_ok) {
 		result = CtdlTryPassword(password, strlen(password));
 		if (result == pass_ok) {
-			cprintf("<iq type=\"result\" id=\"%s\"></iq>", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));	/* success */
+			XPUT("<iq type=\"result\" id=\"");
+			XPutProp(iq_id, strlen(iq_id));
+			XPUT("\"></iq>"); /* success */
 			return;
 		}
 	}
 
 	/* failure */
-	cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
-	cprintf("<error code=\"401\" type=\"auth\">"
-		"<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
-		"</error>"
-		"</iq>"
+	XPUT("<iq type=\"error\" id=\"");
+	XPutProp(iq_id, strlen(iq_id));
+	XPUT("\">"
+	     "<error code=\"401\" type=\"auth\">"
+	     "<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+	     "</error>"
+	     "</iq>"
 	);
 }

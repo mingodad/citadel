@@ -65,10 +65,11 @@
  */
 void xmpp_indicate_presence(char *presence_jid)
 {
-	char xmlbuf[256];
-
-	cprintf("<presence from=\"%s\" ", xmlesc(xmlbuf, presence_jid, sizeof xmlbuf));
-	cprintf("to=\"%s\"></presence>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
+	XPUT("<presence from=\"");
+	XPutProp(presence_jid, strlen(presence_jid));
+	XPUT("\" to=\"");
+	XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
+	XPUT("\"></presence>");
 }
 
 
@@ -95,8 +96,10 @@ int xmpp_is_visible(struct CitContext *cptr, struct CitContext *to_whom) {
 
 /* 
  * Initial dump of the entire wholist
+ * Respond to a <presence> update by firing back with presence information
+ * on the entire wholist.  Check this assumption, it's probably wrong.	 
  */
-void xmpp_wholist_presence_dump(void)
+void xmpp_wholist_presence_dump(void *data, const char *supplied_el, const char **attr)
 {
 	struct CitContext *cptr = NULL;
 	int nContexts, i;
@@ -121,18 +124,18 @@ void xmpp_wholist_presence_dump(void)
  */
 void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	static int unsolicited_id = 1;
-	char xmlbuf1[256];
-	char xmlbuf2[256];
+	struct CitContext *CCC = CC;
 
 	if (!presence_jid) return;
 	if (!XMPP) return;
 	if (!XMPP->client_jid) return;
 
 	/* Transmit non-presence information */
-	cprintf("<presence type=\"unavailable\" from=\"%s\" to=\"%s\"></presence>",
-		xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
-		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
-	);
+	XPUT("<presence type=\"unavailable\" from=\"");
+	XPutProp(presence_jid, strlen(presence_jid));
+	XPUT("\" to=\"");
+	XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
+	XPUT("\"></presence>");
 
 	/*
 	 * Setting the "aggressively" flag also sends an "unsubscribed" presence update.
@@ -141,26 +144,34 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	 * it as a rejection of a subscription request.
 	 */
 	if (aggressively) {
-		cprintf("<presence type=\"unsubscribed\" from=\"%s\" to=\"%s\"></presence>",
-			xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
-			xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
-		);
+		XPUT("<presence type=\"unsubscribed\" from=\"");
+		XPutProp(presence_jid, strlen(presence_jid));
+		XPUT("\" to=\"");
+		XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
+		XPUT("\"></presence>");
 	}
 
 	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
 	/* Do an unsolicited roster update that deletes the contact. */
-	cprintf("<iq from=\"%s\" to=\"%s\" id=\"unbuddy_%x\" type=\"result\">",
-		xmlesc(xmlbuf1, CC->cs_inet_email, sizeof xmlbuf1),
-		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2),
-		++unsolicited_id
-	);
-	cprintf("<query xmlns=\"jabber:iq:roster\">");
-	cprintf("<item jid=\"%s\" subscription=\"remove\">", xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1));
-	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
-	cprintf("</item>");
-	cprintf("</query>"
-		"</iq>"
+	XPUT("<iq type=\"result\" from=\"");
+	XPutProp(CCC->cs_inet_email, strlen(CCC->cs_inet_email));
+	XPUT("\" to=\"");
+	XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
+	XPUT("\" id=\"unbuddy_");
+	XPrintf("%x", ++unsolicited_id);
+	XPUT("\">");
+	
+	XPUT("<query xmlns=\"jabber:iq:roster\">"
+	     "<item subscription=\"remove\" jid=\"");
+	XPutProp(presence_jid, strlen(presence_jid));
+	XPUT("\">" 
+	     "<group>");
+	XPutBody(CFG_KEY(c_humannode));
+	XPUT("</group>"
+	     "</item>"
+	     "</query>"
+	     "</iq>"
 	);
 }
 
@@ -204,10 +215,12 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 		/* Do an unsolicited roster update that adds a new contact. */
 		assert(which_cptr_is_relevant >= 0);
-		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
-		cprintf("<query xmlns=\"jabber:iq:roster\">");
+		XPUT("<iq type=\"result\" id=\"unsolicited_");
+		XPrintf("%x", ++unsolicited_id);
+		XPUT("\" >"
+		     "<query xmlns=\"jabber:iq:roster\">");
 		xmpp_roster_item(&cptr[which_cptr_is_relevant]);
-		cprintf("</query></iq>");
+		XPUT("</query></iq>");
 
 		/* Transmit presence information */
 		xmpp_indicate_presence(presence_jid);
@@ -410,3 +423,11 @@ void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void)
 	free(cptr);
 }
 
+
+CTDL_MODULE_INIT(xmpp_presence)
+{
+	if (!threading) {
+		AddXMPPEndHandler(HKEY("presence"), xmpp_wholist_presence_dump, 0);
+	}
+	return "xmpp_presence";
+}

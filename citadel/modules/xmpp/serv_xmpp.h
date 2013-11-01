@@ -17,6 +17,7 @@
  */
 
 typedef struct _citxmpp {			/* Information about the current session */
+	StrBuf *OutBuf;
 	XML_Parser xp;			/* XML parser instance for incoming client stream */
 	char server_name[256];		/* who they think we are */
 	char *chardata;
@@ -80,7 +81,6 @@ void xmpp_async_loop(void);
 void xmpp_sasl_auth(char *, char *);
 void xmpp_output_auth_mechs(void);
 void xmpp_query_namespace(char *, char *, char *, char *);
-void xmpp_wholist_presence_dump(void);
 void xmpp_output_incoming_messages(void);
 void xmpp_queue_event(int, char *);
 void xmpp_process_events(void);
@@ -105,3 +105,22 @@ extern int XMPPSrvDebugEnable;
 	DBGLOG(LEVEL) syslog(LEVEL,		\
 			     "XMPP: " FORMAT);
 
+
+void XUnbuffer(void);
+void XPutBody(const char *Str, long Len);
+void XPutProp(const char *Str, long Len);
+void XPut(const char *Str, long Len);
+#define XPUT(CONSTSTR) XPut(CONSTSTR, sizeof(CONSTSTR) -1)
+
+void XPrintf(const char *Format, ...);
+
+
+void AddXMPPStartHandler(const char *key,
+			 long len,
+			 xmpp_handler_func Handler,
+			 int Flags);
+
+void AddXMPPEndHandler(const char *key,
+		       long len,
+		       xmpp_handler_func Handler,
+		       int Flags);
