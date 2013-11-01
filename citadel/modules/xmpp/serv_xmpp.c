@@ -139,10 +139,9 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	XPrintf("%08x\" ", CC->cs_pid);
 	XPUT("version=\"1.0\" "
 		  "xmlns:stream=\"http://etherx.jabber.org/streams\" "
-		  "xmlns=\"jabber:client\">");
-
+		  "xmlns=\"jabber:client\">"
 	/* The features of this stream are... */
-	XPUT("<stream:features>");
+	     "<stream:features>");
 
 	/*
 	 * TLS encryption (but only if it isn't already active)
@@ -257,7 +256,6 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 		h = (xmpp_handler*) pv;
 		h->Handler(data, supplied_el, attr);
 	}
-	XUnbuffer();
 }
 
 void xmpp_end_resource(void *data, const char *supplied_el, const char **attr)
@@ -460,6 +458,7 @@ void xmpp_end_starttls(void *data, const char *supplied_el, const char **attr)
 {
 #ifdef HAVE_OPENSSL
 	XPUT("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+	XUnbuffer();
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
 #else
@@ -520,7 +519,6 @@ void xmpp_xml_end(void *data, const char *supplied_el)
 	if (XMPP->chardata_alloc > 0) {
 		XMPP->chardata[0] = 0;
 	}
-	XUnbuffer();
 }
 
 
@@ -560,6 +558,7 @@ void xmpp_cleanup_function(void) {
 		}
 	}
 	XML_ParserFree(XMPP->xp);
+	FreeStrBuf(&XMPP->OutBuf);
 	free(XMPP);
 }
 
@@ -574,7 +573,7 @@ void xmpp_greeting(void) {
 	CC->session_specific_data = malloc(sizeof(citxmpp));
 	memset(XMPP, 0, sizeof(citxmpp));
 	XMPP->last_event_processed = queue_event_seq;
-
+	XMPP->OutBuf = NewStrBufPlain(NULL, SIZ);
 	/* XMPP does not use a greeting, but we still have to initialize some things. */
 
 	XMPP->xp = XML_ParserCreateNS("UTF-8", ':');
@@ -600,6 +599,7 @@ void xmpp_greeting(void) {
 #endif
 
 	CC->can_receive_im = 1;		/* This protocol is capable of receiving instant messages */
+	XUnbuffer();
 }
 
 
@@ -620,6 +620,7 @@ void xmpp_command_loop(void) {
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 	}
 	FreeStrBuf(&stream_input);
+	XUnbuffer();
 }
 
 
