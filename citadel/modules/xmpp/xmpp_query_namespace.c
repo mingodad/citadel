@@ -61,16 +61,19 @@
  */
 void xmpp_roster_item(struct CitContext *cptr)
 {
+	struct CitContext *CCC=CC;
 
-	XPUT("<item subscription=\"both\" jid=\"");
-	XPutProp(cptr->cs_inet_email, strlen(cptr->cs_inet_email));
-	XPUT("\" name=\"");
-	XPutProp(cptr->user.fullname, strlen(cptr->user.fullname));
-	XPUT("\">"
-	     "<group>");
-	XPutBody(CFG_KEY(c_humannode));
-	XPUT("</group>"
-	     "</item>");
+	XPrint(HKEY("item"), 0,
+	       XCPROPERTY("subscription", "both"),
+	       XPROPERTY("jid",  CCC->cs_inet_email, strlen(CCC->cs_inet_email)),
+	       XPROPERTY("name", cptr->user.fullname, strlen(cptr->user.fullname)),
+	       TYPE_ARGEND);
+
+	XPrint(HKEY("group"), XCLOSED,
+	       XCFGBODY(c_humannode),
+	       TYPE_ARGEND);
+
+	XPUT("</item>");
 }
 
 /* 
@@ -113,7 +116,13 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 {
 	int supported_namespace = 0;
 	int roster_query = 0;
-
+	const char *TypeStr;
+	long TLen;
+	ConstStr Type[] = {
+		{HKEY("result")},
+		{HKEY("error")}
+	};
+	
 	/* We need to know before we begin the response whether this is a supported namespace, so
 	 * unfortunately all supported namespaces need to be defined here *and* down below where
 	 * they are handled.
@@ -131,19 +140,18 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 * Beginning of query result.
 	 */
 	if (supported_namespace) {
-		XPUT("<iq type=\"result\" ");
+		TypeStr = Type[0].Key;
+		TLen    = Type[0].len;
 	}
 	else {
-		 XPUT("<iq type=\"error\" ");
+		TypeStr = Type[1].Key;
+		TLen    = Type[1].len;
 	}
-	if (!IsEmptyStr(iq_from)) {
-		XPUT("to=\"");
-		XPutProp(iq_from, strlen(iq_from));
-		XPUT("\" ");
-	}
-	XPUT("id=\"");
-	XPutProp(iq_id, strlen(iq_id));
-	XPUT("\">");
+
+	XPrint(HKEY("iq"), 0,
+	       XPROPERTY("type", TypeStr, TLen),
+	       XOPROPERTY("to",  iq_from, strlen(iq_from)),
+	       XPROPERTY("id",   iq_id,   strlen(iq_id)));
 
 	/*
 	 * Is this a query we know how to handle?

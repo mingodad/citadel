@@ -75,18 +75,17 @@ void xmpp_output_incoming_messages(void)
 		CCC->FirstExpressMessage = CCC->FirstExpressMessage->next;
 		end_critical_section(S_SESSION_TABLE);
 
-		
-		XPUT("<message type=\"chat\" to=\"");
-		XPutProp(Xmpp->client_jid, strlen(Xmpp->client_jid));
-		XPUT("\" from=\"");
-		XPutProp(ptr->sender_email, strlen(ptr->sender_email));
-		XPUT("\" >");
+		XPrint(HKEY("message"), 0,
+		       XCPROPERTY("type", "chat"),
+		       XPROPERTY("to", Xmpp->client_jid, strlen(Xmpp->client_jid)),
+		       XPROPERTY("from", ptr->sender_email, strlen(ptr->sender_email)),
+		       TYPE_ARGEND);
 
 		if (ptr->text != NULL) {
 			striplt(ptr->text);
-			XPUT("<body>");
-			XPutBody(ptr->text, strlen(ptr->text));
-			XPUT("</body>");
+			XPrint(HKEY("body"), XCLOSED,
+			       XBODY(ptr->text, strlen(ptr->text)),
+			       TYPE_ARGEND);
 			free(ptr->text);
 		}
 		XPUT("</message>");

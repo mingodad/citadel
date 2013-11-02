@@ -163,18 +163,21 @@ void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, cha
 	if (result == login_ok) {
 		result = CtdlTryPassword(password, strlen(password));
 		if (result == pass_ok) {
-			XPUT("<iq type=\"result\" id=\"");
-			XPutProp(iq_id, strlen(iq_id));
-			XPUT("\"></iq>"); /* success */
+			XPrint(HKEY("iq"), XCLOSED,
+			       XCPROPERTY("type", "result"),
+			       XPROPERTY("ID", iq_id, strlen(iq_id)),
+			       TYPE_ARGEND);
+			       /* success */
 			return;
 		}
 	}
 
 	/* failure */
-	XPUT("<iq type=\"error\" id=\"");
-	XPutProp(iq_id, strlen(iq_id));
-	XPUT("\">"
-	     "<error code=\"401\" type=\"auth\">"
+	XPrint(HKEY("iq"), 0,
+	       XCPROPERTY("type", "error"),
+	       XPROPERTY("ID", iq_id, strlen(iq_id)),
+	       TYPE_ARGEND);
+	XPUT("<error code=\"401\" type=\"auth\">"
 	     "<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
 	     "</error>"
 	     "</iq>"

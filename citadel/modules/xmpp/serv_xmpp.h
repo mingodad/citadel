@@ -124,3 +124,21 @@ void AddXMPPEndHandler(const char *key,
 		       long len,
 		       xmpp_handler_func Handler,
 		       int Flags);
+
+
+#define XCLOSED (1<<0)
+void XPrint(const char *Token, long tlen,
+	    int Flags,
+	    ...);
+
+#define TYPE_STR 1
+#define TYPE_OPTSTR 2
+#define TYPE_INT 3
+#define TYPE_BODYSTR 4
+#define TYPE_ARGEND 5
+#define XPROPERTY(NAME, VALUE, VLEN) TYPE_STR, NAME, sizeof(NAME)-1, VALUE, VLEN
+#define XOPROPERTY(NAME, VALUE, VLEN) TYPE_OPTSTR, NAME, sizeof(NAME)-1, VALUE, VLEN
+#define XCPROPERTY(NAME, VALUE) TYPE_STR, NAME, sizeof(NAME)-1, VALUE, sizeof(VALUE) - 1
+#define XIPROPERTY(NAME, LVALUE) TYPE_INT, NAME, SIZEOF(NAME)-1
+#define XBODY(VALUE, VLEN) TYPE_BODYSTR, VALUE, VLEN
+#define XCFGBODY(WHICH) TYPE_BODYSTR, config.WHICH, configlen.WHICH

@@ -65,11 +65,10 @@
  */
 void xmpp_indicate_presence(char *presence_jid)
 {
-	XPUT("<presence from=\"");
-	XPutProp(presence_jid, strlen(presence_jid));
-	XPUT("\" to=\"");
-	XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
-	XPUT("\"></presence>");
+	XPrint(HKEY("presence"),
+	       XPROPERTY("from", presence_jid, strlen(presence_jid)),
+	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
+	       TYPE_ARGEND);
 }
 
 
@@ -125,17 +124,19 @@ void xmpp_wholist_presence_dump(void *data, const char *supplied_el, const char 
 void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	static int unsolicited_id = 1;
 	struct CitContext *CCC = CC;
+	char Buf[64];
+	long blen;
 
 	if (!presence_jid) return;
 	if (!XMPP) return;
 	if (!XMPP->client_jid) return;
 
 	/* Transmit non-presence information */
-	XPUT("<presence type=\"unavailable\" from=\"");
-	XPutProp(presence_jid, strlen(presence_jid));
-	XPUT("\" to=\"");
-	XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
-	XPUT("\"></presence>");
+	XPrint(HKEY("presence"), XCLOSED,
+	       XCPROPERTY("type", "unavailable"),
+	       XPROPERTY("from", presence_jid, strlen(presence_jid)),
+	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
+	       TYPE_ARGEND);
 
 	/*
 	 * Setting the "aggressively" flag also sends an "unsubscribed" presence update.
@@ -144,32 +145,38 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	 * it as a rejection of a subscription request.
 	 */
 	if (aggressively) {
-		XPUT("<presence type=\"unsubscribed\" from=\"");
-		XPutProp(presence_jid, strlen(presence_jid));
-		XPUT("\" to=\"");
-		XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
-		XPUT("\"></presence>");
+		XPrint(HKEY("presence"), XCLOSED,
+		       XCPROPERTY("type", "unsubscribed"),
+		       XPROPERTY("from", presence_jid, strlen(presence_jid)),
+		       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
+		       TYPE_ARGEND);
 	}
 
 	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
+	blen = snprintf(Buf, sizeof(Buf), "unbuddy_%x", ++unsolicited_id);
+
 	/* Do an unsolicited roster update that deletes the contact. */
-	XPUT("<iq type=\"result\" from=\"");
-	XPutProp(CCC->cs_inet_email, strlen(CCC->cs_inet_email));
-	XPUT("\" to=\"");
-	XPutProp(XMPP->client_jid, strlen(XMPP->client_jid));
-	XPUT("\" id=\"unbuddy_");
-	XPrintf("%x", ++unsolicited_id);
-	XPUT("\">");
-	
-	XPUT("<query xmlns=\"jabber:iq:roster\">"
-	     "<item subscription=\"remove\" jid=\"");
-	XPutProp(presence_jid, strlen(presence_jid));
-	XPUT("\">" 
-	     "<group>");
-	XPutBody(CFG_KEY(c_humannode));
-	XPUT("</group>"
-	     "</item>"
+	XPrint(HKEY("iq"), 0,
+	       XCPROPERTY("type", "result"),
+	       XPROPERTY("from", CCC->cs_inet_email, strlen(CCC->cs_inet_email)),
+	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
+	       XPROPERTY("id",  Buf, blen),
+	       TYPE_ARGEND);
+
+	XPrint(HKEY("query"), 0,
+	       XCPROPERTY("xmlns", "jabber:iq:roster"),
+	       TYPE_ARGEND);
+
+	XPrint(HKEY("item"), 0,
+	       XCPROPERTY("subscription", "remove"),
+	       XPROPERTY("jid", presence_jid, strlen(presence_jid)),
+	       TYPE_ARGEND);
+
+	XPrint(HKEY("group"), XCLOSED,
+	       XCFGBODY(c_humannode),
+	       TYPE_ARGEND);
+	XPUT("</item>"
 	     "</query>"
 	     "</iq>"
 	);
@@ -209,16 +216,26 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		    visible_sessions, presence_jid, CC->cs_pid);
 
 	if ( (event_type == XMPP_EVT_LOGIN) && (visible_sessions == 1) ) {
+		long blen;
+		char Buf[64];
 
 		XMPP_syslog(LOG_DEBUG, "Telling session %d that <%s> logged in\n",
 			    CC->cs_pid, presence_jid);
 
 		/* Do an unsolicited roster update that adds a new contact. */
 		assert(which_cptr_is_relevant >= 0);
-		XPUT("<iq type=\"result\" id=\"unsolicited_");
-		XPrintf("%x", ++unsolicited_id);
-		XPUT("\" >"
-		     "<query xmlns=\"jabber:iq:roster\">");
+
+		blen = snprintf(Buf, sizeof(Buf), "unsolicited_%x", ++unsolicited_id);
+
+		XPrint(HKEY("iq"), 0,
+		       XCPROPERTY("type", "result"),
+		       XPROPERTY("id", Buf, blen),
+		       TYPE_ARGEND);
+
+		XPrint(HKEY("query"), 0,
+		       XCPROPERTY("xmlns", "jabber:iq:roster"),
+		       TYPE_ARGEND);
+
 		xmpp_roster_item(&cptr[which_cptr_is_relevant]);
 		XPUT("</query></iq>");
 

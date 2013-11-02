@@ -103,6 +103,96 @@ void XPrintf(const char *Format, ...)
 }
 
 
+void XPrint(const char *Token, long tlen,
+	    int Flags,
+	    ...)
+
+{
+	int BodySeen = 0;
+	int ArgType;
+	int Finished = 0;
+	char *PName;
+	long PLen;
+	char *Val;
+	long VLen;
+        va_list arg_ptr;
+
+	XPUT("<");
+	XPut(Token, tlen);
+
+        va_start(arg_ptr, Flags);
+	while (!Finished)
+	{
+		ArgType = va_arg(arg_ptr, int);
+		switch (ArgType)
+		{
+		case TYPE_STR:
+			PName = va_arg(arg_ptr, char*);
+			PLen  = va_arg(arg_ptr, long);
+			Val   = va_arg(arg_ptr, char*);
+			VLen  = va_arg(arg_ptr, long);
+			XPUT(" ");
+			XPut(PName, PLen);
+			XPUT("=\"");
+			XPutProp(Val, VLen);
+			XPUT("\"");
+			break;
+		case TYPE_OPTSTR:
+			PName = va_arg(arg_ptr, char*);
+			PLen  = va_arg(arg_ptr, long);
+			Val   = va_arg(arg_ptr, char*);
+			VLen  = va_arg(arg_ptr, long);
+			if (VLen > 0)
+			{
+				XPUT(" ");
+				XPut(PName, PLen);
+				XPUT("=\"");
+				XPutProp(Val, VLen);
+				XPUT("\"");
+			}
+			break;
+		case TYPE_INT:
+			PName = va_arg(arg_ptr, char*);
+			PLen  = va_arg(arg_ptr, long);
+			VLen  = va_arg(arg_ptr, long);
+			XPUT(" ");
+			XPut(PName, PLen);
+			XPUT("=\"");
+			XPrintf("%ld", VLen);
+			XPUT("\"");
+			break;
+		case TYPE_BODYSTR:
+			BodySeen = 1;
+			XPUT(">");
+			Val   = va_arg(arg_ptr, char*);
+			VLen  = va_arg(arg_ptr, long);
+			XPutBody(Val, VLen);
+			break;
+		case TYPE_ARGEND:
+			Finished = 1;
+			break;
+		}
+	}
+	if (Flags == XCLOSED)
+	{
+		if (BodySeen)
+		{
+			XPUT("</");
+			XPut(Token, tlen);
+			XPUT(">");
+		}
+		else
+		{
+			XPUT("></");
+			XPut(Token, tlen);
+			XPUT(">");
+		}
+	}
+	else
+		XPUT(">");
+	va_end(arg_ptr);
+}
+
 #ifdef HAVE_XML_STOPPARSER
 /* Stop the parser if an entity declaration is hit. */
 static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
