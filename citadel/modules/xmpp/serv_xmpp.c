@@ -318,20 +318,20 @@ void xmpp_start_html(void *data, const char *supplied_el, const char **attr)
 
 void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 {
-	char el[256];
-	long newlen;
+	const char *pToken;
+	const char *pch;
 	long len;
-	char *sep = NULL;
 	void *pv;
 	
 	/* Axe the namespace, we don't care about it */
-	newlen = len = safestrncpy(el, supplied_el, sizeof el);
-	while (sep = strchr(el, ':'), sep)
+	pToken = supplied_el;
+	pch = strchr(pToken, ':');
+	while (pch != NULL)
 	{
-		newlen -= ++sep - el;
-		memmove(el, sep, newlen + 1);
-		len = newlen;
+		pToken = pch;
+		pch = strchr(pToken, ':');
 	}
+	len = strlen(pToken);
 
 	/*
 	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
@@ -340,7 +340,7 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 	}
 	uncomment for more verbosity */
 
-	if (GetHash(XMPP_StartHandlers, el, len, &pv))
+	if (GetHash(XMPP_StartHandlers, pToken, len, &pv))
 	{
 		xmpp_handler *h;
 		h = (xmpp_handler*) pv;
@@ -572,20 +572,20 @@ void xmpp_end_stream(void *data, const char *supplied_el, const char **attr)
 
 void xmpp_xml_end(void *data, const char *supplied_el)
 {
-	char el[256];
+	const char *pToken;
+	const char *pch;
 	long len;
-	long newlen;
-	char *sep = NULL;
 	void *pv;
 
 	/* Axe the namespace, we don't care about it */
-	newlen = len = safestrncpy(el, supplied_el, sizeof el);
-	while (sep = strchr(el, ':'), sep) {
-
-		newlen -= ++sep - el;
-		memmove(el, sep, newlen + 1);
-		len = newlen;
+	pToken = supplied_el;
+	pch = strchr(pToken, ':');
+	while (pch != NULL)
+	{
+		pToken = pch;
+		pch = strchr(pToken, ':');
 	}
+	len = strlen(pToken);
 
 	/*
 	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
@@ -594,7 +594,7 @@ void xmpp_xml_end(void *data, const char *supplied_el)
 	}
 	uncomment for more verbosity */
 
-	if (GetHash(XMPP_EndHandlers, el, len, &pv))
+	if (GetHash(XMPP_EndHandlers, pToken, len, &pv))
 	{
 		xmpp_handler *h;
 		h = (xmpp_handler*) pv;
@@ -602,7 +602,7 @@ void xmpp_xml_end(void *data, const char *supplied_el)
 	}
 	else
 	{
-		XMPP_syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
+		XMPP_syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", pToken);
 	}
 
 	XMPP->chardata_len = 0;
