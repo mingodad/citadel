@@ -1007,10 +1007,12 @@ void smtp_command_loop(void)
 
 	if (sSMTP->command_state == smtp_user) {
 		smtp_get_user(0);
+		return;
 	}
 
 	else if (sSMTP->command_state == smtp_password) {
 		smtp_get_pass(0, 0);
+		return;
 	}
 
 	else if (sSMTP->command_state == smtp_plain) {
