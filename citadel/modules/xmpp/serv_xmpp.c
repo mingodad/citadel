@@ -67,6 +67,9 @@
 struct xmpp_event *xmpp_queue = NULL;
 HashList *XMPP_StartHandlers = NULL;
 HashList *XMPP_EndHandlers = NULL;
+HashList *XMPP_SupportedNamespaces = NULL;
+HashList *XMPP_NameSpaces = 0;
+HashList *FlatToken = NULL;
 
 int XMPPSrvDebugEnable = 0;
 
@@ -92,7 +95,6 @@ void XPut(const char *Str, long Len)
 {
 	StrBufAppendBufPlain(XMPP->OutBuf, Str, Len, 0);
 }
-#define XPUT(CONSTSTR) XPut(CONSTSTR, sizeof(CONSTSTR) -1)
 
 void XPrintf(const char *Format, ...)
 {
@@ -236,12 +238,13 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/*
 	 * TLS encryption (but only if it isn't already active)
 	 */ 
+/*
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) {
 		XPUT("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
 	}
 #endif
-
+*/
 	if (!CC->logged_in) {
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
@@ -271,6 +274,7 @@ void xmpp_start_bind(void *data, const char *supplied_el, const char **attr)
 
 void xmpp_start_iq(void *data, const char *supplied_el, const char **attr)
 {
+/*
 	int i;
 	for (i=0; attr[i] != NULL; i+=2) {
 		if (!strcasecmp(attr[i], "type")) {
@@ -286,6 +290,7 @@ void xmpp_start_iq(void *data, const char *supplied_el, const char **attr)
 			safestrncpy(XMPP->iq_to, attr[i+1], sizeof XMPP->iq_to);
 		}
 	}
+*/
 }
 
 void xmpp_start_auth(void *data, const char *supplied_el, const char **attr)
@@ -318,8 +323,11 @@ void xmpp_start_html(void *data, const char *supplied_el, const char **attr)
 
 void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 {
+	HashList *ThisNamespace = NULL;
 	const char *pToken;
 	const char *pch;
+	const char *NS = NULL;
+	long NSLen;
 	long len;
 	void *pv;
 	
@@ -329,10 +337,61 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 	while (pch != NULL)
 	{
 		pToken = pch;
-		pch = strchr(pToken, ':');
+		pch = strchr(pToken  + 1, ':');
 	}
+
+	if (*pToken == ':')
+	{
+		NS = supplied_el;
+		NSLen = pToken - supplied_el;
+		if (GetHash(XMPP_NameSpaces, NS, NSLen, &pv))
+		{
+			ThisNamespace = pv;
+
+		}
+		
+		pToken ++;
+	}
+
 	len = strlen(pToken);
 
+
+	if (ThisNamespace != NULL)
+	{
+		if (GetHash(ThisNamespace, pToken, len, &pv))
+		{
+			TokenHandler *th;
+			void *value;
+			long i = 0;
+
+			th = (TokenHandler*) pv;
+			value = th->GetToken();
+
+			while (attr[i] != NULL)
+			{
+
+				if (GetHash(th->Properties, attr[i], strlen(attr[i]), &pv))
+				{
+					PropertyHandler* ph = pv;
+					char *val;
+					StrBuf **pVal;
+					long len;
+
+					len = strlen(attr[i+1]);
+					val = value;
+					val += ph->offset;
+					pVal = (StrBuf**) val;
+					if (*pVal != NULL)
+						StrBufPlain(*pVal, attr[i+1], len);
+					else
+						*pVal = NewStrBufPlain(attr[i+1], len);
+				}
+				i+=2;
+			}
+			return;
+		}
+
+	}
 	/*
 	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
 	for (i=0; attr[i] != NULL; i+=2) {
@@ -383,14 +442,13 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 	/*
 	 * iq type="get" (handle queries)
 	 */
-	if (!strcasecmp(Xmpp->iq_type, "get"))
+	if (!strcasecmp(ChrPtr(Xmpp->IQ.type), "get"))
 	{
 		/*
 		 * Query on a namespace
 		 */
 		if (!IsEmptyStr(Xmpp->iq_query_xmlns)) {
-			xmpp_query_namespace(Xmpp->iq_id, Xmpp->iq_from,
-					     Xmpp->iq_to, Xmpp->iq_query_xmlns);
+			xmpp_query_namespace(&Xmpp->IQ, Xmpp->iq_query_xmlns);
 		}
 		
 		/*
@@ -398,18 +456,18 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 		 */
 		else if (Xmpp->ping_requested) {
 			XPUT("<iq type=\"result\" ");
-			if (!IsEmptyStr(Xmpp->iq_from)) {
+			if (StrLength(Xmpp->IQ.from) > 0) {
 				XPUT("to=\"");
-				XPutProp(Xmpp->iq_from, strlen(Xmpp->iq_from));
+				XPutSProp(Xmpp->IQ.from);
 				XPUT("\" ");
 			}
-			if (!IsEmptyStr(Xmpp->iq_to)) {
+			if (StrLength(Xmpp->IQ.to)>0) {
 				XPUT("from=\"");
-				XPutProp(Xmpp->iq_to, strlen(Xmpp->iq_to));
+				XPutSProp(Xmpp->IQ.to);
 				XPUT("\" ");
 			}
 			XPUT("id=\"");
-			XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+			XPutSProp(Xmpp->IQ.id);
 			XPUT("\"/>");
 		}
 
@@ -424,7 +482,7 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 				);
 */
 			XPUT("<iq type=\"error\" id=\"");
-			XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+			XPutSProp(Xmpp->IQ.id);
 			XPUT("\">"
 			     "<error code=\"503\" type=\"cancel\">"
 			     "<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
@@ -437,12 +495,12 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 	 * Non SASL authentication
 	 */
 	else if (
-		(!strcasecmp(Xmpp->iq_type, "set"))
+		(!strcasecmp(ChrPtr(Xmpp->IQ.type), "set"))
 		&& (!strcasecmp(Xmpp->iq_query_xmlns, "jabber:iq:auth:query"))
 		) {
 		
 		xmpp_non_sasl_authenticate(
-			Xmpp->iq_id,
+			Xmpp->IQ.id,
 			Xmpp->iq_client_username,
 			Xmpp->iq_client_password,
 			Xmpp->iq_client_resource
@@ -454,7 +512,7 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 	 */
 	else if (
 		(Xmpp->bind_requested)
-		&& (!IsEmptyStr(Xmpp->iq_id))
+		&& (StrLength(Xmpp->IQ.id)>0)
 		&& (!IsEmptyStr(Xmpp->iq_client_resource))
 		&& (CC->logged_in)
 		) {
@@ -470,7 +528,7 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 		/* Tell the client what its JID is */
 
 		XPUT("<iq type=\"result\" id=\"");
-		XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+		XPutSProp(Xmpp->IQ.id);
 		XPUT("\">"
 		     "<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">");
 		XPUT("<jid>");
@@ -482,26 +540,26 @@ void xmpp_end_iq(void *data, const char *supplied_el, const char **attr)
 
 	else if (Xmpp->iq_session) {
 		XPUT("<iq type=\"result\" id=\"");
-		XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+		XPutSProp(Xmpp->IQ.id);
 		XPUT("\">"
 		     "</iq>");
 	}
 
 	else {
 		XPUT("<iq type=\"error\" id=\"");
-		XPutProp(Xmpp->iq_id, strlen(Xmpp->iq_id));
+		XPutSProp(Xmpp->IQ.id);
 		XPUT("\">");
 		XPUT("<error>Don't know howto do '");
-		XPutBody(Xmpp->iq_type, strlen(Xmpp->iq_type));
+		XPutBody(SKEY(Xmpp->IQ.type));
 		XPUT("'!</error>"
 		     "</iq>");
 	}
 
 	/* Now clear these fields out so they don't get used by a future stanza */
-	Xmpp->iq_id[0] = 0;
-	Xmpp->iq_from[0] = 0;
-	Xmpp->iq_to[0] = 0;
-	Xmpp->iq_type[0] = 0;
+	FlushStrBuf(Xmpp->IQ.id);
+	FlushStrBuf(Xmpp->IQ.from);
+	FlushStrBuf(Xmpp->IQ.to);
+	FlushStrBuf(Xmpp->IQ.type);
 	Xmpp->iq_client_resource[0] = 0;
 	Xmpp->iq_session = 0;
 	Xmpp->iq_query_xmlns[0] = 0;
@@ -583,8 +641,12 @@ void xmpp_xml_end(void *data, const char *supplied_el)
 	while (pch != NULL)
 	{
 		pToken = pch;
-		pch = strchr(pToken, ':');
+		pch = strchr(pToken  + 1, ':');
 	}
+
+	if (*pToken == ':')
+		pToken ++;
+
 	len = strlen(pToken);
 
 	/*
@@ -647,6 +709,8 @@ void xmpp_cleanup_function(void) {
 			free(XMPP->message_body);
 		}
 	}
+	free_buf_iq(&XMPP->IQ);
+
 	XML_ParserFree(XMPP->xp);
 	FreeStrBuf(&XMPP->OutBuf);
 	free(XMPP);
@@ -776,6 +840,78 @@ void AddXMPPEndHandler(const char *key,
 	Put(XMPP_EndHandlers, key, len, h, NULL);
 }
 
+void HFreePropertyHandler(void *FreeMe)
+{
+	free(FreeMe);
+}
+
+void HDeleteTokenHandler(void *FreeMe)
+{
+	TokenHandler *th = (TokenHandler *) FreeMe;
+	DeleteHash(&th->Properties);
+	free(th);
+}
+
+void XMPP_RegisterTokenProperty(const char *NS, long NSLen,
+				const char *Token, long TLen,
+				const char *Property, long PLen,
+				GetTokenDataFunc GetToken,
+				long offset)
+{
+	void *pv;
+	HashList *ThisNamespace = NULL;
+	PropertyHandler *h;
+	TokenHandler *th;
+
+	h = (PropertyHandler*) malloc(sizeof(PropertyHandler));
+	h->NameSpace = NS;
+	h->NameSpaceLen = NSLen;
+	h->Token = Token;
+	h->TokenLen = TLen;
+	h->Property = Property;
+	h->PropertyLen = PLen;
+	h->offset = offset;
+
+	if (!GetHash(XMPP_SupportedNamespaces, NS, NSLen, &pv))
+	{
+		Put(XMPP_SupportedNamespaces, NS, NSLen, NewStrBufPlain(NS, NSLen), HFreeStrBuf);
+	}
+		
+	
+	if (GetHash(XMPP_NameSpaces, NS, NSLen, &pv))
+	{
+		ThisNamespace = pv;
+	}
+	else
+	{
+		ThisNamespace = NewHash(1, NULL);
+		Put(XMPP_NameSpaces, NS, NSLen, ThisNamespace, HDeleteHash);
+	}
+
+	if (GetHash(ThisNamespace, Token, TLen, &pv))
+	{
+		th = pv;
+	}
+	else
+	{
+		th = (TokenHandler*) malloc (sizeof(TokenHandler));
+		th->GetToken = GetToken;
+		th->Properties = NewHash(1, NULL);
+		Put(ThisNamespace, Token, TLen, th, HDeleteTokenHandler);
+	}
+
+	Put(th->Properties, Property, PLen, h, HFreePropertyHandler);
+	/*
+	if (!GetHash(FlatToken, Token, TLen, &pv))
+	{
+		// todo mark pv as non uniq
+		Put(FlatToken, Token, TLen, ThisToken, reference_free_handler);
+	}	
+	*/
+}
+
+
+
 CTDL_MODULE_INIT(xmpp)
 {
 	if (!threading) {
@@ -789,6 +925,9 @@ CTDL_MODULE_INIT(xmpp)
 
 		XMPP_StartHandlers = NewHash(1, NULL);
 		XMPP_EndHandlers = NewHash(1, NULL);
+		XMPP_NameSpaces = NewHash(1, NULL);
+		XMPP_SupportedNamespaces = NewHash(1, NULL);
+		FlatToken = NewHash(1, NULL);
 
 		AddXMPPEndHandler(HKEY("resource"),	 xmpp_end_resource, 0);
 		AddXMPPEndHandler(HKEY("username"),	 xmpp_end_username, 0);
@@ -818,9 +957,10 @@ CTDL_MODULE_INIT(xmpp)
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_UNSTEALTH, PRIO_UNSTEALTH + 1);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_STEALTH, PRIO_STEALTH + 1);
 		CtdlRegisterCleanupHook(xmpp_cleanup_events);
-
 	}
 
 	/* return our module name for the log */
 	return "xmpp";
 }
+
+

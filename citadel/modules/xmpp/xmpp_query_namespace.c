@@ -112,7 +112,7 @@ xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
  *
  */
 
-void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns)
+void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_to*/, char *query_xmlns)
 {
 	int supported_namespace = 0;
 	int roster_query = 0;
@@ -134,7 +134,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 		supported_namespace = 1;
 	}
 
-	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
+	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", ChrPtr(IQ->id), ChrPtr(IQ->from), ChrPtr(IQ->to), query_xmlns);
 
 	/*
 	 * Beginning of query result.
@@ -150,8 +150,8 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 
 	XPrint(HKEY("iq"), 0,
 	       XPROPERTY("type", TypeStr, TLen),
-	       XOPROPERTY("to",  iq_from, strlen(iq_from)),
-	       XPROPERTY("id",   iq_id,   strlen(iq_id)));
+	       XSPROPERTY("to",  IQ->from),
+	       XSPROPERTY("id",   IQ->id));
 
 	/*
 	 * Is this a query we know how to handle?

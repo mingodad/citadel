@@ -1,0 +1,20 @@
+
+#define NAMESPACE_iq "jabber:client"
+TOKEN(iq,
+      {
+	      STRPROP(iq, type);
+	      STRPROP(iq, id);
+	      STRPROP(iq, from);
+	      STRPROP(iq, to);
+      })
+
+
+#define NAMESPACE_piq "bub"
+
+TOKEN(piq,
+      {
+	      STRPROP(piq, type);
+	      STRPROP(piq, id);
+	      STRPROP(piq, from);
+	      STRPROP(piq, to);
+      })
