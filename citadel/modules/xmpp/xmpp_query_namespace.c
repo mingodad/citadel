@@ -151,7 +151,8 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	XPrint(HKEY("iq"), 0,
 	       XPROPERTY("type", TypeStr, TLen),
 	       XSPROPERTY("to",  IQ->from),
-	       XSPROPERTY("id",   IQ->id));
+	       XSPROPERTY("id",   IQ->id),
+	       TYPE_ARGEND);
 
 	/*
 	 * Is this a query we know how to handle?
