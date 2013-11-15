@@ -3436,6 +3436,7 @@ struct CtdlMessage *CtdlMakeMessageLen(
 	}
 	StrBufRFC2047encode(&FakeEncAuthor, FakeAuthor);
 	CM_SetAsFieldSB(msg, eAuthor, &FakeEncAuthor);
+	FreeStrBuf(&FakeAuthor);
 
 	if (CCC->room.QRflags & QR_MAILBOX) {		/* room */
 		CM_SetField(msg, eOriginalRoom, &CCC->room.QRname[11], strlen(&CCC->room.QRname[11]));
