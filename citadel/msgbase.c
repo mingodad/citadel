@@ -1165,7 +1165,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	if ( (CM_IsEmpty(ret, eMesageText)) && (with_body) ) {
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
-			CM_SetAsField(ret, eMesageText, &dmsgtext->ptr, dmsgtext->len);
+			CM_SetAsField(ret, eMesageText, &dmsgtext->ptr, dmsgtext->len - 1);
 			cdb_free(dmsgtext);
 		}
 	}
