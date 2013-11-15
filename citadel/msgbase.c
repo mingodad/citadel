@@ -1129,6 +1129,13 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	ret->cm_anon_type = *mptr++;	/* Anon type byte */
 	ret->cm_format_type = *mptr++;	/* Format type byte */
 
+
+	if (dmsgtext->ptr[dmsgtext->len - 1] != '\0')
+	{
+		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Forcefully terminating message!!\n", msgnum, with_body);
+		dmsgtext->ptr[dmsgtext->len - 1] = '\0';
+	}
+
 	/*
 	 * The rest is zero or more arbitrary fields.  Load them in.
 	 * We're done when we encounter either a zero-length field or
