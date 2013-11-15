@@ -59,7 +59,6 @@ struct xmpp_event {
 	int session_which_generated_this_event;
 };
 
-extern struct xmpp_event *xmpp_queue;
 extern int queue_event_seq;
 
 enum {

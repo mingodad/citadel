@@ -13,6 +13,11 @@ void *GetToken_piq(void)
 	return NULL;
 }
 
+void *GetToken_message(void)
+{
+	return NULL;
+}
+
 
 #define STRPROP(STRUCTNAME, NAME)					\
 	if (StrLength(pdata->NAME) > 0)					\
@@ -22,6 +27,12 @@ void *GetToken_piq(void)
 	XPutProp(SKEY(pdata->NAME));					\
 	XPut("\" ", 2);							\
 	}
+
+#define PAYLOAD(STRUCTNAME, NAME)					\
+	XPrint(#NAME, sizeof(#NAME) -1,					\
+	       XCLOSED,							\
+	       TYPE_BODYSTR, SKEY(pdata->NAME),				\
+	       TYPE_ARGEND);
 
 #define THENAMESPACE(STRUCTNAME, NAME)					\
 	XPut(#NAME, sizeof(#NAME) - 1);					\
@@ -48,10 +59,14 @@ void *GetToken_piq(void)
 
 #include "token.def"
 #undef STRPROP
+#undef PAYLOAD
 #undef TOKEN
 
 
 #define STRPROP(STRUCTNAME, NAME)					\
+	FreeStrBuf(&pdata->NAME);
+
+#define PAYLOAD(STRUCTNAME, NAME)					\
 	FreeStrBuf(&pdata->NAME);
 
 #define TOKEN(NAME, STRUCT)						\
@@ -62,6 +77,7 @@ void *GetToken_piq(void)
 
 #include "token.def"
 #undef STRPROP
+#undef PAYLOAD
 #undef TOKEN
 
 #define TOKEN(NAME, STRUCT)						\
@@ -88,6 +104,16 @@ CTDL_MODULE_INIT(xmpp_xmacros)
 			sizeof(NAMESPACE_##TOKENNAME)-1,		\
 			#TOKENNAME, sizeof(#TOKENNAME)-1,		\
 			#PROPERTYNAME, sizeof(#PROPERTYNAME)-1,		\
+			GetToken_##TOKENNAME,				\
+			offset##PROPERTYNAME);
+#define PAYLOAD(TOKENNAME, PROPERTYNAME)				\
+		long offset##PROPERTYNAME =				\
+			offsetof(TheToken_##TOKENNAME, PROPERTYNAME);	\
+		XMPP_RegisterTokenProperty(				\
+			NAMESPACE_##TOKENNAME,				\
+			sizeof(NAMESPACE_##TOKENNAME)-1,		\
+			#TOKENNAME, sizeof(#TOKENNAME)-1,		\
+			NULL, 0,					\
 			GetToken_##TOKENNAME,				\
 			offset##PROPERTYNAME);
 #define TOKEN(NAME, STRUCT) STRUCT

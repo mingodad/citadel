@@ -64,11 +64,10 @@
 #define HAVE_XML_STOPPARSER
 #endif
 
-struct xmpp_event *xmpp_queue = NULL;
 HashList *XMPP_StartHandlers = NULL;
 HashList *XMPP_EndHandlers = NULL;
 HashList *XMPP_SupportedNamespaces = NULL;
-HashList *XMPP_NameSpaces = 0;
+HashList *XMPP_NameSpaces = NULL;
 HashList *FlatToken = NULL;
 
 int XMPPSrvDebugEnable = 0;
@@ -270,27 +269,6 @@ void xmpp_start_query(void *data, const char *supplied_el, const char **attr)
 void xmpp_start_bind(void *data, const char *supplied_el, const char **attr)
 {
 	XMPP->bind_requested = 1;
-}
-
-void xmpp_start_iq(void *data, const char *supplied_el, const char **attr)
-{
-/*
-	int i;
-	for (i=0; attr[i] != NULL; i+=2) {
-		if (!strcasecmp(attr[i], "type")) {
-			safestrncpy(XMPP->iq_type, attr[i+1], sizeof XMPP->iq_type);
-		}
-		else if (!strcasecmp(attr[i], "id")) {
-			safestrncpy(XMPP->iq_id, attr[i+1], sizeof XMPP->iq_id);
-		}
-		else if (!strcasecmp(attr[i], "from")) {
-			safestrncpy(XMPP->iq_from, attr[i+1], sizeof XMPP->iq_from);
-		}
-		else if (!strcasecmp(attr[i], "to")) {
-			safestrncpy(XMPP->iq_to, attr[i+1], sizeof XMPP->iq_to);
-		}
-	}
-*/
 }
 
 void xmpp_start_auth(void *data, const char *supplied_el, const char **attr)
@@ -808,7 +786,6 @@ void LogXMPPSrvDebugEnable(const int n)
 	XMPPSrvDebugEnable = n;
 }
 const char *CitadelServiceXMPP="XMPP";
-extern void xmpp_cleanup_events(void);
 
 
 
@@ -900,7 +877,9 @@ void XMPP_RegisterTokenProperty(const char *NS, long NSLen,
 		Put(ThisNamespace, Token, TLen, th, HDeleteTokenHandler);
 	}
 
-	Put(th->Properties, Property, PLen, h, HFreePropertyHandler);
+
+	if (PLen > 0)
+		Put(th->Properties, Property, PLen, h, HFreePropertyHandler);
 	/*
 	if (!GetHash(FlatToken, Token, TLen, &pv))
 	{
@@ -910,7 +889,14 @@ void XMPP_RegisterTokenProperty(const char *NS, long NSLen,
 	*/
 }
 
-
+void xmpp_cleanup(void)
+{
+	DeleteHash(&XMPP_StartHandlers);
+	DeleteHash(&XMPP_EndHandlers);
+	DeleteHash(&XMPP_SupportedNamespaces);
+	DeleteHash(&XMPP_NameSpaces);
+	DeleteHash(&FlatToken);
+}
 
 CTDL_MODULE_INIT(xmpp)
 {
@@ -944,7 +930,6 @@ CTDL_MODULE_INIT(xmpp)
 		AddXMPPStartHandler(HKEY("stream"),	xmpp_stream_start, 0);
 		AddXMPPStartHandler(HKEY("query"),	xmpp_start_query, 0);
 		AddXMPPStartHandler(HKEY("bind"),	xmpp_start_bind, 0);
-		AddXMPPStartHandler(HKEY("iq"),		xmpp_start_iq, 0);
 		AddXMPPStartHandler(HKEY("auth"),	xmpp_start_auth, 0);
 		AddXMPPStartHandler(HKEY("message"),	xmpp_start_message, 0);
 		AddXMPPStartHandler(HKEY("html"),	xmpp_start_html, 0);
@@ -956,7 +941,7 @@ CTDL_MODULE_INIT(xmpp)
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 90);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_UNSTEALTH, PRIO_UNSTEALTH + 1);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_STEALTH, PRIO_STEALTH + 1);
-		CtdlRegisterCleanupHook(xmpp_cleanup_events);
+		CtdlRegisterCleanupHook(xmpp_cleanup);
 	}
 
 	/* return our module name for the log */
