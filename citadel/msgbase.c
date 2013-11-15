@@ -3497,9 +3497,10 @@ struct CtdlMessage *CtdlMakeMessageLen(
 		CM_SetField(msg, eMesageText, preformatted_text, textlen);
 	}
 	else {
-		preformatted_text = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
-		if (preformatted_text != NULL) {
-			CM_SetField(msg, eMesageText, preformatted_text, strlen(preformatted_text));
+		StrBuf *MsgBody;
+		MsgBody = CtdlReadMessageBodyBuf(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
+		if (MsgBody != NULL) {
+			CM_SetAsFieldSB(msg, eMesageText, &MsgBody);
 		}
 	}
 
