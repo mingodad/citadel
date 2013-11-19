@@ -70,18 +70,32 @@
 
 #include "ctdl_module.h"
 
+int POP3DebugEnabled = 0;
 
+#define POP3DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (POP3DebugEnabled != 0))
+#define CCCID CCC->cs_pid
+#define POP3_syslog(LEVEL, FORMAT, ...)			\
+	POP3DBGLOG(LEVEL) syslog(LEVEL,			\
+				 "POP3CC[%d] " FORMAT,	\
+				 CCCID, __VA_ARGS__)
+
+#define POP3M_syslog(LEVEL, FORMAT)			\
+	POP3DBGLOG(LEVEL) syslog(LEVEL,			\
+				 "POP3CC[%d] " FORMAT,	\
+				 CCCID)
 
 /*
  * This cleanup function blows away the temporary memory and files used by
  * the POP3 server.
  */
-void pop3_cleanup_function(void) {
+void pop3_cleanup_function(void)
+{
+	struct CitContext *CCC = CC;
 
 	/* Don't do this stuff if this is not a POP3 session! */
-	if (CC->h_command_function != pop3_command_loop) return;
+	if (CCC->h_command_function != pop3_command_loop) return;
 
-	syslog(LOG_DEBUG, "Performing POP3 cleanup hook");
+	POP3M_syslog(LOG_DEBUG, "Performing POP3 cleanup hook");
 	if (POP3->msgs != NULL) free(POP3->msgs);
 
 	free(POP3);
@@ -92,10 +106,13 @@ void pop3_cleanup_function(void) {
 /*
  * Here's where our POP3 session begins its happy day.
  */
-void pop3_greeting(void) {
-	strcpy(CC->cs_clientname, "POP3 session");
-	CC->internal_pgm = 1;
-	CC->session_specific_data = malloc(sizeof(struct citpop3));
+void pop3_greeting(void)
+{
+	struct CitContext *CCC = CC;
+
+	strcpy(CCC->cs_clientname, "POP3 session");
+	CCC->internal_pgm = 1;
+	CCC->session_specific_data = malloc(sizeof(struct citpop3));
 	memset(POP3, 0, sizeof(struct citpop3));
 
 	cprintf("+OK Citadel POP3 server ready.\r\n");
@@ -105,14 +122,16 @@ void pop3_greeting(void) {
 /*
  * POP3S is just like POP3, except it goes crypto right away.
  */
-void pop3s_greeting(void) {
+void pop3s_greeting(void)
+{
+	struct CitContext *CCC = CC;
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 
 /* kill session if no crypto */
 #ifdef HAVE_OPENSSL
-	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
+	if (!CCC->redirect_ssl) CCC->kill_me = KILLME_NO_CRYPTO;
 #else
-	CC->kill_me = KILLME_NO_CRYPTO;
+	CCC->kill_me = KILLME_NO_CRYPTO;
 #endif
 
 	pop3_greeting();
@@ -123,10 +142,12 @@ void pop3s_greeting(void) {
 /*
  * Specify user name (implements POP3 "USER" command)
  */
-void pop3_user(char *argbuf) {
+void pop3_user(char *argbuf)
+{
+	struct CitContext *CCC = CC;
 	char username[SIZ];
 
-	if (CC->logged_in) {
+	if (CCC->logged_in) {
 		cprintf("-ERR You are already logged in.\r\n");
 		return;
 	}
@@ -134,7 +155,7 @@ void pop3_user(char *argbuf) {
 	strcpy(username, argbuf);
 	striplt(username);
 
-	/* syslog(LOG_DEBUG, "Trying <%s>", username); */
+	/* POP3_syslog(LOG_DEBUG, "Trying <%s>", username); */
 	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		cprintf("+OK Password required for %s\r\n", username);
 	}
@@ -148,7 +169,9 @@ void pop3_user(char *argbuf) {
 /*
  * Back end for pop3_grab_mailbox()
  */
-void pop3_add_message(long msgnum, void *userdata) {
+void pop3_add_message(long msgnum, void *userdata)
+{
+	struct CitContext *CCC = CC;
 	struct MetaData smi;
 
 	++POP3->num_msgs;
@@ -165,7 +188,7 @@ void pop3_add_message(long msgnum, void *userdata) {
 	 */
 	GetMetaData(&smi, msgnum);
 	if (smi.meta_rfc822_length <= 0L) {
-		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 
 		CtdlOutputMsg(msgnum,
 			      MT_RFC822,
@@ -174,8 +197,8 @@ void pop3_add_message(long msgnum, void *userdata) {
 			      SUPPRESS_ENV_TO,
 			      NULL, NULL);
 
-		smi.meta_rfc822_length = StrLength(CC->redirect_buffer);
-		FreeStrBuf(&CC->redirect_buffer); /* TODO: WHEW, all this for just knowing the length???? */
+		smi.meta_rfc822_length = StrLength(CCC->redirect_buffer);
+		FreeStrBuf(&CCC->redirect_buffer); /* TODO: WHEW, all this for just knowing the length???? */
 		PutMetaData(&smi);
 	}
 	POP3->msgs[POP3->num_msgs-1].rfc822_length = smi.meta_rfc822_length;
@@ -188,18 +211,20 @@ void pop3_add_message(long msgnum, void *userdata) {
  * (This should be called only once, by pop3_pass(), and returns the number
  * of messages in the inbox, or -1 for error)
  */
-int pop3_grab_mailbox(void) {
+int pop3_grab_mailbox(void)
+{
+	struct CitContext *CCC = CC;
         visit vbuf;
 	int i;
 
-	if (CtdlGetRoom(&CC->room, MAILROOM) != 0) return(-1);
+	if (CtdlGetRoom(&CCC->room, MAILROOM) != 0) return(-1);
 
 	/* Load up the messages */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 		pop3_add_message, NULL);
 
 	/* Figure out which are old and which are new */
-        CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+        CtdlGetRelationship(&vbuf, &CCC->user, &CCC->room);
 	POP3->lastseen = (-1);
 	if (POP3->num_msgs) for (i=0; i<POP3->num_msgs; ++i) {
 		if (is_msg_in_sequence_set(vbuf.v_seen,
@@ -213,13 +238,14 @@ int pop3_grab_mailbox(void) {
 
 void pop3_login(void)
 {
+	struct CitContext *CCC = CC;
 	int msgs;
 	
 	msgs = pop3_grab_mailbox();
 	if (msgs >= 0) {
 		cprintf("+OK %s is logged in (%d messages)\r\n",
-			CC->user.fullname, msgs);
-		syslog(LOG_NOTICE, "POP3 authenticated %s", CC->user.fullname);
+			CCC->user.fullname, msgs);
+		POP3_syslog(LOG_DEBUG, "POP3 authenticated %s", CCC->user.fullname);
 	}
 	else {
 		cprintf("-ERR Can't open your mailbox\r\n");
@@ -237,7 +263,7 @@ void pop3_pass(char *argbuf) {
 	safestrncpy(password, argbuf, sizeof password);
 	striplt(password);
 
-	/* syslog(LOG_DEBUG, "Trying <%s>", password); */
+	/* POP3_syslog(LOG_DEBUG, "Trying <%s>", password); */
 	if (CtdlTryPassword(password, strlen(password)) == pass_ok) {
 		pop3_login();
 	}
@@ -341,7 +367,9 @@ void pop3_retr(char *argbuf) {
 /*
  * TOP command (dumb way of fetching a partial message or headers-only)
  */
-void pop3_top(char *argbuf) {
+void pop3_top(char *argbuf)
+{
+	struct CitContext *CCC = CC;
 	int which_one;
 	int lines_requested = 0;
 	int lines_dumped = 0;
@@ -362,7 +390,7 @@ void pop3_top(char *argbuf) {
 		return;
 	}
 
-	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 
 	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
 		      MT_RFC822,
@@ -371,8 +399,8 @@ void pop3_top(char *argbuf) {
 		      SUPPRESS_ENV_TO,
 		      NULL, NULL);
 
-	msgtext = CC->redirect_buffer;
-	CC->redirect_buffer = NULL;
+	msgtext = CCC->redirect_buffer;
+	CCC->redirect_buffer = NULL;
 
 	cprintf("+OK Message %d:\r\n", which_one);
 	
@@ -427,7 +455,9 @@ void pop3_dele(char *argbuf) {
 
 /* Perform "UPDATE state" stuff
  */
-void pop3_update(void) {
+void pop3_update(void)
+{
+	struct CitContext *CCC = CC;
 	int i;
         visit vbuf;
 
@@ -450,14 +480,14 @@ void pop3_update(void) {
 
 	/* Set last read pointer */
 	if (POP3->num_msgs > 0) {
-		CtdlGetUserLock(&CC->user, CC->curr_user);
+		CtdlGetUserLock(&CCC->user, CCC->curr_user);
 
-		CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+		CtdlGetRelationship(&vbuf, &CCC->user, &CCC->room);
 		snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld",
 			POP3->msgs[POP3->num_msgs-1].msgnum);
-		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
+		CtdlSetRelationship(&vbuf, &CCC->user, &CCC->room);
 
-		CtdlPutUserLock(&CC->user);
+		CtdlPutUserLock(&CCC->user);
 	}
 
 }
@@ -577,21 +607,23 @@ void pop3_stls(void)
 /* 
  * Main command loop for POP3 sessions.
  */
-void pop3_command_loop(void) {
+void pop3_command_loop(void)
+{
+	struct CitContext *CCC = CC;
 	char cmdbuf[SIZ];
 
-	time(&CC->lastcmd);
+	time(&CCC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		syslog(LOG_ERR, "POP3 client disconnected: ending session.");
-		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
+		POP3M_syslog(LOG_INFO, "POP3 client disconnected: ending session.");
+		CCC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 	if (!strncasecmp(cmdbuf, "PASS", 4)) {
-		syslog(LOG_INFO, "POP3: PASS...");
+		POP3M_syslog(LOG_DEBUG, "POP3: PASS...");
 	}
 	else {
-		syslog(LOG_INFO, "POP3: %s", cmdbuf);
+		POP3_syslog(LOG_DEBUG, "POP3: %s", cmdbuf);
 	}
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
@@ -606,7 +638,7 @@ void pop3_command_loop(void) {
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
 		cprintf("+OK Goodbye...\r\n");
 		pop3_update();
-		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
+		CCC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 		return;
 	}
 
@@ -624,13 +656,13 @@ void pop3_command_loop(void) {
 	}
 #endif
 
-	else if (!CC->logged_in) {
+	else if (!CCC->logged_in) {
 		cprintf("-ERR Not logged in.\r\n");
 	}
 	
-	else if (CC->nologin) {
+	else if (CCC->nologin) {
 		cprintf("-ERR System busy, try later.\r\n");
-		CC->kill_me = KILLME_NOLOGIN;
+		CCC->kill_me = KILLME_NOLOGIN;
 	}
 
 	else if (!strncasecmp(cmdbuf, "LIST", 4)) {
@@ -674,11 +706,18 @@ void pop3_command_loop(void) {
 const char *CitadelServicePop3="POP3";
 const char *CitadelServicePop3S="POP3S";
 
+void SetPOP3DebugEnabled(const int n)
+{
+	POP3DebugEnabled = n;
+}
+
 
 CTDL_MODULE_INIT(pop3)
 {
 	if(!threading)
 	{
+		CtdlRegisterDebugFlagHook(HKEY("pop3srv"), SetPOP3DebugEnabled, &POP3DebugEnabled);
+
 		CtdlRegisterServiceHook(config.c_pop3_port,
 					NULL,
 					pop3_greeting,
