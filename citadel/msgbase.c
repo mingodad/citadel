@@ -1129,6 +1129,13 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	ret->cm_anon_type = *mptr++;	/* Anon type byte */
 	ret->cm_format_type = *mptr++;	/* Format type byte */
 
+
+	if (dmsgtext->ptr[dmsgtext->len - 1] != '\0')
+	{
+		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Forcefully terminating message!!\n", msgnum, with_body);
+		dmsgtext->ptr[dmsgtext->len - 1] = '\0';
+	}
+
 	/*
 	 * The rest is zero or more arbitrary fields.  Load them in.
 	 * We're done when we encounter either a zero-length field or
@@ -1158,7 +1165,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	if ( (CM_IsEmpty(ret, eMesageText)) && (with_body) ) {
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
-			CM_SetAsField(ret, eMesageText, &dmsgtext->ptr, dmsgtext->len);
+			CM_SetAsField(ret, eMesageText, &dmsgtext->ptr, dmsgtext->len - 1);
 			cdb_free(dmsgtext);
 		}
 	}
@@ -3429,6 +3436,7 @@ struct CtdlMessage *CtdlMakeMessageLen(
 	}
 	StrBufRFC2047encode(&FakeEncAuthor, FakeAuthor);
 	CM_SetAsFieldSB(msg, eAuthor, &FakeEncAuthor);
+	FreeStrBuf(&FakeAuthor);
 
 	if (CCC->room.QRflags & QR_MAILBOX) {		/* room */
 		CM_SetField(msg, eOriginalRoom, &CCC->room.QRname[11], strlen(&CCC->room.QRname[11]));
@@ -3489,9 +3497,10 @@ struct CtdlMessage *CtdlMakeMessageLen(
 		CM_SetField(msg, eMesageText, preformatted_text, textlen);
 	}
 	else {
-		preformatted_text = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
-		if (preformatted_text != NULL) {
-			CM_SetField(msg, eMesageText, preformatted_text, strlen(preformatted_text));
+		StrBuf *MsgBody;
+		MsgBody = CtdlReadMessageBodyBuf(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
+		if (MsgBody != NULL) {
+			CM_SetAsFieldSB(msg, eMesageText, &MsgBody);
 		}
 	}
 

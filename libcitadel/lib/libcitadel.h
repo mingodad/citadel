@@ -351,6 +351,7 @@ int StrBufSanitizeAscii(StrBuf *Buf, const char Mute);
 #define QU			(3)
 void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn);
 void StrBufUrlescUPAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn);
+void StrBufXMLEscAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn, long PlainInLen, int OverrideLowChars);
 void StrBufHexescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn);
 void StrBufHexEscAppend(StrBuf *OutBuf, const StrBuf *In, const unsigned char *PlainIn, long PlainInLen);
 void StrBufBase64Append(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn, long PlainInLen, int linebreaks);

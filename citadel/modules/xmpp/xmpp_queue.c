@@ -57,6 +57,7 @@
 #include "serv_xmpp.h"
 
 int queue_event_seq = 0;
+struct xmpp_event *xmpp_queue = NULL;
 
 void xmpp_queue_event(int event_type, char *email_addr) {
 
@@ -161,4 +162,15 @@ void xmpp_cleanup_events(void)
 	}
         end_critical_section(S_XMPP_QUEUE);
 
+}
+
+CTDL_MODULE_INIT(xmpp_queue)
+{
+	if (!threading) {
+
+		CtdlRegisterCleanupHook(xmpp_cleanup_events);
+	}
+
+	/* return our module name for the log */
+	return "xmpp_queue";
 }

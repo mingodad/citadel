@@ -1927,6 +1927,129 @@ void StrBufUrlescUPAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 
 /** 
  * @ingroup StrBuf_DeEnCoder
+ * @brief append a string with characters having a special meaning in xml encoded to the buffer
+ * @param OutBuf the output buffer
+ * @param In Buffer to encode
+ * @param PlainIn way in from plain old c strings
+ * @param PlainInLen way in from plain old c strings; maybe you've got binary data or know the length?
+ * @param OverrideLowChars should chars < 0x20 be replaced by _ or escaped as xml entity?
+ */
+void StrBufXMLEscAppend(StrBuf *OutBuf,
+			const StrBuf *In,
+			const char *PlainIn,
+			long PlainInLen,
+			int OverrideLowChars)
+{
+	const char *pch, *pche;
+	char *pt, *pte;
+	int IsUtf8Sequence;
+	int len;
+
+	if (((In == NULL) && (PlainIn == NULL)) || (OutBuf == NULL) )
+		return;
+	if (PlainIn != NULL) {
+		if (PlainInLen < 0)
+			len = strlen((const char*)PlainIn);
+		else
+			len = PlainInLen;
+		pch = PlainIn;
+		pche = pch + len;
+	}
+	else {
+		pch = (const char*)In->buf;
+		pche = pch + In->BufUsed;
+		len = In->BufUsed;
+	}
+
+	if (len == 0)
+		return;
+
+	pt = OutBuf->buf + OutBuf->BufUsed;
+	/**< we max append 6 chars at once plus the \0 */
+	pte = OutBuf->buf + OutBuf->BufSize - 6;
+
+	while (pch < pche) {
+		if (pt >= pte) {
+			OutBuf->BufUsed = pt - OutBuf->buf;
+			IncreaseBuf(OutBuf, 1, -1);
+			pte = OutBuf->buf + OutBuf->BufSize - 6;
+			/**< we max append 3 chars at once plus the \0 */
+
+			pt = OutBuf->buf + OutBuf->BufUsed;
+		}
+
+		if (*pch == '<') {
+			memcpy(pt, HKEY("&lt;"));
+			pt += 4;
+			pch ++;
+		}
+		else if (*pch == '>') {
+			memcpy(pt, HKEY("&gt;"));
+			pt += 4;
+			pch ++;
+		}
+		else if (*pch == '&') {
+			memcpy(pt, HKEY("&amp;"));
+			pt += 5;
+			pch++;
+		}
+		else if ((*pch >= 0x20) && (*pch <= 0x7F)) {
+			*pt = *pch;
+			pt++; pch++;
+		}
+		else if (*pch < 0x20) {
+			/* we probably shouldn't be doing this */
+			if (OverrideLowChars)
+			{
+				*pt = '_';
+				pt ++;
+				pch ++;
+			}
+			else
+			{
+				*pt = '&';
+				pt++;
+				*pt = HexList[*(unsigned char*)pch][0];
+				pt ++;
+				*pt = HexList[*(unsigned char*)pch][1];
+				pt ++; pch ++;
+				*pt = '&';
+				pt++;
+				pch ++;
+			}
+		}
+		else {
+			IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(pch, pche);
+			if (IsUtf8Sequence)
+			{
+				while (IsUtf8Sequence > 0){
+					*pt = *pch;
+					pt ++;
+					pch ++;
+					--IsUtf8Sequence;
+				}
+			}
+			else
+			{
+				*pt = '&';
+				pt++;
+				*pt = HexList[*(unsigned char*)pch][0];
+				pt ++;
+				*pt = HexList[*(unsigned char*)pch][1];
+				pt ++; pch ++;
+				*pt = '&';
+				pt++;
+				pch ++;
+			}
+		}
+	}
+	*pt = '\0';
+	OutBuf->BufUsed = pt - OutBuf->buf;
+}
+
+
+/** 
+ * @ingroup StrBuf_DeEnCoder
  * @brief append a string in hex encoding to the buffer
  * @param OutBuf the output buffer
  * @param In Buffer to encode
@@ -2909,6 +3032,7 @@ StrBuf *StrBufRFC2047encodeMessage(const StrBuf *EncodeMe)
 		{
 			long Offset;
 			Offset = Optr - OutBuf->buf;
+			OutBuf->BufUsed = Optr - OutBuf->buf;
 			IncreaseBuf(OutBuf, 1, 0);
 			Optr = OutBuf->buf + Offset;
 			OEptr = OutBuf->buf + OutBuf->BufSize;

@@ -1,0 +1,32 @@
+
+#define NAMESPACE_iq "jabber:client"
+TOKEN(iq,
+      {
+	      STRPROP(iq, type);
+	      STRPROP(iq, id);
+	      STRPROP(iq, from);
+	      STRPROP(iq, to);
+      })
+
+
+#define NAMESPACE_piq "bub"
+
+TOKEN(piq,
+      {
+	      STRPROP(piq, type);
+	      STRPROP(piq, id);
+	      STRPROP(piq, from);
+	      STRPROP(piq, to);
+      })
+
+#define NAMESPACE_message "jabber:client"
+TOKEN(message,
+	{
+		STRPROP(message, to);
+		STRPROP(message, type);
+		STRPROP(message, id);
+		PAYLOAD(message, body);
+	})
+
+
+// <message type='chat' id='purplef5a7ed34' to='testuser@blarg.potzblitz.outgesourced.org'><active xmlns='http://jabber.org/protocol/chatstates'/><body>gci</body></message>
