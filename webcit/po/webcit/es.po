@@ -1,26 +1,27 @@
 # translation of webcit.po to es_ES.po
 # Copyright (C) 2008 - 2009 The Citadel Project - http://www.citadel.org
 # Gabriel C. Huertas <gabrielhuertas@terra.es>
+# Carlos Zayas Guggiari
 #
 # Spanish translation
 # Copyright (C) 2005 - 2009 By Gabriel C. Huertas
 # This file is distributed under the GNU General Public License;
-# either Version 2 or 
+# either Version 2 or
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2010-11-21 00:30+0000\n"
-"Last-Translator: Gabriel C. Huertas <gabrielhuertas@terra.es>\n"
+"PO-Revision-Date: 2013-05-03 18:39+0000\n"
+"Last-Translator: Carlos Zayas Guggiari <Unknown>\n"
 "Language-Team: Spanish <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-25 04:34+0000\n"
-"X-Generator: Launchpad (build 12351)\n"
+"X-Launchpad-Export-Date: 2013-05-04 05:10+0000\n"
+"X-Generator: Launchpad (build 16598)\n"
+"Language: es\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
@@ -1731,75 +1732,82 @@ msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your subscription."
 msgstr ""
+"El servidor de listas le ha enviado un e-mail con un enlace Web adicional "
+"para que usted pueda hacer clic para confirmar su suscripción."
 
 #: ../../static/t/listsub/display.html:20
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to subscribe you to lists without your consent."
 msgstr ""
+"Este paso adicional es para su protección, ya que impide que otros sean "
+"capaces de suscribirse a las listas sin su consentimiento."
 
 #: ../../static/t/listsub/display.html:22
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "subscription will be confirmed."
 msgstr ""
+"Por favor, haga clic en el enlace que está siendo enviado por correo "
+"electrónico a usted y se confirmará su suscripción."
 
 #: ../../static/t/listsub/display.html:27
 #: ../../static/t/listsub/display.html:47
-#, fuzzy
 msgid "ERROR"
 msgstr "ERROR"
 
 #: ../../static/t/listsub/display.html:35
 msgid "You are unsubscribing"
-msgstr ""
+msgstr "Usted está cancelando su suscripción"
 
 #: ../../static/t/listsub/display.html:37
-#, fuzzy
+
 msgid "from the"
-msgstr "de "
+msgstr "desde el"
 
 #: ../../static/t/listsub/display.html:39
-#, fuzzy
 msgid "mailing list."
-msgstr "Servicio de lista de correo"
+msgstr "lista de correo."
 
 #: ../../static/t/listsub/display.html:40
 msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your unsubscription."
 msgstr ""
+"El servidor de listas le ha enviado un e-mail con un enlace Web adicional "
+"para que haga clic en él para confirmar la anulación de la suscripción."
 
 #: ../../static/t/listsub/display.html:41
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to unsubscribe you from lists without your consent."
 msgstr ""
+"Este paso adicional es para su protección, ya que impide que otros sean "
+"capaces de darse de baja de listas sin su consentimiento."
 
 #: ../../static/t/listsub/display.html:43
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "unsubscription will be confirmed."
 msgstr ""
+"Por favor, haga clic en el enlace que está siendo enviado por correo "
+"electrónico a usted y se confirmará la cancelación de su suscripción."
 
 #: ../../static/t/listsub/display.html:44
-#, fuzzy
 msgid "Back..."
-msgstr "Ir atrás"
+msgstr "Atrás..."
 
 #: ../../static/t/listsub/display.html:54
-#, fuzzy
 msgid "Confirmation successful!"
-msgstr "Enviada solicitud de confirmación"
+msgstr ""
 
 #: ../../static/t/listsub/display.html:56
-#, fuzzy
 msgid "Confirmation failed."
-msgstr "Configuración"
+msgstr "Confirmación falló"
 
 #: ../../static/t/listsub/display.html:57
 msgid "This could mean one of two things:"
-msgstr ""
+msgstr "Esto podría significar una de dos cosas:"
 
 #: ../../static/t/listsub/display.html:59
 msgid ""

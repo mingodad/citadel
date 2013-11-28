@@ -1,81 +1,82 @@
 # Swedish translation for citadel
 # Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the citadel package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# Henric, 2010.
+# Mikael Mustonen <mikael@mustonen.se>
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: citadel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2010-10-26 21:07+0000\n"
-"Last-Translator: Henric <Unknown>\n"
+"PO-Revision-Date: 2013-06-11 20:01+0000\n"
+"Last-Translator: Mikael Mustonen <mikael@mustonen.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
-"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-31 04:53+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2013-06-12 05:10+0000\n"
+"X-Generator: Launchpad (build 16667)\n"
+"Language: sv\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
-msgstr ""
+msgstr "Avbruten. Ändringarna sparades ej."
 
 #: ../../roomops.c:838 ../../sieve.c:417
 msgid "Your changes have been saved."
-msgstr ""
+msgstr "Dina ändringar har sparats."
 
 #: ../../roomops.c:881
 #, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr ""
+msgstr "Användaren '%s' har sparkats ut från rum '%s'."
 
 #: ../../roomops.c:898
 #, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr ""
+msgstr "Användaren '%s' är inbjuden till rum '%s'."
 
 #: ../../roomops.c:927
 msgid "Cancelled.  No new room was created."
-msgstr ""
+msgstr "Avbruten. Inget nytt rum skapades."
 
 #: ../../roomops.c:1187
 msgid "Floor has been deleted."
-msgstr ""
+msgstr "Våningen har raderats."
 
 #: ../../roomops.c:1211
 msgid "New floor has been created."
-msgstr ""
+msgstr "Ny våning har skapats."
 
 #: ../../roomops.c:1290
 msgid "Room list view"
-msgstr ""
+msgstr "Rums lista"
 
 #: ../../roomops.c:1293
 msgid "Show empty floors"
-msgstr ""
+msgstr "Visa tomma våningar."
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
-msgstr ""
+msgstr "Anslagstavla"
 
 #: ../../roomviews.c:51
 msgid "Mail Folder"
-msgstr ""
+msgstr "Mailkatalog"
 
 #: ../../roomviews.c:52
 msgid "Address Book"
-msgstr ""
+msgstr "Adressbok"
 
 #: ../../roomviews.c:53 ../../static/t/iconbar.html:24
 #: ../../static/t/iconbar/edit.html:55
 msgid "Calendar"
-msgstr ""
+msgstr "Kalender"
 
 #: ../../roomviews.c:54
 msgid "Task List"
-msgstr ""
+msgstr "Aktivitetsfält"
 
 #: ../../roomviews.c:55
 msgid "Notes List"
@@ -83,7 +84,7 @@ msgstr ""
 
 #: ../../roomviews.c:56
 msgid "Wiki"
-msgstr ""
+msgstr "Wiki"
 
 #: ../../roomviews.c:57
 msgid "Calendar List"
@@ -91,15 +92,15 @@ msgstr ""
 
 #: ../../roomviews.c:58
 msgid "Journal"
-msgstr ""
+msgstr "Dagbok"
 
 #: ../../roomviews.c:59
 msgid "Drafts"
-msgstr ""
+msgstr "Utkast"
 
 #: ../../roomviews.c:60
 msgid "Blog"
-msgstr ""
+msgstr "Blogg"
 
 #: ../../tasks.c:93
 msgid "Completed?"
@@ -115,45 +116,45 @@ msgstr ""
 
 #: ../../tasks.c:99
 msgid "Category"
-msgstr ""
+msgstr "Kategori"
 
 #: ../../tasks.c:101
 msgid "Show All"
-msgstr ""
+msgstr "Visa alla"
 
 #: ../../tasks.c:223
 msgid "Edit task"
-msgstr ""
+msgstr "Redigera aktivitet"
 
 #: ../../tasks.c:242 ../../calendar.c:98 ../../calendar_view.c:298
 #: ../../calendar_view.c:959 ../../calendar_view.c:1003
 #: ../../calendar_view.c:1084
 msgid "Summary:"
-msgstr ""
+msgstr "Sammanfattning:"
 
 #: ../../tasks.c:253
 msgid "Start date:"
-msgstr ""
+msgstr "Startdatum:"
 
 #: ../../tasks.c:261 ../../tasks.c:291
 msgid "No date"
-msgstr ""
+msgstr "Inget datum"
 
 #: ../../tasks.c:265 ../../tasks.c:294
 msgid "or"
-msgstr ""
+msgstr "eller"
 
 #: ../../tasks.c:279 ../../tasks.c:308
 msgid "Time associated"
-msgstr ""
+msgstr "Tid kopplad till"
 
 #: ../../tasks.c:283
 msgid "Due date:"
-msgstr ""
+msgstr "Förfallodag:"
 
 #: ../../tasks.c:312
 msgid "Completed:"
-msgstr ""
+msgstr "Klar:"
 
 #: ../../tasks.c:323
 msgid "Category:"
@@ -186,7 +187,7 @@ msgstr ""
 
 #: ../../fmt_date.c:310
 msgid "Time format"
-msgstr ""
+msgstr "Tidsformat"
 
 #: ../../listsub.c:54 ../../static/t/listsub/display.html:5
 msgid "List subscription"
@@ -228,7 +229,7 @@ msgstr ""
 #: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
 #, c-format
 msgid "%d comments"
-msgstr ""
+msgstr "%d kommentarer"
 
 #: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
@@ -253,7 +254,7 @@ msgstr ""
 
 #: ../../useredit.c:782
 msgid "A new user has been created."
-msgstr ""
+msgstr "En ny användare har skapats."
 
 #: ../../useredit.c:786
 msgid ""
@@ -268,11 +269,11 @@ msgstr ""
 
 #: ../../bbsview_renderer.c:354
 msgid "First"
-msgstr ""
+msgstr "Första"
 
 #: ../../bbsview_renderer.c:360
 msgid "Last"
-msgstr ""
+msgstr "Sista"
 
 #: ../../graphics.c:56
 msgid "Graphics upload has been cancelled."
@@ -296,7 +297,7 @@ msgstr ""
 
 #: ../../graphics.c:135
 msgid "the Logoff banner picture"
-msgstr ""
+msgstr "bilden på rubriken vid utloggning"
 
 #: ../../graphics.c:146
 msgid "the icon for this floor"
@@ -320,7 +321,7 @@ msgstr ""
 
 #: ../../calendar_tools.c:210
 msgid "(accepted)"
-msgstr ""
+msgstr "(accepterad)"
 
 #: ../../calendar_tools.c:213
 msgid "(declined)"
@@ -565,7 +566,8 @@ msgstr ""
 
 #: ../../calendar.c:222
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../../calendar.c:227
@@ -683,10 +685,10 @@ msgstr ""
 msgid "Iconbar Setting"
 msgstr ""
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:148
 msgid "availability unknown"
 msgstr ""
@@ -1268,7 +1270,7 @@ msgstr "Ny Användare"
 #: ../../static/t/aide/siteconfig/tab_access.html:42
 #: ../../static/t/aide/siteconfig/tab_access.html:53
 msgid "Problem User"
-msgstr ""
+msgstr "Oönskad användare"
 
 #. user with normal privileges
 #: ../../auth.c:39 ../../static/t/aide/edituser/detailview.html:46
@@ -1289,7 +1291,7 @@ msgstr "Nätverks Användare"
 #: ../../static/t/aide/siteconfig/tab_access.html:45
 #: ../../static/t/aide/siteconfig/tab_access.html:56
 msgid "Preferred User"
-msgstr ""
+msgstr "Moderator"
 
 #. chief
 #: ../../auth.c:48 ../../static/t/aide/edituser/detailview.html:49

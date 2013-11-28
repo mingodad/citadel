@@ -4,6 +4,8 @@
 # Gilles Desplanques - <gilles.desplanques@nessie.homeip.net>
 # Jacques Lavignotte - <jacques@lavignotte.org>
 # Thierry Pasquier - <thierry.pasquier@pictascience.org>, 2006
+# Robert di Rosa <robert@di-rosa.ch>
+# Peter Bocsak <peterbocsak@gmail.com>
 #
 # This file is distributed under BSD License
 msgid ""
@@ -11,14 +13,14 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2012-11-26 20:51+0000\n"
-"Last-Translator: Robert di Rosa <robert@di-rosa.ch>\n"
+"PO-Revision-Date: 2013-10-28 08:45+0000\n"
+"Last-Translator: Peter Bocsak <peterbocsak@gmail.com>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-11-27 05:11+0000\n"
-"X-Generator: Launchpad (build 16309)\n"
+"X-Launchpad-Export-Date: 2013-10-29 04:35+0000\n"
+"X-Generator: Launchpad (build 16818)\n"
 "X-Poedit-Country: FRANCE\n"
 "Language: fr\n"
 "X-Poedit-Language: French\n"
@@ -55,11 +57,11 @@ msgstr "Un nouveau palier a été créé."
 
 #: ../../roomops.c:1290
 msgid "Room list view"
-msgstr "Visualisation des paliers et salons"
+msgstr "Liste des salons"
 
 #: ../../roomops.c:1293
 msgid "Show empty floors"
-msgstr "Montrer les niveaux vides"
+msgstr "Afficher les paliers vides"
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
@@ -84,7 +86,7 @@ msgstr "Liste des tâches"
 
 #: ../../roomviews.c:55
 msgid "Notes List"
-msgstr "Liste de notes"
+msgstr "Liste des notes"
 
 #: ../../roomviews.c:56
 msgid "Wiki"
