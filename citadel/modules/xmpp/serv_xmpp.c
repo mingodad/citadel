@@ -282,7 +282,7 @@ void xmpp_start_auth(void *data, const char *supplied_el, const char **attr)
 		}
 	}
 }
-
+/*
 void xmpp_start_message(void *data, const char *supplied_el, const char **attr)
 {
 	int i;
@@ -293,7 +293,7 @@ void xmpp_start_message(void *data, const char *supplied_el, const char **attr)
 		}
 	}
 }
-
+*/
 void xmpp_start_html(void *data, const char *supplied_el, const char **attr)
 {
 	++XMPP->html_tag_level;
@@ -931,7 +931,7 @@ CTDL_MODULE_INIT(xmpp)
 		AddXMPPStartHandler(HKEY("query"),	xmpp_start_query, 0);
 		AddXMPPStartHandler(HKEY("bind"),	xmpp_start_bind, 0);
 		AddXMPPStartHandler(HKEY("auth"),	xmpp_start_auth, 0);
-		AddXMPPStartHandler(HKEY("message"),	xmpp_start_message, 0);
+///		AddXMPPStartHandler(HKEY("message"),	xmpp_start_message, 0);
 		AddXMPPStartHandler(HKEY("html"),	xmpp_start_html, 0);
 
 

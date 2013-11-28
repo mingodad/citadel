@@ -15,7 +15,7 @@ void *GetToken_piq(void)
 
 void *GetToken_message(void)
 {
-	return NULL;
+	return &XMPP->Message;
 }
 
 

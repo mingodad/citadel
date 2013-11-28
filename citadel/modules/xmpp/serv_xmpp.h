@@ -31,6 +31,7 @@ typedef struct _citxmpp {			/* Information about the current session */
 	int last_event_processed;
 
 	TheToken_iq IQ;
+	TheToken_message Message;
 
 	char iq_client_username[256];	/* username requested by the client (NON SASL ONLY) */
 	char iq_client_password[256];	/* password requested by the client (NON SASL ONLY) */
