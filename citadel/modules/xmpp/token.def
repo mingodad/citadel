@@ -30,3 +30,5 @@ TOKEN(message,
 
 
 // <message type='chat' id='purplef5a7ed34' to='testuser@blarg.potzblitz.outgesourced.org'><active xmlns='http://jabber.org/protocol/chatstates'/><body>gci</body></message>
+
+// <iq type="result" id="unsolicited_2"><query xmlns="jabber:iq:roster"><item subscription="both" jid="willi@potzblitz.outgesourced.org" name="testuser"><group>potzblitz</group></item></query></iq><presence>testuser@blarg.potzblitz.outgesourced.org to="willi@potzblitz.outgesourced.org/potzblitz"</presence><message type="chat" to="willi@potzblitz.outgesourced.org/potzblitz" from="testuser@blarg.potzblitz.outgesourced.org"><body>rgilgci</body></message>
