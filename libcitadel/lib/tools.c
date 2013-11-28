@@ -566,40 +566,19 @@ int haschar(const char *st, int ch)
  */
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 	struct tm tm;
-	int hour;
-
-	/* Month strings for date conversions ... this needs to be localized eventually */
-	char *fmt_date_months[12] = {
-		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-	};
+	char *teh_format = NULL;
 
 	*buf = '\0';
 	localtime_r(&thetime, &tm);
 
-	hour = tm.tm_hour;
-	if (hour == 0)	hour = 12;
-	else if (hour > 12) hour = hour - 12;
-
 	if (seconds) {
-		snprintf(buf, n, "%s %d %4d %d:%02d:%02d%s",
-			fmt_date_months[tm.tm_mon],
-			tm.tm_mday,
-			tm.tm_year + 1900,
-			hour,
-			tm.tm_min,
-			tm.tm_sec,
-			( (tm.tm_hour >= 12) ? "pm" : "am" )
-		);
-	} else {
-		snprintf(buf, n, "%s %d %4d %d:%02d%s",
-			fmt_date_months[tm.tm_mon],
-			tm.tm_mday,
-			tm.tm_year + 1900,
-			hour,
-			tm.tm_min,
-			( (tm.tm_hour >= 12) ? "pm" : "am" )
-		);
+		teh_format = "%F %R:%S";
 	}
+	else {
+		teh_format = "%F %R";
+	}
+
+	strftime(buf, n, teh_format, &tm);
 }
 
 
