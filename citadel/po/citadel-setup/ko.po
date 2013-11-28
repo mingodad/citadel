@@ -1,0 +1,356 @@
+# Korean translation for citadel
+# Copyright (c) 2013 Rosetta Contributors and Canonical Ltd 2013
+# This file is distributed under the same license as the citadel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: citadel\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2010-09-28 00:22+0200\n"
+"PO-Revision-Date: 2013-11-20 21:46+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Korean <ko@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-11-21 05:11+0000\n"
+"X-Generator: Launchpad (build 16831)\n"
+
+#: ../utils/setup.c:119
+msgid "Citadel Home Directory"
+msgstr ""
+
+#: ../utils/setup.c:122
+msgid ""
+"Enter the full pathname of the directory in which the Citadel\n"
+"installation you are creating or updating resides.  If you\n"
+"specify a directory other than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n"
+msgstr ""
+
+#: ../utils/setup.c:128
+msgid ""
+"Enter the subdirectory name for an alternate installation of Citadel. To do "
+"a default installation just leave it blank.If you specify a directory other "
+"than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n"
+"note that it may not have a leading /"
+msgstr ""
+
+#: ../utils/setup.c:135
+msgid "Citadel administrator username:"
+msgstr ""
+
+#: ../utils/setup.c:137
+msgid ""
+"Please enter the name of the Citadel user account that should be granted "
+"administrative privileges once created. If using internal authentication "
+"this user account will be created if it does not exist. For external "
+"authentication this user account has to exist."
+msgstr ""
+
+#: ../utils/setup.c:143
+msgid "Administrator password:"
+msgstr ""
+
+#: ../utils/setup.c:145
+msgid ""
+"Enter a password for the system administrator. When setup\n"
+"completes it will attempt to create the administrator user\n"
+"and set the password specified here.\n"
+msgstr ""
+
+#: ../utils/setup.c:149
+msgid "Citadel User ID:"
+msgstr ""
+
+#: ../utils/setup.c:151
+msgid ""
+"Citadel needs to run under its own user ID.  This would\n"
+"typically be called \"citadel\", but if you are running Citadel\n"
+"as a public BBS, you might also call it \"bbs\" or \"guest\".\n"
+"The server will run under this user ID.  Please specify that\n"
+"user ID here.  You may specify either a user name or a numeric\n"
+"UID.\n"
+msgstr ""
+
+#: ../utils/setup.c:158
+msgid "Listening address for the Citadel server:"
+msgstr ""
+
+#: ../utils/setup.c:160
+msgid ""
+"Please specify the IP address which the server should be listening to. You "
+"can name a specific IPv4 or IPv6 address, or you can specify\n"
+"'*' for 'any address', '::' for 'any IPv6 address', or '0.0.0.0'\n"
+"for 'any IPv4 address'. If you leave this blank, Citadel will\n"
+"listen on all addresses. This can usually be left to the default unless "
+"multiple instances of Citadel are running on the same computer."
+msgstr ""
+
+#: ../utils/setup.c:168
+msgid "Server port number:"
+msgstr ""
+
+#: ../utils/setup.c:170
+msgid ""
+"Specify the TCP port number on which your server will run.\n"
+"Normally, this will be port 504, which is the official port\n"
+"assigned by the IANA for Citadel servers.  You will only need\n"
+"to specify a different port number if you run multiple instances\n"
+"of Citadel on the same computer and there is something else\n"
+"already using port 504.\n"
+msgstr ""
+
+#: ../utils/setup.c:177
+msgid "Authentication method to use:"
+msgstr ""
+
+#: ../utils/setup.c:179
+msgid ""
+"Please choose the user authentication mode. By default Citadel will use its "
+"own internal user accounts database. If you choose Host, Citadel users will "
+"have accounts on the host system, authenticated via /etc/passwd or a PAM "
+"source. LDAP chooses an RFC 2307 compliant directory server, the last option "
+"chooses the nonstandard MS Active Directory LDAP scheme.\n"
+"Do not change this option unless you are sure it is required, since changing "
+"back requires a full reinstall of Citadel.\n"
+" 0. Self contained authentication\n"
+" 1. Host system integrated authentication\n"
+" 2. External LDAP - RFC 2307 compliant directory\n"
+" 3. External LDAP - nonstandard MS Active Directory\n"
+"\n"
+"For help: http://www.citadel.org/doku.php/faq:installation:authmodes\n"
+"\n"
+"ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
+msgstr ""
+
+#: ../utils/setup.c:197
+msgid "LDAP host:"
+msgstr ""
+
+#: ../utils/setup.c:199
+msgid "Please enter the host name or IP address of your LDAP server.\n"
+msgstr ""
+
+#: ../utils/setup.c:201
+msgid "LDAP port number:"
+msgstr ""
+
+#: ../utils/setup.c:203
+msgid "Please enter the port number of the LDAP service (usually 389).\n"
+msgstr ""
+
+#: ../utils/setup.c:205
+msgid "LDAP base DN:"
+msgstr ""
+
+#: ../utils/setup.c:207
+msgid ""
+"Please enter the Base DN to search for authentication\n"
+"(for example: dc=example,dc=com)\n"
+msgstr ""
+
+#: ../utils/setup.c:210
+msgid "LDAP bind DN:"
+msgstr ""
+
+#: ../utils/setup.c:212
+msgid ""
+"Please enter the DN of an account to use for binding to the LDAP server for "
+"performing queries. The account does not require any other privileges. If "
+"your LDAP server allows anonymous queries, you can leave this blank.Please "
+"enter the DN of an account to use for binding to the LDAP server\n"
+"for performing queries.  The account does not require any other\n"
+"privileges.  If your LDAP server allows anonymous queries, you can\n"
+"leave this blank.\n"
+msgstr ""
+
+#: ../utils/setup.c:220
+msgid "LDAP bind password:"
+msgstr ""
+
+#: ../utils/setup.c:222
+msgid ""
+"If you entered a Bind DN in the previous question, you must now enter\n"
+"the password associated with that account.  Otherwise, you can leave this\n"
+"blank.\n"
+msgstr ""
+
+#: ../utils/setup.c:299
+msgid "Yes/No"
+msgstr ""
+
+#: ../utils/setup.c:300
+msgid "Yes"
+msgstr ""
+
+#: ../utils/setup.c:300
+msgid "No"
+msgstr ""
+
+#: ../utils/setup.c:346
+msgid "Press return to continue..."
+msgstr ""
+
+#: ../utils/setup.c:364
+msgid "Important Message"
+msgstr ""
+
+#: ../utils/setup.c:379
+msgid "Error"
+msgstr ""
+
+#: ../utils/setup.c:459
+msgid "Adding service entry..."
+msgstr ""
+
+#. Other errors might mean something really did go wrong.
+#. 
+#: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
+msgid "Cannot open"
+msgstr ""
+
+#: ../utils/setup.c:569
+msgid ""
+"Citadel already appears to be configured to start at boot.\n"
+"Would you like to keep your boot configuration as is?\n"
+msgstr ""
+
+#: ../utils/setup.c:577
+msgid "Would you like to automatically start Citadel at boot?\n"
+msgstr ""
+
+#: ../utils/setup.c:583
+msgid "Cannot create"
+msgstr ""
+
+#: ../utils/setup.c:682
+#, c-format
+msgid ""
+"Setup can configure the \"xinetd\" service to automatically\n"
+"connect incoming telnet sessions to Citadel, bypassing the\n"
+"host system login: prompt.  Would you like to do this?\n"
+msgstr ""
+
+#: ../utils/setup.c:740
+msgid "You appear to have the "
+msgstr ""
+
+#: ../utils/setup.c:742
+msgid ""
+" email program\n"
+"running on your system.  If you want Citadel mail\n"
+"connected with "
+msgstr ""
+
+#: ../utils/setup.c:746
+msgid ""
+" you will have to manually integrate\n"
+"them.  It is preferable to disable "
+msgstr ""
+
+#: ../utils/setup.c:749
+msgid ""
+", and use Citadel's\n"
+"SMTP, POP3, and IMAP services.\n"
+"\n"
+"May we disable "
+msgstr ""
+
+#: ../utils/setup.c:753
+msgid ""
+"so that Citadel has access to ports\n"
+"25, 110, and 143?\n"
+msgstr ""
+
+#: ../utils/setup.c:863
+msgid "This is currently set to:"
+msgstr ""
+
+#: ../utils/setup.c:864
+msgid "Enter new value or press return to leave unchanged:"
+msgstr ""
+
+#: ../utils/setup.c:1067 ../utils/setup.c:1072 ../utils/setup.c:1384
+msgid "setup: cannot open"
+msgstr ""
+
+#: ../utils/setup.c:1175
+#, c-format
+msgid ""
+"\n"
+"/etc/nsswitch.conf is configured to use the 'db' module for\n"
+"one or more services.  This is not necessary on most systems,\n"
+"and it is known to crash the Citadel server when delivering\n"
+"mail to the Internet.\n"
+"\n"
+"Do you want this module to be automatically disabled?\n"
+"\n"
+msgstr ""
+
+#: ../utils/setup.c:1236 ../utils/setup.c:1252
+msgid "Setup finished"
+msgstr ""
+
+#: ../utils/setup.c:1237
+msgid ""
+"Setup of the Citadel server is complete.\n"
+"If you will be using WebCit, please run its\n"
+"setup program now; otherwise, run './citadel'\n"
+"to log in.\n"
+msgstr ""
+
+#: ../utils/setup.c:1243
+msgid "Setup failed"
+msgstr ""
+
+#: ../utils/setup.c:1244
+msgid ""
+"Setup is finished, but the Citadel server failed to start.\n"
+"Go back and check your configuration.\n"
+msgstr ""
+
+#: ../utils/setup.c:1253
+msgid "Setup is finished.  You may now start the server."
+msgstr ""
+
+#: ../utils/setup.c:1279
+msgid "My System"
+msgstr ""
+
+#: ../utils/setup.c:1282
+msgid "US 800 555 1212"
+msgstr ""
+
+#: ../utils/setup.c:1368 ../utils/setup.c:1373
+msgid "setup: cannot append"
+msgstr ""
+
+#: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
+#: ../utils/setup.c:1512
+msgid "Citadel Setup"
+msgstr ""
+
+#: ../utils/setup.c:1459
+msgid "The directory you specified does not exist"
+msgstr ""
+
+#: ../utils/setup.c:1473
+msgid ""
+"The Citadel service is still running.\n"
+"Please stop the service manually and run setup again."
+msgstr ""
+
+#: ../utils/setup.c:1485
+msgid "Citadel setup program"
+msgstr ""
+
+#: ../utils/setup.c:1513
+msgid "This Citadel installation is too old to be upgraded."
+msgstr ""
+
+#: ../utils/setup.c:1552 ../utils/setup.c:1554 ../utils/setup.c:1556
+msgid "Setting file permissions"
+msgstr ""

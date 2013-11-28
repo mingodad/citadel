@@ -4,20 +4,22 @@
 #
 # Wim Kuilman <wim.kuilman@esdalcollege.nl>, 2006, 2007.
 # Wim Kuilman <w.kuilman@icoss.net>, 2008, 2009.
+# Sander Bosman <sbosman@hotmail.com>
+
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2010-11-13 00:18+0000\n"
-"Last-Translator: Wim Kuilman <Unknown>\n"
+"PO-Revision-Date: 2013-05-22 11:47+0000\n"
+"Last-Translator: Sander Bosman <sbosman@hotmail.com>\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
-"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2013-05-23 05:12+0000\n"
+"X-Generator: Launchpad (build 16640)\n"
+"Language: nl\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
@@ -95,9 +97,8 @@ msgid "Journal"
 msgstr "Verslag"
 
 #: ../../roomviews.c:59
-#, fuzzy
 msgid "Drafts"
-msgstr "Datum"
+msgstr "Concepten"
 
 #: ../../roomviews.c:60
 msgid "Blog"
@@ -216,9 +217,9 @@ msgstr ""
 "U abonneert <TT>%s</TT> op de <b>%s</b> mailinglijst.  De listserver heeft u "
 "een e-mail gestuurd met een extra link waarop u moet klikken om het "
 "abonnement te bevestigen.  Deze extra stap is voor uw bescherming, want het "
-"voorkomt dat anderen zonder uw toestemming u abonneren op mailinglijsten."
-"<br><br> Klik alstublieft op de gemailde link om uw abonnement te "
-"bevestigen<br>\n"
+"voorkomt dat anderen zonder uw toestemming u abonneren op "
+"mailinglijsten.<br><br> Klik alstublieft op de gemailde link om uw "
+"abonnement te bevestigen<br>\n"
 
 #: ../../listsub.c:102 ../../static/t/listsub/display.html:24
 msgid "Go back..."
@@ -227,21 +228,20 @@ msgstr "Ga terug..."
 #: ../../listsub.c:253 ../../listsub.c:291 ../../listsub.c:327
 #: ../../listsub.c:334
 msgid "You need to specify the mailinglist to subscribe to."
-msgstr ""
+msgstr "Je moet de mailinglist specificeren waarop je jezelf wilt abonneren."
 
 #: ../../listsub.c:260 ../../listsub.c:298
-#, fuzzy
 msgid "You need to specify the email address you'd like to subscribe with."
-msgstr "Geef alstublieft de gebruikersnaam die u wilt gebruiken."
+msgstr "Je moet het e-mail adres waarmee je je wilt abonneren specificeren."
 
 #: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
-#, fuzzy, c-format
+#, c-format
 msgid "%d comments"
-msgstr "Verstuur commando"
+msgstr "%d commentaren"
 
 #: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
-msgstr ""
+msgstr "permalink"
 
 #: ../../blogview_renderer.c:302
 msgid "Newer posts"
@@ -579,7 +579,8 @@ msgstr "Dit is een update van '%s' die al in uw agenda staat."
 
 #: ../../calendar.c:222
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr "Deze afspraak zou botsen met '%s' , die al in uw agenda staat."
 
 #: ../../calendar.c:227
@@ -664,8 +665,8 @@ msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr ""
-"U heeft gekozen dit verzoek om antwoord te negeren.  Uw agenda is <b>niet</"
-"b> bijgewerkt."
+"U heeft gekozen dit verzoek om antwoord te negeren.  Uw agenda is "
+"<b>niet</b> bijgewerkt."
 
 #: ../../calendar.c:932
 msgid "Calendar day view begins at:"
@@ -707,10 +708,10 @@ msgstr "Bericht is verstuurd naar "
 msgid "Iconbar Setting"
 msgstr "Instellingen iconbalk"
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:148
 msgid "availability unknown"
 msgstr "beschikbaarheid niet bekend"
@@ -747,8 +748,8 @@ msgid ""
 "\n"
 msgstr ""
 "U bent verbonden met een Citadel server draaiend op Citadel %d.%02d. \n"
-"Om deze versie van Webcit de kunnen gebruiken moet u ook Citadel versie  %d."
-"%02d of nieuwer hebben.\n"
+"Om deze versie van Webcit de kunnen gebruiken moet u ook Citadel versie  "
+"%d.%02d of nieuwer hebben.\n"
 "\n"
 "\n"
 
@@ -960,9 +961,8 @@ msgid "Cancelled.  %s was not saved."
 msgstr "Afgebroken. %s is niet bewaard."
 
 #: ../../sysmsgs.c:109
-#, fuzzy
 msgid " has been saved."
-msgstr "%s is opgeslagen."
+msgstr " is opgeslagen."
 
 #: ../../sysmsgs.c:116 ../../sysmsgs.c:117
 msgid "Room info"
@@ -1107,9 +1107,8 @@ msgid "Invalid Parameter"
 msgstr "Ongeldige parameter"
 
 #: ../../inetconf.c:126
-#, fuzzy
 msgid " has been deleted."
-msgstr "%s is verwijderd."
+msgstr " is verwijderd."
 
 #. <domain> added status message
 #: ../../inetconf.c:144
@@ -1167,7 +1166,8 @@ msgid "Higher access is required to access this function."
 msgstr "Hogere toegangrechten nodig voor deze functie."
 
 #: ../../siteconfig.c:256
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 "LET OP: mislukt Server Config te sturen; loopt er een te nieuwe citserver?"
 
@@ -1254,7 +1254,7 @@ msgstr "(Verwijderen)"
 
 #: ../../smtpqueue.c:334
 msgid "First Attempt pending"
-msgstr ""
+msgstr "Eerste poging loopt"
 
 #: ../../roomlist.c:99
 msgid "My Folders"
@@ -1587,9 +1587,8 @@ msgid "is smaller than"
 msgstr "is kleiner dan"
 
 #: ../../static/t/sieve/display_one.html:59
-#, fuzzy
 msgid "bytes"
-msgstr "jaren"
+msgstr "bytes"
 
 #: ../../static/t/sieve/display_one.html:65
 msgid "Keep"
@@ -1717,17 +1716,15 @@ msgstr "Zoek: "
 
 #: ../../static/t/listsub/display.html:16
 msgid "You are subscribing "
-msgstr ""
+msgstr "Je bent aan het abonneren "
 
 #: ../../static/t/listsub/display.html:17
-#, fuzzy
 msgid " to the "
-msgstr "op de "
+msgstr " naar de "
 
 #: ../../static/t/listsub/display.html:18
-#, fuzzy
 msgid " mailing list."
-msgstr "Mailinglist service"
+msgstr " mailing list."
 
 #: ../../static/t/listsub/display.html:19
 msgid ""
@@ -1749,23 +1746,20 @@ msgstr ""
 
 #: ../../static/t/listsub/display.html:27
 #: ../../static/t/listsub/display.html:47
-#, fuzzy
 msgid "ERROR"
-msgstr "FOUT:"
+msgstr "FOUT"
 
 #: ../../static/t/listsub/display.html:35
 msgid "You are unsubscribing"
 msgstr ""
 
 #: ../../static/t/listsub/display.html:37
-#, fuzzy
 msgid "from the"
-msgstr "van "
+msgstr "van de"
 
 #: ../../static/t/listsub/display.html:39
-#, fuzzy
 msgid "mailing list."
-msgstr "Mailinglist service"
+msgstr "mailing list."
 
 #: ../../static/t/listsub/display.html:40
 msgid ""
@@ -3548,7 +3542,7 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_access.html:26
 msgid "Invite:"
-msgstr "Uitnodigen: "
+msgstr "Uitnodigen:"
 
 #: ../../static/t/room/edit/tab_access.html:35
 msgid "Users"

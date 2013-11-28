@@ -1,89 +1,87 @@
-# translation of de.po to
+# translation of webcit.po to pl.po
 # Copyright (C) 2008 - 2009 The Citadel Project - http://www.citadel.org
-# Wilfried Gösgens <w.goesgens@outgesourced.org>, 2005 - 2009.
-# Stefan Kleinschmidt <stefan@waldstrasse.homeip.net>
-# Heiner Wohner
-# German localization
-# Copyright (C) 2005 - 2009 By Wilfried Gösgens
 # This file is distributed under the revised BSD license
-# "ä ö ü
+#
+# WebCit messages for Polish
+# Copyright (C) 2005 David Given
+# This file is distributed under GPL v3
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-20 01:03-0400\n"
-"PO-Revision-Date: 2013-08-08 13:16+0000\n"
-"Last-Translator: Heiner Wohner <Unknown>\n"
+"PO-Revision-Date: 2013-11-27 15:35+0000\n"
+"Last-Translator: Waldemar Ogonowski <sp2ong@wp.pl>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-08-09 04:34+0000\n"
-"X-Generator: Launchpad (build 16723)\n"
-"Language: de\n"
+"X-Launchpad-Export-Date: 2013-11-28 05:10+0000\n"
+"X-Generator: Launchpad (build 16847)\n"
 
 #: ../../roomops.c:708 ../../roomops.c:1005 ../../sieve.c:364
 msgid "Cancelled.  Changes were not saved."
-msgstr "Abgebrochen. Änderungen wurden nicht übernommen."
+msgstr "Anulowane. Zmiany nie zostały zapisane."
 
 #: ../../roomops.c:838 ../../sieve.c:417
 msgid "Your changes have been saved."
-msgstr "Ihre Änderungen wurden gespeichert."
+msgstr "Twoje zmiany zostały zapisane."
 
 #: ../../roomops.c:881
 #, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "Benutzer '%s' des Raumes '%s' verwiesen."
+msgstr "User '%s' wyrzucony z pokoju '%s'."
 
 #: ../../roomops.c:898
 #, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "Benutzer '%s' in den Raum '%s' eingeladen."
+msgstr "User '%s' zaproszony do pokoju  '%s'."
 
 #: ../../roomops.c:927
 msgid "Cancelled.  No new room was created."
-msgstr "Abgebrochen. Keinen neuen Raum erzeugt."
+msgstr "Anulowane. Nowy pokój nie będzie utworzony."
 
 #: ../../roomops.c:1187
 msgid "Floor has been deleted."
-msgstr "Etage gelöscht."
+msgstr "Piętro zostało usunięte."
 
 #: ../../roomops.c:1211
 msgid "New floor has been created."
-msgstr "Eine neue Etage wurde erstellt."
+msgstr "Nowe piętro zostało utworzone."
 
 #: ../../roomops.c:1290
 msgid "Room list view"
-msgstr "Raumlisten Anzeige"
+msgstr "Lista pokoi"
 
 #: ../../roomops.c:1293
 msgid "Show empty floors"
-msgstr "Leere Etagen anzeigen"
+msgstr "Pokaż puste piętra"
 
 #: ../../roomviews.c:50
 msgid "Bulletin Board"
-msgstr "Forum"
+msgstr "Bulletin Board"
 
 #: ../../roomviews.c:51
 msgid "Mail Folder"
-msgstr "Mailordner"
+msgstr "Folder poczty"
 
 #: ../../roomviews.c:52
 msgid "Address Book"
-msgstr "Adressbuch"
+msgstr "Książka adresowa"
 
 #: ../../roomviews.c:53 ../../static/t/iconbar.html:24
 #: ../../static/t/iconbar/edit.html:55
 msgid "Calendar"
-msgstr "Kalender"
+msgstr "Kalendarz"
 
 #: ../../roomviews.c:54
 msgid "Task List"
-msgstr "Aufgabenliste"
+msgstr "Lista zadań"
 
 #: ../../roomviews.c:55
 msgid "Notes List"
-msgstr "Notizliste"
+msgstr "Lista notatek"
 
 #: ../../roomviews.c:56
 msgid "Wiki"
@@ -91,15 +89,15 @@ msgstr "Wiki"
 
 #: ../../roomviews.c:57
 msgid "Calendar List"
-msgstr "Kalenderliste"
+msgstr "Lista kalendarza"
 
 #: ../../roomviews.c:58
 msgid "Journal"
-msgstr "Journal"
+msgstr "Dziennik"
 
 #: ../../roomviews.c:59
 msgid "Drafts"
-msgstr "Entwürfe"
+msgstr "Wersje robocze"
 
 #: ../../roomviews.c:60
 msgid "Blog"
@@ -107,103 +105,103 @@ msgstr "Blog"
 
 #: ../../tasks.c:93
 msgid "Completed?"
-msgstr "Vollständig?"
+msgstr "Zakończone ?"
 
 #: ../../tasks.c:95
 msgid "Name of task"
-msgstr "Name der Aufgaben"
+msgstr "Nazwa zadania"
 
 #: ../../tasks.c:97
 msgid "Date due"
-msgstr "Fälligkeitsdatum"
+msgstr "Data zakończenia"
 
 #: ../../tasks.c:99
 msgid "Category"
-msgstr "Kategorie"
+msgstr "Kategoria"
 
 #: ../../tasks.c:101
 msgid "Show All"
-msgstr "Alle anzeigen"
+msgstr "Wyświetl wszystkie"
 
 #: ../../tasks.c:223
 msgid "Edit task"
-msgstr "Aufgabe bearbeiten"
+msgstr "Edytuj zadanie"
 
 #: ../../tasks.c:242 ../../calendar.c:98 ../../calendar_view.c:298
 #: ../../calendar_view.c:959 ../../calendar_view.c:1003
 #: ../../calendar_view.c:1084
 msgid "Summary:"
-msgstr "Übersicht:"
+msgstr "Zestawienie:"
 
 #: ../../tasks.c:253
 msgid "Start date:"
-msgstr "Anfangsdatum:"
+msgstr "Data rozpoczęcia:"
 
 #: ../../tasks.c:261 ../../tasks.c:291
 msgid "No date"
-msgstr "Kein Datum"
+msgstr "Brak daty"
 
 #: ../../tasks.c:265 ../../tasks.c:294
 msgid "or"
-msgstr "oder"
+msgstr "albo"
 
 #: ../../tasks.c:279 ../../tasks.c:308
 msgid "Time associated"
-msgstr "assoziierte Uhrzeit"
+msgstr "Powiązanie  czasu"
 
 #: ../../tasks.c:283
 msgid "Due date:"
-msgstr "Fälligkeitsdatum:"
+msgstr "Data zkończenia:"
 
 #: ../../tasks.c:312
 msgid "Completed:"
-msgstr "Vollständig:"
+msgstr "Zakończone:"
 
 #: ../../tasks.c:323
 msgid "Category:"
-msgstr "Kategorie:"
+msgstr "Kategoria:"
 
 #: ../../tasks.c:333 ../../calendar.c:159 ../../static/t/files.html:12
 msgid "Description:"
-msgstr "Beschreibung:"
+msgstr "Opis:"
 
 #: ../../tasks.c:351 ../../event.c:764
 msgid "Save"
-msgstr "Speichern"
+msgstr "Zapisz"
 
 #: ../../tasks.c:352 ../../event.c:765 ../../static/t/aide/inet/section.html:5
 #: ../../static/t/view_blog/comment.html:12
 #: ../../static/t/view_blog/post.html:15 ../../static/t/view_message.html:32
 #: ../../static/t/navbar.html:116 ../../static/t/msg_listview.html:27
 msgid "Delete"
-msgstr "Löschen"
+msgstr "Usuń"
 
 #: ../../tasks.c:353 ../../vcard_edit.c:1216 ../../paging.c:66
 #: ../../event.c:767 ../../sysmsgs.c:69 ../../who.c:200 ../../auth.c:812
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:4
 msgid "Cancel"
-msgstr "Abbruch"
+msgstr "Anuluj"
 
 #: ../../tasks.c:423 ../../calendar_view.c:1379
 msgid "Untitled Task"
-msgstr "Unbenannte Aufgabe"
+msgstr "Nieopisane zadanie"
 
 #: ../../fmt_date.c:310
 msgid "Time format"
-msgstr "Uhrzeitformat"
+msgstr "Format czasu"
 
 #: ../../listsub.c:54 ../../static/t/listsub/display.html:5
 msgid "List subscription"
-msgstr "Listenteilnehmer"
+msgstr "Lista subskrypcji"
 
 #: ../../listsub.c:67 ../../static/t/listsub/display.html:9
 msgid "List subscribe/unsubscribe"
-msgstr "Liste abonnieren/abmelden"
+msgstr "List"
 
 #: ../../listsub.c:87 ../../static/t/listsub/display.html:15
 #: ../../static/t/listsub/display.html:34
 msgid "Confirmation request sent"
-msgstr "Bestätigungsanfrage gesendet"
+msgstr "Żądanie potwierdzenia wysłany"
 
 #: ../../listsub.c:89
 #, c-format
@@ -215,31 +213,30 @@ msgid ""
 "without your consent.<br><br>Please click on the link which is being e-"
 "mailed to you and your subscription will be confirmed.<br>\n"
 msgstr ""
-"Sie abonnieren für <TT>%s</TT> die <b>%s</b>-Mailing-Liste. Der Mailing-"
-"Listen-Server hat Ihnen eine E-Mail mit einem Verweis gesendet, auf den Sie "
-"klicken müssen, um Ihr Abonnement zu bestätigen. Dieser zusätzliche Schritt "
-"dient Ihrem Schutz, weil dadurch verhindert wird, dass andere ohne Ihre "
-"Zustimmung für Sie Mailing-Listen abonnieren können.<br>\n"
+"Zapisałeś się  <TT>%s</TT> do <b>%s</ b> listy dyskusyjnej. List serwer  "
+"wysłał Ci wiadomość e-mail z  linkiem do strony www, aby kliknąć, aby "
+"potwierdzić subskrypcję. Ten dodatkowy krok jest dla ochrony, ponieważ "
+"zapobiega innym  zapisać się do listy bez twojej zgody. <br><br> Proszę "
+"kliknąć na link, który dostaniesz via e-mail, Twoja subskrypcja zostanie "
+"potwierdzona.<br>\n"
 
 #: ../../listsub.c:102 ../../static/t/listsub/display.html:24
 msgid "Go back..."
-msgstr "Zurück..."
+msgstr "Wróc ..."
 
 #: ../../listsub.c:253 ../../listsub.c:291 ../../listsub.c:327
 #: ../../listsub.c:334
 msgid "You need to specify the mailinglist to subscribe to."
-msgstr "Sie müssen die Mailing-Liste angeben, die Sie abonnieren möchten."
+msgstr "Trzeba określić listę dyskusyjną, aby zapisać się."
 
 #: ../../listsub.c:260 ../../listsub.c:298
 msgid "You need to specify the email address you'd like to subscribe with."
-msgstr ""
-"Sie müssen Ihre E-Mail-Adresse angeben, mit der Sie das Abonnement empfangen "
-"möchten."
+msgstr "Musisz podać adres e-mail, który chcesz zapisać się."
 
 #: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
 #, c-format
 msgid "%d comments"
-msgstr "%d Kommentare"
+msgstr "%d comments"
 
 #: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
@@ -247,24 +244,25 @@ msgstr "permalink"
 
 #: ../../blogview_renderer.c:302
 msgid "Newer posts"
-msgstr "neuere Beiträge"
+msgstr "Nowsze"
 
 #: ../../blogview_renderer.c:311
 msgid "Older posts"
-msgstr "ältere Beiträge"
+msgstr "Starsze"
 
 #: ../../useredit.c:629
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
-msgstr "Fehler beim Erzeugen / Bearbeiten dieses Adressbuch-Eintrags."
+msgstr ""
+"Wystąpił błąd podczas tworzenia lub edycji tego wpisu książki adresowej.."
 
 #: ../../useredit.c:717
 msgid "Changes were not saved."
-msgstr "Änderungen verworfen."
+msgstr "Zmiany nie zostały zapisane."
 
 #: ../../useredit.c:782
 msgid "A new user has been created."
-msgstr "Ein neuer Benutzer wurde angelegt."
+msgstr "Nowy użytkownik został stworzony."
 
 #: ../../useredit.c:786
 msgid ""
@@ -272,321 +270,320 @@ msgid ""
 "host based authentication mode.  In this mode, you must create new users on "
 "the host system, not within Citadel."
 msgstr ""
-"Sie versuchen einen Benutzer anzulegen. Dieses System verwendet jedoch die "
-"Konten des Host-Systems, deshalb müssen dort neue Benutzer angelegt werden."
+"Próbujesz utworzyć nowego użytkownika od wewnątrz Citadel podczas pracy w "
+"trybie uwierzytelniania hosta. W tym trybie, należy utworzyć nowego "
+"użytkownika w systemie hosta, a nie w Citadel."
 
 #: ../../bbsview_renderer.c:312
 msgid "Go to page: "
-msgstr "Zur Seite gehen: "
+msgstr "Skocz do strony: "
 
 #: ../../bbsview_renderer.c:354
 msgid "First"
-msgstr "Anfang"
+msgstr "Pierwszej"
 
 #: ../../bbsview_renderer.c:360
 msgid "Last"
-msgstr "Ende"
+msgstr "Ostatniej"
 
 #: ../../graphics.c:56
 msgid "Graphics upload has been cancelled."
-msgstr "Hochladen des Bilds abgebrochen."
+msgstr "Przesyłanie pliku zostało anulowane."
 
 #: ../../graphics.c:62
 msgid "You didn't upload a file."
-msgstr "Sie haben keine Datei hochgeladen."
+msgstr "Nie przesłałeś pliku."
 
 #: ../../graphics.c:112
 msgid "your photo"
-msgstr "Ihr Photo"
+msgstr "Twoje zdjęcie"
 
 #: ../../graphics.c:119
 msgid "the icon for this room"
-msgstr "Das Symbol für diesen Raum"
+msgstr "ikona dla tego pokoju"
 
 #: ../../graphics.c:127
 msgid "the Greetingpicture for the login prompt"
-msgstr "Das Begrüssungsfoto auf der Anmeldeseite"
+msgstr "obrazek graficzny przy logowania"
 
 #: ../../graphics.c:135
 msgid "the Logoff banner picture"
-msgstr "das Abmeldeseiten Foto"
+msgstr "obrazek przy wyloggowaniu"
 
 #: ../../graphics.c:146
 msgid "the icon for this floor"
-msgstr "Das Symbol für diese Etage"
+msgstr "ikona dla piętra"
 
 #: ../../calendar_tools.c:100
 msgid "Hour: "
-msgstr "Stunde: "
+msgstr "Godzina: "
 
 #: ../../calendar_tools.c:120
 msgid "Minute: "
-msgstr "Minute: "
+msgstr "Minuty: "
 
 #: ../../calendar_tools.c:191
 msgid "(status unknown)"
-msgstr "(Zustand unbekannt)"
+msgstr "(status nieznany)"
 
 #: ../../calendar_tools.c:207
 msgid "(needs action)"
-msgstr "(zu bearbeiten)"
+msgstr "(potrzebne działanie)"
 
 #: ../../calendar_tools.c:210
 msgid "(accepted)"
-msgstr "(Angenommen)"
+msgstr "(zaakceptowany)"
 
 #: ../../calendar_tools.c:213
 msgid "(declined)"
-msgstr "(Abgelehnt)"
+msgstr "(odrzucony)"
 
 #: ../../calendar_tools.c:216
 msgid "(tenative)"
-msgstr "(Vorläufig)"
+msgstr "(niepewny)"
 
 #: ../../calendar_tools.c:219
 msgid "(delegated)"
-msgstr "(delegiert)"
+msgstr "(odelegowany)"
 
 #: ../../calendar_tools.c:222
 msgid "(completed)"
-msgstr "(abgeschlossen)"
+msgstr "(zakoczony)"
 
 #: ../../calendar_tools.c:225
 msgid "(in process)"
-msgstr "(in Bearbeitung)"
+msgstr "(w trakcie)"
 
 #: ../../calendar_tools.c:228
 msgid "(none)"
-msgstr "(keine)"
+msgstr "(nieokreślony)"
 
 #: ../../notes.c:343
 msgid "Click on any note to edit it."
-msgstr "Auf eine Notiz klicken zum bearbeiten"
+msgstr "Kliknij na jakąkolwiek notatkę w celu edycji."
 
 #: ../../vcard_edit.c:175 ../../vcard_edit.c:178
 msgid "(no name)"
-msgstr "(kein Name)"
+msgstr "(brak nazwy)"
 
 #: ../../vcard_edit.c:443
 msgid " (work)"
-msgstr " (Firma)"
+msgstr " (praca)"
 
 #: ../../vcard_edit.c:445
 msgid " (home)"
-msgstr " (Privat)"
+msgstr " (dom)"
 
 #: ../../vcard_edit.c:447
 msgid " (cell)"
-msgstr " (Handy)"
+msgstr " (mobile)"
 
 #: ../../vcard_edit.c:458 ../../vcard_edit.c:1120
 msgid "Address:"
-msgstr "Adresse:"
+msgstr "Adres:"
 
 #: ../../vcard_edit.c:526
 msgid "Telephone:"
-msgstr "Telefon"
+msgstr "Telefon:"
 
 #: ../../vcard_edit.c:531
 msgid "E-mail:"
-msgstr "E-Mail:"
+msgstr "E-mail:"
 
 #: ../../vcard_edit.c:779
 msgid "This address book is empty."
-msgstr "Dieses Adressbuch ist leer."
+msgstr "Ksiązka adresowa pusta."
 
 #: ../../vcard_edit.c:793
 msgid "An internal error has occurred."
-msgstr "Ein interner Fehler ist aufgetreten."
+msgstr "Wystąpił błąd wewnętrzny."
 
 #: ../../vcard_edit.c:944
 msgid "Error"
-msgstr "Fehler"
+msgstr "Błąd"
 
 #: ../../vcard_edit.c:1048
 msgid "Edit contact information"
-msgstr "Kontaktdaten bearbeiten"
+msgstr "Edycja informacji kontaktu"
 
 #: ../../vcard_edit.c:1068
 msgid "Prefix"
-msgstr "Anrede"
+msgstr "Prefiks"
 
 #: ../../vcard_edit.c:1068
 msgid "First Name"
-msgstr "Vorname"
+msgstr "Imię"
 
 #: ../../vcard_edit.c:1068
 msgid "Middle Name"
-msgstr "Mittelinitial"
+msgstr "Drugie imię"
 
 #: ../../vcard_edit.c:1068
 msgid "Last Name"
-msgstr "Nachname"
+msgstr "Nazwisko"
 
 #: ../../vcard_edit.c:1068
 msgid "Suffix"
-msgstr "Zähler"
+msgstr "Sufiks"
 
 #: ../../vcard_edit.c:1089
 msgid "Display name:"
-msgstr "Namen anzeigen:"
+msgstr "Wyświetlana nazwa:"
 
 #: ../../vcard_edit.c:1096
 msgid "Title:"
-msgstr "Titel:"
+msgstr "Stanowisko:"
 
 #: ../../vcard_edit.c:1103
 msgid "Organization:"
-msgstr "Organisation:"
+msgstr "Organizacja:"
 
 #: ../../vcard_edit.c:1114
 msgid "PO box:"
-msgstr "Postfach:"
+msgstr "Skrytka pocztowa:"
 
 #: ../../vcard_edit.c:1130
 msgid "City:"
-msgstr "Stadt:"
+msgstr "Miejscowość:"
 
 #: ../../vcard_edit.c:1136
 msgid "State:"
-msgstr "Bundesland:"
+msgstr "Stan/województwo:"
 
 #: ../../vcard_edit.c:1142
 msgid "ZIP code:"
-msgstr "Postleitzahl:"
+msgstr "Kod pocztowy:"
 
 #: ../../vcard_edit.c:1148
 msgid "Country:"
-msgstr "Land:"
+msgstr "Państwo:"
 
 #: ../../vcard_edit.c:1158
 msgid "Home telephone:"
-msgstr "Telefon:"
+msgstr "Dowmy telefon:"
 
 #: ../../vcard_edit.c:1164
 msgid "Work telephone:"
-msgstr "Telefon/Büro:"
+msgstr "Praca telefon:"
 
 #: ../../vcard_edit.c:1170
 msgid "Mobile telephone:"
-msgstr "Mobiltelefon:"
+msgstr "Komórkowy:"
 
 #: ../../vcard_edit.c:1176
 msgid "Fax number:"
-msgstr "Faxnummer."
+msgstr "Fax numer:"
 
 #: ../../vcard_edit.c:1187
 msgid "Primary Internet e-mail address"
-msgstr "Haupt-EMailadresse"
+msgstr "Główny adres email"
 
 #: ../../vcard_edit.c:1194
 msgid "Internet e-mail aliases"
-msgstr "Internet EMail-Aliase"
+msgstr "Internetowe email aliasy"
 
 #: ../../vcard_edit.c:1215 ../../sysmsgs.c:67
 msgid "Save changes"
-msgstr "Änderungen übernehmen"
+msgstr "Zapisz zmiany"
 
 #: ../../vcard_edit.c:1261
 msgid "Unable to enter the room to save your message"
-msgstr "Kann nicht in den Raum wechseln um die Nachricht zu speichern"
+msgstr "Nie można wejść do pokoju, aby zapisać wiadomość"
 
 #: ../../vcard_edit.c:1265
 msgid "Aborting."
-msgstr "Abgebrochen."
+msgstr "Przerwane."
 
 #: ../../vcard_edit.c:1297 ../../vcard_edit.c:1341 ../../auth.c:367
 #: ../../auth.c:397
 msgid "An error has occurred."
-msgstr "Ein Fehler ist aufgetreten."
+msgstr "Wystąpił błąd."
 
 #: ../../vcard_edit.c:1399
 msgid "Could Not decode vcard photo\n"
-msgstr "Konnte VCard-Foto nicht dekodieren\n"
+msgstr "Nie można zdekodować vCard zdjęcia\n"
 
 #: ../../preferences.c:880
 msgid "Cancelled.  No settings were changed."
-msgstr "Abgebrochen. Änderungen wurden nicht gespeichert."
+msgstr "Anulowane. Ustawienia nie będą zmienione."
 
 #: ../../preferences.c:1092
 msgid "Make this my start page"
-msgstr "Als Startseite setzen"
+msgstr "Ustaw jako stronę startową"
 
 #: ../../preferences.c:1130
 msgid "This isn't allowed to become the start page."
-msgstr "Dies kann nicht ihre Startseite werden!"
+msgstr "To nie może ustawić jako strona startowa."
 
 #: ../../preferences.c:1132
 msgid "You no longer have a start page selected."
-msgstr "Startseite gelöscht"
+msgstr "Nie masz strony startowej ustawionej."
 
 #: ../../preferences.c:1182
 msgid "Prefered startpage"
-msgstr "Bevorzugte Startseite"
+msgstr "Zalecana strona stratow"
 
 #: ../../calendar.c:76
 msgid "Meeting invitation"
-msgstr "Terminvorschlag"
+msgstr "Zaproszenie na spotkanie"
 
 #: ../../calendar.c:79
 msgid "Attendee's reply to your invitation"
-msgstr "Antwort eines Teilnehmers auf Ihre Einladung"
+msgstr "Odpowiedź uczestnika na zaproszenie"
 
 #: ../../calendar.c:82
 msgid "Published event"
-msgstr "Veröffentlichtes Ereignis"
+msgstr "Opublikowano wydarzenie"
 
 #: ../../calendar.c:85
 msgid "This is an unknown type of calendar item."
-msgstr "Dies ist ein unbekanntes Kalender-Datum"
+msgstr "To jest nieznany rodzaj elementu kalendarza."
 
 #: ../../calendar.c:107 ../../calendar_view.c:306 ../../calendar_view.c:964
 #: ../../calendar_view.c:1008 ../../calendar_view.c:1089
 msgid "Location:"
-msgstr "Ort:"
+msgstr "Lokalizacja:"
 
 #: ../../calendar.c:132 ../../calendar_view.c:351 ../../calendar_view.c:970
 msgid "Date:"
-msgstr "Datum:"
+msgstr "Data:"
 
 #: ../../calendar.c:139 ../../calendar_view.c:373 ../../calendar_view.c:1013
 #: ../../calendar_view.c:1099
 msgid "Starting date/time:"
-msgstr "Startzeit/-Datum:"
+msgstr "Data rozpoczęcia/czas:"
 
 #: ../../calendar.c:150 ../../calendar_view.c:376 ../../calendar_view.c:1015
 #: ../../calendar_view.c:1101
 msgid "Ending date/time:"
-msgstr "Endzeit/-Datum:"
+msgstr "Data zakończenia/czas:"
 
 #: ../../calendar.c:168 ../../event.c:90
 msgid "Recurrence"
-msgstr "Wiederholung"
+msgstr "Powtarzanie"
 
 #: ../../calendar.c:169 ../../event.c:505
 msgid "This is a recurring event"
-msgstr "Terminserie hinzufügen"
+msgstr "To jest wydarzenie cykliczne"
 
 #: ../../calendar.c:178
 msgid "Attendee:"
-msgstr "Teilnehmer:"
+msgstr "Uczestnik:"
 
 #: ../../calendar.c:218
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
-msgstr "Die Änderung '%s', existiert bereits Ihrem Kalender ist."
+msgstr "Jest to zmiana  '%s', które znajduje się już w kalendarzu."
 
 #: ../../calendar.c:222
 #, c-format
 msgid ""
 "This event would conflict with '%s' which is already in your calendar."
-msgstr ""
-"Dieser Termin würde mit '%s' kollidieren, der bereits in Ihrem Kalender "
-"vorgemerkt ist."
+msgstr "Wydarzenie to byłoby sprzeczne z '%s', które jest już w kalendarzu."
 
 #: ../../calendar.c:227
 msgid "Update:"
-msgstr "Update:"
+msgstr "Aktualizacja:"
 
 #: ../../calendar.c:228
 msgid "CONFLICT:"
@@ -594,117 +591,120 @@ msgstr "KONFLIKT:"
 
 #: ../../calendar.c:251
 msgid "How would you like to respond to this invitation?"
-msgstr "Wie möchten Sie auf die Einladung reagieren?"
+msgstr "Jak chcesz odpowiedzieć na to zaproszenie?"
 
 #: ../../calendar.c:252
 msgid "Accept"
-msgstr "Annehmen"
+msgstr "Akceptuj"
 
 #: ../../calendar.c:253
 msgid "Tentative"
-msgstr "Vorläufig"
+msgstr "Niepwne"
 
 #: ../../calendar.c:254
 msgid "Decline"
-msgstr "Ablehnen"
+msgstr "Odmowa"
 
 #: ../../calendar.c:271
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
-"Klicken Sie <i>Aktualisieren</i> um diese Änderung in ihren Kalender zu "
-"übernehmen."
+"Kliknij <i> Aktualizacja </i>, aby zaakceptować tę odpowiedź i aktualizować "
+"swój kalendarz."
 
 #: ../../calendar.c:272
 msgid "Update"
-msgstr "Aktualisieren"
+msgstr "Zaktualizuj"
 
 #: ../../calendar.c:273
 msgid "Ignore"
-msgstr "Ignorieren"
+msgstr "Ignoruj"
 
 #: ../../calendar.c:295
 msgid "There was an error parsing this calendar item."
-msgstr "Ein Kalenderdatum konnte nicht verarbeitet werden."
+msgstr "Wystąpił błąd podczas analizowania tego elementu kalendarza."
 
 #: ../../calendar.c:328
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
 msgstr ""
-"Sie haben die Einladung angenommen.  Sie wurde in Ihren Kalender übernommen."
+"Zaakceptowałeś zaproszenie na spotkanie. Zostało wpisana do Twojego "
+"kalendarza."
 
 #: ../../calendar.c:332
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
 msgstr ""
-"Sie haben diese Einladung vorläufig angenommen. Sie wurde in Ihrem Kalender "
-"vorgemerkt."
+"Wstępnie zaakceptowałeś zaproszenie na spotkanie. Zostało  \"zaznaczone\"  w "
+"Twoim kalendarzu."
 
 #: ../../calendar.c:336
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
-"Sie haben diese Einladung abgelehnt. Sie wurde <b>nicht</b> in Ihren "
-"Kalender übernommen."
+"Odrzuciłeś  zaproszenie na spotkanie. Zaproszenie <b> nie </ b> będzie  "
+"wpisane do Twojego kalendarza."
 
 #: ../../calendar.c:341
 msgid "A reply has been sent to the meeting organizer."
-msgstr "Eine Antwort wurde an den Organisator versendet."
+msgstr "Odpowiedź została wysłana do organizatora spotkania."
 
 #. / Translators: RSVP aka Répondez s'il-vous-plaît Is the term
 #. / that the recipient of an ical-invitation should please
 #. / answer this request.
 #: ../../calendar.c:376
 msgid "Your calendar has been updated to reflect this RSVP."
-msgstr "u.A.w.g. wurde eingetragen."
+msgstr "Twój kalendarz został zaktualizowany, aby odzwierciedlić  RSVP."
 
 #: ../../calendar.c:378
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
-msgstr "u.A.w.g. abgelehnt. Sie wurde <b>nicht</b> übernommen."
+msgstr ""
+"Wybrałeś ignorowanie ten RSVP. Twój kalendarz <b> nie </b> zostanie "
+"zaktualizowany."
 
 #: ../../calendar.c:932
 msgid "Calendar day view begins at:"
-msgstr "Kalender-Tagesübersicht beginnt um:"
+msgstr "Widok kalendarza dziennego zaczyna się:"
 
 #: ../../calendar.c:933
 msgid "Calendar day view ends at:"
-msgstr "Kalender-Tagesübersicht endet um:"
+msgstr "Widko kalendarza dizennego kńczy się na:"
 
 #: ../../calendar.c:934
 msgid "Week starts on:"
-msgstr "Wochen starten am:"
+msgstr "Tydzień zaczyna się od:"
 
 #: ../../paging.c:35
 msgid "Send instant message"
-msgstr "Kurznachricht senden"
+msgstr "Wyślij wiadomość"
 
 #: ../../paging.c:43
 msgid "Send an instant message to: "
-msgstr "Kurznachricht senden an: "
+msgstr "Wyślij wiadomość do: "
 
 #: ../../paging.c:57
 msgid "Enter message text:"
-msgstr "Nachrichtentext eingeben:"
+msgstr "Wpisz tekst wiadomości:"
 
 #: ../../paging.c:65 ../../static/t/edit_message.html:109
 msgid "Send message"
-msgstr "Meldung senden"
+msgstr "Wyślij wiadomość"
 
 #: ../../paging.c:84
 msgid "Message was not sent."
-msgstr "Kurznachricht nicht gesendet."
+msgstr "Wiadomość nie została wysłana."
 
 #: ../../paging.c:95
 msgid "Message has been sent to "
-msgstr "Kurznachricht gesendet an "
+msgstr "Wiadomość została wysłana do "
 
 #: ../../iconbar.c:328
 msgid "Iconbar Setting"
-msgstr "Iconbar einstellungen"
+msgstr "Iconbar ustawienia"
 
 #. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
@@ -712,15 +712,15 @@ msgstr "Iconbar einstellungen"
 #. 
 #: ../../availability.c:148
 msgid "availability unknown"
-msgstr "Verfügbarkeit unbekannt"
+msgstr "dostępność nieznana"
 
 #: ../../availability.c:169
 msgid "free"
-msgstr "frei"
+msgstr "wolny"
 
 #: ../../availability.c:179
 msgid "BUSY"
-msgstr "BESCHÄFTIGT"
+msgstr "ZAJĘTY"
 
 #: ../../serv_func.c:193
 msgid ""
@@ -728,13 +728,13 @@ msgid ""
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
-"Dieser Server bedient bereits die maximale Anzahl von Benutzern. Neue "
-"Anmeldungen können daher nicht akzeptiert werden. Bitte versuchen Sie es "
-"später noch einmal oder kontaktieren Sie ihren Systemverwalter."
+"Ten serwer obsługuje już maksymalną liczbę użytkowników i nie może "
+"przyjmować żadnych dodatkowych loginów w tym czasie. Spróbuj ponownie "
+"później lub skontaktuj się z administratorem systemu."
 
 #: ../../serv_func.c:198 ../../serv_func.c:227
 msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr "Unerwartete Meldung vom Citadel Server erhalten: Exit."
+msgstr "Otrzymałeś nieoczekiwaną odpowiedź z serwera Citadel; ratuj się."
 
 #: ../../serv_func.c:236
 #, c-format
@@ -745,377 +745,374 @@ msgid ""
 "\n"
 "\n"
 msgstr ""
-"Sie sind mit einem Citadel-Server der Version %d.%02d verbunden. \n"
-"Webcit benötigt mindestens Version %d.%02d.\n"
+"Jesteś podłączony do serwera z systemem Citadel  %d.%02d. \n"
+"W celu uruchomienia tej wersji WebCit musisz mieć Citadel %d.%02d lub "
+"nowszy.\n"
 "\n"
 "\n"
 
 #: ../../event.c:70
 msgid "seconds"
-msgstr "Sekunden"
+msgstr "sekundy"
 
 #: ../../event.c:71
 msgid "minutes"
-msgstr "Minuten"
+msgstr "minuty"
 
 #: ../../event.c:72
 msgid "hours"
-msgstr "Stunden"
+msgstr "godzin(y)"
 
 #: ../../event.c:73
 msgid "days"
-msgstr "Tage"
+msgstr "dni"
 
 #: ../../event.c:74
 msgid "weeks"
-msgstr "Wochen"
+msgstr "tygodni"
 
 #: ../../event.c:75
 msgid "months"
-msgstr "Monate"
+msgstr "miesięcy"
 
 #: ../../event.c:76
 msgid "years"
-msgstr "Jahre"
+msgstr "lat(a)"
 
 #: ../../event.c:77
 msgid "never"
-msgstr "nie"
+msgstr "nigdy"
 
 #: ../../event.c:81
 msgid "first"
-msgstr "erster"
+msgstr "pierwszy(a)"
 
 #: ../../event.c:82
 msgid "second"
-msgstr "zweiter"
+msgstr "drugi"
 
 #: ../../event.c:83
 msgid "third"
-msgstr "dritter"
+msgstr "trzeci(a)"
 
 #: ../../event.c:84
 msgid "fourth"
-msgstr "vierter"
+msgstr "czwarty(a)"
 
 #: ../../event.c:85
 msgid "fifth"
-msgstr "fünfter"
+msgstr "piąty(a)"
 
 #: ../../event.c:88
 msgid "Event"
-msgstr "Ereignis"
+msgstr "Wydarzenie"
 
 #: ../../event.c:89 ../../event.c:437 ../../event.c:449
 msgid "Attendees"
-msgstr "Teilnehmer"
+msgstr "Uczestnicy"
 
 #: ../../event.c:167
 msgid "Add or edit an event"
-msgstr "Ereignis hinzufügen oder ändern"
+msgstr "Dodawaj lub edytuj zdarzenie"
 
 #: ../../event.c:206 ../../static/t/iconbar.html:13
 #: ../../static/t/iconbar/edit.html:29
 msgid "Summary"
-msgstr "Zusammenfassung"
+msgstr "Podsumowanie"
 
 #: ../../event.c:217
 msgid "Location"
-msgstr "Ort"
+msgstr "Lokalizacja:"
 
 #: ../../event.c:228 ../../calendar_view.c:760
 msgid "Start"
-msgstr "Anfang"
+msgstr "Początek"
 
 #: ../../event.c:271 ../../calendar_view.c:957 ../../calendar_view.c:986
 msgid "All day event"
-msgstr "Ganztägiger Termin"
+msgstr "Wydarzenie całodniowe"
 
 #: ../../event.c:277 ../../calendar_view.c:761
 msgid "End"
-msgstr "Ende"
+msgstr "Koniec"
 
 #: ../../event.c:327 ../../static/t/iconbar.html:34
 #: ../../static/t/iconbar/edit.html:49
 msgid "Notes"
-msgstr "Notiz"
+msgstr "Notes"
 
 #: ../../event.c:369
 msgid "Organizer"
-msgstr "Organisator"
+msgstr "Notes"
 
 #: ../../event.c:374
 msgid "(you are the organizer)"
-msgstr "(Sie sind der Organisator)"
+msgstr "(jesteś organizatorem)"
 
 #: ../../event.c:392
 msgid "Show time as:"
-msgstr "Zeit anzeigen als:"
+msgstr "Pokaż czas jako:"
 
 #: ../../event.c:415
 msgid "Free"
-msgstr "Frei"
+msgstr "Wolny"
 
 #: ../../event.c:423
 msgid "Busy"
-msgstr "Belegt"
+msgstr "Zajety"
 
 #: ../../event.c:440
 msgid "(One per line)"
-msgstr "(einen pro Zeile)"
+msgstr "(Jeden na linie)"
 
 #: ../../event.c:450 ../../static/t/edit_message.html:143
 #: ../../static/t/iconbar.html:29 ../../static/t/iconbar/edit.html:42
 msgid "Contacts"
-msgstr "Adressen"
+msgstr "Kontakty"
 
 #: ../../event.c:513
 msgid "Recurrence rule"
-msgstr "Serientermin"
+msgstr "Zasady powtarzania"
 
 #: ../../event.c:517
 msgid "Repeats every"
-msgstr "Wiederholt sich alle"
+msgstr "Powtarzaj co każdy"
 
 #. begin 'weekday_selector' div
 #: ../../event.c:535
 msgid "on these weekdays:"
-msgstr "an diesem Werktag:"
+msgstr "dzień tygodnia:"
 
 #: ../../event.c:593
 #, c-format
 msgid "on day %s%d%s of the month"
-msgstr "am Tag %s%d%s des Monats"
+msgstr "dzień %s%d%s miesiąca"
 
 #: ../../event.c:602 ../../event.c:664
 msgid "on the "
-msgstr "an dem "
+msgstr "w "
 
 #: ../../event.c:626
 msgid "of the month"
-msgstr "des Monats"
+msgstr "w miesiącu"
 
 #: ../../event.c:655
 msgid "every "
-msgstr "jedes "
+msgstr "co "
 
 #: ../../event.c:656
 msgid "year on this date"
-msgstr "Jahr an diesem Tag"
+msgstr "roku o tej datcie"
 
 #: ../../event.c:688 ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
 msgid "of"
-msgstr "im"
+msgstr "z"
 
 #: ../../event.c:712
 msgid "Recurrence range"
-msgstr "Serie endet..."
+msgstr "Zakres powtarzania"
 
 #: ../../event.c:720
 msgid "No ending date"
-msgstr "Kein Enddatum"
+msgstr "Brak daty zakończenia"
 
 #: ../../event.c:727
 msgid "Repeat this event"
-msgstr "Dieser Termin wiederholt sich"
+msgstr "Powtarzaj to wydarzenie"
 
 #: ../../event.c:730
 msgid "times"
-msgstr "mal"
+msgstr "razy"
 
 #: ../../event.c:738
 msgid "Repeat this event until "
-msgstr "Diese Serie geht bis "
+msgstr "Powtarzaj to wydarzenie aż do "
 
 #: ../../event.c:766
 msgid "Check attendee availability"
-msgstr "Verfügbarkeit der Teilnehmer überprüfen"
+msgstr "Sprawdź dostępność uczestników"
 
 #: ../../event.c:858 ../../calendar_view.c:272 ../../calendar_view.c:468
 #: ../../calendar_view.c:937
 msgid "Untitled Event"
-msgstr "Unbenanntes Ereignis"
+msgstr "Nie opisane wydarzenie"
 
 #: ../../sysmsgs.c:52
 #, c-format
 msgid "Edit %s"
-msgstr "%s bearbeiten"
+msgstr "Edytuj %s"
 
 #: ../../sysmsgs.c:55
 #, c-format
 msgid ""
 "Enter %s below. Text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
-msgstr ""
-"Geben sie hier %s ein. Der Text wird auf dem Browser des Lesers "
-"formatiert.Eine neue Zeile erzwingt man, indem man die nächste Zeile mit "
-"einem Leerschritt beginnt."
+msgstr "Wprowadź %s poniżej. Tekst jest sformatowany dla przeglądarki."
 
 #: ../../sysmsgs.c:89
 #, c-format
 msgid "Cancelled.  %s was not saved."
-msgstr "Abgebrochen.   %s wurde nicht gespeichert."
+msgstr "Anulowano.  %s nie będzie zapisane."
 
 #: ../../sysmsgs.c:109
 msgid " has been saved."
-msgstr " wurde gespeichert."
+msgstr " zostało zapisane."
 
 #: ../../sysmsgs.c:116 ../../sysmsgs.c:117
 msgid "Room info"
-msgstr "Rauminfo"
+msgstr "Informacj o pokoju"
 
 #: ../../sysmsgs.c:122 ../../sysmsgs.c:124
 msgid "Your bio"
-msgstr "Ihre Biographie"
+msgstr "Twoje  bio"
 
 #: ../../calendar_view.c:297 ../../calendar_view.c:958
 #: ../../calendar_view.c:1002 ../../calendar_view.c:1083
 #: ../../static/t/sieve/display_one.html:20
 msgid "From"
-msgstr "Von"
+msgstr "Od"
 
 #: ../../calendar_view.c:355 ../../calendar_view.c:974
 msgid "Starting date:"
-msgstr "Anfangsdatum:"
+msgstr "Data startowa:"
 
 #: ../../calendar_view.c:361 ../../calendar_view.c:976
 msgid "Ending date:"
-msgstr "Terminende:"
+msgstr "Data zakończenia:"
 
 #: ../../calendar_view.c:369 ../../calendar_view.c:1095
 msgid "Date/time:"
-msgstr "Datum/Zeit:"
+msgstr "Data/czas:"
 
 #: ../../calendar_view.c:386 ../../calendar_view.c:980
 #: ../../calendar_view.c:1018 ../../calendar_view.c:1105
 #: ../../static/t/room/edit/tab_share.html:32
 msgid "Notes:"
-msgstr "Notizen:"
+msgstr "Notatki:"
 
 #: ../../calendar_view.c:585 ../../calendar_view.c:721
 msgid "previous"
-msgstr "vorheriger"
+msgstr "poprzedni"
 
 #: ../../calendar_view.c:597 ../../calendar_view.c:733
 #: ../../calendar_view.c:1308
 msgid "next"
-msgstr "nächster"
+msgstr "następny"
 
 #: ../../calendar_view.c:756
 msgid "Week"
-msgstr "Woche"
+msgstr "Tydzień"
 
 #: ../../calendar_view.c:758
 msgid "Hours"
-msgstr "Stunden"
+msgstr "Godzin(a/y)"
 
 #: ../../calendar_view.c:759 ../../static/t/sieve/display_one.html:22
 #: ../../static/t/msg_listview.html:9
 msgid "Subject"
-msgstr "Betreff"
+msgstr "Temat"
 
 #: ../../calendar_view.c:1001 ../../calendar_view.c:1024
 msgid "Ongoing event"
-msgstr "Mehrtägiger Termin"
+msgstr "W toku wydarzenie"
 
 #: ../../messages.c:70
 msgid "ERROR:"
-msgstr "FEHLER:"
+msgstr "BŁĄD:"
 
 #: ../../messages.c:88
 msgid "Empty message"
-msgstr "Leere Nachricht"
+msgstr "Puta wiadomość"
 
 #: ../../messages.c:1010
 msgid "Cancelled.  Message was not posted."
-msgstr "Abgebrochen. Beitrag wurde nicht gesendet."
+msgstr "Anulowane. Wiadomość nie została wysłana."
 
 #: ../../messages.c:1013
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
-"Automatisch abgebrochen, weil Sie diesen Beitrag schon gespeichert haben."
+msgstr "Automatycznie anulowane, ponieważ zapisano już tę wiadomość."
 
 #: ../../messages.c:1037
 msgid "Saved to Drafts failed: "
-msgstr "In den Entwurfsordner gespeichert "
+msgstr "Zapisane w Roboczych nie powiodło sie: "
 
 #: ../../messages.c:1102
 msgid "Refusing to post empty message.\n"
-msgstr "Werde keine leere Nachricht senden.\n"
+msgstr "Odmowa wysłania pustej wiadomości.\n"
 
 #: ../../messages.c:1128
 msgid "Message has been saved to Drafts.\n"
-msgstr "Nachricht in Entwürfen gespeichert.\n"
+msgstr "Wiadmość została zapisana do Roboczych.\n"
 
 #: ../../messages.c:1137
 msgid "Message has been sent.\n"
-msgstr "Nachricht wurde gesendet.\n"
+msgstr "Wiadomość została wysłana.\n"
 
 #: ../../messages.c:1140
 msgid "Message has been posted.\n"
-msgstr "Beitrag wurde gesendet.\n"
+msgstr "Wiadomość została wysłana.\n"
 
 #: ../../messages.c:1679
 msgid "The message was not moved."
-msgstr "Die Meldung wurde nicht verschoben."
+msgstr "Wiadomość nie została przeniesiona."
 
 #: ../../messages.c:1719
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "Ein Fehler trat beim laden dieses Anhangs auf: %s/%s\n"
+msgstr "Wystąpił błąd podczas pobierania tej części: %s/%s\n"
 
 #: ../../messages.c:1796
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
-msgstr "Ein Fehler trat beim laden dieses Anhangs auf: %s\n"
+msgstr "Wystąpił błąd podczas pobierania tej części: %s\n"
 
 #: ../../messages.c:1956
 msgid "Attach signature to email messages?"
-msgstr "EMail-Signatur anhängen?"
+msgstr "Dołączyć podpis do wiadomości e-mail?"
 
 #: ../../messages.c:1959
 msgid "Use this signature:"
-msgstr "Diese Signatur benutzen:"
+msgstr "Użyj tego podpisu:"
 
 #: ../../messages.c:1961
 msgid "Default character set for email headers:"
-msgstr "Vorgabezeichensatz für EMail Kopfzeilen:"
+msgstr "Domyślne kodowanie w nagłówkach e-mail:"
 
 #: ../../messages.c:1964
 msgid "Preferred email address"
-msgstr "Bevorzugte EMailadresse"
+msgstr "Preferowany adres e-mail"
 
 #: ../../messages.c:1966
 msgid "Preferred display name for email messages"
-msgstr "Bevorzugter Name als Email-Absender"
+msgstr "Preferowana nazwa wyświetlana w wiadomościach e-mail"
 
 #: ../../messages.c:1970
 msgid "Preferred display name for bulletin board posts"
-msgstr "Bevorzugter Name in Diskussionsforen"
+msgstr "Preferowane nazwa wyświetlana w wiadomościach BBS"
 
 #: ../../messages.c:1973
 msgid "Mailbox view mode"
-msgstr "Anzeigen als Postfach"
+msgstr "Mailbox tryb wyświetlania"
 
 #: ../../inetconf.c:110 ../../inetconf.c:119 ../../inetconf.c:133
 #: ../../inetconf.c:159 ../../netconf.c:156 ../../netconf.c:183
 #: ../../netconf.c:191 ../../netconf.c:239 ../../netconf.c:247
 msgid "Invalid Parameter"
-msgstr "Ungültiger Parameter"
+msgstr "Nieprawidłowy parametr"
 
 #: ../../inetconf.c:126
 msgid " has been deleted."
-msgstr " wurde gelöscht."
+msgstr " została usunięta."
 
 #. <domain> added status message
 #: ../../inetconf.c:144
 msgid " added."
-msgstr " aufgenommen."
+msgstr " dodana"
 
 #: ../../who.c:154
 msgid "Edit your session display"
-msgstr "Sitzungsparameter Bearbeiten"
+msgstr "Edytuj wyświetlanie Twojej  sesji"
 
 #: ../../who.c:158
 msgid ""
@@ -1124,80 +1121,80 @@ msgid ""
 "click the appropriate 'change' button without typing anything in the "
 "corresponding box. "
 msgstr ""
-"Auf dieser Seite können Sie die in der Benutzerübersicht angezeigten Texte "
-"ändern. Um die Defaultwerte wiederherzustellen bei leerem Feld den "
-"'Raumnamen ändern' Knopf drücken "
+"Ekran ten pozwala zmienić sposób w jaki sesja pojawi się szczególy w \"Kto "
+"jest online\"\". Aby wyłączyć wszelkie \"fałszywe\" nazwy już wcześniej "
+"ustawione, wystarczy kliknąć odpowiedni przycisk \"zmiany\" bez wpisywania w "
+"odpowiednim polu. "
 
 #: ../../who.c:171
 msgid "Room name:"
-msgstr "Raumname:"
+msgstr "Nazwa pokoju:"
 
 #: ../../who.c:176
 msgid "Change room name"
-msgstr "Raumnamen ändern"
+msgstr "Zmień nazę pokoju"
 
 #: ../../who.c:180
 msgid "Host name:"
-msgstr "Rechnername:"
+msgstr "nazwa komputera (host name):"
 
 #: ../../who.c:185
 msgid "Change host name"
-msgstr "Rechnernamen ändern"
+msgstr "Zmień nazwe komputera"
 
 #: ../../who.c:190 ../../static/t/aide/edituser/detailview.html:20
 #: ../../static/t/openid_manual_create.html:9
 #: ../../static/t/get_logged_in.html:57 ../../static/t/get_logged_in.html:72
 msgid "User name:"
-msgstr "Benutzername:"
+msgstr "Nazwa użytkownika"
 
 #: ../../who.c:195
 msgid "Change user name"
-msgstr "Benutzernamen ändern"
+msgstr "Zmień nazwę użytkownika"
 
 #: ../../siteconfig.c:46 ../../siteconfig.c:64 ../../roomlist.c:44
 #: ../../roomlist.c:394 ../../static/t/room/edit/tab_expire.html:72
 #: ../../static/t/room/edit/tab_config.html:149
 #: ../../static/t/room/edit/tab_access.html:42
 msgid "Higher access is required to access this function."
-msgstr "Diese Funktion benötigt höhere Zugriffsechte"
+msgstr "Wyższa poziom dostępu jest niezbędny do korzystania z tej funkcji"
 
 #: ../../siteconfig.c:256
 msgid ""
 "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
-"WARNUNG: Konnte die Serverkonfiguration nicht lesen; ist der Citserver neuer "
-"als WebCit?"
+"UWAGA: Nie można przetworzyć Server Config, czy uruchomić nowy citserve?"
 
 #: ../../siteconfig.c:319
 msgid "Your system configuration has been updated."
-msgstr "Ihre Systemkonfiguration wurde übernommen"
+msgstr "Konfiguracja systemu  została zaktualizowany."
 
 #: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
 #, c-format
 msgid "There is no room called '%s'."
-msgstr "Es gibt keinen Raum mit dem Namen '%s'."
+msgstr "Nie ma pokoju o nazwie '%s'."
 
 #: ../../wiki.c:76
 #, c-format
 msgid "'%s' is not a Wiki room."
-msgstr "'%s' ist kein Wiki-Raum."
+msgstr "'%s' pokój nie jest Wiki."
 
 #: ../../wiki.c:110
 #, c-format
 msgid "There is no page called '%s' here."
-msgstr "Es gibt hier keine Seite mit Namen '%s'."
+msgstr "Brak strony o nazwie '%s' tutaj."
 
 #: ../../wiki.c:112
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
-"Klicken Sie auf 'Diese Seite bearbeiten' im Raum-Banner, wenn Sie diesen "
-"Raum erzeugen möchten."
+"Wybierz link w banerze pokoju \"Edytuj stronę\" , jeśli chcesz utworzyć tę "
+"stronę."
 
 #: ../../wiki.c:181 ../../static/t/msg_listview.html:11
 msgid "Date"
-msgstr "Datum"
+msgstr "Date"
 
 #: ../../wiki.c:182
 msgid "Author"
@@ -1205,23 +1202,23 @@ msgstr "Autor"
 
 #: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
-msgstr "(anzeigen)"
+msgstr "(pokaż)"
 
 #: ../../wiki.c:211 ../../static/t/navbar.html:145
 msgid "Current version"
-msgstr "Aktuelle Version"
+msgstr "Bieżąca wersja"
 
 #: ../../wiki.c:223
 msgid "(revert)"
-msgstr "(zurücknehmen)"
+msgstr "(cofnij)"
 
 #: ../../wiki.c:300
 msgid "Page title"
-msgstr "Seitentitel"
+msgstr "Tytuł strony"
 
 #: ../../webcit.c:316
 msgid "Authorization Required"
-msgstr "Authentifizierung benötigt"
+msgstr "Wymagane zezwolenie"
 
 #: ../../webcit.c:324
 #, c-format
@@ -1229,77 +1226,77 @@ msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
-"Die angeforderte Sektion benötigt einen gültigen Benutzernamen und "
-"Passwort.Sie konnten nicht Angemeldet werden: %s\n"
+"Zasób który prosiłeś wymaga poprawnej nazwy użytkownika i hasło. Nie można "
+"się zalogować: %s\n"
 
 #: ../../webcit.c:647 ../../auth.c:526
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
 msgstr ""
-"Dieses Programm konnte keine Verbindung zum Citadel-Server herstellen oder "
-"aufrechterhalten. Bitte wenden Sie sich an Ihren Administrator."
+"Ten program nie był w stanie się połączyć . Proszę zgłosić ten problem do "
+"administratora systemu."
 
 #: ../../webcit.c:654 ../../auth.c:532
 msgid "Read More..."
-msgstr "Weiter lesen..."
+msgstr "Czytaj więcej ..."
 
 #: ../../smtpqueue.c:134 ../../static/t/aide/ignetconf/section.html:5
 #: ../../static/t/view_mailq/message.html:2
 msgid "(Delete)"
-msgstr "(Löschen)"
+msgstr "(Usuń)"
 
 #: ../../smtpqueue.c:334
 msgid "First Attempt pending"
-msgstr "Erster Versuch steht aus"
+msgstr "Pierwsza próba oczekuje"
 
 #: ../../roomlist.c:99
 msgid "My Folders"
-msgstr "Meine Ordner"
+msgstr "Moje Foldery"
 
 #: ../../downloads.c:289
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr "Ein Fehler trat beim herunterladen dieser Datei auf: %s\n"
+msgstr "Wystąpił błąd podczas pobierania tego pliku: %s\n"
 
 #: ../../roomtokens.c:572
 msgid "file"
-msgstr "Datei"
+msgstr "plik"
 
 #: ../../roomtokens.c:574
 msgid "files"
-msgstr "Dateien"
+msgstr "pliki"
 
 #: ../../summary.c:128
 msgid "(None)"
-msgstr "(Keine)"
+msgstr "(Żaden)"
 
 #: ../../summary.c:184
 msgid "(Nothing)"
-msgstr "(Nichts)"
+msgstr "(Brak)"
 
 #: ../../msg_renderers.c:579 ../../static/t/who/bio.html:15
 msgid "edit"
-msgstr "bearbeiten"
+msgstr "edycja"
 
 #: ../../msg_renderers.c:1119
 msgid "I don't know how to display "
-msgstr "Kann den folgenden Header nicht darstellen: "
+msgstr "Nie wiem, jak wyświetlić "
 
 #: ../../msg_renderers.c:1353
 msgid "(no subject)"
-msgstr "(kein Betreff)"
+msgstr "(brak tematu)"
 
 #: ../../addressbook_popup.c:186
 msgid "Add"
-msgstr "Hinzufügen"
+msgstr "Dodaj"
 
 #. an erased user
 #: ../../auth.c:30 ../../static/t/aide/edituser/detailview.html:43
 #: ../../static/t/aide/siteconfig/tab_access.html:40
 #: ../../static/t/aide/siteconfig/tab_access.html:51
 msgid "Deleted"
-msgstr "Gelöscht"
+msgstr "Usuń"
 
 #. a new user
 #: ../../auth.c:33 ../../static/t/aide/edituser/detailview.html:44
@@ -1307,192 +1304,194 @@ msgstr "Gelöscht"
 #: ../../static/t/aide/siteconfig/tab_access.html:52
 #: ../../static/t/get_logged_in.html:79
 msgid "New User"
-msgstr "Neuer Benutzer"
+msgstr "Nowy użytkownik"
 
 #. a trouble maker
 #: ../../auth.c:36 ../../static/t/aide/edituser/detailview.html:45
 #: ../../static/t/aide/siteconfig/tab_access.html:42
 #: ../../static/t/aide/siteconfig/tab_access.html:53
 msgid "Problem User"
-msgstr "Problematischer Benutzer"
+msgstr "Problematyczny użytkownik"
 
 #. user with normal privileges
 #: ../../auth.c:39 ../../static/t/aide/edituser/detailview.html:46
 #: ../../static/t/aide/siteconfig/tab_access.html:43
 #: ../../static/t/aide/siteconfig/tab_access.html:54
 msgid "Local User"
-msgstr "Lokaler Benutzer"
+msgstr "Lokalny użytkownik"
 
 #. a user that may access network resources
 #: ../../auth.c:42 ../../static/t/aide/edituser/detailview.html:47
 #: ../../static/t/aide/siteconfig/tab_access.html:44
 #: ../../static/t/aide/siteconfig/tab_access.html:55
 msgid "Network User"
-msgstr "Netzwerk Benutzer"
+msgstr "Sieciowy użytkownik"
 
 #. a moderator
 #: ../../auth.c:45 ../../static/t/aide/edituser/detailview.html:48
 #: ../../static/t/aide/siteconfig/tab_access.html:45
 #: ../../static/t/aide/siteconfig/tab_access.html:56
 msgid "Preferred User"
-msgstr "nur Privilegierte Benutzer"
+msgstr "Preferowany użytkownik"
 
 #. chief
 #: ../../auth.c:48 ../../static/t/aide/edituser/detailview.html:49
 #: ../../static/t/aide/siteconfig/tab_access.html:46
 #: ../../static/t/aide/siteconfig/tab_access.html:57
 msgid "Admin"
-msgstr "Verantwortlicher"
+msgstr "Admin"
 
 #: ../../auth.c:513 ../../static/t/iconbar.html:80
 #: ../../static/t/confirmlogoff.html:3
 #: ../../static/t/menu/basic_commands.html:19
 msgid "Log off"
-msgstr "Abmelden"
+msgstr "Wyloguj"
 
 #: ../../auth.c:537
 msgid "Log in again"
-msgstr "Erneut anmelden"
+msgstr "Zaloguj ponownie"
 
 #: ../../auth.c:585 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
-msgstr "Neue Benutzer überprüfen"
+msgstr "Zatwierdź nowych użytkowników"
 
 #: ../../auth.c:605
 msgid "No users require validation at this time."
-msgstr "Zur Zeit müssen keine Benutzer validiert werden."
+msgstr "Obecnie żaden użytkownik nie wymaga zatwierdzenia."
 
 #: ../../auth.c:655
 msgid "very weak"
-msgstr "sehr schwach"
+msgstr "bardzo słabe"
 
 #: ../../auth.c:658
 msgid "weak"
-msgstr "schwach"
+msgstr "słabe"
 
 #: ../../auth.c:661
 msgid "ok"
-msgstr "in Ordnung"
+msgstr "ok"
 
 #: ../../auth.c:665
 msgid "strong"
-msgstr "stark"
+msgstr "mocne"
 
 #: ../../auth.c:683
 #, c-format
 msgid "Current access level: %d (%s)\n"
-msgstr "Aktuelle Berechtigungen: %d (%s)\n"
+msgstr "Aktualny poziom dostępu: %d (%s)\n"
 
 #: ../../auth.c:691
 msgid "Select access level for this user:"
-msgstr "Berechtigungen dieses Benutzers"
+msgstr "Wybierz poziom dostępu dla tego użytkownika:"
 
 #: ../../auth.c:776 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
-msgstr "Ändern Sie Ihr Passwort"
+msgstr "Zmień swoje hasło"
 
 #: ../../auth.c:800
 msgid "Enter new password:"
-msgstr "Bitte geben Sie ein neues Passwort ein:"
+msgstr "Wprowadź nowe hasło:"
 
 #: ../../auth.c:804
 msgid "Enter it again to confirm:"
-msgstr "Noch einmal zur Verifizierung:"
+msgstr "Wprowadź je ponownie, aby potwierdzić:"
 
 #: ../../auth.c:810
 msgid "Change password"
-msgstr "Passwort ändern"
+msgstr "Zmiana hasła"
 
 #: ../../auth.c:830
 msgid "Cancelled.  Password was not changed."
-msgstr "Abgebrochen. Passwort wurde nicht geändert."
+msgstr "Anulowane. Hasło nie zostało zmienione."
 
 #: ../../auth.c:839
 msgid "They don't match.  Password was not changed."
-msgstr "Die Passwörter stimmen nicht überein. Passwort nicht geändert."
+msgstr "One nie pasują. Hasło nie zostało zmienione."
 
 #: ../../auth.c:845
 msgid "Blank passwords are not allowed."
-msgstr "Leere Passwörter sind nicht zulässig."
+msgstr "Puste hasła nie są dozwolone."
 
 #: ../../openid.c:34
 msgid "Manage Account/OpenID Associations"
-msgstr "Konten/OpenID Assoziierungen verwalten"
+msgstr "Zarządzanie kontem OpenID"
 
 #: ../../openid.c:52
 msgid "Do you really want to delete this OpenID?"
-msgstr "Wollen Sie diese OpenID wirklich löschen?"
+msgstr "Czy na pewno chcesz usunąć OpenID?"
 
 #: ../../openid.c:53
 msgid "(delete)"
-msgstr "(Löschen)"
+msgstr "(usuń)"
 
 #: ../../openid.c:61
 msgid "Add an OpenID: "
-msgstr "Eine OpenID hinzufügen: "
+msgstr "Dodaj OpenID: "
 
 #: ../../openid.c:64
 msgid "Attach"
-msgstr "Verbinden"
+msgstr "Załącz"
 
 #: ../../openid.c:68
 #, c-format
 msgid "%s does not permit authentication via OpenID."
-msgstr "%s erlaubt kein Anmelden per OpenID"
+msgstr "%s nie zezwala na uwierzytelnianie za pomocą OpenID."
 
 #: ../../html2html.c:136
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
-msgstr "realloc() Fehler! Konnte %d Bytes nicht allozieren: %s"
+msgstr "realloc() łąd! nie może pobrać  %d bytes: %s"
 
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
-msgstr "Anzeigen als:"
+msgstr "Wyświetl jako:"
 
 #: ../../static/t/sieve/list.html:32 ../../static/t/sieve/none.html:4
 #: ../../static/t/menu/your_info.html:7
 msgid "View/edit server-side mail filters"
-msgstr "Bearbeiten/Anzeigen von serverseitigen Mailfiltern"
+msgstr "Pokaż/edytuj filtr pocztowy od strony servera"
 
 #: ../../static/t/sieve/list.html:41
 msgid "When new mail arrives: "
-msgstr "Wenn eine neue Mail ankommt: "
+msgstr "Gdy nadejdzie nowa poczta: "
 
 #: ../../static/t/sieve/list.html:43
 msgid "Leave it in my inbox without filtering"
-msgstr "Im Posteingang belassen ohne filtern"
+msgstr "Zostaw go w skrzynce odbiorczej bez filtrowania"
 
 #: ../../static/t/sieve/list.html:44
 msgid "Filter it according to rules selected below"
-msgstr "Mit den folgenden Regeln filtern"
+msgstr "Filtrować je według zasad wybranych poniżej"
 
 #: ../../static/t/sieve/list.html:45
 msgid "Filter it through a manually edited script (advanced users only)"
-msgstr "Mit manuell bearbeitetem Script filtern (nur für erfahrene Benutzer)"
+msgstr ""
+"Przefiltrowanego przez edytowanie ręczne skryptu (tylko dla zaawansowanych "
+"użytkowników)"
 
 #: ../../static/t/sieve/list.html:52
 msgid "Your incoming mail will not be filtered through any scripts."
-msgstr "Ihre ankommenden Mails werden nicht gefiltert."
+msgstr "woja poczta przychodząca nie będzie filtrowana przez skrypty."
 
 #: ../../static/t/sieve/list.html:64
 msgid "Add rule"
-msgstr "Neue Regel"
+msgstr "Dodaj zasade"
 
 #: ../../static/t/sieve/list.html:71
 msgid "The currently active script is: "
-msgstr "Das zur Zeit aktive Script ist: "
+msgstr "Skrypt jest aktualnie aktywny: "
 
 #: ../../static/t/sieve/list.html:76 ../../static/t/sieve/add.html:3
 msgid "Add or delete scripts"
-msgstr "Script bearbeiten/löschen"
+msgstr "Dodawanie lub usuwanie skryptów"
 
 #: ../../static/t/sieve/display_one.html:16
 msgid "If"
-msgstr "Wenn"
+msgstr "Jeśli"
 
 #: ../../static/t/sieve/display_one.html:21
 msgid "To or Cc"
-msgstr "To oder Cc"
+msgstr "Do lub CC"
 
 #: ../../static/t/sieve/display_one.html:23
 msgid "Reply-to"
@@ -1502,7 +1501,7 @@ msgstr "Reply-to"
 #: ../../static/t/msg_listview.html:10
 #: ../../static/t/view_mailq/header.html:27
 msgid "Sender"
-msgstr "Absender"
+msgstr "Nadawca"
 
 #: ../../static/t/sieve/display_one.html:25
 msgid "Resent-From"
@@ -1534,52 +1533,52 @@ msgstr "X-Spam-Status"
 
 #: ../../static/t/sieve/display_one.html:32
 msgid "List-ID"
-msgstr "Listen-ID"
+msgstr "List-ID"
 
 #: ../../static/t/sieve/display_one.html:33
 msgid "Message size"
-msgstr "Nachrichten größe"
+msgstr "Wielkośc wiadomości"
 
 #: ../../static/t/sieve/display_one.html:34
 #: ../../static/t/select_messageindex_all.html:1
 msgid "All"
-msgstr "Alle"
+msgstr "Wszystko"
 
 #: ../../static/t/sieve/display_one.html:41
 msgid "contains"
-msgstr "beinhaltet"
+msgstr "zawiera"
 
 #: ../../static/t/sieve/display_one.html:42
 msgid "does not contain"
-msgstr "beinhaltet nicht"
+msgstr "nie zawiera"
 
 #: ../../static/t/sieve/display_one.html:43
 msgid "is"
-msgstr "ist"
+msgstr "jest"
 
 #: ../../static/t/sieve/display_one.html:44
 msgid "is not"
-msgstr "ist nicht"
+msgstr "nie jest"
 
 #: ../../static/t/sieve/display_one.html:45
 msgid "matches"
-msgstr "trifft zu"
+msgstr "pasuje do"
 
 #: ../../static/t/sieve/display_one.html:46
 msgid "does not match"
-msgstr "trifft nicht zu"
+msgstr "nie pasuje do"
 
 #: ../../static/t/sieve/display_one.html:52
 msgid "(All messages)"
-msgstr "(Alle Beiträge)"
+msgstr "(Wszystkie wiadomości)"
 
 #: ../../static/t/sieve/display_one.html:56
 msgid "is larger than"
-msgstr "ist größer als"
+msgstr "większe niż"
 
 #: ../../static/t/sieve/display_one.html:57
 msgid "is smaller than"
-msgstr "ist kleiner als"
+msgstr "mniejsze niż"
 
 #: ../../static/t/sieve/display_one.html:59
 msgid "bytes"
@@ -1587,43 +1586,43 @@ msgstr "bytes"
 
 #: ../../static/t/sieve/display_one.html:65
 msgid "Keep"
-msgstr "Behalten"
+msgstr "Pozostaw"
 
 #: ../../static/t/sieve/display_one.html:66
 msgid "Discard silently"
-msgstr "still verwerfen"
+msgstr "Wyrzucić po cichu"
 
 #: ../../static/t/sieve/display_one.html:67
 msgid "Reject"
-msgstr "Abweisen"
+msgstr "Odrzuć"
 
 #: ../../static/t/sieve/display_one.html:68
 msgid "Move message to"
-msgstr "Meldung verschieben nach"
+msgstr "Przenieść wiadomość do"
 
 #: ../../static/t/sieve/display_one.html:69
 msgid "Forward to"
-msgstr "Weiterleiten an"
+msgstr "Przekaż do"
 
 #: ../../static/t/sieve/display_one.html:70
 msgid "Vacation"
-msgstr "Abwesenheits-Benachrichtigung"
+msgstr "Wakacje"
 
 #: ../../static/t/sieve/display_one.html:82
 msgid "Message:"
-msgstr "Nachricht:"
+msgstr "Wiadomość:"
 
 #: ../../static/t/sieve/display_one.html:90
 msgid "and then"
-msgstr "und dann"
+msgstr "i wtedy"
 
 #: ../../static/t/sieve/display_one.html:93
 msgid "continue processing"
-msgstr "weiter Bearbeiten"
+msgstr "kontynuj przetwarzanie"
 
 #: ../../static/t/sieve/display_one.html:94
 msgid "stop"
-msgstr "stop"
+msgstr "zatrzymaj"
 
 #: ../../static/t/sieve/none.html:9
 msgid ""
@@ -1631,216 +1630,216 @@ msgid ""
 "filtering.<br>Please contact your system administrator if you require this "
 "feature.<br>"
 msgstr ""
-"Diese Citadel installation wurde ohne Serverseitige Mailfilter gebaut<br> "
-"Bitte fragen Sie Ihren Administrator, wenn Sie diese Funktion brauchen."
+"Instalacja Citadel została zbudowana bez obsługi po stronie serwera "
+"filtrowania poczty. <br> Proszę skontaktować się z administratorem systemu, "
+"jeśli potrzebujesz tej funkcji<br>"
 
 #: ../../static/t/sieve/add.html:9
 msgid "Add a new script"
-msgstr "Neues Script hinzufügen"
+msgstr "Dodaj nowy skrypt"
 
 #: ../../static/t/sieve/add.html:10
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
 msgstr ""
-"Um eine neues Script anzulegen, den gewünschten Scriptnamen in das Textfeld "
-"eintragen und 'Anlegen' Klicken"
+"Aby utworzyć nowy skrypt, wprowadź żądaną nazwę skryptu w polu poniżej i "
+"kliknij przycisk \"Utwórz\"."
 
 #: ../../static/t/sieve/add.html:14
 msgid "Script name: "
-msgstr "Script-Name: "
+msgstr "Nazwa skryptu: "
 
 #: ../../static/t/sieve/add.html:18
 msgid "Edit scripts"
-msgstr "Script bearbeiten"
+msgstr "Edytuj skrypty"
 
 #: ../../static/t/sieve/add.html:20
 msgid "Return to the script editing screen"
-msgstr "Zurück zum Bearbeitungsformular"
+msgstr "Powrócić do ekranu edycji skrypt"
 
 #: ../../static/t/sieve/add.html:23
 msgid "Delete scripts"
-msgstr "Script Löschen"
+msgstr "Usuń skryptów"
 
 #: ../../static/t/sieve/add.html:24
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
 msgstr ""
-"Um ein vorhandenes Script zu löschen, das Script aus der Liste auswählen und "
-"dann 'Löschen' Klicken"
+"Aby usunąć istniejący skrypt, wybierz nazwę skryptu z listy i kliknij "
+"\"Usuń\"."
 
 #: ../../static/t/msg/confirm_move.html:4
 msgid "Confirm move of message"
-msgstr "Verschieben bestätigen"
+msgstr "Potwierdzić przeniesienie wiadomości"
 
 #: ../../static/t/msg/confirm_move.html:12
 msgid "Move this message to:"
-msgstr "Meldung verschieben nach:"
+msgstr "Przenieść tę wiadomość:"
 
 #: ../../static/t/login.html:5
 msgid "powered by"
-msgstr "betrieben mit"
+msgstr "powered by"
 
 #: ../../static/t/login.html:15 ../../static/t/iconbar.html:88
 #: ../../static/t/get_logged_in.html:64 ../../static/t/get_logged_in.html:88
 #: ../../static/t/get_logged_in.html:93 ../../static/t/get_logged_in.html:98
 #: ../../static/t/get_logged_in.html:107
 msgid "Log in"
-msgstr "Anmelden"
+msgstr "Zaloguj się"
 
 #: ../../static/t/trailing.html:14
 msgid ""
 "WARNING: You have JavaScript disabled in your web browser.  Many functions "
 "of this system will not work properly."
 msgstr ""
-"WARNUNG: JavaScript ist im Browser abgeschaltet. Viele Funktionen des "
-"Systems stehen nicht zur verfügung."
+"WAGA: masz wyłączoną obsługę JavaScript w przeglądarce. Wiele funkcji tego "
+"systemu nie będzie działać poprawnie."
 
 #: ../../static/t/view_submessage.html:4
 #: ../../static/t/view_message/replyquote.html:3
 #: ../../static/t/view_message/replyquote.html:7
 #: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:7
 msgid "from "
-msgstr "von "
+msgstr "od "
 
 #: ../../static/t/searchomatic.html:4
 msgid "Search: "
-msgstr "Suchen: "
+msgstr "Szukaj: "
 
 #: ../../static/t/listsub/display.html:16
 msgid "You are subscribing "
-msgstr "Sie abonnieren "
+msgstr "Jesteś zapisany "
 
 #: ../../static/t/listsub/display.html:17
 msgid " to the "
-msgstr " die "
+msgstr " do "
 
 #: ../../static/t/listsub/display.html:18
 msgid " mailing list."
-msgstr " Mailing-Liste."
+msgstr " listy dyskusyjnej."
 
 #: ../../static/t/listsub/display.html:19
 msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your subscription."
 msgstr ""
-"Der Mailing-Listen-Server hat Ihnen eine E-Mail mit einem Verweis gesendet, "
-"auf den Sie klicken müssen, um Ihr Abonnement zu bestätigen."
+"List serwerowi wysłał Ci wiadomość e-mail z linkiem łącza internetowego, aby "
+"kliknąć, aby potwierdzić subskrypcję."
 
 #: ../../static/t/listsub/display.html:20
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to subscribe you to lists without your consent."
 msgstr ""
-"Dieser zusätzliche Schritt dient Ihrem Schutz, weil dadurch verhindert wird, "
-"dass andere ohne Ihre Zustimmung für Sie Mailing-Listen abonnieren können."
+"Ten dodatkowy krok jest dla ochrony, ponieważ zapobiega innym zapisać się do "
+"listy bez twojej zgody."
 
 #: ../../static/t/listsub/display.html:22
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "subscription will be confirmed."
 msgstr ""
-"Bitte klicken Sie auf den Verweis, der Ihnen per E-Mail gesendet wurde und "
-"Ihr Abonnement wird bestätigt."
+"Poszę kliknąć na link, który jest w e-mail, aby została potwierdzona "
+"subskrybcja."
 
 #: ../../static/t/listsub/display.html:27
 #: ../../static/t/listsub/display.html:47
 msgid "ERROR"
-msgstr "FEHLER"
+msgstr "BŁĄD"
 
 #: ../../static/t/listsub/display.html:35
 msgid "You are unsubscribing"
-msgstr "Sie kündigen das Abonnement"
+msgstr "Wypisałeś sie"
 
 #: ../../static/t/listsub/display.html:37
 msgid "from the"
-msgstr "der"
+msgstr "z"
 
 #: ../../static/t/listsub/display.html:39
 msgid "mailing list."
-msgstr "Mailing-Liste."
+msgstr "listy dyskusyjnej."
 
 #: ../../static/t/listsub/display.html:40
 msgid ""
 "The listserver has sent you an e-mail with one additional Web link for you "
 "to click on to confirm your unsubscription."
 msgstr ""
-"Der Mailing-Listen-Server hat Ihnen eine E-Mail mit einem Verweis gesendet, "
-"auf den Sie klicken müssen, um die Kündigung Ihres Abonnements zu bestätigen."
+"Listserwerowi wysłał Ci wiadomość e-mail z linkiem do strony internetowego, "
+"aby kliknąć, aby potwierdzić anulowanie subskrypcji."
 
 #: ../../static/t/listsub/display.html:41
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to unsubscribe you from lists without your consent."
 msgstr ""
-"Dieser zusätzliche Schritt dient Ihrem Schutz, weil dadurch verhindert wird, "
-"dass andere ohne Ihre Zustimmung Ihre Mailing-Listen-Abonnements kündigen "
-"können."
+"Ten dodatkowy krok jest dla ochrony, ponieważ zapobiega aby inni nie mogli "
+"zrezygnować z wypisania sie z listy bez twojej zgody."
 
 #: ../../static/t/listsub/display.html:43
 msgid ""
 "Please click on the link which is being e-mailed to you and your "
 "unsubscription will be confirmed."
 msgstr ""
-"Bitte klicken Sie auf den Verweis, der Ihnen per E-Mail gesendet wurde und "
-"Ihre Abonnement-Kündigung wird bestätigt."
+"Proszę kliknąć na link, który jest w e-mail aby wypisanie zostało "
+"potwierdzone."
 
 #: ../../static/t/listsub/display.html:44
 msgid "Back..."
-msgstr "Zurück …"
+msgstr "Wróć ..."
 
 #: ../../static/t/listsub/display.html:54
 msgid "Confirmation successful!"
-msgstr "Bestätigung erfolgreich!"
+msgstr "Potwierdzenie sukces!"
 
 #: ../../static/t/listsub/display.html:56
 msgid "Confirmation failed."
-msgstr "Bestätigung gescheitert."
+msgstr "Potwierdzenie nie powiodło się."
 
 #: ../../static/t/listsub/display.html:57
 msgid "This could mean one of two things:"
-msgstr "Das könnte eines von zwei Dingen bedeuten:"
+msgstr "Może to oznaczać jedną z dwóch rzeczy:"
 
 #: ../../static/t/listsub/display.html:59
 msgid ""
 "You waited too long to confirm your subscribe/unsubscribe request (the "
 "confirmation link is only valid for three days)"
 msgstr ""
-"Sie haben mit der Bestätigung Ihres Abonnements/Ihrer Abonnement-Kündigung "
-"zu lange gewartet (der Verweis zur Bestätigung ist nur drei Tage lang gültig)"
+"Czekałeś zbyt długo, aby potwierdzić subskrypcję /wypisanie (Link "
+"potwierdzający jest ważny tylko przez trzy dni)"
 
 #: ../../static/t/listsub/display.html:60
 msgid ""
 "You have <i>already</i> successfully confirmed your subscribe/unsubscribe "
 "request and are attempting to do it again."
 msgstr ""
-"Sie <i>haben bereits</i> erfolgreich Ihr Abonnement/Ihre Abonnement-"
-"Kündigung bestätigt und versuchen es gerade erneut."
+"Masz <i> już </ i> z powodzeniem potwierdzenie subskrypcji / wypisania  i "
+"starasz się zrobić to ponownie."
 
 #: ../../static/t/listsub/display.html:62
 msgid "The error returned by the server was: "
-msgstr "Der vom Server gemeldete Fehler war: "
+msgstr "Błąd zwracany przez serwer był: "
 
 #: ../../static/t/listsub/display.html:70
 msgid "Name of list:"
-msgstr "Name der Liste:"
+msgstr "Nazwa listy:"
 
 #: ../../static/t/listsub/display.html:75
 msgid "Your e-mail address:"
-msgstr "Ihre E-Mail-Adresse:"
+msgstr "Twój adres email:"
 
 #: ../../static/t/listsub/display.html:79
 msgid "(If subscribing) preferred format: "
-msgstr "Bevorzugtes Format (falls Sie abonnieren): "
+msgstr "(Jeśli subskrypcjia) preferowany format: "
 
 #: ../../static/t/listsub/display.html:80
 msgid "One message at a time"
-msgstr "Eine Nachricht auf einmal"
+msgstr "Jedna wiadomość na raz"
 
 #: ../../static/t/listsub/display.html:81
 msgid "Digest format"
-msgstr "Digest-Format"
+msgstr "Strawny format"
 
 #: ../../static/t/listsub/display.html:89
 msgid ""
@@ -1848,91 +1847,90 @@ msgid ""
 "receive an e-mail containing one additional web link to click on for final "
 "confirmation."
 msgstr ""
-"Sie werden eine E-Mail mit einem zusätzlichen Verweis erhalten, auf den Sie "
-"zur endgültigen Bestätigung klicken müssen, wenn Sie versuchen, eine Mailing-"
-"Liste zu abonnieren oder zu kündigen."
+"Podczas próby zapisać lub wypisać się z listy mailingowej, otrzymasz "
+"wiadomość e-mail zawierającą Link do strony internetowej kliknij na "
+"ostateczne potwierdzenie."
 
 #: ../../static/t/listsub/display.html:90
 msgid ""
 "This extra step is for your protection, as it prevents others from being "
 "able to subscribe or unsubscribe you to lists."
 msgstr ""
-"Dieser zusätzliche Schritt dient Ihrem Schutz, weil dadurch verhindert wird, "
-"dass andere ohne Ihre Zustimmung für Sie Mailing-Listen abonnieren oder Ihre "
-"Mailing-Listen-Abonnements kündigen können."
+"Ten dodatkowy krok jest dla ochrony, ponieważ zapobiega prze próbami przez "
+"innych  zapisać lub wypisać ciebie z list."
 
 #: ../../static/t/floors_edit_one.html:11
 msgid "(delete floor)"
-msgstr "(Etage löschen)"
+msgstr "(usuń piętro)"
 
 #: ../../static/t/floors_edit_one.html:13
 msgid "(edit graphic)"
-msgstr "(Bild verändern)"
+msgstr "(edycja grafiki)"
 
 #: ../../static/t/floors.html:4
 msgid "Add/change/delete floors"
-msgstr "Etage erstellen/ändern/löschen"
+msgstr "Dodaj/zmień/usuń  piętra"
 
 #: ../../static/t/floors.html:10
 msgid "Floor number"
-msgstr "Etagen-Nr."
+msgstr "Numer piętra"
 
 #: ../../static/t/floors.html:11
 msgid "Floor name"
-msgstr "Etagen-Name"
+msgstr "Nazwa piętra"
 
 #: ../../static/t/floors.html:12
 msgid "Number of rooms"
-msgstr "Zahl der Räume"
+msgstr "Liczba pokoi"
 
 #: ../../static/t/floors.html:13
 msgid "Floor CSS"
-msgstr "Etagen CSS"
+msgstr "CSS piętra"
 
 #: ../../static/t/files.html:4
 msgid "Files available for download in"
-msgstr "Zum Download verfügbare Dateien in"
+msgstr "Pliki dostępne do pobrania w"
 
 #: ../../static/t/files.html:9
 msgid "Upload a file:"
-msgstr "Eine Datei hochladen:"
+msgstr "Prześlij plik:"
 
 #: ../../static/t/files.html:30
 msgid "Filename"
-msgstr "Dateiname"
+msgstr "Nazwa pliku"
 
 #: ../../static/t/files.html:31
 msgid "Size"
-msgstr "Größe"
+msgstr "Wielkość"
 
 #: ../../static/t/files.html:32
 msgid "Content"
-msgstr "Inhalt"
+msgstr "Zawartość"
 
 #: ../../static/t/files.html:33
 msgid "Description"
-msgstr "Beschreibung"
+msgstr "Opis"
 
 #: ../../static/t/edit_message.html:9 ../../static/t/iconbar.html:50
 #: ../../static/t/iconbar.html:59
 msgid "Loading"
-msgstr "Lade"
+msgstr "Wczytywanie"
 
 #: ../../static/t/edit_message.html:23
 msgid "from"
-msgstr "von"
+msgstr "z"
 
 #: ../../static/t/edit_message.html:29 ../../static/t/edit_message.html:38
 msgid "Anonymous"
-msgstr "Anonym"
+msgstr "Anonimowy"
 
 #: ../../static/t/edit_message.html:47
 msgid "in"
-msgstr "in"
+msgstr "w"
 
 #: ../../static/t/edit_message.html:51
 msgid "To:"
-msgstr "An:"
+msgstr "Do:"
 
 #: ../../static/t/edit_message.html:57
 #: ../../static/t/view_message/print.html:15
@@ -1946,89 +1944,89 @@ msgstr "BCC:"
 
 #: ../../static/t/edit_message.html:71
 msgid "Subject (optional):"
-msgstr "Betreff (optional):"
+msgstr "Tyruł (opcyjnie):"
 
 #: ../../static/t/edit_message.html:71
 #: ../../static/t/view_message/replyquote.html:8
 #: ../../static/t/view_message/print.html:16
 #: ../../static/t/view_message.html:16
 msgid "Subject:"
-msgstr "Betreff:"
+msgstr "Tytuł:"
 
 #: ../../static/t/edit_message.html:86
 msgid "--- forwarded message ---"
-msgstr "--- Weitergeleitete Nachricht ---"
+msgstr "--- wiadomośc przekazywana ---"
 
 #: ../../static/t/edit_message.html:110
 msgid "Post message"
-msgstr "Beitrag senden"
+msgstr "Napisz wiadmość"
 
 #: ../../static/t/edit_message.html:118
 msgid "Save to Drafts"
-msgstr "Als Entwurf speichern."
+msgstr "Zapisz do Roboczych"
 
 #: ../../static/t/edit_message.html:126
 #: ../../static/t/edit_message/attachments_pane.html:5
 msgid "Attachments:"
-msgstr "Anhänge:"
+msgstr "Załączniki:"
 
 #: ../../static/t/aide/display_serverrestart_page.html:4
 msgid "Message to your Users:"
-msgstr "Kurznachricht an die Benutzer:"
+msgstr "Wiadomość do użytkowników:"
 
 #: ../../static/t/aide/display_generic_result.html:2
 msgid "Server command results"
-msgstr "Server-Kommando-Ergebnisse"
+msgstr "Wyniki poleceń serwera"
 
 #: ../../static/t/aide/display_generic_result.html:18
 msgid "Enter another command"
-msgstr "Weiteren Befehl eingeben"
+msgstr "Wpisz inną komendę"
 
 #: ../../static/t/aide/display_generic_result.html:19
 msgid "Return to menu"
-msgstr "Zurück zum Menü"
+msgstr "Powrót do menu"
 
 #: ../../static/t/aide/display_sitewide_config.html:3
 msgid "Site configuration"
-msgstr "Standortskonfiguration"
+msgstr "Konfiguracja strony"
 
 #: ../../static/t/aide/display_sitewide_config.html:6
 #: ../../static/t/aide/edituser/select.html:9
 msgid "You need to be aide to view this."
-msgstr "Sie haben keine Berechtigung diese Ressource einzusehen."
+msgstr "Musisz być  pomcnikiem aby móc wyświetlić to."
 
 #: ../../static/t/aide/display_sitewide_config.html:11
 msgid "General"
-msgstr "Allgemein"
+msgstr "Ogólnie"
 
 #: ../../static/t/aide/display_sitewide_config.html:12
 msgid "Access"
-msgstr "Zugang"
+msgstr "Dostęp"
 
 #: ../../static/t/aide/display_sitewide_config.html:13
 msgid "Network"
-msgstr "Netzwerk"
+msgstr "Sieć"
 
 #: ../../static/t/aide/display_sitewide_config.html:14
 msgid "Tuning"
-msgstr "Feinabstimmung"
+msgstr "Dostrajanie"
 
 #: ../../static/t/aide/display_sitewide_config.html:15
 msgid "Directory"
-msgstr "Verzeichnis"
+msgstr "Katlog"
 
 #: ../../static/t/aide/display_sitewide_config.html:16
 msgid "Auto-purger"
-msgstr "Automatischer Nachrichtenlöscher"
+msgstr "Automatyczne czyszczenie"
 
 #: ../../static/t/aide/display_sitewide_config.html:17
 msgid "Indexing/Journaling"
-msgstr "Indizierung/Protokollierung"
+msgstr "Indeksowanie / księgowanie"
 
 #: ../../static/t/aide/display_sitewide_config.html:18
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:1
 msgid "Push Email"
-msgstr "Mobile Push-EMail"
+msgstr "Natychmiastowe przesyłanie wiadomości (push e-mail)"
 
 #: ../../static/t/aide/display_sitewide_config.html:19
 msgid "Pop3"
@@ -2036,126 +2034,126 @@ msgstr "Pop3"
 
 #: ../../static/t/aide/usermanagement.html:2
 msgid "Add, change, delete user accounts"
-msgstr "Benutzer bearbeiten/löschen/anlegen"
+msgstr "Dodawanie, zmienianie, usuwanie kont użytkowników"
 
 #: ../../static/t/aide/display_inetconf.html:5
 #: ../../static/t/aide/display_menu.html:5
 msgid "System Administration Menu"
-msgstr "Systemverwaltungsmenü"
+msgstr "Menu Administracji Systemu"
 
 #: ../../static/t/aide/display_inetconf.html:6
 #: ../../static/t/aide/display_menu.html:6
 msgid "Room Admin Menu"
-msgstr "Raumverantwortlichen Menü"
+msgstr "Pokój Menu Admin"
 
 #: ../../static/t/aide/display_inetconf.html:13
 msgid "Local host aliases"
-msgstr "Aliase für diese Maschine"
+msgstr "Lokalne aliasy systemu (host)"
 
 #: ../../static/t/aide/display_inetconf.html:14
 msgid "Directory domains"
-msgstr "Verzeichnis Namen"
+msgstr "Katalog domen"
 
 #: ../../static/t/aide/display_inetconf.html:15
 msgid "Smart hosts"
-msgstr "Smart Hosts"
+msgstr "Smart hosts"
 
 #: ../../static/t/aide/display_inetconf.html:16
 msgid "Fallback smart hosts"
-msgstr "Ausweich Smart-Hosts"
+msgstr "Awaryjne sprytne hosty"
 
 #: ../../static/t/aide/display_inetconf.html:17
 msgid "Notification hosts"
-msgstr "Benachrichtigungshosts"
+msgstr "Hosty powiadamiające"
 
 #: ../../static/t/aide/display_inetconf.html:22
 msgid "RBL hosts"
-msgstr "Blacklist-Maschinen"
+msgstr "RBL hosts"
 
 #: ../../static/t/aide/display_inetconf.html:23
 msgid "SpamAssassin hosts"
-msgstr "SpamAssassin-Maschinen"
+msgstr "SpamAssassin hosts"
 
 #: ../../static/t/aide/display_inetconf.html:24
 msgid "ClamAV clamd hosts"
-msgstr "ClamAV Clamd Maschine"
+msgstr "ClamAV clamd hosts"
 
 #: ../../static/t/aide/display_inetconf.html:25
 msgid "Masqueradable domains"
-msgstr "Masquarading-Domains"
+msgstr "Maskowane domeny"
 
 #: ../../static/t/aide/edituser/select.html:5
 msgid "Edit or delete users"
-msgstr "Benutzer bearbeiten/löschen"
+msgstr "Edytowanie lub usuwanie użytkowników"
 
 #: ../../static/t/aide/edituser/select.html:17
 msgid "Add users"
-msgstr "Neuer Benutzer"
+msgstr "Dodawanie użytkowników"
 
 #: ../../static/t/aide/edituser/select.html:20
 msgid "Edit or Delete users"
-msgstr "Benutzer bearbeiten/löschen"
+msgstr "Wdycja lub usuwanie użytkowników"
 
 #: ../../static/t/aide/edituser/box_select.html:1
 msgid ""
 "To edit an existing user account, select the user name from the list and "
 "click 'Edit'."
 msgstr ""
-"Einen vorhandenen Benutzer zum Bearbeiten aus der Liste auswählen und dann "
-"'Bearbeiten' Klicken"
+"Aby edytować istniejące konto użytkownika, wybierz nazwę użytkownika z listy "
+"i kliknij przycisk \"Edytuj\"."
 
 #: ../../static/t/aide/edituser/detailview.html:4
 msgid "Edit user account: "
-msgstr "Benutzer bearbeiten: "
+msgstr "Edytuj konto użytkownika: "
 
 #: ../../static/t/aide/edituser/detailview.html:24
 #: ../../static/t/room/edit/tab_feed.html:14
 msgid "Password"
-msgstr "Passwort"
+msgstr "Hasło"
 
 #: ../../static/t/aide/edituser/detailview.html:28
 msgid "Permission to send Internet mail"
-msgstr "Erlaubnis Internet-EMail zu senden"
+msgstr "Uprawnienie do wysyłania poczty internetowej"
 
 #: ../../static/t/aide/edituser/detailview.html:32
 msgid "Number of logins"
-msgstr "Anzahl der Anmeldungen"
+msgstr "Liczba logowań"
 
 #: ../../static/t/aide/edituser/detailview.html:36
 msgid "Messages submitted"
-msgstr "Nachricht abgeschickt"
+msgstr "Wiadomości wysłane"
 
 #: ../../static/t/aide/edituser/detailview.html:40
 msgid "Access level"
-msgstr "Zugangsberechtigung"
+msgstr "Poziom dostępu"
 
 #: ../../static/t/aide/edituser/detailview.html:54
 msgid "User ID number"
-msgstr "Benutzer-ID"
+msgstr "Numer ID użytkownika"
 
 #: ../../static/t/aide/edituser/detailview.html:58
 msgid "Date and time of last login"
-msgstr "Datum der letzten Anmeldung"
+msgstr "Data i czas ostatniego logowania"
 
 #: ../../static/t/aide/edituser/detailview.html:68
 msgid "Auto-purge after this many days"
-msgstr "Automatisch löschen nach n Tagen"
+msgstr "Auto-czyszczenie po ilosci dni"
 
 #: ../../static/t/aide/edituser/add.html:1
 msgid ""
 "To create a new user account, enter the desired user name in the box below "
 "and click 'Create'."
 msgstr ""
-"Um einen neuen Benutzer einzurichten, den Anmeldenamen in das Textfeld "
-"eintragen und 'Anlegen' Klicken"
+"Aby utworzyć nowe konto użytkownika, wprowadź żądaną nazwę użytkownika w "
+"polu poniżej i kliknij przycisk \"Utwórz\"."
 
 #: ../../static/t/aide/edituser/add.html:5
 msgid "New user: "
-msgstr "Neuer Benutzer: "
+msgstr "Nowy użytkownik: "
 
 #: ../../static/t/aide/display_generic_cmd.html:4
 msgid "Enter a server command"
-msgstr "Ein Server-Kommando eingeben"
+msgstr "Wpisz polecenie serwera"
 
 #: ../../static/t/aide/display_generic_cmd.html:12
 msgid ""
@@ -2163,108 +2161,108 @@ msgid ""
 "supported by WebCit.  If you do not know what that means, then this screen "
 "will not be of much use to you."
 msgstr ""
-"Dieses Fenster erlaubt Ihnen, Citadel-Server Befehle, die nicht in WebCit "
-"verwendet werden, direkt einzugeben. Wenn Ihnen dies nichts sagt, wird "
-"dieses Fenster für Sie nicht ohne Studium der Dokumentation von Nutzen sein."
+"Ekran ten pozwala na wprowadzanie poleceń Citadel serwera, które nie są "
+"obsługiwane przez WebCit. Jeśli nie wiesz, co to oznacza, to ekran nie "
+"będzie zbyt użyteczna dla Ciebie."
 
 #: ../../static/t/aide/display_generic_cmd.html:15
 msgid "Enter command:"
-msgstr "Kommando eingeben:"
+msgstr "Wpisz polecenie:"
 
 #: ../../static/t/aide/display_generic_cmd.html:17
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr "Kommando Eingabe (wenn Sie SEND_LISTING Transfer-Modus anfordern):"
+msgstr "Wprowadzenie komendy (jeżeli żądanie tryb transferu SEND_LISTING):"
 
 #: ../../static/t/aide/display_generic_cmd.html:20
 msgid "Detected host header is "
-msgstr "Der gefundene Host Header ist "
+msgstr "Wykryty  nagłówek hosta "
 
 #: ../../static/t/aide/display_ignetconf.html:4
 msgid "Network configuration"
-msgstr "Netzwerk-Konfiguration"
+msgstr "Konfiguracja sieciowa"
 
 #: ../../static/t/aide/display_ignetconf.html:10
 #: ../../static/t/aide/ignetconf/edit_node.html:5
 #: ../../static/t/aide/ignetconf/add.html:5
 msgid "Add a new node"
-msgstr "Neuen Knoten hinzufügen"
+msgstr "Dodaj nowy węzeł (node)"
 
 #: ../../static/t/aide/display_ignetconf.html:14
 msgid "Currently configured nodes"
-msgstr "Schon konfigurierte Knoten"
+msgstr "Obecnie skonfigurowane węzły"
 
 #: ../../static/t/aide/display_serverrestart.html:26
 msgid "Restart Citadel"
-msgstr "Citadel neu starten"
+msgstr "Restart Citadel"
 
 #: ../../static/t/aide/floorconfig.html:2
 msgid "Add, change, or delete floors"
-msgstr "Etagen bearbeiten/löschen/hinzufügen"
+msgstr "Dodaj, zmień, lub usuń piętra"
 
 #: ../../static/t/aide/serverrestart/box.html:3
 msgid "Please wait while the Citadel server is restarted... "
-msgstr "Bitte warten während der Citadel-Server neu gestartet wird "
+msgstr "Poczekaj chwilę server Citadel jest ponownie uruchomiany ... "
 
 #: ../../static/t/aide/serverrestart/box_page_do.html:3
 msgid ""
 "Please wait while your users are being paged, the citadel server will be "
 "restarted after that... "
 msgstr ""
-"Bitte warten während die Benutzer benachrichtigt werden, der Server wird "
-"dann neu gestarted. "
+"Poczekaj użytkownicy są informowani że serwer zostanie uruchomiony ponownie "
+"... "
 
 #: ../../static/t/aide/inet/masqdomains.html:2
 msgid "(Domains as which users are allowed to masquerade)"
-msgstr "(nicht lokale Domänen, von denen Benutzer Mails schicken dürfen)"
+msgstr "(Domeny w którym użytkownicy mogą maskowane)"
 
 #: ../../static/t/aide/inet/rbldns.html:2
 msgid "(hosts running a Realtime Blackhole List)"
-msgstr "(Maschinen, von denen Echtzeit-Blacklisten zu beziehen sind)"
+msgstr "(hosts z Realtime Blackhole Listy)"
 
 #: ../../static/t/aide/inet/dirnames.html:2
 msgid "(domains mapped with the Global Address Book)"
-msgstr "(Domäne, auf die das öffentliche Adressbuch zeigt)"
+msgstr "(Domeny odwzorowywane z Global Address Book)"
 
 #: ../../static/t/aide/inet/notify.html:2
 msgid "(URLS for notifications when users receive new mails; )"
-msgstr "(URLs für Benachrichtigungen, when ein Nutzer neue Mails erhält;)"
+msgstr "(URLS do powiadomień, gdy użytkownicy otrzymują nową pocztę; )"
 
 #: ../../static/t/aide/inet/notify.html:2
 msgid ""
 "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
-msgstr ""
-"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgstr "Syntax: Powiadomienie:http[s]://user:password@hostname/path"
 
 #: ../../static/t/aide/inet/smarthosts.html:2
 msgid "(if present, forward all outbound mail to one of these hosts)"
 msgstr ""
-"(wenn gesetzt, alle zu versendende Mail über diese Maschine verschicken)"
+"(jeśli występuje, przekąz wszystkie wychodzące e-mail do jednego z tych "
+"hostów)"
 
 #: ../../static/t/aide/inet/aliases.html:2
 msgid "(domains for which this host receives mail)"
-msgstr "(Domäne für die diese Maschine Mail bekommt)"
+msgstr "(Domeny, dla których ten host odbiera pocztę)"
 
 #: ../../static/t/aide/inet/clamav.html:2
 msgid "(hosts running the ClamAV clamd service)"
-msgstr "(Maschine, auf der Ihr ClamAV läuft)"
+msgstr "(hosts na których działa usługa clamd ClamAV)"
 
 #: ../../static/t/aide/inet/spamass.html:2
 msgid "(hosts running the SpamAssassin service)"
-msgstr "(Maschine, auf der Ihr SpamAssassin läuft)"
+msgstr "(hosts na których działa SpamAssassin )"
 
 #: ../../static/t/aide/inet/fallbackhosts.html:2
 msgid "(send outbound mail to these hosts only when direct delivery fails)"
 msgstr ""
-"(sende auslaufende Mails nur für die Hosts, bei denen die direkte Übertragen "
-"fehlschlägt)"
+"(wysłać pocztę wychodzącą do tych hostów tylko wtedy, gdy bezpośrednie "
+"dostrczenie nie jest możliwe)"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
 msgid "Confirm delete"
-msgstr "Löschen bestätigen"
+msgstr "Potwierdź usunięcie"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
 msgid "Are you sure you want to delete "
-msgstr "wirklich löschen? "
+msgstr "Czy na pewno chcesz usunąć "
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
 #: ../../static/t/prefs/box.html:198 ../../static/t/iconbar/edit.html:19
@@ -2275,7 +2273,7 @@ msgstr "wirklich löschen? "
 #: ../../static/t/iconbar/edit.html:76 ../../static/t/iconbar/edit.html:82
 #: ../../static/t/iconbar/edit.html:88
 msgid "Yes"
-msgstr "Ja"
+msgstr "Tak"
 
 #: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
 #: ../../static/t/prefs/box.html:200 ../../static/t/iconbar/edit.html:20
@@ -2286,176 +2284,176 @@ msgstr "Ja"
 #: ../../static/t/iconbar/edit.html:77 ../../static/t/iconbar/edit.html:83
 #: ../../static/t/iconbar/edit.html:89
 msgid "No"
-msgstr "Nein"
+msgstr "Nie"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:15
 #: ../../static/t/aide/ignetconf/add.html:15
 #: ../../static/t/aide/siteconfig/tab_general.html:8
 msgid "Node name"
-msgstr "Name des Knotens"
+msgstr "Nazwa węzła"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:17
 #: ../../static/t/aide/ignetconf/add.html:17
 msgid "Shared secret"
-msgstr "Gemeinsames Passwort"
+msgstr "Wspólny serkretny klucz"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:19
 #: ../../static/t/aide/ignetconf/add.html:19
 msgid "Host or IP address"
-msgstr "Maschinenname oder IP-Adresse"
+msgstr "Host lub IP adres"
 
 #: ../../static/t/aide/ignetconf/edit_node.html:21
 #: ../../static/t/aide/ignetconf/add.html:21
 msgid "Port number"
-msgstr "Portnummer"
+msgstr "Numer portu"
 
 #: ../../static/t/aide/ignetconf/section.html:4
 msgid "(Edit)"
-msgstr "(Bearbeiten)"
+msgstr "(Edycja)"
 
 #: ../../static/t/aide/display_menu.html:12
 msgid "Global Configuration"
-msgstr "Globale Konfiguration"
+msgstr "Globalna konfiguracja"
 
 #: ../../static/t/aide/display_menu.html:14
 msgid "User account management"
-msgstr "Benutzer verwalten"
+msgstr "Zarządzanie kontami użytkowników"
 
 #: ../../static/t/aide/display_menu.html:16
 msgid "Shutdown Citadel"
-msgstr "Citadel Restarten"
+msgstr "Shutdown Citadel"
 
 #: ../../static/t/aide/display_menu.html:18
 msgid "Rooms and Floors"
-msgstr "Räume und Etagen"
+msgstr "Pokoje i Piętra"
 
 #: ../../static/t/aide/global_config.html:2
 msgid "Edit site-wide configuration"
-msgstr "Systemvorgaben bearbeiten"
+msgstr "Edycja konfiguracji systemu"
 
 #: ../../static/t/aide/global_config.html:3
 msgid "Domain names and Internet mail configuration"
-msgstr "Domänennamens- und Internetmail-Konfiguration"
+msgstr "Nazwy domen i konfiguracja poczty internetowe"
 
 #: ../../static/t/aide/global_config.html:4
 msgid "Configure replication with other Citadel servers"
-msgstr "Die Replikation mit anderen Citadel-Servern konfigurieren"
+msgstr "Konfiguracja replikacji z innymi serwerami węzłami Citadel"
 
 #: ../../static/t/aide/global_config.html:5
 #: ../../static/t/view_mailq/header.html:3
 msgid "View the outbound SMTP queue"
-msgstr "SMTP-Ausgangswarteschlange anzeigen"
+msgstr "Zobacz wychodzącą kolejkę SMTP"
 
 #: ../../static/t/aide/restart.html:2
 msgid "Restart Now"
-msgstr "Jetzt neustarten"
+msgstr "Restart Citadel teraz."
 
 #: ../../static/t/aide/restart.html:3
 msgid "Restart after paging users"
-msgstr "Nach benachrichtigen der User neustarten"
+msgstr "Restart po poinformowaniu użytkowników"
 
 #: ../../static/t/aide/restart.html:4
 msgid "Restart when all users are idle"
-msgstr "Neustarten, wenn alle Benutzer inaktiv sind"
+msgstr "Uruchom ponownie, gdy wszyscy użytkownicy nic nie robią w Citadel"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:1
 msgid "General site configuration items"
-msgstr "Allgemeine Standortskonfiguration"
+msgstr "Ogólne elementy konfiguracji systemu"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:5
 msgid "Change Login Logo"
-msgstr "Anmeldelogo wechseln"
+msgstr "Zmień logo Logowania"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:6
 msgid "Change Logout Logo"
-msgstr "Abmeldelogo wechseln"
+msgstr "Zmień logo Wyloguj"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:11
 msgid "Fully qualified domain name"
-msgstr "Vollqualifizierter Domänenname"
+msgstr "Pełna nazwa hosta np (nocall.ampr.org)"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:14
 msgid "Human-readable node name"
-msgstr "Menschenlesbarer Knotenname"
+msgstr "Czytelna dla użytkowników nazwa węzła"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:17
 msgid "Telephone number"
-msgstr "Telefonnummer"
+msgstr "Numer telefonu"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:20
 msgid "Paginator prompt (for text mode clients)"
-msgstr "Eingabeaufforderung (nur für Textclients)"
+msgstr "Prompt stronicowania (tylko dla klientów w trybie tekstowym)"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:23
 msgid "Geographic location of this system"
-msgstr "Geografische Position dieses Systems"
+msgstr "Lokalizacja geograficzna: kraj, miasto"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:26
 msgid "Name of system administrator"
-msgstr "Name des Verwalters"
+msgstr "Nazwa administratora systemu"
 
 #: ../../static/t/aide/siteconfig/tab_general.html:29
 msgid "Default timezone for unzoned calendar items"
-msgstr "Vorgabe Zeitzone für Kalendereinträge ohne Zeitzone"
+msgstr "Domyślna strefa czasowa dla pozycji kalendarza"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:1
 msgid "Configure automatic expiry of old messages"
-msgstr "Automatischen Verfall alter Nachrichten konfigurieren"
+msgstr "Skonfigurować automatyczne wygaśnięcie starych wiadomości"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:2
 msgid "These settings may be overridden on a per-floor or per-room basis."
 msgstr ""
-"Diese Einstellungen können auf Etagen- oder Raum-Basis aufgehoben werden."
+"Te ustawienia mogą być nadpisane na lub poszczególnych pięter lub "
+"pojedynczego pokoju."
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:6
 msgid "Hour to run database auto-purge"
-msgstr "Zeit, zu der die Raumsäuberungen laufen sollen"
+msgstr "Godzin do uruchomienia bazy danych auto-oczyszczających"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:66
 msgid "Default message expire policy for public rooms"
-msgstr ""
-"Standardwerte für die Vorhaltedauer von Nachrichten in öffentlichen Räumen"
+msgstr "Domyślna polityka wygasania wiadomość dal publicznych pokoi"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:68
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:86
 #: ../../static/t/room/edit/tab_expire.html:17
 #: ../../static/t/room/edit/tab_expire.html:45
 msgid "Never automatically expire messages"
-msgstr "Nachrichten nie automatisch löschen"
+msgstr "Nigdy automatycznie wygasa wiadomości"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:71
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:89
 #: ../../static/t/room/edit/tab_expire.html:20
 #: ../../static/t/room/edit/tab_expire.html:48
 msgid "Expire by message count"
-msgstr "Nachrichten nach Anzahl löschen"
+msgstr "Tracą ważność wg liczby wiadomości"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:73
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:92
 #: ../../static/t/room/edit/tab_expire.html:23
 #: ../../static/t/room/edit/tab_expire.html:51
 msgid "Expire by message age"
-msgstr "Lösche Nachrichten älter als"
+msgstr "Wygasają według wieku wiadomości"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:75
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:94
 #: ../../static/t/room/edit/tab_expire.html:25
 #: ../../static/t/room/edit/tab_expire.html:53
 msgid "Number of messages or days: "
-msgstr "Anzahl der Nachrichten pro Tag: "
+msgstr "Liczba wiadomości lub dni: "
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:81
 msgid "Default message expire policy for private mailboxes"
 msgstr ""
-"Standardwerte für die Vorhaltedauer von Nachrichten in privaten Mailboxen"
+"Domyślna polityka wygasania wiadomość w prywatnych skrzynekach  pocztowych"
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:83
 msgid "Same policy as public rooms"
-msgstr "Die selben Werte wie in öffentlichen Räumen"
+msgstr "Taka sama polityka jak w pokojach  publicznych"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:1
 msgid "Network services"
-msgstr "Netzwerkdienste"
+msgstr "Usługi sieciowe"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:2
 #: ../../static/t/aide/siteconfig/tab_directory.html:3
@@ -2463,81 +2461,81 @@ msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
 msgstr ""
-"Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv."
+"Zmiany dokonane na tym ekranie nie zostaną zastosowane dopiero po ponownym "
+"uruchomieniu serwera Cytadeli."
 
 #: ../../static/t/aide/siteconfig/tab_network.html:6
 msgid "SMTP MTA port (-1 to disable)"
-msgstr "SMTP MTA Server Port (-1 zum abschalten)"
+msgstr "SMTP MTA port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:9
 msgid "Correct forged From: lines during authenticated SMTP"
-msgstr "'From:' -Kopfzeilen bei authentifizierten SMTP korrigieren"
+msgstr ""
+"Skryguj podriobione linie Od:  podczas uwierzytelnionego protokołu SMTP"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:12
 msgid "Flag message as spam, instead of rejecting it"
-msgstr "Meldung als Spam Markieren, anstelle verwerfen"
+msgstr "Zaznacz jako spam wiadomość, zamiast odrzucenia"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:15
 msgid "IMAP listener port (-1 to disable)"
-msgstr "IMAP4 Server Port (-1 zum abschalten)"
+msgstr "IMAP listener port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:19
 msgid "Network run frequency (in seconds)"
-msgstr "Knoten-Synchronisierunsfrequenz (in Sekunden)"
+msgstr "Częstotliwość uruchamiania sieci (w sekundach)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:22
 msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr "Server-IP-Adresse (0.0.0.0 um alle zu binden)"
+msgstr "Server IP adres (0.0.0.0 dla 'każdego IP')"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:25
 msgid "SMTP MSA port (-1 to disable)"
-msgstr "SMTP MSA Serverport (-1 zum abschalten)"
+msgstr "SMTP MSA port (-1 aby wyłączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:28
 msgid "IMAP over SSL port (-1 to disable)"
-msgstr "IMAP-SSL Serverport (-1 zum abschalten)"
+msgstr "IMAP over SSL port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:31
 msgid "SMTP over SSL port (-1 to disable)"
-msgstr "SMTPS Serverport (-1 zum Abschalten)"
+msgstr "SMTP over SSL port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:34
 msgid "Instantly expunge deleted messages in IMAP"
-msgstr "Löschen via IMAP nicht cachen (instant expunge)?"
+msgstr "Natychmiast usuwaj skasowane wiadomości z IMAP"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:38
 msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr ""
-"Nicht authentifizierten SMTP clients erlauben die Domain dieser Citadel- "
-"Installation zu verwenden"
+msgstr "Allow unauthenticated SMTP clients to spoof this sites domains"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:41
 msgid "Postfix TCP Dictionary Port"
-msgstr "Postfix TCP Wörterbuch Port"
+msgstr "Postfix TCP Dictionary Port"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:41
 msgid "-1 to disable"
-msgstr "-1 zum Abschalten"
+msgstr "-1 aby wyłączyć"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:44
 msgid "ManageSieve Port (-1 to disable)"
-msgstr "ManageSieve-Server-Port (-1 zum abschalten)"
+msgstr "ManageSieve Port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:47
 msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr "RBL Prüfung schon beim Verbindungsaufbau durchführen"
+msgstr "Przeprowadzenie kontroli RBL  zamiast po RCPT"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:50
 msgid "Keep original from headers in IMAP"
-msgstr "Original IMAP-Header behalten"
+msgstr "Zachowaj oryginał z nagłówków w IMAP"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:53
 msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr "XMPP (Jabber) Client nach Server Port (-1 zum abschalten)"
+msgstr "XMPP (Jabber) client to server port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:56
 msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr "XMPP (Jabber) Server zu Server Port (-1 zum abschalten)"
+msgstr "XMPP (Jabber) server to server port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_pop3.html:1
 msgid "POP3"
@@ -2545,108 +2543,107 @@ msgstr "POP3"
 
 #: ../../static/t/aide/siteconfig/tab_pop3.html:6
 msgid "POP3 listener port (-1 to disable)"
-msgstr "POP3 Server Port (-1 zum abschalten)"
+msgstr "POP3 listener port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_pop3.html:9
 msgid "POP3 over SSL port (-1 to disable)"
-msgstr "POP3s Serverport (-1 zum Abschalten)"
+msgstr "POP3 over SSL port (-1 aby włączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_pop3.html:12
 msgid "POP3 fetch frequency in seconds"
-msgstr "POP3-Abhol-Fequenz (in Sekunden)"
+msgstr "POP3 sprowadzić częstotliwość w sekundach"
 
 #: ../../static/t/aide/siteconfig/tab_pop3.html:15
 msgid "POP3 fastest fetch frequency in seconds"
-msgstr "Höchste POP3-Abhol-Fequenz (in Sekunden)"
+msgstr "POP3 najszybciej sprowadzić częstotliwość w sekundach"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:1
 msgid "Advanced server fine-tuning controls"
-msgstr "Erweiterte Server Einstellungen"
+msgstr "Zaawansowana kontrola (dostrajanie) serwera"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:5
 msgid "Server connection idle timeout (in seconds)"
-msgstr "ungenutzte Verbindungen trennen nach (in Sekunden):"
+msgstr "Limit czasu połączenia z serwerem bezczynności (w sekundach)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:8
 msgid "Maximum concurrent sessions (0 = no limit)"
-msgstr "Maximale Anzahl gleichzeitiger Verbindungen (0 = kein Limit)"
+msgstr "Maksimum sesji równoległych (0 = brak limitu)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:11
 msgid "Default user purge time (days)"
-msgstr "Automatisch inaktive Nutzer löschen nach (Tage)"
+msgstr "Domyślna sprzątanie  użytkownika (liczba dni)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:14
 msgid "Default room purge time (days)"
-msgstr "Automatische Raumlöschung nach (Tage)"
+msgstr "Domyślne sprzątanie pokoi (liczba dni)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:17
 msgid "Maximum message length"
-msgstr "Maximale Nachrichtenlänge (in Bytes)"
+msgstr "Maksymalna długość wiadomości"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:20
 msgid "Minimum number of worker threads"
-msgstr "Minimale Anzahl Server-Threads"
+msgstr "Minimalna liczba wątków"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:23
 msgid "Maximum number of worker threads"
-msgstr "Maximale Anzahl Server-Threads"
+msgstr "Maksymalna liczba wątków roboczych"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:26
 msgid "Automatically delete committed database logs"
-msgstr "Automatisch die Datenbanktransferlogs löschen"
+msgstr "Automatyczne usuwanie ?zaangażowanych? lgów  baz danych"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:5
 msgid "Funambol server host (blank to disable)"
-msgstr ""
-"Hostname des Funambol-Synchronisierungs-Servers (leer zum Abschalten)"
+msgstr "Funambol server host (puste aby wyłączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:8
 msgid "Funambol server port "
-msgstr "Funambol Serverport "
+msgstr "Funambol server port "
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:11
 msgid "Funambol sync source"
-msgstr "Funambol-Synchronisierungsquelle"
+msgstr "Funambol sync source"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:14
 msgid "Funambol auth details (user:pass)"
-msgstr "Funambol-Autentifizierungs-Details (Nutzer:Passwort)"
+msgstr "Funambol auth details (user:pass)"
 
 #: ../../static/t/aide/siteconfig/tab_pushmail.html:17
 msgid "External pager tool (blank to disable)"
-msgstr "Externe Pager-Server URL (leer zum Abschalten)"
+msgstr "Narzędzie do powiadamiania zewnetrzne (puste aby wyłączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:1
 msgid "Access controls and site policy settings"
-msgstr "Zugangskontrolle und Vorgabewerte"
+msgstr "Kontrola dostępu i ustawienia zasad serwisu"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:5
 msgid "Allow aides to zap (forget) rooms"
-msgstr "Moderatoren erlauben, Räume zu vergessen"
+msgstr "Umożliwiaj doradcy  ?to zap? (zapomnić) pokoje"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:9
 msgid "Quarantine messages from problem users"
-msgstr "Meldungen Problematischer Nutzer moderieren"
+msgstr "Kwarantanny wiadomości od użytkowników problemowych"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:12
 msgid "Name of quarantine room"
-msgstr "Name des Quarantäne-Raums"
+msgstr "Nazwa miejsca kwarantanny"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:17
 msgid "Name of room to log pages"
-msgstr "Name des Raums zum Loggen von Kurznachrichten"
+msgstr "Nazwa pokoju do strony logowania"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:22
 msgid "Authentication mode"
-msgstr "Authentifizierungsmodus"
+msgstr "Tryb uwierzytelniania"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:24
 msgid "Self contained"
-msgstr "Abgeschlossen"
+msgstr "Autonomiczny"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:25
 msgid "Host based"
-msgstr "Host-basiert"
+msgstr "Host based"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:26
 msgid "LDAP (RFC2307)"
@@ -2658,127 +2655,129 @@ msgstr "LDAP (Active Directory)"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:30
 msgid "Master user name (blank to disable)"
-msgstr ""
-"Priviligierter Benutzer (z.b. für Asterisk Integration; leer zum Abschalten)"
+msgstr "Nazwa użytkownika Mistrz (puste, aby wyłączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:33
 msgid "Master user password"
-msgstr "Passwort des priviligierten Benuters"
+msgstr "Hasło użytkownika Mistrz"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:38
 msgid "Initial access level for new users"
-msgstr "Rechtestatus neu angelegter Benutzer"
+msgstr "Początkowy poziom dostępu dla nowych użytkowników"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:49
 msgid "Access level required to create rooms"
-msgstr "Zugangsberechtigung um Räume zu erzeugen"
+msgstr "Poziom dostępu wymagane do utworzenia pokoje"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
 msgid ""
 "Automatically grant room-aide status to users who create private rooms"
 msgstr ""
-"Automatisch Benutzern, die private Räume erstellen, Moderator-Status geben."
+"Automatycznie przyznania statusu pokój-doradca dla użytkowników, którzy "
+"tworzą prywatne pokoje"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
 msgid "Automatically grant room-aide status to users who create BLOG rooms"
-msgstr "Automatisch Erstellern von BLOG-Räumen Moderator-Status geben"
+msgstr ""
+"Automatycznie przyznania statusu pokój-doradca dla użytkowników, którzy "
+"tworzą pokoje BLOG"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:66
 msgid "Restrict access to Internet mail"
-msgstr "Zugang zu Internetmail beschränken"
+msgstr "Ograniczanie dostępu do poczty internetowej"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:71
 msgid "Disable self-service user account creation"
-msgstr "Erzeugen von Benutzerkonten am Anmeldeprompt verbieten"
+msgstr "Wyłączenia tworzenia konta użytkownika samoobsługowo"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:71
 msgid "Hint: do not select both!"
-msgstr "Hinweis: Nicht beides auswählen!"
+msgstr "Wskazówka: nie należy wybierać obu opcji!"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:74
 msgid "Require registration for new users"
-msgstr "Anmeldung für neue Benutzer erforderlich"
+msgstr "Wymaga rejestracji dla nowych użytkowników"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:77
 msgid "Allow anonymous guest access"
-msgstr "Anonymen Gastzugang erlauben"
+msgstr "Umożliwiają anonimowy użytkownikom dostęp"
 
 #: ../../static/t/aide/siteconfig/tab_indexing.html:1
 msgid "Indexing and Journaling"
-msgstr "Indizierung und Protokollierung"
+msgstr "Indeksowanie i księgowanie"
 
 #: ../../static/t/aide/siteconfig/tab_indexing.html:2
 msgid "Warning: these facilities are resource intensive."
-msgstr "Warnung: Diese Dienste sind Ressourcen intensiv."
+msgstr "Ostrzeżenie: zadania te są źródłem intensywnego obciązenia"
 
 #: ../../static/t/aide/siteconfig/tab_indexing.html:6
 msgid "Enable full text index"
-msgstr "Volltext-Indexdienst anschalten"
+msgstr "Umożliwienie pełnego indeksu tekstowego"
 
 #: ../../static/t/aide/siteconfig/tab_indexing.html:9
 msgid "Perform journaling of email messages"
-msgstr "EMail-Nachrichten protokollieren"
+msgstr "Przeprowadzić księgowanie wiadomości e-mail"
 
 #: ../../static/t/aide/siteconfig/tab_indexing.html:13
 msgid "Perform journaling of non-email messages"
-msgstr "Nicht-EMail Nachrichten protokollieren"
+msgstr "Przeprowadzić księgowanie wiadomości nie będących pocztą"
 
 #: ../../static/t/aide/siteconfig/tab_indexing.html:16
 msgid "Email destination of journalized messages"
-msgstr "EMail-Adresse für die Protokollnachrichten"
+msgstr "Przeznaczenia wiadomości e-mail z księgowanych"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:1
 msgid "Configure the LDAP connector for Citadel"
-msgstr "LDAP-Verzeichnis-Anbindung des Servers konfigurieren"
+msgstr "Skonfigurować złącze LDAP dla Cytadeli"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:4
 msgid ""
 "NOTE: This Citadel server has been built without LDAP support.  These "
 "options will have no effect."
 msgstr ""
-"Anmerkung: Dieser Citadelserver wurde ohne LDAP-Support gebaut. Diese Option "
-"wird keine Auswirkung haben."
+"UWAGA: Ten serwer Citadel została zbudowana bez wsparcia LDAP. Opcje te nie "
+"mają żadnego wpływu."
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:9
 msgid "Host name of LDAP server (blank to disable)"
-msgstr "Hostname des LDAP-Verzeichnisserver (leer zum Abschalten)"
+msgstr "Nazwa hosta  LDAP server (puste, aby wyłączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:13
 msgid "Port number of LDAP server (blank to disable)"
-msgstr "Port des LDAP-Verzeichnisservers (leer zum Abschalten)"
+msgstr "Numer portu  LDAP server (puste, aby wyłączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:16
 msgid "Base DN"
-msgstr "Base DN im Verzeichnisserver"
+msgstr "Base DN"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:19
 msgid "Bind DN"
-msgstr "Bind DN im Verzeichnisserver"
+msgstr "Bind DN"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:22
 msgid "Password for bind DN"
-msgstr "Passwort für die Bind DN am Verzeichnisserver"
+msgstr "Hasło dla bind DN"
 
 #: ../../static/t/iconbar.html:7
 msgid "Language:"
-msgstr "Sprache:"
+msgstr "Język:"
 
 #: ../../static/t/iconbar.html:19
 msgid "Mail"
-msgstr "Posteingang"
+msgstr "Poczta"
 
 #: ../../static/t/iconbar.html:39 ../../static/t/iconbar/edit.html:61
 #: ../../static/t/summary/page.html:30
 msgid "Tasks"
-msgstr "Aufgaben"
+msgstr "Zadania"
 
 #: ../../static/t/iconbar.html:48 ../../static/t/iconbar/edit.html:67
 msgid "Rooms"
-msgstr "Räume"
+msgstr "Pokoje"
 
 #: ../../static/t/iconbar.html:57
 msgid "Online users"
-msgstr "Angemeldete Benutzer"
+msgstr "Online users"
 
 #: ../../static/t/iconbar.html:62 ../../static/t/iconbar/edit.html:79
 msgid "Chat"
@@ -2786,152 +2785,152 @@ msgstr "Chat"
 
 #: ../../static/t/iconbar.html:65
 msgid "Advanced"
-msgstr "Erweitert"
+msgstr "Zaawansowane"
 
 #: ../../static/t/iconbar.html:72 ../../static/t/room/edit/editroom.html:4
 #: ../../static/t/room/edit.html:5
 msgid "Administration"
-msgstr "Verwaltung"
+msgstr "Zarządzanie"
 
 #: ../../static/t/iconbar.html:83
 msgid "customize this menu"
-msgstr "Dieses Menü Bearbeiten"
+msgstr "dostosuj to menu"
 
 #: ../../static/t/iconbar.html:92
 msgid "switch to room list"
-msgstr "Auf Raumliste wechseln"
+msgstr "przejść do listy pokojowej"
 
 #: ../../static/t/iconbar.html:93
 msgid "switch to menu"
-msgstr "Zurück zum Menü"
+msgstr "przejść do menu"
 
 #: ../../static/t/iconbar.html:94
 msgid "My folders"
-msgstr "Meine Ordner"
+msgstr "Moje foldery"
 
 #: ../../static/t/view_message/list_attach.html:3
 #: ../../static/t/view_message/inline_attach.html:4
 msgid "View"
-msgstr "Anzeigen"
+msgstr "Widok"
 
 #: ../../static/t/view_message/list_attach.html:4
 #: ../../static/t/view_message/inline_attach.html:5
 msgid "Download"
-msgstr "Herunterladen"
+msgstr "Pobierz"
 
 #: ../../static/t/view_message/print.html:14
 #: ../../static/t/view_message.html:14
 msgid "to"
-msgstr "an"
+msgstr "do"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "Your OpenID"
-msgstr "Ihre OpenID"
+msgstr "Twój OpenID"
 
 #: ../../static/t/openid_manual_create.html:2
 msgid "was successfully verified."
-msgstr "wurde erfolgreich revalidiert."
+msgstr "został pomyślnie zweryfikowany."
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "However, the user name"
-msgstr "Wie auch immer, der Benutzername"
+msgstr "Jednak nazwa użytkownika"
 
 #: ../../static/t/openid_manual_create.html:3
 msgid "conflicts with an existing user."
-msgstr "wird bereits von jemand anderem verwendet."
+msgstr "konflikty z istniejącm użytkownikiem."
 
 #: ../../static/t/openid_manual_create.html:5
 msgid "Please specify the user name you would like to use."
-msgstr "Bitte gebe den Benutzernamen ein den du verwenden willst."
+msgstr "Proszę podać nazwę użytkownika, którego chcesz użyć."
 
 #: ../../static/t/files/graphicsupload.html:2
 msgid "Image upload"
-msgstr "Bild hochladen"
+msgstr "Prześlij zdjęcie"
 
 #: ../../static/t/files/graphicsupload.html:6
 msgid "You can upload an image directly from your computer"
-msgstr "Sie können ein Bild direkt von ihrem Computer hochladen."
+msgstr "Możesz przesłać zdjęcie bezpośrednio z komputera"
 
 #: ../../static/t/files/graphicsupload.html:8
 msgid "Please select a file to upload:"
-msgstr "Bitte geben Sie eine Datei zum Hochladen an:"
+msgstr "Wybierz plik do wysłania:"
 
 #: ../../static/t/files/section_onefile.html:20
 msgid "Slideshow"
-msgstr "Diashow"
+msgstr "Pokaz slajdów"
 
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 msgid "new of"
-msgstr "neu von"
+msgstr "nowych z"
 
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 #: ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
 msgid "messages"
-msgstr "Nachrichten"
+msgstr "wiadomości"
 
 #: ../../static/t/roombanner.html:28
 msgid "Select page: "
-msgstr "Seite wählen: "
+msgstr "Wybierz stronę: "
 
 #: ../../static/t/who.html:13
 msgid "Users currently on "
-msgstr "Angemeldete Benutzer auf "
+msgstr "Użytkownicy obecnie na "
 
 #: ../../static/t/who.html:22
 msgid "Click on a name to read user info.  Click on"
-msgstr "Auf den Namen klicken um die Benutzerdaten einzusehen. Auf"
+msgstr "Kliknij na nazwę, aby przeczytać informacje o użytkowniku. kliknij"
 
 #: ../../static/t/who.html:24
 msgid "to send an instant message to that user."
-msgstr "klicken um Ihm eine Kurznachricht zu senden."
+msgstr "aby wysłać wiadomość błyskawiczną do tego użytkownika."
 
 #: ../../static/t/msg_listselector_bottom.html:2
 #: ../../static/t/msg_listselector_top.html:2
 msgid "Reading #"
-msgstr "Lese #"
+msgstr "Czytanie #"
 
 #: ../../static/t/msg_listselector_bottom.html:12
 #: ../../static/t/msg_listselector_top.html:12
 msgid "oldest to newest"
-msgstr "alte vor neu"
+msgstr "od najstarszych do najnowszych"
 
 #: ../../static/t/msg_listselector_bottom.html:20
 #: ../../static/t/msg_listselector_top.html:20
 msgid "newest to oldest"
-msgstr "neue vor alte"
+msgstr "od najnowszych do najstarszych"
 
 #: ../../static/t/newstartpage.html:4
 msgid "New start page"
-msgstr "Neue Startseite setzen"
+msgstr "Nowa strona startowa"
 
 #: ../../static/t/newstartpage.html:9
 msgid "Your start page has been changed."
-msgstr "Ihre neue Startseite wurde geändert"
+msgstr "Twoja strona startowa została zmieniona."
 
 #: ../../static/t/newstartpage.html:12
 msgid ""
 "(Note: this does not change your browser's home page. It changes the page "
 "you begin on when you log on to"
 msgstr ""
-"(Anmerkung: dies setzt nicht die Homepage im Browser. Es ändert die gezeigte "
-"Seite beim anmelden an"
+"(Uwaga: to nie zmienia strony startowej w przeglądarce . Zmienia stronę, "
+"którą rozpoczyna się podczas logowania do"
 
 #: ../../static/t/no_new_msgs.html:3
 msgid "No new messages."
-msgstr "Keine neuen Nachrichten."
+msgstr "Brak nowych wiadomości."
 
 #: ../../static/t/view_blog/comment_box.html:8
 msgid "Post a comment"
-msgstr "Schreiben Sie einen Kommentar"
+msgstr "Zamieść komentarz"
 
 #: ../../static/t/prefs/pushemail.html:2
 msgid "Configure Push Email"
-msgstr "Push-EMail Konfigurieren"
+msgstr "Konfuguracja Push Email"
 
 #: ../../static/t/prefs/pushemail.html:9
 msgid "Push email and SMS settings"
-msgstr "Push Email und SMS Einstellungen"
+msgstr "Push email i SMS ustawienia"
 
 #: ../../static/t/prefs/pushemail.html:17
 msgid ""
@@ -2939,544 +2938,549 @@ msgid ""
 "Funambol server that you haved recieved new email and automatically "
 "syncronize any devices you have with the Funambol client installed."
 msgstr ""
-"Wenn der Administrator freigeschaltet hat, kann Citadel dem Funambol Server "
-"automatisch benachrichtigen, das eine neue EMail eingetroffen ist und sie "
-"auf Endgeräte mit Funambol Client synchronisieren."
+"Jeśli administrator włączył funkcję, Citadel może powiadomić serwer Funambol "
+"że  otrzymałeś nowy e-mail i automatycznie synchronizować wszystkie "
+"urządzenia z klientem Funambol zainstalowany."
 
 #: ../../static/t/prefs/pushemail.html:20
 msgid ""
 "Alternatively, if the administrator has configured it, Citadel can send a "
 "text message to you when new mail arrives."
 msgstr ""
-"Alternativ kann der Administrator das versenden einer SMS mit der "
-"Zusammenfassung der mail senden lassen."
+"Ewentualnie, jeśli administrator skonfigurował go, Cytadela może wysłać "
+"wiadomość tekstową do Ciebie po nadejściu nowej poczty."
 
 #: ../../static/t/prefs/pushemail.html:26
 msgid "Notify Funambol server"
-msgstr "Funambol-Server benachrichtigen"
+msgstr "Zawiadamiać Funambol server"
 
 #: ../../static/t/prefs/pushemail.html:31
 msgid "Send a text message to..."
-msgstr "Eine Textnachricht senden an..."
+msgstr "Wysłać wiadomość tekstową do ..."
 
 #: ../../static/t/prefs/pushemail.html:33
 msgid ""
 "(Use international format, without any leading zeros, spaces or hypens, like "
 "+61415011501)"
-msgstr ""
-"(bitte das internationale Nummernformat ohne führende Nullen, Leerzeichen "
-"oder Trennstriche angeben, ala +4917234567890)"
+msgstr "(Użyj formatu międzynarodowego, bez zer wiodących  np +61415011501)"
 
 #: ../../static/t/prefs/pushemail.html:38
 msgid "Use custom notification scheme configured by your Admin"
 msgstr ""
-"Nutze das willkürliche Benachrichtigungsschema, dass von deinem "
-"Administrator festgelegt wurde."
+"Użyj niestandardowego systemu powiadamiania skonfigurowanego przez "
+"administratora"
 
 #: ../../static/t/prefs/pushemail.html:43
 msgid "Don‘t send any notifications"
-msgstr "Keine Benachrichtigungen senden."
+msgstr "Nie wysyłaj żadnych powiadomień"
 
 #: ../../static/t/prefs/box.html:9
 msgid "Tree (folders) view"
-msgstr "Baum- (Ordner) Anzeige"
+msgstr "Drzewo (foldery) zobacz"
 
 #: ../../static/t/prefs/box.html:11
 msgid "Table (rooms) view"
-msgstr "Tabellen- (Raum) Anzeige"
+msgstr "Tabela (pokoje) zobacz"
 
 #: ../../static/t/prefs/box.html:20
 msgid "12 hour (am/pm)"
-msgstr "12 Stunden (AM/PM)"
+msgstr "12 hour (am/pm)"
 
 #: ../../static/t/prefs/box.html:25
 msgid "24 hour"
-msgstr "24 Stunden"
+msgstr "24 godzinny"
 
 #: ../../static/t/prefs/box.html:152
 msgid "Sunday"
-msgstr "Sonntag"
+msgstr "Niedziela"
 
 #: ../../static/t/prefs/box.html:153
 msgid "Monday"
-msgstr "Montag"
+msgstr "Poniedziałek"
 
 #: ../../static/t/prefs/box.html:174
 msgid "No signature"
-msgstr "Keine Signatur"
+msgstr "Bez podpisu"
 
 #: ../../static/t/prefs/box.html:238
 msgid "Full-functionality"
-msgstr "Volle Funktion"
+msgstr "Pełnea funkcjonalność"
 
 #: ../../static/t/prefs/box.html:241
 msgid "Safe mode"
-msgstr "Eingeschränkter modus"
+msgstr "Tryb bezpieczny"
 
 #: ../../static/t/prefs/box.html:242
 msgid ""
 "Safe mode is less intensive on your web browser, but not as fully featured."
 msgstr ""
-"Der sichere Modus ist ressourcensparender für deinen Browser, stellt aber "
-"nicht alle Funktionen zur Verfügung."
+"Tryb bezpieczny jest mniej intensywny w przeglądarce internetowej, ale nie w "
+"pełni funkcjonalny."
 
 #: ../../static/t/wiki/pagelist.html:1
 msgid "List of Wiki pages"
-msgstr "Wikiseiten"
+msgstr "Lista stron Wiki"
 
 #: ../../static/t/wiki/history.html:1
 msgid "History of edits for this page"
-msgstr "editierte Einträge für diese Seite"
+msgstr "Historia zmian dla tej strony"
 
 #: ../../static/t/who/list_static_header.html:1
 msgid "Users currently on"
-msgstr "Angemeldete Benutzer auf"
+msgstr "Użytkownicy obecnie na"
 
 #: ../../static/t/who/section.html:4
 msgid "(kill)"
-msgstr "(beenden)"
+msgstr "(zabij)"
 
 #: ../../static/t/who/bio.html:4 ../../static/t/user/show.html:4
 msgid "User profile"
-msgstr "Benutzerprofil"
+msgstr "Profil użytkownika"
 
 #: ../../static/t/who/summary.html:5 ../../static/t/who/box_list_static.html:6
 #: ../../static/t/room/edit/tab_feed.html:13
 msgid "User name"
-msgstr "Benutzername"
+msgstr "Nazwa użytkownika"
 
 #: ../../static/t/who/summary.html:6 ../../static/t/who/box_list_static.html:7
 msgid "Room"
-msgstr "Raum"
+msgstr "Pokój"
 
 #: ../../static/t/who/box_list_static.html:8
 msgid "From host"
-msgstr "Client DNS Name / IP"
+msgstr "Z hosta"
 
 #: ../../static/t/view_message.html:19
 msgid "Edit"
-msgstr "Bearbeiten"
+msgstr "Edycaj"
 
 #: ../../static/t/view_message.html:22 ../../static/t/view_message.html:26
 msgid "Reply"
-msgstr "Antworten"
+msgstr "Odpowiedz"
 
 #: ../../static/t/view_message.html:23
 msgid "ReplyQuoted"
-msgstr "Antworten&amp;Zitieren"
+msgstr "Odpowiedz z cytatem"
 
 #: ../../static/t/view_message.html:27
 msgid "ReplyAll"
-msgstr "AntwortenAnAlle"
+msgstr "Odpowiedz wszystkim"
 
 #: ../../static/t/view_message.html:28
 msgid "Forward"
-msgstr "Weiterleiten"
+msgstr "Przekaż"
 
 #: ../../static/t/view_message.html:31 ../../static/t/msg_listview.html:25
 msgid "Move"
-msgstr "Verschieben"
+msgstr "Przenieść"
 
 #: ../../static/t/view_message.html:34
 msgid "Headers"
-msgstr "Kopfzeilen"
+msgstr "Nagłówki"
 
 #: ../../static/t/view_message.html:35 ../../static/t/msg_listview.html:28
 msgid "Print"
-msgstr "Drucken"
+msgstr "Drukuj"
 
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
 msgid "Preferences and settings"
-msgstr "Einstellungen"
+msgstr "Preferencje i ustawienia"
 
 #: ../../static/t/user/list.html:3
 msgid "User list for "
-msgstr "Benutzer-Liste für "
+msgstr "Lista użytkownika dla "
 
 #: ../../static/t/user/list.html:9
 msgid "User Name"
-msgstr "Benutzername"
+msgstr "Nazwa użytkownika"
 
 #: ../../static/t/user/list.html:10
 msgid "Number"
-msgstr "Zahl"
+msgstr "Numer"
 
 #: ../../static/t/user/list.html:11
 msgid "Access Level"
-msgstr "Zugangsberechtigung"
+msgstr "Poziom dostępu"
 
 #: ../../static/t/user/list.html:12
 msgid "Last Login"
-msgstr "Letzte Anmeldung"
+msgstr "Ostatnie logowanie"
 
 #: ../../static/t/user/list.html:13
 msgid "Total Logins"
-msgstr "Anmeldungen gesamt"
+msgstr "Liczba zalogowań"
 
 #: ../../static/t/user/list.html:14
 msgid "Total Posts"
-msgstr "Summe aller Beiträge"
+msgstr "Wszystkich postów"
 
 #: ../../static/t/user/show.html:9
 msgid "Click here to send an instant message to"
-msgstr "Hier klicken zum senden einer Kurznachricht an"
+msgstr "Kliknij tutaj, aby wysłać wiadomość błyskawiczną do"
 
 #: ../../static/t/start_of_new_msgs.html:4
 msgid "Old messages"
-msgstr "Alte Nachrichten"
+msgstr "Stare wiadomości"
 
 #: ../../static/t/start_of_new_msgs.html:8
 msgid "New messages"
-msgstr "Neue Nachrichten"
+msgstr "Nowe wiadomości"
 
 #: ../../static/t/display_main_menu.html:7
 msgid "Basic commands"
-msgstr "Einfache Kommandos"
+msgstr "Podstawowe polecenia"
 
 #: ../../static/t/display_main_menu.html:10
 msgid "Your info"
-msgstr "Ihre Biographie"
+msgstr "Twoje info"
 
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
-msgstr "Erweiterte Raum-Kommandos"
+msgstr "Zaawansowane komendy pokoju"
 
 #: ../../static/t/iconbar/save.html:4 ../../static/t/iconbar/edit.html:4
 msgid "Customize the icon bar"
-msgstr "Diese Icon-Leiste bearbeiten"
+msgstr "Dostosuj pasek ikon"
 
 #: ../../static/t/iconbar/save.html:11
 msgid ""
 "Your icon bar has been updated. Please select any of its choices to continue."
 msgstr ""
-"Deine Symbolleiste wurde aktualisiert. Bitte wähle eine von ihren "
-"Möglichkeiten, um fortzufahren."
+"Twój pasek ikon został zaktualizowany. Proszę wybrać jedną z jego opcji, aby "
+"kontynuować."
 
 #: ../../static/t/iconbar/save.html:11
 msgid ""
 "You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
-msgstr "Ggf. aktualisieren (SHIFT-F5)>, damit die Änderungen wirksam werden"
+msgstr ""
+"Może trzeba wymusić odświeżania (Shift-F5)>, aby zmiany odniosły skutek"
 
 #: ../../static/t/iconbar/edit.html:11
 msgid "Display icons as:"
-msgstr "Icons anzeigen als:"
+msgstr "Ikony  wyświetlaj jako:"
 
 #: ../../static/t/iconbar/edit.html:12
 msgid "pictures and text"
-msgstr "Bilder und Text"
+msgstr "obrazki i tekst"
 
 #: ../../static/t/iconbar/edit.html:13
 msgid "pictures only"
-msgstr "Nur Bilder"
+msgstr "tylko obrazki"
 
 #: ../../static/t/iconbar/edit.html:14
 msgid "text only"
-msgstr "Nur Text"
+msgstr "tylko tekst"
 
 #: ../../static/t/iconbar/edit.html:16
 msgid ""
 "Select the icons you would like to see displayed in the 'icon bar' menu on "
 "the left side of the screen."
 msgstr ""
-"Die Menüeinträge auswählen, die Sie auf der Leiste links angezeigt haben "
-"möchten"
+"Wybierz ikony, które chcesz zobaczyć, wyświetlany w menu 'bar' po lewej "
+"stronie ekranu."
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "Site logo"
-msgstr "Seitenlogo"
+msgstr "Logo sstrony"
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "An icon describing this site"
-msgstr "Ein Logo, das Ihre Seite beschreibt"
+msgstr "Ikona opisująca tę stronę"
 
 #: ../../static/t/iconbar/edit.html:29
 msgid "Your summary page"
-msgstr "Meine Übersichtsseite"
+msgstr "Twoja strona z podsumowaniem"
 
 #: ../../static/t/iconbar/edit.html:36
 msgid "Mail (inbox)"
-msgstr "Posteingang"
+msgstr "Poczta (przychodząca)"
 
 #: ../../static/t/iconbar/edit.html:36
 msgid "A shortcut to your email Inbox"
-msgstr "Eine Abkürzung zu Ihrem Posteingang"
+msgstr "Skrót do skrzynki odbiorczej poczty e-mail"
 
 #: ../../static/t/iconbar/edit.html:42
 msgid "Your personal address book"
-msgstr "Ihr eigenes Adressbuch"
+msgstr "Twoja osobista książka adresowa"
 
 #: ../../static/t/iconbar/edit.html:49
 msgid "Your personal notes"
-msgstr "Ihre Notizen"
+msgstr "Twoje osobiste notatki"
 
 #: ../../static/t/iconbar/edit.html:55
 msgid "A shortcut to your personal calendar"
-msgstr "Eine Abkürzung zu Ihrem Kalender"
+msgstr "Skrót do kalendarza osobistego"
 
 #: ../../static/t/iconbar/edit.html:61
 msgid "A shortcut to your personal task list"
-msgstr "Eine Abkürzung zu Ihrer Aufgabenliste"
+msgstr "Skrót do osobistej listy zadań"
 
 #: ../../static/t/iconbar/edit.html:67
 msgid ""
 "Clicking this icon displays a list of all accessible rooms (or folders) "
 "available."
-msgstr "Liste aller verfügbaren Räume (oder Verzeichnisse) auflisten."
+msgstr ""
+"Kliknięcie tej ikony wyświetla listę wszystkich dostępnych pokoi (lub "
+"folderów) dostępnych."
 
 #: ../../static/t/iconbar/edit.html:73
 msgid "Who is online?"
-msgstr "Wer ist da?"
+msgstr "Kot jest online?"
 
 #: ../../static/t/iconbar/edit.html:73
 msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr "Wer ist gerade angemeldet?"
+msgstr ""
+"Kliknięcie tej ikony wyświetla listę wszystkich aktualnie zalogowanych "
+"użytkowników"
 
 #: ../../static/t/iconbar/edit.html:79
 msgid ""
 "Clicking this icon enters real-time chat mode with other users in the same "
 "room."
-msgstr "Interaktiver Chat mit den anderen Benutzern in diesem Raum"
+msgstr ""
+"Kliknięcie tej ikony przechodzi w tryb rozmowy w czasie rzeczywistym z "
+"innymi użytkownikami w tym samym pokoju."
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Advanced options"
-msgstr "Erweiterte Optionen"
+msgstr "Opcje zaawansowane"
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Access to the complete menu of Citadel functions."
-msgstr "Zugriff zu allen Citadel-Menü-Funktionen"
+msgstr "Dostęp do pełnego menu funkcji Citadel."
 
 #: ../../static/t/iconbar/edit.html:91
 msgid "Citadel logo"
-msgstr "Citadel Logo"
+msgstr "Citadel logo"
 
 #: ../../static/t/iconbar/edit.html:91
 msgid "Displays the 'Powered by Citadel' icon"
-msgstr "Das 'Powered by Citadel'-Logo anzeigen"
+msgstr "Wyświetl ikone 'Powered by Citadel'"
 
 #: ../../static/t/room/edit/tab_expire.html:8
 msgid "Message expire policy for this room"
-msgstr "Nachrichten-Verfallsvorgabe für diesen Raum"
+msgstr "Polityka wygasania wiadomość w tym pokoju"
 
 #: ../../static/t/room/edit/tab_expire.html:14
 msgid "Use the default policy for this floor"
-msgstr "Die Vorgaberichtlinie dieser Etage verwenden"
+msgstr "Użyj domyślnej polityki dla tego piętra"
 
 #: ../../static/t/room/edit/tab_expire.html:36
 msgid "Message expire policy for this floor"
-msgstr "Nachrichten-Verfallsvorgabe für diese Etage"
+msgstr "Polityak wygasania wiadomość na tym piętrze"
 
 #: ../../static/t/room/edit/tab_expire.html:42
 msgid "Use the system default"
-msgstr "Die Systemvorgabe benutzen"
+msgstr "Użyj domyślnego systemu"
 
 #: ../../static/t/room/edit/editroom.html:5 ../../static/t/room/edit.html:6
 msgid "Configuration"
-msgstr "Konfiguration"
+msgstr "Konfiguracja"
 
 #: ../../static/t/room/edit/editroom.html:6 ../../static/t/room/edit.html:7
 msgid "Message expire policy"
-msgstr "Nachrichtenverfalls-Vorgabe"
+msgstr "Polityka wygasania wiadomości"
 
 #: ../../static/t/room/edit/editroom.html:7 ../../static/t/room/edit.html:8
 msgid "Access controls"
-msgstr "Zugangskontrolle"
+msgstr "Kontrola dostępu"
 
 #: ../../static/t/room/edit/editroom.html:8 ../../static/t/room/edit.html:9
 msgid "Sharing"
-msgstr "Teilen"
+msgstr "Udostępnianie"
 
 #: ../../static/t/room/edit/editroom.html:9 ../../static/t/room/edit.html:10
 msgid "Mailing list service"
-msgstr "Mailinglistendienst"
+msgstr "Obsługa listy mailingowej"
 
 #: ../../static/t/room/edit/editroom.html:10 ../../static/t/room/edit.html:11
 msgid "Remote retrieval"
-msgstr "Sammeldienste"
+msgstr "Zdalne pobieranie"
 
 #: ../../static/t/room/edit/tab_config.html:6
 msgid "name of room: "
-msgstr "Raumname: "
+msgstr "nazwa pokoju: "
 
 #: ../../static/t/room/edit/tab_config.html:10
 #: ../../static/t/room/create.html:20
 msgid "Resides on floor: "
-msgstr "Befindet sich auf Etage: "
+msgstr "Znajduje się na piętrze: "
 
 #: ../../static/t/room/edit/tab_config.html:16
 #: ../../static/t/room/create.html:68
 msgid "Type of room:"
-msgstr "Raum-Typ:"
+msgstr "Typ pokoju:"
 
 #: ../../static/t/room/edit/tab_config.html:22
 #: ../../static/t/room/create.html:73
 msgid "Public (automatically appears to everyone)"
-msgstr "Öffentlich (Raum zugänglich für jeden)"
+msgstr "Publicznych (pojawia się automatycznie dla wszystkich)"
 
 #: ../../static/t/room/edit/tab_config.html:28
 #: ../../static/t/room/create.html:77
 msgid "Private - hidden (accessible to anyone who knows its name)"
-msgstr "Privat - versteckt (zugänglich für jeden der den Namen weiß)"
+msgstr "Prywatne - ukryte (dostępne dla każdego, kto zna jego nazwę)"
 
 #: ../../static/t/room/edit/tab_config.html:35
 #: ../../static/t/room/create.html:81
 msgid "Private - require password: "
-msgstr "Privat - erfordert Passwort: "
+msgstr "Prywatne - wymagają hasła: "
 
 #: ../../static/t/room/edit/tab_config.html:44
 #: ../../static/t/room/create.html:86
 msgid "Private - invitation only"
-msgstr "Privat - nur mit Einladung"
+msgstr "Tylko zaproszenia - prywatne"
 
 #: ../../static/t/room/edit/tab_config.html:51
 #: ../../static/t/room/create.html:90
 msgid "Personal (mailbox for you only)"
-msgstr "Persönlich (Briefkasten, nur für Sie)"
+msgstr "Prywatne (poczta tylko dla Ciebie)"
 
 #: ../../static/t/room/edit/tab_config.html:55
 msgid "If private, cause current users to forget room"
-msgstr "Wenn Privat, sollen aktuelle Benutzer den Raum vergessen?"
+msgstr "Jeśli prywatny, to obecni użytkownicy zapomną ten pokój"
 
 #: ../../static/t/room/edit/tab_config.html:61
 msgid "Preferred users only"
-msgstr "nur privilegierte Benutzer"
+msgstr "Preferowani użytkownicy tylko"
 
 #: ../../static/t/room/edit/tab_config.html:66
 msgid "Read-only room"
-msgstr "Schreibgeschützter Raum"
+msgstr "Pokój tylko do odczytu"
 
 #: ../../static/t/room/edit/tab_config.html:71
 msgid "All users allowed to post may also delete messages"
-msgstr "Benutzer, die Schreibrechte haben, dürfen auch löschen"
+msgstr "Wszyscy użytkownicy mogą dodawać, mogą usuwać wiadomości"
 
 #: ../../static/t/room/edit/tab_config.html:76
 msgid "File directory room"
-msgstr "Dateiverzeichnis-Raum"
+msgstr "Pokój katalog plików"
 
 #: ../../static/t/room/edit/tab_config.html:80
 msgid "Directory name: "
-msgstr "Verzeichnisname: "
+msgstr "Nazwa katalogu: "
 
 #: ../../static/t/room/edit/tab_config.html:86
 msgid "Uploading allowed"
-msgstr "Hochladen erlaubt"
+msgstr "Przesyłanie dozwolone"
 
 #: ../../static/t/room/edit/tab_config.html:91
 msgid "Downloading allowed"
-msgstr "Herunterladen erlaubt"
+msgstr "Pobieranie dozwolone"
 
 #: ../../static/t/room/edit/tab_config.html:96
 msgid "Visible directory"
-msgstr "Sichtbares Verzeichnis"
+msgstr "Katalog widoczny"
 
 #: ../../static/t/room/edit/tab_config.html:103
 msgid "Network shared room"
-msgstr "Netzwerk öffentlicher Raum"
+msgstr "Sieciowo wspólny pokój"
 
 #: ../../static/t/room/edit/tab_config.html:108
 msgid "Permanent (does not auto-purge)"
-msgstr "Permanent (kein automatisches Löschen)"
+msgstr "Stałe (nie ma auto-czystki)"
 
 #: ../../static/t/room/edit/tab_config.html:113
 msgid "Subject Required (Force users to specify a message subject)"
-msgstr "Betreff verlangen (Benutzer zwingen einen Betreff anzugeben)"
+msgstr "Temat Wymagany (Wymuś określić temat wiadomości)"
 
 #: ../../static/t/room/edit/tab_config.html:116
 msgid "Anonymous messages"
-msgstr "Anonyme Nachrichten"
+msgstr "Anonimowe wiadomości"
 
 #: ../../static/t/room/edit/tab_config.html:122
 msgid "No anonymous messages"
-msgstr "Keine anonyme Nachrichten"
+msgstr "Brak anonimowych wiadomości"
 
 #: ../../static/t/room/edit/tab_config.html:127
 msgid "All messages are anonymous"
-msgstr "Alle Nachrichten sind Anonym"
+msgstr "Wszystkie wiadomości są anonimowi"
 
 #: ../../static/t/room/edit/tab_config.html:132
 msgid "Prompt user when entering messages"
-msgstr "Benutzer fragen, wenn er die Nachricht eingibt"
+msgstr "Pytaj użytkownika podczas wprowadzania wiadomości"
 
 #: ../../static/t/room/edit/tab_config.html:136
 msgid "Room aide: "
-msgstr "Raumverantwortlicher: "
+msgstr "Adiutant pokoju: "
 
 #: ../../static/t/room/edit/tab_listserv.html:5
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br><br>"
 msgstr ""
-"</ i> <br>: <i> Der Inhalt dieser Raums werden <b> als einzelne Nachrichten "
-"</ b>, an die folgende Liste von Empfängern verschickt"
+"<i>Zawartość tego pokoju  została wysłana jako email <b> indywidualne </ b> "
+"do następujących  odbiorców:</i><br><br>"
 
 #: ../../static/t/room/edit/tab_listserv.html:19
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br><br>"
 msgstr ""
-"<i>Die Inhalte dieses Raums werden <b>als einzelne Nachrichten </b> zu "
-"folgenden Listenempfängern versendet:</i><br /><br />"
+"<i>Zawartość tego pokoju  została wysłana jako email<b>digest form</b> do "
+"następujących  odbiorców</i><br><br>"
 
 #: ../../static/t/room/edit/tab_listserv.html:39
 msgid "Add recipients from Contacts or other address books"
-msgstr "Empfänger aus den Kontakten oder anderen Addressbüchern hinzufügen"
+msgstr "Dodaj odbiorców z listy kontaktów lub innych książek adresowych"
 
 #: ../../static/t/room/edit/tab_listserv.html:48
 msgid "Allow non-subscribers to mail to this room."
-msgstr "Nicht-Abbonenten dürfen in diesen Raum senden"
+msgstr "Pozwól nie abonentom wysyłać mail do tego pokoju."
 
 #: ../../static/t/room/edit/tab_listserv.html:54
 msgid "Room post publication needs Admin permission."
-msgstr "Beitrag einreichen erforderd Moderator Privilegien."
+msgstr "Publikacja po tego pokoju musisz mieć pozwolenie Admin'a."
 
 #: ../../static/t/room/edit/tab_listserv.html:59
 msgid "Allow self-service subscribe/unsubscribe requests."
-msgstr "Benutzergesteuertes Abonnieren erlauben."
+msgstr "Pozwól na samoobsługę wniosków o  zapisanie/ wypisanie."
 
 #: ../../static/t/room/edit/tab_listserv.html:65
 msgid "The URL for subscribe/unsubscribe is: "
-msgstr "Die URL zum Ab-/Bestellen lautet: "
+msgstr "URL do zapisania / wypisania się jest: "
 
 #: ../../static/t/room/edit/digestrecp_removal.html:1
 #: ../../static/t/room/edit/pop3client_removal.html:9
 #: ../../static/t/room/edit/listrecp_removal.html:1
 #: ../../static/t/room/edit/rssclient_removal.html:5
 msgid "(remove)"
-msgstr "(Löschen)"
+msgstr "(usunąć)"
 
 #: ../../static/t/room/edit/tab_admin.html:5
 msgid "Delete this room"
-msgstr "Raum löschen"
+msgstr "Usuń ten pokój"
 
 #: ../../static/t/room/edit/tab_admin.html:10
 msgid "Set or change the icon for this rooms banner"
-msgstr "Setze oder ändere das Bild für das Banner des Raumes"
+msgstr "Ustawić lub zmienić ikonę dla tego pokoje baner"
 
 #: ../../static/t/room/edit/tab_admin.html:14
 msgid "Edit this rooms Info file"
-msgstr "Bearbeite die Informationsdatei dieses Raumes"
+msgstr "Edycja informacji o pokoju"
 
 #: ../../static/t/room/edit/tab_share.html:5
 msgid "Shared with"
-msgstr "Geteilt mit"
+msgstr "Wspólny z"
 
 #: ../../static/t/room/edit/tab_share.html:6
 msgid "Not shared with"
-msgstr "Nicht geteilt mit"
+msgstr "Nie współdzielony z"
 
 #: ../../static/t/room/edit/tab_share.html:11
 #: ../../static/t/room/edit/tab_share.html:21
 msgid "Remote node name"
-msgstr "Entfernter Knotenname"
+msgstr "Nazwa węzła"
 
 #: ../../static/t/room/edit/tab_share.html:12
 #: ../../static/t/room/edit/tab_share.html:22
 msgid "Remote room name"
-msgstr "Entfernter Raumname"
+msgstr "Nazwa pokoju węzła"
 
 #: ../../static/t/room/edit/tab_share.html:13
 #: ../../static/t/room/edit/tab_share.html:23
 msgid "Actions"
-msgstr "Aktionen"
+msgstr "Akcje"
 
 #: ../../static/t/room/edit/tab_share.html:35
 msgid ""
@@ -3487,76 +3491,78 @@ msgid ""
 "identical on the remote node. <li>If the remote room name is different, the "
 "remote node must also configure the name of the room here."
 msgstr ""
-"Falls ein Raum geteilt werden soll, muss er von beiden Enden her geteilt "
-"werden. Hinzufügen eines Knotens zu der \"Geteilt\" Liste versendet "
-"Nachrichten, aber in der Reihenfolge der empfangenen Nachrichten, müssen die "
-"anderen Knoten so konfiguriert sein, dass sie auch Nachrichten zu deinem "
-"System senden.<li>Wenn der entfernte Raum leer ist, wird angenommen, dass "
-"der Name des Raums identisch ist mit dem auf dem entfernten Knoten.<li>Falls "
-"der Name des entfernten Raumes anders ist, Muss der entfernte Knoten auch "
-"den Namen des hiesigen Raumes einstellen."
+"Jeśli pokój jest współdzielony musi być współdzielony z obu stron. Dodawanie "
+"węzła do listy \"Udostępnione\" wysyła wiadomości, ale w celu uzyskania "
+"wiadomości, inne węzły muszą być skonfigurowane do wysyłania wiadomości w "
+"systemie. <li> Jeśli nazwa zdalnego pokój jest pusta, to przyjmuje się, że "
+"pokój ma identyczna nazwa na zdalnym węzle. <li> Jeśli nazwa zdalnego pokój "
+"jest inna, zdalny węzeł musi również skonfigurować nazwę pokoju."
 
 #: ../../static/t/room/edit/tab_feed.html:2
 msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
-msgstr "Mails von diesen POP3 Konten abholen und in diesem Raum ablegen:"
+msgstr ""
+"Retrieve messages from these remote POP3 accounts and store them in this "
+"room:"
 
 #: ../../static/t/room/edit/tab_feed.html:12
 msgid "Remote host"
-msgstr "POP3 Server"
+msgstr "Odległy host"
 
 #: ../../static/t/room/edit/tab_feed.html:15
 msgid "Keep messages on server?"
-msgstr "Mails auf dem Server belassen?"
+msgstr "Zachować wiadomości na serwerze?"
 
 #: ../../static/t/room/edit/tab_feed.html:16
 msgid "Interval"
-msgstr "Rhythmus"
+msgstr "Okres"
 
 #: ../../static/t/room/edit/tab_feed.html:31
 msgid "Fetch the following RSS feeds and store them in this room:"
-msgstr "Die folgenden RSS-Feeds abholen und in diesem Raum ablegen:"
+msgstr "Pobrać następujące kanały RSS i przechowywać je w tym pokoju:"
 
 #: ../../static/t/room/edit/tab_feed.html:43
 msgid "Feed URL"
-msgstr "Feed URL"
+msgstr "Kanał URL"
 
 #: ../../static/t/room/edit/tab_access.html:5
 msgid ""
 "The users listed below have access to this room. To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
 msgstr ""
-"Folgende Benutzer haben Zugang zu diesem Raum. Um einen Benutzer von der "
-"Zugangsliste zu entfernen, Benutzernamen auswählen und 'Kick' anklicken."
+"Wymienieni poniżej użytkownicy mają dostęp do tego pokoju. Aby usunąć "
+"użytkownika z listy dostępu, wybierz nazwę użytkownika z listy i kliknij "
+"'Kick \"."
 
 #: ../../static/t/room/edit/tab_access.html:20
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
 msgstr ""
-"Um einem weiteren Benutzer den Zugang zu diesem Raum zu erlauben den "
-"Benutzernamen in das folgende Textfeld eintragen und 'Einladen' drücken"
+"Przyznania innemu użytkownikowi dostępu do tego pokoju, wprowadź nazwę "
+"użytkownika w polu poniżej i kliknij przycisk \"Zaproś\"."
 
 #: ../../static/t/room/edit/tab_access.html:26
 msgid "Invite:"
-msgstr "Einladen:"
+msgstr "Zapraszamy:"
 
 #: ../../static/t/room/edit/tab_access.html:35
 msgid "Users"
-msgstr "Benutzerliste"
+msgstr "Users"
 
 #: ../../static/t/room/zapped_list.html:7
 msgid "Zapped (forgotten) rooms"
-msgstr "Vergessene Räume"
+msgstr "Zapomniane pokoje"
 
 #: ../../static/t/room/zapped_list.html:10
 msgid "Click on any room to un-zap it and goto that room."
-msgstr "Einen Raum anclicken zum ent-Zap-en und betreten."
+msgstr ""
+"Kliknij na jakiekolwiek pokoju aby ustawić un-zap i przejdź do tego pokoju."
 
 #: ../../static/t/room/display_private.html:7
 msgid "Go to a hidden room"
-msgstr "Zu einem versteckten Raum gehen"
+msgstr "Idź do ukrytego pokoju"
 
 #: ../../static/t/room/display_private.html:8
 msgid ""
@@ -3565,311 +3571,312 @@ msgid ""
 "room, it will appear in your regular room listings so you don‘t have to keep "
 "returning here."
 msgstr ""
-"Wenn Sie den Namen eines versteckten (Namen-raten) oder passwortgeschützten "
-"Raums wissen, Hier eingeben um ihn zu betreten.  Wenn er einmal sichtbar "
-"ist, wird er in Ihrer regulären Raumliste erscheinen."
+"Jeśli znasz nazwę ukrytego (zgadnij-name) lub hasla pokoju można wejść do "
+"tego pokoju, wpisując jego nazwę poniżej. Po uzyskaniu dostępu do prywatnego "
+"pokoju, pojawi się w regularnych ofert w pokojach, więc nie musisz wracać "
+"tutaj."
 
 #: ../../static/t/room/display_private.html:14
 msgid "Enter room name:"
-msgstr "Raumname eingeben:"
+msgstr "Wpisz nazwę pokoju:"
 
 #: ../../static/t/room/display_private.html:21
 msgid "Enter room password:"
-msgstr "Raumpasswort eingeben:"
+msgstr "Wprowadź hasło dla pokoju:"
 
 #: ../../static/t/room/create.html:11
 #: ../../static/t/menu/advanced_roomcommands.html:6
 msgid "Create a new room"
-msgstr "Einen neuen Raum erzeugen"
+msgstr "Utwórz nowy pokój"
 
 #: ../../static/t/room/create.html:18
 msgid "Name of room: "
-msgstr "Name des Raums: "
+msgstr "Nazwa pokoju: "
 
 #: ../../static/t/room/create.html:32
 msgid "Default view for room: "
-msgstr "Vorgabe-Ansicht für diesen Raum: "
+msgstr "Domyślny widok pokoju: "
 
 #: ../../static/t/room/zap_this.html:3
 msgid "Zap (forget/unsubscribe) the current room"
-msgstr "den aktuellen Raum vergessen (vergessen/abbestellen)"
+msgstr "Zapomnij /wypisz się z bieżacego pokoju"
 
 #: ../../static/t/room/zap_this.html:6
 msgid "If you select this option,"
-msgstr "Wenn Sie diese Option wählen,"
+msgstr "Jeśli wybierzesz tę opcję,"
 
 #: ../../static/t/room/zap_this.html:8
 msgid "will disappear from your room list.  Is this what you wish to do?"
-msgstr "aus der Raumliste verschwinden. Wollen Sie das wirklich tun?"
+msgstr "zniknie z listy pokjów. Czy to chcesz zrobić?"
 
 #: ../../static/t/menu/your_info.html:2
 msgid "Change your preferences and settings"
-msgstr "Ihre persönlichen Einstellungen ändern"
+msgstr "Zmień swoje preferencje i ustawienia"
 
 #: ../../static/t/menu/your_info.html:3
 msgid "Update your contact information"
-msgstr "Ihre Kontaktinformationen ändern"
+msgstr "Aktualizuj swoje dane kontaktowe"
 
 #: ../../static/t/menu/your_info.html:5
 msgid "Enter your 'bio'"
-msgstr "Ihr Lebenslauf eingeben"
+msgstr "Wprowadź swoje 'bio'"
 
 #: ../../static/t/menu/your_info.html:6
 msgid "Edit your online photo"
-msgstr "Ihr Photo ändern"
+msgstr "Edytuj swoje online zdjęcie"
 
 #: ../../static/t/menu/your_info.html:8
 msgid "Edit your push email settings"
-msgstr "Bearbeiten Sie ihre Push-Email einstellungen"
+msgstr "Edycja Twoich ustawień push email"
 
 #: ../../static/t/menu/your_info.html:9
 msgid "Manage your OpenIDs"
-msgstr "openID's bearbeiten"
+msgstr "Zarządzaj swoim OpenIDs"
 
 #: ../../static/t/menu/basic_commands.html:3
 msgid "List known rooms"
-msgstr "Bekannte Räume aufzählen"
+msgstr "Lista znanych pokoi"
 
 #: ../../static/t/menu/basic_commands.html:3
 msgid "Where can I go from here?"
-msgstr "Wo komme ich von hier aus hin?"
+msgstr "Gdzie dalej?"
 
 #: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:168
 msgid "Goto next room"
-msgstr "nächster Raum"
+msgstr "Idź do następnego pokoju"
 
 #: ../../static/t/menu/basic_commands.html:4
 msgid "...with <em>unread</em> messages"
-msgstr "... mit <em>ungelesenen</em> Meldungen"
+msgstr "...z <em>nieprzeczytanymi</em> wiadomościami"
 
 #: ../../static/t/menu/basic_commands.html:5
 msgid "Skip to next room"
-msgstr "Weiter zum nächsten Raum"
+msgstr "Przejdź do następnego pkoju"
 
 #: ../../static/t/menu/basic_commands.html:5
 msgid "(come back here later)"
-msgstr "(später zurückkehren)"
+msgstr "(wrócić tu później)"
 
 #: ../../static/t/menu/basic_commands.html:6 ../../static/t/navbar.html:5
 msgid "Ungoto"
-msgstr "Zurück"
+msgstr "Wróć"
 
 #: ../../static/t/menu/basic_commands.html:6
 msgid "oops! Back to "
-msgstr "Hoppla! Zurück zu "
+msgstr "Ups! Powrót do "
 
 #: ../../static/t/menu/basic_commands.html:10 ../../static/t/navbar.html:13
 msgid "Read new messages"
-msgstr "Aktualisieren"
+msgstr "Przeczytaj nowe wiadomości"
 
 #: ../../static/t/menu/basic_commands.html:10
 msgid "...in this room"
-msgstr "... in diesem Raum"
+msgstr "... w tym pokoju"
 
 #: ../../static/t/menu/basic_commands.html:11 ../../static/t/navbar.html:19
 msgid "Read all messages"
-msgstr "Alle Beiträge"
+msgstr "Czytaj wszystkie wiadomości"
 
 #: ../../static/t/menu/basic_commands.html:11
 msgid "...old <em>and</em> new"
-msgstr "... alte <em>und</em> neue"
+msgstr "...stare <em>i</em> nowe"
 
 #: ../../static/t/menu/basic_commands.html:12 ../../static/t/navbar.html:25
 msgid "Enter a message"
-msgstr "neuer Beitrag"
+msgstr "Wprowadź wiadmomość"
 
 #: ../../static/t/menu/basic_commands.html:12
 msgid "(post in this room)"
-msgstr "(Beitrag in diesen Raum stellen)"
+msgstr "(odpowiedzieć w tym pokoju)"
 
 #: ../../static/t/menu/basic_commands.html:13
 msgid "File library"
-msgstr "Datei-Bibliothek"
+msgstr "Biblioteka plików"
 
 #: ../../static/t/menu/basic_commands.html:13
 msgid "(List files available for download)"
-msgstr "(Zum Herunterladen verfügbare Dateien anzeigen)"
+msgstr "(Lista plików dostępnych do pobrania)"
 
 #: ../../static/t/menu/basic_commands.html:17
 msgid "Summary page"
-msgstr "Übersichtsseite"
+msgstr "Strona z podsumowaniem"
 
 #: ../../static/t/menu/basic_commands.html:17
 msgid "Summary of my account"
-msgstr "Mein Benutzerkonto"
+msgstr "Podsumowanie mojego konta"
 
 #: ../../static/t/menu/basic_commands.html:18
 msgid "User list"
-msgstr "Benutzerliste"
+msgstr "Lista użytkowników"
 
 #: ../../static/t/menu/basic_commands.html:18
 msgid "(all registered users)"
-msgstr "(alle Benutzer)"
+msgstr "(wszyscy zarejstrowani użytkownicy)"
 
 #: ../../static/t/menu/basic_commands.html:19
 msgid "Bye!"
-msgstr "Auf Wiedersehen!"
+msgstr "Do zobaczenia!"
 
 #: ../../static/t/menu/advanced_roomcommands.html:3
 msgid "Edit or delete this room"
-msgstr "Diesen Raum bearbeiten oder löschen"
+msgstr "Edytować lub usunąć ten pokój"
 
 #: ../../static/t/menu/advanced_roomcommands.html:5
 msgid "Go to a 'hidden' room"
-msgstr "In einen 'versteckten' Raum gehen"
+msgstr "Idź do 'ukrytego' pokoju"
 
 #: ../../static/t/menu/advanced_roomcommands.html:7
 msgid "Zap (forget) this room"
-msgstr "Diesen Raum vergessen"
+msgstr "Zapomnij ten pokój"
 
 #: ../../static/t/menu/advanced_roomcommands.html:8
 msgid "List all forgotten rooms"
-msgstr "Alle vergessenen Räume auflisten"
+msgstr "Listuj wszystkie zapomniane pokoje"
 
 #: ../../static/t/navbar.html:34
 msgid "View contacts"
-msgstr "Kontakte anzeigen"
+msgstr "Zobacz kontakty"
 
 #: ../../static/t/navbar.html:40
 msgid "Add new contact"
-msgstr "Neuen Kontakt hinzufügen"
+msgstr "Dodaj nowy kontakt"
 
 #: ../../static/t/navbar.html:49
 msgid "Day view"
-msgstr "Tagesübersicht"
+msgstr "Widok dnia"
 
 #: ../../static/t/navbar.html:55
 msgid "Month view"
-msgstr "Monatsübersicht"
+msgstr "Widok miesiąca"
 
 #: ../../static/t/navbar.html:61
 msgid "Add new event"
-msgstr "Neuen Termin hinzufügen"
+msgstr "Dodaj nowe wydarzenie"
 
 #: ../../static/t/navbar.html:70
 msgid "Calendar list"
-msgstr "Kalenderliste"
+msgstr "Lista kalendarza"
 
 #: ../../static/t/navbar.html:79
 msgid "View tasks"
-msgstr "Aufgaben anzeigen"
+msgstr "Wyświetlanie zadań"
 
 #: ../../static/t/navbar.html:85
 msgid "Add new task"
-msgstr "Neue Aufgabe"
+msgstr "Dodaj nowe zadanie"
 
 #: ../../static/t/navbar.html:94
 msgid "View notes"
-msgstr "Nachrichten anzeigen"
+msgstr "Wyświetlanie notatek"
 
 #: ../../static/t/navbar.html:101
 msgid "Add new note"
-msgstr "Neue Notiz"
+msgstr "Dodaj nową notatkę"
 
 #: ../../static/t/navbar.html:110
 msgid "Refresh message list"
-msgstr "Aktualisieren"
+msgstr "Odśwież listę wiadomości"
 
 #: ../../static/t/navbar.html:122
 msgid "Write mail"
-msgstr "Email schreiben"
+msgstr "Napisz list"
 
 #: ../../static/t/navbar.html:132
 msgid "Wiki home"
-msgstr "Wiki-Startseite"
+msgstr "Strona domowa Wiki"
 
 #: ../../static/t/navbar.html:139
 msgid "Edit this page"
-msgstr "Diese Seite bearbeiten"
+msgstr "Edutuj tę strone"
 
 #: ../../static/t/navbar.html:145
 msgid "History"
-msgstr "Ältere Versionen"
+msgstr "Historia"
 
 #: ../../static/t/navbar.html:154
 msgid "New blog post"
-msgstr "Neuer Blog-Beitrag"
+msgstr "Nowy wpis na blogu"
 
 #: ../../static/t/navbar.html:162
 msgid "Skip this room"
-msgstr "Raum weglassen"
+msgstr "Pomiń ten pokój"
 
 #: ../../static/t/msg_listview.html:18
 msgid "Loading messages from server, please wait"
-msgstr "Lade Nachrichten vom Server, Bitte warten"
+msgstr "Ładowanie wiadomości z serwera, proszę czekać"
 
 #: ../../static/t/msg_listview.html:24
 msgid "Open in new window"
-msgstr "in neuem Fenster öffnen"
+msgstr "Otwórz w nowym oknie"
 
 #: ../../static/t/msg_listview.html:26
 msgid "Copy"
-msgstr "Kopieren"
+msgstr "Kopiuj"
 
 #: ../../static/t/view_mailq/message.html:6
 msgid "Originaly posted in: "
-msgstr "Ursprünglich veröffentlicht in: "
+msgstr "Oryginalnie pisał w: "
 
 #: ../../static/t/view_mailq/header.html:15
 msgid "Refresh this page"
-msgstr "Diese Seite neu laden"
+msgstr "Odśwież te strone"
 
 #: ../../static/t/view_mailq/header.html:21
 msgid "Message ID"
-msgstr "Nachrichten-ID"
+msgstr "ID wiadmości"
 
 #: ../../static/t/view_mailq/header.html:23
 msgid "Date/time submitted"
-msgstr "Versandzeitpunkt"
+msgstr "Data/czas wysłania"
 
 #: ../../static/t/view_mailq/header.html:25
 msgid "Next attempt"
-msgstr "Nächster Versuch"
+msgstr "Następna próba"
 
 #: ../../static/t/view_mailq/header.html:29
 msgid "Recipients"
-msgstr "Empfänger"
+msgstr "Odbiorcy"
 
 #: ../../static/t/view_mailq/footer_empty.html:4
 msgid "The queue is empty."
-msgstr "Diese Warteschlange ist leer."
+msgstr "Kolejka jest pusta"
 
 #: ../../static/t/view_mailq/footer_empty.html:9
 #: ../../static/t/view_mailq/footer.html:5
 msgid "You do not have permission to view this resource."
-msgstr "Sie haben keine Berechtigung diese Ressource einzusehen."
+msgstr "Nie masz uprawnień, aby zobaczyć ten zasób."
 
 #: ../../static/t/get_logged_in.html:5
 msgid "You must be logged in to access this page."
-msgstr "Sie müssen eingeloggt sein um diese Seite zuzugreifen."
+msgstr "Musisz się zalogować, aby uzyskać dostęp do tej strony."
 
 #: ../../static/t/get_logged_in.html:9
 #: ../../static/t/edit_message/attachments_pane.html:3
 msgid "Close window"
-msgstr "Fenster schließen"
+msgstr "Zamknij okno"
 
 #: ../../static/t/get_logged_in.html:55
 msgid "Log in using a user name and password"
-msgstr "Mit Benutzer und Passwort anmelden"
+msgstr "Zaloguj się przy użyciu nazwy użytkownika i hasła"
 
 #: ../../static/t/get_logged_in.html:60 ../../static/t/get_logged_in.html:75
 msgid "Password:"
-msgstr "Passwort:"
+msgstr "Hasło"
 
 #: ../../static/t/get_logged_in.html:65 ../../static/t/get_logged_in.html:69
 msgid "New user?  Register now"
-msgstr "Neuer Benutzer? Registrieren Sie sich jetzt"
+msgstr "Nowy użytkownik? zarejestruj się już teraz"
 
 #: ../../static/t/get_logged_in.html:70
 msgid ""
 "enter the name and password you wish to use, and click &quot;New User.&quot; "
 msgstr ""
-"einen Loginnamen und Passwort eingeben die verwendet werden sollen; dann "
-"&quot;Neuer Benutzer&quot; Klicken "
+"Wprowadź login i hasło, którego chcesz używać, a następnie kliknij przycisk "
+"&quot;Nowy użytkownik&quot; "
 
 #: ../../static/t/get_logged_in.html:83
 msgid "Log in using OpenID"
-msgstr "Mit einem OpenID Konto Anmelden"
+msgstr "Logowanie z OpenID"
 
 #: ../../static/t/get_logged_in.html:85
 msgid "OpenID URL:"
@@ -3877,272 +3884,84 @@ msgstr "OpenID URL:"
 
 #: ../../static/t/get_logged_in.html:92
 msgid "Log in using Google"
-msgstr "Über Google anmelden"
+msgstr "Zaloguj się za pomocą Google"
 
 #: ../../static/t/get_logged_in.html:97
 msgid "Log in using Yahoo"
-msgstr "Über Yahoo anmelden"
+msgstr "Zaloguj się za pomocą Yahoo"
 
 #: ../../static/t/get_logged_in.html:102
 msgid "Log in using AOL or AIM"
-msgstr "Über AOL oder AIM anmelden"
+msgstr "Zaloguj się za pomocą AOL lub AIM"
 
 #: ../../static/t/get_logged_in.html:104
 msgid "Enter your AOL or AIM screen name:"
-msgstr "Geben Sie Ihren AOL- oder AIM-Benutzernamen ein:"
+msgstr "Wpisz swój AOL lub Nazwe użytkownika AIM:"
 
 #: ../../static/t/get_logged_in.html:115
 msgid "Please wait"
-msgstr "Bitte warten"
+msgstr "Proszę czekać"
 
 #: ../../static/t/summary/page.html:4
 msgid "Summary page for "
-msgstr "Übersichtsseite für "
+msgstr "Strona Podsumowanie dla "
 
 #: ../../static/t/summary/page.html:21
 msgid "Messages"
-msgstr "Nachrichten"
+msgstr "Wiadomości"
 
 #: ../../static/t/summary/page.html:39
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Heute&nbsp;in&nbsp;ihrem&nbsp;Kalender"
+msgstr "Dziś&nbsp;w&nbsp;twoim&nbsp;kalendarzu"
 
 #: ../../static/t/summary/page.html:51
 msgid "Who‘s&nbsp;online&nbsp;now"
-msgstr "Wer &nbsp;ist gerade &nbsp;angemeldet"
+msgstr "Kto&nbsp;jest&nbsp;online"
 
 #: ../../static/t/summary/page.html:60
 msgid "About&nbsp;this&nbsp;server"
-msgstr "Über&nbsp;diesen&nbsp;Server"
+msgstr "O&nbsp;tym&nbsp;serwerze"
 
 #: ../../static/t/summary/page.html:63
 msgid "You are connected to"
-msgstr "Sie sind verbunden mit"
+msgstr "Jesteś połączony"
 
 #: ../../static/t/summary/page.html:64
 msgid "running"
-msgstr "wird ausgeführt"
+msgstr "używającym"
 
 #: ../../static/t/summary/page.html:65
 msgid "with"
-msgstr "mit"
+msgstr "z"
 
 #: ../../static/t/summary/page.html:66
 msgid "server build"
-msgstr "Server-Build"
+msgstr "wersja servera"
 
 #: ../../static/t/summary/page.html:67
 msgid "and located in"
-msgstr "und aufgestellt in"
+msgstr "mieszczącym się w"
 
 #: ../../static/t/summary/page.html:68
 msgid "Your system administrator is"
-msgstr "Ihr Systemadministrator ist"
+msgstr "Administrator systemu:"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
 msgid "Attach file:"
-msgstr "Datei anhängen:"
+msgstr "Dołącz plik:"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"
-msgstr "Hochladen"
+msgstr "Wyślij"
 
 #: ../../static/t/edit_message/section_attach_select.html:4
 msgid "Remove"
-msgstr "Entfernen"
+msgstr "Usuń"
 
 #: ../../static/t/loggedinas.html:3
 msgid "Logged in as"
-msgstr "Angemeldet als"
+msgstr "Zalogowany jako"
 
 #: ../../static/t/loggedinas.html:6
 msgid "Not logged in."
-msgstr "Nicht angemeldet."
-
-#~ msgid "A script by that name already exists."
-#~ msgstr "Es gibt schon ein Script mit diesem Namen!"
-
-#~ msgid ""
-#~ "A new script has been created.  Return to the script editing screen to "
-#~ "edit and activate it."
-#~ msgstr ""
-#~ "Ein neues Script wurde erzeugt. Es kann im Script-Bearbeitungs Formular "
-#~ "aktiviert werden."
-
-#~ msgid "Create"
-#~ msgstr "Anlegen"
-
-#~ msgid "Delete script"
-#~ msgstr "Script löschen"
-
-#~ msgid "Delete this script?"
-#~ msgstr "Dieses Script löschen?"
-
-#~ msgid "Move rule up"
-#~ msgstr "Regel nach oben bewegen"
-
-#~ msgid "Move rule down"
-#~ msgstr "Regel nach unten bewegen"
-
-#~ msgid "Delete rule"
-#~ msgstr "Regel löschen"
-
-#~ msgid "Reset form"
-#~ msgstr "Formular löschen"
-
-#~ msgid ""
-#~ "You are connected to %s, running %s with %s, server build %s and located "
-#~ "in %s.  Your system administrator is %s."
-#~ msgstr ""
-#~ "Sie sind angemeldet auf %s, mit %s über %s, Server-Release %s in %s.  Ihr "
-#~ "Systemverwalter ist %s."
-
-#~ msgid "Yes with users list"
-#~ msgstr "Ja, mit Benutzer Liste"
-
-#~ msgid "Room list"
-#~ msgstr "Raumlisten Anzeige"
-
-#~ msgid "View as room list"
-#~ msgstr "Auf Raumlistenansicht wechseln"
-
-#~ msgid "View as folder list"
-#~ msgstr "Auf Ordnerlistenansicht wechseln"
-
-#~ msgid "Room Listing"
-#~ msgstr "Raumlisten Anzeige"
-
-#~ msgid "Your password was not accepted."
-#~ msgstr "Ihr Passwort wurde nicht akzeptiert"
-
-#~ msgid ""
-#~ "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
-#~ "listserver has sent you an e-mail with one additional Web link for you to "
-#~ "click on to confirm your subscription.  This extra step is for your "
-#~ "protection, as it prevents others from being able to subscribe you to "
-#~ "lists without your consent.<br /><br />Please click on the link which is "
-#~ "being e-mailed to you and your subscription will be confirmed.<br />\n"
-#~ msgstr ""
-#~ "Sie abonnieren für <TT>%s</TT> die <b>%s</b> Liste. Der Listenserver hat "
-#~ "Ihnen eine URL zur Bestätigung der Anmeldung zugeschickt. Dieser "
-#~ "zusätzliche Schritt ist zu Ihrem eigenen Schutz, damit Sie niemand ohne "
-#~ "Ihre Zustimmung auf einer Liste anmelden kann.<br />\n"
-
-#~ msgid "If you already have an account on"
-#~ msgstr "Wenn schon ein Benutzerkonto existiert auf"
-
-#~ msgid "enter your user name and password and click &quot;Login.&quot;"
-#~ msgstr "Benutzername und Passwort angeben und &quot;Anmelden&quot; clicken"
-
-#~ msgid ""
-#~ "<b>If you are a new user</b>, enter the name and password you wish to "
-#~ "use, and click &quot;New User.&quot; "
-#~ msgstr ""
-#~ "<b>Wenn Sie noch keinen Benutzer haben</b> einen Loginnamen und Passwort "
-#~ "eingeben die verwendet werden sollen; dann &quot;Neuer Benutzer&quot; "
-#~ "Klicken "
-
-#~ msgid "Please log off properly when finished. "
-#~ msgstr "Bitte die Sitzung ordentlich beenden. "
-
-#~ msgid "See the"
-#~ msgstr "Die"
-
-#~ msgid "recommended browser list"
-#~ msgstr "Liste empfohlener Browser einsehen"
-
-#~ msgid ""
-#~ "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-#~ "turned on. "
-#~ msgstr ""
-#~ "wenn es Probleme mit Webcit gibt..</li> <li><i>Cookies</i> müßen "
-#~ "aktiviert sein. "
-
-#~ msgid ""
-#~ "Also keep in mind that if your browser is configured to block pop-up "
-#~ "windows, you will not be able to receive any instant messages."
-#~ msgstr ""
-#~ "Bitte auch Popup Fenster zulassen wenn Chat-Fenster benutzt werden sollen."
-
-#~ msgid "Enter your OpenID URL and click &quot;Login&quot;."
-#~ msgstr "Geben Sie ihre OpenID URL ein, und &quot;Anmelden&quot; klicken"
-
-#~ msgid "Click here to learn what OpenID is and how Citadel is using it."
-#~ msgstr "Hier klicken um mehr über OpenID und Citadel zu lernen"
-
-#~ msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
-#~ msgstr " - mit <a href=\"http://www.citadel.org\">Citadel</a> Technologie"
-
-#~ msgid "enter your user name and password and click &quot;Log in.&quot;"
-#~ msgstr "Benutzername und Passwort angeben und &quot;Anmelden&quot; clicken"
-
-#~ msgid "Enter your OpenID URL and click &quot;Log in&quot;."
-#~ msgstr "Geben Sie ihre OpenID URL ein, und &quot;Anmelden&quot; klicken"
-
-#~ msgid ""
-#~ "<ul><li>Enter your OpenID URL and click &quot;Log in&quot;.<li><a href="
-#~ "\"http://www.citadel.org/doku.php/documentation:openid\">Click here to "
-#~ "learn what OpenID is and how Citadel is using it.</a><li>Please log off "
-#~ "properly when finished. <li>You must use a browser that supports "
-#~ "<i>frames</i> and <i>cookies</i>. <li>Also keep in mind that if your "
-#~ "browser is configured to block pop-up windows, you will not be able to "
-#~ "receive any instant messages.<br></ul>"
-#~ msgstr ""
-#~ "<ul>\n"
-#~ "<li><b>Wenn Sie schon einen Benutzer bei %s</b> haben, Benutzername und "
-#~ "Passwort eingeben und 'Anmelden' drücken. </li>\n"
-#~ "<li><b>Wenn Sie einen neuen Benutzer anlegen wollen, Benutzername und "
-#~ "Passwort eingeben und 'Neuer Benutzer' drücken.</li>\n"
-#~ "<li>Bitte melden Sie sich ordentlich ab, wenn Sie fertig sind.</li>\n"
-#~ "<li>Ihr Browser muss <i>Frames</i> und <i>Cookies</i> unterstützen</li>\n"
-#~ "<li>Kurznachrichten könnten dem Popup-Blocker Ihres Browsers zum Opfer "
-#~ "fallen</li>\n"
-#~ "<br></ul>"
-
-#~ msgid ""
-#~ "enter your user name and password and click &quot;Log in.&quot;<li><b>If "
-#~ "you are a new user</b>, enter the name and password you wish to use, and "
-#~ "click &quot;New User.&quot; <li>Please log off properly when finished. "
-#~ "<li>You must use a browser that supports <i>frames</i> and <i>cookies</"
-#~ "i>. <li>Also keep in mind that if your browser is configured to block pop-"
-#~ "up windows, you will not be able to receive any instant messages."
-#~ msgstr ""
-#~ "<ul>\n"
-#~ "<li><b>Wenn Sie schon einen Benutzer bei %s</b> haben, Benutzername und "
-#~ "Passwort eingeben und 'Anmelden' drücken. </li>\n"
-#~ "<li><b>Wenn Sie einen neuen Benutzer anlegen wollen, Benutzername und "
-#~ "Passwort eingeben und 'Neuer Benutzer' drücken.</li>\n"
-#~ "<li>Bitte melden Sie sich ordentlich ab, wenn Sie fertig sind.</li>\n"
-#~ "<li>Ihr Browser muss <i>Frames</i> und <i>Cookies</i> unterstützen</li>\n"
-#~ "<li>Kurznachrichten könnten dem Popup-Blocker Ihres Browsers zum Opfer "
-#~ "fallen</li>\n"
-#~ "<br></ul>"
-
-#~ msgid ""
-#~ "<I>This message contains calendaring/scheduling information, but support "
-#~ "for calendars is not available on this particular system.  Please ask "
-#~ "your system administrator to install a new version of the Citadel web "
-#~ "service with calendaring enabled.</I><br>\n"
-#~ msgstr ""
-#~ "<I>Diese Nachricht enthält Kalender/Datums Informationen, aber die "
-#~ "Unterstützung für Kalender ist auf diesem System nicht verfügbar. Bitte "
-#~ "fragen Sie ihren System-Administrator nach einer Version des Citadel-Web-"
-#~ "Services mit unterstützung für Kalender.</I><br>\n"
-
-#~ msgid ""
-#~ "<i>Cannot display calendar item.  You are seeing this error because your "
-#~ "WebCit service has not been installed with calendar support.  Please "
-#~ "contact your system administrator.</i><br>\n"
-#~ msgstr ""
-#~ "<i>Kann Kalender-Element nicht darstellen. Sie sehen diesen Fehler, weil "
-#~ "ihr  Citadel System ohne Kalenderunterstützung installiert wurde. Bitte "
-#~ "wenden Sie sich an Ihren Systemadministrator.</i><br>\n"
-
-#~ msgid ""
-#~ "<i>Cannot display to-do item.  You are seeing this error because your "
-#~ "WebCit service has not been installed with calendar support.  Please "
-#~ "contact your system administrator.</i><br>\n"
-#~ msgstr ""
-#~ "<i>Kann To-Do Datum nicht darstellen. Sie sehen diesen Fehler, weil ihr "
-#~ "Citadel System ohne Kalenderunterstützung installiert wurde. Bitte wenden "
-#~ "Sie sich an Ihren Systemadministrator.</i><br>\n"
+msgstr "Nie jesteś zalogowany"
