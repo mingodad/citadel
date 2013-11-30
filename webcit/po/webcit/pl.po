@@ -125,13 +125,13 @@ msgstr "Wyświetl wszystkie"
 
 #: ../../tasks.c:223
 msgid "Edit task"
-msgstr "Edytuj zadanie"
+msgstr "Edycja zadania"
 
 #: ../../tasks.c:242 ../../calendar.c:98 ../../calendar_view.c:298
 #: ../../calendar_view.c:959 ../../calendar_view.c:1003
 #: ../../calendar_view.c:1084
 msgid "Summary:"
-msgstr "Zestawienie:"
+msgstr "Podsumowanie:"
 
 #: ../../tasks.c:253
 msgid "Start date:"
@@ -236,7 +236,7 @@ msgstr "Musisz podać adres e-mail, który chcesz zapisać się."
 #: ../../blogview_renderer.c:58 ../../blogview_renderer.c:74
 #, c-format
 msgid "%d comments"
-msgstr "%d comments"
+msgstr "%d komentarzy"
 
 #: ../../blogview_renderer.c:61 ../../blogview_renderer.c:77
 msgid "permalink"
@@ -460,7 +460,7 @@ msgstr "Państwo:"
 
 #: ../../vcard_edit.c:1158
 msgid "Home telephone:"
-msgstr "Dowmy telefon:"
+msgstr "Domowy telefon:"
 
 #: ../../vcard_edit.c:1164
 msgid "Work telephone:"
@@ -668,11 +668,11 @@ msgstr ""
 
 #: ../../calendar.c:932
 msgid "Calendar day view begins at:"
-msgstr "Widok kalendarza dziennego zaczyna się:"
+msgstr "Widok kalendarza dziennego zaczyna się od:"
 
 #: ../../calendar.c:933
 msgid "Calendar day view ends at:"
-msgstr "Widko kalendarza dizennego kńczy się na:"
+msgstr "Widok kalendarza dziennego kńczy się na:"
 
 #: ../../calendar.c:934
 msgid "Week starts on:"
@@ -704,7 +704,7 @@ msgstr "Wiadomość została wysłana do "
 
 #: ../../iconbar.c:328
 msgid "Iconbar Setting"
-msgstr "Iconbar ustawienia"
+msgstr "Ustawienia ikon"
 
 #. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
@@ -813,12 +813,12 @@ msgstr "Uczestnicy"
 
 #: ../../event.c:167
 msgid "Add or edit an event"
-msgstr "Dodawaj lub edytuj zdarzenie"
+msgstr "Dodaj lub edytuj zdarzenie"
 
 #: ../../event.c:206 ../../static/t/iconbar.html:13
 #: ../../static/t/iconbar/edit.html:29
 msgid "Summary"
-msgstr "Podsumowanie"
+msgstr "Zestawienie"
 
 #: ../../event.c:217
 msgid "Location"
@@ -1093,7 +1093,7 @@ msgstr "Preferowane nazwa wyświetlana w wiadomościach BBS"
 
 #: ../../messages.c:1973
 msgid "Mailbox view mode"
-msgstr "Mailbox tryb wyświetlania"
+msgstr "Tryb wyświetlania skrzynki pocztowej"
 
 #: ../../inetconf.c:110 ../../inetconf.c:119 ../../inetconf.c:133
 #: ../../inetconf.c:159 ../../netconf.c:156 ../../netconf.c:183
@@ -1136,7 +1136,7 @@ msgstr "Zmień nazę pokoju"
 
 #: ../../who.c:180
 msgid "Host name:"
-msgstr "nazwa komputera (host name):"
+msgstr "Nazwa komputera:"
 
 #: ../../who.c:185
 msgid "Change host name"
@@ -1194,7 +1194,7 @@ msgstr ""
 
 #: ../../wiki.c:181 ../../static/t/msg_listview.html:11
 msgid "Date"
-msgstr "Date"
+msgstr "Data"
 
 #: ../../wiki.c:182
 msgid "Author"
@@ -1218,7 +1218,7 @@ msgstr "Tytuł strony"
 
 #: ../../webcit.c:316
 msgid "Authorization Required"
-msgstr "Wymagane zezwolenie"
+msgstr "Wymagana autoryzacja"
 
 #: ../../webcit.c:324
 #, c-format
@@ -1269,7 +1269,7 @@ msgstr "pliki"
 
 #: ../../summary.c:128
 msgid "(None)"
-msgstr "(Żaden)"
+msgstr "(Brak)"
 
 #: ../../summary.c:184
 msgid "(Nothing)"
@@ -1398,7 +1398,7 @@ msgstr "Wprowadź je ponownie, aby potwierdzić:"
 
 #: ../../auth.c:810
 msgid "Change password"
-msgstr "Zmiana hasła"
+msgstr "Zmień hasło"
 
 #: ../../auth.c:830
 msgid "Cancelled.  Password was not changed."
@@ -1475,7 +1475,7 @@ msgstr "woja poczta przychodząca nie będzie filtrowana przez skrypty."
 
 #: ../../static/t/sieve/list.html:64
 msgid "Add rule"
-msgstr "Dodaj zasade"
+msgstr "Dodaj regułę"
 
 #: ../../static/t/sieve/list.html:71
 msgid "The currently active script is: "
@@ -1582,11 +1582,11 @@ msgstr "mniejsze niż"
 
 #: ../../static/t/sieve/display_one.html:59
 msgid "bytes"
-msgstr "bytes"
+msgstr "bajtów"
 
 #: ../../static/t/sieve/display_one.html:65
 msgid "Keep"
-msgstr "Pozostaw"
+msgstr "Zachowaj"
 
 #: ../../static/t/sieve/display_one.html:66
 msgid "Discard silently"
@@ -1594,11 +1594,11 @@ msgstr "Wyrzucić po cichu"
 
 #: ../../static/t/sieve/display_one.html:67
 msgid "Reject"
-msgstr "Odrzuć"
+msgstr "Odrzucić"
 
 #: ../../static/t/sieve/display_one.html:68
 msgid "Move message to"
-msgstr "Przenieść wiadomość do"
+msgstr "Przenieś wiadomość do"
 
 #: ../../static/t/sieve/display_one.html:69
 msgid "Forward to"
@@ -1606,7 +1606,7 @@ msgstr "Przekaż do"
 
 #: ../../static/t/sieve/display_one.html:70
 msgid "Vacation"
-msgstr "Wakacje"
+msgstr "Urlop"
 
 #: ../../static/t/sieve/display_one.html:82
 msgid "Message:"
@@ -1687,7 +1687,7 @@ msgstr "powered by"
 #: ../../static/t/get_logged_in.html:93 ../../static/t/get_logged_in.html:98
 #: ../../static/t/get_logged_in.html:107
 msgid "Log in"
-msgstr "Zaloguj się"
+msgstr "Zaloguj"
 
 #: ../../static/t/trailing.html:14
 msgid ""
@@ -1755,7 +1755,7 @@ msgstr "Wypisałeś sie"
 
 #: ../../static/t/listsub/display.html:37
 msgid "from the"
-msgstr "z"
+msgstr "od"
 
 #: ../../static/t/listsub/display.html:39
 msgid "mailing list."
@@ -1918,15 +1918,15 @@ msgstr "Wczytywanie"
 
 #: ../../static/t/edit_message.html:23
 msgid "from"
-msgstr "z"
+msgstr "Od"
 
 #: ../../static/t/edit_message.html:29 ../../static/t/edit_message.html:38
 msgid "Anonymous"
-msgstr "Anonimowy"
+msgstr "Anonimowo"
 
 #: ../../static/t/edit_message.html:47
 msgid "in"
-msgstr "w"
+msgstr ""
 
 #: ../../static/t/edit_message.html:51
 msgid "To:"
@@ -1936,7 +1936,7 @@ msgstr "Do:"
 #: ../../static/t/view_message/print.html:15
 #: ../../static/t/view_message.html:15
 msgid "CC:"
-msgstr "CC:"
+msgstr "DW:"
 
 #: ../../static/t/edit_message.html:63
 msgid "BCC:"
@@ -1944,14 +1944,14 @@ msgstr "BCC:"
 
 #: ../../static/t/edit_message.html:71
 msgid "Subject (optional):"
-msgstr "Tyruł (opcyjnie):"
+msgstr "Temat (opcjonalnie)"
 
 #: ../../static/t/edit_message.html:71
 #: ../../static/t/view_message/replyquote.html:8
 #: ../../static/t/view_message/print.html:16
 #: ../../static/t/view_message.html:16
 msgid "Subject:"
-msgstr "Tytuł:"
+msgstr "Temat:"
 
 #: ../../static/t/edit_message.html:86
 msgid "--- forwarded message ---"
@@ -2013,7 +2013,7 @@ msgstr "Dostrajanie"
 
 #: ../../static/t/aide/display_sitewide_config.html:15
 msgid "Directory"
-msgstr "Katlog"
+msgstr "Katalog"
 
 #: ../../static/t/aide/display_sitewide_config.html:16
 msgid "Auto-purger"
@@ -2088,7 +2088,7 @@ msgstr "Edytowanie lub usuwanie użytkowników"
 
 #: ../../static/t/aide/edituser/select.html:17
 msgid "Add users"
-msgstr "Dodawanie użytkowników"
+msgstr "Dodaj użytkowników"
 
 #: ../../static/t/aide/edituser/select.html:20
 msgid "Edit or Delete users"
@@ -2213,7 +2213,7 @@ msgstr ""
 
 #: ../../static/t/aide/inet/masqdomains.html:2
 msgid "(Domains as which users are allowed to masquerade)"
-msgstr "(Domeny w którym użytkownicy mogą maskowane)"
+msgstr "(Domeny w które użytkownicy mogą maskować)"
 
 #: ../../static/t/aide/inet/rbldns.html:2
 msgid "(hosts running a Realtime Blackhole List)"
@@ -2333,7 +2333,7 @@ msgstr "Edycja konfiguracji systemu"
 
 #: ../../static/t/aide/global_config.html:3
 msgid "Domain names and Internet mail configuration"
-msgstr "Nazwy domen i konfiguracja poczty internetowe"
+msgstr "Nazwy domen i konfiguracja poczty internetowej"
 
 #: ../../static/t/aide/global_config.html:4
 msgid "Configure replication with other Citadel servers"
@@ -2346,7 +2346,7 @@ msgstr "Zobacz wychodzącą kolejkę SMTP"
 
 #: ../../static/t/aide/restart.html:2
 msgid "Restart Now"
-msgstr "Restart Citadel teraz."
+msgstr "Uruchom ponownie Citadel"
 
 #: ../../static/t/aide/restart.html:3
 msgid "Restart after paging users"
@@ -2471,7 +2471,7 @@ msgstr "SMTP MTA port (-1 aby włączyć)"
 #: ../../static/t/aide/siteconfig/tab_network.html:9
 msgid "Correct forged From: lines during authenticated SMTP"
 msgstr ""
-"Skryguj podriobione linie Od:  podczas uwierzytelnionego protokołu SMTP"
+"Skryguj podrobione linie Od:  podczas uwierzytelniania protokołu SMTP"
 
 #: ../../static/t/aide/siteconfig/tab_network.html:12
 msgid "Flag message as spam, instead of rejecting it"
@@ -2571,11 +2571,11 @@ msgstr "Maksimum sesji równoległych (0 = brak limitu)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:11
 msgid "Default user purge time (days)"
-msgstr "Domyślna sprzątanie  użytkownika (liczba dni)"
+msgstr "Domyślna czas sprzątanie użytkownika (liczba dni)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:14
 msgid "Default room purge time (days)"
-msgstr "Domyślne sprzątanie pokoi (liczba dni)"
+msgstr "Domyślny czas  sprzątania pokoi (liczba dni)"
 
 #: ../../static/t/aide/siteconfig/tab_tuning.html:17
 msgid "Maximum message length"
@@ -2619,7 +2619,7 @@ msgstr "Kontrola dostępu i ustawienia zasad serwisu"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:5
 msgid "Allow aides to zap (forget) rooms"
-msgstr "Umożliwiaj doradcy  ?to zap? (zapomnić) pokoje"
+msgstr "Umożliwiaj adiuktowi zapomnieć pokoje"
 
 #: ../../static/t/aide/siteconfig/tab_access.html:9
 msgid "Quarantine messages from problem users"
@@ -2748,11 +2748,11 @@ msgstr "Numer portu  LDAP server (puste, aby wyłączyć)"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:16
 msgid "Base DN"
-msgstr "Base DN"
+msgstr "Podstawowa domena"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:19
 msgid "Bind DN"
-msgstr "Bind DN"
+msgstr "Powiązana DN"
 
 #: ../../static/t/aide/siteconfig/tab_directory.html:22
 msgid "Password for bind DN"
@@ -2777,7 +2777,7 @@ msgstr "Pokoje"
 
 #: ../../static/t/iconbar.html:57
 msgid "Online users"
-msgstr "Online users"
+msgstr "Użytkownicy online"
 
 #: ../../static/t/iconbar.html:62 ../../static/t/iconbar/edit.html:79
 msgid "Chat"
@@ -2816,7 +2816,7 @@ msgstr "Widok"
 #: ../../static/t/view_message/list_attach.html:4
 #: ../../static/t/view_message/inline_attach.html:5
 msgid "Download"
-msgstr "Pobierz"
+msgstr "Pobieranie"
 
 #: ../../static/t/view_message/print.html:14
 #: ../../static/t/view_message.html:14
@@ -2857,7 +2857,7 @@ msgstr "Wybierz plik do wysłania:"
 
 #: ../../static/t/files/section_onefile.html:20
 msgid "Slideshow"
-msgstr "Pokaz slajdów"
+msgstr "Prezentacja"
 
 #: ../../static/t/roombanner.html:10 ../../static/t/roombanner.html:11
 msgid "new of"
@@ -2879,7 +2879,8 @@ msgstr "Użytkownicy obecnie na "
 
 #: ../../static/t/who.html:22
 msgid "Click on a name to read user info.  Click on"
-msgstr "Kliknij na nazwę, aby przeczytać informacje o użytkowniku. kliknij"
+msgstr ""
+"Kliknij na nazwe użykownika, aby zobaczyć informacje o użytkowniku. kliknij"
 
 #: ../../static/t/who.html:24
 msgid "to send an instant message to that user."
@@ -3048,7 +3049,7 @@ msgstr "Pokój"
 
 #: ../../static/t/who/box_list_static.html:8
 msgid "From host"
-msgstr "Z hosta"
+msgstr "Połączony z komputera"
 
 #: ../../static/t/view_message.html:19
 msgid "Edit"
@@ -3056,7 +3057,7 @@ msgstr "Edycaj"
 
 #: ../../static/t/view_message.html:22 ../../static/t/view_message.html:26
 msgid "Reply"
-msgstr "Odpowiedz"
+msgstr "Odpowiedź"
 
 #: ../../static/t/view_message.html:23
 msgid "ReplyQuoted"
@@ -3181,7 +3182,7 @@ msgstr ""
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "Site logo"
-msgstr "Logo sstrony"
+msgstr "Logo strony"
 
 #: ../../static/t/iconbar/edit.html:23
 msgid "An icon describing this site"
@@ -3189,7 +3190,7 @@ msgstr "Ikona opisująca tę stronę"
 
 #: ../../static/t/iconbar/edit.html:29
 msgid "Your summary page"
-msgstr "Twoja strona z podsumowaniem"
+msgstr "Twoja strona z zestawieniem"
 
 #: ../../static/t/iconbar/edit.html:36
 msgid "Mail (inbox)"
@@ -3243,7 +3244,7 @@ msgstr ""
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Advanced options"
-msgstr "Opcje zaawansowane"
+msgstr "Zaawansowane opcje"
 
 #: ../../static/t/iconbar/edit.html:85
 msgid "Access to the complete menu of Citadel functions."
@@ -3271,11 +3272,11 @@ msgstr "Polityak wygasania wiadomość na tym piętrze"
 
 #: ../../static/t/room/edit/tab_expire.html:42
 msgid "Use the system default"
-msgstr "Użyj domyślnego systemu"
+msgstr "Użyj domyślnych ustawień systemowych"
 
 #: ../../static/t/room/edit/editroom.html:5 ../../static/t/room/edit.html:6
 msgid "Configuration"
-msgstr "Konfiguracja"
+msgstr "Ustawienia"
 
 #: ../../static/t/room/edit/editroom.html:6 ../../static/t/room/edit.html:7
 msgid "Message expire policy"
@@ -3287,7 +3288,7 @@ msgstr "Kontrola dostępu"
 
 #: ../../static/t/room/edit/editroom.html:8 ../../static/t/room/edit.html:9
 msgid "Sharing"
-msgstr "Udostępnianie"
+msgstr "Współdzielenie"
 
 #: ../../static/t/room/edit/editroom.html:9 ../../static/t/room/edit.html:10
 msgid "Mailing list service"
@@ -3409,7 +3410,7 @@ msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br><br>"
 msgstr ""
-"<i>Zawartość tego pokoju  została wysłana jako email <b> indywidualne </ b> "
+"<i>Zawartość tego pokoju  zostanie wysłana jako <b> indywidualne </ b> listy "
 "do następujących  odbiorców:</i><br><br>"
 
 #: ../../static/t/room/edit/tab_listserv.html:19
@@ -3417,8 +3418,8 @@ msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br><br>"
 msgstr ""
-"<i>Zawartość tego pokoju  została wysłana jako email<b>digest form</b> do "
-"następujących  odbiorców</i><br><br>"
+"<i>Zawartość tego pokoju  zostanie wysłana jako <b>strezczenia</b> w liscie "
+"do następujących  odbiorców</i><br><br>"
 
 #: ../../static/t/room/edit/tab_listserv.html:39
 msgid "Add recipients from Contacts or other address books"
@@ -3461,7 +3462,7 @@ msgstr "Edycja informacji o pokoju"
 
 #: ../../static/t/room/edit/tab_share.html:5
 msgid "Shared with"
-msgstr "Wspólny z"
+msgstr "Współdzielony z"
 
 #: ../../static/t/room/edit/tab_share.html:6
 msgid "Not shared with"
@@ -3480,7 +3481,7 @@ msgstr "Nazwa pokoju węzła"
 #: ../../static/t/room/edit/tab_share.html:13
 #: ../../static/t/room/edit/tab_share.html:23
 msgid "Actions"
-msgstr "Akcje"
+msgstr "Działania"
 
 #: ../../static/t/room/edit/tab_share.html:35
 msgid ""
@@ -3516,7 +3517,7 @@ msgstr "Zachować wiadomości na serwerze?"
 
 #: ../../static/t/room/edit/tab_feed.html:16
 msgid "Interval"
-msgstr "Okres"
+msgstr "Interwał"
 
 #: ../../static/t/room/edit/tab_feed.html:31
 msgid "Fetch the following RSS feeds and store them in this room:"
@@ -3541,15 +3542,15 @@ msgid ""
 "below and click 'Invite'."
 msgstr ""
 "Przyznania innemu użytkownikowi dostępu do tego pokoju, wprowadź nazwę "
-"użytkownika w polu poniżej i kliknij przycisk \"Zaproś\"."
+"użytkownika w polu poniżej i kliknij przycisk \"Invite\"."
 
 #: ../../static/t/room/edit/tab_access.html:26
 msgid "Invite:"
-msgstr "Zapraszamy:"
+msgstr "Zaproszenia:"
 
 #: ../../static/t/room/edit/tab_access.html:35
 msgid "Users"
-msgstr "Users"
+msgstr "Użytkownicy"
 
 #: ../../static/t/room/zapped_list.html:7
 msgid "Zapped (forgotten) rooms"
@@ -3699,7 +3700,7 @@ msgstr "(Lista plików dostępnych do pobrania)"
 
 #: ../../static/t/menu/basic_commands.html:17
 msgid "Summary page"
-msgstr "Strona z podsumowaniem"
+msgstr "Strona z zestawieniem"
 
 #: ../../static/t/menu/basic_commands.html:17
 msgid "Summary of my account"
@@ -3787,7 +3788,7 @@ msgstr "Strona domowa Wiki"
 
 #: ../../static/t/navbar.html:139
 msgid "Edit this page"
-msgstr "Edutuj tę strone"
+msgstr "Edytuj tę stronę"
 
 #: ../../static/t/navbar.html:145
 msgid "History"
@@ -3823,7 +3824,7 @@ msgstr "Odśwież te strone"
 
 #: ../../static/t/view_mailq/header.html:21
 msgid "Message ID"
-msgstr "ID wiadmości"
+msgstr "ID wiadomości"
 
 #: ../../static/t/view_mailq/header.html:23
 msgid "Date/time submitted"
@@ -3835,7 +3836,7 @@ msgstr "Następna próba"
 
 #: ../../static/t/view_mailq/header.html:29
 msgid "Recipients"
-msgstr "Odbiorcy"
+msgstr "Adresaci"
 
 #: ../../static/t/view_mailq/footer_empty.html:4
 msgid "The queue is empty."
@@ -3857,7 +3858,7 @@ msgstr "Zamknij okno"
 
 #: ../../static/t/get_logged_in.html:55
 msgid "Log in using a user name and password"
-msgstr "Zaloguj się przy użyciu nazwy użytkownika i hasła"
+msgstr "Zaloguj się przy użyciu<br>nazwy użytkownika i hasła"
 
 #: ../../static/t/get_logged_in.html:60 ../../static/t/get_logged_in.html:75
 msgid "Password:"
@@ -3865,7 +3866,7 @@ msgstr "Hasło"
 
 #: ../../static/t/get_logged_in.html:65 ../../static/t/get_logged_in.html:69
 msgid "New user?  Register now"
-msgstr "Nowy użytkownik? zarejestruj się już teraz"
+msgstr "Nowy użytkownik? Zarejestruj się"
 
 #: ../../static/t/get_logged_in.html:70
 msgid ""
@@ -3876,7 +3877,7 @@ msgstr ""
 
 #: ../../static/t/get_logged_in.html:83
 msgid "Log in using OpenID"
-msgstr "Logowanie z OpenID"
+msgstr "Zaloguj się używając OpenID"
 
 #: ../../static/t/get_logged_in.html:85
 msgid "OpenID URL:"
@@ -3904,7 +3905,7 @@ msgstr "Proszę czekać"
 
 #: ../../static/t/summary/page.html:4
 msgid "Summary page for "
-msgstr "Strona Podsumowanie dla "
+msgstr "Zestawienie dla "
 
 #: ../../static/t/summary/page.html:21
 msgid "Messages"
@@ -3928,7 +3929,7 @@ msgstr "Jesteś połączony"
 
 #: ../../static/t/summary/page.html:64
 msgid "running"
-msgstr "używającym"
+msgstr "uruchomiona"
 
 #: ../../static/t/summary/page.html:65
 msgid "with"
