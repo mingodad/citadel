@@ -1142,11 +1142,17 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * have just processed the 'M' (message text) field.
 	 */
 	do {
+		field_header = '\0';
 		long len;
-		if (mptr >= upper_bound) {
-			break;
+
+		/* work around possibly buggy messages: */
+		while (field_header == '\0')
+		{
+			if (mptr >= upper_bound) {
+				break;
+			}
+			field_header = *mptr++;
 		}
-		field_header = *mptr++;
 		which = field_header;
 		len = strlen(mptr);
 		CM_SetField(ret, which, mptr, len);
@@ -1746,28 +1752,28 @@ void OutputRFC822MsgHeaders(
 	char *mpptr = NULL;
 	char *hptr;
 
-	for (i = 0; i < 256; ++i) {
-		if (TheMessage->cm_fields[i]) {
-			mptr = mpptr = TheMessage->cm_fields[i];
-				
-			if (i == eAuthor) {
+	for (i = 0; i < NDiskFields; ++i) {
+		if (TheMessage->cm_fields[FieldOrder[i]]) {
+			mptr = mpptr = TheMessage->cm_fields[FieldOrder[i]];
+			switch (FieldOrder[i]) {
+			case eAuthor:
 				safestrncpy(luser, mptr, sizeof_luser);
 				safestrncpy(suser, mptr, sizeof_suser);
-			}
-			else if (i == 'Y') {
+				break;
+			case eCarbonCopY:
 				if ((flags & QP_EADDR) != 0) {
 					mptr = qp_encode_email_addrs(mptr);
 				}
 				sanitize_truncated_recipient(mptr);
 				cprintf("CC: %s%s", mptr, nl);
-			}
-			else if (i == 'P') {
+				break;
+			case eMessagePath:
 				cprintf("Return-Path: %s%s", mptr, nl);
-			}
-			else if (i == eListID) {
+				break;
+			case eListID:
 				cprintf("List-ID: %s%s", mptr, nl);
-			}
-			else if (i == 'V') {
+				break;
+			case eenVelopeTo:
 				if ((flags & QP_EADDR) != 0) 
 					mptr = qp_encode_email_addrs(mptr);
 				hptr = mptr;
@@ -1775,22 +1781,25 @@ void OutputRFC822MsgHeaders(
 					hptr ++;
 				if (!IsEmptyStr(hptr))
 					cprintf("Envelope-To: %s%s", hptr, nl);
-			}
-			else if (i == 'U') {
+				break;
+			case eMsgSubject:
 				cprintf("Subject: %s%s", mptr, nl);
 				subject_found = 1;
-			}
-			else if (i == 'I')
+				break;
+			case emessageId:
 				safestrncpy(mid, mptr, sizeof_mid); /// TODO: detect @ here and copy @nodename in if not found.
-			else if (i == erFc822Addr)
+				break;
+			case erFc822Addr:
 				safestrncpy(fuser, mptr, sizeof_fuser);
-			/* else if (i == 'O')
+			/* case eOriginalRoom:
 			   cprintf("X-Citadel-Room: %s%s",
-			   mptr, nl); */
-			else if (i == 'N')
+			   mptr, nl)
+			   break;
+			   ; */
+			case eNodeName:
 				safestrncpy(snode, mptr, sizeof_snode);
-			else if (i == 'R')
-			{
+				break;
+			case eRecipient:
 				if (haschar(mptr, '@') == 0)
 				{
 					sanitize_truncated_recipient(mptr);
@@ -1806,13 +1815,13 @@ void OutputRFC822MsgHeaders(
 					cprintf("To: %s", mptr);
 					cprintf("%s", nl);
 				}
-			}
-			else if (i == 'T') {
+				break;
+			case eTimestamp:
 				datestring(datestamp, sizeof datestamp,
 					   atol(mptr), DATESTRING_RFC822);
 				cprintf("Date: %s%s", datestamp, nl);
-			}
-			else if (i == 'W') {
+				break;
+			case eWeferences:
 				cprintf("References: ");
 				k = num_tokens(mptr, '|');
 				for (j=0; j<k; ++j) {
@@ -1825,13 +1834,31 @@ void OutputRFC822MsgHeaders(
 						cprintf(" ");
 					}
 				}
-			}
-			else if (i == eReplyTo) {
+				break;
+			case eReplyTo:
 				hptr = mptr;
 				while ((*hptr != '\0') && isspace(*hptr))
 					hptr ++;
 				if (!IsEmptyStr(hptr))
 					cprintf("Reply-To: %s%s", mptr, nl);
+				break;
+
+			case eRemoteRoom:
+			case eDestination:
+			case eExclusiveID:
+			case eHumanNode:
+			case eJournal:
+			case eMesageText:
+			case eBig_message:
+			case eOriginalRoom:
+			case eSpecialField:
+			case eErrorMsg:
+			case eSuppressIdx:
+			case eExtnotify:
+			case eVltMsgNum:
+				/* these don't map to mime message headers. */
+				break;
+
 			}
 			if (mptr != mpptr)
 				free (mptr);
