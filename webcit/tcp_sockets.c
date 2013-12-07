@@ -554,7 +554,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	size_t bytes_read = 0;
 	int first = 1;
 	int chunked = 0;
-	StrBuf *BufHeader;
+	StrBuf *BufHeader = NULL;
 	StrBuf *Buf;
 
 	Buf = NewStrBuf();
