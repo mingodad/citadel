@@ -59,7 +59,7 @@ ifneq (,$(findstring cares,$(DEB_BUILD_OPTIONS)))
 endif
 
 ifneq (,$(findstring iodbg,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -D BIGBAD_IODBG
+	CFLAGS += -D BIGBAD_IODBG -D LDAP_INITIALIZE
 endif
 
 ifneq (,$(findstring gcov,$(DEB_BUILD_OPTIONS)))

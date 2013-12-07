@@ -1,3 +1,9 @@
+webcit (8.29-1) stable; urgency=low
+
+  * development prerelease
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sat, 07 Dec 2013 11:41:23 +0100
+
 webcit (8.21-1) stable; urgency=low
 
   * new release
