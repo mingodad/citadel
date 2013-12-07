@@ -2977,7 +2977,6 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 		ch = (unsigned char) source->buf[i];
 		if ((ch  <  32) || 
 		    (ch  > 126) || 
-		    (ch ==  61) ||
 		    (ch == '=') ||
                     (ch == '?') ||
 		    (ch == '_') ||
@@ -3037,12 +3036,12 @@ StrBuf *StrBufRFC2047encodeMessage(const StrBuf *EncodeMe)
 			Optr = OutBuf->buf + Offset;
 			OEptr = OutBuf->buf + OutBuf->BufSize;
 		}
-		if ((*ptr == '\r') || (*ptr == '\n'))
+		if (*ptr == '\r')
 		{
 			/* ignore carriage returns */
 			ptr ++;
 		}
-		else if (*ptr == 10) {
+		else if (*ptr == '\n') {
 			/* hard line break */
 			if ((LinePos > 0) && (isspace(*(Optr-1))))
 			{
