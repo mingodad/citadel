@@ -1,0 +1,150 @@
+<?=("head")>
+<script type="text/javascript">	
+    console.log('blarg');
+</script>
+		<script type="text/javascript" src="markdown/js/epiceditor.js"></script> 
+<?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<?ROOMBANNER>
+<div id="content">
+
+<div id="attachments_form">
+    <div id="loading">
+      <p><img src="static/webcit_icons/throbber.gif" alt=""></p>
+      <p><?_("Loading")></p>
+    </div>
+</div>
+
+<div id="epiceditor">
+
+
+<textarea id="msgtext" cols="80" rows="15"></textarea>
+</div>
+
+</div>
+</div>
+
+<div style="display:none" id="submit-o-matic"><ul>
+<li>
+	<a href="javascript:submit_post('post');">
+		<img src="static/webcit_icons/essen/16x16/check.png" alt="">
+		<span class="navbar_link">
+		<?!("COND:BSTR", 1, "__RCPTREQUIRED")><?_("Send message")><?!("X", 1)>
+		<??("COND:BSTR", 2, "__RCPTREQUIRED")><?_("Post message")><?!("X", 2)>
+		</span>
+	</a>
+</li>
+<li>
+	<a href="javascript:submit_post('draft');">
+		<img src="static/webcit_icons/essen/16x16/draft.png" alt="">
+		<span class="navbar_link">
+		<?_("Save to Drafts")>
+		</span>
+	</a>
+</li>
+<li>
+	<a href="javascript:show_attachments_form();">
+		<img src="static/webcit_icons/essen/16x16/attachement.png" alt="">
+		<span class="navbar_link">
+		<?_("Attachments:")>
+		<span id="num_attachments"><?MSG:NATTACH></span>
+		</span>
+	</a>
+</li>
+<li>
+	<a href="javascript:submit_post('cancel');">
+		<img src="static/webcit_icons/essen/16x16/abort.png" alt="">
+		<span class="navbar_link">
+		<?_("Cancel")>
+		</span>
+	</a>
+</li>
+<?!("COND:BSTR", 1, "__RCPTREQUIRED")><li>
+	<a href="javascript:PopOpenAddressBook('recp_id|<?_("To:")>|cc_id|<?_("CC:")>|bcc_id|<?_("BCC:")>');">
+		<img src="static/webcit_icons/essen/16x16/contact.png" alt="">
+		<span class="navbar_link">
+		<?_("Contacts")>
+		</span>
+	</a>
+</li><?!("X", 1)>
+</ul>
+</div>
+
+<script type="text/javascript">	
+    console.log('blarg');
+	$("navbar").innerHTML = $("submit-o-matic").innerHTML;
+    console.log('blub');
+
+	function submit_post(which_action) {
+	var p = { "postseq":"<?DATE:NOW:NO>",
+		  "return_to":"<?BSTR("return_to")>",
+		  "nonce":"<?NONCE>",
+		  "force_room":"<?THISROOM:NAME("X")>",
+		  "references":"<?BSTR("references")>",
+		  "page":"<?BSTR("page")>",
+		  "submit_action":"",
+		  "markdown":"1",
+		  "msgtext" : editor.exportFile()
+	};
+
+	new Ajax.Request('post', {
+		method: 'post',
+		parameters: p,
+		onComplete: function(transport) { ajax_important_message(transport.responseText.substr(4));}
+	});
+	}
+
+	function hide_attachments_form() {
+		$('attachments_form').style.display = 'none';
+		update_attachment_count();
+	}
+
+	function show_attachments_form() {
+		$('attachments_form').style.display = 'block';
+
+		p = 'template=edit_message_attachments_pane&r=' + CtdlRandomString();
+		new Ajax.Updater(
+			'attachments_form',
+			'do_template',
+			{
+				method: 'get',
+				parameters: p,
+				evalScripts: true
+			}
+		);
+	}
+
+	function update_attachment_count() {
+		p = 'r=' + CtdlRandomString();
+		new Ajax.Updater(
+			'num_attachments',
+			'show_num_attachments',
+			{
+				method: 'get',
+				parameters: p
+			}
+		);
+	}
+
+	function remove_attachment(which_one) {
+		p = 'which_attachment=' + which_one + '&r=' + CtdlRandomString();
+		new Ajax.Updater(
+			'gonna_upload_this',
+			'remove_attachment',
+			{
+				method: 'get',
+				parameters: p,
+				onComplete: function(){
+					show_attachments_form();
+					update_attachment_count();
+				}
+			}
+		);
+	}
+
+</script>
+
+<script type="text/javascript"> 
+var editor = new EpicEditor().load();
+</script>
+<?=("addressbook_popup")>
+<?=("trailing")>

@@ -493,6 +493,7 @@ if test "$prefix" = NONE; then
 	wwwdir=$ac_default_prefix
 	rundir=$ac_default_prefix
 	editordir=$ac_default_prefix/tiny_mce
+	markdowneditordir=$ac_default_prefix/epic
 	etcdir=$ac_default_prefix
 else
 	localedir=$prefix
@@ -500,6 +501,7 @@ else
 	datadir=$prefix
 	rundir=$prefix
 	editordir=$prefix/tiny_mce
+	markdowneditordir=$prefix/epic
 	etcdir=$prefix
 fi
 
@@ -561,6 +563,15 @@ AC_ARG_WITH(editordir,
 )
 AC_DEFINE_UNQUOTED(EDITORDIR, "$editordir", [where to find our mail editor])
 
+AC_ARG_WITH(markdowneditordir, 
+		    [  --with-markdowneditordir             directory to put our markdown editor],
+			[ if test "x$withval" != "xno" ; then
+				markdowneditordir=$withval
+			  fi
+			]
+)
+AC_DEFINE_UNQUOTED(MARKDOWNEDITORDIR, "$markdowneditordir", [where to find our markdown editor])
+
 dnl Checks where to find our configs
 AC_ARG_WITH(etcdir, 
 		    [  --with-etcdir             directory to read our configs],
@@ -584,6 +595,7 @@ AC_OUTPUT(Makefile po/webcit/Makefile tests/Makefile)
 if test "$abs_srcdir" != "$abs_builddir"; then
    ln -s $abs_srcdir/static $abs_builddir
    ln -s $abs_srcdir/tiny_mce $abs_builddir
+   ln -s $abs_srcdir/epic $abs_builddir
    ln -s $abs_srcdir/*.h $abs_builddir
    make mkdir-init
    

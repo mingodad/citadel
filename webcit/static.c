@@ -56,7 +56,7 @@ unsigned char OnePixelGif[37] = {
 };
 
 
-HashList *StaticFilemappings[4] = {NULL, NULL, NULL, NULL};
+HashList *StaticFilemappings[5] = {NULL, NULL, NULL, NULL, NULL};
 /*
   {
   syslog(LOG_DEBUG, "Suspicious request. Ignoring.");
@@ -334,7 +334,7 @@ void output_static_2(void)
 }
 void output_static_3(void)
 {
-	output_static_safe(StaticFilemappings[3]);
+	output_static_safe(StaticFilemappings[4]);
 }
 
 
@@ -379,6 +379,7 @@ ServerStartModule_STATIC
 	StaticFilemappings[1] = NewHash(1, NULL);
 	StaticFilemappings[2] = NewHash(1, NULL);
 	StaticFilemappings[3] = NewHash(1, NULL);
+	StaticFilemappings[4] = NewHash(1, NULL);
 }
 void 
 ServerShutdownModule_STATIC
@@ -388,6 +389,7 @@ ServerShutdownModule_STATIC
 	DeleteHash(&StaticFilemappings[1]);
 	DeleteHash(&StaticFilemappings[2]);
 	DeleteHash(&StaticFilemappings[3]);
+	DeleteHash(&StaticFilemappings[4]);
 }
 
 
@@ -399,6 +401,7 @@ InitModule_STATIC
 	LoadStaticDir(static_dirs[1], StaticFilemappings[1], "");
 	LoadStaticDir(static_dirs[2], StaticFilemappings[2], "");
 	LoadStaticDir(static_dirs[3], StaticFilemappings[3], "");
+	LoadStaticDir(static_dirs[4], StaticFilemappings[4], "");
 
 	WebcitAddUrlHandler(HKEY("robots.txt"), "", 0, robots_txt, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("favicon.ico"), "", 0, output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
@@ -406,4 +409,6 @@ InitModule_STATIC
 	WebcitAddUrlHandler(HKEY("static.local"), "", 0, output_static_1, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("tinymce"), "", 0, output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("tiny_mce"), "", 0, output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("markdown"), "", 0, output_static_3, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("epiceditor"), "", 0, output_static_3, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 }

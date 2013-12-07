@@ -146,6 +146,18 @@ install-tinymce:
 		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
 	done
 
+install-epic:
+	test -d $(DESTDIR)$(WWWDIR)/static || mkdir -p $(DESTDIR)$(WWWDIR)/static
+	for i in `find epic -type d | grep -v .svn` \
+		; do \
+		test -d $(DESTDIR)$(WWWDIR)/$$i || mkdir -p $(DESTDIR)$(WWWDIR)/$$i; \
+	done
+	for i in \
+		`find epic -type f | grep -v .svn` \
+		; do \
+		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
+	done
+
 install-locale:
 	cd po/webcit/; $(MAKE)
 	for i in `find locale -type d | grep -v .svn` \

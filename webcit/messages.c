@@ -945,12 +945,22 @@ void post_mime_to_server(void) {
 		serv_printf("\n--%s", alt_boundary);
 	}
 
-	serv_puts("Content-type: text/html; charset=utf-8");
-	serv_puts("Content-Transfer-Encoding: quoted-printable");
-	serv_puts("");
-	serv_puts("<html><body>\r\n");
-	text_to_server_qp(bstr("msgtext"));	/* Transmit message in quoted-printable encoding */
-	serv_puts("</body></html>\r\n");
+	if (havebstr("markdown"))
+	{
+		serv_puts("Content-type: text/x-markdown; charset=utf-8");
+		serv_puts("Content-Transfer-Encoding: quoted-printable");
+		serv_puts("");
+		text_to_server_qp(bstr("msgtext"));	/* Transmit message in quoted-printable encoding */
+	}
+	else
+	{
+		serv_puts("Content-type: text/html; charset=utf-8");
+		serv_puts("Content-Transfer-Encoding: quoted-printable");
+		serv_puts("");
+		serv_puts("<html><body>\r\n");
+		text_to_server_qp(bstr("msgtext"));	/* Transmit message in quoted-printable encoding */
+		serv_puts("</body></html>\r\n");
+	}
 
 	if (include_text_alt) {
 		serv_printf("--%s--", alt_boundary);

@@ -59,6 +59,7 @@ endif
 		--with-wwwdir=/usr/share/citadel-webcit \
 		--with-localedir=/usr/share/ \
 		--with-editordir=/usr/share/tinymce/www/ \
+		--with-markdowneditordir=/usr/share/epic/www/ \
 		--with-rundir=/var/run/citadel \
                 --with-ssldir=/etc/ssl/webcit/ \
 		--with-etcdir=/etc/citadel \

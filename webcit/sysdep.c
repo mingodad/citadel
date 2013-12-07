@@ -82,6 +82,8 @@ char file_crpt_file_cer[PATH_MAX]="";
 char file_etc_mimelist[PATH_MAX]="";
 
 const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/* nailed to what configure gives us. */
+const char markdown_editor_absolutedir[]=MARKDOWNEDITORDIR;
+
 char etc_dir[PATH_MAX];
 char static_dir[PATH_MAX];		/* calculated on startup */
 char static_local_dir[PATH_MAX];		/* calculated on startup */
@@ -90,7 +92,8 @@ char  *static_dirs[]={				/* needs same sort order as the web mapping */
 	(char*)static_dir,			/* our templates on disk */
 	(char*)static_local_dir,		/* user provided templates disk */
 	(char*)editor_absolut_dir,		/* the editor on disk */
-	(char*)static_icon_dir                  /* our icons... */
+	(char*)static_icon_dir,                  /* our icons... */
+	(char*)markdown_editor_absolutedir
 };
 
 int ExitPipe[2];
