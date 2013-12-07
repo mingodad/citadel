@@ -147,6 +147,29 @@
 		</li>
 <??("X", 80)>
 
+<?!("COND:THISROOM:CURR_VIEW", 80, #"VIEW_WIKIMD")>
+        <??("COND:WIKI:PAGE", 81, "home")>
+	<li class="readallmess">
+		<a href="wiki?page=home?go=<?THISROOM:NAME("U")>">
+			<img src="static/webcit_icons/essen/16x16/readallmsg.png" alt="" width="16" height="16">
+			<span class="navbar_link"><?_("Wiki home")></span>
+		</a>
+	</li>
+	<?!("X", 81)>
+		<li class="newmess">
+				<a href="javascript:GetLoggedInFirst(encodeURIComponent('display_enter<?BSTR:FORWARD("page", "U")>'))">
+					<img  src="static/webcit_icons/essen/16x16/pencil.png" alt="" width="16" height="16">
+					<span class="navbar_link"><?_("Edit this page")></span>
+				</a>
+			</li>
+		<li class="newmess">
+			<a href="wiki<?%("COND:WIKI:TYPE", 84, "wiki_history", "", "", "_history")><?BSTR:FORWARD("page", "U")>">
+				<img  src="static/webcit_icons/essen/16x16/pen.png" alt="" width="16" height="16">
+				<span class="navbar_link"><?%("COND:WIKI:TYPE", 86, "wiki_history", "", _("Current version", _("History"))></span>
+			</a>
+		</li>
+<??("X", 80)>
+
 <?!("COND:THISROOM:CURR_VIEW", 90, #"VIEW_BLOG")>
 	<li class="newmess">
 		<a href="javascript:GetLoggedInFirst('display_enter')">

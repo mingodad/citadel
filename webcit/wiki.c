@@ -45,12 +45,14 @@ void str_wiki_index(char *s)
  */
 void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 {
+	wcsession *WCC = WC;
 	const StrBuf *Mime;
 	long msgnum = (-1L);
 	char buf[256];
 
-	if (WC->CurRoom.view != VIEW_WIKI) {
-		wc_printf(_("'%s' is not a Wiki room."), ChrPtr(WC->CurRoom.name) );
+	if ((WCC->CurRoom.view != VIEW_WIKI) &&
+	    (WCC->CurRoom.view != VIEW_WIKIMD)) {
+		wc_printf(_("'%s' is not a Wiki room."), ChrPtr(WCC->CurRoom.name) );
 		return;
 	}
 
@@ -74,7 +76,7 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 	}
 
 	if (msgnum >= 0L) {
-		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+		read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
 		return;
 	}
 
@@ -338,6 +340,17 @@ InitModule_WIKI
 {
 	RegisterReadLoopHandlerset(
 		VIEW_WIKI,
+		wiki_GetParamsGetServerCall,
+		wiki_PrintHeaderPage,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		wiki_Cleanup
+	);
+
+	RegisterReadLoopHandlerset(
+		VIEW_WIKIMD,
 		wiki_GetParamsGetServerCall,
 		wiki_PrintHeaderPage,
 		NULL,

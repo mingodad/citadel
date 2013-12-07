@@ -56,6 +56,8 @@ else {
 
 <?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_WIKI")><option value="<?DEF:VAL(#"VIEW_WIKI")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_WIKI", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_WIKI", "X")></option><??("X", 1)>
 
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_WIKIMD")><option value="<?DEF:VAL(#"VIEW_WIKIMD")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_WIKIMD", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_WIKIMD", "X")></option><??("X", 1)>
+
 <!-- <?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_CALBRIEF")><option value="<?DEF:VAL(#"VIEW_CALBRIEF")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_CALBRIEF", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_CALBRIEF", "X")></option><??("X", 1)> -->
 
 <?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_JOURNAL")><option value="<?DEF:VAL(#"VIEW_JOURNAL")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_JOURNAL", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_JOURNAL", "X")></option><??("X", 1)>

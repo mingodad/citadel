@@ -100,6 +100,7 @@ typedef enum _room_views {
 	VIEW_DRAFTS		= 9,	/* Drafts view */
 	VIEW_BLOG		= 10,	/* Blog view */
 	VIEW_QUEUE		= 11,   /* SMTP/... QUEUE rooms */
+	VIEW_WIKIMD		= 12,	/* Markdown Wiki view */
 	VIEW_MAX,
 	VIEW_JSON_LIST,
 } ROOM_VIEWS;

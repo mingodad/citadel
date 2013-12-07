@@ -383,7 +383,8 @@ void dav_collection_list(void)
 			(view == VIEW_ADDRESSBOOK) ||
 			(view == VIEW_NOTES) ||
 			(view == VIEW_JOURNAL) ||
-			(view == VIEW_WIKI)
+			(view == VIEW_WIKI) ||
+			(view == VIEW_WIKIMD)
 		) {
 			is_groupware_collection = 1;
 		}
@@ -425,6 +426,7 @@ void dav_collection_list(void)
 				wc_printf("<G:vjournal-collection />");
 				break;
 			case VIEW_WIKI:
+			case VIEW_WIKIMD:
 				wc_printf("<G:wiki-collection />");
 				break;
 			}

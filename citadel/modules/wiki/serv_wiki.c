@@ -94,7 +94,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
 	/* Is this a room with a Wiki in it, don't run this hook. */
-	if (CCC->room.QRdefaultview != VIEW_WIKI) {
+	if ((CCC->room.QRdefaultview != VIEW_WIKI) &&
+	    (CCC->room.QRdefaultview != VIEW_WIKIMD)) {
 		return(0);
 	}
 

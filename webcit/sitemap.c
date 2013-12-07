@@ -175,17 +175,18 @@ void sitemap(void) {
 
 		/* Output the messages in this room only if it's a room type we can make sense of */
 		switch(roomlist->defview) {
-			case VIEW_BBS:
-				sitemap_do_bbs();
-				break;
-			case VIEW_WIKI:
-				sitemap_do_wiki();
-				break;
-			case VIEW_BLOG:
-				sitemap_do_blog();
-				break;
-			default:
-				break;
+		case VIEW_BBS:
+			sitemap_do_bbs();
+			break;
+		case VIEW_WIKI:
+		case VIEW_WIKIMD:
+			sitemap_do_wiki();
+			break;
+		case VIEW_BLOG:
+			sitemap_do_blog();
+			break;
+		default:
+			break;
 		}
 
 		struct sitemap_room_list *ptr = roomlist;

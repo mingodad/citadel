@@ -1705,7 +1705,10 @@ void display_enter(void)
 
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	DoTemplate(HKEY("edit_message"), NULL, &NoCtx);
+	if (WCC->CurRoom.defview == VIEW_WIKIMD) 
+		DoTemplate(HKEY("edit_markdown_epic"), NULL, &NoCtx);
+	else
+		DoTemplate(HKEY("edit_message"), NULL, &NoCtx);
 	end_burst();
 
 	return;
