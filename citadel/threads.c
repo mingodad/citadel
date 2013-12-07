@@ -119,7 +119,7 @@ void *CTC_backend(void *supplied_start_routine)
 
 	start_routine(NULL);
 
-	free(mytsd);
+//	free(mytsd);
 	return(NULL);
 }
 
