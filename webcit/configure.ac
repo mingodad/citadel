@@ -234,6 +234,13 @@ AC_CHECK_HEADER(libical/ical.h,
 	]
 )
 
+dnl Checks for the discount markdown library.
+AC_CHECK_LIB(markdown,
+	 markdown,
+	 [
+	 LDFLAGS="$LDFLAGS -lmarkdown"
+	 AC_DEFINE(HAVE_MARKDOWN,[],[whether we have markdown message rendering])
+])
 
 dnl Check for libcitadel
 AC_CHECK_HEADER(libcitadel.h,
