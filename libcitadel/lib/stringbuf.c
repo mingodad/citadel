@@ -3043,13 +3043,10 @@ StrBuf *StrBufRFC2047encodeMessage(const StrBuf *EncodeMe)
 		}
 		else if (*ptr == '\n') {
 			/* hard line break */
-			if ((LinePos > 0) && (isspace(*(Optr-1))))
-			{
-				memcpy(Optr, HKEY("=0A"));
-				Optr += 3;
-			}
+			memcpy(Optr, HKEY("=0A"));
+			Optr += 3;
+			LinePos += 3;
 			ptr ++;
-			LinePos = 0;
 		}
 		else if (( (*ptr >= 32) && (*ptr <= 60) ) ||
 			 ( (*ptr >= 62) && (*ptr <= 126) ))
