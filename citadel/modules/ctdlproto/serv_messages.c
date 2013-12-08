@@ -360,6 +360,7 @@ void cmd_ent0(char *entargs)
 	switch(CC->room.QRdefaultview) {
 	case VIEW_NOTES:
 	case VIEW_WIKI:
+	case VIEW_WIKIMD:
 		extract_token(supplied_euid, entargs, 9, '|', sizeof supplied_euid);
 		break;
 	default:
