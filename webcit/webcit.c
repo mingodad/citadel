@@ -831,9 +831,7 @@ void display_default_landing_page(void) {
 
 		if (havebstr("go")) {
 			syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("go"));
-			StrBuf *teh_room = NewStrBufPlain(bstr("go"), strlen(bstr("go")));
-			smart_goto(teh_room);
-			FreeStrBuf(&teh_room);
+			smart_goto(sbstr("go"));
 		}
 		else if (default_landing_page) {
 			http_redirect(default_landing_page);
