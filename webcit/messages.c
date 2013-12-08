@@ -930,6 +930,7 @@ void post_mime_to_server(void) {
 
 	/* Remember, serv_printf() appends an extra newline */
 	if (include_text_alt) {
+		StrBuf *Buf;
 		serv_printf("Content-type: multipart/alternative; "
 			"boundary=\"%s\"\n", alt_boundary);
 		serv_printf("This is a multipart message in MIME format.\n");
@@ -939,9 +940,11 @@ void post_mime_to_server(void) {
 		serv_puts("Content-Transfer-Encoding: quoted-printable");
 		serv_puts("");
 		txtmail = html_to_ascii(bstr("msgtext"), 0, 80, 0);
-        	text_to_server_qp(txtmail);     /* Transmit message in quoted-printable encoding */
+		Buf = NewStrBufPlain(txtmail, -1);
         	free(txtmail);
 
+        	text_to_server_qp(Buf);     /* Transmit message in quoted-printable encoding */
+		FreeStrBuf(&Buf);
 		serv_printf("\n--%s", alt_boundary);
 	}
 
@@ -950,7 +953,7 @@ void post_mime_to_server(void) {
 		serv_puts("Content-type: text/x-markdown; charset=utf-8");
 		serv_puts("Content-Transfer-Encoding: quoted-printable");
 		serv_puts("");
-		text_to_server_qp(bstr("msgtext"));	/* Transmit message in quoted-printable encoding */
+		text_to_server_qp(sbstr("msgtext"));	/* Transmit message in quoted-printable encoding */
 	}
 	else
 	{
@@ -958,7 +961,7 @@ void post_mime_to_server(void) {
 		serv_puts("Content-Transfer-Encoding: quoted-printable");
 		serv_puts("");
 		serv_puts("<html><body>\r\n");
-		text_to_server_qp(bstr("msgtext"));	/* Transmit message in quoted-printable encoding */
+		text_to_server_qp(sbstr("msgtext"));	/* Transmit message in quoted-printable encoding */
 		serv_puts("</body></html>\r\n");
 	}
 

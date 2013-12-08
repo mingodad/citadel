@@ -796,6 +796,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
  */
 void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from,
 			int unread, calview *calv) {
+	StrBuf *Buf;
 	char buf[SIZ];
 	icalproperty *prop;
 	icalcomponent *vevent, *encaps;
@@ -1162,7 +1163,9 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 				serv_puts("Content-type: text/calendar");
 				serv_puts("Content-Transfer-Encoding: quoted-printable");
 				serv_puts("");
-				text_to_server_qp(icalcomponent_as_ical_string(encaps));
+				Buf = NewStrBufPlain(icalcomponent_as_ical_string(encaps), -1);
+				text_to_server_qp(Buf);
+				FreeStrBuf(&Buf);
 //				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
 			case '4':

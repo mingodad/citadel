@@ -376,71 +376,13 @@ void text_to_server(char *ptr)
 /*
  * Transmit message text (in memory) to the server, converting to Quoted-Printable encoding as we go.
  */
-void text_to_server_qp(char *ptr)
+void text_to_server_qp(const StrBuf *SendMeEncoded)
 {
-	unsigned char ch, buf[256];
-	int pos;
-	int output_len = 0;
+	StrBuf *ServBuf;
 
-	pos = 0;
-	buf[0] = 0;
-	output_len = 0;
-
-	while (ptr[pos] != 0) {
-		ch = (unsigned char)(ptr[pos++]);
-
-		if (ch == 13) {
-			/* ignore carriage returns */
-		}
-		else if (ch == 10) {
-			/* hard line break */
-			if (output_len > 0) {
-				if (isspace(buf[output_len-1])) {
-					sprintf((char *)&buf[output_len-1], "=%02X", buf[output_len-1]);
-					output_len += 2;
-				}
-			}
-			buf[output_len++] = 0;
-			serv_puts((char *)buf);
-			output_len = 0;
-		}
-		else if (ch == 9) {
-			buf[output_len++] = ch;
-		}
-		else if ( (ch >= 32) && (ch <= 60) ) {
-			buf[output_len++] = ch;
-		}
-		else if ( (ch >= 62) && (ch <= 126) ) {
-			buf[output_len++] = ch;
-		}
-		else {
-			sprintf((char *)&buf[output_len], "=%02X", ch);
-			output_len += 3;
-		}
-		
-		if (output_len > 72) {
-			/* soft line break */
-			if (isspace(buf[output_len-1])) {
-				sprintf((char *)&buf[output_len-1], "=%02X", buf[output_len-1]);
-				output_len += 2;
-			}
-			buf[output_len++] = '=';
-			buf[output_len++] = 0;
-			serv_puts((char *)buf);
-			output_len = 0;
-		}
-	}
-
-	/* end of data - transmit anything that's left */
-	if (output_len > 0) {
-		if (isspace(buf[output_len-1])) {
-			sprintf((char *)&buf[output_len-1], "=%02X", buf[output_len-1]);
-			output_len += 2;
-		}
-		buf[output_len++] = 0;
-		serv_puts((char *)buf);
-		output_len = 0;
-	}
+	ServBuf = StrBufRFC2047encodeMessage(SendMeEncoded);
+	serv_putbuf(ServBuf);
+	FreeStrBuf(&ServBuf);
 }
 
 

@@ -46,6 +46,6 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
 
 void text_to_server(char *ptr);
-void text_to_server_qp(char *ptr);
+void text_to_server_qp(const StrBuf *SendMeEncoded);
 void server_to_text(void);
 int lingering_close(int fd);

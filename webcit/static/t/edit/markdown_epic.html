@@ -14,6 +14,18 @@
     </div>
 </div>
 
+<div class="entmsg" id="entmsg">
+<form id="theenterform" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="post">
+<input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
+<input type="hidden" name="return_to" value="<?BSTR("return_to")>">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<input type="hidden" name="force_room" value="<?THISROOM:NAME("X")>">
+<input type="hidden" name="references" value="<?BSTR("references")>">
+<input type="hidden" name="page" value="<?BSTR("page")>">
+<input type="hidden" name="markdown" value="1">
+<textarea style="display:none" name="msgtext" id="submitmsgtext" cols="80" rows="15"><?MAIL:EDITWIKI("edit", "X")></textarea>
+</form>
+
 <div id="Author">
 <select name="display_name" size=1 id="from_id">
 <?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_handle_select")>
@@ -22,12 +34,11 @@
 <?!("X", 3)>
 </select>
 </div>
-<div id="epiceditor">
+
+<div id="epiceditor" />
 
 
-<textarea id="msgtext" cols="80" rows="15"><?MAIL:EDITWIKI("edit", "X")></textarea>
 </div>
-
 </div>
 </div>
 
@@ -78,29 +89,13 @@
 </div>
 
 <script type="text/javascript">	
-    console.log('blarg');
 	$("navbar").innerHTML = $("submit-o-matic").innerHTML;
-    console.log('blub');
 
 	function submit_post(which_action) {
-	    
-	var p = { "postseq":"<?DATE:NOW:NO>",
-		  "return_to":"<?BSTR("return_to")>",
-		  "nonce":"<?NONCE>",
-		  "force_room":"<?THISROOM:NAME("X")>",
-		  "references":"<?BSTR("references")>",
-		  "page":"<?BSTR("page")>",
-		  "display_name":"willi",
-		  "submit_action":"",
-		  "markdown":"1",
-		  "msgtext" : editor.exportFile()
-	};
-
-	new Ajax.Request('post', {
-		method: 'post',
-		parameters: p,
-		onComplete: function(transport) { ajax_important_message(transport.responseText.substr(4));}
-	});
+	    var textarea=document.getElementById('submitmsgtext');
+	    textarea.value = editor.exportFile();
+	    editor.unload();
+	    document.getElementById("theenterform").submit();
 	}
 
 	function hide_attachments_form() {
@@ -155,6 +150,7 @@
 
 <script type="text/javascript"> 
 var editor = new EpicEditor().load();
+editor.importFile('CitadelEditBuffer', document.getElementById('submitmsgtext').value);
 </script>
 <?=("addressbook_popup")>
 <?=("trailing")>
