@@ -1138,6 +1138,12 @@ void render_MAIL_html(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset
 }
 
 #ifdef HAVE_MARKDOWN
+/*
+char * MarkdownHandleURL(const char* SourceURL, const int len, void* something)
+{
+
+}
+*/
 void render_MAIL_markdown(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
 #include <mkdio.h>
@@ -1149,6 +1155,7 @@ void render_MAIL_markdown(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCha
 		return;
 
 	doc = mkd_string(ChrPtr(Mime->Data), StrLength(Mime->Data), 0);
+	mkd_basename(doc, "/wiki?page=");
 	mkd_compile(doc, 0);
 	if (mkd_document(doc, &md_as_html) != EOF) {
 		FreeStrBuf(&Mime->Data);
