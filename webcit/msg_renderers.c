@@ -958,6 +958,7 @@ void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)
 	 */
 	if (!havebstr("attach_button")) {
 		char *wikipage = strdup(bstr("page"));
+		putbstr("format", NewStrBufPlain(HKEY("plain")));
 		str_wiki_index(wikipage);
 		msgnum = locate_message_by_uid(wikipage);
 		free(wikipage);
@@ -1150,20 +1151,26 @@ void render_MAIL_markdown(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCha
 	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
 	MMIOT *doc;
 	char *md_as_html = NULL;
+	const char *format;
 
 	if (StrLength(Mime->Data) == 0)
 		return;
 
-	doc = mkd_string(ChrPtr(Mime->Data), StrLength(Mime->Data), 0);
-	mkd_basename(doc, "/wiki?page=");
-	mkd_compile(doc, 0);
-	if (mkd_document(doc, &md_as_html) != EOF) {
-		FreeStrBuf(&Mime->Data);
-		Mime->Data = NewStrBufPlain(md_as_html, -1);
-	}
-//	free(md_as_html);
-	mkd_cleanup(doc);
+	format = bstr("format");
 
+	if ((format == NULL) || 
+	    strcmp(format, "plain"))
+	{
+		doc = mkd_string(ChrPtr(Mime->Data), StrLength(Mime->Data), 0);
+		mkd_basename(doc, "/wiki?page=");
+		mkd_compile(doc, 0);
+		if (mkd_document(doc, &md_as_html) != EOF) {
+			FreeStrBuf(&Mime->Data);
+			Mime->Data = NewStrBufPlain(md_as_html, -1);
+		}
+//	free(md_as_html);
+		mkd_cleanup(doc);
+	}
 }
 #endif
 

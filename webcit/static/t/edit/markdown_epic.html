@@ -14,10 +14,18 @@
     </div>
 </div>
 
+<div id="Author">
+<select name="display_name" size=1 id="from_id">
+<?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_handle_select")>
+<?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
+<option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
+<?!("X", 3)>
+</select>
+</div>
 <div id="epiceditor">
 
 
-<textarea id="msgtext" cols="80" rows="15"></textarea>
+<textarea id="msgtext" cols="80" rows="15"><?MAIL:EDITWIKI("edit", "X")></textarea>
 </div>
 
 </div>
@@ -75,12 +83,14 @@
     console.log('blub');
 
 	function submit_post(which_action) {
+	    
 	var p = { "postseq":"<?DATE:NOW:NO>",
 		  "return_to":"<?BSTR("return_to")>",
 		  "nonce":"<?NONCE>",
 		  "force_room":"<?THISROOM:NAME("X")>",
 		  "references":"<?BSTR("references")>",
 		  "page":"<?BSTR("page")>",
+		  "display_name":"willi",
 		  "submit_action":"",
 		  "markdown":"1",
 		  "msgtext" : editor.exportFile()
