@@ -1153,8 +1153,12 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 			}
 			field_header = *mptr++;
 		}
+		if (mptr >= upper_bound) {
+			break;
+		}
 		which = field_header;
 		len = strlen(mptr);
+
 		CM_SetField(ret, which, mptr, len);
 
 		mptr += len + 1;	/* advance to next field */
