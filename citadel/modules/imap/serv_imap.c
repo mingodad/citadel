@@ -320,10 +320,11 @@ void imap_load_msgids(void)
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		Imap->msgids = malloc(cdbfr->len);
-		memcpy(Imap->msgids, cdbfr->ptr, cdbfr->len);
+		Imap->msgids = (long*)cdbfr->ptr;
 		Imap->num_msgs = cdbfr->len / sizeof(long);
 		Imap->num_alloc = cdbfr->len / sizeof(long);
+		cdbfr->ptr = NULL;
+		cdbfr->len = 0;
 		cdb_free(cdbfr);
 	}
 
@@ -371,14 +372,10 @@ void imap_rescan_msgids(void)
 	 */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
-		msglist = malloc(cdbfr->len + 1);
-		if (msglist == NULL) {
-			IMAPM_syslog(LOG_CRIT, "malloc() failed");
-			CC->kill_me = KILLME_MALLOC_FAILED;
-			return;
-		}
-		memcpy(msglist, cdbfr->ptr, (size_t)cdbfr->len);
+		msglist = (long*)cdbfr->ptr;
+		cdbfr->ptr = NULL;
 		num_msgs = cdbfr->len / sizeof(long);
+		cdbfr->len = 0;
 		cdb_free(cdbfr);
 	} else {
 		num_msgs = 0;
@@ -417,9 +414,8 @@ void imap_rescan_msgids(void)
 					 (Imap->num_msgs - i)));
 				memmove(&Imap->flags[i],
 					&Imap->flags[i + 1],
-					(sizeof(long) *
+					(sizeof(unsigned int) *
 					 (Imap->num_msgs - i)));
-
 				--i;
 			}
 
