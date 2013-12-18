@@ -1,3 +1,9 @@
+textclient (8.23-1) stable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 15 Dec 2013 19:37:30 -0500
+
 textclient (8.22-1) stable; urgency=low
 
   * new release
