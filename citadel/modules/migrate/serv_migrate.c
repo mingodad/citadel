@@ -889,12 +889,12 @@ void migr_xml_end(void *data, const char *el) {
  * Import begins here
  */
 void migr_do_import(void) {
-	char buf[SIZ];
+	StrBuf *Buf;
 	XML_Parser xp;
 	int linelen;
 	
 	unbuffer_output();
-
+	Buf = NewStrBufPlain(NULL, SIZ);
 	xp = XML_ParserCreate(NULL);
 	if (!xp) {
 		cprintf("%d Failed to create XML parser instance\n", ERROR+INTERNAL_ERROR);
@@ -908,22 +908,22 @@ void migr_do_import(void) {
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	unbuffer_output();
 
-	while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000")) {
-		linelen = strlen(buf);
-		strcpy(&buf[linelen++], "\n");
+	while (CtdlClientGetLine(Buf) >= 0 && strcmp(ChrPtr(Buf), "000")) {
+		linelen = StrLength(Buf);
+		StrBufAppendBufPlain(Buf, HKEY("\n"), 0);
 
 		if (server_shutting_down)
 			break;	// Should we break or return?
 		
-		if (buf[0] == '\0')
+		if (linelen == 0)
 			continue;
 
-		XML_Parse(xp, buf, linelen, 0);
+		XML_Parse(xp, ChrPtr(Buf), linelen, 0);
 	}
 
 	XML_Parse(xp, "", 0, 1);
 	XML_ParserFree(xp);
-	
+	FreeStrBuf(&Buf);
 	rebuild_euid_index();
 	rebuild_usersbynumber();
 	CC->dont_term = 0;
