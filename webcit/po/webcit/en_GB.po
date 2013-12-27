@@ -868,7 +868,7 @@ msgstr "(One per line)"
 #: ../../event.c:450 ../../static/t/edit_message.html:143
 #: ../../static/t/iconbar.html:29 ../../static/t/iconbar/edit.html:42
 msgid "Contacts"
-msgstr "Contents"
+msgstr "Contacts"
 
 #: ../../event.c:513
 msgid "Recurrence rule"
