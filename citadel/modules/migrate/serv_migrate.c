@@ -500,8 +500,8 @@ void migr_do_export(void) {
 
 
 int citadel_migrate_data = 0;		/* Are we inside a <citadel_migrate_data> tag pair? */
-char *migr_chardata = NULL;
-int migr_chardata_len = 0;
+StrBuf *migr_chardata = NULL;
+StrBuf *migr_MsgData = NULL;
 struct ctdluser usbuf;
 struct ctdlroom qrbuf;
 char openid_url[512];
@@ -512,26 +512,13 @@ int floornum = 0;
 visit vbuf;
 struct MetaData smi;
 long import_msgnum = 0;
-char *decoded_msg = NULL;
 
 /*
  * This callback stores up the data which appears in between tags.
  */
-void migr_xml_chardata(void *data, const XML_Char *s, int len) {
-	int old_len;
-	int new_len;
-	char *new_buffer;
-
-	old_len = migr_chardata_len;
-	new_len = old_len + len;
-
-	new_buffer = realloc(migr_chardata, new_len + 1);
-	if (new_buffer != NULL) {
-		memcpy(&new_buffer[old_len], s, len);
-		new_buffer[new_len] = 0;
-		migr_chardata = new_buffer;
-		migr_chardata_len = new_len;
-	}
+void migr_xml_chardata(void *data, const XML_Char *s, int len)
+{
+	StrBufAppendBufPlain(migr_chardata, s, len, 0);
 }
 
 
@@ -540,12 +527,9 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 
 	/*** GENERAL STUFF ***/
 
-	/* Throw away any existing chardata */
-	if (migr_chardata != NULL) {
-		free(migr_chardata);
-		migr_chardata = NULL;
-		migr_chardata_len = 0;
-	}
+	/* Reset chardata_len to zero and init buffer */
+	FlushStrBuf(migr_chardata);
+	FlushStrBuf(migr_MsgData);
 
 	if (!strcasecmp(el, "citadel_migrate_data")) {
 		++citadel_migrate_data;
@@ -579,26 +563,192 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 	else if (!strcasecmp(el, "message")) {
 		memset(&smi, 0, sizeof (struct MetaData));
 		import_msgnum = 0;
-		if (decoded_msg != NULL) {
-			free(decoded_msg);
-			decoded_msg = NULL;
-		}
 	}
 
 }
 
 
-void migr_xml_end(void *data, const char *el) {
-	char *ptr;
+int migr_config(void *data, const char *el)
+{
+	if (!strcasecmp(el, "c_nodename"))			SET_CFGSTRBUF(c_nodename, migr_chardata);
+	else if (!strcasecmp(el, "c_fqdn"))			SET_CFGSTRBUF(c_fqdn, migr_chardata);
+	else if (!strcasecmp(el, "c_humannode"))		SET_CFGSTRBUF(c_humannode, migr_chardata);
+	else if (!strcasecmp(el, "c_phonenum"))			SET_CFGSTRBUF(c_phonenum, migr_chardata);
+	else if (!strcasecmp(el, "c_ctdluid"))			config.c_ctdluid = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_creataide"))		config.c_creataide = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_sleeping"))			config.c_sleeping = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_initax"))			config.c_initax = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_regiscall"))		config.c_regiscall = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_twitdetect"))		config.c_twitdetect = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_twitroom"))			SET_CFGSTRBUF(c_twitroom, migr_chardata);
+	else if (!strcasecmp(el, "c_moreprompt"))		SET_CFGSTRBUF(c_moreprompt, migr_chardata);
+	else if (!strcasecmp(el, "c_restrict"))			config.c_restrict = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_site_location"))		SET_CFGSTRBUF(c_site_location, migr_chardata);
+	else if (!strcasecmp(el, "c_sysadm"))			SET_CFGSTRBUF(c_sysadm, migr_chardata);
+	else if (!strcasecmp(el, "c_maxsessions"))		config.c_maxsessions = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_ip_addr"))			SET_CFGSTRBUF(c_ip_addr, migr_chardata);
+	else if (!strcasecmp(el, "c_port_number"))		config.c_port_number = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_ep_expire_mode"))		config.c_ep.expire_mode = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_ep_expire_value"))		config.c_ep.expire_value = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_userpurge"))		config.c_userpurge = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_roompurge"))		config.c_roompurge = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_logpages"))			SET_CFGSTRBUF(c_logpages, migr_chardata);
+	else if (!strcasecmp(el, "c_createax"))			config.c_createax = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_maxmsglen"))		config.c_maxmsglen = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_min_workers"))		config.c_min_workers = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_max_workers"))		config.c_max_workers = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_pop3_port"))		config.c_pop3_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_smtp_port"))		config.c_smtp_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_rfc822_strict_from"))	config.c_rfc822_strict_from = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_aide_zap"))			config.c_aide_zap = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_imap_port"))		config.c_imap_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_net_freq"))			config.c_net_freq = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_disable_newu"))		config.c_disable_newu = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_enable_fulltext"))		config.c_enable_fulltext = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_baseroom"))			SET_CFGSTRBUF(c_baseroom, migr_chardata);
+	else if (!strcasecmp(el, "c_aideroom"))			SET_CFGSTRBUF(c_aideroom, migr_chardata);
+	else if (!strcasecmp(el, "c_purge_hour"))		config.c_purge_hour = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_mbxep_expire_mode"))	config.c_mbxep.expire_mode = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_mbxep_expire_value"))	config.c_mbxep.expire_value = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_ldap_host"))		SET_CFGSTRBUF(c_ldap_host, migr_chardata);
+	else if (!strcasecmp(el, "c_ldap_port"))		config.c_ldap_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_ldap_base_dn"))		SET_CFGSTRBUF(c_ldap_base_dn, migr_chardata);
+	else if (!strcasecmp(el, "c_ldap_bind_dn"))		SET_CFGSTRBUF(c_ldap_bind_dn, migr_chardata);
+	else if (!strcasecmp(el, "c_ldap_bind_pw"))		SET_CFGSTRBUF(c_ldap_bind_pw, migr_chardata);
+	else if (!strcasecmp(el, "c_msa_port"))			config.c_msa_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_imaps_port"))		config.c_imaps_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_pop3s_port"))		config.c_pop3s_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_smtps_port"))		config.c_smtps_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_auto_cull"))		config.c_auto_cull = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_allow_spoofing"))		config.c_allow_spoofing = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_journal_email"))		config.c_journal_email = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_journal_pubmsgs"))		config.c_journal_pubmsgs = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_journal_dest"))		SET_CFGSTRBUF(c_journal_dest, migr_chardata);
+	else if (!strcasecmp(el, "c_default_cal_zone"))		SET_CFGSTRBUF(c_default_cal_zone, migr_chardata);
+	else if (!strcasecmp(el, "c_pftcpdict_port"))		config.c_pftcpdict_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_managesieve_port"))		config.c_managesieve_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_auth_mode"))		config.c_auth_mode = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_funambol_host"))		SET_CFGSTRBUF(c_funambol_host, migr_chardata);
+	else if (!strcasecmp(el, "c_funambol_port"))		config.c_funambol_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_funambol_source"))		SET_CFGSTRBUF(c_funambol_source, migr_chardata);
+	else if (!strcasecmp(el, "c_funambol_auth"))		SET_CFGSTRBUF(c_funambol_auth, migr_chardata);
+	else if (!strcasecmp(el, "c_rbl_at_greeting"))		config.c_rbl_at_greeting = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_master_user"))		SET_CFGSTRBUF(c_master_user, migr_chardata);
+	else if (!strcasecmp(el, "c_master_pass"))		SET_CFGSTRBUF(c_master_pass, migr_chardata);
+	else if (!strcasecmp(el, "c_pager_program"))		SET_CFGSTRBUF(c_pager_program, migr_chardata);
+	else if (!strcasecmp(el, "c_imap_keep_from"))		config.c_imap_keep_from = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_xmpp_c2s_port"))		config.c_xmpp_c2s_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_xmpp_s2s_port"))		config.c_xmpp_s2s_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_pop3_fetch"))		config.c_pop3_fetch = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_pop3_fastest"))		config.c_pop3_fastest = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_spam_flag_only"))		config.c_spam_flag_only = atoi(ChrPtr(migr_chardata));
+	else return 0;
+	return 1; /* Found above...*/
+}
+
+int migr_controlrecord(void *data, const char *el)
+{
+	if (!strcasecmp(el, "control_highest"))		CitControl.MMhighest = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "control_flags"))		CitControl.MMflags = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "control_nextuser"))		CitControl.MMnextuser = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "control_nextroom"))		CitControl.MMnextroom = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "control_version"))		CitControl.version = atoi(ChrPtr(migr_chardata));
+
+	else if (!strcasecmp(el, "control")) {
+		CitControl.MMfulltext = (-1L);	/* always flush */
+		put_control();
+		syslog(LOG_INFO, "Completed import of control record\n");
+	}
+	else return 0;
+	return 1;
+
+}
+
+
+int migr_userrecord(void *data, const char *el)
+{
+	if (!strcasecmp(el, "u_version"))			usbuf.version = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_uid"))			usbuf.uid = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_password"))			safestrncpy(usbuf.password, ChrPtr(migr_chardata), sizeof usbuf.password);
+	else if (!strcasecmp(el, "u_flags"))			usbuf.flags = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_timescalled"))		usbuf.timescalled = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_posted"))			usbuf.posted = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_axlevel"))			usbuf.axlevel = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_usernum"))			usbuf.usernum = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_lastcall"))			usbuf.lastcall = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_USuserpurge"))		usbuf.USuserpurge = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_fullname"))			safestrncpy(usbuf.fullname, ChrPtr(migr_chardata), sizeof usbuf.fullname);
+	else return 0;
+	return 1;
+}
+
+int migr_roomrecord(void *data, const char *el)
+{
+	if (!strcasecmp(el, "QRname"))			safestrncpy(qrbuf.QRname, ChrPtr(migr_chardata), sizeof qrbuf.QRname);
+	else if (!strcasecmp(el, "QRpasswd"))			safestrncpy(qrbuf.QRpasswd, ChrPtr(migr_chardata), sizeof qrbuf.QRpasswd);
+	else if (!strcasecmp(el, "QRroomaide"))			qrbuf.QRroomaide = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRhighest"))			qrbuf.QRhighest = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRgen"))			qrbuf.QRgen = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRflags"))			qrbuf.QRflags = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRdirname"))			safestrncpy(qrbuf.QRdirname, ChrPtr(migr_chardata), sizeof qrbuf.QRdirname);
+	else if (!strcasecmp(el, "QRinfo"))			qrbuf.QRinfo = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRfloor"))			qrbuf.QRfloor = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRmtime"))			qrbuf.QRmtime = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRexpire_mode"))		qrbuf.QRep.expire_mode = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRexpire_value"))		qrbuf.QRep.expire_value = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRnumber"))			qrbuf.QRnumber = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRorder"))			qrbuf.QRorder = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRflags2"))			qrbuf.QRflags2 = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "QRdefaultview"))		qrbuf.QRdefaultview = atoi(ChrPtr(migr_chardata));
+	else return 0;
+	return 1;
+}
+
+int migr_floorrecord(void *data, const char *el)
+{
+	if (!strcasecmp(el, "f_num"))			floornum = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "f_flags"))			flbuf.f_flags = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "f_name"))			safestrncpy(flbuf.f_name, ChrPtr(migr_chardata), sizeof flbuf.f_name);
+	else if (!strcasecmp(el, "f_ref_count"))		flbuf.f_ref_count = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "f_ep_expire_mode"))		flbuf.f_ep.expire_mode = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "f_ep_expire_value"))		flbuf.f_ep.expire_value = atoi(ChrPtr(migr_chardata));
+	else return 0;
+	return 1;
+}
+
+int migr_visitrecord(void *data, const char *el)
+{
+	if (!strcasecmp(el, "v_roomnum"))			vbuf.v_roomnum = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "v_roomgen"))			vbuf.v_roomgen = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "v_usernum"))			vbuf.v_usernum = atol(ChrPtr(migr_chardata));
+
+	else if (!strcasecmp(el, "v_seen")) {
+		int is_textual_seen = 0;
+		int i;
+		int max = StrLength(migr_chardata);
+
+		vbuf.v_lastseen = atol(ChrPtr(migr_chardata));
+		is_textual_seen = 0;
+		for (i=0; i < max; ++i) 
+			if (!isdigit(ChrPtr(migr_chardata)[i]))
+				is_textual_seen = 1;
+		if (is_textual_seen)
+			safestrncpy(vbuf.v_seen, ChrPtr(migr_chardata), sizeof vbuf.v_seen);
+	}
+
+	else if (!strcasecmp(el, "v_answered"))			safestrncpy(vbuf.v_answered, ChrPtr(migr_chardata), sizeof vbuf.v_answered);
+	else if (!strcasecmp(el, "v_flags"))			vbuf.v_flags = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "v_view"))			vbuf.v_view = atoi(ChrPtr(migr_chardata));
+	else return 0;
+	return 1;
+}
+void migr_xml_end(void *data, const char *el)
+{
+	const char *ptr;
 	int msgcount = 0;
 	long msgnum = 0L;
 	long *msglist = NULL;
 	int msglist_alloc = 0;
-	int i;
-	int is_textual_seen = 0;
-	long msglen;
-	int len;
-
 	/*** GENERAL STUFF ***/
 
 	if (!strcasecmp(el, "citadel_migrate_data")) {
@@ -611,11 +761,6 @@ void migr_xml_end(void *data, const char *el) {
 		return;
 	}
 
-	if (migr_chardata == NULL) {		/* If NULL chardata, substitute an empty string instead. */
-		migr_chardata = strdup("");
-		migr_chardata_len = 0;
-	}
-
 	// syslog(LOG_DEBUG, "END TAG: <%s> DATA: <%s>\n", el, (migr_chardata_len ? migr_chardata : ""));
 
 	/*** CONFIG ***/
@@ -626,107 +771,18 @@ void migr_xml_end(void *data, const char *el) {
 		syslog(LOG_INFO, "Completed import of server configuration\n");
 	}
 
-	else if (!strcasecmp(el, "c_nodename"))			safestrncpy(config.c_nodename, migr_chardata, sizeof config.c_nodename);
-	else if (!strcasecmp(el, "c_fqdn"))			safestrncpy(config.c_fqdn, migr_chardata, sizeof config.c_fqdn);
-	else if (!strcasecmp(el, "c_humannode"))		safestrncpy(config.c_humannode, migr_chardata, sizeof config.c_humannode);
-	else if (!strcasecmp(el, "c_phonenum"))			safestrncpy(config.c_phonenum, migr_chardata, sizeof config.c_phonenum);
-	else if (!strcasecmp(el, "c_ctdluid"))			config.c_ctdluid = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_creataide"))		config.c_creataide = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_sleeping"))			config.c_sleeping = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_initax"))			config.c_initax = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_regiscall"))		config.c_regiscall = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_twitdetect"))		config.c_twitdetect = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_twitroom"))			safestrncpy(config.c_twitroom, migr_chardata, sizeof config.c_twitroom);
-	else if (!strcasecmp(el, "c_moreprompt"))		safestrncpy(config.c_moreprompt, migr_chardata, sizeof config.c_moreprompt);
-	else if (!strcasecmp(el, "c_restrict"))			config.c_restrict = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_site_location"))		safestrncpy(config.c_site_location, migr_chardata, sizeof config.c_site_location);
-	else if (!strcasecmp(el, "c_sysadm"))			safestrncpy(config.c_sysadm, migr_chardata, sizeof config.c_sysadm);
-	else if (!strcasecmp(el, "c_maxsessions"))		config.c_maxsessions = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_ip_addr"))			safestrncpy(config.c_ip_addr, migr_chardata, sizeof config.c_ip_addr);
-	else if (!strcasecmp(el, "c_port_number"))		config.c_port_number = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_ep_expire_mode"))		config.c_ep.expire_mode = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_ep_expire_value"))		config.c_ep.expire_value = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_userpurge"))		config.c_userpurge = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_roompurge"))		config.c_roompurge = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_logpages"))			safestrncpy(config.c_logpages, migr_chardata, sizeof config.c_logpages);
-	else if (!strcasecmp(el, "c_createax"))			config.c_createax = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_maxmsglen"))		config.c_maxmsglen = atol(migr_chardata);
-	else if (!strcasecmp(el, "c_min_workers"))		config.c_min_workers = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_max_workers"))		config.c_max_workers = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_pop3_port"))		config.c_pop3_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_smtp_port"))		config.c_smtp_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_rfc822_strict_from"))	config.c_rfc822_strict_from = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_aide_zap"))			config.c_aide_zap = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_imap_port"))		config.c_imap_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_net_freq"))			config.c_net_freq = atol(migr_chardata);
-	else if (!strcasecmp(el, "c_disable_newu"))		config.c_disable_newu = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_enable_fulltext"))		config.c_enable_fulltext = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_baseroom"))			safestrncpy(config.c_baseroom, migr_chardata, sizeof config.c_baseroom);
-	else if (!strcasecmp(el, "c_aideroom"))			safestrncpy(config.c_aideroom, migr_chardata, sizeof config.c_aideroom);
-	else if (!strcasecmp(el, "c_purge_hour"))		config.c_purge_hour = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_mbxep_expire_mode"))	config.c_mbxep.expire_mode = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_mbxep_expire_value"))	config.c_mbxep.expire_value = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_ldap_host"))		safestrncpy(config.c_ldap_host, migr_chardata, sizeof config.c_ldap_host);
-	else if (!strcasecmp(el, "c_ldap_port"))		config.c_ldap_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_ldap_base_dn"))		safestrncpy(config.c_ldap_base_dn, migr_chardata, sizeof config.c_ldap_base_dn);
-	else if (!strcasecmp(el, "c_ldap_bind_dn"))		safestrncpy(config.c_ldap_bind_dn, migr_chardata, sizeof config.c_ldap_bind_dn);
-	else if (!strcasecmp(el, "c_ldap_bind_pw"))		safestrncpy(config.c_ldap_bind_pw, migr_chardata, sizeof config.c_ldap_bind_pw);
-	else if (!strcasecmp(el, "c_msa_port"))			config.c_msa_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_imaps_port"))		config.c_imaps_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_pop3s_port"))		config.c_pop3s_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_smtps_port"))		config.c_smtps_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_auto_cull"))		config.c_auto_cull = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_allow_spoofing"))		config.c_allow_spoofing = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_journal_email"))		config.c_journal_email = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_journal_pubmsgs"))		config.c_journal_pubmsgs = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_journal_dest"))		safestrncpy(config.c_journal_dest, migr_chardata, sizeof config.c_journal_dest);
-	else if (!strcasecmp(el, "c_default_cal_zone"))		safestrncpy(config.c_default_cal_zone, migr_chardata, sizeof config.c_default_cal_zone);
-	else if (!strcasecmp(el, "c_pftcpdict_port"))		config.c_pftcpdict_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_managesieve_port"))		config.c_managesieve_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_auth_mode"))		config.c_auth_mode = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_funambol_host"))		safestrncpy(config.c_funambol_host, migr_chardata, sizeof config.c_funambol_host);
-	else if (!strcasecmp(el, "c_funambol_port"))		config.c_funambol_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_funambol_source"))		safestrncpy(config.c_funambol_source, migr_chardata, sizeof config.c_funambol_source);
-	else if (!strcasecmp(el, "c_funambol_auth"))		safestrncpy(config.c_funambol_auth, migr_chardata, sizeof config.c_funambol_auth);
-	else if (!strcasecmp(el, "c_rbl_at_greeting"))		config.c_rbl_at_greeting = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_master_user"))		safestrncpy(config.c_master_user, migr_chardata, sizeof config.c_master_user);
-	else if (!strcasecmp(el, "c_master_pass"))		safestrncpy(config.c_master_pass, migr_chardata, sizeof config.c_master_pass);
-	else if (!strcasecmp(el, "c_pager_program"))		safestrncpy(config.c_pager_program, migr_chardata, sizeof config.c_pager_program);
-	else if (!strcasecmp(el, "c_imap_keep_from"))		config.c_imap_keep_from = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_xmpp_c2s_port"))		config.c_xmpp_c2s_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_xmpp_s2s_port"))		config.c_xmpp_s2s_port = atoi(migr_chardata);
-	else if (!strcasecmp(el, "c_pop3_fetch"))		config.c_pop3_fetch = atol(migr_chardata);
-	else if (!strcasecmp(el, "c_pop3_fastest"))		config.c_pop3_fastest = atol(migr_chardata);
-	else if (!strcasecmp(el, "c_spam_flag_only"))		config.c_spam_flag_only = atoi(migr_chardata);
-
+	else if ((!strncasecmp(el, HKEY("c_"))) && 
+		 migr_config(data, el))
+		; /* Nothing to do anymore */
+		
 	/*** CONTROL ***/
-
-	else if (!strcasecmp(el, "control_highest"))		CitControl.MMhighest = atol(migr_chardata);
-	else if (!strcasecmp(el, "control_flags"))		CitControl.MMflags = atoi(migr_chardata);
-	else if (!strcasecmp(el, "control_nextuser"))		CitControl.MMnextuser = atol(migr_chardata);
-	else if (!strcasecmp(el, "control_nextroom"))		CitControl.MMnextroom = atol(migr_chardata);
-	else if (!strcasecmp(el, "control_version"))		CitControl.version = atoi(migr_chardata);
-
-	else if (!strcasecmp(el, "control")) {
-		CitControl.MMfulltext = (-1L);	/* always flush */
-		put_control();
-		syslog(LOG_INFO, "Completed import of control record\n");
-	}
-
+	else if ((!strncasecmp(el, HKEY("control"))) && 
+		 migr_controlrecord(data, el))
+		; /* Nothing to do anymore */
 	/*** USER ***/
-
-	else if (!strcasecmp(el, "u_version"))			usbuf.version = atoi(migr_chardata);
-	else if (!strcasecmp(el, "u_uid"))			usbuf.uid = atol(migr_chardata);
-	else if (!strcasecmp(el, "u_password"))			safestrncpy(usbuf.password, migr_chardata, sizeof usbuf.password);
-	else if (!strcasecmp(el, "u_flags"))			usbuf.flags = atoi(migr_chardata);
-	else if (!strcasecmp(el, "u_timescalled"))		usbuf.timescalled = atol(migr_chardata);
-	else if (!strcasecmp(el, "u_posted"))			usbuf.posted = atol(migr_chardata);
-	else if (!strcasecmp(el, "u_axlevel"))			usbuf.axlevel = atoi(migr_chardata);
-	else if (!strcasecmp(el, "u_usernum"))			usbuf.usernum = atol(migr_chardata);
-	else if (!strcasecmp(el, "u_lastcall"))			usbuf.lastcall = atol(migr_chardata);
-	else if (!strcasecmp(el, "u_USuserpurge"))		usbuf.USuserpurge = atoi(migr_chardata);
-	else if (!strcasecmp(el, "u_fullname"))			safestrncpy(usbuf.fullname, migr_chardata, sizeof usbuf.fullname);
-
+	else if ((!strncasecmp(el, HKEY("u_"))) && 
+		 migr_userrecord(data, el))
+		; /* Nothing to do anymore */
 	else if (!strcasecmp(el, "user")) {
 		CtdlPutUser(&usbuf);
 		syslog(LOG_INFO, "Imported user: %s\n", usbuf.fullname);
@@ -734,8 +790,8 @@ void migr_xml_end(void *data, const char *el) {
 
 	/*** OPENID ***/
 
-	else if (!strcasecmp(el, "oid_url"))			safestrncpy(openid_url, migr_chardata, sizeof openid_url);
-	else if (!strcasecmp(el, "oid_usernum"))		openid_usernum = atol(migr_chardata);
+	else if (!strcasecmp(el, "oid_url"))			safestrncpy(openid_url, ChrPtr(migr_chardata), sizeof openid_url);
+	else if (!strcasecmp(el, "oid_usernum"))		openid_usernum = atol(ChrPtr(migr_chardata));
 
 	else if (!strcasecmp(el, "openid")) {			/* see serv_openid_rp.c for a description of the record format */
 		char *oid_data;
@@ -750,24 +806,9 @@ void migr_xml_end(void *data, const char *el) {
 	}
 
 	/*** ROOM ***/
-
-	else if (!strcasecmp(el, "QRname"))			safestrncpy(qrbuf.QRname, migr_chardata, sizeof qrbuf.QRname);
-	else if (!strcasecmp(el, "QRpasswd"))			safestrncpy(qrbuf.QRpasswd, migr_chardata, sizeof qrbuf.QRpasswd);
-	else if (!strcasecmp(el, "QRroomaide"))			qrbuf.QRroomaide = atol(migr_chardata);
-	else if (!strcasecmp(el, "QRhighest"))			qrbuf.QRhighest = atol(migr_chardata);
-	else if (!strcasecmp(el, "QRgen"))			qrbuf.QRgen = atol(migr_chardata);
-	else if (!strcasecmp(el, "QRflags"))			qrbuf.QRflags = atoi(migr_chardata);
-	else if (!strcasecmp(el, "QRdirname"))			safestrncpy(qrbuf.QRdirname, migr_chardata, sizeof qrbuf.QRdirname);
-	else if (!strcasecmp(el, "QRinfo"))			qrbuf.QRinfo = atol(migr_chardata);
-	else if (!strcasecmp(el, "QRfloor"))			qrbuf.QRfloor = atoi(migr_chardata);
-	else if (!strcasecmp(el, "QRmtime"))			qrbuf.QRmtime = atol(migr_chardata);
-	else if (!strcasecmp(el, "QRexpire_mode"))		qrbuf.QRep.expire_mode = atoi(migr_chardata);
-	else if (!strcasecmp(el, "QRexpire_value"))		qrbuf.QRep.expire_value = atoi(migr_chardata);
-	else if (!strcasecmp(el, "QRnumber"))			qrbuf.QRnumber = atol(migr_chardata);
-	else if (!strcasecmp(el, "QRorder"))			qrbuf.QRorder = atoi(migr_chardata);
-	else if (!strcasecmp(el, "QRflags2"))			qrbuf.QRflags2 = atoi(migr_chardata);
-	else if (!strcasecmp(el, "QRdefaultview"))		qrbuf.QRdefaultview = atoi(migr_chardata);
-
+	else if ((!strncasecmp(el, HKEY("QR"))) && 
+		 migr_roomrecord(data, el))
+		; /* Nothing to do anymore */
 	else if (!strcasecmp(el, "room")) {
 		CtdlPutRoom(&qrbuf);
 		syslog(LOG_INFO, "Imported room: %s\n", qrbuf.QRname);
@@ -775,7 +816,7 @@ void migr_xml_end(void *data, const char *el) {
 
 	/*** ROOM MESSAGE POINTERS ***/
 
-	else if (!strcasecmp(el, "FRname"))			safestrncpy(FRname, migr_chardata, sizeof FRname);
+	else if (!strcasecmp(el, "FRname"))			safestrncpy(FRname, ChrPtr(migr_chardata), sizeof FRname);
 
 	else if (!strcasecmp(el, "FRmsglist")) {
 		if (!IsEmptyStr(FRname)) {
@@ -785,7 +826,7 @@ void migr_xml_end(void *data, const char *el) {
 
 			syslog(LOG_DEBUG, "Message list for: %s\n", FRname);
 
-			ptr = migr_chardata;
+			ptr = ChrPtr(migr_chardata);
 			while (*ptr != 0) {
 				while ((*ptr != 0) && (!isdigit(*ptr))) {
 					++ptr;
@@ -818,13 +859,9 @@ void migr_xml_end(void *data, const char *el) {
 	}
 
 	/*** FLOORS ***/
-
-	else if (!strcasecmp(el, "f_num"))			floornum = atoi(migr_chardata);
-	else if (!strcasecmp(el, "f_flags"))			flbuf.f_flags = atoi(migr_chardata);
-	else if (!strcasecmp(el, "f_name"))			safestrncpy(flbuf.f_name, migr_chardata, sizeof flbuf.f_name);
-	else if (!strcasecmp(el, "f_ref_count"))		flbuf.f_ref_count = atoi(migr_chardata);
-	else if (!strcasecmp(el, "f_ep_expire_mode"))		flbuf.f_ep.expire_mode = atoi(migr_chardata);
-	else if (!strcasecmp(el, "f_ep_expire_value"))		flbuf.f_ep.expire_value = atoi(migr_chardata);
+	else if ((!strncasecmp(el, HKEY("f_"))) && 
+		 migr_floorrecord(data, el))
+		; /* Nothing to do anymore */
 
 	else if (!strcasecmp(el, "floor")) {
 		CtdlPutFloor(&flbuf, floornum);
@@ -832,56 +869,46 @@ void migr_xml_end(void *data, const char *el) {
 	}
 
 	/*** VISITS ***/
-
-	else if (!strcasecmp(el, "v_roomnum"))			vbuf.v_roomnum = atol(migr_chardata);
-	else if (!strcasecmp(el, "v_roomgen"))			vbuf.v_roomgen = atol(migr_chardata);
-	else if (!strcasecmp(el, "v_usernum"))			vbuf.v_usernum = atol(migr_chardata);
-
-	else if (!strcasecmp(el, "v_seen")) {
-		vbuf.v_lastseen = atol(migr_chardata);
-		is_textual_seen = 0;
-		for (i=0; migr_chardata[i]; ++i) if (!isdigit(migr_chardata[i])) is_textual_seen = 1;
-		if (is_textual_seen)				safestrncpy(vbuf.v_seen, migr_chardata, sizeof vbuf.v_seen);
-	}
-
-	else if (!strcasecmp(el, "v_answered"))			safestrncpy(vbuf.v_answered, migr_chardata, sizeof vbuf.v_answered);
-	else if (!strcasecmp(el, "v_flags"))			vbuf.v_flags = atoi(migr_chardata);
-	else if (!strcasecmp(el, "v_view"))			vbuf.v_view = atoi(migr_chardata);
-
+	else if ((!strncasecmp(el, HKEY("v_"))) && 
+		 migr_visitrecord(data, el))
+		; /* Nothing to do anymore */
 	else if (!strcasecmp(el, "visit")) {
 		put_visit(&vbuf);
 		syslog(LOG_INFO, "Imported visit: %ld/%ld/%ld\n", vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
 	}
 
 	/*** MESSAGES ***/
+	
+	else if (!strcasecmp(el, "msg_msgnum"))			import_msgnum = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msg_meta_refcount"))		smi.meta_refcount = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msg_meta_content_type"))	safestrncpy(smi.meta_content_type, ChrPtr(migr_chardata), sizeof smi.meta_content_type);
 
-	else if (!strcasecmp(el, "msg_msgnum"))			import_msgnum = atol(migr_chardata);
-	else if (!strcasecmp(el, "msg_meta_refcount"))		smi.meta_refcount = atoi(migr_chardata);
-	else if (!strcasecmp(el, "msg_meta_content_type"))	safestrncpy(smi.meta_content_type, migr_chardata, sizeof smi.meta_content_type);
+	else if (!strcasecmp(el, "msg_text"))
+	{
 
-	else if (!strcasecmp(el, "msg_text")) {
-		if (decoded_msg != NULL) {
-			free(decoded_msg);
-		}
-		len = strlen(migr_chardata);
-		decoded_msg = malloc(len);
-		msglen = CtdlDecodeBase64(decoded_msg, migr_chardata, len);
-		cdb_store(CDB_MSGMAIN, &import_msgnum, sizeof(long), decoded_msg, msglen);
-		free(decoded_msg);
-		decoded_msg = NULL;
+		FlushStrBuf(migr_MsgData);
+		StrBufDecodeBase64To(migr_MsgData, migr_MsgData);
+
+		cdb_store(CDB_MSGMAIN,
+			  &import_msgnum,
+			  sizeof(long),
+			  ChrPtr(migr_MsgData), 
+			  StrLength(migr_MsgData) + 1);
+
 		smi.meta_msgnum = import_msgnum;
 		PutMetaData(&smi);
-		syslog(LOG_INFO, "Imported message #%ld, size=%ld, refcount=%d, content-type: %s\n",
-			import_msgnum, msglen, smi.meta_refcount, smi.meta_content_type);
+
+		syslog(LOG_INFO,
+		       "Imported message #%ld, size=%d, refcount=%d, content-type: %s\n",
+		       import_msgnum,
+		       StrLength(migr_MsgData),
+		       smi.meta_refcount,
+		       smi.meta_content_type);
 	}
 
 	/*** MORE GENERAL STUFF ***/
 
-	if (migr_chardata != NULL) {
-		free(migr_chardata);
-		migr_chardata = NULL;
-		migr_chardata_len = 0;
-	}
+	FlushStrBuf(migr_chardata);
 }
 
 
@@ -896,6 +923,8 @@ void migr_do_import(void) {
 	int Finished = 0;
 	
 	unbuffer_output();
+	migr_chardata = NewStrBufPlain(NULL, SIZ * 20);
+	migr_MsgData = NewStrBufPlain(NULL, SIZ * 20);
 	Buf = NewStrBufPlain(NULL, SIZ);
 	xp = XML_ParserCreate(NULL);
 	if (!xp) {
@@ -932,6 +961,8 @@ void migr_do_import(void) {
 	XML_Parse(xp, "", 0, 1);
 	XML_ParserFree(xp);
 	FreeStrBuf(&Buf);
+	FreeStrBuf(&migr_chardata);
+	FreeStrBuf(&migr_MsgData);
 	rebuild_euid_index();
 	rebuild_usersbynumber();
 	CC->dont_term = 0;

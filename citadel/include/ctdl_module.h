@@ -418,6 +418,9 @@ struct configlen {
 	long c_pager_program;
 };
 
+#define SET_CFGSTRBUF(which, buffer) configlen.which = safestrncpy(config.which, ChrPtr(buffer), sizeof(config.which))
+#define SET_CFGSTR(which, buffer) configlen.which = safestrncpy(config.which, buffer, sizeof(config.which))
+
 extern struct config config;
 extern struct configlen configlen;
 
