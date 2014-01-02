@@ -524,6 +524,7 @@ void migr_xml_chardata(void *data, const XML_Char *s, int len) {
 
 	old_len = migr_chardata_len;
 	new_len = old_len + len;
+
 	new_buffer = realloc(migr_chardata, new_len + 1);
 	if (new_buffer != NULL) {
 		memcpy(&new_buffer[old_len], s, len);
@@ -868,6 +869,7 @@ void migr_xml_end(void *data, const char *el) {
 		cdb_store(CDB_MSGMAIN, &import_msgnum, sizeof(long), decoded_msg, msglen);
 		free(decoded_msg);
 		decoded_msg = NULL;
+		smi.meta_msgnum = import_msgnum;
 		PutMetaData(&smi);
 		syslog(LOG_INFO, "Imported message #%ld, size=%ld, refcount=%d, content-type: %s\n",
 			import_msgnum, msglen, smi.meta_refcount, smi.meta_content_type);
