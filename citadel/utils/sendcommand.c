@@ -12,6 +12,7 @@
  * GNU General Public License for more details.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -27,7 +28,7 @@
 #include <sys/un.h>
 #include "citadel.h"
 #include "include/citadel_dirs.h"
-
+#include <libcitadel.h>
 
 
 int serv_sock = (-1);
@@ -178,7 +179,7 @@ int main(int argc, char **argv)
 	);
 	fflush(stderr);
 
-	alarm(watchdog);
+//	alarm(watchdog);
 	serv_sock = uds_connectsock(file_citadel_admin_socket);
 
 	serv_gets(buf);
@@ -200,19 +201,81 @@ int main(int argc, char **argv)
 	xfermode = buf[0];
 
 	if ((xfermode == '4') || (xfermode == '8')) {		/* send text */
-		while (fgets(buf, sizeof buf, stdin)) {
-			buf[strlen(buf)-1] = 0;
-			serv_puts(buf);
+		IOBuffer IOB;
+		FDIOBuffer FDIO;
+		const char *ErrStr;
+
+		memset(&IOB, 0, sizeof(0));
+		IOB.Buf = NewStrBufPlain(NULL, SIZ);
+		IOB.fd = serv_sock;
+		FDIOBufferInit(&FDIO, &IOB, fileno(stdin), -1);
+
+		while (FileSendChunked(&FDIO, &ErrStr));
 			alarm(watchdog);			/* reset the watchdog timer */
-		}
+		FDIOBufferDelete(&FDIO);
+		FreeStrBuf(&IOB.Buf);
 		serv_puts("000");
 	}
 
 	if ((xfermode == '1') || (xfermode == '8')) {		/* receive text */
-		while (serv_gets(buf), strcmp(buf, "000")) {
-			printf("%s\n", buf);
-			alarm(watchdog);			/* reset the watchdog timer */
+		IOBuffer IOB;
+		StrBuf *Line, *OutBuf;
+		int Finished = 0;
+
+		memset(&IOB, 0, sizeof(IOB));
+		IOB.Buf = NewStrBufPlain(NULL, SIZ);
+		IOB.fd = serv_sock;
+		Line = NewStrBufPlain(NULL, SIZ);
+		OutBuf = NewStrBufPlain(NULL, SIZ * 10);
+
+		while (!Finished && (StrBuf_read_one_chunk_callback (serv_sock, 0, &IOB) >= 0))
+		{
+			eReadState State;
+
+			State = eReadSuccess;
+			while (!Finished && (State == eReadSuccess))
+			{
+				if (IOBufferStrLength(&IOB) == 0)
+				{
+					State = eMustReadMore;
+					break;
+				}
+				State = StrBufChunkSipLine(Line, &IOB);
+				switch (State)
+				{
+				case eReadSuccess:
+					if (!strcmp(ChrPtr(Line), "000"))
+					{
+						Finished = 1;
+						break;
+					}
+					StrBufAppendBuf(OutBuf, Line, 0);
+					StrBufAppendBufPlain(OutBuf, HKEY("\n"), 0);
+//					alarm(watchdog);			/* reset the watchdog timer */
+					break;
+				case eBufferNotEmpty:
+					break;
+				case eMustReadMore:
+					continue;
+				case eReadFail:
+					fprintf(stderr, "WTF? Exit!\n");
+					exit(-1);
+					break;
+				}
+				if (StrLength(OutBuf) > 5*SIZ)
+				{
+					fwrite(ChrPtr(OutBuf), 1, StrLength(OutBuf), stdout);
+					FlushStrBuf(OutBuf);
+				}
+			}
 		}
+		if (StrLength(OutBuf) > 0)
+		{
+			fwrite(ChrPtr(OutBuf), 1, StrLength(OutBuf), stdout);
+		}
+		FreeStrBuf(&Line);
+		FreeStrBuf(&OutBuf);
+		FreeStrBuf(&IOB.Buf);
 	}
 	
 	if (xfermode == '6') {					/* receive binary */
