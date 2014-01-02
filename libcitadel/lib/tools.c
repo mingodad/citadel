@@ -30,6 +30,8 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <limits.h>
+#include "b64/cencode.h"
+#include "b64/cdecode.h"
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -49,45 +51,6 @@
 #define FALSE 0
 
 typedef unsigned char byte;	      /* Byte type */
-
-/* Base64 encoding table */
-const byte etable[256] = {
-	65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81,
-	82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103,
-	104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117,
-	118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43,
-	47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0
-};
-
-/* Base64 decoding table */
-const byte dtable[256] = {
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 62, 128, 128, 128, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
-	128, 128, 128, 0, 128, 128, 128, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 128, 128, 128,
-	128, 128, 128, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
-	40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
-	128, 128, 0
-};
 
 /*
  * copy a string into a buffer of a known size. abort if we exceed the limits
@@ -323,75 +286,52 @@ unsigned long extract_unsigned_long(const char *source, int parmnum)
 		return 0;
 }
 
-
-/*
- * CtdlDecodeBase64() and CtdlEncodeBase64() are adaptations of code by John Walker.
- */
-
 size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int linebreaks)
 {
-	int i, hiteof = FALSE;
-	int spos = 0;
-	int dpos = 0;
-	int thisline = 0;
+	// linebreaks at 70 are ugly for base64, since 3 bytes in makes 4 bytes out
+	int breaklength = 68;
+	int readlength = 3 * breaklength / 4;
 
-	while (!hiteof) {
-		byte igroup[3], ogroup[4];
-		int c, n;
+	int t;
+	int destoffset;
+	int sourceoffset;
+	int sourceremaining;
 
-		igroup[0] = igroup[1] = igroup[2] = 0;
-		for (n = 0; n < 3; n++) {
-			if (spos >= sourcelen) {
-				hiteof = TRUE;
-				break;
-			}
-			c = source[spos++];
-			igroup[n] = (byte) c;
+	base64_encodestate _state;
+
+	base64_init_encodestate(&_state);
+
+	if (linebreaks) {
+		sourceremaining = sourcelen;
+		destoffset = 0;
+		sourceoffset = 0;
+
+		while (sourceremaining > 0) {
+			destoffset += base64_encode_block(
+				&(source[sourceoffset]),
+				(readlength > sourceremaining ? sourceremaining : readlength),
+				&(dest[destoffset]),
+				&_state);
+			sourceoffset += readlength;
+			sourceremaining -= readlength;
+			dest[destoffset++] = '\r';
+			dest[destoffset++] = '\n';
 		}
-		if (n > 0) {
-			ogroup[0] = etable[igroup[0] >> 2];
-			ogroup[1] =
-			    etable[((igroup[0] & 3) << 4) |
-				   (igroup[1] >> 4)];
-			ogroup[2] =
-			    etable[((igroup[1] & 0xF) << 2) |
-				   (igroup[2] >> 6)];
-			ogroup[3] = etable[igroup[2] & 0x3F];
 
-			/*
-			 * Replace characters in output stream with "=" pad
-			 * characters if fewer than three characters were
-			 * read from the end of the input stream. 
-			 */
-
-			if (n < 3) {
-				ogroup[3] = '=';
-				if (n < 2) {
-					ogroup[2] = '=';
-				}
-			}
-			for (i = 0; i < 4; i++) {
-				dest[dpos++] = ogroup[i];
-				dest[dpos] = 0;
-			}
-			thisline += 4;
-			if ( (linebreaks) && (thisline > 70) ) {
-				dest[dpos++] = '\r';
-				dest[dpos++] = '\n';
-				dest[dpos] = 0;
-				thisline = 0;
-			}
+		t = destoffset;
+		destoffset += base64_encode_blockend(&(dest[destoffset]), &_state);
+		if (t < destoffset) {
+			dest[destoffset++] = '\r';
+			dest[destoffset++] = '\n';
 		}
-	}
-	if ( (linebreaks) && (thisline > 70) ) {
-		dest[dpos++] = '\r';
-		dest[dpos++] = '\n';
-		dest[dpos] = 0;
-	}
+		return destoffset;
 
-	return(dpos);
+	} else {
+		destoffset = base64_encode_block(source, sourcelen, dest, &_state);
+
+		return destoffset + base64_encode_blockend(&(dest[destoffset]), &_state);
+	}
 }
-
 
 
 /* 
@@ -400,45 +340,11 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
  */
 int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 {
-    int i, c;
-    int dpos = 0;
-    int spos = 0;
+	base64_decodestate _state;
 
-    while (TRUE) {
-	byte a[4], b[4], o[3];
+	base64_init_decodestate(&_state);
 
-	for (i = 0; i < 4; i++) {
-	    if (spos >= length) {
-		return(dpos);
-	    }
-	    c = source[spos++];
-
-	    if (c == 0) {
-		if (i > 0) {
-		    return(dpos);
-		}
-		return(dpos);
-	    }
-	    if (dtable[c] & 0x80) {
-		/* Ignoring errors: discard invalid character. */
-		i--;
-		continue;
-	    }
-	    a[i] = (byte) c;
-	    b[i] = (byte) dtable[c];
-	}
-	o[0] = (b[0] << 2) | (b[1] >> 4);
-	o[1] = (b[1] << 4) | (b[2] >> 2);
-	o[2] = (b[2] << 6) | b[3];
-        i = a[2] == '=' ? 1 : (a[3] == '=' ? 2 : 3);
-	if (i>=1) dest[dpos++] = o[0];
-	if (i>=2) dest[dpos++] = o[1];
-	if (i>=3) dest[dpos++] = o[2];
-	dest[dpos] = 0;
-	if (i < 3) {
-	    return(dpos);
-	}
-    }
+	return base64_decode_block(source, length, dest, &_state);
 }
 
 

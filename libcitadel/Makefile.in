@@ -65,8 +65,8 @@ install-pkgconfigDATA: $(pkgconfig_DATA)
 clean:
 	echo "Cleaning: $(LIBRARY) *.o *.lo *.gcda *.gcov *.gcno"
 	cd lib && rm -f $(LIBRARY) *.o *.lo *.gcda *.gcov *.gcno
-	echo "Cleaning: $(LIBRARY) .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs xdgmime/*.gcda xdgmime/*.gcov xdgmime/*.gcno"
-	cd lib && rm -rf .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs xdgmime/*.gcda xdgmime/*.gcov xdgmime/*.gcno
+	echo "Cleaning: $(LIBRARY) .libs _libs b64/*.o b64/*.lo b64/.libs b64/*.gcda b64/*.gcov b64/*.gcno xdgmime/*.o xdgmime/*.lo xdgmime/.libs xdgmime/*.gcda xdgmime/*.gcov xdgmime/*.gcno"
+	cd lib && rm -rf .libs _libs b64/*.o b64/*.lo b64/.libs b64/*.gcda b64/*.gcov b64/*.gcno xdgmime/*.o xdgmime/*.lo xdgmime/.libs xdgmime/*.gcda xdgmime/*.gcov xdgmime/*.gcno
 	rm -rf .libs libcitadel.la
 
 clobber: clean
@@ -86,7 +86,7 @@ uninstall:
 
 # for VPATH builds (invoked by configure)
 mkdir-init:
-	@for d in lib lib/xdgmime tests ; do \
+	@for d in lib lib/xdgmime lib/b64 tests ; do \
 		(mkdir $$d 2> /dev/null || test 1) ; \
 	done
 
@@ -122,6 +122,8 @@ LIB_OBJS = lib/libcitadel.lo \
 	lib/json.lo \
 	lib/wildfire.lo \
 	lib/urlhandling.lo \
+	lib/b64/cencode.lo \
+	lib/b64/cdecode.lo \
 	lib/xdgmime/xdgmime.lo \
 	lib/xdgmime/xdgmimeglob.lo \
 	lib/xdgmime/xdgmimeint.lo \
@@ -143,6 +145,8 @@ lib/lookup3.lo: lib/lookup3.c lib/libcitadel.h
 lib/hash.lo: lib/hash.c lib/libcitadel.h
 lib/json.lo: lib/json.c lib/libcitadel.h
 lib/wildfire.lo: lib/wildfire.c lib/libcitadel.h
+lib/b64/cencode.lo: lib/b64/cencode.c 
+lib/b64/cdecode.lo: lib/b64/cdecode.c
 lib/xdgmime/xdgmime.lo: lib/xdgmime/xdgmime.c 
 lib/xdgmime/xdgmimeglob.lo:  lib/xdgmime/xdgmimeglob.c 
 lib/xdgmime/xdgmimeint.lo:  lib/xdgmime/xdgmimeint.c 

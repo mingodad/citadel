@@ -1,5 +1,5 @@
 LibCitadel is distributed under the GPL V3. It contains a copy of
-two other modules: 
+three other modules: 
   * xdgmime; http://www.freedesktop.org s xdgmime library in 
     lib/xdgmime, which is distributed under LGPL V2 (or later) or the 
     Academic Free License, version 2.0
@@ -13,6 +13,10 @@ two other modules:
     Its license:
     "You may use this  code any way you wish, private, educational, 
      commercial.  It's free."
+
+  * libb64, http://libb64.sourceforge.net/; rapid base64 en/decode
+    library, which is public domain, courtesy of
+    Chris Venter : chris.venter[anti-spam]gmail.com : http://man9.wordpress.com
 
 LibCitadel is courtesy of the citadel development team:
    Clint Adams
@@ -36,6 +40,7 @@ LibCitadel is courtesy of the citadel development team:
    John Walker
    Steve Williams
    Ethan Young
+   Edward Flick
 
 
 		      GNU GENERAL PUBLIC LICENSE
