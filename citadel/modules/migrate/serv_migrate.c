@@ -891,7 +891,7 @@ void migr_xml_end(void *data, const char *el) {
 void migr_do_import(void) {
 	StrBuf *Buf;
 	XML_Parser xp;
-	int linelen;
+	int Finished = 0;
 	
 	unbuffer_output();
 	Buf = NewStrBufPlain(NULL, SIZ);
@@ -908,17 +908,23 @@ void migr_do_import(void) {
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	unbuffer_output();
 
-	while (CtdlClientGetLine(Buf) >= 0 && strcmp(ChrPtr(Buf), "000")) {
-		linelen = StrLength(Buf);
-		StrBufAppendBufPlain(Buf, HKEY("\n"), 0);
+	client_set_inbound_buf(SIZ * 10);
 
+	while (!Finished && client_read_random_blob(Buf, -1) >= 0) {
+		if ((StrLength(Buf) > 4) &&
+		    !strcmp(ChrPtr(Buf) + StrLength(Buf) - 4, "000\n"))
+		{
+			Finished = 1;
+			StrBufCutAt(Buf, StrLength(Buf) - 4, NULL);
+		}
 		if (server_shutting_down)
 			break;	// Should we break or return?
 		
-		if (linelen == 0)
+		if (StrLength(Buf) == 0)
 			continue;
 
-		XML_Parse(xp, ChrPtr(Buf), linelen, 0);
+		XML_Parse(xp, ChrPtr(Buf), StrLength(Buf), 0);
+		FlushStrBuf(Buf);
 	}
 
 	XML_Parse(xp, "", 0, 1);
