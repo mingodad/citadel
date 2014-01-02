@@ -2825,6 +2825,26 @@ int StrBufDecodeBase64(StrBuf *Buf)
 
 /**
  * @ingroup StrBuf_DeEnCoder
+ * @brief decode a buffer from base 64 encoding; expects targetbuffer
+ * @param BufIn Buffor to transform
+ * @param BufOut Buffer to put result into
+ */
+int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut)
+{
+	if ((BufIn == NULL) || (BufOut == NULL))
+		return -1;
+
+	if (BufOut->BufSize < BufIn->BufUsed)
+		IncreaseBuf(BufOut, BufIn->BufUsed, 0);
+
+	BufOut->BufUsed = CtdlDecodeBase64(BufOut->buf,
+					   BufIn->buf,
+					   BufIn->BufUsed);
+	return BufOut->BufUsed;
+}
+
+/**
+ * @ingroup StrBuf_DeEnCoder
  * @brief decode a buffer from base 64 encoding; destroys original
  * @param Buf Buffor to transform
  */

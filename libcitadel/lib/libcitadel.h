@@ -339,6 +339,7 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset);
 
 int StrBufDecodeBase64(StrBuf *Buf);
+int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut);
 int StrBufDecodeHex(StrBuf *Buf);
 StrBuf *StrBufRFC2047encodeMessage(const StrBuf *EncodeMe);
 int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
