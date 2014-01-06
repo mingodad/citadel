@@ -32,6 +32,9 @@
 
 #include "libcitadel.h"
 
+#include "b64/cencode.h"
+#include "b64/cdecode.h"
+
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #endif
@@ -2841,6 +2844,56 @@ int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut)
 					   BufIn->buf,
 					   BufIn->BufUsed);
 	return BufOut->BufUsed;
+}
+
+void *StrBufNewStreamContext(eStreamType type)
+{
+	base64_decodestate *state;;
+
+	switch (type)
+	{
+	case eBase64Decode:
+		state = (base64_decodestate*) malloc(sizeof(base64_decodestate));
+		base64_init_decodestate(state);
+		return state;
+		break;
+	}
+	return NULL;
+}
+
+void StrBufDestroyStreamContext(eStreamType type, void **Stream)
+{
+	switch (type)
+	{
+	case eBase64Decode:
+		free(*Stream);
+		*Stream = NULL;
+		break;
+	}
+}
+void StrBufStreamDecodeTo(StrBuf *Target, const StrBuf *In, const char* pIn, long pInLen, void *Stream)
+{
+	base64_decodestate *state = Stream;
+	long ExpectLen;
+
+	if (In != NULL)
+	{
+		pIn = In->buf;
+		pInLen = In->BufUsed;
+	}
+	if ((pIn == NULL) || (Stream == NULL))
+		return;
+	
+	ExpectLen = (pInLen / 4) * 3;
+
+	if (Target->BufSize - Target->BufUsed < ExpectLen)
+	{
+		IncreaseBuf(Target, 1, Target->BufUsed + ExpectLen + 1);
+	}
+
+	ExpectLen = base64_decode_block(pIn, pInLen, Target->buf + Target->BufUsed, state);
+	Target->BufUsed += ExpectLen;
+	Target->buf[Target->BufUsed] = '\0';
 }
 
 /**

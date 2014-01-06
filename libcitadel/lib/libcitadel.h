@@ -338,6 +338,14 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 /* deprecated old version: */
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset);
 
+typedef enum __eStreamType {
+	eBase64Decode
+} eStreamType;
+
+void *StrBufNewStreamContext(eStreamType type);
+void StrBufDestroyStreamContext(eStreamType type, void **Stream);
+void StrBufStreamDecodeTo(StrBuf *Target, const StrBuf *In, const char* pIn, long pInLen, void *Stream);
+
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut);
 int StrBufDecodeHex(StrBuf *Buf);
