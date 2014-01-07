@@ -150,6 +150,8 @@ int main(int argc, char **argv)
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 
+	StartLibCitadel(SIZ);
+
 	/* Parse command line */
 	while ((a = getopt(argc, argv, "h:w:")) != EOF) {
 		switch (a) {
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
 	);
 	fflush(stderr);
 
-//	alarm(watchdog);
+	alarm(watchdog);
 	serv_sock = uds_connectsock(file_citadel_admin_socket);
 
 	serv_gets(buf);
@@ -210,8 +212,10 @@ int main(int argc, char **argv)
 		IOB.fd = serv_sock;
 		FDIOBufferInit(&FDIO, &IOB, fileno(stdin), -1);
 
-		while (FileSendChunked(&FDIO, &ErrStr));
+		while (FileSendChunked(&FDIO, &ErrStr) >= 0);
 			alarm(watchdog);			/* reset the watchdog timer */
+		if (ErrStr != NULL)
+			fprintf(stderr, "Error while piping stuff: %s\n", ErrStr);
 		FDIOBufferDelete(&FDIO);
 		FreeStrBuf(&IOB.Buf);
 		serv_puts("000");
@@ -251,7 +255,7 @@ int main(int argc, char **argv)
 					}
 					StrBufAppendBuf(OutBuf, Line, 0);
 					StrBufAppendBufPlain(OutBuf, HKEY("\n"), 0);
-//					alarm(watchdog);			/* reset the watchdog timer */
+					alarm(watchdog);			/* reset the watchdog timer */
 					break;
 				case eBufferNotEmpty:
 					break;

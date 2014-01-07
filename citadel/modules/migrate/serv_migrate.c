@@ -524,6 +524,7 @@ void migr_xml_chardata(void *data, const XML_Char *s, int len) {
 
 	old_len = migr_chardata_len;
 	new_len = old_len + len;
+
 	new_buffer = realloc(migr_chardata, new_len + 1);
 	if (new_buffer != NULL) {
 		memcpy(&new_buffer[old_len], s, len);
@@ -868,6 +869,7 @@ void migr_xml_end(void *data, const char *el) {
 		cdb_store(CDB_MSGMAIN, &import_msgnum, sizeof(long), decoded_msg, msglen);
 		free(decoded_msg);
 		decoded_msg = NULL;
+		smi.meta_msgnum = import_msgnum;
 		PutMetaData(&smi);
 		syslog(LOG_INFO, "Imported message #%ld, size=%ld, refcount=%d, content-type: %s\n",
 			import_msgnum, msglen, smi.meta_refcount, smi.meta_content_type);
@@ -891,7 +893,7 @@ void migr_xml_end(void *data, const char *el) {
 void migr_do_import(void) {
 	StrBuf *Buf;
 	XML_Parser xp;
-	int linelen;
+	int Finished = 0;
 	
 	unbuffer_output();
 	Buf = NewStrBufPlain(NULL, SIZ);
@@ -908,17 +910,23 @@ void migr_do_import(void) {
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	unbuffer_output();
 
-	while (CtdlClientGetLine(Buf) >= 0 && strcmp(ChrPtr(Buf), "000")) {
-		linelen = StrLength(Buf);
-		StrBufAppendBufPlain(Buf, HKEY("\n"), 0);
+	client_set_inbound_buf(SIZ * 10);
 
+	while (!Finished && client_read_random_blob(Buf, -1) >= 0) {
+		if ((StrLength(Buf) > 4) &&
+		    !strcmp(ChrPtr(Buf) + StrLength(Buf) - 4, "000\n"))
+		{
+			Finished = 1;
+			StrBufCutAt(Buf, StrLength(Buf) - 4, NULL);
+		}
 		if (server_shutting_down)
 			break;	// Should we break or return?
 		
-		if (linelen == 0)
+		if (StrLength(Buf) == 0)
 			continue;
 
-		XML_Parse(xp, ChrPtr(Buf), linelen, 0);
+		XML_Parse(xp, ChrPtr(Buf), StrLength(Buf), 0);
+		FlushStrBuf(Buf);
 	}
 
 	XML_Parse(xp, "", 0, 1);
