@@ -61,6 +61,122 @@
 #include "citadel_dirs.h"
 #include "ctdl_module.h"
 
+
+
+
+/****************** BEGIN UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
+
+
+/*
+ * Tests whether the supplied string is a valid newsgroup name
+ * Returns true (nonzero) or false (0)
+ */
+int is_valid_newsgroup_name(char *name) {
+	char *ptr = name;
+	int has_a_letter = 0;
+
+	if (!ptr) return(0);
+	if (!strncasecmp(name, "ctdl.", 5)) return(0);
+
+	while (*ptr != 0) {
+
+		if (isalpha(ptr[0])) {
+			has_a_letter = 1;
+		}
+
+		if (	(isalnum(ptr[0]))
+			|| (ptr[0] == '.')
+			|| (ptr[0] == '+')
+			|| (ptr[0] == '-')
+		) {
+			++ptr;
+		}
+		else {
+			return(0);
+		}
+	}
+	return(has_a_letter);
+}
+
+
+
+/*
+ * Convert a Citadel room name to a valid newsgroup name
+ */
+void room_to_newsgroup(char *target, char *source, size_t target_size) {
+
+	if (!target) return;
+	if (!source) return;
+
+	if (is_valid_newsgroup_name(source)) {
+		strncpy(target, source, target_size);
+		return;
+	}
+
+	strcpy(target, "ctdl.");
+	int len = 5;
+	char *ptr = source;
+	char ch;
+
+	while (ch=*ptr++, ch!=0) {
+		if (len >= target_size) return;
+		if (	(isalnum(ch))
+			|| (ch == '.')
+			|| (ch == '-')
+		) {
+			target[len++] = ch;
+			target[len] = 0;
+		}
+		else {
+			target[len++] = '+' ;
+			sprintf(&target[len], "%02x", ch);
+			len += 2;
+			target[len] = 0;
+		}
+	}
+}
+
+
+/*
+ * Convert a newsgroup name to a Citadel room name.
+ * This function recognizes names converted with room_to_newsgroup() and restores them with full fidelity.
+ */
+void newsgroup_to_room(char *target, char *source, size_t target_size) {
+
+	if (!target) return;
+	if (!source) return;
+
+	if (strncasecmp(source, "ctdl.", 5)) {			// not a converted room name; pass through as-is
+		strncpy(target, source, target_size);
+		return;
+	}
+
+	target[0] = 0;
+	int len = 0;
+	char *ptr = &source[5];
+	char ch;
+
+	while (ch=*ptr++, ch!=0) {
+		if (len >= target_size) return;
+		if (ch == '+') {
+			char hex[3];
+			long digit;
+			hex[0] = *ptr++;
+			hex[1] = *ptr++;
+			hex[2] = 0;
+			digit = strtol(hex, NULL, 16);
+			ch = (char)digit;
+		}
+		target[len++] = ch;
+		target[len] = 0;
+	}
+}
+
+
+/******************  END  UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
+
+
+
 /*
  * Here's where our NNTP session begins its happy day.
  */
