@@ -336,6 +336,42 @@ void nntp_authinfo(const char *cmd) {
 
 
 
+
+
+/* 
+ */
+void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
+{
+	int ra;
+	int view;
+
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
+
+	if (ra & UA_KNOWN) {
+		char n_name[1024];
+		room_to_newsgroup(n_name, qrbuf->QRname, sizeof n_name);
+		cprintf("%s\r\n", n_name);
+	}
+}
+
+/*
+ * Implements the NEWGROUPS command (FIXME not finished)
+ */
+void nntp_newgroups(const char *cmd) {
+	/*
+	 * HACK: this works because the 5XX series error codes from citadeli
+	 * protocol will also be considered error codes by an NNTP client
+	 */
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
+	cprintf("231 imma show you everything FIXME\r\n");
+	CtdlGetUser(&CC->user, CC->curr_user);
+	cprintf("%d Rooms w/o new msgs:\n", LISTING_FOLLOWS);
+	CtdlForEachRoom(nntp_newgroups_backend, NULL);
+	cprintf(".\r\n");
+}
+
+
 /* 
  * Main command loop for NNTP server sessions.
  */
@@ -378,6 +414,10 @@ void nntp_command_loop(void)
 		nntp_authinfo(ChrPtr(Cmd));
 	}
 
+	else if (!strcasecmp(cmdname, "newgroups")) {
+		nntp_newgroups(ChrPtr(Cmd));
+	}
+
 	else {
 		cprintf("500 I'm afraid I can't do that.\r\n");
 	}
@@ -387,7 +427,7 @@ void nntp_command_loop(void)
 
 
 /*****************************************************************************/
-/*                      MODULE INITIALIZATION STUFF                          */
+/*		      MODULE INITIALIZATION STUFF			  */
 /*****************************************************************************/
 
 
