@@ -1,7 +1,7 @@
 /*
  * citserver's main() function lives here.
  * 
- * Copyright (c) 1987-2013 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 	syslog(LOG_NOTICE,
 		"*** Citadel server engine v%d.%02d (build %s) ***",
 		(REV_LEVEL/100), (REV_LEVEL%100), svn_revision());
-	syslog(LOG_NOTICE, "Copyright (C) 1987-2013 by the Citadel development team.");
+	syslog(LOG_NOTICE, "Copyright (C) 1987-2014 by the Citadel development team.");
 	syslog(LOG_NOTICE, "This program is distributed under the terms of the GNU "
 					"General Public License.");
 	syslog(LOG_NOTICE, " ");
