@@ -62,7 +62,7 @@
 #include "ctdl_module.h"
 
 
-
+extern long timezone;
 
 /****************** BEGIN UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
 
@@ -336,6 +336,14 @@ void nntp_authinfo(const char *cmd) {
 
 
 
+/* FIXME not finished need to add water marks
+ */
+void output_roomname_in_list_active_format(struct ctdlroom *qrbuf) {
+	char n_name[1024];
+	room_to_newsgroup(n_name, qrbuf->QRname, sizeof n_name);
+	cprintf("%s\r\n", n_name);
+}
+
 
 
 /* 
@@ -344,30 +352,67 @@ void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int ra;
 	int view;
+	time_t thetime = *(time_t *)data;
 
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 
+	/*
+	 * The "created after <date/time>" heuristics depend on the happy coincidence
+	 * that for a very long time we have used a unix timestamp as the room record's
+	 * generation number (QRgen).  When this module is merged into the master
+	 * source tree we should rename QRgen to QR_create_time or something like that.
+	 */
+
 	if (ra & UA_KNOWN) {
-		char n_name[1024];
-		room_to_newsgroup(n_name, qrbuf->QRname, sizeof n_name);
-		cprintf("%s\r\n", n_name);
+		if (qrbuf->QRgen >= thetime) {
+			output_roomname_in_list_active_format(qrbuf);
+		}
 	}
 }
 
 /*
- * Implements the NEWGROUPS command (FIXME not finished)
+ * Implements the NEWGROUPS command
  */
 void nntp_newgroups(const char *cmd) {
 	/*
-	 * HACK: this works because the 5XX series error codes from citadeli
+	 * HACK: this works because the 5XX series error codes from citadel
 	 * protocol will also be considered error codes by an NNTP client
 	 */
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
-	cprintf("231 imma show you everything FIXME\r\n");
+
+	char stringy_date[16];
+	char stringy_time[16];
+	char stringy_gmt[16];
+	struct tm tm;
+	time_t thetime;
+
+	extract_token(stringy_date, cmd, 1, ' ', sizeof stringy_date);
+	extract_token(stringy_time, cmd, 2, ' ', sizeof stringy_time);
+	extract_token(stringy_gmt, cmd, 3, ' ', sizeof stringy_gmt);
+
+	memset(&tm, 0, sizeof tm);
+	if (strlen(stringy_date) == 6) {
+		sscanf(stringy_date, "%2d%2d%2d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday);
+		tm.tm_year += 100;
+	}
+	else {
+		sscanf(stringy_date, "%4d%2d%2d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday);
+		tm.tm_year -= 1900;
+	}
+	tm.tm_mon -= 1;		// tm_mon is zero based (0=January)
+	tm.tm_isdst = (-1);	// let the C library figure out whether DST is in effect
+	sscanf(stringy_time, "%2d%2d%2d", &tm.tm_hour, &tm.tm_min ,&tm.tm_sec);
+	thetime = mktime(&tm);
+	if (!strcasecmp(stringy_gmt, "GMT")) {
+		tzset();
+		thetime += timezone;
+	}
+
+
+	cprintf("231 list of new newsgroups follows\r\n");
 	CtdlGetUser(&CC->user, CC->curr_user);
-	cprintf("%d Rooms w/o new msgs:\n", LISTING_FOLLOWS);
-	CtdlForEachRoom(nntp_newgroups_backend, NULL);
+	CtdlForEachRoom(nntp_newgroups_backend, &thetime);
 	cprintf(".\r\n");
 }
 
@@ -472,3 +517,4 @@ CTDL_MODULE_INIT(nntp)
 	/* return our module name for the log */
 	return "nntp";
 }
+
