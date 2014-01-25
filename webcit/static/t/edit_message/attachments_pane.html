@@ -5,7 +5,6 @@
     <?_("Close window")>&nbsp;<img src="static/webcit_icons/closewindow.gif" border="0"></div>
 </a>
 <h2><img src="static/webcit_icons/essen/16x16/attachement.png">&nbsp;<?_("Attachments:")></h2>
-<ul><?ITERATE("MSG:ATTACHNAMES", ="edit_message_section_attach_select")></ul>
 
 <!-- Fine Uploader JS
 ====================================================================== -->
@@ -15,9 +14,13 @@ function createUploader()
 {
     var uploader = new qq.FineUploader(
 	{
+	    session: {
+		endpoint: "do_template?template=edit_message_json_attlist"
+	    },
 	    callbacks: {
-		"onComplete": update_attachment_count,
-		"delete": update_attachment_count
+		onComplete: update_attachment_count,
+		delete: update_attachment_count,
+		deleteComplete: update_attachment_count
 	    },
 	    element: document.getElementById('fine-uploader'),
 	    request: {
@@ -26,7 +29,7 @@ function createUploader()
 	    deleteFile: {
 		enabled: true,
 		forceConfirm: true,
-		endpoint: 'remove_attachment?nonce=<?NONCE>&template=edit_message_upl_att'
+		endpoint: 'remove_attachment?nonce=<?NONCE>&template=edit_message_upl_att&which_attachment='
 	    }
 	});
 }

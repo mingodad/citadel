@@ -176,22 +176,6 @@
 		);
 	}
 
-	function remove_attachment(which_one) {
-		p = 'which_attachment=' + which_one + '&r=' + CtdlRandomString();
-		new Ajax.Updater(
-			'gonna_upload_this',
-			'remove_attachment',
-			{
-				method: 'get',
-				parameters: p,
-				onComplete: function(){
-					show_attachments_form();
-					update_attachment_count();
-				}
-			}
-		);
-	}
-
 </script>
 </div>
 </div>
