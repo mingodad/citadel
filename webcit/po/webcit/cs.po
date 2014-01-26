@@ -3912,8 +3912,8 @@ msgid "Your system administrator is"
 msgstr "Váš systémový administrátor je"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Připojit soubor:"
+msgid "Attach file"
+msgstr "Připojit soubor"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

@@ -3806,7 +3806,7 @@ msgid "Your system administrator is"
 msgstr ""
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
+msgid "Attach file"
 msgstr ""
 
 #: ../../static/t/edit_message/attachments_pane.html:21
