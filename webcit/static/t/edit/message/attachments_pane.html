@@ -6,9 +6,7 @@
 </a>
 <h2><img src="static/webcit_icons/essen/16x16/attachement.png">&nbsp;<?_("Attachments:")></h2>
 
-<!-- Fine Uploader JS
-====================================================================== -->
-<!--script src="/fineuploader.js"></script-->
+<?--("Fine Uploader JS")>
 <script type="text/javascript">
 function createUploader()
 {
@@ -18,9 +16,14 @@ function createUploader()
 		endpoint: "do_template?template=edit_message_json_attlist"
 	    },
 	    callbacks: {
-		onComplete: update_attachment_count,
-		delete: update_attachment_count,
-		deleteComplete: update_attachment_count
+		onComplete: function (id, xhr, isError) {
+		    console.log("Upload completed for fileid: " + id);
+		    update_attachment_count();
+		},
+		onDeleteComplete: function (id, xhr, isError) {
+		    console.log("Deletion completed for fileid: " + id);
+		    update_attachment_count();
+		}
 	    },
 	    element: document.getElementById('fine-uploader'),
 	    request: {
@@ -37,26 +40,20 @@ function createUploader()
   window.onload = createUploader;
 </script>
 
-<!-- Fine Uploader CSS
-====================================================================== -->
-<!--link href="/fineuploader.css" rel="stylesheet"-->
-
-<!-- Fine Uploader DOM Element
-====================================================================== -->
+<?--("the ploader will be rendered in this div:")>
 <div id="fine-uploader"></div>
 
-<!-- Fine Uploader template
-====================================================================== -->
+<?--("Fine Uploader template")>
 <script type="text/template" id="qq-template">
   <div class="qq-uploader-selector qq-uploader">
     <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
-      <span>Drop files here to upload</span>
+      <span><?_("Drop files here to upload")></span>
     </div>
     <div class="qq-upload-button-selector qq-upload-button">
-      <div>Upload a file</div>
+      <div><?_("Attach file")></div>
     </div>
     <span class="qq-drop-processing-selector qq-drop-processing">
-      <span>Processing dropped files...</span>
+      <span><?_("Processing dropped files...")></span>
       <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
     </span>
     <ul class="qq-upload-list-selector qq-upload-list">
@@ -69,56 +66,11 @@ function createUploader()
         <span class="qq-upload-file-selector qq-upload-file"></span>
         <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
         <span class="qq-upload-size-selector qq-upload-size"></span>
-        <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">Cancel</a>
-        <a class="qq-upload-retry-selector qq-upload-retry" href="#">Retry</a>
-        <a class="qq-upload-delete-selector qq-upload-delete" href="#">Delete</a>
+        <a class="qq-upload-cancel-selector qq-upload-cancel" href="#"><?_("Cancel")></a>
+        <a class="qq-upload-retry-selector qq-upload-retry" href="#"><?_("Retry")></a>
+        <a class="qq-upload-delete-selector qq-upload-delete" href="#"><?_("Remove")></a>
         <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
       </li>
     </ul>
   </div>
 </script>
-<!--
-	<a href="javascript:hide_attachments_form();">
-		<?_("Close window")>&nbsp;<img src="static/webcit_icons/closewindow.gif" border="0"></div>
-	</a>
-	<h2><img src="static/webcit_icons/essen/16x16/attachement.png">&nbsp;<?_("Attachments:")></h2>
-	<ul><?ITERATE("MSG:ATTACHNAMES", ="edit_message_section_attach_select")></ul>
-
-	<iframe id="upload_target" name="upload_target" src="" style="width:0;height:0;border:0">
-		(Hidden iFrame for uploads because ajax cannot handle files)
-	</iframe>
-
-	<form name="upload_attachment_form" id="upload_attachment_form" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="upload_attachment" target="upload_target">
-		<input type="hidden" name="nonce" value="<?NONCE>">
-		<div id="gonna_upload_this">
-			<input type="hidden" name="submit_action" value="">
-			<?_("Attach file:")>
-			<input name="attachfile" id="attachfile" class="attachfile" size=40 type="file" onChange="$('gonna_upload_this').style.display='none'; $('upload_throbber').style.display='block'; document.upload_attachment_form.submit(); $('attachfile').value=''; show_attachments_form(); update_attachment_count();">
-		</div>
-
-		<div id="upload_throbber" style="display:none">
-			<?_("Upload")>&nbsp;<img src="static/webcit_icons/throbber.gif" border="0">
-		</div>
-	</form>
-
--->
-
-<!--
-=================
-$("fileupload").observe("change",handleupload);
-
-function handleupload( e )
-{
-var el = e.findElement();
-new Ajax.Request("backend.php?uploadfile=1",{"method":"post","postBody":el.files[0],"onSuccess":returnupload});
-}
-
-backend.php
-=====================
-if(isset($_GET['uploadfile']))
-{
-$uploaded_file = file_get_contents("php://input");
-file_put_contents("/tmp/myfilename",$uploaded_file);
-} 
-
-!-->
