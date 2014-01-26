@@ -3916,8 +3916,8 @@ msgid "Your system administrator is"
 msgstr "Administratsioon"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Lisa manus:"
+msgid "Attach file"
+msgstr "Lisa manus"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

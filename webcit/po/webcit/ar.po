@@ -3884,7 +3884,7 @@ msgid "Your system administrator is"
 msgstr "اسم مدير النظام هو"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
+msgid "Attach file"
 msgstr "الملف المرفق"
 
 #: ../../static/t/edit_message/attachments_pane.html:21

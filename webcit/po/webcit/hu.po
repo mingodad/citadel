@@ -3942,8 +3942,8 @@ msgid "Your system administrator is"
 msgstr "Rendszergazda neve"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Fájl csatolása:"
+msgid "Attach file"
+msgstr "Fájl csatolása"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

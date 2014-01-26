@@ -3982,8 +3982,8 @@ msgid "Your system administrator is"
 msgstr "Nome dell'amministratore di sistema"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Allega file:"
+msgid "Attach file"
+msgstr "Allega file"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

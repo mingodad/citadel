@@ -3899,8 +3899,8 @@ msgid "Your system administrator is"
 msgstr "Администрация"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Вложить файл:"
+msgid "Attach file"
+msgstr "Вложить файл"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

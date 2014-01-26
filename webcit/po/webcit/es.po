@@ -3998,7 +3998,7 @@ msgid "Your system administrator is"
 msgstr "Nombre del administrador de sistema"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
+msgid "Attach file"
 msgstr "Adjuntar fichero"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
