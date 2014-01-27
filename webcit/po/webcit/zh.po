@@ -3869,8 +3869,8 @@ msgid "Your system administrator is"
 msgstr "系统管理员的名称 "
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "附加文件： "
+msgid "Attach file"
+msgstr "附加文件"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

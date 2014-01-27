@@ -1232,24 +1232,40 @@ void upload_attachment(void) {
 	long newnlen;
 	void *v;
 	wc_mime_attachment *att;
+	const StrBuf *Tmpl = sbstr("template");
+	const StrBuf *MimeType = NULL;
+	const StrBuf *UID;
 
+	begin_burst();
 	syslog(LOG_DEBUG, "upload_attachment()\n");
-	wc_printf("upload_attachment()<br>\n");
+	if (!Tmpl) wc_printf("upload_attachment()<br>\n");
 
 	if (WCC->upload_length <= 0) {
 		syslog(LOG_DEBUG, "ERROR no attachment was uploaded\n");
-		wc_printf("ERROR no attachment was uploaded<br>\n");
+		if (Tmpl)
+		{
+			putlbstr("UPLOAD_ERROR", 1);
+			MimeType = DoTemplate(SKEY(Tmpl), NULL, &NoCtx);
+		}
+		else      wc_printf("ERROR no attachment was uploaded<br>\n");
+		http_transmit_thing(ChrPtr(MimeType), 0);
+
 		return;
 	}
 
 	syslog(LOG_DEBUG, "Client is uploading %d bytes\n", WCC->upload_length);
-	wc_printf("Client is uploading %d bytes<br>\n", WCC->upload_length);
-	att = malloc(sizeof(wc_mime_attachment));
+	if (Tmpl) putlbstr("UPLOAD_LENGTH", WCC->upload_length);
+	else wc_printf("Client is uploading %d bytes<br>\n", WCC->upload_length);
+
+	att = (wc_mime_attachment*)malloc(sizeof(wc_mime_attachment));
 	memset(att, 0, sizeof(wc_mime_attachment ));
 	att->length = WCC->upload_length;
 	att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
 	att->FileName = NewStrBufDup(WCC->upload_filename);
-	
+	UID = SBSTR("qquuid");
+	if (UID)
+		att->PartNum = NewStrBufDup(UID);
+
 	if (WCC->attachments == NULL) {
 		WCC->attachments = NewHash(1, Flathash);
 	}
@@ -1284,6 +1300,9 @@ void upload_attachment(void) {
 	att->Data = WCC->upload;
 	WCC->upload = NULL;
 	WCC->upload_length = 0;
+	
+	if (Tmpl) MimeType = DoTemplate(SKEY(Tmpl), NULL, &NoCtx);
+	http_transmit_thing(ChrPtr(MimeType), 0);
 }
 
 
@@ -1300,26 +1319,35 @@ void remove_attachment(void) {
 	StrBuf *WhichAttachment;
 	HashPos *at;
 	long len;
+	int found=0;
 	const char *key;
 
 	WhichAttachment = NewStrBufDup(sbstr("which_attachment"));
+	if (ChrPtr(WhichAttachment)[0] == '/')
+		StrBufCutLeft(WhichAttachment, 1);
 	StrBufUnescape(WhichAttachment, 0);
 	at = GetNewHashPos(WCC->attachments, 0);
 	do {
+		vAtt = NULL;
 		GetHashPos(WCC->attachments, at, &len, &key, &vAtt);
-	
+
 		att = (wc_mime_attachment*) vAtt;
-		if ((att != NULL) && 
-		    (strcmp(ChrPtr(WhichAttachment), 
-			    ChrPtr(att->FileName)   ) == 0))
+		if ((att != NULL) &&
+		    (
+			    !strcmp(ChrPtr(WhichAttachment), ChrPtr(att->FileName)) ||
+		    ((att->PartNum != NULL) &&
+		     !strcmp(ChrPtr(WhichAttachment), ChrPtr(att->PartNum)))
+			    ))
 		{
 			DeleteEntryFromHash(WCC->attachments, at);
+			found=1;
 			break;
 		}
 	}
 	while (NextHashPos(WCC->attachments, at));
+
 	FreeStrBuf(&WhichAttachment);
-	wc_printf("remove_attachment() completed\n");
+	wc_printf("remove_attachment(%d) completed\n", found);
 }
 
 

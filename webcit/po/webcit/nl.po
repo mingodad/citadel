@@ -3961,8 +3961,8 @@ msgid "Your system administrator is"
 msgstr "Naam van de systeembeheerder"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Bijlage toevoegen:"
+msgid "Attach file"
+msgstr "Bijlage toevoegen"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

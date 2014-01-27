@@ -3940,8 +3940,8 @@ msgid "Your system administrator is"
 msgstr "Ihr Systemadministrator ist"
 
 #: ../../static/t/edit_message/attachments_pane.html:16
-msgid "Attach file:"
-msgstr "Datei anhängen:"
+msgid "Attach file"
+msgstr "Datei anhängen"
 
 #: ../../static/t/edit_message/attachments_pane.html:21
 msgid "Upload"

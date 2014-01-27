@@ -3,11 +3,8 @@
 <?ROOMBANNER>
 <div id="content">
 
-<div id="attachments_form">
-    <div id="loading">
-      <p><img src="static/webcit_icons/throbber.gif" alt=""></p>
-      <p><?_("Loading")></p>
-    </div>
+<div id="attachments_form" style="display:none">
+<?=("edit_message_attachments_pane")>
 </div>
 
 <div class="entmsg" id="entmsg"><form name="enterform" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="post">
@@ -164,17 +161,7 @@
 
 	function show_attachments_form() {
 		$('attachments_form').style.display = 'block';
-
-		p = 'template=edit_message_attachments_pane&r=' + CtdlRandomString();
-		new Ajax.Updater(
-			'attachments_form',
-			'do_template',
-			{
-				method: 'get',
-				parameters: p,
-				evalScripts: true
-			}
-		);
+		update_attachment_count();
 	}
 
 	function update_attachment_count() {
@@ -185,22 +172,6 @@
 			{
 				method: 'get',
 				parameters: p
-			}
-		);
-	}
-
-	function remove_attachment(which_one) {
-		p = 'which_attachment=' + which_one + '&r=' + CtdlRandomString();
-		new Ajax.Updater(
-			'gonna_upload_this',
-			'remove_attachment',
-			{
-				method: 'get',
-				parameters: p,
-				onComplete: function(){
-					show_attachments_form();
-					update_attachment_count();
-				}
 			}
 		);
 	}
