@@ -366,12 +366,20 @@ struct nntp_msglist nntp_fetch_msglist(struct ctdlroom *qrbuf) {
 
 
 
+enum {
+	NNTP_LIST_ACTIVE,
+	NNTP_LIST_ACTIVE_TIMES,
+	NNTP_LIST_DISTRIB_PATS,
+	NNTP_LIST_HEADERS,
+	NNTP_LIST_NEWSGROUPS,
+	NNTP_LIST_OVERVIEW_FMT
+};
 
 
 /*
- * Output a room name (newsgroup name) in the format required for LIST and NEWGROUPS command
+ * Output a room name (newsgroup name) in formats required for LIST and NEWGROUPS command
  */
-void output_roomname_in_list_format(struct ctdlroom *qrbuf) {
+void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format) {
 	char n_name[1024];
 	struct nntp_msglist nm;
 	long low_water_mark = 0;
@@ -384,8 +392,16 @@ void output_roomname_in_list_format(struct ctdlroom *qrbuf) {
 		high_water_mark = nm.msgnums[nm.num_msgs - 1];
 	}
 
-	// FIXME we have hardcoded "n" for "no posting allowed" -- fix when we add posting
-	cprintf("%s %ld %ld n\r\n", n_name, high_water_mark, low_water_mark);
+	switch(which_format) {
+	case NNTP_LIST_ACTIVE:
+		// FIXME we have hardcoded "n" for "no posting allowed" -- fix when we add posting
+		cprintf("%s %ld %ld n\r\n", n_name, high_water_mark, low_water_mark);
+		break;
+	case NNTP_LIST_NEWSGROUPS:
+		cprintf("%s %s\r\n", n_name, qrbuf->QRname);
+		break;
+	}
+
 	if (nm.msgnums != NULL) {
 		free(nm.msgnums);
 	}
@@ -413,7 +429,7 @@ void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 
 	if (ra & UA_KNOWN) {
 		if (qrbuf->QRgen >= thetime) {
-			output_roomname_in_list_format(qrbuf);
+			output_roomname_in_list_format(qrbuf, NNTP_LIST_ACTIVE);
 		}
 	}
 }
@@ -510,6 +526,10 @@ void nntp_command_loop(void)
 	else if (!strcasecmp(cmdname, "newgroups")) {
 		nntp_newgroups(ChrPtr(Cmd));
 	}
+
+	//else if (!strcasecmp(cmdname, "list")) {
+		//nntp_list(ChrPtr(Cmd));
+	//}
 
 	else {
 		cprintf("500 I'm afraid I can't do that.\r\n");
