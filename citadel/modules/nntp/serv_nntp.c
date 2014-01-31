@@ -385,7 +385,7 @@ void output_roomname_in_list_format(struct ctdlroom *qrbuf) {
 	}
 
 	// FIXME we have hardcoded "n" for "no posting allowed" -- fix when we add posting
-	cprintf("%s %ld %ld n\r\n", n_name, low_water_mark, high_water_mark);
+	cprintf("%s %ld %ld n\r\n", n_name, high_water_mark, low_water_mark);
 	if (nm.msgnums != NULL) {
 		free(nm.msgnums);
 	}
