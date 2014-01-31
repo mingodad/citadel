@@ -2082,7 +2082,7 @@ msgstr ""
 
 #: ../../i18n_templatelist.c:168
 msgid "Change"
-msgstr "Aendern
+msgstr "Ändern" 
 
 #: ../../i18n_templatelist.c:170 ../../i18n_templatelist.c:171
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
@@ -3629,7 +3629,7 @@ msgid ""
 "Re-sharing may stress your system and produce large spoolfiles that need to "
 "be transmitted; All messages in this room not originating from this node are "
 "re-spooled and re-sent with the next networker run."
-msgstr "Erneutes versenden kann das system belasten, und grosse Spool-Dateien generieren, 
+msgstr "Erneutes versenden kann das system belasten, und grosse Spool-Dateien generieren, "
 "die erneut versendet werden beim nächsten Netzwerkerlauf."
 
 #: ../../i18n_templatelist.c:628 ../../static/t/floors.html:4
