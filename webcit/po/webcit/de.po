@@ -821,7 +821,7 @@ msgstr "Iconbar einstellungen"
 
 #: ../../icontheme.c:173
 msgid "Icon Theme"
-msgstr ""
+msgstr "Icon Stiel"
 
 #: ../../inetconf.c:110 ../../inetconf.c:119 ../../inetconf.c:133
 #: ../../inetconf.c:159 ../../netconf.c:157 ../../netconf.c:184
@@ -1086,7 +1086,7 @@ msgstr "Blog"
 
 #: ../../roomviews.c:64
 msgid "Markdown Wiki"
-msgstr ""
+msgstr "Markdown Wiki"
 
 #: ../../serv_func.c:193
 msgid ""
@@ -1647,9 +1647,8 @@ msgstr "Netzwerkdienste"
 
 #: ../../i18n_templatelist.c:74
 #: ../../static/t/aide/siteconfig/tab_setting.html:7
-#, fuzzy
 msgid "Server IP address (0.0.0.0 for 'any' IPV4, * for all including IPV6)"
-msgstr "Server-IP-Adresse (0.0.0.0 um alle zu binden)"
+msgstr "Server-IP-Adresse (0.0.0.0 um alle IPV4, * um alle plus IPV6 zu binden)"
 
 #: ../../i18n_templatelist.c:75
 #: ../../static/t/aide/siteconfig/tab_setting.html:10
@@ -1758,7 +1757,6 @@ msgid "Personal (mailbox for you only)"
 msgstr "Persönlich (Briefkasten, nur für Sie)"
 
 #: ../../i18n_templatelist.c:95
-#, fuzzy
 msgid "Create new room"
 msgstr "Einen neuen Raum erzeugen"
 
@@ -1787,7 +1785,6 @@ msgid "will disappear from your room list.  Is this what you wish to do?"
 msgstr "aus der Raumliste verschwinden. Wollen Sie das wirklich tun?"
 
 #: ../../i18n_templatelist.c:102
-#, fuzzy
 msgid "Zap this room"
 msgstr "Raum weglassen"
 
@@ -1864,7 +1861,9 @@ msgid ""
 "Messenger window failed to open.  This is probably because you have a popup "
 "blocker installed.  Please configure your popup blocker to allow popups from "
 "this site if you wish to receive instant messages."
-msgstr ""
+msgstr "Es warten eine oder mehrere Kurznachrichten, aber das Citadel Nachrichtenfenster"
+"hat sich nicht geöffnet. Eventuell blockiert ihr Browser Popups. Bitte erlauben"
+" sie das Citadel Nachrichtenfenster im Popupblocker um Kurznachrichten zu empfangen."
 
 #: ../../i18n_templatelist.c:121 ../../static/t/menu/your_info.html:2
 msgid "Change your preferences and settings"
@@ -1903,7 +1902,7 @@ msgstr "openID's bearbeiten"
 
 #: ../../i18n_templatelist.c:129 ../../static/t/aide/display_logstatus.html:4
 msgid "Temporarily enable debug logging for components"
-msgstr ""
+msgstr "Temporär debug loggen von Komponenten einschalten"
 
 #: ../../i18n_templatelist.c:130 ../../static/t/aide/display_logstatus.html:13
 msgid ""
@@ -1911,11 +1910,14 @@ msgid ""
 "citserver process. The setting is non-restart permanent. If you want it to "
 "be enabled permanently add it to the CITADEL_LOGDEBUG environment variable "
 "in your init script."
-msgstr ""
+msgstr "Dieses Formular erlaubt es, einzelne Komponenten des Citserverprozesses "
+"zur Fehlersuche verbos zu schalten. Die Einstellung ist nicht neustart fest."
+"Um es permanent einzuschalten, fügen sie es zu der CITADEL_LOGDEBUG Umgebungsvariable "
+"im citadel Initscript hinzu."
 
 #: ../../i18n_templatelist.c:131
 msgid "The citadel server has to be restarted. It will be back in a minute."
-msgstr ""
+msgstr "Der Citadelserver muss neu gestartet werden. Er wird sofort wieder da sein."
 
 #: ../../i18n_templatelist.c:132 ../../i18n_templatelist.c:987
 #: ../../static/t/view_message/inline_attach.html:4
@@ -1969,9 +1971,8 @@ msgid "Enter room password:"
 msgstr "Raumpasswort eingeben:"
 
 #: ../../i18n_templatelist.c:144
-#, fuzzy
 msgid "Go there"
-msgstr "an dem "
+msgstr "Dahin gehen"
 
 #: ../../i18n_templatelist.c:146 ../../i18n_templatelist.c:313
 #: ../../i18n_templatelist.c:314 ../../i18n_templatelist.c:405
@@ -2081,7 +2082,7 @@ msgstr ""
 
 #: ../../i18n_templatelist.c:168
 msgid "Change"
-msgstr ""
+msgstr "Aendern
 
 #: ../../i18n_templatelist.c:170 ../../i18n_templatelist.c:171
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
@@ -2202,41 +2203,41 @@ msgstr "Diese Seite neu laden"
 
 #: ../../i18n_templatelist.c:203 ../../static/t/view_mailq/header.html:20
 msgid "HINT"
-msgstr ""
+msgstr "HINWEIS"
 
 #: ../../i18n_templatelist.c:204 ../../static/t/view_mailq/header.html:21
 msgid ""
 "Citadel reattempts sending mail per interval; it starts at 60 second, and "
 "doubles each time. You can however bypass this mechanism once; all messages "
 "will be reattempted on the next queue run."
-msgstr ""
+msgstr "Citadel versucht Mails in Intervallen erneut zuzustellen; Die "
+"Intervalle beginnen mit 60 sekunden und verdoppeln sich jedes mal; Wie auch "
+"immer, dieser Mechanismus kann einmal ausgesetzt werden und alle in der "
+"Warteschlange befindlichen Nachrichten werden sofort versucht erneut zu versenden."
 
 #: ../../i18n_templatelist.c:205 ../../static/t/view_mailq/header.html:22
 msgid "OK, got you, lets go!"
-msgstr ""
+msgstr "OK, habs verstanden, auf gehts!"
 
 #: ../../i18n_templatelist.c:206 ../../static/t/view_mailq/header.html:29
 msgid "Reschedule all messages for delivery on next queue run"
-msgstr ""
+msgstr "Alle Nachrichten beim nächsten Lauf erneut versuchen"
 
 #: ../../i18n_templatelist.c:207 ../../static/t/view_mailq/header.html:35
 msgid "Currently active mail delivery jobs"
-msgstr ""
+msgstr "Momentan Aktive mail versand Aufträge"
 
 #: ../../i18n_templatelist.c:208 ../../static/t/view_mailq/header.html:36
-#, fuzzy
 msgid "Remote Sites:"
-msgstr "POP3 Server"
+msgstr "Entfernter Server"
 
 #: ../../i18n_templatelist.c:209 ../../static/t/view_mailq/header.html:37
-#, fuzzy
 msgid "Status:"
-msgstr "Bundesland:"
+msgstr "Status:"
 
 #: ../../i18n_templatelist.c:210 ../../static/t/view_mailq/header.html:45
-#, fuzzy
 msgid "Jobs waiting for further processing:"
-msgstr "weiter Bearbeiten"
+msgstr "Jobs, die auf erneuten Versand warten:"
 
 #: ../../i18n_templatelist.c:212
 #: ../../static/t/aide/display_serverrestart_page.html:4
@@ -2350,10 +2351,9 @@ msgstr "Vorgabe Zeitzone für Kalendereinträge ohne Zeitzone"
 
 #: ../../i18n_templatelist.c:234
 msgid "Has Files"
-msgstr ""
+msgstr "Hat Dateien"
 
 #: ../../i18n_templatelist.c:235
-#, fuzzy
 msgid "Networked Room"
 msgstr "Netzwerk öffentlicher Raum"
 
@@ -2383,9 +2383,8 @@ msgid "Port number"
 msgstr "Portnummer"
 
 #: ../../i18n_templatelist.c:241
-#, fuzzy
 msgid "Add node?"
-msgstr "Neuen Knoten hinzufügen"
+msgstr "Knoten hinzufügen?"
 
 #: ../../i18n_templatelist.c:243 ../../i18n_templatelist.c:262
 #: ../../static/t/who/activesmtpsessions_one.html:13
@@ -2395,31 +2394,27 @@ msgstr "(beenden)"
 
 #: ../../i18n_templatelist.c:244 ../../i18n_templatelist.c:433
 #: ../../static/t/who/section.html:5
-#, fuzzy
 msgid "Edit configuration"
-msgstr "Standortskonfiguration"
+msgstr "Konfiguration Bearbeiten"
 
 #: ../../i18n_templatelist.c:245 ../../i18n_templatelist.c:434
 #: ../../static/t/who/section.html:6
-#, fuzzy
 msgid "Edit address book entry"
-msgstr "Dieses Adressbuch ist leer."
+msgstr "Adressbuch Eintrag bearbeiten."
 
 #: ../../i18n_templatelist.c:248 ../../i18n_templatelist.c:250
 #: ../../i18n_templatelist.c:836
 msgid "idle since"
-msgstr ""
+msgstr "inaktiv seit"
 
 #: ../../i18n_templatelist.c:249 ../../i18n_templatelist.c:251
 #: ../../i18n_templatelist.c:837
-#, fuzzy
 msgid "Minutes"
 msgstr "Minuten"
 
 #: ../../i18n_templatelist.c:252 ../../i18n_templatelist.c:838
-#, fuzzy
 msgid "active"
-msgstr "Vorläufig"
+msgstr "aktiv"
 
 #: ../../i18n_templatelist.c:255 ../../static/t/aide/ignetconf/section.html:4
 msgid "(Edit)"
@@ -2474,9 +2469,8 @@ msgid "(hosts running the ClamAV clamd service)"
 msgstr "(Maschine, auf der Ihr ClamAV läuft)"
 
 #: ../../i18n_templatelist.c:270
-#, fuzzy
 msgid "Send"
-msgstr "Absender"
+msgstr "Absenden"
 
 #: ../../i18n_templatelist.c:271
 #: ../../static/t/aide/display_serverrestart.html:26
@@ -2536,14 +2530,12 @@ msgstr "Anhänge:"
 
 #: ../../i18n_templatelist.c:298 ../../i18n_templatelist.c:494
 #: ../../i18n_templatelist.c:896
-#, fuzzy
 msgid "Delete this message?"
-msgstr "Raum löschen"
+msgstr "Diesen Raum löschen"
 
 #: ../../i18n_templatelist.c:300
-#, fuzzy
 msgid "Room Logo"
-msgstr "Raumlisten Anzeige"
+msgstr "Raum Logo"
 
 #: ../../i18n_templatelist.c:301 ../../static/t/searchomatic.html:4
 msgid "Search: "
@@ -2579,9 +2571,8 @@ msgid "Click here to send an instant message to"
 msgstr "Hier klicken zum senden einer Kurznachricht an"
 
 #: ../../i18n_templatelist.c:308
-#, fuzzy
 msgid "Pictures in"
-msgstr "Nur Bilder"
+msgstr "Bilder in"
 
 #: ../../i18n_templatelist.c:309 ../../static/t/aide/edituser/select.html:5
 msgid "Edit or delete users"
@@ -2661,7 +2652,7 @@ msgstr "Bitte gebe den Benutzernamen ein den du verwenden willst."
 
 #: ../../i18n_templatelist.c:342
 msgid "Exit"
-msgstr ""
+msgstr "Beenden"
 
 #: ../../i18n_templatelist.c:343 ../../static/t/room/edit/tab_expire.html:9
 msgid "Message expire policy for this room"
@@ -2725,47 +2716,45 @@ msgstr "Fenster schließen"
 #: ../../i18n_templatelist.c:360
 #, c-format
 msgid "{percent}% of {total_size}"
-msgstr ""
+msgstr "{percent}% von {total_size}"
 
 #: ../../i18n_templatelist.c:361
-#, fuzzy
 msgid "Upload failed"
-msgstr "Eine Datei hochladen:"
+msgstr "Datei hochladen fehlgeschlagen"
 
 #: ../../i18n_templatelist.c:362
 msgid "Processing..."
-msgstr ""
+msgstr "Bearbeite..."
 
 #: ../../i18n_templatelist.c:363
 msgid "Paused"
-msgstr ""
+msgstr "Pausiert"
 
 #: ../../i18n_templatelist.c:364
 msgid "You may only drop one file."
-msgstr ""
+msgstr "Es kann nur eine Datei auf einmal gedropt werden"
 
 #: ../../i18n_templatelist.c:365
 msgid ""
 "Unrecoverable error - the browser does not permit uploading of any kind."
-msgstr ""
+msgstr "Fataler Fehler - der Browser unterstützt Datei hochladen nicht."
 
 #: ../../i18n_templatelist.c:366
-#, fuzzy
 msgid "Are you shure you want to delete {filename}?"
-msgstr "wirklich löschen? "
+msgstr "Soll {filename} wirklich gelöscht werden? "
 
 #: ../../i18n_templatelist.c:367
 msgid "failed to delete {filename}!"
-msgstr ""
+msgstr "Löschen von {filename} fehlgeschlagen"
 
 #: ../../i18n_templatelist.c:368
 msgid "deleting {filename}"
-msgstr ""
+msgstr "Lösche {filename}"
 
 #: ../../i18n_templatelist.c:369
 #: ../../static/t/edit/message/attachments_pane.html:63
 msgid "Drop files here to upload"
-msgstr ""
+msgstr "Dateien zum Hochladen hier fallen lassen"
 
 #: ../../i18n_templatelist.c:370
 #: ../../static/t/edit/message/attachments_pane.html:66
@@ -2775,12 +2764,12 @@ msgstr "Datei anhängen"
 #: ../../i18n_templatelist.c:371
 #: ../../static/t/edit/message/attachments_pane.html:69
 msgid "Processing dropped files..."
-msgstr ""
+msgstr "Lade Dateien hoch..."
 
 #: ../../i18n_templatelist.c:373
 #: ../../static/t/edit/message/attachments_pane.html:83
 msgid "Retry"
-msgstr ""
+msgstr "Erneut versuchen"
 
 #: ../../i18n_templatelist.c:374
 #: ../../static/t/edit/message/attachments_pane.html:84
@@ -2949,7 +2938,7 @@ msgstr ""
 
 #: ../../i18n_templatelist.c:423
 msgid "Kick"
-msgstr ""
+msgstr "Rauswerfen"
 
 #: ../../i18n_templatelist.c:424 ../../static/t/room/edit/tab_access.html:21
 msgid ""
@@ -2964,24 +2953,21 @@ msgid "Invite:"
 msgstr "Einladen:"
 
 #: ../../i18n_templatelist.c:426
-#, fuzzy
 msgid "Invite"
-msgstr "Einladen:"
+msgstr "Einladen"
 
 #: ../../i18n_templatelist.c:427
-#, fuzzy
 msgid "User"
-msgstr "Benutzerliste"
+msgstr "Benutzer"
 
 #: ../../i18n_templatelist.c:428 ../../i18n_templatelist.c:430
 #: ../../static/t/room/edit/tab_access.html:37
 msgid "Users"
-msgstr "Benutzerliste"
+msgstr "Benutzer"
 
 #: ../../i18n_templatelist.c:429 ../../i18n_templatelist.c:849
-#, fuzzy
 msgid "Addressbook Popup"
-msgstr "Adressbuch"
+msgstr "Adressbuch Popup"
 
 #: ../../i18n_templatelist.c:432
 #: ../../static/t/aide/edituser/box_select.html:1
@@ -2993,19 +2979,16 @@ msgstr ""
 "'Bearbeiten' Klicken"
 
 #: ../../i18n_templatelist.c:435
-#, fuzzy
 msgid "Delete user"
-msgstr "Regel löschen"
+msgstr "Benutzer löschen"
 
 #: ../../i18n_templatelist.c:436
-#, fuzzy
 msgid "Delete this user?"
-msgstr "Dieses Script löschen?"
+msgstr "Diesen Benutzer löschen?"
 
 #: ../../i18n_templatelist.c:437
-#, fuzzy
 msgid "Delete File"
-msgstr "Regel löschen"
+msgstr "Datei löschen"
 
 #: ../../i18n_templatelist.c:438 ../../static/t/files/section_onefile.html:20
 msgid "Slideshow"
@@ -3018,22 +3001,18 @@ msgstr "(Maschine, auf der Ihr SpamAssassin läuft)"
 #: ../../i18n_templatelist.c:442
 #: ../../static/t/ical/attachment/display_conflict.html:5
 msgid "This is an update of"
-msgstr ""
+msgstr "Dies ist eine Änderung von"
 
 #: ../../i18n_templatelist.c:443 ../../i18n_templatelist.c:445
 #: ../../static/t/ical/attachment/display_conflict.html:5
 #: ../../static/t/ical/attachment/display_conflict.html:6
-#, fuzzy
 msgid "which is already in your calendar."
-msgstr "Die Änderung '%s', existiert bereits Ihrem Kalender ist."
+msgstr "überlappen, der bereits in Ihrem Kalender ist."
 
 #: ../../i18n_templatelist.c:444
 #: ../../static/t/ical/attachment/display_conflict.html:6
-#, fuzzy
 msgid "This event would conflict with"
-msgstr ""
-"Dieser Termin würde mit '%s' kollidieren, der bereits in Ihrem Kalender "
-"vorgemerkt ist."
+msgstr "Dieser Termin würde mit"
 
 #: ../../i18n_templatelist.c:447 ../../static/t/sieve/list.html:41
 msgid "When new mail arrives: "
@@ -3129,14 +3108,13 @@ msgstr "Alle vergessenen Räume auflisten"
 
 #: ../../i18n_templatelist.c:470
 #: ../../static/t/menu/advanced_roomcommands.html:9
-#, fuzzy
 msgid "Zap duplicate messages"
-msgstr "Aktualisieren"
+msgstr "Doppelte Nachrichten Entfernen"
 
 #: ../../i18n_templatelist.c:471
 #: ../../static/t/menu/advanced_roomcommands.html:9
 msgid "(Messages of similar subject, sender and date are moved to trash)"
-msgstr ""
+msgstr "(Meldungen mit gleichem Betreff, Absender und Datum werden in den Papierkorb verschoben)"
 
 #: ../../i18n_templatelist.c:472 ../../static/t/view_mailq/table.html:4
 msgid "Message ID"
@@ -3220,19 +3198,17 @@ msgstr "Die Replikation mit anderen Citadel-Servern konfigurieren"
 
 #: ../../i18n_templatelist.c:501 ../../static/t/aide/global_config.html:5
 msgid "Enable/Disable logging of the server components"
-msgstr ""
+msgstr "Ein/Ausschalten des loggens von Serverkomponenten"
 
 #: ../../i18n_templatelist.c:503
-#, fuzzy
 msgid "Powered by Citadel"
-msgstr "Das 'Powered by Citadel'-Logo anzeigen"
+msgstr "Betrieben mit Citadel"
 
 #: ../../i18n_templatelist.c:504 ../../static/t/iconbar.html:7
 msgid "Language:"
 msgstr "Sprache:"
 
 #: ../../i18n_templatelist.c:507
-#, fuzzy
 msgid "Go to your email inbox"
 msgstr "Eine Abkürzung zu Ihrem Posteingang"
 
@@ -3241,33 +3217,28 @@ msgid "Mail"
 msgstr "Posteingang"
 
 #: ../../i18n_templatelist.c:509
-#, fuzzy
 msgid "Go to your personal calendar"
 msgstr "Eine Abkürzung zu Ihrem Kalender"
 
 #: ../../i18n_templatelist.c:511
-#, fuzzy
 msgid "Go to your personal address book"
-msgstr "Ihr eigenes Adressbuch"
+msgstr "Eine Abkürzung zu Ihrem eigenen Adressbuch"
 
 #: ../../i18n_templatelist.c:513
-#, fuzzy
 msgid "Go to your personal notes"
-msgstr "Ihre Notizen"
+msgstr "Eine Abkürzung zu Ihren Notizen"
 
 #: ../../i18n_templatelist.c:515
-#, fuzzy
 msgid "Go to your personal task list"
 msgstr "Eine Abkürzung zu Ihrer Aufgabenliste"
 
 #: ../../i18n_templatelist.c:517
-#, fuzzy
 msgid "List all your accessible rooms"
-msgstr "Alle vergessenen Räume auflisten"
+msgstr "Alle zugänglichen Räume auflisten"
 
 #: ../../i18n_templatelist.c:520
 msgid "See who is online right now"
-msgstr ""
+msgstr "Sehen, wer grade angemeldet ist"
 
 #: ../../i18n_templatelist.c:521 ../../static/t/iconbar.html:57
 msgid "Online users"
@@ -3275,16 +3246,15 @@ msgstr "Angemeldete Benutzer"
 
 #: ../../i18n_templatelist.c:524
 msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr ""
+msgstr "Erweiterte Optionen Menü: Erweiterte Raum Kommandos, Konto Informationen, und Chat"
 
 #: ../../i18n_templatelist.c:525 ../../static/t/iconbar.html:65
 msgid "Advanced"
 msgstr "Erweitert"
 
 #: ../../i18n_templatelist.c:526
-#, fuzzy
 msgid "Room and system administration functions"
-msgstr "Ihr Systemadministrator ist"
+msgstr "Raum und Systemadministrator Funktionen"
 
 #: ../../i18n_templatelist.c:530 ../../static/t/iconbar.html:83
 msgid "customize this menu"
@@ -3316,7 +3286,7 @@ msgstr "Meine Ordner"
 #: ../../i18n_templatelist.c:536
 #: ../../static/t/aide/siteconfig/tab_imap.html:1
 msgid "IMAP"
-msgstr ""
+msgstr "IMAP"
 
 #: ../../i18n_templatelist.c:538
 #: ../../static/t/aide/siteconfig/tab_imap.html:5
@@ -3594,9 +3564,8 @@ msgid "Room aide: "
 msgstr "Raumverantwortlicher: "
 
 #: ../../i18n_templatelist.c:611
-#, fuzzy
 msgid "Delete this entry?"
-msgstr "Raum löschen"
+msgstr "Diesen Eintrag löschen"
 
 #: ../../i18n_templatelist.c:613 ../../static/t/room/edit/tab_share.html:5
 msgid "Not shared with"
@@ -3625,7 +3594,6 @@ msgid "Actions"
 msgstr "Aktionen"
 
 #: ../../i18n_templatelist.c:622 ../../static/t/room/edit/tab_share.html:36
-#, fuzzy
 msgid ""
 "When sharing a room, it must be shared from both ends.  Adding a node to the "
 "'shared' list sends messages out, but in order to receive messages, the "
@@ -3644,25 +3612,25 @@ msgstr ""
 msgid ""
 "If the remote room name is blank, it is assumed that the room name is "
 "identical on the remote node."
-msgstr ""
+msgstr "Wenn der entfernte Raumname leer ist, wird angenommen das er mit dem lokalen Namen identisch ist."
 
 #: ../../i18n_templatelist.c:624 ../../static/t/room/edit/tab_share.html:40
 msgid ""
 "If the remote room name is different, the remote node must also configure "
 "the name of the room here."
-msgstr ""
+msgstr "Wenn der entfernte Raumname anders ist, muss er auch hier konfiguriert werden."
 
 #: ../../i18n_templatelist.c:625 ../../i18n_templatelist.c:712
-#, fuzzy
 msgid "resend messages to this node"
-msgstr "Mails auf dem Server belassen?"
+msgstr "Nachrichten erneut zum entfernten Knoten versenden"
 
 #: ../../i18n_templatelist.c:626 ../../static/t/room/edit/tab_share.html:42
 msgid ""
 "Re-sharing may stress your system and produce large spoolfiles that need to "
 "be transmitted; All messages in this room not originating from this node are "
 "re-spooled and re-sent with the next networker run."
-msgstr ""
+msgstr "Erneutes versenden kann das system belasten, und grosse Spool-Dateien generieren, 
+"die erneut versendet werden beim nächsten Netzwerkerlauf."
 
 #: ../../i18n_templatelist.c:628 ../../static/t/floors.html:4
 msgid "Add/change/delete floors"
@@ -3685,9 +3653,8 @@ msgid "Floor CSS"
 msgstr "Etagen CSS"
 
 #: ../../i18n_templatelist.c:633
-#, fuzzy
 msgid "Create new floor"
-msgstr "Einen neuen Raum erzeugen"
+msgstr "Einen neuen Flur erzeugen"
 
 #: ../../i18n_templatelist.c:634
 msgid "Move rule up"
@@ -3856,17 +3823,16 @@ msgid "(edit graphic)"
 msgstr "(Bild verändern)"
 
 #: ../../i18n_templatelist.c:679
-#, fuzzy
 msgid "Change name"
-msgstr "Raumnamen ändern"
+msgstr "Namen ändern"
 
 #: ../../i18n_templatelist.c:680
 msgid "Change CSS"
-msgstr ""
+msgstr "CSS Wechseln"
 
 #: ../../i18n_templatelist.c:681 ../../static/t/addressbook/namelist.html:4
 msgid "Add:"
-msgstr ""
+msgstr "Hinzufügen:"
 
 #: ../../i18n_templatelist.c:682
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:1
@@ -3912,9 +3878,8 @@ msgid "Default room purge time (days)"
 msgstr "Automatische Raumlöschung nach (Tage)"
 
 #: ../../i18n_templatelist.c:700
-#, fuzzy
 msgid "Are you sure you want to delete this room?"
-msgstr "wirklich löschen? "
+msgstr "Soll dieser Raum wirklich gelöscht werden? "
 
 #: ../../i18n_templatelist.c:701 ../../static/t/room/edit/tab_admin.html:5
 msgid "Delete this room"
@@ -3960,13 +3925,12 @@ msgid "Detected host header is "
 msgstr "Der gefundene Host Header ist "
 
 #: ../../i18n_templatelist.c:709
-#, fuzzy
 msgid "Send command"
-msgstr "Kommando eingeben:"
+msgstr "Kommando senden"
 
 #: ../../i18n_templatelist.c:711
 msgid "Unshare"
-msgstr ""
+msgstr "Teilen wiederrufen"
 
 #: ../../i18n_templatelist.c:713 ../../static/t/aide/inet/rbldns.html:2
 msgid "(hosts running a Realtime Blackhole List)"
@@ -4088,9 +4052,8 @@ msgid "View as:"
 msgstr "Anzeigen als:"
 
 #: ../../i18n_templatelist.c:753
-#, fuzzy
 msgid "Delete this note?"
-msgstr "Raum löschen"
+msgstr "Diese Notiz löschen"
 
 #: ../../i18n_templatelist.c:757 ../../static/t/loggedinas.html:3
 msgid "Logged in as"
@@ -4260,7 +4223,7 @@ msgstr "betrieben mit"
 #: ../../i18n_templatelist.c:808
 #: ../../static/t/aide/siteconfig/tab_smtp.html:1
 msgid "SMTP-Servers"
-msgstr ""
+msgstr "SMTP-Server"
 
 #: ../../i18n_templatelist.c:810
 #: ../../static/t/aide/siteconfig/tab_smtp.html:5
@@ -4302,22 +4265,22 @@ msgstr "'From:' -Kopfzeilen bei authentifizierten SMTP korrigieren"
 #: ../../i18n_templatelist.c:817
 #: ../../static/t/aide/siteconfig/tab_smtp.html:27
 msgid "No, allow any address in the From: header"
-msgstr ""
+msgstr "Nein, erlaube alle Addressen in der Von:-Kopfzeile"
 
 #: ../../i18n_templatelist.c:818
 #: ../../static/t/aide/siteconfig/tab_smtp.html:30
 msgid "Only change the From: header if the address is not valid for the user"
-msgstr ""
+msgstr "Die Von:-Kopfzeile nur verändern wenn sie nicht zu dem Benutzer gehört"
 
 #: ../../i18n_templatelist.c:819
 #: ../../static/t/aide/siteconfig/tab_smtp.html:33
 msgid "Yes, always place the user's primary email address in the From: header"
-msgstr ""
+msgstr "Ja, immer des Benutzers primäre E-Mail Addresse in der Von:-Kopfzeile einsetzen."
 
 #: ../../i18n_templatelist.c:820
 #: ../../static/t/aide/siteconfig/tab_smtp.html:36
 msgid "No, REJECT messages containing an invalid From: header"
-msgstr ""
+msgstr "Nein, Nachrichten mit ungültigen Von:-Kopfzeilen ZURÜCKWEISEN"
 
 #: ../../i18n_templatelist.c:821
 #: ../../static/t/aide/siteconfig/tab_smtp.html:43
@@ -4346,19 +4309,18 @@ msgstr "Allgemein"
 
 #: ../../i18n_templatelist.c:827
 #: ../../static/t/aide/display_sitewide_config.html:14
-#, fuzzy
 msgid "Settings"
-msgstr "Iconbar einstellungen"
+msgstr "Einstellungen"
 
 #: ../../i18n_templatelist.c:828
 #: ../../static/t/aide/display_sitewide_config.html:15
 msgid "SMTP"
-msgstr ""
+msgstr "SMTP"
 
 #: ../../i18n_templatelist.c:829
 #: ../../static/t/aide/display_sitewide_config.html:16
 msgid "IMAP4"
-msgstr ""
+msgstr "IMAP4"
 
 #: ../../i18n_templatelist.c:830
 #: ../../static/t/aide/display_sitewide_config.html:17
@@ -4403,7 +4365,7 @@ msgstr ""
 
 #: ../../i18n_templatelist.c:843 ../../static/t/room/edit/tab_listserv.html:43
 msgid "Posts to this room will be sent to these mailing lists"
-msgstr ""
+msgstr "Nachrichten in diesem Raum werden an diese Mailinglisten versendet"
 
 #: ../../i18n_templatelist.c:844 ../../static/t/room/edit/tab_listserv.html:44
 msgid ""
@@ -4411,15 +4373,18 @@ msgid ""
 "addresses. If you link this with mailinglist subscriptions, make shure the "
 "default sender address below matches the subscribed address. You will see "
 "your messages twice once the mailinglist sends it back to you."
-msgstr ""
+msgstr "Alle Nachrichten, die in diesen Raum geschrieben/gesendet werden an"
+"diese E-Mail Addresse gesendet. Wenn dies mit einer Mailinglisten Abbonement"
+" verbunden wird, sollte sichergestellt sein, das die unten konfigurierte "
+"Absenderaddresse mit der Abbonementsaddresse übereinstimmt. Die Nachrichten "
+"werden zwei mal zu sehen sein: Einmal das Orginal, Einmal die versendete Nachricht "
+"der Mailingliste."
 
 #: ../../i18n_templatelist.c:846
-#, fuzzy
 msgid "List"
-msgstr "Listen-ID"
+msgstr "Liste"
 
 #: ../../i18n_templatelist.c:847
-#, fuzzy
 msgid "Digest"
 msgstr "Digest-Format"
 
@@ -4447,27 +4412,26 @@ msgstr "Die URL zum Ab-/Bestellen lautet: "
 #: ../../i18n_templatelist.c:856
 #: ../../static/t/room/edit/tab_listserv.html:110
 msgid "Which from address should be used: "
-msgstr ""
+msgstr "Welche Absederaddresse soll verwendet werden: "
 
 #: ../../i18n_templatelist.c:857
 #: ../../static/t/room/edit/tab_listserv.html:123
 msgid "none (not advised)"
-msgstr ""
+msgstr "keine (nicht empfohlen)"
 
 #: ../../i18n_templatelist.c:858
-#, fuzzy
 msgid "Set"
-msgstr "Betreff"
+msgstr "Setzen"
 
 #: ../../i18n_templatelist.c:859
 #: ../../static/t/room/edit/tab_listserv.html:135
 msgid "Alternative public emailaddresses pointing to this room: "
-msgstr ""
+msgstr "Weitere öffentliche Emailaddressen die in diesen Raum ausgeliefert werden:"
 
 #: ../../i18n_templatelist.c:860
 #: ../../static/t/room/edit/tab_listserv.html:150
 msgid "All Domains"
-msgstr ""
+msgstr "Alle Domänen"
 
 #: ../../i18n_templatelist.c:862 ../../static/t/summary/page.html:4
 msgid "Summary page for "
@@ -4514,9 +4478,8 @@ msgid "Your system administrator is"
 msgstr "Ihr Systemadministrator ist"
 
 #: ../../i18n_templatelist.c:874
-#, fuzzy
 msgid "Do you really want to kill this session?"
-msgstr "Wollen Sie diese OpenID wirklich löschen?"
+msgstr "Wollen Sie diese Sitzung wirklich beenden?"
 
 #: ../../i18n_templatelist.c:875 ../../static/t/who.html:13
 msgid "Users currently on "
@@ -4539,7 +4502,6 @@ msgid "New messages"
 msgstr "Neue Nachrichten"
 
 #: ../../i18n_templatelist.c:880
-#, fuzzy
 msgid "Share"
 msgstr "Teilen"
 
@@ -4596,7 +4558,7 @@ msgstr "Benutzernamen ändern"
 
 #: ../../i18n_templatelist.c:917
 msgid "(INBOX)"
-msgstr ""
+msgstr "(POSTEINGANG)"
 
 #: ../../i18n_templatelist.c:920 ../../static/t/wiki/history.html:1
 msgid "History of edits for this page"
@@ -4778,7 +4740,7 @@ msgstr "Neuer Blog-Beitrag"
 #: ../../i18n_templatelist.c:982
 msgid ""
 "Leave all messages marked as unread, go to next room with unread messages"
-msgstr ""
+msgstr "Alle Nachrichten wieder ungelesen markieren, in den nächsten Raum mit neuen Nachrichten gehen"
 
 #: ../../i18n_templatelist.c:983 ../../static/t/navbar.html:185
 msgid "Skip this room"
@@ -4786,16 +4748,15 @@ msgstr "Raum weglassen"
 
 #: ../../i18n_templatelist.c:984
 msgid "Mark all messages as read, go to next room with unread messages"
-msgstr ""
+msgstr "Alle Nachrichten als gelesen markieren, und in den nächsten Raum mit neuen Nachrichten gehen"
 
 #: ../../i18n_templatelist.c:986 ../../static/t/navbar.html:196
 msgid "Resend Mailqueue now"
-msgstr ""
+msgstr "Mail Warteschlange erneut versenden"
 
 #: ../../i18n_templatelist.c:995
-#, fuzzy
 msgid "Save changes?"
-msgstr "Änderungen übernehmen"
+msgstr "Änderungen übernehmen?"
 
 #~ msgid ""
 #~ "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
