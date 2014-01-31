@@ -335,13 +335,58 @@ void nntp_authinfo(const char *cmd) {
 }
 
 
+struct nntp_msglist {
+	int num_msgs;
+	long *msgnums;
+};
+
+
+/*
+ * Utility function to fetch the current list of message numbers in a room
+ */
+struct nntp_msglist nntp_fetch_msglist(struct ctdlroom *qrbuf) {
+	struct nntp_msglist nm;
+	struct cdbdata *cdbfr;
+
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		nm.msgnums = (long*)cdbfr->ptr;
+		cdbfr->ptr = NULL;
+		nm.num_msgs = cdbfr->len / sizeof(long);
+		cdbfr->len = 0;
+		cdb_free(cdbfr);
+	} else {
+		nm.num_msgs = 0;
+		nm.msgnums = NULL;
+	}
+	return(nm);
+}
+
+
+
+
+
 
 /* FIXME not finished need to add water marks
  */
 void output_roomname_in_list_active_format(struct ctdlroom *qrbuf) {
 	char n_name[1024];
+	struct nntp_msglist nm;
+	long low_water_mark = 0;
+	long high_water_mark = 0;
+
 	room_to_newsgroup(n_name, qrbuf->QRname, sizeof n_name);
-	cprintf("%s\r\n", n_name);
+	nm = nntp_fetch_msglist(qrbuf);
+	if ((nm.num_msgs > 0) && (nm.msgnums != NULL)) {
+		low_water_mark = nm.msgnums[0];
+		high_water_mark = nm.msgnums[nm.num_msgs - 1];
+	}
+
+	// FIXME we have hardcoded "n" for "no posting allowed" -- fix when we add posting
+	cprintf("%s %ld %ld n\r\n", n_name, low_water_mark, high_water_mark);
+	if (nm.msgnums != NULL) {
+		free(nm.msgnums);
+	}
 }
 
 
