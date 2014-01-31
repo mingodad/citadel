@@ -335,6 +335,7 @@ void nntp_authinfo(const char *cmd) {
 }
 
 
+// FIXME move this to a header file
 struct nntp_msglist {
 	int num_msgs;
 	long *msgnums;
@@ -367,9 +368,10 @@ struct nntp_msglist nntp_fetch_msglist(struct ctdlroom *qrbuf) {
 
 
 
-/* FIXME not finished need to add water marks
+/*
+ * Output a room name (newsgroup name) in the format required for LIST and NEWGROUPS command
  */
-void output_roomname_in_list_active_format(struct ctdlroom *qrbuf) {
+void output_roomname_in_list_format(struct ctdlroom *qrbuf) {
 	char n_name[1024];
 	struct nntp_msglist nm;
 	long low_water_mark = 0;
@@ -391,7 +393,8 @@ void output_roomname_in_list_active_format(struct ctdlroom *qrbuf) {
 
 
 
-/* 
+/*
+ * Called once per room by nntp_newgroups() to qualify and possibly output a single room
  */
 void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 {
@@ -410,7 +413,7 @@ void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 
 	if (ra & UA_KNOWN) {
 		if (qrbuf->QRgen >= thetime) {
-			output_roomname_in_list_active_format(qrbuf);
+			output_roomname_in_list_format(qrbuf);
 		}
 	}
 }
