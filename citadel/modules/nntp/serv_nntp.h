@@ -23,7 +23,7 @@ struct nntp_msglist {
 // data passed by the LIST commands to its helper function
 struct nntp_list_data {
 	int list_format;
-	char *wildmat;
+	char *wildmat_pattern;
 };
 
 

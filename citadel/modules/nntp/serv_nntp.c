@@ -378,13 +378,20 @@ enum {
 /*
  * Output a room name (newsgroup name) in formats required for LIST and NEWGROUPS command
  */
-void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format) {
+void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format, char *wildmat_pattern) {
 	char n_name[1024];
 	struct nntp_msglist nm;
 	long low_water_mark = 0;
 	long high_water_mark = 0;
 
 	room_to_newsgroup(n_name, qrbuf->QRname, sizeof n_name);
+
+	if ((wildmat_pattern != NULL) && (!IsEmptyStr(wildmat_pattern))) {
+		if (!wildmat(n_name, wildmat_pattern)) {
+			return;
+		}
+	}
+
 	nm = nntp_fetch_msglist(qrbuf);
 	if ((nm.num_msgs > 0) && (nm.msgnums != NULL)) {
 		low_water_mark = nm.msgnums[0];
@@ -429,7 +436,7 @@ void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 
 	if (ra & UA_KNOWN) {
 		if (qrbuf->QRgen >= thetime) {
-			output_roomname_in_list_format(qrbuf, NNTP_LIST_ACTIVE);
+			output_roomname_in_list_format(qrbuf, NNTP_LIST_ACTIVE, NULL);
 		}
 	}
 }
@@ -491,13 +498,9 @@ void nntp_list_backend(struct ctdlroom *qrbuf, void *data)
 	int view;
 	struct nntp_list_data *nld = (struct nntp_list_data *)data;
 
-	// FIXME do something with nld->wildmat, bitch
-
-	wildmat(NULL,NULL);	// linkage test
-
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 	if (ra & UA_KNOWN) {
-		output_roomname_in_list_format(qrbuf, nld->list_format);
+		output_roomname_in_list_format(qrbuf, nld->list_format, nld->wildmat_pattern);
 	}
 }
 
@@ -513,17 +516,17 @@ void nntp_list(const char *cmd) {
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	char list_format[64];
-	char wildmat[1024];
+	char wildmat_pattern[1024];
 	struct nntp_list_data nld;
 
 	extract_token(list_format, cmd, 1, ' ', sizeof list_format);
-	extract_token(wildmat, cmd, 2, ' ', sizeof wildmat);
+	extract_token(wildmat_pattern, cmd, 2, ' ', sizeof wildmat_pattern);
 
-	if (strlen(wildmat) > 0) {
-		nld.wildmat = wildmat;
+	if (strlen(wildmat_pattern) > 0) {
+		nld.wildmat_pattern = wildmat_pattern;
 	}
 	else {
-		nld.wildmat = NULL;
+		nld.wildmat_pattern = NULL;
 	}
 
 	if ( (strlen(cmd) < 6) || (!strcasecmp(list_format, "ACTIVE")) ) {
@@ -536,8 +539,6 @@ void nntp_list(const char *cmd) {
 		cprintf("501 syntax error , unsupported list format\r\n");
 		return;
 	}
-	// FIXME do all of the other variants, bitch
-
 
 	cprintf("231 list of newsgroups follows\r\n");
 	CtdlGetUser(&CC->user, CC->curr_user);
