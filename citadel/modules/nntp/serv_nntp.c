@@ -231,12 +231,6 @@ void nntp_starttls(void)
 }
 
 
-void nntp_noop(void)
-{
-	cprintf("250 NOOP\r\n");
-}
-
-
 void nntp_capabilities(void)
 {
 	cprintf("101 Capability list:\r\n");
@@ -547,6 +541,16 @@ void nntp_list(const char *cmd) {
 }
 
 
+/*
+ * Implement HELP command.
+ */
+void nntp_help(void) {
+	cprintf("100 This is the Citadel NNTP service.\r\n");
+	cprintf("RTFM http://www.ietf.org/rfc/rfc3977.txt\r\n");
+	cprintf(".\r\n");
+}
+
+
 /* 
  * Main command loop for NNTP server sessions.
  */
@@ -573,16 +577,16 @@ void nntp_command_loop(void)
 		nntp_quit();
 	}
 
+	else if (!strcasecmp(cmdname, "help")) {
+		nntp_help();
+	}
+
 	else if (!strcasecmp(cmdname, "capabilities")) {
 		nntp_capabilities();
 	}
 
 	else if (!strcasecmp(cmdname, "starttls")) {
 		nntp_starttls();
-	}
-
-	else if (!strcasecmp(cmdname, "noop")) {
-		nntp_noop();
 	}
 
 	else if (!strcasecmp(cmdname, "authinfo")) {
