@@ -240,6 +240,10 @@ void nntp_noop(void)
 void nntp_capabilities(void)
 {
 	cprintf("101 Capability list:\r\n");
+	cprintf("VERSION 2\r\n");
+	cprintf("READER\r\n");
+	cprintf("LIST ACTIVE NEWSGROUPS\r\n");
+	cprintf("IMPLEMENTATION Citadel v%d.%02d\r\n", (REV_LEVEL/100), (REV_LEVEL%100));
 #ifdef HAVE_OPENSSL
 	cprintf("STARTTLS\r\n");
 #endif
@@ -387,6 +391,7 @@ void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format) {
 		high_water_mark = nm.msgnums[nm.num_msgs - 1];
 	}
 
+	// Only the mandatory formats are supported
 	switch(which_format) {
 	case NNTP_LIST_ACTIVE:
 		// FIXME we have hardcoded "n" for "no posting allowed" -- fix when we add posting
@@ -396,7 +401,6 @@ void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format) {
 		cprintf("%s %s\r\n", n_name, qrbuf->QRname);
 		break;
 	}
-	// FIXME do all the other formats, bitch
 
 	if (nm.msgnums != NULL) {
 		free(nm.msgnums);
@@ -487,6 +491,8 @@ void nntp_list_backend(struct ctdlroom *qrbuf, void *data)
 	int view;
 	struct nntp_list_data *nld = (struct nntp_list_data *)data;
 
+	// FIXME do something with nld->wildmat, bitch
+
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 	if (ra & UA_KNOWN) {
 		output_roomname_in_list_format(qrbuf, nld->list_format);
@@ -510,6 +516,13 @@ void nntp_list(const char *cmd) {
 
 	extract_token(list_format, cmd, 1, ' ', sizeof list_format);
 	extract_token(wildmat, cmd, 2, ' ', sizeof wildmat);
+
+	if (strlen(wildmat) > 0) {
+		nld.wildmat = wildmat;
+	}
+	else {
+		nld.wildmat = NULL;
+	}
 
 	if ( (strlen(cmd) < 6) || (!strcasecmp(list_format, "ACTIVE")) ) {
 		nld.list_format = NNTP_LIST_ACTIVE;
