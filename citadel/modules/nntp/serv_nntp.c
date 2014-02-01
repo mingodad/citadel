@@ -365,7 +365,9 @@ struct nntp_msglist nntp_fetch_msglist(struct ctdlroom *qrbuf) {
 
 
 
-
+/*
+ * Various output formats for the LIST commands
+ */
 enum {
 	NNTP_LIST_ACTIVE,
 	NNTP_LIST_ACTIVE_TIMES,
@@ -401,6 +403,7 @@ void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format) {
 		cprintf("%s %s\r\n", n_name, qrbuf->QRname);
 		break;
 	}
+	// FIXME do all the other formats, bitch
 
 	if (nm.msgnums != NULL) {
 		free(nm.msgnums);
@@ -433,6 +436,7 @@ void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 		}
 	}
 }
+
 
 /*
  * Implements the NEWGROUPS command
@@ -477,6 +481,64 @@ void nntp_newgroups(const char *cmd) {
 	cprintf("231 list of new newsgroups follows\r\n");
 	CtdlGetUser(&CC->user, CC->curr_user);
 	CtdlForEachRoom(nntp_newgroups_backend, &thetime);
+	cprintf(".\r\n");
+}
+
+
+struct nntp_list_data {
+	int list_format;
+};
+
+
+/*
+ * Called once per room by nntp_list() to qualify and possibly output a single room
+ */
+void nntp_list_backend(struct ctdlroom *qrbuf, void *data)
+{
+	int ra;
+	int view;
+	struct nntp_list_data *nld = (struct nntp_list_data *)data;
+
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
+	if (ra & UA_KNOWN) {
+		output_roomname_in_list_format(qrbuf, nld->list_format);
+	}
+}
+
+
+/*
+ * Implements the LIST commands
+ */
+void nntp_list(const char *cmd) {
+	/*
+	 * HACK: this works because the 5XX series error codes from citadel
+	 * protocol will also be considered error codes by an NNTP client
+	 */
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
+	char list_format[64];
+	char wildmat[1024];
+	struct nntp_list_data nld;
+
+	extract_token(list_format, cmd, 1, ' ', sizeof list_format);
+	extract_token(wildmat, cmd, 2, ' ', sizeof wildmat);
+
+	if ( (strlen(cmd) < 6) || (!strcasecmp(list_format, "ACTIVE")) ) {
+		nld.list_format = NNTP_LIST_ACTIVE;
+	}
+	else if (!strcasecmp(list_format, "NEWSGROUPS")) {
+		nld.list_format = NNTP_LIST_NEWSGROUPS;
+	}
+	else {
+		cprintf("501 syntax error , unsupported list format\r\n");
+		return;
+	}
+	// FIXME do all of the other variants, bitch
+
+
+	cprintf("231 list of newsgroups follows\r\n");
+	CtdlGetUser(&CC->user, CC->curr_user);
+	CtdlForEachRoom(nntp_list_backend, &nld);
 	cprintf(".\r\n");
 }
 
@@ -527,9 +589,9 @@ void nntp_command_loop(void)
 		nntp_newgroups(ChrPtr(Cmd));
 	}
 
-	//else if (!strcasecmp(cmdname, "list")) {
-		//nntp_list(ChrPtr(Cmd));
-	//}
+	else if (!strcasecmp(cmdname, "list")) {
+		nntp_list(ChrPtr(Cmd));
+	}
 
 	else {
 		cprintf("500 I'm afraid I can't do that.\r\n");
