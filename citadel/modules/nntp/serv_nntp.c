@@ -60,7 +60,7 @@
 #include "locate_host.h"
 #include "citadel_dirs.h"
 #include "ctdl_module.h"
-
+#include "serv_nntp.h"
 
 extern long timezone;
 
@@ -335,13 +335,6 @@ void nntp_authinfo(const char *cmd) {
 }
 
 
-// FIXME move this to a header file
-struct nntp_msglist {
-	int num_msgs;
-	long *msgnums;
-};
-
-
 /*
  * Utility function to fetch the current list of message numbers in a room
  */
@@ -483,11 +476,6 @@ void nntp_newgroups(const char *cmd) {
 	CtdlForEachRoom(nntp_newgroups_backend, &thetime);
 	cprintf(".\r\n");
 }
-
-
-struct nntp_list_data {
-	int list_format;
-};
 
 
 /*
