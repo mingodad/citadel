@@ -493,6 +493,8 @@ void nntp_list_backend(struct ctdlroom *qrbuf, void *data)
 
 	// FIXME do something with nld->wildmat, bitch
 
+	wildmat(NULL,NULL);	// linkage test
+
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 	if (ra & UA_KNOWN) {
 		output_roomname_in_list_format(qrbuf, nld->list_format);

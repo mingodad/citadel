@@ -27,3 +27,5 @@ struct nntp_list_data {
 };
 
 
+int wildmat(const char *text, const char *p);
+
