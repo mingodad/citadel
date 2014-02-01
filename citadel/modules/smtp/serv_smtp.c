@@ -439,19 +439,30 @@ void smtp_get_pass(long offset, long Flags)
 void smtp_try_plain(long offset, long Flags)
 {
 	citsmtp *sSMTP = SMTP;
-	char decoded_authstring[1024];
-	char ident[256];
-	char user[256];
-	char pass[256];
+	const char*decoded_authstring;
+	char ident[256] = "";
+	char user[256] = "";
+	char pass[256] = "";
 	int result;
 	long len;
 
-	CtdlDecodeBase64(decoded_authstring, ChrPtr(sSMTP->Cmd), StrLength(sSMTP->Cmd));
-	safestrncpy(ident, decoded_authstring, sizeof ident);
-	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
-	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
-	if (len == -1)
-		len = sizeof(pass) - 1;
+	len = StrBufDecodeBase64(sSMTP->Cmd);
+	if (len > 0)
+	{
+		decoded_authstring = ChrPtr(sSMTP->Cmd);
+
+		len = safestrncpy(ident, decoded_authstring, sizeof ident);
+
+		decoded_authstring += len + 1;
+
+		len = safestrncpy(user, decoded_authstring, sizeof user);
+
+		decoded_authstring += len + 1;
+
+		len = safestrncpy(pass, decoded_authstring, sizeof pass);
+		if (len < 0)
+			len = sizeof(pass) - 1;
+	}
 
 	sSMTP->command_state = smtp_command;
 

@@ -704,22 +704,31 @@ void imap_auth_plain(void)
 {
 	citimap *Imap = IMAP;
 	const char *decoded_authstring;
-	char ident[256];
-	char user[256];
-	char pass[256];
+	char ident[256] = "";
+	char user[256] = "";
+	char pass[256] = "";
 	int result;
 	long len;
 
 	memset(pass, 0, sizeof(pass));
-	StrBufDecodeBase64(Imap->Cmd.CmdBuf);
+	len = StrBufDecodeBase64(Imap->Cmd.CmdBuf);
 
-	decoded_authstring = ChrPtr(Imap->Cmd.CmdBuf);
-	safestrncpy(ident, decoded_authstring, sizeof ident);
-	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
-	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
-	if (len < 0)
-		len = sizeof(pass) - 1;
+	if (len > 0)
+	{
+		decoded_authstring = ChrPtr(Imap->Cmd.CmdBuf);
 
+		len = safestrncpy(ident, decoded_authstring, sizeof ident);
+
+		decoded_authstring += len + 1;
+
+		len = safestrncpy(user, decoded_authstring, sizeof user);
+
+		decoded_authstring += len + 1;
+
+		len = safestrncpy(pass, decoded_authstring, sizeof pass);
+		if (len < 0)
+			len = sizeof(pass) - 1;
+	}
 	Imap->authstate = imap_as_normal;
 
 	if (!IsEmptyStr(ident)) {

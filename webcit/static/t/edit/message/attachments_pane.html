@@ -29,9 +29,22 @@ function createUploader()
 	    request: {
 		endpoint: 'upload_attachment?nonce=<?NONCE>&template=edit_message_upl_att'
 	    },
+	    text: {
+		formatProgress: "<?_('{percent}% of {total_size}')>",
+		failUpload: "<?_('Upload failed')>",
+		waitingForResponse: "<?_('Processing...')>",
+		paused: "<?_('Paused')>"
+	    },
+	    messages: {
+		tooManyFilesError: "<?_('You may only drop one file.')>",
+		unsupportedBrowser: "<?_('Unrecoverable error - the browser does not permit uploading of any kind.')>"
+	    },
 	    deleteFile: {
 		enabled: true,
 		forceConfirm: true,
+		confirmMessage: "<?_('Are you shure you want to delete {filename}?')>",
+		deletingFailedText: "<?_('failed to delete {filename}!')>",
+		deletingStatusText: "<?_('deleting {filename}')>",
 		endpoint: 'remove_attachment?nonce=<?NONCE>&template=edit_message_upl_att&which_attachment='
 	    }
 	});
