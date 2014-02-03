@@ -2823,6 +2823,8 @@ int StrBufDecodeBase64(StrBuf *Buf)
 	free(Buf->buf);
 	Buf->buf = xferbuf;
 	Buf->BufUsed = siz;
+
+	Buf->buf[Buf->BufUsed] = '\0';
 	return siz;
 }
 
