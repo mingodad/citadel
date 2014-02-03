@@ -446,7 +446,7 @@ void smtp_try_plain(long offset, long Flags)
 	int result;
 
 	long decoded_len;
-	long len;
+	long len = 0;
 
 	memset(pass, 0, sizeof(pass));
 	decoded_len = StrBufDecodeBase64(sSMTP->Cmd);

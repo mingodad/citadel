@@ -709,7 +709,7 @@ void imap_auth_plain(void)
 	char pass[256] = "";
 	int result;
 	long decoded_len;
-	long len;
+	long len = 0;
 
 	memset(pass, 0, sizeof(pass));
 	decoded_len = StrBufDecodeBase64(Imap->Cmd.CmdBuf);
