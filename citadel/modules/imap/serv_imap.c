@@ -708,26 +708,36 @@ void imap_auth_plain(void)
 	char user[256] = "";
 	char pass[256] = "";
 	int result;
+	long decoded_len;
 	long len;
 
 	memset(pass, 0, sizeof(pass));
-	len = StrBufDecodeBase64(Imap->Cmd.CmdBuf);
+	decoded_len = StrBufDecodeBase64(Imap->Cmd.CmdBuf);
 
-	if (len > 0)
+	if (decoded_len > 0)
 	{
 		decoded_authstring = ChrPtr(Imap->Cmd.CmdBuf);
 
 		len = safestrncpy(ident, decoded_authstring, sizeof ident);
 
+		decoded_len -= len - 1;
 		decoded_authstring += len + 1;
 
-		len = safestrncpy(user, decoded_authstring, sizeof user);
+		if (decoded_len > 0)
+		{
+			len = safestrncpy(user, decoded_authstring, sizeof user);
 
-		decoded_authstring += len + 1;
+			decoded_authstring += len + 1;
+			decoded_len -= len - 1;
+		}
 
-		len = safestrncpy(pass, decoded_authstring, sizeof pass);
-		if (len < 0)
-			len = sizeof(pass) - 1;
+		if (decoded_len > 0)
+		{
+			len = safestrncpy(pass, decoded_authstring, sizeof pass);
+
+			if (len < 0)
+				len = sizeof(pass) - 1;
+		}
 	}
 	Imap->authstate = imap_as_normal;
 

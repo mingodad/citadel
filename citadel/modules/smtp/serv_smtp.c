@@ -444,24 +444,37 @@ void smtp_try_plain(long offset, long Flags)
 	char user[256] = "";
 	char pass[256] = "";
 	int result;
+
+	long decoded_len;
 	long len;
 
-	len = StrBufDecodeBase64(sSMTP->Cmd);
-	if (len > 0)
+	memset(pass, 0, sizeof(pass));
+	decoded_len = StrBufDecodeBase64(sSMTP->Cmd);
+
+	if (decoded_len > 0)
 	{
 		decoded_authstring = ChrPtr(sSMTP->Cmd);
 
 		len = safestrncpy(ident, decoded_authstring, sizeof ident);
 
+		decoded_len -= len - 1;
 		decoded_authstring += len + 1;
 
-		len = safestrncpy(user, decoded_authstring, sizeof user);
+		if (decoded_len > 0)
+		{
+			len = safestrncpy(user, decoded_authstring, sizeof user);
 
-		decoded_authstring += len + 1;
+			decoded_authstring += len + 1;
+			decoded_len -= len - 1;
+		}
 
-		len = safestrncpy(pass, decoded_authstring, sizeof pass);
-		if (len < 0)
-			len = sizeof(pass) - 1;
+		if (decoded_len > 0)
+		{
+			len = safestrncpy(pass, decoded_authstring, sizeof pass);
+
+			if (len < 0)
+				len = sizeof(pass) - 1;
+		}
 	}
 
 	sSMTP->command_state = smtp_command;
