@@ -710,6 +710,7 @@ void imap_auth_plain(void)
 	int result;
 	long decoded_len;
 	long len = 0;
+	long plen = 0;
 
 	memset(pass, 0, sizeof(pass));
 	decoded_len = StrBufDecodeBase64(Imap->Cmd.CmdBuf);
@@ -733,10 +734,10 @@ void imap_auth_plain(void)
 
 		if (decoded_len > 0)
 		{
-			len = safestrncpy(pass, decoded_authstring, sizeof pass);
+			plen = safestrncpy(pass, decoded_authstring, sizeof pass);
 
-			if (len < 0)
-				len = sizeof(pass) - 1;
+			if (plen < 0)
+				plen = sizeof(pass) - 1;
 		}
 	}
 	Imap->authstate = imap_as_normal;
@@ -749,7 +750,7 @@ void imap_auth_plain(void)
 	}
 
 	if (result == login_ok) {
-		if (CtdlTryPassword(pass, len) == pass_ok) {
+		if (CtdlTryPassword(pass, plen) == pass_ok) {
 			IAPrintf("%s OK authentication succeeded\r\n", Imap->authseq);
 			return;
 		}
