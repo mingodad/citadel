@@ -551,6 +551,25 @@ void nntp_help(void) {
 }
 
 
+/*
+ * Implements the GROUP command
+ */
+void nntp_group(const char *cmd) {
+	/*
+	 * HACK: this works because the 5XX series error codes from citadel
+	 * protocol will also be considered error codes by an NNTP client
+	 */
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
+	char requested_group[1024];
+	char requested_room[ROOMNAMELEN];
+	extract_token(requested_group, cmd, 1, ' ', sizeof requested_group);
+	newsgroup_to_room(requested_room, requested_group, sizeof requested_room);
+
+	cprintf("599 FIXME screw you and your %s\r\n", requested_room);
+}
+
+
 /* 
  * Main command loop for NNTP server sessions.
  */
@@ -599,6 +618,10 @@ void nntp_command_loop(void)
 
 	else if (!strcasecmp(cmdname, "list")) {
 		nntp_list(ChrPtr(Cmd));
+	}
+
+	else if (!strcasecmp(cmdname, "group")) {
+		nntp_group(ChrPtr(Cmd));
 	}
 
 	else {
