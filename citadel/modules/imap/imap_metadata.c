@@ -147,7 +147,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new, NULL, NULL);
 
 	/*
 	 * Always set the per-user view to the requested one.
@@ -187,7 +187,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 	 * If a different folder was previously selected, return there now.
 	 */
 	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
-		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new, NULL, NULL);
 	}
 	return;
 }
@@ -226,7 +226,7 @@ void imap_getmetadata(int num_parms, ConstStr *Params) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new, NULL, NULL);
 
 	IAPuts("* METADATA ");
 	IPutCParamStr(2);
@@ -304,7 +304,7 @@ void imap_getmetadata(int num_parms, ConstStr *Params) {
 	 * If a different folder was previously selected, return there now.
 	 */
 	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
-		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new, NULL, NULL);
 	}
 
 	IReply("OK GETMETADATA complete");

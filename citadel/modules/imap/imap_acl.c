@@ -171,7 +171,7 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new, NULL, NULL);
 
 	IAPuts("* ACL ");
 	IPutCParamStr(2);
@@ -206,7 +206,7 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new, NULL, NULL);
 	}
 
 	IReply("OK GETACL completed");
@@ -261,7 +261,7 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new, NULL, NULL);
 
 	/*
 	 * Now output the list of rights
@@ -279,7 +279,7 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new, NULL, NULL);
 	}
 
 	IReply("OK LISTRIGHTS completed");
@@ -316,7 +316,7 @@ void imap_myrights(int num_parms, ConstStr *Params) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new, NULL, NULL);
 
 	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
 	rights = NewStrBuf();
@@ -334,7 +334,7 @@ void imap_myrights(int num_parms, ConstStr *Params) {
 	 * If a different folder was previously selected, return there now.
 	 */
 	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
-		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new, NULL, NULL);
 	}
 
 	IReply("OK MYRIGHTS completed");

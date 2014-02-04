@@ -247,21 +247,16 @@ unsigned CtdlCreateRoom(char *new_room_name,
 int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name);
 int CtdlGetRoomLock(struct ctdlroom *qrbuf, char *room_name);
 int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
-void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
-		int *result, int *view);
+void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf, int *result, int *view);
 void CtdlPutRoomLock(struct ctdlroom *qrbuf);
 typedef void (*ForEachRoomCallBack)(struct ctdlroom *EachRoom, void *out_data);
 void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data);
 typedef void (*ForEachRoomNetCfgCallBack)(struct ctdlroom *EachRoom, void *out_data, OneRoomNetCfg *OneRNCFG);
-void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
-			   void *in_data,
-			   RoomNetCfg filter);
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetCfg filter);
 void SaveChangedConfigs(void);
-
 void CtdlDeleteRoom(struct ctdlroom *qrbuf);
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
-void CtdlUserGoto (char *where, int display_result, int transiently,
-			int *msgs, int *new);
+void CtdlUserGoto (char *where, int display_result, int transiently, int *msgs, int *new, long *oldest, long *newest);
 struct floor *CtdlGetCachedFloor(int floor_num);
 void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf);
 void CtdlGetFloor (struct floor *flbuf, int floor_num);

@@ -2769,7 +2769,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	MSG_syslog(LOG_INFO, "Final selection: %s (%s)\n", actual_rm, room);
 	if (strcasecmp(actual_rm, CCC->room.QRname)) {
 		/* CtdlGetRoom(&CCC->room, actual_rm); */
-		CtdlUserGoto(actual_rm, 0, 1, NULL, NULL);
+		CtdlUserGoto(actual_rm, 0, 1, NULL, NULL, NULL, NULL);
 	}
 
 	/*
@@ -2916,7 +2916,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* Go back to the room we started from */
 	MSG_syslog(LOG_DEBUG, "Returning to original room %s\n", hold_rm);
 	if (strcasecmp(hold_rm, CCC->room.QRname))
-		CtdlUserGoto(hold_rm, 0, 1, NULL, NULL);
+		CtdlUserGoto(hold_rm, 0, 1, NULL, NULL, NULL, NULL);
 
 	/*
 	 * Any addresses to harvest for someone's address book?

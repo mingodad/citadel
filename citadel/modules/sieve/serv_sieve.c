@@ -193,13 +193,13 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	}
 
 	/* Yes, we actually have to go there */
-	CtdlUserGoto(NULL, 0, 0, NULL, NULL);
+	CtdlUserGoto(NULL, 0, 0, NULL, NULL, NULL, NULL);
 
 	c = CtdlSaveMsgPointersInRoom(NULL, &cs->msgnum, 1, 0, NULL, 0);
 
 	/* Go back to the room we came from */
 	if (strcasecmp(original_room_name, CC->room.QRname)) {
-		CtdlUserGoto(original_room_name, 0, 0, NULL, NULL);
+		CtdlUserGoto(original_room_name, 0, 0, NULL, NULL, NULL, NULL);
 	}
 
 	if (c == 0) {
