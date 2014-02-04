@@ -745,7 +745,7 @@ void do_login(void)
 	PerformSessionHooks(EVT_LOGIN);
 
 	/* Enter the lobby */
-	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
+	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL, NULL, NULL);
 }
 
 
@@ -1293,7 +1293,7 @@ int CtdlForgetThisRoom(void) {
 	CtdlPutUserLock(&CC->user);
 
 	/* Return to the Lobby, so we don't end up in an undefined room */
-	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
+	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL, NULL, NULL);
 	return(0);
 
 }

@@ -306,7 +306,7 @@ void cmd_goto(char *gargs)
 		if (CC->internal_pgm) {
 			memcpy(&CC->room, &QRscratch,
 				sizeof(struct ctdlroom));
-			CtdlUserGoto(NULL, 1, transiently, NULL, NULL);
+			CtdlUserGoto(NULL, 1, transiently, NULL, NULL, NULL, NULL);
 			return;
 		}
 
@@ -323,7 +323,7 @@ void cmd_goto(char *gargs)
 			    ((ra & UA_GOTOALLOWED))) {
 				memcpy(&CC->room, &QRscratch,
 					sizeof(struct ctdlroom));
-				CtdlUserGoto(NULL, 1, transiently, NULL, NULL);
+				CtdlUserGoto(NULL, 1, transiently, NULL, NULL, NULL, NULL);
 				return;
 			} else if ((QRscratch.QRflags & QR_PASSWORDED) &&
 			    ((ra & UA_KNOWN) == 0) &&
@@ -343,7 +343,7 @@ void cmd_goto(char *gargs)
 			} else {
 				memcpy(&CC->room, &QRscratch,
 					sizeof(struct ctdlroom));
-				CtdlUserGoto(NULL, 1, transiently, NULL, NULL);
+				CtdlUserGoto(NULL, 1, transiently, NULL, NULL, NULL, NULL);
 				return;
 			}
 		}
@@ -761,7 +761,7 @@ void cmd_kill(char *argbuf)
 		CtdlScheduleRoomForDeletion(&CC->room);
 
 		/* Return to the Lobby */
-		CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
+		CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL, NULL, NULL);
 
 		/* tell the world what we did */
 		snprintf(msg, sizeof msg, "The room \"%s\" has been deleted by %s.\n",

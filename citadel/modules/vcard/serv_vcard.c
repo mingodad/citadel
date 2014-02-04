@@ -1363,7 +1363,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 	int i;
 
 	/* First remove any addresses we already have in the address book */
-	CtdlUserGoto(aptr->roomname, 0, 0, NULL, NULL);
+	CtdlUserGoto(aptr->roomname, 0, 0, NULL, NULL, NULL, NULL);
 	CtdlForEachMessage(MSGS_ALL, 0, NULL, "[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$", NULL,
 		strip_addresses_already_have, aptr->collected_addresses);
 

@@ -162,7 +162,7 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
 				syslog(LOG_DEBUG,
 					"Rebuilding EUID index for <%s>\n",
 					rplist->name);
-				CtdlUserGoto(rplist->name, 0, 0, NULL, NULL);
+				CtdlUserGoto(rplist->name, 0, 0, NULL, NULL, NULL, NULL);
 				CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 					rebuild_euid_index_for_msg, NULL);
 			}

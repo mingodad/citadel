@@ -776,13 +776,15 @@ int CtdlIsNonEditable(struct ctdlroom *qrbuf)
  * specified room exists and is ok to access.
  */
 void CtdlUserGoto(char *where, int display_result, int transiently,
-		int *retmsgs, int *retnew)
+		int *retmsgs, int *retnew, long *retoldest, long *retnewest)
 {
 	struct CitContext *CCC = CC;
 	int a;
 	int new_messages = 0;
 	int old_messages = 0;
 	int total_messages = 0;
+	long oldest_message = 0;
+	long newest_message = 0;
 	int info = 0;
 	int rmailflag;
 	int raideflag;
@@ -850,6 +852,11 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 		if (msglist[a] > 0L) ++total_messages;
 	}
 
+	if (total_messages > 0) {
+		oldest_message = msglist[0];
+		newest_message = msglist[num_msgs - 1];
+	}
+
 	num_sets = num_tokens(vbuf.v_seen, ',');
 	for (s=0; s<num_sets; ++s) {
 		extract_token(setstr, vbuf.v_seen, s, ',', sizeof setstr);
@@ -901,10 +908,11 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 
 	if (retmsgs != NULL) *retmsgs = total_messages;
 	if (retnew != NULL) *retnew = new_messages;
-	MSG_syslog(LOG_INFO, "<%s> %d new of %d total messages\n",
-		   CCC->room.QRname,
-		   new_messages, total_messages
-		);
+	if (retoldest != NULL) *retoldest = oldest_message;
+	if (retnewest != NULL) *retnewest = newest_message;
+	MSG_syslog(LOG_INFO, "<%s> %d new of %d total messages, oldest=%ld, newest=%ld\n",
+		   CCC->room.QRname, new_messages, total_messages, oldest_message, newest_message
+	);
 
 	CCC->curr_view = (int)vbuf.v_view;
 

@@ -374,7 +374,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	if (Imap->selected) {
 		strcpy(savedroom, CCC->room.QRname);
 	}
-	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new, NULL, NULL);
 
 	/* If the user is locally authenticated, FORCE the From: header to
 	 * show up as the real sender.  FIXME do we really want to do this?
@@ -424,7 +424,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	 * our happy day without violent explosions.
 	 */
 	if (Imap->selected) {
-		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new, NULL, NULL);
 	}
 
 	/* We don't need this buffer anymore */
