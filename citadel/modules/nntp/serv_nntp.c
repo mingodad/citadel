@@ -563,10 +563,54 @@ void nntp_group(const char *cmd) {
 
 	char requested_group[1024];
 	char requested_room[ROOMNAMELEN];
+	char augmented_roomname[ROOMNAMELEN];
+	int c = 0;
+	int ok = 0;
+	int ra = 0;
+	struct ctdlroom QRscratch;
+	int msgs, new;
+	long oldest,newest;
+
 	extract_token(requested_group, cmd, 1, ' ', sizeof requested_group);
 	newsgroup_to_room(requested_room, requested_group, sizeof requested_room);
 
-	cprintf("599 FIXME screw you and your %s\r\n", requested_room);
+	/* First try a regular match */
+	c = CtdlGetRoom(&QRscratch, requested_room);
+
+	/* Then try a mailbox name match */
+	if (c != 0) {
+		CtdlMailboxName(augmented_roomname, sizeof augmented_roomname, &CC->user, requested_room);
+		c = CtdlGetRoom(&QRscratch, augmented_roomname);
+		if (c == 0) {
+			safestrncpy(requested_room, augmented_roomname, sizeof(requested_room));
+		}
+	}
+
+	/* If the room exists, check security/access */
+	if (c == 0) {
+		/* See if there is an existing user/room relationship */
+		CtdlRoomAccess(&QRscratch, &CC->user, &ra, NULL);
+
+		/* normal clients have to pass through security */
+		if (ra & UA_KNOWN) {
+			ok = 1;
+		}
+	}
+
+	/* Fail here if no such room */
+	if (!ok) {
+		cprintf("411 no such newsgroup\r\n");
+		return;
+	}
+
+
+	/*
+	 * CtdlUserGoto() formally takes us to the desired room, happily returning
+	 * the number of messages and number of new messages.
+	 */
+	memcpy(&CC->room, &QRscratch, sizeof(struct ctdlroom));
+	CtdlUserGoto(NULL, 0, 0, &msgs, &new, &oldest, &newest);
+	cprintf("211 %d %ld %ld %s\r\n", msgs, oldest, newest, requested_group);
 }
 
 
@@ -678,4 +722,9 @@ CTDL_MODULE_INIT(nntp)
 	/* return our module name for the log */
 	return "nntp";
 }
+
+
+
+
+
 
