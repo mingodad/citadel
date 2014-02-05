@@ -551,8 +551,31 @@ void nntp_help(void) {
 }
 
 
+
+struct listgroup_range {
+	long lo;
+	long hi;
+};
+
+
+
 /*
- * Implements the GROUP command
+ * back end for the LISTGROUP command , called for each message number
+ */
+void nntp_listgroup_backend(long msgnum, void *userdata) {
+
+	struct listgroup_range *lr = (struct listgroup_range *)userdata;
+
+	// check range if supplied
+	if (msgnum < lr->lo) return;
+	if ((lr->hi != 0) && (msgnum > lr->hi)) return;
+
+	cprintf("%ld\r\n", msgnum);
+}
+
+
+/*
+ * Implements the GROUP and LISTGROUP commands
  */
 void nntp_group(const char *cmd) {
 	/*
@@ -561,7 +584,11 @@ void nntp_group(const char *cmd) {
 	 */
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
+	char verb[16];
 	char requested_group[1024];
+	char message_range[256];
+	char range_lo[256];
+	char range_hi[256];
 	char requested_room[ROOMNAMELEN];
 	char augmented_roomname[ROOMNAMELEN];
 	int c = 0;
@@ -570,11 +597,23 @@ void nntp_group(const char *cmd) {
 	struct ctdlroom QRscratch;
 	int msgs, new;
 	long oldest,newest;
+	struct listgroup_range lr;
 
+	extract_token(verb, cmd, 0, ' ', sizeof verb);
 	extract_token(requested_group, cmd, 1, ' ', sizeof requested_group);
-	newsgroup_to_room(requested_room, requested_group, sizeof requested_room);
+	extract_token(message_range, cmd, 2, ' ', sizeof message_range);
+	extract_token(range_lo, message_range, 0, '-', sizeof range_lo);
+	extract_token(range_hi, message_range, 1, '-', sizeof range_hi);
+	lr.lo = atoi(range_lo);
+	lr.hi = atoi(range_hi);
+
+	/* In LISTGROUP mode we can specify an empty name for 'currently selected' */
+	if ((!strcasecmp(verb, "LISTGROUP")) && (IsEmptyStr(requested_group))) {
+		room_to_newsgroup(requested_group, CC->room.QRname, sizeof requested_group);
+	}
 
 	/* First try a regular match */
+	newsgroup_to_room(requested_room, requested_group, sizeof requested_room);
 	c = CtdlGetRoom(&QRscratch, requested_room);
 
 	/* Then try a mailbox name match */
@@ -611,6 +650,15 @@ void nntp_group(const char *cmd) {
 	memcpy(&CC->room, &QRscratch, sizeof(struct ctdlroom));
 	CtdlUserGoto(NULL, 0, 0, &msgs, &new, &oldest, &newest);
 	cprintf("211 %d %ld %ld %s\r\n", msgs, oldest, newest, requested_group);
+
+	// If this is a GROUP command, we can stop here.
+	if (!strcasecmp(verb, "GROUP")) {
+		return;
+	}
+
+	// If we get to this point we are running a LISTGROUP command.  Fetch those message numbers.
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, nntp_listgroup_backend, &lr);
+	cprintf(".\r\n");
 }
 
 
@@ -665,6 +713,10 @@ void nntp_command_loop(void)
 	}
 
 	else if (!strcasecmp(cmdname, "group")) {
+		nntp_group(ChrPtr(Cmd));
+	}
+
+	else if (!strcasecmp(cmdname, "listgroup")) {
 		nntp_group(ChrPtr(Cmd));
 	}
 
