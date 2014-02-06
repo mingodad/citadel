@@ -27,5 +27,14 @@ struct nntp_list_data {
 };
 
 
+/*
+ * data passed between nntp_listgroup() and nntp_listgroup_backend()
+ */
+struct listgroup_range {
+	long lo;
+	long hi;
+};
+
+
 int wildmat(const char *text, const char *p);
 

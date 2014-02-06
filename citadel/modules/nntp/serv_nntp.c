@@ -234,10 +234,11 @@ void nntp_starttls(void)
 void nntp_capabilities(void)
 {
 	cprintf("101 Capability list:\r\n");
+	cprintf("IMPLEMENTATION Citadel v%d.%02d\r\n", (REV_LEVEL/100), (REV_LEVEL%100));
 	cprintf("VERSION 2\r\n");
 	cprintf("READER\r\n");
+	cprintf("MODE-READER\r\n");
 	cprintf("LIST ACTIVE NEWSGROUPS\r\n");
-	cprintf("IMPLEMENTATION Citadel v%d.%02d\r\n", (REV_LEVEL/100), (REV_LEVEL%100));
 #ifdef HAVE_OPENSSL
 	cprintf("STARTTLS\r\n");
 #endif
@@ -551,14 +552,6 @@ void nntp_help(void) {
 }
 
 
-
-struct listgroup_range {
-	long lo;
-	long hi;
-};
-
-
-
 /*
  * back end for the LISTGROUP command , called for each message number
  */
@@ -662,6 +655,25 @@ void nntp_group(const char *cmd) {
 }
 
 
+/*
+ * Implements the MODE command
+ */
+void nntp_mode(const char *cmd) {
+
+	char which_mode[16];
+
+	extract_token(which_mode, cmd, 1, ' ', sizeof which_mode);
+
+	if (!strcasecmp(which_mode, "reader")) {
+		cprintf("201 Reader mode FIXME implement posting and change to 200\r\n");
+	}
+	else {
+		cprintf("501 unknown mode\r\n");
+	}
+}
+
+
+
 /* 
  * Main command loop for NNTP server sessions.
  */
@@ -720,6 +732,10 @@ void nntp_command_loop(void)
 		nntp_group(ChrPtr(Cmd));
 	}
 
+	else if (!strcasecmp(cmdname, "mode")) {
+		nntp_mode(ChrPtr(Cmd));
+	}
+
 	else {
 		cprintf("500 I'm afraid I can't do that.\r\n");
 	}
@@ -774,9 +790,3 @@ CTDL_MODULE_INIT(nntp)
 	/* return our module name for the log */
 	return "nntp";
 }
-
-
-
-
-
-
