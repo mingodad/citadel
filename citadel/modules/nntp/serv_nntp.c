@@ -689,7 +689,7 @@ void nntp_command_loop(void)
 		FreeStrBuf(&Cmd);
 		return;
 	}
-	syslog(LOG_DEBUG, "NNTP server: %s\n", ChrPtr(Cmd));
+	syslog(LOG_DEBUG, "NNTP: %s\n", ((!strncasecmp(ChrPtr(Cmd), "AUTHINFO", 8)) ? "AUTHINFO ..." : ChrPtr(Cmd)));
 	extract_token(cmdname, ChrPtr(Cmd), 0, ' ', sizeof cmdname);
 
 	/*
