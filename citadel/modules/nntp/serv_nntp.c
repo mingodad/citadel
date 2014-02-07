@@ -535,7 +535,7 @@ void nntp_list(const char *cmd) {
 		return;
 	}
 
-	cprintf("231 list of newsgroups follows\r\n");
+	cprintf("215 list of newsgroups follows\r\n");
 	CtdlGetUser(&CC->user, CC->curr_user);
 	CtdlForEachRoom(nntp_list_backend, &nld);
 	cprintf(".\r\n");
