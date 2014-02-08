@@ -674,6 +674,81 @@ void nntp_mode(const char *cmd) {
 
 
 
+/*
+ * Implements the ARTICLE, HEAD, BODY, and STAT commands.
+ * (These commands all accept the same parameters; they differ only in how they output the retrieved message.)
+ */
+void nntp_article(const char *cmd) {
+
+	enum {
+		ARTICLE,
+		HEAD,
+		BODY,
+		STAT
+	};
+
+	char which_command[16];
+	int acmd = 0;
+	extract_token(which_command, cmd, 0, ' ', sizeof which_command);
+
+	if (!strcasecmp(which_command, "article")) {
+		acmd = ARTICLE;
+	}
+	else if (!strcasecmp(which_command, "head")) {
+		acmd = HEAD;
+	}
+	else if (!strcasecmp(which_command, "body")) {
+		acmd = BODY;
+	}
+	else if (!strcasecmp(which_command, "stat")) {
+		acmd = STAT;
+	}
+	else {
+		cprintf("500 I'm afraid I can't do that.\r\n");
+		return;
+	}
+
+	// now figure out what the client is asking for.
+	char requested_article[256];
+	long requested_msgnum = 0;
+	char *lb, *rb = NULL;
+	extract_token(requested_article, cmd, 1, ' ', sizeof requested_article);
+	lb = strchr(requested_article, '<');
+	rb = strchr(requested_article, '>');
+	requested_msgnum = atol(requested_article);
+
+	// If no article number or message-id is specified, the client wants the "next" article.
+	// We don't know how to do that yet.
+	if (IsEmptyStr(requested_article)) {
+		cprintf("500 FIXME I don't know how to fetch next yet.\r\n");
+		return;
+	}
+
+	// If the requested article is numeric, it maps directly to a message number.  Good.
+	else if (requested_msgnum > 0) {
+		// good -- fall through and keep going
+	}
+
+	// If the requested article has angle brackets, the client wants a specific message-id.
+	// We don't know how to do that yet.
+	else if ( (lb != NULL) && (rb != NULL) && (lb < rb) ) {
+		cprintf("500 FIXME I don't know how to fetch by message-id yet.\r\n");
+		return;
+	}
+
+	// Anything else is noncompliant gobbledygook and should die in a car fire.
+	else {
+		cprintf("500 syntax error\r\n");
+		return;
+	}
+
+
+
+
+	cprintf("500 FIXME write the rest of cmd=%d msgnum=%ld\r\n", acmd, requested_msgnum);
+}
+
+
 /* 
  * Main command loop for NNTP server sessions.
  */
@@ -734,6 +809,15 @@ void nntp_command_loop(void)
 
 	else if (!strcasecmp(cmdname, "mode")) {
 		nntp_mode(ChrPtr(Cmd));
+	}
+
+	else if (
+			(!strcasecmp(cmdname, "article"))
+			|| (!strcasecmp(cmdname, "head"))
+			|| (!strcasecmp(cmdname, "body"))
+			|| (!strcasecmp(cmdname, "stat"))
+		) {
+		nntp_article(ChrPtr(Cmd));
 	}
 
 	else {
