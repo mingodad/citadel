@@ -64,7 +64,7 @@
 
 extern long timezone;
 
-//***************** BEGIN UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
+//	***************** BEGIN UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************
 
 
 //
@@ -173,7 +173,7 @@ void newsgroup_to_room(char *target, char *source, size_t target_size) {
 }
 
 
-//*****************  END  UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
+//	*****************  END  UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************
 
 
 
@@ -580,10 +580,10 @@ void nntp_listgroup_backend(long msgnum, void *userdata) {
 // Implements the GROUP and LISTGROUP commands
 //
 void nntp_group(const char *cmd) {
-	/*
-	 * HACK: this works because the 5XX series error codes from citadel
-	 * protocol will also be considered error codes by an NNTP client
-	 */
+	//
+	// HACK: this works because the 5XX series error codes from citadel
+	// protocol will also be considered error codes by an NNTP client
+	//
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	char verb[16];
@@ -777,9 +777,7 @@ void nntp_command_loop(void)
 	syslog(LOG_DEBUG, "NNTP: %s\n", ((!strncasecmp(ChrPtr(Cmd), "AUTHINFO", 8)) ? "AUTHINFO ..." : ChrPtr(Cmd)));
 	extract_token(cmdname, ChrPtr(Cmd), 0, ' ', sizeof cmdname);
 
-	/*
-	 * Rumpelstiltskin lookups are awesome
-	 */
+	// Rumpelstiltskin lookups are *awesome*
 
 	if (!strcasecmp(cmdname, "quit")) {
 		nntp_quit();
@@ -838,9 +836,9 @@ void nntp_command_loop(void)
 }
 
 
-//****************************************************************************/
-//		      MODULE INITIALIZATION STUFF			  */
-//****************************************************************************/
+//	****************************************************************************
+//			      MODULE INITIALIZATION STUFF
+//	****************************************************************************
 
 
 //
