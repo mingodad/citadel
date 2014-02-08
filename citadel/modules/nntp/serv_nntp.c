@@ -1,16 +1,16 @@
-/*
- * NNTP server module FIXME THIS IS NOT FINISHED
- *
- * Copyright (c) 2014 by the citadel.org team
- *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
- *  
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- */
+//
+// NNTP server module FIXME THIS IS NOT FINISHED
+//
+// Copyright (c) 2014 by the citadel.org team
+//
+// This program is open source software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3.
+//  
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -64,13 +64,13 @@
 
 extern long timezone;
 
-/****************** BEGIN UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
+//***************** BEGIN UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
 
 
-/*
- * Tests whether the supplied string is a valid newsgroup name
- * Returns true (nonzero) or false (0)
- */
+//
+// Tests whether the supplied string is a valid newsgroup name
+// Returns true (nonzero) or false (0)
+//
 int is_valid_newsgroup_name(char *name) {
 	char *ptr = name;
 	int has_a_letter = 0;
@@ -100,9 +100,9 @@ int is_valid_newsgroup_name(char *name) {
 
 
 
-/*
- * Convert a Citadel room name to a valid newsgroup name
- */
+//
+// Convert a Citadel room name to a valid newsgroup name
+//
 void room_to_newsgroup(char *target, char *source, size_t target_size) {
 
 	if (!target) return;
@@ -137,10 +137,10 @@ void room_to_newsgroup(char *target, char *source, size_t target_size) {
 }
 
 
-/*
- * Convert a newsgroup name to a Citadel room name.
- * This function recognizes names converted with room_to_newsgroup() and restores them with full fidelity.
- */
+//
+// Convert a newsgroup name to a Citadel room name.
+// This function recognizes names converted with room_to_newsgroup() and restores them with full fidelity.
+//
 void newsgroup_to_room(char *target, char *source, size_t target_size) {
 
 	if (!target) return;
@@ -173,13 +173,13 @@ void newsgroup_to_room(char *target, char *source, size_t target_size) {
 }
 
 
-/******************  END  UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
+//*****************  END  UTILITY FUNCTIONS THAT COULD BE MOVED ELSEWHERE LATER **************/
 
 
 
-/*
- * Here's where our NNTP session begins its happy day.
- */
+//
+// Here's where our NNTP session begins its happy day.
+//
 void nntp_greeting(void)
 {
 	strcpy(CC->cs_clientname, "NNTP session");
@@ -195,16 +195,16 @@ void nntp_greeting(void)
 		return;
 	}
 
-	/* Note: the FQDN *must* appear as the first thing after the 220 code.
-	 * Some clients (including citmail.c) depend on it being there.
-	 */
+	// Note: the FQDN *must* appear as the first thing after the 220 code.
+	// Some clients (including citmail.c) depend on it being there.
+	//
 	cprintf("200 %s NNTP Citadel server is not finished yet\r\n", config.c_fqdn);
 }
 
 
-/*
- * NNTPS is just like NNTP, except it goes crypto right away.
- */
+//
+// NNTPS is just like NNTP, except it goes crypto right away.
+//
 void nntps_greeting(void) {
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 #ifdef HAVE_OPENSSL
@@ -215,9 +215,9 @@ void nntps_greeting(void) {
 
 
 
-/*
- * implements the STARTTLS command
- */
+//
+// implements the STARTTLS command
+//
 void nntp_starttls(void)
 {
 	char ok_response[SIZ];
@@ -231,6 +231,9 @@ void nntp_starttls(void)
 }
 
 
+//
+// Implements the CAPABILITY command
+//
 void nntp_capabilities(void)
 {
 	cprintf("101 Capability list:\r\n");
@@ -249,6 +252,9 @@ void nntp_capabilities(void)
 }
 
 
+// 
+// Implements the QUIT command
+//
 void nntp_quit(void)
 {
 	cprintf("221 Goodbye...\r\n");
@@ -256,6 +262,9 @@ void nntp_quit(void)
 }
 
 
+//
+// Cleanup hook for this module
+//
 void nntp_cleanup(void)
 {
 	/* nothing here yet */
@@ -263,9 +272,9 @@ void nntp_cleanup(void)
 
 
 
-/*
- * Implements the AUTHINFO USER command (RFC 4643)
- */
+//
+// Implements the AUTHINFO USER command (RFC 4643)
+//
 void nntp_authinfo_user(const char *username)
 {
 	int a = CtdlLoginExistingUser(NULL, username);
@@ -288,9 +297,9 @@ void nntp_authinfo_user(const char *username)
 }
 
 
-/*
- * Implements the AUTHINFO PASS command (RFC 4643)
- */
+//
+// Implements the AUTHINFO PASS command (RFC 4643)
+//
 void nntp_authinfo_pass(const char *buf)
 {
 	int a;
@@ -315,9 +324,9 @@ void nntp_authinfo_pass(const char *buf)
 
 
 
-/*
- * Implements the AUTHINFO extension (RFC 4643) in USER/PASS mode
- */
+//
+// Implements the AUTHINFO extension (RFC 4643) in USER/PASS mode
+//
 void nntp_authinfo(const char *cmd) {
 
 	if (!strncasecmp(cmd, "authinfo user ", 14)) {
@@ -334,9 +343,9 @@ void nntp_authinfo(const char *cmd) {
 }
 
 
-/*
- * Utility function to fetch the current list of message numbers in a room
- */
+//
+// Utility function to fetch the current list of message numbers in a room
+//
 struct nntp_msglist nntp_fetch_msglist(struct ctdlroom *qrbuf) {
 	struct nntp_msglist nm;
 	struct cdbdata *cdbfr;
@@ -357,9 +366,9 @@ struct nntp_msglist nntp_fetch_msglist(struct ctdlroom *qrbuf) {
 
 
 
-/*
- * Various output formats for the LIST commands
- */
+//
+// Various output formats for the LIST commands
+//
 enum {
 	NNTP_LIST_ACTIVE,
 	NNTP_LIST_ACTIVE_TIMES,
@@ -370,9 +379,9 @@ enum {
 };
 
 
-/*
- * Output a room name (newsgroup name) in formats required for LIST and NEWGROUPS command
- */
+//
+// Output a room name (newsgroup name) in formats required for LIST and NEWGROUPS command
+//
 void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format, char *wildmat_pattern) {
 	char n_name[1024];
 	struct nntp_msglist nm;
@@ -411,9 +420,9 @@ void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format, ch
 
 
 
-/*
- * Called once per room by nntp_newgroups() to qualify and possibly output a single room
- */
+//
+// Called once per room by nntp_newgroups() to qualify and possibly output a single room
+//
 void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int ra;
@@ -437,9 +446,9 @@ void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 }
 
 
-/*
- * Implements the NEWGROUPS command
- */
+//
+// Implements the NEWGROUPS command
+//
 void nntp_newgroups(const char *cmd) {
 	/*
 	 * HACK: this works because the 5XX series error codes from citadel
@@ -484,9 +493,9 @@ void nntp_newgroups(const char *cmd) {
 }
 
 
-/*
- * Called once per room by nntp_list() to qualify and possibly output a single room
- */
+//
+// Called once per room by nntp_list() to qualify and possibly output a single room
+//
 void nntp_list_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int ra;
@@ -500,14 +509,14 @@ void nntp_list_backend(struct ctdlroom *qrbuf, void *data)
 }
 
 
-/*
- * Implements the LIST commands
- */
+//
+// Implements the LIST commands
+//
 void nntp_list(const char *cmd) {
-	/*
-	 * HACK: this works because the 5XX series error codes from citadel
-	 * protocol will also be considered error codes by an NNTP client
-	 */
+	//
+	// HACK: this works because the 5XX series error codes from citadel
+	// protocol will also be considered error codes by an NNTP client
+	//
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	char list_format[64];
@@ -542,9 +551,9 @@ void nntp_list(const char *cmd) {
 }
 
 
-/*
- * Implement HELP command.
- */
+//
+// Implement HELP command.
+//
 void nntp_help(void) {
 	cprintf("100 This is the Citadel NNTP service.\r\n");
 	cprintf("RTFM http://www.ietf.org/rfc/rfc3977.txt\r\n");
@@ -552,9 +561,9 @@ void nntp_help(void) {
 }
 
 
-/*
- * back end for the LISTGROUP command , called for each message number
- */
+//
+// back end for the LISTGROUP command , called for each message number
+//
 void nntp_listgroup_backend(long msgnum, void *userdata) {
 
 	struct listgroup_range *lr = (struct listgroup_range *)userdata;
@@ -567,9 +576,9 @@ void nntp_listgroup_backend(long msgnum, void *userdata) {
 }
 
 
-/*
- * Implements the GROUP and LISTGROUP commands
- */
+//
+// Implements the GROUP and LISTGROUP commands
+//
 void nntp_group(const char *cmd) {
 	/*
 	 * HACK: this works because the 5XX series error codes from citadel
@@ -655,9 +664,9 @@ void nntp_group(const char *cmd) {
 }
 
 
-/*
- * Implements the MODE command
- */
+//
+// Implements the MODE command
+//
 void nntp_mode(const char *cmd) {
 
 	char which_mode[16];
@@ -674,12 +683,13 @@ void nntp_mode(const char *cmd) {
 
 
 
-/*
- * Implements the ARTICLE, HEAD, BODY, and STAT commands.
- * (These commands all accept the same parameters; they differ only in how they output the retrieved message.)
- */
+//
+// Implements the ARTICLE, HEAD, BODY, and STAT commands.
+// (These commands all accept the same parameters; they differ only in how they output the retrieved message.)
+//
 void nntp_article(const char *cmd) {
 
+	// We're going to store one of these values in the variable 'acmd' so that
 	enum {
 		ARTICLE,
 		HEAD,
@@ -749,9 +759,9 @@ void nntp_article(const char *cmd) {
 }
 
 
-/* 
- * Main command loop for NNTP server sessions.
- */
+// 
+// Main command loop for NNTP server sessions.
+//
 void nntp_command_loop(void)
 {
 	StrBuf *Cmd = NewStrBuf();
@@ -828,15 +838,15 @@ void nntp_command_loop(void)
 }
 
 
-/*****************************************************************************/
-/*		      MODULE INITIALIZATION STUFF			  */
-/*****************************************************************************/
+//****************************************************************************/
+//		      MODULE INITIALIZATION STUFF			  */
+//****************************************************************************/
 
 
-/*
- * This cleanup function blows away the temporary memory used by
- * the NNTP server.
- */
+//
+// This cleanup function blows away the temporary memory used by
+// the NNTP server.
+//
 void nntp_cleanup_function(void)
 {
 	/* Don't do this stuff if this is not an NNTP session! */
