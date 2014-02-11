@@ -718,6 +718,11 @@ void nntp_article(const char *cmd) {
 		return;
 	}
 
+	// Which NNTP command was issued, determines whether we will fetch headers, body, or both.
+	int			headers_only = HEADERS_ALL;
+	if (acmd == HEAD)	headers_only = HEADERS_FAST;
+	if (acmd == BODY)	headers_only = HEADERS_NONE;
+
 	// now figure out what the client is asking for.
 	char requested_article[256];
 	long requested_msgnum = 0;
@@ -747,15 +752,51 @@ void nntp_article(const char *cmd) {
 	}
 
 	// Anything else is noncompliant gobbledygook and should die in a car fire.
+	// Also, the weasel who is spreading untrue rumors about me at work should die in a slow and painful car fire.
 	else {
 		cprintf("500 syntax error\r\n");
 		return;
 	}
 
+	// At this point we know the message number of the "article" being requested.
+	// We have an awesome API call that does all the heavy lifting for us.
+	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+	int fetch = CtdlOutputMsg(requested_msgnum,
+			MT_RFC822,		// output in RFC822 format ... sort of
+			headers_only,		// headers, body, or both?
+			0,			// don't do Citadel protocol responses
+			1,			// CRLF newlines
+			NULL,			// teh whole thing, not just a section
+			0,			// no flags yet ... maybe new ones for Path: etc ?
+			NULL,
+			NULL
+	);
+	StrBuf *msgtext = CC->redirect_buffer;
+	CC->redirect_buffer = NULL;
 
+	if (fetch != om_ok) {
+		cprintf("423 no article with that number\r\n");
+		FreeStrBuf(&msgtext);
+		return;
+	}
 
+	if (acmd == ARTICLE) {
+		cprintf("220 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+	}
+	if (acmd == HEAD) {
+		cprintf("221 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+	}
+	if (acmd == BODY) {
+		cprintf("222 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+	}
+	if (acmd == STAT) {
+		// crash FIXME
+		cprintf("223 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+	}
 
-	cprintf("500 FIXME write the rest of cmd=%d msgnum=%ld\r\n", acmd, requested_msgnum);
+	client_write(SKEY(msgtext));
+	cprintf(".\r\n");			// this protocol uses a dot terminator
+	FreeStrBuf(&msgtext);
 }
 
 
