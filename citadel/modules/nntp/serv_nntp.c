@@ -721,7 +721,8 @@ void nntp_article(const char *cmd) {
 	// Which NNTP command was issued, determines whether we will fetch headers, body, or both.
 	int			headers_only = HEADERS_ALL;
 	if (acmd == HEAD)	headers_only = HEADERS_FAST;
-	if (acmd == BODY)	headers_only = HEADERS_NONE;
+	else if (acmd == BODY)	headers_only = HEADERS_NONE;
+	else if (acmd == STAT)	headers_only = HEADERS_FAST;
 
 	// now figure out what the client is asking for.
 	char requested_article[256];
@@ -790,8 +791,9 @@ void nntp_article(const char *cmd) {
 		cprintf("222 %ld <FIXME@FIXME>\r\n", requested_msgnum);
 	}
 	if (acmd == STAT) {
-		// crash FIXME
 		cprintf("223 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+		FreeStrBuf(&msgtext);
+		return;
 	}
 
 	client_write(SKEY(msgtext));
