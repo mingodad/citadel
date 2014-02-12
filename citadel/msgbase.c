@@ -1521,14 +1521,15 @@ int check_cached_msglist(long msgnum) {
  * 
  */
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
-		  int mode,		/* how would you like that message? */
-		  int headers_only,	/* eschew the message body? */
-		  int do_proto,		/* do Citadel protocol responses? */
-		  int crlf,		/* Use CRLF newlines instead of LF? */
-		  char *section, 	/* NULL or a message/rfc822 section */
-		  int flags,		/* various flags; see msgbase.h */
-		  char **Author,
-		  char **Address
+		int mode,		/* how would you like that message? */
+		int headers_only,	/* eschew the message body? */
+		int do_proto,		/* do Citadel protocol responses? */
+		int crlf,		/* Use CRLF newlines instead of LF? */
+		char *section,	 	/* NULL or a message/rfc822 section */
+		int flags,		/* various flags; see msgbase.h */
+		char **Author,
+		char **Address,
+		char **MessageID
 ) {
 	struct CitContext *CCC = CC;
 	struct CtdlMessage *TheMessage = NULL;
@@ -1616,6 +1617,11 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			long len;
 			CM_GetAsField(TheMessage, erFc822Addr, Address, &len);
 		}
+		if ((MessageID != NULL) && (*MessageID == NULL))
+		{	
+			long len;
+			CM_GetAsField(TheMessage, emessageId, MessageID, &len);
+		}
 		CM_Free(TheMessage);
 		TheMessage = NULL;
 
@@ -1654,6 +1660,11 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	{	
 		long len;
 		CM_GetAsField(TheMessage, erFc822Addr, Address, &len);
+	}
+	if ((MessageID != NULL) && (*MessageID == NULL))
+	{	
+		long len;
+		CM_GetAsField(TheMessage, emessageId, MessageID, &len);
 	}
 
 	CM_Free(TheMessage);

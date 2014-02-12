@@ -190,7 +190,7 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		CtdlOutputMsg(msgnum, MT_RFC822,
 			(need_body ? HEADERS_ALL : HEADERS_FAST),
-			0, 1, NULL, SUPPRESS_ENV_TO, NULL, NULL
+			0, 1, NULL, SUPPRESS_ENV_TO, NULL, NULL, NULL
 		);
 		if (!need_body) IAPuts("\r\n");	/* extra trailing newline */
 		Imap->cached_rfc822 = CCC->redirect_buffer;

@@ -191,7 +191,7 @@ void cmd_msg0(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0, NULL, 0, NULL, NULL);
+	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0, NULL, 0, NULL, NULL, NULL);
 	return;
 }
 
@@ -207,7 +207,7 @@ void cmd_msg2(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1, NULL, 0, NULL, NULL);
+	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1, NULL, 0, NULL, NULL, NULL);
 }
 
 
@@ -261,7 +261,7 @@ void cmd_msg4(char *cmdbuf)
 
 	msgid = extract_long(cmdbuf, 0);
 	extract_token(section, cmdbuf, 1, '|', sizeof section);
-	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0, (section[0] ? section : NULL) , 0, NULL, NULL);
+	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0, (section[0] ? section : NULL) , 0, NULL, NULL, NULL);
 }
 
 
@@ -294,7 +294,7 @@ void cmd_opna(char *cmdbuf)
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section,
 		sizeof CC->download_desired_section);
-	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL, 0, NULL, NULL);
+	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1, NULL, 0, NULL, NULL, NULL);
 }			
 
 
@@ -310,7 +310,7 @@ void cmd_dlat(char *cmdbuf)
 	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section,
 		sizeof CC->download_desired_section);
-	CtdlOutputMsg(msgid, MT_SPEW_SECTION, 0, 1, 1, NULL, 0, NULL, NULL);
+	CtdlOutputMsg(msgid, MT_SPEW_SECTION, 0, 1, 1, NULL, 0, NULL, NULL, NULL);
 }
 
 /*

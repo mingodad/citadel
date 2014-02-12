@@ -492,7 +492,8 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n, char **Author, char **Address)
 		      0, 1, NULL,
 		      (ESC_DOT|SUPPRESS_ENV_TO),
 		      Author,
-		      Address);
+		      Address,
+			NULL);
 
 	SendMsg = CCC->redirect_buffer;
 	CCC->redirect_buffer = NULL;
