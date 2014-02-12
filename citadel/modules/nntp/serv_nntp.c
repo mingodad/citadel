@@ -770,7 +770,8 @@ void nntp_article(const char *cmd) {
 			NULL,			// teh whole thing, not just a section
 			0,			// no flags yet ... maybe new ones for Path: etc ?
 			NULL,
-			NULL
+			NULL,
+			NULL			// FIXME this is where we grab teh message ID !!
 	);
 	StrBuf *msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
