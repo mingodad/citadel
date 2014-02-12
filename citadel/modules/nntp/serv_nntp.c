@@ -761,6 +761,7 @@ void nntp_article(const char *cmd) {
 
 	// At this point we know the message number of the "article" being requested.
 	// We have an awesome API call that does all the heavy lifting for us.
+	char *fetched_message_id = NULL;
 	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	int fetch = CtdlOutputMsg(requested_msgnum,
 			MT_RFC822,		// output in RFC822 format ... sort of
@@ -771,7 +772,7 @@ void nntp_article(const char *cmd) {
 			0,			// no flags yet ... maybe new ones for Path: etc ?
 			NULL,
 			NULL,
-			NULL			// FIXME this is where we grab teh message ID !!
+			&fetched_message_id	// extract the message ID from the message as we go...
 	);
 	StrBuf *msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
@@ -783,16 +784,16 @@ void nntp_article(const char *cmd) {
 	}
 
 	if (acmd == ARTICLE) {
-		cprintf("220 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+		cprintf("220 %ld <%s>\r\n", requested_msgnum, fetched_message_id);
 	}
 	if (acmd == HEAD) {
-		cprintf("221 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+		cprintf("221 %ld <%s>\r\n", requested_msgnum, fetched_message_id);
 	}
 	if (acmd == BODY) {
-		cprintf("222 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+		cprintf("222 %ld <%s>\r\n", requested_msgnum, fetched_message_id);
 	}
 	if (acmd == STAT) {
-		cprintf("223 %ld <FIXME@FIXME>\r\n", requested_msgnum);
+		cprintf("223 %ld <%s>\r\n", requested_msgnum, fetched_message_id);
 		FreeStrBuf(&msgtext);
 		return;
 	}
@@ -800,6 +801,7 @@ void nntp_article(const char *cmd) {
 	client_write(SKEY(msgtext));
 	cprintf(".\r\n");			// this protocol uses a dot terminator
 	FreeStrBuf(&msgtext);
+	if (fetched_message_id) free(fetched_message_id);
 }
 
 
