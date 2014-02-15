@@ -644,6 +644,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			StrBufPrintf(BufHeader, "%s%x\r\n", 
 				     (first)?"":"\r\n",
 				     StrLength (WCC->WBuf));
+			first = 0;
 			if (send_http(BufHeader) < 0)
 				break;
 		}
