@@ -185,9 +185,9 @@ void nntp_greeting(void)
 	strcpy(CC->cs_clientname, "NNTP session");
 	CC->cs_flags |= CS_STEALTH;
 
-	/* CC->session_specific_data = malloc(sizeof(citnntp));
-	memset(NNTP, 0, sizeof(citnntp));
-	*/
+	CC->session_specific_data = malloc(sizeof(citnntp));
+	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
+	memset(nntpstate, 0, sizeof(citnntp));
 
 	if (CC->nologin==1) {
 		cprintf("451 Too many connections are already open; please try again later.\r\n");
@@ -897,6 +897,11 @@ void nntp_cleanup_function(void)
 	if (CC->h_command_function != nntp_command_loop) return;
 
 	syslog(LOG_DEBUG, "Performing NNTP cleanup hook\n");
+	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
+	if (nntpstate != NULL) {
+		free(nntpstate);
+		nntpstate = NULL;
+	}
 }
 
 const char *CitadelServiceNNTP="NNTP";
