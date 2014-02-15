@@ -586,6 +586,7 @@ void nntp_group(const char *cmd) {
 	//
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
+	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
 	char verb[16];
 	char requested_group[1024];
 	char message_range[256];
@@ -653,8 +654,9 @@ void nntp_group(const char *cmd) {
 	CtdlUserGoto(NULL, 0, 0, &msgs, &new, &oldest, &newest);
 	cprintf("211 %d %ld %ld %s\r\n", msgs, oldest, newest, requested_group);
 
-	// If this is a GROUP command, we can stop here.
+	// If this is a GROUP command, set the "current article number" to zero, and then stop here.
 	if (!strcasecmp(verb, "GROUP")) {
+		nntpstate->current_article_number = 0;
 		return;
 	}
 

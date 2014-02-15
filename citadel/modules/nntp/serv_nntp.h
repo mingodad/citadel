@@ -38,7 +38,7 @@ struct listgroup_range {
 
 
 typedef struct _citnntp {		// Information about the current session
-	int foo;			// dummy thingo
+	long current_article_number;
 } citnntp;
 
 int wildmat(const char *text, const char *p);
