@@ -656,7 +656,7 @@ void nntp_group(const char *cmd) {
 
 	// If this is a GROUP command, set the "current article number" to zero, and then stop here.
 	if (!strcasecmp(verb, "GROUP")) {
-		nntpstate->current_article_number = 0;
+		nntpstate->current_article_number = oldest;
 		return;
 	}
 
@@ -690,6 +690,19 @@ void nntp_mode(const char *cmd) {
 // (These commands all accept the same parameters; they differ only in how they output the retrieved message.)
 //
 void nntp_article(const char *cmd) {
+	/*
+	 * HACK: this works because the 5XX series error codes from citadel
+	 * protocol will also be considered error codes by an NNTP client
+	 */
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
+	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
+	char which_command[16];
+	int acmd = 0;
+	char requested_article[256];
+	long requested_msgnum = 0;
+	char *lb, *rb = NULL;
+	int must_change_currently_selected_article = 0;
 
 	// We're going to store one of these values in the variable 'acmd' so that
 	enum {
@@ -699,8 +712,6 @@ void nntp_article(const char *cmd) {
 		STAT
 	};
 
-	char which_command[16];
-	int acmd = 0;
 	extract_token(which_command, cmd, 0, ' ', sizeof which_command);
 
 	if (!strcasecmp(which_command, "article")) {
@@ -727,36 +738,39 @@ void nntp_article(const char *cmd) {
 	else if (acmd == STAT)	headers_only = HEADERS_FAST;
 
 	// now figure out what the client is asking for.
-	char requested_article[256];
-	long requested_msgnum = 0;
-	char *lb, *rb = NULL;
 	extract_token(requested_article, cmd, 1, ' ', sizeof requested_article);
 	lb = strchr(requested_article, '<');
 	rb = strchr(requested_article, '>');
 	requested_msgnum = atol(requested_article);
 
-	// If no article number or message-id is specified, the client wants the "next" article.
-	// We don't know how to do that yet.
+	// If no article number or message-id is specified, the client wants the "currently selected article"
 	if (IsEmptyStr(requested_article)) {
-		cprintf("500 FIXME I don't know how to fetch next yet.\r\n");
-		return;
+		if (nntpstate->current_article_number < 1) {
+			cprintf("420 No current article selected\r\n");
+			return;
+		}
+		requested_msgnum = nntpstate->current_article_number;
+		must_change_currently_selected_article = 1;
+		// got it -- now fall through and keep going
 	}
 
 	// If the requested article is numeric, it maps directly to a message number.  Good.
 	else if (requested_msgnum > 0) {
+		must_change_currently_selected_article = 1;
 		// good -- fall through and keep going
 	}
 
 	// If the requested article has angle brackets, the client wants a specific message-id.
 	// We don't know how to do that yet.
 	else if ( (lb != NULL) && (rb != NULL) && (lb < rb) ) {
+		must_change_currently_selected_article = 0;
 		cprintf("500 FIXME I don't know how to fetch by message-id yet.\r\n");
 		return;
 	}
 
 	// Anything else is noncompliant gobbledygook and should die in a car fire.
-	// Also, the weasel who is spreading untrue rumors about me at work should die in a slow and painful car fire.
 	else {
+		must_change_currently_selected_article = 0;
 		cprintf("500 syntax error\r\n");
 		return;
 	}
@@ -785,6 +799,13 @@ void nntp_article(const char *cmd) {
 		return;
 	}
 
+	// RFC3977 6.2.1.2 specifes conditions under which the "currently selected article"
+	// MUST or MUST NOT be set to the message we just referenced.
+	if (must_change_currently_selected_article) {
+		nntpstate->current_article_number = requested_msgnum;
+	}
+
+	// Now give the client what it asked for.
 	if (acmd == ARTICLE) {
 		cprintf("220 %ld <%s>\r\n", requested_msgnum, fetched_message_id);
 	}
