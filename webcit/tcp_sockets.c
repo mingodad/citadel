@@ -482,12 +482,12 @@ int client_write(StrBuf *ThisBuf)
                 }
 
                 if ((WCC->Hdr->http_sock == -1) || 
-		    (res = write(WCC->Hdr->http_sock, 
-				 ptr,
-				 count)) == -1) {
+		    ((res = write(WCC->Hdr->http_sock, ptr, count)),
+		     (res == -1)))
+		{
                         syslog(LOG_INFO, "client_write: Socket write failed (%s)\n", strerror(errno));
 			wc_backtrace(LOG_INFO);
-                        return res;
+                        return -1;
                 }
                 count -= res;
 		ptr += res;
@@ -553,6 +553,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	wcsession *WCC = WC;
 	size_t bytes_read = 0;
 	int first = 1;
+	int client_con_state = 0;
 	int chunked = 0;
 	StrBuf *BufHeader = NULL;
 	StrBuf *Buf;
@@ -611,7 +612,10 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		}
 	}
 
-	while ((bytes_read < total_len) && (ServerRc == 6)) {
+	while ((bytes_read < total_len) &&
+	       (ServerRc == 6) &&
+	       (client_con_state == 0))
+	{
 
 		if (WCC->serv_sock==-1) {
 			FlushStrBuf(WCC->WBuf); 
@@ -635,27 +639,25 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			StrBufPlain(MimeType, CT, -1);
 			http_transmit_headers(ChrPtr(MimeType), is_static, chunked);
 			
-			if (send_http(WCC->HBuf) < 0)
-				break;
+			client_con_state = send_http(WCC->HBuf);
 		}
 
-		if (chunked)
+		if ((chunked) && (client_con_state == 0))
 		{
 			StrBufPrintf(BufHeader, "%s%x\r\n", 
 				     (first)?"":"\r\n",
 				     StrLength (WCC->WBuf));
 			first = 0;
-			if (send_http(BufHeader) < 0)
-				break;
+			client_con_state = send_http(BufHeader);
 		}
 
-		if (send_http(WCC->WBuf) < 0)
-			break;
+		if (client_con_state == 0)
+		    client_con_state = send_http(WCC->WBuf);
 
 		FlushStrBuf(WCC->WBuf);
 	}
 
-	if (chunked)
+	if ((chunked) && (client_con_state == 0))
 	{
 		StrBufPlain(BufHeader, HKEY("\r\n0\r\n\r\n"));
 		if (send_http(BufHeader) < 0)
