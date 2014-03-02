@@ -99,7 +99,6 @@ int is_valid_newsgroup_name(char *name) {
 }
 
 
-
 //
 // Convert a Citadel room name to a valid newsgroup name
 //
@@ -195,9 +194,7 @@ void nntp_greeting(void)
 		return;
 	}
 
-	// Note: the FQDN *must* appear as the first thing after the 220 code.
-	// Some clients (including citmail.c) depend on it being there.
-	//
+	// Display the standard greeting
 	cprintf("200 %s NNTP Citadel server is not finished yet\r\n", config.c_fqdn);
 }
 
@@ -212,7 +209,6 @@ void nntps_greeting(void) {
 #endif
 	nntp_greeting();
 }
-
 
 
 //
@@ -271,7 +267,6 @@ void nntp_cleanup(void)
 }
 
 
-
 //
 // Implements the AUTHINFO USER command (RFC 4643)
 //
@@ -323,7 +318,6 @@ void nntp_authinfo_pass(const char *buf)
 }
 
 
-
 //
 // Implements the AUTHINFO extension (RFC 4643) in USER/PASS mode
 //
@@ -365,20 +359,6 @@ struct nntp_msglist nntp_fetch_msglist(struct ctdlroom *qrbuf) {
 }
 
 
-
-//
-// Various output formats for the LIST commands
-//
-enum {
-	NNTP_LIST_ACTIVE,
-	NNTP_LIST_ACTIVE_TIMES,
-	NNTP_LIST_DISTRIB_PATS,
-	NNTP_LIST_HEADERS,
-	NNTP_LIST_NEWSGROUPS,
-	NNTP_LIST_OVERVIEW_FMT
-};
-
-
 //
 // Output a room name (newsgroup name) in formats required for LIST and NEWGROUPS command
 //
@@ -417,7 +397,6 @@ void output_roomname_in_list_format(struct ctdlroom *qrbuf, int which_format, ch
 		free(nm.msgnums);
 	}
 }
-
 
 
 //
@@ -682,7 +661,6 @@ void nntp_mode(const char *cmd) {
 		cprintf("501 unknown mode\r\n");
 	}
 }
-
 
 
 //

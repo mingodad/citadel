@@ -36,10 +36,23 @@ struct listgroup_range {
 };
 
 
-
 typedef struct _citnntp {		// Information about the current session
 	long current_article_number;
 } citnntp;
+
+
+//
+// Various output formats for the LIST commands
+//
+enum {
+	NNTP_LIST_ACTIVE,
+	NNTP_LIST_ACTIVE_TIMES,
+	NNTP_LIST_DISTRIB_PATS,
+	NNTP_LIST_HEADERS,
+	NNTP_LIST_NEWSGROUPS,
+	NNTP_LIST_OVERVIEW_FMT
+};
+
 
 int wildmat(const char *text, const char *p);
 
