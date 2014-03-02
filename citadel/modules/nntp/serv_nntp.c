@@ -429,12 +429,7 @@ void nntp_newgroups_backend(struct ctdlroom *qrbuf, void *data)
 // Implements the NEWGROUPS command
 //
 void nntp_newgroups(const char *cmd) {
-	/*
-	 * HACK: this works because the 5XX series error codes from citadel
-	 * protocol will also be considered error codes by an NNTP client
-	 */
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
-
 
 	char stringy_date[16];
 	char stringy_time[16];
@@ -492,10 +487,6 @@ void nntp_list_backend(struct ctdlroom *qrbuf, void *data)
 // Implements the LIST commands
 //
 void nntp_list(const char *cmd) {
-	//
-	// HACK: this works because the 5XX series error codes from citadel
-	// protocol will also be considered error codes by an NNTP client
-	//
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	char list_format[64];
@@ -559,10 +550,6 @@ void nntp_listgroup_backend(long msgnum, void *userdata) {
 // Implements the GROUP and LISTGROUP commands
 //
 void nntp_group(const char *cmd) {
-	//
-	// HACK: this works because the 5XX series error codes from citadel
-	// protocol will also be considered error codes by an NNTP client
-	//
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
@@ -668,10 +655,6 @@ void nntp_mode(const char *cmd) {
 // (These commands all accept the same parameters; they differ only in how they output the retrieved message.)
 //
 void nntp_article(const char *cmd) {
-	/*
-	 * HACK: this works because the 5XX series error codes from citadel
-	 * protocol will also be considered error codes by an NNTP client
-	 */
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
@@ -683,6 +666,7 @@ void nntp_article(const char *cmd) {
 	int must_change_currently_selected_article = 0;
 
 	// We're going to store one of these values in the variable 'acmd' so that
+	// we can quickly check later which version of the output we want.
 	enum {
 		ARTICLE,
 		HEAD,
@@ -806,6 +790,40 @@ void nntp_article(const char *cmd) {
 }
 
 
+//
+// The LAST and NEXT commands are so similar that they are handled by a single function.
+//
+void nntp_last_next(const char *cmd) {
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
+	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
+	char which_command[16];
+	int acmd = 0;
+
+	// We're going to store one of these values in the variable 'acmd' so that
+	// we can quickly check later which version of the output we want.
+	enum {
+		NNTP_LAST,
+		NNTP_NEXT
+	};
+
+	extract_token(which_command, cmd, 0, ' ', sizeof which_command);
+
+	if (!strcasecmp(which_command, "last")) {
+		acmd = NNTP_LAST;
+	}
+	else if (!strcasecmp(which_command, "next")) {
+		acmd = NNTP_NEXT;
+	}
+	else {
+		cprintf("500 I'm afraid I can't do that.\r\n");
+		return;
+	}
+
+	cprintf("500 FIXME cmd=%d current_article_number=%ld\r\n", acmd, nntpstate->current_article_number);
+}
+
+
 // 
 // Main command loop for NNTP server sessions.
 //
@@ -871,8 +889,17 @@ void nntp_command_loop(void)
 			|| (!strcasecmp(cmdname, "head"))
 			|| (!strcasecmp(cmdname, "body"))
 			|| (!strcasecmp(cmdname, "stat"))
-		) {
+		)
+	{
 		nntp_article(ChrPtr(Cmd));
+	}
+
+	else if (
+			(!strcasecmp(cmdname, "last"))
+			|| (!strcasecmp(cmdname, "next"))
+		)
+	{
+		nntp_last_next(ChrPtr(Cmd));
 	}
 
 	else {
