@@ -820,6 +820,23 @@ void nntp_last_next(const char *cmd) {
 		return;
 	}
 
+	// ok, here we go ... fetch the msglist so we can figure out our place in the universe
+	struct nntp_msglist nm;
+	long low_water_mark = 0;
+	long high_water_mark = 0;
+
+	nm = nntp_fetch_msglist(&CC->room);
+	if ((nm.num_msgs > 0) && (nm.msgnums != NULL)) {
+		low_water_mark = nm.msgnums[0];
+		high_water_mark = nm.msgnums[nm.num_msgs - 1];
+	}
+	else {
+		cprintf("500 something bad happened\r\n");
+		return;
+	}
+
+	// ok now let's get all up in this msglist FIXME
+
 	cprintf("500 FIXME cmd=%d current_article_number=%ld\r\n", acmd, nntpstate->current_article_number);
 }
 
