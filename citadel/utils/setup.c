@@ -1,7 +1,7 @@
 /*
  * Citadel setup utility
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -1147,6 +1147,7 @@ void set_default_values(void)
 	GetDefaultVALINT(c_managesieve_port, 2020);
 	GetDefaultVALINT(c_xmpp_c2s_port, 5222);
 	GetDefaultVALINT(c_xmpp_s2s_port, 5269);
+	GetDefaultVALINT(c_nntp_port, 119);
 #endif
 }
 
