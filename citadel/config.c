@@ -1,7 +1,7 @@
 /*
  * Read and write the citadel.config file
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -91,6 +91,7 @@ void brand_new_installation_set_defaults(void) {
 	config.c_managesieve_port = 2020;
 	config.c_xmpp_c2s_port = 5222;
 	config.c_xmpp_s2s_port = 5269;
+	config.c_nntp_port = 119;
 }
 
 void setcfglen(void)
