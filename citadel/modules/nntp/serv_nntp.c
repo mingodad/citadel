@@ -822,22 +822,72 @@ void nntp_last_next(const char *cmd) {
 
 	// ok, here we go ... fetch the msglist so we can figure out our place in the universe
 	struct nntp_msglist nm;
-	long low_water_mark = 0;
-	long high_water_mark = 0;
+	int i = 0;
+	long selected_msgnum = 0;
 
 	nm = nntp_fetch_msglist(&CC->room);
-	if ((nm.num_msgs > 0) && (nm.msgnums != NULL)) {
-		low_water_mark = nm.msgnums[0];
-		high_water_mark = nm.msgnums[nm.num_msgs - 1];
-	}
-	else {
+	if ((nm.num_msgs < 0) || (nm.msgnums == NULL)) {
 		cprintf("500 something bad happened\r\n");
 		return;
 	}
 
-	// ok now let's get all up in this msglist FIXME
+	syslog(LOG_DEBUG, "NNTP: last_next num_msgs=%d and current article was %ld", nm.num_msgs, nntpstate->current_article_number);
 
-	cprintf("500 FIXME cmd=%d current_article_number=%ld\r\n", acmd, nntpstate->current_article_number);
+	if ( (acmd == NNTP_LAST) && (nm.num_msgs == 0) ) {
+			cprintf("422 no previous article in this group 1\r\n");	// nothing here
+	}
+
+	else if ( (acmd == NNTP_LAST) && (nntpstate->current_article_number <= nm.msgnums[0]) ) {
+			cprintf("422 no previous article in this group 2\r\n");	// already at the beginning
+	}
+
+	else if (acmd == NNTP_LAST) {
+		for (i=0; ((i<nm.num_msgs)&&(selected_msgnum<=0)); ++i) {
+			if ( (nm.msgnums[i] >= nntpstate->current_article_number) && (i > 0) ) {
+				selected_msgnum = nm.msgnums[i-1];
+			}
+		}
+		if (selected_msgnum > 0) {
+			nntpstate->current_article_number = selected_msgnum;
+			cprintf("223 %ld <FIXME@FIXME>\r\n", nntpstate->current_article_number);
+		}
+		else {
+			cprintf("422 no previous article in this group 3\r\n");
+		}
+	}
+
+	else if ( (acmd == NNTP_NEXT) && (nm.num_msgs == 0) ) {
+			cprintf("421 no next article in this group 4\r\n");	// nothing here
+	}
+
+	else if ( (acmd == NNTP_NEXT) && (nntpstate->current_article_number >= nm.msgnums[nm.num_msgs-1]) ) {
+			cprintf("421 no next article in this group 5\r\n");	// already at the end
+	}
+
+	else if (acmd == NNTP_NEXT) {
+		for (i=0; ((i<nm.num_msgs)&&(selected_msgnum<=0)); ++i) {
+			if (nm.msgnums[i] > nntpstate->current_article_number) {
+				selected_msgnum = nm.msgnums[i];
+			}
+		}
+		if (selected_msgnum > 0) {
+			nntpstate->current_article_number = selected_msgnum;
+			cprintf("223 %ld <FIXME@FIXME>\r\n", nntpstate->current_article_number);
+		}
+		else {
+			cprintf("421 no next article in this group 6\r\n");
+		}
+	}
+
+	// should never get here
+	else {
+		cprintf("500 internal error\r\n");
+	}
+
+	if (nm.msgnums != NULL) {
+		free(nm.msgnums);
+	}
+
 }
 
 
