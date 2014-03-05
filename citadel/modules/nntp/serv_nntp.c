@@ -532,6 +532,25 @@ void nntp_help(void) {
 
 
 //
+// Implement DATE command.
+//
+void nntp_date(void) {
+	time_t now;
+	struct tm nowLocal;
+	struct tm nowUtc;
+	char tsFromUtc[32];
+
+	now = time(NULL);
+	localtime_r(&now, &nowLocal);
+	gmtime_r(&now, &nowUtc);
+
+	strftime(tsFromUtc, sizeof(tsFromUtc), "%Y%m%d%H%M%S", &nowUtc);
+
+	cprintf("111 %s\r\n", tsFromUtc);
+}
+
+
+//
 // back end for the LISTGROUP command , called for each message number
 //
 void nntp_listgroup_backend(long msgnum, void *userdata) {
@@ -947,6 +966,10 @@ void nntp_command_loop(void)
 
 	else if (!strcasecmp(cmdname, "help")) {
 		nntp_help();
+	}
+
+	else if (!strcasecmp(cmdname, "date")) {
+		nntp_date();
 	}
 
 	else if (!strcasecmp(cmdname, "capabilities")) {
