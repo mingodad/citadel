@@ -791,6 +791,33 @@ void nntp_article(const char *cmd) {
 
 
 //
+// Utility function for nntp_last_next() that turns a msgnum into a message ID.
+// The memory for the returned string is pwnz0red by the caller.
+//
+char *message_id_from_msgnum(long msgnum) {
+
+	char *fetched_message_id = NULL;
+	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+	CtdlOutputMsg(msgnum,
+			MT_RFC822,		// output in RFC822 format ... sort of
+			HEADERS_FAST,		// headers, body, or both?
+			0,			// don't do Citadel protocol responses
+			1,			// CRLF newlines
+			NULL,			// teh whole thing, not just a section
+			0,			// no flags yet ... maybe new ones for Path: etc ?
+			NULL,
+			NULL,
+			&fetched_message_id	// extract the message ID from the message as we go...
+	);
+	StrBuf *msgtext = CC->redirect_buffer;
+	CC->redirect_buffer = NULL;
+
+	FreeStrBuf(&msgtext);
+	return(fetched_message_id);
+}
+
+
+//
 // The LAST and NEXT commands are so similar that they are handled by a single function.
 //
 void nntp_last_next(const char *cmd) {
@@ -824,6 +851,7 @@ void nntp_last_next(const char *cmd) {
 	struct nntp_msglist nm;
 	int i = 0;
 	long selected_msgnum = 0;
+	char *message_id = NULL;
 
 	nm = nntp_fetch_msglist(&CC->room);
 	if ((nm.num_msgs < 0) || (nm.msgnums == NULL)) {
@@ -831,14 +859,12 @@ void nntp_last_next(const char *cmd) {
 		return;
 	}
 
-	syslog(LOG_DEBUG, "NNTP: last_next num_msgs=%d and current article was %ld", nm.num_msgs, nntpstate->current_article_number);
-
 	if ( (acmd == NNTP_LAST) && (nm.num_msgs == 0) ) {
-			cprintf("422 no previous article in this group 1\r\n");	// nothing here
+			cprintf("422 no previous article in this group\r\n");	// nothing here
 	}
 
 	else if ( (acmd == NNTP_LAST) && (nntpstate->current_article_number <= nm.msgnums[0]) ) {
-			cprintf("422 no previous article in this group 2\r\n");	// already at the beginning
+			cprintf("422 no previous article in this group\r\n");	// already at the beginning
 	}
 
 	else if (acmd == NNTP_LAST) {
@@ -849,19 +875,21 @@ void nntp_last_next(const char *cmd) {
 		}
 		if (selected_msgnum > 0) {
 			nntpstate->current_article_number = selected_msgnum;
-			cprintf("223 %ld <FIXME@FIXME>\r\n", nntpstate->current_article_number);
+			message_id = message_id_from_msgnum(nntpstate->current_article_number);
+			cprintf("223 %ld <%s>\r\n", nntpstate->current_article_number, message_id);
+			if (message_id) free(message_id);
 		}
 		else {
-			cprintf("422 no previous article in this group 3\r\n");
+			cprintf("422 no previous article in this group\r\n");
 		}
 	}
 
 	else if ( (acmd == NNTP_NEXT) && (nm.num_msgs == 0) ) {
-			cprintf("421 no next article in this group 4\r\n");	// nothing here
+			cprintf("421 no next article in this group\r\n");	// nothing here
 	}
 
 	else if ( (acmd == NNTP_NEXT) && (nntpstate->current_article_number >= nm.msgnums[nm.num_msgs-1]) ) {
-			cprintf("421 no next article in this group 5\r\n");	// already at the end
+			cprintf("421 no next article in this group\r\n");	// already at the end
 	}
 
 	else if (acmd == NNTP_NEXT) {
@@ -872,10 +900,12 @@ void nntp_last_next(const char *cmd) {
 		}
 		if (selected_msgnum > 0) {
 			nntpstate->current_article_number = selected_msgnum;
-			cprintf("223 %ld <FIXME@FIXME>\r\n", nntpstate->current_article_number);
+			message_id = message_id_from_msgnum(nntpstate->current_article_number);
+			cprintf("223 %ld <%s>\r\n", nntpstate->current_article_number, message_id);
+			if (message_id) free(message_id);
 		}
 		else {
-			cprintf("421 no next article in this group 6\r\n");
+			cprintf("421 no next article in this group\r\n");
 		}
 	}
 
