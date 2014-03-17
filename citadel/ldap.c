@@ -2,7 +2,7 @@
  * These functions implement the portions of AUTHMODE_LDAP and AUTHMODE_LDAP_AD which
  * actually speak to the LDAP server.
  *
- * Copyright (c) 2011 by Art Cancro and the citadel.org development team.
+ * Copyright (c) 2011-2014 by the citadel.org development team.
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -72,8 +72,8 @@ int CtdlTryUserLDAP(char *username,
 	if (ldap_initialize(&ldserver, config.c_ldap_host))
 	{
 		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s\n",
-		       config.c_ldap_host, config.c_ldap_port,
-		       strerror(errno)
+			   config.c_ldap_host, config.c_ldap_port,
+			   strerror(errno)
 			);
 		return(errno);
 	}
@@ -237,6 +237,39 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 }
 
 
+//return !0 iff property changed.
+int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, char **vals) {
+	int i;
+	char *oldval;
+	for(i=0;i<numvals;i++) {
+	  oldval = vcard_get_prop(v,propname,0,i,0);
+	  if (oldval == NULL) break;
+	  if (strcmp(vals[i],oldval)) break;
+	}
+	if (i!=numvals) {
+		for(i=0;i<numvals;i++) vcard_set_prop(v,propname,vals[i],(i==0) ? 0 : 1);
+		return 1;
+	}
+	return 0;
+}
+
+
+//return !0 iff property changed.
+int vcard_set_one_prop_iff_different(struct vCard *v,char *propname, char *newfmt, ...) {
+	va_list args;
+	char *newvalue;
+	int changed_something;
+	va_start(args,newfmt);
+	if (-1==vasprintf(&newvalue,newfmt,args)) {
+		syslog(LOG_ALERT, "Out of memory!\n");
+		return 0;
+	}
+	changed_something = vcard_set_props_iff_different(v,propname,1,&newvalue);
+	va_end(args);
+	free(newvalue);
+	return changed_something;
+}
+
 /*
  * Learn LDAP attributes and stuff them into the vCard.
  * Returns nonzero if we changed anything.
@@ -244,23 +277,166 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 {
 	int changed_something = 0;
+	LDAP *ldserver = NULL;
+	int i;
+	struct timeval tv;
+	LDAPMessage *search_result = NULL;
+	LDAPMessage *entry = NULL;
+	char **givenName;
+	char **sn;
+	char **cn;
+	char **initials;
+	char **o;
+	char **street;
+	char **l;
+	char **st;
+	char **postalCode;
+	char **telephoneNumber;
+	char **mobile;
+	char **homePhone;
+	char **facsimileTelephoneNumber;
+	char **mail;
+	char **uid;
+	char **homeDirectory;
+	char **uidNumber;
+	char **loginShell;
+	char **gidNumber;
+	char **c;
+	char **title;
+	char **uuid;
+	char *attrs[] = { "*","+",NULL};
 
 	if (!ldap_dn) return(0);
 	if (!v) return(0);
+	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
+	if (ldserver == NULL) {
+		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s\n",
+			config.c_ldap_host, config.c_ldap_port,
+			strerror(errno)
+		);
+		return(0);
+	}
 
-	/*
-	 * FIXME this is a stub function
-	 *
-	 * ldap_dn will contain the DN of the user, and v will contain a pointer to
-	 * the vCard that needs to be (re-)populated.  Put the requisite LDAP code here.
-	 *
-	vcard_set_prop(v, "email;internet", xxx, 0);
-	 *
-	 * return nonzero to tell the caller that we made changes that need to be saved
-	changed_something = 1;
-	 *
+	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
+	ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
+
+	striplt(config.c_ldap_bind_dn);
+	striplt(config.c_ldap_bind_pw);
+	syslog(LOG_DEBUG, "LDAP bind DN: %s\n", config.c_ldap_bind_dn);
+	i = ldap_simple_bind_s(ldserver,
+		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
+		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
+	);
+	if (i != LDAP_SUCCESS) {
+		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
+		return(0);
+	}
+
+	tv.tv_sec = 10;
+	tv.tv_usec = 0;
+
+	syslog(LOG_DEBUG, "LDAP search: %s\n", ldap_dn);
+	(void) ldap_search_ext_s(
+		ldserver,				/* ld				*/
+		ldap_dn,				/* base				*/
+		LDAP_SCOPE_SUBTREE,		/* scope			*/
+		NULL,					/* filter			*/
+		attrs,					/* attrs (all attributes)	*/
+		0,						/* attrsonly (attrs + values)	*/
+		NULL,					/* serverctrls (none)		*/
+		NULL,					/* clientctrls (none)		*/
+		&tv,					/* timeout			*/
+		1,						/* sizelimit (1 result max)	*/
+		&search_result			/* res				*/
+	);
+	
+	/* Ignore the return value of ldap_search_ext_s().  Sometimes it returns an error even when
+	 * the search succeeds.  Instead, we check to see whether search_result is still NULL.
 	 */
+	 
+	if (search_result == NULL) {
+		syslog(LOG_DEBUG, "LDAP search: zero results were returned\n");
+		ldap_unbind(ldserver);
+		return(0);
+	}
 
+	/* At this point we've got at least one result from our query.  If there are multiple
+	 * results, we still only look at the first one.
+	 */
+	entry = ldap_first_entry(ldserver, search_result);
+	if (entry) {
+		syslog(LOG_DEBUG, "LDAP search, got user details for vcard.\n");
+		givenName=ldap_get_values(ldserver, search_result, "givenName");
+		sn=ldap_get_values(ldserver, search_result, "sn");
+		cn=ldap_get_values(ldserver, search_result, "cn");
+		initials=ldap_get_values(ldserver, search_result, "initials");
+		title=ldap_get_values(ldserver, search_result, "title");
+		o=ldap_get_values(ldserver, search_result, "o");
+		street=ldap_get_values(ldserver, search_result, "street");
+		l=ldap_get_values(ldserver, search_result, "l");
+		st=ldap_get_values(ldserver, search_result, "st");
+		postalCode=ldap_get_values(ldserver, search_result, "postalCode");
+		telephoneNumber=ldap_get_values(ldserver, search_result, "telephoneNumber");
+		mobile=ldap_get_values(ldserver, search_result, "mobile");
+		homePhone=ldap_get_values(ldserver, search_result, "homePhone");
+		facsimileTelephoneNumber=ldap_get_values(ldserver, search_result, "facsimileTelephoneNumber");
+		mail=ldap_get_values(ldserver, search_result, "mail");
+		uid=ldap_get_values(ldserver, search_result, "uid");
+		homeDirectory=ldap_get_values(ldserver, search_result, "homeDirectory");
+		uidNumber=ldap_get_values(ldserver, search_result, "uidNumber");
+		loginShell=ldap_get_values(ldserver, search_result, "loginShell");
+		gidNumber=ldap_get_values(ldserver, search_result, "gidNumber");
+		c=ldap_get_values(ldserver, search_result, "c");
+		uuid=ldap_get_values(ldserver, search_result, "entryUUID");
+
+		if (street && l && st && postalCode && c) changed_something |= vcard_set_one_prop_iff_different(v,"adr",";;%s;%s;%s;%s;%s",street[0],l[0],st[0],postalCode[0],c[0]);
+		if (telephoneNumber) changed_something |= vcard_set_one_prop_iff_different(v,"tel;work","%s",telephoneNumber[0]);
+		if (facsimileTelephoneNumber) changed_something |= vcard_set_one_prop_iff_different(v,"tel;fax","%s",facsimileTelephoneNumber[0]);
+		if (mobile) changed_something |= vcard_set_one_prop_iff_different(v,"tel;cell","%s",mobile[0]);
+		if (homePhone) changed_something |= vcard_set_one_prop_iff_different(v,"tel;home","%s",homePhone[0]);
+		if (givenName && sn) {
+			if (initials)
+			  changed_something |= vcard_set_one_prop_iff_different(v,"n","%s;%s;%s",sn[0],givenName[0],initials[0]);
+			else
+			  changed_something |= vcard_set_one_prop_iff_different(v,"n","%s;%s",sn[0],givenName[0]);
+		}
+		if (mail) {
+			changed_something |= vcard_set_props_iff_different(v,"email;internet",ldap_count_values(mail),mail);
+		}
+		if (uuid) changed_something |= vcard_set_one_prop_iff_different(v,"uid","%s",uuid[0]);
+		if (o) changed_something |= vcard_set_one_prop_iff_different(v,"org","%s",o[0]);
+		if (cn) changed_something |= vcard_set_one_prop_iff_different(v,"fn","%s",cn[0]);
+		if (title) changed_something |= vcard_set_one_prop_iff_different(v,"title","%s",title[0]);
+		
+		if (givenName) ldap_value_free(givenName);
+		if (initials) ldap_value_free(initials);
+		if (sn) ldap_value_free(sn);
+		if (cn) ldap_value_free(cn);
+		if (o) ldap_value_free(o);
+		if (street) ldap_value_free(street);
+		if (l) ldap_value_free(l);
+		if (st) ldap_value_free(st);
+		if (postalCode) ldap_value_free(postalCode);
+		if (telephoneNumber) ldap_value_free(telephoneNumber);
+		if (mobile) ldap_value_free(mobile);
+		if (homePhone) ldap_value_free(homePhone);
+		if (facsimileTelephoneNumber) ldap_value_free(facsimileTelephoneNumber);
+		if (mail) ldap_value_free(mail);
+		if (uid) ldap_value_free(uid);
+		if (homeDirectory) ldap_value_free(homeDirectory);
+		if (uidNumber) ldap_value_free(uidNumber);
+		if (loginShell) ldap_value_free(loginShell);
+		if (gidNumber) ldap_value_free(gidNumber);
+		if (c) ldap_value_free(c);
+		if (title) ldap_value_free(title);
+		if (uuid) ldap_value_free(uuid);
+	}
+	/* free the results */
+	ldap_msgfree(search_result);
+
+	/* unbind so we can go back in as the authenticating user */
+	ldap_unbind(ldserver);
+	
 	return(changed_something);	/* tell the caller whether we made any changes */
 }
 
