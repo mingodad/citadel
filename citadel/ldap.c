@@ -15,17 +15,16 @@
 
 int ctdl_require_ldap_version = 3;
 
+#define _GNU_SOURCE		// Needed to suppress warning about vasprintf() when running on Linux/Linux
 #include <stdio.h>
 #include <libcitadel.h>
-
 #include "citserver.h"
 #include "citadel_ldap.h"
 #include "ctdl_module.h"
-
 #include "user_ops.h"
 
 #ifdef HAVE_LDAP
-#define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
+#define LDAP_DEPRECATED 1 	// Suppress libldap's warning that we are using deprecated API calls
 #include <ldap.h>
 
 int CtdlTryUserLDAP(char *username,
@@ -47,7 +46,7 @@ int CtdlTryUserLDAP(char *username,
 
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver == NULL) {
-		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s\n",
+		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
 			config.c_ldap_host, config.c_ldap_port,
 			strerror(errno)
 		);
@@ -59,19 +58,19 @@ int CtdlTryUserLDAP(char *username,
 
 	striplt(config.c_ldap_bind_dn);
 	striplt(config.c_ldap_bind_pw);
-	syslog(LOG_DEBUG, "LDAP bind DN: %s\n", config.c_ldap_bind_dn);
+	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
 	i = ldap_simple_bind_s(ldserver,
 		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
 		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
 	);
 	if (i != LDAP_SUCCESS) {
-		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
+		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
 		return(i);
 	}
 #else
 	if (ldap_initialize(&ldserver, config.c_ldap_host))
 	{
-		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s\n",
+		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
 			   config.c_ldap_host, config.c_ldap_port,
 			   strerror(errno)
 			);
@@ -81,14 +80,14 @@ int CtdlTryUserLDAP(char *username,
 	striplt(config.c_ldap_bind_dn);
 	striplt(config.c_ldap_bind_pw);
 
-	syslog(LOG_DEBUG, "LDAP bind DN: %s\n", config.c_ldap_bind_dn);
+	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
 	i = ldap_simple_bind_s(ldserver,
 		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
 		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
 	);
 
 	if (i != LDAP_SUCCESS) {
-		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
+		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
 		return(i);
 	}
 #endif
@@ -104,7 +103,7 @@ int CtdlTryUserLDAP(char *username,
 		sprintf(searchstring, "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
 
-	syslog(LOG_DEBUG, "LDAP search: %s\n", searchstring);
+	syslog(LOG_DEBUG, "LDAP search: %s", searchstring);
 	(void) ldap_search_ext_s(
 		ldserver,					/* ld				*/
 		config.c_ldap_base_dn,				/* base				*/
@@ -123,7 +122,7 @@ int CtdlTryUserLDAP(char *username,
 	 * the search succeeds.  Instead, we check to see whether search_result is still NULL.
 	 */
 	if (search_result == NULL) {
-		syslog(LOG_DEBUG, "LDAP search: zero results were returned\n");
+		syslog(LOG_DEBUG, "LDAP search: zero results were returned");
 		ldap_unbind(ldserver);
 		return(2);
 	}
@@ -136,7 +135,7 @@ int CtdlTryUserLDAP(char *username,
 
 		user_dn = ldap_get_dn(ldserver, entry);
 		if (user_dn) {
-			syslog(LOG_DEBUG, "dn = %s\n", user_dn);
+			syslog(LOG_DEBUG, "dn = %s", user_dn);
 		}
 
 		if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
@@ -144,7 +143,7 @@ int CtdlTryUserLDAP(char *username,
 			if (values) {
 				if (values[0]) {
 					if (fullname) safestrncpy(fullname, values[0], fullname_size);
-					syslog(LOG_DEBUG, "displayName = %s\n", values[0]);
+					syslog(LOG_DEBUG, "displayName = %s", values[0]);
 				}
 				ldap_value_free(values);
 			}
@@ -154,7 +153,7 @@ int CtdlTryUserLDAP(char *username,
 			if (values) {
 				if (values[0]) {
 					if (fullname) safestrncpy(fullname, values[0], fullname_size);
-					syslog(LOG_DEBUG, "cn = %s\n", values[0]);
+					syslog(LOG_DEBUG, "cn = %s", values[0]);
 				}
 				ldap_value_free(values);
 			}
@@ -166,7 +165,7 @@ int CtdlTryUserLDAP(char *username,
 				if (values[0]) {
 					if (uid != NULL) {
 						*uid = abs(HashLittle(values[0], strlen(values[0])));
-						syslog(LOG_DEBUG, "uid hashed from objectGUID = %d\n", *uid);
+						syslog(LOG_DEBUG, "uid hashed from objectGUID = %d", *uid);
 					}
 				}
 				ldap_value_free(values);
@@ -176,7 +175,7 @@ int CtdlTryUserLDAP(char *username,
 			values = ldap_get_values(ldserver, search_result, "uidNumber");
 			if (values) {
 				if (values[0]) {
-					syslog(LOG_DEBUG, "uidNumber = %s\n", values[0]);
+					syslog(LOG_DEBUG, "uidNumber = %s", values[0]);
 					if (uid != NULL) {
 						*uid = atoi(values[0]);
 					}
@@ -194,7 +193,7 @@ int CtdlTryUserLDAP(char *username,
 	ldap_unbind(ldserver);
 
 	if (!user_dn) {
-		syslog(LOG_DEBUG, "No such user was found.\n");
+		syslog(LOG_DEBUG, "No such user was found.");
 		return(4);
 	}
 
@@ -210,20 +209,20 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 	int i = (-1);
 
 	if (IsEmptyStr(password)) {
-		syslog(LOG_DEBUG, "LDAP: empty passwords are not permitted\n");
+		syslog(LOG_DEBUG, "LDAP: empty passwords are not permitted");
 		return(1);
 	}
 
-	syslog(LOG_DEBUG, "LDAP: trying to bind as %s\n", user_dn);
+	syslog(LOG_DEBUG, "LDAP: trying to bind as %s", user_dn);
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver) {
 		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 		i = ldap_simple_bind_s(ldserver, user_dn, password);
 		if (i == LDAP_SUCCESS) {
-			syslog(LOG_DEBUG, "LDAP: bind succeeded\n");
+			syslog(LOG_DEBUG, "LDAP: bind succeeded");
 		}
 		else {
-			syslog(LOG_DEBUG, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
+			syslog(LOG_DEBUG, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
 		}
 		ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
 		ldap_unbind(ldserver);
@@ -237,7 +236,8 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 }
 
 
-//return !0 iff property changed.
+// return !0 iff property changed.
+//
 int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, char **vals) {
 	int i;
 	char *oldval;
@@ -254,14 +254,15 @@ int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, ch
 }
 
 
-//return !0 iff property changed.
+// return !0 iff property changed.
+//
 int vcard_set_one_prop_iff_different(struct vCard *v,char *propname, char *newfmt, ...) {
 	va_list args;
 	char *newvalue;
 	int changed_something;
 	va_start(args,newfmt);
 	if (-1==vasprintf(&newvalue,newfmt,args)) {
-		syslog(LOG_ALERT, "Out of memory!\n");
+		syslog(LOG_ALERT, "Out of memory!");
 		return 0;
 	}
 	changed_something = vcard_set_props_iff_different(v,propname,1,&newvalue);
@@ -270,10 +271,10 @@ int vcard_set_one_prop_iff_different(struct vCard *v,char *propname, char *newfm
 	return changed_something;
 }
 
-/*
- * Learn LDAP attributes and stuff them into the vCard.
- * Returns nonzero if we changed anything.
- */
+
+// Learn LDAP attributes and stuff them into the vCard.
+// Returns nonzero if we changed anything.
+//
 int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 {
 	int changed_something = 0;
@@ -310,7 +311,7 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 	if (!v) return(0);
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver == NULL) {
-		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s\n",
+		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
 			config.c_ldap_host, config.c_ldap_port,
 			strerror(errno)
 		);
@@ -322,50 +323,49 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 
 	striplt(config.c_ldap_bind_dn);
 	striplt(config.c_ldap_bind_pw);
-	syslog(LOG_DEBUG, "LDAP bind DN: %s\n", config.c_ldap_bind_dn);
+	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
 	i = ldap_simple_bind_s(ldserver,
 		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
 		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
 	);
 	if (i != LDAP_SUCCESS) {
-		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
+		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
 		return(0);
 	}
 
 	tv.tv_sec = 10;
 	tv.tv_usec = 0;
 
-	syslog(LOG_DEBUG, "LDAP search: %s\n", ldap_dn);
+	syslog(LOG_DEBUG, "LDAP search: %s", ldap_dn);
 	(void) ldap_search_ext_s(
-		ldserver,				/* ld				*/
-		ldap_dn,				/* base				*/
-		LDAP_SCOPE_SUBTREE,		/* scope			*/
-		NULL,					/* filter			*/
-		attrs,					/* attrs (all attributes)	*/
-		0,						/* attrsonly (attrs + values)	*/
-		NULL,					/* serverctrls (none)		*/
-		NULL,					/* clientctrls (none)		*/
-		&tv,					/* timeout			*/
-		1,						/* sizelimit (1 result max)	*/
-		&search_result			/* res				*/
+		ldserver,			// ld
+		ldap_dn,			// base
+		LDAP_SCOPE_SUBTREE,		// scope
+		NULL,				// filter
+		attrs,				// attrs (all attributes)
+		0,				// attrsonly (attrs + values)
+		NULL,				// serverctrls (none)
+		NULL,				// clientctrls (none)
+		&tv,				// timeout
+		1,				// sizelimit (1 result max)
+		&search_result			// res
 	);
 	
-	/* Ignore the return value of ldap_search_ext_s().  Sometimes it returns an error even when
-	 * the search succeeds.  Instead, we check to see whether search_result is still NULL.
-	 */
+	// Ignore the return value of ldap_search_ext_s().  Sometimes it returns an error even when
+	// the search succeeds.  Instead, we check to see whether search_result is still NULL.
 	 
 	if (search_result == NULL) {
-		syslog(LOG_DEBUG, "LDAP search: zero results were returned\n");
+		syslog(LOG_DEBUG, "LDAP search: zero results were returned");
 		ldap_unbind(ldserver);
 		return(0);
 	}
 
-	/* At this point we've got at least one result from our query.  If there are multiple
-	 * results, we still only look at the first one.
-	 */
+	// At this point we've got at least one result from our query.  If there are multiple
+	// results, we still only look at the first one.
+
 	entry = ldap_first_entry(ldserver, search_result);
 	if (entry) {
-		syslog(LOG_DEBUG, "LDAP search, got user details for vcard.\n");
+		syslog(LOG_DEBUG, "LDAP search, got user details for vcard.");
 		givenName=ldap_get_values(ldserver, search_result, "givenName");
 		sn=ldap_get_values(ldserver, search_result, "sn");
 		cn=ldap_get_values(ldserver, search_result, "cn");
@@ -395,10 +395,12 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		if (mobile) changed_something |= vcard_set_one_prop_iff_different(v,"tel;cell","%s",mobile[0]);
 		if (homePhone) changed_something |= vcard_set_one_prop_iff_different(v,"tel;home","%s",homePhone[0]);
 		if (givenName && sn) {
-			if (initials)
-			  changed_something |= vcard_set_one_prop_iff_different(v,"n","%s;%s;%s",sn[0],givenName[0],initials[0]);
-			else
-			  changed_something |= vcard_set_one_prop_iff_different(v,"n","%s;%s",sn[0],givenName[0]);
+			if (initials) {
+				changed_something |= vcard_set_one_prop_iff_different(v,"n","%s;%s;%s",sn[0],givenName[0],initials[0]);
+			}
+			else {
+				changed_something |= vcard_set_one_prop_iff_different(v,"n","%s;%s",sn[0],givenName[0]);
+			}
 		}
 		if (mail) {
 			changed_something |= vcard_set_props_iff_different(v,"email;internet",ldap_count_values(mail),mail);
@@ -407,7 +409,6 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		if (o) changed_something |= vcard_set_one_prop_iff_different(v,"org","%s",o[0]);
 		if (cn) changed_something |= vcard_set_one_prop_iff_different(v,"fn","%s",cn[0]);
 		if (title) changed_something |= vcard_set_one_prop_iff_different(v,"title","%s",title[0]);
-		
 		if (givenName) ldap_value_free(givenName);
 		if (initials) ldap_value_free(initials);
 		if (sn) ldap_value_free(sn);
@@ -431,13 +432,10 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		if (title) ldap_value_free(title);
 		if (uuid) ldap_value_free(uuid);
 	}
-	/* free the results */
-	ldap_msgfree(search_result);
 
-	/* unbind so we can go back in as the authenticating user */
-	ldap_unbind(ldserver);
-	
-	return(changed_something);	/* tell the caller whether we made any changes */
+	ldap_msgfree(search_result);	// free the results
+	ldap_unbind(ldserver);		// unbind so we can go back in as the authenticating user
+	return(changed_something);	// tell the caller whether we made any changes
 }
 
 #endif /* HAVE_LDAP */
