@@ -940,6 +940,18 @@ void nntp_last_next(const char *cmd) {
 }
 
 
+//
+// XOVER is used by some clients, even if we don't offer it
+//
+void nntp_xover(const char *cmd) {
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
+	// citnntp *nntpstate = (citnntp *) CC->session_specific_data;
+
+	cprintf("500 not implemented yet FIXME\r\n");
+}
+
+
 // 
 // Main command loop for NNTP server sessions.
 //
@@ -1020,6 +1032,10 @@ void nntp_command_loop(void)
 		)
 	{
 		nntp_last_next(ChrPtr(Cmd));
+	}
+
+	else if (!strcasecmp(cmdname, "xover")) {
+		nntp_xover(ChrPtr(Cmd));
 	}
 
 	else {
