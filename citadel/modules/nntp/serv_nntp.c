@@ -238,6 +238,7 @@ void nntp_capabilities(void)
 	cprintf("READER\r\n");
 	cprintf("MODE-READER\r\n");
 	cprintf("LIST ACTIVE NEWSGROUPS\r\n");
+	cprintf("OVER\r\n");
 #ifdef HAVE_OPENSSL
 	cprintf("STARTTLS\r\n");
 #endif
@@ -509,8 +510,27 @@ void nntp_list(const char *cmd) {
 	else if (!strcasecmp(list_format, "NEWSGROUPS")) {
 		nld.list_format = NNTP_LIST_NEWSGROUPS;
 	}
+	else if (!strcasecmp(list_format, "OVERVIEW.FMT")) {
+		nld.list_format = NNTP_LIST_OVERVIEW_FMT;
+	}
 	else {
 		cprintf("501 syntax error , unsupported list format\r\n");
+		return;
+	}
+
+	// OVERVIEW.FMT delivers a completely different type of data than all of the
+	// other LIST commands.  It's a stupid place to put it.  But that's how it's
+	// written into RFC3977, so we have to handle it here.
+	if (nld.list_format == NNTP_LIST_OVERVIEW_FMT) {
+		cprintf("215 Order of fields in overview database.\r\n");
+		cprintf("Subject:\r\n");
+		cprintf("From:\r\n");
+		cprintf("Date:\r\n");
+		cprintf("Message-ID:\r\n");
+		cprintf("References:\r\n");
+		cprintf(":bytes\r\n");
+		cprintf(":lines\r\n");
+		cprintf(".\r\n");
 		return;
 	}
 
@@ -1034,7 +1054,11 @@ void nntp_command_loop(void)
 		nntp_last_next(ChrPtr(Cmd));
 	}
 
-	else if (!strcasecmp(cmdname, "xover")) {
+	else if (
+			(!strcasecmp(cmdname, "xover"))
+			|| (!strcasecmp(cmdname, "over"))
+		)
+	{
 		nntp_xover(ChrPtr(Cmd));
 	}
 
