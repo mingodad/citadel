@@ -966,9 +966,35 @@ void nntp_last_next(const char *cmd) {
 void nntp_xover(const char *cmd) {
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
-	// citnntp *nntpstate = (citnntp *) CC->session_specific_data;
+	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
+	char range[256];
+	long lowest = (-1) ;
+	long highest = (-1) ; 
 
-	cprintf("500 not implemented yet FIXME\r\n");
+	extract_token(range, cmd, 1, ' ', sizeof range);
+	lowest = atol(range);
+	if (lowest <= 0) {
+		lowest = nntpstate->current_article_number;
+		highest = nntpstate->current_article_number;
+	}
+	else {
+		char *dash = strchr(range, '-');
+		if (dash != NULL) {
+			++dash;
+			highest = atol(dash);
+			if (highest == 0) {
+				highest = LONG_MAX;
+			}
+			if (highest < lowest) {
+				highest = lowest;
+			}
+		}
+		else {
+			highest = lowest;
+		}
+	}
+
+	cprintf("500 not implemented yet FIXME lowest=%ld highest=%ld\r\n", lowest, highest);
 }
 
 
