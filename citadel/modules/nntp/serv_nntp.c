@@ -1,5 +1,5 @@
 //
-// NNTP server module FIXME THIS IS NOT FINISHED
+// NNTP server module (RFC 3977)
 //
 // Copyright (c) 2014 by the citadel.org team
 //
