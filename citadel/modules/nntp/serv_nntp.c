@@ -961,6 +961,22 @@ void nntp_last_next(const char *cmd) {
 
 
 //
+// back end for the XOVER command , called for each message number
+//
+void nntp_xover_backend(long msgnum, void *userdata) {
+
+	struct listgroup_range *lr = (struct listgroup_range *)userdata;
+
+	// check range if supplied
+	if (msgnum < lr->lo) return;
+	if ((lr->hi != 0) && (msgnum > lr->hi)) return;
+
+	cprintf("FIXME %ld FIXME\r\n", msgnum);		// FIXME need to actually show the overview data
+}
+
+
+//
+//
 // XOVER is used by some clients, even if we don't offer it
 //
 void nntp_xover(const char *cmd) {
@@ -968,33 +984,34 @@ void nntp_xover(const char *cmd) {
 
 	citnntp *nntpstate = (citnntp *) CC->session_specific_data;
 	char range[256];
-	long lowest = (-1) ;
-	long highest = (-1) ; 
+	struct listgroup_range lr;
 
 	extract_token(range, cmd, 1, ' ', sizeof range);
-	lowest = atol(range);
-	if (lowest <= 0) {
-		lowest = nntpstate->current_article_number;
-		highest = nntpstate->current_article_number;
+	lr.lo = atol(range);
+	if (lr.lo <= 0) {
+		lr.lo = nntpstate->current_article_number;
+		lr.hi = nntpstate->current_article_number;
 	}
 	else {
 		char *dash = strchr(range, '-');
 		if (dash != NULL) {
 			++dash;
-			highest = atol(dash);
-			if (highest == 0) {
-				highest = LONG_MAX;
+			lr.hi = atol(dash);
+			if (lr.hi == 0) {
+				lr.hi = LONG_MAX;
 			}
-			if (highest < lowest) {
-				highest = lowest;
+			if (lr.hi < lr.lo) {
+				lr.hi = lr.lo;
 			}
 		}
 		else {
-			highest = lowest;
+			lr.hi = lr.lo;
 		}
 	}
 
-	cprintf("500 not implemented yet FIXME lowest=%ld highest=%ld\r\n", lowest, highest);
+	cprintf("224 Overview information follows\r\n");
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, nntp_xover_backend, &lr);
+	cprintf(".\r\n");
 }
 
 
