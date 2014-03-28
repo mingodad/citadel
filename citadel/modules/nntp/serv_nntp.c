@@ -971,7 +971,37 @@ void nntp_xover_backend(long msgnum, void *userdata) {
 	if (msgnum < lr->lo) return;
 	if ((lr->hi != 0) && (msgnum > lr->hi)) return;
 
-	cprintf("FIXME %ld FIXME\r\n", msgnum);		// FIXME need to actually show the overview data
+	struct CtdlMessage *msg = CtdlFetchMessage(msgnum, 0);
+	if (msg == NULL) {
+		return;
+	}
+
+	// Teh RFC says we need:
+	// -------------------------
+	// Subject header content
+	// From header content
+	// Date header content
+	// Message-ID header content
+	// References header content
+	// :bytes metadata item
+	// :lines metadata item
+
+	time_t msgtime = atol(msg->cm_fields[eTimestamp]);
+	char strtimebuf[26];
+	ctime_r(&msgtime, strtimebuf);
+
+	// here we go -- print the line o'data
+	cprintf("%ld\t%s\t%s <%s>\t%s\t%s\t%s\t100\t10\r\n",
+		msgnum,
+		msg->cm_fields[eMsgSubject],
+		msg->cm_fields[eAuthor],
+		msg->cm_fields[erFc822Addr],
+		strtimebuf,
+		msg->cm_fields[emessageId],
+		msg->cm_fields[eWeferences]
+	);
+
+	CM_Free(msg);
 }
 
 
