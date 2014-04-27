@@ -533,8 +533,8 @@ void nntp_list(const char *cmd) {
 		cprintf("Date:\r\n");
 		cprintf("Message-ID:\r\n");
 		cprintf("References:\r\n");
-		cprintf(":bytes\r\n");
-		cprintf(":lines\r\n");
+		cprintf("Bytes:\r\n");
+		cprintf("Lines:\r\n");
 		cprintf(".\r\n");
 		return;
 	}
