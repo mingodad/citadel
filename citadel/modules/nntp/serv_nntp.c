@@ -74,6 +74,7 @@ extern long timezone;
 int is_valid_newsgroup_name(char *name) {
 	char *ptr = name;
 	int has_a_letter = 0;
+	int num_dots = 0;
 
 	if (!ptr) return(0);
 	if (!strncasecmp(name, "ctdl.", 5)) return(0);
@@ -82,6 +83,10 @@ int is_valid_newsgroup_name(char *name) {
 
 		if (isalpha(ptr[0])) {
 			has_a_letter = 1;
+		}
+
+		if (ptr[0] == '.') {
+			++num_dots;
 		}
 
 		if (	(isalnum(ptr[0]))
@@ -95,7 +100,7 @@ int is_valid_newsgroup_name(char *name) {
 			return(0);
 		}
 	}
-	return(has_a_letter);
+	return( (has_a_letter) && (num_dots >= 1) ) ;
 }
 
 
@@ -123,7 +128,7 @@ void room_to_newsgroup(char *target, char *source, size_t target_size) {
 			|| (ch == '.')
 			|| (ch == '-')
 		) {
-			target[len++] = ch;
+			target[len++] = tolower(ch);
 			target[len] = 0;
 		}
 		else {
