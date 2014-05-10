@@ -342,10 +342,13 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 {
 	base64_decodestate _state;
+	int len;
 
 	base64_init_decodestate(&_state);
 
-	return base64_decode_block(source, length, dest, &_state);
+	len = base64_decode_block(source, length, dest, &_state);
+	dest[len] = '\0';
+	return len;
 }
 
 
