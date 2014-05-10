@@ -344,7 +344,7 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		int return_value;
 		StrBuf *NewLine = NewStrBuf();
 		Hdr->HR.DontNeedAuth = 1;
-		StrBufAppendPrintf(NewLine, "GET /landing?go=%s HTTP/1.0", ChrPtr(Buf));
+		StrBufAppendPrintf(NewLine, "GET /landing?go=%s?failvisibly=1 HTTP/1.0", ChrPtr(Buf));
 		syslog(LOG_DEBUG, "Replacing with: %s", ChrPtr(NewLine));
 		return_value = ReadHttpSubject(Hdr, NewLine, Buf);
 		FreeStrBuf(&NewLine);
