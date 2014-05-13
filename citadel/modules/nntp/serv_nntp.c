@@ -686,7 +686,8 @@ void nntp_mode(const char *cmd) {
 	extract_token(which_mode, cmd, 1, ' ', sizeof which_mode);
 
 	if (!strcasecmp(which_mode, "reader")) {
-		cprintf("201 Reader mode FIXME implement posting and change to 200\r\n");
+		// FIXME implement posting and change to 200
+		cprintf("201 Reader mode activated\r\n");
 	}
 	else {
 		cprintf("501 unknown mode\r\n");
@@ -770,7 +771,7 @@ void nntp_article(const char *cmd) {
 	// We don't know how to do that yet.
 	else if ( (lb != NULL) && (rb != NULL) && (lb < rb) ) {
 		must_change_currently_selected_article = 0;
-		cprintf("500 FIXME I don't know how to fetch by message-id yet.\r\n");
+		cprintf("500 I don't know how to fetch by message-id yet.\r\n");	// FIXME
 		return;
 	}
 
