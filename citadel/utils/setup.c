@@ -1148,6 +1148,7 @@ void set_default_values(void)
 	GetDefaultVALINT(c_xmpp_c2s_port, 5222);
 	GetDefaultVALINT(c_xmpp_s2s_port, 5269);
 	GetDefaultVALINT(c_nntp_port, 119);
+	GetDefaultVALINT(c_nntps_port, 563);
 #endif
 }
 

@@ -465,6 +465,7 @@ void migr_do_export(void) {
 	cprintf("<c_pop3_fastest>%ld</c_pop3_fastest>\n", config.c_pop3_fastest);
 	cprintf("<c_spam_flag_only>%d</c_spam_flag_only>\n", config.c_spam_flag_only);
 	cprintf("<c_nntp_port>%d</c_nntp_port>\n", config.c_nntp_port);
+	cprintf("<c_nntps_port>%d</c_nntps_port>\n", config.c_nntps_port);
 	client_write("</config>\n", 10);
 	
 	/* Export the control file */
@@ -644,6 +645,7 @@ int migr_config(void *data, const char *el)
 	else if (!strcasecmp(el, "c_pop3_fastest"))		config.c_pop3_fastest = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "c_spam_flag_only"))		config.c_spam_flag_only = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "c_nntp_port"))		config.c_nntp_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_nntps_port"))		config.c_nntps_port = atoi(ChrPtr(migr_chardata));
 	else return 0;
 	return 1; /* Found above...*/
 }

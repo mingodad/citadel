@@ -1172,12 +1172,13 @@ void nntp_cleanup_function(void)
 }
 
 const char *CitadelServiceNNTP="NNTP";
+const char *CitadelServiceNNTPS="NNTPS";
 
 CTDL_MODULE_INIT(nntp)
 {
 	if (!threading)
 	{
-		CtdlRegisterServiceHook(119,			// FIXME config.c_nntp_port,
+		CtdlRegisterServiceHook(config.c_nntp_port,
 					NULL,
 					nntp_greeting,
 					nntp_command_loop,
@@ -1185,12 +1186,12 @@ CTDL_MODULE_INIT(nntp)
 					CitadelServiceNNTP);
 
 #ifdef HAVE_OPENSSL
-		CtdlRegisterServiceHook(563,			// FIXME config.c_nntps_port,
+		CtdlRegisterServiceHook(config.c_nntps_port,
 					NULL,
 					nntps_greeting,
 					nntp_command_loop,
 					NULL,
-					CitadelServiceNNTP);
+					CitadelServiceNNTPS);
 #endif
 
 		CtdlRegisterCleanupHook(nntp_cleanup);
