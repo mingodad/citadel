@@ -127,7 +127,7 @@ void dotgoto(void) {
  * goto next room
  */
 void smart_goto(const StrBuf *next_room) {
-	if (gotoroom(next_room) == 2)
+	if (gotoroom(next_room) / 100 == 2)
 		readloop(readnew, eUseDefault);
 	else
 		do_404();
