@@ -1148,6 +1148,7 @@ void set_default_values(void)
 	GetDefaultVALINT(c_xmpp_c2s_port, 5222);
 	GetDefaultVALINT(c_xmpp_s2s_port, 5269);
 	GetDefaultVALINT(c_nntp_port, 119);
+	GetDefaultVALINT(c_nntps_port, 563);
 #endif
 }
 
@@ -1222,8 +1223,7 @@ int main(int argc, char *argv[])
 	enable_home = ( relh | home );
 
 	if (chdir(ctdl_run_dir) != 0) {
-		display_error(_("Citadel Setup"), 
-			      "%s: [%s]\n", 
+		display_error("%s: [%s]\n", 
 			      _("The directory you specified does not exist"), 
 			      ctdl_run_dir);
 		exit(errno);

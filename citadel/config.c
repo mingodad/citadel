@@ -92,6 +92,7 @@ void brand_new_installation_set_defaults(void) {
 	config.c_xmpp_c2s_port = 5222;
 	config.c_xmpp_s2s_port = 5269;
 	config.c_nntp_port = 119;
+	config.c_nntps_port = 563;
 }
 
 void setcfglen(void)

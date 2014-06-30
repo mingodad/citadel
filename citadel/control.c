@@ -388,6 +388,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_port_number);
 		cprintf("%d\n", config.c_ctdluid);
 		cprintf("%d\n", config.c_nntp_port);
+		cprintf("%d\n", config.c_nntps_port);
 		cprintf("000\n");
 	}
 
@@ -659,6 +660,9 @@ void cmd_conf(char *argbuf)
 				config.c_ctdluid = atoi(buf);
 				break;
 			case 70:
+				config.c_nntp_port = atoi(buf);
+				break;
+			case 71:
 				config.c_nntp_port = atoi(buf);
 				break;
 			}
