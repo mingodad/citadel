@@ -1223,8 +1223,7 @@ int main(int argc, char *argv[])
 	enable_home = ( relh | home );
 
 	if (chdir(ctdl_run_dir) != 0) {
-		display_error(_("Citadel Setup"), 
-			      "%s: [%s]\n", 
+		display_error("%s: [%s]\n", 
 			      _("The directory you specified does not exist"), 
 			      ctdl_run_dir);
 		exit(errno);
