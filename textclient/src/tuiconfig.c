@@ -1,7 +1,7 @@
 /*
  * Configuration screens that are part of the text mode client.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -117,17 +117,11 @@ void do_system_configuration(CtdlIPC *ipc)
 
 	/* Security parameters */
 
-	snprintf(sc[7], sizeof sc[7], "%d", (boolprompt(
-		"Require registration for new users",
-		atoi(&sc[7][0]))));
-	snprintf(sc[29], sizeof sc[29], "%d", (boolprompt(
-		"Disable self-service user account creation",
-		atoi(&sc[29][0]))));
+	snprintf(sc[7], sizeof sc[7], "%d", (boolprompt("Require registration for new users", atoi(&sc[7][0]))));
+	snprintf(sc[29], sizeof sc[29], "%d", (boolprompt("Disable self-service user account creation", atoi(&sc[29][0]))));
 	strprompt("Initial access level for new users", &sc[6][0], 1);
 	strprompt("Access level required to create rooms", &sc[19][0], 1);
-	snprintf(sc[67], sizeof sc[67], "%d", (boolprompt(
-		"Allow anonymous guest logins",
-		atoi(&sc[67][0]))));
+	snprintf(sc[67], sizeof sc[67], "%d", (boolprompt("Allow anonymous guest logins", atoi(&sc[67][0]))));
 	snprintf(sc[4], sizeof sc[4], "%d", (boolprompt(
 		"Automatically give room admin privs to a user who creates a private room",
 		atoi(&sc[4][0]))));
@@ -185,6 +179,8 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("SMTP MTA server port (-1 to disable)", &sc[24][0], 5);
 	strprompt("SMTP MSA server port (-1 to disable)", &sc[38][0], 5);
 	strprompt("SMTPS server port (-1 to disable)", &sc[41][0], 5);
+	strprompt("NNTP server port (-1 to disable)", &sc[70][0], 5);
+	strprompt("NNTPS server port (-1 to disable)", &sc[71][0], 5);
 	strprompt("Postfix TCP Dictionary Port server port (-1 to disable)", &sc[50][0], 5);
 	strprompt("ManageSieve server port (-1 to disable)", &sc[51][0], 5);
 
@@ -197,8 +193,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	 */
 	a = atoi(sc[25]);
 	a = (a ? 0 : 1);
-	a = boolprompt("Correct forged From: lines during authenticated SMTP",
-		a);
+	a = boolprompt("Correct forged From: lines during authenticated SMTP", a);
 	a = (a ? 0 : 1);
 	snprintf(sc[25], sizeof sc[25], "%d", a);
 
@@ -228,10 +223,8 @@ void do_system_configuration(CtdlIPC *ipc)
 		a = (a ? 1 : 0);	/* Set only to 1 or 0 */
 		a = boolprompt("Do you want to configure LDAP authentication?", a);
 		if (a) {
-			strprompt("Host name of LDAP server",
-				&sc[32][0], 127);
-			strprompt("Port number of LDAP service",
-				&sc[33][0], 5);
+			strprompt("Host name of LDAP server", &sc[32][0], 127);
+			strprompt("Port number of LDAP service", &sc[33][0], 5);
 			strprompt("Base DN", &sc[34][0], 255);
 			strprompt("Bind DN (or blank for anonymous bind)", &sc[35][0], 255);
 			strprompt("Password for bind DN (or blank for anonymous bind)", &sc[36][0], 255);

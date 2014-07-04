@@ -61,11 +61,9 @@ extern "C" {
 
 /* Various length constants */
 
-#define ROOMNAMELEN	128	/* The size of a roomname string */
-					 
-#define USERNAME_SIZE	64	/* The size of a username string */
-#define MAX_EDITORS	5	/* # of external editors supported */
-				/* MUST be at least 1 */
+#define ROOMNAMELEN	128		/* The size of a roomname string */
+#define USERNAME_SIZE	64		/* The size of a username string */
+#define MAX_EDITORS	5		/* number of external editors supported ; must be at least 1 */
 
 /*
  * Message expiration policy stuff
@@ -103,7 +101,7 @@ struct march {
  * User records.
  */
 typedef struct ctdluser ctdluser;
-struct ctdluser {			/* User record                      */
+struct ctdluser {			/* User record                       */
 	int version;			/* Cit vers. which created this rec  */
 	uid_t uid;			/* Associate with a unix account?    */
 	char password[32];		/* password                          */
@@ -188,7 +186,7 @@ struct floor {
 #define REREGISTER	1		/* existing user reregistering */
 
 /* number of items which may be handled by the CONF command */
-#define NUM_CONFIGS 70
+#define NUM_CONFIGS 71
 
 #define TRACE	syslog(LOG_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 

@@ -13,6 +13,12 @@
 <tr><td><?_("XMPP (Jabber) server to server port (-1 to disable)")></td><td>
 <input type="hidden" name="c_xmpp_s2s_port" value='<?SERV:CFG("c_xmpp_s2s_port")>'></td></tr>
 
+<tr><td><?_("NNTP server port (-1 to disable)")></td><td>
+<input type="text" name="c_nntp_port" maxlength="5" value='<?SERV:CFG("c_nntp_port")>'></td></tr>
+
+<tr><td><?_("NNTPS server port (-1 to disable)")></td><td>
+<input type="text" name="c_nntps_port" maxlength="5" value='<?SERV:CFG("c_nntps_port")>'></td></tr>
+
 <tr><td colspan=2><div class="conftitle"><?_("Advanced server fine-tuning controls")></div></td></tr>
 
 <tr><td><?_("Maximum message length")></td><td>

@@ -663,7 +663,7 @@ void cmd_conf(char *argbuf)
 				config.c_nntp_port = atoi(buf);
 				break;
 			case 71:
-				config.c_nntp_port = atoi(buf);
+				config.c_nntps_port = atoi(buf);
 				break;
 			}
 			++a;
