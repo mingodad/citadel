@@ -830,7 +830,7 @@ void smtp_data(long offset, long flags)
 	if ( (CCC->logged_in) && (config.c_rfc822_strict_from != CFG_SMTP_FROM_NOFILTER) ) {
 		int validemail = 0;
 		
-		if (!IsEmptyStr(msg->cm_fields['F'])       &&
+		if ((msg->cm_fields['F'] != NULL) && !IsEmptyStr(msg->cm_fields['F'])       &&
 		    ((config.c_rfc822_strict_from == CFG_SMTP_FROM_CORRECT) || 
 		     (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)    )  )
 		{
