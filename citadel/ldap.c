@@ -24,7 +24,7 @@ int ctdl_require_ldap_version = 3;
 #include "user_ops.h"
 
 #ifdef HAVE_LDAP
-#define LDAP_DEPRECATED 1 	// Suppress libldap's warning that we are using deprecated API calls
+#define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
 #include <ldap.h>
 
 int CtdlTryUserLDAP(char *username,
@@ -97,10 +97,10 @@ int CtdlTryUserLDAP(char *username,
 	tv.tv_usec = 0;
 
 	if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
-		sprintf(searchstring, "(sAMAccountName=%s)", username);
+		snprintf(searchstring, sizeof(searchstring), "(sAMAccountName=%s)", username);
 	}
 	else {
-		sprintf(searchstring, "(&(objectclass=posixAccount)(uid=%s))", username);
+		snprintf(searchstring, sizeof(searchstring), "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
 
 	syslog(LOG_DEBUG, "LDAP search: %s", searchstring);
@@ -235,9 +235,7 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 	return(1);
 }
 
-
-// return !0 iff property changed.
-//
+//return !0 iff property changed.
 int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, char **vals) {
 	int i;
 	char *oldval;
@@ -254,15 +252,14 @@ int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, ch
 }
 
 
-// return !0 iff property changed.
-//
+//return !0 iff property changed.
 int vcard_set_one_prop_iff_different(struct vCard *v,char *propname, char *newfmt, ...) {
 	va_list args;
 	char *newvalue;
 	int changed_something;
 	va_start(args,newfmt);
 	if (-1==vasprintf(&newvalue,newfmt,args)) {
-		syslog(LOG_ALERT, "Out of memory!");
+		syslog(LOG_ALERT, "Out of memory!\n");
 		return 0;
 	}
 	changed_something = vcard_set_props_iff_different(v,propname,1,&newvalue);
@@ -271,10 +268,10 @@ int vcard_set_one_prop_iff_different(struct vCard *v,char *propname, char *newfm
 	return changed_something;
 }
 
-
-// Learn LDAP attributes and stuff them into the vCard.
-// Returns nonzero if we changed anything.
-//
+/*
+ * Learn LDAP attributes and stuff them into the vCard.
+ * Returns nonzero if we changed anything.
+ */
 int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 {
 	int changed_something = 0;
@@ -338,21 +335,22 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 
 	syslog(LOG_DEBUG, "LDAP search: %s", ldap_dn);
 	(void) ldap_search_ext_s(
-		ldserver,			// ld
-		ldap_dn,			// base
-		LDAP_SCOPE_SUBTREE,		// scope
-		NULL,				// filter
-		attrs,				// attrs (all attributes)
-		0,				// attrsonly (attrs + values)
-		NULL,				// serverctrls (none)
-		NULL,				// clientctrls (none)
-		&tv,				// timeout
-		1,				// sizelimit (1 result max)
-		&search_result			// res
+		ldserver,				/* ld				*/
+		ldap_dn,				/* base				*/
+		LDAP_SCOPE_SUBTREE,		/* scope			*/
+		NULL,					/* filter			*/
+		attrs,					/* attrs (all attributes)	*/
+		0,						/* attrsonly (attrs + values)	*/
+		NULL,					/* serverctrls (none)		*/
+		NULL,					/* clientctrls (none)		*/
+		&tv,					/* timeout			*/
+		1,						/* sizelimit (1 result max)	*/
+		&search_result			/* res				*/
 	);
 	
-	// Ignore the return value of ldap_search_ext_s().  Sometimes it returns an error even when
-	// the search succeeds.  Instead, we check to see whether search_result is still NULL.
+	/* Ignore the return value of ldap_search_ext_s().  Sometimes it returns an error even when
+	 * the search succeeds.  Instead, we check to see whether search_result is still NULL.
+	 */
 	 
 	if (search_result == NULL) {
 		syslog(LOG_DEBUG, "LDAP search: zero results were returned");
@@ -360,8 +358,9 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		return(0);
 	}
 
-	// At this point we've got at least one result from our query.  If there are multiple
-	// results, we still only look at the first one.
+	/* At this point we've got at least one result from our query.  If there are multiple
+	 * results, we still only look at the first one.
+	 */
 
 	entry = ldap_first_entry(ldserver, search_result);
 	if (entry) {
@@ -409,6 +408,7 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		if (o) changed_something |= vcard_set_one_prop_iff_different(v,"org","%s",o[0]);
 		if (cn) changed_something |= vcard_set_one_prop_iff_different(v,"fn","%s",cn[0]);
 		if (title) changed_something |= vcard_set_one_prop_iff_different(v,"title","%s",title[0]);
+		
 		if (givenName) ldap_value_free(givenName);
 		if (initials) ldap_value_free(initials);
 		if (sn) ldap_value_free(sn);
@@ -432,10 +432,13 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		if (title) ldap_value_free(title);
 		if (uuid) ldap_value_free(uuid);
 	}
+	/* free the results */
+	ldap_msgfree(search_result);
 
-	ldap_msgfree(search_result);	// free the results
-	ldap_unbind(ldserver);		// unbind so we can go back in as the authenticating user
-	return(changed_something);	// tell the caller whether we made any changes
+	/* unbind so we can go back in as the authenticating user */
+	ldap_unbind(ldserver);
+	
+	return(changed_something);	/* tell the caller whether we made any changes */
 }
 
 #endif /* HAVE_LDAP */

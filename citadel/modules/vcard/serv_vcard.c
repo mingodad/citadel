@@ -341,17 +341,16 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	int yes_my_citadel_config = 0;
 	int yes_any_vcard_room = 0;
 
-	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
+	if ((!CCC->logged_in) && (CCC->vcard_updated_by_ldap==0)) return(0);	/* Only do this if logged in, or if ldap changed the vcard. */
 
 	/* Is this some user's "My Citadel Config" room? */
 	if (((CCC->room.QRflags & QR_MAILBOX) != 0) &&
 	      (!strcasecmp(&CCC->room.QRname[11], USERCONFIGROOM)) ) {
 		/* Yes, we want to do this */
 		yes_my_citadel_config = 1;
-
 #ifdef VCARD_SAVES_BY_AIDES_ONLY
-		/* Prevent non-aides from performing registration changes */
-		if (CCC->user.axlevel < AxAideU) {
+		/* Prevent non-aides from performing registration changes, but ldap is ok. */
+		if ((CCC->user.axlevel < AxAideU) && (CCC->vcard_updated_by_ldap==0)) {
 			return(1);
 		}
 #endif
@@ -385,11 +384,16 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	if (v == NULL) return(0);	/* no vCards were found in this message */
 
 	/* If users cannot create their own accounts, they cannot re-register either. */
-	if ( (yes_my_citadel_config) && (config.c_disable_newu) && (CCC->user.axlevel < AxAideU) ) {
+	if ( (yes_my_citadel_config) &&
+	     (config.c_disable_newu) &&
+	     (CCC->user.axlevel < AxAideU) &&
+	     (CCC->vcard_updated_by_ldap==0) )
+	{
 		return(1);
 	}
 
 	vcard_get_prop(v, "fn", 1, 0, 0);
+
 
 	if (yes_my_citadel_config) {
 		/* Bingo!  The user is uploading a new vCard, so
@@ -515,7 +519,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg, recptypes *recp) {
 	char roomname[ROOMNAMELEN];
 
 	if (msg->cm_format_type != 4) return(0);
-	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
+	if ((!CCC->logged_in) && (CCC->vcard_updated_by_ldap==0)) return(0);	/* Only do this if logged in, or if ldap changed the vcard. */
 
 	/* We're interested in user config rooms only. */
 
@@ -537,6 +541,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg, recptypes *recp) {
 		return 0;
 
 	ptr = msg->cm_fields[eMesageText];
+
+	CCC->vcard_updated_by_ldap=0;  /* As this will write LDAP's previous changes, disallow LDAP change auth until next LDAP change. */ 
 
 	NewStrBufDupAppendFlush(&CCC->StatusMessage, NULL, NULL, 0);
 
@@ -880,6 +886,26 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	}
 	vcard_add_prop(v, "email;internet", buf);
 
+#ifdef HAVE_LDAP
+	/*
+	 * Is this an LDAP session?  If so, copy various LDAP attributes from the directory entry
+	 * into the user's vCard.
+	 */
+	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
+            uid_t ldap_uid;
+	    int found_user;
+            char ldap_cn[512];
+            char ldap_dn[512];
+	    found_user = CtdlTryUserLDAP(usbuf->fullname, ldap_dn, sizeof ldap_dn, ldap_cn, sizeof ldap_cn, &ldap_uid);
+            if (found_user == 0) {
+		if (Ctdl_LDAP_to_vCard(ldap_dn, v)) {
+			/* Allow global address book and internet directory update without login long enough to write this. */
+			CC->vcard_updated_by_ldap++;  /* Otherwise we'll only update the user config. */
+			syslog(LOG_DEBUG, "LDAP Created Initial Vcard for %s\n",usbuf->fullname);
+		}
+	    }
+	}
+#endif
 
 	vcard_write_user(usbuf, v);
 	vcard_free(v);
@@ -1252,6 +1278,8 @@ void vcard_session_login_hook(void) {
 		v = vcard_get_user(&CCC->user);
 		if (v) {
 			if (Ctdl_LDAP_to_vCard(CCC->ldap_dn, v)) {
+				CCC->vcard_updated_by_ldap++; /* Make sure changes make it to the global address book and internet directory, not just the user config. */
+				syslog(LOG_DEBUG, "LDAP Detected vcard change.\n");
 				vcard_write_user(&CCC->user, v);
 			}
 		}
