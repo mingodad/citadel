@@ -1076,7 +1076,7 @@ long end_burst(void)
 
 /*
  * lingering_close() a`la Apache. see
- * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
+ * http://httpd.apache.org/docs/2.0/misc/fin_wait_2.html for rationale
  */
 int lingering_close(int fd)
 {
