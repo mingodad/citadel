@@ -1,7 +1,7 @@
 /*
  * Handle XMPP presence exchanges
  *
- * Copyright (c) 2007-2010 by Art Cancro
+ * Copyright (c) 2007-2014 by Art Cancro
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,6 @@
 #include "serv_xmpp.h"
 
 
-
 /* 
  * Indicate the presence of another user to the client
  * (used in several places)
@@ -66,11 +65,12 @@
 void xmpp_indicate_presence(char *presence_jid)
 {
 	XPrint(HKEY("presence"),
-	       XPROPERTY("from", presence_jid, strlen(presence_jid)),
-	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
-	       TYPE_ARGEND);
+		XCLOSED,
+		XPROPERTY("from", presence_jid, strlen(presence_jid)),
+		XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
+		TYPE_ARGEND
+	);
 }
-
 
 
 /*

@@ -1,22 +1,15 @@
 /*
  * Handle messages sent and received using XMPP (Jabber) protocol
  *
- * Copyright (c) 2007-2010 by Art Cancro
+ * Copyright (c) 2007-2014 by Art Cancro
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
- *
  */
 
 #include "sysdep.h"
@@ -125,8 +118,11 @@ void xmpp_send_message(char *message_to, char *message_body) {
 	XMPP->message_to[0] = 0;
 	time(&CCC->lastidle);
 }
+
+
 void xmpp_end_message(void *data, const char *supplied_el, const char **attr)
 {
+	safestrncpy(XMPP->message_to, ChrPtr(XMPP->Message.to), sizeof(XMPP->message_to));
 	xmpp_send_message(XMPP->message_to, XMPP->message_body);
 	XMPP->html_tag_level = 0;
 }

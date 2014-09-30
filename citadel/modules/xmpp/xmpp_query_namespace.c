@@ -1,21 +1,14 @@
 /*
  * Handle <iq> <get> <query> type situations (namespace queries)
  *
- * Copyright (c) 2007-2009 by Art Cancro
+ * Copyright (c) 2007-2014 by Art Cancro
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -61,13 +54,12 @@
  */
 void xmpp_roster_item(struct CitContext *cptr)
 {
-	struct CitContext *CCC=CC;
-
 	XPrint(HKEY("item"), 0,
-	       XCPROPERTY("subscription", "both"),
-	       XPROPERTY("jid",  CCC->cs_inet_email, strlen(CCC->cs_inet_email)),
-	       XPROPERTY("name", cptr->user.fullname, strlen(cptr->user.fullname)),
-	       TYPE_ARGEND);
+		XCPROPERTY("subscription", "both"),
+		XPROPERTY("jid",  cptr->cs_inet_email, strlen(cptr->cs_inet_email)),
+		XPROPERTY("name", cptr->user.fullname, strlen(cptr->user.fullname)),
+		TYPE_ARGEND
+	);
 
 	XPrint(HKEY("group"), XCLOSED,
 	       XCFGBODY(c_humannode),
