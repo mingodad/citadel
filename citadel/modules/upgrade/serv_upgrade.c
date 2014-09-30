@@ -1,7 +1,7 @@
 /*
  * Transparently handle the upgrading of server data formats.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -291,10 +291,11 @@ void update_config(void) {
 		config.c_xmpp_s2s_port = 5269;
 	}
 
-	if (CitControl.version < 725) {
-
-
+	if (CitControl.version < 830) {
+		config.c_nntp_port = 119;
+		config.c_nntps_port = 563;
 	}
+
 	if (IsEmptyStr(config.c_default_cal_zone)) {
 		guess_time_zone();
 	}

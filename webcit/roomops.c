@@ -127,8 +127,10 @@ void dotgoto(void) {
  * goto next room
  */
 void smart_goto(const StrBuf *next_room) {
-	gotoroom(next_room);
-	readloop(readnew, eUseDefault);
+	if (gotoroom(next_room) / 100 == 2)
+		readloop(readnew, eUseDefault);
+	else
+		do_404();
 }
 
 /*
@@ -182,6 +184,10 @@ long gotoroom(const StrBuf *gname)
 	long err = 0;
 	int room_name_supplied = 0;
 	int is_baseroom = 0;
+	int failvisibly;
+
+	/* on fail, should we fallback to _BASEROOM_? */
+	failvisibly = ibstr("failvisibly");
 
 	/* store ungoto information */
 	if (StrLength(gname) > 0) {
@@ -206,6 +212,10 @@ long gotoroom(const StrBuf *gname)
 	}
 	StrBuf_ServGetln(Buf);
 	if  (GetServerStatus(Buf, &err) != 2) {
+		if (failvisibly) {
+			FreeStrBuf(&Buf);
+			return err;
+		}
 		serv_puts("GOTO _BASEROOM_");
 		StrBuf_ServGetln(Buf);
 		/* 

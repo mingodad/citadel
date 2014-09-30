@@ -165,14 +165,15 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 	);
 
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
-		  int mode,		/* how would you like that message? */
-		  int headers_only,	/* eschew the message body? */
-		  int do_proto,		/* do Citadel protocol responses? */
-		  int crlf,		/* 0=LF, 1=CRLF */
-		  char *section,		/* output a message/rfc822 section */
-		  int flags,		/* should the bessage be exported clean? */
-		  char **Author,        /* if you want to know the author of the message... */
-		  char **Address        /* if you want to know the sender address of the message... */
+		int mode,		/* how would you like that message? */
+		int headers_only,	/* eschew the message body? */
+		int do_proto,		/* do Citadel protocol responses? */
+		int crlf,		/* 0=LF, 1=CRLF */
+		char *section,		/* output a message/rfc822 section */
+		int flags,		/* should the bessage be exported clean? */
+		char **Author,		/* if you want to know the author of the message... */
+		char **Address,		/* if you want to know the sender address of the message... */
+		char **MessageID	/* if you want to know the Message-ID of the message... */
 );
 
 /* Flags which may be passed to CtdlOutputMsg() and CtdlOutputPreLoadedMsg() */

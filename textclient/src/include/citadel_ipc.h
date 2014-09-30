@@ -63,7 +63,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 #define READ_HEADER	2
 #define READ_MSGBODY	3
 
-#define NUM_CONFIGS 70
+#define NUM_CONFIGS	72
 
 
 

@@ -898,7 +898,10 @@ eNextState NWC_DispatchReadDone(AsyncIO *IO)
 	rc = NWC_ReadHandlers[NW->State](NW);
 	if (rc != eReadMore)
 		NW->State++;
-	NWC_SetTimeout(rc, NW);
+
+	if (rc != eAbort)
+		NWC_SetTimeout(rc, NW);
+
 	return rc;
 }
 eNextState NWC_DispatchWriteDone(AsyncIO *IO)

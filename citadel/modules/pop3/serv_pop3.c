@@ -195,7 +195,7 @@ void pop3_add_message(long msgnum, void *userdata)
 			      HEADERS_ALL,
 			      0, 1, NULL,
 			      SUPPRESS_ENV_TO,
-			      NULL, NULL);
+			      NULL, NULL, NULL);
 
 		smi.meta_rfc822_length = StrLength(CCC->redirect_buffer);
 		FreeStrBuf(&CCC->redirect_buffer); /* TODO: WHEW, all this for just knowing the length???? */
@@ -359,7 +359,7 @@ void pop3_retr(char *argbuf) {
 	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
 		      MT_RFC822, HEADERS_ALL, 0, 1, NULL,
 		      (ESC_DOT|SUPPRESS_ENV_TO),
-		      NULL, NULL);
+		      NULL, NULL, NULL);
 	cprintf(".\r\n");
 }
 
@@ -397,7 +397,7 @@ void pop3_top(char *argbuf)
 		      HEADERS_ALL,
 		      0, 1, NULL,
 		      SUPPRESS_ENV_TO,
-		      NULL, NULL);
+		      NULL, NULL, NULL);
 
 	msgtext = CCC->redirect_buffer;
 	CCC->redirect_buffer = NULL;

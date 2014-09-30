@@ -394,12 +394,12 @@ void smtp_help(long offset, long Flags) {
 void smtp_get_user(long offset)
 {
 	char buf[SIZ];
-	char username[SIZ];
 	citsmtp *sSMTP = SMTP;
 
-	CtdlDecodeBase64(username, ChrPtr(sSMTP->Cmd) + offset, SIZ);
+	StrBufDecodeBase64(sSMTP->Cmd);
+
 	/* syslog(LOG_DEBUG, "Trying <%s>\n", username); */
-	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
+	if (CtdlLoginExistingUser(NULL, ChrPtr(sSMTP->Cmd)) == login_ok) {
 		CtdlEncodeBase64(buf, "Password:", 9, 0);
 		cprintf("334 %s\r\n", buf);
 		sSMTP->command_state = smtp_password;
@@ -418,12 +418,11 @@ void smtp_get_pass(long offset, long Flags)
 {
 	citsmtp *sSMTP = SMTP;
 	char password[SIZ];
-	long len;
 
-	memset(password, 0, sizeof(password));	
-	len = CtdlDecodeBase64(password, ChrPtr(sSMTP->Cmd), SIZ);
+	memset(password, 0, sizeof(password));
+	StrBufDecodeBase64(sSMTP->Cmd);
 	/* syslog(LOG_DEBUG, "Trying <%s>\n", password); */
-	if (CtdlTryPassword(password, len) == pass_ok) {
+	if (CtdlTryPassword(SKEY(sSMTP->Cmd)) == pass_ok) {
 		smtp_auth_greeting(offset, Flags);
 	}
 	else {

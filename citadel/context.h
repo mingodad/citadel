@@ -149,6 +149,8 @@ struct CitContext {
 	long *cached_msglist;			/* results of the previous CtdlForEachMessage() */
 	int cached_num_msgs;
 
+	char vcard_updated_by_ldap;		/* !0 iff ldap changed the vcard, treat as aide update */
+
 	AsyncIO *IO;				/* if this session has AsyncIO going on... */
 };
 

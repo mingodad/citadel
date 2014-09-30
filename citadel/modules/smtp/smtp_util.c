@@ -272,7 +272,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 				      MT_RFC822,
 				      HEADERS_ALL,
 				      0, 1, NULL, 0,
-				      NULL, NULL);
+				      NULL, NULL, NULL);
 
 			StrBufAppendBuf(BounceMB, CC->redirect_buffer, 0);
 			FreeStrBuf(&CC->redirect_buffer);

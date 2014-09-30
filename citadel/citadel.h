@@ -1,7 +1,7 @@
 /*
  * Main Citadel header file
  *
- * Copyright (c) 1987-2013 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -45,7 +45,7 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	829		/* This version */
+#define REV_LEVEL	830		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	760		/* Oldest compatible export files */
 #define LIBCITADEL_MIN	829		/* Minimum required version of libcitadel */
@@ -61,11 +61,9 @@ extern "C" {
 
 /* Various length constants */
 
-#define ROOMNAMELEN	128	/* The size of a roomname string */
-					 
-#define USERNAME_SIZE	64	/* The size of a username string */
-#define MAX_EDITORS	5	/* # of external editors supported */
-				/* MUST be at least 1 */
+#define ROOMNAMELEN	128		/* The size of a roomname string */
+#define USERNAME_SIZE	64		/* The size of a username string */
+#define MAX_EDITORS	5		/* number of external editors supported ; must be at least 1 */
 
 /*
  * Message expiration policy stuff
@@ -103,7 +101,7 @@ struct march {
  * User records.
  */
 typedef struct ctdluser ctdluser;
-struct ctdluser {			/* User record                      */
+struct ctdluser {			/* User record                       */
 	int version;			/* Cit vers. which created this rec  */
 	uid_t uid;			/* Associate with a unix account?    */
 	char password[32];		/* password                          */
@@ -188,7 +186,7 @@ struct floor {
 #define REREGISTER	1		/* existing user reregistering */
 
 /* number of items which may be handled by the CONF command */
-#define NUM_CONFIGS 70
+#define NUM_CONFIGS 71
 
 #define TRACE	syslog(LOG_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 

@@ -1,7 +1,7 @@
 /*
  * Citadel setup utility
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -1147,6 +1147,8 @@ void set_default_values(void)
 	GetDefaultVALINT(c_managesieve_port, 2020);
 	GetDefaultVALINT(c_xmpp_c2s_port, 5222);
 	GetDefaultVALINT(c_xmpp_s2s_port, 5269);
+	GetDefaultVALINT(c_nntp_port, 119);
+	GetDefaultVALINT(c_nntps_port, 563);
 #endif
 }
 
@@ -1221,8 +1223,7 @@ int main(int argc, char *argv[])
 	enable_home = ( relh | home );
 
 	if (chdir(ctdl_run_dir) != 0) {
-		display_error(_("Citadel Setup"), 
-			      "%s: [%s]\n", 
+		display_error("%s: [%s]\n", 
 			      _("The directory you specified does not exist"), 
 			      ctdl_run_dir);
 		exit(errno);

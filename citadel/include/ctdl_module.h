@@ -384,6 +384,8 @@ struct config {
 	time_t c_pop3_fastest;
 	int c_spam_flag_only;
 	int c_guest_logins;
+	int c_nntp_port;
+	int c_nntps_port;
 };
 struct configlen {
 	long c_nodename;

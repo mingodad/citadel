@@ -1,7 +1,7 @@
 /*
  * This module handles states which are global to the entire server.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
@@ -387,6 +387,8 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_guest_logins);
 		cprintf("%d\n", config.c_port_number);
 		cprintf("%d\n", config.c_ctdluid);
+		cprintf("%d\n", config.c_nntp_port);
+		cprintf("%d\n", config.c_nntps_port);
 		cprintf("000\n");
 	}
 
@@ -656,6 +658,12 @@ void cmd_conf(char *argbuf)
 				break;
 			case 69:
 				config.c_ctdluid = atoi(buf);
+				break;
+			case 70:
+				config.c_nntp_port = atoi(buf);
+				break;
+			case 71:
+				config.c_nntps_port = atoi(buf);
 				break;
 			}
 			++a;

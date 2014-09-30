@@ -1,7 +1,7 @@
 /*
  * This module dumps and/or loads the Citadel database in XML format.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -464,6 +464,8 @@ void migr_do_export(void) {
 	cprintf("<c_pop3_fetch>%ld</c_pop3_fetch>\n", config.c_pop3_fetch);
 	cprintf("<c_pop3_fastest>%ld</c_pop3_fastest>\n", config.c_pop3_fastest);
 	cprintf("<c_spam_flag_only>%d</c_spam_flag_only>\n", config.c_spam_flag_only);
+	cprintf("<c_nntp_port>%d</c_nntp_port>\n", config.c_nntp_port);
+	cprintf("<c_nntps_port>%d</c_nntps_port>\n", config.c_nntps_port);
 	client_write("</config>\n", 10);
 	
 	/* Export the control file */
@@ -642,6 +644,8 @@ int migr_config(void *data, const char *el)
 	else if (!strcasecmp(el, "c_pop3_fetch"))		config.c_pop3_fetch = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "c_pop3_fastest"))		config.c_pop3_fastest = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "c_spam_flag_only"))		config.c_spam_flag_only = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_nntp_port"))		config.c_nntp_port = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "c_nntps_port"))		config.c_nntps_port = atoi(ChrPtr(migr_chardata));
 	else return 0;
 	return 1; /* Found above...*/
 }
