@@ -272,8 +272,8 @@ void render_MIME_ICS_TPL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundChar
 	wc_mime_attachment *Mime = CTX(CTX_MIME_ATACH);
 	icalproperty_method the_method = ICAL_METHOD_NONE;
 	icalproperty *method = NULL;
-	icalcomponent *cal;
-	icalcomponent *c;
+	icalcomponent *cal = NULL;
+	icalcomponent *c = NULL;
         WCTemplputParams SubTP;
         WCTemplputParams SuperTP;
 
@@ -538,7 +538,7 @@ int cond_ICalAttendeeState(StrBuf *Target, WCTemplputParams *TP)
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 	     (c != 0);
 	     c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
-		/* Recursively process subcomponent * /
+		// Recursively process subcomponent
 		cal_process_object(Target, c, recursion_level+1, msgnum, cal_partnum);
 	}
 	*/
