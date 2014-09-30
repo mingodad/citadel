@@ -137,7 +137,7 @@ dnl AC_FUNC_VPRINTF
 AC_REPLACE_FUNCS(snprintf)
 AC_CHECK_HEADER(CUnit/CUnit.h, [AC_DEFINE(ENABLE_TESTS, [], [whether we should compile the test-suite])])
 
-AC_CHECK_HEADERS(fcntl.h limits.h unistd.h iconv.h xlocale.h)
+AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h iconv.h xlocale.h)
 
 dnl Checks for the zlib compression library.
 saved_CFLAGS="$CFLAGS"

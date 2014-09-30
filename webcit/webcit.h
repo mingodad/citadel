@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2013 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -25,6 +25,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 #include <sys/stat.h>
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
