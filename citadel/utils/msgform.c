@@ -16,18 +16,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
+#include <time.h>
 #include <errno.h>
 #include <libcitadel.h>
 
@@ -53,7 +42,7 @@ char *strerror(int e)
 int main(int argc, char **argv)
 {
 	struct tm tm;
-	int a, b, e, mtype, aflag;
+	int a, b, e, aflag;
 	char bbb[1024];
 	char subject[1024];
 	FILE *fp;
@@ -79,7 +68,7 @@ TOP:	do {
 			exit(0);
 	} while (e != 255);
 	strcpy(subject, "");
-	mtype = getc(fp);
+	getc(fp);
 	aflag = getc(fp);
 	if (qwk == 0)
 		printf(" ");
