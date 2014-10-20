@@ -194,7 +194,7 @@ void DeleteNetworker(void *vptr)
 #define NWC_DBG_READ() EVN_syslog(LOG_DEBUG, ": < %s\n", ChrPtr(NW->IO.IOBuf))
 #define NWC_OK (strncasecmp(ChrPtr(NW->IO.IOBuf), "+OK", 3) == 0)
 
-eNextState SendFailureMessage(AsyncIO *IO)
+eNextState NWC_SendFailureMessage(AsyncIO *IO)
 {
 	AsyncNetworker *NW = IO->Data;
 	long lens[2];
@@ -243,7 +243,7 @@ eNextState NWC_ReadGreeting(AsyncNetworker *NW)
 			     connected_to, ChrPtr(NW->node));
 		EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
 		StopClientWatchers(IO, 1);
-		return QueueDBOperation(IO, SendFailureMessage);
+		return QueueDBOperation(IO, NWC_SendFailureMessage);
 	}
 	return eSendReply;
 }
@@ -287,7 +287,7 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 			SetNWCState(IO, eNWCVSAuthFailNTT);
 			EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
 			StopClientWatchers(IO, 1);
-			return QueueDBOperation(IO, SendFailureMessage);
+			return QueueDBOperation(IO, NWC_SendFailureMessage);
 		}
 		return eAbort;
 	}
@@ -845,7 +845,7 @@ eNextState NWC_FailNetworkConnection(AsyncIO *IO)
 {
 	SetNWCState(IO, eNWCVSConnFail);
 	StopClientWatchers(IO, 1);
-	return QueueDBOperation(IO, SendFailureMessage);
+	return QueueDBOperation(IO, NWC_SendFailureMessage);
 }
 
 void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
@@ -856,26 +856,23 @@ void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
 	EVN_syslog(LOG_DEBUG, "%s - %d\n", __FUNCTION__, NextTCPState);
 
 	switch (NextTCPState) {
-	case eSendReply:
 	case eSendMore:
-		break;
-	case eReadFile:
+	case eSendReply:
 	case eReadMessage:
 		Timeout = NWC_ReadTimeouts[NW->State];
 		break;
+	case eReadFile:
+	case eSendFile:
 	case eReadPayload:
 		Timeout = 100000;
-		/* TODO!!! */
 		break;
 	case eSendDNSQuery:
 	case eReadDNSReply:
-	case eConnect:
-	case eSendFile:
-//TODO
-	case eTerminateConnection:
 	case eDBQuery:
+	case eReadMore:
+	case eConnect:
+	case eTerminateConnection:
 	case eAbort:
-	case eReadMore://// TODO
 		return;
 	}
 	if (Timeout > 0) {
@@ -896,11 +893,11 @@ eNextState NWC_DispatchReadDone(AsyncIO *IO)
 	eNextState rc;
 
 	rc = NWC_ReadHandlers[NW->State](NW);
+
 	if (rc != eReadMore)
 		NW->State++;
 
-	if (rc != eAbort)
-		NWC_SetTimeout(rc, NW);
+	NWC_SetTimeout(rc, NW);
 
 	return rc;
 }
