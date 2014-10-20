@@ -335,7 +335,7 @@ void important_message(const char *title, const char *msgtext)
 		printf("       %s \n\n%s\n\n", title, msgtext);
 		printf("%s", _("Press return to continue..."));
 		if (fgets(buf, sizeof buf, stdin))
-			;
+		{;}
 		break;
 
 	case UI_DIALOG:
@@ -949,9 +949,10 @@ void fixnss(void) {
 
 	while (fgets(buf, sizeof buf, fp_read) != NULL) {
 		strcpy(buf_nc, buf);
-		for (i=0; i<strlen(buf_nc); ++i) {
+		for (i=0; buf_nc[i]; ++i) {
 			if (buf_nc[i] == '#') {
 				buf_nc[i] = 0;
+				break;
 			}
 		}
 		for (i=0; i<strlen(buf_nc); ++i) {
@@ -969,7 +970,8 @@ void fixnss(void) {
 				}
 			}
 		}
-		if (write(fd_write, buf, strlen(buf)) != strlen(buf)) {
+		long buflen = strlen(buf);
+		if (write(fd_write, buf, buflen) != buflen) {
 			fclose(fp_read);
 			close(fd_write);
 			unlink(new_filename);

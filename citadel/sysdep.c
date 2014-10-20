@@ -1092,7 +1092,7 @@ void checkcrash(void)
  */
 int convert_login(char NameToConvert[]) {
 	struct passwd *pw;
-	int a;
+	unsigned int a;
 
 	pw = getpwnam(NameToConvert);
 	if (pw == NULL) {

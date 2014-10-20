@@ -183,7 +183,7 @@ void utf8ify_rfc822_string(char *buf) {
 		}
 		else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
 			size_t len;
-			long pos;
+			unsigned long pos;
 			
 			len = strlen(istr);
 			pos = 0;
@@ -377,7 +377,7 @@ void sanitize_truncated_recipient(char *str)
  */
 void remove_any_whitespace_to_the_left_or_right_of_at_symbol(char *name)
 {
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < strlen(name); ++i) {
 		if (name[i] == '@') {
@@ -431,10 +431,11 @@ int alias(char *name)
 			strcpy(name, &name[1]);
 		aaa[strlen(aaa) - 1] = 0;
 		strcpy(bbb, "");
-		for (a = 0; a < strlen(aaa); ++a) {
+		for (a = 0; aaa[a] != '\0'; ++a) {
 			if (aaa[a] == ',') {
 				strcpy(bbb, &aaa[a + 1]);
 				aaa[a] = 0;
+				break;
 			}
 		}
 		if (!strcasecmp(name, aaa))
@@ -452,11 +453,12 @@ int alias(char *name)
 	}
 
 	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
-	for (a=0; a<strlen(name); ++a) {
+	for (a=0; name[a] != '\0'; ++a) {
 		if (name[a] == '@') {
 			if (CtdlHostAlias(&name[a+1]) == hostalias_localhost) {
 				name[a] = 0;
 				MSG_syslog(LOG_INFO, "Changed to <%s>\n", name);
+				break;
 			}
 		}
 	}
@@ -1037,11 +1039,15 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 		strcpy(name, &name[1]);
 
 	/* and anything to the right of a @ or % */
-	for (a = 0; a < strlen(name); ++a) {
-		if (name[a] == '@')
+	for (a = 0; name[a] != '\0'; ++a) {
+		if (name[a] == '@') {
 			name[a] = 0;
-		if (name[a] == '%')
+			break;
+		}
+		if (name[a] == '%') {
 			name[a] = 0;
+			break;
+		}
 	}
 
 	/* but if there are parentheses, that changes the rules... */
@@ -1057,9 +1063,11 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 			strcpy(&name[0], &name[1]);
 		}
 		strcpy(&name[0], &name[1]);
-		for (a = 0; a < strlen(name); ++a)
-			if (name[a] == 34)
+		for (a = 0; name[a] != '\0'; ++a)
+			if (name[a] == 34) {
 				name[a] = 0;
+				break;
+			}
 	}
 	/* extract user id */
 	strcpy(user, rfc822);
@@ -1077,11 +1085,15 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 		strcpy(user, &user[1]);
 
 	/* and anything to the right of a @ or % */
-	for (a = 0; a < strlen(user); ++a) {
-		if (user[a] == '@')
+	for (a = 0; user[a] != '\0'; ++a) {
+		if (user[a] == '@') {
 			user[a] = 0;
-		if (user[a] == '%')
+			break;
+		}
+		if (user[a] == '%') {
 			user[a] = 0;
+			break;
+		}
 	}
 
 
@@ -1120,9 +1132,11 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 			strcpy(node, &node[1]);
 	
 		/* now get rid of the user portion of a node!user string */
-		for (a = 0; a < strlen(node); ++a)
-			if (node[a] == '!')
+		for (a = 0; node[a] != '\0'; ++a)
+			if (node[a] == '!') {
 				node[a] = 0;
+				break;
+			}
 	}
 
 	/* strip leading and trailing spaces in all strings */
