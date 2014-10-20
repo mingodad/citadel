@@ -999,6 +999,7 @@ void smtp_starttls(long offset, long flags)
  */
 void smtp_command_loop(void)
 {
+	static const ConstStr AuthPlainStr = {HKEY("AUTH PLAIN")};
 	struct CitContext *CCC = CC;
 	citsmtp *sSMTP = SMTP;
 	const char *pch, *pchs;
@@ -1019,7 +1020,10 @@ void smtp_command_loop(void)
 	syslog(LOG_DEBUG, "SMTP server: %s\n", ChrPtr(sSMTP->Cmd));
 
 	if (sSMTP->command_state == smtp_user) {
-		smtp_get_user(0);
+		if (!strncmp(ChrPtr(sSMTP->Cmd), AuthPlainStr.Key, AuthPlainStr.len))
+			smtp_try_plain(0, 0);
+		else
+			smtp_get_user(0);
 		return;
 	}
 
