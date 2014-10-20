@@ -94,18 +94,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <ctype.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
+#include <time.h>
 #if HAVE_STRING_H
 # if !STDC_HEADERS && HAVE_MEMORY_H
 #  include <memory.h>
@@ -192,7 +181,7 @@ static void		date_error(char *);
 
 
 /* Line 268 of yacc.c  */
-#line 196 "y.tab.c"
+#line 185 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -249,7 +238,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 125 "parsedate.y"
+#line 114 "parsedate.y"
 
     time_t		Number;
     enum _MERIDIAN	Meridian;
@@ -257,7 +246,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 261 "y.tab.c"
+#line 250 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -269,7 +258,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 273 "y.tab.c"
+#line 262 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -567,10 +556,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   139,   139,   140,   143,   152,   156,   159,   164,   176,
-     182,   189,   195,   205,   209,   213,   221,   227,   248,   252,
-     264,   268,   273,   277,   282,   289,   292,   295,   298,   303,
-     306
+       0,   128,   128,   129,   132,   141,   145,   148,   153,   165,
+     171,   178,   184,   194,   198,   202,   210,   216,   237,   241,
+     253,   257,   262,   266,   271,   278,   281,   284,   287,   292,
+     295
 };
 #endif
 
@@ -1523,7 +1512,7 @@ yyreduce:
         case 4:
 
 /* Line 1806 of yacc.c  */
-#line 143 "parsedate.y"
+#line 132 "parsedate.y"
     {
 	    yyHaveTime++;
 #ifdef lint
@@ -1538,7 +1527,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 152 "parsedate.y"
+#line 141 "parsedate.y"
     {
 	    yyHaveTime++;
 	    yyTimezone = (yyvsp[(2) - (2)].Number);
@@ -1548,7 +1537,7 @@ yyreduce:
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 156 "parsedate.y"
+#line 145 "parsedate.y"
     {
 	    yyHaveDate++;
 	}
@@ -1557,7 +1546,7 @@ yyreduce:
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 159 "parsedate.y"
+#line 148 "parsedate.y"
     {
 	    yyHaveRel = 1;
 	}
@@ -1566,7 +1555,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 164 "parsedate.y"
+#line 153 "parsedate.y"
     {
 	    if ((yyvsp[(1) - (2)].Number) < 100) {
 		yyHour = (yyvsp[(1) - (2)].Number);
@@ -1584,7 +1573,7 @@ yyreduce:
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 176 "parsedate.y"
+#line 165 "parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (4)].Number);
 	    yyMinutes = (yyvsp[(3) - (4)].Number);
@@ -1596,7 +1585,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 182 "parsedate.y"
+#line 171 "parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (4)].Number);
 	    yyMinutes = (yyvsp[(3) - (4)].Number);
@@ -1609,7 +1598,7 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 189 "parsedate.y"
+#line 178 "parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (6)].Number);
 	    yyMinutes = (yyvsp[(3) - (6)].Number);
@@ -1621,7 +1610,7 @@ yyreduce:
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 195 "parsedate.y"
+#line 184 "parsedate.y"
     {
 	    yyHour = (yyvsp[(1) - (6)].Number);
 	    yyMinutes = (yyvsp[(3) - (6)].Number);
@@ -1635,7 +1624,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 205 "parsedate.y"
+#line 194 "parsedate.y"
     {
 	    (yyval.Number) = (yyvsp[(1) - (1)].Number);
 	    yyDSTmode = DSToff;
@@ -1645,7 +1634,7 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 209 "parsedate.y"
+#line 198 "parsedate.y"
     {
 	    (yyval.Number) = (yyvsp[(1) - (1)].Number);
 	    yyDSTmode = DSTon;
@@ -1655,7 +1644,7 @@ yyreduce:
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 213 "parsedate.y"
+#line 202 "parsedate.y"
     {
 	    /* Only allow "GMT+300" and "GMT-0800" */
 	    if ((yyvsp[(1) - (2)].Number) != 0) {
@@ -1669,7 +1658,7 @@ yyreduce:
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 221 "parsedate.y"
+#line 210 "parsedate.y"
     {
 	    (yyval.Number) = (yyvsp[(1) - (1)].Number);
 	    yyDSTmode = DSToff;
@@ -1679,7 +1668,7 @@ yyreduce:
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 227 "parsedate.y"
+#line 216 "parsedate.y"
     {
 	    int		i;
 
@@ -1704,7 +1693,7 @@ yyreduce:
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 248 "parsedate.y"
+#line 237 "parsedate.y"
     {
 	    yyMonth = (yyvsp[(1) - (3)].Number);
 	    yyDay = (yyvsp[(3) - (3)].Number);
@@ -1714,7 +1703,7 @@ yyreduce:
   case 19:
 
 /* Line 1806 of yacc.c  */
-#line 252 "parsedate.y"
+#line 241 "parsedate.y"
     {
 	    if ((yyvsp[(1) - (5)].Number) > 100) {
 		yyYear = (yyvsp[(1) - (5)].Number);
@@ -1732,7 +1721,7 @@ yyreduce:
   case 20:
 
 /* Line 1806 of yacc.c  */
-#line 264 "parsedate.y"
+#line 253 "parsedate.y"
     {
 	    yyMonth = (yyvsp[(1) - (2)].Number);
 	    yyDay = (yyvsp[(2) - (2)].Number);
@@ -1742,7 +1731,7 @@ yyreduce:
   case 21:
 
 /* Line 1806 of yacc.c  */
-#line 268 "parsedate.y"
+#line 257 "parsedate.y"
     {
 	    yyMonth = (yyvsp[(1) - (4)].Number);
 	    yyDay = (yyvsp[(2) - (4)].Number);
@@ -1753,7 +1742,7 @@ yyreduce:
   case 22:
 
 /* Line 1806 of yacc.c  */
-#line 273 "parsedate.y"
+#line 262 "parsedate.y"
     {
 	    yyDay = (yyvsp[(1) - (2)].Number);
 	    yyMonth = (yyvsp[(2) - (2)].Number);
@@ -1763,7 +1752,7 @@ yyreduce:
   case 23:
 
 /* Line 1806 of yacc.c  */
-#line 277 "parsedate.y"
+#line 266 "parsedate.y"
     {
 	    yyDay = (yyvsp[(1) - (3)].Number);
 	    yyMonth = (yyvsp[(2) - (3)].Number);
@@ -1774,7 +1763,7 @@ yyreduce:
   case 24:
 
 /* Line 1806 of yacc.c  */
-#line 282 "parsedate.y"
+#line 271 "parsedate.y"
     {
 	    yyDay = (yyvsp[(3) - (5)].Number);
 	    yyMonth = (yyvsp[(4) - (5)].Number);
@@ -1785,7 +1774,7 @@ yyreduce:
   case 25:
 
 /* Line 1806 of yacc.c  */
-#line 289 "parsedate.y"
+#line 278 "parsedate.y"
     {
 	    yyRelSeconds += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
@@ -1794,7 +1783,7 @@ yyreduce:
   case 26:
 
 /* Line 1806 of yacc.c  */
-#line 292 "parsedate.y"
+#line 281 "parsedate.y"
     {
 	    yyRelSeconds += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
@@ -1803,7 +1792,7 @@ yyreduce:
   case 27:
 
 /* Line 1806 of yacc.c  */
-#line 295 "parsedate.y"
+#line 284 "parsedate.y"
     {
 	    yyRelMonth += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
@@ -1812,7 +1801,7 @@ yyreduce:
   case 28:
 
 /* Line 1806 of yacc.c  */
-#line 298 "parsedate.y"
+#line 287 "parsedate.y"
     {
 	    yyRelMonth += (yyvsp[(1) - (2)].Number) * (yyvsp[(2) - (2)].Number);
 	}
@@ -1821,7 +1810,7 @@ yyreduce:
   case 29:
 
 /* Line 1806 of yacc.c  */
-#line 303 "parsedate.y"
+#line 292 "parsedate.y"
     {
 	    (yyval.Meridian) = MER24;
 	}
@@ -1830,7 +1819,7 @@ yyreduce:
   case 30:
 
 /* Line 1806 of yacc.c  */
-#line 306 "parsedate.y"
+#line 295 "parsedate.y"
     {
 	    (yyval.Meridian) = (yyvsp[(1) - (1)].Meridian);
 	}
@@ -1839,7 +1828,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1843 "y.tab.c"
+#line 1832 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2070,7 +2059,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 311 "parsedate.y"
+#line 300 "parsedate.y"
 
 
 /* Month and day table. */

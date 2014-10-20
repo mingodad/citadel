@@ -1,7 +1,7 @@
 /*
  * citadel_dirs.c : calculate pathnames for various files used in the Citadel system
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2014 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
@@ -17,22 +17,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
+#include <time.h>
 #include <errno.h>
 #include <libcitadel.h>
-
-
 #include "citadel.h"
 
 /* our directories... */
