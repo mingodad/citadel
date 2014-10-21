@@ -611,6 +611,8 @@ ev_async ExitEventLoop;
 static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
 	CitContext *Ctx;
+	long IOID = -1;
+	long count = 0;
 	ev_tstamp Now;
 	HashList *q;
 	void *v;
@@ -635,9 +637,11 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	while (GetNextHashPos(q, It, &len, &Key, &v))
 	{
 		IOAddHandler *h = v;
+		count ++;
 		if (h->IO->ID == 0) {
 			h->IO->ID = EvIDSource++;
 		}
+		IOID = h->IO->ID;
 		if (h->IO->StartIO == 0.0)
 			h->IO->StartIO = Now;
 
@@ -669,7 +673,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	EVQM_syslog(LOG_DEBUG, "EVENT Q Add done.\n");
+	EVQ_syslog(LOG_DEBUG, "%s CC[%ld] EVENT Q Add %ld  done.", IOSTR, IOID, count);
 }
 
 
@@ -762,6 +766,8 @@ extern void ShutDownDBCLient(AsyncIO *IO);
 static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
 	CitContext *Ctx;
+	long IOID = -1;
+	long count = 0;;
 	ev_tstamp Now;
 	HashList *q;
 	void *v;
@@ -788,8 +794,10 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	{
 		IOAddHandler *h = v;
 		eNextState rc;
+		count ++;
 		if (h->IO->ID == 0)
 			h->IO->ID = EvIDSource++;
+		IOID = h->IO->ID;
 		if (h->IO->StartDB == 0.0)
 			h->IO->StartDB = Now;
 		h->IO->Now = Now;
@@ -809,7 +817,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	EVQM_syslog(LOG_DEBUG, "DBEVENT Q Add done.\n");
+	EVQ_syslog(LOG_DEBUG, "%s CC[%ld] DBEVENT Q Add %ld done.", IOSTR, IOID, count);
 }
 
 
