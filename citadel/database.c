@@ -889,8 +889,8 @@ int SeentDebugEnabled = 0;
 #define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (SeentDebugEnabled != 0))
 #define SEENM_syslog(LEVEL, FORMAT)					\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%ld] SEEN[%s][%d] " FORMAT,	\
-			     ioid, ccid, Facility, cType)
+			     "%s[%ld]CC[%ld] SEEN[%s][%d] " FORMAT,	\
+			     IOSTR, ioid, ccid, Facility, cType)
 
 time_t CheckIfAlreadySeen(const char *Facility,
 			  StrBuf *guid,

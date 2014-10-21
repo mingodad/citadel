@@ -63,6 +63,7 @@ ev_loop *event_base;
 int DebugEventLoop = 0;
 int DebugEventLoopBacktrace = 0;
 int DebugCurl = 0;
+pthread_key_t evConKey;
 
 long EvIDSource = 1;
 /*****************************************************************************
@@ -71,12 +72,12 @@ long EvIDSource = 1;
 #define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugCurl != 0))
 
 #define EVCURL_syslog(LEVEL, FORMAT, ...)				\
-	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT,	\
-			      IO->ID, CCID, __VA_ARGS__)
+	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:%s[%ld]CC[%d] " FORMAT,	\
+			      IOSTR, IO->ID, CCID, __VA_ARGS__)
 
 #define EVCURLM_syslog(LEVEL, FORMAT)					\
-	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT,	\
-			      IO->ID, CCID)
+	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:%s[%ld]CC[%d] " FORMAT,	\
+			      IOSTR, IO->ID, CCID)
 
 #define CURL_syslog(LEVEL, FORMAT, ...)					\
 	DBGLOG (LEVEL) syslog(LEVEL, "CURL: " FORMAT, __VA_ARGS__)
@@ -694,6 +695,7 @@ void InitEventQueue(void)
 extern void CtdlDestroyEVCleanupHooks(void);
 
 extern int EVQShutDown;
+const char *IOLog = "IO";
 /*
  * this thread operates the select() etc. via libev.
  */
@@ -702,7 +704,9 @@ void *client_event_thread(void *arg)
 	struct CitContext libev_client_CC;
 
 	CtdlFillSystemContext(&libev_client_CC, "LibEv Thread");
-//	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
+
+	pthread_setspecific(evConKey, IOLog);
+
 	EVQM_syslog(LOG_DEBUG, "client_event_thread() initializing\n");
 
 	event_base = ev_default_loop (EVFLAG_AUTO);
@@ -828,6 +832,8 @@ void DBInitEventQueue(void)
 	DBInboundEventQueue = DBInboundEventQueues[0];
 }
 
+const char *DBLog = "BD";
+
 /*
  * this thread operates writing to the message database via libev.
  */
@@ -835,6 +841,8 @@ void *db_event_thread(void *arg)
 {
 	ev_loop *tmp;
 	struct CitContext libev_msg_CC;
+
+	pthread_setspecific(evConKey, DBLog);
 
 	CtdlFillSystemContext(&libev_msg_CC, "LibEv DB IO Thread");
 
@@ -893,10 +901,16 @@ void DebugCurlEnable(const int n)
 	DebugCurl = n;
 }
 
+const char *WLog = "WX";
 CTDL_MODULE_INIT(event_client)
 {
 	if (!threading)
 	{
+		if (pthread_key_create(&evConKey, NULL) != 0) {
+			syslog(LOG_CRIT, "Can't create TSD key: %s", strerror(errno));
+		}
+		pthread_setspecific(evConKey, WLog);
+
 		CtdlRegisterDebugFlagHook(HKEY("eventloop"), DebugEventloopEnable, &DebugEventLoop);
 		CtdlRegisterDebugFlagHook(HKEY("eventloopbacktrace"), DebugEventloopBacktraceEnable, &DebugEventLoopBacktrace);
 		CtdlRegisterDebugFlagHook(HKEY("curl"), DebugCurlEnable, &DebugCurl);

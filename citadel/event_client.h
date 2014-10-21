@@ -32,6 +32,8 @@ typedef struct AsyncIO AsyncIO;
 typedef struct CitContext CitContext;
 #endif
 
+extern pthread_key_t evConKey;
+
 typedef enum __eIOState { 
 	eDBQ,
 	eQDBNext,
@@ -221,59 +223,61 @@ typedef struct _IOAddHandler {
 extern int DebugEventLoop;
 extern int DebugCAres;
 
+#define IOSTR (const char *) pthread_getspecific(evConKey)
+
 #define EDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugEventLoop != 0))
 
 #define CCID ((CitContext*)IO->CitContext)?((CitContext*)IO->CitContext)->cs_pid:-1
 
 #define EVQ_syslog(LEVEL, FORMAT, ...)					\
-	EDBGLOG (LEVEL) syslog(LEVEL, "IOQ " FORMAT, __VA_ARGS__)
+	EDBGLOG (LEVEL) syslog(LEVEL, "%sQ " FORMAT, IOSTR, __VA_ARGS__)
 
 #define EVQM_syslog(LEVEL, FORMAT)			\
-	EDBGLOG (LEVEL) syslog(LEVEL, "IO " FORMAT)
+	EDBGLOG (LEVEL) syslog(LEVEL, "%s " FORMAT, IOSTR)
 
 #define EV_syslog(LEVEL, FORMAT, ...)					\
-	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d] " FORMAT, IO->ID, CCID, __VA_ARGS__)
+	EDBGLOG (LEVEL) syslog(LEVEL, "%s[%ld]CC[%d] " FORMAT, IOSTR, IO->ID, CCID, __VA_ARGS__)
 
 #define EVM_syslog(LEVEL, FORMAT)					\
-	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d] " FORMAT, IO->ID, CCID)
+	EDBGLOG (LEVEL) syslog(LEVEL, "%s[%ld]CC[%d] " FORMAT, IOSTR, IO->ID, CCID)
 
 #define EVNC_syslog(LEVEL, FORMAT, ...)					\
-	EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld] " FORMAT, IO->ID, __VA_ARGS__)
+	EDBGLOG (LEVEL) syslog(LEVEL, "%s[%ld] " FORMAT, IOSTR, IO->ID, __VA_ARGS__)
 
-#define EVNCM_syslog(LEVEL, FORMAT) EDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]" FORMAT, IO->ID)
+#define EVNCM_syslog(LEVEL, FORMAT) EDBGLOG (LEVEL) syslog(LEVEL, "%s[%ld]" FORMAT, IOSTR, IO->ID)
 
 
 #define CDBGLOG() if (DebugCAres != 0)
 #define CEDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugCAres != 0))
 #define EV_DNS_LOG_START(a)							\
-	CDBGLOG () {syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %s %p FD %d", IO->ID, CCID, __FUNCTION__, &IO->a, IO->a.fd); \
+	CDBGLOG () {syslog(LOG_DEBUG, "%s[%ld]CC[%d] + Starting " #a " %s %p FD %d", IOSTR, IO->ID, CCID, __FUNCTION__, &IO->a, IO->a.fd); \
 		    EV_backtrace(IO);}
 
 #define EV_DNS_LOG_STOP(a)							\
-	CDBGLOG () { syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %s %p FD %d", IO->ID, CCID, __FUNCTION__, &IO->a, IO->a.fd); \
+	CDBGLOG () { syslog(LOG_DEBUG, "%s[%ld]CC[%d] - Stopping " #a " %s %p FD %d", IOSTR, IO->ID, CCID, __FUNCTION__, &IO->a, IO->a.fd); \
 		     EV_backtrace(IO);}
 
 #define EV_DNS_LOG_INIT(a)							\
-	CDBGLOG () { syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %s %p FD %d", IO->ID, CCID, __FUNCTION__, &IO->a, IO->a.fd); \
+	CDBGLOG () { syslog(LOG_DEBUG, "%s[%ld]CC[%d] * Init " #a " %s %p FD %d", IOSTR, IO->ID, CCID, __FUNCTION__, &IO->a, IO->a.fd); \
 		     EV_backtrace(IO);}
 
 #define EV_DNS_LOGT_START(a)							\
-	CDBGLOG () { syslog(LOG_DEBUG, "IO[%ld]CC[%d] + Starting " #a " %s %p", IO->ID, CCID, __FUNCTION__, &IO->a); \
+	CDBGLOG () { syslog(LOG_DEBUG, "%s[%ld]CC[%d] + Starting " #a " %s %p", IOSTR, IO->ID, CCID, __FUNCTION__, &IO->a); \
 		     EV_backtrace(IO);}
 
 #define EV_DNS_LOGT_STOP(a)							\
-	CDBGLOG () { syslog(LOG_DEBUG, "IO[%ld]CC[%d] - Stopping " #a " %s %p", IO->ID, CCID, __FUNCTION__, &IO->a); \
+	CDBGLOG () { syslog(LOG_DEBUG, "%s[%ld]CC[%d] - Stopping " #a " %s %p", IOSTR, IO->ID, CCID, __FUNCTION__, &IO->a); \
 		     EV_backtrace(IO); }
 
 #define EV_DNS_LOGT_INIT(a)							\
-	CDBGLOG () { syslog(LOG_DEBUG, "IO[%ld]CC[%d] * Init " #a " %p", IO->ID, CCID, &IO->a); \
+	CDBGLOG () { syslog(LOG_DEBUG, "%s[%ld]CC[%d] * Init " #a " %p", IOSTR, IO->ID, CCID, &IO->a); \
 		     EV_backtrace(IO);}
 
 #define EV_DNS_syslog(LEVEL, FORMAT, ...)				\
-	CEDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d] " FORMAT, IO->ID, CCID, __VA_ARGS__)
+	CEDBGLOG (LEVEL) syslog(LEVEL, "%s[%ld]CC[%d] " FORMAT, IOSTR, IO->ID, CCID, __VA_ARGS__)
 
 #define EVM_DNS_syslog(LEVEL, FORMAT)					\
-	CEDBGLOG (LEVEL) syslog(LEVEL, "IO[%ld]CC[%d] " FORMAT, IO->ID, CCID)
+	CEDBGLOG (LEVEL) syslog(LEVEL, "%s[%ld]CC[%d] " FORMAT, IOSTR, IO->ID, CCID)
 
 void FreeAsyncIOContents(AsyncIO *IO);
 

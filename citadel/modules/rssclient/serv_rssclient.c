@@ -75,13 +75,13 @@ int RSSClientDebugEnabled = 0;
 
 #define EVRSSC_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]RSS" FORMAT,		\
-			     IO->ID, CCID, N, __VA_ARGS__)
+			     "%s[%ld]CC[%d][%ld]RSS" FORMAT,		\
+			     IOSTR, IO->ID, CCID, N, __VA_ARGS__)
 
 #define EVRSSCM_syslog(LEVEL, FORMAT)					\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]RSS" FORMAT,		\
-			     IO->ID, CCID, N)
+			     "%s[%ld]CC[%d][%ld]RSS" FORMAT,		\
+			     IOSTR, IO->ID, CCID, N)
 
 #define EVRSSQ_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL, "RSS" FORMAT,			\
@@ -90,8 +90,8 @@ int RSSClientDebugEnabled = 0;
 	DBGLOG(LEVEL) syslog(LEVEL, "RSS" FORMAT)
 
 #define EVRSSCSM_syslog(LEVEL, FORMAT)					\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]RSS" FORMAT,		\
-			     IO->ID, N)
+	DBGLOG(LEVEL) syslog(LEVEL, "%s[%ld][%ld]RSS" FORMAT,		\
+			     IOSTR, IO->ID, N)
 
 typedef enum _RSSState {
 	eRSSCreated,

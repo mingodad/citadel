@@ -1189,7 +1189,7 @@ void HuntBadSession(void)
 
 }
 
-
+const char *WorkerLogStr = "W";
 /* 
  * This loop just keeps going and going and going...
  */
@@ -1209,6 +1209,8 @@ void *worker_thread(void *blah) {
 	pthread_mutex_lock(&ThreadCountMutex);
 	++num_workers;
 	pthread_mutex_unlock(&ThreadCountMutex);
+
+	pthread_setspecific(evConKey, WorkerLogStr);
 
 	while (!server_shutting_down) {
 

@@ -20,13 +20,13 @@ typedef void (*CtdlDbgFunction) (const int);
 extern int DebugModules;
 #define MDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugModules != 0))
 
-#define MOD_syslog(LEVEL, FORMAT, ...)				\
-	MDBGLOG(LEVEL) syslog(LEVEL,				\
-			      "Modules: " FORMAT, __VA_ARGS__)
+#define MOD_syslog(LEVEL, FORMAT, ...)					\
+	MDBGLOG(LEVEL) syslog(LEVEL,					\
+			      "%s Modules: " FORMAT, IOSTR, __VA_ARGS__)
 
-#define MODM_syslog(LEVEL, FORMAT)			\
-	MDBGLOG(LEVEL) syslog(LEVEL,			\
-			      "Modules: " FORMAT);
+#define MODM_syslog(LEVEL, FORMAT)				\
+	MDBGLOG(LEVEL) syslog(LEVEL,				\
+			      "%s Modules: " FORMAT, IOSTR);
 
 
 

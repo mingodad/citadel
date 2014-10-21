@@ -82,21 +82,21 @@ int NetworkClientDebugEnabled = 0;
 
 #define EVN_syslog(LEVEL, FORMAT, ...)					\
 	NCDBGLOG(LEVEL) syslog(LEVEL,					\
-			       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, CCID, NODE, N, __VA_ARGS__)
+			       "%s[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, CCID, NODE, N, __VA_ARGS__)
 
 #define EVNM_syslog(LEVEL, FORMAT)					\
 	NCDBGLOG(LEVEL) syslog(LEVEL,					\
-			       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, CCID, NODE, N)
+			       "%s[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, CCID, NODE, N)
 
 #define EVNCS_syslog(LEVEL, FORMAT, ...) \
-	NCDBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, NODE, N, __VA_ARGS__)
+	NCDBGLOG(LEVEL) syslog(LEVEL, "%s[%ld]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, NODE, N, __VA_ARGS__)
 
 #define EVNCSM_syslog(LEVEL, FORMAT) \
-	NCDBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, NODE, N)
+	NCDBGLOG(LEVEL) syslog(LEVEL, "%s[%ld]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, NODE, N)
 
 
 typedef enum _eNWCState {
