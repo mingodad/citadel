@@ -286,8 +286,7 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 		else {
 			SetNWCState(IO, eNWCVSAuthFailNTT);
 			EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
-			StopClientWatchers(IO, 1);
-			return QueueDBOperation(IO, NWC_SendFailureMessage);
+			return EventQueueDBOperation(IO, NWC_SendFailureMessage, 1);
 		}
 		return eAbort;
 	}
@@ -844,8 +843,7 @@ eReadState NWC_ReadServerStatus(AsyncIO *IO)
 eNextState NWC_FailNetworkConnection(AsyncIO *IO)
 {
 	SetNWCState(IO, eNWCVSConnFail);
-	StopClientWatchers(IO, 1);
-	return QueueDBOperation(IO, NWC_SendFailureMessage);
+	return EventQueueDBOperation(IO, NWC_SendFailureMessage, 1);
 }
 
 void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
