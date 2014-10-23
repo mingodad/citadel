@@ -45,7 +45,7 @@ void cit_backtrace(void)
 	char **strings;
 
 	const char *p = IOSTR;
-	if (p == NULL) p = ""
+	if (p == NULL) p = "";
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
