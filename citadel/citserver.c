@@ -44,14 +44,15 @@ void cit_backtrace(void)
 	size_t size, i;
 	char **strings;
 
-
+	const char *p = IOSTR;
+	if (p == NULL) p = ""
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
 		if (strings != NULL)
-			syslog(LOG_ALERT, "%s\n", strings[i]);
+			syslog(LOG_ALERT, "%s %s\n", p, strings[i]);
 		else
-			syslog(LOG_ALERT, "%p\n", stack_frames[i]);
+			syslog(LOG_ALERT, "%s %p\n", p, stack_frames[i]);
 	}
 	free(strings);
 #endif
@@ -77,7 +78,7 @@ void cit_oneline_backtrace(void)
 				StrBufAppendPrintf(Buf, "%p : ", stack_frames[i]);
 		}
 		free(strings);
-		syslog(LOG_ALERT, "%s\n", ChrPtr(Buf));
+		syslog(LOG_ALERT, "%s %s\n", IOSTR, ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 	}
 #endif
