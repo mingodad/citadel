@@ -255,7 +255,7 @@ eNextState Terminate(AsyncIO *IO)
 eNextState FinalizeMessageSend(SmtpOutMsg *Msg)
 {
 	/* hand over to DB Queue */
-	return EventQueueDBOperation(&Msg->IO, FinalizeMessageSend_DB);
+	return EventQueueDBOperation(&Msg->IO, FinalizeMessageSend_DB, 0);
 }
 
 eNextState FailOneAttempt(AsyncIO *IO)

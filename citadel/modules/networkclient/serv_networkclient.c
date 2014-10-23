@@ -242,8 +242,8 @@ eNextState NWC_ReadGreeting(AsyncNetworker *NW)
 			     "Connected to node \"%s\" but I was expecting to connect to node \"%s\".",
 			     connected_to, ChrPtr(NW->node));
 		EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
-		StopClientWatchers(IO, 1);
-		return QueueDBOperation(IO, NWC_SendFailureMessage);
+
+		return EventQueueDBOperation(IO, NWC_SendFailureMessage, 1);
 	}
 	return eSendReply;
 }

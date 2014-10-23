@@ -257,9 +257,9 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	return eSendReply;
 }
 
-eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB)
+eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB, int CloseFDs)
 {
-	StopClientWatchers(IO, 0);
+	StopClientWatchers(IO, CloseFDs);
 	return QueueDBOperation(IO, CB);
 }
 eNextState DBQueueEventContext(AsyncIO *IO, IO_CallBack CB)
