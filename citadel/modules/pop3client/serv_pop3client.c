@@ -492,7 +492,8 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 		/// done receiving uidls.. start looking them up now.
 		RecvMsg->Pos = GetNewHashPos(RecvMsg->MsgNumbers, 0);
 		return EventQueueDBOperation(&RecvMsg->IO,
-					     POP3_FetchNetworkUsetableEntry);
+					     POP3_FetchNetworkUsetableEntry,
+					     0);
 	}
 	return eReadMore; /* TODO */
 }
@@ -625,7 +626,7 @@ eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 	EVP3CM_syslog(LOG_DEBUG, "Converting message...");
 	RecvMsg->CurrMsg->Msg =
 		convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
-	return EventQueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg);
+	return EventQueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg, 0);
 }
 
 eNextState POP3C_SendDelete(pop3aggr *RecvMsg)
