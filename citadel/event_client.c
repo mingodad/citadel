@@ -493,10 +493,18 @@ eReadState HandleInbound(AsyncIO *IO)
 		}
 
 		if (Finished != eMustReadMore) {
+			eNextState rc;
 			assert(IO->ReadDone);
 			ev_io_stop(event_base, &IO->recv_event);
-			IO->NextState = IO->ReadDone(IO);
-			Finished = StrBufCheckBuffer(&IO->RecvBuf);
+			rc = IO->ReadDone(IO);
+			if  (rc != eDBQuery) {
+				IO->NextState = rc;
+				Finished = StrBufCheckBuffer(&IO->RecvBuf);
+			}
+			else {
+				return rc;
+
+			}
 		}
 	}
 
