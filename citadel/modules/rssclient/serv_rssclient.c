@@ -416,6 +416,8 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
+	static const time_t antiExpire = USETABLE_ANTIEXPIRE_HIRES;
+	time_t seenstamp = 0;
 #ifndef DEBUG_RSS
 	const char *Key;
 	long len;
@@ -424,18 +426,20 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	/* Find out if we've already seen this item */
 // todo: expiry?
 	SetRSSState(IO, eRSSUT);
-	if (CheckIfAlreadySeen("RSS Item Seen",
-			       Ctx->ThisMsg->MsgGUID,
-			       IO->Now,
-			       IO->Now - USETABLE_ANTIEXPIRE_HIRES,
-			       eCheckUpdate,
-			       CCID, IO->ID)
-	    != 0)
+	seenstamp = CheckIfAlreadySeen("RSS Item Seen",
+				       Ctx->ThisMsg->MsgGUID,
+				       IO->Now,
+				       antiExpire,
+				       eCheckUpdate,
+				       CCID, IO->ID);
+	if (seenstamp < antiExpire)
 	{
 		/* Item has already been seen */
 		EVRSSC_syslog(LOG_DEBUG,
-			  "%s has already been seen\n",
-			  ChrPtr(Ctx->ThisMsg->MsgGUID));
+			      "%s has already been seen - %ld < %ld",
+			      ChrPtr(Ctx->ThisMsg->MsgGUID),
+			      seenstamp, antiExpire);
+
 		SetRSSState(IO, eRSSParsing);
 
 		if (GetNextHashPos(Ctx->Messages,
@@ -451,6 +455,11 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	else
 #endif
 	{
+		/* Item has already been seen */
+		EVRSSC_syslog(LOG_DEBUG,
+			      "%s Parsing - %ld >= %ld",
+			      ChrPtr(Ctx->ThisMsg->MsgGUID),
+			      seenstamp, antiExpire);
 		SetRSSState(IO, eRSSParsing);
 
 		NextDBOperation(IO, RSSSaveMessage);

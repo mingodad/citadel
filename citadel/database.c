@@ -892,6 +892,12 @@ int SeentDebugEnabled = 0;
 			     "%s[%ld]CC[%ld] SEEN[%s][%d] " FORMAT,	\
 			     IOSTR, ioid, ccid, Facility, cType)
 
+#define SEEN_syslog(LEVEL, FORMAT, ...)					\
+	DBGLOG(LEVEL) syslog(LEVEL,					\
+			     "%s[%ld]CC[%ld] SEEN[%s][%d] " FORMAT,	\
+			     IOSTR, ioid, ccid, Facility, cType,	\
+			     __VA_ARGS__)
+
 time_t CheckIfAlreadySeen(const char *Facility,
 			  StrBuf *guid,
 			  time_t now,
@@ -906,24 +912,23 @@ time_t CheckIfAlreadySeen(const char *Facility,
 
 	if (cType != eWrite)
 	{
-		SEENM_syslog(LOG_DEBUG, "Loading");
+		SEEN_syslog(LOG_DEBUG, "Loading [%s]", ChrPtr(guid));
 		cdbut = cdb_fetch(CDB_USETABLE, SKEY(guid));
 		if ((cdbut != NULL) && (cdbut->ptr != NULL)) {
 			memcpy(&ut, cdbut->ptr,
 			       ((cdbut->len > sizeof(struct UseTable)) ?
 				sizeof(struct UseTable) : cdbut->len));
-			InDBTimeStamp = ut.ut_timestamp;
+			InDBTimeStamp = now - ut.ut_timestamp;
 
 			if (InDBTimeStamp < antiexpire)
 			{
-				SEENM_syslog(LOG_DEBUG, "Found - Not expired.");
+				SEEN_syslog(LOG_DEBUG, "Found - Not expired %ld < %ld", InDBTimeStamp, antiexpire);
 				cdb_free(cdbut);
 				return InDBTimeStamp;
 			}
 			else
 			{
-				SEENM_syslog(LOG_DEBUG, "Found - Expired.");
-				InDBTimeStamp = ut.ut_timestamp;
+				SEEN_syslog(LOG_DEBUG, "Found - Expired. %ld >= %ld", InDBTimeStamp, antiexpire);
 				cdb_free(cdbut);
 			}
 		}
@@ -941,7 +946,7 @@ time_t CheckIfAlreadySeen(const char *Facility,
 	memcpy(ut.ut_msgid, SKEY(guid));
 	ut.ut_timestamp = now;
 
-	SEENM_syslog(LOG_DEBUG, "Saving");
+	SEENM_syslog(LOG_DEBUG, "Saving new Timestamp");
 	/* rewrite the record anyway, to update the timestamp */
 	cdb_store(CDB_USETABLE,
 		  SKEY(guid),
@@ -952,6 +957,52 @@ time_t CheckIfAlreadySeen(const char *Facility,
 }
 
 
+void cmd_rsen(char *argbuf) {
+	char Token[SIZ];
+	long TLen;
+	char Time[SIZ];
+
+	struct UseTable ut;
+	struct cdbdata *cdbut;
+	
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	TLen = extract_token(Token, argbuf, 1, '|', sizeof Token);
+	if (strncmp(argbuf, "GET", 3) == 0) {
+		cdbut = cdb_fetch(CDB_USETABLE, Token, TLen);
+		if (cdbut != NULL) {
+			memcpy(&ut, cdbut->ptr,
+			       ((cdbut->len > sizeof(struct UseTable)) ?
+				sizeof(struct UseTable) : cdbut->len));
+			
+			cprintf("%d %ld\n", CIT_OK, ut.ut_timestamp);
+		}
+		else {
+			cprintf("%d not found\n", ERROR + NOT_HERE);
+		}
+
+	}
+	else if (strncmp(argbuf, "SET", 3) == 0) {
+		memcpy(ut.ut_msgid, Token, TLen);
+		extract_token(Time, argbuf, 2, '|', sizeof Time);
+		ut.ut_timestamp = atol(Time);
+		cdb_store(CDB_USETABLE,
+			  Token, TLen,
+			  &ut, sizeof(struct UseTable) );
+		cprintf("%d token updated\n", CIT_OK);
+	}
+	else if (strncmp(argbuf, "DEL", 3) == 0) {
+		if (cdb_delete(CDB_USETABLE, Token, TLen))
+			cprintf("%d not found\n", ERROR + NOT_HERE);
+		else
+			cprintf("%d deleted.\n", CIT_OK);
+
+	}
+	else {
+		cprintf("%d Usage: [GET|SET|DEL]|Token|timestamp\n", ERROR);
+	}
+
+}
 void LogDebugEnableSeenEnable(const int n)
 {
 	SeentDebugEnabled = n;
@@ -962,6 +1013,7 @@ CTDL_MODULE_INIT(database)
 	if (!threading)
 	{
 		CtdlRegisterDebugFlagHook(HKEY("SeenDebug"), LogDebugEnableSeenEnable, &SeentDebugEnabled);
+		CtdlRegisterProtoHook(cmd_rsen, "RSEN", "manipulate Aggregators seen database");
 	}
 
 	/* return our module id for the log */
