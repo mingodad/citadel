@@ -200,6 +200,8 @@ eNextState NWC_SendFailureMessage(AsyncIO *IO)
 	long lens[2];
 	const char *strs[2];
 
+	EVN_syslog(LOG_DEBUG, "NWC: %s\n", __FUNCTION__);
+
 	strs[0] = ChrPtr(NW->node);
 	lens[0] = StrLength(NW->node);
 	
@@ -848,10 +850,9 @@ eNextState NWC_FailNetworkConnection(AsyncIO *IO)
 
 void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
 {
-	AsyncIO *IO = &NW->IO;
 	double Timeout = 0.0;
 
-	EVN_syslog(LOG_DEBUG, "%s - %d\n", __FUNCTION__, NextTCPState);
+	//EVN_syslog(LOG_DEBUG, "%s - %d\n", __FUNCTION__, NextTCPState);
 
 	switch (NextTCPState) {
 	case eSendMore:
@@ -874,6 +875,7 @@ void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
 		return;
 	}
 	if (Timeout > 0) {
+		AsyncIO *IO = &NW->IO;
 		EVN_syslog(LOG_DEBUG, 
 			   "%s - %d %f\n",
 			   __FUNCTION__,
@@ -892,8 +894,11 @@ eNextState NWC_DispatchReadDone(AsyncIO *IO)
 
 	rc = NWC_ReadHandlers[NW->State](NW);
 
-	if (rc != eReadMore)
+	if ((rc != eReadMore) &&
+	    (rc != eAbort) && 
+	    (rc != eDBQuery)) {
 		NW->State++;
+	}
 
 	NWC_SetTimeout(rc, NW);
 
