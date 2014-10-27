@@ -131,7 +131,8 @@ int main(int argc, char **argv)
 		drop_root_perms = 1;
 	}
 
-#ifdef HAVE_BACKTRACE
+#if 0
+ def HAVE_BACKTRACE
 	bzero(&params, sizeof(params));
 	params.filename = file_pid_paniclog;
 	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
