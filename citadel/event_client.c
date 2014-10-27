@@ -122,7 +122,7 @@ eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 	ev_async_send (event_db, &DBAddJob);
 	pthread_mutex_unlock(&DBEventExitQueueMutex);
 
-	EVM_syslog(LOG_DEBUG, "DBEVENT Q Done.\n");
+	EVQM_syslog(LOG_DEBUG, "DBEVENT Q Done.\n");
 	return eDBQuery;
 }
 
@@ -314,7 +314,6 @@ eNextState CurlQueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 }
 
 
-void DestructCAres(AsyncIO *IO);
 void FreeAsyncIOContents(AsyncIO *IO)
 {
 	CitContext *Ctx = IO->CitContext;
@@ -322,8 +321,6 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	FreeStrBuf(&IO->IOBuf);
 	FreeStrBuf(&IO->SendBuf.Buf);
 	FreeStrBuf(&IO->RecvBuf.Buf);
-
-	DestructCAres(IO);
 
 	FreeURL(&IO->ConnectMe);
 	FreeStrBuf(&IO->HttpReq.ReplyData);
@@ -336,10 +333,13 @@ void FreeAsyncIOContents(AsyncIO *IO)
 }
 
 
+void DestructCAres(AsyncIO *IO);
 void StopClientWatchers(AsyncIO *IO, int CloseFD)
 {
 	EVM_syslog(LOG_DEBUG, "EVENT StopClientWatchers");
 	
+	DestructCAres(IO);
+
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	ev_timer_stop(event_base, &IO->conn_fail);
 	ev_idle_stop(event_base, &IO->unwind_stack);
