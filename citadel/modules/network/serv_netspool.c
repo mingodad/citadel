@@ -209,11 +209,13 @@ void InspectQueuedRoom(SpoolControl **pSC,
 		return;
 	}
 
+	begin_critical_section(S_NETCONFIGS);
 	if (sc->RNCfg == NULL)
 		sc->RNCfg = CtdlGetNetCfgForRoom(sc->room.QRnumber);
 
 	if (!HaveSpoolConfig(sc->RNCfg))
 	{
+		end_critical_section(S_NETCONFIGS);
 		free(sc);
 		/* nothing to do for this room... */
 		return;
@@ -231,6 +233,7 @@ void InspectQueuedRoom(SpoolControl **pSC,
 	
 	if (StrLength(sc->RNCfg->Sender) > 0)
 		sc->Users[roommailalias] = NewStrBufDup(sc->RNCfg->Sender);
+	end_critical_section(S_NETCONFIGS);
 
 	sc->next = *pSC;
 	*pSC = sc;
@@ -400,12 +403,13 @@ void network_spoolout_room(SpoolControl *sc)
 	/* Now rewrite the config file */
 	if (sc->lastsent != lastsent)
 	{
+		begin_critical_section(S_NETCONFIGS);
 		sc->RNCfg = CtdlGetNetCfgForRoom(sc->room.QRnumber);
 
 		sc->RNCfg->lastsent = sc->lastsent;
 		sc->RNCfg->changed = 1;
+		end_critical_section(S_NETCONFIGS);
 	}
-	end_critical_section(S_NETCONFIGS);
 }
 
 /*
