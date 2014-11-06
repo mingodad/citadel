@@ -215,7 +215,9 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 
 	syslog(LOG_DEBUG, "LDAP: trying to bind as %s", user_dn);
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
-	if (ldserver) {
+
+	i = ctdl_ldap_initialize(&ldserver);
+	if (i == LDAP_SUCCESS) {
 		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 		i = ldap_simple_bind_s(ldserver, user_dn, password);
 		if (i == LDAP_SUCCESS) {
