@@ -27,21 +27,6 @@ int ctdl_require_ldap_version = 3;
 #define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
 #include <ldap.h>
 
-
-
-/*
- * This function is a replacement for all calls to ldap_init() in this file.
- * It fills in the required fields with those from the server's global config.
- */
-LDAP *ctdl_ldap_init(void) {
-	return ldap_init(config.c_ldap_host, config.c_ldap_port);
-}
-
-
-
-/* 
- * Look up a username in the LDAP directory to see if it's valid for logging in.
- */
 int CtdlTryUserLDAP(char *username,
 		char *found_dn, int found_dn_size,
 		char *fullname, int fullname_size,
@@ -58,7 +43,7 @@ int CtdlTryUserLDAP(char *username,
 
 	if (fullname) safestrncpy(fullname, username, fullname_size);
 
-	ldserver = ctdl_ldap_init();
+	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver == NULL) {
 		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
 			config.c_ldap_host, config.c_ldap_port,
@@ -203,7 +188,7 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 	}
 
 	syslog(LOG_DEBUG, "LDAP: trying to bind as %s", user_dn);
-	ldserver = ctdl_ldap_init();
+	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver) {
 		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 		i = ldap_simple_bind_s(ldserver, user_dn, password);
@@ -295,7 +280,7 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 
 	if (!ldap_dn) return(0);
 	if (!v) return(0);
-	ldserver = ctdl_ldap_init();
+	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver == NULL) {
 		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
 			config.c_ldap_host, config.c_ldap_port,
