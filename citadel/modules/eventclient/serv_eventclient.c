@@ -107,6 +107,8 @@ typedef struct _evcurl_global_data {
 ev_async WakeupCurl;
 evcurl_global_data global;
 
+eNextState QueueAnDBOperation(AsyncIO *IO);
+
 static void
 gotstatus(int nnrun)
 {
@@ -200,6 +202,11 @@ gotstatus(int nnrun)
 			switch(IO->SendDone(IO))
 			{
 			case eDBQuery:
+				curl_easy_cleanup(IO->HttpReq.chnd);
+				IO->HttpReq.chnd = NULL;
+				FreeURL(&IO->ConnectMe);
+				QueueAnDBOperation(IO);
+				break;
 			case eSendDNSQuery:
 			case eReadDNSReply:
 			case eConnect:

@@ -193,7 +193,8 @@ struct AsyncIO {
 		Timeout,      /* Timeout handler;may also be conn. timeout */
 		ConnFail,     /* What to do when one connection failed? */
 		ShutdownAbort,/* we're going down. make your piece. */
-		NextDBOperation; /* Perform Database IO */
+		NextDBOperation, /* Perform Database IO */
+		ReAttachCB;   /* on the hop from one Q to the other, this is the next CB */
 
 	/* if we have linereaders, maybe we want to read more lines before
 	 * the real application logic is called? */
@@ -282,7 +283,6 @@ extern int DebugCAres;
 void FreeAsyncIOContents(AsyncIO *IO);
 
 eNextState NextDBOperation(AsyncIO *IO, IO_CallBack CB);
-eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB);
 eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB, int CloseFDs);
 void StopDBWatchers(AsyncIO *IO);
 eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB);
