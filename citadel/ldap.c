@@ -41,7 +41,6 @@ int CtdlTryUserLDAP(char *username,
 	char **values;
 	char *user_dn = NULL;
 
-#ifndef LDAP_INITIALIZE
 	if (fullname) safestrncpy(fullname, username, fullname_size);
 
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
@@ -67,31 +66,6 @@ int CtdlTryUserLDAP(char *username,
 		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
 		return(i);
 	}
-#else
-	if (ldap_initialize(&ldserver, config.c_ldap_host))
-	{
-		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
-			   config.c_ldap_host, config.c_ldap_port,
-			   strerror(errno)
-			);
-		return(errno);
-	}
-
-	striplt(config.c_ldap_bind_dn);
-	striplt(config.c_ldap_bind_pw);
-
-	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
-	i = ldap_simple_bind_s(ldserver,
-		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
-		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
-	);
-
-	if (i != LDAP_SUCCESS) {
-		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
-		return(i);
-	}
-#endif
-
 
 	tv.tv_sec = 10;
 	tv.tv_usec = 0;
