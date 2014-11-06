@@ -68,7 +68,7 @@ void SetEVState(AsyncIO *IO, eIOState State)
 
 }
 
-
+eNextState QueueAnEventContext(AsyncIO *IO);
 static void IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents);
 static void IO_abort_shutdown_callback(struct ev_loop *loop,
 				       ev_cleanup *watcher,
@@ -164,12 +164,15 @@ DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
 	assert(IO->NextDBOperation);
 	switch (IO->NextDBOperation(IO))
 	{
+	case eSendReply:
+		ev_cleanup_stop(loop, &IO->db_abort_by_shutdown);
+		QueueAnEventContext(IO);
+		break;
 	case eDBQuery:
 		break;
 	case eSendDNSQuery:
 	case eReadDNSReply:
 	case eConnect:
-	case eSendReply:
 	case eSendMore:
 	case eSendFile:
 	case eReadMessage:
