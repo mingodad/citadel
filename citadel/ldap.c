@@ -27,6 +27,36 @@ int ctdl_require_ldap_version = 3;
 #define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
 #include <ldap.h>
 
+
+
+/*
+ * Wrapper function for ldap_initialize() that consistently fills in the correct fields
+ */
+int ctdl_ldap_initialize(LDAP **ld) {
+
+	char server_url[256];
+	int ret;
+
+	snprintf(server_url, sizeof server_url, "ldap://%s:%d", config.c_ldap_host, config.c_ldap_port);
+	ret = ldap_initialize(ld, server_url);
+	if (ret != LDAP_SUCCESS) {
+		syslog(LOG_ALERT, "LDAP: Could not connect to %s : %s",
+			server_url,
+			strerror(errno)
+		);
+		*ld = NULL;
+		return(errno);
+	}
+
+	return(ret);
+}
+
+
+
+
+/*
+ * Look up a user in the directory to see if this is an account that can be authenticated
+ */
 int CtdlTryUserLDAP(char *username,
 		char *found_dn, int found_dn_size,
 		char *fullname, int fullname_size,
@@ -44,11 +74,7 @@ int CtdlTryUserLDAP(char *username,
 	if (fullname) safestrncpy(fullname, username, fullname_size);
 
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
-	if (ldserver == NULL) {
-		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
-			config.c_ldap_host, config.c_ldap_port,
-			strerror(errno)
-		);
+	if (ctdl_ldap_initialize(&ldserver) != LDAP_SUCCESS) {
 		return(errno);
 	}
 
