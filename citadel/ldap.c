@@ -73,7 +73,6 @@ int CtdlTryUserLDAP(char *username,
 
 	if (fullname) safestrncpy(fullname, username, fullname_size);
 
-	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ctdl_ldap_initialize(&ldserver) != LDAP_SUCCESS) {
 		return(errno);
 	}
@@ -214,8 +213,6 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 	}
 
 	syslog(LOG_DEBUG, "LDAP: trying to bind as %s", user_dn);
-	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
-
 	i = ctdl_ldap_initialize(&ldserver);
 	if (i == LDAP_SUCCESS) {
 		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
@@ -308,12 +305,8 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 
 	if (!ldap_dn) return(0);
 	if (!v) return(0);
-	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
-	if (ldserver == NULL) {
-		syslog(LOG_ALERT, "LDAP: Could not connect to %s:%d : %s",
-			config.c_ldap_host, config.c_ldap_port,
-			strerror(errno)
-		);
+
+	if (ctdl_ldap_initialize(&ldserver) != LDAP_SUCCESS) {
 		return(0);
 	}
 
