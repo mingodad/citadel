@@ -513,7 +513,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 		SetRSSState(IO, eRSSFailure);
 		ErrMsg = NewStrBuf();
-		EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
+		if (IO) EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
 			      IO->HttpReq.httpcode);
 		
 		strs[0] = ChrPtr(Ctx->Url);
