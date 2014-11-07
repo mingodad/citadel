@@ -69,6 +69,10 @@ void xml_strout(char *str) {
 
 	char *c = str;
 
+	if (str == NULL) {
+		return;
+	}
+
 	while (*c != 0) {
 		if (*c == '\"') {
 			client_write("&quot;", 6);
