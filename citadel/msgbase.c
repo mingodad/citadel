@@ -2870,9 +2870,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Bump this user's messages posted counter. */
 	MSGM_syslog(LOG_DEBUG, "Updating user\n");
-	CtdlGetUserLock(&CCC->user, CCC->curr_user);
+	CtdlLockGetCurrentUser();
 	CCC->user.posted = CCC->user.posted + 1;
-	CtdlPutUserLock(&CCC->user);
+	CtdlPutCurrentUserLock();
 
 	/* Decide where bounces need to be delivered */
 	if ((recps != NULL) && (recps->bounce_to == NULL))

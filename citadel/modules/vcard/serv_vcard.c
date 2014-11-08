@@ -588,18 +588,18 @@ int vcard_upload_aftersave(struct CtdlMessage *msg, recptypes *recp) {
 			 * Assume they don't need validating.
 			 */
 			if (CCC->user.axlevel >= AxAideU) {
-				CtdlGetUserLock(&CCC->user, CCC->curr_user);
+				CtdlLockGetCurrentUser();
 				CCC->user.flags |= US_REGIS;
-				CtdlPutUserLock(&CCC->user);
+				CtdlPutCurrentUserLock();
 				return (0);
 			}
 			
 			set_mm_valid();
 
 			/* ...which also means we need to flag the user */
-			CtdlGetUserLock(&CCC->user, CCC->curr_user);
+			CtdlLockGetCurrentUser();
 			CCC->user.flags |= (US_REGIS|US_NEEDVALID);
-			CtdlPutUserLock(&CCC->user);
+			CtdlPutCurrentUserLock();
 
 			return(0);
 		}

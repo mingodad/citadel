@@ -515,6 +515,10 @@ int CtdlGetUserLen(struct ctdluser *usbuf, const char *name, long len);
 int CtdlGetUserLock(struct ctdluser *usbuf, char *name);
 void CtdlPutUser(struct ctdluser *usbuf);
 void CtdlPutUserLock(struct ctdluser *usbuf);
+
+int CtdlLockGetCurrentUser(void);
+void CtdlPutCurrentUserLock(void);
+
 int CtdlGetUserByNumber(struct ctdluser *usbuf, long number);
 void CtdlGetRelationship(visit *vbuf,
                         struct ctdluser *rel_user,

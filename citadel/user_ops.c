@@ -29,17 +29,6 @@ int chkpwd_write_pipe[2];
 int chkpwd_read_pipe[2];
 
 
-
-/*
- * getuser()  -  retrieve named user into supplied buffer.
- *	       returns 0 on success
- */
-int getuser(struct ctdluser *usbuf, char name[])
-{
-	return CtdlGetUser(usbuf, name);
-}
-
-
 /*
  * CtdlGetUser()  -  retrieve named user into supplied buffer.
  *	       returns 0 on success
@@ -76,6 +65,12 @@ int CtdlGetUser(struct ctdluser *usbuf, char *name)
 	return CtdlGetUserLen(usbuf, name, cutuserkey(name));
 }
 
+int CtdlLockGetCurrentUser(void)
+{
+	CitContext *CCC = CC;
+
+	return CtdlGetUserLen(&CCC->user, CCC->curr_user, cutuserkey(CCC->curr_user));
+}
 
 /*
  * CtdlGetUserLock()  -  same as getuser() but locks the record
@@ -89,15 +84,6 @@ int CtdlGetUserLock(struct ctdluser *usbuf, char *name)
 		begin_critical_section(S_USERS);
 	}
 	return (retcode);
-}
-
-
-/*
- * lgetuser()  -  same as getuser() but locks the record
- */
-int lgetuser(struct ctdluser *usbuf, char *name)
-{
-	return CtdlGetUserLock(usbuf, name);
 }
 
 
@@ -119,13 +105,9 @@ void CtdlPutUser(struct ctdluser *usbuf)
 
 }
 
-
-/*
- * putuser()  -  write user buffer into the correct place on disk
- */
-void putuser(struct ctdluser *usbuf)
+void CtdlPutCurrentUserLock()
 {
-	CtdlPutUser(usbuf);
+	CtdlPutUser(&CC->user);
 }
 
 
@@ -138,14 +120,6 @@ void CtdlPutUserLock(struct ctdluser *usbuf)
 	end_critical_section(S_USERS);
 }
 
-
-/*
- * lputuser()  -  same as putuser() but locks the record
- */
-void lputuser(struct ctdluser *usbuf)
-{
-	CtdlPutUserLock(usbuf);
-}
 
 
 /*
@@ -446,19 +420,6 @@ int CtdlGetUserByNumber(struct ctdluser *usbuf, long number)
 	cdb_free(cdbun);
 	return(r);
 }
-
-/*
- * getuserbynumber() -	get user by number
- * 			returns 0 if user was found
- *
- * Note: fetching a user this way requires one additional database operation.
- */
-int getuserbynumber(struct ctdluser *usbuf, long number)
-{
-	return CtdlGetUserByNumber(usbuf, number);
-}
-
-
 
 /*
  * Helper function for rebuild_usersbynumber()

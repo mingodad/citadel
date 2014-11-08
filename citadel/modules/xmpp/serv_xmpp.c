@@ -68,9 +68,10 @@ HashList *XMPP_StartHandlers = NULL;
 HashList *XMPP_EndHandlers = NULL;
 HashList *XMPP_SupportedNamespaces = NULL;
 HashList *XMPP_NameSpaces = NULL;
+HashList *XMPP_EndToken = NULL;
 HashList *FlatToken = NULL;
 
-int XMPPSrvDebugEnable = 0;
+int XMPPSrvDebugEnable = 1;
 
 void XUnbuffer(void)
 {
@@ -194,6 +195,43 @@ void XPrint(const char *Token, long tlen,
 	va_end(arg_ptr);
 }
 
+void
+separate_namespace(const char *supplied_el,
+		   const char **Token, long *TLen,
+		   HashList **ThisNamespace)
+{
+	const char *pch;
+	const char *pToken;
+	const char *NS = NULL;
+	long NSLen;
+	void *pv;
+
+	*ThisNamespace = NULL;
+
+	pToken = supplied_el;
+	pch = strchr(pToken, ':');
+	while (pch != NULL)
+	{
+		pToken = pch;
+		pch = strchr(pToken  + 1, ':');
+	}
+
+	if (*pToken == ':')
+	{
+		NS = supplied_el;
+		NSLen = pToken - supplied_el;
+		if (GetHash(XMPP_NameSpaces, NS, NSLen, &pv))
+		{
+			*ThisNamespace = pv;
+
+		}
+		
+		pToken ++;
+	}
+
+	*TLen = strlen(pToken);
+}
+
 #ifdef HAVE_XML_STOPPARSER
 /* Stop the parser if an entity declaration is hit. */
 static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
@@ -299,40 +337,15 @@ void xmpp_start_html(void *data, const char *supplied_el, const char **attr)
 	++XMPP->html_tag_level;
 }
 
+
 void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 {
-	HashList *ThisNamespace = NULL;
+	HashList *ThisNamespace;
 	const char *pToken;
-	const char *pch;
-	const char *NS = NULL;
-	long NSLen;
 	long len;
 	void *pv;
 	
-	/* Axe the namespace, we don't care about it */
-	pToken = supplied_el;
-	pch = strchr(pToken, ':');
-	while (pch != NULL)
-	{
-		pToken = pch;
-		pch = strchr(pToken  + 1, ':');
-	}
-
-	if (*pToken == ':')
-	{
-		NS = supplied_el;
-		NSLen = pToken - supplied_el;
-		if (GetHash(XMPP_NameSpaces, NS, NSLen, &pv))
-		{
-			ThisNamespace = pv;
-
-		}
-		
-		pToken ++;
-	}
-
-	len = strlen(pToken);
-
+	separate_namespace(supplied_el, &pToken, &len, &ThisNamespace);
 
 	if (ThisNamespace != NULL)
 	{
@@ -396,7 +409,7 @@ void xmpp_end_resource(void *data, const char *supplied_el, const char **attr)
 
 void xmpp_end_username(void *data, const char *supplied_el, const char **attr)
 {
-	/* NON SASL ONLY */
+	/* NON SASL OY */
 	if (XMPP->chardata_len > 0) {
 		safestrncpy(XMPP->iq_client_username, XMPP->chardata,
 			    sizeof XMPP->iq_client_username);
@@ -608,24 +621,51 @@ void xmpp_end_stream(void *data, const char *supplied_el, const char **attr)
 
 void xmpp_xml_end(void *data, const char *supplied_el)
 {
+	HashList *ThisNamespace;
 	const char *pToken;
-	const char *pch;
 	long len;
 	void *pv;
+	
+	separate_namespace(supplied_el, &pToken, &len, &ThisNamespace);
 
-	/* Axe the namespace, we don't care about it */
-	pToken = supplied_el;
-	pch = strchr(pToken, ':');
-	while (pch != NULL)
+	if (ThisNamespace != NULL)
 	{
-		pToken = pch;
-		pch = strchr(pToken  + 1, ':');
+		if (GetHash(XMPP_EndToken, pToken, len, &pv))
+		{
+			TokenHandler *th;
+			void *value;
+			long i = 0;
+
+			th = (TokenHandler*) pv;
+			value = th->GetToken();
+/*
+			while (attr[i] != NULL)
+			{
+
+				if (GetHash(th->Properties, attr[i], strlen(attr[i]), &pv))
+				{
+					PropertyHandler* ph = pv;
+					char *val;
+					StrBuf **pVal;
+					long len;
+
+					len = strlen(attr[i+1]);
+					val = value;
+					val += ph->offset;
+					pVal = (StrBuf**) val;
+					if (*pVal != NULL)
+						StrBufPlain(*pVal, attr[i+1], len);
+					else
+						*pVal = NewStrBufPlain(attr[i+1], len);
+				}
+				i+=2;
+			}
+*/
+
+			return;
+		}
+
 	}
-
-	if (*pToken == ':')
-		pToken ++;
-
-	len = strlen(pToken);
 
 	/*
 	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
@@ -832,6 +872,7 @@ void HDeleteTokenHandler(void *FreeMe)
 void XMPP_RegisterTokenProperty(const char *NS, long NSLen,
 				const char *Token, long TLen,
 				const char *Property, long PLen,
+				const char *PayloadSubToken, long pslen,
 				GetTokenDataFunc GetToken,
 				long offset)
 {
@@ -840,6 +881,17 @@ void XMPP_RegisterTokenProperty(const char *NS, long NSLen,
 	PropertyHandler *h;
 	TokenHandler *th;
 
+	const char *pNS, *pToken, *pProperty, *pPayloadSubToken;
+
+	pToken = (Token)?Token:"";
+	pNS = (NS)?NS:"";
+	pProperty = (Property)?Property:"";
+	pPayloadSubToken = (PayloadSubToken)?PayloadSubToken:"";
+
+	XMPP_syslog(LOG_DEBUG,
+		    "New tag: Token <%s> Namespace <%s> Property <%s> PayloadSubToken <%s>\n",
+		    pToken, pNS, pProperty, pPayloadSubToken);
+		
 	h = (PropertyHandler*) malloc(sizeof(PropertyHandler));
 	h->NameSpace = NS;
 	h->NameSpaceLen = NSLen;
@@ -848,6 +900,8 @@ void XMPP_RegisterTokenProperty(const char *NS, long NSLen,
 	h->Property = Property;
 	h->PropertyLen = PLen;
 	h->offset = offset;
+	h->PayloadSubToken = PayloadSubToken;
+	h->pslen = pslen;
 
 	if (!GetHash(XMPP_SupportedNamespaces, NS, NSLen, &pv))
 	{
@@ -879,7 +933,14 @@ void XMPP_RegisterTokenProperty(const char *NS, long NSLen,
 
 
 	if (PLen > 0)
+	{
 		Put(th->Properties, Property, PLen, h, HFreePropertyHandler);
+	}
+	else
+	{
+		Put(XMPP_EndToken, PayloadSubToken, pslen, h, reference_free_handler);
+
+	}
 	/*
 	if (!GetHash(FlatToken, Token, TLen, &pv))
 	{
@@ -901,6 +962,8 @@ void xmpp_cleanup(void)
 CTDL_MODULE_INIT(xmpp)
 {
 	if (!threading) {
+		CtdlRegisterDebugFlagHook(HKEY("serv_xmpp"), LogXMPPSrvDebugEnable, &XMPPSrvDebugEnable);
+
 		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,
 					NULL,
 					xmpp_greeting,
@@ -935,7 +998,6 @@ CTDL_MODULE_INIT(xmpp)
 		AddXMPPStartHandler(HKEY("html"),	xmpp_start_html, 0);
 
 
-		CtdlRegisterDebugFlagHook(HKEY("serv_xmpp"), LogXMPPSrvDebugEnable, &XMPPSrvDebugEnable);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP, PRIO_STOP + 70);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN, PRIO_LOGIN + 90);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT, PRIO_LOGOUT + 90);

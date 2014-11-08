@@ -270,10 +270,10 @@ void cmd_setu(char *new_parms)
 		cprintf("%d Usage error.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
-	CtdlGetUserLock(&CC->user, CC->curr_user);
+	CtdlLockGetCurrentUser();
 	CC->user.flags = CC->user.flags & (~US_USER_SET);
 	CC->user.flags = CC->user.flags | (extract_int(new_parms, 2) & US_USER_SET);
-	CtdlPutUserLock(&CC->user);
+	CtdlPutCurrentUserLock();
 	cprintf("%d Ok\n", CIT_OK);
 }
 
@@ -296,7 +296,7 @@ void cmd_slrp(char *new_ptr)
 		newlr = atol(new_ptr);
 	}
 
-	CtdlGetUserLock(&CC->user, CC->curr_user);
+	CtdlLockGetCurrentUser();
 
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 	memcpy(&original_vbuf, &vbuf, sizeof(visit));
@@ -309,7 +309,7 @@ void cmd_slrp(char *new_ptr)
 		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 	}
 
-	CtdlPutUserLock(&CC->user);
+	CtdlPutCurrentUserLock();
 	cprintf("%d %ld\n", CIT_OK, newlr);
 }
 
