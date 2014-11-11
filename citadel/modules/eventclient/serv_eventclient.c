@@ -202,8 +202,6 @@ gotstatus(int nnrun)
 			switch(IO->SendDone(IO))
 			{
 			case eDBQuery:
-				curl_easy_cleanup(IO->HttpReq.chnd);
-				IO->HttpReq.chnd = NULL;
 				FreeURL(&IO->ConnectMe);
 				QueueAnDBOperation(IO);
 				break;
