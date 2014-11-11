@@ -398,7 +398,7 @@ void StopCurlWatchers(AsyncIO *IO)
 	IO->RecvBuf.fd = 0;
 }
 
-void ShutDownCLient(AsyncIO *IO)
+eNextState ShutDownCLient(AsyncIO *IO)
 {
 	CitContext *Ctx =IO->CitContext;
 
@@ -418,11 +418,12 @@ void ShutDownCLient(AsyncIO *IO)
 		IO->DNS.Channel = NULL;
 	}
 	assert(IO->Terminate);
-	IO->Terminate(IO);
+	return IO->Terminate(IO);
 }
 
 void PostInbound(AsyncIO *IO)
 {
+
 	switch (IO->NextState) {
 	case eSendFile:
 		ev_io_start(event_base, &IO->send_event);
@@ -444,6 +445,7 @@ void PostInbound(AsyncIO *IO)
 			break;
 		case eDBQuery:
  			StopClientWatchers(IO, 0);
+			QueueAnDBOperation(IO);
 		default:
 			break;
 		}
@@ -454,17 +456,18 @@ void PostInbound(AsyncIO *IO)
 		ev_io_start(event_base, &IO->recv_event);
 		break;
 	case eTerminateConnection:
-		ShutDownCLient(IO);
-		break;
 	case eAbort:
-		ShutDownCLient(IO);
+		if (ShutDownCLient(IO) == eDBQuery) {
+			QueueAnDBOperation(IO);
+		}
 		break;
 	case eSendDNSQuery:
 	case eReadDNSReply:
-	case eDBQuery:
 	case eConnect:
 	case eReadMessage:
 		break;
+	case eDBQuery:
+		QueueAnDBOperation(IO);
 	}
 }
 eReadState HandleInbound(AsyncIO *IO)
@@ -512,15 +515,12 @@ eReadState HandleInbound(AsyncIO *IO)
 		}
 
 		if (Finished != eMustReadMore) {
-			eNextState rc;
-			assert(IO->ReadDone);
 			ev_io_stop(event_base, &IO->recv_event);
-			rc = IO->ReadDone(IO);
-			if  (rc == eDBQuery) {
+			IO->NextState = IO->ReadDone(IO);
+			if  (IO->NextState == eDBQuery) {
 				return QueueAnDBOperation(IO);
 			}
 			else {
-				IO->NextState = rc;
 				Finished = StrBufCheckBuffer(&IO->RecvBuf);
 			}
 		}
