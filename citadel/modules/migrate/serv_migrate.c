@@ -1041,7 +1041,6 @@ CTDL_MODULE_INIT(migrate)
 	if (!threading)
 	{
 		CtdlRegisterProtoHook(cmd_migr, "MIGR", "Across-the-wire migration");
-		CtdlRegisterProtoHook(cmd_migr, "ARTV", "Across-the-wire migration (legacy syntax)");
 	}
 	
 	/* return our module name for the log */
