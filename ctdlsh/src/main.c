@@ -23,13 +23,14 @@ typedef struct {
 COMMAND commands[] = {
 	{	"?",		cmd_help,	"Display this message"			},
 	{	"help",		cmd_help,	"Display this message"			},
-	{	"quit",		cmd_quit,	"Quit using ctdlsh"			},
-	{	"exit",		cmd_quit,	"Quit using ctdlsh"			},
 	{	"date",		cmd_datetime,	"Print the server's date and time"	},
+	{	"exit",		cmd_quit,	"Quit using ctdlsh"			},
+	{	"export",	cmd_export,	"Export all Citadel databases"		},
+	{	"shutdown",	cmd_shutdown,	"Shut down the Citadel server"		},
 	{	"time",		cmd_datetime,	"Print the server's date and time"	},
 	{	"passwd",	cmd_passwd,	"Set or change an account password"	},
+	{	"quit",		cmd_quit,	"Quit using ctdlsh"			},
 	{	"who",		cmd_who,	"Display a list of online users"	},
-	{	"shutdown",	cmd_shutdown,	"Shut down the Citadel server"		},
 	{	NULL,		NULL,		NULL					}
 };
 
