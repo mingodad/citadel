@@ -276,7 +276,12 @@ void terminate_all_sessions(void)
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (ccptr->client_socket != -1)
 		{
-			CON_syslog(LOG_INFO, "terminate_all_sessions() is murdering %s", ccptr->curr_user);
+			if (ccptr->IO != NULL) {
+				CON_syslog(LOG_INFO, "terminate_all_sessions() is murdering %s IO[%ld]CC[%d]", ccptr->curr_user, ccptr->IO->ID, ccptr->cs_pid);
+			}
+			else {
+				CON_syslog(LOG_INFO, "terminate_all_sessions() is murdering %s CC[%d]", ccptr->curr_user, ccptr->cs_pid);
+			}
 			close(ccptr->client_socket);
 			ccptr->client_socket = -1;
 			killed++;
