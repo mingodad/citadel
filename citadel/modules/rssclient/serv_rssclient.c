@@ -402,7 +402,7 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 		
 		/* write the uidl to the use table so we don't store this item again */
 		
-		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, CCID, IO->ID);
+		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, EvGetNow(IO), 0, eWrite, CCID, IO->ID);
 	}
 
 	if (GetNextHashPos(RSSAggr->Messages,
@@ -428,7 +428,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	SetRSSState(IO, eRSSUT);
 	seenstamp = CheckIfAlreadySeen("RSS Item Seen",
 				       Ctx->ThisMsg->MsgGUID,
-				       IO->Now,
+				       EvGetNow(IO),
 				       antiExpire,
 				       eCheckUpdate,
 				       CCID, IO->ID);
@@ -542,8 +542,9 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 			ChrPtr(ErrMsg),
 			"RSS Aggregation run failure",
 			2, strs, (long*) &lens,
-			IO->Now,
-			IO->ID, CCID);
+			CCID,
+			IO->ID,
+			EvGetNow(IO));
 		
 		FreeStrBuf(&ErrMsg);
 		EVRSSC_syslog(LOG_DEBUG,
@@ -557,7 +558,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 	while (pCfg != NULL)
 	{
-		UpdateLastKnownGood (pCfg, IO->Now);
+		UpdateLastKnownGood (pCfg, EvGetNow(IO));
 		if ((Ctx->roomlist_parts > 1) && 
 		    (it == NULL))
 		{
@@ -599,8 +600,8 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 	if (CheckIfAlreadySeen("RSS Whole",
 			       guid,
-			       IO->Now,
-			       IO->Now - USETABLE_ANTIEXPIRE,
+			       EvGetNow(IO),
+			       EvGetNow(IO) - USETABLE_ANTIEXPIRE,
 			       eCheckUpdate,
 			       CCID, IO->ID)
 	    != 0)

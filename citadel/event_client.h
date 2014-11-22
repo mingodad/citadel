@@ -153,6 +153,7 @@ typedef struct __evcares_data {
 	IO_CallBack Fail;      /* the dns lookup didn't work out. */
 } evcares_data;
 
+
 struct AsyncIO {
 	long ID;
 	ev_tstamp Now;
@@ -220,6 +221,7 @@ typedef struct _IOAddHandler {
 } IOAddHandler;
 
 
+inline static time_t EvGetNow(AsyncIO *IO) { return (time_t) IO->Now;}
 
 extern int DebugEventLoop;
 extern int DebugCAres;

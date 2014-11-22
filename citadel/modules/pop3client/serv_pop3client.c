@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sysconfig.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -432,8 +433,8 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 
 		if (CheckIfAlreadySeen("POP3 Item Seen",
 				       RecvMsg->CurrMsg->MsgUID,
-				       IO->Now,
-				       IO->Now, //// todo
+				       EvGetNow(IO),
+				       EvGetNow(IO) - USETABLE_ANTIEXPIRE,
 				       eCheckUpdate,
 				       IO->ID, CCID)
 		    != 0)
@@ -590,8 +591,8 @@ eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 		       ChrPtr(RecvMsg->CurrMsg->MsgUID));
 	CheckIfAlreadySeen("POP3 Item Seen",
 			   RecvMsg->CurrMsg->MsgUID,
-			   IO->Now,
-			   IO->Now, //// todo
+			   EvGetNow(IO),
+			   EvGetNow(IO) - USETABLE_ANTIEXPIRE,
 			   eWrite,
 			   IO->ID, CCID);
 

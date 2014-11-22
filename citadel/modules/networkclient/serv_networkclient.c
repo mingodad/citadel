@@ -211,8 +211,8 @@ eNextState NWC_SendFailureMessage(AsyncIO *IO)
 		ChrPtr(NW->IO.ErrMsg),
 		"Networker error",
 		2, strs, (long*) &lens,
-		IO->Now,
-		IO->ID, CCID);
+		CCID, IO->ID,
+		EvGetNow(IO));
 	
 	return eAbort;
 }
