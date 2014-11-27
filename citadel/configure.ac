@@ -760,7 +760,7 @@ fi
 dnl Checks for the OpenLDAP client library.
 if test "x$with_ldap" != xno ; then
 	AC_CHECK_HEADERS(ldap.h,
-		[AC_CHECK_LIB(ldap, ldap_init,
+		[AC_CHECK_LIB(ldap, ldap_initialize,
 			[ok_ldap=yes],,
 	)])
 fi

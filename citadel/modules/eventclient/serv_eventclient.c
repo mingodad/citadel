@@ -63,6 +63,7 @@ ev_loop *event_base;
 int DebugEventLoop = 0;
 int DebugEventLoopBacktrace = 0;
 int DebugCurl = 0;
+pthread_key_t evConKey;
 
 long EvIDSource = 1;
 /*****************************************************************************
@@ -71,12 +72,12 @@ long EvIDSource = 1;
 #define DBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugCurl != 0))
 
 #define EVCURL_syslog(LEVEL, FORMAT, ...)				\
-	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT,	\
-			      IO->ID, CCID, __VA_ARGS__)
+	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:%s[%ld]CC[%d] " FORMAT,	\
+			      IOSTR, IO->ID, CCID, __VA_ARGS__)
 
 #define EVCURLM_syslog(LEVEL, FORMAT)					\
-	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:IO[%ld]CC[%d] " FORMAT,	\
-			      IO->ID, CCID)
+	DBGLOG (LEVEL) syslog(LEVEL, "EVCURL:%s[%ld]CC[%d] " FORMAT,	\
+			      IOSTR, IO->ID, CCID)
 
 #define CURL_syslog(LEVEL, FORMAT, ...)					\
 	DBGLOG (LEVEL) syslog(LEVEL, "CURL: " FORMAT, __VA_ARGS__)
@@ -105,6 +106,8 @@ typedef struct _evcurl_global_data {
 
 ev_async WakeupCurl;
 evcurl_global_data global;
+
+eNextState QueueAnDBOperation(AsyncIO *IO);
 
 static void
 gotstatus(int nnrun)
@@ -199,6 +202,9 @@ gotstatus(int nnrun)
 			switch(IO->SendDone(IO))
 			{
 			case eDBQuery:
+				FreeURL(&IO->ConnectMe);
+				QueueAnDBOperation(IO);
+				break;
 			case eSendDNSQuery:
 			case eReadDNSReply:
 			case eConnect:
@@ -610,6 +616,8 @@ ev_async ExitEventLoop;
 static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
 	CitContext *Ctx;
+	long IOID = -1;
+	long count = 0;
 	ev_tstamp Now;
 	HashList *q;
 	void *v;
@@ -634,9 +642,11 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	while (GetNextHashPos(q, It, &len, &Key, &v))
 	{
 		IOAddHandler *h = v;
+		count ++;
 		if (h->IO->ID == 0) {
 			h->IO->ID = EvIDSource++;
 		}
+		IOID = h->IO->ID;
 		if (h->IO->StartIO == 0.0)
 			h->IO->StartIO = Now;
 
@@ -668,7 +678,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	EVQM_syslog(LOG_DEBUG, "EVENT Q Add done.\n");
+	EVQ_syslog(LOG_DEBUG, "%s CC[%ld] EVENT Q Add %ld  done.", IOSTR, IOID, count);
 }
 
 
@@ -694,6 +704,7 @@ void InitEventQueue(void)
 extern void CtdlDestroyEVCleanupHooks(void);
 
 extern int EVQShutDown;
+const char *IOLog = "IO";
 /*
  * this thread operates the select() etc. via libev.
  */
@@ -702,7 +713,9 @@ void *client_event_thread(void *arg)
 	struct CitContext libev_client_CC;
 
 	CtdlFillSystemContext(&libev_client_CC, "LibEv Thread");
-//	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
+
+	pthread_setspecific(evConKey, IOLog);
+
 	EVQM_syslog(LOG_DEBUG, "client_event_thread() initializing\n");
 
 	event_base = ev_default_loop (EVFLAG_AUTO);
@@ -758,6 +771,8 @@ extern void ShutDownDBCLient(AsyncIO *IO);
 static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 {
 	CitContext *Ctx;
+	long IOID = -1;
+	long count = 0;;
 	ev_tstamp Now;
 	HashList *q;
 	void *v;
@@ -784,8 +799,10 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	{
 		IOAddHandler *h = v;
 		eNextState rc;
+		count ++;
 		if (h->IO->ID == 0)
 			h->IO->ID = EvIDSource++;
+		IOID = h->IO->ID;
 		if (h->IO->StartDB == 0.0)
 			h->IO->StartDB = Now;
 		h->IO->Now = Now;
@@ -805,7 +822,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 	}
 	DeleteHashPos(&It);
 	DeleteHashContent(&q);
-	EVQM_syslog(LOG_DEBUG, "DBEVENT Q Add done.\n");
+	EVQ_syslog(LOG_DEBUG, "%s CC[%ld] DBEVENT Q Add %ld done.", IOSTR, IOID, count);
 }
 
 
@@ -828,6 +845,8 @@ void DBInitEventQueue(void)
 	DBInboundEventQueue = DBInboundEventQueues[0];
 }
 
+const char *DBLog = "BD";
+
 /*
  * this thread operates writing to the message database via libev.
  */
@@ -835,6 +854,8 @@ void *db_event_thread(void *arg)
 {
 	ev_loop *tmp;
 	struct CitContext libev_msg_CC;
+
+	pthread_setspecific(evConKey, DBLog);
 
 	CtdlFillSystemContext(&libev_msg_CC, "LibEv DB IO Thread");
 
@@ -893,10 +914,16 @@ void DebugCurlEnable(const int n)
 	DebugCurl = n;
 }
 
+const char *WLog = "WX";
 CTDL_MODULE_INIT(event_client)
 {
 	if (!threading)
 	{
+		if (pthread_key_create(&evConKey, NULL) != 0) {
+			syslog(LOG_CRIT, "Can't create TSD key: %s", strerror(errno));
+		}
+		pthread_setspecific(evConKey, WLog);
+
 		CtdlRegisterDebugFlagHook(HKEY("eventloop"), DebugEventloopEnable, &DebugEventLoop);
 		CtdlRegisterDebugFlagHook(HKEY("eventloopbacktrace"), DebugEventloopBacktraceEnable, &DebugEventLoopBacktrace);
 		CtdlRegisterDebugFlagHook(HKEY("curl"), DebugCurlEnable, &DebugCurl);

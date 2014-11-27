@@ -108,15 +108,15 @@ extern int IMAPDebugEnabled;
 
 #define IMAPDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (IMAPDebugEnabled != 0))
 #define CCCID CCC->cs_pid
-#define IMAP_syslog(LEVEL, FORMAT, ...)			\
-	IMAPDBGLOG(LEVEL) syslog(LEVEL,			\
-				 "IMAPCC[%d] " FORMAT,	\
-				 CCCID, __VA_ARGS__)
+#define IMAP_syslog(LEVEL, FORMAT, ...)				\
+	IMAPDBGLOG(LEVEL) syslog(LEVEL,				\
+				 "IMAP %s CC[%d] " FORMAT,	\
+				 IOSTR, CCCID, __VA_ARGS__)
 
-#define IMAPM_syslog(LEVEL, FORMAT)			\
-	IMAPDBGLOG(LEVEL) syslog(LEVEL,			\
-				 "IMAPCC[%d] " FORMAT,	\
-				 CCCID)
+#define IMAPM_syslog(LEVEL, FORMAT)				\
+	IMAPDBGLOG(LEVEL) syslog(LEVEL,				\
+				 "IMAP %s CC[%d] " FORMAT,	\
+				 IOSTR, CCCID)
 
 #define I_FLAG_NONE          (0)
 #define I_FLAG_LOGGED_IN  (1<<0)

@@ -82,21 +82,21 @@ int NetworkClientDebugEnabled = 0;
 
 #define EVN_syslog(LEVEL, FORMAT, ...)					\
 	NCDBGLOG(LEVEL) syslog(LEVEL,					\
-			       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, CCID, NODE, N, __VA_ARGS__)
+			       "%s[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, CCID, NODE, N, __VA_ARGS__)
 
 #define EVNM_syslog(LEVEL, FORMAT)					\
 	NCDBGLOG(LEVEL) syslog(LEVEL,					\
-			       "IO[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, CCID, NODE, N)
+			       "%s[%ld]CC[%d]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, CCID, NODE, N)
 
 #define EVNCS_syslog(LEVEL, FORMAT, ...) \
-	NCDBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, NODE, N, __VA_ARGS__)
+	NCDBGLOG(LEVEL) syslog(LEVEL, "%s[%ld]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, NODE, N, __VA_ARGS__)
 
 #define EVNCSM_syslog(LEVEL, FORMAT) \
-	NCDBGLOG(LEVEL) syslog(LEVEL, "IO[%ld]NW[%s][%ld]" FORMAT,	\
-			       IO->ID, NODE, N)
+	NCDBGLOG(LEVEL) syslog(LEVEL, "%s[%ld]NW[%s][%ld]" FORMAT,	\
+			       IOSTR, IO->ID, NODE, N)
 
 
 typedef enum _eNWCState {
@@ -194,11 +194,13 @@ void DeleteNetworker(void *vptr)
 #define NWC_DBG_READ() EVN_syslog(LOG_DEBUG, ": < %s\n", ChrPtr(NW->IO.IOBuf))
 #define NWC_OK (strncasecmp(ChrPtr(NW->IO.IOBuf), "+OK", 3) == 0)
 
-eNextState SendFailureMessage(AsyncIO *IO)
+eNextState NWC_SendFailureMessage(AsyncIO *IO)
 {
 	AsyncNetworker *NW = IO->Data;
 	long lens[2];
 	const char *strs[2];
+
+	EVN_syslog(LOG_DEBUG, "NWC: %s\n", __FUNCTION__);
 
 	strs[0] = ChrPtr(NW->node);
 	lens[0] = StrLength(NW->node);
@@ -209,8 +211,8 @@ eNextState SendFailureMessage(AsyncIO *IO)
 		ChrPtr(NW->IO.ErrMsg),
 		"Networker error",
 		2, strs, (long*) &lens,
-		IO->Now,
-		IO->ID, CCID);
+		CCID, IO->ID,
+		EvGetNow(IO));
 	
 	return eAbort;
 }
@@ -242,8 +244,8 @@ eNextState NWC_ReadGreeting(AsyncNetworker *NW)
 			     "Connected to node \"%s\" but I was expecting to connect to node \"%s\".",
 			     connected_to, ChrPtr(NW->node));
 		EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
-		StopClientWatchers(IO, 1);
-		return QueueDBOperation(IO, SendFailureMessage);
+
+		return EventQueueDBOperation(IO, NWC_SendFailureMessage, 1);
 	}
 	return eSendReply;
 }
@@ -286,8 +288,7 @@ eNextState NWC_ReadAuthReply(AsyncNetworker *NW)
 		else {
 			SetNWCState(IO, eNWCVSAuthFailNTT);
 			EVN_syslog(LOG_ERR, "%s\n", ChrPtr(NW->IO.ErrMsg));
-			StopClientWatchers(IO, 1);
-			return QueueDBOperation(IO, SendFailureMessage);
+			return EventQueueDBOperation(IO, NWC_SendFailureMessage, 1);
 		}
 		return eAbort;
 	}
@@ -844,41 +845,37 @@ eReadState NWC_ReadServerStatus(AsyncIO *IO)
 eNextState NWC_FailNetworkConnection(AsyncIO *IO)
 {
 	SetNWCState(IO, eNWCVSConnFail);
-	StopClientWatchers(IO, 1);
-	return QueueDBOperation(IO, SendFailureMessage);
+	return EventQueueDBOperation(IO, NWC_SendFailureMessage, 1);
 }
 
 void NWC_SetTimeout(eNextState NextTCPState, AsyncNetworker *NW)
 {
-	AsyncIO *IO = &NW->IO;
 	double Timeout = 0.0;
 
-	EVN_syslog(LOG_DEBUG, "%s - %d\n", __FUNCTION__, NextTCPState);
+	//EVN_syslog(LOG_DEBUG, "%s - %d\n", __FUNCTION__, NextTCPState);
 
 	switch (NextTCPState) {
-	case eSendReply:
 	case eSendMore:
-		break;
-	case eReadFile:
+	case eSendReply:
 	case eReadMessage:
 		Timeout = NWC_ReadTimeouts[NW->State];
 		break;
+	case eReadFile:
+	case eSendFile:
 	case eReadPayload:
 		Timeout = 100000;
-		/* TODO!!! */
 		break;
 	case eSendDNSQuery:
 	case eReadDNSReply:
-	case eConnect:
-	case eSendFile:
-//TODO
-	case eTerminateConnection:
 	case eDBQuery:
+	case eReadMore:
+	case eConnect:
+	case eTerminateConnection:
 	case eAbort:
-	case eReadMore://// TODO
 		return;
 	}
 	if (Timeout > 0) {
+		AsyncIO *IO = &NW->IO;
 		EVN_syslog(LOG_DEBUG, 
 			   "%s - %d %f\n",
 			   __FUNCTION__,
@@ -896,11 +893,14 @@ eNextState NWC_DispatchReadDone(AsyncIO *IO)
 	eNextState rc;
 
 	rc = NWC_ReadHandlers[NW->State](NW);
-	if (rc != eReadMore)
-		NW->State++;
 
-	if (rc != eAbort)
-		NWC_SetTimeout(rc, NW);
+	if ((rc != eReadMore) &&
+	    (rc != eAbort) && 
+	    (rc != eDBQuery)) {
+		NW->State++;
+	}
+
+	NWC_SetTimeout(rc, NW);
 
 	return rc;
 }

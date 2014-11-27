@@ -75,13 +75,13 @@ int RSSClientDebugEnabled = 0;
 
 #define EVRSSC_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]RSS" FORMAT,		\
-			     IO->ID, CCID, N, __VA_ARGS__)
+			     "%s[%ld]CC[%d][%ld]RSS" FORMAT,		\
+			     IOSTR, IO->ID, CCID, N, __VA_ARGS__)
 
 #define EVRSSCM_syslog(LEVEL, FORMAT)					\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]RSS" FORMAT,		\
-			     IO->ID, CCID, N)
+			     "%s[%ld]CC[%d][%ld]RSS" FORMAT,		\
+			     IOSTR, IO->ID, CCID, N)
 
 #define EVRSSQ_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL, "RSS" FORMAT,			\
@@ -90,8 +90,8 @@ int RSSClientDebugEnabled = 0;
 	DBGLOG(LEVEL) syslog(LEVEL, "RSS" FORMAT)
 
 #define EVRSSCSM_syslog(LEVEL, FORMAT)					\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]RSS" FORMAT,		\
-			     IO->ID, N)
+	DBGLOG(LEVEL) syslog(LEVEL, "%s[%ld][%ld]RSS" FORMAT,		\
+			     IOSTR, IO->ID, N)
 
 typedef enum _RSSState {
 	eRSSCreated,
@@ -402,7 +402,7 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 		
 		/* write the uidl to the use table so we don't store this item again */
 		
-		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, IO->Now, 0, eWrite, CCID, IO->ID);
+		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, EvGetNow(IO), 0, eWrite, CCID, IO->ID);
 	}
 
 	if (GetNextHashPos(RSSAggr->Messages,
@@ -416,6 +416,8 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
+	static const time_t antiExpire = USETABLE_ANTIEXPIRE_HIRES;
+	time_t seenstamp = 0;
 #ifndef DEBUG_RSS
 	const char *Key;
 	long len;
@@ -424,18 +426,20 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	/* Find out if we've already seen this item */
 // todo: expiry?
 	SetRSSState(IO, eRSSUT);
-	if (CheckIfAlreadySeen("RSS Item Seen",
-			       Ctx->ThisMsg->MsgGUID,
-			       IO->Now,
-			       IO->Now - USETABLE_ANTIEXPIRE_HIRES,
-			       eCheckUpdate,
-			       CCID, IO->ID)
-	    != 0)
+	seenstamp = CheckIfAlreadySeen("RSS Item Seen",
+				       Ctx->ThisMsg->MsgGUID,
+				       EvGetNow(IO),
+				       antiExpire,
+				       eCheckUpdate,
+				       CCID, IO->ID);
+	if (seenstamp < antiExpire)
 	{
 		/* Item has already been seen */
 		EVRSSC_syslog(LOG_DEBUG,
-			  "%s has already been seen\n",
-			  ChrPtr(Ctx->ThisMsg->MsgGUID));
+			      "%s has already been seen - %ld < %ld",
+			      ChrPtr(Ctx->ThisMsg->MsgGUID),
+			      seenstamp, antiExpire);
+
 		SetRSSState(IO, eRSSParsing);
 
 		if (GetNextHashPos(Ctx->Messages,
@@ -451,6 +455,11 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 	else
 #endif
 	{
+		/* Item has already been seen */
+		EVRSSC_syslog(LOG_DEBUG,
+			      "%s Parsing - %ld >= %ld",
+			      ChrPtr(Ctx->ThisMsg->MsgGUID),
+			      seenstamp, antiExpire);
 		SetRSSState(IO, eRSSParsing);
 
 		NextDBOperation(IO, RSSSaveMessage);
@@ -504,7 +513,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 		SetRSSState(IO, eRSSFailure);
 		ErrMsg = NewStrBuf();
-		EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
+		if (IO) EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
 			      IO->HttpReq.httpcode);
 		
 		strs[0] = ChrPtr(Ctx->Url);
@@ -533,8 +542,9 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 			ChrPtr(ErrMsg),
 			"RSS Aggregation run failure",
 			2, strs, (long*) &lens,
-			IO->Now,
-			IO->ID, CCID);
+			CCID,
+			IO->ID,
+			EvGetNow(IO));
 		
 		FreeStrBuf(&ErrMsg);
 		EVRSSC_syslog(LOG_DEBUG,
@@ -548,7 +558,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 	while (pCfg != NULL)
 	{
-		UpdateLastKnownGood (pCfg, IO->Now);
+		UpdateLastKnownGood (pCfg, EvGetNow(IO));
 		if ((Ctx->roomlist_parts > 1) && 
 		    (it == NULL))
 		{
@@ -590,8 +600,8 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 	if (CheckIfAlreadySeen("RSS Whole",
 			       guid,
-			       IO->Now,
-			       IO->Now - USETABLE_ANTIEXPIRE,
+			       EvGetNow(IO),
+			       EvGetNow(IO) - USETABLE_ANTIEXPIRE,
 			       eCheckUpdate,
 			       CCID, IO->ID)
 	    != 0)

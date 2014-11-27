@@ -2870,9 +2870,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Bump this user's messages posted counter. */
 	MSGM_syslog(LOG_DEBUG, "Updating user\n");
-	CtdlGetUserLock(&CCC->user, CCC->curr_user);
+	CtdlLockGetCurrentUser();
 	CCC->user.posted = CCC->user.posted + 1;
-	CtdlPutUserLock(&CCC->user);
+	CtdlPutCurrentUserLock();
 
 	/* Decide where bounces need to be delivered */
 	if ((recps != NULL) && (recps->bounce_to == NULL))
@@ -3061,7 +3061,8 @@ void flood_protect_quickie_message(const char *from,
 	StrBuf *guid;
 	char timestamp[64];
 	long tslen;
-	time_t tsday = NOW / (8*60*60); /* just care for a day... */
+	static const time_t tsday = (8*60*60); /* just care for a day... */
+	time_t seenstamp;
 
 	tslen = snprintf(timestamp, sizeof(timestamp), "%ld", tsday);
 	MD5Init(&md5context);
@@ -3080,29 +3081,35 @@ void flood_protect_quickie_message(const char *from,
 	if (StrLength(guid) > 40)
 		StrBufCutAt(guid, 40, NULL);
 
-	if (CheckIfAlreadySeen("FPAideMessage",
-			       guid,
-			       NOW,
-			       tsday,
-			       eUpdate,
-			       ccid,
-			       ioid)!= 0)
+	seenstamp = CheckIfAlreadySeen("FPAideMessage",
+				       guid,
+				       NOW,
+				       tsday,
+				       eUpdate,
+				       ccid,
+				       ioid);
+	if (seenstamp < tsday)
 	{
 		FreeStrBuf(&guid);
 		/* yes, we did. flood protection kicks in. */
 		syslog(LOG_DEBUG,
-		       "not sending message again\n");
+		       "not sending message again - %ld < %ld \n", seenstamp, tsday);
 		return;
 	}
-	FreeStrBuf(&guid);
-	/* no, this message isn't sent recently; go ahead. */
-	quickie_message(from,
-			fromaddr,
-			to,
-			room,
-			text, 
-			format_type,
-			subject);
+	else
+	{
+		syslog(LOG_DEBUG,
+		       "sending message. %ld >= %ld", seenstamp, tsday);
+		FreeStrBuf(&guid);
+		/* no, this message isn't sent recently; go ahead. */
+		quickie_message(from,
+				fromaddr,
+				to,
+				room,
+				text, 
+				format_type,
+				subject);
+	}
 }
 
 

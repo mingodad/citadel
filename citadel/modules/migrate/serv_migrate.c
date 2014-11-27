@@ -12,6 +12,20 @@
  * GNU General Public License for more details.
  */
 
+/*
+ * Explanation of <progress> tags:
+ *
+ * 0%              nothing
+ * 1%              finished exporting config
+ * 2%              finished exporting control
+ * 7%              finished exporting users
+ * 12%             finished exporting openids
+ * 17%             finished exporting rooms
+ * 18%             finished exporting floors
+ * 25%             finished exporting visits
+ * 100%            finished exporting messages
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -56,6 +70,7 @@
 char migr_tempfilename1[PATH_MAX];
 char migr_tempfilename2[PATH_MAX];
 FILE *migr_global_message_list;
+int total_msgs = 0;
 
 
 /*
@@ -68,6 +83,10 @@ FILE *migr_global_message_list;
 void xml_strout(char *str) {
 
 	char *c = str;
+
+	if (str == NULL) {
+		return;
+	}
 
 	while (*c != 0) {
 		if (*c == '\"') {
@@ -180,6 +199,19 @@ void migr_export_rooms(void) {
 	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
 	snprintf(cmd, sizeof cmd, "uniq <%s >%s", migr_tempfilename2, migr_tempfilename1);
 	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
+
+
+	snprintf(cmd, sizeof cmd, "wc -l %s", migr_tempfilename1);
+	FILE *fp = popen(cmd, "r");
+	if (fp) {
+		fgets(cmd, sizeof cmd, fp);
+		pclose(fp);
+		total_msgs = atoi(cmd);
+	}
+	else {
+		total_msgs = 1;	// any nonzero just to keep it from barfing
+	}
+	syslog(LOG_DEBUG, "Total messages to be exported: %d", total_msgs);
 }
 
 
@@ -353,6 +385,8 @@ void migr_export_messages(void) {
 	char buf[SIZ];
 	long msgnum;
 	int count = 0;
+	int progress = 0;
+	int prev_progress = 0;
 	CitContext *Ctx;
 
 	Ctx = CC;
@@ -366,6 +400,11 @@ void migr_export_messages(void) {
 				migr_export_message(msgnum);
 				++count;
 			}
+			progress = (count * 74 / total_msgs) + 25 ;
+			if ((progress > prev_progress) && (progress < 100)) {
+				cprintf("<progress>%d</progress>\n", progress);
+			}
+			prev_progress = progress;
 		}
 		fclose(migr_global_message_list);
 	}
@@ -389,6 +428,7 @@ void migr_do_export(void) {
 	client_write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n", 40);
 	client_write("<citadel_migrate_data>\n", 23);
 	cprintf("<version>%d</version>\n", REV_LEVEL);
+	cprintf("<progress>%d</progress>\n", 0);
 
 	/* export the config file (this is done using x-macros) */
 	client_write("<config>\n", 9);
@@ -467,6 +507,7 @@ void migr_do_export(void) {
 	cprintf("<c_nntp_port>%d</c_nntp_port>\n", config.c_nntp_port);
 	cprintf("<c_nntps_port>%d</c_nntps_port>\n", config.c_nntps_port);
 	client_write("</config>\n", 10);
+	cprintf("<progress>%d</progress>\n", 1);
 	
 	/* Export the control file */
 	get_control();
@@ -477,14 +518,21 @@ void migr_do_export(void) {
 	cprintf("<control_nextroom>%ld</control_nextroom>\n", CitControl.MMnextroom);
 	cprintf("<control_version>%d</control_version>\n", CitControl.version);
 	client_write("</control>\n", 11);
+	cprintf("<progress>%d</progress>\n", 2);
 
 	if (Ctx->kill_me == 0)	migr_export_users();
+	cprintf("<progress>%d</progress>\n", 7);
 	if (Ctx->kill_me == 0)	migr_export_openids();
+	cprintf("<progress>%d</progress>\n", 12);
 	if (Ctx->kill_me == 0)	migr_export_rooms();
+	cprintf("<progress>%d</progress>\n", 17);
 	if (Ctx->kill_me == 0)	migr_export_floors();
+	cprintf("<progress>%d</progress>\n", 18);
 	if (Ctx->kill_me == 0)	migr_export_visits();
+	cprintf("<progress>%d</progress>\n", 25);
 	if (Ctx->kill_me == 0)	migr_export_messages();
 	client_write("</citadel_migrate_data>\n", 24);
+	cprintf("<progress>%d</progress>\n", 100);
 	client_write("000\n", 4);
 	Ctx->dont_term = 0;
 }
@@ -1037,7 +1085,6 @@ CTDL_MODULE_INIT(migrate)
 	if (!threading)
 	{
 		CtdlRegisterProtoHook(cmd_migr, "MIGR", "Across-the-wire migration");
-		CtdlRegisterProtoHook(cmd_migr, "ARTV", "Across-the-wire migration (legacy syntax)");
 	}
 	
 	/* return our module name for the log */

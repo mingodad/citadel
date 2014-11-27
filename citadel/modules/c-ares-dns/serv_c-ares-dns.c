@@ -567,8 +567,9 @@ void SockStateCb(void *data, int sock, int read, int write)
 /* already inside of the event queue. */
 	if (DebugCAres)
 	{
-		struct sockaddr_in sin = {};
+		struct sockaddr_in sin;
 		socklen_t slen;
+		memset(&sin, 0, sizeof(sin));
 		slen = sizeof(sin);
 		if ((IO->DNS.SourcePort == 0) &&
 		    (getsockname(sock, &sin, &slen) == 0))

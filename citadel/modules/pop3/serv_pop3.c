@@ -480,14 +480,14 @@ void pop3_update(void)
 
 	/* Set last read pointer */
 	if (POP3->num_msgs > 0) {
-		CtdlGetUserLock(&CCC->user, CCC->curr_user);
+		CtdlLockGetCurrentUser();
 
 		CtdlGetRelationship(&vbuf, &CCC->user, &CCC->room);
 		snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld",
 			POP3->msgs[POP3->num_msgs-1].msgnum);
 		CtdlSetRelationship(&vbuf, &CCC->user, &CCC->room);
 
-		CtdlPutUserLock(&CCC->user);
+		CtdlPutCurrentUserLock();
 	}
 
 }

@@ -5,19 +5,9 @@
 #include <syslog.h>
 
 int hash (char *str);
-/* getuser is deprecated, use CtdlGetUser instead */
-int getuser (struct ctdluser *, char *) __attribute__ ((deprecated));
-/* lgetuser is deprecated, use CtdlGetUserLock instead */
-int lgetuser (struct ctdluser *, char *) __attribute__ ((deprecated));
-/* putuser is deprecated, use CtdlPutUser instead */
-void putuser (struct ctdluser *) __attribute__ ((deprecated));
-/* lputuser is deprecated, use CtdlPutUserLock instead */
-void lputuser (struct ctdluser *) __attribute__ ((deprecated));
 int is_aide (void);
 int is_room_aide (void);
 int CtdlCheckInternetMailPermission(struct ctdluser *who);
-/* getuserbynumber is deprecated, use CtdlGetUserByNumber instead */
-int getuserbynumber (struct ctdluser *usbuf, long int number) __attribute__ ((deprecated));
 void rebuild_usersbynumber(void);
 void session_startup (void);
 void logged_in_response(void);

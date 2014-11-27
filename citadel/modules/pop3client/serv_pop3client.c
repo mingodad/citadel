@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sysconfig.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -63,42 +64,42 @@ int POP3ClientDebugEnabled = 0;
 
 #define EVP3C_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]POP3: " FORMAT,		\
-			     IO->ID, CCID, N, __VA_ARGS__)
+			     "%s[%ld]CC[%d][%ld]POP3: " FORMAT,		\
+			     IOSTR, IO->ID, CCID, N, __VA_ARGS__)
 
 #define EVP3CM_syslog(LEVEL, FORMAT)					\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]POP3: " FORMAT,		\
-			     IO->ID, CCID, N)
+			     "%s[%ld]CC[%d][%ld]POP3: " FORMAT,		\
+			     IOSTR, IO->ID, CCID, N)
 
 #define EVP3CQ_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "P3Q:" FORMAT,				\
-			     __VA_ARGS__)
+			     "%s P3Q:" FORMAT,				\
+			     IOSTR, __VA_ARGS__)
 
 #define EVP3CQM_syslog(LEVEL, FORMAT)					\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "P3Q" FORMAT				\
-		)
+			     "%s P3Q" FORMAT,				\
+			     IOSTR)
 
 #define EVP3CCS_syslog(LEVEL, FORMAT, ...)				\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]POP3: " FORMAT,	\
-			     IO->ID, N, __VA_ARGS__)
+	DBGLOG(LEVEL) syslog(LEVEL, "%s[%ld][%ld]POP3: " FORMAT,	\
+			     IOSTR, IO->ID, N, __VA_ARGS__)
 
 #define EVP3CCSM_syslog(LEVEL, FORMAT)					\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]POP3: " FORMAT,	\
-			     IO->ID, N)
+	DBGLOG(LEVEL) syslog(LEVEL, "%s[%ld][%ld]POP3: " FORMAT,	\
+			     IOSTR, IO->ID, N)
 
 #define POP3C_DBG_SEND()						\
 	EVP3C_syslog(LOG_DEBUG,						\
-		     "IO[%ld]CC[%d][%ld]POP3: > %s\n",			\
-		     IO->ID, CCID, N,					\
+		     "%s[%ld]CC[%d][%ld]POP3: > %s\n",			\
+		     IOSTR, IO->ID, CCID, N,				\
 		     ChrPtr(RecvMsg->IO.SendBuf.Buf))
 
 #define POP3C_DBG_READ()						\
 	EVP3C_syslog(LOG_DEBUG,						\
-		     "IO[%ld]CC[%d][%ld]POP3: < %s\n",			\
-		     IO->ID, CCID, N,					\
+		     "%s[%ld]CC[%d][%ld]POP3: < %s\n",			\
+		     IOSTR, IO->ID, CCID, N,				\
 		     ChrPtr(RecvMsg->IO.IOBuf))
 
 
@@ -432,8 +433,8 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 
 		if (CheckIfAlreadySeen("POP3 Item Seen",
 				       RecvMsg->CurrMsg->MsgUID,
-				       IO->Now,
-				       IO->Now, //// todo
+				       EvGetNow(IO),
+				       EvGetNow(IO) - USETABLE_ANTIEXPIRE,
 				       eCheckUpdate,
 				       IO->ID, CCID)
 		    != 0)
@@ -492,7 +493,8 @@ eNextState POP3C_GetOneMessagID(pop3aggr *RecvMsg)
 		/// done receiving uidls.. start looking them up now.
 		RecvMsg->Pos = GetNewHashPos(RecvMsg->MsgNumbers, 0);
 		return EventQueueDBOperation(&RecvMsg->IO,
-					     POP3_FetchNetworkUsetableEntry);
+					     POP3_FetchNetworkUsetableEntry,
+					     0);
 	}
 	return eReadMore; /* TODO */
 }
@@ -589,8 +591,8 @@ eNextState POP3C_StoreMsgRead(AsyncIO *IO)
 		       ChrPtr(RecvMsg->CurrMsg->MsgUID));
 	CheckIfAlreadySeen("POP3 Item Seen",
 			   RecvMsg->CurrMsg->MsgUID,
-			   IO->Now,
-			   IO->Now, //// todo
+			   EvGetNow(IO),
+			   EvGetNow(IO) - USETABLE_ANTIEXPIRE,
 			   eWrite,
 			   IO->ID, CCID);
 
@@ -625,7 +627,7 @@ eNextState POP3C_ReadMessageBody(pop3aggr *RecvMsg)
 	EVP3CM_syslog(LOG_DEBUG, "Converting message...");
 	RecvMsg->CurrMsg->Msg =
 		convert_internet_message_buf(&RecvMsg->IO.ReadMsg->MsgBuf);
-	return EventQueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg);
+	return EventQueueDBOperation(&RecvMsg->IO, POP3C_SaveMsg, 0);
 }
 
 eNextState POP3C_SendDelete(pop3aggr *RecvMsg)

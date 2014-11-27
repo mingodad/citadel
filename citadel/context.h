@@ -212,13 +212,13 @@ static INLINE void become_session(CitContext *which_con) {
 extern int DebugSession;
 #define CONDBGLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (DebugSession != 0))
 
-#define CON_syslog(LEVEL, FORMAT, ...)				\
-	CONDBGLOG(LEVEL) syslog(LEVEL,				\
-				"Context: " FORMAT, __VA_ARGS__)
+#define CON_syslog(LEVEL, FORMAT, ...)					\
+	CONDBGLOG(LEVEL) syslog(LEVEL,					\
+				"%s Context: " FORMAT, IOSTR, __VA_ARGS__)
 
-#define CONM_syslog(LEVEL, FORMAT)			\
-	CONDBGLOG(LEVEL) syslog(LEVEL,			\
-				"Context: " FORMAT);
+#define CONM_syslog(LEVEL, FORMAT)				\
+	CONDBGLOG(LEVEL) syslog(LEVEL,				\
+				"%s Context: " FORMAT, IOSTR);
 
 
 #endif /* CONTEXT_H */

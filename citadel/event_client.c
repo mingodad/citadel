@@ -68,7 +68,7 @@ void SetEVState(AsyncIO *IO, eIOState State)
 
 }
 
-
+eNextState QueueAnEventContext(AsyncIO *IO);
 static void IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents);
 static void IO_abort_shutdown_callback(struct ev_loop *loop,
 				       ev_cleanup *watcher,
@@ -86,7 +86,7 @@ extern struct ev_loop *event_db;
 extern ev_async DBAddJob;
 extern ev_async DBExitEventLoop;
 
-eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
+eNextState QueueAnDBOperation(AsyncIO *IO)
 {
 	IOAddHandler *h;
 	int i;
@@ -94,7 +94,10 @@ eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 	SetEVState(IO, eDBQ);
 	h = (IOAddHandler*)malloc(sizeof(IOAddHandler));
 	h->IO = IO;
-	h->EvAttch = CB;
+
+	assert(IO->ReAttachCB != NULL);
+
+	h->EvAttch = IO->ReAttachCB;
 	ev_cleanup_init(&IO->db_abort_by_shutdown,
 			IO_abort_shutdown_callback);
 	IO->db_abort_by_shutdown.data = IO;
@@ -122,7 +125,7 @@ eNextState QueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 	ev_async_send (event_db, &DBAddJob);
 	pthread_mutex_unlock(&DBEventExitQueueMutex);
 
-	EVM_syslog(LOG_DEBUG, "DBEVENT Q Done.\n");
+	EVQM_syslog(LOG_DEBUG, "DBEVENT Q Done.\n");
 	return eDBQuery;
 }
 
@@ -161,12 +164,15 @@ DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
 	assert(IO->NextDBOperation);
 	switch (IO->NextDBOperation(IO))
 	{
+	case eSendReply:
+		ev_cleanup_stop(loop, &IO->db_abort_by_shutdown);
+		QueueAnEventContext(IO);
+		break;
 	case eDBQuery:
 		break;
 	case eSendDNSQuery:
 	case eReadDNSReply:
 	case eConnect:
-	case eSendReply:
 	case eSendMore:
 	case eSendFile:
 	case eReadMessage:
@@ -219,7 +225,7 @@ static void IO_abort_shutdown_callback(struct ev_loop *loop,
 }
 
 
-eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
+eNextState QueueAnEventContext(AsyncIO *IO)
 {
 	IOAddHandler *h;
 	int i;
@@ -227,7 +233,11 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	SetEVState(IO, eIOQ);
 	h = (IOAddHandler*)malloc(sizeof(IOAddHandler));
 	h->IO = IO;
-	h->EvAttch = CB;
+
+	assert(IO->ReAttachCB != NULL);
+
+	h->EvAttch = IO->ReAttachCB;
+
 	ev_cleanup_init(&IO->abort_by_shutdown,
 			IO_abort_shutdown_callback);
 	IO->abort_by_shutdown.data = IO;
@@ -257,15 +267,23 @@ eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	return eSendReply;
 }
 
-eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB)
+eNextState EventQueueDBOperation(AsyncIO *IO, IO_CallBack CB, int CloseFDs)
 {
-	StopClientWatchers(IO, 0);
-	return QueueDBOperation(IO, CB);
+	StopClientWatchers(IO, CloseFDs);
+	IO->ReAttachCB = CB;
+	return eDBQuery;
 }
 eNextState DBQueueEventContext(AsyncIO *IO, IO_CallBack CB)
 {
 	StopDBWatchers(IO);
-	return QueueEventContext(IO, CB);
+	IO->ReAttachCB = CB;
+	return eSendReply;
+}
+
+eNextState QueueEventContext(AsyncIO *IO, IO_CallBack CB)
+{
+	IO->ReAttachCB = CB;
+	return QueueAnEventContext(IO);
 }
 
 extern eNextState evcurl_handle_start(AsyncIO *IO);
@@ -310,11 +328,11 @@ eNextState QueueCurlContext(AsyncIO *IO)
 eNextState CurlQueueDBOperation(AsyncIO *IO, IO_CallBack CB)
 {
 	StopCurlWatchers(IO);
-	return QueueDBOperation(IO, CB);
+	IO->ReAttachCB = CB;
+	return eDBQuery;
 }
 
 
-void DestructCAres(AsyncIO *IO);
 void FreeAsyncIOContents(AsyncIO *IO)
 {
 	CitContext *Ctx = IO->CitContext;
@@ -322,8 +340,6 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	FreeStrBuf(&IO->IOBuf);
 	FreeStrBuf(&IO->SendBuf.Buf);
 	FreeStrBuf(&IO->RecvBuf.Buf);
-
-	DestructCAres(IO);
 
 	FreeURL(&IO->ConnectMe);
 	FreeStrBuf(&IO->HttpReq.ReplyData);
@@ -336,8 +352,13 @@ void FreeAsyncIOContents(AsyncIO *IO)
 }
 
 
+void DestructCAres(AsyncIO *IO);
 void StopClientWatchers(AsyncIO *IO, int CloseFD)
 {
+	EVM_syslog(LOG_DEBUG, "EVENT StopClientWatchers");
+	
+	DestructCAres(IO);
+
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	ev_timer_stop(event_base, &IO->conn_fail);
 	ev_idle_stop(event_base, &IO->unwind_stack);
@@ -377,7 +398,7 @@ void StopCurlWatchers(AsyncIO *IO)
 	IO->RecvBuf.fd = 0;
 }
 
-void ShutDownCLient(AsyncIO *IO)
+eNextState ShutDownCLient(AsyncIO *IO)
 {
 	CitContext *Ctx =IO->CitContext;
 
@@ -397,11 +418,12 @@ void ShutDownCLient(AsyncIO *IO)
 		IO->DNS.Channel = NULL;
 	}
 	assert(IO->Terminate);
-	IO->Terminate(IO);
+	return IO->Terminate(IO);
 }
 
 void PostInbound(AsyncIO *IO)
 {
+
 	switch (IO->NextState) {
 	case eSendFile:
 		ev_io_start(event_base, &IO->send_event);
@@ -423,6 +445,7 @@ void PostInbound(AsyncIO *IO)
 			break;
 		case eDBQuery:
  			StopClientWatchers(IO, 0);
+			QueueAnDBOperation(IO);
 		default:
 			break;
 		}
@@ -433,17 +456,18 @@ void PostInbound(AsyncIO *IO)
 		ev_io_start(event_base, &IO->recv_event);
 		break;
 	case eTerminateConnection:
-		ShutDownCLient(IO);
-		break;
 	case eAbort:
-		ShutDownCLient(IO);
+		if (ShutDownCLient(IO) == eDBQuery) {
+			QueueAnDBOperation(IO);
+		}
 		break;
 	case eSendDNSQuery:
 	case eReadDNSReply:
-	case eDBQuery:
 	case eConnect:
 	case eReadMessage:
 		break;
+	case eDBQuery:
+		QueueAnDBOperation(IO);
 	}
 }
 eReadState HandleInbound(AsyncIO *IO)
@@ -491,10 +515,14 @@ eReadState HandleInbound(AsyncIO *IO)
 		}
 
 		if (Finished != eMustReadMore) {
-			assert(IO->ReadDone);
 			ev_io_stop(event_base, &IO->recv_event);
 			IO->NextState = IO->ReadDone(IO);
-			Finished = StrBufCheckBuffer(&IO->RecvBuf);
+			if  (IO->NextState == eDBQuery) {
+				return QueueAnDBOperation(IO);
+			}
+			else {
+				Finished = StrBufCheckBuffer(&IO->RecvBuf);
+			}
 		}
 	}
 
@@ -1229,10 +1257,12 @@ void KillAsyncIOContext(AsyncIO *IO)
 	case eReadMore:
 	case eReadPayload:
 	case eReadFile:
-		QueueEventContext(&Ctx->IO, KillOtherContextNow);
+		IO->ReAttachCB = KillOtherContextNow;
+		QueueAnEventContext(&Ctx->IO);
 		break;
 	case eDBQuery:
-		QueueDBOperation(&Ctx->IO, KillOtherContextNow);
+		IO->ReAttachCB = KillOtherContextNow;
+		QueueAnDBOperation(&Ctx->IO);
 		break;
 	case eTerminateConnection:
 	case eAbort:

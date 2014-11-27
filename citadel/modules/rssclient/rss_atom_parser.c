@@ -68,21 +68,21 @@ int RSSAtomParserDebugEnabled = 0;
 
 #define EVRSSATOM_syslog(LEVEL, FORMAT, ...)				\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]RSSP" FORMAT,		\
-			     IO->ID, CCID, N, __VA_ARGS__)
+			     "%s[%ld]CC[%d][%ld]RSSP" FORMAT,		\
+			     IOSTR, IO->ID, CCID, N, __VA_ARGS__)
 
 #define EVRSSATOMM_syslog(LEVEL, FORMAT)				\
 	DBGLOG(LEVEL) syslog(LEVEL,					\
-			     "IO[%ld]CC[%d][%ld]RSSP" FORMAT,		\
-			     IO->ID, CCID, N)
+			     "%s[%ld]CC[%d][%ld]RSSP" FORMAT,		\
+			     IOSTR, IO->ID, CCID, N)
 
 #define EVRSSATOMCS_syslog(LEVEL, FORMAT, ...)			\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]RSSP" FORMAT,	\
-			     IO->ID, N, __VA_ARGS__)
+	DBGLOG(LEVEL) syslog(LEVEL, "%s[%ld][%ld]RSSP" FORMAT,	\
+			     IOSTR, IO->ID, N, __VA_ARGS__)
 
 #define EVRSSATOMSM_syslog(LEVEL, FORMAT)			\
-	DBGLOG(LEVEL) syslog(LEVEL, "IO[%ld][%ld]RSSP" FORMAT,	\
-			     IO->ID, N)
+	DBGLOG(LEVEL) syslog(LEVEL, "%s[%ld][%ld]RSSP" FORMAT,	\
+			     IOSTR, IO->ID, N)
 
 /*
  * Convert an RDF/RSS datestamp into a time_t
