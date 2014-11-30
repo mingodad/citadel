@@ -54,6 +54,12 @@ int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
 #endif
 int BaseStrBufSize = 64;
 int EnableSplice = 0;
+int ZLibCompressionRatio = -1; /* defaults to 6 */
+#ifdef HAVE_ZLIB
+#define DEF_MEM_LEVEL 8 /*< memlevel??? */
+#define OS_CODE 0x03	/*< unix */
+const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
+#endif
 
 const char *StrBufNOTNULL = ((char*) NULL) - 1;
 
@@ -2848,6 +2854,11 @@ int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut)
 	return BufOut->BufUsed;
 }
 
+typedef struct __z_enc_stream {
+	StrBuf OutBuf;
+	z_stream zstream;
+} z_enc_stream;
+
 void *StrBufNewStreamContext(eStreamType type)
 {
 	base64_decodestate *state;;
@@ -2855,47 +2866,265 @@ void *StrBufNewStreamContext(eStreamType type)
 	switch (type)
 	{
 	case eBase64Decode:
+	case eBase64Encode:
 		state = (base64_decodestate*) malloc(sizeof(base64_decodestate));
 		base64_init_decodestate(state);
 		return state;
+		break;
+	case eZLibDecode:
+	{
+/*
+		z_enc_stream *stream;
+		int err;
+
+		stream = (z_enc_stream *) malloc(sizeof(z_enc_stream));
+		memset(stream, 0, sizeof(z_enc_stream));
+		stream->OutBuf.BufSize = 64*SIZ;
+		stream->OutBuf.buf = (char*)malloc(stream->OutBuf.BufSize);
+
+		err = deflateInit(&stream->zstream,
+				  ZLibCompressionRatio);
+
+		if (err != Z_OK)
+			return NULL;/// tODO cleanup
+		return stream;
+*/
+	}
+	case eZLibEncode:
+	{
+		z_enc_stream *stream;
+		int err;
+
+		stream = (z_enc_stream *) malloc(sizeof(z_enc_stream));
+		memset(stream, 0, sizeof(z_enc_stream));
+		stream->OutBuf.BufSize = 4*SIZ; /// todo 64
+		stream->OutBuf.buf = (char*)malloc(stream->OutBuf.BufSize);
+		/* write gzip header * /
+		stream->OutBuf.BufUsed = snprintf
+			(stream->OutBuf.buf,
+			 stream->OutBuf.BufSize, 
+			 "%c%c%c%c%c%c%c%c%c%c",
+			 gz_magic[0], gz_magic[1], Z_DEFLATED,
+			 0 /*flags * / , 0, 0, 0, 0 /*time * / , 0 /* xflags * / ,
+			 OS_CODE);
+/*
+		err = deflateInit2(&stream->zstream,
+				   ZLibCompressionRatio,
+				   Z_DEFLATED,
+				   -MAX_WBITS,
+				   DEF_MEM_LEVEL,
+				   Z_DEFAULT_STRATEGY);
+*/
+		err = deflateInit(&stream->zstream,
+				  ZLibCompressionRatio);
+
+		if (err != Z_OK)
+			return NULL;/// tODO cleanup
+		return stream;
+	}
+	case eEmtyCodec:
+		/// TODO
+
 		break;
 	}
 	return NULL;
 }
 
-void StrBufDestroyStreamContext(eStreamType type, void **Stream)
+void StrBufDestroyStreamContext(eStreamType type, void **vStream)
 {
 	switch (type)
 	{
+	case eBase64Encode:
 	case eBase64Decode:
-		free(*Stream);
-		*Stream = NULL;
+		free(*vStream);
+		*vStream = NULL;
+		break;
+	case eZLibDecode:
+	case eZLibEncode:
+	{
+		z_enc_stream *stream = (z_enc_stream *)*vStream;
+		free(stream->OutBuf.buf);
+		free(stream);
+// todo more?
+		*vStream = NULL;
 		break;
 	}
+	case eEmtyCodec: 
+		break; /// TODO
+	}
 }
-void StrBufStreamDecodeTo(StrBuf *Target, const StrBuf *In, const char* pIn, long pInLen, void *Stream)
+
+void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *vStream, int LastChunk)
 {
-	base64_decodestate *state = Stream;
-	long ExpectLen;
 
-	if (In != NULL)
+	switch (type)
 	{
-		pIn = In->buf;
-		pInLen = In->BufUsed;
-	}
-	if ((pIn == NULL) || (Stream == NULL))
-		return;
-	
-	ExpectLen = (pInLen / 4) * 3;
-
-	if (Target->BufSize - Target->BufUsed < ExpectLen)
+	case eBase64Encode:
 	{
-		IncreaseBuf(Target, 1, Target->BufUsed + ExpectLen + 1);
-	}
+		/// TODO
+/*
+		// base64_decodestate *state = (base64_decodestate*)vStream;
+		long ExpectLen;
+		
+		if (In != NULL)
+		{
+			pIn = In->buf;
+			pInLen = In->BufUsed;
+		}
+		if ((In == NULL) || (vStream == NULL))
+			return;
+		
+		ExpectLen = (pInLen / 4) * 3;
 
-	ExpectLen = base64_decode_block(pIn, pInLen, Target->buf + Target->BufUsed, state);
-	Target->BufUsed += ExpectLen;
-	Target->buf[Target->BufUsed] = '\0';
+		if (Target->BufSize - Target->BufUsed < ExpectLen)
+		{
+			IncreaseBuf(Target, 1, Target->BufUsed + ExpectLen + 1);
+		}
+
+		////	ExpectLen = base64_encode_block(pIn, pInLen, Target->buf + Target->BufUsed, state);
+		Target->BufUsed += ExpectLen;
+		Target->buf[Target->BufUsed] = '\0';
+*/
+	}
+	break;
+	case eBase64Decode:
+	{
+/*
+		base64_decodestate *state = (base64_decodestate *)vStream;
+		long ExpectLen;
+		
+		if (In != NULL)
+		{
+			pIn = In->buf;
+			pInLen = In->BufUsed;
+		}
+		if ((pIn == NULL) || (vStream == NULL))
+			return;
+		
+		ExpectLen = (pInLen / 4) * 3;
+
+		if (Target->BufSize - Target->BufUsed < ExpectLen)
+		{
+			IncreaseBuf(Target, 1, Target->BufUsed + ExpectLen + 1);
+		}
+
+		ExpectLen = base64_decode_block(pIn, pInLen, Target->buf + Target->BufUsed, state);
+		Target->BufUsed += ExpectLen;
+		Target->buf[Target->BufUsed] = '\0';
+*/
+	}
+	break;
+	case eZLibEncode:
+	{
+		z_enc_stream *stream = (z_enc_stream *)vStream;
+		int org_outbuf_len = stream->zstream.total_out;
+		int err;
+		unsigned int chunkavail;
+
+		if (In->ReadWritePointer != NULL)
+		{
+			stream->zstream.next_in = (Bytef *) In->ReadWritePointer;
+			stream->zstream.avail_in = (uInt) In->Buf->BufUsed - 
+				(In->ReadWritePointer - In->Buf->buf);
+		}
+		else
+		{
+			stream->zstream.next_in = (Bytef *) In->Buf->buf;
+			stream->zstream.avail_in = (uInt) In->Buf->BufUsed;
+		}
+
+		stream->zstream.next_out = (unsigned char*)stream->OutBuf.buf + stream->OutBuf.BufUsed;
+		stream->zstream.avail_out = chunkavail = (uInt) stream->OutBuf.BufSize - stream->OutBuf.BufUsed;
+
+		err = deflate(&stream->zstream,  (LastChunk) ? Z_FINISH : Z_NO_FLUSH);
+
+		stream->OutBuf.BufUsed += (chunkavail - stream->zstream.avail_out);
+		/// todo + org_outbuf_len;
+
+		if (Target) SwapBuffers(Target->Buf, &stream->OutBuf);
+
+		if (stream->zstream.avail_in == 0)
+		{
+			FlushStrBuf(In->Buf);
+			In->ReadWritePointer = NULL;
+		}
+		else
+		{
+			if (stream->zstream.avail_in < 64)
+			{
+				memmove(In->Buf->buf,
+					In->Buf->buf + In->Buf->BufUsed - stream->zstream.avail_in,
+					stream->zstream.avail_in);
+
+				In->Buf->BufUsed = stream->zstream.avail_in;
+				In->Buf->buf[In->Buf->BufUsed] = '\0';
+			}
+			else
+			{
+				
+				In->ReadWritePointer = In->Buf->buf + 
+					(In->Buf->BufUsed - stream->zstream.avail_in);
+			}
+		}
+
+	}
+	break;
+	case eZLibDecode: {
+		z_enc_stream *stream = (z_enc_stream *)vStream;
+		int org_outbuf_len = stream->zstream.total_out;
+		int err;
+
+		if (In->ReadWritePointer != NULL)
+		{
+			stream->zstream.next_in = (Bytef *) In->ReadWritePointer;
+			stream->zstream.avail_in = (uInt) In->Buf->BufUsed - 
+				(In->ReadWritePointer - In->Buf->buf);
+		}
+		else
+		{
+			stream->zstream.next_in = (Bytef *) In->Buf->buf;
+			stream->zstream.avail_in = (uInt) In->Buf->BufUsed;
+		}
+
+		stream->zstream.next_out = (unsigned char*)stream->OutBuf.buf + stream->OutBuf.BufUsed;
+		stream->zstream.avail_out = (uInt) stream->OutBuf.BufSize - stream->OutBuf.BufUsed;
+
+		err = deflate(&stream->zstream,  (LastChunk) ? Z_FINISH : Z_NO_FLUSH);
+
+		stream->OutBuf.BufUsed += stream->zstream.total_out + org_outbuf_len;
+
+		if (Target) SwapBuffers(Target->Buf, &stream->OutBuf);
+
+		if (stream->zstream.avail_in == 0)
+		{
+			FlushStrBuf(In->Buf);
+			In->ReadWritePointer = NULL;
+		}
+		else
+		{
+			if (stream->zstream.avail_in < 64)
+			{
+				memmove(In->Buf->buf,
+					In->Buf->buf + In->Buf->BufUsed - stream->zstream.avail_in,
+					stream->zstream.avail_in);
+
+				In->Buf->BufUsed = stream->zstream.avail_in;
+				In->Buf->buf[In->Buf->BufUsed] = '\0';
+			}
+			else
+			{
+				
+				In->ReadWritePointer = In->Buf->buf + 
+					(In->Buf->BufUsed - stream->zstream.avail_in);
+			}
+		}
+	}
+		break;
+	case eEmtyCodec: {
+
+	}
+		break; /// TODO
+	}
 }
 
 /**
@@ -3899,10 +4128,6 @@ long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
  *                               wrapping ZLib                                 *
  *******************************************************************************/
 
-#ifdef HAVE_ZLIB
-#define DEF_MEM_LEVEL 8 /*< memlevel??? */
-#define OS_CODE 0x03	/*< unix */
-
 /**
  * @ingroup StrBuf_DeEnCoder
  * @brief uses the same calling syntax as compress2(), but it
@@ -3913,14 +4138,13 @@ long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
  * @param sourceLen length of source to encode 
  * @param level compression level
  */
+#ifdef HAVE_ZLIB
 int ZEXPORT compress_gzip(Bytef * dest,
 			  size_t * destLen,
 			  const Bytef * source,
 			  uLong sourceLen,     
 			  int level)
 {
-	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
-
 	/* write gzip header */
 	snprintf((char *) dest, *destLen, 
 		 "%c%c%c%c%c%c%c%c%c%c",
