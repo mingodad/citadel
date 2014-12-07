@@ -425,7 +425,7 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 			continue;
 		}
 
-		StrBufSanitizeAscii(Line, '§');
+		StrBufSanitizeAscii(Line, (char)0xa7);
 		StrBufExtract_token(HeaderName, Line, 0, ':');
 
 		pchs = ChrPtr(Line);
