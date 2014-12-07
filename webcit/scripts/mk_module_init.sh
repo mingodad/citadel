@@ -32,24 +32,24 @@ U_FILE="$CUR_DIR/modules_upgrade.c"
 rm -f $C_FILE $H_FILE
 
 # server lifetime:
-START_FUNCS=`grep ServerStartModule_ *.c |sed "s;.*:;;" |sort -u`
-INIT_FUNCS=`grep InitModule_ *.c |sed "s;.*:;;" |sort -u`
-INIT2_FUNCS=`grep InitModule2_ *.c |sed "s;.*:;;" |sort -u`
-FINALIZE_FUNCS=`grep FinalizeModule_ *.c |sed "s;.*:;;" |sort -u`
-SHUTDOWN_FUNCS=`grep ServerShutdownModule_ *.c |sed "s;.*:;;" |sort -u`
+START_FUNCS=`grep -a ServerStartModule_ *.c |sed "s;.*:;;" |sort -u`
+INIT_FUNCS=`grep -a InitModule_ *.c |sed "s;.*:;;" |sort -u`
+INIT2_FUNCS=`grep -a InitModule2_ *.c |sed "s;.*:;;" |sort -u`
+FINALIZE_FUNCS=`grep -a FinalizeModule_ *.c |sed "s;.*:;;" |sort -u`
+SHUTDOWN_FUNCS=`grep -a ServerShutdownModule_ *.c |sed "s;.*:;;" |sort -u`
 
 # session hooks:
-SESS_NEW_FUNCS=`grep SessionNewModule_ *.c |sed "s;.*:;;" |sort -u`
-SESS_ATTACH_FUNCS=`grep SessionAttachModule_ *.c |sed "s;.*:;;" |sort -u`
-SESS_DETACH_FUNCS=`grep SessionDetachModule_ *.c |sed "s;.*:;;" |sort -u`
-SESS_DESTROY_FUNCS=`grep SessionDestroyModule_ *.c |sed "s;.*:;;" |sort -u`
+SESS_NEW_FUNCS=`grep -a SessionNewModule_ *.c |sed "s;.*:;;" |sort -u`
+SESS_ATTACH_FUNCS=`grep -a SessionAttachModule_ *.c |sed "s;.*:;;" |sort -u`
+SESS_DETACH_FUNCS=`grep -a SessionDetachModule_ *.c |sed "s;.*:;;" |sort -u`
+SESS_DESTROY_FUNCS=`grep -a SessionDestroyModule_ *.c |sed "s;.*:;;" |sort -u`
 
-HTTP_NEW_FUNCS=`grep HttpNewModule_ *.c |sed "s;.*:;;" |sort -u`
-HTTP_DETACH_FUNCS=`grep HttpDetachModule_ *.c |sed "s;.*:;;" |sort -u`
-HTTP_DESTROY_FUNCS=`grep HttpDestroyModule_ *.c |sed "s;.*:;;" |sort -u`
+HTTP_NEW_FUNCS=`grep -a HttpNewModule_ *.c |sed "s;.*:;;" |sort -u`
+HTTP_DETACH_FUNCS=`grep -a HttpDetachModule_ *.c |sed "s;.*:;;" |sort -u`
+HTTP_DESTROY_FUNCS=`grep -a HttpDestroyModule_ *.c |sed "s;.*:;;" |sort -u`
 
 
-#SESS_NEW_FUNCS=`grep SessionNewModule_ *.c |sed "s;.*:;;" |sort -u`
+#SESS_NEW_FUNCS=`grep -a SessionNewModule_ *.c |sed "s;.*:;;" |sort -u`
 
 
 #start the header file
