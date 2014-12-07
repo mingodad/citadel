@@ -2873,22 +2873,21 @@ void *StrBufNewStreamContext(eStreamType type)
 		break;
 	case eZLibDecode:
 	{
-/*
+
 		z_enc_stream *stream;
 		int err;
 
 		stream = (z_enc_stream *) malloc(sizeof(z_enc_stream));
 		memset(stream, 0, sizeof(z_enc_stream));
-		stream->OutBuf.BufSize = 64*SIZ;
+		stream->OutBuf.BufSize = 4*SIZ; /// TODO 64
 		stream->OutBuf.buf = (char*)malloc(stream->OutBuf.BufSize);
 
-		err = deflateInit(&stream->zstream,
-				  ZLibCompressionRatio);
+		err = inflateInit(&stream->zstream);
 
 		if (err != Z_OK)
 			return NULL;/// tODO cleanup
 		return stream;
-*/
+
 	}
 	case eZLibEncode:
 	{
@@ -2940,6 +2939,12 @@ void StrBufDestroyStreamContext(eStreamType type, void **vStream)
 		*vStream = NULL;
 		break;
 	case eZLibDecode:
+	{
+		z_enc_stream *stream = (z_enc_stream *)*vStream;
+		(void)inflateEnd(&stream->zstream);
+		free(stream->OutBuf.buf);
+		free(stream);
+	}
 	case eZLibEncode:
 	{
 		z_enc_stream *stream = (z_enc_stream *)*vStream;
@@ -3032,7 +3037,7 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 			stream->zstream.next_in = (Bytef *) In->Buf->buf;
 			stream->zstream.avail_in = (uInt) In->Buf->BufUsed;
 		}
-
+		
 		stream->zstream.next_out = (unsigned char*)stream->OutBuf.buf + stream->OutBuf.BufUsed;
 		stream->zstream.avail_out = chunkavail = (uInt) stream->OutBuf.BufSize - stream->OutBuf.BufUsed;
 
@@ -3074,22 +3079,36 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 		int org_outbuf_len = stream->zstream.total_out;
 		int err;
 
-		if (In->ReadWritePointer != NULL)
-		{
-			stream->zstream.next_in = (Bytef *) In->ReadWritePointer;
-			stream->zstream.avail_in = (uInt) In->Buf->BufUsed - 
-				(In->ReadWritePointer - In->Buf->buf);
-		}
-		else
-		{
-			stream->zstream.next_in = (Bytef *) In->Buf->buf;
-			stream->zstream.avail_in = (uInt) In->Buf->BufUsed;
+		if ((stream->zstream.avail_out != 0) && (stream->zstream.next_in != NULL)) {
+			if (In->ReadWritePointer != NULL)
+			{
+				stream->zstream.next_in = (Bytef *) In->ReadWritePointer;
+				stream->zstream.avail_in = (uInt) In->Buf->BufUsed - 
+					(In->ReadWritePointer - In->Buf->buf);
+			}
+			else
+			{
+				stream->zstream.next_in = (Bytef *) In->Buf->buf;
+				stream->zstream.avail_in = (uInt) In->Buf->BufUsed;
+			}
 		}
 
 		stream->zstream.next_out = (unsigned char*)stream->OutBuf.buf + stream->OutBuf.BufUsed;
 		stream->zstream.avail_out = (uInt) stream->OutBuf.BufSize - stream->OutBuf.BufUsed;
 
-		err = deflate(&stream->zstream,  (LastChunk) ? Z_FINISH : Z_NO_FLUSH);
+		err = inflate(&stream->zstream, Z_NO_FLUSH);
+
+		///assert(ret != Z_STREAM_ERROR);  /* state not clobbered * /
+		switch (err) {
+		case Z_NEED_DICT:
+			err = Z_DATA_ERROR;     /* and fall through */
+
+		case Z_DATA_ERROR:
+			fprintf(stderr, "sanoteuh\n");
+		case Z_MEM_ERROR:
+			(void)inflateEnd(&stream->zstream);
+			return err;
+		}
 
 		stream->OutBuf.BufUsed += stream->zstream.total_out + org_outbuf_len;
 
