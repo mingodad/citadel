@@ -234,10 +234,14 @@ eNextState SMTPC_send_auth(SmtpOutMsg *Msg)
 				Msg->pCurrRelay->User, '\0',
 				Msg->pCurrRelay->Pass);
 			
-			CtdlEncodeBase64(encoded, buf,
-					 strlen(Msg->pCurrRelay->User) * 2 +
-					 strlen(Msg->pCurrRelay->Pass) + 2, 0);
-			
+			size_t len = CtdlEncodeBase64(encoded, buf,
+						      strlen(Msg->pCurrRelay->User) * 2 +
+						      strlen(Msg->pCurrRelay->Pass) + 2, 0);
+
+			if (buf[len - 1] == '\n') {
+				buf[len - 1] = '\0';
+			}
+
 			StrBufPrintf(Msg->IO.SendBuf.Buf,
 				     "AUTH PLAIN %s\r\n",
 				     encoded);
@@ -289,6 +293,10 @@ eNextState SMTPC_send_authplain_1(SmtpOutMsg *Msg)
 		Msg->pCurrRelay->User,
 		strlen(Msg->pCurrRelay->User),
 		0);
+	if (encoded[encodedlen - 1] == '\n') {
+		encodedlen --;
+		encoded[encodedlen] = '\0';
+	}
 
 	StrBufPlain(Msg->IO.SendBuf.Buf,
 		    encoded,
@@ -329,6 +337,11 @@ eNextState SMTPC_send_authplain_2(SmtpOutMsg *Msg)
 		Msg->pCurrRelay->Pass,
 		strlen(Msg->pCurrRelay->Pass),
 		0);
+
+	if (encoded[encodedlen - 1] == '\n') {
+		encodedlen --;
+		encoded[encodedlen] = '\0';
+	}
 
 	StrBufPlain(Msg->IO.SendBuf.Buf,
 		    encoded,

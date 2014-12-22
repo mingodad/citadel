@@ -400,7 +400,11 @@ void smtp_get_user(long offset)
 
 	/* syslog(LOG_DEBUG, "Trying <%s>\n", username); */
 	if (CtdlLoginExistingUser(NULL, ChrPtr(sSMTP->Cmd)) == login_ok) {
-		CtdlEncodeBase64(buf, "Password:", 9, 0);
+		size_t len = CtdlEncodeBase64(buf, "Password:", 9, 0);
+
+		if (buf[len - 1] == '\n') {
+			buf[len - 1] = '\0';
+		}
 		cprintf("334 %s\r\n", buf);
 		sSMTP->command_state = smtp_password;
 	}
@@ -519,7 +523,10 @@ void smtp_auth(long offset, long Flags)
 			smtp_get_user(6);
 		}
 		else {
-			CtdlEncodeBase64(username_prompt, "Username:", 9, 0);
+			size_t len = CtdlEncodeBase64(username_prompt, "Username:", 9, 0);
+			if (username_prompt[len - 1] == '\n') {
+				username_prompt[len - 1] = '\0';
+			}
 			cprintf("334 %s\r\n", username_prompt);
 			sSMTP->command_state = smtp_user;
 		}

@@ -167,9 +167,13 @@ void dspam_do_msg(long msgnum, void *userdata)
 	else
 	{
 /* Copy to a safe place */
-
+		// TODO: len -> cm_fields?
 		msg->cm_fields[eErrorMsg] = malloc (CTX->signature->length * 2);
-		CtdlEncodeBase64(msg->cm_fields[eErrorMsg], CTX->signature->data, CTX->signature->length, 0);
+		size_t len = CtdlEncodeBase64(msg->cm_fields[eErrorMsg], CTX->signature->data, CTX->signature->length, 0);
+
+		if (msg->cm_fields[eErrorMsg][len - 1] == '\n') {
+			msg->cm_fields[eErrorMsg][len - 1] = '\0';
+		}
 	}
 	free(msgtext);
 

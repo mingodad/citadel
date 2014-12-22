@@ -337,7 +337,10 @@ void parse_fields_from_rule_editor(void) {
 				redirect, automsg, final
 			);
 	
-			CtdlEncodeBase64(encoded_rule, rule, strlen(rule)+1, 0);
+			size_t len = CtdlEncodeBase64(encoded_rule, rule, strlen(rule)+1, 0);
+			if (encoded_rule[len - 1] == '\n') {
+				encoded_rule[len - 1] = '\0';
+			}
 			serv_printf("# WEBCIT_RULE|%d|%s|", i, encoded_rule);
 			output_sieve_rule(hfield, compare, htext, sizecomp, sizeval,
 					action, fileinto, redirect, automsg, final, my_addresses);

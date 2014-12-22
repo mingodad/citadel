@@ -677,7 +677,11 @@ void imap_authenticate(int num_parms, ConstStr *Params)
 	}
 
 	if (!strcasecmp(Params[2].Key, "LOGIN")) {
-		CtdlEncodeBase64(UsrBuf, "Username:", 9, 0);
+		size_t len = CtdlEncodeBase64(UsrBuf, "Username:", 9, 0);
+		if (UsrBuf[len - 1] == '\n') {
+			UsrBuf[len - 1] = '\0';
+		}
+
 		IAPrintf("+ %s\r\n", UsrBuf);
 		IMAP->authstate = imap_as_expecting_username;
 		strcpy(IMAP->authseq, Params[0].Key);
@@ -685,7 +689,10 @@ void imap_authenticate(int num_parms, ConstStr *Params)
 	}
 
 	if (!strcasecmp(Params[2].Key, "PLAIN")) {
-		// CtdlEncodeBase64(UsrBuf, "Username:", 9, 0);
+		// size_t len = CtdlEncodeBase64(UsrBuf, "Username:", 9, 0);
+		// if (UsrBuf[len - 1] == '\n') {
+		//   UsrBuf[len - 1] = '\0';
+		// }
 		// IAPuts("+ %s\r\n", UsrBuf);
 		IAPuts("+ \r\n");
 		IMAP->authstate = imap_as_expecting_plainauth;
@@ -768,7 +775,11 @@ void imap_auth_login_user(long state)
 	case imap_as_expecting_username:
 		StrBufDecodeBase64(Imap->Cmd.CmdBuf);
 		CtdlLoginExistingUser(NULL, ChrPtr(Imap->Cmd.CmdBuf));
-		CtdlEncodeBase64(PWBuf, "Password:", 9, 0);
+		size_t len = CtdlEncodeBase64(PWBuf, "Password:", 9, 0);
+		if (PWBuf[len - 1] == '\n') {
+			PWBuf[len - 1] = '\0';
+		}
+
 		IAPrintf("+ %s\r\n", PWBuf);
 		
 		Imap->authstate = imap_as_expecting_password;
