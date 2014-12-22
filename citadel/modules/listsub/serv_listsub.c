@@ -57,17 +57,21 @@
 void listsub_generate_token(char *buf) {
 	char sourcebuf[SIZ];
 	static int seq = 0;
+	size_t len;
 
 	/* Theo, please sit down and shut up.  This key doesn't have to be
 	 * tinfoil-hat secure, it just needs to be reasonably unguessable
 	 * and unique.
 	 */
-	sprintf(sourcebuf, "%lx",
+	len = sprintf(sourcebuf, "%lx",
 		(long) (++seq + getpid() + time(NULL))
 	);
 
 	/* Convert it to base64 so it looks cool */	
-	CtdlEncodeBase64(buf, sourcebuf, strlen(sourcebuf), 0);
+	len = CtdlEncodeBase64(buf, sourcebuf, len, 0);
+	if (buf[len - 1] == '\n') {
+		buf[len - 1] = '\0';
+	}
 }
 
 const RoomNetCfg ActiveSubscribers[] = {listrecp, digestrecp};
