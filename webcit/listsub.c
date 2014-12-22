@@ -24,7 +24,11 @@ int Conditional_LISTSUB_EXECUTE_SUBSCRIBE(StrBuf *Target, WCTemplputParams *TP)
 	StrBuf *Line;
 	const char *ImpMsg;
 	const StrBuf *Room, *Email, *SubType;
-	
+
+	if (strcmp(bstr("cmd"), "subscribe")) {
+		return 0;
+	}
+
 	Room = sbstr("room");
 	if (Room == NULL)
 	{
@@ -62,7 +66,11 @@ int Conditional_LISTSUB_EXECUTE_UNSUBSCRIBE(StrBuf *Target, WCTemplputParams *TP
 	StrBuf *Line;
 	const char *ImpMsg;
 	const StrBuf *Room, *Email;
-	
+
+	if (strcmp(bstr("cmd"), "unsubscribe")) {
+		return 0;
+	}
+
 	Room = sbstr("room");
 	if (Room == NULL)
 	{
@@ -98,7 +106,11 @@ int Conditional_LISTSUB_EXECUTE_CONFIRM_SUBSCRIBE(StrBuf *Target, WCTemplputPara
 	StrBuf *Line;
 	const char *ImpMsg;
 	const StrBuf *Room, *Token;
-	
+
+	if (strcmp(bstr("cmd"), "confirm")) {
+		return 0;
+	}
+
 	Room = sbstr("room");
 	if (Room == NULL)
 	{
