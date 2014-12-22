@@ -5,7 +5,7 @@
 CtxType CTX_MAILSUM = CTX_NONE;
 CtxType CTX_MIME_ATACH = CTX_NONE;
 
-inline void CheckConvertBufs(struct wcsession *WCC)
+static inline void CheckConvertBufs(struct wcsession *WCC)
 {
 	if (WCC->ConvertBuf1 == NULL)
 		WCC->ConvertBuf1 = NewStrBuf();
