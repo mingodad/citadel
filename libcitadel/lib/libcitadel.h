@@ -49,16 +49,16 @@ typedef enum AXLevel {
 }eUsrAxlvl;
 
 typedef enum __RoomNetCfg {
-	subpending,
-	unsubpending,
-	lastsent, /* Server internal use only */
-	ignet_push_share,
-	listrecp,
-	digestrecp,
-	pop3client,
-	rssclient,
-	participate,
-	roommailalias,
+	subpending        = 0,
+	unsubpending      = 1,
+	lastsent          = 2, /* Server internal use only */
+	ignet_push_share  = 3,
+	listrecp          = 4,
+	digestrecp        = 5,
+	pop3client        = 6,
+	rssclient         = 7,
+	participate       = 8,
+	roommailalias     = 9,
 	maxRoomNetCfg
 } RoomNetCfg;
 
