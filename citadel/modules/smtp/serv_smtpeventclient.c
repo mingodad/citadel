@@ -288,12 +288,12 @@ eNextState FailOneAttempt(AsyncIO *IO)
 	    Msg->MyQItem->HaveRelay)
 	{
 		EVS_syslog(LOG_DEBUG, "%s Aborting; last relay failed.\n", __FUNCTION__);
-		return eAbort;
+		return FinalizeMessageSend(Msg);
 	}
 
 	if (Msg->pCurrRelay == NULL) {
 		EVS_syslog(LOG_DEBUG, "%s Aborting\n", __FUNCTION__);
-		return eAbort;
+		return FinalizeMessageSend(Msg);
 	}
 	if (Msg->pCurrRelay->IsIP) {
 		EVS_syslog(LOG_DEBUG, "%s connecting IP\n", __FUNCTION__);
