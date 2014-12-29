@@ -155,6 +155,7 @@ typedef struct _SharedMessageStatus {
 
 	long startmsg;         /* which is the start message? */
 	long nummsgs;          /* How many messages are available to your view? */
+	long numNewmsgs;       /* if you load the seen-status, this is the count of them. */
 	long num_displayed;    /* counted up for LoadMsgFromServer */ /* TODO: unclear who should access this and why */
 
 	long lowest_found;     /* smallest Message ID found;  */

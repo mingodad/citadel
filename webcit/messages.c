@@ -650,10 +650,11 @@ int load_msg_ptrs(const char *servcmd,
  * \param MatchMSet MSet we want to flag
  * \param FlagToSet Flag to set on each BasicMsgStruct->Flags if in MSet
  */
-void SetFlagsFromMSet(HashList *ScanMe, MSet *MatchMSet, int FlagToSet, int Reverse)
+long SetFlagsFromMSet(HashList *ScanMe, MSet *MatchMSet, int FlagToSet, int Reverse)
 {
 	const char *HashKey;
 	long HKLen;
+	long count = 0;
 	HashPos *at;
 	void *vMsg;
 	message_summary *Msg;
@@ -664,17 +665,21 @@ void SetFlagsFromMSet(HashList *ScanMe, MSet *MatchMSet, int FlagToSet, int Reve
 		Msg = (message_summary*) vMsg;
 		if (Reverse && IsInMSetList(MatchMSet, Msg->msgnum)) {
 			Msg->Flags = Msg->Flags | FlagToSet;
+			count++;
 		}
 		else if (!Reverse && !IsInMSetList(MatchMSet, Msg->msgnum)) {
 			Msg->Flags = Msg->Flags | FlagToSet;
+			count++;
 		}
 	}
 	DeleteHashPos(&at);
+	return count;
 }
 
 
-void load_seen_flags(void)
+long load_seen_flags(void)
 {
+	long count = 0;
 	StrBuf *OldMsg;
 	wcsession *WCC = WC;
 	MSet *MatchMSet;
@@ -687,15 +692,16 @@ void load_seen_flags(void)
 	}
 	else {
 		FreeStrBuf(&OldMsg);
-		return;
+		return 0;
 	}
 
 	if (ParseMSet(&MatchMSet, OldMsg))
 	{
-		SetFlagsFromMSet(WCC->summ, MatchMSet, MSGFLAG_READ, 0);
+		count = SetFlagsFromMSet(WCC->summ, MatchMSet, MSGFLAG_READ, 0);
 	}
 	DeleteMSet(&MatchMSet);
 	FreeStrBuf(&OldMsg);
+	return count;
 }
 
 extern readloop_struct rlid[];
@@ -814,7 +820,7 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		Stat.startmsg =  0;
 	}
 
-	if (Stat.load_seen) load_seen_flags();
+	if (Stat.load_seen) Stat.numNewmsgs = load_seen_flags();
 	
         /*
 	 * Print any inforation above the message list...
@@ -832,9 +838,13 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		
 		Foo = NewStrBuf ();
 		StrBufPrintf(Foo, "%ld", Stat.nummsgs);
-		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo));
+		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo)); // keep Foo!
+
+		StrBufPrintf(Foo, "%ld", Stat.numNewmsgs);
+		PutBstr(HKEY("__READLOOP:NEWMSGS"), NewStrBufDup(Foo)); // keep Foo!
+
 		StrBufPrintf(Foo, "%ld", Stat.startmsg);
-		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo);
+		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo); // store Foo elsewhere, descope it here.
 	}
 
 	/*
