@@ -97,20 +97,20 @@ void xmpp_output_incoming_messages(void)
 /*
  * Client is sending a message.
  */
-void xmpp_send_message(char *message_to, char *message_body) {
+void xmpp_send_message(StrBuf *message_to, char *message_body) {
 	struct CitContext *CCC = CC;
 	char *recp = NULL;
 	struct CitContext *cptr;
 
 	if (message_body == NULL) return;
 	if (message_to == NULL) return;
-	if (IsEmptyStr(message_to)) return;
+	if (StrLength(message_to) == 0) return;
 	if (!CCC->logged_in) return;
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 		if (	(cptr->logged_in)
 			&& (cptr->can_receive_im)
-			&& (!strcasecmp(cptr->cs_inet_email, message_to))
+			&& (!strcasecmp(cptr->cs_inet_email, ChrPtr(message_to)))
 		) {
 			recp = cptr->user.fullname;
 		}
@@ -122,12 +122,11 @@ void xmpp_send_message(char *message_to, char *message_body) {
 
 	free(XMPP->message_body);
 	XMPP->message_body = NULL;
-	XMPP->message_to[0] = 0;
 	time(&CCC->lastidle);
 }
 void xmpp_end_message(void *data, const char *supplied_el, const char **attr)
 {
-	xmpp_send_message(XMPP->message_to, XMPP->message_body);
+	xmpp_send_message(XMPP->Message.to, XMPP->message_body);
 	XMPP->html_tag_level = 0;
 }
 

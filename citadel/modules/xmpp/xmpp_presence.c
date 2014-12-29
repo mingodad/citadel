@@ -65,7 +65,7 @@
  */
 void xmpp_indicate_presence(char *presence_jid)
 {
-	XPrint(HKEY("presence"),
+	XPrint(HKEY("presence"), XCLOSED,
 	       XPROPERTY("from", presence_jid, strlen(presence_jid)),
 	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
 	       TYPE_ARGEND);

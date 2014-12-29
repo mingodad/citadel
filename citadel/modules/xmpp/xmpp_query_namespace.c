@@ -65,7 +65,7 @@ void xmpp_roster_item(struct CitContext *cptr)
 
 	XPrint(HKEY("item"), 0,
 	       XCPROPERTY("subscription", "both"),
-	       XPROPERTY("jid",  CCC->cs_inet_email, strlen(CCC->cs_inet_email)),
+	       XPROPERTY("jid",  cptr->cs_inet_email, strlen(cptr->cs_inet_email)),
 	       XPROPERTY("name", cptr->user.fullname, strlen(cptr->user.fullname)),
 	       TYPE_ARGEND);
 
@@ -116,9 +116,7 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 {
 	int supported_namespace = 0;
 	int roster_query = 0;
-	const char *TypeStr;
-	long TLen;
-	ConstStr Type[] = {
+	static const ConstStr Type[] = {
 		{HKEY("result")},
 		{HKEY("error")}
 	};
@@ -140,19 +138,18 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	 * Beginning of query result.
 	 */
 	if (supported_namespace) {
-		TypeStr = Type[0].Key;
-		TLen    = Type[0].len;
+		XPrint(HKEY("iq"), 0,
+		       XPROPERTY("type", Type[0].Key, Type[0].len),
+		       XSPROPERTY("to",  IQ->from),
+		       XSPROPERTY("id",   IQ->id),
+		       TYPE_ARGEND);
 	}
 	else {
-		TypeStr = Type[1].Key;
-		TLen    = Type[1].len;
+		XPrint(HKEY("iq"), 0,
+		       XPROPERTY("type", Type[1].Key, Type[1].len),
+		       XSPROPERTY("id",   IQ->id),
+		       TYPE_ARGEND);
 	}
-
-	XPrint(HKEY("iq"), 0,
-	       XPROPERTY("type", TypeStr, TLen),
-	       XSPROPERTY("to",  IQ->from),
-	       XSPROPERTY("id",   IQ->id),
-	       TYPE_ARGEND);
 
 	/*
 	 * Is this a query we know how to handle?

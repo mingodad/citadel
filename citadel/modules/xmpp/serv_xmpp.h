@@ -41,7 +41,6 @@ typedef struct _citxmpp {			/* Information about the current session */
 
 	char sasl_auth_mech[32];	/* SASL auth mechanism requested by the client */
 
-	char message_to[256];
 	char *message_body;		/* Message body in transit */
 	int html_tag_level;		/* <html> tag nesting level */
 
@@ -88,7 +87,7 @@ void xmpp_queue_event(int, char *);
 void xmpp_process_events(void);
 void xmpp_presence_notify(char *, int);
 void xmpp_roster_item(struct CitContext *);
-void xmpp_send_message(char *, char *);
+void xmpp_send_message(StrBuf *, char *);
 void xmpp_non_sasl_authenticate(StrBuf *IQ_id, char *, char *, char *);
 void xmpp_massacre_roster(void);
 void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void);
