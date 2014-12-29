@@ -933,9 +933,18 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 		case eAbort:
 ////			StopClientWatchers(IO);
 			ShutDownCLient(IO);
+			break;
+		case eDBQuery:
+			StopClientWatchers(IO, 0);
+			QueueAnDBOperation(IO);
+			break;
 		default:
 			break;
 		}
+	case eDBQuery:
+		StopClientWatchers(IO, 0);
+		QueueAnDBOperation(IO);
+		break;
 	default:
 		break;
 	}
