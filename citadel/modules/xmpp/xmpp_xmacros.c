@@ -18,6 +18,8 @@ void *GetToken_message(void)
 	return &XMPP->Message;
 }
 
+/// TODO
+#define CALLBACK(NAME);
 
 #define STRPROP(STRUCTNAME, NAME)					\
 	if (StrLength(pdata->NAME) > 0)					\
@@ -57,11 +59,28 @@ void *GetToken_message(void)
 	}								\
 	}
 
+#define SUBTOKEN(NAME, NS, STOKEN, STRUCT)				\
+	void serialize_##NAME##NS##STOKEN(				\
+		theSubToken_##NAME##NS##STOKEN *pdata, int Close)	\
+	{								\
+	XPUT("<");							\
+	XPut(#NAME, sizeof(#NAME));					\
+	XPUT(" ");							\
+	STRUCT ;							\
+	XPUT(">");							\
+	if (Close)							\
+	{								\
+		XPut("</", 2);						\
+		XPut(#NAME, sizeof(#NAME));				\
+		XPut(">", 1);						\
+	}								\
+	}
+
 #include "token.def"
 #undef STRPROP
 #undef PAYLOAD
 #undef TOKEN
-
+#undef SUBTOKEN
 
 #define STRPROP(STRUCTNAME, NAME)					\
 	FreeStrBuf(&pdata->NAME);
@@ -75,10 +94,16 @@ void *GetToken_message(void)
 		STRUCT ;						\
 	}
 
+#define SUBTOKEN(NAME, NS, STOKEN, STRUCT) void free_buf__##NAME##NS##STOKEN \
+	(theSubToken_##NAME##NS##STOKEN *pdata){			\
+		STRUCT ;						\
+	}
+
 #include "token.def"
 #undef STRPROP
 #undef PAYLOAD
 #undef TOKEN
+#undef SUBTOKEN
 
 #define TOKEN(NAME, STRUCT)						\
 	void free_##NAME(TheToken_##NAME *pdata)			\
@@ -87,9 +112,17 @@ void *GetToken_message(void)
 		free(pdata);						\
 	}
 
+#define SUBTOKEN(NAME, NS, STOKEN, STRUCT) void free__##NAME##NS##STOKEN \
+	(theSubToken_##NAME##NS##STOKEN *pdata)				\
+	{								\
+		free_buf__##NAME##NS##STOKEN(pdata);			\
+		free(pdata);						\
+	}
+
 #include "token.def"
 #undef STRPROP
 #undef TOKEN
+#undef SUBTOKEN
 
 
 
@@ -117,6 +150,7 @@ CTDL_MODULE_INIT(xmpp_xmacros)
 			GetToken_##TOKENNAME,				\
 			offset##PROPERTYNAME);
 #define TOKEN(NAME, STRUCT) STRUCT
+#define SUBTOKEN(NAME, NS, STOKEN, STRUCT) STRUCT
 #include "token.def"
 #undef STRPROP
 #undef TOKEN

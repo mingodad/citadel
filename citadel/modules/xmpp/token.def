@@ -6,7 +6,7 @@ TOKEN(iq,
 	      STRPROP(iq, id);
 	      STRPROP(iq, from);
 	      STRPROP(iq, to);
-      })
+      });
 
 
 #define NAMESPACE_piq "bub"
@@ -17,7 +17,7 @@ TOKEN(piq,
 	      STRPROP(piq, id);
 	      STRPROP(piq, from);
 	      STRPROP(piq, to);
-      })
+      });
 
 #define NAMESPACE_message "jabber:client"
 TOKEN(message,
@@ -26,8 +26,44 @@ TOKEN(message,
 		STRPROP(message, type);
 		STRPROP(message, id);
 		PAYLOAD(message, body);
-	})
+	});
 
+#define NAMESPACE_message_chatstate "http://jabber.org/protocol/chatstates"
+
+SUBTOKEN(message,
+	 chatstate,
+	 active,
+	 {
+		 CALLBACK(active);
+	 });
+
+SUBTOKEN(message,
+	 chatstate,
+	 composing,
+	 {
+		 CALLBACK(composing);
+	 });
+
+SUBTOKEN(message,
+	 chatstate,
+	 paused,
+	 {
+		 CALLBACK(paused);
+	 });
+
+SUBTOKEN(message,
+	 chatstate,
+	 inactive,
+	 {
+		 CALLBACK(inactive);
+	 });
+
+SUBTOKEN(message,
+	 chatstate,
+	 gone,
+	 {
+		 CALLBACK(gone);
+	 });
 
 // <message type='chat' id='purplef5a7ed34' to='testuser@blarg.potzblitz.outgesourced.org'><active xmlns='http://jabber.org/protocol/chatstates'/><body>gci</body></message>
 
