@@ -149,8 +149,8 @@ int main(int argc, char **argv)
 			break;
 		case 'T':
 			LoadTemplates = atoi(optarg);
-			dbg_analyze_msg = (LoadTemplates && (1<<1)) != 0;
-			dbg_backtrace_template_errors = (LoadTemplates && (1<<2)) != 0;
+			dbg_analyze_msg = (LoadTemplates & (1<<1)) != 0;
+			dbg_backtrace_template_errors = (LoadTemplates & (1<<2)) != 0;
 			break;
 		case 'Z':
 			DisableGzip = 1;
