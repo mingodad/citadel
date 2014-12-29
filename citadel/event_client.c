@@ -518,7 +518,10 @@ eReadState HandleInbound(AsyncIO *IO)
 			ev_io_stop(event_base, &IO->recv_event);
 			IO->NextState = IO->ReadDone(IO);
 			if  (IO->NextState == eDBQuery) {
-				return QueueAnDBOperation(IO);
+				if (QueueAnDBOperation(IO) == eAbort)
+					return eReadFail;
+				else
+					return eReadSuccess;
 			}
 			else {
 				Finished = StrBufCheckBuffer(&IO->RecvBuf);
@@ -1217,8 +1220,13 @@ eNextState KillOtherContextNow(AsyncIO *IO)
 
 	SetEVState(IO, eKill);
 
-	if (Ctx->OtherOne->ShutdownAbort != NULL)
-		Ctx->OtherOne->ShutdownAbort(Ctx->OtherOne);
+	if (Ctx->OtherOne->ShutdownAbort != NULL) {
+		Ctx->OtherOne->NextState = eAbort;
+		if (Ctx->OtherOne->ShutdownAbort(Ctx->OtherOne) == eDBQuery) {
+ 			StopClientWatchers(Ctx->OtherOne, 0);
+			QueueAnDBOperation(Ctx->OtherOne);
+		}
+	}
 	return eTerminateConnection;
 }
 
@@ -1257,11 +1265,11 @@ void KillAsyncIOContext(AsyncIO *IO)
 	case eReadMore:
 	case eReadPayload:
 	case eReadFile:
-		IO->ReAttachCB = KillOtherContextNow;
+		Ctx->IO.ReAttachCB = KillOtherContextNow;
 		QueueAnEventContext(&Ctx->IO);
 		break;
 	case eDBQuery:
-		IO->ReAttachCB = KillOtherContextNow;
+		Ctx->IO.ReAttachCB = KillOtherContextNow;
 		QueueAnDBOperation(&Ctx->IO);
 		break;
 	case eTerminateConnection:
