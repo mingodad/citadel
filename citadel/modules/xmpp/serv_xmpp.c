@@ -237,13 +237,13 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/*
 	 * TLS encryption (but only if it isn't already active)
 	 */ 
-/*
+
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) {
 		XPUT("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
 	}
 #endif
-*/
+	//*/
 	if (!CC->logged_in) {
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
@@ -351,7 +351,7 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr)
 				if (GetHash(th->Properties, attr[i], strlen(attr[i]), &pv))
 				{
 					PropertyHandler* ph = pv;
-					char *val;
+					void *val;
 					StrBuf **pVal;
 					long len;
 
