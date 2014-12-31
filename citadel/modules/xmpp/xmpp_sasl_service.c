@@ -65,11 +65,10 @@
  */
 int xmpp_auth_plain(char *authstring)
 {
-	StrBuf *AuthBuf;
-	const char *decoded_authstring;
-	char ident[256] = "";
-	char user[256] = "";
-	char pass[256] = "";
+	char decoded_authstring[1024];
+	char ident[256];
+	char user[256];
+	char pass[256];
 	int result;
 	long len;
 
@@ -77,25 +76,12 @@ int xmpp_auth_plain(char *authstring)
 	/* Take apart the authentication string */
 	memset(pass, 0, sizeof(pass));
 
-	AuthBuf = NewStrBufPlain(authstring, -1);
-	len = StrBufDecodeBase64(AuthBuf);
-	if (len > 0)
-	{
-		decoded_authstring = ChrPtr(AuthBuf);
-
-		len = safestrncpy(ident, decoded_authstring, sizeof ident);
-
-		decoded_authstring += len + 1;
-
-		len = safestrncpy(user, decoded_authstring, sizeof user);
-
-		decoded_authstring += len + 1;
-
-		len = safestrncpy(pass, decoded_authstring, sizeof pass);
-		if (len < 0)
-			len = sizeof(pass) - 1;
-	}
-	FreeStrBuf(&AuthBuf);
+	CtdlDecodeBase64(decoded_authstring, authstring, strlen(authstring));
+	safestrncpy(ident, decoded_authstring, sizeof ident);
+	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
+	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+	if (len < 0)
+		len = -len;
 
 	/* If there are underscores in either string, change them to spaces.  Some clients
 	 * do not allow spaces so we can tell the user to substitute underscores if their
@@ -127,9 +113,9 @@ int xmpp_auth_plain(char *authstring)
  * Output the list of SASL mechanisms offered by this stream.
  */
 void xmpp_output_auth_mechs(void) {
-	XPUT("<mechanisms xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-	     "<mechanism>PLAIN</mechanism>"
-	     "</mechanisms>");
+	cprintf("<mechanisms xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+	cprintf("<mechanism>PLAIN</mechanism>");
+	cprintf("</mechanisms>");
 }
 
 /*
@@ -138,28 +124,28 @@ void xmpp_output_auth_mechs(void) {
 void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 
 	if (strcasecmp(sasl_auth_mech, "PLAIN")) {
-		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-		     "<invalid-mechanism/>"
-		     "</failure>");
+		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+		cprintf("<invalid-mechanism/>");
+		cprintf("</failure>");
 		return;
 	}
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */
 
 	if (CC->nologin) {
-		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-		     "<system-shutdown/>"
-		     "</failure>");
+		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+		cprintf("<system-shutdown/>");
+		cprintf("</failure>");
 	}
 
 	else if (xmpp_auth_plain(authstring) == 0) {
-		XPUT("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
+		cprintf("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
 	}
 
 	else {
-		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-		     "<not-authorized/>"
-		     "</failure>");
+		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+		cprintf("<not-authorized/>");
+		cprintf("</failure>");
 	}
 }
 
@@ -168,8 +154,9 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 /*
  * Non-SASL authentication
  */
-void xmpp_non_sasl_authenticate(StrBuf *IQ_id, char *username, char *password, char *resource) {
+void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
 	int result;
+	char xmlbuf[256];
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */
 
@@ -177,23 +164,16 @@ void xmpp_non_sasl_authenticate(StrBuf *IQ_id, char *username, char *password, c
 	if (result == login_ok) {
 		result = CtdlTryPassword(password, strlen(password));
 		if (result == pass_ok) {
-			XPrint(HKEY("iq"), XCLOSED,
-			       XCPROPERTY("type", "result"),
-			       XSPROPERTY("ID", IQ_id),
-			       TYPE_ARGEND);
-			       /* success */
+			cprintf("<iq type=\"result\" id=\"%s\"></iq>", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));	/* success */
 			return;
 		}
 	}
 
 	/* failure */
-	XPrint(HKEY("iq"), 0,
-	       XCPROPERTY("type", "error"),
-	       XSPROPERTY("ID", IQ_id),
-	       TYPE_ARGEND);
-	XPUT("<error code=\"401\" type=\"auth\">"
-	     "<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
-	     "</error>"
-	     "</iq>"
+	cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
+	cprintf("<error code=\"401\" type=\"auth\">"
+		"<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+		"</error>"
+		"</iq>"
 	);
 }
