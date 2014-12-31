@@ -306,7 +306,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 		return;
 	}
 
-	strcpy(new_message_flags, "");
+	*new_message_flags = '\0';
 	if (num_parms >= 5) {
 		for (i=3; i<num_parms; ++i) {
 			strcat(new_message_flags, Params[i].Key);
@@ -430,7 +430,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	/* We don't need this buffer anymore */
 	CM_Free(msg);
 
-	if (new_message_flags != NULL) {
+	if (IsEmptyStr(new_message_flags)) {
 		imap_do_append_flags(new_msgnum, new_message_flags);
 	}
 }

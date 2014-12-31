@@ -26,6 +26,7 @@ extern char ctdl_run_dir[PATH_MAX];
 extern char ctdl_spool_dir[PATH_MAX];
 extern char ctdl_netout_dir[PATH_MAX];
 extern char ctdl_netin_dir[PATH_MAX];
+extern char ctdl_netdigest_dir[PATH_MAX];
 extern char ctdl_nettmp_dir[PATH_MAX];
 extern char ctdl_netcfg_dir[PATH_MAX];
 extern char ctdl_bbsbase_dir[PATH_MAX];
@@ -68,4 +69,6 @@ extern size_t assoc_file_name(char *buf,
 			    struct ctdlroom *qrbuf, 
 			    const char *prefix);
 
+extern FILE *create_digest_file(struct ctdlroom *room);
+extern void remove_digest_file(struct ctdlroom *room);
 #endif /* __CITADEL_DIRS_H */

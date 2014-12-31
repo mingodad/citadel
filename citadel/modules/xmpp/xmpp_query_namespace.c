@@ -98,6 +98,10 @@ void xmpp_iq_roster_query(void)
  * Client is doing a namespace query.  These are all handled differently.
  * A "rumplestiltskin lookup" is the most efficient way to handle this.  Please do not refactor this code.
  */
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns)
 {
 	int supported_namespace = 0;
@@ -117,7 +121,11 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 		supported_namespace = 1;
 	}
 
+<<<<<<< HEAD
 	syslog(LOG_DEBUG, "xmpp_query_namespace(id=%s, from=%s, to=%s, xmlns=%s)\n", iq_id, iq_from, iq_to, query_xmlns);
+=======
+	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
+>>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 
 	/*
 	 * Beginning of query result.
@@ -127,10 +135,17 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	}
 	else {
 		cprintf("<iq type=\"error\" ");
+<<<<<<< HEAD
 	}
 	if (!IsEmptyStr(iq_from)) {
 		cprintf("to=\"%s\" ", xmlesc(xmlbuf, iq_from, sizeof xmlbuf));
 	}
+=======
+	}
+	if (!IsEmptyStr(iq_from)) {
+		cprintf("to=\"%s\" ", xmlesc(xmlbuf, iq_from, sizeof xmlbuf));
+	}
+>>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 	cprintf("id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
 
 	/*
@@ -165,7 +180,14 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 */
 
 	else {
+<<<<<<< HEAD
 		syslog(LOG_DEBUG, "Unknown query namespace '%s' - returning <service-unavailable/>\n", query_xmlns);
+=======
+		XMPP_syslog(LOG_DEBUG,
+			    "Unknown query namespace '%s' - returning <service-unavailable/>\n",
+			    query_xmlns
+		);
+>>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 		cprintf("<error code=\"503\" type=\"cancel\">"
 			"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
 			"</error>"

@@ -332,6 +332,7 @@ void CalcListID(SpoolControl *sc)
 	FreeStrBuf(&RoomName);
 }
 
+static time_t last_digest_delivery = 0;
 
 /*
  * Batch up and send all outbound traffic from the current room
@@ -354,8 +355,12 @@ void network_spoolout_room(SpoolControl *sc)
 
 	/* If there are digest recipients, we have to build a digest */
 	if (sc->Users[digestrecp] != NULL) {
-		sc->digestfp = tmpfile();
-		fprintf(sc->digestfp, "Content-type: text/plain\n\n");
+		
+		sc->digestfp = create_digest_file(&sc->room);
+		sc->newDigest = ftell(sc->digestfp) > 0;
+		if (sc->newDigest) {
+			fprintf(sc->digestfp, "Content-type: text/plain\n\n");
+		}
 	}
 
 	CalcListID(sc);
@@ -363,11 +368,10 @@ void network_spoolout_room(SpoolControl *sc)
 	/* remember where we started... */
 	lastsent = sc->lastsent;
 
-	/* Do something useful */
+	/* Fetch the messages we ought to send & prepare them. */
 	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
 		network_spool_msg, sc);
 
-	/* If we wrote a digest, deliver it and then close it */
 	if (StrLength(sc->Users[roommailalias]) > 0)
 	{
 		long len;
@@ -387,17 +391,37 @@ void network_spoolout_room(SpoolControl *sc)
 		buf[i] = tolower(buf[i]);
 		if (isspace(buf[i])) buf[i] = '_';
 	}
+
+
+	/* If we wrote a digest, deliver it and then close it */
 	if (sc->digestfp != NULL) {
-		fprintf(sc->digestfp,
-			" -----------------------------------"
-			"------------------------------------"
-			"-------\n"
-			"You are subscribed to the '%s' "
-			"list.\n"
-			"To post to the list: %s\n",
-			CCC->room.QRname, buf
-		);
-		network_deliver_digest(sc);	/* deliver and close */
+		time_t now = time(NULL);
+		time_t secs_today = now % (24 * 60 * 60);
+		long delta = 0;
+
+		if (last_digest_delivery != 0) {
+			delta = now - last_digest_delivery;
+			delta = (24 * 60 * 60) - delta;
+		}
+
+		if ((secs_today < 300) && 
+		    (delta < 300) )
+		{
+			last_digest_delivery = now;
+			fprintf(sc->digestfp,
+				" -----------------------------------"
+				"------------------------------------"
+				"-------\n"
+				"You are subscribed to the '%s' "
+				"list.\n"
+				"To post to the list: %s\n",
+				CCC->room.QRname, buf
+				);
+			network_deliver_digest(sc);	/* deliver */
+		}
+		fclose(sc->digestfp);
+		sc->digestfp = NULL;
+		remove_digest_file(&sc->room);
 	}
 
 	/* Now rewrite the config file */
