@@ -59,21 +59,16 @@
 /*
  * Output a single roster item, for roster queries or pushes
  */
-void xmpp_roster_item(struct CitContext *cptr)
-{
-	struct CitContext *CCC=CC;
+void xmpp_roster_item(struct CitContext *cptr) {
+	char xmlbuf1[256];
+	char xmlbuf2[256];
 
-	XPrint(HKEY("item"), 0,
-	       XCPROPERTY("subscription", "both"),
-	       XPROPERTY("jid",  cptr->cs_inet_email, strlen(cptr->cs_inet_email)),
-	       XPROPERTY("name", cptr->user.fullname, strlen(cptr->user.fullname)),
-	       TYPE_ARGEND);
-
-	XPrint(HKEY("group"), XCLOSED,
-	       XCFGBODY(c_humannode),
-	       TYPE_ARGEND);
-
-	XPUT("</item>");
+	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
+		xmlesc(xmlbuf1, cptr->cs_inet_email, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, cptr->user.fullname, sizeof xmlbuf2)
+	);
+	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
+	cprintf("</item>");
 }
 
 /* 
@@ -88,7 +83,7 @@ void xmpp_iq_roster_query(void)
 	struct CitContext *cptr;
 	int nContexts, i;
 
-	XPUT("<query xmlns=\"jabber:iq:roster\">");
+	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
@@ -99,7 +94,7 @@ void xmpp_iq_roster_query(void)
 		}
 		free (cptr);
 	}
-	XPUT("</query>");
+	cprintf("</query>");
 }
 
 
@@ -112,15 +107,12 @@ xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
  *
  */
 
-void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_to*/, char *query_xmlns)
+void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns)
 {
 	int supported_namespace = 0;
 	int roster_query = 0;
-	static const ConstStr Type[] = {
-		{HKEY("result")},
-		{HKEY("error")}
-	};
-	
+	char xmlbuf[256];
+
 	/* We need to know before we begin the response whether this is a supported namespace, so
 	 * unfortunately all supported namespaces need to be defined here *and* down below where
 	 * they are handled.
@@ -132,24 +124,21 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 		supported_namespace = 1;
 	}
 
-	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", ChrPtr(IQ->id), ChrPtr(IQ->from), ChrPtr(IQ->to), query_xmlns);
+	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
 
 	/*
 	 * Beginning of query result.
 	 */
 	if (supported_namespace) {
-		XPrint(HKEY("iq"), 0,
-		       XPROPERTY("type", Type[0].Key, Type[0].len),
-		       XSPROPERTY("to",  IQ->from),
-		       XSPROPERTY("id",   IQ->id),
-		       TYPE_ARGEND);
+		cprintf("<iq type=\"result\" ");
 	}
 	else {
-		XPrint(HKEY("iq"), 0,
-		       XPROPERTY("type", Type[1].Key, Type[1].len),
-		       XSPROPERTY("id",   IQ->id),
-		       TYPE_ARGEND);
+		cprintf("<iq type=\"error\" ");
 	}
+	if (!IsEmptyStr(iq_from)) {
+		cprintf("to=\"%s\" ", xmlesc(xmlbuf, iq_from, sizeof xmlbuf));
+	}
+	cprintf("id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
 
 	/*
 	 * Is this a query we know how to handle?
@@ -161,9 +150,9 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	}
 
 	else if (!strcasecmp(query_xmlns, "jabber:iq:auth:query")) {
-		XPUT("<query xmlns=\"jabber:iq:auth\">"
-		     "<username/><password/><resource/>"
-		     "</query>"
+		cprintf("<query xmlns=\"jabber:iq:auth\">"
+			"<username/><password/><resource/>"
+			"</query>"
 		);
 	}
 
@@ -177,13 +166,13 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 			    "Unknown query namespace '%s' - returning <service-unavailable/>\n",
 			    query_xmlns
 		);
-		XPUT("<error code=\"503\" type=\"cancel\">"
-		     "<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
-		     "</error>"
+		cprintf("<error code=\"503\" type=\"cancel\">"
+			"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+			"</error>"
 		);
 	}
 
-	XPUT("</iq>");
+	cprintf("</iq>");
 
 	/* If we told the client who is on the roster, we also need to tell the client
 	 * who is *not* on the roster.  (It's down here because we can't do it in the same

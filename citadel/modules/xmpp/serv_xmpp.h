@@ -16,12 +16,7 @@
  *  
  */
 
-#include "xmpp_xmacros.h"
-#include "xmpp_util.h"
-
-
 typedef struct _citxmpp {			/* Information about the current session */
-	StrBuf *OutBuf;
 	XML_Parser xp;			/* XML parser instance for incoming client stream */
 	char server_name[256];		/* who they think we are */
 	char *chardata;
@@ -30,9 +25,10 @@ typedef struct _citxmpp {			/* Information about the current session */
 	char client_jid[256];		/* "full JID" of the client */
 	int last_event_processed;
 
-	TheToken_iq IQ;
-	TheToken_message Message;
-
+	char iq_type[256];		/* for <iq> stanzas */
+	char iq_id[256];
+	char iq_from[256];
+	char iq_to[256];
 	char iq_client_username[256];	/* username requested by the client (NON SASL ONLY) */
 	char iq_client_password[256];	/* password requested by the client (NON SASL ONLY) */
 	char iq_client_resource[256];	/* resource name requested by the client */
@@ -41,6 +37,7 @@ typedef struct _citxmpp {			/* Information about the current session */
 
 	char sasl_auth_mech[32];	/* SASL auth mechanism requested by the client */
 
+	char message_to[256];
 	char *message_body;		/* Message body in transit */
 	int html_tag_level;		/* <html> tag nesting level */
 
@@ -59,6 +56,7 @@ struct xmpp_event {
 	int session_which_generated_this_event;
 };
 
+extern struct xmpp_event *xmpp_queue;
 extern int queue_event_seq;
 
 enum {
@@ -66,29 +64,21 @@ enum {
 	XMPP_EVT_LOGOUT
 };
 
-
-typedef void (*xmpp_handler_func)(void *data, const char *supplied_el, const char **attr);
-
-typedef struct __xmpp_handler {
-	int               Flags;
-	xmpp_handler_func Handler;
-}xmpp_handler;
-
-
 void xmpp_cleanup_function(void);
 void xmpp_greeting(void);
 void xmpp_command_loop(void);
 void xmpp_async_loop(void);
 void xmpp_sasl_auth(char *, char *);
 void xmpp_output_auth_mechs(void);
-void xmpp_query_namespace(TheToken_iq *iq, char *);
+void xmpp_query_namespace(char *, char *, char *, char *);
+void xmpp_wholist_presence_dump(void);
 void xmpp_output_incoming_messages(void);
 void xmpp_queue_event(int, char *);
 void xmpp_process_events(void);
 void xmpp_presence_notify(char *, int);
 void xmpp_roster_item(struct CitContext *);
-void xmpp_send_message(StrBuf *, char *);
-void xmpp_non_sasl_authenticate(StrBuf *IQ_id, char *, char *, char *);
+void xmpp_send_message(char *, char *);
+void xmpp_non_sasl_authenticate(char *, char *, char *, char *);
 void xmpp_massacre_roster(void);
 void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void);
 int xmpp_is_visible(struct CitContext *from, struct CitContext *to_whom);
@@ -105,18 +95,4 @@ extern int XMPPSrvDebugEnable;
 #define XMPPM_syslog(LEVEL, FORMAT)		\
 	DBGLOG(LEVEL) syslog(LEVEL,		\
 			     "XMPP: " FORMAT);
-
-
-void AddXMPPStartHandler(const char *key,
-			 long len,
-			 xmpp_handler_func Handler,
-			 int Flags);
-
-void AddXMPPEndHandler(const char *key,
-		       long len,
-		       xmpp_handler_func Handler,
-		       int Flags);
-
-
-
 

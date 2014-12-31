@@ -127,9 +127,9 @@ int xmpp_auth_plain(char *authstring)
  * Output the list of SASL mechanisms offered by this stream.
  */
 void xmpp_output_auth_mechs(void) {
-	XPUT("<mechanisms xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-	     "<mechanism>PLAIN</mechanism>"
-	     "</mechanisms>");
+	cprintf("<mechanisms xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+	cprintf("<mechanism>PLAIN</mechanism>");
+	cprintf("</mechanisms>");
 }
 
 /*
@@ -138,28 +138,28 @@ void xmpp_output_auth_mechs(void) {
 void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 
 	if (strcasecmp(sasl_auth_mech, "PLAIN")) {
-		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-		     "<invalid-mechanism/>"
-		     "</failure>");
+		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+		cprintf("<invalid-mechanism/>");
+		cprintf("</failure>");
 		return;
 	}
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */
 
 	if (CC->nologin) {
-		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-		     "<system-shutdown/>"
-		     "</failure>");
+		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+		cprintf("<system-shutdown/>");
+		cprintf("</failure>");
 	}
 
 	else if (xmpp_auth_plain(authstring) == 0) {
-		XPUT("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
+		cprintf("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
 	}
 
 	else {
-		XPUT("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">"
-		     "<not-authorized/>"
-		     "</failure>");
+		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+		cprintf("<not-authorized/>");
+		cprintf("</failure>");
 	}
 }
 
@@ -168,8 +168,9 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 /*
  * Non-SASL authentication
  */
-void xmpp_non_sasl_authenticate(StrBuf *IQ_id, char *username, char *password, char *resource) {
+void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
 	int result;
+	char xmlbuf[256];
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */
 
@@ -177,23 +178,16 @@ void xmpp_non_sasl_authenticate(StrBuf *IQ_id, char *username, char *password, c
 	if (result == login_ok) {
 		result = CtdlTryPassword(password, strlen(password));
 		if (result == pass_ok) {
-			XPrint(HKEY("iq"), XCLOSED,
-			       XCPROPERTY("type", "result"),
-			       XSPROPERTY("ID", IQ_id),
-			       TYPE_ARGEND);
-			       /* success */
+			cprintf("<iq type=\"result\" id=\"%s\"></iq>", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));	/* success */
 			return;
 		}
 	}
 
 	/* failure */
-	XPrint(HKEY("iq"), 0,
-	       XCPROPERTY("type", "error"),
-	       XSPROPERTY("ID", IQ_id),
-	       TYPE_ARGEND);
-	XPUT("<error code=\"401\" type=\"auth\">"
-	     "<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
-	     "</error>"
-	     "</iq>"
+	cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
+	cprintf("<error code=\"401\" type=\"auth\">"
+		"<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+		"</error>"
+		"</iq>"
 	);
 }
