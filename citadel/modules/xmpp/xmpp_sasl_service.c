@@ -65,11 +65,10 @@
  */
 int xmpp_auth_plain(char *authstring)
 {
-	StrBuf *AuthBuf;
-	const char *decoded_authstring;
-	char ident[256] = "";
-	char user[256] = "";
-	char pass[256] = "";
+	char decoded_authstring[1024];
+	char ident[256];
+	char user[256];
+	char pass[256];
 	int result;
 	long len;
 
@@ -77,25 +76,12 @@ int xmpp_auth_plain(char *authstring)
 	/* Take apart the authentication string */
 	memset(pass, 0, sizeof(pass));
 
-	AuthBuf = NewStrBufPlain(authstring, -1);
-	len = StrBufDecodeBase64(AuthBuf);
-	if (len > 0)
-	{
-		decoded_authstring = ChrPtr(AuthBuf);
-
-		len = safestrncpy(ident, decoded_authstring, sizeof ident);
-
-		decoded_authstring += len + 1;
-
-		len = safestrncpy(user, decoded_authstring, sizeof user);
-
-		decoded_authstring += len + 1;
-
-		len = safestrncpy(pass, decoded_authstring, sizeof pass);
-		if (len < 0)
-			len = sizeof(pass) - 1;
-	}
-	FreeStrBuf(&AuthBuf);
+	CtdlDecodeBase64(decoded_authstring, authstring, strlen(authstring));
+	safestrncpy(ident, decoded_authstring, sizeof ident);
+	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
+	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+	if (len < 0)
+		len = -len;
 
 	/* If there are underscores in either string, change them to spaces.  Some clients
 	 * do not allow spaces so we can tell the user to substitute underscores if their

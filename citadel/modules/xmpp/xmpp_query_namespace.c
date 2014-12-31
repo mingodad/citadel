@@ -3,19 +3,13 @@
  *
  * Copyright (c) 2007-2009 by Art Cancro
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -71,6 +65,7 @@ void xmpp_roster_item(struct CitContext *cptr) {
 	cprintf("</item>");
 }
 
+
 /* 
  * Return the results for a "jabber:iq:roster:query"
  *
@@ -88,7 +83,7 @@ void xmpp_iq_roster_query(void)
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
 			if (xmpp_is_visible(&cptr[i], CC)) {
-				XMPP_syslog(LOG_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
+				syslog(LOG_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
 				xmpp_roster_item(&cptr[i]);
 			}
 		}
@@ -98,15 +93,11 @@ void xmpp_iq_roster_query(void)
 }
 
 
-/*
- * TODO: handle queries on some or all of these namespaces
- *
-xmpp_query_namespace(purple5b5c1e58, splorph.xand.com, http://jabber.org/protocol/disco#items:query)
-xmpp_query_namespace(purple5b5c1e59, splorph.xand.com, http://jabber.org/protocol/disco#info:query)
-xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
- *
- */
 
+/*
+ * Client is doing a namespace query.  These are all handled differently.
+ * A "rumplestiltskin lookup" is the most efficient way to handle this.  Please do not refactor this code.
+ */
 void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns)
 {
 	int supported_namespace = 0;
@@ -120,11 +111,13 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	if (
 		(!strcasecmp(query_xmlns, "jabber:iq:roster:query"))
 		|| (!strcasecmp(query_xmlns, "jabber:iq:auth:query"))
+		|| (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#items:query"))
+		|| (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#info:query"))
 	) {
 		supported_namespace = 1;
 	}
 
-	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
+	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(id=%s, from=%s, to=%s, xmlns=%s)\n", iq_id, iq_from, iq_to, query_xmlns);
 
 	/*
 	 * Beginning of query result.
@@ -156,16 +149,23 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 		);
 	}
 
+	// Extension "xep-0030" (http://xmpp.org/extensions/xep-0030.html) (return an empty set of results)
+	else if (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#items:query")) {
+		cprintf("<query xmlns=\"%s\"/>", xmlesc(xmlbuf, query_xmlns, sizeof xmlbuf));
+	}
+
+	// Extension "xep-0030" (http://xmpp.org/extensions/xep-0030.html) (return an empty set of results)
+	else if (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#info:query")) {
+		cprintf("<query xmlns=\"%s\"/>", xmlesc(xmlbuf, query_xmlns, sizeof xmlbuf));
+	}
+
 	/*
 	 * If we didn't hit any known query namespaces then we should deliver a
 	 * "service unavailable" error (see RFC3921 section 2.4 and 11.1.5.4)
 	 */
 
 	else {
-		XMPP_syslog(LOG_DEBUG,
-			    "Unknown query namespace '%s' - returning <service-unavailable/>\n",
-			    query_xmlns
-		);
+		XMPP_syslog(LOG_DEBUG, "Unknown query namespace '%s' - returning <service-unavailable/>\n", query_xmlns);
 		cprintf("<error code=\"503\" type=\"cancel\">"
 			"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
 			"</error>"

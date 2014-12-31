@@ -81,25 +81,6 @@ static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
 }
 #endif
 
-static inline int XMPP_GetUtf8SequenceLength(const char *CharS, const char *CharE)
-{
-	/* if this is is migrated to strbuf, remove this copy. */
-	int n = 0;
-        unsigned char test = (1<<7);
-
-	if ((*CharS & 0xC0) != 0xC0) 
-		return 1;
-
-	while ((n < 8) && 
-	       ((test & ((unsigned char)*CharS)) != 0)) 
-	{
-		test = test >> 1;
-		n ++;
-	}
-	if ((n > 6) || ((CharE - CharS) < n))
-		n = 0;
-	return n;
-}
 
 
 /*
@@ -112,11 +93,8 @@ static inline int XMPP_GetUtf8SequenceLength(const char *CharS, const char *Char
 char *xmlesc(char *buf, char *str, int bufsiz)
 {
 	char *ptr;
-	char *eiptr;
 	unsigned char ch;
-	int inlen;
 	int len = 0;
-	int IsUtf8Sequence;
 
 	if (!buf) return(NULL);
 	buf[0] = 0;
@@ -124,9 +102,6 @@ char *xmlesc(char *buf, char *str, int bufsiz)
 	if (!str) {
 		return(buf);
 	}
-
-	inlen = strlen(str);
-	eiptr = str + inlen;
 
 	for (ptr=str; *ptr; ptr++) {
 		ch = *ptr;
@@ -152,25 +127,10 @@ char *xmlesc(char *buf, char *str, int bufsiz)
 			buf[len] = 0;
 		}
 		else {
-			char oct[32];
-
-			IsUtf8Sequence =  XMPP_GetUtf8SequenceLength(&buf[len], eiptr);
-			if (IsUtf8Sequence)
-			{
-				while (IsUtf8Sequence > 0){
-					buf[len] = *ptr;
-					len ++;
-					if (--IsUtf8Sequence)
-						ptr++;
-				}
-				buf[len] = '\0';
-			}
-			else
-			{
-				sprintf(oct, "&#%o;", ch);
-				strcpy(&buf[len], oct);
-				len += strlen(oct);
-			}
+			char oct[10];
+			sprintf(oct, "&#%o;", ch);
+			strcpy(&buf[len], oct);
+			len += strlen(oct);
 		}
 		if ((len + 6) > bufsiz) {
 			return(buf);
@@ -208,13 +168,13 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 
 	/*
 	 * TLS encryption (but only if it isn't already active)
-	 * / 
+	 */ 
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) {
 		cprintf("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
 	}
 #endif
-	*/
+
 	if (!CC->logged_in) {
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
