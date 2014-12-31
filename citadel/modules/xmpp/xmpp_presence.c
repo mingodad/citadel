@@ -67,10 +67,7 @@ void xmpp_indicate_presence(char *presence_jid)
 {
 	char xmlbuf[256];
 
-<<<<<<< HEAD
-	syslog(LOG_DEBUG, "XMPP: indicating presence of <%s> to <%s>", presence_jid, XMPP->client_jid);
-=======
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
+	XMPP_syslog(LOG_DEBUG, "XMPP: indicating presence of <%s> to <%s>", presence_jid, XMPP->client_jid);
 	cprintf("<presence from=\"%s\" ", xmlesc(xmlbuf, presence_jid, sizeof xmlbuf));
 	cprintf("to=\"%s\"></presence>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
 }

@@ -17,9 +17,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-// uncomment for more verbosity
-#define XMPP_DEBUG 1
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -79,34 +76,11 @@ static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
 				const XML_Char *systemId, const XML_Char *publicId,
 				const XML_Char *notationName
 ) {
-<<<<<<< HEAD
-	syslog(LOG_WARNING, "Illegal entity declaration encountered; stopping parser.");
-=======
 	XMPPM_syslog(LOG_WARNING, "Illegal entity declaration encountered; stopping parser.");
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 	XML_StopParser(XMPP->xp, XML_FALSE);
 }
 #endif
 
-static inline int XMPP_GetUtf8SequenceLength(const char *CharS, const char *CharE)
-{
-	/* if this is is migrated to strbuf, remove this copy. */
-	int n = 0;
-        unsigned char test = (1<<7);
-
-	if ((*CharS & 0xC0) != 0xC0) 
-		return 1;
-
-	while ((n < 8) && 
-	       ((test & ((unsigned char)*CharS)) != 0)) 
-	{
-		test = test >> 1;
-		n ++;
-	}
-	if ((n > 6) || ((CharE - CharS) < n))
-		n = 0;
-	return n;
-}
 
 
 /*
@@ -119,11 +93,8 @@ static inline int XMPP_GetUtf8SequenceLength(const char *CharS, const char *Char
 char *xmlesc(char *buf, char *str, int bufsiz)
 {
 	char *ptr;
-	char *eiptr;
 	unsigned char ch;
-	int inlen;
 	int len = 0;
-	int IsUtf8Sequence;
 
 	if (!buf) return(NULL);
 	buf[0] = 0;
@@ -131,9 +102,6 @@ char *xmlesc(char *buf, char *str, int bufsiz)
 	if (!str) {
 		return(buf);
 	}
-
-	inlen = strlen(str);
-	eiptr = str + inlen;
 
 	for (ptr=str; *ptr; ptr++) {
 		ch = *ptr;
@@ -159,25 +127,10 @@ char *xmlesc(char *buf, char *str, int bufsiz)
 			buf[len] = 0;
 		}
 		else {
-			char oct[32];
-
-			IsUtf8Sequence =  XMPP_GetUtf8SequenceLength(&buf[len], eiptr);
-			if (IsUtf8Sequence)
-			{
-				while (IsUtf8Sequence > 0){
-					buf[len] = *ptr;
-					len ++;
-					if (--IsUtf8Sequence)
-						ptr++;
-				}
-				buf[len] = '\0';
-			}
-			else
-			{
-				sprintf(oct, "&#%o;", ch);
-				strcpy(&buf[len], oct);
-				len += strlen(oct);
-			}
+			char oct[10];
+			sprintf(oct, "&#%o;", ch);
+			strcpy(&buf[len], oct);
+			len += strlen(oct);
 		}
 		if ((len + 6) > bufsiz) {
 			return(buf);
@@ -215,21 +168,13 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 
 	/*
 	 * TLS encryption (but only if it isn't already active)
-<<<<<<< HEAD
 	 */ 
-=======
-	 * / 
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 #ifdef HAVE_OPENSSL
 	if (!CC->redirect_ssl) {
 		cprintf("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
 	}
 #endif
-<<<<<<< HEAD
 
-=======
-	*/
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 	if (!CC->logged_in) {
 		/* If we're not logged in yet, offer SASL as our feature set */
 		xmpp_output_auth_mechs();
@@ -241,22 +186,13 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/* Offer binding and sessions as part of our feature set */
 	cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>");
 	cprintf("<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>");
-<<<<<<< HEAD
-
-	cprintf("</stream:features>");
-=======
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 
 	cprintf("</stream:features>");
 
-<<<<<<< HEAD
-
-=======
 	CC->is_async = 1;		/* XMPP sessions are inherently async-capable */
 }
 
 
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 	char el[256];
 	char *sep = NULL;
@@ -268,21 +204,12 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 		strcpy(el, ++sep);
 	}
 
-<<<<<<< HEAD
-#ifdef XMPP_DEBUG
-	syslog(LOG_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
-	for (i=0; attr[i] != NULL; i+=2) {
-		syslog(LOG_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
-	}
-#endif /* XMPP_DEBUG */
-=======
 	/*
 	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
 	for (i=0; attr[i] != NULL; i+=2) {
 		XMPP_syslog(LOG_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
 	}
 	uncomment for more verbosity */
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 
 	if (!strcasecmp(el, "stream")) {
 		xmpp_stream_start(data, supplied_el, attr);
@@ -291,46 +218,6 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 	else if (!strcasecmp(el, "query")) {
 		XMPP->iq_query_xmlns[0] = 0;
 		safestrncpy(XMPP->iq_query_xmlns, supplied_el, sizeof XMPP->iq_query_xmlns);
-<<<<<<< HEAD
-	}
-
-	else if (!strcasecmp(el, "bind")) {
-		XMPP->bind_requested = 1;
-	}
-
-	else if (!strcasecmp(el, "iq")) {
-		for (i=0; attr[i] != NULL; i+=2) {
-			if (!strcasecmp(attr[i], "type")) {
-				safestrncpy(XMPP->iq_type, attr[i+1], sizeof XMPP->iq_type);
-			}
-			else if (!strcasecmp(attr[i], "id")) {
-				safestrncpy(XMPP->iq_id, attr[i+1], sizeof XMPP->iq_id);
-			}
-			else if (!strcasecmp(attr[i], "from")) {
-				safestrncpy(XMPP->iq_from, attr[i+1], sizeof XMPP->iq_from);
-			}
-			else if (!strcasecmp(attr[i], "to")) {
-				safestrncpy(XMPP->iq_to, attr[i+1], sizeof XMPP->iq_to);
-			}
-		}
-	}
-
-	else if (!strcasecmp(el, "auth")) {
-		XMPP->sasl_auth_mech[0] = 0;
-		for (i=0; attr[i] != NULL; i+=2) {
-			if (!strcasecmp(attr[i], "mechanism")) {
-				safestrncpy(XMPP->sasl_auth_mech, attr[i+1], sizeof XMPP->sasl_auth_mech);
-			}
-		}
-	}
-
-	else if (!strcasecmp(el, "message")) {
-		for (i=0; attr[i] != NULL; i+=2) {
-			if (!strcasecmp(attr[i], "to")) {
-				safestrncpy(XMPP->message_to, attr[i+1], sizeof XMPP->message_to);
-			}
-		}
-=======
 	}
 
 	else if (!strcasecmp(el, "bind")) {
@@ -393,34 +280,8 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	XMPP_syslog(LOG_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
 	if (XMPP->chardata_len > 0) {
 		XMPP_syslog(LOG_DEBUG, "          chardata: %s\n", XMPP->chardata);
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 	}
-
-<<<<<<< HEAD
-	else if (!strcasecmp(el, "html")) {
-		++XMPP->html_tag_level;
-	}
-}
-
-
-
-void xmpp_xml_end(void *data, const char *supplied_el) {
-	char el[256];
-	char *sep = NULL;
-	char xmlbuf[256];
-
-	/* Axe the namespace, we don't care about it */
-	safestrncpy(el, supplied_el, sizeof el);
-	while (sep = strchr(el, ':'), sep) {
-		strcpy(el, ++sep);
-	}
-
-#ifdef XMPP_DEBUG
-	syslog(LOG_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
-	if (XMPP->chardata_len > 0) {
-		syslog(LOG_DEBUG, "          chardata: %s\n", XMPP->chardata);
-	}
-#endif /* XMPP_DEBUG */
+	uncomment for more verbosity */
 
 	if (!strcasecmp(el, "resource")) {
 		if (XMPP->chardata_len > 0) {
@@ -448,34 +309,6 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "iq")) {
 
-=======
-	if (!strcasecmp(el, "resource")) {
-		if (XMPP->chardata_len > 0) {
-			safestrncpy(XMPP->iq_client_resource, XMPP->chardata,
-				sizeof XMPP->iq_client_resource);
-			striplt(XMPP->iq_client_resource);
-		}
-	}
-
-	else if (!strcasecmp(el, "username")) {		/* NON SASL ONLY */
-		if (XMPP->chardata_len > 0) {
-			safestrncpy(XMPP->iq_client_username, XMPP->chardata,
-				sizeof XMPP->iq_client_username);
-			striplt(XMPP->iq_client_username);
-		}
-	}
-
-	else if (!strcasecmp(el, "password")) {		/* NON SASL ONLY */
-		if (XMPP->chardata_len > 0) {
-			safestrncpy(XMPP->iq_client_password, XMPP->chardata,
-				sizeof XMPP->iq_client_password);
-			striplt(XMPP->iq_client_password);
-		}
-	}
-
-	else if (!strcasecmp(el, "iq")) {
-
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 		/*
 		 * iq type="get" (handle queries)
 		 */
@@ -507,11 +340,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			 * Unknown query ... return the XML equivalent of a blank stare
 			 */
 			else {
-<<<<<<< HEAD
-				syslog(LOG_DEBUG,
-=======
 				XMPP_syslog(LOG_DEBUG,
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 					    "Unknown query <%s> - returning <service-unavailable/>\n",
 					    el
 				);
@@ -643,23 +472,6 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "ping")) {
 		XMPP->ping_requested = 1;
-<<<<<<< HEAD
-	}
-
-	else if (!strcasecmp(el, "stream")) {
-		syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
-		xmpp_massacre_roster();
-		cprintf("</stream>\n");
-		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
-	}
-
-	else if (!strcasecmp(el, "query")) {
-		// no action required here, we picked up the xmlns= parameter during xmpp_xml_start()
-	}
-
-	else {
-		syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
-=======
 	}
 
 	else if (!strcasecmp(el, "stream")) {
@@ -671,7 +483,6 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else {
 		XMPP_syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
->>>>>>> 1c0b8162b0a90f2e97028a531005c11b09441498
 	}
 
 	XMPP->chardata_len = 0;
@@ -736,7 +547,7 @@ void xmpp_greeting(void) {
 
 	XMPP->xp = XML_ParserCreateNS("UTF-8", ':');
 	if (XMPP->xp == NULL) {
-		syslog(LOG_ALERT, "Cannot create XML parser!\n");
+		XMPPM_syslog(LOG_ALERT, "Cannot create XML parser!\n");
 		CC->kill_me = KILLME_XML_PARSER;
 		return;
 	}
@@ -770,11 +581,10 @@ void xmpp_command_loop(void) {
 	time(&CC->lastcmd);
 	rc = client_read_random_blob(stream_input, 30);
 	if (rc > 0) {
-		syslog(LOG_DEBUG, "\033[32m%s\033[0m", ChrPtr(stream_input));
 		XML_Parse(XMPP->xp, ChrPtr(stream_input), rc, 0);
 	}
 	else {
-		syslog(LOG_ERR, "client disconnected: ending session.\n");
+		XMPPM_syslog(LOG_ERR, "client disconnected: ending session.\n");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 	}
 	FreeStrBuf(&stream_input);
