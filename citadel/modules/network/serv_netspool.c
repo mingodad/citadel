@@ -357,8 +357,8 @@ void network_spoolout_room(SpoolControl *sc)
 	if (sc->Users[digestrecp] != NULL) {
 		
 		sc->digestfp = create_digest_file(&sc->room);
-		sc->newDigest = ftell(sc->digestfp) > 0;
-		if (sc->newDigest) {
+		sc->haveDigest = ftell(sc->digestfp) > 0;
+		if (!sc->haveDigest) {
 			fprintf(sc->digestfp, "Content-type: text/plain\n\n");
 		}
 	}
@@ -404,7 +404,8 @@ void network_spoolout_room(SpoolControl *sc)
 			delta = (24 * 60 * 60) - delta;
 		}
 
-		if ((secs_today < 300) && 
+		if (sc->haveDigest     &&
+		    (secs_today < 300) && 
 		    (delta < 300) )
 		{
 			last_digest_delivery = now;

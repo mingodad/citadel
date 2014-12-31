@@ -185,12 +185,6 @@ void network_deliver_digest(SpoolControl *sc)
 	if (sc->Users[digestrecp] == NULL)
 		return;
 
-	if (sc->num_msgs_spooled < 1) {
-		fclose(sc->digestfp);
-		sc->digestfp = NULL;
-		return;
-	}
-
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
@@ -221,11 +215,9 @@ void network_deliver_digest(SpoolControl *sc)
 	CM_SetAsField(msg, eMesageText, &pbuf, msglen);
 
 	/* Now generate the delivery instructions */
-	if (sc->Users[digestrecp] == NULL)
-		return;
 
 	/* Where do we want bounces and other noise to be heard?
-	 *Surely not the list members! */
+	 * Surely not the list members! */
 	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
 
 	/* Now submit the message */
@@ -254,6 +246,7 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 
 	msg = CM_Duplicate(omsg);
 	if (msg != NULL) {
+		sc->haveDigest = 1;
 		fprintf(sc->digestfp,
 			" -----------------------------------"
 			"------------------------------------"
