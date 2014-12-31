@@ -182,7 +182,7 @@ void network_deliver_digest(SpoolControl *sc)
 	recptypes *valid;
 	char bounce_to[256];
 
-	if (sc->Users[listrecp] == NULL)
+	if (sc->Users[digestrecp] == NULL)
 		return;
 
 	if (sc->num_msgs_spooled < 1) {
@@ -219,11 +219,9 @@ void network_deliver_digest(SpoolControl *sc)
 	fread(pbuf, (size_t)msglen, 1, sc->digestfp);
 	pbuf[msglen] = '\0';
 	CM_SetAsField(msg, eMesageText, &pbuf, msglen);
-	fclose(sc->digestfp);
-	sc->digestfp = NULL;
 
 	/* Now generate the delivery instructions */
-	if (sc->Users[listrecp] == NULL)
+	if (sc->Users[digestrecp] == NULL)
 		return;
 
 	/* Where do we want bounces and other noise to be heard?
@@ -231,7 +229,7 @@ void network_deliver_digest(SpoolControl *sc)
 	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
 
 	/* Now submit the message */
-	valid = validate_recipients(ChrPtr(sc->Users[listrecp]), NULL, 0);
+	valid = validate_recipients(ChrPtr(sc->Users[digestrecp]), NULL, 0);
 	if (valid != NULL) {
 		valid->bounce_to = strdup(bounce_to);
 		valid->envelope_from = strdup(bounce_to);

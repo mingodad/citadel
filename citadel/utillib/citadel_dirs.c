@@ -44,6 +44,7 @@ char ctdl_run_dir[PATH_MAX]="";
 char ctdl_spool_dir[PATH_MAX]="network";
 char ctdl_netout_dir[PATH_MAX]="network/spoolout";
 char ctdl_netin_dir[PATH_MAX]="network/spoolin";
+char ctdl_netdigest_dir[PATH_MAX]="network/digest";
 char ctdl_nettmp_dir[PATH_MAX]="network/spooltmp";
 char ctdl_netcfg_dir[PATH_MAX]="netconfigs";
 char ctdl_utilbin_dir[PATH_MAX]="";
@@ -194,11 +195,13 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	COMPUTE_DIRECTORY(ctdl_spool_dir);
 	COMPUTE_DIRECTORY(ctdl_netout_dir);
 	COMPUTE_DIRECTORY(ctdl_netin_dir);
+	COMPUTE_DIRECTORY(ctdl_netdigest_dir);
 	COMPUTE_DIRECTORY(ctdl_nettmp_dir);
 
 	StripSlashes(ctdl_spool_dir, 1);
 	StripSlashes(ctdl_netout_dir, 1);
 	StripSlashes(ctdl_netin_dir, 1);
+	StripSlashes(ctdl_netdigest_dir, 1);
 	StripSlashes(ctdl_nettmp_dir, 1);
 
 	/* ok, now we know the dirs, calc some commonly used files */
@@ -330,6 +333,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	DBG_PRINT(ctdl_spool_dir);
 	DBG_PRINT(ctdl_netout_dir);
 	DBG_PRINT(ctdl_netin_dir);
+	DBG_PRINT(ctdl_netdigest_dir);
 	DBG_PRINT(ctdl_nettmp_dir);
 	DBG_PRINT(ctdl_netcfg_dir);
 	DBG_PRINT(ctdl_bbsbase_dir);
@@ -362,6 +366,36 @@ size_t assoc_file_name(char *buf, size_t n,
 		     struct ctdlroom *qrbuf, const char *prefix)
 {
 	return snprintf(buf, n, "%s%ld", prefix, qrbuf->QRnumber);
+}
+
+void remove_digest_file(struct ctdlroom *room)
+{
+	char buf[PATH_MAX];
+
+	snprintf(buf, PATH_MAX, "%s/%ld.eml", 
+		 ctdl_netdigest_dir,
+		 room->QRnumber);
+	StripSlashes(buf, 0);
+	fprintf(stderr, "----> %s \n", buf);
+	unlink(buf);
+}
+
+FILE *create_digest_file(struct ctdlroom *room)
+{
+	char buf[PATH_MAX];
+	FILE *fp;
+
+	snprintf(buf, PATH_MAX, "%s/%ld.eml", 
+		 ctdl_netdigest_dir,
+		 room->QRnumber);
+	StripSlashes(buf, 0);
+	fprintf(stderr, "----> %s \n", buf);
+	
+	fp = fopen(buf, "w+");
+	if (fp == NULL) {
+
+	}
+	return fp;
 }
 
 

@@ -36,6 +36,7 @@ struct SpoolControl {
 	StrBuf *RoomInfo;
 	StrBuf *ListID;
 	FILE *digestfp;
+	int newDigest;
 	int num_msgs_spooled;
 	long lastsent;
 
