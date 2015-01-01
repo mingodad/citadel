@@ -126,7 +126,7 @@ gotstatus(int nnrun)
 
 		if (CURLMSG_DONE == msg->msg) {
 			CURL *chnd;
-			char *chandle = NULL;
+			void *chandle = NULL;
 			CURLcode sta;
 			CURLMcode msta;
 			AsyncIO*IO;
@@ -318,7 +318,7 @@ gotwatchsock(CURL *easy,
 {
 	evcurl_global_data *global = cglobal;
 	CURLM *mhnd = global->mhnd;
-	char *f;
+	void *f;
 	AsyncIO *IO = (AsyncIO*) vIO;
 	CURLcode sta;
 	const char *Action;

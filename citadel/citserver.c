@@ -117,12 +117,25 @@ void master_startup(void) {
 	FILE *urandom;
 	struct ctdlroom qrbuf;
 	int rv;
+	struct passwd *pw;
+	gid_t gid;
 	
 	syslog(LOG_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
 	get_config();
 
-	syslog(LOG_INFO, "Opening databases\n");
+	syslog(LOG_INFO, "Checking directory access");
+	if ((pw = getpwuid(CTDLUID)) == NULL) {
+		gid = getgid();
+	} else {
+		gid = pw->pw_gid;
+	}
+
+	if (create_run_directories(CTDLUID, gid) != 0) {
+		syslog(LOG_EMERG, "failed to access & create directories");
+		exit(1);
+	}
+	syslog(LOG_INFO, "Opening databases");
 	open_databases();
 	check_ref_counts();
 

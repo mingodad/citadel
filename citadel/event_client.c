@@ -26,6 +26,7 @@
 
 #include "ctdl_module.h"
 #include "event_client.h"
+#include "citserver.h"
 
 ConstStr IOStates[] = {
 	{HKEY("DB Queue")},
@@ -562,6 +563,11 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			 IO->SendBuf.fd);
 
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		fprintf(fd, "Send: BufSize: %ld BufContent: [",
 			nbytes);
 		rv = fwrite(pchh, nbytes, 1, fd);
@@ -885,6 +891,11 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			 IO->SendBuf.fd);
 
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		fprintf(fd, "Read: BufSize: %ld BufContent: [",
 			nbytes);
 		rv = fwrite(pchh, nbytes, 1, fd);

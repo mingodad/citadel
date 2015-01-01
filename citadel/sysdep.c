@@ -405,14 +405,16 @@ int client_write(const char *buf, int nbytes)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", Ctx->ServiceName, Ctx->cs_pid);
 		
 		fd = fopen(fn, "a+");
-		if (fd)
-		{
-		    fprintf(fd, "Sending: BufSize: %d BufContent: [",
-			    nbytes);
-		    rv = fwrite(buf, nbytes, 1, fd);
-		    fprintf(fd, "]\n");
-		    fclose(fd);
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
 		}
+		fprintf(fd, "Sending: BufSize: %d BufContent: [",
+			nbytes);
+		rv = fwrite(buf, nbytes, 1, fd);
+		fprintf(fd, "]\n");
+		fclose(fd);
 	}
 #endif
 //	flush_client_inbuf();
@@ -530,6 +532,11 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 			
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		fprintf(fd, "Reading BLOB: BufSize: %d ",
 			bytes);
 		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
@@ -546,6 +553,11 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 		
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		fprintf(fd, "Read: %d BufContent: [",
 			StrLength(Target));
 		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
@@ -566,6 +578,11 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 			
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		fprintf(fd, "Reading BLOB: BufSize: %d ",
 			bytes);
 		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
@@ -591,6 +608,11 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 		
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		fprintf(fd, "Read: %d BufContent: [",
 			StrLength(Target));
 		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
@@ -645,6 +667,11 @@ int client_read_random_blob(StrBuf *Target, int timeout)
 				snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 			
 				fd = fopen(fn, "a+");
+				if (fd == NULL) {
+					syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+					cit_backtrace();
+					exit(1);
+				}
 				fprintf(fd, "Read: BufSize: %d BufContent: [",
 					StrLength(Target));
 				rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
@@ -728,6 +755,11 @@ int CtdlClientGetLine(StrBuf *Target)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		pch = ChrPtr(CCC->RecvBuf.Buf);
 		len = StrLength(CCC->RecvBuf.Buf);
 		if (CCC->RecvBuf.ReadWritePointer != NULL)
@@ -781,6 +813,11 @@ int CtdlClientGetLine(StrBuf *Target)
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
 
 		fd = fopen(fn, "a+");
+		if (fd == NULL) {
+			syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+			cit_backtrace();
+			exit(1);
+		}
 		pch = ChrPtr(CCC->RecvBuf.Buf);
 		len = StrLength(CCC->RecvBuf.Buf);
 		if (CCC->RecvBuf.ReadWritePointer != NULL)
