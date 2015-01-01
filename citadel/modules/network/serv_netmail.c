@@ -237,12 +237,23 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 
 	struct CtdlMessage *msg = NULL;
 
-	/*
-	 * Process digest recipients
-	 */
-	if ((sc->Users[digestrecp] == NULL)||
-	    (sc->digestfp == NULL))
+	if (sc->Users[digestrecp] == NULL)
 		return;
+
+	/* If there are digest recipients, we have to build a digest */
+	if (sc->digestfp == NULL) {
+		
+		sc->digestfp = create_digest_file(&sc->room, 1);
+
+		if (sc->digestfp == NULL)
+			return;
+
+		sc->haveDigest = ftell(sc->digestfp) > 0;
+		if (!sc->haveDigest) {
+			fprintf(sc->digestfp, "Content-type: text/plain\n\n");
+		}
+		sc->haveDigest = 1;
+	}
 
 	msg = CM_Duplicate(omsg);
 	if (msg != NULL) {

@@ -1348,7 +1348,11 @@ int main(int argc, char *argv[])
 		gid = pw->pw_gid;
 	}
 
-	create_run_directories(atoi(configs[69]), gid);
+	if (create_run_directories(atoi(configs[69]), gid) != 0) {
+		display_error("%s\n",
+			      _("failed to create directories"));
+	}
+		
 
 	activity = _("Reconfiguring Citadel server");
 	progress(activity, 0, NUM_CONFIGS+3);

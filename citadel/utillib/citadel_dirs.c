@@ -19,8 +19,10 @@
 #include <limits.h>
 #include <time.h>
 #include <errno.h>
+#include <syslog.h>
 #include <libcitadel.h>
 #include "citadel.h"
+#include "citadel_dirs.h"
 
 /* our directories... */
 char ctdl_home_directory[PATH_MAX] = "";
@@ -376,24 +378,31 @@ void remove_digest_file(struct ctdlroom *room)
 		 ctdl_netdigest_dir,
 		 room->QRnumber);
 	StripSlashes(buf, 0);
-	fprintf(stderr, "----> %s \n", buf);
 	unlink(buf);
 }
 
-FILE *create_digest_file(struct ctdlroom *room)
+FILE *create_digest_file(struct ctdlroom *room, int forceCreate)
 {
-	char buf[PATH_MAX];
+	struct stat stbuf;
+	char fn[PATH_MAX];
+	int exists;
 	FILE *fp;
 
-	snprintf(buf, PATH_MAX, "%s/%ld.eml", 
+	snprintf(fn, PATH_MAX, "%s/%ld.eml", 
 		 ctdl_netdigest_dir,
 		 room->QRnumber);
-	StripSlashes(buf, 0);
-	fprintf(stderr, "----> %s \n", buf);
-	
-	fp = fopen(buf, "w+");
-	if (fp == NULL) {
+	StripSlashes(fn, 0);
 
+	exists = stat(fn, &stbuf); 
+	if (!forceCreate && (exists == -1))
+		return NULL;
+	
+	fp = fopen(fn, "w+");
+	if (fp == NULL) {
+		syslog(LOG_EMERG,
+		       "failed to create digest file %s: %s",
+		       fn,
+		       strerror(errno));
 	}
 	return fp;
 }
@@ -403,12 +412,29 @@ int create_dir(char *which, long ACCESS, long UID, long GID)
 {
 	int rv;
 	rv = mkdir(which, ACCESS);
-	if ((rv == -1) && (errno == EEXIST))
+	if ((rv == -1) && (errno != EEXIST)) {
+		syslog(LOG_EMERG,
+		       "failed to create directory %s: %s",
+		       which,
+		       strerror(errno));
 		return rv;
+	}
 	rv = chmod(which, ACCESS);
-	if (rv == -1)
+	if (rv == -1) {
+		syslog(LOG_EMERG,
+		       "failed to set permissions for directory %s: %s",
+		       which,
+		       strerror(errno));
 		return rv;
+	}
 	rv = chown(which, UID, GID);
+	if (rv == -1) {
+		syslog(LOG_EMERG,
+		       "failed to set owner for directory %s: %s",
+		       which,
+		       strerror(errno));
+		return rv;
+	}
 	return rv;
 }
 

@@ -353,16 +353,6 @@ void network_spoolout_room(SpoolControl *sc)
 
 	syslog(LOG_INFO, "Networking started for <%s>\n", CCC->room.QRname);
 
-	/* If there are digest recipients, we have to build a digest */
-	if (sc->Users[digestrecp] != NULL) {
-		
-		sc->digestfp = create_digest_file(&sc->room);
-		sc->haveDigest = ftell(sc->digestfp) > 0;
-		if (!sc->haveDigest) {
-			fprintf(sc->digestfp, "Content-type: text/plain\n\n");
-		}
-	}
-
 	CalcListID(sc);
 
 	/* remember where we started... */
@@ -394,7 +384,7 @@ void network_spoolout_room(SpoolControl *sc)
 
 
 	/* If we wrote a digest, deliver it and then close it */
-	if (sc->digestfp != NULL) {
+	if (sc->Users[digestrecp] != NULL) {
 		time_t now = time(NULL);
 		time_t secs_today = now % (24 * 60 * 60);
 		long delta = 0;
@@ -404,25 +394,31 @@ void network_spoolout_room(SpoolControl *sc)
 			delta = (24 * 60 * 60) - delta;
 		}
 
-		if (sc->haveDigest     &&
-		    (secs_today < 300) && 
-		    (delta < 300) )
+		if ((secs_today < 300) && 
+		    (delta < 300))
 		{
-			last_digest_delivery = now;
-			fprintf(sc->digestfp,
-				" -----------------------------------"
-				"------------------------------------"
-				"-------\n"
-				"You are subscribed to the '%s' "
-				"list.\n"
-				"To post to the list: %s\n",
-				CCC->room.QRname, buf
-				);
-			network_deliver_digest(sc);	/* deliver */
+			if (sc->digestfp == NULL) {
+				sc->digestfp = create_digest_file(&sc->room, 0);
+			}
+			if (sc->digestfp != NULL) {
+				last_digest_delivery = now;
+				fprintf(sc->digestfp,
+					" -----------------------------------"
+					"------------------------------------"
+					"-------\n"
+					"You are subscribed to the '%s' "
+					"list.\n"
+					"To post to the list: %s\n",
+					CCC->room.QRname, buf
+					);
+				network_deliver_digest(sc);	/* deliver */
+				remove_digest_file(&sc->room);
+			}
 		}
+	}
+	if (sc->digestfp != NULL) {
 		fclose(sc->digestfp);
 		sc->digestfp = NULL;
-		remove_digest_file(&sc->room);
 	}
 
 	/* Now rewrite the config file */
