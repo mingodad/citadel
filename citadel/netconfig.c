@@ -926,7 +926,7 @@ void cmd_netp(char *cmdbuf)
 		lens[0] = strlen(CCC->cs_addr);
 		
 		strs[1] = "SRV_UNKNOWN";
-		lens[1] = sizeof("SRV_UNKNOWN" - 1);
+		lens[1] = sizeof("SRV_UNKNOWN") - 1;
 
 		CtdlAideFPMessage(
 			err_buf,
@@ -953,7 +953,7 @@ void cmd_netp(char *cmdbuf)
 		lens[0] = strlen(CCC->cs_addr);
 		
 		strs[1] = "SRV_PW";
-		lens[1] = sizeof("SRV_PW" - 1);
+		lens[1] = sizeof("SRV_PW") - 1;
 
 		CtdlAideFPMessage(
 			err_buf,
