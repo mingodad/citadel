@@ -18,7 +18,6 @@
 #include "calendar.h"
 
 HashList *MsgHeaderHandler = NULL;
-HashList *MsgEvaluators = NULL;
 HashList *MimeRenderHandler = NULL;
 HashList *ReadLoopHandler = NULL;
 int dbg_analyze_msg = 0;
@@ -30,12 +29,6 @@ int dbg_analyze_msg = 0;
 void jsonMessageListHdr(void);
 
 void display_enter(void);
-
-typedef void (*MsgPartEvaluatorFunc)(message_summary *Sum, StrBuf *Buf);
-
-typedef struct _MsgPartEvaluatorStruct {
-	MsgPartEvaluatorFunc f;
-} MsgPartEvaluatorStruct;
 
 void fixview()
 {
@@ -495,50 +488,6 @@ void display_headers(void) {
 }
 
 
-message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSubject, long MsgNum) 
-{
-	void                 *vEval;
-	MsgPartEvaluatorStruct  *Eval;
-	message_summary      *Msg;
-	StrBuf *Buf;
-	const char *buf;
-	const char *ebuf;
-	int nBuf;
-	long len;
-	
-	Buf = NewStrBuf();
-
-	serv_printf("MSG0 %ld|1", MsgNum);	/* ask for headers only */
-	
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 1) {
-		FreeStrBuf(&Buf);
-		return NULL;
-	}
-
-	Msg = (message_summary*)malloc(sizeof(message_summary));
-	memset(Msg, 0, sizeof(message_summary));
-	while (len = StrBuf_ServGetln(Buf),
-	       (len >= 0) && 
-	       ((len != 3)  ||
-		strcmp(ChrPtr(Buf), "000")))
-	{
-		buf = ChrPtr(Buf);
-		ebuf = strchr(ChrPtr(Buf), '=');
-		nBuf = ebuf - buf;
-		if (GetHash(MsgEvaluators, buf, nBuf, &vEval) && vEval != NULL) {
-			Eval = (MsgPartEvaluatorStruct*) vEval;
-			StrBufCutLeft(Buf, nBuf + 1);
-			Eval->f(Msg, Buf);
-		}
-		else syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
-	}
-	return Msg;
-}
-
-
-
-
 
 /*
  * load message pointers from the server for a "read messages" operation
@@ -740,7 +689,7 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	long HKLen;
 	WCTemplputParams SubTP;
 	SharedMessageStatus Stat;
-	void *ViewSpecific;
+	void *ViewSpecific = NULL;
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary")))) {
 		WCC->CurRoom.view = VIEW_MAILBOX;
