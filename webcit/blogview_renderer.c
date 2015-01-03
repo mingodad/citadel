@@ -17,6 +17,13 @@
 #include "dav.h"
 
 
+typedef struct __BLOG {
+	HashList *BLOG;
+	long p;
+	int gotonext;
+} BLOG;
+
+
 /*
  * Generate a permalink for a post
  * (Call with NULL arguments to make this function wcprintf() the permalink
@@ -102,8 +109,13 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				    char *filter,
 				    long flen)
 {
-	HashList *BLOG = NewHash(1, NULL);
-	*ViewSpecific = BLOG;
+	BLOG *BL = (BLOG*) malloc(sizeof(BLOG)); 
+	BL->BLOG = NewHash(1, NULL);
+	
+	/* are we looking for a specific post? */
+	BL->p = lbstr("p");
+	BL->gotonext = havebstr("gotonext");
+	*ViewSpecific = BL;
 
 	Stat->startmsg = (-1);					/* not used here */
 	Stat->sortit = 1;					/* not used here */
@@ -112,7 +124,8 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	
 	/* perform a "read all" call to fetch the message list -- we'll cut it down later */
 	rlid[2].cmd(cmd, len);
-	
+	if (BL->gotonext)
+		Stat->load_seen = 1;
 	return 200;
 }
 
@@ -162,18 +175,16 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 			      int is_new, 
 			      int i)
 {
-	HashList *BLOG = (HashList *) *ViewSpecific;
+	BLOG *BL = (BLOG*) *ViewSpecific;
 	struct bltr b;
 	struct blogpost *bp = NULL;
-	int p = 0;
 
 	b = blogview_learn_thread_references(Msg->msgnum);
 
 	/* Stop processing if the viewer is only interested in a single post and
 	 * that message ID is neither the id nor the refs.
 	 */
-	p = atoi(BSTR("p"));	/* are we looking for a specific post? */
-	if ((p != 0) && (p != b.id) && (p != b.refs)) {
+	if ((BL->p != 0) && (BL->p != b.id) && (BL->p != b.refs)) {
 		return 200;
 	}
 
@@ -185,10 +196,10 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		if (!bp) return(200);
 		memset(bp, 0, sizeof (struct blogpost));
 	 	bp->top_level_id = b.id;
-		Put(BLOG, (const char *)&b.id, sizeof(b.id), bp, (DeleteHashDataFunc)blogpost_destroy);
+		Put(BL->BLOG, (const char *)&b.id, sizeof(b.id), bp, (DeleteHashDataFunc)blogpost_destroy);
 	}
 	else {
-		GetHash(BLOG, (const char *)&b.refs , sizeof(b.refs), (void *)&bp);
+		GetHash(BL->BLOG, (const char *)&b.refs , sizeof(b.refs), (void *)&bp);
 	}
 
 	/*
@@ -238,7 +249,7 @@ static int blogview_sortfunc(const void *a, const void *b) {
  */
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
-	HashList *BLOG = (HashList *) *ViewSpecific;
+	BLOG *BL = (BLOG*) *ViewSpecific;
 	HashPos *it;
 	const char *Key;
 	void *Data;
@@ -259,8 +270,8 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	if (maxp < 1) maxp = 5;		/* default; move somewhere else? */
 
 	/* Iterate through the hash list and copy the data pointers into an array */
-	it = GetNewHashPos(BLOG, 0);
-	while (GetNextHashPos(BLOG, it, &len, &Key, &Data)) {
+	it = GetNewHashPos(BL->BLOG, 0);
+	while (GetNextHashPos(BL->BLOG, it, &len, &Key, &Data)) {
 		if (num_blogposts >= num_blogposts_alloc) {
 			if (num_blogposts_alloc == 0) {
 				num_blogposts_alloc = 100;
@@ -324,10 +335,10 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 
 int blogview_Cleanup(void **ViewSpecific)
 {
-	HashList *BLOG = (HashList *) *ViewSpecific;
+	BLOG *BL = (BLOG*) *ViewSpecific;
 
-	DeleteHash(&BLOG);
-
+	DeleteHash(&BL->BLOG);
+	free(BL);
 	wDumpContent(1);
 	return 0;
 }
