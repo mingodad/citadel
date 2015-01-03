@@ -1,22 +1,16 @@
 /*
- * Copyright (c) 2007-2009 by Art Cancro
+ * Copyright (c) 2007-2009 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
-typedef struct _citxmpp {			/* Information about the current session */
+typedef struct _citxmpp {		/* Information about the current session */
 	XML_Parser xp;			/* XML parser instance for incoming client stream */
 	char server_name[256];		/* who they think we are */
 	char *chardata;
@@ -95,4 +89,3 @@ extern int XMPPSrvDebugEnable;
 #define XMPPM_syslog(LEVEL, FORMAT)		\
 	DBGLOG(LEVEL) syslog(LEVEL,		\
 			     "XMPP: " FORMAT);
-

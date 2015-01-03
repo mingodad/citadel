@@ -481,6 +481,14 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 	}
 
+	else if (!strcasecmp(el, "query")) {
+		/* already processed , no further action needed here */
+	}
+
+	else if (!strcasecmp(el, "bind")) {
+		/* already processed , no further action needed here */
+	}
+
 	else {
 		XMPP_syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
 	}
