@@ -692,7 +692,7 @@ extern char *days[];
 long locate_user_vcard_in_this_room(message_summary **VCMsg,
 				    wc_mime_attachment **VCAtt);
 void http_transmit_thing(const char *content_type, int is_static);
-void http_transmit_headers(const char *content_type, int is_static, long is_chunked);
+void http_transmit_headers(const char *content_type, int is_static, long is_chunked, int is_gzip);
 long unescape_input(char *buf);
 void check_thread_pool_size(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);

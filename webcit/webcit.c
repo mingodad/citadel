@@ -249,11 +249,14 @@ void http_transmit_thing(const char *content_type, int is_static)
 	end_burst();
 }
 
-void http_transmit_headers(const char *content_type, int is_static, long is_chunked)
+void http_transmit_headers(const char *content_type, int is_static, long is_chunked, int is_gzip)
 {
 	wcsession *WCC = WC;
 	syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
+
+	if (is_gzip)
+		hprintf("Content-encoding: gzip\r\n");
 
 	if (WCC->Hdr->HaveRange)
 		hprintf("Accept-Ranges: bytes\r\n"

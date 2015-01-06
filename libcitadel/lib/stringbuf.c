@@ -2898,25 +2898,21 @@ void *StrBufNewStreamContext(eStreamType type)
 		memset(stream, 0, sizeof(z_enc_stream));
 		stream->OutBuf.BufSize = 4*SIZ; /// todo 64
 		stream->OutBuf.buf = (char*)malloc(stream->OutBuf.BufSize);
-		/* write gzip header * /
+		/* write gzip header */
 		stream->OutBuf.BufUsed = snprintf
 			(stream->OutBuf.buf,
 			 stream->OutBuf.BufSize, 
 			 "%c%c%c%c%c%c%c%c%c%c",
 			 gz_magic[0], gz_magic[1], Z_DEFLATED,
-			 0 /*flags * / , 0, 0, 0, 0 /*time * / , 0 /* xflags * / ,
+			 0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /* xflags */ ,
 			 OS_CODE);
-/*
+
 		err = deflateInit2(&stream->zstream,
 				   ZLibCompressionRatio,
 				   Z_DEFLATED,
 				   -MAX_WBITS,
 				   DEF_MEM_LEVEL,
 				   Z_DEFAULT_STRATEGY);
-*/
-		err = deflateInit(&stream->zstream,
-				  ZLibCompressionRatio);
-
 		if (err != Z_OK)
 			return NULL;/// tODO cleanup
 		return stream;

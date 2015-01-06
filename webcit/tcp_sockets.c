@@ -555,8 +555,14 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	int first = 1;
 	int client_con_state = 0;
 	int chunked = 0;
+	int is_gzip = 0;
 	StrBuf *BufHeader = NULL;
 	StrBuf *Buf;
+	StrBuf *pBuf = NULL;
+	void *SC = NULL;
+	IOBuffer ReadBuffer;
+	IOBuffer WriteBuffer;
+	
 
 	Buf = NewStrBuf();
 
@@ -601,9 +607,25 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		FreeStrBuf(&Buf);
 	}
 
+	if (chunked && !DisableGzip && WCC->Hdr->HR.gzip_ok)
+	{
+		is_gzip = 1;
+		SC = StrBufNewStreamContext (eZLibEncode);
+
+		memset(&ReadBuffer, 0, sizeof(IOBuffer));
+		ReadBuffer.Buf = WCC->WBuf;
+
+		memset(&WriteBuffer, 0, sizeof(IOBuffer));
+		WriteBuffer.Buf = NewStrBufPlain(NULL, SIZ*2);;
+	}
+	else
+	{
+		pBuf = WCC->WBuf;
+	}
+
 	if (!detect_mime)
 	{
-		http_transmit_headers(ChrPtr(MimeType), is_static, chunked);
+		http_transmit_headers(ChrPtr(MimeType), is_static, chunked, is_gzip);
 		
 		if (send_http(WCC->HBuf) < 0)
 		{
@@ -637,24 +659,43 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			
 			CT = GuessMimeType(SKEY(WCC->WBuf));
 			StrBufPlain(MimeType, CT, -1);
-			http_transmit_headers(ChrPtr(MimeType), is_static, chunked);
+			http_transmit_headers(ChrPtr(MimeType), is_static, chunked, is_gzip);
 			
 			client_con_state = send_http(WCC->HBuf);
 		}
 
-		if ((chunked) && (client_con_state == 0))
+		if (is_gzip)
 		{
-			StrBufPrintf(BufHeader, "%s%x\r\n", 
-				     (first)?"":"\r\n",
-				     StrLength (WCC->WBuf));
-			first = 0;
-			client_con_state = send_http(BufHeader);
+			int done = (bytes_read == total_len);
+			while ((IOBufferStrLength(&ReadBuffer) > 0) && (client_con_state == 0)) {
+				StrBufStreamTranscode(eZLibEncode, &WriteBuffer, &ReadBuffer, NULL, -1, SC, done);
+
+				StrBufPrintf(BufHeader, "%s%x\r\n", 
+					     (first)?"":"\r\n",
+					     StrLength (pBuf));
+				first = 0;
+				client_con_state = send_http(BufHeader);
+				if (client_con_state == 0) {
+					client_con_state = send_http(pBuf);
+				}
+			}
+			FlushStrBuf(WCC->WBuf);
 		}
+		else {
+			if ((chunked) && (client_con_state == 0))
+			{
+				StrBufPrintf(BufHeader, "%s%x\r\n", 
+					     (first)?"":"\r\n",
+					     StrLength (pBuf));
+				first = 0;
+				client_con_state = send_http(BufHeader);
+			}
 
-		if (client_con_state == 0)
-		    client_con_state = send_http(WCC->WBuf);
+			if (client_con_state == 0)
+				client_con_state = send_http(pBuf);
 
-		FlushStrBuf(WCC->WBuf);
+			FlushStrBuf(pBuf);
+		}
 	}
 
 	if ((chunked) && (client_con_state == 0))
