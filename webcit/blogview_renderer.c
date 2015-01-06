@@ -81,6 +81,7 @@ void blogpost_render(struct blogpost *bp, int with_comments)
 		urlescputs(ChrPtr(WC->CurRoom.name));
 		wc_printf("#comments\">");
 		wc_printf(_("%d comments"), bp->num_msgs - 1);
+		wc_printf(" %d %s", bp->unread_oments, _("new"));
 		wc_printf("</a> | <a class=\"blog_permalink_link\" href=\"");
 		tmplput_blog_permalink(NULL, NULL);
 		wc_printf("\">%s</a>", _("permalink"));
@@ -197,8 +198,6 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		}
 		bp->msgs[bp->num_msgs++] = Msg->msgnum;
 		if ((Msg->Flags & MSGFLAG_READ) != 0) {
-			syslog(LOG_DEBUG, "****************** unread %ld", Msg->msgnum);
-			
 			bp->unread_oments++;
 		}
 	}
@@ -246,15 +245,37 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	/* Comments are shown if we are only viewing a single blog post */
 	with_comments = (BL->p != 0);
 
-	firstp = atoi(BSTR("firstp"));	/* start reading at... */
-	maxp = atoi(BSTR("maxp"));	/* max posts to show... */
-	if (maxp < 1) maxp = 5;		/* default; move somewhere else? */
+	firstp = ibstr("firstp");   /* start reading at... */
+	maxp   = ibstr("maxp");	    /* max posts to show... */
+	if (maxp < 1) maxp = 5;	    /* default; move somewhere else? */
 
+	it = GetNewHashPos(BL->BLOG, 0);
 
-	//// bp->unread_oments++;
+	if ((BL->gotonext) && (BL->p == 0)) {
+		/* did we come here via gotonext? lets find out whether
+		 * this blog has just one blogpost with new comments just display 
+		 * this one.
+		 */
+		struct blogpost *unread_bp = NULL;
+		int unread_count = 0;
+		while (GetNextHashPos(BL->BLOG, it, &len, &Key, &Data)) {
+			struct blogpost *one_bp = (struct blogpost *) Data;
+			if (one_bp->unread_oments > 0) {
+				unread_bp = one_bp;
+				unread_count++;
+			}
+		}
+		if (unread_count == 1) {
+			blogpost_render(unread_bp, 1);
+
+			DeleteHashPos(&it);
+			return 0;
+		}
+
+		RewindHashPos(BL->BLOG, it, 0);
+	}
 
 	/* Iterate through the hash list and copy the data pointers into an array */
-	it = GetNewHashPos(BL->BLOG, 0);
 	while (GetNextHashPos(BL->BLOG, it, &len, &Key, &Data)) {
 		if (num_blogposts >= num_blogposts_alloc) {
 			if (num_blogposts_alloc == 0) {
