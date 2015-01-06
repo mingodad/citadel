@@ -753,6 +753,7 @@ struct blogpost {
 	long *msgs;		/* Array of msgnums for messages we are displaying */
 	int num_msgs;		/* Number of msgnums stored in 'msgs' */
 	int alloc_msgs;		/* Currently allocated size of array */
+	int unread_oments;
 };
 
 

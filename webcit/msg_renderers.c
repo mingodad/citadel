@@ -329,6 +329,7 @@ void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_inreplyto);
 	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
+	Msg->reply_inreplyto_hash = ThreadIdHash(HdrLine);
 	StrBuf_RFC822_2_Utf8(Msg->reply_inreplyto, 
 			     HdrLine, 
 			     WCC->DefaultCharset,
@@ -355,6 +356,7 @@ void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_references);
 	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
+	Msg->reply_references_hash = ThreadIdHash(HdrLine);
 	StrBuf_RFC822_2_Utf8(Msg->reply_references, 
 			     HdrLine, 
 			     WCC->DefaultCharset, 
@@ -878,29 +880,22 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 }
 
 
-message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSubject, StrBuf *FoundCharset, long MsgNum) 
+int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Buf)
 {
 	void *vHdr;
 	headereval *Hdr;
-	message_summary      *Msg;
-	StrBuf *Buf;
 	const char *buf;
 	const char *ebuf;
 	int nBuf;
 	long len;
 	
-	Buf = NewStrBuf();
-
-	serv_printf("MSG0 %ld|1", MsgNum);	/* ask for headers only */
+	serv_printf("MSG0 %ld|1", Msg->msgnum);	/* ask for headers only */
 	
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 1) {
-		FreeStrBuf(&Buf);
-		return NULL;
+	if (GetServerStatus(Buf, NULL) != 1) {
+		return 0;
 	}
 
-	Msg = (message_summary*)malloc(sizeof(message_summary));
-	memset(Msg, 0, sizeof(message_summary));
 	while (len = StrBuf_ServGetln(Buf),
 	       (len >= 0) && 
 	       ((len != 3)  ||
@@ -918,7 +913,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 		}
 		else syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
 	}
-	return Msg;
+	return 1;
 }
 
 void tmplput_MAIL_SUMM_N(StrBuf *Target, WCTemplputParams *TP)

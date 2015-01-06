@@ -55,6 +55,8 @@ void sitemap_do_blog(void) {
 	int i;
 	SharedMessageStatus Stat;
 	message_summary *Msg = NULL;
+	StrBuf *Buf = NewStrBuf();
+	StrBuf *FoundCharset = NewStrBuf();
 
 	memset(&Stat, 0, sizeof Stat);
 	Stat.maxload = INT_MAX;
@@ -66,16 +68,18 @@ void sitemap_do_blog(void) {
 	for (i=0; i<num_msgs; ++i) {
 		Msg = GetMessagePtrAt(i, WCC->summ);
 		if (Msg != NULL) {
-			struct bltr bltr = blogview_learn_thread_references(Msg->msgnum);
+			ReadOneMessageSummary(Msg, FoundCharset, Buf);
 			/* Show only top level posts, not comments */
-			if ((bltr.id != 0) && (bltr.refs == 0)) {
-				WC->bptlid = bltr.id;
+			if ((Msg->reply_inreplyto_hash != 0) && (Msg->reply_references_hash == 0)) {
+				WCC->bptlid = Msg->reply_inreplyto_hash;
 				wc_printf("<url><loc>%s", ChrPtr(site_prefix));
 				tmplput_blog_permalink(NULL, NULL);
 				wc_printf("</loc></url>\r\n");
 			}
 		}
 	}
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&FoundCharset);
 }
 
 
@@ -171,6 +175,8 @@ void sitemap(void) {
 
 	while (roomlist != NULL)
 	{
+		struct sitemap_room_list *ptr;
+
 		gotoroom(roomlist->roomname);
 
 		/* Output the messages in this room only if it's a room type we can make sense of */
@@ -189,7 +195,7 @@ void sitemap(void) {
 			break;
 		}
 
-		struct sitemap_room_list *ptr = roomlist;
+		ptr = roomlist;
 		roomlist = roomlist->next;
 		FreeStrBuf(&ptr->roomname);
 		free(ptr);

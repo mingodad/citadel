@@ -21,6 +21,8 @@ typedef struct __BLOG {
 	HashList *BLOG;
 	long p;
 	int gotonext;
+	StrBuf *Charset;
+	StrBuf *Buf;
 } BLOG;
 
 
@@ -110,11 +112,13 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				    long flen)
 {
 	BLOG *BL = (BLOG*) malloc(sizeof(BLOG)); 
-	BL->BLOG = NewHash(1, NULL);
+	BL->BLOG = NewHash(1, lFlathash);
 	
 	/* are we looking for a specific post? */
 	BL->p = lbstr("p");
 	BL->gotonext = havebstr("gotonext");
+	BL->Charset = NewStrBuf();
+	BL->Buf = NewStrBuf();
 	*ViewSpecific = BL;
 
 	Stat->startmsg = (-1);					/* not used here */
@@ -131,42 +135,6 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 
 
 /*
- * Given a msgnum, populate the id and refs fields of
- * a "struct bltr" by fetching them from the Citadel server
- */
-struct bltr blogview_learn_thread_references(long msgnum)
-{
-	StrBuf *Buf;
-	StrBuf *r;
-	int len;
-	struct bltr bltr = { 0, 0 } ;
-	Buf = NewStrBuf();
-	r = NewStrBuf();
-	serv_printf("MSG0 %ld|1", msgnum);		/* top level citadel headers only */
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 1) {
-		while (len = StrBuf_ServGetln(Buf), 
-		       ((len >= 0) && 
-			((len != 3) || strcmp(ChrPtr(Buf), "000") )))
-		{
-			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
-				StrBufCutLeft(Buf, 5);
-				bltr.id = ThreadIdHash(Buf);
-			}
-			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
-				StrBufCutLeft(Buf, 5);		/* trim the field name */
-				StrBufExtract_token(r, Buf, 0, '|');
-				bltr.refs = ThreadIdHash(r);
-			}
-		}
-	}
-	FreeStrBuf(&Buf);
-	FreeStrBuf(&r);
-	return(bltr);
-}
-
-
-/*
  * This function is called for every message in the list.
  */
 int blogview_LoadMsgFromServer(SharedMessageStatus *Stat, 
@@ -176,30 +144,38 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 			      int i)
 {
 	BLOG *BL = (BLOG*) *ViewSpecific;
-	struct bltr b;
 	struct blogpost *bp = NULL;
 
-	b = blogview_learn_thread_references(Msg->msgnum);
+	ReadOneMessageSummary(Msg, BL->Charset, BL->Buf);
 
 	/* Stop processing if the viewer is only interested in a single post and
 	 * that message ID is neither the id nor the refs.
 	 */
-	if ((BL->p != 0) && (BL->p != b.id) && (BL->p != b.refs)) {
+	if ((BL->p != 0) &&
+	    (BL->p != Msg->reply_inreplyto_hash) &&
+	    (BL->p != Msg->reply_references_hash)) {
 		return 200;
 	}
 
 	/*
 	 * Add our little bundle of blogworthy wonderfulness to the hash table
 	 */
-	if (b.refs == 0) {
+	if (Msg->reply_references_hash == 0) {
 		bp = malloc(sizeof(struct blogpost));
 		if (!bp) return(200);
 		memset(bp, 0, sizeof (struct blogpost));
-	 	bp->top_level_id = b.id;
-		Put(BL->BLOG, (const char *)&b.id, sizeof(b.id), bp, (DeleteHashDataFunc)blogpost_destroy);
+	 	bp->top_level_id = Msg->reply_inreplyto_hash;
+		Put(BL->BLOG,
+		    (const char *)&Msg->reply_inreplyto_hash,
+		    sizeof(Msg->reply_inreplyto_hash),
+		    bp,
+		    (DeleteHashDataFunc)blogpost_destroy);
 	}
 	else {
-		GetHash(BL->BLOG, (const char *)&b.refs , sizeof(b.refs), (void *)&bp);
+		GetHash(BL->BLOG,
+			(const char *)&Msg->reply_references_hash,
+			sizeof(Msg->reply_references_hash),
+			(void *)&bp);
 	}
 
 	/*
@@ -220,6 +196,11 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 				((bp->alloc_msgs - bp->num_msgs) * sizeof(long)) );
 		}
 		bp->msgs[bp->num_msgs++] = Msg->msgnum;
+		if ((Msg->Flags & MSGFLAG_READ) != 0) {
+			syslog(LOG_DEBUG, "****************** unread %ld", Msg->msgnum);
+			
+			bp->unread_oments++;
+		}
 	}
 	else {
 		syslog(LOG_DEBUG, "** comment %ld is unparented", Msg->msgnum);
@@ -263,11 +244,14 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	int maxp = 0;
 
 	/* Comments are shown if we are only viewing a single blog post */
-	if (atoi(BSTR("p"))) with_comments = 1;
+	with_comments = (BL->p != 0);
 
 	firstp = atoi(BSTR("firstp"));	/* start reading at... */
 	maxp = atoi(BSTR("maxp"));	/* max posts to show... */
 	if (maxp < 1) maxp = 5;		/* default; move somewhere else? */
+
+
+	//// bp->unread_oments++;
 
 	/* Iterate through the hash list and copy the data pointers into an array */
 	it = GetNewHashPos(BL->BLOG, 0);
@@ -337,6 +321,8 @@ int blogview_Cleanup(void **ViewSpecific)
 {
 	BLOG *BL = (BLOG*) *ViewSpecific;
 
+	FreeStrBuf(&BL->Buf);
+	FreeStrBuf(&BL->Charset);
 	DeleteHash(&BL->BLOG);
 	free(BL);
 	wDumpContent(1);
