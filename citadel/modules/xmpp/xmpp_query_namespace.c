@@ -78,12 +78,13 @@ void xmpp_iq_roster_query(void)
 	struct CitContext *cptr;
 	int nContexts, i;
 
+	syslog(LOG_DEBUG, "Roster push!");
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
 			if (xmpp_is_visible(&cptr[i], CC)) {
-				syslog(LOG_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
+				XMPP_syslog(LOG_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
 				xmpp_roster_item(&cptr[i]);
 			}
 		}
