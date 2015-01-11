@@ -49,6 +49,7 @@ extern HashList *HandlerHash;
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 #endif 
+extern int verbose;
 extern int dbg_analyze_msg;
 extern int dbg_backtrace_template_errors;
 extern int DumpTemplateI18NStrings;
@@ -100,9 +101,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:g:dD:G:cfsS:Z")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:g:dD:G:cfsS:Z:v:")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:g:dD:G:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:g:dD:G:cfZ:v:")) != EOF)
 #endif
 		switch (a) {
 		case 'u':
@@ -188,6 +189,9 @@ int main(int argc, char **argv)
 			DumpTemplateI18NStrings = 1;
 			I18nDump = NewStrBufPlain(HKEY("int templatestrings(void)\n{\n"));
 			I18nDumpFile = optarg;
+			break;
+		case 'v':
+			verbose=1;
 			break;
 		default:
 			fprintf(stderr, "usage: webcit "
