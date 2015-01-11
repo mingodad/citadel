@@ -450,72 +450,73 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		 * Turn anything that looks like a URL into a real link, as long
 		 * as it's not inside a tag already
 		 */
-		else if ( (brak == 0) && (alevel == 0)
-		     && (!strncasecmp(ptr, "http://", 7))) {
-				/** Find the end of the link */
-				int strlenptr;
-				linklen = 0;
+		else if ( (brak == 0) && (alevel == 0) &&
+			  ( (!strncasecmp(ptr, "http://", 7)) ||
+			    (!strncasecmp(ptr, "https://", 8)))) {
+			/** Find the end of the link */
+			int strlenptr;
+			linklen = 0;
 				
-				strlenptr = strlen(ptr);
-				for (i=0; i<=strlenptr; ++i) {
-					if ((ptr[i]==0)
-					   ||(isspace(ptr[i]))
-					   ||(ptr[i]==10)
-					   ||(ptr[i]==13)
-					   ||(ptr[i]=='(')
-					   ||(ptr[i]==')')
-					   ||(ptr[i]=='<')
-					   ||(ptr[i]=='>')
-					   ||(ptr[i]=='[')
-					   ||(ptr[i]==']')
-					   ||(ptr[i]=='"')
-					   ||(ptr[i]=='\'')
+			strlenptr = strlen(ptr);
+			for (i=0; i<=strlenptr; ++i) {
+				if ((ptr[i]==0)
+				    ||(isspace(ptr[i]))
+				    ||(ptr[i]==10)
+				    ||(ptr[i]==13)
+				    ||(ptr[i]=='(')
+				    ||(ptr[i]==')')
+				    ||(ptr[i]=='<')
+				    ||(ptr[i]=='>')
+				    ||(ptr[i]=='[')
+				    ||(ptr[i]==']')
+				    ||(ptr[i]=='"')
+				    ||(ptr[i]=='\'')
 					) linklen = i;
-					/* did s.b. send us an entity? */
-					if (ptr[i] == '&') {
-						if ((ptr[i+2] ==';') ||
-						    (ptr[i+3] ==';') ||
-						    (ptr[i+5] ==';') ||
-						    (ptr[i+6] ==';') ||
-						    (ptr[i+7] ==';'))
-							linklen = i;
-					}
-					if (linklen > 0) break;
+				/* did s.b. send us an entity? */
+				if (ptr[i] == '&') {
+					if ((ptr[i+2] ==';') ||
+					    (ptr[i+3] ==';') ||
+					    (ptr[i+5] ==';') ||
+					    (ptr[i+6] ==';') ||
+					    (ptr[i+7] ==';'))
+						linklen = i;
 				}
-				if (linklen > 0) {
-					char *ltreviewptr;
-					char *nbspreviewptr;
-					char linkedchar;
-					int len;
+				if (linklen > 0) break;
+			}
+			if (linklen > 0) {
+				char *ltreviewptr;
+				char *nbspreviewptr;
+				char linkedchar;
+				int len;
 					
-					len = linklen;
-					linkedchar = ptr[len];
-					ptr[len] = '\0';
-					/* spot for some subject strings tinymce tends to give us. */
-					ltreviewptr = strchr(ptr, '<');
-					if (ltreviewptr != NULL) {
-						*ltreviewptr = '\0';
-						linklen = ltreviewptr - ptr;
-					}
-
-					nbspreviewptr = strstr(ptr, "&nbsp;");
-					if (nbspreviewptr != NULL) {
-						/* nbspreviewptr = '\0'; */
-						linklen = nbspreviewptr - ptr;
-					}
-					if (ltreviewptr != 0)
-						*ltreviewptr = '<';
-
-					ptr[len] = linkedchar;
-
-					content_length += (32 + linklen);
-                                        StrBufAppendPrintf(converted_msg, "%s\"", new_window);
-					StrBufAppendBufPlain(converted_msg, ptr, linklen, 0);
-					StrBufAppendPrintf(converted_msg, "\">");
-					StrBufAppendBufPlain(converted_msg, ptr, linklen, 0);
-					ptr += linklen;
-					StrBufAppendPrintf(converted_msg, "</A>");
+				len = linklen;
+				linkedchar = ptr[len];
+				ptr[len] = '\0';
+				/* spot for some subject strings tinymce tends to give us. */
+				ltreviewptr = strchr(ptr, '<');
+				if (ltreviewptr != NULL) {
+					*ltreviewptr = '\0';
+					linklen = ltreviewptr - ptr;
 				}
+
+				nbspreviewptr = strstr(ptr, "&nbsp;");
+				if (nbspreviewptr != NULL) {
+					/* nbspreviewptr = '\0'; */
+					linklen = nbspreviewptr - ptr;
+				}
+				if (ltreviewptr != 0)
+					*ltreviewptr = '<';
+
+				ptr[len] = linkedchar;
+
+				content_length += (32 + linklen);
+				StrBufAppendPrintf(converted_msg, "%s\"", new_window);
+				StrBufAppendBufPlain(converted_msg, ptr, linklen, 0);
+				StrBufAppendPrintf(converted_msg, "\">");
+				StrBufAppendBufPlain(converted_msg, ptr, linklen, 0);
+				ptr += linklen;
+				StrBufAppendPrintf(converted_msg, "</A>");
+			}
 		}
 		else {
 			StrBufAppendBufPlain(converted_msg, ptr, 1, 0);
