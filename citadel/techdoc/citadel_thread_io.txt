@@ -60,11 +60,12 @@ All other have to implement their own IO controled business logic.
 
 ===== IO-Thread =====
 The IO-Event-queue lives in this thread. Code running in this thread has to obey several rules.
-  - it mustn't do blocking operations (like disk IO) 
+  - it mustn't do blocking operations (like disk IO or nameserver lookups other than the c-ares facilities) 
   - it mustn't use blocking Sockets
   - other threads mustn't access memory belonging to an IO job
   - New IO contexts have to be registered via QueueEventContext() from other threads; Its callback are then called from whithin the event queue to start its logic.
   - New HTTP-IO contexts have to be registered via QueueCurlContext() 
+  - once you've registered a context, you must not access its memory anymore to avoid race conditions
 
 ==== Logic in event_client ====
 InitIOStruct() which prepares an AsyncIO struct for later use before using QueueEventContext() to activate it.
