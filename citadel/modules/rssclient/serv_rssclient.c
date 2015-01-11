@@ -417,8 +417,8 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
 	static const time_t antiExpire = USETABLE_ANTIEXPIRE_HIRES;
-	time_t seenstamp = 0;
 #ifndef DEBUG_RSS
+	time_t seenstamp = 0;
 	const char *Key;
 	long len;
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
@@ -432,7 +432,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 				       antiExpire,
 				       eCheckUpdate,
 				       CCID, IO->ID);
-	if (seenstamp < antiExpire)
+	if (seenstamp != 0)
 	{
 		/* Item has already been seen */
 		EVRSSC_syslog(LOG_DEBUG,
