@@ -95,10 +95,13 @@ void pop3_cleanup_function(void)
 	/* Don't do this stuff if this is not a POP3 session! */
 	if (CCC->h_command_function != pop3_command_loop) return;
 
+	struct citpop3 *pop3 = ((struct citpop3 *)CCC->session_specific_data);
 	POP3M_syslog(LOG_DEBUG, "Performing POP3 cleanup hook");
-	if (POP3->msgs != NULL) free(POP3->msgs);
+	if (pop3->msgs != NULL) {
+		free(pop3->msgs);
+	}
 
-	free(POP3);
+	free(pop3);
 }
 
 
