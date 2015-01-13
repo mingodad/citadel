@@ -182,6 +182,7 @@ void InspectQueuedRoom(SpoolControl **pSC,
 		       HashList *working_ignetcfg,
 		       HashList *the_netmap)
 {
+	struct CitContext *CCC = CC;
 	SpoolControl *sc;
 	int i = 0;
 
@@ -204,7 +205,7 @@ void InspectQueuedRoom(SpoolControl **pSC,
 	}
 	if (sc->room.QRhighest <= sc->lastsent)
 	{
-		syslog(LOG_DEBUG, "nothing to do for <%s>\n", room_to_spool->name);
+		QN_syslog(LOG_DEBUG, "nothing to do for <%s>\n", room_to_spool->name);
 		free(sc);
 		return;
 	}
