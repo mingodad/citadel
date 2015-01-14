@@ -19,8 +19,10 @@
 #include <limits.h>
 #include <time.h>
 #include <errno.h>
+#include <syslog.h>
 #include <libcitadel.h>
 #include "citadel.h"
+#include "citadel_dirs.h"
 
 /* our directories... */
 char ctdl_home_directory[PATH_MAX] = "";
@@ -44,6 +46,7 @@ char ctdl_run_dir[PATH_MAX]="";
 char ctdl_spool_dir[PATH_MAX]="network";
 char ctdl_netout_dir[PATH_MAX]="network/spoolout";
 char ctdl_netin_dir[PATH_MAX]="network/spoolin";
+char ctdl_netdigest_dir[PATH_MAX]="network/digest";
 char ctdl_nettmp_dir[PATH_MAX]="network/spooltmp";
 char ctdl_netcfg_dir[PATH_MAX]="netconfigs";
 char ctdl_utilbin_dir[PATH_MAX]="";
@@ -194,11 +197,13 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	COMPUTE_DIRECTORY(ctdl_spool_dir);
 	COMPUTE_DIRECTORY(ctdl_netout_dir);
 	COMPUTE_DIRECTORY(ctdl_netin_dir);
+	COMPUTE_DIRECTORY(ctdl_netdigest_dir);
 	COMPUTE_DIRECTORY(ctdl_nettmp_dir);
 
 	StripSlashes(ctdl_spool_dir, 1);
 	StripSlashes(ctdl_netout_dir, 1);
 	StripSlashes(ctdl_netin_dir, 1);
+	StripSlashes(ctdl_netdigest_dir, 1);
 	StripSlashes(ctdl_nettmp_dir, 1);
 
 	/* ok, now we know the dirs, calc some commonly used files */
@@ -330,6 +335,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	DBG_PRINT(ctdl_spool_dir);
 	DBG_PRINT(ctdl_netout_dir);
 	DBG_PRINT(ctdl_netin_dir);
+	DBG_PRINT(ctdl_netdigest_dir);
 	DBG_PRINT(ctdl_nettmp_dir);
 	DBG_PRINT(ctdl_netcfg_dir);
 	DBG_PRINT(ctdl_bbsbase_dir);
@@ -364,17 +370,71 @@ size_t assoc_file_name(char *buf, size_t n,
 	return snprintf(buf, n, "%s%ld", prefix, qrbuf->QRnumber);
 }
 
+void remove_digest_file(struct ctdlroom *room)
+{
+	char buf[PATH_MAX];
+
+	snprintf(buf, PATH_MAX, "%s/%ld.eml", 
+		 ctdl_netdigest_dir,
+		 room->QRnumber);
+	StripSlashes(buf, 0);
+	unlink(buf);
+}
+
+FILE *create_digest_file(struct ctdlroom *room, int forceCreate)
+{
+	struct stat stbuf;
+	char fn[PATH_MAX];
+	int exists;
+	FILE *fp;
+
+	snprintf(fn, PATH_MAX, "%s/%ld.eml", 
+		 ctdl_netdigest_dir,
+		 room->QRnumber);
+	StripSlashes(fn, 0);
+
+	exists = stat(fn, &stbuf); 
+	if (!forceCreate && (exists == -1))
+		return NULL;
+	
+	fp = fopen(fn, "w+");
+	if (fp == NULL) {
+		syslog(LOG_EMERG,
+		       "failed to create digest file %s: %s",
+		       fn,
+		       strerror(errno));
+	}
+	return fp;
+}
+
 
 int create_dir(char *which, long ACCESS, long UID, long GID)
 {
 	int rv;
 	rv = mkdir(which, ACCESS);
-	if ((rv == -1) && (errno == EEXIST))
+	if ((rv == -1) && (errno != EEXIST)) {
+		syslog(LOG_EMERG,
+		       "failed to create directory %s: %s",
+		       which,
+		       strerror(errno));
 		return rv;
+	}
 	rv = chmod(which, ACCESS);
-	if (rv == -1)
+	if (rv == -1) {
+		syslog(LOG_EMERG,
+		       "failed to set permissions for directory %s: %s",
+		       which,
+		       strerror(errno));
 		return rv;
+	}
 	rv = chown(which, UID, GID);
+	if (rv == -1) {
+		syslog(LOG_EMERG,
+		       "failed to set owner for directory %s: %s",
+		       which,
+		       strerror(errno));
+		return rv;
+	}
 	return rv;
 }
 
@@ -384,24 +444,34 @@ int create_run_directories(long UID, long GID)
 
 	rv = create_dir(ctdl_info_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_bio_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_bio_dir       , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_usrpic_dir  , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_usrpic_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_message_dir , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_message_dir   , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_hlp_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_hlp_dir       , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_image_dir   , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_image_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_bb_dir      , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_bb_dir        , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_file_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_file_dir      , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_netcfg_dir  , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_netcfg_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_key_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+		rv = create_dir(ctdl_spool_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_run_dir     , S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, UID, GID);
+		rv = create_dir(ctdl_netout_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_netin_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_netdigest_dir , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_nettmp_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_key_dir       , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
+	if (rv != -1)
+		rv = create_dir(ctdl_run_dir       , S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH, UID, GID);
 	return rv;
 }

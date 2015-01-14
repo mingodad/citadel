@@ -53,6 +53,14 @@ a.blog_show_comments_link:link, a.blog_show_comments_link:active, a.blog_show_co
 	background-color: #EDEDE0;
 }
 
+.blog_comment_unread {
+	margin: 0.5em;
+	padding: 0.5em 0.25em 0.25em;
+	width: 35em;
+	border-top: 1px dotted grey;
+	background-color: #EFEFE0;
+}
+
 .blog_comment_header {
 	font-size: smaller;
 }

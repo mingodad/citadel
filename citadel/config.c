@@ -22,6 +22,49 @@
 struct config config;
 struct configlen configlen;
 
+#define STR_NOT_EMPTY(CFG_FIELDNAME) if (IsEmptyStr(config.CFG_FIELDNAME)) \
+		syslog(LOG_EMERG, "configuration setting "#CFG_FIELDNAME" is empty, but must not - check your config!");
+
+#define TEST_PORT(CFG_PORT, DEFAULTPORT)			\
+	if ((config.CFG_PORT < -1) ||		\
+	    (config.CFG_PORT == 0) ||		\
+	    (config.CFG_PORT > UINT16_MAX))     \
+		syslog(LOG_EMERG, "configuration setting "#CFG_PORT" is not -1 (disabled) or a valid TCP-Port - check your config! Default setting is: "#DEFAULTPORT);
+			
+
+void validate_config(void) {
+/* these shouldn't be empty: */
+	STR_NOT_EMPTY(c_fqdn);
+
+	STR_NOT_EMPTY(c_baseroom);
+	STR_NOT_EMPTY(c_aideroom);
+	STR_NOT_EMPTY(c_twitroom);
+	STR_NOT_EMPTY(c_nodename);
+	STR_NOT_EMPTY(c_default_cal_zone);
+
+/* we bind a lot of ports: */
+	TEST_PORT(c_smtp_port, 25);
+	TEST_PORT(c_pop3_port, 110);
+	TEST_PORT(c_imap_port, 143);
+	TEST_PORT(c_msa_port, 587);
+	TEST_PORT(c_port_number, 504);
+	TEST_PORT(c_smtps_port, 465);
+	TEST_PORT(c_pop3s_port, 995);
+	TEST_PORT(c_imaps_port, 993);
+	TEST_PORT(c_pftcpdict_port, -1);
+	TEST_PORT(c_managesieve_port, 2020);
+	TEST_PORT(c_xmpp_c2s_port, 5222);
+	TEST_PORT(c_xmpp_s2s_port, 5269);
+	TEST_PORT(c_nntp_port, 119);
+	TEST_PORT(c_nntps_port, 563);
+
+	if (config.c_ctdluid == 0)
+		syslog(LOG_EMERG, "citadel should not be configured to run as root! Check the value of c_ctdluid");
+	else if (getpwuid(CTDLUID) == NULL)
+		syslog(LOG_EMERG, "The UID (%d) citadel is configured to use is not defined in your system (/etc/passwd?)! Check the value of c_ctdluid", CTDLUID);
+	
+}
+
 /*
  * Put some sane default values into our configuration.  Some will be overridden when we run setup.
  */

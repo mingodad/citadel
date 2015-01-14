@@ -507,7 +507,10 @@ void mgsve_auth(char *argbuf) {
 		if (strlen(argbuf) >= 7) {
 		}
 		else {
-			CtdlEncodeBase64(username_prompt, "Username:", 9, 0);
+			size_t len = CtdlEncodeBase64(username_prompt, "Username:", 9, 0);
+			if (username_prompt[len - 1] == '\n') {
+				username_prompt[len - 1] = '\0';
+			}
 			cprintf("334 %s\r\n", username_prompt);
 		}
 		return;

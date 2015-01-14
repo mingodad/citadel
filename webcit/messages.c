@@ -18,7 +18,6 @@
 #include "calendar.h"
 
 HashList *MsgHeaderHandler = NULL;
-HashList *MsgEvaluators = NULL;
 HashList *MimeRenderHandler = NULL;
 HashList *ReadLoopHandler = NULL;
 int dbg_analyze_msg = 0;
@@ -30,12 +29,6 @@ int dbg_analyze_msg = 0;
 void jsonMessageListHdr(void);
 
 void display_enter(void);
-
-typedef void (*MsgPartEvaluatorFunc)(message_summary *Sum, StrBuf *Buf);
-
-typedef struct _MsgPartEvaluatorStruct {
-	MsgPartEvaluatorFunc f;
-} MsgPartEvaluatorStruct;
 
 void fixview()
 {
@@ -495,50 +488,6 @@ void display_headers(void) {
 }
 
 
-message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSubject, long MsgNum) 
-{
-	void                 *vEval;
-	MsgPartEvaluatorStruct  *Eval;
-	message_summary      *Msg;
-	StrBuf *Buf;
-	const char *buf;
-	const char *ebuf;
-	int nBuf;
-	long len;
-	
-	Buf = NewStrBuf();
-
-	serv_printf("MSG0 %ld|1", MsgNum);	/* ask for headers only */
-	
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 1) {
-		FreeStrBuf(&Buf);
-		return NULL;
-	}
-
-	Msg = (message_summary*)malloc(sizeof(message_summary));
-	memset(Msg, 0, sizeof(message_summary));
-	while (len = StrBuf_ServGetln(Buf),
-	       (len >= 0) && 
-	       ((len != 3)  ||
-		strcmp(ChrPtr(Buf), "000")))
-	{
-		buf = ChrPtr(Buf);
-		ebuf = strchr(ChrPtr(Buf), '=');
-		nBuf = ebuf - buf;
-		if (GetHash(MsgEvaluators, buf, nBuf, &vEval) && vEval != NULL) {
-			Eval = (MsgPartEvaluatorStruct*) vEval;
-			StrBufCutLeft(Buf, nBuf + 1);
-			Eval->f(Msg, Buf);
-		}
-		else syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
-	}
-	return Msg;
-}
-
-
-
-
 
 /*
  * load message pointers from the server for a "read messages" operation
@@ -650,10 +599,11 @@ int load_msg_ptrs(const char *servcmd,
  * \param MatchMSet MSet we want to flag
  * \param FlagToSet Flag to set on each BasicMsgStruct->Flags if in MSet
  */
-void SetFlagsFromMSet(HashList *ScanMe, MSet *MatchMSet, int FlagToSet, int Reverse)
+long SetFlagsFromMSet(HashList *ScanMe, MSet *MatchMSet, int FlagToSet, int Reverse)
 {
 	const char *HashKey;
 	long HKLen;
+	long count = 0;
 	HashPos *at;
 	void *vMsg;
 	message_summary *Msg;
@@ -664,17 +614,21 @@ void SetFlagsFromMSet(HashList *ScanMe, MSet *MatchMSet, int FlagToSet, int Reve
 		Msg = (message_summary*) vMsg;
 		if (Reverse && IsInMSetList(MatchMSet, Msg->msgnum)) {
 			Msg->Flags = Msg->Flags | FlagToSet;
+			count++;
 		}
 		else if (!Reverse && !IsInMSetList(MatchMSet, Msg->msgnum)) {
 			Msg->Flags = Msg->Flags | FlagToSet;
+			count++;
 		}
 	}
 	DeleteHashPos(&at);
+	return count;
 }
 
 
-void load_seen_flags(void)
+long load_seen_flags(void)
 {
+	long count = 0;
 	StrBuf *OldMsg;
 	wcsession *WCC = WC;
 	MSet *MatchMSet;
@@ -687,15 +641,16 @@ void load_seen_flags(void)
 	}
 	else {
 		FreeStrBuf(&OldMsg);
-		return;
+		return 0;
 	}
 
 	if (ParseMSet(&MatchMSet, OldMsg))
 	{
-		SetFlagsFromMSet(WCC->summ, MatchMSet, MSGFLAG_READ, 0);
+		count = SetFlagsFromMSet(WCC->summ, MatchMSet, MSGFLAG_READ, 0);
 	}
 	DeleteMSet(&MatchMSet);
 	FreeStrBuf(&OldMsg);
+	return count;
 }
 
 extern readloop_struct rlid[];
@@ -734,7 +689,7 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	long HKLen;
 	WCTemplputParams SubTP;
 	SharedMessageStatus Stat;
-	void *ViewSpecific;
+	void *ViewSpecific = NULL;
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary")))) {
 		WCC->CurRoom.view = VIEW_MAILBOX;
@@ -814,7 +769,7 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		Stat.startmsg =  0;
 	}
 
-	if (Stat.load_seen) load_seen_flags();
+	if (Stat.load_seen) Stat.numNewmsgs = load_seen_flags();
 	
         /*
 	 * Print any inforation above the message list...
@@ -832,9 +787,13 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		
 		Foo = NewStrBuf ();
 		StrBufPrintf(Foo, "%ld", Stat.nummsgs);
-		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo));
+		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo)); // keep Foo!
+
+		StrBufPrintf(Foo, "%ld", Stat.numNewmsgs);
+		PutBstr(HKEY("__READLOOP:NEWMSGS"), NewStrBufDup(Foo)); // keep Foo!
+
 		StrBufPrintf(Foo, "%ld", Stat.startmsg);
-		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo);
+		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo); // store Foo elsewhere, descope it here.
 	}
 
 	/*

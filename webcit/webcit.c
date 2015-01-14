@@ -21,7 +21,7 @@ HashList *HandlerHash = NULL;
 
 void stuff_to_cookie(int unset_cookie);
 extern int GetConnected(void);
-
+extern int verbose;
 
 void PutRequestLocalMem(void *Data, DeleteHashDataFunc DeleteIt)
 {
@@ -237,7 +237,8 @@ void http_redirect(const char *whichpage) {
  */
 void http_transmit_thing(const char *content_type, int is_static)
 {
-	syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
+	if (verbose)
+		syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
 
 	hprintf("Content-type: %s\r\n"
@@ -249,11 +250,15 @@ void http_transmit_thing(const char *content_type, int is_static)
 	end_burst();
 }
 
-void http_transmit_headers(const char *content_type, int is_static, long is_chunked)
+void http_transmit_headers(const char *content_type, int is_static, long is_chunked, int is_gzip)
 {
 	wcsession *WCC = WC;
-	syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
+	if (verbose)
+		syslog(LOG_DEBUG, "http_transmit_thing(%s)%s", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
+
+	if (is_gzip)
+		hprintf("Content-encoding: gzip\r\n");
 
 	if (WCC->Hdr->HaveRange)
 		hprintf("Accept-Ranges: bytes\r\n"
@@ -400,7 +405,8 @@ void ajax_servcmd(void)
 	char *junk;
 	size_t len;
 
-	syslog(LOG_DEBUG, "ajax_servcmd() g_cmd=\"%s\"", bstr("g_cmd") );
+	if (verbose)
+		syslog(LOG_DEBUG, "ajax_servcmd() g_cmd=\"%s\"", bstr("g_cmd") );
 	begin_ajax_response();
 	Buf = NewStrBuf();
 	serv_puts(bstr("g_cmd"));
@@ -497,7 +503,8 @@ void push_destination(void) {
 
 	FreeStrBuf(&WCC->PushedDestination);
 	WCC->PushedDestination = NewStrBufDup(SBSTR("url"));
-	syslog(LOG_DEBUG, "Push: %s", ChrPtr(WCC->PushedDestination));
+	if (verbose)
+		syslog(LOG_DEBUG, "Push: %s", ChrPtr(WCC->PushedDestination));
 	wc_printf("OK");
 }
 
@@ -535,7 +542,8 @@ void pop_destination(void) {
 	/*
 	 * All righty then!  We have a destination saved, so go there now.
 	 */
-	syslog(LOG_DEBUG, "Pop: %s", ChrPtr(WCC->PushedDestination));
+	if (verbose)
+		syslog(LOG_DEBUG, "Pop: %s", ChrPtr(WCC->PushedDestination));
 	http_redirect(ChrPtr(WCC->PushedDestination));
 }
 
@@ -655,9 +663,10 @@ void session_loop(void)
 
 	/* If the client sent a nonce that is incorrect, kill the request. */
 	if (havebstr("nonce")) {
-		syslog(LOG_DEBUG, "Comparing supplied nonce %s to session nonce %d", 
-			bstr("nonce"), WCC->nonce
-		);
+		if (verbose)
+			syslog(LOG_DEBUG, "Comparing supplied nonce %s to session nonce %d", 
+			       bstr("nonce"), WCC->nonce
+				);
 		if (ibstr("nonce") != WCC->nonce) {
 			syslog(LOG_INFO, "Ignoring request with mismatched nonce.");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
@@ -735,15 +744,18 @@ void session_loop(void)
 	 */
 	if (havebstr("go")) {
 		int ret;
-		syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("go"));
+		if (verbose)
+			syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("go"));
 		ret = gotoroom(sbstr("go"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			syslog(LOG_DEBUG, "Unable to change to [%s]; Reason: %d", bstr("go"), ret);
+			if (verbose)
+				syslog(LOG_DEBUG, "Unable to change to [%s]; Reason: %d", bstr("go"), ret);
 		}
 	}
 	else if (havebstr("gotofirst")) {
 		int ret;
-		syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("gotofirst"));
+		if (verbose)
+			syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("gotofirst"));
 		ret = gotoroom(sbstr("gotofirst"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
 			syslog(LOG_INFO, "Unable to change to [%s]; Reason: %d", bstr("gotofirst"), ret);
@@ -757,14 +769,16 @@ void session_loop(void)
 	else if ( (StrLength(WCC->CurRoom.name) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
 		int ret;
 
-		syslog(LOG_DEBUG, "We are in '%s' but cookie indicates '%s', going there...",
-			ChrPtr(WCC->CurRoom.name),
-			ChrPtr(WCC->Hdr->c_roomname)
+		if (verbose)
+			syslog(LOG_DEBUG, "We are in '%s' but cookie indicates '%s', going there...",
+			       ChrPtr(WCC->CurRoom.name),
+			       ChrPtr(WCC->Hdr->c_roomname)
 		);
 		ret = gotoroom(WCC->Hdr->c_roomname);	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			syslog(LOG_DEBUG, "COOKIEGOTO: Unable to change to [%s]; Reason: %d",
-				ChrPtr(WCC->Hdr->c_roomname), ret);
+			if (verbose)
+				syslog(LOG_DEBUG, "COOKIEGOTO: Unable to change to [%s]; Reason: %d",
+				       ChrPtr(WCC->Hdr->c_roomname), ret);
 		}
 	}
 
@@ -830,7 +844,8 @@ void display_default_landing_page(void) {
 		/* default action */
 
 		if (havebstr("go")) {
-			syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("go"));
+			if (verbose)
+				syslog(LOG_DEBUG, "Explicit room selection: %s", bstr("go"));
 			smart_goto(sbstr("go"));
 		}
 		else if (default_landing_page) {

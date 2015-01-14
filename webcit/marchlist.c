@@ -169,6 +169,7 @@ void gotonext(void)
 	}
 	if (WC->march != NULL) {
 		next_room = NewStrBufPlain(pop_march(-1), -1);/*TODO: migrate march to strbuf */
+		putlbstr("gotonext", 1);
 	} else {
 		next_room = NewStrBufPlain(HKEY("_BASEROOM_"));
 	}

@@ -1,21 +1,15 @@
 /*
  * Bring external RSS feeds into rooms.
  *
- * Copyright (c) 2007-2012 by the citadel.org team
+ * Copyright (c) 2007-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
  * 
- * 
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include <stdlib.h>
@@ -633,9 +627,7 @@ void rss_remember_item(rss_item *ri, rss_aggregator *RSSAggr)
 	AsyncIO *IO = &RSSAggr->IO;
 	int n;
 
-
-	SaveMsg = (networker_save_message *) malloc(
-		sizeof(networker_save_message));
+	SaveMsg = (networker_save_message *) malloc(sizeof(networker_save_message));
 	memset(SaveMsg, 0, sizeof(networker_save_message));
 
 	/* Construct a GUID to use in the S_USETABLE table.
@@ -650,16 +642,13 @@ void rss_remember_item(rss_item *ri, rss_aggregator *RSSAggr)
 	else {
 		MD5Init(&md5context);
 		if (ri->title != NULL) {
-			MD5Update(&md5context,
-				  (const unsigned char*)SKEY(ri->title));
+			MD5Update(&md5context, (const unsigned char*)SKEY(ri->title));
 		}
 		if (ri->link != NULL) {
-			MD5Update(&md5context,
-				  (const unsigned char*)SKEY(ri->link));
+			MD5Update(&md5context, (const unsigned char*)SKEY(ri->link));
 		}
 		MD5Final(rawdigest, &md5context);
-		guid = NewStrBufPlain(NULL,
-				      MD5_DIGEST_LEN * 2 + 12 /* _rss2ctdl*/);
+		guid = NewStrBufPlain(NULL, MD5_DIGEST_LEN * 2 + 12 /* _rss2ctdl*/);
 		StrBufHexEscAppend(guid, NULL, rawdigest, MD5_DIGEST_LEN);
 		StrBufAppendBufPlain(guid, HKEY("_rss2ctdl"), 0);
 	}
@@ -681,7 +670,7 @@ void rss_remember_item(rss_item *ri, rss_aggregator *RSSAggr)
 	SaveMsg->MsgGUID = guid;
 
 	if (ri->pubdate <= 0) {
-		ri->pubdate = time(NULL); /// TODO: use event time!
+		ri->pubdate = time(NULL);
 	}
 	CM_SetFieldLONG(&SaveMsg->Msg, eTimestamp, ri->pubdate);
 	if (ri->channel_title != NULL) {
@@ -955,15 +944,16 @@ eNextState RSSAggregator_ParseReply(AsyncIO *IO)
 
 	RSSAggr->Pos = GetNewHashPos(RSSAggr->Messages, 1);
 
-//RSSAggr->next_poll = time(NULL) + config.c_net_freq;
 	if (GetNextHashPos(RSSAggr->Messages,
 			   RSSAggr->Pos,
 			   &len,
 			   &Key,
-			   (void**) &RSSAggr->ThisMsg))
+			   (void**) &RSSAggr->ThisMsg)) {
 		return NextDBOperation(IO, RSS_FetchNetworkUsetableEntry);
-	else
+	}
+	else {
 		return eAbort;
+	}
 }
 
 

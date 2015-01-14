@@ -62,50 +62,44 @@
  * If the client session has instant messages waiting, it outputs
  * unsolicited XML stanzas containing them.
  */
-void xmpp_output_incoming_messages(void)
-{
-	struct CitContext *CCC = CC;
-	citxmpp *Xmpp = XMPP;
-	struct ExpressMessage *ptr;
+void xmpp_output_incoming_messages(void) {
 
-	while (CCC->FirstExpressMessage != NULL) {
+	struct ExpressMessage *ptr;
+	char xmlbuf1[4096];
+	char xmlbuf2[4096];
+
+	while (CC->FirstExpressMessage != NULL) {
 
 		begin_critical_section(S_SESSION_TABLE);
-		ptr = CCC->FirstExpressMessage;
-		CCC->FirstExpressMessage = CCC->FirstExpressMessage->next;
+		ptr = CC->FirstExpressMessage;
+		CC->FirstExpressMessage = CC->FirstExpressMessage->next;
 		end_critical_section(S_SESSION_TABLE);
 
-		XPrint(HKEY("message"), 0,
-		       XCPROPERTY("type", "chat"),
-		       XPROPERTY("to", Xmpp->client_jid, strlen(Xmpp->client_jid)),
-		       XPROPERTY("from", ptr->sender_email, strlen(ptr->sender_email)),
-		       TYPE_ARGEND);
-
+		cprintf("<message to=\"%s\" from=\"%s\" type=\"chat\">",
+			xmlesc(xmlbuf1, XMPP->client_jid, sizeof xmlbuf1),
+			xmlesc(xmlbuf2, ptr->sender_email, sizeof xmlbuf2)
+		);
 		if (ptr->text != NULL) {
 			striplt(ptr->text);
-			XPrint(HKEY("body"), XCLOSED,
-			       XBODY(ptr->text, strlen(ptr->text)),
-			       TYPE_ARGEND);
+			cprintf("<body>%s</body>", xmlesc(xmlbuf1, ptr->text, sizeof xmlbuf1));
 			free(ptr->text);
 		}
-		XPUT("</message>");
+		cprintf("</message>");
 		free(ptr);
 	}
-	XUnbuffer();
 }
 
 /*
  * Client is sending a message.
  */
 void xmpp_send_message(char *message_to, char *message_body) {
-	struct CitContext *CCC = CC;
 	char *recp = NULL;
 	struct CitContext *cptr;
 
 	if (message_body == NULL) return;
 	if (message_to == NULL) return;
 	if (IsEmptyStr(message_to)) return;
-	if (!CCC->logged_in) return;
+	if (!CC->logged_in) return;
 
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 		if (	(cptr->logged_in)
@@ -117,26 +111,12 @@ void xmpp_send_message(char *message_to, char *message_body) {
 	}
 
 	if (recp) {
-		PerformXmsgHooks(CCC->user.fullname, CCC->cs_inet_email, recp, message_body);
+		PerformXmsgHooks(CC->user.fullname, CC->cs_inet_email, recp, message_body);
 	}
 
 	free(XMPP->message_body);
 	XMPP->message_body = NULL;
 	XMPP->message_to[0] = 0;
-	time(&CCC->lastidle);
-}
-void xmpp_end_message(void *data, const char *supplied_el, const char **attr)
-{
-	xmpp_send_message(XMPP->message_to, XMPP->message_body);
-	XMPP->html_tag_level = 0;
+	time(&CC->lastidle);
 }
 
-
-
-CTDL_MODULE_INIT(xmpp_message)
-{
-	if (!threading) {
-		AddXMPPEndHandler(HKEY("message"),	 xmpp_end_message, 0);
-	}
-	return "xmpp_message";
-}

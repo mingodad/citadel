@@ -49,16 +49,16 @@ typedef enum AXLevel {
 }eUsrAxlvl;
 
 typedef enum __RoomNetCfg {
-	subpending,
-	unsubpending,
-	lastsent, /* Server internal use only */
-	ignet_push_share,
-	listrecp,
-	digestrecp,
-	pop3client,
-	rssclient,
-	participate,
-	roommailalias,
+	subpending        = 0,
+	unsubpending      = 1,
+	lastsent          = 2, /* Server internal use only */
+	ignet_push_share  = 3,
+	listrecp          = 4,
+	digestrecp        = 5,
+	pop3client        = 6,
+	rssclient         = 7,
+	participate       = 8,
+	roommailalias     = 9,
 	maxRoomNetCfg
 } RoomNetCfg;
 
@@ -339,12 +339,16 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset);
 
 typedef enum __eStreamType {
-	eBase64Decode
+	eBase64Encode,
+	eBase64Decode,
+	eZLibEncode,
+	eZLibDecode,
+	eEmtyCodec
 } eStreamType;
 
 void *StrBufNewStreamContext(eStreamType type);
 void StrBufDestroyStreamContext(eStreamType type, void **Stream);
-void StrBufStreamDecodeTo(StrBuf *Target, const StrBuf *In, const char* pIn, long pInLen, void *Stream);
+void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *Stream, int LastChunk);
 
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut);

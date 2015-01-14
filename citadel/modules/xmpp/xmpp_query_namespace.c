@@ -3,19 +3,13 @@
  *
  * Copyright (c) 2007-2009 by Art Cancro
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -59,22 +53,18 @@
 /*
  * Output a single roster item, for roster queries or pushes
  */
-void xmpp_roster_item(struct CitContext *cptr)
-{
-	struct CitContext *CCC=CC;
+void xmpp_roster_item(struct CitContext *cptr) {
+	char xmlbuf1[256];
+	char xmlbuf2[256];
 
-	XPrint(HKEY("item"), 0,
-	       XCPROPERTY("subscription", "both"),
-	       XPROPERTY("jid",  CCC->cs_inet_email, strlen(CCC->cs_inet_email)),
-	       XPROPERTY("name", cptr->user.fullname, strlen(cptr->user.fullname)),
-	       TYPE_ARGEND);
-
-	XPrint(HKEY("group"), XCLOSED,
-	       XCFGBODY(c_humannode),
-	       TYPE_ARGEND);
-
-	XPUT("</item>");
+	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
+		xmlesc(xmlbuf1, cptr->cs_inet_email, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, cptr->user.fullname, sizeof xmlbuf2)
+	);
+	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
+	cprintf("</item>");
 }
+
 
 /* 
  * Return the results for a "jabber:iq:roster:query"
@@ -88,7 +78,8 @@ void xmpp_iq_roster_query(void)
 	struct CitContext *cptr;
 	int nContexts, i;
 
-	XPUT("<query xmlns=\"jabber:iq:roster\">");
+	syslog(LOG_DEBUG, "Roster push!");
+	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
@@ -99,30 +90,21 @@ void xmpp_iq_roster_query(void)
 		}
 		free (cptr);
 	}
-	XPUT("</query>");
+	cprintf("</query>");
 }
 
 
-/*
- * TODO: handle queries on some or all of these namespaces
- *
-xmpp_query_namespace(purple5b5c1e58, splorph.xand.com, http://jabber.org/protocol/disco#items:query)
-xmpp_query_namespace(purple5b5c1e59, splorph.xand.com, http://jabber.org/protocol/disco#info:query)
-xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
- *
- */
 
-void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_to*/, char *query_xmlns)
+/*
+ * Client is doing a namespace query.  These are all handled differently.
+ * A "rumplestiltskin lookup" is the most efficient way to handle this.  Please do not refactor this code.
+ */
+void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns)
 {
 	int supported_namespace = 0;
 	int roster_query = 0;
-	const char *TypeStr;
-	long TLen;
-	ConstStr Type[] = {
-		{HKEY("result")},
-		{HKEY("error")}
-	};
-	
+	char xmlbuf[256];
+
 	/* We need to know before we begin the response whether this is a supported namespace, so
 	 * unfortunately all supported namespaces need to be defined here *and* down below where
 	 * they are handled.
@@ -130,29 +112,27 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	if (
 		(!strcasecmp(query_xmlns, "jabber:iq:roster:query"))
 		|| (!strcasecmp(query_xmlns, "jabber:iq:auth:query"))
+		|| (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#items:query"))
+		|| (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#info:query"))
 	) {
 		supported_namespace = 1;
 	}
 
-	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", ChrPtr(IQ->id), ChrPtr(IQ->from), ChrPtr(IQ->to), query_xmlns);
+	XMPP_syslog(LOG_DEBUG, "xmpp_query_namespace(id=%s, from=%s, to=%s, xmlns=%s)\n", iq_id, iq_from, iq_to, query_xmlns);
 
 	/*
 	 * Beginning of query result.
 	 */
 	if (supported_namespace) {
-		TypeStr = Type[0].Key;
-		TLen    = Type[0].len;
+		cprintf("<iq type=\"result\" ");
 	}
 	else {
-		TypeStr = Type[1].Key;
-		TLen    = Type[1].len;
+		cprintf("<iq type=\"error\" ");
 	}
-
-	XPrint(HKEY("iq"), 0,
-	       XPROPERTY("type", TypeStr, TLen),
-	       XSPROPERTY("to",  IQ->from),
-	       XSPROPERTY("id",   IQ->id),
-	       TYPE_ARGEND);
+	if (!IsEmptyStr(iq_from)) {
+		cprintf("to=\"%s\" ", xmlesc(xmlbuf, iq_from, sizeof xmlbuf));
+	}
+	cprintf("id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
 
 	/*
 	 * Is this a query we know how to handle?
@@ -164,10 +144,20 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	}
 
 	else if (!strcasecmp(query_xmlns, "jabber:iq:auth:query")) {
-		XPUT("<query xmlns=\"jabber:iq:auth\">"
-		     "<username/><password/><resource/>"
-		     "</query>"
+		cprintf("<query xmlns=\"jabber:iq:auth\">"
+			"<username/><password/><resource/>"
+			"</query>"
 		);
+	}
+
+	// Extension "xep-0030" (http://xmpp.org/extensions/xep-0030.html) (return an empty set of results)
+	else if (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#items:query")) {
+		cprintf("<query xmlns=\"%s\"/>", xmlesc(xmlbuf, query_xmlns, sizeof xmlbuf));
+	}
+
+	// Extension "xep-0030" (http://xmpp.org/extensions/xep-0030.html) (return an empty set of results)
+	else if (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#info:query")) {
+		cprintf("<query xmlns=\"%s\"/>", xmlesc(xmlbuf, query_xmlns, sizeof xmlbuf));
 	}
 
 	/*
@@ -176,17 +166,14 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	 */
 
 	else {
-		XMPP_syslog(LOG_DEBUG,
-			    "Unknown query namespace '%s' - returning <service-unavailable/>\n",
-			    query_xmlns
-		);
-		XPUT("<error code=\"503\" type=\"cancel\">"
-		     "<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
-		     "</error>"
+		XMPP_syslog(LOG_DEBUG, "Unknown query namespace '%s' - returning <service-unavailable/>\n", query_xmlns);
+		cprintf("<error code=\"503\" type=\"cancel\">"
+			"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+			"</error>"
 		);
 	}
 
-	XPUT("</iq>");
+	cprintf("</iq>");
 
 	/* If we told the client who is on the roster, we also need to tell the client
 	 * who is *not* on the roster.  (It's down here because we can't do it in the same

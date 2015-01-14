@@ -65,10 +65,11 @@
  */
 void xmpp_indicate_presence(char *presence_jid)
 {
-	XPrint(HKEY("presence"),
-	       XPROPERTY("from", presence_jid, strlen(presence_jid)),
-	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
-	       TYPE_ARGEND);
+	char xmlbuf[256];
+
+	XMPP_syslog(LOG_DEBUG, "XMPP: indicating presence of <%s> to <%s>", presence_jid, XMPP->client_jid);
+	cprintf("<presence from=\"%s\" ", xmlesc(xmlbuf, presence_jid, sizeof xmlbuf));
+	cprintf("to=\"%s\"></presence>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
 }
 
 
@@ -95,10 +96,8 @@ int xmpp_is_visible(struct CitContext *cptr, struct CitContext *to_whom) {
 
 /* 
  * Initial dump of the entire wholist
- * Respond to a <presence> update by firing back with presence information
- * on the entire wholist.  Check this assumption, it's probably wrong.	 
  */
-void xmpp_wholist_presence_dump(void *data, const char *supplied_el, const char **attr)
+void xmpp_wholist_presence_dump(void)
 {
 	struct CitContext *cptr = NULL;
 	int nContexts, i;
@@ -123,20 +122,18 @@ void xmpp_wholist_presence_dump(void *data, const char *supplied_el, const char 
  */
 void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	static int unsolicited_id = 1;
-	struct CitContext *CCC = CC;
-	char Buf[64];
-	long blen;
+	char xmlbuf1[256];
+	char xmlbuf2[256];
 
 	if (!presence_jid) return;
 	if (!XMPP) return;
 	if (!XMPP->client_jid) return;
 
 	/* Transmit non-presence information */
-	XPrint(HKEY("presence"), XCLOSED,
-	       XCPROPERTY("type", "unavailable"),
-	       XPROPERTY("from", presence_jid, strlen(presence_jid)),
-	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
-	       TYPE_ARGEND);
+	cprintf("<presence type=\"unavailable\" from=\"%s\" to=\"%s\"></presence>",
+		xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
+	);
 
 	/*
 	 * Setting the "aggressively" flag also sends an "unsubscribed" presence update.
@@ -145,40 +142,26 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	 * it as a rejection of a subscription request.
 	 */
 	if (aggressively) {
-		XPrint(HKEY("presence"), XCLOSED,
-		       XCPROPERTY("type", "unsubscribed"),
-		       XPROPERTY("from", presence_jid, strlen(presence_jid)),
-		       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
-		       TYPE_ARGEND);
+		cprintf("<presence type=\"unsubscribed\" from=\"%s\" to=\"%s\"></presence>",
+			xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
+			xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
+		);
 	}
 
 	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
-	blen = snprintf(Buf, sizeof(Buf), "unbuddy_%x", ++unsolicited_id);
-
 	/* Do an unsolicited roster update that deletes the contact. */
-	XPrint(HKEY("iq"), 0,
-	       XCPROPERTY("type", "result"),
-	       XPROPERTY("from", CCC->cs_inet_email, strlen(CCC->cs_inet_email)),
-	       XPROPERTY("to",  XMPP->client_jid, strlen(XMPP->client_jid)),
-	       XPROPERTY("id",  Buf, blen),
-	       TYPE_ARGEND);
-
-	XPrint(HKEY("query"), 0,
-	       XCPROPERTY("xmlns", "jabber:iq:roster"),
-	       TYPE_ARGEND);
-
-	XPrint(HKEY("item"), 0,
-	       XCPROPERTY("subscription", "remove"),
-	       XPROPERTY("jid", presence_jid, strlen(presence_jid)),
-	       TYPE_ARGEND);
-
-	XPrint(HKEY("group"), XCLOSED,
-	       XCFGBODY(c_humannode),
-	       TYPE_ARGEND);
-	XPUT("</item>"
-	     "</query>"
-	     "</iq>"
+	cprintf("<iq from=\"%s\" to=\"%s\" id=\"unbuddy_%x\" type=\"result\">",
+		xmlesc(xmlbuf1, CC->cs_inet_email, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2),
+		++unsolicited_id
+	);
+	cprintf("<query xmlns=\"jabber:iq:roster\">");
+	cprintf("<item jid=\"%s\" subscription=\"remove\">", xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1));
+	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
+	cprintf("</item>");
+	cprintf("</query>"
+		"</iq>"
 	);
 }
 
@@ -189,7 +172,7 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
  */
 void xmpp_presence_notify(char *presence_jid, int event_type) {
 	struct CitContext *cptr;
-	static int unsolicited_id;
+	static int unsolicited_id = 12345;
 	int visible_sessions = 0;
 	int nContexts, i;
 	int which_cptr_is_relevant = (-1);
@@ -212,39 +195,25 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		}
 	}
 
-	XMPP_syslog(LOG_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
-		    visible_sessions, presence_jid, CC->cs_pid);
+	syslog(LOG_DEBUG, "%d sessions for <%s> are now visible to session %d\n", visible_sessions, presence_jid, CC->cs_pid);
 
 	if ( (event_type == XMPP_EVT_LOGIN) && (visible_sessions == 1) ) {
-		long blen;
-		char Buf[64];
 
-		XMPP_syslog(LOG_DEBUG, "Telling session %d that <%s> logged in\n",
-			    CC->cs_pid, presence_jid);
+		syslog(LOG_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
 
 		/* Do an unsolicited roster update that adds a new contact. */
 		assert(which_cptr_is_relevant >= 0);
-
-		blen = snprintf(Buf, sizeof(Buf), "unsolicited_%x", ++unsolicited_id);
-
-		XPrint(HKEY("iq"), 0,
-		       XCPROPERTY("type", "result"),
-		       XPROPERTY("id", Buf, blen),
-		       TYPE_ARGEND);
-
-		XPrint(HKEY("query"), 0,
-		       XCPROPERTY("xmlns", "jabber:iq:roster"),
-		       TYPE_ARGEND);
-
+		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
+		cprintf("<query xmlns=\"jabber:iq:roster\">");
 		xmpp_roster_item(&cptr[which_cptr_is_relevant]);
-		XPUT("</query></iq>");
+		cprintf("</query></iq>");
 
 		/* Transmit presence information */
 		xmpp_indicate_presence(presence_jid);
 	}
 
 	if (visible_sessions == 0) {
-		XMPP_syslog(LOG_DEBUG, "Telling session %d that <%s> logged out\n",
+		syslog(LOG_DEBUG, "Telling session %d that <%s> logged out\n",
 			    CC->cs_pid, presence_jid);
 		xmpp_destroy_buddy(presence_jid, 0);	/* non aggressive presence update */
 	}
@@ -301,7 +270,7 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 HashList *xmpp_fetch_mortuary(void) {
 	HashList *mortuary = NewHash(1, NULL);
 	if (!mortuary) {
-		XMPPM_syslog(LOG_ALERT, "NewHash() failed!\n");
+		syslog(LOG_ALERT, "NewHash() failed!\n");
 		return(NULL);
 	}
 
@@ -440,11 +409,3 @@ void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void)
 	free(cptr);
 }
 
-
-CTDL_MODULE_INIT(xmpp_presence)
-{
-	if (!threading) {
-		AddXMPPEndHandler(HKEY("presence"), xmpp_wholist_presence_dump, 0);
-	}
-	return "xmpp_presence";
-}

@@ -1210,6 +1210,14 @@ void netedit(void) {
 	}
 
 	serv_puts("000");
+	serv_puts("NOOP");
+	StrBuf_ServGetln(Line);
+	if  (GetServerStatus(Line, NULL) != 2) { /* WHOOOPS? ERROR? */
+		AppendImportantMessage(SRV_STATUS_MSG(Line));	
+		StrBuf_ServGetln(Line); /* resync... */
+	}
+
+
 	FlushIgnetCfgs(&WC->CurRoom);
 	FreeStrBuf(&Line);
 

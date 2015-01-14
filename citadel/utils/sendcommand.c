@@ -212,7 +212,7 @@ int main(int argc, char **argv)
 		IOB.fd = serv_sock;
 		FDIOBufferInit(&FDIO, &IOB, fileno(stdin), -1);
 
-		while (FileSendChunked(&FDIO, &ErrStr) >= 0);
+		while (FileSendChunked(&FDIO, &ErrStr) >= 0)
 			alarm(watchdog);			/* reset the watchdog timer */
 		if (ErrStr != NULL)
 			fprintf(stderr, "Error while piping stuff: %s\n", ErrStr);

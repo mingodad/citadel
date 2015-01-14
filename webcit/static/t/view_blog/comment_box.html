@@ -7,11 +7,12 @@ function submit_comment() {
 <div class="blog_comment">
 <span class="post_a_comment_title"><?_("Post a comment")></span>
 <form id="blog_comment_form" accept-charset="UTF-8" enctype="multipart/form-data"
- method="POST" action="post" onSubmit="submit_comment();">
+ method="POST" action="post#comments" onSubmit="submit_comment();">
 <input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
 <input type="hidden" name="nonce" value="<?NONCE>">
 <input type="hidden" name="force_room" value="<?THISROOM:NAME("X")>">
 <input type="hidden" name="references" id="comment_form_references" /><br>
+<input type="hidden" name="p" value="<?BSTR('p')>">
 <textarea name="msgtext" id="comment_form_msgtext" cols=80 rows=10 style="width:98%"
 	<?!("COND:LOGGEDIN",1)>
 		onClick="javascript:GetLoggedInFirst(encodeURIComponent(window.location.href));"

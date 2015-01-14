@@ -3264,6 +3264,11 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 		 IO->SendBuf.fd);
 	
 	fd = fopen(fn, "a+");
+	if (fd == NULL) {
+		syslog(LOG_EMERG, "failed to open file %s: %s", fn, strerror(errno));
+		cit_backtrace();
+		exit(1);
+	}
 #endif
 
 	ReadMsg = IO->ReadMsg;
@@ -3345,7 +3350,7 @@ eReadState CtdlReadMessageBodyAsync(AsyncIO *IO)
 	if (MsgFinished)
 		return eReadSuccess;
 	else 
-		return eAbort;
+		return eReadFail;
 }
 
 

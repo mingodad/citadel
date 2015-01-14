@@ -52,7 +52,9 @@ typedef struct _message_summary {
 	StrBuf *to;		/* the recipient */
 	StrBuf *subj;		/* the title / subject */
 	StrBuf *reply_inreplyto;
+	long    reply_inreplyto_hash;
 	StrBuf *reply_references;
+	long    reply_references_hash;
 	StrBuf *ReplyTo;
 	StrBuf *cccc;
 	StrBuf *hnod;
@@ -155,6 +157,7 @@ typedef struct _SharedMessageStatus {
 
 	long startmsg;         /* which is the start message? */
 	long nummsgs;          /* How many messages are available to your view? */
+	long numNewmsgs;       /* if you load the seen-status, this is the count of them. */
 	long num_displayed;    /* counted up for LoadMsgFromServer */ /* TODO: unclear who should access this and why */
 
 	long lowest_found;     /* smallest Message ID found;  */
@@ -281,3 +284,12 @@ void RegisterMimeRenderer(const char *HeaderName, long HdrNLen,
 			  RenderMimeFunc MimeRenderer,
 			  int InlineRenderable,
 			  int Priority);
+
+
+/**
+ * @brief fill the header parts of Msg with the headers loaded by MSG0
+ * @param Msg empty message struct, only preinitialized with the msgid
+ * @param FoundCharset buffer with the prefered charset of the headers
+ * @param buf linebuffer used to buffer citserver replies
+ */
+int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Buf);

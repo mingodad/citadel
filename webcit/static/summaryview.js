@@ -62,6 +62,14 @@ var toggles = {};
 
 var nummsgs = 0;
 var startmsg = 0;
+var newmsgs = 0;
+
+function refreshMessageCounter() {
+    var templStr = document.getElementById("nummsgs_template").innerHTML;
+    templStr = templStr.replace(/UNREADMSGS/, newmsgs);
+    templStr = templStr.replace(/TOTALMSGS/,  nummsgs);
+    document.getElementById("nummsgs").innerHTML = templStr;
+}
 
 function createMessageView() {
 	message_view = document.getElementById("message_list_body");
@@ -148,6 +156,7 @@ function loadMessages(transport) {
 			alert("Message loading failed");
 		} 
 		nummsgs = data['nummsgs'];
+	        newmsgs =  data['newmsgs'];
 		msgs = data['msgs'];
 		var length = msgs.length;
 		rowArray = new Array(length); // store so they can be sorted
@@ -172,6 +181,7 @@ function loadMessages(transport) {
 		loadingMsg.parentNode.removeChild(loadingMsg);
 	}
 	sizePreviewPane();
+        refreshMessageCounter();
 }
 function resortAndDisplay(sortMode) {
 	WCLog("Begin resortAndDisplay");
@@ -264,86 +274,97 @@ function sortRowsByFromDescending(a, b) {
 	return strcmp(fromTwo, fromOne);
 };
 function CtdlMessageListClick(evt) {
-	/* Since element.onload is used here, test to see if evt is defined */
-	var event = evt ? evt : window.event; 
-	var target = event.target ? event.target: event.srcElement; // and again..
-	var parent = target.parentNode;
-	var msgId = parent.getAttribute("citadel:msgid");
-	var is_shift_pressed = event.shiftKey;
-	var is_ctrl_pressed = event.ctrlKey;
+    /* Since element.onload is used here, test to see if evt is defined */
+    var event = evt ? evt : window.event; 
+    var target = event.target ? event.target: event.srcElement; // and again..
+    var parent = target.parentNode;
+    var msgId = parent.getAttribute("citadel:msgid");
+    var is_shift_pressed = event.shiftKey;
+    var is_ctrl_pressed = event.ctrlKey;
+    var rowclass = parent.getAttribute("class");
+    var msgUnseen = rowclass.search("new_message") >= 0;
 
-/* debugging
-	str = '.';
-	if (is_shift_pressed) {
-		str = str + 'S';
-	}
-	str = str + '.';
-	if (is_ctrl_pressed) {
-		str = str + 'C';
-	}
-	str = str + '.';
-	$('ib_summary').innerHTML = str;
-*/
+    /* debugging
+       str = '.';
+       if (is_shift_pressed) {
+       str = str + 'S';
+       }
+       str = str + '.';
+       if (is_ctrl_pressed) {
+       str = str + 'C';
+       }
+       str = str + '.';
+       $('ib_summary').innerHTML = str;
+    */
 
-	// If the ctrl key modifier wasn't used, unmark all rows and load the message
-	if (!is_shift_pressed && !is_ctrl_pressed) {
-		previousFinish = 0;
-		markedFrom = 0;
-		unmarkAllRows();
-		markedRowIndex = parent.rowIndex;
-		originalMarkedRow = parent;
-		document.getElementById("preview_pane").innerHTML = "";
-		new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
-		markRow(parent);
-		var p = encodeURI('g_cmd=SEEN ' + msgId + '|1');
-		new Ajax.Request('ajax_servcmd', {
-			method: 'post',
-			parameters: p,
-			onComplete: CtdlMarkRowAsRead(parent)
-		});
-		// If the shift key modifier is used, mark a range...
-	} else if (event.button != 2 && is_shift_pressed) {
-		if (originalMarkedRow == null) {
-			originalMarkedRow = parent;
-			markRow(parent);
-		} else {
-			unmarkAllRows();
-			markRow(parent);
-			markRow(originalMarkedRow);
-		}
-		var rowIndex = parent.rowIndex;
-		if (markedFrom == 0) {
-			markedFrom = rowIndex;
-		}
-		var startMarkingFrom = 0;
-		var finish = 0;
-		if (rowIndex > markedRowIndex) {
-			startMarkingFrom = markedRowIndex+1;
-			finish = rowIndex;
-		} else if (rowIndex < markedRowIndex) {
-			startMarkingFrom = rowIndex+1;
-			finish = markedRowIndex;
-		}
-		previousFinish = finish;
-		WCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
-		for(var x = startMarkingFrom; x<finish; x++) {
-			WCLog("Marking row " + x);
-			markRow(parent.parentNode.rows[x]);
-		}
-		// If the ctrl key modifier is used, toggle one message
-	} else if (event.button != 2 && is_ctrl_pressed) {
-		if (parent.getAttribute("citadel:marked")) {
-			unmarkRow(parent);
-		}
-		else {
-			markRow(parent);
-		}
+    // If the ctrl key modifier wasn't used, unmark all rows and load the message
+    if (!is_shift_pressed && !is_ctrl_pressed) {
+	previousFinish = 0;
+	markedFrom = 0;
+	unmarkAllRows();
+	markedRowIndex = parent.rowIndex;
+	originalMarkedRow = parent;
+	document.getElementById("preview_pane").innerHTML = "";
+	new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
+	markRow(parent);
+
+	if (msgUnseen) {
+	    var p = encodeURI('g_cmd=SEEN ' + msgId + '|1');
+	    new Ajax.Request('ajax_servcmd', {
+		method: 'post',
+		parameters: p,
+		onComplete: CtdlMarkRowAsRead(parent)
+	    });
 	}
+	// If the shift key modifier is used, mark a range...
+    } else if (event.button != 2 && is_shift_pressed) {
+	if (originalMarkedRow == null) {
+	    originalMarkedRow = parent;
+	    markRow(parent);
+	} else {
+	    unmarkAllRows();
+	    markRow(parent);
+	    markRow(originalMarkedRow);
+	}
+	var rowIndex = parent.rowIndex;
+	if (markedFrom == 0) {
+	    markedFrom = rowIndex;
+	}
+	var startMarkingFrom = 0;
+	var finish = 0;
+	if (markedRowIndex === null) {
+	    startMarkingFrom = 0;
+	    finish = rowIndex;
+	}
+	else if (rowIndex > markedRowIndex) {
+	    startMarkingFrom = markedRowIndex+1;
+	    finish = rowIndex;
+	} else if (rowIndex < markedRowIndex) {
+	    startMarkingFrom = rowIndex+1;
+	    finish = markedRowIndex;
+	}
+	previousFinish = finish;
+	WCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
+	for(var x = startMarkingFrom; x<finish; x++) {
+	    WCLog("Marking row " + x);
+	    markRow(parent.parentNode.rows[x]);
+	}
+	// If the ctrl key modifier is used, toggle one message
+    } else if (event.button != 2 && is_ctrl_pressed) {
+	if (parent.getAttribute("citadel:marked")) {
+	    unmarkRow(parent);
+	}
+	else {
+	    markRow(parent);
+	}
+    }
 }
 function CtdlMarkRowAsRead(rowElement) {
 	var classes = rowElement.className;
 	classes = classes.replace("new_message","");
 	rowElement.className = classes;
+        newmsgs--;
+	refreshMessageCounter();
 }
 function ApplySort(event) {
 	var target = event.target;
@@ -406,10 +427,16 @@ function unmarkAllRows() {
 function deleteAllMarkedRows() {
 	for(msgId in currentlyMarkedRows) {
 		var row = currentlyMarkedRows[msgId];
+		var rowclass = row.getAttribute("class");
+		var msgUnseen = rowclass.search("new_message") >= 0;
+
 		var rowArrayId = row.getAttribute("citadel:ctdlrowid");
 		row.parentNode.removeChild(row);
 		delete currentlyMarkedRows[msgId];
 		delete msgs[rowArrayId];
+		if (msgUnseen)
+		    newmsgs--;
+	        nummsgs--;
 	}
 	// Now we have to reconstruct rowarray as the array length has changed */
 	var newMsgs = new Array(msgs.length-1);
@@ -423,6 +450,7 @@ function deleteAllMarkedRows() {
 	}
 	msgs = newMsgs;
 	resortAndDisplay(null);
+	refreshMessageCounter();
 }
 function deleteAllSelectedMessages() {
     var mvCommand = "";

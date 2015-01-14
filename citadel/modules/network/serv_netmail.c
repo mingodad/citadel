@@ -182,14 +182,8 @@ void network_deliver_digest(SpoolControl *sc)
 	recptypes *valid;
 	char bounce_to[256];
 
-	if (sc->Users[listrecp] == NULL)
+	if (sc->Users[digestrecp] == NULL)
 		return;
-
-	if (sc->num_msgs_spooled < 1) {
-		fclose(sc->digestfp);
-		sc->digestfp = NULL;
-		return;
-	}
 
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
@@ -219,19 +213,15 @@ void network_deliver_digest(SpoolControl *sc)
 	fread(pbuf, (size_t)msglen, 1, sc->digestfp);
 	pbuf[msglen] = '\0';
 	CM_SetAsField(msg, eMesageText, &pbuf, msglen);
-	fclose(sc->digestfp);
-	sc->digestfp = NULL;
 
 	/* Now generate the delivery instructions */
-	if (sc->Users[listrecp] == NULL)
-		return;
 
 	/* Where do we want bounces and other noise to be heard?
-	 *Surely not the list members! */
+	 * Surely not the list members! */
 	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
 
 	/* Now submit the message */
-	valid = validate_recipients(ChrPtr(sc->Users[listrecp]), NULL, 0);
+	valid = validate_recipients(ChrPtr(sc->Users[digestrecp]), NULL, 0);
 	if (valid != NULL) {
 		valid->bounce_to = strdup(bounce_to);
 		valid->envelope_from = strdup(bounce_to);
@@ -247,15 +237,27 @@ void network_process_digest(SpoolControl *sc, struct CtdlMessage *omsg, long *de
 
 	struct CtdlMessage *msg = NULL;
 
-	/*
-	 * Process digest recipients
-	 */
-	if ((sc->Users[digestrecp] == NULL)||
-	    (sc->digestfp == NULL))
+	if (sc->Users[digestrecp] == NULL)
 		return;
+
+	/* If there are digest recipients, we have to build a digest */
+	if (sc->digestfp == NULL) {
+		
+		sc->digestfp = create_digest_file(&sc->room, 1);
+
+		if (sc->digestfp == NULL)
+			return;
+
+		sc->haveDigest = ftell(sc->digestfp) > 0;
+		if (!sc->haveDigest) {
+			fprintf(sc->digestfp, "Content-type: text/plain\n\n");
+		}
+		sc->haveDigest = 1;
+	}
 
 	msg = CM_Duplicate(omsg);
 	if (msg != NULL) {
+		sc->haveDigest = 1;
 		fprintf(sc->digestfp,
 			" -----------------------------------"
 			"------------------------------------"

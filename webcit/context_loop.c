@@ -32,6 +32,7 @@ extern HashList *HandlerHash;
 /* the following two values start at 1 because the initial parent thread counts as one. */
 int num_threads_existing = 1;		/* Number of worker threads which exist. */
 int num_threads_executing = 1;		/* Number of worker threads currently executing. */
+int verbose=0;
 
 extern void session_loop(void);
 void spawn_another_worker_thread(void);
@@ -177,7 +178,8 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				&& (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password)))
 				&& (sptr->killthis == 0)
 			) {
-				syslog(LOG_DEBUG, "Matched a session with the same http-auth");
+				if (verbose)
+					syslog(LOG_DEBUG, "Matched a session with the same http-auth");
 				TheSession = sptr;
 			}
 			break;
@@ -186,14 +188,16 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 			if (	(Hdr->HR.desired_session != 0)
 				&& (sptr->wc_session == Hdr->HR.desired_session)
 			) {
-				syslog(LOG_DEBUG, "Matched a session with the same cookie");
+				if (verbose)
+					syslog(LOG_DEBUG, "Matched a session with the same cookie");
 				TheSession = sptr;
 			}
 			break;			     
 		case NO_AUTH:
 			/* Any unbound session is a candidate */
 			if ( (sptr->wc_session == 0) && (sptr->inuse == 0) ) {
-				syslog(LOG_DEBUG, "Reusing an unbound session");
+				if (verbose)
+					syslog(LOG_DEBUG, "Reusing an unbound session");
 				TheSession = sptr;
 			}
 			break;
@@ -345,7 +349,7 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		StrBuf *NewLine = NewStrBuf();
 		Hdr->HR.DontNeedAuth = 1;
 		StrBufAppendPrintf(NewLine, "GET /landing?go=%s?failvisibly=1 HTTP/1.0", ChrPtr(Buf));
-		syslog(LOG_DEBUG, "Replacing with: %s", ChrPtr(NewLine));
+		if (verbose) syslog(LOG_DEBUG, "Replacing with: %s", ChrPtr(NewLine));
 		return_value = ReadHttpSubject(Hdr, NewLine, Buf);
 		FreeStrBuf(&NewLine);
 		return return_value;
@@ -405,7 +409,8 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 			memset(pHdr, 0, sizeof(OneHttpHeader));
 			pHdr->Val = Line;
 			Put(Hdr->HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
-			syslog(LOG_DEBUG, "%s", ChrPtr(Line));
+			if (verbose || strstr(ChrPtr(Line), "sslg") == NULL)
+				syslog(LOG_DEBUG, "%s", ChrPtr(Line));
 			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
 			if (isbogus) break;
 			continue;
@@ -425,7 +430,7 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 			continue;
 		}
 
-		StrBufSanitizeAscii(Line, '§');
+		StrBufSanitizeAscii(Line, (char)0xa7);
 		StrBufExtract_token(HeaderName, Line, 0, ':');
 
 		pchs = ChrPtr(Line);
@@ -537,11 +542,12 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
-		syslog(LOG_DEBUG, "HTTP: 200 [%ld.%06ld] %s %s",
-			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
-			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
-			ReqStrs[Hdr->HR.eReqType],
-			ChrPtr(Hdr->this_page)
+		if (verbose)
+			syslog(LOG_DEBUG, "HTTP: 200 [%ld.%06ld] %s %s",
+			       ((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+			       ((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
+			       ReqStrs[Hdr->HR.eReqType],
+			       ChrPtr(Hdr->this_page)
 		);
 		session_detach_modules(Static);
 		session_destroy_modules(&Static);
@@ -604,7 +610,8 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	 * If a language was requested via a cookie, select that language now.
 	 */
 	if (StrLength(Hdr->c_language) > 0) {
-		syslog(LOG_DEBUG, "Session cookie requests language '%s'", ChrPtr(Hdr->c_language));
+		if (verbose)
+			syslog(LOG_DEBUG, "Session cookie requests language '%s'", ChrPtr(Hdr->c_language));
 		set_selected_language(ChrPtr(Hdr->c_language));
 		go_selected_language();
 	}
@@ -618,13 +625,14 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
 
-	syslog(LOG_INFO, "HTTP: 200 [%ld.%06ld] %s %s",
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
-		ReqStrs[Hdr->HR.eReqType],
-		ChrPtr(Hdr->this_page)
-	);
-
+	if (verbose || strstr(ChrPtr(Hdr->this_page), "sslg") == NULL) {
+		syslog(LOG_INFO, "HTTP: 200 [%ld.%06ld] %s %s",
+		       ((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+		       ((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
+		       ReqStrs[Hdr->HR.eReqType],
+		       ChrPtr(Hdr->this_page)
+			);
+	}
 	session_detach_modules(TheSession);
 
 	/* If *this* very transaction did not explicitly specify a session cookie,

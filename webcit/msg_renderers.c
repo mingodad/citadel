@@ -5,7 +5,7 @@
 CtxType CTX_MAILSUM = CTX_NONE;
 CtxType CTX_MIME_ATACH = CTX_NONE;
 
-inline void CheckConvertBufs(struct wcsession *WCC)
+static inline void CheckConvertBufs(struct wcsession *WCC)
 {
 	if (WCC->ConvertBuf1 == NULL)
 		WCC->ConvertBuf1 = NewStrBuf();
@@ -329,6 +329,7 @@ void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_inreplyto);
 	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
+	Msg->reply_inreplyto_hash = ThreadIdHash(HdrLine);
 	StrBuf_RFC822_2_Utf8(Msg->reply_inreplyto, 
 			     HdrLine, 
 			     WCC->DefaultCharset,
@@ -355,6 +356,7 @@ void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_references);
 	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
+	Msg->reply_references_hash = ThreadIdHash(HdrLine);
 	StrBuf_RFC822_2_Utf8(Msg->reply_references, 
 			     HdrLine, 
 			     WCC->DefaultCharset, 
@@ -875,6 +877,43 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 		FreeStrBuf(&Token);
 		FreeStrBuf(&Value);
 	}
+}
+
+
+int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Buf)
+{
+	void *vHdr;
+	headereval *Hdr;
+	const char *buf;
+	const char *ebuf;
+	int nBuf;
+	long len;
+	
+	serv_printf("MSG0 %ld|1", Msg->msgnum);	/* ask for headers only */
+	
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
+		return 0;
+	}
+
+	while (len = StrBuf_ServGetln(Buf),
+	       (len >= 0) && 
+	       ((len != 3)  ||
+		strcmp(ChrPtr(Buf), "000")))
+	{
+		buf = ChrPtr(Buf);
+		ebuf = strchr(ChrPtr(Buf), '=');
+		nBuf = ebuf - buf;
+		
+		if (GetHash(MsgHeaderHandler, buf, nBuf, &vHdr) &&
+		    (vHdr != NULL)) {
+			Hdr = (headereval*)vHdr;
+			StrBufCutLeft(Buf, nBuf + 1);
+			Hdr->evaluator(Msg, Buf, FoundCharset);
+		}
+		else syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
+	}
+	return 1;
 }
 
 void tmplput_MAIL_SUMM_N(StrBuf *Target, WCTemplputParams *TP)
