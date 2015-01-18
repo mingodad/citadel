@@ -556,6 +556,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	int client_con_state = 0;
 	int chunked = 0;
 	int is_gzip = 0;
+	int is_gzip_header = 1;
 	StrBuf *BufHeader = NULL;
 	StrBuf *Buf;
 	StrBuf *pBuf = NULL;
@@ -623,6 +624,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	}
 	else
 	{
+		is_gzip_header = 0;
 		pBuf = WCC->WBuf;
 	}
 
@@ -687,6 +689,11 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 					rc = StrBufStreamTranscode(eZLibEncode, &WriteBuffer, &ReadBuffer, NULL, -1, SC, done);
 
 					if (StrLength (pBuf) > 0) {
+						if (!done && is_gzip_header && (StrLength(pBuf) == 10)) {
+							/* we don't want to send the gzip header as single package... */
+							break;
+						}
+						is_gzip_header = 0;
 						StrBufPrintf(BufHeader, "%s%x\r\n", 
 						     (first)?"":"\r\n",
 							     StrLength (pBuf));
