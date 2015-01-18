@@ -697,7 +697,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 						}
 						FlushStrBuf(pBuf);
 					}
-				} while (rc == 1);
+				} while ((rc == 1) && (StrLength(pBuf) > 0));
 			}
 			FlushStrBuf(WCC->WBuf);
 		}
@@ -718,7 +718,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		}
 	}
 
-	StrBufDestroyStreamContext(eZLibEncode, SC);
+	StrBufDestroyStreamContext(eZLibEncode, &SC);
 	FreeStrBuf(&WriteBuffer.Buf);
 	if ((chunked) && (client_con_state == 0))
 	{
