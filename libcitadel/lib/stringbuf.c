@@ -2931,7 +2931,7 @@ void *StrBufNewStreamContext(eStreamType type)
 
 void StrBufDestroyStreamContext(eStreamType type, void **vStream)
 {
-	if (*vStream) {
+	if ((vStream == NULL) || (*vStream==NULL)) {
 		return;
 	}
 	switch (type)
