@@ -348,7 +348,7 @@ typedef enum __eStreamType {
 
 void *StrBufNewStreamContext(eStreamType type);
 void StrBufDestroyStreamContext(eStreamType type, void **Stream);
-void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *Stream, int LastChunk);
+int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *Stream, int LastChunk);
 
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut);

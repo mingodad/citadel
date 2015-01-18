@@ -2884,8 +2884,10 @@ void *StrBufNewStreamContext(eStreamType type)
 
 		err = inflateInit(&stream->zstream);
 
-		if (err != Z_OK)
-			return NULL;/// tODO cleanup
+		if (err != Z_OK) {
+			StrBufDestroyStreamContext(type, (void**)&stream);
+			return NULL;
+		}
 		return stream;
 
 	}
@@ -2913,8 +2915,10 @@ void *StrBufNewStreamContext(eStreamType type)
 				   -MAX_WBITS,
 				   DEF_MEM_LEVEL,
 				   Z_DEFAULT_STRATEGY);
-		if (err != Z_OK)
-			return NULL;/// tODO cleanup
+		if (err != Z_OK) {
+			StrBufDestroyStreamContext(type, (void**) &stream);
+			return NULL;
+		}
 		return stream;
 	}
 	case eEmtyCodec:
@@ -2927,6 +2931,9 @@ void *StrBufNewStreamContext(eStreamType type)
 
 void StrBufDestroyStreamContext(eStreamType type, void **vStream)
 {
+	if (*vStream) {
+		return;
+	}
 	switch (type)
 	{
 	case eBase64Encode:
@@ -2955,7 +2962,7 @@ void StrBufDestroyStreamContext(eStreamType type, void **vStream)
 	}
 }
 
-void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *vStream, int LastChunk)
+int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *vStream, int LastChunk)
 {
 
 	switch (type)
@@ -3067,6 +3074,7 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 					(In->Buf->BufUsed - stream->zstream.avail_in);
 			}
 		}
+		return (LastChunk && (err != Z_FINISH));
 
 	}
 	break;
@@ -3140,6 +3148,7 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 	}
 		break; /// TODO
 	}
+	return 0;
 }
 
 /**
