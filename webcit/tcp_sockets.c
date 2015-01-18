@@ -581,7 +581,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 
 	if (chunked)
 	{
-		BufHeader=NewStrBuf();
+		BufHeader = NewStrBuf();
 	}
 
 	if ((detect_mime != 0) && (bytes_read != 0))
@@ -597,16 +597,19 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 
 		if (ServerRc != 6)
 		{
+			FreeStrBuf(&BufHeader);
 			FreeStrBuf(&Buf);
 			return;
 		}
 		CT = GuessMimeType(SKEY(WCC->WBuf));
 		FlushStrBuf(WCC->WBuf);
 		StrBufPlain(MimeType, CT, -1);
+		CheckGZipCompressionAllowed(SKEY(MimeType));
 		detect_mime = 0;
 		FreeStrBuf(&Buf);
 	}
 
+	memset(&WriteBuffer, 0, sizeof(IOBuffer));
 	if (chunked && !DisableGzip && WCC->Hdr->HR.gzip_ok)
 	{
 		is_gzip = 1;
@@ -615,8 +618,8 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		memset(&ReadBuffer, 0, sizeof(IOBuffer));
 		ReadBuffer.Buf = WCC->WBuf;
 
-		memset(&WriteBuffer, 0, sizeof(IOBuffer));
 		WriteBuffer.Buf = NewStrBufPlain(NULL, SIZ*2);;
+		pBuf = WriteBuffer.Buf;
 	}
 	else
 	{
@@ -630,6 +633,9 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		if (send_http(WCC->HBuf) < 0)
 		{
 			FreeStrBuf(&Buf);
+			FreeStrBuf(&WriteBuffer.Buf);
+			FreeStrBuf(&BufHeader);
+			StrBufDestroyStreamContext(eZLibEncode, SC);
 			return;
 		}
 	}
@@ -642,6 +648,9 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		if (WCC->serv_sock==-1) {
 			FlushStrBuf(WCC->WBuf); 
 			FreeStrBuf(&Buf);
+			FreeStrBuf(&WriteBuffer.Buf);
+			FreeStrBuf(&BufHeader);
+			StrBufDestroyStreamContext(eZLibEncode, SC);
 			return;
 		}
 
@@ -659,6 +668,10 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			
 			CT = GuessMimeType(SKEY(WCC->WBuf));
 			StrBufPlain(MimeType, CT, -1);
+			if (is_gzip) {
+				CheckGZipCompressionAllowed(SKEY(MimeType));
+				is_gzip = WCC->Hdr->HR.gzip_ok;
+			}
 			http_transmit_headers(ChrPtr(MimeType), is_static, chunked, is_gzip);
 			
 			client_con_state = send_http(WCC->HBuf);
@@ -668,16 +681,23 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		{
 			int done = (bytes_read == total_len);
 			while ((IOBufferStrLength(&ReadBuffer) > 0) && (client_con_state == 0)) {
-				StrBufStreamTranscode(eZLibEncode, &WriteBuffer, &ReadBuffer, NULL, -1, SC, done);
+				int rc;
 
-				StrBufPrintf(BufHeader, "%s%x\r\n", 
-					     (first)?"":"\r\n",
-					     StrLength (pBuf));
-				first = 0;
-				client_con_state = send_http(BufHeader);
-				if (client_con_state == 0) {
-					client_con_state = send_http(pBuf);
-				}
+				do {
+					rc = StrBufStreamTranscode(eZLibEncode, &WriteBuffer, &ReadBuffer, NULL, -1, SC, done);
+
+					if (StrLength (pBuf) > 0) {
+						StrBufPrintf(BufHeader, "%s%x\r\n", 
+						     (first)?"":"\r\n",
+							     StrLength (pBuf));
+						first = 0;
+						client_con_state = send_http(BufHeader);
+						if (client_con_state == 0) {
+							client_con_state = send_http(pBuf);
+						}
+						FlushStrBuf(pBuf);
+					}
+				} while (rc == 1);
 			}
 			FlushStrBuf(WCC->WBuf);
 		}
@@ -698,15 +718,19 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		}
 	}
 
+	StrBufDestroyStreamContext(eZLibEncode, SC);
+	FreeStrBuf(&WriteBuffer.Buf);
 	if ((chunked) && (client_con_state == 0))
 	{
 		StrBufPlain(BufHeader, HKEY("\r\n0\r\n\r\n"));
 		if (send_http(BufHeader) < 0)
 		{
 			FreeStrBuf(&Buf);
+		        FreeStrBuf(&BufHeader);
 			return;
 		}
 	}
+	FreeStrBuf(&BufHeader);
 	FreeStrBuf(&Buf);
 }
 
