@@ -2859,9 +2859,10 @@ typedef struct __z_enc_stream {
 	z_stream zstream;
 } z_enc_stream;
 
-void *StrBufNewStreamContext(eStreamType type)
+void *StrBufNewStreamContext(eStreamType type, const char **Err)
 {
 	base64_decodestate *state;;
+	*Err = NULL;
 
 	switch (type)
 	{
@@ -2885,7 +2886,8 @@ void *StrBufNewStreamContext(eStreamType type)
 		err = inflateInit(&stream->zstream);
 
 		if (err != Z_OK) {
-			StrBufDestroyStreamContext(type, (void**)&stream);
+			StrBufDestroyStreamContext(type, (void**)&stream, Err);
+			*Err = zError(err);
 			return NULL;
 		}
 		return stream;
@@ -2916,7 +2918,8 @@ void *StrBufNewStreamContext(eStreamType type)
 				   DEF_MEM_LEVEL,
 				   Z_DEFAULT_STRATEGY);
 		if (err != Z_OK) {
-			StrBufDestroyStreamContext(type, (void**) &stream);
+			StrBufDestroyStreamContext(type, (void**) &stream, Err);
+			*Err = zError(err);
 			return NULL;
 		}
 		return stream;
@@ -2929,10 +2932,15 @@ void *StrBufNewStreamContext(eStreamType type)
 	return NULL;
 }
 
-void StrBufDestroyStreamContext(eStreamType type, void **vStream)
+int StrBufDestroyStreamContext(eStreamType type, void **vStream, const char **Err)
 {
+	int err;
+	int rc = 0;
+	*Err = NULL;
+	
 	if ((vStream == NULL) || (*vStream==NULL)) {
-		return;
+		*Err = strerror(EINVAL);
+		return EINVAL;
 	}
 	switch (type)
 	{
@@ -2951,20 +2959,25 @@ void StrBufDestroyStreamContext(eStreamType type, void **vStream)
 	case eZLibEncode:
 	{
 		z_enc_stream *stream = (z_enc_stream *)*vStream;
+		err = deflateEnd(&stream->zstream);
+		if (err != Z_OK) {
+			*Err = zError(err);
+			rc = -1;
+		}
 		free(stream->OutBuf.buf);
 		free(stream);
-// todo more?
 		*vStream = NULL;
 		break;
 	}
 	case eEmtyCodec: 
 		break; /// TODO
 	}
+	return rc;
 }
 
-int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *vStream, int LastChunk)
+int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *vStream, int LastChunk, const char **Err)
 {
-
+	int rc = 0;
 	switch (type)
 	{
 	case eBase64Encode:
@@ -3079,7 +3092,10 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 					(In->Buf->BufUsed - stream->zstream.avail_in);
 			}
 		}
-		return (LastChunk && (err != Z_FINISH));
+		rc = (LastChunk && (err != Z_FINISH));
+		if (!rc && (err != Z_OK)) {
+			*Err = zError(err);
+		}
 		
 	}
 	break;
@@ -3113,7 +3129,7 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 			err = Z_DATA_ERROR;     /* and fall through */
 
 		case Z_DATA_ERROR:
-			fprintf(stderr, "sanoteuh\n");
+			*Err = zError(err);
 		case Z_MEM_ERROR:
 			(void)inflateEnd(&stream->zstream);
 			return err;
@@ -3153,7 +3169,7 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 	}
 		break; /// TODO
 	}
-	return 0;
+	return rc;
 }
 
 /**

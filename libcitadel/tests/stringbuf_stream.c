@@ -70,6 +70,7 @@ static void StreamEncode(void)
 	IOBuffer ReadBuffer;
 	IOBuffer WriteBuffer;
 	int err;
+	const char *Err = NULL;
 	int ret = 0;
 	int done = 0;
 	void *vStream;
@@ -96,7 +97,7 @@ static void StreamEncode(void)
 		ST = eBase64Decode;
 	else
 		ST = eEmtyCodec;
-	vStream = StrBufNewStreamContext(ST);
+	vStream = StrBufNewStreamContext(ST, &Err);
 
 	while (!done && (fdin >= 0) && (fdout >= 0) && (!feof(stdin)))
 	{
@@ -111,7 +112,7 @@ static void StreamEncode(void)
 		do
 		{
 			do {
-				ret = StrBufStreamTranscode(ST, &WriteBuffer, &ReadBuffer, NULL, -1, vStream, done);
+				ret = StrBufStreamTranscode(ST, &WriteBuffer, &ReadBuffer, NULL, -1, vStream, done, &Err);
 				
 				while (IOBufferStrLength(&WriteBuffer) > 0)
 				{
@@ -124,7 +125,7 @@ static void StreamEncode(void)
 	}
 
 	
-	StrBufDestroyStreamContext(ST, &vStream);
+	StrBufDestroyStreamContext(ST, &vStream, &Err);
 	
 	FreeStrBuf(&ReadBuffer.Buf);
 	FreeStrBuf(&WriteBuffer.Buf);

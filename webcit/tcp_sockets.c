@@ -556,6 +556,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	int client_con_state = 0;
 	int chunked = 0;
 	int is_gzip = 0;
+	const char *Err = NULL;
 	StrBuf *BufHeader = NULL;
 	StrBuf *Buf;
 	StrBuf *pBuf = NULL;
@@ -613,7 +614,12 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	if (chunked && !DisableGzip && WCC->Hdr->HR.gzip_ok)
 	{
 		is_gzip = 1;
-		SC = StrBufNewStreamContext (eZLibEncode);
+		SC = StrBufNewStreamContext (eZLibEncode, &Err);
+		if (SC == NULL) {
+			syslog(LOG_ERR, "Error while initializing stream context: %s", Err);
+			FreeStrBuf(&Buf);
+			return;
+		}
 
 		memset(&ReadBuffer, 0, sizeof(IOBuffer));
 		ReadBuffer.Buf = WCC->WBuf;
@@ -635,7 +641,9 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			FreeStrBuf(&Buf);
 			FreeStrBuf(&WriteBuffer.Buf);
 			FreeStrBuf(&BufHeader);
-			StrBufDestroyStreamContext(eZLibEncode, SC);
+			if (StrBufDestroyStreamContext(eZLibEncode, SC, &Err) && Err) {
+				syslog(LOG_ERR, "Error while destroying stream context: %s", Err);
+			}
 			return;
 		}
 	}
@@ -650,7 +658,10 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			FreeStrBuf(&Buf);
 			FreeStrBuf(&WriteBuffer.Buf);
 			FreeStrBuf(&BufHeader);
-			StrBufDestroyStreamContext(eZLibEncode, SC);
+			StrBufDestroyStreamContext(eZLibEncode, SC, &Err);
+			if (StrBufDestroyStreamContext(eZLibEncode, SC, &Err) && Err) {
+				syslog(LOG_ERR, "Error while destroying stream context: %s", Err);
+			}
 			return;
 		}
 
@@ -684,7 +695,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 				int rc;
 
 				do {
-					rc = StrBufStreamTranscode(eZLibEncode, &WriteBuffer, &ReadBuffer, NULL, -1, SC, done);
+					rc = StrBufStreamTranscode(eZLibEncode, &WriteBuffer, &ReadBuffer, NULL, -1, SC, done, &Err);
 
 					if (StrLength (pBuf) > 0) {
 						StrBufPrintf(BufHeader, "%s%x\r\n", 
@@ -718,7 +729,9 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		}
 	}
 
-	StrBufDestroyStreamContext(eZLibEncode, &SC);
+	if (SC && StrBufDestroyStreamContext(eZLibEncode, SC, &Err) && Err) {
+		syslog(LOG_ERR, "Error while destroying stream context: %s", Err);
+	}
 	FreeStrBuf(&WriteBuffer.Buf);
 	if ((chunked) && (client_con_state == 0))
 	{
