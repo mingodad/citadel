@@ -3025,7 +3025,7 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 	case eZLibEncode:
 	{
 		z_enc_stream *stream = (z_enc_stream *)vStream;
-		int org_outbuf_len = stream->zstream.total_out;
+		int org_outbuf_len = stream->OutBuf.BufUsed;
 		int err;
 		unsigned int chunkavail;
 
@@ -3047,9 +3047,14 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 		err = deflate(&stream->zstream,  (LastChunk) ? Z_FINISH : Z_NO_FLUSH);
 
 		stream->OutBuf.BufUsed += (chunkavail - stream->zstream.avail_out);
-		/// todo + org_outbuf_len;
 
-		if (Target) SwapBuffers(Target->Buf, &stream->OutBuf);
+		if (Target && 
+		    (LastChunk ||
+		     (stream->OutBuf.BufUsed != org_outbuf_len)
+			    ))
+		{
+			SwapBuffers(Target->Buf, &stream->OutBuf);
+		}
 
 		if (stream->zstream.avail_in == 0)
 		{
@@ -3075,7 +3080,7 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 			}
 		}
 		return (LastChunk && (err != Z_FINISH));
-
+		
 	}
 	break;
 	case eZLibDecode: {
