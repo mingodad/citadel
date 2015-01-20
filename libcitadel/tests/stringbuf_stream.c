@@ -73,7 +73,7 @@ static void StreamEncode(void)
 	const char *Err = NULL;
 	int ret = 0;
 	int done = 0;
-	void *vStream;
+	vStreamT *vStream;
 	
 	memset(&ReadBuffer, 0, sizeof(IOBuffer));
 	memset(&WriteBuffer, 0, sizeof(IOBuffer));
