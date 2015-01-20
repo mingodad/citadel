@@ -560,7 +560,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 	StrBuf *BufHeader = NULL;
 	StrBuf *Buf;
 	StrBuf *pBuf = NULL;
-	void *SC = NULL;
+	vStreamT *SC = NULL;
 	IOBuffer ReadBuffer;
 	IOBuffer WriteBuffer;
 	
@@ -641,7 +641,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			FreeStrBuf(&Buf);
 			FreeStrBuf(&WriteBuffer.Buf);
 			FreeStrBuf(&BufHeader);
-			if (StrBufDestroyStreamContext(eZLibEncode, SC, &Err) && Err) {
+			if (StrBufDestroyStreamContext(eZLibEncode, &SC, &Err) && Err) {
 				syslog(LOG_ERR, "Error while destroying stream context: %s", Err);
 			}
 			return;
@@ -658,8 +658,8 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 			FreeStrBuf(&Buf);
 			FreeStrBuf(&WriteBuffer.Buf);
 			FreeStrBuf(&BufHeader);
-			StrBufDestroyStreamContext(eZLibEncode, SC, &Err);
-			if (StrBufDestroyStreamContext(eZLibEncode, SC, &Err) && Err) {
+			StrBufDestroyStreamContext(eZLibEncode, &SC, &Err);
+			if (StrBufDestroyStreamContext(eZLibEncode, &SC, &Err) && Err) {
 				syslog(LOG_ERR, "Error while destroying stream context: %s", Err);
 			}
 			return;
@@ -729,7 +729,7 @@ void serv_read_binary_to_http(StrBuf *MimeType, size_t total_len, int is_static,
 		}
 	}
 
-	if (SC && StrBufDestroyStreamContext(eZLibEncode, SC, &Err) && Err) {
+	if (SC && StrBufDestroyStreamContext(eZLibEncode, &SC, &Err) && Err) {
 		syslog(LOG_ERR, "Error while destroying stream context: %s", Err);
 	}
 	FreeStrBuf(&WriteBuffer.Buf);

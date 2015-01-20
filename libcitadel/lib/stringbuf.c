@@ -2859,7 +2859,7 @@ typedef struct __z_enc_stream {
 	z_stream zstream;
 } z_enc_stream;
 
-void *StrBufNewStreamContext(eStreamType type, const char **Err)
+vStreamT *StrBufNewStreamContext(eStreamType type, const char **Err)
 {
 	base64_decodestate *state;;
 	*Err = NULL;
@@ -2870,7 +2870,7 @@ void *StrBufNewStreamContext(eStreamType type, const char **Err)
 	case eBase64Encode:
 		state = (base64_decodestate*) malloc(sizeof(base64_decodestate));
 		base64_init_decodestate(state);
-		return state;
+		return (vStreamT*) state;
 		break;
 	case eZLibDecode:
 	{
@@ -2886,11 +2886,11 @@ void *StrBufNewStreamContext(eStreamType type, const char **Err)
 		err = inflateInit(&stream->zstream);
 
 		if (err != Z_OK) {
-			StrBufDestroyStreamContext(type, (void**)&stream, Err);
+			StrBufDestroyStreamContext(type, (vStreamT**) &stream, Err);
 			*Err = zError(err);
 			return NULL;
 		}
-		return stream;
+		return (vStreamT*) stream;
 
 	}
 	case eZLibEncode:
@@ -2918,11 +2918,11 @@ void *StrBufNewStreamContext(eStreamType type, const char **Err)
 				   DEF_MEM_LEVEL,
 				   Z_DEFAULT_STRATEGY);
 		if (err != Z_OK) {
-			StrBufDestroyStreamContext(type, (void**) &stream, Err);
+			StrBufDestroyStreamContext(type, (vStreamT**) &stream, Err);
 			*Err = zError(err);
 			return NULL;
 		}
-		return stream;
+		return (vStreamT*) stream;
 	}
 	case eEmtyCodec:
 		/// TODO
@@ -2932,7 +2932,7 @@ void *StrBufNewStreamContext(eStreamType type, const char **Err)
 	return NULL;
 }
 
-int StrBufDestroyStreamContext(eStreamType type, void **vStream, const char **Err)
+int StrBufDestroyStreamContext(eStreamType type, vStreamT **vStream, const char **Err)
 {
 	int err;
 	int rc = 0;
@@ -2975,7 +2975,7 @@ int StrBufDestroyStreamContext(eStreamType type, void **vStream, const char **Er
 	return rc;
 }
 
-int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *vStream, int LastChunk, const char **Err)
+int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, vStreamT *vStream, int LastChunk, const char **Err)
 {
 	int rc = 0;
 	switch (type)
