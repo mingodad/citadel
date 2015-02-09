@@ -346,9 +346,10 @@ typedef enum __eStreamType {
 	eEmtyCodec
 } eStreamType;
 
-void *StrBufNewStreamContext(eStreamType type);
-void StrBufDestroyStreamContext(eStreamType type, void **Stream);
-void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *Stream, int LastChunk);
+typedef struct vStreamT vStreamT;
+vStreamT *StrBufNewStreamContext(eStreamType type, const char **Err);
+int StrBufDestroyStreamContext(eStreamType type, vStreamT **Stream, const char **Err);
+int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, vStreamT *Stream, int LastChunk, const char **Err);
 
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut);

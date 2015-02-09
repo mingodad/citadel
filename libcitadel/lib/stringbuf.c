@@ -2859,9 +2859,10 @@ typedef struct __z_enc_stream {
 	z_stream zstream;
 } z_enc_stream;
 
-void *StrBufNewStreamContext(eStreamType type)
+vStreamT *StrBufNewStreamContext(eStreamType type, const char **Err)
 {
 	base64_decodestate *state;;
+	*Err = NULL;
 
 	switch (type)
 	{
@@ -2869,7 +2870,7 @@ void *StrBufNewStreamContext(eStreamType type)
 	case eBase64Encode:
 		state = (base64_decodestate*) malloc(sizeof(base64_decodestate));
 		base64_init_decodestate(state);
-		return state;
+		return (vStreamT*) state;
 		break;
 	case eZLibDecode:
 	{
@@ -2884,9 +2885,12 @@ void *StrBufNewStreamContext(eStreamType type)
 
 		err = inflateInit(&stream->zstream);
 
-		if (err != Z_OK)
-			return NULL;/// tODO cleanup
-		return stream;
+		if (err != Z_OK) {
+			StrBufDestroyStreamContext(type, (vStreamT**) &stream, Err);
+			*Err = zError(err);
+			return NULL;
+		}
+		return (vStreamT*) stream;
 
 	}
 	case eZLibEncode:
@@ -2913,9 +2917,12 @@ void *StrBufNewStreamContext(eStreamType type)
 				   -MAX_WBITS,
 				   DEF_MEM_LEVEL,
 				   Z_DEFAULT_STRATEGY);
-		if (err != Z_OK)
-			return NULL;/// tODO cleanup
-		return stream;
+		if (err != Z_OK) {
+			StrBufDestroyStreamContext(type, (vStreamT**) &stream, Err);
+			*Err = zError(err);
+			return NULL;
+		}
+		return (vStreamT*) stream;
 	}
 	case eEmtyCodec:
 		/// TODO
@@ -2925,8 +2932,16 @@ void *StrBufNewStreamContext(eStreamType type)
 	return NULL;
 }
 
-void StrBufDestroyStreamContext(eStreamType type, void **vStream)
+int StrBufDestroyStreamContext(eStreamType type, vStreamT **vStream, const char **Err)
 {
+	int err;
+	int rc = 0;
+	*Err = NULL;
+	
+	if ((vStream == NULL) || (*vStream==NULL)) {
+		*Err = strerror(EINVAL);
+		return EINVAL;
+	}
 	switch (type)
 	{
 	case eBase64Encode:
@@ -2944,20 +2959,25 @@ void StrBufDestroyStreamContext(eStreamType type, void **vStream)
 	case eZLibEncode:
 	{
 		z_enc_stream *stream = (z_enc_stream *)*vStream;
+		err = deflateEnd(&stream->zstream);
+		if (err != Z_OK) {
+			*Err = zError(err);
+			rc = -1;
+		}
 		free(stream->OutBuf.buf);
 		free(stream);
-// todo more?
 		*vStream = NULL;
 		break;
 	}
 	case eEmtyCodec: 
 		break; /// TODO
 	}
+	return rc;
 }
 
-void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, void *vStream, int LastChunk)
+int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, const char* pIn, long pInLen, vStreamT *vStream, int LastChunk, const char **Err)
 {
-
+	int rc = 0;
 	switch (type)
 	{
 	case eBase64Encode:
@@ -3018,7 +3038,7 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 	case eZLibEncode:
 	{
 		z_enc_stream *stream = (z_enc_stream *)vStream;
-		int org_outbuf_len = stream->zstream.total_out;
+		int org_outbuf_len = stream->OutBuf.BufUsed;
 		int err;
 		unsigned int chunkavail;
 
@@ -3040,9 +3060,14 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 		err = deflate(&stream->zstream,  (LastChunk) ? Z_FINISH : Z_NO_FLUSH);
 
 		stream->OutBuf.BufUsed += (chunkavail - stream->zstream.avail_out);
-		/// todo + org_outbuf_len;
 
-		if (Target) SwapBuffers(Target->Buf, &stream->OutBuf);
+		if (Target && 
+		    (LastChunk ||
+		     (stream->OutBuf.BufUsed != org_outbuf_len)
+			    ))
+		{
+			SwapBuffers(Target->Buf, &stream->OutBuf);
+		}
 
 		if (stream->zstream.avail_in == 0)
 		{
@@ -3067,7 +3092,11 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 					(In->Buf->BufUsed - stream->zstream.avail_in);
 			}
 		}
-
+		rc = (LastChunk && (err != Z_FINISH));
+		if (!rc && (err != Z_OK)) {
+			*Err = zError(err);
+		}
+		
 	}
 	break;
 	case eZLibDecode: {
@@ -3100,7 +3129,7 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 			err = Z_DATA_ERROR;     /* and fall through */
 
 		case Z_DATA_ERROR:
-			fprintf(stderr, "sanoteuh\n");
+			*Err = zError(err);
 		case Z_MEM_ERROR:
 			(void)inflateEnd(&stream->zstream);
 			return err;
@@ -3140,6 +3169,7 @@ void StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, con
 	}
 		break; /// TODO
 	}
+	return rc;
 }
 
 /**

@@ -65,7 +65,7 @@ The IO-Event-queue lives in this thread. Code running in this thread has to obey
   - other threads mustn't access memory belonging to an IO job
   - New IO contexts have to be registered via QueueEventContext() from other threads; Its callback are then called from whithin the event queue to start its logic.
   - New HTTP-IO contexts have to be registered via QueueCurlContext() 
-  - once you've registered a context, you must not access its memory anymore to avoid race conditions
+  - once you've registered a context, you must not access its memory anymore to avoid race conditions.
 
 ==== Logic in event_client ====
 InitIOStruct() which prepares an AsyncIO struct for later use before using QueueEventContext() to activate it.
@@ -97,3 +97,5 @@ Usually a context should respect that there may be others around also wanting to
 While its ok to do _some_ requests in a row (like deleting some messages, updating messages, etc.),
 loops over unknown numbers of queries should be unrolled and be done one query at a time (i.e. looking up messages in the 'already known table')
 
+=== Transitioning back & forth ===
+If the application logic has found that a transition is to be made from the event IO to the DB IO thread. Do so by calling DBQueueEventContext() (DB -> IO) EventQueueDBOperation() (IO->DB) and pass its return value up the row to enable the controll logic to do the actual transition for you. 

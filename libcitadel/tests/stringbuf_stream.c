@@ -70,8 +70,10 @@ static void StreamEncode(void)
 	IOBuffer ReadBuffer;
 	IOBuffer WriteBuffer;
 	int err;
+	const char *Err = NULL;
+	int ret = 0;
 	int done = 0;
-	void *vStream;
+	vStreamT *vStream;
 	
 	memset(&ReadBuffer, 0, sizeof(IOBuffer));
 	memset(&WriteBuffer, 0, sizeof(IOBuffer));
@@ -95,33 +97,35 @@ static void StreamEncode(void)
 		ST = eBase64Decode;
 	else
 		ST = eEmtyCodec;
-	vStream = StrBufNewStreamContext(ST);
+	vStream = StrBufNewStreamContext(ST, &Err);
 
 	while (!done && (fdin >= 0) && (fdout >= 0) && (!feof(stdin)))
 	{
 
 		done = StrBuf_read_one_chunk_callback(fdin,
 						      0,
-						      &ReadBuffer) < SIZ * 4;
+						      &ReadBuffer) < (SIZ * 4) -1 ;
 		if (IOBufferStrLength(&ReadBuffer) == 0)
 		{
 			done = 1;
 		}
 		do
 		{
-			StrBufStreamTranscode(ST, &WriteBuffer, &ReadBuffer, NULL, -1, vStream, done);
-
-			while (IOBufferStrLength(&WriteBuffer) > 0)
-			{
-				err = StrBuf_write_one_chunk_callback(fdout,
-								      0,
-								      &WriteBuffer);
-			}
+			do {
+				ret = StrBufStreamTranscode(ST, &WriteBuffer, &ReadBuffer, NULL, -1, vStream, done, &Err);
+				
+				while (IOBufferStrLength(&WriteBuffer) > 0)
+				{
+					err = StrBuf_write_one_chunk_callback(fdout,
+									      0,
+									      &WriteBuffer);
+				}
+			} while (ret > 0);
 		} while (IOBufferStrLength(&ReadBuffer) > 0);
 	}
 
 	
-	StrBufDestroyStreamContext(ST, &vStream);
+	StrBufDestroyStreamContext(ST, &vStream, &Err);
 	
 	FreeStrBuf(&ReadBuffer.Buf);
 	FreeStrBuf(&WriteBuffer.Buf);
