@@ -926,12 +926,20 @@ void tmplput_MAIL_SUMM_N(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_MAIL_SUMM_PERMALINK(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX(CTX_MAILSUM);
-	char perma_link[1024];
+	StrBuf *perma_link;
+	const StrBuf *View;
 
-	strcpy(perma_link, "/readfwd?go=");
-	urlesc(&perma_link[12], sizeof(perma_link) - 12, (char *)ChrPtr(WC->CurRoom.name) );
-	sprintf(&perma_link[strlen(perma_link)], "?start_reading_at=%ld#%ld", Msg->msgnum, Msg->msgnum);
-	StrBufAppendPrintf(Target, "%s", perma_link);
+	perma_link = NewStrBufPlain(HKEY("/readfwd?go="));
+	StrBufUrlescAppend(perma_link, WC->CurRoom.name, NULL);
+	View = SBSTR("view");
+	if (View != NULL) {
+		StrBufAppendBufPlain(perma_link, HKEY("?view="), 0);
+		StrBufAppendBuf(perma_link, View, 0);
+	}
+	StrBufAppendBufPlain(perma_link, HKEY("?start_reading_at="), 0);
+	StrBufAppendPrintf(perma_link, "%ld#%ld", Msg->msgnum, Msg->msgnum);
+	StrBufAppendBuf(Target, perma_link, 0);
+	FreeStrBuf(&perma_link);
 }
 
 
