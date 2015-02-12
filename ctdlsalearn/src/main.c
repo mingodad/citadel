@@ -116,8 +116,8 @@ int main(int argc, char **argv)
 	if (verbose) printf("%s\n", &buf[4]);
 
 	if (buf[0] == '2') {
-		do_room(server_socket, "0000000001.spam", "-u spam --spam");
-		do_room(server_socket, "0000000001.ham", "-u spam --ham");
+		do_room(server_socket, "0000000001.spam", "--dbpath /home/spam/.spamassassin --spam");
+		do_room(server_socket, "0000000001.ham", "--dbpath /home/spam/.spamassassin --ham");
 	}
 
 	sock_puts(server_socket, "QUIT");
