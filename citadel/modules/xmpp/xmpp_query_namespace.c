@@ -79,7 +79,7 @@ void xmpp_iq_roster_query(void)
 	int nContexts, i;
 
 	syslog(LOG_DEBUG, "Roster push!");
-	cprintf("<query xmlns=\"jabber:iq:roster\" rt=\"ass\">");
+	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
@@ -104,6 +104,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	int supported_namespace = 0;
 	int roster_query = 0;
 	char xmlbuf[256];
+	int reply_must_be_from_my_jid = 0;
 
 	/* We need to know before we begin the response whether this is a supported namespace, so
 	 * unfortunately all supported namespaces need to be defined here *and* down below where
@@ -124,18 +125,31 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 * Beginning of query result.
 	 */
 
-	char dom[1024];							// Pidgin is very picky about where this
-	safestrncpy(dom, XMPP->client_jid, sizeof(dom));		// result stanza is "from" - it wants the
-	if (IsEmptyStr(dom)) {						// same domain that the user's jid is in.
-		safestrncpy(dom, XMPP->server_name, sizeof(dom));
+	if (!strcasecmp(query_xmlns, "jabber:iq:roster:query")) {
+		reply_must_be_from_my_jid = 1;
 	}
-	char *at = strrchr(dom, '@');
-	if (at) {
-		strcpy(dom, ++at);
+
+	char dom[1024];								// client is expecting to see the reply
+	if (reply_must_be_from_my_jid) {					// coming "from" the user's jid
+		safestrncpy(dom, XMPP->client_jid, sizeof(dom));
+		char *slash = strchr(dom, '/');
+		if (slash) {
+			*slash = 0;
+		}
 	}
-	char *slash = strchr(dom, '/');
-	if (slash) {
-		*slash = 0;
+	else {
+		safestrncpy(dom, XMPP->client_jid, sizeof(dom));		// client is expecting to see the reply
+		if (IsEmptyStr(dom)) {						// coming "from" the domain of the user's jid
+			safestrncpy(dom, XMPP->server_name, sizeof(dom));
+		}
+		char *at = strrchr(dom, '@');
+		if (at) {
+			strcpy(dom, ++at);
+		}
+		char *slash = strchr(dom, '/');
+		if (slash) {
+			*slash = 0;
+		}
 	}
 
 	if (supported_namespace) {

@@ -1,7 +1,7 @@
 /*
  * Handle XMPP presence exchanges
  *
- * Copyright (c) 2007-2010 by Art Cancro
+ * Copyright (c) 2007-2015 by Art Cancro and citadel.org
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -148,7 +148,7 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 		);
 	}
 
-	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
+	// note: we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
 	/* Do an unsolicited roster update that deletes the contact. */
 	cprintf("<iq from=\"%s\" to=\"%s\" id=\"unbuddy_%x\" type=\"result\">",
@@ -309,14 +309,6 @@ void xmpp_store_mortuary(HashList *mortuary) {
 		StrBufAppendPrintf(themsg, "%s\n", (char *)Value);
 	}
 	DeleteHashPos(&HashPos);
-
-	/* FIXME temp crap 
-	StrBufAppendPrintf(themsg, "foo@bar.com\n");
-	StrBufAppendPrintf(themsg, "baz@quux.com\n");
-	StrBufAppendPrintf(themsg, "haha%c\n", 1);
-	StrBufAppendPrintf(themsg, "baaaz@quux.com\n");
-	StrBufAppendPrintf(themsg, "baaaz@quuuuuux.com\n");
-	*/
 
 	/* Delete the old mortuary */
 	CtdlDeleteMessages(USERCONFIGROOM, NULL, 0, XMPPMORTUARY);
