@@ -1,7 +1,7 @@
-# generated automatically by aclocal 1.11.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.14.1 -*- Autoconf -*-
 
-# Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-# 2005, 2006, 2007, 2008, 2009  Free Software Foundation, Inc.
+# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -11,17 +11,18 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+m4_ifndef([AC_CONFIG_MACRO_DIRS], [m4_defun([_AM_CONFIG_MACRO_DIRS], [])m4_defun([AC_CONFIG_MACRO_DIRS], [_AM_CONFIG_MACRO_DIRS($@)])])
 # AM_AUX_DIR_EXPAND                                         -*- Autoconf -*-
 
-# Copyright (C) 2001, 2003, 2005  Free Software Foundation, Inc.
+# Copyright (C) 2001-2013 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
 # For projects using AC_CONFIG_AUX_DIR([foo]), Autoconf sets
-# $ac_aux_dir to `$srcdir/foo'.  In other projects, it is set to
-# `$srcdir', `$srcdir/..', or `$srcdir/../..'.
+# $ac_aux_dir to '$srcdir/foo'.  In other projects, it is set to
+# '$srcdir', '$srcdir/..', or '$srcdir/../..'.
 #
 # Of course, Automake must honor this variable whenever it calls a
 # tool from the auxiliary directory.  The problem is that $srcdir (and
@@ -40,7 +41,7 @@
 #
 # The reason of the latter failure is that $top_srcdir and $ac_aux_dir
 # are both prefixed by $srcdir.  In an in-source build this is usually
-# harmless because $srcdir is `.', but things will broke when you
+# harmless because $srcdir is '.', but things will broke when you
 # start a VPATH build or use an absolute $srcdir.
 #
 # So we could use something similar to $top_srcdir/$ac_aux_dir/missing,
@@ -58,22 +59,18 @@
 # configured tree to be moved without reconfiguration.
 
 AC_DEFUN([AM_AUX_DIR_EXPAND],
-[dnl Rely on autoconf to set up CDPATH properly.
-AC_PREREQ([2.50])dnl
-# expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+[AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
+# Expand $ac_aux_dir to an absolute path.
+am_aux_dir=`cd "$ac_aux_dir" && pwd`
 ])
 
 # Fake the existence of programs that GNU maintainers use.  -*- Autoconf -*-
 
-# Copyright (C) 1997, 1999, 2000, 2001, 2003, 2004, 2005, 2008
-# Free Software Foundation, Inc.
+# Copyright (C) 1997-2013 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
-
-# serial 6
 
 # AM_MISSING_PROG(NAME, PROGRAM)
 # ------------------------------
@@ -82,11 +79,10 @@ AC_DEFUN([AM_MISSING_PROG],
 $1=${$1-"${am_missing_run}$2"}
 AC_SUBST($1)])
 
-
 # AM_MISSING_HAS_RUN
 # ------------------
-# Define MISSING if not defined so far and test if it supports --run.
-# If it does, set am_missing_run to use it, otherwise, to nothing.
+# Define MISSING if not defined so far and test if it is modern enough.
+# If it is, set am_missing_run to use it, otherwise, to nothing.
 AC_DEFUN([AM_MISSING_HAS_RUN],
 [AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
 AC_REQUIRE_AUX_FILE([missing])dnl
@@ -99,11 +95,11 @@ if test x"${MISSING+set}" != xset; then
   esac
 fi
 # Use eval to expand $SHELL
-if eval "$MISSING --run true"; then
-  am_missing_run="$MISSING --run "
+if eval "$MISSING --is-lightweight"; then
+  am_missing_run="$MISSING "
 else
   am_missing_run=
-  AC_MSG_WARN([`missing' script is too old or missing])
+  AC_MSG_WARN(['missing' script is too old or missing])
 fi
 ])
 

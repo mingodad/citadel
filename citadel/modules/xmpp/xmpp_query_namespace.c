@@ -1,7 +1,7 @@
 /*
  * Handle <iq> <get> <query> type situations (namespace queries)
  *
- * Copyright (c) 2007-2009 by Art Cancro
+ * Copyright (c) 2007-2015 by Art Cancro and citadel.org
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -124,10 +124,10 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 * Beginning of query result.
 	 */
 	if (supported_namespace) {
-		cprintf("<iq type=\"result\" ");
+		cprintf("<iq type=\"result\" from=\"%s\" ", xmlesc(xmlbuf, XMPP->server_name, sizeof xmlbuf) );
 	}
 	else {
-		cprintf("<iq type=\"error\" ");
+		cprintf("<iq type=\"error\" from=\"%s\" ", xmlesc(xmlbuf, XMPP->server_name, sizeof xmlbuf) );
 	}
 	if (!IsEmptyStr(iq_from)) {
 		cprintf("to=\"%s\" ", xmlesc(xmlbuf, iq_from, sizeof xmlbuf));

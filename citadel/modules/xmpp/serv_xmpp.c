@@ -1,6 +1,6 @@
 /*
  * XMPP (Jabber) service for the Citadel system
- * Copyright (c) 2007-2011 by Art Cancro
+ * Copyright (c) 2007-2015 by Art Cancro and citadel.org
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
