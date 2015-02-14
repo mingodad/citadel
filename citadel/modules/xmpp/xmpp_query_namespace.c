@@ -79,7 +79,7 @@ void xmpp_iq_roster_query(void)
 	int nContexts, i;
 
 	syslog(LOG_DEBUG, "Roster push!");
-	cprintf("<query xmlns=\"jabber:iq:roster\">");
+	cprintf("<query xmlns=\"jabber:iq:roster\" rt=\"ass\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
@@ -123,11 +123,26 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	/*
 	 * Beginning of query result.
 	 */
+
+	char dom[1024];							// Pidgin is very picky about where this
+	safestrncpy(dom, XMPP->client_jid, sizeof(dom));		// result stanza is "from" - it wants the
+	if (IsEmptyStr(dom)) {						// same domain that the user's jid is in.
+		safestrncpy(dom, XMPP->server_name, sizeof(dom));
+	}
+	char *at = strrchr(dom, '@');
+	if (at) {
+		strcpy(dom, ++at);
+	}
+	char *slash = strchr(dom, '/');
+	if (slash) {
+		*slash = 0;
+	}
+
 	if (supported_namespace) {
-		cprintf("<iq type=\"result\" from=\"%s\" ", xmlesc(xmlbuf, XMPP->server_name, sizeof xmlbuf) );
+		cprintf("<iq type=\"result\" from=\"%s\" ", xmlesc(xmlbuf, dom, sizeof xmlbuf) );
 	}
 	else {
-		cprintf("<iq type=\"error\" from=\"%s\" ", xmlesc(xmlbuf, XMPP->server_name, sizeof xmlbuf) );
+		cprintf("<iq type=\"error\" from=\"%s\" ", xmlesc(xmlbuf, dom, sizeof xmlbuf) );
 	}
 	if (!IsEmptyStr(iq_from)) {
 		cprintf("to=\"%s\" ", xmlesc(xmlbuf, iq_from, sizeof xmlbuf));
