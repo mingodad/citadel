@@ -1,7 +1,7 @@
 /*
  * Handle XMPP presence exchanges
  *
- * Copyright (c) 2007-2010 by Art Cancro
+ * Copyright (c) 2007-2010 by Art Cancro and citadel.org
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,7 +152,7 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 		       TYPE_ARGEND);
 	}
 
-	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
+	// note: ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
 	blen = snprintf(Buf, sizeof(Buf), "unbuddy_%x", ++unsolicited_id);
 
@@ -189,7 +189,7 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
  */
 void xmpp_presence_notify(char *presence_jid, int event_type) {
 	struct CitContext *cptr;
-	static int unsolicited_id;
+	static int unsolicited_id = 12345;
 	int visible_sessions = 0;
 	int nContexts, i;
 	int which_cptr_is_relevant = (-1);
@@ -340,14 +340,6 @@ void xmpp_store_mortuary(HashList *mortuary) {
 		StrBufAppendPrintf(themsg, "%s\n", (char *)Value);
 	}
 	DeleteHashPos(&HashPos);
-
-	/* FIXME temp crap 
-	StrBufAppendPrintf(themsg, "foo@bar.com\n");
-	StrBufAppendPrintf(themsg, "baz@quux.com\n");
-	StrBufAppendPrintf(themsg, "haha%c\n", 1);
-	StrBufAppendPrintf(themsg, "baaaz@quux.com\n");
-	StrBufAppendPrintf(themsg, "baaaz@quuuuuux.com\n");
-	*/
 
 	/* Delete the old mortuary */
 	CtdlDeleteMessages(USERCONFIGROOM, NULL, 0, XMPPMORTUARY);

@@ -61,8 +61,6 @@
  */
 void xmpp_roster_item(struct CitContext *cptr)
 {
-	struct CitContext *CCC=CC;
-
 	XPrint(HKEY("item"), 0,
 	       XCPROPERTY("subscription", "both"),
 	       XPROPERTY("jid",  cptr->cs_inet_email, strlen(cptr->cs_inet_email)),
@@ -88,6 +86,7 @@ void xmpp_iq_roster_query(void)
 	struct CitContext *cptr;
 	int nContexts, i;
 
+	syslog(LOG_DEBUG, "Roster push!");
 	XPUT("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
@@ -116,6 +115,7 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 {
 	int supported_namespace = 0;
 	int roster_query = 0;
+	int reply_must_be_from_my_jid = 0;
 	static const ConstStr Type[] = {
 		{HKEY("result")},
 		{HKEY("error")}
@@ -128,6 +128,8 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	if (
 		(!strcasecmp(query_xmlns, "jabber:iq:roster:query"))
 		|| (!strcasecmp(query_xmlns, "jabber:iq:auth:query"))
+		|| (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#items:query"))
+		|| (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#info:query"))
 	) {
 		supported_namespace = 1;
 	}
@@ -137,18 +139,66 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 	/*
 	 * Beginning of query result.
 	 */
-	if (supported_namespace) {
-		XPrint(HKEY("iq"), 0,
-		       XPROPERTY("type", Type[0].Key, Type[0].len),
-		       XSPROPERTY("to",  IQ->from),
-		       XSPROPERTY("id",   IQ->id),
-		       TYPE_ARGEND);
+	if (!strcasecmp(query_xmlns, "jabber:iq:roster:query")) {
+		reply_must_be_from_my_jid = 1;
+	}
+
+	char dom[1024];								// client is expecting to see the reply
+	if (reply_must_be_from_my_jid) {					// coming "from" the user's jid
+		safestrncpy(dom, XMPP->client_jid, sizeof(dom));
+		char *slash = strchr(dom, '/');
+		if (slash) {
+			*slash = 0;
+		}
 	}
 	else {
-		XPrint(HKEY("iq"), 0,
-		       XPROPERTY("type", Type[1].Key, Type[1].len),
-		       XSPROPERTY("id",   IQ->id),
-		       TYPE_ARGEND);
+		safestrncpy(dom, XMPP->client_jid, sizeof(dom));		// client is expecting to see the reply
+		if (IsEmptyStr(dom)) {						// coming "from" the domain of the user's jid
+			safestrncpy(dom, XMPP->server_name, sizeof(dom));
+		}
+		char *at = strrchr(dom, '@');
+		if (at) {
+			strcpy(dom, ++at);
+		}
+		char *slash = strchr(dom, '/');
+		if (slash) {
+			*slash = 0;
+		}
+	}
+	
+	if (StrLength(IQ->from) > 0) {
+		if (supported_namespace) {
+			XPrint(HKEY("iq"), 0,
+			       XPROPERTY("type", Type[0].Key, Type[0].len),
+			       XPROPERTY("from", dom, strlen(dom)),
+			       XSPROPERTY("to",   IQ->from),
+			       XSPROPERTY("id",   IQ->id),
+			       TYPE_ARGEND);
+		}
+		else {
+			XPrint(HKEY("iq"), 0,
+			       XPROPERTY("type", Type[1].Key, Type[1].len),
+			       XPROPERTY("from", dom, strlen(dom)),
+			       XSPROPERTY("to",   IQ->from),
+			       XSPROPERTY("id",   IQ->id),
+			       TYPE_ARGEND);
+		}
+	}
+	else {
+		if (supported_namespace) {
+			XPrint(HKEY("iq"), 0,
+			       XPROPERTY("type", Type[0].Key, Type[0].len),
+			       XPROPERTY("from", dom, strlen(dom)),
+			       XSPROPERTY("id",   IQ->id),
+			       TYPE_ARGEND);
+		}
+		else {
+			XPrint(HKEY("iq"), 0,
+			       XPROPERTY("type", Type[1].Key, Type[1].len),
+			       XPROPERTY("from", dom, strlen(dom)),
+			       XSPROPERTY("id",   IQ->id),
+			       TYPE_ARGEND);
+		}
 	}
 
 	/*
@@ -165,6 +215,20 @@ void xmpp_query_namespace(TheToken_iq *IQ/*char *iq_id, char *iq_from, char *iq_
 		     "<username/><password/><resource/>"
 		     "</query>"
 		);
+	}
+
+	// Extension "xep-0030" (http://xmpp.org/extensions/xep-0030.html) (return an empty set of results)
+	else if (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#items:query")) {
+		XPrint(HKEY("query"), XCLOSED,
+		       XPROPERTY("xmlns", query_xmlns, strlen(query_xmlns)),
+		       TYPE_ARGEND);
+	}
+
+	// Extension "xep-0030" (http://xmpp.org/extensions/xep-0030.html) (return an empty set of results)
+	else if (!strcasecmp(query_xmlns, "http://jabber.org/protocol/disco#info:query")) {
+		XPrint(HKEY("query"), XCLOSED,
+		       XPROPERTY("xmlns", query_xmlns, strlen(query_xmlns)),
+		       TYPE_ARGEND);
 	}
 
 	/*
