@@ -2006,32 +2006,13 @@ void StrBufXMLEscAppend(StrBuf *OutBuf,
 			*pt = *pch;
 			pt++; pch++;
 		}
-		else if (*pch < 0x20) {
-			/* we probably shouldn't be doing this */
-			if (OverrideLowChars)
-			{
-				*pt = '_';
-				pt ++;
-				pch ++;
-			}
-			else
-			{
-				*pt = '&';
-				pt++;
-				*pt = HexList[*(unsigned char*)pch][0];
-				pt ++;
-				*pt = HexList[*(unsigned char*)pch][1];
-				pt ++; pch ++;
-				*pt = '&';
-				pt++;
-				pch ++;
-			}
-		}
 		else {
 			IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(pch, pche);
 			if (IsUtf8Sequence)
 			{
-				while (IsUtf8Sequence > 0){
+				while ((IsUtf8Sequence > 0) && 
+				       (pch < pche))
+				{
 					*pt = *pch;
 					pt ++;
 					pch ++;
