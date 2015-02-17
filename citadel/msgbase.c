@@ -3050,7 +3050,7 @@ void flood_protect_quickie_message(const char *from,
 				   const char *subject,
 				   int nCriterions,
 				   const char **CritStr,
-				   long *CritStrLen,
+				   const long *CritStrLen,
 				   long ccid,
 				   long ioid,
 				   time_t NOW)
@@ -3088,7 +3088,7 @@ void flood_protect_quickie_message(const char *from,
 				       eUpdate,
 				       ccid,
 				       ioid);
-	if (seenstamp < tsday)
+	if ((seenstamp > 0) && (seenstamp < tsday))
 	{
 		FreeStrBuf(&guid);
 		/* yes, we did. flood protection kicks in. */

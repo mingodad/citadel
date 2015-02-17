@@ -96,7 +96,7 @@ void flood_protect_quickie_message(const char *from,
 				   const char *subject,
 				   int nCriterions,
 				   const char **CritStr,
-				   long *CritStrLen,
+				   const long *CritStrLen,
 				   long ccid,
 				   long ioid,
 				   time_t NOW);
