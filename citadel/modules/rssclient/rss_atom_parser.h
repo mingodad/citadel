@@ -102,6 +102,7 @@ struct rss_aggregator {
 	time_t		 last_error_when;
 	time_t		 next_poll;
 	StrBuf		*Url;
+	StrBuf          *RedirectUrl;
 	StrBuf		*rooms;
 	pRSSConfig       Cfg;
 	HashList	*OtherQRnumbers;

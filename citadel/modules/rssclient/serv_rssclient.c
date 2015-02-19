@@ -108,6 +108,37 @@ ConstStr RSSStates[] = {
 	{HKEY("checking usetable")}
 };
 
+
+static size_t GetLocationString( void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+#define LOCATION "location"
+	if (strncasecmp((char*)ptr, LOCATION, sizeof(LOCATION) - 1) == 0)
+	{
+		AsyncIO *IO = (AsyncIO *) userdata;
+		rss_aggregator *RSSAggr = (rss_aggregator *)IO->Data;
+
+		char *pch = (char*) ptr;
+		char *pche;
+		
+		pche = pch + (size * nmemb);
+		pch += sizeof(LOCATION);
+		
+		while (isspace(*pch) || (*pch == ':'))
+			pch ++;
+
+		while (isspace(*pche) || (*pche == '\0'))
+			pche--;
+		if (RSSAggr->RedirectUrl == NULL) {
+			RSSAggr->RedirectUrl = NewStrBufPlain(pch, pche - pch + 1);
+		}
+		else {
+			FlushStrBuf(RSSAggr->RedirectUrl);
+			StrBufPlain(RSSAggr->RedirectUrl, pch, pche - pch + 1);	
+		}
+	}
+	return size * nmemb;
+}
+
 static void SetRSSState(AsyncIO *IO, RSSState State)
 {
 	CitContext* CCC = IO->CitContext;
@@ -191,6 +222,7 @@ void DeleteRssCfg(void *vptr)
 		EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying\n");
 
 	FreeStrBuf(&RSSAggr->Url);
+	FreeStrBuf(&RSSAggr->RedirectUrl);
 	FreeStrBuf(&RSSAggr->rooms);
 	FreeStrBuf(&RSSAggr->CData);
 	FreeStrBuf(&RSSAggr->Key);
@@ -505,7 +537,59 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	StrBuf *guid;
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
-	if (IO->HttpReq.httpcode != 200)
+
+	if ((IO->HttpReq.httpcode >= 300) &&
+	    (IO->HttpReq.httpcode < 400)  && 
+	    (Ctx->RedirectUrl != NULL)) {
+
+		StrBuf *ErrMsg;
+		long lens[2];
+		const char *strs[2];
+
+		SetRSSState(IO, eRSSFailure);
+		ErrMsg = NewStrBuf();
+		if (IO) EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
+			      IO->HttpReq.httpcode);
+		strs[0] = ChrPtr(Ctx->Url);
+		lens[0] = StrLength(Ctx->Url);
+
+		strs[1] = ChrPtr(Ctx->rooms);
+		lens[1] = StrLength(Ctx->rooms);
+
+		if (IO->HttpReq.CurlError == NULL)
+			IO->HttpReq.CurlError = "";
+
+		StrBufPrintf(ErrMsg,
+			     "Error while RSS-Aggregation Run of %s\n"
+			     " need a 200, got a %ld !\n"
+			     " Curl Error message: \n%s / %s\n"
+			     " Redirect header points to: %s\n"
+			     " Response text was: \n"
+			     " \n %s\n",
+			     ChrPtr(Ctx->Url),
+			     IO->HttpReq.httpcode,
+			     IO->HttpReq.errdesc,
+			     IO->HttpReq.CurlError,
+			     ChrPtr(Ctx->RedirectUrl),
+			     ChrPtr(IO->HttpReq.ReplyData)
+			);
+
+		CtdlAideFPMessage(
+			ChrPtr(ErrMsg),
+			"RSS Aggregation run failure",
+			2, strs, (long*) &lens,
+			CCID,
+			IO->ID,
+			EvGetNow(IO));
+		
+		FreeStrBuf(&ErrMsg);
+		EVRSSC_syslog(LOG_DEBUG,
+			      "RSS feed returned an invalid http status code. <%s><HTTP %ld>\n",
+			      ChrPtr(Ctx->Url),
+			      IO->HttpReq.httpcode);
+		return eAbort;
+	}
+	else if (IO->HttpReq.httpcode != 200)
 	{
 		StrBuf *ErrMsg;
 		long lens[2];
@@ -515,7 +599,6 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 		ErrMsg = NewStrBuf();
 		if (IO) EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
 			      IO->HttpReq.httpcode);
-		
 		strs[0] = ChrPtr(Ctx->Url);
 		lens[0] = StrLength(Ctx->Url);
 
@@ -630,6 +713,9 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 	AsyncIO		*IO = &RSSAggr->IO;
 	rss_item *ri;
 	time_t now;
+	CURLcode sta;
+	CURL *chnd;
+
 
 	now = time(NULL);
 
@@ -651,6 +737,8 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 		EVRSSCM_syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return 0;
 	}
+	chnd = IO->HttpReq.chnd;
+	OPT(HEADERFUNCTION, GetLocationString);
 	SetRSSState(IO, eRSSCreated);
 
 	safestrncpy(((CitContext*)RSSAggr->IO.CitContext)->cs_host,
