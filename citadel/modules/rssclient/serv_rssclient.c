@@ -738,6 +738,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 		return 0;
 	}
 	chnd = IO->HttpReq.chnd;
+	OPT(HEADERDATA, IO);
 	OPT(HEADERFUNCTION, GetLocationString);
 	SetRSSState(IO, eRSSCreated);
 
