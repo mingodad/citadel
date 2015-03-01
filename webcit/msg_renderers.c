@@ -1215,7 +1215,6 @@ void render_MAIL_markdown(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCha
 			FreeStrBuf(&Mime->Data);
 			Mime->Data = NewStrBufPlain(md_as_html, -1);
 		}
-//	free(md_as_html);
 		mkd_cleanup(doc);
 	}
 }
