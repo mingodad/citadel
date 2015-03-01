@@ -103,6 +103,7 @@ EXPAT_SOURCE=expat-2.0.1.tar.gz
 LIBCURL_SOURCE=curl-7.26.0.tar.gz
 LIBEV_SOURCE=libev-4.11.tar.gz
 CARES_SOURCE=c-ares-1.7.5.tar.gz
+LIBDISCOUNT_SOURCE=discount-2.1.8.tar.gz
 LIBCITADEL_SOURCE=libcitadel-easyinstall.tar.gz
 CITADEL_SOURCE=citadel-easyinstall.tar.gz
 WEBCIT_SOURCE=webcit-easyinstall.tar.gz
@@ -336,7 +337,7 @@ install_cares () {
 			return
 		fi
 	fi
-	echo "* Downloading libev..."
+	echo "* Downloading c-ares..."
 	FILENAME=$CARES_SOURCE ; download_this
 	echo "* Installing c-ares..."
 	( gzip -dc $CARES_SOURCE | tar -xf - ) >>$LOG 2>&1 || die
@@ -350,6 +351,39 @@ install_cares () {
 	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
 }
 
+install_discount () {
+	cd $BUILD >>$LOG 2>&1 || die
+	cp /home/willi/Downloads/discount*z .
+	FILENAME=discount-easyinstall.sum ; download_this
+	SUM=`cat discount-easyinstall.sum`
+	SUMFILE=$SUPPORT/etc/discount-easyinstall.sum
+	if [ -r $SUMFILE ] ; then
+		OLDSUM=`cat $SUMFILE`
+		if [ "$SUM" = "$OLDSUM" ] ; then
+			echo "* discount does not need updating."
+			return
+		fi
+	fi
+	echo "* Downloading discount..."
+	FILENAME=$LIBDISCOUNT_SOURCE ; download_this
+	echo "* Installing discount..."
+	( gzip -dc $LIBDISCOUNT_SOURCE | tar -xf - ) >>$LOG 2>&1 || die
+	cd $BUILD/discount-2.1.8 >>$LOG 2>&1 || die
+        ./configure.sh --shared    \
+	    --prefix=$SUPPORT      \
+            --with-id-anchor       \
+            --with-github-tags     \
+            --with-fenced-code     \
+            --with-dl=both         \
+	    ||die
+
+	$MAKE $MAKEOPTS >>$LOG 2>&1 || die
+	$MAKE install >>$LOG 2>&1 || die
+	echo "  Complete."
+	echo $SUM >$SUMFILE
+	rm -f $SUPPORT/etc/discount-easyinstall.sum 2>/dev/null
+	rm -f $CITADEL/citadel-easyinstall.sum 2>/dev/null
+}
 
 install_libcitadel () {
 	cd $BUILD >>$LOG 2>&1 || die
@@ -441,6 +475,10 @@ install_prerequisites () {
 	if [ -z "$OK_CARES" ]
 	then
 		install_cares
+	fi
+	if [ -z "$OK_DISCOUNT" ]
+	then
+		install_discount
 	fi
 	if [ -z "$OK_LIBCURL" ]
 	then
