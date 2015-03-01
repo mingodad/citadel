@@ -181,6 +181,8 @@ void end_critical_section(int which_one)
 
 void ShutDownWebcit(void)
 {
+
+	DeleteHash(&GZMimeBlackList);
 	free_zone_directory ();
 	icaltimezone_release_zone_tab ();
 	icalmemory_free_ring ();
