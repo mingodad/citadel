@@ -60,7 +60,7 @@ int ctdl_ldap_initialize(LDAP **ld) {
 int CtdlTryUserLDAP(char *username,
 		char *found_dn, int found_dn_size,
 		char *fullname, int fullname_size,
-		uid_t *uid)
+		uid_t *uid, int lookup_based_on_uid)
 {
 	LDAP *ldserver = NULL;
 	int i;
@@ -96,10 +96,16 @@ int CtdlTryUserLDAP(char *username,
 	tv.tv_usec = 0;
 
 	if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
-		snprintf(searchstring, sizeof(searchstring), "(sAMAccountName=%s)", username);
+		if (lookup_based_on_uid!=0)
+			snprintf(searchstring, sizeof(searchstring), "(objectGUID=%d)",*uid);
+		else
+			snprintf(searchstring, sizeof(searchstring), "(sAMAccountName=%s)", username);
 	}
 	else {
-		snprintf(searchstring, sizeof(searchstring), "(&(objectclass=posixAccount)(uid=%s))", username);
+		if (lookup_based_on_uid!=0)
+			snprintf(searchstring, sizeof(searchstring), "(uidNumber=%d)",*uid);
+		else
+			snprintf(searchstring, sizeof(searchstring), "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
 
 	syslog(LOG_DEBUG, "LDAP search: %s", searchstring);
@@ -158,28 +164,30 @@ int CtdlTryUserLDAP(char *username,
 			}
 		}
 
-		if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
-			values = ldap_get_values(ldserver, search_result, "objectGUID");
-			if (values) {
-				if (values[0]) {
-					if (uid != NULL) {
-						*uid = abs(HashLittle(values[0], strlen(values[0])));
-						syslog(LOG_DEBUG, "uid hashed from objectGUID = %d", *uid);
+		if (lookup_based_on_uid==0) {
+			if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
+				values = ldap_get_values(ldserver, search_result, "objectGUID");
+				if (values) {
+					if (values[0]) {
+						if (uid != NULL) {
+							*uid = abs(HashLittle(values[0], strlen(values[0])));
+							syslog(LOG_DEBUG, "uid hashed from objectGUID = %d", *uid);
+						}
 					}
+					ldap_value_free(values);
 				}
-				ldap_value_free(values);
 			}
-		}
-		else {
-			values = ldap_get_values(ldserver, search_result, "uidNumber");
-			if (values) {
-				if (values[0]) {
-					syslog(LOG_DEBUG, "uidNumber = %s", values[0]);
-					if (uid != NULL) {
-						*uid = atoi(values[0]);
+			else {
+				values = ldap_get_values(ldserver, search_result, "uidNumber");
+				if (values) {
+					if (values[0]) {
+						syslog(LOG_DEBUG, "uidNumber = %s", values[0]);
+						if (uid != NULL) {
+							*uid = atoi(values[0]);
+						}
 					}
+					ldap_value_free(values);
 				}
-				ldap_value_free(values);
 			}
 		}
 

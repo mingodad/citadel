@@ -849,7 +849,9 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	char buf[256];
 	int i;
 	struct vCard *v;
+	int need_default_vcard;
 
+	need_default_vcard =1;
 	vcard_fn_to_n(vname, usbuf->fullname, sizeof vname);
 	syslog(LOG_DEBUG, "Converted <%s> to <%s>", usbuf->fullname, vname);
 
@@ -875,16 +877,11 @@ void vcard_newuser(struct ctdluser *usbuf) {
 #endif // HAVE_GETPWUID_R
 			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, config.c_fqdn);
 			vcard_add_prop(v, "email;internet", buf);
+			need_default_vcard = 0;
 		}
 	}
 #endif
 
-	/* Everyone gets an email address based on their display name */
-	snprintf(buf, sizeof buf, "%s@%s", usbuf->fullname, config.c_fqdn);
-	for (i=0; buf[i]; ++i) {
-		if (buf[i] == ' ') buf[i] = '_';
-	}
-	vcard_add_prop(v, "email;internet", buf);
 
 #ifdef HAVE_LDAP
 	/*
@@ -892,20 +889,29 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	 * into the user's vCard.
 	 */
 	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
-            uid_t ldap_uid;
+            //uid_t ldap_uid;
 	    int found_user;
             char ldap_cn[512];
             char ldap_dn[512];
-	    found_user = CtdlTryUserLDAP(usbuf->fullname, ldap_dn, sizeof ldap_dn, ldap_cn, sizeof ldap_cn, &ldap_uid);
+	    found_user = CtdlTryUserLDAP(usbuf->fullname, ldap_dn, sizeof ldap_dn, ldap_cn, sizeof ldap_cn, &usbuf->uid, 1);
             if (found_user == 0) {
 		if (Ctdl_LDAP_to_vCard(ldap_dn, v)) {
 			/* Allow global address book and internet directory update without login long enough to write this. */
 			CC->vcard_updated_by_ldap++;  /* Otherwise we'll only update the user config. */
+			need_default_vcard = 0;
 			syslog(LOG_DEBUG, "LDAP Created Initial Vcard for %s\n",usbuf->fullname);
 		}
 	    }
 	}
 #endif
+	if (need_default_vcard != 0) {
+	  /* Everyone gets an email address based on their display name */
+	  snprintf(buf, sizeof buf, "%s@%s", usbuf->fullname, config.c_fqdn);
+	  for (i = 0; buf[i]; i++) {
+		if (buf[i] == ' ') buf[i] = '_';
+	  }
+	  vcard_add_prop(v, "email;internet", buf);
+    }
 
 	vcard_write_user(usbuf, v);
 	vcard_free(v);
