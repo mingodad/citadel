@@ -88,6 +88,7 @@ dnl Checks for header files.
 AC_HEADER_STDC
 dnl AC_HEADER_SYS_WAIT
 
+AC_CHECK_FUNCS(crypt gethostbyname connect flock getpwnam_r getpwuid_r getloadavg)
 AC_CACHE_CHECK(
 	[for call semantics from getpwuid_r], 
 	ac_cv_call_getpwuid_r,
@@ -238,7 +239,7 @@ dnl Checks for the discount markdown library.
 AC_CHECK_LIB(markdown,
 	 markdown,
 	 [
-	 LDFLAGS="$LDFLAGS -lmarkdown"
+	 LIBS="$LIBS -lmarkdown"
 	 AC_DEFINE(HAVE_MARKDOWN,[],[whether we have markdown message rendering])
 ])
 
