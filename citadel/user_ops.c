@@ -594,7 +594,7 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 		char ldap_cn[256];
 		char ldap_dn[256];
 
-		found_user = CtdlTryUserLDAP(username, ldap_dn, sizeof ldap_dn, ldap_cn, sizeof ldap_cn, &ldap_uid);
+		found_user = CtdlTryUserLDAP(username, ldap_dn, sizeof ldap_dn, ldap_cn, sizeof ldap_cn, &ldap_uid, 0);
 		if (found_user != 0) {
 			return login_not_found;
 		}
@@ -1122,7 +1122,7 @@ int create_user(const char *newusername, long len, int become_user)
 
 #ifdef HAVE_LDAP
 	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
-		if (CtdlTryUserLDAP(username, NULL, 0, username, sizeof username, &uid) != 0) {
+		if (CtdlTryUserLDAP(username, NULL, 0, username, sizeof username, &uid, 0) != 0) {
 			return(ERROR + NO_SUCH_USER);
 		}
 	}

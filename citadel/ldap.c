@@ -60,7 +60,7 @@ int ctdl_ldap_initialize(LDAP **ld) {
 int CtdlTryUserLDAP(char *username,
 		char *found_dn, int found_dn_size,
 		char *fullname, int fullname_size,
-		uid_t *uid)
+		uid_t *uid, int lookup_based_on_username)
 {
 	LDAP *ldserver = NULL;
 	int i;
@@ -96,10 +96,16 @@ int CtdlTryUserLDAP(char *username,
 	tv.tv_usec = 0;
 
 	if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
-		snprintf(searchstring, sizeof(searchstring), "(sAMAccountName=%s)", username);
+		if (lookup_based_on_username != 0)
+			snprintf(searchstring, sizeof(searchstring), "(displayName=%s)",username);
+		else
+			snprintf(searchstring, sizeof(searchstring), "(sAMAccountName=%s)", username);
 	}
 	else {
-		snprintf(searchstring, sizeof(searchstring), "(&(objectclass=posixAccount)(uid=%s))", username);
+		if (lookup_based_on_username != 0)
+			snprintf(searchstring, sizeof(searchstring), "(cn=%s)",username);
+		else
+			snprintf(searchstring, sizeof(searchstring), "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
 
 	syslog(LOG_DEBUG, "LDAP search: %s", searchstring);
@@ -157,29 +163,31 @@ int CtdlTryUserLDAP(char *username,
 				ldap_value_free(values);
 			}
 		}
-
-		if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
-			values = ldap_get_values(ldserver, search_result, "objectGUID");
-			if (values) {
-				if (values[0]) {
-					if (uid != NULL) {
-						*uid = abs(HashLittle(values[0], strlen(values[0])));
-						syslog(LOG_DEBUG, "uid hashed from objectGUID = %d", *uid);
+		/* If we know the username is the CN/displayName, we already set the uid*/
+		if (lookup_based_on_username==0) {
+			if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
+				values = ldap_get_values(ldserver, search_result, "objectGUID");
+				if (values) {
+					if (values[0]) {
+						if (uid != NULL) {
+							*uid = abs(HashLittle(values[0], strlen(values[0])));
+							syslog(LOG_DEBUG, "uid hashed from objectGUID = %d", *uid);
+						}
 					}
+					ldap_value_free(values);
 				}
-				ldap_value_free(values);
 			}
-		}
-		else {
-			values = ldap_get_values(ldserver, search_result, "uidNumber");
-			if (values) {
-				if (values[0]) {
-					syslog(LOG_DEBUG, "uidNumber = %s", values[0]);
-					if (uid != NULL) {
-						*uid = atoi(values[0]);
+			else {
+				values = ldap_get_values(ldserver, search_result, "uidNumber");
+				if (values) {
+					if (values[0]) {
+						syslog(LOG_DEBUG, "uidNumber = %s", values[0]);
+						if (uid != NULL) {
+							*uid = atoi(values[0]);
+						}
 					}
+					ldap_value_free(values);
 				}
-				ldap_value_free(values);
 			}
 		}
 
@@ -244,6 +252,7 @@ int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, ch
 	  if (strcmp(vals[i],oldval)) break;
 	}
 	if (i!=numvals) {
+		syslog(LOG_DEBUG, "LDAP: vcard property %s, element %d of %d changed from %s to %s\n", propname, i, numvals, oldval, vals[i]);
 		for(i=0;i<numvals;i++) vcard_set_prop(v,propname,vals[i],(i==0) ? 0 : 1);
 		return 1;
 	}
@@ -399,7 +408,7 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		if (mail) {
 			changed_something |= vcard_set_props_iff_different(v,"email;internet",ldap_count_values(mail),mail);
 		}
-		if (uuid) changed_something |= vcard_set_one_prop_iff_different(v,"uid","%s",uuid[0]);
+		if (uuid) changed_something |= vcard_set_one_prop_iff_different(v,"X-uuid","%s",uuid[0]);
 		if (o) changed_something |= vcard_set_one_prop_iff_different(v,"org","%s",o[0]);
 		if (cn) changed_something |= vcard_set_one_prop_iff_different(v,"fn","%s",cn[0]);
 		if (title) changed_something |= vcard_set_one_prop_iff_different(v,"title","%s",title[0]);
