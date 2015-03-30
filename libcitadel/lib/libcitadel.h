@@ -108,7 +108,7 @@ typedef enum _room_views {
 #define BLOG_EUIDBUF_SIZE	40
 
 #ifndef IsEmptyStr
-#define IsEmptyStr(a) ((a)[0] == '\0')
+#define IsEmptyStr(a) ( ( (a) == NULL ) || ((a)[0] == '\0') )
 #endif
 
 

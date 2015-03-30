@@ -61,8 +61,6 @@
 #define _(string)	(string)
 #endif
 
-#define IsEmptyStr(a) ((a)[0] == '\0')
-
 #define DO_DBG_QR 0
 #define DBG_QR(x) if(DO_DBG_QR) _DBG_QR(x)
 #define DBG_QR2(x) if(DO_DBG_QR) _DBG_QR2(x)
