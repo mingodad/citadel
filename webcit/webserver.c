@@ -194,11 +194,14 @@ int main(int argc, char **argv)
 			verbose=1;
 			break;
 		default:
-			fprintf(stderr, "usage: webcit "
+			fprintf(stderr, "usage:\nwebcit "
 				"[-i ip_addr] [-p http_port] "
 				"[-c] [-f] "
 				"[-T Templatedebuglevel] "
 				"[-d] [-Z] [-G i18ndumpfile] "
+				"[-u uid] [-h homedirectory] "
+				"[-D daemonizepid] [-v] "
+				"[-g defaultlandingpage] [-B basesize] "
 #ifdef HAVE_OPENSSL
 				"[-s] [-S cipher_suites]"
 #endif
