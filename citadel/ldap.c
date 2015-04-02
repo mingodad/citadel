@@ -245,7 +245,7 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 //return !0 iff property changed.
 int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, char **vals) {
 	int i;
-	char *oldval;
+	char *oldval = "";
 	for(i=0;i<numvals;i++) {
 	  oldval = vcard_get_prop(v,propname,0,i,0);
 	  if (oldval == NULL) break;
