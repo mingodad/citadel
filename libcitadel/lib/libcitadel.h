@@ -445,7 +445,6 @@ char *memreadline(char *start, char *buf, int maxlen);
 char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
 const char *cmemreadline(const char *start, char *buf, int maxlen);
 const char *cmemreadlinelen(const char *start, char *buf, int maxlen, int *retlen);
-#define IsEmptyStr(a) ((a)[0] == '\0')
 #define num_parms(source)		num_tokens(source,(char)'|')
 int stripout(char *str, char leftboundary, char rightboundary);
 long stripallbut(char *str, char leftboundary, char rightboundary);
