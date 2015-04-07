@@ -1,6 +1,6 @@
 /*
  * This module handles fulltext indexing of the message base.
- * Copyright (c) 2005-2011 by the citadel.org team
+ * Copyright (c) 2005-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -268,7 +268,7 @@ void do_fulltext_indexing(void) {
 	 * Check to see whether the fulltext index is up to date; if there
 	 * are no messages to index, don't waste any more time trying.
 	 */
-	if ((CitControl.MMfulltext >= CitControl.MMhighest) && (CitControl.fulltext_wordbreaker == FT_WORDBREAKER_ID)) {
+	if ((CitControl.MMfulltext >= CitControl.MMhighest) && (CitControl.MM_fulltext_wordbreaker == FT_WORDBREAKER_ID)) {
 		return;		/* nothing to do! */
 	}
 	
@@ -280,9 +280,9 @@ void do_fulltext_indexing(void) {
 	 * over.
 	 */
 	begin_critical_section(S_CONTROL);
-	if (CitControl.fulltext_wordbreaker != FT_WORDBREAKER_ID) {
+	if (CitControl.MM_fulltext_wordbreaker != FT_WORDBREAKER_ID) {
 		syslog(LOG_DEBUG, "wb ver on disk = %d, code ver = %d",
-			CitControl.fulltext_wordbreaker, FT_WORDBREAKER_ID
+			CitControl.MM_fulltext_wordbreaker, FT_WORDBREAKER_ID
 		);
 		syslog(LOG_INFO, "(re)initializing full text index");
 		cdb_trunc(CDB_FULLTEXT);
@@ -354,7 +354,7 @@ void do_fulltext_indexing(void) {
 	ft_flush_cache();
 	begin_critical_section(S_CONTROL);
 	CitControl.MMfulltext = ft_newhighest;
-	CitControl.fulltext_wordbreaker = FT_WORDBREAKER_ID;
+	CitControl.MM_fulltext_wordbreaker = FT_WORDBREAKER_ID;
 	put_control();
 	end_critical_section(S_CONTROL);
 	last_index = time(NULL);

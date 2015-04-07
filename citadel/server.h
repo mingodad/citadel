@@ -1,3 +1,17 @@
+/* 
+ * Main declarations file for the Citadel server
+ *
+ * Copyright (c) 1987-2015 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -109,8 +123,8 @@ struct CitControl {
 	unsigned MMflags;		/* Global system flags              */
 	long MMnextuser;		/* highest user number on system    */
 	long MMnextroom;		/* highest room number on system    */
-	int version;			/* Server-hosted upgrade level      */
-	int fulltext_wordbreaker;	/* ID of wordbreaker in use         */
+	int MM_hosted_upgrade_level;	/* Server-hosted upgrade level      */
+	int MM_fulltext_wordbreaker;	/* ID of wordbreaker in use         */
 	long MMfulltext;		/* highest message number indexed   */
 	int MMdbversion;		/* Version of Berkeley DB used on previous server run */
 };
@@ -210,6 +224,7 @@ enum {
 	CDB_EUIDINDEX,		/* locate msgs by EUID           */
 	CDB_USERSBYNUMBER,	/* index of users by number      */
 	CDB_OPENID,		/* associates OpenIDs with users */
+	CDB_CONFIG,		/* global system configuration   */
 	MAXCDB			/* total number of CDB's defined */
 };
 

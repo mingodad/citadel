@@ -1,15 +1,15 @@
 /*
  * This module handles states which are global to the entire server.
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include <stdio.h>
@@ -682,7 +682,7 @@ void cmd_conf(char *argbuf)
 		 * index so it doesn't try to use it later.
 		 */
 		if (config.c_enable_fulltext == 0) {
-			CitControl.fulltext_wordbreaker = 0;
+			CitControl.MM_fulltext_wordbreaker = 0;
 			put_control();
 		}
 	}

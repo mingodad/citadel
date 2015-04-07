@@ -516,7 +516,7 @@ void migr_do_export(void) {
 	cprintf("<control_flags>%u</control_flags>\n", CitControl.MMflags);
 	cprintf("<control_nextuser>%ld</control_nextuser>\n", CitControl.MMnextuser);
 	cprintf("<control_nextroom>%ld</control_nextroom>\n", CitControl.MMnextroom);
-	cprintf("<control_version>%d</control_version>\n", CitControl.version);
+	cprintf("<control_version>%d</control_version>\n", CitControl.MM_hosted_upgrade_level);
 	client_write("</control>\n", 11);
 	cprintf("<progress>%d</progress>\n", 2);
 
@@ -704,7 +704,7 @@ int migr_controlrecord(void *data, const char *el)
 	else if (!strcasecmp(el, "control_flags"))		CitControl.MMflags = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "control_nextuser"))		CitControl.MMnextuser = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "control_nextroom"))		CitControl.MMnextroom = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_version"))		CitControl.version = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "control_version"))		CitControl.MM_hosted_upgrade_level = atoi(ChrPtr(migr_chardata));
 
 	else if (!strcasecmp(el, "control")) {
 		CitControl.MMfulltext = (-1L);	/* always flush */
