@@ -224,7 +224,6 @@ enum {
 	CDB_EUIDINDEX,		/* locate msgs by EUID           */
 	CDB_USERSBYNUMBER,	/* index of users by number      */
 	CDB_OPENID,		/* associates OpenIDs with users */
-	CDB_CONFIG,		/* global system configuration   */
 	MAXCDB			/* total number of CDB's defined */
 };
 

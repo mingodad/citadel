@@ -168,7 +168,7 @@ void Netmap_AddMe(struct CtdlMessage *msg, const char *defl, long defllen)
 	if (CM_IsEmpty(msg, eMessagePath)) {
 		CM_SetField(msg, eMessagePath, defl, defllen);
 	}
-	node_len = configlen.c_nodename;
+	node_len = strlen(config.c_nodename);
 	if (node_len >= SIZ) 
 		node_len = SIZ - 1;
 	memcpy(buf, config.c_nodename, node_len);
