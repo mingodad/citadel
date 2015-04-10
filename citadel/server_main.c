@@ -164,6 +164,7 @@ int main(int argc, char **argv)
 	/* Load site-specific configuration */
 	syslog(LOG_INFO, "Loading citadel.config");
 	get_config();
+	validate_config();
 
 	/* get_control() MUST MUST MUST be called BEFORE the databases are opened!! */
 	syslog(LOG_INFO, "Acquiring control record");

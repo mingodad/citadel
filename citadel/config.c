@@ -1,7 +1,7 @@
 /*
  * Read and write the citadel.config file
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -167,8 +167,10 @@ void setcfglen(void)
 	configlen.c_pager_program = strlen(config.c_pager_program);
 }
 
+
+
 /*
- * get_config() is called during the initialization of Citadel server.
+ * Called during the initialization of Citadel server.
  * It verifies the system's integrity and reads citadel.config into memory.
  */
 void get_config(void) {

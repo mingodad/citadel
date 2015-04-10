@@ -122,8 +122,6 @@ void master_startup(void) {
 	
 	syslog(LOG_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
-	get_config();
-	validate_config();
 
 	syslog(LOG_INFO, "Checking directory access");
 	if ((pw = getpwuid(CTDLUID)) == NULL) {
