@@ -1083,6 +1083,14 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 	}
 }
 
+struct CtdlMessage *CtdlDeserializeMessage(char *mptr, char *upper_bound, long msgnum, int with_body)
+{
+	struct CitContext *CCC = CC;
+	eMsgField which;
+
+	cit_uint8_t field_header;
+	cit_uint8_t ch;
+	struct CtdlMessage *ret = NULL;
 
 /*
  * Load a message from disk into memory.
@@ -1091,26 +1099,6 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
  * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
  *       using the CtdlMessageFree() function.
  */
-struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
-{
-	struct CitContext *CCC = CC;
-	struct cdbdata *dmsgtext;
-	struct CtdlMessage *ret = NULL;
-	char *mptr;
-	char *upper_bound;
-	cit_uint8_t ch;
-	cit_uint8_t field_header;
-	eMsgField which;
-
-	MSG_syslog(LOG_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
-	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
-	if (dmsgtext == NULL) {
-		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Failed!\n", msgnum, with_body);
-		return NULL;
-	}
-	mptr = dmsgtext->ptr;
-	upper_bound = mptr + dmsgtext->len;
-
 	/* Parse the three bytes that begin EVERY message on disk.
 	 * The first is always 0xFF, the on-disk magic number.
 	 * The second is the anonymous/public type byte.
@@ -1119,7 +1107,6 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	ch = *mptr++;
 	if (ch != 255) {
 		MSG_syslog(LOG_ERR, "Message %ld appears to be corrupted.\n", msgnum);
-		cdb_free(dmsgtext);
 		return NULL;
 	}
 	ret = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
@@ -1130,10 +1117,10 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	ret->cm_format_type = *mptr++;	/* Format type byte */
 
 
-	if (dmsgtext->ptr[dmsgtext->len - 1] != '\0')
+	if (*(upper_bound - 1) != '\0')
 	{
 		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Forcefully terminating message!!\n", msgnum, with_body);
-		dmsgtext->ptr[dmsgtext->len - 1] = '\0';
+		*(upper_bound - 1) = '\0';
 	}
 
 	/*
@@ -1164,8 +1151,33 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 		mptr += len + 1;	/* advance to next field */
 
 	} while ((mptr < upper_bound) && (field_header != 'M'));
+	return ret;
+
+}
+
+struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
+{
+	struct CitContext *CCC = CC;
+	struct cdbdata *dmsgtext;
+	struct CtdlMessage *ret = NULL;
+	char *mptr;
+	char *upper_bound;
+
+	MSG_syslog(LOG_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
+	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
+	if (dmsgtext == NULL) {
+		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Failed!\n", msgnum, with_body);
+		return NULL;
+	}
+	mptr = dmsgtext->ptr;
+	upper_bound = mptr + dmsgtext->len;
+
+	ret = CtdlDeserializeMessage(mptr, upper_bound, msgnum, with_body);
 
 	cdb_free(dmsgtext);
+	if (ret  == NULL) {
+		return NULL;
+	}
 
 	/* Always make sure there's something in the msg text field.  If
 	 * it's NULL, the message text is most likely stored separately,

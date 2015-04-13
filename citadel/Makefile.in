@@ -39,7 +39,8 @@ UTIL_TARGETS=citmail$(EXEEXT) sendcommand$(EXEEXT)
 UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
 	chkpw$(EXEEXT) chkpwd$(EXEEXT) \
 	aidepost$(EXEEXT) msgform$(EXEEXT) \
-	ctdlmigrate$(EXEEXT)
+	ctdlmigrate$(EXEEXT) \
+	test_msg$(EXEEXT)
 
 
 ACLOCAL=@ACLOCAL@
@@ -127,7 +128,7 @@ Make_modules: modules_init.c
 
 modules_upgrade.c: modules_init.c
 
-SERV_OBJS = server_main.o utillib/citadel_dirs.o event_client.o \
+COMMON_OBJS = utillib/citadel_dirs.o event_client.o \
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
 	$(DATABASE:.c=.o) domain.o \
 	control.o config.o support.o room_ops.o \
@@ -137,6 +138,8 @@ SERV_OBJS = server_main.o utillib/citadel_dirs.o event_client.o \
 	parsedate.o genstamp.o ecrash.o threads.o context.o \
 	clientsocket.o modules_init.o modules_upgrade.o $(SERV_MODULES) \
 	svn_revision.o ldap.o netconfig.o nttlist.o md5.o
+
+SERV_OBJS = server_main.o $(COMMON_OBJS)
 
 citserver$(EXEEXT): $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver$(EXEEXT)
@@ -178,6 +181,13 @@ base64$(EXEEXT): utils/base64.o
 
 msgform$(EXEEXT): utils/msgform.o
 	$(CC) utils/msgform.o $(LDFLAGS) -o msgform$(EXEEXT)
+
+test_msg$(EXEEXT): tests/messages.o utillib/citadel_dirs.o
+	$(CC) tests/messages.o \
+		$(COMMON_OBJS) \
+		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) \
+		$(LDFLAGS) -o test_msg$(EXEEXT) $(LIBS)
+
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 

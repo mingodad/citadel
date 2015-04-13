@@ -149,6 +149,7 @@ int  CM_IsValidMsg     (struct CtdlMessage *msg);
 #define CM_RANGE(Message, Which) Message->cm_fields[Which], \
 		Message->cm_fields[Which] + Message->cm_lengths[Which]
 
+struct CtdlMessage *CtdlDeserializeMessage(char *mptr, char *upper_bound, long msgnum, int with_body);
 void CtdlSerializeMessage(struct ser_ret *, struct CtdlMessage *);
 void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
