@@ -39,6 +39,9 @@ int main(int argc, char**argv) {
 	char *filename = NULL;
 	struct stat statbuf;
 	const char *Err;
+	struct ser_ret smr;
+	static int encoded_alloc = 0;
+	static char *encoded_msg = NULL;
 
 	StrBuf *MsgBuf;
 	long MsgLen;
@@ -87,11 +90,40 @@ int main(int argc, char**argv) {
 		FreeStrBuf(&MsgBuf);
 		return 1;
 	}
+	StrBuf *enc = NewStrBufDup(MsgBuf);
 	StrBufDecodeBase64(MsgBuf);
 	MsgLen = StrLength(MsgBuf);
 	MsgStr = SmashStrBuf(&MsgBuf);
 	
 	msg = CtdlDeserializeMessage(MsgStr, MsgStr + MsgLen, 1234, 1);
+
+	CtdlSerializeMessage(&smr, msg);
+
+
+	/* Predict the buffer size we need.  Expand the buffer if necessary. */
+	int encoded_len = smr.len * 15 / 10 ;
+	if (encoded_len > encoded_alloc) {
+		encoded_alloc = encoded_len;
+		encoded_msg = realloc(encoded_msg, encoded_alloc);
+	}
+
+	if (encoded_msg == NULL) {
+		/* Questionable hack that hopes it'll work next time and we only lose one message */
+		encoded_alloc = 0;
+	}
+	else {
+		/* Once we do the encoding we know the exact size */
+		encoded_len = CtdlEncodeBase64(encoded_msg, (char *)smr.ser, smr.len, 1);
+		encoded_msg[encoded_len] = '\0';
+	}
+
+	if (strcmp(encoded_msg, ChrPtr(enc))) {
+		fprintf(stderr, "doesn't match!\n");
+		fwrite(encoded_msg, 1, encoded_len, stdout);
+	}
+	FreeStrBuf(&enc);
+	free(encoded_msg);
+	free(smr.ser);
 	free(MsgStr);
 
 	return 0;
