@@ -121,6 +121,7 @@ int main(int argc, char**argv) {
 		fprintf(stderr, "doesn't match!\n");
 		fwrite(encoded_msg, 1, encoded_len, stdout);
 	}
+	CM_Free(msg);
 	FreeStrBuf(&enc);
 	free(encoded_msg);
 	free(smr.ser);
