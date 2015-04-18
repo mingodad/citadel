@@ -119,6 +119,7 @@ void cmd_newu(char *cmdbuf)
 		cprintf("%d %s: Too many users are already online (maximum is %d)\n",
 			ERROR + MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions);
+		return;
 	}
 	extract_token(username, cmdbuf, 0, '|', sizeof username);
 	strproc(username);
