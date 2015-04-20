@@ -301,7 +301,7 @@ struct config {
 	char c_fqdn[64];		/* this site's fully qualified domain name */
 	char c_humannode[21];		/* human-readable site name */
 	char c_phonenum[16];		/* telephone number */
-	uid_t c_ctdluid;		/* uid of posix account under which Citadel will run */
+	uid_t c_niu_6;
 	char c_creataide;		/* 1 = creating a room auto-grants room aide privileges */
 	int c_sleeping;			/* watchdog timer (seconds) */
 	char c_initax;			/* initial access level for new users */
