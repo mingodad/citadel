@@ -1,7 +1,7 @@
 /*
  * This module dumps and/or loads the Citadel database in XML format.
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -436,7 +436,6 @@ void migr_do_export(void) {
 	client_write("<c_fqdn>", 8);		xml_strout(config.c_fqdn);		client_write("</c_fqdn>\n", 10);
 	client_write("<c_humannode>", 13);	xml_strout(config.c_humannode);		client_write("</c_humannode>\n", 15);
 	client_write("<c_phonenum>", 12);	xml_strout(config.c_phonenum);		client_write("</c_phonenum>\n", 14);
-	cprintf("<c_ctdluid>%d</c_ctdluid>\n", config.c_ctdluid);
 	cprintf("<c_creataide>%d</c_creataide>\n", config.c_creataide);
 	cprintf("<c_sleeping>%d</c_sleeping>\n", config.c_sleeping);
 	cprintf("<c_initax>%d</c_initax>\n", config.c_initax);
@@ -624,7 +623,6 @@ int migr_config(void *data, const char *el)
 	else if (!strcasecmp(el, "c_fqdn"))			SET_CFGSTRBUF(c_fqdn, migr_chardata);
 	else if (!strcasecmp(el, "c_humannode"))		SET_CFGSTRBUF(c_humannode, migr_chardata);
 	else if (!strcasecmp(el, "c_phonenum"))			SET_CFGSTRBUF(c_phonenum, migr_chardata);
-	else if (!strcasecmp(el, "c_ctdluid"))			config.c_ctdluid = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "c_creataide"))		config.c_creataide = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "c_sleeping"))			config.c_sleeping = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "c_initax"))			config.c_initax = atoi(ChrPtr(migr_chardata));

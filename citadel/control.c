@@ -133,7 +133,7 @@ void get_control(void)
 		control_fp = fopen(file_citadel_control, "rb+");
 		if (control_fp != NULL) {
 			lock_control();
-			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
+			rv = fchown(fileno(control_fp), ctdluid, -1);
 			if (rv == -1)
 				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
 				       file_citadel_control, strerror(errno));
@@ -149,7 +149,7 @@ void get_control(void)
 			lock_control();
 			memset(&CitControl, 0, sizeof(struct CitControl));
 
-			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
+			rv = fchown(fileno(control_fp), ctdluid, -1);
 			if (rv == -1)
 				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
 				       file_citadel_control, strerror(errno));
@@ -176,7 +176,7 @@ void get_control(void)
 		syslog(LOG_EMERG, "Failed to read Controlfile: %s [%s]\n", 
 		       file_citadel_control, strerror(errno));
 	already_have_control = 1;
-	rv = chown(file_citadel_control, config.c_ctdluid, (-1));
+	rv = chown(file_citadel_control, ctdluid, (-1));
 	if (rv == -1)
 		syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
 		       file_citadel_control, strerror(errno));	
@@ -386,7 +386,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_spam_flag_only);
 		cprintf("%d\n", config.c_guest_logins);
 		cprintf("%d\n", config.c_port_number);
-		cprintf("%d\n", config.c_ctdluid);
+		cprintf("%d\n", ctdluid);
 		cprintf("%d\n", config.c_nntp_port);
 		cprintf("%d\n", config.c_nntps_port);
 		cprintf("000\n");
@@ -629,7 +629,7 @@ void cmd_conf(char *argbuf)
 				config.c_port_number = atoi(buf);
 				break;
 			case 69:
-				config.c_ctdluid = atoi(buf);
+				/* niu */
 				break;
 			case 70:
 				config.c_nntp_port = atoi(buf);

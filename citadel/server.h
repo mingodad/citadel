@@ -80,6 +80,7 @@ typedef struct __recptypes {
 #define CTDLEXIT_DB		105	/* Unable to initialize database */
 #define CTDLEXIT_LIBCITADEL	106	/* Incorrect version of libcitadel */
 #define CTDL_EXIT_UNSUP_AUTH	107	/* Unsupported auth mode configured */
+#define CTDLEXIT_UNUSER		108	/* Could not determine uid to run as */
 
 /*
  * Reasons why a session would be terminated (set CC->kill_me to these values)
@@ -131,6 +132,7 @@ struct CitControl {
 
 extern int ScheduledShutdown;
 extern struct CitControl CitControl;
+extern uid_t ctdluid;
 
 struct ExpressMessage {
 	struct ExpressMessage *next;

@@ -385,7 +385,7 @@ extern struct config config;
 
 #define NODENAME		config.c_nodename
 #define FQDN			config.c_fqdn
-#define CTDLUID			config.c_ctdluid
+#define CTDLUID			ctdluid
 #define CREATAIDE		config.c_creataide
 #define REGISCALL		config.c_regiscall
 #define TWITDETECT		config.c_twitdetect

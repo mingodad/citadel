@@ -57,10 +57,9 @@ void validate_config(void) {
 	TEST_PORT(c_nntp_port, 119);
 	TEST_PORT(c_nntps_port, 563);
 
-	if (config.c_ctdluid == 0)
-		syslog(LOG_EMERG, "citadel should not be configured to run as root! Check the value of c_ctdluid");
-	else if (getpwuid(CTDLUID) == NULL)
-		syslog(LOG_EMERG, "The UID (%d) citadel is configured to use is not defined in your system (/etc/passwd?)! Check the value of c_ctdluid", CTDLUID);
+	if (getpwuid(ctdluid) == NULL) {
+		syslog(LOG_EMERG, "The UID (%d) citadel is configured to use is not defined in your system (/etc/passwd?)!", ctdluid);
+	}
 	
 }
 
@@ -69,7 +68,6 @@ void validate_config(void) {
  */
 void brand_new_installation_set_defaults(void) {
 
-	struct passwd *pw;
 	struct utsname my_utsname;
 	struct hostent *he;
 
@@ -97,24 +95,6 @@ void brand_new_installation_set_defaults(void) {
 	config.c_port_number = 504;
 	config.c_sleeping = 900;
 
-	if (config.c_ctdluid == 0) {
-		pw = getpwnam("citadel");
-		if (pw != NULL) {
-			config.c_ctdluid = pw->pw_uid;
-		}
-	}
-	if (config.c_ctdluid == 0) {
-		pw = getpwnam("bbs");
-		if (pw != NULL) {
-			config.c_ctdluid = pw->pw_uid;
-		}
-	}
-	if (config.c_ctdluid == 0) {
-		pw = getpwnam("guest");
-		if (pw != NULL) {
-			config.c_ctdluid = pw->pw_uid;
-		}
-	}
 	if (config.c_createax == 0) {
 		config.c_createax = 3;
 	}
