@@ -1,7 +1,7 @@
 /* 
  * Main source module for the Citadel server
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -124,7 +124,7 @@ void master_startup(void) {
 	time(&server_startup_time);
 
 	syslog(LOG_INFO, "Checking directory access");
-	if ((pw = getpwuid(CTDLUID)) == NULL) {
+	if ((pw = getpwuid(ctdluid)) == NULL) {
 		gid = getgid();
 	} else {
 		gid = pw->pw_gid;
@@ -136,6 +136,17 @@ void master_startup(void) {
 	}
 	syslog(LOG_INFO, "Opening databases");
 	open_databases();
+
+	/* Load site-specific configuration */
+	syslog(LOG_INFO, "Loading citadel.config");
+	get_config();
+	validate_config();
+
+	syslog(LOG_INFO, "Acquiring control record");
+	get_control();
+	put_config();
+
+	/* Check floor reference counts */
 	check_ref_counts();
 
 	syslog(LOG_INFO, "Creating base rooms (if necessary)\n");

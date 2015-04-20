@@ -202,17 +202,6 @@ int main(int argc, char **argv)
 	syslog(LOG_DEBUG, "Called as: %s", argv[0]);
 	syslog(LOG_INFO, "%s", libcitadel_version_string());
 
-	/* Load site-specific configuration */
-	syslog(LOG_INFO, "Loading citadel.config");
-	get_config();
-	validate_config();
-
-	/* get_control() MUST MUST MUST be called BEFORE the databases are opened!! */
-	syslog(LOG_INFO, "Acquiring control record");
-	get_control();
-
-	put_config();
-
 #ifdef HAVE_RUN_DIR
 	/* on some dists rundir gets purged on startup. so we need to recreate it. */
 
