@@ -19,7 +19,8 @@
 #include "config.h"
 #include "ctdl_module.h"
 
-struct config config;
+struct config config;		// legacy configuration
+HashList *ctdlconfig = NULL;	// new configuration
 
 #define STR_NOT_EMPTY(CFG_FIELDNAME) if (IsEmptyStr(config.CFG_FIELDNAME)) \
 		syslog(LOG_EMERG, "configuration setting "#CFG_FIELDNAME" is empty, but must not - check your config!");
@@ -123,7 +124,7 @@ void brand_new_installation_set_defaults(void) {
  * Called during the initialization of Citadel server.
  * It verifies the system's integrity and reads citadel.config into memory.
  */
-void get_config(void) {
+void initialize_config_system(void) {
 	FILE *cfp;
 	int rv;
 
@@ -237,6 +238,33 @@ void put_config(void)
 	}
 	syslog(LOG_EMERG, "%s: %s", file_citadel_config, strerror(errno));
 }
+
+
+
+/*
+ * Called when Citadel server is shutting down.
+ * Clears out the config hash table.
+ */
+void shutdown_config_system(void) 
+{
+	DeleteHash(&ctdlconfig);
+}
+
+
+
+
+
+
+
+
+/**********************************************************************/
+
+
+
+
+
+
+
 
 
 

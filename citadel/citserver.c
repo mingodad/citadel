@@ -139,7 +139,7 @@ void master_startup(void) {
 
 	/* Load site-specific configuration */
 	syslog(LOG_INFO, "Loading citadel.config");
-	get_config();
+	initialize_config_system();
 	validate_config();
 
 	syslog(LOG_INFO, "Acquiring control record");
@@ -209,6 +209,9 @@ void master_cleanup(int exitcode) {
 
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();
+
+	/* Close the configuration system */
+	shutdown_config_system();
 	
 	/* Close databases */
 	syslog(LOG_INFO, "Closing databases\n");

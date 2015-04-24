@@ -260,7 +260,6 @@ void guess_time_zone(void) {
  * Note that if the previous version was 0 then this is a new installation running for the first time.
  */
 void update_config(void) {
-	get_config();
 
 	if (CitControl.MM_hosted_upgrade_level < 606) {
 		config.c_rfc822_strict_from = 0;
