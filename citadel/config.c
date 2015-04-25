@@ -127,6 +127,7 @@ void brand_new_installation_set_defaults(void) {
 void initialize_config_system(void) {
 	FILE *cfp;
 	int rv;
+	ctdlconfig = NewHash(1, NULL);
 
 	if (chdir(ctdl_bbsbase_dir) != 0) {
 		fprintf(stderr,
@@ -252,6 +253,79 @@ void shutdown_config_system(void)
 
 
 
+/*
+ * Set a system config value.  Simple key/value here.
+ */
+void CtdlSetConfigStr(char *key, char *value)
+{
+	int key_len = strlen(key);
+	int value_len = strlen(value);
+
+	/* Save it in memory */
+	Put(ctdlconfig, key, key_len, strdup(value), NULL);
+
+	/* Also write it to the config database */
+
+	int dbv_size = key_len + value_len + 2;
+	char *dbv = malloc(dbv_size);
+	strcpy(dbv, key);
+	strcpy(&dbv[key_len + 1], value);
+	cdb_store(CDB_CONFIG, key, key_len, dbv, dbv_size);
+	free(dbv);
+}
+
+
+/*
+ * Set a numeric system config value (long integer)
+ */
+void CtdlSetConfigLong(char *key, long value)
+{
+	char longstr[256];
+	sprintf(longstr, "%ld", value);
+	CtdlSetConfigStr(key, longstr);
+}
+
+
+/*
+ * Set a numeric system config value (integer)
+ */
+void CtdlSetConfigInt(char *key, int value)
+{
+	char intstr[256];
+	sprintf(intstr, "%d", value);
+	CtdlSetConfigStr(key, intstr);
+}
+
+
+/*
+ * Fetch a system config value.  Caller does *not* own the returned value and may not alter it.
+ */
+char *CtdlGetConfigStr(char *key)
+{
+	char *value = NULL;
+	struct cdbdata *cdb;
+	int key_len = strlen(key);
+
+	/* First look in memory */
+	if (GetHash(ctdlconfig, key, key_len, (void *)&value))
+	{
+		return value;
+	}
+
+	/* Then look in the database. */
+
+	cdb = cdb_fetch(CDB_CONFIG, key, key_len);
+
+	if (cdb == NULL) {	/* nope, not there either. */
+		return(NULL);
+	}
+
+	/* Got it.  Save it in memory for the next fetch. */
+	value = strdup(cdb->ptr + key_len + 1);		/* The key was stored there too; skip past it */
+	cdb_free(cdb);
+	Put(ctdlconfig, key, key_len, value, NULL);
+	return value;
+}
 
 
 

@@ -13,9 +13,16 @@
 #include "serv_extensions.h"
 #include "citadel_dirs.h"
 
+#define CtdlGetConfigInt(x)	atoi(CtdlGetConfigStr(x))
+#define CtdlGetConfigLong(x)	atol(CtdlGetConfigStr(x))
+
 void initialize_config_system(void);
 void shutdown_config_system(void);
 void put_config(void);
+void CtdlSetConfigStr(char *, char *);
+char *CtdlGetConfigStr(char *);
+void CtdlSetConfigInt(char *key, int value);
+void CtdlSetConfigLong(char *key, long value);
 
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
