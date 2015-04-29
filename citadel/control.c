@@ -312,7 +312,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%s\n", config.c_nodename);
 		cprintf("%s\n", config.c_fqdn);
 		cprintf("%s\n", config.c_humannode);
-		cprintf("%s\n", config.c_phonenum);
+		cprintf("xxx\n"); /* placeholder -- field no longer in use */
 		cprintf("%d\n", config.c_creataide);
 		cprintf("%d\n", config.c_sleeping);
 		cprintf("%d\n", config.c_initax);
@@ -408,7 +408,7 @@ void cmd_conf(char *argbuf)
 				safestrncpy(config.c_humannode, buf, sizeof config.c_humannode);
 				break;
 			case 3:
-				safestrncpy(config.c_phonenum, buf, sizeof config.c_phonenum);
+				/* placeholder -- field no longer in use */
 				break;
 			case 4:
 				config.c_creataide = atoi(buf);
