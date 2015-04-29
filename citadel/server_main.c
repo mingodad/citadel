@@ -284,7 +284,7 @@ int main(int argc, char **argv)
 	/*
 	 * Bind the server to our favorite TCP port (usually 504).
 	 */
-	CtdlRegisterServiceHook(config.c_port_number,
+	CtdlRegisterServiceHook(CtdlGetConfigInt("c_port_number"),
 				NULL,
 				citproto_begin_session,
 				do_command_loop,
@@ -307,7 +307,7 @@ int main(int argc, char **argv)
 	/*
 	 * If we need host auth, start our chkpwd daemon.
 	 */
-	if (config.c_auth_mode == AUTHMODE_HOST) {
+	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_HOST) {
 		start_chkpwd_daemon();
 	}
 
