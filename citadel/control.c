@@ -520,129 +520,130 @@ void cmd_conf(char *argbuf)
 				/* niu */
 				break;
 			case 31:
-				if ((config.c_purge_hour >= 0)
-				    && (config.c_purge_hour <= 23)) {
-					config.c_purge_hour = atoi(buf);
+				i = atoi(buf);
+				if ((i >= 0) && (i <= 23)) {
+					CtdlSetConfigInt("c_purge_hour", i);
 				}
 				break;
-#ifdef HAVE_LDAP
 			case 32:
-				safestrncpy(config.c_ldap_host, buf, sizeof config.c_ldap_host);
+				CtdlSetConfigStr("c_ldap_host", buf);
 				break;
 			case 33:
-				config.c_ldap_port = atoi(buf);
+				CtdlSetConfigInt("c_ldap_port", atoi(buf));
 				break;
 			case 34:
-				safestrncpy(config.c_ldap_base_dn, buf, sizeof config.c_ldap_base_dn);
+				CtdlSetConfigStr("c_ldap_base_dn", buf);
 				break;
 			case 35:
-				safestrncpy(config.c_ldap_bind_dn, buf, sizeof config.c_ldap_bind_dn);
+				CtdlSetConfigStr("c_ldap_bind_dn", buf);
 				break;
 			case 36:
-				safestrncpy(config.c_ldap_bind_pw, buf, sizeof config.c_ldap_bind_pw);
+				CtdlSetConfigStr("c_ldap_bind_pw", buf);
 				break;
-#endif
 			case 37:
-				safestrncpy(config.c_ip_addr, buf, sizeof config.c_ip_addr);
+				CtdlSetConfigStr("c_ip_addr", buf);
+				break;
 			case 38:
-				config.c_msa_port = atoi(buf);
+				CtdlSetConfigInt("c_msa_port", atoi(buf));
 				break;
 			case 39:
-				config.c_imaps_port = atoi(buf);
+				CtdlSetConfigInt("c_imaps_port", atoi(buf));
 				break;
 			case 40:
-				config.c_pop3s_port = atoi(buf);
+				CtdlSetConfigInt("c_pop3s_port", atoi(buf));
 				break;
 			case 41:
-				config.c_smtps_port = atoi(buf);
+				CtdlSetConfigInt("c_smtps_port", atoi(buf));
 				break;
 			case 42:
-				config.c_enable_fulltext = atoi(buf);
+				CtdlSetConfigInt("c_enable_fulltext", confbool(buf));
 				break;
 			case 43:
-				config.c_auto_cull = atoi(buf);
+				CtdlSetConfigInt("c_auto_cull", confbool(buf));
 				break;
 			case 44:
 				/* niu */
 				break;
 			case 45:
-				config.c_allow_spoofing = atoi(buf);
+				CtdlSetConfigInt("c_allow_spoofing", confbool(buf));
 				break;
 			case 46:
-				config.c_journal_email = atoi(buf);
+				CtdlSetConfigInt("c_journal_email", confbool(buf));
 				break;
 			case 47:
-				config.c_journal_pubmsgs = atoi(buf);
+				CtdlSetConfigInt("c_journal_pubmsgs", confbool(buf));
 				break;
 			case 48:
-				safestrncpy(config.c_journal_dest, buf, sizeof config.c_journal_dest);
+				CtdlSetConfigStr("c_journal_dest", buf);
+				break;
 			case 49:
-				safestrncpy(config.c_default_cal_zone, buf, sizeof config.c_default_cal_zone);
+				CtdlSetConfigStr("c_default_cal_zone", buf);
 				break;
 			case 50:
-				config.c_pftcpdict_port = atoi(buf);
+				CtdlSetConfigInt("c_pftcpdict_port", atoi(buf));
 				break;
 			case 51:
-				config.c_managesieve_port = atoi(buf);
+				CtdlSetConfigInt("c_managesieve_port", atoi(buf));
 				break;
 			case 52:
-				config.c_auth_mode = atoi(buf);
+				CtdlSetConfigInt("c_auth_mode", atoi(buf));
+				break;
 			case 53:
-				safestrncpy(config.c_funambol_host, buf, sizeof config.c_funambol_host);
+				CtdlSetConfigStr("c_funambol_host", buf);
 				break;
 			case 54:
-				config.c_funambol_port = atoi(buf);
+				CtdlSetConfigInt("c_funambol_port", atoi(buf));
 				break;
 			case 55:
-				safestrncpy(config.c_funambol_source, buf, sizeof config.c_funambol_source);
+				CtdlSetConfigStr("c_funambol_source", buf);
 				break;
 			case 56:
-				safestrncpy(config.c_funambol_auth, buf, sizeof config.c_funambol_auth);
+				CtdlSetConfigStr("c_funambol_auth", buf);
 				break;
 			case 57:
-				config.c_rbl_at_greeting = atoi(buf);
+				CtdlSetConfigInt("c_rbl_at_greeting", confbool(buf));
 				break;
 			case 58:
-				safestrncpy(config.c_master_user, buf, sizeof config.c_master_user);
+				CtdlSetConfigStr("c_master_user", buf);
 				break;
 			case 59:
-				safestrncpy(config.c_master_pass, buf, sizeof config.c_master_pass);
+				CtdlSetConfigStr("c_master_pass", buf);
 				break;
 			case 60:
-				safestrncpy(config.c_pager_program, buf, sizeof config.c_pager_program);
+				CtdlSetConfigStr("c_pager_program", buf);
 				break;
 			case 61:
-				config.c_imap_keep_from = atoi(buf);
+				CtdlSetConfigInt("c_imap_keep_from", confbool(buf));
 				break;
 			case 62:
-				config.c_xmpp_c2s_port = atoi(buf);
+				CtdlSetConfigInt("c_xmpp_c2s_port", atoi(buf));
 				break;
 			case 63:
-				config.c_xmpp_s2s_port = atoi(buf);
+				CtdlSetConfigInt("c_xmpp_s2s_port", atoi(buf));
 				break;
 			case 64:
-				config.c_pop3_fetch = atol(buf);
+				CtdlSetConfigLong("c_pop3_fetch", atol(buf));
 				break;
 			case 65:
-				config.c_pop3_fastest = atol(buf);
+				CtdlSetConfigLong("c_pop3_fastest", atol(buf));
 				break;
 			case 66:
-				config.c_spam_flag_only = atoi(buf);
+				CtdlSetConfigInt("c_spam_flag_only", confbool(buf));
 				break;
 			case 67:
-				config.c_guest_logins = atoi(buf);
+				CtdlSetConfigInt("c_guest_logins", confbool(buf));
 				break;
 			case 68:
-				config.c_port_number = atoi(buf);
+				CtdlSetConfigInt("c_port_number", atoi(buf));
 				break;
 			case 69:
 				/* niu */
 				break;
 			case 70:
-				config.c_nntp_port = atoi(buf);
+				CtdlSetConfigInt("c_nntp_port", atoi(buf));
 				break;
 			case 71:
-				config.c_nntps_port = atoi(buf);
+				CtdlSetConfigInt("c_nntps_port", atoi(buf));
 				break;
 			}
 			++a;
@@ -654,13 +655,13 @@ void cmd_conf(char *argbuf)
 		);
 		CtdlAideMessage(buf,"Citadel Configuration Manager Message");
 
-		if (!IsEmptyStr(config.c_logpages))
-			CtdlCreateRoom(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
+		if (!IsEmptyStr(CtdlGetConfigStr("c_logpages")))
+			CtdlCreateRoom(CtdlGetConfigStr("c_logpages"), 3, "", 0, 1, 1, VIEW_BBS);
 
 		/* If full text indexing has been disabled, invalidate the
 		 * index so it doesn't try to use it later.
 		 */
-		if (config.c_enable_fulltext == 0) {
+		if (CtdlGetConfigInt("c_enable_fulltext") == 0) {
 			CitControl.MM_fulltext_wordbreaker = 0;
 			put_control();
 		}
@@ -689,7 +690,7 @@ void cmd_conf(char *argbuf)
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		unbuffer_output();
 		cprintf("%d %s\n", SEND_LISTING, confname);
-		confptr = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
+		confptr = CtdlReadMessageBody(HKEY("000"), CtdlGetConfigLong("c_maxmsglen"), NULL, 0, 0);
 		CtdlPutSysConfig(confname, confptr);
 		free(confptr);
 	}
@@ -737,7 +738,7 @@ void cmd_gvdn(char *argbuf)
 	void *vptr;
 	
 	List = NewHash(1, NULL);
-	Cfg = NewStrBufPlain(config.c_fqdn, -1);
+	Cfg = NewStrBufPlain(CtdlGetConfigStr("c_fqdn"), -1);
 	Put(List, SKEY(Cfg), Cfg, HFreeStrBuf);
 	Cfg = NULL;
 
