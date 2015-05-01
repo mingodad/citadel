@@ -2851,7 +2851,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if ((!CCC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 1, msg) != 0) {
 			MSGM_syslog(LOG_ERR, "ERROR saving message pointer!\n");
-			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
+			CtdlSaveMsgPointerInRoom(CtdlGetConfigStr("c_aideroom"), newmsgid, 0, msg);
 		}
 	}
 
@@ -2880,7 +2880,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	{
 		if (CCC->logged_in) 
 			snprintf(bounce_to, sizeof bounce_to, "%s@%s",
-				 CCC->user.fullname, config.c_nodename);
+				 CCC->user.fullname, CtdlGetConfigStr("c_nodename"));
 		else 
 			snprintf(bounce_to, sizeof bounce_to, "%s@%s",
 				 msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
@@ -2913,7 +2913,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			}
 			else {
 				MSG_syslog(LOG_DEBUG, "No user <%s>\n", recipient);
-				CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
+				CtdlSaveMsgPointerInRoom(CtdlGetConfigStr("c_aideroom"), newmsgid, 0, msg);
 			}
 		}
 		recps->recp_local = pch;
@@ -2958,13 +2958,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 	else {
 		if (recps == NULL) {
-			qualified_for_journaling = config.c_journal_pubmsgs;
+			qualified_for_journaling = CtdlGetConfigInt("c_journal_pubmsgs");
 		}
 		else if (recps->num_local + recps->num_ignet + recps->num_internet > 0) {
-			qualified_for_journaling = config.c_journal_email;
+			qualified_for_journaling = CtdlGetConfigInt("c_journal_email");
 		}
 		else {
-			qualified_for_journaling = config.c_journal_pubmsgs;
+			qualified_for_journaling = CtdlGetConfigInt("c_journal_pubmsgs");
 		}
 	}
 
