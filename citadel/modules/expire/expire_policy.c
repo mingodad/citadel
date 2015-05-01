@@ -1,6 +1,6 @@
 /* 
  * Functions which manage expire policy for rooms
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -40,7 +40,7 @@
 #include "support.h"
 #include "msgbase.h"
 #include "citserver.h"
-
+#include "config.h"
 #include "ctdl_module.h"
 #include "user_ops.h"
 
@@ -72,8 +72,7 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct ctdlroom *qrbuf) {
 	 */
 	if (qrbuf->QRflags & QR_MAILBOX) {
 		if (config.c_mbxep.expire_mode != 0) {
-			memcpy(epbuf, &config.c_mbxep,
-				sizeof(struct ExpirePolicy));
+			memcpy(epbuf, &config.c_mbxep, sizeof(struct ExpirePolicy));
 			return;
 		}
 	}

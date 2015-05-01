@@ -8,7 +8,7 @@
  * Based on bits of serv_funambol
  * Contact: <matt@mcbridematt.dhs.org> / <matt@comalies>
  *
- * Copyright (c) 2008-2011
+ * Copyright (c) 2008-2015
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
 
@@ -295,9 +291,9 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 		{
 		case eFunambol:
 			snprintf(remoteurl, SIZ, "http://%s@%s:%d/%s",
-				 config.c_funambol_auth,
-				 config.c_funambol_host,
-				 config.c_funambol_port,
+				 CtdlGetConfigStr("c_funambol_auth"),
+				 CtdlGetConfigStr("c_funambol_host"),
+				 CtdlGetConfigInt("c_funambol_port"),
 				 FUNAMBOL_WS);
 
 			notify_http_server(remoteurl,
@@ -349,7 +345,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 			int commandSiz;
 			char *command;
 
-			commandSiz = sizeof(config.c_pager_program) +
+			commandSiz = sizeof(CtdlGetConfigStr("c_pager_program")) +
 				strlen(PagerNo) +
 				msg->cm_lengths[eExtnotify] + 5;
 
@@ -358,7 +354,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 			snprintf(command,
 				 commandSiz,
 				 "%s %s -u %s",
-				 config.c_pager_program,
+				 CtdlGetConfigStr("c_pager_program"),
 				 PagerNo,
 				 msg->cm_fields[eExtnotify]);
 
@@ -393,8 +389,8 @@ void do_extnotify_queue(void)
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (IsEmptyStr(config.c_pager_program) &&
-	    IsEmptyStr(config.c_funambol_host))
+	if (IsEmptyStr(CtdlGetConfigStr("c_pager_program")) &&
+	    IsEmptyStr(CtdlGetConfigStr("c_funambol_host")))
 	{
 		syslog(LOG_ERR,
 		       "No external notifiers configured on system/user\n");
@@ -472,7 +468,7 @@ int extnotify_after_mbox_save(struct CtdlMessage *msg,
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
 	 */
-	if (!IsEmptyStr(config.c_funambol_host) || !IsEmptyStr(config.c_pager_program))
+	if (!IsEmptyStr(CtdlGetConfigStr("c_funambol_host")) || !IsEmptyStr(CtdlGetConfigStr("c_pager_program")))
 	{
 		/* Generate a instruction message for the Funambol notification
 		 * server, in the same style as the SMTP queue

@@ -251,7 +251,7 @@ void do_fulltext_indexing(void) {
 	/*
 	 * Don't do this if the site doesn't have it enabled.
 	 */
-	if (!config.c_enable_fulltext) {
+	if (!CtdlGetConfigInt("c_enable_fulltext")) {
 		return;
 	}
 
@@ -455,7 +455,7 @@ void cmd_srch(char *argbuf) {
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (!config.c_enable_fulltext) {
+	if (!CtdlGetConfigInt("c_enable_fulltext")) {
 		cprintf("%d Full text index is not enabled on this server.\n",
 			ERROR + CMD_NOT_SUPPORTED);
 		return;
@@ -489,7 +489,7 @@ void ft_delete_remove(char *room, long msgnum)
 	if (room) return;
 	
 	/* Remove from fulltext index */
-	if (config.c_enable_fulltext) {
+	if (CtdlGetConfigInt("c_enable_fulltext")) {
 		ft_index_message(msgnum, 0);
 	}
 }
