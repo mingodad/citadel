@@ -293,23 +293,14 @@ enum {
  */
 void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_string, const char *func_name);
 
-
-#define SET_CFGSTRBUF(which, buffer) safestrncpy(config.which, ChrPtr(buffer), sizeof(config.which))
-#define SET_CFGSTR(which, buffer) safestrncpy(config.which, buffer, sizeof(config.which))
-
-extern struct config config;
-
-
-#define NODENAME		config.c_nodename
-#define FQDN			config.c_fqdn
+#define NODENAME		CtdlGetConfigStr("c_nodename")
+#define FQDN			CtdlGetConfigStr("c_fqdn")
 #define CTDLUID			ctdluid
-#define CREATAIDE		config.c_creataide
-#define REGISCALL		config.c_regiscall
-#define TWITDETECT		config.c_twitdetect
-#define TWITROOM		config.c_twitroom
-#define RESTRICT_INTERNET	config.c_restrict
-
-#define CFG_KEY(which) config.which, strlen(config.which)
+#define CREATAIDE		CtdlGetConfigInt("c_creataide")
+#define REGISCALL		CtdlGetConfigInt("c_regiscall")
+#define TWITDETECT		CtdlGetConfigInt("c_twitdetect")
+#define TWITROOM		CtdlGetConfigStr("c_twitroom")
+#define RESTRICT_INTERNET	CtdlGetConfigInt("c_restrict")
 
 typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg);
 typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, OneRoomNetCfg *rncfg, RoomNetCfgLine *data);

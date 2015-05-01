@@ -288,6 +288,17 @@ long get_new_room_number(void)
 
 
 
+/*
+ * Helper function for cmd_conf() to handle boolean values
+ */
+int confbool(char *v)
+{
+	if (IsEmptyStr(v)) return(0);
+	if (atoi(v) != 0) return(1);
+	return(0);
+}
+
+
 /* 
  * Get or set global configuration options
  *
@@ -299,7 +310,8 @@ void cmd_conf(char *argbuf)
 {
 	char cmd[16];
 	char buf[256];
-	int a;
+	int a, i;
+	long ii;
 	char *confptr;
 	char confname[128];
 
@@ -398,115 +410,111 @@ void cmd_conf(char *argbuf)
 		while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000")) {
 			switch (a) {
 			case 0:
-				safestrncpy(config.c_nodename, buf, sizeof config.c_nodename);
+				CtdlSetConfigStr("c_nodename", buf);
 				break;
 			case 1:
-				safestrncpy(config.c_fqdn, buf, sizeof config.c_fqdn);
+				CtdlSetConfigStr("c_fqdn", buf);
 				break;
 			case 2:
-				safestrncpy(config.c_humannode, buf, sizeof config.c_humannode);
+				CtdlSetConfigStr("c_humannode", buf);
 				break;
 			case 3:
 				/* placeholder -- field no longer in use */
 				break;
 			case 4:
-				config.c_creataide = atoi(buf);
+				CtdlSetConfigInt("c_creataide", atoi(buf));
 				break;
 			case 5:
-				config.c_sleeping = atoi(buf);
+				CtdlSetConfigInt("c_sleeping", atoi(buf));
 				break;
 			case 6:
-				config.c_initax = atoi(buf);
-				if (config.c_initax < 1)
-					config.c_initax = 1;
-				if (config.c_initax > 6)
-					config.c_initax = 6;
+				i = atoi(buf);
+				if (i < 1) i = 1;
+				if (i > 6) i = 6;
+				CtdlSetConfigInt("c_initax", i);
 				break;
 			case 7:
-				config.c_regiscall = atoi(buf);
-				if (config.c_regiscall != 0)
-					config.c_regiscall = 1;
+				CtdlSetConfigInt("c_regiscall", confbool(buf));
 				break;
 			case 8:
-				config.c_twitdetect = atoi(buf);
-				if (config.c_twitdetect != 0)
-					config.c_twitdetect = 1;
+				CtdlSetConfigInt("c_twitdetect", confbool(buf));
 				break;
 			case 9:
-				safestrncpy(config.c_twitroom, buf, sizeof config.c_twitroom);
+				CtdlSetConfigStr("c_twitroom", buf);
 				break;
 			case 10:
-				safestrncpy(config.c_moreprompt, buf, sizeof config.c_moreprompt);
+				CtdlSetConfigStr("c_moreprompt", buf);
 				break;
 			case 11:
-				config.c_restrict = atoi(buf);
-				if (config.c_restrict != 0)
-					config.c_restrict = 1;
+				CtdlSetConfigInt("c_restrict", confbool(buf));
 				break;
 			case 12:
-				safestrncpy(config.c_site_location, buf, sizeof config.c_site_location);
+				CtdlSetConfigInt("c_site_location", confbool(buf));
 				break;
 			case 13:
-				safestrncpy(config.c_sysadm, buf, sizeof config.c_sysadm);
+				CtdlSetConfigInt("c_sysadm", confbool(buf));
 				break;
 			case 14:
-				config.c_maxsessions = atoi(buf);
-				if (config.c_maxsessions < 0)
-					config.c_maxsessions = 0;
+				i = atoi(buf);
+				if (i < 0) i = 0;
+				CtdlSetConfigInt("c_maxsessions", i);
 				break;
 			case 15:
 				/* placeholder -- field no longer in use */
 				break;
 			case 16:
-				config.c_userpurge = atoi(buf);
+				CtdlSetConfigInt("c_userpurge", atoi(buf));
 				break;
 			case 17:
-				config.c_roompurge = atoi(buf);
+				CtdlSetConfigInt("c_roompurge", atoi(buf));
 				break;
 			case 18:
-				safestrncpy(config.c_logpages, buf, sizeof config.c_logpages);
+				CtdlSetConfigStr("c_logpages", buf);
 				break;
 			case 19:
-				config.c_createax = atoi(buf);
-				if (config.c_createax < 1)
-					config.c_createax = 1;
-				if (config.c_createax > 6)
-					config.c_createax = 6;
+				i = atoi(buf);
+				if (i < 1) i = 1;
+				if (i > 6) i = 6;
+				CtdlSetConfigInt("c_createax", i);
 				break;
 			case 20:
-				if (atoi(buf) >= 8192)
-					config.c_maxmsglen = atoi(buf);
+				ii = atol(buf);
+				if (ii >= 8192) {
+					CtdlSetConfigLong("c_maxmsglen", ii);
+				}
 				break;
 			case 21:
-				if (atoi(buf) >= 2)
-					config.c_min_workers = atoi(buf);
+				i = atoi(buf);
+				if (i >= 3) {					// minimum value
+					CtdlSetConfigInt("c_min_workers", i);
+				}
+				break;
 			case 22:
-				if (atoi(buf) >= config.c_min_workers)
-					config.c_max_workers = atoi(buf);
+				i = atoi(buf);
+				if (i >= CtdlGetConfigInt("c_min_workers")) {	// max must be >= min
+					CtdlSetConfigInt("c_max_workers", i);
+				}
+				break;
 			case 23:
-				config.c_pop3_port = atoi(buf);
+				CtdlSetConfigInt("c_pop3_port", atoi(buf));
 				break;
 			case 24:
-				config.c_smtp_port = atoi(buf);
+				CtdlSetConfigInt("c_smtp_port", atoi(buf));
 				break;
 			case 25:
-				config.c_rfc822_strict_from = atoi(buf);
+				CtdlSetConfigInt("c_rfc822_strict_from", atoi(buf));
 				break;
 			case 26:
-				config.c_aide_zap = atoi(buf);
-				if (config.c_aide_zap != 0)
-					config.c_aide_zap = 1;
+				CtdlSetConfigInt("c_aide_zap", confbool(buf));
 				break;
 			case 27:
-				config.c_imap_port = atoi(buf);
+				CtdlSetConfigInt("c_imap_port", atoi(buf));
 				break;
 			case 28:
-				config.c_net_freq = atol(buf);
+				CtdlSetConfigLong("c_net_freq", atol(buf));
 				break;
 			case 29:
-				config.c_disable_newu = atoi(buf);
-				if (config.c_disable_newu != 0)
-					config.c_disable_newu = 1;
+				CtdlSetConfigInt("c_disable_newu", confbool(buf));
 				break;
 			case 30:
 				/* niu */

@@ -2,6 +2,16 @@
  * Function to go through an ical component set and convert all non-UTC
  * date/time properties to UTC.  It also strips out any VTIMEZONE
  * subcomponents afterwards, because they're irrelevant.
+ *
+ * Copyright (c) 1987-2015 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 
@@ -34,8 +44,7 @@
 icaltimezone *get_default_icaltimezone(void) {
 
         icaltimezone *zone = NULL;
-	char *default_zone_name = config.c_default_cal_zone;
-	//char *default_zone_name = "America/New_York";
+	char *default_zone_name = CtdlGetConfigStr("c_default_cal_zone");
 
         if (!zone) {
                 zone = icaltimezone_get_builtin_timezone(default_zone_name);
