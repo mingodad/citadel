@@ -5,21 +5,15 @@
  * is available at http://www.mrtg.org that can fetch data using external
  * scripts.  This module supplies data in the format expected by MRTG.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -78,7 +72,7 @@ void mrtg_output(long value1, long value2) {
 	cprintf("%ld\n", value2);
 	cprintf("%d days, %d hours, %d minutes\n",
 		uptime_days, uptime_hours, uptime_minutes);
-	cprintf("%s\n", config.c_humannode);
+	cprintf("%s\n", CtdlGetConfigStr("c_humannode"));
 	cprintf("000\n");
 }
 
