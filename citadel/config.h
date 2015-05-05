@@ -13,10 +13,6 @@
 #include "serv_extensions.h"
 #include "citadel_dirs.h"
 
-#define CtdlGetConfigInt(x)	atoi(CtdlGetConfigStr(x))
-#define CtdlGetConfigLong(x)	atol(CtdlGetConfigStr(x))
-
-
 
 
 /*
@@ -112,6 +108,8 @@ void shutdown_config_system(void);
 void put_config(void);
 void CtdlSetConfigStr(char *, char *);
 char *CtdlGetConfigStr(char *);
+int CtdlGetConfigInt(char *);
+long CtdlGetConfigLong(char *);
 void CtdlSetConfigInt(char *key, int value);
 void CtdlSetConfigLong(char *key, long value);
 

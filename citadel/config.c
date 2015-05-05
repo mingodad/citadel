@@ -437,6 +437,26 @@ char *CtdlGetConfigStr(char *key)
 }
 
 
+/*
+ * Fetch a system config value - integer
+ */
+int CtdlGetConfigInt(char *key)
+{
+	char *s = CtdlGetConfigStr(key);
+	if (s) return atoi(s);
+	return 0;
+}
+
+
+/*
+ * Fetch a system config value - long integer
+ */
+long CtdlGetConfigLong(char *key)
+{
+	char *s = CtdlGetConfigStr(key);
+	if (s) return atol(s);
+	return 0;
+}
 
 
 
