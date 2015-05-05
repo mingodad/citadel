@@ -17,21 +17,15 @@
  * RFC 2822 - Internet Message Format
  * RFC 2920 - SMTP Service Extension for Command Pipelining
  *
- * Copyright (c) 1998-2012 by the citadel.org team
+ * Copyright (c) 1998-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -144,8 +138,7 @@ eNextState SMTPC_send_EHLO(SmtpOutMsg *Msg)
 	/* At this point we know we are talking to a real SMTP server */
 
 	/* Do a EHLO command.  If it fails, try the HELO command. */
-	StrBufPrintf(Msg->IO.SendBuf.Buf,
-		     "EHLO %s\r\n", config.c_fqdn);
+	StrBufPrintf(Msg->IO.SendBuf.Buf, "EHLO %s\r\n", CtdlGetconfigStr("c_fqdn"));
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
@@ -180,8 +173,7 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *Msg)
 eNextState STMPC_send_HELO(SmtpOutMsg *Msg)
 {
 	AsyncIO *IO = &Msg->IO;
-	StrBufPrintf(Msg->IO.SendBuf.Buf,
-		     "HELO %s\r\n", config.c_fqdn);
+	StrBufPrintf(Msg->IO.SendBuf.Buf, "HELO %s\r\n", CtdlGetconfigStr("c_fqdn"));
 
 	SMTP_DBG_SEND();
 	return eReadMessage;

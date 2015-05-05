@@ -245,8 +245,8 @@ void guess_time_zone(void) {
 	if (fp) {
 		if (fgets(buf, sizeof buf, fp) && (strlen(buf) > 2)) {
 			buf[strlen(buf)-1] = 0;
-			safestrncpy(config.c_default_cal_zone, buf, sizeof config.c_default_cal_zone);
-			syslog(LOG_INFO, "Configuring timezone: %s", config.c_default_cal_zone);
+			CtdlSetConfigStr("c_default_cal_zone", buf);
+			syslog(LOG_INFO, "Configuring timezone: %s", buf);
 		}
 		fclose(fp);
 	}
@@ -261,36 +261,38 @@ void guess_time_zone(void) {
  */
 void update_config(void) {
 
-	if (CitControl.MM_hosted_upgrade_level < 606) {
+	oldver = CitControl.MM_hosted_upgrade_level;
+
+	if (oldver < 606) {
 		config.c_rfc822_strict_from = 0;
 	}
 
-	if (CitControl.MM_hosted_upgrade_level < 609) {
+	if (oldver < 609) {
 		config.c_purge_hour = 3;
 	}
 
-	if (CitControl.MM_hosted_upgrade_level < 615) {
+	if (oldver < 615) {
 		config.c_ldap_port = 389;
 	}
 
-	if (CitControl.MM_hosted_upgrade_level < 623) {
+	if (oldver < 623) {
 		strcpy(config.c_ip_addr, "*");
 	}
 
-	if (CitControl.MM_hosted_upgrade_level < 650) {
+	if (oldver < 650) {
 		config.c_enable_fulltext = 1;
 	}
 
-	if (CitControl.MM_hosted_upgrade_level < 652) {
+	if (oldver < 652) {
 		config.c_auto_cull = 1;
 	}
 
-	if (CitControl.MM_hosted_upgrade_level < 725) {
+	if (oldver < 725) {
 		config.c_xmpp_c2s_port = 5222;
 		config.c_xmpp_s2s_port = 5269;
 	}
 
-	if (CitControl.MM_hosted_upgrade_level < 830) {
+	if (oldver < 830) {
 		config.c_nntp_port = 119;
 		config.c_nntps_port = 563;
 	}
@@ -298,8 +300,6 @@ void update_config(void) {
 	if (IsEmptyStr(config.c_default_cal_zone)) {
 		guess_time_zone();
 	}
-
-	put_config();
 }
 
 
