@@ -1,7 +1,7 @@
 /*
  * Server-side module for Wiki rooms.  This handles things like version control. 
  * 
- * Copyright (c) 2009-2012 by the citadel.org team
+ * Copyright (c) 2009-2015 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -303,7 +303,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 					   uuid,
 					   Now,
 					   CCC->user.fullname,
-					   config.c_nodename);
+					   CtdlGetConfigStr("c_nodename"));
 
 			memolen = CtdlEncodeBase64(encoded_memo, memo, memolen, 0);
 

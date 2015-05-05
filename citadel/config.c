@@ -256,7 +256,7 @@ void initialize_config_system(void) {
 		exit(CTDLEXIT_HOME);
 	}
 
-	memset(&config, 0, sizeof(struct legacy_config));
+	memset(&lconfig, 0, sizeof(struct legacy_config));
 	cfp = fopen(file_citadel_config, "rb");
 	if (cfp != NULL) {
 		if (CtdlGetConfigLong("c_config_created_or_migrated") <= 0) {
@@ -264,7 +264,7 @@ void initialize_config_system(void) {
 			fprintf(stderr, "Exiting to prevent data corruption.\n");
 			exit(CTDLEXIT_CONFIG);
 		}
-		rv = fread((char *) &config, sizeof(struct legacy_config), 1, cfp);
+		rv = fread((char *) &lconfig, sizeof(struct legacy_config), 1, cfp);
 		if (rv != 1)
 		{
 			fprintf(stderr, 
@@ -400,6 +400,14 @@ char *CtdlGetConfigStr(char *key)
 	char *value = NULL;
 	struct cdbdata *cdb;
 	int key_len = strlen(key);
+
+	if (IsEmptyStr(key)) return(NULL);
+
+	/* Temporary hack to make sure we didn't mess up any porting - FIXME remove this after testing thoroughly */
+	if (!strncmp(key, "config", 6)) {
+		syslog(LOG_EMERG, "You requested a key starting with 'config' which probably means a porting error: %s", key);
+		abort();
+	}
 
 	/* First look in memory */
 	if (GetHash(ctdlconfig, key, key_len, (void *)&value))
