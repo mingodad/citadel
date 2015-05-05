@@ -356,6 +356,9 @@ void CtdlSetConfigStr(char *key, char *value)
 	int key_len = strlen(key);
 	int value_len = strlen(value);
 
+	/* FIXME we are noisy logging for now */
+	syslog(LOG_DEBUG, "\033[31mSET CONFIG: '%s' = '%s'\033[0m", key, value);
+
 	/* Save it in memory */
 	Put(ctdlconfig, key, key_len, strdup(value), NULL);
 
@@ -412,6 +415,7 @@ char *CtdlGetConfigStr(char *key)
 	/* First look in memory */
 	if (GetHash(ctdlconfig, key, key_len, (void *)&value))
 	{
+		syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = '%s'\033[0m", key, value);
 		return value;
 	}
 
@@ -420,6 +424,7 @@ char *CtdlGetConfigStr(char *key)
 	cdb = cdb_fetch(CDB_CONFIG, key, key_len);
 
 	if (cdb == NULL) {	/* nope, not there either. */
+		syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = NULL\033[0m", key);
 		return(NULL);
 	}
 
@@ -427,6 +432,7 @@ char *CtdlGetConfigStr(char *key)
 	value = strdup(cdb->ptr + key_len + 1);		/* The key was stored there too; skip past it */
 	cdb_free(cdb);
 	Put(ctdlconfig, key, key_len, value, NULL);
+	syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = '%s'\033[0m", key, value);
 	return value;
 }
 
