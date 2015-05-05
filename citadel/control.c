@@ -648,7 +648,6 @@ void cmd_conf(char *argbuf)
 			}
 			++a;
 		}
-		put_config();
 		snprintf(buf, sizeof buf,
 			"The global system configuration has been edited by %s.\n",
 			 (CC->logged_in ? CC->curr_user : "an administrator")

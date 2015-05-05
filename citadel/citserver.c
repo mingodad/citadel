@@ -144,7 +144,6 @@ void master_startup(void) {
 
 	syslog(LOG_INFO, "Acquiring control record");
 	get_control();
-	put_config();
 
 	/* Check floor reference counts */
 	check_ref_counts();
@@ -182,8 +181,6 @@ void master_startup(void) {
 	}
 	srand(seed);
 	srandom(seed);
-
-	put_config();
 
 	syslog(LOG_DEBUG, "master_startup() finished\n");
 }

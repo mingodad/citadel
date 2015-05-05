@@ -1056,12 +1056,10 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	
 		/* If baseroom/aideroom name changes, update config */
 		if (!strncasecmp(old_name, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN)) {
-			safestrncpy(CtdlGetConfigStr("c_baseroom"), new_name, ROOMNAMELEN);
-			put_config();
+			CtdlSetConfigStr("c_baseroom", new_name);
 		}
 		if (!strncasecmp(old_name, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN)) {
-			safestrncpy(CtdlGetConfigStr("c_aideroom"), new_name, ROOMNAMELEN);
-			put_config();
+			CtdlSetConfigStr("c_aideroom", new_name);
 		}
 	
 		end_critical_section(S_CONFIG);

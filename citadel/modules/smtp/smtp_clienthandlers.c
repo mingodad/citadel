@@ -138,7 +138,7 @@ eNextState SMTPC_send_EHLO(SmtpOutMsg *Msg)
 	/* At this point we know we are talking to a real SMTP server */
 
 	/* Do a EHLO command.  If it fails, try the HELO command. */
-	StrBufPrintf(Msg->IO.SendBuf.Buf, "EHLO %s\r\n", CtdlGetconfigStr("c_fqdn"));
+	StrBufPrintf(Msg->IO.SendBuf.Buf, "EHLO %s\r\n", CtdlGetConfigStr("c_fqdn"));
 
 	SMTP_DBG_SEND();
 	return eReadMessage;
@@ -173,7 +173,7 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *Msg)
 eNextState STMPC_send_HELO(SmtpOutMsg *Msg)
 {
 	AsyncIO *IO = &Msg->IO;
-	StrBufPrintf(Msg->IO.SendBuf.Buf, "HELO %s\r\n", CtdlGetconfigStr("c_fqdn"));
+	StrBufPrintf(Msg->IO.SendBuf.Buf, "HELO %s\r\n", CtdlGetConfigStr("c_fqdn"));
 
 	SMTP_DBG_SEND();
 	return eReadMessage;

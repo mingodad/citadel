@@ -683,7 +683,7 @@ void migr_xml_end(void *data, const char *el)
 
 	if (!strcasecmp(el, "config"))
 	{
-		/* config.c_enable_fulltext = 0;	 always disable */
+		CtdlSetConfigInt("c_enable_fulltext", 0);	/* always disable */
 		we_are_currently_importing_config = 0;
 		syslog(LOG_INFO, "Completed import of server configuration\n");
 	}

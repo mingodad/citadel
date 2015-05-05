@@ -261,43 +261,43 @@ void guess_time_zone(void) {
  */
 void update_config(void) {
 
-	oldver = CitControl.MM_hosted_upgrade_level;
+	int oldver = CitControl.MM_hosted_upgrade_level;
 
 	if (oldver < 606) {
-		config.c_rfc822_strict_from = 0;
+		CtdlSetConfigInt("c_rfc822_strict_from", 0);
 	}
 
 	if (oldver < 609) {
-		config.c_purge_hour = 3;
+		CtdlSetConfigInt("c_purge_hour", 3);
 	}
 
 	if (oldver < 615) {
-		config.c_ldap_port = 389;
+		CtdlSetConfigInt("c_ldap_port", 389);
 	}
 
 	if (oldver < 623) {
-		strcpy(config.c_ip_addr, "*");
+		CtdlSetConfigStr("c_ip_addr", "*");
 	}
 
 	if (oldver < 650) {
-		config.c_enable_fulltext = 1;
+		CtdlSetConfigInt("c_enable_fulltext", 1);
 	}
 
 	if (oldver < 652) {
-		config.c_auto_cull = 1;
+		CtdlSetConfigInt("c_auto_cull", 1);
 	}
 
 	if (oldver < 725) {
-		config.c_xmpp_c2s_port = 5222;
-		config.c_xmpp_s2s_port = 5269;
+		CtdlSetConfigInt("c_xmpp_c2s_port", 5222);
+		CtdlSetConfigInt("c_xmpp_s2s_port", 5269);
 	}
 
 	if (oldver < 830) {
-		config.c_nntp_port = 119;
-		config.c_nntps_port = 563;
+		CtdlSetConfigInt("c_nntp_port", 119);
+		CtdlSetConfigInt("c_nntps_port", 563);
 	}
 
-	if (IsEmptyStr(config.c_default_cal_zone)) {
+	if (IsEmptyStr(CtdlGetConfigStr("c_default_cal_zone"))) {
 		guess_time_zone();
 	}
 }
@@ -366,17 +366,17 @@ void check_server_upgrades(void) {
 	/*
 	 * Negative values for maxsessions are not allowed.
 	 */
-	if (config.c_maxsessions < 0) {
-		config.c_maxsessions = 0;
+	if (CtdlGetConfigInt("c_maxsessions") < 0) {
+		CtdlSetConfigInt("c_maxsessions", 0);
 	}
 
 	/* We need a system default message expiry policy, because this is
 	 * the top level and there's no 'higher' policy to fall back on.
 	 * By default, do not expire messages at all.
 	 */
-	if (config.c_ep.expire_mode == 0) {
-		config.c_ep.expire_mode = EXPIRE_MANUAL;
-		config.c_ep.expire_value = 0;
+	if (CtdlGetConfigInt("c_ep_mode") == 0) {
+		CtdlSetConfigInt("c_ep_mode", EXPIRE_MANUAL);
+		CtdlSetConfigInt("c_ep_value", 0);
 	}
 
 	put_control();
