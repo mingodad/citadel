@@ -1,21 +1,15 @@
 /*
  * POP3 service for the Citadel system
  *
- * Copyright (c) 1998-2012 by the citadel.org team
+ * Copyright (c) 1998-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * Current status of standards conformance:
  *
@@ -721,14 +715,14 @@ CTDL_MODULE_INIT(pop3)
 	{
 		CtdlRegisterDebugFlagHook(HKEY("pop3srv"), SetPOP3DebugEnabled, &POP3DebugEnabled);
 
-		CtdlRegisterServiceHook(config.c_pop3_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_pop3_port"),
 					NULL,
 					pop3_greeting,
 					pop3_command_loop,
 					NULL,
 					CitadelServicePop3);
 #ifdef HAVE_OPENSSL
-		CtdlRegisterServiceHook(config.c_pop3s_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_pop3s_port"),
 					NULL,
 					pop3s_greeting,
 					pop3_command_loop,
