@@ -2,15 +2,15 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2012 by the citadel.org team
+ * Copyright (c) 2000-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
  * This is a fairly high-level type of critical section.  It ensures that no
@@ -256,7 +256,7 @@ eNextState NWC_SendAuth(AsyncNetworker *NW)
 	SetNWCState(IO, eNWCVSAuth);
 	/* We're talking to the correct node.  Now identify ourselves. */
 	StrBufPrintf(NW->IO.SendBuf.Buf, "NETP %s|%s\n", 
-		     config.c_nodename, 
+		     CtdlGetConfigStr("c_nodename"), 
 		     ChrPtr(NW->secret));
 	NWC_DBG_SEND();
 	return eSendReply;
@@ -1117,10 +1117,11 @@ void network_do_clientqueue(void)
 	 * Run the full set of processing tasks no more frequently
 	 * than once every n seconds
 	 */
-	if ( (time(NULL) - last_run) < config.c_net_freq ) {
+	if ( (time(NULL) - last_run) < CtdlGetConfigLong("c_net_freq") )
+	{
 		full_processing = 0;
 		syslog(LOG_DEBUG, "Network full processing in %ld seconds.\n",
-			config.c_net_freq - (time(NULL)- last_run)
+			CtdlGetConfigLong("c_net_freq") - (time(NULL)- last_run)
 		);
 	}
 
