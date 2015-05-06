@@ -71,7 +71,6 @@ char migr_tempfilename1[PATH_MAX];
 char migr_tempfilename2[PATH_MAX];
 FILE *migr_global_message_list;
 int total_msgs = 0;
-int we_are_currently_importing_config = 0;
 
 /*
  * Code which implements the export appears in this section
@@ -379,6 +378,29 @@ void migr_export_openids(void) {
 }
 
 
+void migr_export_configs(void) {
+	struct cdbdata *cdbcfg;
+	int keylen = 0;
+	char *key = NULL;
+	char *value = NULL;
+
+	cdb_rewind(CDB_CONFIG);
+	while (cdbcfg = cdb_next_item(CDB_CONFIG), cdbcfg != NULL) {
+
+		keylen = strlen(cdbcfg->ptr);
+		key = cdbcfg->ptr;
+		value = cdbcfg->ptr + keylen + 1;
+
+		client_write("<config key=\"", 13);
+		xml_strout(key);
+		client_write("\">", 2);
+		xml_strout(value);
+		client_write("</config>\n", 10);
+		cdb_free(cdbcfg);
+	}
+}
+
+
 
 
 void migr_export_messages(void) {
@@ -431,11 +453,7 @@ void migr_do_export(void) {
 	cprintf("<progress>%d</progress>\n", 0);
 
 	/* export the config file (this is done using x-macros) */
-	client_write("<config>\n", 9);
-
-	/* FIXME FIXME FIXME FIXME FIXME write a config exporter and put it here */
-
-	client_write("</config>\n", 10);
+	migr_export_configs();
 	cprintf("<progress>%d</progress>\n", 1);
 	
 	/* Export the control file */
@@ -544,20 +562,11 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 		import_msgnum = 0;
 	}
 	else if (!strcasecmp(el, "config")) {
-		we_are_currently_importing_config = 1;
+		syslog(LOG_DEBUG, "\033[31m IMPORT OF CONFIG START ELEMENT FIXME\033\0m");
 	}
 
 }
 
-
-int migr_config(void *data, const char *el)
-{
-
-	/* FIXME FIXME FIXME FIXME FIXME write a config importer and put it here */
-
-	return 0; /* if string was not found */
-	return 1; /* if string was found */
-}
 
 
 int migr_controlrecord(void *data, const char *el)
@@ -683,16 +692,10 @@ void migr_xml_end(void *data, const char *el)
 
 	if (!strcasecmp(el, "config"))
 	{
-		CtdlSetConfigInt("c_enable_fulltext", 0);	/* always disable */
-		we_are_currently_importing_config = 0;
-		syslog(LOG_INFO, "Completed import of server configuration\n");
+		syslog(LOG_DEBUG, "\033[31m IMPORT OF CONFIG END ELEMENT FIXME\033\0m");
+		CtdlSetConfigInt("c_enable_fulltext", 0);	/* always disable FIXME put this somewhere more appropriate */
 	}
 
-	else if (we_are_currently_importing_config)
-	{
-		migr_config(data, el);
-	}
-		
 	/*** CONTROL ***/
 	else if ((!strncasecmp(el, HKEY("control"))) && 
 		 migr_controlrecord(data, el))
