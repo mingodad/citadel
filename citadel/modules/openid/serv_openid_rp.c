@@ -1,7 +1,7 @@
 /*
  * This is an implementation of OpenID 2.0 relying party support in stateless mode.
  *
- * Copyright (c) 2007-2012 by the citadel.org team
+ * Copyright (c) 2007-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -211,7 +211,7 @@ void cmd_oidl(char *argbuf) {
 	struct cdbdata *cdboi;
 	long usernum = 0L;
 
-	if (config.c_disable_newu)
+	if (CtdlGetConfigInt("c_disable_newu"))
 	{
 		cprintf("%d this system does not support openid.\n",
 			ERROR + CMD_NOT_SUPPORTED);
@@ -243,7 +243,7 @@ void cmd_oida(char *argbuf) {
 	long usernum;
 	struct ctdluser usbuf;
 
-	if (config.c_disable_newu)
+	if (CtdlGetConfigInt("c_disable_newu"))
 	{
 		cprintf("%d this system does not support openid.\n",
 			ERROR + CMD_NOT_SUPPORTED);
@@ -278,7 +278,7 @@ void cmd_oida(char *argbuf) {
 void cmd_oidc(char *argbuf) {
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
-	if (config.c_disable_newu)
+	if (CtdlGetConfigInt("c_disable_newu"))
 	{
 		cprintf("%d this system does not support openid.\n",
 			ERROR + CMD_NOT_SUPPORTED);
@@ -311,7 +311,7 @@ void cmd_oidd(char *argbuf) {
 	int this_is_mine = 0;
 	long usernum = 0L;
 
-	if (config.c_disable_newu)
+	if (CtdlGetConfigInt("c_disable_newu"))
 	{
 		cprintf("%d this system does not support openid.\n",
 			ERROR + CMD_NOT_SUPPORTED);
@@ -358,8 +358,8 @@ int openid_create_user_via_ax(StrBuf *claimed_id, HashList *sreg_keys)
 	const char *Key;
 	void *Value;
 
-	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
-	if (config.c_disable_newu) return(2);
+	if (CtdlGetConfigInt("c_auth_mode") != AUTHMODE_NATIVE) return(1);
+	if (CtdlGetConfigInt("c_disable_newu")) return(2);
 	if (CC->logged_in) return(3);
 
 	HashPos *HashPos = GetNewHashPos(sreg_keys, 0);
@@ -553,12 +553,12 @@ CURL *ctdl_openid_curl_easy_init(char *errmsg) {
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30);		/* die after 30 seconds */
 
 	if (
-		(!IsEmptyStr(config.c_ip_addr))
-		&& (strcmp(config.c_ip_addr, "*"))
-		&& (strcmp(config.c_ip_addr, "::"))
-		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
+		(!IsEmptyStr(CtdlGetConfigStr("c_ip_addr")))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "*"))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "::"))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "0.0.0.0"))
 	) {
-		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
+		curl_easy_setopt(curl, CURLOPT_INTERFACE, CtdlGetConfigStr("c_ip_addr"));
 	}
 
 	return(curl);
@@ -832,7 +832,7 @@ void cmd_oids(char *argbuf) {
 	ctdl_openid *oiddata;
 	int discovery_succeeded = 0;
 
-	if (config.c_disable_newu)
+	if (CtdlGetConfigInt("c_disable_newu"))
 	{
 		cprintf("%d this system does not support openid.\n",
 			ERROR + CMD_NOT_SUPPORTED);
@@ -963,7 +963,7 @@ void cmd_oidf(char *argbuf) {
 	void *Value;
 	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
-	if (config.c_disable_newu)
+	if (CtdlGetConfigInt("c_disable_newu"))
 	{
 		cprintf("%d this system does not support openid.\n",
 			ERROR + CMD_NOT_SUPPORTED);
@@ -1108,7 +1108,7 @@ void cmd_oidf(char *argbuf) {
 			 * If this system does not allow self-service new user registration, the
 			 * remaining modes do not apply, so fail here and now.
 			 */
-			else if (config.c_disable_newu) {
+			else if (CtdlGetConfigInt("c_disable_newu")) {
 				cprintf("fail\n");
 				syslog(LOG_DEBUG, "Creating user failed due to local policy");
 			}
@@ -1169,7 +1169,7 @@ CTDL_MODULE_INIT(openid_rp)
 // evcurl call this for us. curl_global_init(CURL_GLOBAL_ALL);
 
 		/* Only enable the OpenID command set when native mode authentication is in use. */
-		if (config.c_auth_mode == AUTHMODE_NATIVE) {
+		if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_NATIVE) {
 			CtdlRegisterProtoHook(cmd_oids, "OIDS", "Setup OpenID authentication");
 			CtdlRegisterProtoHook(cmd_oidf, "OIDF", "Finalize OpenID authentication");
 			CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");

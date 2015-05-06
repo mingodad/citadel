@@ -2,15 +2,15 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2012 by the citadel.org team
+ * Copyright (c) 2000-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
  * This is a fairly high-level type of critical section.  It ensures that no
@@ -359,7 +359,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 
 	if (msg == NULL) return;
 
-	snprintf(bouncesource, sizeof bouncesource, "%s@%s", BOUNCESOURCE, config.c_nodename);
+	snprintf(bouncesource, sizeof bouncesource, "%s@%s", BOUNCESOURCE, CtdlGetConfigStr("c_nodename"));
 
 	/* 
 	 * Give it a fresh message ID
@@ -369,7 +369,8 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 		       (long)time(NULL),
 		       (long)getpid(),
 		       ++serialnum,
-		       config.c_fqdn);
+		       CtdlGetConfigStr("c_fqdn")
+	);
 
 	CM_SetField(msg, emessageId, buf, len);
 
@@ -391,7 +392,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 		       msg->cm_fields[eNodeName]);
 
 	CM_SetField(msg, eAuthor, HKEY(BOUNCESOURCE));
-	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
 	CM_SetField(msg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
 
 	Netmap_AddMe(msg, HKEY("unknown_user"));
@@ -402,14 +403,15 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 		free_recipients(valid);
 		valid = NULL;
 	}
-	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) ) {
-		strcpy(force_room, config.c_aideroom);
+	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) )
+	{
+		strcpy(force_room, CtdlGetConfigStr("c_aideroom"));
 	}
 	else {
 		strcpy(force_room, "");
 	}
 	if ( (valid == NULL) && IsEmptyStr(force_room) ) {
-		strcpy(force_room, config.c_aideroom);
+		strcpy(force_room, CtdlGetConfigStr("c_aideroom"));
 	}
 	CtdlSubmitMsg(msg, valid, force_room, 0);
 
@@ -442,10 +444,11 @@ void network_do_queue(void)
 	 * Run the full set of processing tasks no more frequently
 	 * than once every n seconds
 	 */
-	if ( (time(NULL) - last_run) < config.c_net_freq ) {
+	if ( (time(NULL) - last_run) < CtdlGetConfigLong("c_net_freq") )
+	{
 		full_processing = 0;
 		syslog(LOG_DEBUG, "Network full processing in %ld seconds.\n",
-		       config.c_net_freq - (time(NULL)- last_run)
+		       CtdlGetConfigLong("c_net_freq") - (time(NULL)- last_run)
 		);
 	}
 

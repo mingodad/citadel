@@ -1,5 +1,15 @@
 /*
  * Message journaling functions.
+ *
+ * Copyright (c) 1987-2015 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include <stdio.h>
@@ -8,6 +18,7 @@
 #include "ctdl_module.h"
 
 #include "citserver.h"
+#include "config.h"
 #include "user_ops.h"
 #include "serv_vcard.h"			/* Needed for vcard_getuser and extract_inet_email_addrs */
 #include "internet_addressing.h"
@@ -100,7 +111,7 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 
 	if (jmsg == NULL)
 		return;
-	journal_recps = validate_recipients(config.c_journal_dest, NULL, 0);
+	journal_recps = validate_recipients(CtdlGetConfigStr("c_journal_dest"), NULL, 0);
 	if (journal_recps != NULL) {
 
 		if (  (journal_recps->num_local > 0)

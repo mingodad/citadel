@@ -1,7 +1,7 @@
 /* 
  * Server functions which perform operations on room objects.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -32,7 +32,7 @@ struct floor *floorcache[MAXFLOORS];
 int CtdlDoIHavePermissionToReadMessagesInThisRoom(void) {
 	if (	(!(CC->logged_in))
 		&& (!(CC->internal_pgm))
-		&& (!config.c_guest_logins)
+		&& (!CtdlGetConfigInt("c_guest_logins"))
 	) {
 		return(om_not_logged_in);
 	}
@@ -139,7 +139,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		is_me = 1;
 	}
 
-	if ((is_me) && (config.c_guest_logins) && (!CC->logged_in)) {
+	if ((is_me) && (CtdlGetConfigInt("c_guest_logins")) && (!CC->logged_in)) {
 		is_guest = 1;
 	}
 
@@ -166,7 +166,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 
 	/* Force the properties of the Aide room */
-	if (!strcasecmp(roombuf->QRname, config.c_aideroom)) {
+	if (!strcasecmp(roombuf->QRname, CtdlGetConfigStr("c_aideroom"))) {
 		if (userbuf->axlevel >= AxAideU) {
 			retval = UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED | UA_REPLYALLOWED;
 		} else {
@@ -339,9 +339,9 @@ void room_sanity_check(struct ctdlroom *qrbuf)
 	/* Listing order of 0 is illegal except for base rooms */
 	if (qrbuf->QRorder == 0)
 		if (!(qrbuf->QRflags & QR_MAILBOX) &&
-		    strncasecmp(qrbuf->QRname, config.c_baseroom, ROOMNAMELEN)
+		    strncasecmp(qrbuf->QRname, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN)
 		    &&
-		    strncasecmp(qrbuf->QRname, config.c_aideroom, ROOMNAMELEN))
+		    strncasecmp(qrbuf->QRname, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN))
 			qrbuf->QRorder = 64;
 }
 
@@ -819,7 +819,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	/* Know the room ... but not if it's the page log room, or if the
 	 * caller specified that we're only entering this room transiently.
 	 */
-	if ((strcasecmp(CCC->room.QRname, config.c_logpages))
+	if ((strcasecmp(CCC->room.QRname, CtdlGetConfigStr("c_logpages")))
 	   && (transiently == 0) ) {
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
@@ -945,7 +945,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
  */
 void convert_room_name_macros(char *towhere, size_t maxlen) {
 	if (!strcasecmp(towhere, "_BASEROOM_")) {
-		safestrncpy(towhere, config.c_baseroom, maxlen);
+		safestrncpy(towhere, CtdlGetConfigStr("c_baseroom"), maxlen);
 	}
 	else if (!strcasecmp(towhere, "_MAIL_")) {
 		safestrncpy(towhere, MAILROOM, maxlen);
@@ -957,7 +957,7 @@ void convert_room_name_macros(char *towhere, size_t maxlen) {
 		safestrncpy(towhere, USERDRAFTROOM, maxlen);
 	}
 	else if (!strcasecmp(towhere, "_BITBUCKET_")) {
-		safestrncpy(towhere, config.c_twitroom, maxlen);
+		safestrncpy(towhere, CtdlGetConfigStr("c_twitroom"), maxlen);
 	}
 	else if (!strcasecmp(towhere, "_CALENDAR_")) {
 		safestrncpy(towhere, USERCALENDARROOM, maxlen);
@@ -1039,8 +1039,8 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		}
 
 		/* Reject change of floor for baseroom/aideroom */
-		if (!strncasecmp(old_name, config.c_baseroom, ROOMNAMELEN) ||
-		    !strncasecmp(old_name, config.c_aideroom, ROOMNAMELEN)) {
+		if (!strncasecmp(old_name, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN) ||
+		    !strncasecmp(old_name, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN)) {
 			new_floor = 0;
 		}
 
@@ -1055,13 +1055,11 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		begin_critical_section(S_CONFIG);
 	
 		/* If baseroom/aideroom name changes, update config */
-		if (!strncasecmp(old_name, config.c_baseroom, ROOMNAMELEN)) {
-			safestrncpy(config.c_baseroom, new_name, ROOMNAMELEN);
-			put_config();
+		if (!strncasecmp(old_name, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN)) {
+			CtdlSetConfigStr("c_baseroom", new_name);
 		}
-		if (!strncasecmp(old_name, config.c_aideroom, ROOMNAMELEN)) {
-			safestrncpy(config.c_aideroom, new_name, ROOMNAMELEN);
-			put_config();
+		if (!strncasecmp(old_name, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN)) {
+			CtdlSetConfigStr("c_aideroom", new_name);
 		}
 	
 		end_critical_section(S_CONFIG);

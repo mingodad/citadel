@@ -1,7 +1,7 @@
 /* 
  * Main source module for the Citadel server
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -122,11 +122,9 @@ void master_startup(void) {
 	
 	syslog(LOG_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
-	get_config();
-	validate_config();
 
 	syslog(LOG_INFO, "Checking directory access");
-	if ((pw = getpwuid(CTDLUID)) == NULL) {
+	if ((pw = getpwuid(ctdluid)) == NULL) {
 		gid = getgid();
 	} else {
 		gid = pw->pw_gid;
@@ -138,13 +136,23 @@ void master_startup(void) {
 	}
 	syslog(LOG_INFO, "Opening databases");
 	open_databases();
+
+	/* Load site-specific configuration */
+	syslog(LOG_INFO, "Loading citadel.config");
+	initialize_config_system();
+	validate_config();
+
+	syslog(LOG_INFO, "Acquiring control record");
+	get_control();
+
+	/* Check floor reference counts */
 	check_ref_counts();
 
 	syslog(LOG_INFO, "Creating base rooms (if necessary)\n");
-	CtdlCreateRoom(config.c_baseroom,	0, "", 0, 1, 0, VIEW_BBS);
-	CtdlCreateRoom(AIDEROOM,		3, "", 0, 1, 0, VIEW_BBS);
-	CtdlCreateRoom(SYSCONFIGROOM,		3, "", 0, 1, 0, VIEW_BBS);
-	CtdlCreateRoom(config.c_twitroom,	0, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(CtdlGetConfigStr("c_baseroom"),	0, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(AIDEROOM,			3, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(SYSCONFIGROOM,			3, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(CtdlGetConfigStr("c_twitroom"),	0, "", 0, 1, 0, VIEW_BBS);
 
 	/* The "Local System Configuration" room doesn't need to be visible */
         if (CtdlGetRoomLock(&qrbuf, SYSCONFIGROOM) == 0) {
@@ -174,8 +182,6 @@ void master_startup(void) {
 	srand(seed);
 	srandom(seed);
 
-	put_config();
-
 	syslog(LOG_DEBUG, "master_startup() finished\n");
 }
 
@@ -200,6 +206,9 @@ void master_cleanup(int exitcode) {
 
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();
+
+	/* Close the configuration system */
+	shutdown_config_system();
 	
 	/* Close databases */
 	syslog(LOG_INFO, "Closing databases\n");
@@ -289,7 +298,7 @@ int CtdlIsPublicClient(void)
 		safestrncpy(public_clientspos, LOCALHOSTSTR, sizeof public_clients);
 		public_clientspos += sizeof(LOCALHOSTSTR) - 1;
 		
-		if (hostname_to_dotted_quad(addrbuf, config.c_fqdn) == 0) {
+		if (hostname_to_dotted_quad(addrbuf, CtdlGetConfigStr("c_fqdn")) == 0) {
 			*(public_clientspos++) = '|';
 			paddr = &addrbuf[0];
 			while (!IsEmptyStr (paddr) && 
@@ -351,12 +360,12 @@ void citproto_begin_session() {
 	if (CC->nologin==1) {
 		cprintf("%d %s: Too many users are already online (maximum is %d)\n",
 			ERROR + MAX_SESSIONS_EXCEEDED,
-			config.c_nodename, config.c_maxsessions
+			CtdlGetConfigStr("c_nodename"), CtdlGetConfigInt("c_maxsessions")
 		);
 		CC->kill_me = KILLME_MAX_SESSIONS_EXCEEDED;
 	}
 	else {
-		cprintf("%d %s Citadel server ready.\n", CIT_OK, config.c_nodename);
+		cprintf("%d %s Citadel server ready.\n", CIT_OK, CtdlGetConfigStr("c_nodename"));
 		CC->can_receive_im = 1;
 	}
 }
@@ -364,7 +373,7 @@ void citproto_begin_session() {
 
 void citproto_begin_admin_session() {
 	CC->internal_pgm = 1;
-	cprintf("%d %s Citadel server ADMIN CONNECTION ready.\n", CIT_OK, config.c_nodename);
+	cprintf("%d %s Citadel server ADMIN CONNECTION ready.\n", CIT_OK, CtdlGetConfigStr("c_nodename"));
 }
 
 

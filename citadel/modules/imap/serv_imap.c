@@ -1,7 +1,7 @@
 /*
  * IMAP server for the Citadel system
  *
- * Copyright (C) 2000-2011 by Art Cancro and others.
+ * Copyright (C) 2000-2015 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  * WARNING: the IMAP protocol is badly designed.  No implementation of it
@@ -17,10 +17,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -599,7 +595,7 @@ void imap_greeting(void)
 
 	IAPuts("* OK [");
 	imap_output_capability_string();
-	IAPrintf("] %s IMAP4rev1 %s ready\r\n", config.c_fqdn, CITADEL);
+	IAPrintf("] %s IMAP4rev1 %s ready\r\n", CtdlGetConfigStr("c_fqdn"), CITADEL);
 	IUnbuffer();
 }
 
@@ -1675,7 +1671,7 @@ void imap_logout(int num_parms, ConstStr *Params)
 	if (IMAP->selected) {
 		imap_do_expunge();	/* yes, we auto-expunge at logout */
 	}
-	IAPrintf("* BYE %s logging out\r\n", config.c_fqdn);
+	IAPrintf("* BYE %s logging out\r\n", CtdlGetConfigStr("c_fqdn"));
 	IReply("OK Citadel IMAP session ended.");
 	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 	return;
@@ -1744,10 +1740,10 @@ CTDL_MODULE_INIT(imap)
 	if (!threading)
 	{
 		CtdlRegisterDebugFlagHook(HKEY("imapsrv"), SetIMAPDebugEnabled, &IMAPDebugEnabled);
-		CtdlRegisterServiceHook(config.c_imap_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_imap_port"),
 					NULL, imap_greeting, imap_command_loop, NULL, CitadelServiceIMAP);
 #ifdef HAVE_OPENSSL
-		CtdlRegisterServiceHook(config.c_imaps_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_imaps_port"),
 					NULL, imaps_greeting, imap_command_loop, NULL, CitadelServiceIMAPS);
 #endif
 		CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP, PRIO_STOP + 30);

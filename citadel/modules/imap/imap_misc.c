@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,10 +10,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -341,7 +337,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	
 	IUnbuffer ();
 
-	client_read_blob(Imap->TransmittedMessage, literal_length, config.c_sleeping);
+	client_read_blob(Imap->TransmittedMessage, literal_length, CtdlGetConfigInt("c_sleeping"));
 
 	if ((ret < 0) || (StrLength(Imap->TransmittedMessage) < literal_length)) {
 		IReply("NO Read failed.");
@@ -377,19 +373,15 @@ void imap_append(int num_parms, ConstStr *Params) {
 	CtdlUserGoto(roomname, 0, 0, &msgs, &new, NULL, NULL);
 
 	/* If the user is locally authenticated, FORCE the From: header to
-	 * show up as the real sender.  FIXME do we really want to do this?
-	 * Probably should make it site-definable or even room-definable.
-	 *
-	 * For now, we allow "forgeries" if the room is one of the user's
-	 * private mailboxes.
+	 * show up as the real sender.  (Configurable setting)
 	 */
 	if (CCC->logged_in) {
-	   if ( ((CCC->room.QRflags & QR_MAILBOX) == 0) && (config.c_imap_keep_from == 0)) {
-
-		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
-		CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
-		CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
-	    }
+		if ( ((CCC->room.QRflags & QR_MAILBOX) == 0) && (CtdlGetConfigInt("c_imap_keep_from") == 0))
+		{
+			CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
+			CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
+			CM_SetField(msg, eHumanNode, CtdlGetConfigStr("c_humannode"), strlen(CtdlGetConfigStr("c_humannode")));
+		}
 	}
 
 	/* 

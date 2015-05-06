@@ -1,7 +1,7 @@
 /*
  * Transparently handle the upgrading of server data formats.
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -245,8 +245,8 @@ void guess_time_zone(void) {
 	if (fp) {
 		if (fgets(buf, sizeof buf, fp) && (strlen(buf) > 2)) {
 			buf[strlen(buf)-1] = 0;
-			safestrncpy(config.c_default_cal_zone, buf, sizeof config.c_default_cal_zone);
-			syslog(LOG_INFO, "Configuring timezone: %s", config.c_default_cal_zone);
+			CtdlSetConfigStr("c_default_cal_zone", buf);
+			syslog(LOG_INFO, "Configuring timezone: %s", buf);
 		}
 		fclose(fp);
 	}
@@ -260,47 +260,46 @@ void guess_time_zone(void) {
  * Note that if the previous version was 0 then this is a new installation running for the first time.
  */
 void update_config(void) {
-	get_config();
 
-	if (CitControl.version < 606) {
-		config.c_rfc822_strict_from = 0;
+	int oldver = CitControl.MM_hosted_upgrade_level;
+
+	if (oldver < 606) {
+		CtdlSetConfigInt("c_rfc822_strict_from", 0);
 	}
 
-	if (CitControl.version < 609) {
-		config.c_purge_hour = 3;
+	if (oldver < 609) {
+		CtdlSetConfigInt("c_purge_hour", 3);
 	}
 
-	if (CitControl.version < 615) {
-		config.c_ldap_port = 389;
+	if (oldver < 615) {
+		CtdlSetConfigInt("c_ldap_port", 389);
 	}
 
-	if (CitControl.version < 623) {
-		strcpy(config.c_ip_addr, "*");
+	if (oldver < 623) {
+		CtdlSetConfigStr("c_ip_addr", "*");
 	}
 
-	if (CitControl.version < 650) {
-		config.c_enable_fulltext = 1;
+	if (oldver < 650) {
+		CtdlSetConfigInt("c_enable_fulltext", 1);
 	}
 
-	if (CitControl.version < 652) {
-		config.c_auto_cull = 1;
+	if (oldver < 652) {
+		CtdlSetConfigInt("c_auto_cull", 1);
 	}
 
-	if (CitControl.version < 725) {
-		config.c_xmpp_c2s_port = 5222;
-		config.c_xmpp_s2s_port = 5269;
+	if (oldver < 725) {
+		CtdlSetConfigInt("c_xmpp_c2s_port", 5222);
+		CtdlSetConfigInt("c_xmpp_s2s_port", 5269);
 	}
 
-	if (CitControl.version < 830) {
-		config.c_nntp_port = 119;
-		config.c_nntps_port = 563;
+	if (oldver < 830) {
+		CtdlSetConfigInt("c_nntp_port", 119);
+		CtdlSetConfigInt("c_nntps_port", 563);
 	}
 
-	if (IsEmptyStr(config.c_default_cal_zone)) {
+	if (IsEmptyStr(CtdlGetConfigStr("c_default_cal_zone"))) {
 		guess_time_zone();
 	}
-
-	put_config();
 }
 
 
@@ -313,11 +312,11 @@ void check_server_upgrades(void) {
 
 	get_control();
 	syslog(LOG_INFO, "Existing database version on disk is %d.%02d",
-		(CitControl.version / 100),
-		(CitControl.version % 100)
+		(CitControl.MM_hosted_upgrade_level / 100),
+		(CitControl.MM_hosted_upgrade_level % 100)
 	);
 
-	if (CitControl.version < REV_LEVEL) {
+	if (CitControl.MM_hosted_upgrade_level < REV_LEVEL) {
 		syslog(LOG_WARNING,
 			"Server hosted updates need to be processed at this time.  Please wait..."
 		);
@@ -328,29 +327,29 @@ void check_server_upgrades(void) {
 
 	update_config();
 
-	if ((CitControl.version > 000) && (CitControl.version < 555)) {
+	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 555)) {
 		syslog(LOG_EMERG, "This database is too old to be upgraded.  Citadel server will exit.");
 		exit(EXIT_FAILURE);
 	}
-	if ((CitControl.version > 000) && (CitControl.version < 591)) {
+	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 591)) {
 		bump_mailbox_generation_numbers();
 	}
-	if ((CitControl.version > 000) && (CitControl.version < 608)) {
+	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 608)) {
 		convert_ctdluid_to_minusone();
 	}
-	if ((CitControl.version > 000) && (CitControl.version < 659)) {
+	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 659)) {
 		rebuild_euid_index();
 	}
-	if (CitControl.version < 735) {
+	if (CitControl.MM_hosted_upgrade_level < 735) {
 		fix_sys_user_name();
 	}
-	if (CitControl.version < 736) {
+	if (CitControl.MM_hosted_upgrade_level < 736) {
 		rebuild_usersbynumber();
 	}
-	if (CitControl.version < 790) {
+	if (CitControl.MM_hosted_upgrade_level < 790) {
 		remove_thread_users();
 	}
-	if (CitControl.version < 810) {
+	if (CitControl.MM_hosted_upgrade_level < 810) {
 		struct ctdlroom QRoom;
 		if (!CtdlGetRoom(&QRoom, SMTP_SPOOLOUT_ROOM)) {
 			QRoom.QRdefaultview = VIEW_QUEUE;
@@ -362,22 +361,22 @@ void check_server_upgrades(void) {
 		}
 	}
 
-	CitControl.version = REV_LEVEL;
+	CitControl.MM_hosted_upgrade_level = REV_LEVEL;
 
 	/*
 	 * Negative values for maxsessions are not allowed.
 	 */
-	if (config.c_maxsessions < 0) {
-		config.c_maxsessions = 0;
+	if (CtdlGetConfigInt("c_maxsessions") < 0) {
+		CtdlSetConfigInt("c_maxsessions", 0);
 	}
 
 	/* We need a system default message expiry policy, because this is
 	 * the top level and there's no 'higher' policy to fall back on.
 	 * By default, do not expire messages at all.
 	 */
-	if (config.c_ep.expire_mode == 0) {
-		config.c_ep.expire_mode = EXPIRE_MANUAL;
-		config.c_ep.expire_value = 0;
+	if (CtdlGetConfigInt("c_ep_mode") == 0) {
+		CtdlSetConfigInt("c_ep_mode", EXPIRE_MANUAL);
+		CtdlSetConfigInt("c_ep_value", 0);
 	}
 
 	put_control();

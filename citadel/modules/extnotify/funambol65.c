@@ -8,21 +8,15 @@
  * Based on bits of the previous serv_funambol
  * Contact: <matt@mcbridematt.dhs.org> / <matt@comalies>
  *
- * Copyright (c) 2008-2010
+ * Copyright (c) 2008-2015
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
- * 
- * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * 
- * 
- * 
  */
 
 #include <stdio.h>
@@ -146,8 +140,7 @@ int notify_http_server(char *remoteurl,
 
 		// Do substitutions
 		help_subst(SOAPMessage, "^notifyuser", user);
-		help_subst(SOAPMessage, "^syncsource",
-			   config.c_funambol_source);
+		help_subst(SOAPMessage, "^syncsource", CtdlGetConfigStr("c_funambol_source"));
 		help_subst(SOAPMessage, "^msgid", msgid);
 		help_subst(SOAPMessage, "^msgnum", msgnumstr);
 
@@ -182,7 +175,7 @@ int notify_http_server(char *remoteurl,
 	}
 	else {
 		help_subst(remoteurl, "^notifyuser", user);
-		help_subst(remoteurl, "^syncsource", config.c_funambol_source);
+		help_subst(remoteurl, "^syncsource", CtdlGetConfigStr("c_funambol_source"));
 		help_subst(remoteurl, "^msgid", msgid);
 		help_subst(remoteurl, "^msgnum", msgnumstr);
 

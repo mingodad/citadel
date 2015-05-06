@@ -7,7 +7,7 @@
  * If we ever port to a different platform and either have multiple
  * variants of this file or simply load it up with #ifdefs.
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -39,6 +39,7 @@
 #include <libcitadel.h>
 
 #include "citserver.h"
+#include "config.h"
 #include "ctdl_module.h"
 
 #include "sysdep_decls.h"
@@ -731,7 +732,7 @@ int HaveMoreLinesWaiting(CitContext *CCC)
  */
 INLINE int client_read(char *buf, int bytes)
 {
-	return(client_read_to(buf, bytes, config.c_sleeping));
+	return(client_read_to(buf, bytes, CtdlGetConfigInt("c_sleeping")));
 }
 
 int CtdlClientGetLine(StrBuf *Target)
@@ -1475,8 +1476,8 @@ SKIP_SELECT:
 
 		pthread_mutex_lock(&ThreadCountMutex);
 		--active_workers;
-		if ((active_workers + config.c_min_workers < num_workers) &&
-		    (num_workers > config.c_min_workers))
+		if ((active_workers + CtdlGetConfigInt("c_min_workers") < num_workers) &&
+		    (num_workers > CtdlGetConfigInt("c_min_workers")))
 		{
 			num_workers--;
 			pthread_mutex_unlock(&ThreadCountMutex);
