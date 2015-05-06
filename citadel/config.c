@@ -259,7 +259,7 @@ void initialize_config_system(void) {
 	memset(&lconfig, 0, sizeof(struct legacy_config));
 	cfp = fopen(file_citadel_config, "rb");
 	if (cfp != NULL) {
-		if (CtdlGetConfigLong("c_config_created_or_migrated") <= 0) {
+		if (CtdlGetConfigLong("c_config_created_or_migrated") > 0) {
 			fprintf(stderr, "Citadel Server found BOTH legacy and new configurations present.\n");
 			fprintf(stderr, "Exiting to prevent data corruption.\n");
 			exit(CTDLEXIT_CONFIG);
