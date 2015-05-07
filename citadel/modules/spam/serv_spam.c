@@ -4,15 +4,21 @@
  * http://www.spamassassin.org (the SpamAssassin project is not in any way
  * affiliated with the Citadel project).
  *
- * Copyright (c) 1998-2015 by the citadel.org team
+ * Copyright (c) 1998-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
+ * 
+ * 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ *
+ * 
+ * 
+ * 
  */
 
 #define SPAMASSASSIN_PORT       "783"
@@ -135,8 +141,8 @@ int spam_assassin(struct CtdlMessage *msg, recptypes *recp) {
                 goto bail;
         }
         syslog(LOG_DEBUG, "<%s\n", buf);
-        syslog(LOG_DEBUG, "c_spam_flag_only setting %d\n", CtdlGetConfigInt("c_spam_flag_only"));
-        if (CtdlGetConfigInt("c_spam_flag_only")) {
+        syslog(LOG_DEBUG, "c_spam_flag_only setting %d\n", config.c_spam_flag_only);
+        if (config.c_spam_flag_only) {
 		int headerlen;
 		char *cur;
 		char sastatus[10];

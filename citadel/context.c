@@ -2,7 +2,7 @@
  * Citadel context management stuff.
  * Here's where we (hopefully) have all the code that manipulates contexts.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -22,7 +22,6 @@
 #include "locate_host.h"
 #include "context.h"
 #include "control.h"
-#include "config.h"
 
 int DebugSession = 0;
 
@@ -245,8 +244,8 @@ void terminate_idle_sessions(void)
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (
 			(ccptr != CC)
-	   		&& (CtdlGetConfigLong("c_sleeping") > 0)
-	   		&& (now - (ccptr->lastcmd) > CtdlGetConfigLong("c_sleeping"))
+	   		&& (config.c_sleeping > 0)
+	   		&& (now - (ccptr->lastcmd) > config.c_sleeping)
 		) {
 			if (!ccptr->dont_term) {
 				ccptr->kill_me = KILLME_IDLE;
@@ -515,7 +514,7 @@ void begin_session(CitContext *con)
 	*con->fake_hostname = '\0';
 	*con->fake_roomname = '\0';
 	*con->cs_clientinfo = '\0';
-	safestrncpy(con->cs_host, CtdlGetConfigStr("c_fqdn"), sizeof con->cs_host);
+	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
 	con->cs_UDSclientUID = -1;
 	con->cs_host[sizeof con->cs_host - 1] = 0;
@@ -567,7 +566,7 @@ void begin_session(CitContext *con)
 	con->dl_is_net = 0;
 
 	con->nologin = 0;
-	if (((CtdlGetConfigInt("c_maxsessions") > 0)&&(num_sessions > CtdlGetConfigInt("c_maxsessions"))) || CtdlWantSingleUser()) {
+	if (((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions)) || CtdlWantSingleUser()) {
 		con->nologin = 1;
 	}
 

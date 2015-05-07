@@ -1,7 +1,7 @@
 /*
  * represent messages to the citadel clients
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -20,9 +20,9 @@
 #include "internet_addressing.h"
 #include "user_ops.h"
 #include "room_ops.h"
-#include "config.h"
 
 extern char *msgkeys[];
+
 
 
 /*
@@ -32,6 +32,7 @@ void simple_listing(long msgnum, void *userdata)
 {
 	cprintf("%ld\n", msgnum);
 }
+
 
 
 /*
@@ -136,7 +137,7 @@ void cmd_msgs(char *cmdbuf)
 	else
 		mode = MSGS_ALL;
 
-	if ( (mode == MSGS_SEARCH) && (!CtdlGetConfigInt("c_enable_fulltext")) ) {
+	if ( (mode == MSGS_SEARCH) && (!config.c_enable_fulltext) ) {
 		cprintf("%d Full text index is not enabled on this server.\n",
 			ERROR + CMD_NOT_SUPPORTED);
 		return;

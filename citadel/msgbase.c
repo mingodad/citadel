@@ -1,7 +1,7 @@
 /*
  * Implements the message store.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -22,7 +22,6 @@
 #include "ctdl_module.h"
 #include "citserver.h"
 #include "control.h"
-#include "config.h"
 #include "clientsocket.h"
 #include "genstamp.h"
 #include "room_ops.h"
@@ -1819,7 +1818,7 @@ void OutputRFC822MsgHeaders(
 				if (haschar(mptr, '@') == 0)
 				{
 					sanitize_truncated_recipient(mptr);
-					cprintf("To: %s@%s", mptr, CtdlGetConfigStr("c_fqdn"));
+					cprintf("To: %s@%s", mptr, config.c_fqdn);
 					cprintf("%s", nl);
 				}
 				else
@@ -2167,7 +2166,7 @@ int CtdlOutputPreLoadedMsg(
 	strcpy(suser, "");
 	strcpy(luser, "");
 	strcpy(fuser, "");
-	memcpy(snode, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")) + 1);
+	memcpy(snode, CFG_KEY(c_nodename) + 1);
 	if (mode == MT_RFC822) 
 		OutputRFC822MsgHeaders(
 			TheMessage,
@@ -2508,7 +2507,7 @@ long send_message(struct CtdlMessage *msg) {
 	msgidbuflen = snprintf(msgidbuf, sizeof msgidbuf, "%08lX-%08lX@%s",
 			       (long unsigned int) time(NULL),
 			       (long unsigned int) newmsgid,
-			       CtdlGetConfigStr("c_fqdn")
+			       config.c_fqdn
 		);
 
 	/* Generate an ID if we don't have one already */
@@ -2768,7 +2767,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (TWITDETECT) {
 		if (CCC->user.axlevel == AxProbU) {
 			strcpy(hold_rm, actual_rm);
-			strcpy(actual_rm, CtdlGetConfigStr("c_twitroom"));
+			strcpy(actual_rm, config.c_twitroom);
 			MSGM_syslog(LOG_DEBUG, "Diverting to twit room\n");
 		}
 	}
@@ -2851,7 +2850,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if ((!CCC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 1, msg) != 0) {
 			MSGM_syslog(LOG_ERR, "ERROR saving message pointer!\n");
-			CtdlSaveMsgPointerInRoom(CtdlGetConfigStr("c_aideroom"), newmsgid, 0, msg);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
 		}
 	}
 
@@ -2880,7 +2879,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	{
 		if (CCC->logged_in) 
 			snprintf(bounce_to, sizeof bounce_to, "%s@%s",
-				 CCC->user.fullname, CtdlGetConfigStr("c_nodename"));
+				 CCC->user.fullname, config.c_nodename);
 		else 
 			snprintf(bounce_to, sizeof bounce_to, "%s@%s",
 				 msg->cm_fields[eAuthor], msg->cm_fields[eNodeName]);
@@ -2913,7 +2912,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			}
 			else {
 				MSG_syslog(LOG_DEBUG, "No user <%s>\n", recipient);
-				CtdlSaveMsgPointerInRoom(CtdlGetConfigStr("c_aideroom"), newmsgid, 0, msg);
+				CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
 			}
 		}
 		recps->recp_local = pch;
@@ -2958,13 +2957,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 	else {
 		if (recps == NULL) {
-			qualified_for_journaling = CtdlGetConfigInt("c_journal_pubmsgs");
+			qualified_for_journaling = config.c_journal_pubmsgs;
 		}
 		else if (recps->num_local + recps->num_ignet + recps->num_internet > 0) {
-			qualified_for_journaling = CtdlGetConfigInt("c_journal_email");
+			qualified_for_journaling = config.c_journal_email;
 		}
 		else {
-			qualified_for_journaling = CtdlGetConfigInt("c_journal_pubmsgs");
+			qualified_for_journaling = config.c_journal_pubmsgs;
 		}
 	}
 
@@ -3027,7 +3026,7 @@ void quickie_message(const char *from,
 
 	if (fromaddr != NULL) CM_SetField(msg, erFc822Addr, fromaddr, strlen(fromaddr));
 	if (room != NULL) CM_SetField(msg, eOriginalRoom, room, strlen(room));
-	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
 	if (to != NULL) {
 		CM_SetField(msg, eRecipient, to, strlen(to));
 		recp = validate_recipients(to, NULL, 0);
@@ -3500,8 +3499,8 @@ struct CtdlMessage *CtdlMakeMessageLen(
 		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
 	}
 
-	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
-	CM_SetField(msg, eHumanNode, CtdlGetConfigStr("c_humannode"), strlen(CtdlGetConfigStr("c_humannode")));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+	CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
 
 	if (rcplen > 0) {
 		CM_SetField(msg, eRecipient, recipient, rcplen);
@@ -3553,7 +3552,7 @@ struct CtdlMessage *CtdlMakeMessageLen(
 	}
 	else {
 		StrBuf *MsgBody;
-		MsgBody = CtdlReadMessageBodyBuf(HKEY("000"), CtdlGetConfigLong("c_maxmsglen"), NULL, 0, 0);
+		MsgBody = CtdlReadMessageBodyBuf(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
 		if (MsgBody != NULL) {
 			CM_SetAsFieldSB(msg, eMesageText, &MsgBody);
 		}
@@ -4034,8 +4033,8 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 	msg->cm_format_type = 4;
 	CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 	CM_SetField(msg, eOriginalRoom, req_room, strlen(req_room));
-	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
-	CM_SetField(msg, eHumanNode, CtdlGetConfigStr("c_humannode"), strlen(CtdlGetConfigStr("c_humannode")));
+	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+	CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
 	msg->cm_flags = flags;
 	
 	CM_SetAsFieldSB(msg, eMesageText, &encoded_message);

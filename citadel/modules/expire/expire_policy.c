@@ -1,6 +1,6 @@
 /* 
  * Functions which manage expire policy for rooms
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -40,6 +40,7 @@
 #include "support.h"
 #include "msgbase.h"
 #include "citserver.h"
+
 #include "ctdl_module.h"
 #include "user_ops.h"
 
@@ -70,16 +71,15 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct ctdlroom *qrbuf) {
 	 * If there is a default policy for mailbox rooms, return it
 	 */
 	if (qrbuf->QRflags & QR_MAILBOX) {
-		if (CtdlGetConfigInt("c_mbxep_mode") != 0) {
-			epbuf->expire_mode = CtdlGetConfigInt("c_mbxep_mode");
-			epbuf->expire_value = CtdlGetConfigInt("c_mbxep_value");
+		if (config.c_mbxep.expire_mode != 0) {
+			memcpy(epbuf, &config.c_mbxep,
+				sizeof(struct ExpirePolicy));
 			return;
 		}
 	}
 
 	/* Otherwise, fall back on the system default */
-	epbuf->expire_mode = CtdlGetConfigInt("c_ep_mode");
-	epbuf->expire_value = CtdlGetConfigInt("c_ep_value");
+	memcpy(epbuf, &config.c_ep, sizeof(struct ExpirePolicy));
 }
 
 
@@ -91,22 +91,23 @@ void cmd_gpex(char *argbuf) {
 	struct floor *fl;
 	char which[128];
 
-	memset(&exp, 0, sizeof(struct ExpirePolicy));
 	extract_token(which, argbuf, 0, '|', sizeof which);
-	if (!strcasecmp(which, strof(roompolicy)) || !strcasecmp(which, "room")) {
+	if (!strcasecmp(which, strof(roompolicy))||
+	    !strcasecmp(which, "room")) { /* Deprecated version */
 		memcpy(&exp, &CC->room.QRep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, strof(floorpolicy)) || !strcasecmp(which, "floor")) {
+	else if (!strcasecmp(which, strof(floorpolicy))||
+		 !strcasecmp(which, "floor")) { /* Deprecated version */
 		fl = CtdlGetCachedFloor(CC->room.QRfloor);
 		memcpy(&exp, &fl->f_ep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, strof(mailboxespolicy)) || !strcasecmp(which, "mailboxes")) {
-		exp.expire_mode = CtdlGetConfigInt("c_mbxep_mode");
-		exp.expire_value = CtdlGetConfigInt("c_mbxep_value");
+	else if (!strcasecmp(which, strof(mailboxespolicy))||
+		 !strcasecmp(which, "mailboxes")) {/* Deprecated version */
+		memcpy(&exp, &config.c_mbxep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, strof(sitepolicy)) || !strcasecmp(which, "site")) {
-		exp.expire_mode = CtdlGetConfigInt("c_ep_mode");
-		exp.expire_value = CtdlGetConfigInt("c_ep_value");
+	else if (!strcasecmp(which, strof(sitepolicy))||
+		 !strcasecmp(which, "site")) {/* Deprecated version */
+		memcpy(&exp, &config.c_ep, sizeof(struct ExpirePolicy));
 	}
 	else {
 		cprintf("%d Invalid keyword \"%s\"\n", ERROR + ILLEGAL_VALUE, which);
@@ -135,8 +136,9 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	if ((!strcasecmp(which, strof(roompolicy))) || (!strcasecmp(which, "room")))
-	{
+	if (	(!strcasecmp(which, strof(roompolicy)))
+		|| (!strcasecmp(which, "room"))
+	) {
 		if (!is_room_aide()) {
 			cprintf("%d Higher access required.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
@@ -158,8 +160,9 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	if ((!strcasecmp(which, strof(floorpolicy))) || (!strcasecmp(which, "floor")))
-	{
+	if (	(!strcasecmp(which, strof(floorpolicy)))
+		|| (!strcasecmp(which, "floor"))
+	) {
 		lgetfloor(&flbuf, CC->room.QRfloor);
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
 		lputfloor(&flbuf, CC->room.QRfloor);
@@ -167,22 +170,25 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	else if ((!strcasecmp(which, strof(mailboxespolicy))) || (!strcasecmp(which, "mailboxes")))
-	{
-		CtdlSetConfigInt("c_mbxep_mode", exp.expire_mode);
-		CtdlSetConfigInt("c_mbxep_value", exp.expire_value);
+	else if (	(!strcasecmp(which, strof(mailboxespolicy)))
+			|| (!strcasecmp(which, "mailboxes"))
+		) {
+		memcpy(&config.c_mbxep, &exp, sizeof(struct ExpirePolicy));
+		put_config();
 		cprintf("%d Default expire policy for mailboxes set.\n", CIT_OK);
 		return;
 	}
 
-	else if ((!strcasecmp(which, strof(sitepolicy))) || (!strcasecmp(which, "site")))
-	{
+	else if (	(!strcasecmp(which, strof(sitepolicy)))
+			|| (!strcasecmp(which, "site"))
+		) {
 		if (exp.expire_mode == EXPIRE_NEXTLEVEL) {
-			cprintf("%d Invalid policy (no higher level)\n", ERROR + ILLEGAL_VALUE);
+			cprintf("%d Invalid policy (no higher level)\n",
+				ERROR + ILLEGAL_VALUE);
 			return;
 		}
-		CtdlSetConfigInt("c_ep_mode", exp.expire_mode);
-		CtdlSetConfigInt("c_ep_value", exp.expire_value);
+		memcpy(&config.c_ep, &exp, sizeof(struct ExpirePolicy));
+		put_config();
 		cprintf("%d Site expire policy has been updated.\n", CIT_OK);
 		return;
 	}

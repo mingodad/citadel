@@ -20,15 +20,21 @@
  * The VRFY and EXPN commands have been removed from this implementation
  * because nobody uses these commands anymore, except for spammers.
  *
- * Copyright (c) 1998-2015 by the citadel.org team
+ * Copyright (c) 1998-2012 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 3.
+ *  
+ *  
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  
+ *  
+ *  
  */
 
 #include "sysdep.h"
@@ -600,7 +606,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
 	StrBufAppendPrintf(boundary,
 			   "%s_%04x%04x",
-			   CtdlGetConfigStr("c_fqdn"),
+			   config.c_fqdn,
 			   getpid(),
 			   ++seq);
 
@@ -697,7 +703,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 
 	CM_SetField(bmsg, eOriginalRoom, HKEY(MAILROOM));
 	CM_SetField(bmsg, eAuthor, HKEY("Citadel"));
-	CM_SetField(bmsg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
+	CM_SetField(bmsg, eNodeName, CFG_KEY(c_nodename));
 	CM_SetField(bmsg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
 	CM_SetAsFieldSB(bmsg, eMesageText, &BounceMB);
 
@@ -719,7 +725,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt, ParsedURL *Relay)
 
 	/* If not, post it in the Aide> room */
 	if (successful_bounce == 0) {
-		CtdlSubmitMsg(bmsg, NULL, CtdlGetConfigStr("c_aideroom"), QP_EADDR);
+		CtdlSubmitMsg(bmsg, NULL, config.c_aideroom, QP_EADDR);
 	}
 
 	/* Free up the memory we used */

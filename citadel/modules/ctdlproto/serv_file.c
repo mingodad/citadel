@@ -1,15 +1,5 @@
 /* 
  * Server functions which handle file transfers and room directories.
- *
- * Copyright (c) 1987-2015 by the citadel.org team
- *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
  */
 
 #include <stdio.h>
@@ -19,9 +9,7 @@
 #include "ctdl_module.h"
 #include "citserver.h"
 #include "support.h"
-#include "config.h"
 #include "user_ops.h"
-
 
 /*
  * Server command to delete a file from a room's directory
@@ -799,15 +787,16 @@ void do_help_subst(char *buffer)
 {
 	char buf2[16];
 
-	help_subst(buffer, "^nodename", CtdlGetConfigStr("c_nodename"));
-	help_subst(buffer, "^humannode", CtdlGetConfigStr("c_humannode"));
-	help_subst(buffer, "^fqdn", CtdlGetConfigStr("c_fqdn"));
+	help_subst(buffer, "^nodename", config.c_nodename);
+	help_subst(buffer, "^humannode", config.c_humannode);
+	help_subst(buffer, "^fqdn", config.c_fqdn);
 	help_subst(buffer, "^username", CC->user.fullname);
 	snprintf(buf2, sizeof buf2, "%ld", CC->user.usernum);
 	help_subst(buffer, "^usernum", buf2);
-	help_subst(buffer, "^sysadm", CtdlGetConfigStr("c_sysadm"));
+	help_subst(buffer, "^sysadm", config.c_sysadm);
 	help_subst(buffer, "^variantname", CITADEL);
-	help_subst(buffer, "^maxsessions", CtdlGetConfigStr("c_maxsessions"));		// yes it's numeric but str is ok here
+	snprintf(buf2, sizeof buf2, "%d", config.c_maxsessions);
+	help_subst(buffer, "^maxsessions", buf2);
 	help_subst(buffer, "^bbsdir", ctdl_message_dir);
 }
 

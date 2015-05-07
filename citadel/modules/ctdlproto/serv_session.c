@@ -1,7 +1,7 @@
 /* 
  * Server functions which perform operations on user objects.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -18,7 +18,6 @@
 #include "citserver.h"
 #include "svn_revision.h"
 #include "ctdl_module.h"
-#include "config.h"
 
 void cmd_noop(char *argbuf)
 {
@@ -53,15 +52,15 @@ void cmd_asyn(char *argbuf)
 void cmd_info(char *cmdbuf) {
 	cprintf("%d Server info:\n", LISTING_FOLLOWS);
 	cprintf("%d\n", CC->cs_pid);
-	cprintf("%s\n", CtdlGetConfigStr("c_nodename"));
-	cprintf("%s\n", CtdlGetConfigStr("c_humannode"));
-	cprintf("%s\n", CtdlGetConfigStr("c_fqdn"));
+	cprintf("%s\n", config.c_nodename);
+	cprintf("%s\n", config.c_humannode);
+	cprintf("%s\n", config.c_fqdn);
 	cprintf("%s\n", CITADEL);
 	cprintf("%d\n", REV_LEVEL);
-	cprintf("%s\n", CtdlGetConfigStr("c_site_location"));
-	cprintf("%s\n", CtdlGetConfigStr("c_sysadm"));
+	cprintf("%s\n", config.c_site_location);
+	cprintf("%s\n", config.c_sysadm);
 	cprintf("%d\n", SERVER_TYPE);
-	cprintf("%s\n", CtdlGetConfigStr("c_moreprompt"));
+	cprintf("%s\n", config.c_moreprompt);
 	cprintf("1\n");	/* 1 = yes, this system supports floors */
 	cprintf("1\n"); /* 1 = we support the extended paging options */
 	cprintf("\n");	/* nonce no longer supported */
@@ -73,15 +72,16 @@ void cmd_info(char *cmdbuf) {
 	cprintf("0\n"); /* 1 = no, this server is not LDAP-enabled */
 #endif
 
-	if ((CtdlGetConfigInt("c_auth_mode") == AUTHMODE_NATIVE) && (CtdlGetConfigInt("c_disable_newu") == 0))
+	if ((config.c_auth_mode == AUTHMODE_NATIVE) &&
+	    (config.c_disable_newu == 0))
 	{
-		cprintf("%d\n", CtdlGetConfigInt("c_disable_newu"));
+		cprintf("%d\n", config.c_disable_newu);
 	}
 	else {
 		cprintf("1\n");	/* "create new user" does not work with non-native auth modes */
 	}
 
-	cprintf("%s\n", CtdlGetConfigStr("c_default_cal_zone"));
+	cprintf("%s\n", config.c_default_cal_zone);
 
 	/* thread load averages -- temporarily disabled during refactoring of this code */
 	cprintf("0\n");		/* load average */
@@ -89,17 +89,17 @@ void cmd_info(char *cmdbuf) {
 	cprintf("0\n");		/* thread count */
 
 	cprintf("1\n");		/* yes, Sieve mail filtering is supported */
-	cprintf("%d\n", CtdlGetConfigInt("c_enable_fulltext"));
+	cprintf("%d\n", config.c_enable_fulltext);
 	cprintf("%s\n", svn_revision());
 
-	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_NATIVE) {
+	if (config.c_auth_mode == AUTHMODE_NATIVE) {
 		cprintf("%d\n", openid_level_supported); /* OpenID is enabled when using native auth */
 	}
 	else {
 		cprintf("0\n");	/* OpenID is disabled when using non-native auth */
 	}
 
-	cprintf("%d\n", CtdlGetConfigInt("c_guest_logins"));
+	cprintf("%d\n", config.c_guest_logins);
 	
 	cprintf("000\n");
 }
@@ -116,7 +116,7 @@ void cmd_echo(char *etext)
  * get the paginator prompt
  */
 void cmd_more(char *argbuf) {
-	cprintf("%d %s\n", CIT_OK, CtdlGetConfigStr("c_moreprompt"));
+	cprintf("%d %s\n", CIT_OK, config.c_moreprompt);
 }
 
 
@@ -142,7 +142,7 @@ void cmd_iden(char *argbuf)
 	rev_level = extract_int(argbuf,2);
 	extract_token(desc, argbuf, 3, '|', sizeof desc);
 
-	safestrncpy(from_host, CtdlGetConfigStr("c_fqdn"), sizeof from_host);
+	safestrncpy(from_host, config.c_fqdn, sizeof from_host);
 	from_host[sizeof from_host - 1] = 0;
 	if (num_parms(argbuf)>=5) extract_token(from_host, argbuf, 4, '|', sizeof from_host);
 

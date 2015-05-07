@@ -1,7 +1,7 @@
 /*
  * Bring external RSS feeds into rooms.
  *
- * Copyright (c) 2007-2015 by the citadel.org team
+ * Copyright (c) 2007-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -365,7 +365,7 @@ int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 		CM_SetField(&SaveMsg->Msg, eAuthor, HKEY("rss"));
 	}
 
-	CM_SetField(&SaveMsg->Msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
+	CM_SetField(&SaveMsg->Msg, eNodeName, CFG_KEY(c_nodename));
 	if (SaveMsg->title != NULL) {
 		long len;
 		char *Sbj;

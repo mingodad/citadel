@@ -1,7 +1,7 @@
 /* 
  * Server functions which perform operations on room objects.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -19,7 +19,6 @@
 #include "citserver.h"
 #include "ctdl_module.h"
 #include "room_ops.h"
-#include "config.h"
 
 /*
  * Back-back-end for all room listing commands
@@ -417,7 +416,7 @@ void cmd_rdir(char *cmdbuf)
 		cprintf("%d not here.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
-	cprintf("%d %s|%s/%s\n", LISTING_FOLLOWS, CtdlGetConfigStr("c_fqdn"), ctdl_file_dir, CC->room.QRdirname);
+	cprintf("%d %s|%s/%s\n", LISTING_FOLLOWS, config.c_fqdn, ctdl_file_dir, CC->room.QRdirname);
 	
 	snprintf(buf, sizeof buf, "%s/%s/filedir", ctdl_file_dir, CC->room.QRdirname);
 	fd = fopen(buf, "r");
@@ -596,7 +595,8 @@ void cmd_setr(char *args)
 		CC->room.QRflags |= QR_PRIVATE;
 
 	/* Some changes can't apply to BASEROOM */
-	if (!strncasecmp(CC->room.QRname, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN)) {
+	if (!strncasecmp(CC->room.QRname, config.c_baseroom,
+			 ROOMNAMELEN)) {
 		CC->room.QRorder = 0;
 		CC->room.QRpasswd[0] = '\0';
 		CC->room.QRflags &= ~(QR_PRIVATE & QR_PASSWORDED &
@@ -619,7 +619,8 @@ void cmd_setr(char *args)
 		}
 	}
 	/* Some changes can't apply to AIDEROOM */
-	if (!strncasecmp(CC->room.QRname, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN)) {
+	if (!strncasecmp(CC->room.QRname, config.c_baseroom,
+			 ROOMNAMELEN)) {
 		CC->room.QRorder = 0;
 		CC->room.QRflags &= ~QR_MAILBOX;
 		CC->room.QRflags |= QR_PERMANENT;
@@ -760,7 +761,7 @@ void cmd_kill(char *argbuf)
 		CtdlScheduleRoomForDeletion(&CC->room);
 
 		/* Return to the Lobby */
-		CtdlUserGoto(CtdlGetConfigStr("c_baseroom"), 0, 0, NULL, NULL, NULL, NULL);
+		CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL, NULL, NULL);
 
 		/* tell the world what we did */
 		snprintf(msg, sizeof msg, "The room \"%s\" has been deleted by %s.\n",
@@ -830,7 +831,7 @@ void cmd_cre8(char *args)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (CC->user.axlevel < CtdlGetConfigInt("c_createax") && !CC->internal_pgm) {
+	if (CC->user.axlevel < config.c_createax && !CC->internal_pgm) {
 		cprintf("%d You need higher access to create rooms.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;

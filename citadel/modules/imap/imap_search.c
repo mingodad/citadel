@@ -1,15 +1,21 @@
 /*
  * Implements IMAP's gratuitously complex SEARCH command.
  *
- * Copyright (c) 2001-2015 by the citadel.org team
+ * Copyright (c) 2001-2012 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 3.
+ *  
+ *  
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  
+ *  
+ *  
  */
 
 #include "ctdl_module.h"
@@ -151,7 +157,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 		/* If fulltext indexing is active, on this server,
 		 *  all messages have already been qualified.
 		 */
-		if (CtdlGetConfigInt("c_enable_fulltext")) {
+		if (config.c_enable_fulltext) {
 			match = 1;
 		}
 
@@ -565,7 +571,7 @@ void imap_do_search(int num_items, ConstStr *itemlist, int is_uid) {
 	 * text index to disqualify messages that don't have any chance of
 	 * matching.  (Only do this if the index is enabled!!)
 	 */
-	if (CtdlGetConfigInt("c_enable_fulltext")) for (i=0; i<(num_items-1); ++i) {
+	if (config.c_enable_fulltext) for (i=0; i<(num_items-1); ++i) {
 		if (!strcasecmp(itemlist[i].Key, "BODY")) {
 			CtdlModuleDoSearch(&fts_num_msgs, &fts_msgs, itemlist[i+1].Key, "fulltext");
 			if (fts_num_msgs > 0) {

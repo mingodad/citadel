@@ -3,7 +3,7 @@
  *
  * You might also see this module affectionately referred to as the DAP (the Dreaded Auto-Purger).
  *
- * Copyright (c) 1988-2015 by citadel.org (Art Cancro, Wilifried Goesgens, and others)
+ * Copyright (c) 1988-2011 by citadel.org (Art Cancro, Wilifried Goesgens, and others)
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -14,6 +14,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
  *
  * A brief technical discussion:
  *
@@ -307,11 +312,11 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 		if (qrbuf->QRmtime <= (time_t)0) return;
 
 		/* If no room purge time is set, be safe and don't purge */
-		if (CtdlGetConfigLong("c_roompurge") < 0) return;
+		if (config.c_roompurge < 0) return;
 
 		/* Otherwise, check the date of last modification */
 		age = time(NULL) - (qrbuf->QRmtime);
-		purge_secs = CtdlGetConfigLong("c_roompurge") * 86400;
+		purge_secs = (time_t)config.c_roompurge * (time_t)86400;
 		if (purge_secs <= (time_t)0) return;
 		syslog(LOG_DEBUG, "<%s> is <%ld> seconds old", qrbuf->QRname, (long)age);
 		if (age > purge_secs) do_purge = 1;
@@ -412,10 +417,10 @@ void do_user_purge(struct ctdluser *us, void *data) {
 
 	/* Set purge time; if the user overrides the system default, use it */
 	if (us->USuserpurge > 0) {
-		purge_time = ((time_t)us->USuserpurge) * 86400;
+		purge_time = ((time_t)us->USuserpurge) * 86400L;
 	}
 	else {
-		purge_time = CtdlGetConfigLong("c_userpurge") * 86400;
+		purge_time = ((time_t)config.c_userpurge) * 86400L;
 	}
 
 	/* The default rule is to not purge. */
@@ -424,7 +429,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	/* If the user hasn't called in two months and expiring of accounts is turned on, his/her account
 	 * has expired, so purge the record.
 	 */
-	if (CtdlGetConfigLong("c_userpurge") > 0)
+	if (config.c_userpurge > 0)
 	{
 		now = time(NULL);
 		if ((now - us->lastcall) > purge_time) purge = 1;
@@ -523,7 +528,7 @@ int PurgeUsers(void) {
 	syslog(LOG_DEBUG, "PurgeUsers() called");
 	users_not_purged = 0;
 
-	switch(CtdlGetConfigInt("c_auth_mode")) {
+	switch(config.c_auth_mode) {
 		case AUTHMODE_NATIVE:
 			ForEachUser(do_user_purge, NULL);
 			break;
@@ -531,7 +536,8 @@ int PurgeUsers(void) {
 			ForEachUser(do_uid_user_purge, NULL);
 			break;
 		default:
-			syslog(LOG_DEBUG, "User purge for auth mode %d is not implemented.", CtdlGetConfigInt("c_auth_mode"));
+			syslog(LOG_DEBUG, "User purge for auth mode %d is not implemented.",
+				config.c_auth_mode);
 			break;
 	}
 
@@ -864,8 +870,10 @@ void purge_databases(void)
 	 */
 	now = time(NULL);
 	localtime_r(&now, &tm);
-	if (((tm.tm_hour != CtdlGetConfigInt("c_purge_hour")) || ((now - last_purge) < 43200)) && (force_purge_now == 0))
-	{
+	if (
+		((tm.tm_hour != config.c_purge_hour) || ((now - last_purge) < 43200))
+		&& (force_purge_now == 0)
+	) {
 			return;
 	}
 

@@ -1,8 +1,8 @@
 /*
- * Citadel Extension Loader
+ * Citadel Dynamic Loading Module
  * Written by Brian Costello <btx@calyx.net>
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -21,7 +21,6 @@
 
 #include "serv_extensions.h"
 #include "ctdl_module.h"
-#include "config.h"
 
 
 int DebugModules = 0;
@@ -1132,7 +1131,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	newfcn->ServiceName = ServiceName;
 
 	if (sockpath != NULL) {
-		newfcn->msock = ctdl_uds_server(sockpath, CtdlGetConfigInt("c_maxsessions"), error);
+		newfcn->msock = ctdl_uds_server(sockpath, config.c_maxsessions, error);
 		snprintf(message, SIZ, "Unix domain socket '%s': ", sockpath);
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
@@ -1142,12 +1141,12 @@ void CtdlRegisterServiceHook(int tcp_port,
 		return;
 	}
 	else {
-		newfcn->msock = ctdl_tcp_server(CtdlGetConfigStr("c_ip_addr"),
+		newfcn->msock = ctdl_tcp_server(config.c_ip_addr,
 					      tcp_port,
-					      CtdlGetConfigInt("c_maxsessions"), 
+					      config.c_maxsessions, 
 					      error);
 		snprintf(message, SIZ, "TCP port %s:%d: (%s) ", 
-			 CtdlGetConfigStr("c_ip_addr"), tcp_port, ServiceName);
+			 config.c_ip_addr, tcp_port, ServiceName);
 	}
 
 	if (newfcn->msock > 0) {

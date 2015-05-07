@@ -1,18 +1,7 @@
 /*
  * This file contains functions which handle the mapping of Internet addresses
  * to users on the Citadel system.
- *
- * Copyright (c) 1987-2015 by the citadel.org team
- *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
  */
-
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -292,8 +281,8 @@ int CtdlHostAlias(char *fqdn) {
 	if (fqdn == NULL) return(hostalias_nomatch);
 	if (IsEmptyStr(fqdn)) return(hostalias_nomatch);
 	if (!strcasecmp(fqdn, "localhost")) return(hostalias_localhost);
-	if (!strcasecmp(fqdn, CtdlGetConfigStr("c_fqdn"))) return(hostalias_localhost);
-	if (!strcasecmp(fqdn, CtdlGetConfigStr("c_nodename"))) return(hostalias_localhost);
+	if (!strcasecmp(fqdn, config.c_fqdn)) return(hostalias_localhost);
+	if (!strcasecmp(fqdn, config.c_nodename)) return(hostalias_localhost);
 	if (inetcfg == NULL) return(hostalias_nomatch);
 
 	config_lines = num_tokens(inetcfg, '\n');
@@ -644,7 +633,7 @@ recptypes *validate_recipients(const char *supplied_recipients,
 		case MES_LOCAL:
 			if (!strcasecmp(this_recp, "sysop")) {
 				++ret->num_room;
-				strcpy(this_recp, CtdlGetConfigStr("c_aideroom"));
+				strcpy(this_recp, config.c_aideroom);
 				if (!IsEmptyStr(ret->recp_room)) {
 					strcat(ret->recp_room, "|");
 				}
@@ -1036,7 +1025,7 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	int a;
 
 	strcpy(user, "");
-	strcpy(node, CtdlGetConfigStr("c_fqdn"));
+	strcpy(node, config.c_fqdn);
 	strcpy(name, "");
 
 	if (rfc822 == NULL) return;
@@ -1125,7 +1114,7 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 		&& (haschar(node, '%')==0)
 		&& (haschar(node, '!')==0)
 	) {
-		strcpy(node, CtdlGetConfigStr("c_nodename"));
+		strcpy(node, config.c_nodename);
 	}
 
 	else {

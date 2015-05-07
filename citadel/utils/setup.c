@@ -1312,6 +1312,7 @@ int main(int argc, char *argv[])
 
 	activity = _("Setting file permissions");
 	progress(activity, 0, 2);
+	//chown(file_citadel_config, config.c_ctdluid, gid);
 	progress(activity, 1, 2);
 	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
 	progress(activity, 2, 2);

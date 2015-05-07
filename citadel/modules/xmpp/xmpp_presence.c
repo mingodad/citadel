@@ -158,7 +158,7 @@ void xmpp_destroy_buddy(char *presence_jid, int aggressively) {
 	);
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cprintf("<item jid=\"%s\" subscription=\"remove\">", xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1));
-	cprintf("<group>%s</group>", xmlesc(xmlbuf1, CtdlGetConfigStr("c_humannode"), sizeof xmlbuf1));
+	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
 	cprintf("</item>");
 	cprintf("</query>"
 		"</iq>"

@@ -61,7 +61,7 @@ void xmpp_roster_item(struct CitContext *cptr) {
 		xmlesc(xmlbuf1, cptr->cs_inet_email, sizeof xmlbuf1),
 		xmlesc(xmlbuf2, cptr->user.fullname, sizeof xmlbuf2)
 	);
-	cprintf("<group>%s</group>", xmlesc(xmlbuf1, CtdlGetConfigStr("c_humannode"), sizeof xmlbuf1));
+	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
 	cprintf("</item>");
 }
 

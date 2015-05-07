@@ -3,15 +3,22 @@
  * room on a Citadel server.  It handles iCalendar objects using the
  * iTIP protocol.  See RFCs 2445 and 2446.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #define PRODID "-//Citadel//NONSGML Citadel Calendar//EN"
@@ -26,7 +33,6 @@
 #include "room_ops.h"
 #include "euidindex.h"
 #include "ical_dezonify.h"
-#include "config.h"
 
 
 
@@ -143,8 +149,8 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 		msg->cm_format_type = 4;
 		CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
-		CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
-		CM_SetField(msg, eHumanNode, CtdlGetConfigStr("c_humannode"), strlen(CtdlGetConfigStr("c_humannode")));
+		CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+		CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
 
 		MsgBody = NewStrBufPlain(NULL, serlen + 100);
 		StrBufAppendBufPlain(MsgBody, HKEY("Content-type: text/calendar\r\n\r\n"), 0);
@@ -1454,7 +1460,7 @@ void ical_freebusy(char *who) {
 	 * primary FQDN of this Citadel node.
 	 */
 	if (found_user != 0) {
-		snprintf(buf, sizeof buf, "%s@%s", who, CtdlGetConfigStr("c_fqdn"));
+		snprintf(buf, sizeof buf, "%s@%s", who, config.c_fqdn);
 		syslog(LOG_DEBUG, "Trying <%s>\n", buf);
 		recp = validate_recipients(buf, NULL, 0);
 		if (recp != NULL) {
@@ -1526,7 +1532,7 @@ void ical_freebusy(char *who) {
 	sprintf(buf, "MAILTO:%s", who);
 	if (strchr(buf, '@') == NULL) {
 		strcat(buf, "@");
-		strcat(buf, CtdlGetConfigStr("c_fqdn"));
+		strcat(buf, config.c_fqdn);
 	}
 	for (i=0; buf[i]; ++i) {
 		if (buf[i]==' ') buf[i] = '_';
@@ -1749,7 +1755,7 @@ void ical_putics(void)
 	}
 
 	cprintf("%d Transmit data now\n", SEND_LISTING);
-	calstream = CtdlReadMessageBody(HKEY("000"), CtdlGetConfigLong("c_maxmsglen"), NULL, 0, 0);
+	calstream = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
 	if (calstream == NULL) {
 		return;
 	}

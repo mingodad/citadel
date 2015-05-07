@@ -2,7 +2,7 @@
  * These functions implement the portions of AUTHMODE_LDAP and AUTHMODE_LDAP_AD which
  * actually speak to the LDAP server.
  *
- * Copyright (c) 2011-2015 by the citadel.org development team.
+ * Copyright (c) 2011-2014 by the citadel.org development team.
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -22,7 +22,6 @@ int ctdl_require_ldap_version = 3;
 #include "citadel_ldap.h"
 #include "ctdl_module.h"
 #include "user_ops.h"
-#include "config.h"
 
 #ifdef HAVE_LDAP
 #define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
@@ -38,7 +37,7 @@ int ctdl_ldap_initialize(LDAP **ld) {
 	char server_url[256];
 	int ret;
 
-	snprintf(server_url, sizeof server_url, "ldap://%s:%d", CtdlGetConfigStr("c_ldap_host"), CtdlGetConfigInt("c_ldap_port"));
+	snprintf(server_url, sizeof server_url, "ldap://%s:%d", config.c_ldap_host, config.c_ldap_port);
 	ret = ldap_initialize(ld, server_url);
 	if (ret != LDAP_SUCCESS) {
 		syslog(LOG_ALERT, "LDAP: Could not connect to %s : %s",
@@ -81,12 +80,12 @@ int CtdlTryUserLDAP(char *username,
 	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 	ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
 
-	striplt(CtdlGetConfigStr("c_ldap_bind_dn"));
-	striplt(CtdlGetConfigStr("c_ldap_bind_pw"));
-	syslog(LOG_DEBUG, "LDAP bind DN: %s", CtdlGetConfigStr("c_ldap_bind_dn"));
+	striplt(config.c_ldap_bind_dn);
+	striplt(config.c_ldap_bind_pw);
+	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
 	i = ldap_simple_bind_s(ldserver,
-		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_dn")) ? CtdlGetConfigStr("c_ldap_bind_dn") : NULL),
-		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_pw")) ? CtdlGetConfigStr("c_ldap_bind_pw") : NULL)
+		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
+		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
 	);
 	if (i != LDAP_SUCCESS) {
 		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
@@ -96,7 +95,7 @@ int CtdlTryUserLDAP(char *username,
 	tv.tv_sec = 10;
 	tv.tv_usec = 0;
 
-	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD) {
+	if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
 		if (lookup_based_on_username != 0)
 			snprintf(searchstring, sizeof(searchstring), "(displayName=%s)",username);
 		else
@@ -112,7 +111,7 @@ int CtdlTryUserLDAP(char *username,
 	syslog(LOG_DEBUG, "LDAP search: %s", searchstring);
 	(void) ldap_search_ext_s(
 		ldserver,					/* ld				*/
-		CtdlGetConfigStr("c_ldap_base_dn"),		/* base				*/
+		config.c_ldap_base_dn,				/* base				*/
 		LDAP_SCOPE_SUBTREE,				/* scope			*/
 		searchstring,					/* filter			*/
 		NULL,						/* attrs (all attributes)	*/
@@ -144,7 +143,7 @@ int CtdlTryUserLDAP(char *username,
 			syslog(LOG_DEBUG, "dn = %s", user_dn);
 		}
 
-		if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD) {
+		if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
 			values = ldap_get_values(ldserver, search_result, "displayName");
 			if (values) {
 				if (values[0]) {
@@ -166,7 +165,7 @@ int CtdlTryUserLDAP(char *username,
 		}
 		/* If we know the username is the CN/displayName, we already set the uid*/
 		if (lookup_based_on_username==0) {
-			if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD) {
+			if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
 				values = ldap_get_values(ldserver, search_result, "objectGUID");
 				if (values) {
 					if (values[0]) {
@@ -323,12 +322,12 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 	ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
 
-	striplt(CtdlGetConfigStr("c_ldap_bind_dn"));
-	striplt(CtdlGetConfigStr("c_ldap_bind_pw"));
-	syslog(LOG_DEBUG, "LDAP bind DN: %s", CtdlGetConfigStr("c_ldap_bind_dn"));
+	striplt(config.c_ldap_bind_dn);
+	striplt(config.c_ldap_bind_pw);
+	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
 	i = ldap_simple_bind_s(ldserver,
-		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_dn")) ? CtdlGetConfigStr("c_ldap_bind_dn") : NULL),
-		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_pw")) ? CtdlGetConfigStr("c_ldap_bind_pw") : NULL)
+		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
+		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
 	);
 	if (i != LDAP_SUCCESS) {
 		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);

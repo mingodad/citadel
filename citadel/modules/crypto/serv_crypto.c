@@ -1,13 +1,19 @@
 /*
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3.
+ *  This program is open source software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 3.
+ *  
+ *  
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  
+ *  
+ *  
  */
 
 #include <string.h>
@@ -254,7 +260,7 @@ void init_ssl(void)
 
 					X509_NAME_add_entry_by_txt(name, "O",
 								   MBSTRING_ASC, 
-								   (unsigned char*) CtdlGetConfigStr("c_humannode"),
+								   (unsigned char*) config.c_humannode,
 								   -1, -1, 0);
 
 					X509_NAME_add_entry_by_txt(name, "OU",
@@ -263,7 +269,7 @@ void init_ssl(void)
 								   -1, -1, 0);
 
 					/* X509_NAME_add_entry_by_txt(name, "CN",
-						MBSTRING_ASC, CtdlGetConfigStr("c_fqdn"), -1, -1, 0);
+						MBSTRING_ASC, config.c_fqdn, -1, -1, 0);
 					*/
 
 					X509_NAME_add_entry_by_txt(name, 

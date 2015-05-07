@@ -19,7 +19,6 @@
 #include "control.h"
 #include "support.h"
 #include "citserver.h"
-#include "config.h"
 #include "citadel_ldap.h"
 #include "ctdl_module.h"
 #include "user_ops.h"
@@ -315,7 +314,7 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 	if (who->axlevel <= AxProbU) return(0);
 
 	/* Globally enabled? */
-	if (CtdlGetConfigInt("c_restrict") == 0) return(1);
+	if (config.c_restrict == 0) return(1);
 
 	/* User flagged ok? */
 	if (who->flags & US_INTERNET) return(2);
@@ -339,7 +338,7 @@ int CtdlAccessCheck(int required_level)
 		return(-1);
 	}
 
-	if ((required_level >= ac_logged_in_or_guest) && (CC->logged_in == 0) && (CtdlGetConfigInt("c_guest_logins") == 0)) {
+	if ((required_level >= ac_logged_in_or_guest) && (CC->logged_in == 0) && (!config.c_guest_logins)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return(-1);
 	}
@@ -529,10 +528,10 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 
 	/* If a "master user" is defined, handle its authentication if specified */
 	CC->is_master = 0;
-	if (	(strlen(CtdlGetConfigStr("c_master_user")) > 0) && 
-	    	(strlen(CtdlGetConfigStr("c_master_pass")) > 0) &&
-		(authname != NULL) &&
-		(!strcasecmp(authname, CtdlGetConfigStr("c_master_user"))) )
+	if ((configlen.c_master_user > 0) && 
+	    (configlen.c_master_pass > 0) &&
+	    (authname != NULL) &&
+	    (!strcasecmp(authname, config.c_master_user)))
 	{
 		CC->is_master = 1;
 	}
@@ -546,7 +545,7 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 		return login_not_found;
 	}
 
-	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_HOST) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 
 		/* host auth mode */
 
@@ -587,7 +586,7 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 	}
 
 #ifdef HAVE_LDAP
-	else if ((CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP) || (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD)) {
+	else if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
 	
 		/* LDAP auth mode */
 
@@ -671,14 +670,14 @@ void do_login(void)
 	/* If this user's name is the name of the system administrator
 	 * (as specified in setup), automatically assign access level 6.
 	 */
-	if (!strcasecmp(CCC->user.fullname, CtdlGetConfigStr("c_sysadm"))) {
+	if (!strcasecmp(CCC->user.fullname, config.c_sysadm)) {
 		CCC->user.axlevel = AxAideU;
 	}
 
 	/* If we're authenticating off the host system, automatically give
 	 * root the highest level of access.
 	 */
-	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_HOST) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 		if (CCC->user.uid == 0) {
 			CCC->user.axlevel = AxAideU;
 		}
@@ -692,7 +691,7 @@ void do_login(void)
 	 * the vCard module's login hook runs.
 	 */
 	snprintf(CCC->cs_inet_email, sizeof CCC->cs_inet_email, "%s@%s",
-		CCC->user.fullname, CtdlGetConfigStr("c_fqdn"));
+		CCC->user.fullname, config.c_fqdn);
 	convert_spaces_to_underscores(CCC->cs_inet_email);
 
 	/* Create any personal rooms required by the system.
@@ -707,7 +706,7 @@ void do_login(void)
 	PerformSessionHooks(EVT_LOGIN);
 
 	/* Enter the lobby */
-	CtdlUserGoto(CtdlGetConfigStr("c_baseroom"), 0, 0, NULL, NULL, NULL, NULL);
+	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL, NULL, NULL);
 }
 
 
@@ -878,10 +877,10 @@ int CtdlTryPassword(const char *password, long len)
 	}
 
 	if (CCC->is_master) {
-		code = strcmp(password, CtdlGetConfigStr("c_master_pass"));
+		code = strcmp(password, config.c_master_pass);
 	}
 
-	else if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_HOST) {
+	else if (config.c_auth_mode == AUTHMODE_HOST) {
 
 		/* host auth mode */
 
@@ -911,7 +910,7 @@ int CtdlTryPassword(const char *password, long len)
 	}
 
 #ifdef HAVE_LDAP
-	else if ((CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP) || (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD)) {
+	else if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
 
 		/* LDAP auth mode */
 
@@ -1053,7 +1052,7 @@ int internal_create_user (const char *username, long len, struct ctdluser *usbuf
 
 	usbuf->timescalled = 0;
 	usbuf->posted = 0;
-	usbuf->axlevel = CtdlGetConfigInt("c_initax");
+	usbuf->axlevel = config.c_initax;
 	usbuf->lastcall = time(NULL);
 
 	/* fetch a new user number */
@@ -1090,7 +1089,7 @@ int create_user(const char *newusername, long len, int become_user)
 	strproc(username);
 
 	
-	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_HOST) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 
 		/* host auth mode */
 
@@ -1122,7 +1121,7 @@ int create_user(const char *newusername, long len, int become_user)
 	}
 
 #ifdef HAVE_LDAP
-	if ((CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP) || (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD)) {
+	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
 		if (CtdlTryUserLDAP(username, NULL, 0, username, sizeof username, &uid, 0) != 0) {
 			return(ERROR + NO_SUCH_USER);
 		}
@@ -1240,7 +1239,7 @@ int CtdlForgetThisRoom(void) {
 	visit vbuf;
 
 	/* On some systems, Admins are not allowed to forget rooms */
-	if (is_aide() && (CtdlGetConfigInt("c_aide_zap") == 0)
+	if (is_aide() && (config.c_aide_zap == 0)
 	   && ((CC->room.QRflags & QR_MAILBOX) == 0)  ) {
 		return(1);
 	}
@@ -1255,7 +1254,7 @@ int CtdlForgetThisRoom(void) {
 	CtdlPutUserLock(&CC->user);
 
 	/* Return to the Lobby, so we don't end up in an undefined room */
-	CtdlUserGoto(CtdlGetConfigStr("c_baseroom"), 0, 0, NULL, NULL, NULL, NULL);
+	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL, NULL, NULL);
 	return(0);
 
 }

@@ -2,7 +2,7 @@
  * This module glues libSieve to the Citadel server in order to implement
  * the Sieve mailbox filtering language (RFC 3028).
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -626,7 +626,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 	if (haschar(my.envelope_from, '@') == 0) {
 		strcat(my.envelope_from, "@");
-		strcat(my.envelope_from, CtdlGetConfigStr("c_fqdn"));
+		strcat(my.envelope_from, config.c_fqdn);
 	}
 
 	/* Keep track of the envelope-to address (use body-to if not found) */
@@ -652,7 +652,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	}
 	if (haschar(my.envelope_to, '@') == 0) {
 		strcat(my.envelope_to, "@");
-		strcat(my.envelope_to, CtdlGetConfigStr("c_fqdn"));
+		strcat(my.envelope_to, config.c_fqdn);
 	}
 
 	CM_Free(msg);
@@ -1185,7 +1185,7 @@ void cmd_msiv(char *argbuf) {
 		extract_token(script_name, argbuf, 1, '|', sizeof script_name);
 		if (!IsEmptyStr(script_name)) {
 			cprintf("%d Transmit script now\n", SEND_LISTING);
-			script_content = CtdlReadMessageBody(HKEY("000"), CtdlGetConfigLong("c_maxmsglen"), NULL, 0, 0);
+			script_content = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
 			msiv_putscript(&u, script_name, script_content);
 			changes_made = 1;
 		}

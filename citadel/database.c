@@ -1,7 +1,7 @@
 /*
  * This is a data store backend for the Citadel server which uses Berkeley DB.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -50,7 +50,6 @@
 #include "ctdl_module.h"
 #include "control.h"
 #include "citserver.h"
-#include "config.h"
 
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
@@ -224,7 +223,7 @@ void cdb_checkpoint(void)
 	}
 
 	/* After a successful checkpoint, we can cull the unused logs */
-	if (CtdlGetConfigInt("c_auto_cull")) {
+	if (config.c_auto_cull) {
 		cdb_cull_logs();
 	}
 }

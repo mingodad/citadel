@@ -26,9 +26,11 @@
 #include "user_ops.h"
 #include "ecrash.h"
 
-uid_t ctdluid = 0;
 const char *CitadelServiceUDS="citadel-UDS";
 const char *CitadelServiceTCP="citadel-TCP";
+
+
+
 void go_threading(void);
 
 /*
@@ -49,8 +51,6 @@ int main(int argc, char **argv)
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	int syslog_facility = LOG_DAEMON;
 	const char *eDebuglist[] = {NULL, NULL};
-	uid_t u = 0;
-	struct passwd *p = NULL;
 #ifdef HAVE_RUN_DIR
 	struct stat filestats;
 #endif
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 	InitializeMasterTSD();
 
 	/* parse command-line arguments */
-	while ((a=getopt(argc, argv, "l:dh:x:t:B:Dru:")) != EOF) switch(a) {
+	while ((a=getopt(argc, argv, "l:dh:x:t:B:Dr")) != EOF) switch(a) {
 
 		case 'l':
 			safestrncpy(facility, optarg, sizeof(facility));
@@ -108,57 +108,16 @@ int main(int argc, char **argv)
 			drop_root_perms = 0;
 			break;
 
-		/* -u tells the server what uid to run under... */
-		case 'u':
-			u = atoi(optarg);
-			if (u > 0) {
-				ctdluid = u;
-			}
-			else {
-				p = getpwnam(optarg);
-				if (p) {
-					u = p->pw_uid;
-				}
-			}
-			if (u > 0) {
-				ctdluid = u;
-			}
-			break;
-
 		default:
 		/* any other parameter makes it crash and burn */
 			fprintf(stderr,	"citserver: usage: "
 					"citserver "
 					"[-l LogFacility] "
 					"[-d] [-D] [-r] "
-					"[-u user] "
 					"[-h HomeDir]\n"
 			);
 			exit(1);
 	}
-
-	/* Last ditch effort to determine the user name ... if there's a user called "citadel" then use that */
-	if (ctdluid == 0) {
-		p = getpwnam("citadel");
-		if (!p) {
-			p = getpwnam("bbs");
-		}
-		if (!p) {
-			p = getpwnam("guest");
-		}
-		if (p) {
-			u = p->pw_uid;
-		}
-		if (u > 0) {
-			ctdluid = u;
-		}
-	}
-
-	if ((ctdluid == 0) && (drop_root_perms == 0)) {
-		fprintf(stderr, "citserver: cannot determine user to run as; please specify -r or -u options\n");
-		exit(CTDLEXIT_UNUSER);
-	}
-
 	StartLibCitadel(basesize);
 	openlog("citserver",
 		( running_as_daemon ? (LOG_PID) : (LOG_PID | LOG_PERROR) ),
@@ -202,15 +161,25 @@ int main(int argc, char **argv)
 	syslog(LOG_DEBUG, "Called as: %s", argv[0]);
 	syslog(LOG_INFO, "%s", libcitadel_version_string());
 
+	/* Load site-specific configuration */
+	syslog(LOG_INFO, "Loading citadel.config");
+	get_config();
+
+	/* get_control() MUST MUST MUST be called BEFORE the databases are opened!! */
+	syslog(LOG_INFO, "Acquiring control record");
+	get_control();
+
+	put_config();
+
 #ifdef HAVE_RUN_DIR
 	/* on some dists rundir gets purged on startup. so we need to recreate it. */
 
 	if (stat(ctdl_run_dir, &filestats)==-1){
 #ifdef HAVE_GETPWUID_R
 #ifdef SOLARIS_GETPWUID
-		pwp = getpwuid_r(ctdluid, &pw, pwbuf, sizeof(pwbuf));
+		pwp = getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf));
 #else // SOLARIS_GETPWUID
-		getpwuid_r(ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
+		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
 #endif // SOLARIS_GETPWUID
 #else // HAVE_GETPWUID_R
 		pwp = NULL;
@@ -221,7 +190,7 @@ int main(int argc, char **argv)
 				      "unable to create run directory [%s]: %s", 
 				      ctdl_run_dir, strerror(errno));
 
-		if (chown(ctdl_run_dir, ctdluid, (pwp==NULL)?-1:pw.pw_gid) != 0)
+		if (chown(ctdl_run_dir, config.c_ctdluid, (pwp==NULL)?-1:pw.pw_gid) != 0)
 			syslog(LOG_EMERG, 
 				      "unable to set the access rights for [%s]: %s", 
 				      ctdl_run_dir, strerror(errno));
@@ -284,7 +253,7 @@ int main(int argc, char **argv)
 	/*
 	 * Bind the server to our favorite TCP port (usually 504).
 	 */
-	CtdlRegisterServiceHook(CtdlGetConfigInt("c_port_number"),
+	CtdlRegisterServiceHook(config.c_port_number,
 				NULL,
 				citproto_begin_session,
 				do_command_loop,
@@ -307,7 +276,7 @@ int main(int argc, char **argv)
 	/*
 	 * If we need host auth, start our chkpwd daemon.
 	 */
-	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_HOST) {
+	if (config.c_auth_mode == AUTHMODE_HOST) {
 		start_chkpwd_daemon();
 	}
 
@@ -328,9 +297,9 @@ int main(int argc, char **argv)
 
 #ifdef HAVE_GETPWUID_R
 #ifdef SOLARIS_GETPWUID
-		pwp = getpwuid_r(ctdluid, &pw, pwbuf, sizeof(pwbuf));
+		pwp = getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf));
 #else // SOLARIS_GETPWUID
-		getpwuid_r(ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
+		getpwuid_r(config.c_ctdluid, &pw, pwbuf, sizeof(pwbuf), &pwp);
 #endif // SOLARIS_GETPWUID
 #else // HAVE_GETPWUID_R
 		pwp = NULL;

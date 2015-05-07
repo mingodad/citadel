@@ -6,7 +6,7 @@
  * as this draft expires with this writing, you might need to search for
  * the new one.
  *
- * Copyright (c) 2007-2015 by the citadel.org team
+ * Copyright (c) 2007-2012 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -651,7 +651,7 @@ CTDL_MODULE_INIT(managesieve)
 {
 	if (!threading)
 	{
-		CtdlRegisterServiceHook(CtdlGetConfigInt("c_managesieve_port"),
+		CtdlRegisterServiceHook(config.c_managesieve_port,
 					NULL,
 					managesieve_greeting,
 					managesieve_command_loop,
