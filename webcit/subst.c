@@ -679,6 +679,7 @@ void StrBufAppendTemplate(StrBuf *Target,
 	char EscapeAs = ' ';
 
 	if ((FormatTypeIndex < TP->Tokens->nParameters) &&
+	    (TP->Tokens->Params[FormatTypeIndex] != NULL) &&
 	    (TP->Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
 	    (TP->Tokens->Params[FormatTypeIndex]->len >= 1)) {
 		pFmt = TP->Tokens->Params[FormatTypeIndex]->Start;
