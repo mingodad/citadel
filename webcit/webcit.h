@@ -214,7 +214,9 @@ void SaveExpirePolicyFromHTTP(GPEXWhichPolicy which);
 typedef struct urlcontent urlcontent;
 struct urlcontent {
 	char url_key[32];		/* key */
+	long klen;
 	StrBuf *url_data;		/* value */
+	HashList *sub;
 };
 
 /*
