@@ -23,7 +23,81 @@ void free_url(void *U)
 {
 	urlcontent *u = (urlcontent*) U;
 	FreeStrBuf(&u->url_data);
+	if (u->sub != NULL) {
+		DeleteHash(&u->sub);
+	}
 	free(u);
+}
+
+void PutSubstructUrlKey(HashList *list, urlcontent *u, char **keys, long *lengths, int max, int which){
+	void *vUrl;
+	urlcontent *subu;
+	HashList *thisList = list;
+	if (GetHash(list, keys[which], lengths[which], &vUrl) &&
+	    (vUrl != NULL))
+	{
+		subu = (urlcontent*) vUrl;
+		if (subu->sub == NULL) {
+			subu->sub = NewHash(1, NULL);
+		}
+		thisList = subu->sub;
+	} 
+	else if (which < max) {
+		subu = (urlcontent *) malloc(sizeof(urlcontent));
+		
+		memcpy(subu->url_key, keys[which], lengths[which]);
+		subu->klen = lengths[which];
+		subu->url_data = NULL;
+		subu->sub = NewHash(1, NULL);
+		
+		Put(list, subu->url_key, subu->klen, subu, free_url);
+		thisList = subu->sub;
+	}
+	if (which >= max) {
+		Put(thisList, keys[which], lengths[which], u, free_url);
+	}
+	else {
+		PutSubstructUrlKey(subu->sub, u, keys, lengths, max, which + 1);
+	}
+}
+
+void PutUrlKey(HashList *urlstrings, urlcontent *u, int have_colons) {
+	if (!have_colons) {
+		Put(urlstrings, u->url_key, u->klen, u, free_url);
+	}
+	else {
+		char *keys[10];
+		long lengths[10];
+		int i = 0;
+		char *pch;
+		char *pchs;
+		char *pche;
+
+		memset(&keys, 0, sizeof(keys));
+		memset(&lengths, 0, sizeof(lengths));
+		pchs = pch = u->url_key;
+		pche = u->url_key + u->klen;
+		while ((i < 10) && (pch <= pche)) {
+			if ((*pch != ':') && (pch != pche)){
+				pch ++;
+				continue;
+			}
+			*pch = '\0';
+			if (i == 0) {
+				/* Separate the toplevel key : */
+				u->klen = pch - pchs;
+			}
+			/* sub-section: */
+			keys[i] = pchs;
+			lengths[i] = pch - pchs;
+			
+			pch++;
+			pchs = pch;
+			i++;
+		}
+		
+		PutSubstructUrlKey(urlstrings, u, keys, lengths, i - 1, 0);
+	}
 }
 
 /*
@@ -42,8 +116,12 @@ void ParseURLParams(StrBuf *url)
 	eptr = ChrPtr(url) + StrLength(url);
 	up = ChrPtr(url);
 	while ((up < eptr) && (!IsEmptyStr(up))) {
+		int have_colon = 0;
 		aptr = up;
 		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '=')) {
+			if (*aptr == ':') {
+				have_colon = 1;
+			}
 			aptr++;
 		}
 		if (*aptr != '=') {
@@ -57,23 +135,25 @@ void ParseURLParams(StrBuf *url)
 		}
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if (keylen > sizeof(u->url_key)) {
-			syslog(LOG_WARNING, "%s:%d: invalid url_key of size %d in string size %d",
+			syslog(LOG_WARNING, "%s:%d: invalid url_key of size %d in string size %ld",
 				__FILE__, __LINE__, keylen, sizeof(u->url_key)
 			);
 		}
 
-		u = (urlcontent *) malloc(sizeof(urlcontent));
-		memcpy(u->url_key, up, keylen);
-		u->url_key[keylen] = '\0';
 		if (keylen < 0) {
 			syslog(LOG_WARNING, "%s:%d: invalid url_key of size %d", __FILE__, __LINE__, keylen);
 			free(u);
 			return;
 		}
 		
+		u = (urlcontent *) malloc(sizeof(urlcontent));
+		memcpy(u->url_key, up, keylen);
+		u->url_key[keylen] = '\0';
+		u->klen = keylen;
+		u->sub = NULL;
+
 		if (strncmp(u->url_key, "__", 2) != 0)
 		{
-			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 			len = bptr - aptr;
 			u->url_data = NewStrBufPlain(aptr, len);
 			StrBufUnescape(u->url_data, 1);
@@ -83,6 +163,7 @@ void ParseURLParams(StrBuf *url)
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
 #endif
+			PutUrlKey(WCC->Hdr->urlstrings, u, have_colon);
 		}
 		else {
 			len = bptr - aptr;
@@ -336,10 +417,12 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		
 		keylen = safestrncpy(u->url_key, name, sizeof(u->url_key));
 		u->url_data = NewStrBufPlain(content, length);
+		u->klen = keylen;
+		u->sub = NULL;
 		
 		if (strncmp(u->url_key, "__", 2) != 0)
 		{
-			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
+			PutUrlKey(WCC->Hdr->urlstrings, u, (strchr(u->url_key, ':') != NULL));
 		}
 		else {
 			syslog(LOG_INFO, "REJECTED because of __ is internal only: %s = [%d]  %s\n", 
@@ -382,7 +465,9 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 	}
 	u = (urlcontent*)malloc(sizeof(urlcontent));
 	memcpy(u->url_key, key, keylen + 1);
+	u->klen = keylen;
 	u->url_data = Value;
+	u->sub = NULL;
 	Put(WC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 }
 void PutlBstr(const char *key, long keylen, long Value)
