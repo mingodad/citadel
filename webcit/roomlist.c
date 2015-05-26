@@ -440,6 +440,10 @@ HashList *GetThisRoomPossibleMAlias(StrBuf *Target, WCTemplputParams *TP)
 	Domains = GetValidDomainNames(Target, TP);
 	if (Domains == NULL)
 		return NULL;
+	if (GetCount(Domains) == 0) {
+		DeleteHash(&Domains);
+		return NULL;
+	}
 	PossibleAliases = NewHash(1, NULL);
 	Line = NewStrBuf();
 	RoomName = NewStrBufDup(WCC->CurRoom.name);
@@ -504,7 +508,7 @@ HashList *GetThisRoomPossibleMAlias(StrBuf *Target, WCTemplputParams *TP)
 	}
 	else if (State == 550)
 		AppendImportantMessage(_("Higher access is required to access this function."), -1);
-
+	DeleteHash(&Domains);
 	FreeStrBuf(&Line);
 	FreeStrBuf(&RoomName);
 	return PossibleAliases;
@@ -947,8 +951,8 @@ InitModule_ROOMLIST
 
 	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUFARR, CTX_NONE, IT_NOFLAG);
-	RegisterIterator("ITERATE:THISROOM:MALIAS", 1, NULL, GetThisRoomMAlias, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
-	RegisterIterator("ITERATE:THISROOM:POSSIBLE:MALIAS", 1, NULL, GetThisRoomPossibleMAlias, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:MALIAS", 1, NULL, GetThisRoomMAlias, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:POSSIBLE:MALIAS", 1, NULL, GetThisRoomPossibleMAlias, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);

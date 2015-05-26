@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996-2014 by the citadel.org team
+ * Copyright (c) 1996-2015 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -194,11 +194,14 @@ int main(int argc, char **argv)
 			verbose=1;
 			break;
 		default:
-			fprintf(stderr, "usage: webcit "
+			fprintf(stderr, "usage:\nwebcit "
 				"[-i ip_addr] [-p http_port] "
 				"[-c] [-f] "
 				"[-T Templatedebuglevel] "
 				"[-d] [-Z] [-G i18ndumpfile] "
+				"[-u uid] [-h homedirectory] "
+				"[-D daemonizepid] [-v] "
+				"[-g defaultlandingpage] [-B basesize] "
 #ifdef HAVE_OPENSSL
 				"[-s] [-S cipher_suites]"
 #endif
@@ -233,7 +236,7 @@ int main(int argc, char **argv)
 
 	/* Tell 'em who's in da house */
 	syslog(LOG_NOTICE, "%s", PACKAGE_STRING);
-	syslog(LOG_NOTICE, "Copyright (C) 1996-2014 by the citadel.org team");
+	syslog(LOG_NOTICE, "Copyright (C) 1996-2015 by the citadel.org team");
 	syslog(LOG_NOTICE, " ");
 	syslog(LOG_NOTICE, "This program is open source software: you can redistribute it and/or");
 	syslog(LOG_NOTICE, "modify it under the terms of the GNU General Public License, version 3.");

@@ -250,6 +250,6 @@ InitModule_INETCONF
 	WebcitAddUrlHandler(HKEY("save_inetconf"), "", 0, new_save_inetconf, 0);
 	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("SERVCFG:FLUSHINETCFG",0, 0, DeleteInetConfHash, NULL, CTX_NONE);
-	RegisterIterator("ITERATE:VALID:DOMAINNAMES", 1, NULL, GetValidDomainNames, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:VALID:DOMAINNAMES", 1, NULL, GetValidDomainNames, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 }

@@ -1066,95 +1066,6 @@ void GetDefaultValStr(char *WhereTo, size_t nMax, const char *VarName, const cha
 }
 
 
-void set_default_values(void)
-{
-#if 0
-	struct passwd *pw;
-	struct utsname my_utsname;
-	struct hostent *he;
-
-	/* Determine our host name, in case we need to use it as a default */
-	uname(&my_utsname);
-
-	/* set some sample/default values in place of blanks... */
-	GetDefaultVALSTR(c_nodename, my_utsname.nodename);
-	strtok(config.c_nodename, ".");
-	if (IsEmptyStr(config.c_fqdn) ) {
-		if ((he = gethostbyname(my_utsname.nodename)) != NULL) {
-			safestrncpy(config.c_fqdn, he->h_name, sizeof config.c_fqdn);
-		} else {
-			safestrncpy(config.c_fqdn, my_utsname.nodename, sizeof config.c_fqdn);
-		}
-	}
-	GetDefaultVALSTR(c_humannode, _("My System"));
-	GetDefaultVALSTR(c_phonenum, _("US 800 555 1212"));
-
-	GetDefaultVALCHAR(c_initax, 4);
-
-	GetDefaultVALSTR(c_moreprompt, "<more>");
-	GetDefaultVALSTR(c_twitroom, "Trashcan");
-	GetDefaultVALSTR(c_baseroom, BASEROOM);
-	GetDefaultVALSTR(c_aideroom, "Aide");
-	GetDefaultVALINT(c_port_number, 504);
-	
-	GetDefaultVALINT(c_sleeping, 900);
-
-	if (config.c_ctdluid == 0) {
-		pw = getpwnam("citadel");
-		if (pw != NULL) {
-			config.c_ctdluid = pw->pw_uid;
-		}
-	}
-	if (config.c_ctdluid == 0) {
-		pw = getpwnam("bbs");
-		if (pw != NULL) {
-			config.c_ctdluid = pw->pw_uid;
-		}
-	}
-	if (config.c_ctdluid == 0) {
-		pw = getpwnam("guest");
-		if (pw != NULL) {
-			config.c_ctdluid = pw->pw_uid;
-		}
-	}
-	if (config.c_createax == 0) {
-		config.c_createax = 3;
-	}
-	/*
-	 * Negative values for maxsessions are not allowed.
-	 */
-	if (config.c_maxsessions < 0) {
-		config.c_maxsessions = 0;
-	}
-	/* We need a system default message expiry policy, because this is
-	 * the top level and there's no 'higher' policy to fall back on.
-	 * By default, do not expire messages at all.
-	 */
-	if (config.c_ep.expire_mode == 0) {
-		config.c_ep.expire_mode = EXPIRE_MANUAL;
-		config.c_ep.expire_value = 0;
-	}
-
-	/*
-	 * Default port numbers for various services
-	 */
-	GetDefaultVALINT(c_smtp_port, 25);
-	GetDefaultVALINT(c_pop3_port, 110);
-	GetDefaultVALINT(c_imap_port, 143);
-	GetDefaultVALINT(c_msa_port, 587);
-	GetDefaultVALINT(c_smtps_port, 465);
-	GetDefaultVALINT(c_pop3s_port, 995);
-	GetDefaultVALINT(c_imaps_port, 993);
-	GetDefaultVALINT(c_pftcpdict_port, -1);
-	GetDefaultVALINT(c_managesieve_port, 2020);
-	GetDefaultVALINT(c_xmpp_c2s_port, 5222);
-	GetDefaultVALINT(c_xmpp_s2s_port, 5269);
-	GetDefaultVALINT(c_nntp_port, 119);
-	GetDefaultVALINT(c_nntps_port, 563);
-#endif
-}
-
-
 
 int main(int argc, char *argv[])
 {
@@ -1312,8 +1223,6 @@ int main(int argc, char *argv[])
 	if (setup_type == UI_DIALOG) {
 		system("clear 2>/dev/null");
 	}
-
-	set_default_values();
 
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr < eMaxQuestions; ++curr) {

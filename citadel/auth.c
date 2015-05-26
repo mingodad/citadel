@@ -104,19 +104,19 @@ int validate_password(uid_t uid, const char *pass)
 #endif
 	struct passwd *pw;
 	int retval = 0;
-	int flags = 0;
-
-#ifdef PAM_DATA_SILENT
-	flags = PAM_DATA_SILENT;
-#else
-	flags = 0;
-#endif /* PAM_DATA_SILENT */
 
 	if ((pw = getpwuid(uid)) == NULL) {
 		return retval;
 	}
 
 #ifdef HAVE_PAM_START
+
+#ifdef PAM_DATA_SILENT
+	int flags = PAM_DATA_SILENT;
+#else
+	int flags = 0;
+#endif /* PAM_DATA_SILENT */
+
 	pc.conv = conv;
 	pc.appdata_ptr = &data;
 	data.name = pw->pw_name;

@@ -320,10 +320,6 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 
 		t = destoffset;
 		destoffset += base64_encode_blockend(&(dest[destoffset]), &_state);
-		if (t < destoffset) {
-			dest[destoffset++] = '\r';
-			dest[destoffset++] = '\n';
-		}
 	}
 	else {
 		destoffset = base64_encode_block(source, sourcelen, dest, &_state);

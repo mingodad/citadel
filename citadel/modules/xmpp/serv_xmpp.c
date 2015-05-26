@@ -1,6 +1,6 @@
 /*
  * XMPP (Jabber) service for the Citadel system
- * Copyright (c) 2007-2011 by Art Cancro
+ * Copyright (c) 2007-2015 by Art Cancro and citadel.org
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,13 +87,32 @@ static void xmpp_entity_declaration(void *userData, const XML_Char *entityName,
  * Given a source string and a target buffer, returns the string
  * properly escaped for insertion into an XML stream.  Returns a
  * pointer to the target buffer for convenience.
- *
- * BUG: this does not properly handle UTF-8
  */
+static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *CharE)
+{
+	int n = 0;
+        unsigned char test = (1<<7);
+
+	if ((*CharS & 0xC0) != 0xC0) 
+		return 1;
+
+	while ((n < 8) && 
+	       ((test & ((unsigned char)*CharS)) != 0)) 
+	{
+		test = test >> 1;
+		n ++;
+	}
+	if ((n > 6) || ((CharE - CharS) < n))
+		n = 0;
+	return n;
+}
+
 char *xmlesc(char *buf, char *str, int bufsiz)
 {
-	char *ptr;
+	int IsUtf8Sequence;
+	char *ptr, *pche;
 	unsigned char ch;
+	int inlen;
 	int len = 0;
 
 	if (!buf) return(NULL);
@@ -102,6 +121,8 @@ char *xmlesc(char *buf, char *str, int bufsiz)
 	if (!str) {
 		return(buf);
 	}
+	inlen = strlen(str);
+	pche = str + inlen;
 
 	for (ptr=str; *ptr; ptr++) {
 		ch = *ptr;
@@ -127,10 +148,24 @@ char *xmlesc(char *buf, char *str, int bufsiz)
 			buf[len] = 0;
 		}
 		else {
-			char oct[10];
-			sprintf(oct, "&#%o;", ch);
-			strcpy(&buf[len], oct);
-			len += strlen(oct);
+			IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(ptr, pche);
+			if (IsUtf8Sequence)
+			{
+				while ((IsUtf8Sequence > 0) && 
+				       (ptr < pche))
+				{
+					buf[len] = *ptr;
+					ptr ++;
+					--IsUtf8Sequence;
+				}
+			}
+			else
+			{
+				char oct[10];
+				sprintf(oct, "&#%o;", ch);
+				strcpy(&buf[len], oct);
+				len += strlen(oct);
+			}
 		}
 		if ((len + 6) > bufsiz) {
 			return(buf);
