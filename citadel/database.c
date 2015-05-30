@@ -244,30 +244,10 @@ void open_databases(void)
 	char dbfilename[32];
 	u_int32_t flags = 0;
 	int dbversion_major, dbversion_minor, dbversion_patch;
-	int current_dbversion = 0;
 
 	syslog(LOG_DEBUG, "bdb(): open_databases() starting");
 	syslog(LOG_DEBUG, "Compiled db: %s", DB_VERSION_STRING);
-	syslog(LOG_INFO, "  Linked db: %s",
-		db_version(&dbversion_major, &dbversion_minor, &dbversion_patch));
-
-	current_dbversion = (dbversion_major * 1000000) + (dbversion_minor * 1000) + dbversion_patch;
-
-	syslog(LOG_DEBUG, "Calculated dbversion: %d", current_dbversion);
-	syslog(LOG_DEBUG, "  Previous dbversion: %d", CitControl.MMdbversion);
-
-	if ( (getenv("SUPPRESS_DBVERSION_CHECK") == NULL)
-	   && (CitControl.MMdbversion > current_dbversion) ) {
-		syslog(LOG_EMERG, "You are attempting to run the Citadel server using a version");
-		syslog(LOG_EMERG, "of Berkeley DB that is older than that which last created or");
-		syslog(LOG_EMERG, "updated the database.  Because this would probably cause data");
-		syslog(LOG_EMERG, "corruption or loss, the server is aborting execution now.");
-		exit(CTDLEXIT_DB);
-	}
-
-	CitControl.MMdbversion = current_dbversion;
-	put_control();
-
+	syslog(LOG_INFO, "  Linked db: %s", db_version(&dbversion_major, &dbversion_minor, &dbversion_patch));
 	syslog(LOG_INFO, "Linked zlib: %s\n", zlibVersion());
 
 	/*
