@@ -142,9 +142,6 @@ void master_startup(void) {
 	initialize_config_system();
 	validate_config();
 
-	syslog(LOG_INFO, "Acquiring control record");
-	get_control();
-
 	/* Check floor reference counts */
 	check_ref_counts();
 
@@ -223,8 +220,6 @@ void master_cleanup(int exitcode) {
 		}
 	}
 	
-	release_control();
-
 	/* Now go away. */
 	syslog(LOG_NOTICE, "citserver: Exiting with status %d\n", exitcode);
 	fflush(stdout); fflush(stderr);

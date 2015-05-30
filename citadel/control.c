@@ -26,20 +26,6 @@ FILE *control_fp = NULL;
 long control_highest_user = 0;
 
 
-/*
- * lock_control  -  acquire a lock on the control record file.
- *                  This keeps multiple citservers from running concurrently.
- */
-void lock_control(void)
-{
-#if defined(LOCK_EX) && defined(LOCK_NB)
-	if (flock(fileno(control_fp), (LOCK_EX | LOCK_NB))) {
-		syslog(LOG_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
-		syslog(LOG_EMERG, "Is another citserver already running?\n");
-		exit(CTDLEXIT_CONTROL);
-	}
-#endif
-}
 
 /*
  * callback to get highest room number when rebuilding control file
@@ -131,7 +117,6 @@ void get_control(void)
 	if (control_fp == NULL) {
 		control_fp = fopen(file_citadel_control, "rb+");
 		if (control_fp != NULL) {
-			lock_control();
 			rv = fchown(fileno(control_fp), ctdluid, -1);
 			if (rv == -1)
 				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
@@ -145,7 +130,6 @@ void get_control(void)
 	if (control_fp == NULL) {
 		control_fp = fopen(file_citadel_control, "wb+");
 		if (control_fp != NULL) {
-			lock_control();
 			memset(&CitControl, 0, sizeof(struct CitControl));
 
 			rv = fchown(fileno(control_fp), ctdluid, -1);
