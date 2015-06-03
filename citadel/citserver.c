@@ -138,9 +138,10 @@ void master_startup(void) {
 	open_databases();
 
 	/* Load site-specific configuration */
-	syslog(LOG_INFO, "Loading citadel.config");
+	syslog(LOG_INFO, "Initializing configuration system");
 	initialize_config_system();
 	validate_config();
+	migrate_legacy_control_record();
 
 	/* Check floor reference counts */
 	check_ref_counts();

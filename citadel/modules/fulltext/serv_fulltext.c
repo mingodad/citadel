@@ -210,7 +210,7 @@ void ft_index_message(long msgnum, int op) {
  */
 void ft_index_msg(long msgnum, void *userdata) {
 
-	if ((msgnum > CitControl.MMfulltext) && (msgnum <= ft_newhighest)) {
+	if ((msgnum > CtdlGetConfigLong("MMfulltext")) && (msgnum <= ft_newhighest)) {
 		++ft_num_msgs;
 		if (ft_num_msgs > ft_num_alloc) {
 			ft_num_alloc += 1024;
@@ -268,7 +268,10 @@ void do_fulltext_indexing(void) {
 	 * Check to see whether the fulltext index is up to date; if there
 	 * are no messages to index, don't waste any more time trying.
 	 */
-	if ((CitControl.MMfulltext >= CitControl.MMhighest) && (CitControl.MM_fulltext_wordbreaker == FT_WORDBREAKER_ID)) {
+	if (
+		(CtdlGetConfigLong("MMfulltext") >= CtdlGetConfigLong("MMhighest"))
+		&& (CtdlGetConfigInt("MM_fulltext_wordbreaker") == FT_WORDBREAKER_ID)
+	) {
 		return;		/* nothing to do! */
 	}
 	
@@ -280,21 +283,20 @@ void do_fulltext_indexing(void) {
 	 * over.
 	 */
 	begin_critical_section(S_CONTROL);
-	if (CitControl.MM_fulltext_wordbreaker != FT_WORDBREAKER_ID) {
+	if (CtdlGetConfigInt("MM_fulltext_wordbreaker") != FT_WORDBREAKER_ID) {
 		syslog(LOG_DEBUG, "wb ver on disk = %d, code ver = %d",
-			CitControl.MM_fulltext_wordbreaker, FT_WORDBREAKER_ID
+			CtdlGetConfigInt("MM_fulltext_wordbreaker"), FT_WORDBREAKER_ID
 		);
 		syslog(LOG_INFO, "(re)initializing full text index");
 		cdb_trunc(CDB_FULLTEXT);
-		CitControl.MMfulltext = 0L;
-		put_control();
+		CtdlSetConfigLong("MMfulltext", 0);
 	}
 	end_critical_section(S_CONTROL);
 
 	/*
 	 * Now go through each room and find messages to index.
 	 */
-	ft_newhighest = CitControl.MMhighest;
+	ft_newhighest = CtdlGetConfigLong("MMhighest");
 	CtdlForEachRoom(ft_index_room, NULL);	/* load all msg pointers */
 
 	if (ft_num_msgs > 0) {
@@ -353,9 +355,8 @@ void do_fulltext_indexing(void) {
 	/* Save our place so we don't have to do this again */
 	ft_flush_cache();
 	begin_critical_section(S_CONTROL);
-	CitControl.MMfulltext = ft_newhighest;
-	CitControl.MM_fulltext_wordbreaker = FT_WORDBREAKER_ID;
-	put_control();
+	CtdlSetConfigLong("MMfulltext", ft_newhighest);
+	CtdlSetConfigInt("MM_fulltext_wordbreaker", FT_WORDBREAKER_ID);
 	end_critical_section(S_CONTROL);
 	last_index = time(NULL);
 

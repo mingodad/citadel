@@ -116,22 +116,7 @@ enum {
 #define CS_POSTING	4	/* Posting */
 
 
-/*
- * This is the control record for the message base... 
- */
-struct CitControl {
-	long MMhighest;			/* highest message number in file   */
-	unsigned MMflags;		/* Global system flags              */
-	long MMnextuser;		/* highest user number on system    */
-	long MMnextroom;		/* highest room number on system    */
-	int MM_hosted_upgrade_level;	/* Server-hosted upgrade level      */
-	int MM_fulltext_wordbreaker;	/* ID of wordbreaker in use         */
-	long MMfulltext;		/* highest message number indexed   */
-	int MMdbversion;		/* Version of Berkeley DB used on previous server run */
-};
-
 extern int ScheduledShutdown;
-extern struct CitControl CitControl;
 extern uid_t ctdluid;
 
 struct ExpressMessage {

@@ -913,7 +913,7 @@ void imap_select(int num_parms, ConstStr *Params)
 	IAPrintf("* %d RECENT\r\n", new);
 
 	IAPrintf("* OK [UIDVALIDITY %ld] UID validity status\r\n", GLOBAL_UIDVALIDITY_VALUE);
-	IAPrintf("* OK [UIDNEXT %ld] Predicted next UID\r\n", CitControl.MMhighest + 1);
+	IAPrintf("* OK [UIDNEXT %ld] Predicted next UID\r\n", CtdlGetConfigLong("MMhighest") + 1);
 
 	/* Technically, \Deleted is a valid flag, but not a permanent flag,
 	 * because we don't maintain its state across sessions.  Citadel
@@ -1216,7 +1216,7 @@ void imap_status(int num_parms, ConstStr *Params)
 	IPutStr(imaproomname, len);
 	IAPrintf(" (MESSAGES %d ", msgs);
 	IAPrintf("RECENT %d ", new);	/* Initially, new==recent */
-	IAPrintf("UIDNEXT %ld ", CitControl.MMhighest + 1);
+	IAPrintf("UIDNEXT %ld ", CtdlGetConfigLong("MMhighest") + 1);
 	IAPrintf("UNSEEN %d)\r\n", new);
 	
 	/*

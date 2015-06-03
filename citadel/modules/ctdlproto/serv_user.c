@@ -240,22 +240,18 @@ void cmd_creu(char *cmdbuf)
 }
 
 
-
 /*
  * get user parameters
  */
 void cmd_getu(char *cmdbuf)
 {
-
 	if (CtdlAccessCheck(ac_logged_in))
 		return;
 
 	CtdlGetUser(&CC->user, CC->curr_user);
-	cprintf("%d 80|24|%d|\n",
-		CIT_OK,
-		(CC->user.flags & US_USER_SET)
-	);
+	cprintf("%d 80|24|%d|\n", CIT_OK, (CC->user.flags & US_USER_SET));
 }
+
 
 /*
  * set user parameters
@@ -423,7 +419,7 @@ void cmd_gnur(char *argbuf)
 		return;
 	}
 
-	if ((CitControl.MMflags & MM_VALID) == 0) {
+	if ((CtdlGetConfigInt("MMflags") & MM_VALID) == 0) {
 		cprintf("%d There are no unvalidated users.\n", CIT_OK);
 		return;
 	}
@@ -451,13 +447,12 @@ void cmd_gnur(char *argbuf)
 	 */
 
 	begin_critical_section(S_CONTROL);
-	get_control();
-	CitControl.MMflags = CitControl.MMflags & (~MM_VALID);
-	put_control();
+	int flags;
+	flags = CtdlGetConfigInt("MMflags");
+	flags = flags & (~MM_VALID);
+	CtdlSetConfigInt("MMflags", flags);
 	end_critical_section(S_CONTROL);
 	cprintf("%d *** End of registration.\n", CIT_OK);
-
-
 }
 
 
@@ -533,9 +528,9 @@ void cmd_chek(char *argbuf)
 		regis = 1;
 
 	if (CC->user.axlevel >= AxAideU) {
-		get_control();
-		if (CitControl.MMflags & MM_VALID)
+		if (CtdlGetConfigInt("MMflags") & MM_VALID) {
 			vali = 1;
+		}
 	}
 
 	/* check for mail */

@@ -110,7 +110,7 @@ void mrtg_users(void) {
  * Volume of messages submitted
  */
 void mrtg_messages(void) {
-	mrtg_output(CitControl.MMhighest, 0L);
+	mrtg_output(CtdlGetConfigLong("MMhighest"), 0);
 }
 
 

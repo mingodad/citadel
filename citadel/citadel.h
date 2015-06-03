@@ -116,9 +116,7 @@ struct ctdluser {			/* User record                       */
 };
 
 
-/* Bits which may appear in CitControl.MMflags.  Note that these don't
- * necessarily pertain to the message base -- it's just a good place to
- * store any global flags.
+/* Bits which may appear in MMflags.
  */
 #define MM_VALID	4		/* New users need validating        */
 

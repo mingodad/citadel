@@ -16,3 +16,4 @@ void check_control(void);
 long int get_new_message_number (void);
 long int get_new_user_number (void);
 long int get_new_room_number (void);
+void migrate_legacy_control_record(void);

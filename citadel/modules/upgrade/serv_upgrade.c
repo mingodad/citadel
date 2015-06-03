@@ -261,7 +261,7 @@ void guess_time_zone(void) {
  */
 void update_config(void) {
 
-	int oldver = CitControl.MM_hosted_upgrade_level;
+	int oldver = CtdlGetConfigInt("MM_hosted_upgrade_level");
 
 	if (oldver < 606) {
 		CtdlSetConfigInt("c_rfc822_strict_from", 0);
@@ -310,13 +310,12 @@ void update_config(void) {
  */
 void check_server_upgrades(void) {
 
-	get_control();
 	syslog(LOG_INFO, "Existing database version on disk is %d.%02d",
-		(CitControl.MM_hosted_upgrade_level / 100),
-		(CitControl.MM_hosted_upgrade_level % 100)
+		(CtdlGetConfigInt("MM_hosted_upgrade_level") / 100),
+		(CtdlGetConfigInt("MM_hosted_upgrade_level") % 100)
 	);
 
-	if (CitControl.MM_hosted_upgrade_level < REV_LEVEL) {
+	if (CtdlGetConfigInt("MM_hosted_upgrade_level") < REV_LEVEL) {
 		syslog(LOG_WARNING,
 			"Server hosted updates need to be processed at this time.  Please wait..."
 		);
@@ -327,29 +326,29 @@ void check_server_upgrades(void) {
 
 	update_config();
 
-	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 555)) {
+	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 555)) {
 		syslog(LOG_EMERG, "This database is too old to be upgraded.  Citadel server will exit.");
 		exit(EXIT_FAILURE);
 	}
-	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 591)) {
+	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 591)) {
 		bump_mailbox_generation_numbers();
 	}
-	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 608)) {
+	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 608)) {
 		convert_ctdluid_to_minusone();
 	}
-	if ((CitControl.MM_hosted_upgrade_level > 000) && (CitControl.MM_hosted_upgrade_level < 659)) {
+	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 659)) {
 		rebuild_euid_index();
 	}
-	if (CitControl.MM_hosted_upgrade_level < 735) {
+	if (CtdlGetConfigInt("MM_hosted_upgrade_level") < 735) {
 		fix_sys_user_name();
 	}
-	if (CitControl.MM_hosted_upgrade_level < 736) {
+	if (CtdlGetConfigInt("MM_hosted_upgrade_level") < 736) {
 		rebuild_usersbynumber();
 	}
-	if (CitControl.MM_hosted_upgrade_level < 790) {
+	if (CtdlGetConfigInt("MM_hosted_upgrade_level") < 790) {
 		remove_thread_users();
 	}
-	if (CitControl.MM_hosted_upgrade_level < 810) {
+	if (CtdlGetConfigInt("MM_hosted_upgrade_level") < 810) {
 		struct ctdlroom QRoom;
 		if (!CtdlGetRoom(&QRoom, SMTP_SPOOLOUT_ROOM)) {
 			QRoom.QRdefaultview = VIEW_QUEUE;
@@ -361,7 +360,7 @@ void check_server_upgrades(void) {
 		}
 	}
 
-	CitControl.MM_hosted_upgrade_level = REV_LEVEL;
+	CtdlSetConfigInt("MM_hosted_upgrade_level", REV_LEVEL);
 
 	/*
 	 * Negative values for maxsessions are not allowed.
@@ -378,8 +377,6 @@ void check_server_upgrades(void) {
 		CtdlSetConfigInt("c_ep_mode", EXPIRE_MANUAL);
 		CtdlSetConfigInt("c_ep_value", 0);
 	}
-
-	put_control();
 }
 
 

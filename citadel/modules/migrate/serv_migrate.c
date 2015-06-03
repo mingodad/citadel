@@ -16,8 +16,7 @@
  * Explanation of <progress> tags:
  *
  * 0%              nothing
- * 1%              finished exporting config
- * 2%              finished exporting control
+ * 2%              finished exporting configuration
  * 7%              finished exporting users
  * 12%             finished exporting openids
  * 17%             finished exporting rooms
@@ -61,7 +60,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "user_ops.h"
-#include "control.h"
 #include "euidindex.h"
 #include "ctdl_module.h"
 
@@ -452,21 +450,10 @@ void migr_do_export(void) {
 	cprintf("<version>%d</version>\n", REV_LEVEL);
 	cprintf("<progress>%d</progress>\n", 0);
 
-	/* export the config file (this is done using x-macros) */
+	/* export the configuration database */
 	migr_export_configs();
-	cprintf("<progress>%d</progress>\n", 1);
-	
-	/* Export the control file */
-	get_control();
-	client_write("<control>\n", 10);
-	cprintf("<control_highest>%ld</control_highest>\n", CitControl.MMhighest);
-	cprintf("<control_flags>%u</control_flags>\n", CitControl.MMflags);
-	cprintf("<control_nextuser>%ld</control_nextuser>\n", CitControl.MMnextuser);
-	cprintf("<control_nextroom>%ld</control_nextroom>\n", CitControl.MMnextroom);
-	cprintf("<control_version>%d</control_version>\n", CitControl.MM_hosted_upgrade_level);
-	client_write("</control>\n", 11);
 	cprintf("<progress>%d</progress>\n", 2);
-
+	
 	if (Ctx->kill_me == 0)	migr_export_users();
 	cprintf("<progress>%d</progress>\n", 7);
 	if (Ctx->kill_me == 0)	migr_export_openids();
@@ -564,26 +551,6 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 	else if (!strcasecmp(el, "config")) {
 		syslog(LOG_DEBUG, "\033[31m IMPORT OF CONFIG START ELEMENT FIXME\033\0m");
 	}
-
-}
-
-
-
-int migr_controlrecord(void *data, const char *el)
-{
-	if (!strcasecmp(el, "control_highest"))		CitControl.MMhighest = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_flags"))		CitControl.MMflags = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_nextuser"))		CitControl.MMnextuser = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_nextroom"))		CitControl.MMnextroom = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_version"))		CitControl.MM_hosted_upgrade_level = atoi(ChrPtr(migr_chardata));
-
-	else if (!strcasecmp(el, "control")) {
-		CitControl.MMfulltext = (-1L);	/* always flush */
-		put_control();
-		syslog(LOG_INFO, "Completed import of control record\n");
-	}
-	else return 0;
-	return 1;
 
 }
 
@@ -696,10 +663,6 @@ void migr_xml_end(void *data, const char *el)
 		CtdlSetConfigInt("c_enable_fulltext", 0);	/* always disable FIXME put this somewhere more appropriate */
 	}
 
-	/*** CONTROL ***/
-	else if ((!strncasecmp(el, HKEY("control"))) && 
-		 migr_controlrecord(data, el))
-		; /* Nothing to do anymore */
 	/*** USER ***/
 	else if ((!strncasecmp(el, HKEY("u_"))) && 
 		 migr_userrecord(data, el))

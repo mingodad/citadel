@@ -21,9 +21,21 @@
 #include "citserver.h"
 #include "user_ops.h"
 
-struct CitControl CitControl;
-FILE *control_fp = NULL;
 long control_highest_user = 0;
+
+/*
+ * This is the control record for the message base... 
+ */
+struct legacy_ctrl_format {
+	long MMhighest;			/* highest message number in file   */
+	unsigned MMflags;		/* Global system flags              */
+	long MMnextuser;		/* highest user number on system    */
+	long MMnextroom;		/* highest room number on system    */
+	int MM_hosted_upgrade_level;	/* Server-hosted upgrade level      */
+	int MM_fulltext_wordbreaker;	/* ID of wordbreaker in use         */
+	long MMfulltext;		/* highest message number indexed   */
+	int MMdbversion;		/* Version of Berkeley DB used on previous server run */
+};
 
 
 
@@ -40,9 +52,9 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 	int room_fixed = 0;
 	int message_fixed = 0;
 	
-	if (qrbuf->QRnumber > CitControl.MMnextroom)
+	if (qrbuf->QRnumber > CtdlGetConfigLong("MMnextroom"))
 	{
-		CitControl.MMnextroom = qrbuf->QRnumber;
+		CtdlSetConfigLong("MMnextroom", qrbuf->QRnumber);
 		room_fixed = 1;
 	}
 		
@@ -61,18 +73,20 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 	{
 		for (c=0; c<num_msgs; c++)
 		{
-			if (msglist[c] > CitControl.MMhighest)
+			if (msglist[c] > CtdlGetConfigLong("MMhighest"))
 			{
-				CitControl.MMhighest = msglist[c];
+				CtdlSetConfigLong("MMhighest", msglist[c]);
 				message_fixed = 1;
 			}
 		}
 	}
 	cdb_free(cdbfr);
-	if (room_fixed)
+	if (room_fixed) {
 		syslog(LOG_INFO, "Control record checking....Fixed room counter\n");
-	if (message_fixed)
+	}
+	if (message_fixed) {
 		syslog(LOG_INFO, "Control record checking....Fixed message count\n");
+	}
 	return;
 }
 
@@ -85,9 +99,9 @@ void control_find_user (struct ctdluser *EachUser, void *out_data)
 {
 	int user_fixed = 0;
 	
-	if (EachUser->usernum > CitControl.MMnextuser)
+	if (EachUser->usernum > CtdlGetConfigLong("MMnextuser"))
 	{
-		CitControl.MMnextuser = EachUser->usernum;
+		CtdlSetConfigLong("MMnextuser", EachUser->usernum);
 		user_fixed = 1;
 	}
 	if(user_fixed)
@@ -96,91 +110,38 @@ void control_find_user (struct ctdluser *EachUser, void *out_data)
 
 
 /*
- * get_control  -  read the control record into memory.
+ * If we have a legacy format control record on disk, import it.
  */
-void get_control(void)
+void migrate_legacy_control_record(void)
 {
-	static int already_have_control = 0;
-	int rv = 0;
+	FILE *fp = NULL;
+	struct legacy_ctrl_format c;
+	memset(&c, 0, sizeof(c));
 
-	/*
-	 * If we already have the control record in memory, there's no point
-	 * in reading it from disk again.
-	 */
-	if (already_have_control) return;
+	fp = fopen(file_citadel_control, "rb+");
+	if (fp != NULL) {
+		syslog(LOG_INFO, "Legacy format control record found -- importing to db");
+		fread(&c, sizeof(struct legacy_ctrl_format), 1, fp);
+		
+		CtdlSetConfigLong(	"MMhighest",			c.MMhighest);
+		CtdlSetConfigInt(	"MMflags",			c.MMflags);
+		CtdlSetConfigLong(	"MMnextuser",			c.MMnextuser);
+		CtdlSetConfigLong(	"MMnextroom",			c.MMnextroom);
+		CtdlSetConfigInt(	"MM_hosted_upgrade_level",	c.MM_hosted_upgrade_level);
+		CtdlSetConfigInt(	"MM_fulltext_wordbreaker",	c.MM_fulltext_wordbreaker);
+		CtdlSetConfigLong(	"MMfulltext",			c.MMfulltext);
 
-	/* Zero it out.  If the control record on disk is missing or short,
-	 * the system functions with all control record fields initialized
-	 * to zero.
-	 */
-	memset(&CitControl, 0, sizeof(struct CitControl));
-	if (control_fp == NULL) {
-		control_fp = fopen(file_citadel_control, "rb+");
-		if (control_fp != NULL) {
-			rv = fchown(fileno(control_fp), ctdluid, -1);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust accessrights of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
+		fclose(fp);
+		if (unlink(file_citadel_control) != 0) {
+			fprintf(stderr, "Unable to remove legacy control record %s after migrating it.\n", file_citadel_control);
+			fprintf(stderr, "Exiting to prevent data corruption.\n");
+			exit(CTDLEXIT_CONFIG);
 		}
 	}
-	if (control_fp == NULL) {
-		control_fp = fopen(file_citadel_control, "wb+");
-		if (control_fp != NULL) {
-			memset(&CitControl, 0, sizeof(struct CitControl));
-
-			rv = fchown(fileno(control_fp), ctdluid, -1);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-
-			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust accessrights of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-			rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-			rewind(control_fp);
-		}
-	}
-	if (control_fp == NULL) {
-		syslog(LOG_ALERT, "ERROR opening %s: %s\n", file_citadel_control, strerror(errno));
-		return;
-	}
-
-	rewind(control_fp);
-	rv = fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
-	if (rv == -1)
-		syslog(LOG_EMERG, "Failed to read Controlfile: %s [%s]\n", 
-		       file_citadel_control, strerror(errno));
-	already_have_control = 1;
-	rv = chown(file_citadel_control, ctdluid, (-1));
-	if (rv == -1)
-		syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
-		       file_citadel_control, strerror(errno));	
 }
 
-/*
- * put_control  -  write the control record to disk.
- */
-void put_control(void)
-{
-	int rv = 0;
 
-	if (control_fp != NULL) {
-		rewind(control_fp);
-		rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
-		if (rv == -1)
-			syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
-			       file_citadel_control, strerror(errno));
-		fflush(control_fp);
-	}
-}
+
 
 
 /*
@@ -188,25 +149,12 @@ void put_control(void)
  */
 void check_control(void)
 {
-	syslog(LOG_INFO, "Checking/re-building control record\n");
-	get_control();
-	// Find highest room number and message number.
+	syslog(LOG_INFO, "Sanity checking the recorded highest message, user, and room numbers\n");
 	CtdlForEachRoom(control_find_highest, NULL);
 	ForEachUser(control_find_user, NULL);
-	put_control();
 }
 
 
-/*
- * release_control - close our fd on exit
- */
-void release_control(void)
-{
-	if (control_fp != NULL) {
-		fclose(control_fp);
-	}
-	control_fp = NULL;
-}
 
 /*
  * get_new_message_number()  -  Obtain a new, unique ID to be used for a message.
@@ -215,9 +163,9 @@ long get_new_message_number(void)
 {
 	long retval = 0L;
 	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = ++CitControl.MMhighest;
-	put_control();
+	retval = CtdlGetConfigLong("MMhighest");
+	++retval;
+	CtdlSetConfigLong("MMhighest", retval);
 	end_critical_section(S_CONTROL);
 	return(retval);
 }
@@ -228,15 +176,12 @@ long get_new_message_number(void)
  * This provides a quick way to initialise a variable that might be used to indicate
  * messages that should not be processed. EG. a new Sieve script will use this
  * to record determine that messages older than this should not be processed.
+ *
+ * (Why is this function here?  Can't we just go straight to the config variable it fetches?)
  */
 long CtdlGetCurrentMessageNumber(void)
 {
-	long retval = 0L;
-	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = CitControl.MMhighest;
-	end_critical_section(S_CONTROL);
-	return(retval);
+	return CtdlGetConfigLong("MMhighest");
 }
 
 
@@ -247,9 +192,9 @@ long get_new_user_number(void)
 {
 	long retval = 0L;
 	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = ++CitControl.MMnextuser;
-	put_control();
+	retval = CtdlGetConfigLong("MMnextuser");
+	++retval;
+	CtdlSetConfigLong("MMnextuser", retval);
 	end_critical_section(S_CONTROL);
 	return(retval);
 }
@@ -263,9 +208,9 @@ long get_new_room_number(void)
 {
 	long retval = 0L;
 	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = ++CitControl.MMnextroom;
-	put_control();
+	retval = CtdlGetConfigLong("MMnextroom");
+	++retval;
+	CtdlSetConfigLong("MMnextroom", retval);
 	end_critical_section(S_CONTROL);
 	return(retval);
 }
@@ -645,8 +590,7 @@ void cmd_conf(char *argbuf)
 		 * index so it doesn't try to use it later.
 		 */
 		if (CtdlGetConfigInt("c_enable_fulltext") == 0) {
-			CitControl.MM_fulltext_wordbreaker = 0;
-			put_control();
+			CtdlSetConfigInt("MM_fulltext_wordbreaker", 0);
 		}
 	}
 

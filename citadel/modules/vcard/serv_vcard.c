@@ -73,10 +73,12 @@
  * set global flag calling for an aide to validate new users
  */
 void set_mm_valid(void) {
+	int flags = 0;
+
 	begin_critical_section(S_CONTROL);
-	get_control();
-	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
-	put_control();
+	flags = CtdlGetConfigInt("MMflags");
+	flags = flags | MM_VALID ;
+	CtdlSetConfigInt("MMflags", flags);
 	end_critical_section(S_CONTROL);
 }
 
