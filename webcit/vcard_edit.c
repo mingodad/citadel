@@ -34,47 +34,48 @@ struct vcField {
 	VCStrEnum Type;
 	vcField *Sub;
 	long cval;
+	const char *Str;
 };
 
 vcField VCStr_Ns [] = {
-	{{HKEY("last")},   FlatString, NULL, 0},
-	{{HKEY("first")},  FlatString, NULL, 0},
-	{{HKEY("middle")}, FlatString, NULL, 0},
-	{{HKEY("prefix")}, FlatString, NULL, 0},
-	{{HKEY("suffix")}, FlatString, NULL, 0},
-	{{HKEY("")},       TerminateList, NULL, 0}
+	{{HKEY("last")},   FlatString,    NULL, 0, "Last Name"},
+	{{HKEY("first")},  FlatString,    NULL, 0, "First Name"},
+	{{HKEY("middle")}, FlatString,    NULL, 0, "Middle Name"},
+	{{HKEY("prefix")}, FlatString,    NULL, 0, "Prefix"},
+	{{HKEY("suffix")}, FlatString,    NULL, 0, "Suffix"},
+	{{HKEY("")},       TerminateList, NULL, 0, ""}
 };
 
 vcField VCStr_Addrs [] = {
-	{{HKEY("POBox")},   FlatString, NULL, 0},
-	{{HKEY("address")},  FlatString, NULL, 0},
-	{{HKEY("address2")}, FlatString, NULL, 0},
-	{{HKEY("city")}, FlatString, NULL, 0},
-	{{HKEY("state")}, FlatString, NULL, 0},
-	{{HKEY("zip")}, FlatString, NULL, 0},
-	{{HKEY("country")}, FlatString, NULL, 0},
-	{{HKEY("")},       TerminateList, NULL, 0}
+	{{HKEY("POBox")},    FlatString,    NULL, 0, "PO box"},
+	{{HKEY("address")},  FlatString,    NULL, 0, "Address"},
+	{{HKEY("address2")}, FlatString,    NULL, 0, ""},
+	{{HKEY("city")},     FlatString,    NULL, 0, "City"},
+	{{HKEY("state")},    FlatString,    NULL, 0, "State"},
+	{{HKEY("zip")},      FlatString,    NULL, 0, "ZIP code"},
+	{{HKEY("country")},  FlatString,    NULL, 0, "Country"},
+	{{HKEY("")},         TerminateList, NULL, 0, ""}
 };
 
 vcField VCStrE [] = {
-	{{HKEY("n")},               StringCluster, VCStr_Ns, 0}, /* N is name, but only if there's no FN already there */
-	{{HKEY("fn")},              FlatString, NULL, 0}, /* FN (full name) is a true 'display name' field */
-	{{HKEY("title")},           FlatString, NULL, 0},   /* title */
-	{{HKEY("org")},             FlatString, NULL, 0},    /* organization */
-	{{HKEY("email")},           EmailAddr, NULL, 0},
-	{{HKEY("tel")},             PhoneNumber, NULL, 0},
-	{{HKEY("adr")},             StringCluster, VCStr_Addrs, 0},
-	{{HKEY("photo")},           Base64BinaryAttachment, NULL, 0},
-	{{HKEY("version")},         Number, NULL, 0},
-	{{HKEY("rev")},             Number, NULL, 0},
-	{{HKEY("label")},           FlatString, NULL, 0},
-	{{HKEY("uid")},             FlatString, NULL, 0},
-	{{HKEY("tel;home")},        PhoneNumber, NULL, 0},
-	{{HKEY("tel;work")},        PhoneNumber, NULL, 0},
-	{{HKEY("tel;fax")},         PhoneNumber, NULL, 0},
-	{{HKEY("tel;cell")},        PhoneNumber, NULL, 0},
-	{{HKEY("email;internet")},  EmailAddr, NULL, 0},
-	{{HKEY("")},        TerminateList, NULL, 0}
+	{{HKEY("version")},         Number,                 NULL,        0, ""},
+	{{HKEY("rev")},             Number,                 NULL,        0, ""},
+	{{HKEY("label")},           FlatString,             NULL,        0, ""},
+	{{HKEY("uid")},             FlatString,             NULL,        0, ""},
+	{{HKEY("n")},               StringCluster,          VCStr_Ns,    0, ""}, /* N is name, but only if there's no FN already there */
+	{{HKEY("fn")},              FlatString,             NULL,        0, ""}, /* FN (full name) is a true 'display name' field */
+	{{HKEY("title")},           FlatString,             NULL,        0, "Title:"},
+	{{HKEY("org")},             FlatString,             NULL,        0, "Organization:"},/* organization */
+	{{HKEY("email")},           EmailAddr,              NULL,        0, "E-mail:"},
+	{{HKEY("tel")},             PhoneNumber,            NULL,        0, "Telephone:"},
+	{{HKEY("adr")},             StringCluster,          VCStr_Addrs, 0, "Address:"},
+	{{HKEY("photo")},           Base64BinaryAttachment, NULL,        0, "Photo:"},
+	{{HKEY("tel;home")},        PhoneNumber,            NULL,        0, " (home)"},
+	{{HKEY("tel;work")},        PhoneNumber,            NULL,        0, " (work)"},
+	{{HKEY("tel;fax")},         PhoneNumber,            NULL,        0, " (fax)"},
+	{{HKEY("tel;cell")},        PhoneNumber,            NULL,        0, " (cell)"},
+	{{HKEY("email;internet")},  EmailAddr,              NULL,        0, "E-mail:"},
+	{{HKEY("")},                TerminateList,          NULL,        0, ""}
 };
 
 ConstStr VCStr [] = {
@@ -100,11 +101,14 @@ ConstStr VCStr [] = {
 HashList *DefineToToken = NULL;
 HashList *VCTokenToDefine = NULL;
 HashList *vcNames = NULL; /* todo: fill with the name strings */
+
+
 void RegisterVCardToken(vcField* vf, StrBuf *name, int inTokenCount)
 {
 	RegisterTokenParamDefine(SKEY(name), vf->cval);
 	Put(DefineToToken, LKEY(vf->cval), vf, reference_free_handler);
-	syslog(LOG_DEBUG, "Token: %s -> %d, %d", 
+
+	syslog(LOG_DEBUG, "Token: %s -> %ld, %d", 
 	       ChrPtr(name),
 	       vf->cval, 
 	       inTokenCount);
@@ -213,6 +217,55 @@ void tmpl_vcard_name_str(StrBuf *Target, WCTemplputParams *TP)
 	}
 }
 
+int filter_VC_ByType(const char* key, long len, void *Context, StrBuf *Target, WCTemplputParams *TP)
+{
+	long searchType;
+	long type = 0;
+	void *vvcField;
+	int rc = 0;
+
+	memcpy(type, key, sizeof(long));
+	searchType = GetTemplateTokenNumber(Target, TP, 3, 0);/// todo: which?
+	
+	if (GetHash(DefineToToken, LKEY(type), &vvcField) &&
+	    (vvcField != NULL))
+	{
+		vcField *t = (vcField*) vvcField;
+		if (t && t->Type == searchType) {
+			rc = 1;	
+		}
+	}
+	return rc;
+}
+
+int conditional_VC_Havetype(StrBuf *Target, WCTemplputParams *TP)
+{
+	HashList *vc = (HashList*) CTX(CTX_VCARD);
+	long HaveFieldType = GetTemplateTokenNumber(Target, TP, 2, 0);
+	int rc = 0;	
+	void *vVCitem;
+	const char *Key;
+	long len;
+	HashPos *it = GetNewHashPos(vc, 0);
+	while (GetNextHashPos(vc, it, &len, &Key, &vVCitem) && 
+	       (vVCitem != NULL)) 
+	{
+		void *vvcField;
+		long type = 0;
+		memcpy(&type, Key, sizeof(long));
+		if (GetHash(DefineToToken, LKEY(type), &vvcField) &&
+		    (vvcField != NULL))
+		{
+			vcField *t = (vcField*) vvcField;
+			if (t && t->Type == HaveFieldType) {
+				rc = 1;
+				break;
+			}
+		}
+	}
+	DeleteHashPos(&it);
+	return rc;
+}
 
 /*
  * Record compare function for sorting address book indices
@@ -795,17 +848,16 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 			syslog(LOG_DEBUG, "got this token: %s, found: %s", ChrPtr(thisVCToken), thisField->STR.Key);
 			switch (thisField->Type) {
 			case StringCluster: {
-				int i = 0;
+				int j = 0;
 				const char *Pos = NULL;
-
 				StrBuf *thisArray = NewStrBufPlain(v->prop[i].value, -1);
 				StrBuf *Buf = NewStrBufPlain(NULL, StrLength(thisArray));
-				while (thisField->Sub[i].STR.len > 0) {
-					StrBufExtract_NextToken(thisArray, Buf, &Pos, ';');
+				while (thisField->Sub[j].STR.len > 0) {
+					StrBufExtract_NextToken(Buf, thisArray, &Pos, ';');
 					ThisFieldStr = NewStrBufDup(Buf);
 					
-					PutVcardItem(&thisField->Sub[i], thisVC, ThisFieldStr, is_qp, Swap);
-					i++;
+					PutVcardItem(&thisField->Sub[j], thisVC, ThisFieldStr, is_qp, Swap);
+					j++;
 				}
 			}
 				break;
@@ -1829,5 +1881,17 @@ InitModule_VCARD
 	RegisterCTX(CTX_VCARD);
 	RegisterNamespace("VC:ITEM", 2, 2, tmpl_vcard_item, preeval_vcard_item, CTX_VCARD);
 	RegisterNamespace("VC:NAME", 1, 1, tmpl_vcard_name_str, preeval_vcard_name_str, CTX_VCARD);
+	REGISTERTokenParamDefine(FlatString);
+	REGISTERTokenParamDefine(StringCluster);
+	REGISTERTokenParamDefine(PhoneNumber);
+	REGISTERTokenParamDefine(EmailAddr);
+	REGISTERTokenParamDefine(Street);
+	REGISTERTokenParamDefine(Number);
+	REGISTERTokenParamDefine(AliasFor);
+	REGISTERTokenParamDefine(Base64BinaryAttachment);
+	REGISTERTokenParamDefine(TerminateList);
+
+	RegisterConditional("VC:HAVE:TYPE",      1, conditional_VC_Havetype, CTX_VCARD);
+	RegisterFilteredIterator("VC:TYPE", 1, NULL, NULL, NULL, NULL, filter_VC_ByType, CTX_STRBUF, CTX_VCARD, IT_NOFLAG);
 }
 
