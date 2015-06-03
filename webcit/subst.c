@@ -1984,6 +1984,7 @@ typedef struct _HashIterator {
 	RetrieveHashlistFunc GetHash;
 	HashDestructorFunc Destructor;
 	SubTemplFunc DoSubTemplate;
+	FilterByParamFunc Filter;
 } HashIterator;
 
 void RegisterITERATOR(const char *Name, long len, 
@@ -1992,6 +1993,7 @@ void RegisterITERATOR(const char *Name, long len,
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor,
+		      FilterByParamFunc Filter,
 		      CtxType ContextType, 
 		      CtxType XPectContextType, 
 		      int Flags)
@@ -2005,6 +2007,7 @@ void RegisterITERATOR(const char *Name, long len,
 	It->GetHash = GetHash;
 	It->DoSubTemplate = DoSubTempl;
 	It->Destructor = Destructor;
+	It->Filter = Filter;
 	It->ContextType = ContextType;
 	It->XPectContextType = XPectContextType;
 	It->Flags = Flags;
@@ -2158,6 +2161,13 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 		}
 		while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
 			if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
+
+				if ((It->Filter != NULL) &&
+				    It->Filter(Status.Key, Status.KeyLen, vContext, Target, TP)) 
+				{
+					continue;
+				}
+
 				if (DetectGroupChange && Status.n > 0) {
 					Status.GroupChange = SortBy->GroupChange(vContext, vLastContext);
 				}
