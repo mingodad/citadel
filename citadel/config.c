@@ -415,7 +415,7 @@ char *CtdlGetConfigStr(char *key)
 	/* First look in memory */
 	if (GetHash(ctdlconfig, key, key_len, (void *)&value))
 	{
-		syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = '%s'\033[0m", key, value);
+		if (strcmp(key, "c_min_workers")) syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = '%s'\033[0m", key, value);
 		return value;
 	}
 
