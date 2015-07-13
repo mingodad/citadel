@@ -156,7 +156,7 @@ DB_PerformNext(struct ev_loop *loop, ev_idle *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	SetEVState(IO, eDBNext);
-	IO->Now = ev_now(event_db);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_db);
 	EV_syslog(LOG_DEBUG, "%s()", __FUNCTION__);
 	become_session(IO->CitContext);
 
@@ -220,7 +220,7 @@ static void IO_abort_shutdown_callback(struct ev_loop *loop,
 
 	SetEVState(IO, eIOAbort);
 	EV_syslog(LOG_DEBUG, "EVENT Q: %s\n", __FUNCTION__);
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	assert(IO->ShutdownAbort);
 	IO->ShutdownAbort(IO);
 }
@@ -543,7 +543,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 	const char *errmsg = NULL;
 
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	become_session(IO->CitContext);
 #ifdef BIGBAD_IODBG
 	{
@@ -720,7 +720,7 @@ IO_Timeout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	SetEVState(IO, eIOTimeout);
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	ev_timer_stop (event_base, &IO->rw_timeout);
 	become_session(IO->CitContext);
 
@@ -749,7 +749,7 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	SetEVState(IO, eIOConnfail);
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	ev_timer_stop (event_base, &IO->conn_fail);
 
 	if (IO->SendBuf.fd != 0)
@@ -782,7 +782,7 @@ IO_connfailimmediate_callback(struct ev_loop *loop,
 	AsyncIO *IO = watcher->data;
 
 	SetEVState(IO, eIOConnfailNow);
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	ev_idle_stop (event_base, &IO->conn_fail_immediate);
 
 	if (IO->SendBuf.fd != 0)
@@ -812,7 +812,7 @@ IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
         int             err;
 
 	SetEVState(IO, eIOConnNow);
-        IO->Now = ev_now(event_base);
+        IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
         EVM_syslog(LOG_DEBUG, "connect() succeeded.\n");
 
         ev_io_stop(loop, &IO->conn_event);
@@ -846,7 +846,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	ssize_t nbytes;
 	AsyncIO *IO = watcher->data;
 
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	switch (IO->NextState) {
 	case eReadFile:
 		nbytes = FileRecvChunked(&IO->IOB, &errmsg);
@@ -932,7 +932,7 @@ IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 	AsyncIO *IO = watcher->data;
 
 	SetEVState(IO, eCaresFinished);
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	EV_syslog(LOG_DEBUG, "event: %s\n", __FUNCTION__);
 	become_session(IO->CitContext);
 	assert(IO->DNS.Query->PostDNS);
