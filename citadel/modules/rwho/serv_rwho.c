@@ -214,6 +214,70 @@ void cmd_rwho(char *argbuf) {
 	cprintf("000\n");
 }
 
+/*
+ * check for async io jobs that are stuck (didn't ping back for 10 mins)
+ */
+void dead_io_check(void) {
+	struct CitContext *nptr;
+	int nContexts, i;
+	char real_room[ROOMNAMELEN];
+	
+	/* So that we don't keep the context list locked for a long time
+	 * we create a copy of it first
+	 */
+	nptr = CtdlGetContextArray(&nContexts) ;
+	if (!nptr)
+	{
+		/* Couldn't malloc so we have to bail but stick to the protocol */
+		return;
+	}
+
+	time_t now = time(NULL);
+	time_t idle;
+
+	for (i=0; i<nContexts; i++) 
+	{
+		if ((nptr[i].state != CON_SYS) || (nptr[i].IO == NULL) || (nptr[i].lastcmd == 0))
+			continue;
+
+		if (nptr[i].kill_me != 0)
+			continue;
+		idle = now - nptr[i].lastcmd;
+		if (idle < 600) 
+			continue;
+
+		GenerateRoomDisplay(real_room, &nptr[i], CC);
+
+		syslog(LOG_WARNING,
+		       "Found stuck event context: CC[%d] "
+
+		       "Username: '%s' "
+		       "Room: '%s' "
+		       "while talking to host: '%s' "
+		       "Status: '%s' "
+		       "stuck in IO State: '%s' "
+
+		       "idle since: %d:%d "
+		       "Triggering context termination now!",
+
+		       nptr[i].cs_pid,
+
+		       nptr[i].curr_user,
+		       real_room,
+		       nptr[i].cs_host,
+		       nptr[i].cs_clientname,
+		       nptr[i].lastcmdname,
+
+		       (int) idle / 60,
+		       (int) idle % 60);
+
+		CtdlTerminateOtherSession(nptr[i].cs_pid);
+	}
+	
+	/* release out copy of the context list */
+	free(nptr);
+
+}
 
 /*
  * Masquerade roomname
@@ -317,6 +381,8 @@ CTDL_MODULE_INIT(rwho)
 	        CtdlRegisterProtoHook(cmd_rchg, "RCHG", "Masquerade roomname");
         	CtdlRegisterProtoHook(cmd_uchg, "UCHG", "Masquerade username");
 	        CtdlRegisterProtoHook(cmd_stel, "STEL", "Enter/exit stealth mode");
+		CtdlRegisterSessionHook(dead_io_check, EVT_TIMER, PRIO_QUEUE + 50);
+
 	}
 	
 	/* return our module name for the log */
