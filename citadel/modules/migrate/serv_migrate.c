@@ -1051,6 +1051,7 @@ void cmd_migr(char *cmdbuf) {
 	
 	if (CtdlTrySingleUser())
 	{
+		CtdlDisableHouseKeeping();
 		CtdlMakeTempFileName(migr_tempfilename1, sizeof migr_tempfilename1);
 		CtdlMakeTempFileName(migr_tempfilename2, sizeof migr_tempfilename2);
 
@@ -1070,7 +1071,8 @@ void cmd_migr(char *cmdbuf) {
 
 		unlink(migr_tempfilename1);
 		unlink(migr_tempfilename2);
-		
+
+		CtdlEnableHouseKeeping();
 		CtdlEndSingleUser();
 	}
 	else
