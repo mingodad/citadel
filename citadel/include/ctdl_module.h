@@ -168,6 +168,12 @@ void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc) (void *arg))
 
 void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name);
 
+/*
+ * if you say a) (which may take a while)
+ * don't forget to say b)
+ */
+void CtdlDisableHouseKeeping(void);
+void CtdlEnableHouseKeeping(void);
 
 /*
  * Directory services hooks for LDAP etc
