@@ -710,7 +710,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	if (Imap->cached_body == NULL) {
 		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		loading_body_now = 1;
-		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0));
+		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0), 1);
 	}
 
 	/* Now figure out what the client wants, and get it */
@@ -1085,7 +1085,7 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 				msg = NULL;
 			}
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 1, 1);
 				body_loaded = 1;
 			}
 			imap_fetch_bodystructure(Imap->msgids[seq-1],
@@ -1093,14 +1093,14 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 		}
 		else if (!strcasecmp(Cmd->Params[i].Key, "ENVELOPE")) {
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0, 1);
 				body_loaded = 0;
 			}
 			imap_fetch_envelope(msg);
 		}
 		else if (!strcasecmp(Cmd->Params[i].Key, "INTERNALDATE")) {
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0, 1);
 				body_loaded = 0;
 			}
 			imap_fetch_internaldate(msg);

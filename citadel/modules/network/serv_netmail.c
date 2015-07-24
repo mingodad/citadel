@@ -595,7 +595,7 @@ void network_spool_msg(long msgnum,
 
 	sc = (SpoolControl *)userdata;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 
 	if (msg == NULL)
 	{

@@ -126,7 +126,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 			int is_unique,			/* Del others of this type? */
 			unsigned int flags		/* Internal save flags */
 );
-struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
+struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body, int run_msg_hooks);
 struct CtdlMessage * CM_Duplicate
                        (struct CtdlMessage *OrgMsg);
 int  CM_IsEmpty        (struct CtdlMessage *Msg, eMsgField which);
@@ -150,10 +150,12 @@ int  CM_IsValidMsg     (struct CtdlMessage *msg);
 		Message->cm_fields[Which] + Message->cm_lengths[Which]
 
 void CtdlSerializeMessage(struct ser_ret *, struct CtdlMessage *);
+struct CtdlMessage *CtdlDeserializeMessage(long msgnum, int with_body, const char *Buffer, long Length);
 void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
-			int do_repl_check, struct CtdlMessage *supplied_msg, int suppress_refcount_adj);
+			      int do_repl_check, struct CtdlMessage *supplied_msg, int suppress_refcount_adj);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
+long CtdlSaveThisMessage(struct CtdlMessage *msg, long msgid, int Reply);
 char *CtdlReadMessageBody(char *terminator, long tlen, size_t maxlen, StrBuf *exist, int crlf, int *sock);
 StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 			       long tlen,
@@ -265,12 +267,12 @@ extern int MessageDebugEnabled;
 #define CCCID CCC->cs_pid
 #define MSG_syslog(LEVEL, FORMAT, ...)			\
 	MSGDBGLOG(LEVEL) syslog(LEVEL,			\
-				"CC[%d]MSG" FORMAT,	\
+				"CC[%d]MSG " FORMAT,	\
 				CCCID, __VA_ARGS__)
 
 #define MSGM_syslog(LEVEL, FORMAT)			\
 	MSGDBGLOG(LEVEL) syslog(LEVEL,			\
-				"CC[%d]MSG" FORMAT,	\
+				"CC[%d]MSG " FORMAT,	\
 				CCCID)
 
 

@@ -318,7 +318,7 @@ void smtp_webcit_preferences_hack_backend(long msgnum, void *userdata) {
 		return;	// already got it
 	}
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		return;
 	}

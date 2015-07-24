@@ -124,7 +124,7 @@ int ctdl_redirect(sieve2_context_t *s, void *my)
 		return SIEVE2_ERROR_BADARGS;
 	}
 
-	msg = CtdlFetchMessage(cs->msgnum, 1);
+	msg = CtdlFetchMessage(cs->msgnum, 1, 1);
 	if (msg == NULL) {
 		SV_syslog(LOG_WARNING, "REDIRECT failed: unable to fetch msg %ld", cs->msgnum);
 		free_recipients(valid);
@@ -553,7 +553,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	/*
 	 * Make sure you include message body so you can get those second-level headers ;)
 	 */
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) return;
 
 	/*
@@ -749,7 +749,7 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
 	long conflen;
 
 	u->config_msgnum = msgnum;
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		u->config_msgnum = (-1) ;
 		return;

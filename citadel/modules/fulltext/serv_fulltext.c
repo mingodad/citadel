@@ -120,7 +120,7 @@ void ft_index_message(long msgnum, int op) {
 	int tok;
 	struct CtdlMessage *msg = NULL;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		syslog(LOG_ERR, "ft_index_message() could not load msg %ld", msgnum);
 		return;

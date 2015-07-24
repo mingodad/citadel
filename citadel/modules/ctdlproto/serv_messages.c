@@ -42,7 +42,7 @@ void headers_listing(long msgnum, void *userdata)
 {
 	struct CtdlMessage *msg;
 
-	msg = CtdlFetchMessage(msgnum, 0);
+	msg = CtdlFetchMessage(msgnum, 0, 1);
 	if (msg == NULL) {
 		cprintf("%ld|0|||||\n", msgnum);
 		return;
@@ -66,7 +66,7 @@ void headers_euid(long msgnum, void *userdata)
 {
 	struct CtdlMessage *msg;
 
-	msg = CtdlFetchMessage(msgnum, 0);
+	msg = CtdlFetchMessage(msgnum, 0, 1);
 	if (msg == NULL) {
 		cprintf("%ld||\n", msgnum);
 		return;
@@ -228,7 +228,7 @@ void cmd_msg3(char *cmdbuf)
 	}
 
 	msgnum = extract_long(cmdbuf, 0);
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		cprintf("%d Message %ld not found.\n", 
 			ERROR + MESSAGE_NOT_FOUND, msgnum);

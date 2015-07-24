@@ -977,7 +977,7 @@ void nntp_xover_backend(long msgnum, void *userdata) {
 	if (msgnum < lr->lo) return;
 	if ((lr->hi != 0) && (msgnum > lr->hi)) return;
 
-	struct CtdlMessage *msg = CtdlFetchMessage(msgnum, 0);
+	struct CtdlMessage *msg = CtdlFetchMessage(msgnum, 0, 1);
 	if (msg == NULL) {
 		return;
 	}

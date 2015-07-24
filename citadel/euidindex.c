@@ -127,7 +127,7 @@ void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
 void rebuild_euid_index_for_msg(long msgnum, void *userdata) {
 	struct CtdlMessage *msg = NULL;
 
-	msg = CtdlFetchMessage(msgnum, 0);
+	msg = CtdlFetchMessage(msgnum, 0, 1);
 	if (msg == NULL) return;
 	if (!CM_IsEmpty(msg, eExclusiveID)) {
 		index_message_by_euid(msg->cm_fields[eExclusiveID], &CC->room, msgnum);

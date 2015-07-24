@@ -842,7 +842,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	SMTPC_syslog(LOG_DEBUG, "smtp_do_procmsg(%ld)\n", msgnum);
 	///strcpy(envelope_from, "");
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		SMTPC_syslog(LOG_ERR, "tried %ld but no such message!\n",
 		       msgnum);

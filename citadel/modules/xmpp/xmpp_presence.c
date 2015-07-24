@@ -229,7 +229,7 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 	char *ptr = NULL;
 	char *lasts = NULL;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		return;
 	}

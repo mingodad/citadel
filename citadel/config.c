@@ -320,7 +320,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 		conf = NULL;
 	}
 	else {
-		msg = CtdlFetchMessage(msgnum, 1);
+		msg = CtdlFetchMessage(msgnum, 1, 1);
 		if (msg != NULL) {
 			conf = strdup(msg->cm_fields[eMesageText]);
 			CM_Free(msg);

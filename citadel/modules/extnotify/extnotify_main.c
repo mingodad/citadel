@@ -184,7 +184,7 @@ eNotifyType extNotify_getConfigMessage(char *username,
 		return eNone;	/* No messages at all?  No further action. */
 	}
 	for (a = 0; a < num_msgs; ++a) {
-		msg = CtdlFetchMessage(msglist[a], 1);
+		msg = CtdlFetchMessage(msglist[a], 1, 1);
 		if (msg != NULL) {
 			if (!CM_IsEmpty(msg, eMsgSubject) &&
 			    (strncasecmp(msg->cm_fields[eMsgSubject],
@@ -279,7 +279,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 
 	Ctx = (NotifyContext*) usrdata;
 
-	msg = CtdlFetchMessage(NotifyMsgnum, 1);
+	msg = CtdlFetchMessage(NotifyMsgnum, 1, 1);
 	if (!CM_IsEmpty(msg, eExtnotify))
 	{
 		Type = extNotify_getConfigMessage(

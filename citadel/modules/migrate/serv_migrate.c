@@ -90,19 +90,19 @@ void xml_strout(char *str) {
 
 	while (*c != 0) {
 		if (*c == '\"') {
-			client_write("&quot;", 6);
+			client_write(HKEY("&quot;"));
 		}
 		else if (*c == '\'') {
-			client_write("&apos;", 6);
+			client_write(HKEY("&apos;"));
 		}
 		else if (*c == '<') {
-			client_write("&lt;", 4);
+			client_write(HKEY("&lt;"));
 		}
 		else if (*c == '>') {
-			client_write("&gt;", 4);
+			client_write(HKEY("&gt;"));
 		}
 		else if (*c == '&') {
-			client_write("&amp;", 5);
+			client_write(HKEY("&amp;"));
 		}
 		else {
 			client_write(c, 1);
@@ -116,10 +116,10 @@ void xml_strout(char *str) {
  * Export a user record as XML
  */
 void migr_export_users_backend(struct ctdluser *buf, void *data) {
-	client_write("<user>\n", 7);
+	client_write(HKEY("<user>\n"));
 	cprintf("<u_version>%d</u_version>\n", buf->version);
 	cprintf("<u_uid>%ld</u_uid>\n", (long)buf->uid);
-	client_write("<u_password>", 12);	xml_strout(buf->password);		client_write("</u_password>\n", 14);
+	client_write(HKEY("<u_password>"));	xml_strout(buf->password);		client_write(HKEY("</u_password>\n"));
 	cprintf("<u_flags>%u</u_flags>\n", buf->flags);
 	cprintf("<u_timescalled>%ld</u_timescalled>\n", buf->timescalled);
 	cprintf("<u_posted>%ld</u_posted>\n", buf->posted);
@@ -127,8 +127,8 @@ void migr_export_users_backend(struct ctdluser *buf, void *data) {
 	cprintf("<u_usernum>%ld</u_usernum>\n", buf->usernum);
 	cprintf("<u_lastcall>%ld</u_lastcall>\n", (long)buf->lastcall);
 	cprintf("<u_USuserpurge>%d</u_USuserpurge>\n", buf->USuserpurge);
-	client_write("<u_fullname>", 12);	xml_strout(buf->fullname);		client_write("</u_fullname>\n", 14);
-	client_write("</user>\n", 8);
+	client_write(HKEY("<u_fullname>"));	xml_strout(buf->fullname);		client_write(HKEY("</u_fullname>\n"));
+	client_write(HKEY("</user>\n"));
 }
 
 
@@ -144,17 +144,17 @@ void migr_export_room_msg(long msgnum, void *userdata) {
 
 
 void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
-	client_write("<room>\n", 7);
-	client_write("<QRname>", 8);	xml_strout(buf->QRname);	client_write("</QRname>\n", 10);
-	client_write("<QRpasswd>", 10);	xml_strout(buf->QRpasswd);	client_write("</QRpasswd>\n", 12);
+	client_write(HKEY("<room>\n"));
+	client_write(HKEY("<QRname>"));	xml_strout(buf->QRname);	client_write(HKEY("</QRname>\n"));
+	client_write(HKEY("<QRpasswd>"));	xml_strout(buf->QRpasswd);	client_write(HKEY("</QRpasswd>\n"));
 	cprintf("<QRroomaide>%ld</QRroomaide>\n", buf->QRroomaide);
 	cprintf("<QRhighest>%ld</QRhighest>\n", buf->QRhighest);
 	cprintf("<QRgen>%ld</QRgen>\n", (long)buf->QRgen);
 	cprintf("<QRflags>%u</QRflags>\n", buf->QRflags);
 	if (buf->QRflags & QR_DIRECTORY) {
-		client_write("<QRdirname>", 11);
+		client_write(HKEY("<QRdirname>"));
 		xml_strout(buf->QRdirname);
-		client_write("</QRdirname>\n", 13);
+		client_write(HKEY("</QRdirname>\n"));
 	}
 	cprintf("<QRinfo>%ld</QRinfo>\n", buf->QRinfo);
 	cprintf("<QRfloor>%d</QRfloor>\n", buf->QRfloor);
@@ -165,17 +165,17 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	cprintf("<QRorder>%d</QRorder>\n", buf->QRorder);
 	cprintf("<QRflags2>%u</QRflags2>\n", buf->QRflags2);
 	cprintf("<QRdefaultview>%d</QRdefaultview>\n", buf->QRdefaultview);
-	client_write("</room>\n", 8);
+	client_write(HKEY("</room>\n"));
 
 	/* message list goes inside this tag */
 
 	CtdlGetRoom(&CC->room, buf->QRname);
-	client_write("<room_messages>", 15);
-	client_write("<FRname>", 8);	xml_strout(CC->room.QRname);	client_write("</FRname>\n", 10);
-	client_write("<FRmsglist>", 11);
+	client_write(HKEY("<room_messages>"));
+	client_write(HKEY("<FRname>"));	xml_strout(CC->room.QRname);	client_write(HKEY("</FRname>\n"));
+	client_write(HKEY("<FRmsglist>"));
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, migr_export_room_msg, NULL);
-	client_write("</FRmsglist>\n", 13);
-	client_write("</room_messages>\n", 17);
+	client_write(HKEY("</FRmsglist>\n"));
+	client_write(HKEY("</room_messages>\n"));
 
 
 }
@@ -220,16 +220,16 @@ void migr_export_floors(void) {
         int i;
 
         for (i=0; i < MAXFLOORS; ++i) {
-		client_write("<floor>\n", 8);
+		client_write(HKEY("<floor>\n"));
 		cprintf("<f_num>%d</f_num>\n", i);
                 CtdlGetFloor(&qfbuf, i);
 		buf = &qfbuf;
 		cprintf("<f_flags>%u</f_flags>\n", buf->f_flags);
-		client_write("<f_name>", 8); xml_strout(buf->f_name); client_write("</f_name>\n", 10);
+		client_write(HKEY("<f_name>")); xml_strout(buf->f_name); client_write(HKEY("</f_name>\n"));
 		cprintf("<f_ref_count>%d</f_ref_count>\n", buf->f_ref_count);
 		cprintf("<f_ep_expire_mode>%d</f_ep_expire_mode>\n", buf->f_ep.expire_mode);
 		cprintf("<f_ep_expire_value>%d</f_ep_expire_value>\n", buf->f_ep.expire_value);
-		client_write("</floor>\n", 9);
+		client_write(HKEY("</floor>\n"));
 	}
 }
 
@@ -268,29 +268,29 @@ void migr_export_visits(void) {
 			sizeof(visit) : cdbv->len));
 		cdb_free(cdbv);
 
-		client_write("<visit>\n", 8);
+		client_write(HKEY("<visit>\n"));
 		cprintf("<v_roomnum>%ld</v_roomnum>\n", vbuf.v_roomnum);
 		cprintf("<v_roomgen>%ld</v_roomgen>\n", vbuf.v_roomgen);
 		cprintf("<v_usernum>%ld</v_usernum>\n", vbuf.v_usernum);
 
-		client_write("<v_seen>", 8);
+		client_write(HKEY("<v_seen>"));
 		if ( (!IsEmptyStr(vbuf.v_seen)) && (is_sequence_set(vbuf.v_seen)) ) {
 			xml_strout(vbuf.v_seen);
 		}
 		else {
 			cprintf("%ld", vbuf.v_lastseen);
 		}
-		client_write("</v_seen>", 9);
+		client_write(HKEY("</v_seen>"));
 
 		if ( (!IsEmptyStr(vbuf.v_answered)) && (is_sequence_set(vbuf.v_answered)) ) {
-			client_write("<v_answered>", 12);
+			client_write(HKEY("<v_answered>"));
 			xml_strout(vbuf.v_answered);
-			client_write("</v_answered>\n", 14);
+			client_write(HKEY("</v_answered>\n"));
 		}
 
 		cprintf("<v_flags>%u</v_flags>\n", vbuf.v_flags);
 		cprintf("<v_view>%d</v_view>\n", vbuf.v_view);
-		client_write("</visit>\n", 9);
+		client_write(HKEY("</visit>\n"));
 	}
 }
 
@@ -319,16 +319,16 @@ void migr_export_message(long msgnum) {
 
 	/* Ok, here we go ... */
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 0);
 	if (msg == NULL) return;	/* fail silently */
 
-	client_write("<message>\n", 10);
+	client_write(HKEY("<message>\n"));
 	GetMetaData(&smi, msgnum);
 	cprintf("<msg_msgnum>%ld</msg_msgnum>\n", msgnum);
 	cprintf("<msg_meta_refcount>%d</msg_meta_refcount>\n", smi.meta_refcount);
-	client_write("<msg_meta_content_type>", 23); xml_strout(smi.meta_content_type); client_write("</msg_meta_content_type>\n", 25);
+	client_write(HKEY("<msg_meta_content_type>")); xml_strout(smi.meta_content_type); client_write(HKEY("</msg_meta_content_type>\n"));
 
-	client_write("<msg_text>", 10);
+	client_write(HKEY("<msg_text>"));
 	CtdlSerializeMessage(&smr, msg);
 	CM_Free(msg);
 
@@ -351,8 +351,8 @@ void migr_export_message(long msgnum) {
 
 	free(smr.ser);
 
-	client_write("</msg_text>\n", 12);
-	client_write("</message>\n", 11);
+	client_write(HKEY("</msg_text>\n"));
+	client_write(HKEY("</message>\n"));
 }
 
 
@@ -365,14 +365,14 @@ void migr_export_openids(void) {
 	cdb_rewind(CDB_OPENID);
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
-			client_write("<openid>\n", 9);
+			client_write(HKEY("<openid>\n"));
 			memcpy(&usernum, cdboi->ptr, sizeof(long));
 			snprintf(url, sizeof url, "%s", (cdboi->ptr)+sizeof(long) );
-			client_write("<oid_url>", 9);
+			client_write(HKEY("<oid_url>"));
 			xml_strout(url);
-			client_write("</oid_url>\n", 11);
+			client_write(HKEY("</oid_url>\n"));
 			cprintf("<oid_usernum>%ld</oid_usernum>\n", usernum);
-			client_write("</openid>\n", 10);
+			client_write(HKEY("</openid>\n"));
 		}
 		cdb_free(cdboi);
 	}
@@ -425,36 +425,36 @@ void migr_do_export(void) {
 	cprintf("%d Exporting all Citadel databases.\n", LISTING_FOLLOWS);
 	Ctx->dont_term = 1;
 
-	client_write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n", 40);
-	client_write("<citadel_migrate_data>\n", 23);
+	client_write(HKEY("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"));
+	client_write(HKEY("<citadel_migrate_data>\n"));
 	cprintf("<version>%d</version>\n", REV_LEVEL);
 	cprintf("<progress>%d</progress>\n", 0);
 
 	/* export the config file (this is done using x-macros) */
-	client_write("<config>\n", 9);
-	client_write("<c_nodename>", 12);	xml_strout(config.c_nodename);		client_write("</c_nodename>\n", 14);
-	client_write("<c_fqdn>", 8);		xml_strout(config.c_fqdn);		client_write("</c_fqdn>\n", 10);
-	client_write("<c_humannode>", 13);	xml_strout(config.c_humannode);		client_write("</c_humannode>\n", 15);
-	client_write("<c_phonenum>", 12);	xml_strout(config.c_phonenum);		client_write("</c_phonenum>\n", 14);
+	client_write(HKEY("<config>\n"));
+	client_write(HKEY("<c_nodename>"));	xml_strout(config.c_nodename);		client_write(HKEY("</c_nodename>\n"));
+	client_write(HKEY("<c_fqdn>"));		xml_strout(config.c_fqdn);		client_write(HKEY("</c_fqdn>\n"));
+	client_write(HKEY("<c_humannode>"));	xml_strout(config.c_humannode);		client_write(HKEY("</c_humannode>\n"));
+	client_write(HKEY("<c_phonenum>"));	xml_strout(config.c_phonenum);		client_write(HKEY("</c_phonenum>\n"));
 	cprintf("<c_ctdluid>%d</c_ctdluid>\n", config.c_ctdluid);
 	cprintf("<c_creataide>%d</c_creataide>\n", config.c_creataide);
 	cprintf("<c_sleeping>%d</c_sleeping>\n", config.c_sleeping);
 	cprintf("<c_initax>%d</c_initax>\n", config.c_initax);
 	cprintf("<c_regiscall>%d</c_regiscall>\n", config.c_regiscall);
 	cprintf("<c_twitdetect>%d</c_twitdetect>\n", config.c_twitdetect);
-	client_write("<c_twitroom>", 12);	xml_strout(config.c_twitroom);		client_write("</c_twitroom>\n", 14);
-	client_write("<c_moreprompt>", 14);	xml_strout(config.c_moreprompt);	client_write("</c_moreprompt>\n", 16);
+	client_write(HKEY("<c_twitroom>"));	xml_strout(config.c_twitroom);		client_write(HKEY("</c_twitroom>\n"));
+	client_write(HKEY("<c_moreprompt>"));	xml_strout(config.c_moreprompt);	client_write(HKEY("</c_moreprompt>\n"));
 	cprintf("<c_restrict>%d</c_restrict>\n", config.c_restrict);
-	client_write("<c_site_location>", 17);	xml_strout(config.c_site_location);	client_write("</c_site_location>\n", 19);
-	client_write("<c_sysadm>", 10);		xml_strout(config.c_sysadm);		client_write("</c_sysadm>\n", 12);
+	client_write(HKEY("<c_site_location>"));	xml_strout(config.c_site_location);	client_write(HKEY("</c_site_location>\n"));
+	client_write(HKEY("<c_sysadm>"));		xml_strout(config.c_sysadm);		client_write(HKEY("</c_sysadm>\n"));
 	cprintf("<c_maxsessions>%d</c_maxsessions>\n", config.c_maxsessions);
-	client_write("<c_ip_addr>", 11);	xml_strout(config.c_ip_addr);		client_write("</c_ip_addr>\n", 13);
+	client_write(HKEY("<c_ip_addr>"));	xml_strout(config.c_ip_addr);		client_write(HKEY("</c_ip_addr>\n"));
 	cprintf("<c_port_number>%d</c_port_number>\n", config.c_port_number);
 	cprintf("<c_ep_expire_mode>%d</c_ep_expire_mode>\n", config.c_ep.expire_mode);
 	cprintf("<c_ep_expire_value>%d</c_ep_expire_value>\n", config.c_ep.expire_value);
 	cprintf("<c_userpurge>%d</c_userpurge>\n", config.c_userpurge);
 	cprintf("<c_roompurge>%d</c_roompurge>\n", config.c_roompurge);
-	client_write("<c_logpages>", 12);	xml_strout(config.c_logpages);		client_write("</c_logpages>\n", 14);
+	client_write(HKEY("<c_logpages>"));	xml_strout(config.c_logpages);		client_write(HKEY("</c_logpages>\n"));
 	cprintf("<c_createax>%d</c_createax>\n", config.c_createax);
 	cprintf("<c_maxmsglen>%ld</c_maxmsglen>\n", config.c_maxmsglen);
 	cprintf("<c_min_workers>%d</c_min_workers>\n", config.c_min_workers);
@@ -467,16 +467,16 @@ void migr_do_export(void) {
 	cprintf("<c_net_freq>%ld</c_net_freq>\n", config.c_net_freq);
 	cprintf("<c_disable_newu>%d</c_disable_newu>\n", config.c_disable_newu);
 	cprintf("<c_enable_fulltext>%d</c_enable_fulltext>\n", config.c_enable_fulltext);
-	client_write("<c_baseroom>", 12);	xml_strout(config.c_baseroom);		client_write("</c_baseroom>\n", 14);
-	client_write("<c_aideroom>", 12);	xml_strout(config.c_aideroom);		client_write("</c_aideroom>\n", 14);
+	client_write(HKEY("<c_baseroom>"));	xml_strout(config.c_baseroom);		client_write(HKEY("</c_baseroom>\n"));
+	client_write(HKEY("<c_aideroom>"));	xml_strout(config.c_aideroom);		client_write(HKEY("</c_aideroom>\n"));
 	cprintf("<c_purge_hour>%d</c_purge_hour>\n", config.c_purge_hour);
 	cprintf("<c_mbxep_expire_mode>%d</c_mbxep_expire_mode>\n", config.c_mbxep.expire_mode);
 	cprintf("<c_mbxep_expire_value>%d</c_mbxep_expire_value>\n", config.c_mbxep.expire_value);
-	client_write("<c_ldap_host>", 13);	xml_strout(config.c_ldap_host);		client_write("</c_ldap_host>\n", 15);
+	client_write(HKEY("<c_ldap_host>"));	xml_strout(config.c_ldap_host);		client_write(HKEY("</c_ldap_host>\n"));
 	cprintf("<c_ldap_port>%d</c_ldap_port>\n", config.c_ldap_port);
-	client_write("<c_ldap_base_dn>", 16);	xml_strout(config.c_ldap_base_dn);	client_write("</c_ldap_base_dn>\n", 18);
-	client_write("<c_ldap_bind_dn>", 16);	xml_strout(config.c_ldap_bind_dn);	client_write("</c_ldap_bind_dn>\n", 18);
-	client_write("<c_ldap_bind_pw>", 16);	xml_strout(config.c_ldap_bind_pw);	client_write("</c_ldap_bind_pw>\n", 18);
+	client_write(HKEY("<c_ldap_base_dn>"));	xml_strout(config.c_ldap_base_dn);	client_write(HKEY("</c_ldap_base_dn>\n"));
+	client_write(HKEY("<c_ldap_bind_dn>"));	xml_strout(config.c_ldap_bind_dn);	client_write(HKEY("</c_ldap_bind_dn>\n"));
+	client_write(HKEY("<c_ldap_bind_pw>"));	xml_strout(config.c_ldap_bind_pw);	client_write(HKEY("</c_ldap_bind_pw>\n"));
 	cprintf("<c_msa_port>%d</c_msa_port>\n", config.c_msa_port);
 	cprintf("<c_imaps_port>%d</c_imaps_port>\n", config.c_imaps_port);
 	cprintf("<c_pop3s_port>%d</c_pop3s_port>\n", config.c_pop3s_port);
@@ -485,19 +485,19 @@ void migr_do_export(void) {
 	cprintf("<c_allow_spoofing>%d</c_allow_spoofing>\n", config.c_allow_spoofing);
 	cprintf("<c_journal_email>%d</c_journal_email>\n", config.c_journal_email);
 	cprintf("<c_journal_pubmsgs>%d</c_journal_pubmsgs>\n", config.c_journal_pubmsgs);
-	client_write("<c_journal_dest>", 16);	xml_strout(config.c_journal_dest);	client_write("</c_journal_dest>\n", 18);
-	client_write("<c_default_cal_zone>", 20);	xml_strout(config.c_default_cal_zone);	client_write("</c_default_cal_zone>\n", 22);
+	client_write(HKEY("<c_journal_dest>"));	xml_strout(config.c_journal_dest);	client_write(HKEY("</c_journal_dest>\n"));
+	client_write(HKEY("<c_default_cal_zone>"));	xml_strout(config.c_default_cal_zone);	client_write(HKEY("</c_default_cal_zone>\n"));
 	cprintf("<c_pftcpdict_port>%d</c_pftcpdict_port>\n", config.c_pftcpdict_port);
 	cprintf("<c_managesieve_port>%d</c_managesieve_port>\n", config.c_managesieve_port);
 	cprintf("<c_auth_mode>%d</c_auth_mode>\n", config.c_auth_mode);
-	client_write("<c_funambol_host>", 17);	xml_strout(config.c_funambol_host);	client_write("</c_funambol_host>\n", 19);
+	client_write(HKEY("<c_funambol_host>"));	xml_strout(config.c_funambol_host);	client_write(HKEY("</c_funambol_host>\n"));
 	cprintf("<c_funambol_port>%d</c_funambol_port>\n", config.c_funambol_port);
-	client_write("<c_funambol_source>", 19);	xml_strout(config.c_funambol_source);	client_write("</c_funambol_source>\n", 21);
-	client_write("<c_funambol_auth>", 17);	xml_strout(config.c_funambol_auth);	client_write("</c_funambol_auth>\n", 19);
+	client_write(HKEY("<c_funambol_source>"));	xml_strout(config.c_funambol_source);	client_write(HKEY("</c_funambol_source>\n"));
+	client_write(HKEY("<c_funambol_auth>"));	xml_strout(config.c_funambol_auth);	client_write(HKEY("</c_funambol_auth>\n"));
 	cprintf("<c_rbl_at_greeting>%d</c_rbl_at_greeting>\n", config.c_rbl_at_greeting);
-	client_write("<c_master_user>", 15);	xml_strout(config.c_master_user);		client_write("</c_master_user>\n", 17);
-	client_write("<c_master_pass>", 15);	xml_strout(config.c_master_pass);		client_write("</c_master_pass>\n", 17);
-	client_write("<c_pager_program>", 17);	xml_strout(config.c_pager_program);		client_write("</c_pager_program>\n", 19);
+	client_write(HKEY("<c_master_user>"));	 xml_strout(config.c_master_user);		client_write(HKEY("</c_master_user>\n"));
+	client_write(HKEY("<c_master_pass>"));	 xml_strout(config.c_master_pass);		client_write(HKEY("</c_master_pass>\n"));
+	client_write(HKEY("<c_pager_program>")); xml_strout(config.c_pager_program);		client_write(HKEY("</c_pager_program>\n"));
 	cprintf("<c_imap_keep_from>%d</c_imap_keep_from>\n", config.c_imap_keep_from);
 	cprintf("<c_xmpp_c2s_port>%d</c_xmpp_c2s_port>\n", config.c_xmpp_c2s_port);
 	cprintf("<c_xmpp_s2s_port>%d</c_xmpp_s2s_port>\n", config.c_xmpp_s2s_port);
@@ -506,18 +506,18 @@ void migr_do_export(void) {
 	cprintf("<c_spam_flag_only>%d</c_spam_flag_only>\n", config.c_spam_flag_only);
 	cprintf("<c_nntp_port>%d</c_nntp_port>\n", config.c_nntp_port);
 	cprintf("<c_nntps_port>%d</c_nntps_port>\n", config.c_nntps_port);
-	client_write("</config>\n", 10);
+	client_write(HKEY("</config>\n"));
 	cprintf("<progress>%d</progress>\n", 1);
 	
 	/* Export the control file */
 	get_control();
-	client_write("<control>\n", 10);
+	client_write(HKEY("<control>\n"));
 	cprintf("<control_highest>%ld</control_highest>\n", CitControl.MMhighest);
 	cprintf("<control_flags>%u</control_flags>\n", CitControl.MMflags);
 	cprintf("<control_nextuser>%ld</control_nextuser>\n", CitControl.MMnextuser);
 	cprintf("<control_nextroom>%ld</control_nextroom>\n", CitControl.MMnextroom);
 	cprintf("<control_version>%d</control_version>\n", CitControl.version);
-	client_write("</control>\n", 11);
+	client_write(HKEY("</control>\n"));
 	cprintf("<progress>%d</progress>\n", 2);
 
 	if (Ctx->kill_me == 0)	migr_export_users();
@@ -531,9 +531,9 @@ void migr_do_export(void) {
 	if (Ctx->kill_me == 0)	migr_export_visits();
 	cprintf("<progress>%d</progress>\n", 25);
 	if (Ctx->kill_me == 0)	migr_export_messages();
-	client_write("</citadel_migrate_data>\n", 24);
+	client_write(HKEY("</citadel_migrate_data>\n"));
 	cprintf("<progress>%d</progress>\n", 100);
-	client_write("000\n", 4);
+	client_write(HKEY("000\n"));
 	Ctx->dont_term = 0;
 }
 
@@ -937,21 +937,30 @@ void migr_xml_end(void *data, const char *el)
 
 	else if (!strcasecmp(el, "msg_text"))
 	{
-
-		FlushStrBuf(migr_MsgData);
-		StrBufDecodeBase64To(migr_MsgData, migr_MsgData);
-
-		cdb_store(CDB_MSGMAIN,
-			  &import_msgnum,
-			  sizeof(long),
-			  ChrPtr(migr_MsgData), 
-			  StrLength(migr_MsgData) + 1);
+		long rc;
+		struct CtdlMessage *msg;
 
 		smi.meta_msgnum = import_msgnum;
-		PutMetaData(&smi);
+		FlushStrBuf(migr_MsgData);
+		StrBufDecodeBase64To(migr_chardata, migr_MsgData);
+
+		msg = CtdlDeserializeMessage(import_msgnum, -1,
+					     ChrPtr(migr_MsgData), 
+					     StrLength(migr_MsgData));
+		if (msg != NULL) {
+			rc = CtdlSaveThisMessage(msg, import_msgnum, 0);
+			if (rc > 0) {
+				PutMetaData(&smi);
+			}
+			CM_Free(msg);
+		}
+		else {
+			rc = -1;
+		}
 
 		syslog(LOG_INFO,
-		       "Imported message #%ld, size=%d, refcount=%d, content-type: %s\n",
+		       "%s message #%ld, size=%d, refcount=%d, content-type: %s\n",
+		       (rc!= 0)?"failed to import ":"Imported ",
 		       import_msgnum,
 		       StrLength(migr_MsgData),
 		       smi.meta_refcount,

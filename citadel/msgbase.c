@@ -737,7 +737,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 					free(msglist);
 					return -1;
 				}
-				msg = CtdlFetchMessage(msglist[a], 1);
+				msg = CtdlFetchMessage(msglist[a], 1, 1);
 				if (msg != NULL) {
 					if (CtdlMsgCmp(msg, compare)) {
 						msglist[a] = 0L;
@@ -1083,33 +1083,18 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 	}
 }
 
-
-/*
- * Load a message from disk into memory.
- * This is used by CtdlOutputMsg() and other fetch functions.
- *
- * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
- *       using the CtdlMessageFree() function.
- */
-struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
+struct CtdlMessage *CtdlDeserializeMessage(long msgnum, int with_body, const char *Buffer, long Length)
 {
 	struct CitContext *CCC = CC;
-	struct cdbdata *dmsgtext;
 	struct CtdlMessage *ret = NULL;
-	char *mptr;
-	char *upper_bound;
+	const char *mptr;
+	const char *upper_bound;
 	cit_uint8_t ch;
 	cit_uint8_t field_header;
 	eMsgField which;
 
-	MSG_syslog(LOG_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
-	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
-	if (dmsgtext == NULL) {
-		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Failed!\n", msgnum, with_body);
-		return NULL;
-	}
-	mptr = dmsgtext->ptr;
-	upper_bound = mptr + dmsgtext->len;
+	mptr = Buffer;
+	upper_bound = Buffer + Length;
 
 	/* Parse the three bytes that begin EVERY message on disk.
 	 * The first is always 0xFF, the on-disk magic number.
@@ -1119,7 +1104,6 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	ch = *mptr++;
 	if (ch != 255) {
 		MSG_syslog(LOG_ERR, "Message %ld appears to be corrupted.\n", msgnum);
-		cdb_free(dmsgtext);
 		return NULL;
 	}
 	ret = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
@@ -1128,13 +1112,6 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	ret->cm_magic = CTDLMESSAGE_MAGIC;
 	ret->cm_anon_type = *mptr++;	/* Anon type byte */
 	ret->cm_format_type = *mptr++;	/* Format type byte */
-
-
-	if (dmsgtext->ptr[dmsgtext->len - 1] != '\0')
-	{
-		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Forcefully terminating message!!\n", msgnum, with_body);
-		dmsgtext->ptr[dmsgtext->len - 1] = '\0';
-	}
 
 	/*
 	 * The rest is zero or more arbitrary fields.  Load them in.
@@ -1165,7 +1142,43 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 
 	} while ((mptr < upper_bound) && (field_header != 'M'));
 
+	return (ret);
+}
+
+
+/*
+ * Load a message from disk into memory.
+ * This is used by CtdlOutputMsg() and other fetch functions.
+ *
+ * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
+ *       using the CtdlMessageFree() function.
+ */
+struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body, int run_msg_hooks)
+{
+	struct CitContext *CCC = CC;
+	struct cdbdata *dmsgtext;
+	struct CtdlMessage *ret = NULL;
+
+	MSG_syslog(LOG_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
+	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
+	if (dmsgtext == NULL) {
+		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Failed!\n", msgnum, with_body);
+		return NULL;
+	}
+
+	if (dmsgtext->ptr[dmsgtext->len - 1] != '\0')
+	{
+		MSG_syslog(LOG_ERR, "CtdlFetchMessage(%ld, %d) Forcefully terminating message!!\n", msgnum, with_body);
+		dmsgtext->ptr[dmsgtext->len - 1] = '\0';
+	}
+
+	ret = CtdlDeserializeMessage(msgnum, with_body, dmsgtext->ptr, dmsgtext->len);
+
 	cdb_free(dmsgtext);
+
+	if (ret == NULL) {
+		return NULL;
+	}
 
 	/* Always make sure there's something in the msg text field.  If
 	 * it's NULL, the message text is most likely stored separately,
@@ -1184,7 +1197,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	}
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
-	if (PerformMessageHooks(ret, NULL, EVT_BEFOREREAD) > 0) {
+	if (run_msg_hooks && (PerformMessageHooks(ret, NULL, EVT_BEFOREREAD) > 0)) {
 		CM_Free(ret);
 		return NULL;
 	}
@@ -1584,10 +1597,10 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	 * request that we don't even bother loading the body into memory.
 	 */
 	if (headers_only == HEADERS_FAST) {
-		TheMessage = CtdlFetchMessage(msg_num, 0);
+		TheMessage = CtdlFetchMessage(msg_num, 0, 1);
 	}
 	else {
-		TheMessage = CtdlFetchMessage(msg_num, 1);
+		TheMessage = CtdlFetchMessage(msg_num, 1, 1);
 	}
 
 	if (TheMessage == NULL) {
@@ -2425,7 +2438,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 				msg = supplied_msg;
 			}
 			else {
-				msg = CtdlFetchMessage(msgid, 0);
+				msg = CtdlFetchMessage(msgid, 0, 1);
 			}
 	
 			if (msg != NULL) {
@@ -2491,74 +2504,100 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid,
  * called by server-side modules.
  *
  */
-long send_message(struct CtdlMessage *msg) {
+long CtdlSaveThisMessage(struct CtdlMessage *msg, long msgid, int Reply) {
 	struct CitContext *CCC = CC;
-	long newmsgid;
 	long retval;
-	char msgidbuf[256];
-	long msgidbuflen;
 	struct ser_ret smr;
 	int is_bigmsg = 0;
 	char *holdM = NULL;
 	long holdMLen = 0;
 
-	/* Get a new message number */
-	newmsgid = get_new_message_number();
-	msgidbuflen = snprintf(msgidbuf, sizeof msgidbuf, "%08lX-%08lX@%s",
-			       (long unsigned int) time(NULL),
-			       (long unsigned int) newmsgid,
-			       config.c_fqdn
-		);
-
-	/* Generate an ID if we don't have one already */
-	if (CM_IsEmpty(msg, emessageId)) {
-		CM_SetField(msg, emessageId, msgidbuf, msgidbuflen);
-	}
-
-	/* If the message is big, set its body aside for storage elsewhere */
-	if (!CM_IsEmpty(msg, eMesageText)) {
-		if (msg->cm_lengths[eMesageText] > BIGMSG) {
-			is_bigmsg = 1;
-			holdM = msg->cm_fields[eMesageText];
-			msg->cm_fields[eMesageText] = NULL;
-			holdMLen = msg->cm_lengths[eMesageText];
-			msg->cm_lengths[eMesageText] = 0;
-		}
+	/*
+	 * If the message is big, set its body aside for storage elsewhere
+	 * and we hide the message body from the serializer
+	 */
+	if (!CM_IsEmpty(msg, eMesageText) && msg->cm_lengths[eMesageText] > BIGMSG)
+	{
+		is_bigmsg = 1;
+		holdM = msg->cm_fields[eMesageText];
+		msg->cm_fields[eMesageText] = NULL;
+		holdMLen = msg->cm_lengths[eMesageText];
+		msg->cm_lengths[eMesageText] = 0;
 	}
 
 	/* Serialize our data structure for storage in the database */	
 	CtdlSerializeMessage(&smr, msg);
 
 	if (is_bigmsg) {
+		/* put the message body back into the message */
 		msg->cm_fields[eMesageText] = holdM;
 		msg->cm_lengths[eMesageText] = holdMLen;
 	}
 
 	if (smr.len == 0) {
-		cprintf("%d Unable to serialize message\n",
-			ERROR + INTERNAL_ERROR);
+		if (Reply) {
+			cprintf("%d Unable to serialize message\n",
+				ERROR + INTERNAL_ERROR);
+		}
+		else {
+			MSGM_syslog(LOG_ERR, "CtdlSaveMessage() unable to serialize message");
+
+		}
 		return (-1L);
 	}
 
 	/* Write our little bundle of joy into the message base */
-	if (cdb_store(CDB_MSGMAIN, &newmsgid, (int)sizeof(long),
-		      smr.ser, smr.len) < 0) {
-		MSGM_syslog(LOG_ERR, "Can't store message\n");
-		retval = 0L;
-	} else {
+	retval = cdb_store(CDB_MSGMAIN, &msgid, (int)sizeof(long),
+			   smr.ser, smr.len);
+	if (retval < 0) {
+		MSG_syslog(LOG_ERR, "Can't store message %ld: %ld", msgid, retval);
+	}
+	else {
 		if (is_bigmsg) {
-			cdb_store(CDB_BIGMSGS,
-				  &newmsgid,
-				  (int)sizeof(long),
-				  holdM,
-				  (holdMLen + 1)
+			retval = cdb_store(CDB_BIGMSGS,
+					   &msgid,
+					   (int)sizeof(long),
+					   holdM,
+					   (holdMLen + 1)
 				);
+			if (retval < 0) {
+				MSG_syslog(LOG_ERR, "failed to store message body for msgid %ld:  %ld",
+					   msgid, retval);
+			}
 		}
-		retval = newmsgid;
 	}
 
 	/* Free the memory we used for the serialized message */
 	free(smr.ser);
+
+	return(retval);
+}
+
+long send_message(struct CtdlMessage *msg) {
+	long newmsgid;
+	long retval;
+	char msgidbuf[256];
+	long msgidbuflen;
+
+	/* Get a new message number */
+	newmsgid = get_new_message_number();
+
+	/* Generate an ID if we don't have one already */
+	if (CM_IsEmpty(msg, emessageId)) {
+		msgidbuflen = snprintf(msgidbuf, sizeof msgidbuf, "%08lX-%08lX@%s",
+				       (long unsigned int) time(NULL),
+				       (long unsigned int) newmsgid,
+				       config.c_fqdn
+			);
+
+		CM_SetField(msg, emessageId, msgidbuf, msgidbuflen);
+	}
+
+	retval = CtdlSaveThisMessage(msg, newmsgid, 1);
+
+	if (retval == 0) {
+		retval = newmsgid;
+	}
 
 	/* Return the *local* message ID to the caller
 	 * (even if we're storing an incoming network message)
@@ -2576,7 +2615,7 @@ long send_message(struct CtdlMessage *msg) {
  * serialized message in memory.  THE LATTER MUST BE FREED BY THE CALLER.
  */
 void CtdlSerializeMessage(struct ser_ret *ret,		/* return values */
-		       struct CtdlMessage *msg)	/* unserialized msg */
+			  struct CtdlMessage *msg)	/* unserialized msg */
 {
 	struct CitContext *CCC = CC;
 	size_t wlen;

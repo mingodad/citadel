@@ -185,7 +185,7 @@ int vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 void vcard_add_to_directory(long msgnum, void *data) {
 	struct CtdlMessage *msg;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg != NULL) {
 		vcard_extract_internet_addresses(msg, vcard_directory_add_user);
 	}
@@ -653,7 +653,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 
 	if (VCmsgnum < 0L) return vcard_new();
 
-	msg = CtdlFetchMessage(VCmsgnum, 1);
+	msg = CtdlFetchMessage(VCmsgnum, 1, 1);
 	if (msg == NULL) return vcard_new();
 
 	v = vcard_load(msg->cm_fields[eMesageText]);
@@ -1010,7 +1010,7 @@ void vcard_delete_remove(char *room, long msgnum) {
 		return;
 	}
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) return;
 
 	if (CM_IsEmpty(msg, eMesageText))
@@ -1137,7 +1137,7 @@ void dvca_mime_callback(char *name, char *filename, char *partnum, char *disp,
 void dvca_callback(long msgnum, void *userdata) {
 	struct CtdlMessage *msg = NULL;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) return;
 	mime_parser(CM_RANGE(msg, eMesageText),
 		    *dvca_mime_callback,	/* callback function */
@@ -1361,7 +1361,7 @@ void strip_addresses_already_have(long msgnum, void *userdata) {
 
 	collected_addresses = (char *)userdata;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) return;
 	v = vcard_load(msg->cm_fields[eMesageText]);
 	CM_Free(msg);

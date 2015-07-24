@@ -197,7 +197,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 		for (a=0; a<num_msgs; ++a) {
 			delnum = msglist[a];
 
-			msg = CtdlFetchMessage(delnum, 0); /* dont need body */
+			msg = CtdlFetchMessage(delnum, 0, 1); /* dont need body */
 			if (msg != NULL) {
 				xtime = atol(msg->cm_fields[eTimestamp]);
 				CM_Free(msg);
@@ -771,7 +771,7 @@ int PurgeEuidIndexTable(void) {
 
 		memcpy(&msgnum, cdbei->ptr, sizeof(long));
 
-		msg = CtdlFetchMessage(msgnum, 0);
+		msg = CtdlFetchMessage(msgnum, 0, 1);
 		if (msg != NULL) {
 			CM_Free(msg);	/* it still exists, so do nothing */
 		}
