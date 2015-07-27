@@ -398,7 +398,7 @@ int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name)
 /*
  * CtdlGetRoomLock()  -  same as getroom() but locks the record (if supported)
  */
-int CtdlGetRoomLock(struct ctdlroom *qrbuf, char *room_name)
+int CtdlGetRoomLock(struct ctdlroom *qrbuf, const char *room_name)
 {
 	register int retval;
 	retval = CtdlGetRoom(qrbuf, room_name);

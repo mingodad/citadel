@@ -116,7 +116,7 @@ int CtdlForEachMessage(int mode,
 			struct CtdlMessage *compare,
                         ForEachMsgCallback CallBack,
 			void *userdata);
-int CtdlDeleteMessages(char *, long *, int, char *);
+int CtdlDeleteMessages(const char *, long *, int, char *);
 void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 			char *content_type,		/* MIME type of this object */
 			char *raw_message,		/* Data to be written */

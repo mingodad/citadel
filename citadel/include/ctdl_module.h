@@ -240,7 +240,7 @@ unsigned CtdlCreateRoom(char *new_room_name,
 			int avoid_access,
 			int new_room_view);
 int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name);
-int CtdlGetRoomLock(struct ctdlroom *qrbuf, char *room_name);
+int CtdlGetRoomLock(struct ctdlroom *qrbuf, const char *room_name);
 int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
 void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf, int *result, int *view);
 void CtdlPutRoomLock(struct ctdlroom *qrbuf);

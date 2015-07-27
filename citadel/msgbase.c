@@ -3607,7 +3607,7 @@ struct CtdlMessage *CtdlMakeMessageLen(
  * API function to delete messages which match a set of criteria
  * (returns the actual number of messages deleted)
  */
-int CtdlDeleteMessages(char *room_name,		/* which room */
+int CtdlDeleteMessages(const char *room_name,		/* which room */
 		       long *dmsgnums,		/* array of msg numbers to be deleted */
 		       int num_dmsgnums,	/* number of msgs to be deleted, or 0 for "any" */
 		       char *content_type	/* or "" for any.  regular expressions expected. */
