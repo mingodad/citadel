@@ -73,9 +73,9 @@ FILE *migr_global_message_list;
 int total_msgs = 0;
 
 
-/*
- * Code which implements the export appears in this section
- */
+/******************************************************************************
+ *        Code which implements the export appears in this section            *
+ ******************************************************************************/
 
 /*
  * Output a string to the client with these characters escaped:  & < >
@@ -542,13 +542,13 @@ void migr_do_export(void) {
 
 
 
-	
-/*
- * Here's the code that implements the import side.  It's going to end up being
- * one big loop with lots of global variables.  I don't care.  You wouldn't run
- * multiple concurrent imports anyway.  If this offends your delicate sensibilities
- * then go rewrite it in Ruby on Rails or something.
- */
+/******************************************************************************
+ *                              Import code                                   *
+ *    Here's the code that implements the import side.  It's going to end up  *
+ *        being one big loop with lots of global variables.  I don't care.    *
+ * You wouldn't run multiple concurrent imports anyway.  If this offends your *
+ * delicate sensibilities  then go rewrite it in Ruby on Rails or something.  *
+ ******************************************************************************/
 
 
 int citadel_migrate_data = 0;		/* Are we inside a <citadel_migrate_data> tag pair? */
@@ -1037,6 +1037,9 @@ void migr_do_import(void) {
 
 
 
+/******************************************************************************
+ *                         Dispatcher, Common code                            *
+ ******************************************************************************/
 /*
  * Dump out the pathnames of directories which can be copied "as is"
  */
@@ -1053,12 +1056,204 @@ void migr_do_listdirs(void) {
 	cprintf("000\n");
 }
 
+/******************************************************************************
+ *                    Repair database integrity                               *
+ ******************************************************************************/
 
-/*
- * Common code appears in this section
- */
+StrBuf *PlainMessageBuf = NULL;
+HashList *UsedMessageIDS = NULL;
+
+int migr_restore_message_metadata(long msgnum, int refcount)
+{
+	CitContext *CCC = MyContext();
+	struct MetaData smi;
+	struct CtdlMessage *msg;
+	char *mptr = NULL;
+
+	/* We can use a static buffer here because there will never be more than
+	 * one of this operation happening at any given time, and it's really best
+	 * to just keep it allocated once instead of torturing malloc/free.
+	 * Call this function with msgnum "-1" to free the buffer when finished.
+	 */
+	static int encoded_alloc = 0;
+	static char *encoded_msg = NULL;
+
+	if (msgnum < 0) {
+		if ((encoded_alloc == 0) && (encoded_msg != NULL)) {
+			free(encoded_msg);
+			encoded_alloc = 0;
+			encoded_msg = NULL;
+			// todo FreeStrBuf(&PlainMessageBuf); PlainMessageBuf = NULL;
+		}
+		return 0;
+	}
+
+	if (PlainMessageBuf == NULL) {
+		PlainMessageBuf = NewStrBufPlain(NULL, 10*SIZ);
+	}
+
+	/* Ok, here we go ... */
+
+	msg = CtdlFetchMessage(msgnum, 1, 0);
+	if (msg == NULL) {
+		return 1;
+	}
+
+	GetMetaData(&smi, msgnum);
+	smi.meta_msgnum = msgnum;
+	smi.meta_refcount = refcount;
+	
+	/* restore the content type from the message body: */
+	mptr = bmstrcasestr(msg->cm_fields[eMesageText], "Content-type:");
+	if (mptr != NULL) {
+		char *aptr;
+		safestrncpy(smi.meta_content_type, &mptr[13], sizeof smi.meta_content_type);
+		striplt(smi.meta_content_type);
+		aptr = smi.meta_content_type;
+		while (!IsEmptyStr(aptr)) {
+			if ((*aptr == ';')
+			    || (*aptr == ' ')
+			    || (*aptr == 13)
+			    || (*aptr == 10)) {
+				memset(aptr, 0, sizeof(smi.meta_content_type) - (aptr - smi.meta_content_type));
+			}
+			else aptr++;
+		}
+	}
+
+	CCC->redirect_buffer = PlainMessageBuf;
+	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, QP_EADDR);
+	smi.meta_rfc822_length = StrLength(CCC->redirect_buffer);
+	CCC->redirect_buffer = NULL;
 
 
+	syslog(LOG_INFO,
+	       "Setting message #%ld meta data to: refcount=%d, bodylength=%ld, content-type: %s / %s \n",
+	       smi.meta_msgnum,
+	       smi.meta_refcount,
+	       smi.meta_rfc822_length,
+	       smi.meta_content_type,
+	       smi.mimetype);
+
+	PutMetaData(&smi);
+
+	CM_Free(msg);
+
+	return 0;
+}
+
+void migr_check_room_msg(long msgnum, void *userdata) {
+	fprintf(migr_global_message_list, "%ld %s\n", msgnum, CC->room.QRname);
+}
+
+
+void migr_check_rooms_backend(struct ctdlroom *buf, void *data) {
+
+	/* message list goes inside this tag */
+
+	CtdlGetRoom(&CC->room, buf->QRname);
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, migr_check_room_msg, NULL);
+}
+
+void RemoveMessagesFromRooms(StrBuf *RoomNameVec, long msgnum) {
+	struct MetaData smi;
+	const char *Pos = NULL;
+	StrBuf *oneRoom = NewStrBuf();
+
+	syslog(LOG_INFO, "removing message pointer %ld from these rooms: %s", msgnum, ChrPtr(RoomNameVec));
+
+	while (Pos != StrBufNOTNULL){
+		StrBufExtract_NextToken(oneRoom, RoomNameVec, &Pos, '|');
+		CtdlDeleteMessages(ChrPtr(oneRoom), &msgnum, 1, "");
+	};
+	GetMetaData(&smi, msgnum);
+	TDAP_AdjRefCount(msgnum, -smi.meta_refcount);
+}
+
+void migr_do_restore_meta(void) {
+	char buf[SIZ];
+	int failGetMessage;
+	long msgnum;
+	int lastnum = 0;
+	int refcount = 0;
+	int count = 0;
+	CitContext *Ctx;
+	char *prn;
+	StrBuf *RoomNames;
+	char cmd[SIZ];
+
+	migr_global_message_list = fopen(migr_tempfilename1, "w");
+	if (migr_global_message_list != NULL) {
+		CtdlForEachRoom(migr_check_rooms_backend, NULL);
+		fclose(migr_global_message_list);
+	}
+
+	/*
+	 * Process the 'global' message list.  (Sort it and remove dups.
+	 * Dups are ok because a message may be in more than one room, but
+	 * this will be handled by exporting the reference count, not by
+	 * exporting the message multiple times.)
+	 */
+	snprintf(cmd, sizeof cmd, "sort -n <%s >%s", migr_tempfilename1, migr_tempfilename2);
+	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
+
+	RoomNames = NewStrBuf();
+	Ctx = CC;
+	migr_global_message_list = fopen(migr_tempfilename2, "r");
+	if (migr_global_message_list != NULL) {
+		syslog(LOG_INFO, "Opened %s\n", migr_tempfilename1);
+		while ((Ctx->kill_me == 0) && 
+		       (fgets(buf, sizeof(buf), migr_global_message_list) != NULL)) {
+			msgnum = atol(buf);
+			if (msgnum == 0L) 
+				continue;
+			if (lastnum == 0) {
+				lastnum = msgnum;
+			}
+			prn = strchr(buf, ' ');
+			if (lastnum != msgnum) {
+				failGetMessage = migr_restore_message_metadata(lastnum, refcount);
+				if (failGetMessage) {
+					RemoveMessagesFromRooms(RoomNames, lastnum);
+				}
+				refcount = 1;
+				lastnum = msgnum;
+				if (prn != NULL)
+					StrBufPlain(RoomNames, prn + 1, -1);
+				StrBufTrim(RoomNames);
+			}
+			else {
+				if (prn != NULL) {
+					if (StrLength(RoomNames) > 0)
+						StrBufAppendBufPlain(RoomNames, HKEY("|"), 0);
+					StrBufAppendBufPlain(RoomNames, prn, -1, 1);
+					StrBufTrim(RoomNames);
+				}
+				refcount ++;
+			}
+			lastnum = msgnum;
+		}
+		failGetMessage = migr_restore_message_metadata(msgnum, refcount);
+		if (failGetMessage) {
+			RemoveMessagesFromRooms(RoomNames, lastnum);
+		}
+		fclose(migr_global_message_list);
+	}
+
+	if (Ctx->kill_me == 0)
+		syslog(LOG_INFO, "Exported %d messages.\n", count);
+	else
+		syslog(LOG_ERR, "Export aborted due to client disconnect! \n");
+
+	migr_restore_message_metadata(-1L, -1);	/* This frees the encoding buffer */
+}
+
+
+
+
+/******************************************************************************
+ *                         Dispatcher, Common code                            *
+ ******************************************************************************/
 void cmd_migr(char *cmdbuf) {
 	char cmd[32];
 	
@@ -1080,6 +1275,9 @@ void cmd_migr(char *cmdbuf) {
 		else if (!strcasecmp(cmd, "listdirs")) {
 			migr_do_listdirs();
 		}
+		else if (!strcasecmp(cmd, "restoremeta")) {
+			migr_do_restore_meta();
+		}
 		else {
 			cprintf("%d illegal command\n", ERROR + ILLEGAL_VALUE);
 		}
@@ -1096,6 +1294,9 @@ void cmd_migr(char *cmdbuf) {
 	}
 }
 
+/******************************************************************************
+ *                              Module Hook                                  *
+ ******************************************************************************/
 
 CTDL_MODULE_INIT(migrate)
 {
