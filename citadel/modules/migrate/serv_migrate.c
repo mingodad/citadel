@@ -326,7 +326,9 @@ void migr_export_message(long msgnum) {
 	GetMetaData(&smi, msgnum);
 	cprintf("<msg_msgnum>%ld</msg_msgnum>\n", msgnum);
 	cprintf("<msg_meta_refcount>%d</msg_meta_refcount>\n", smi.meta_refcount);
+	cprintf("<msg_meta_rfc822_length>%ld</msg_meta_rfc822_length>\n", smi.meta_rfc822_length);
 	client_write(HKEY("<msg_meta_content_type>")); xml_strout(smi.meta_content_type); client_write(HKEY("</msg_meta_content_type>\n"));
+	client_write(HKEY("<msg_mimetype>")); xml_strout(smi.mimetype); client_write(HKEY("</msg_mimetype>\n"));
 
 	client_write(HKEY("<msg_text>"));
 	CtdlSerializeMessage(&smr, msg);
@@ -931,16 +933,17 @@ void migr_xml_end(void *data, const char *el)
 
 	/*** MESSAGES ***/
 	
-	else if (!strcasecmp(el, "msg_msgnum"))			import_msgnum = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msg_msgnum"))			smi.meta_msgnum = import_msgnum = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "msg_meta_refcount"))		smi.meta_refcount = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msg_meta_rfc822_length"))	smi.meta_rfc822_length = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "msg_meta_content_type"))	safestrncpy(smi.meta_content_type, ChrPtr(migr_chardata), sizeof smi.meta_content_type);
+	else if (!strcasecmp(el, "msg_mimetype"))	        safestrncpy(smi.mimetype, ChrPtr(migr_chardata), sizeof smi.mimetype);
 
 	else if (!strcasecmp(el, "msg_text"))
 	{
 		long rc;
 		struct CtdlMessage *msg;
 
-		smi.meta_msgnum = import_msgnum;
 		FlushStrBuf(migr_MsgData);
 		StrBufDecodeBase64To(migr_chardata, migr_MsgData);
 
@@ -949,7 +952,7 @@ void migr_xml_end(void *data, const char *el)
 					     StrLength(migr_MsgData));
 		if (msg != NULL) {
 			rc = CtdlSaveThisMessage(msg, import_msgnum, 0);
-			if (rc > 0) {
+			if (rc == 0) {
 				PutMetaData(&smi);
 			}
 			CM_Free(msg);
@@ -959,12 +962,15 @@ void migr_xml_end(void *data, const char *el)
 		}
 
 		syslog(LOG_INFO,
-		       "%s message #%ld, size=%d, refcount=%d, content-type: %s\n",
+		       "%s message #%ld, size=%d, refcount=%d, bodylength=%ld, content-type: %s / %s \n",
 		       (rc!= 0)?"failed to import ":"Imported ",
 		       import_msgnum,
 		       StrLength(migr_MsgData),
 		       smi.meta_refcount,
-		       smi.meta_content_type);
+		       smi.meta_rfc822_length,
+		       smi.meta_content_type,
+		       smi.mimetype);
+		memset(&smi, 0, sizeof(smi));
 	}
 
 	/*** MORE GENERAL STUFF ***/
