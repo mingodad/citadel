@@ -549,7 +549,7 @@ int network_usetable(struct CtdlMessage *msg)
 	if (CheckIfAlreadySeen("Networker Import",
 			       msgid,
 			       now, 0,
-			       eCheckUpdate,
+			       eUpdate,
 			       CCC->cs_pid, 0) != 0)
 	{
 		FreeStrBuf(&msgid);

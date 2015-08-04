@@ -935,8 +935,10 @@ time_t CheckIfAlreadySeen(const char *Facility,
 		else
 		{
 			if (cdbut) cdb_free(cdbut);
-
+			
 			SEENM_syslog(LOG_DEBUG, "not Found");
+			if (cType == eCheckUpdate)
+				return 0;
 		}
 
 		if (cType == eCheckExist)

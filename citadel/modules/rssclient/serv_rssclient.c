@@ -685,7 +685,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 			       guid,
 			       EvGetNow(IO),
 			       EvGetNow(IO) - USETABLE_ANTIEXPIRE,
-			       eCheckUpdate,
+			       eUpdate,
 			       CCID, IO->ID)
 	    != 0)
 	{

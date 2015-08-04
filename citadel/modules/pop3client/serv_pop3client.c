@@ -418,6 +418,7 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 	const char *HKey;
 	void *vData;
 	pop3aggr *RecvMsg = (pop3aggr *) IO->Data;
+	time_t seenstamp = 0;
 
 	SetPOP3State(IO, eUseTable);
 
@@ -431,13 +432,15 @@ eNextState POP3_FetchNetworkUsetableEntry(AsyncIO *IO)
 		if (server_shutting_down)
 			return eAbort;
 
-		if (CheckIfAlreadySeen("POP3 Item Seen",
-				       RecvMsg->CurrMsg->MsgUID,
-				       EvGetNow(IO),
-				       EvGetNow(IO) - USETABLE_ANTIEXPIRE,
-				       eCheckUpdate,
-				       IO->ID, CCID)
-		    != 0)
+		RecvMsg->CurrMsg = (FetchItem*)vData;
+
+		seenstamp = CheckIfAlreadySeen("POP3 Item Seen",
+					       RecvMsg->CurrMsg->MsgUID,
+					       EvGetNow(IO),
+					       EvGetNow(IO) - USETABLE_ANTIEXPIRE,
+					       eCheckUpdate,
+					       IO->ID, CCID);
+		if (seenstamp != 0)
 		{
 			/* Item has already been seen */
 			RecvMsg->CurrMsg->NeedFetch = 0;
@@ -539,6 +542,8 @@ eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 
 	SetPOP3State(IO, eGetMsg);
 
+	EVP3CM_syslog(LOG_DEBUG, "fast forwarding to the next unknown message");
+
 	RecvMsg->CurrMsg = NULL;
 	while ((RecvMsg->Pos != NULL) && 
 	       GetNextHashPos(RecvMsg->MsgNumbers,
@@ -551,6 +556,7 @@ eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 
 	if ((RecvMsg->CurrMsg != NULL ) && (RecvMsg->CurrMsg->NeedFetch == 1))
 	{
+		EVP3CM_syslog(LOG_DEBUG, "fetching next");
 		/* Message has not been seen.
 		 * Tell the server to fetch the message... */
 		StrBufPrintf(RecvMsg->IO.SendBuf.Buf,
@@ -559,6 +565,7 @@ eNextState POP3C_SendGetOneMsg(pop3aggr *RecvMsg)
 		return eReadMessage;
 	}
 	else {
+		EVP3CM_syslog(LOG_DEBUG, "no more messages to fetch.");
 		RecvMsg->State = ReadQuitState;
 		return POP3_C_DispatchWriteDone(&RecvMsg->IO);
 	}
@@ -652,7 +659,7 @@ eNextState POP3C_ReadDeleteState(pop3aggr *RecvMsg)
 	AsyncIO *IO = &RecvMsg->IO;
 	POP3C_DBG_READ();
 	RecvMsg->State = GetOneMessageIDState;
-	return eReadMessage;
+	return POP3_C_DispatchWriteDone(&RecvMsg->IO);
 }
 
 eNextState POP3C_SendQuit(pop3aggr *RecvMsg)
