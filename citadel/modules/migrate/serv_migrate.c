@@ -1176,7 +1176,6 @@ void migr_do_restore_meta(void) {
 	long msgnum;
 	int lastnum = 0;
 	int refcount = 0;
-	int count = 0;
 	CitContext *Ctx;
 	char *prn;
 	StrBuf *RoomNames;
@@ -1240,12 +1239,9 @@ void migr_do_restore_meta(void) {
 		fclose(migr_global_message_list);
 	}
 
-	if (Ctx->kill_me == 0)
-		syslog(LOG_INFO, "Exported %d messages.\n", count);
-	else
-		syslog(LOG_ERR, "Export aborted due to client disconnect! \n");
-
 	migr_restore_message_metadata(-1L, -1);	/* This frees the encoding buffer */
+	cprintf("%d system analysis completed", CIT_OK);
+	Ctx->kill_me = 1;
 }
 
 
