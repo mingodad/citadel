@@ -96,7 +96,7 @@
 /*
  * Bounce a message back to the sender
  */
-void network_bounce(struct CtdlMessage *msg, char *reason)
+void network_bounce(struct CtdlMessage **pMsg, char *reason)
 {
 	struct CitContext *CCC = CC;
 	char buf[SIZ];
@@ -106,7 +106,8 @@ void network_bounce(struct CtdlMessage *msg, char *reason)
 	char force_room[ROOMNAMELEN];
 	static int serialnum = 0;
 	long len;
-
+	struct CtdlMessage *msg = *pMsg;
+	*pMsg = NULL;
 	QNM_syslog(LOG_DEBUG, "entering network_bounce()\n");
 
 	if (msg == NULL) return;
@@ -656,10 +657,9 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 			else {	/* invalid destination node name */
 				FreeStrBuf(&Buf);
 
-				network_bounce(msg,
+				network_bounce(&msg,
 "A message you sent could not be delivered due to an invalid destination node"
 " name.  Please check the address and try sending the message again.\n");
-				msg = NULL;
 				return;
 
 			}
@@ -696,10 +696,9 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	else if (!CM_IsEmpty(msg, eRecipient)) {
 		recp = validate_recipients(msg->cm_fields[eRecipient], NULL, 0);
 		if (recp != NULL) if (recp->num_error != 0) {
-			network_bounce(msg,
+			network_bounce(&msg,
 				"A message you sent could not be delivered due to an invalid address.\n"
 				"Please check the address and try sending the message again.\n");
-			msg = NULL;
 			free_recipients(recp);
 			QNM_syslog(LOG_DEBUG, "Bouncing message due to invalid recipient address.\n");
 			return;
