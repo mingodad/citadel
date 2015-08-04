@@ -96,54 +96,6 @@ typedef struct __roomlists {
 struct RoomProcList *rplist = NULL;
 
 
-
-/*
- * Check the use table.  This is a list of messages which have recently
- * arrived on the system.  It is maintained and queried to prevent the same
- * message from being entered into the database multiple times if it happens
- * to arrive multiple times by accident.
- */
-int network_usetable(struct CtdlMessage *msg)
-{
-	StrBuf *msgid;
-	struct CitContext *CCC = CC;
-	time_t now;
-
-	/* Bail out if we can't generate a message ID */
-	if ((msg == NULL) || CM_IsEmpty(msg, emessageId))
-	{
-		return(0);
-	}
-
-	/* Generate the message ID */
-	msgid = NewStrBufPlain(CM_KEY(msg, emessageId));
-	if (haschar(ChrPtr(msgid), '@') == 0) {
-		StrBufAppendBufPlain(msgid, HKEY("@"), 0);
-		if (!CM_IsEmpty(msg, eNodeName)) {
-			StrBufAppendBufPlain(msgid, CM_KEY(msg, eNodeName), 0);
-		}
-		else {
-			FreeStrBuf(&msgid);
-			return(0);
-		}
-	}
-	now = time(NULL);
-	if (CheckIfAlreadySeen("Networker Import",
-			       msgid,
-			       now, 0,
-			       eCheckUpdate,
-			       CCC->cs_pid, 0) != 0)
-	{
-		FreeStrBuf(&msgid);
-		return(1);
-	}
-	FreeStrBuf(&msgid);
-
-	return(0);
-}
-
-
-
 /*
  * Send the *entire* contents of the current room to one specific network node,
  * ignoring anything we know about which messages have already undergone
