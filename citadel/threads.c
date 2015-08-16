@@ -1,7 +1,7 @@
 /*
  * Thread handling stuff for Citadel server
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -19,6 +19,7 @@
 #include "modules_init.h"
 #include "serv_extensions.h"
 #include "ctdl_module.h"
+#include "config.h"
 #include "context.h"
 #include "threads.h"
 
@@ -171,7 +172,7 @@ void go_threading(void)
 	 * they are all in use.
 	 */
 	while (!server_shutting_down) {
-		if ((active_workers == num_workers) && (num_workers < config.c_max_workers)) {
+		if ((active_workers == num_workers) && (num_workers < CtdlGetConfigInt("c_max_workers"))) {
 			CtdlThreadCreate(worker_thread);
 		}
 		usleep(1000000);

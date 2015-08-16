@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 1998-2012 by the citadel.org team
+ * Copyright (c) 1998-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -53,9 +47,8 @@
 #include "server.h"
 #include "citserver.h"
 #include "support.h"
-
 #include "ctdl_module.h"
-
+#include "config.h"
 #include "event_client.h"
 #include "serv_curl.h"
 
@@ -478,13 +471,13 @@ int evcurl_init(AsyncIO *IO)
 	OPT(WRITEDATA, (void *)IO);
 	OPT(ERRORBUFFER, IO->HttpReq.errdesc);
 
-	if ((!IsEmptyStr(config.c_ip_addr))
-		&& (strcmp(config.c_ip_addr, "*"))
-		&& (strcmp(config.c_ip_addr, "::"))
-		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
+	if ((!IsEmptyStr(CtdlGetConfigStr("c_ip_addr")))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "*"))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "::"))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "0.0.0.0"))
 		)
 	{
-		OPT(INTERFACE, config.c_ip_addr);
+		OPT(INTERFACE, CtdlGetConfigStr("c_ip_addr"));
 	}
 
 #ifdef CURLOPT_HTTP_CONTENT_DECODING

@@ -27,6 +27,7 @@
 #include "ctdl_module.h"
 #include "event_client.h"
 #include "citserver.h"
+#include "config.h"
 
 ConstStr IOStates[] = {
 	{HKEY("DB Queue")},
@@ -1059,8 +1060,8 @@ eNextState EvConnectSock(AsyncIO *IO,
 	
 		memset(&egress_sin, 0, sizeof(egress_sin));
 		egress_sin.sin_family = AF_INET;
-		if (!IsEmptyStr(config.c_ip_addr)) {
-			egress_sin.sin_addr.s_addr = inet_addr(config.c_ip_addr);
+		if (!IsEmptyStr(CtdlGetConfigStr("c_ip_addr"))) {
+			egress_sin.sin_addr.s_addr = inet_addr(CtdlGetConfigStr("c_ip_addr"));
 			if (egress_sin.sin_addr.s_addr == !INADDR_ANY) {
 				egress_sin.sin_addr.s_addr = INADDR_ANY;
 			}

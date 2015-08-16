@@ -1,15 +1,15 @@
 /*
  * Main source module for the client program.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -1007,11 +1007,10 @@ void system_info(CtdlIPC *ipc)
 	scr_printf("You are connected to %s (%s) @%s\n", ipc->ServInfo.nodename, ipc->ServInfo.humannode, ipc->ServInfo.fqdn);
 	scr_printf("running %s with text client v%.2f,\n", ipc->ServInfo.software, (float)CLIENT_VERSION/100);
 	scr_printf("server build %s,\n", ipc->ServInfo.svn_revision, (float)CLIENT_VERSION/100);
-    scr_printf("and located in %s.\n", ipc->ServInfo.site_location);
-    scr_printf("Connected users %d / Active users %d / Highest message #%ld\n", mrtg_users, mrtg_active_users, mrtg_himessage);
-    scr_printf("Server uptime: %s\n", mrtg_server_uptime);
-    scr_printf("Your system administrator is %s.\n", ipc->ServInfo.sysadm);
-    scr_printf("Copyright (C)1987-2009 by the Citadel development team\n");
+	scr_printf("and located in %s.\n", ipc->ServInfo.site_location);
+	scr_printf("Connected users %d / Active users %d / Highest message #%ld\n", mrtg_users, mrtg_active_users, mrtg_himessage);
+	scr_printf("Server uptime: %s\n", mrtg_server_uptime);
+	scr_printf("Your system administrator is %s.\n", ipc->ServInfo.sysadm);
 }
 
 /*

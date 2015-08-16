@@ -262,7 +262,7 @@ int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCfg, char *filename)
 	else {
 		OutBuffer = NewStrBuf();
 		CfgIt = GetNewHashPos(CfgTypeHash, 1);
-		fchown(TmpFD, config.c_ctdluid, 0);
+		fchown(TmpFD, ctdluid, 0);
 		for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
 		{
 			const CfgLineType *pCfg;

@@ -1,7 +1,7 @@
 /*
  * Server-side module for Wiki rooms.  This handles things like version control. 
  * 
- * Copyright (c) 2009-2012 by the citadel.org team
+ * Copyright (c) 2009-2015 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -303,7 +303,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 					   uuid,
 					   Now,
 					   CCC->user.fullname,
-					   config.c_nodename);
+					   CtdlGetConfigStr("c_nodename"));
 
 			memolen = CtdlEncodeBase64(encoded_memo, memo, memolen, 0);
 
@@ -643,7 +643,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 			CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
 			CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
-			CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+			CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
 			CM_SetField(msg, eExclusiveID, pagename, strlen(pagename));
 			msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Replace the current revision */
 		}

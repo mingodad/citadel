@@ -1,21 +1,21 @@
 /*
  * Autocompletion of email recipients, etc.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
+
+
 #include "ctdl_module.h"
-
-
 #include "serv_autocompletion.h"
-
+#include "config.h"
 
 
 /*
@@ -170,7 +170,7 @@ void cmd_auto(char *argbuf) {
 	/*
 	 * Search-reduce the results if we have the full text index available
 	 */
-	if (config.c_enable_fulltext) {
+	if (CtdlGetConfigInt("c_enable_fulltext")) {
 		CtdlModuleDoSearch(&fts_num_msgs, &fts_msgs, search_string, "fulltext");
 		if (fts_msgs) {
 			for (i=0; i<num_msgs; ++i) {

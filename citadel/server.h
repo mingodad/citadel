@@ -1,3 +1,17 @@
+/* 
+ * Main declarations file for the Citadel server
+ *
+ * Copyright (c) 1987-2015 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -66,6 +80,7 @@ typedef struct __recptypes {
 #define CTDLEXIT_DB		105	/* Unable to initialize database */
 #define CTDLEXIT_LIBCITADEL	106	/* Incorrect version of libcitadel */
 #define CTDL_EXIT_UNSUP_AUTH	107	/* Unsupported auth mode configured */
+#define CTDLEXIT_UNUSER		108	/* Could not determine uid to run as */
 
 /*
  * Reasons why a session would be terminated (set CC->kill_me to these values)
@@ -101,22 +116,8 @@ enum {
 #define CS_POSTING	4	/* Posting */
 
 
-/*
- * This is the control record for the message base... 
- */
-struct CitControl {
-	long MMhighest;			/* highest message number in file   */
-	unsigned MMflags;		/* Global system flags              */
-	long MMnextuser;		/* highest user number on system    */
-	long MMnextroom;		/* highest room number on system    */
-	int version;			/* Server-hosted upgrade level      */
-	int fulltext_wordbreaker;	/* ID of wordbreaker in use         */
-	long MMfulltext;		/* highest message number indexed   */
-	int MMdbversion;		/* Version of Berkeley DB used on previous server run */
-};
-
 extern int ScheduledShutdown;
-extern struct CitControl CitControl;
+extern uid_t ctdluid;
 
 struct ExpressMessage {
 	struct ExpressMessage *next;
@@ -210,6 +211,7 @@ enum {
 	CDB_EUIDINDEX,		/* locate msgs by EUID           */
 	CDB_USERSBYNUMBER,	/* index of users by number      */
 	CDB_OPENID,		/* associates OpenIDs with users */
+	CDB_CONFIG,		/* system configuration database */
 	MAXCDB			/* total number of CDB's defined */
 };
 

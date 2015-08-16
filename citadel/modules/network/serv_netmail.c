@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2012 by the citadel.org team
+ * Copyright (c) 2000-2015 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License, version 3.
@@ -218,7 +218,7 @@ void network_deliver_digest(SpoolControl *sc)
 
 	/* Where do we want bounces and other noise to be heard?
 	 * Surely not the list members! */
-	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
+	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", CtdlGetConfigStr("c_fqdn"));
 
 	/* Now submit the message */
 	valid = validate_recipients(ChrPtr(sc->Users[digestrecp]), NULL, 0);
@@ -366,7 +366,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc, const char 
 
 	/* Where do we want bounces and other noise to be heard?
 	 *  Surely not the list members! */
-	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
+	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", CtdlGetConfigStr("c_fqdn"));
 
 	/* Now submit the message */
 	valid = validate_recipients(ChrPtr(sc->Users[listrecp]), NULL, 0);
@@ -403,8 +403,8 @@ void network_process_participate(SpoolControl *sc, struct CtdlMessage *omsg, lon
 	 */
 	ok_to_participate = 0;
 	if (!CM_IsEmpty(msg, eNodeName)) {
-		if (!strcasecmp(msg->cm_fields[eNodeName],
-				config.c_nodename)) {
+		if (!strcasecmp(msg->cm_fields[eNodeName], CtdlGetConfigStr("c_nodename")))
+		{
 			ok_to_participate = 1;
 		}
 		

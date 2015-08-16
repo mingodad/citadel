@@ -34,8 +34,7 @@
 icaltimezone *get_default_icaltimezone(void) {
 
         icaltimezone *zone = NULL;
-	char *default_zone_name = config.c_default_cal_zone;
-	//char *default_zone_name = "America/New_York";
+	char *default_zone_name = CtdlGetConfigStr("c_default_cal_zone");
 
         if (!zone) {
                 zone = icaltimezone_get_builtin_timezone(default_zone_name);

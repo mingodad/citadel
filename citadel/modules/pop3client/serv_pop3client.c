@@ -1,7 +1,7 @@
 /*
  * Consolidate mail from remote POP3 accounts.
  *
- * Copyright (c) 2007-2011 by the citadel.org team
+ * Copyright (c) 2007-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -12,10 +12,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include <stdlib.h>
@@ -579,7 +575,7 @@ eNextState POP3C_ReadMessageBodyFollowing(pop3aggr *RecvMsg)
 	if (!POP3C_OK) return eTerminateConnection;
 	RecvMsg->IO.ReadMsg = NewAsyncMsg(HKEY("."),
 					  RecvMsg->CurrMsg->MSGSize,
-					  config.c_maxmsglen,
+					  CtdlGetConfigLong("c_maxmsglen"),
 					  NULL, -1,
 					  1);
 
@@ -1155,10 +1151,10 @@ void pop3client_scan(void) {
 
 	become_session(&pop3_client_CC);
 
-	if (config.c_pop3_fastest < config.c_pop3_fetch)
-		fastest_scan = config.c_pop3_fastest;
+	if (CtdlGetConfigLong("c_pop3_fastest") < CtdlGetConfigLong("c_pop3_fetch"))
+		fastest_scan = CtdlGetConfigLong("c_pop3_fastest");
 	else
-		fastest_scan = config.c_pop3_fetch;
+		fastest_scan = CtdlGetConfigLong("c_pop3_fetch");
 
 	/*
 	 * Run POP3 aggregation no more frequently than once every n seconds
@@ -1191,7 +1187,7 @@ void pop3client_scan(void) {
 
 /*
 	if ((palist->interval && time(NULL) > (last_run + palist->interval))
-			|| (time(NULL) > last_run + config.c_pop3_fetch))
+			|| (time(NULL) > last_run + CtdlGetConfigLong("c_pop3_fetch")))
 			pop3_do_fetching(palist->roomname, palist->pop3host,
 			palist->pop3user, palist->pop3pass, palist->keep);
 		pptr = palist;

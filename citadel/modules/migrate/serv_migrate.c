@@ -1,7 +1,7 @@
 /*
  * This module dumps and/or loads the Citadel database in XML format.
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -16,8 +16,7 @@
  * Explanation of <progress> tags:
  *
  * 0%              nothing
- * 1%              finished exporting config
- * 2%              finished exporting control
+ * 2%              finished exporting configuration
  * 7%              finished exporting users
  * 12%             finished exporting openids
  * 17%             finished exporting rooms
@@ -61,7 +60,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "user_ops.h"
-#include "control.h"
 #include "euidindex.h"
 #include "ctdl_module.h"
 
@@ -381,6 +379,29 @@ void migr_export_openids(void) {
 }
 
 
+void migr_export_configs(void) {
+	struct cdbdata *cdbcfg;
+	int keylen = 0;
+	char *key = NULL;
+	char *value = NULL;
+
+	cdb_rewind(CDB_CONFIG);
+	while (cdbcfg = cdb_next_item(CDB_CONFIG), cdbcfg != NULL) {
+
+		keylen = strlen(cdbcfg->ptr);
+		key = cdbcfg->ptr;
+		value = cdbcfg->ptr + keylen + 1;
+
+		client_write("<config key=\"", 13);
+		xml_strout(key);
+		client_write("\">", 2);
+		xml_strout(value);
+		client_write("</config>\n", 10);
+		cdb_free(cdbcfg);
+	}
+}
+
+
 
 
 void migr_export_messages(void) {
@@ -432,96 +453,10 @@ void migr_do_export(void) {
 	cprintf("<version>%d</version>\n", REV_LEVEL);
 	cprintf("<progress>%d</progress>\n", 0);
 
-	/* export the config file (this is done using x-macros) */
-	client_write(HKEY("<config>\n"));
-	client_write(HKEY("<c_nodename>"));	xml_strout(config.c_nodename);		client_write(HKEY("</c_nodename>\n"));
-	client_write(HKEY("<c_fqdn>"));		xml_strout(config.c_fqdn);		client_write(HKEY("</c_fqdn>\n"));
-	client_write(HKEY("<c_humannode>"));	xml_strout(config.c_humannode);		client_write(HKEY("</c_humannode>\n"));
-	client_write(HKEY("<c_phonenum>"));	xml_strout(config.c_phonenum);		client_write(HKEY("</c_phonenum>\n"));
-	cprintf("<c_ctdluid>%d</c_ctdluid>\n", config.c_ctdluid);
-	cprintf("<c_creataide>%d</c_creataide>\n", config.c_creataide);
-	cprintf("<c_sleeping>%d</c_sleeping>\n", config.c_sleeping);
-	cprintf("<c_initax>%d</c_initax>\n", config.c_initax);
-	cprintf("<c_regiscall>%d</c_regiscall>\n", config.c_regiscall);
-	cprintf("<c_twitdetect>%d</c_twitdetect>\n", config.c_twitdetect);
-	client_write(HKEY("<c_twitroom>"));	xml_strout(config.c_twitroom);		client_write(HKEY("</c_twitroom>\n"));
-	client_write(HKEY("<c_moreprompt>"));	xml_strout(config.c_moreprompt);	client_write(HKEY("</c_moreprompt>\n"));
-	cprintf("<c_restrict>%d</c_restrict>\n", config.c_restrict);
-	client_write(HKEY("<c_site_location>"));	xml_strout(config.c_site_location);	client_write(HKEY("</c_site_location>\n"));
-	client_write(HKEY("<c_sysadm>"));		xml_strout(config.c_sysadm);		client_write(HKEY("</c_sysadm>\n"));
-	cprintf("<c_maxsessions>%d</c_maxsessions>\n", config.c_maxsessions);
-	client_write(HKEY("<c_ip_addr>"));	xml_strout(config.c_ip_addr);		client_write(HKEY("</c_ip_addr>\n"));
-	cprintf("<c_port_number>%d</c_port_number>\n", config.c_port_number);
-	cprintf("<c_ep_expire_mode>%d</c_ep_expire_mode>\n", config.c_ep.expire_mode);
-	cprintf("<c_ep_expire_value>%d</c_ep_expire_value>\n", config.c_ep.expire_value);
-	cprintf("<c_userpurge>%d</c_userpurge>\n", config.c_userpurge);
-	cprintf("<c_roompurge>%d</c_roompurge>\n", config.c_roompurge);
-	client_write(HKEY("<c_logpages>"));	xml_strout(config.c_logpages);		client_write(HKEY("</c_logpages>\n"));
-	cprintf("<c_createax>%d</c_createax>\n", config.c_createax);
-	cprintf("<c_maxmsglen>%ld</c_maxmsglen>\n", config.c_maxmsglen);
-	cprintf("<c_min_workers>%d</c_min_workers>\n", config.c_min_workers);
-	cprintf("<c_max_workers>%d</c_max_workers>\n", config.c_max_workers);
-	cprintf("<c_pop3_port>%d</c_pop3_port>\n", config.c_pop3_port);
-	cprintf("<c_smtp_port>%d</c_smtp_port>\n", config.c_smtp_port);
-	cprintf("<c_rfc822_strict_from>%d</c_rfc822_strict_from>\n", config.c_rfc822_strict_from);
-	cprintf("<c_aide_zap>%d</c_aide_zap>\n", config.c_aide_zap);
-	cprintf("<c_imap_port>%d</c_imap_port>\n", config.c_imap_port);
-	cprintf("<c_net_freq>%ld</c_net_freq>\n", config.c_net_freq);
-	cprintf("<c_disable_newu>%d</c_disable_newu>\n", config.c_disable_newu);
-	cprintf("<c_enable_fulltext>%d</c_enable_fulltext>\n", config.c_enable_fulltext);
-	client_write(HKEY("<c_baseroom>"));	xml_strout(config.c_baseroom);		client_write(HKEY("</c_baseroom>\n"));
-	client_write(HKEY("<c_aideroom>"));	xml_strout(config.c_aideroom);		client_write(HKEY("</c_aideroom>\n"));
-	cprintf("<c_purge_hour>%d</c_purge_hour>\n", config.c_purge_hour);
-	cprintf("<c_mbxep_expire_mode>%d</c_mbxep_expire_mode>\n", config.c_mbxep.expire_mode);
-	cprintf("<c_mbxep_expire_value>%d</c_mbxep_expire_value>\n", config.c_mbxep.expire_value);
-	client_write(HKEY("<c_ldap_host>"));	xml_strout(config.c_ldap_host);		client_write(HKEY("</c_ldap_host>\n"));
-	cprintf("<c_ldap_port>%d</c_ldap_port>\n", config.c_ldap_port);
-	client_write(HKEY("<c_ldap_base_dn>"));	xml_strout(config.c_ldap_base_dn);	client_write(HKEY("</c_ldap_base_dn>\n"));
-	client_write(HKEY("<c_ldap_bind_dn>"));	xml_strout(config.c_ldap_bind_dn);	client_write(HKEY("</c_ldap_bind_dn>\n"));
-	client_write(HKEY("<c_ldap_bind_pw>"));	xml_strout(config.c_ldap_bind_pw);	client_write(HKEY("</c_ldap_bind_pw>\n"));
-	cprintf("<c_msa_port>%d</c_msa_port>\n", config.c_msa_port);
-	cprintf("<c_imaps_port>%d</c_imaps_port>\n", config.c_imaps_port);
-	cprintf("<c_pop3s_port>%d</c_pop3s_port>\n", config.c_pop3s_port);
-	cprintf("<c_smtps_port>%d</c_smtps_port>\n", config.c_smtps_port);
-	cprintf("<c_auto_cull>%d</c_auto_cull>\n", config.c_auto_cull);
-	cprintf("<c_allow_spoofing>%d</c_allow_spoofing>\n", config.c_allow_spoofing);
-	cprintf("<c_journal_email>%d</c_journal_email>\n", config.c_journal_email);
-	cprintf("<c_journal_pubmsgs>%d</c_journal_pubmsgs>\n", config.c_journal_pubmsgs);
-	client_write(HKEY("<c_journal_dest>"));	xml_strout(config.c_journal_dest);	client_write(HKEY("</c_journal_dest>\n"));
-	client_write(HKEY("<c_default_cal_zone>"));	xml_strout(config.c_default_cal_zone);	client_write(HKEY("</c_default_cal_zone>\n"));
-	cprintf("<c_pftcpdict_port>%d</c_pftcpdict_port>\n", config.c_pftcpdict_port);
-	cprintf("<c_managesieve_port>%d</c_managesieve_port>\n", config.c_managesieve_port);
-	cprintf("<c_auth_mode>%d</c_auth_mode>\n", config.c_auth_mode);
-	client_write(HKEY("<c_funambol_host>"));	xml_strout(config.c_funambol_host);	client_write(HKEY("</c_funambol_host>\n"));
-	cprintf("<c_funambol_port>%d</c_funambol_port>\n", config.c_funambol_port);
-	client_write(HKEY("<c_funambol_source>"));	xml_strout(config.c_funambol_source);	client_write(HKEY("</c_funambol_source>\n"));
-	client_write(HKEY("<c_funambol_auth>"));	xml_strout(config.c_funambol_auth);	client_write(HKEY("</c_funambol_auth>\n"));
-	cprintf("<c_rbl_at_greeting>%d</c_rbl_at_greeting>\n", config.c_rbl_at_greeting);
-	client_write(HKEY("<c_master_user>"));	 xml_strout(config.c_master_user);		client_write(HKEY("</c_master_user>\n"));
-	client_write(HKEY("<c_master_pass>"));	 xml_strout(config.c_master_pass);		client_write(HKEY("</c_master_pass>\n"));
-	client_write(HKEY("<c_pager_program>")); xml_strout(config.c_pager_program);		client_write(HKEY("</c_pager_program>\n"));
-	cprintf("<c_imap_keep_from>%d</c_imap_keep_from>\n", config.c_imap_keep_from);
-	cprintf("<c_xmpp_c2s_port>%d</c_xmpp_c2s_port>\n", config.c_xmpp_c2s_port);
-	cprintf("<c_xmpp_s2s_port>%d</c_xmpp_s2s_port>\n", config.c_xmpp_s2s_port);
-	cprintf("<c_pop3_fetch>%ld</c_pop3_fetch>\n", config.c_pop3_fetch);
-	cprintf("<c_pop3_fastest>%ld</c_pop3_fastest>\n", config.c_pop3_fastest);
-	cprintf("<c_spam_flag_only>%d</c_spam_flag_only>\n", config.c_spam_flag_only);
-	cprintf("<c_nntp_port>%d</c_nntp_port>\n", config.c_nntp_port);
-	cprintf("<c_nntps_port>%d</c_nntps_port>\n", config.c_nntps_port);
-	client_write(HKEY("</config>\n"));
-	cprintf("<progress>%d</progress>\n", 1);
-	
-	/* Export the control file */
-	get_control();
-	client_write(HKEY("<control>\n"));
-	cprintf("<control_highest>%ld</control_highest>\n", CitControl.MMhighest);
-	cprintf("<control_flags>%u</control_flags>\n", CitControl.MMflags);
-	cprintf("<control_nextuser>%ld</control_nextuser>\n", CitControl.MMnextuser);
-	cprintf("<control_nextroom>%ld</control_nextroom>\n", CitControl.MMnextroom);
-	cprintf("<control_version>%d</control_version>\n", CitControl.version);
-	client_write(HKEY("</control>\n"));
+	/* export the configuration database */
+	migr_export_configs();
 	cprintf("<progress>%d</progress>\n", 2);
-
+	
 	if (Ctx->kill_me == 0)	migr_export_users();
 	cprintf("<progress>%d</progress>\n", 7);
 	if (Ctx->kill_me == 0)	migr_export_openids();
@@ -616,105 +551,9 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 		memset(&smi, 0, sizeof (struct MetaData));
 		import_msgnum = 0;
 	}
-
-}
-
-
-int migr_config(void *data, const char *el)
-{
-	if (!strcasecmp(el, "c_nodename"))			SET_CFGSTRBUF(c_nodename, migr_chardata);
-	else if (!strcasecmp(el, "c_fqdn"))			SET_CFGSTRBUF(c_fqdn, migr_chardata);
-	else if (!strcasecmp(el, "c_humannode"))		SET_CFGSTRBUF(c_humannode, migr_chardata);
-	else if (!strcasecmp(el, "c_phonenum"))			SET_CFGSTRBUF(c_phonenum, migr_chardata);
-	else if (!strcasecmp(el, "c_ctdluid"))			config.c_ctdluid = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_creataide"))		config.c_creataide = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_sleeping"))			config.c_sleeping = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_initax"))			config.c_initax = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_regiscall"))		config.c_regiscall = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_twitdetect"))		config.c_twitdetect = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_twitroom"))			SET_CFGSTRBUF(c_twitroom, migr_chardata);
-	else if (!strcasecmp(el, "c_moreprompt"))		SET_CFGSTRBUF(c_moreprompt, migr_chardata);
-	else if (!strcasecmp(el, "c_restrict"))			config.c_restrict = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_site_location"))		SET_CFGSTRBUF(c_site_location, migr_chardata);
-	else if (!strcasecmp(el, "c_sysadm"))			SET_CFGSTRBUF(c_sysadm, migr_chardata);
-	else if (!strcasecmp(el, "c_maxsessions"))		config.c_maxsessions = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_ip_addr"))			SET_CFGSTRBUF(c_ip_addr, migr_chardata);
-	else if (!strcasecmp(el, "c_port_number"))		config.c_port_number = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_ep_expire_mode"))		config.c_ep.expire_mode = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_ep_expire_value"))		config.c_ep.expire_value = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_userpurge"))		config.c_userpurge = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_roompurge"))		config.c_roompurge = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_logpages"))			SET_CFGSTRBUF(c_logpages, migr_chardata);
-	else if (!strcasecmp(el, "c_createax"))			config.c_createax = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_maxmsglen"))		config.c_maxmsglen = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_min_workers"))		config.c_min_workers = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_max_workers"))		config.c_max_workers = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_pop3_port"))		config.c_pop3_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_smtp_port"))		config.c_smtp_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_rfc822_strict_from"))	config.c_rfc822_strict_from = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_aide_zap"))			config.c_aide_zap = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_imap_port"))		config.c_imap_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_net_freq"))			config.c_net_freq = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_disable_newu"))		config.c_disable_newu = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_enable_fulltext"))		config.c_enable_fulltext = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_baseroom"))			SET_CFGSTRBUF(c_baseroom, migr_chardata);
-	else if (!strcasecmp(el, "c_aideroom"))			SET_CFGSTRBUF(c_aideroom, migr_chardata);
-	else if (!strcasecmp(el, "c_purge_hour"))		config.c_purge_hour = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_mbxep_expire_mode"))	config.c_mbxep.expire_mode = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_mbxep_expire_value"))	config.c_mbxep.expire_value = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_ldap_host"))		SET_CFGSTRBUF(c_ldap_host, migr_chardata);
-	else if (!strcasecmp(el, "c_ldap_port"))		config.c_ldap_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_ldap_base_dn"))		SET_CFGSTRBUF(c_ldap_base_dn, migr_chardata);
-	else if (!strcasecmp(el, "c_ldap_bind_dn"))		SET_CFGSTRBUF(c_ldap_bind_dn, migr_chardata);
-	else if (!strcasecmp(el, "c_ldap_bind_pw"))		SET_CFGSTRBUF(c_ldap_bind_pw, migr_chardata);
-	else if (!strcasecmp(el, "c_msa_port"))			config.c_msa_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_imaps_port"))		config.c_imaps_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_pop3s_port"))		config.c_pop3s_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_smtps_port"))		config.c_smtps_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_auto_cull"))		config.c_auto_cull = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_allow_spoofing"))		config.c_allow_spoofing = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_journal_email"))		config.c_journal_email = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_journal_pubmsgs"))		config.c_journal_pubmsgs = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_journal_dest"))		SET_CFGSTRBUF(c_journal_dest, migr_chardata);
-	else if (!strcasecmp(el, "c_default_cal_zone"))		SET_CFGSTRBUF(c_default_cal_zone, migr_chardata);
-	else if (!strcasecmp(el, "c_pftcpdict_port"))		config.c_pftcpdict_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_managesieve_port"))		config.c_managesieve_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_auth_mode"))		config.c_auth_mode = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_funambol_host"))		SET_CFGSTRBUF(c_funambol_host, migr_chardata);
-	else if (!strcasecmp(el, "c_funambol_port"))		config.c_funambol_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_funambol_source"))		SET_CFGSTRBUF(c_funambol_source, migr_chardata);
-	else if (!strcasecmp(el, "c_funambol_auth"))		SET_CFGSTRBUF(c_funambol_auth, migr_chardata);
-	else if (!strcasecmp(el, "c_rbl_at_greeting"))		config.c_rbl_at_greeting = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_master_user"))		SET_CFGSTRBUF(c_master_user, migr_chardata);
-	else if (!strcasecmp(el, "c_master_pass"))		SET_CFGSTRBUF(c_master_pass, migr_chardata);
-	else if (!strcasecmp(el, "c_pager_program"))		SET_CFGSTRBUF(c_pager_program, migr_chardata);
-	else if (!strcasecmp(el, "c_imap_keep_from"))		config.c_imap_keep_from = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_xmpp_c2s_port"))		config.c_xmpp_c2s_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_xmpp_s2s_port"))		config.c_xmpp_s2s_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_pop3_fetch"))		config.c_pop3_fetch = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_pop3_fastest"))		config.c_pop3_fastest = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_spam_flag_only"))		config.c_spam_flag_only = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_nntp_port"))		config.c_nntp_port = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "c_nntps_port"))		config.c_nntps_port = atoi(ChrPtr(migr_chardata));
-	else return 0;
-	return 1; /* Found above...*/
-}
-
-int migr_controlrecord(void *data, const char *el)
-{
-	if (!strcasecmp(el, "control_highest"))		CitControl.MMhighest = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_flags"))		CitControl.MMflags = atoi(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_nextuser"))		CitControl.MMnextuser = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_nextroom"))		CitControl.MMnextroom = atol(ChrPtr(migr_chardata));
-	else if (!strcasecmp(el, "control_version"))		CitControl.version = atoi(ChrPtr(migr_chardata));
-
-	else if (!strcasecmp(el, "control")) {
-		CitControl.MMfulltext = (-1L);	/* always flush */
-		put_control();
-		syslog(LOG_INFO, "Completed import of control record\n");
+	else if (!strcasecmp(el, "config")) {
+		syslog(LOG_DEBUG, "\033[31m IMPORT OF CONFIG START ELEMENT FIXME\033\0m");
 	}
-	else return 0;
-	return 1;
 
 }
 
@@ -796,6 +635,8 @@ int migr_visitrecord(void *data, const char *el)
 	else return 0;
 	return 1;
 }
+
+
 void migr_xml_end(void *data, const char *el)
 {
 	const char *ptr;
@@ -819,20 +660,12 @@ void migr_xml_end(void *data, const char *el)
 
 	/*** CONFIG ***/
 
-	if (!strcasecmp(el, "config")) {
-		config.c_enable_fulltext = 0;	/* always disable */
-		put_config();
-		syslog(LOG_INFO, "Completed import of server configuration\n");
+	if (!strcasecmp(el, "config"))
+	{
+		syslog(LOG_DEBUG, "\033[31m IMPORT OF CONFIG END ELEMENT FIXME\033\0m");
+		CtdlSetConfigInt("c_enable_fulltext", 0);	/* always disable FIXME put this somewhere more appropriate */
 	}
 
-	else if ((!strncasecmp(el, HKEY("c_"))) && 
-		 migr_config(data, el))
-		; /* Nothing to do anymore */
-		
-	/*** CONTROL ***/
-	else if ((!strncasecmp(el, HKEY("control"))) && 
-		 migr_controlrecord(data, el))
-		; /* Nothing to do anymore */
 	/*** USER ***/
 	else if ((!strncasecmp(el, HKEY("u_"))) && 
 		 migr_userrecord(data, el))
