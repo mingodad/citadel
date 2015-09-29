@@ -529,8 +529,8 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 
 	/* If a "master user" is defined, handle its authentication if specified */
 	CC->is_master = 0;
-	if (	(strlen(CtdlGetConfigStr("c_master_user")) > 0) && 
-	    	(strlen(CtdlGetConfigStr("c_master_pass")) > 0) &&
+	if (	(!IsEmptyStr(CtdlGetConfigStr("c_master_user"))) && 
+	    	(!IsEmptyStr(CtdlGetConfigStr("c_master_pass"))) &&
 		(authname != NULL) &&
 		(!strcasecmp(authname, CtdlGetConfigStr("c_master_user"))) )
 	{

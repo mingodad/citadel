@@ -819,8 +819,8 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	/* Know the room ... but not if it's the page log room, or if the
 	 * caller specified that we're only entering this room transiently.
 	 */
-	if ((strcasecmp(CCC->room.QRname, CtdlGetConfigStr("c_logpages")))
-	   && (transiently == 0) ) {
+	if ((strcasecmp(CCC->room.QRname, CtdlGetConfigStr("c_logpages"))) && (transiently == 0))
+	{
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	}
