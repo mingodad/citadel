@@ -229,13 +229,13 @@ int confbool(char *v)
  * Get or set global configuration options
  *
  * IF YOU ADD OR CHANGE FIELDS HERE, YOU *MUST* DOCUMENT YOUR CHANGES AT:
- * http://www.citadel.org/doku.php?id=documentation:applicationprotocol
+ * http://www.citadel.org/doku.php/documentation:appproto:system_config
  *
  */
 void cmd_conf(char *argbuf)
 {
 	char cmd[16];
-	char buf[256];
+	char buf[1024];
 	int a, i;
 	long ii;
 	char *confptr;
@@ -244,6 +244,8 @@ void cmd_conf(char *argbuf)
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract_token(cmd, argbuf, 0, '|', sizeof cmd);
+
+	// CONF GET - retrieve system configuration in legacy format (deprecated)
 	if (!strcasecmp(cmd, "GET")) {
 		cprintf("%d Configuration...\n", LISTING_FOLLOWS);
 		cprintf("%s\n",		CtdlGetConfigStr("c_nodename"));
@@ -329,6 +331,7 @@ void cmd_conf(char *argbuf)
 		cprintf("000\n");
 	}
 
+	// CONF SET - set system configuration in legacy format (really deprecated)
 	else if (!strcasecmp(cmd, "SET")) {
 		unbuffer_output();
 		cprintf("%d Send configuration...\n", SEND_LISTING);
@@ -591,6 +594,7 @@ void cmd_conf(char *argbuf)
 		}
 	}
 
+	// CONF GETSYS - retrieve arbitrary system configuration stanzas stored in the message base
 	else if (!strcasecmp(cmd, "GETSYS")) {
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		confptr = CtdlGetSysConfig(confname);
@@ -610,6 +614,7 @@ void cmd_conf(char *argbuf)
 		}
 	}
 
+	// CONF PUTSYS - store arbitrary system configuration stanzas in the message base
 	else if (!strcasecmp(cmd, "PUTSYS")) {
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		unbuffer_output();
@@ -619,9 +624,31 @@ void cmd_conf(char *argbuf)
 		free(confptr);
 	}
 
+	else if (!strcasecmp(cmd, "GETVAL")) {
+		extract_token(confname, argbuf, 1, '|', sizeof confname);
+		char *v = CtdlGetConfigStr(confname);
+		if (v) {
+			cprintf("%d|%s|\n", CIT_OK, v);
+		}
+		else {
+			cprintf("%d||\n", ERROR);
+		}
+	}
+
+	else if (!strcasecmp(cmd, "PUTVAL")) {
+		if (num_tokens(argbuf, '|') < 3) {
+			cprintf("%d name and value required\n", ERROR);
+		}
+		else {
+			extract_token(confname, argbuf, 1, '|', sizeof confname);
+			extract_token(buf, argbuf, 2, '|', sizeof buf);
+			CtdlSetConfigStr(confname, buf);
+			cprintf("%d setting '%s' to '%s'\n", CIT_OK, confname, buf);
+		}
+	}
+
 	else {
-		cprintf("%d Illegal option(s) specified.\n",
-			ERROR + ILLEGAL_VALUE);
+		cprintf("%d Illegal option(s) specified.\n", ERROR + ILLEGAL_VALUE);
 	}
 }
 
