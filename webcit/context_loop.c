@@ -603,6 +603,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
 	TheSession->inuse = 1;				/* mark the session as bound */
+	TheSession->isFailure = 0;                      /* reset evntually existing error flags */
 	TheSession->lastreq = now;			/* log */
 	TheSession->Hdr = Hdr;
 

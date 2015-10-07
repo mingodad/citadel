@@ -1907,6 +1907,8 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 
 }
 
+
+StrBuf *textPlainType;
 /**
  * \brief Display a variable-substituted template
  * \param templatename template file to load
@@ -1933,23 +1935,28 @@ const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCT
 	{
 		syslog(LOG_WARNING, "Can't to load a template with empty name!\n");
 		StrBufAppendPrintf(Target, "<pre>\nCan't to load a template with empty name!\n</pre>");
-		return NULL;
+		return textPlainType;
 	}
 
 	if (!GetHash(StaticLocal, templatename, len, &vTmpl) &&
 	    !GetHash(Static, templatename, len, &vTmpl)) {
-		syslog(LOG_WARNING, "didn't find Template [%s] %ld %ld\n", templatename, len , (long)strlen(templatename));
+		StrBuf *escapedString = NewStrBufPlain(NULL, len);
+		
+		StrHtmlEcmaEscAppend(escapedString, NULL, templatename, 1, 1);
+		syslog(LOG_WARNING, "didn't find Template [%s] %ld %ld\n", ChrPtr(escapedString), len , (long)strlen(templatename));
 		StrBufAppendPrintf(Target, "<pre>\ndidn't find Template [%s] %ld %ld\n</pre>", 
-				   templatename, len, 
+				   ChrPtr(escapedString), len, 
 				   (long)strlen(templatename));
+		WC->isFailure = 1;
 #if 0
 		dbg_PrintHash(Static, PrintTemplate, NULL);
 		PrintHash(Static, VarPrintTransition, PrintTemplate);
 #endif
-		return NULL;
+		FreeStrBuf(&escapedString);
+		return textPlainType;
 	}
 	if (vTmpl == NULL) 
-		return NULL;
+		return textPlainType;
 	return ProcessTemplate(vTmpl, Target, TP);
 
 }
@@ -2988,9 +2995,9 @@ void
 ServerStartModule_SUBST
 (void)
 {
+	textPlainType = NewStrBufPlain(HKEY("text/plain"));
 	LocalTemplateCache = NewHash(1, NULL);
 	TemplateCache = NewHash(1, NULL);
-
 	GlobalNS = NewHash(1, NULL);
 	Iterators = NewHash(1, NULL);
 	Conditionals = NewHash(1, NULL);
@@ -3016,9 +3023,11 @@ void
 ServerShutdownModule_SUBST
 (void)
 {
+	FreeStrBuf(&textPlainType);
+
 	DeleteHash(&TemplateCache);
 	DeleteHash(&LocalTemplateCache);
-
+	
 	DeleteHash(&GlobalNS);
 	DeleteHash(&Iterators);
 	DeleteHash(&Conditionals);

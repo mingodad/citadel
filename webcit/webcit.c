@@ -141,7 +141,9 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 	wcsession *WCC = WC;
 	char httpnow[128];
 
-	if (WCC->Hdr->HaveRange > 1)
+	if (WCC->isFailure) 
+		hprintf("HTTP/2.2 500 Internal Server Error");
+	else if (WCC->Hdr->HaveRange > 1)
 		hprintf("HTTP/1.1 206 Partial Content\r\n");
 	else
 		hprintf("HTTP/1.1 200 OK\r\n");
