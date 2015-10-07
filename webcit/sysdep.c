@@ -557,6 +557,9 @@ webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdi
 void drop_root(uid_t UID)
 {
 	struct passwd pw, *pwp = NULL;
+#ifdef HAVE_GETPWUID_R
+	char pwbuf[SIZ];
+#endif
 
 	/*
 	 * Now that we've bound the sockets, change to the Citadel user id and its

@@ -119,7 +119,7 @@ int inetcfg_aftersave(struct CtdlMessage *msg, recptypes *recp) {
 void inetcfg_init_backend(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 
-       	msg = CtdlFetchMessage(msgnum, 1);
+       	msg = CtdlFetchMessage(msgnum, 1, 1);
        	if (msg != NULL) {
 		inetcfg_setTo(msg);
                	CM_Free(msg);

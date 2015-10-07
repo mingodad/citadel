@@ -2,15 +2,15 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2012 by the citadel.org team
+ * Copyright (c) 2000-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
  * This is a fairly high-level type of critical section.  It ensures that no
@@ -93,6 +93,86 @@
 #endif
 
 
+/*
+ * Bounce a message back to the sender
+ */
+void network_bounce(struct CtdlMessage **pMsg, char *reason)
+{
+	struct CitContext *CCC = CC;
+	char buf[SIZ];
+	char bouncesource[SIZ];
+	char recipient[SIZ];
+	recptypes *valid = NULL;
+	char force_room[ROOMNAMELEN];
+	static int serialnum = 0;
+	long len;
+	struct CtdlMessage *msg = *pMsg;
+	*pMsg = NULL;
+	QNM_syslog(LOG_DEBUG, "entering network_bounce()\n");
+
+	if (msg == NULL) return;
+
+	snprintf(bouncesource, sizeof bouncesource, "%s@%s", BOUNCESOURCE, CtdlGetConfigStr("c_nodename"));
+
+	/* 
+	 * Give it a fresh message ID
+	 */
+	len = snprintf(buf, sizeof(buf),
+		       "%ld.%04lx.%04x@%s",
+		       (long)time(NULL),
+		       (long)getpid(),
+		       ++serialnum,
+		       CtdlGetConfigStr("c_fqdn"));
+
+	CM_SetField(msg, emessageId, buf, len);
+
+	/*
+	 * FIXME ... right now we're just sending a bounce; we really want to
+	 * include the text of the bounced message.
+	 */
+	CM_SetField(msg, eMesageText, reason, strlen(reason));
+	msg->cm_format_type = 0;
+
+	/*
+	 * Turn the message around
+	 */
+	CM_FlushField(msg, eRecipient);
+	CM_FlushField(msg, eDestination);
+
+	len = snprintf(recipient, sizeof(recipient), "%s@%s",
+		       msg->cm_fields[eAuthor],
+		       msg->cm_fields[eNodeName]);
+
+	CM_SetField(msg, eAuthor, HKEY(BOUNCESOURCE));
+	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
+	CM_SetField(msg, eMsgSubject, HKEY("Delivery Status Notification (Failure)"));
+
+	Netmap_AddMe(msg, HKEY("unknown_user"));
+
+	/* Now submit the message */
+	valid = validate_recipients(recipient, NULL, 0);
+	if (valid != NULL) if (valid->num_error != 0) {
+		free_recipients(valid);
+		valid = NULL;
+	}
+	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) ) {
+		strcpy(force_room, CtdlGetConfigStr("c_aideroom"));
+	}
+	else {
+		strcpy(force_room, "");
+	}
+	if ( (valid == NULL) && IsEmptyStr(force_room) ) {
+		strcpy(force_room, CtdlGetConfigStr("c_aideroom"));
+	}
+	CtdlSubmitMsg(msg, valid, force_room, 0);
+
+	/* Clean up */
+	if (valid != NULL) free_recipients(valid);
+	CM_Free(msg);
+	QNM_syslog(LOG_DEBUG, "leaving network_bounce()\n");
+}
+
+
 void ParseLastSent(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCFG)
 {
 	RoomNetCfgLine *nptr;
@@ -168,10 +248,10 @@ void Netmap_AddMe(struct CtdlMessage *msg, const char *defl, long defllen)
 	if (CM_IsEmpty(msg, eMessagePath)) {
 		CM_SetField(msg, eMessagePath, defl, defllen);
 	}
-	node_len = configlen.c_nodename;
+	node_len = strlen(CtdlGetConfigStr("c_nodename"));
 	if (node_len >= SIZ) 
 		node_len = SIZ - 1;
-	memcpy(buf, config.c_nodename, node_len);
+	memcpy(buf, CtdlGetConfigStr("c_nodename"), node_len);
 	buf[node_len] = '!';
 	buf[node_len + 1] = '\0';
 	CM_PrependToField(msg, eMessagePath, buf, node_len + 1);
@@ -307,7 +387,7 @@ void CalcListID(SpoolControl *sc)
 		StrBufAppendBufPlain(sc->ListID, HKEY("room_"), 0);
 		StrBufAppendBuf(sc->ListID, RoomName, 0);
 		StrBufAppendBufPlain(sc->ListID, HKEY("."), 0);
-		StrBufAppendBufPlain(sc->ListID, config.c_fqdn, -1, 0);
+		StrBufAppendBufPlain(sc->ListID, CtdlGetConfigStr("c_fqdn"), -1, 0);
 		/*
 		 * this used to be:
 		 * roomname <Room-Number.list-id.fqdn>
@@ -325,7 +405,7 @@ void CalcListID(SpoolControl *sc)
 		StrBufAppendBufPlain(sc->Users[roommailalias], HKEY("room_"), 0);
 		StrBufAppendBuf(sc->Users[roommailalias], RoomName, 0);
 		StrBufAppendBufPlain(sc->Users[roommailalias], HKEY("@"), 0);
-		StrBufAppendBufPlain(sc->Users[roommailalias], config.c_fqdn, -1, 0);
+		StrBufAppendBufPlain(sc->Users[roommailalias], CtdlGetConfigStr("c_fqdn"), -1, 0);
 
 		StrBufLowerCase(sc->Users[roommailalias]);
 	}
@@ -375,7 +455,7 @@ void network_spoolout_room(SpoolControl *sc)
 	else
 	{
 		snprintf(buf, sizeof buf, "room_%s@%s",
-			 CCC->room.QRname, config.c_fqdn);
+			 CCC->room.QRname, CtdlGetConfigStr("c_fqdn"));
 	}
 
 	for (i=0; buf[i]; ++i) {
@@ -434,6 +514,53 @@ void network_spoolout_room(SpoolControl *sc)
 	}
 }
 
+
+/*
+ * Check the use table.  This is a list of messages which have recently
+ * arrived on the system.  It is maintained and queried to prevent the same
+ * message from being entered into the database multiple times if it happens
+ * to arrive multiple times by accident.
+ */
+int network_usetable(struct CtdlMessage *msg)
+{
+	StrBuf *msgid;
+	struct CitContext *CCC = CC;
+	time_t now;
+
+	/* Bail out if we can't generate a message ID */
+	if ((msg == NULL) || CM_IsEmpty(msg, emessageId))
+	{
+		return(0);
+	}
+
+	/* Generate the message ID */
+	msgid = NewStrBufPlain(CM_KEY(msg, emessageId));
+	if (haschar(ChrPtr(msgid), '@') == 0) {
+		StrBufAppendBufPlain(msgid, HKEY("@"), 0);
+		if (!CM_IsEmpty(msg, eNodeName)) {
+			StrBufAppendBufPlain(msgid, CM_KEY(msg, eNodeName), 0);
+		}
+		else {
+			FreeStrBuf(&msgid);
+			return(0);
+		}
+	}
+	now = time(NULL);
+	if (CheckIfAlreadySeen("Networker Import",
+			       msgid,
+			       now, 0,
+			       eUpdate,
+			       CCC->cs_pid, 0) != 0)
+	{
+		FreeStrBuf(&msgid);
+		return(1);
+	}
+	FreeStrBuf(&msgid);
+
+	return(0);
+}
+
+
 /*
  * Process a buffer containing a single message from a single file
  * from the inbound queue 
@@ -485,7 +612,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 
 	/* Check for message routing */
 	if (!CM_IsEmpty(msg, eDestination)) {
-		if (strcasecmp(msg->cm_fields[eDestination], config.c_nodename)) {
+		if (strcasecmp(msg->cm_fields[eDestination], CtdlGetConfigStr("c_nodename"))) {
 
 			/* route the message */
 			Buf = NewStrBufPlain(CM_KEY(msg,eDestination));
@@ -530,10 +657,9 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 			else {	/* invalid destination node name */
 				FreeStrBuf(&Buf);
 
-				network_bounce(msg,
+				network_bounce(&msg,
 "A message you sent could not be delivered due to an invalid destination node"
 " name.  Please check the address and try sending the message again.\n");
-				msg = NULL;
 				return;
 
 			}
@@ -570,10 +696,9 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	else if (!CM_IsEmpty(msg, eRecipient)) {
 		recp = validate_recipients(msg->cm_fields[eRecipient], NULL, 0);
 		if (recp != NULL) if (recp->num_error != 0) {
-			network_bounce(msg,
+			network_bounce(&msg,
 				"A message you sent could not be delivered due to an invalid address.\n"
 				"Please check the address and try sending the message again.\n");
-			msg = NULL;
 			free_recipients(recp);
 			QNM_syslog(LOG_DEBUG, "Bouncing message due to invalid recipient address.\n");
 			return;

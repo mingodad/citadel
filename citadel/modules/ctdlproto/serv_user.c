@@ -1,7 +1,7 @@
 /* 
  * Server functions which perform operations on user objects.
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -15,12 +15,10 @@
 #include "support.h"
 #include "control.h"
 #include "ctdl_module.h"
-
 #include "citserver.h"
-
+#include "config.h"
 #include "user_ops.h"
 #include "internet_addressing.h"
-
 
 
 /*
@@ -47,7 +45,7 @@ void cmd_user(char *cmdbuf)
 			"Too many users are already online "
 			"(maximum is %d)\n",
 			ERROR + MAX_SESSIONS_EXCEEDED,
-			config.c_nodename, config.c_maxsessions);
+			CtdlGetConfigStr("c_nodename"), CtdlGetConfigInt("c_maxsessions"));
 		return;
 	case login_ok:
 		cprintf("%d Password required for %s\n",
@@ -99,13 +97,13 @@ void cmd_newu(char *cmdbuf)
 	long len;
 	char username[SIZ];
 
-	if (config.c_auth_mode != AUTHMODE_NATIVE) {
+	if (CtdlGetConfigInt("c_auth_mode") != AUTHMODE_NATIVE) {
 		cprintf("%d This system does not use native mode authentication.\n",
 			ERROR + NOT_HERE);
 		return;
 	}
 
-	if (config.c_disable_newu) {
+	if (CtdlGetConfigInt("c_disable_newu")) {
 		cprintf("%d Self-service user account creation "
 			"is disabled on this system.\n", ERROR + NOT_HERE);
 		return;
@@ -118,7 +116,8 @@ void cmd_newu(char *cmdbuf)
 	if (CC->nologin) {
 		cprintf("%d %s: Too many users are already online (maximum is %d)\n",
 			ERROR + MAX_SESSIONS_EXCEEDED,
-			config.c_nodename, config.c_maxsessions);
+			CtdlGetConfigStr("c_nodename"), CtdlGetConfigInt("c_maxsessions"));
+		return;
 	}
 	extract_token(username, cmdbuf, 0, '|', sizeof username);
 	strproc(username);
@@ -231,7 +230,7 @@ void cmd_creu(char *cmdbuf)
 	} else if (a == ERROR + ALREADY_EXISTS) {
 		cprintf("%d '%s' already exists.\n", ERROR + ALREADY_EXISTS, username);
 		return;
-	} else if ( (config.c_auth_mode != AUTHMODE_NATIVE) && (a == ERROR + NO_SUCH_USER) ) {
+	} else if ( (CtdlGetConfigInt("c_auth_mode") != AUTHMODE_NATIVE) && (a == ERROR + NO_SUCH_USER) ) {
 		cprintf("%d User accounts are not created within Citadel in host authentication mode.\n",
 			ERROR + NO_SUCH_USER);
 		return;
@@ -241,22 +240,18 @@ void cmd_creu(char *cmdbuf)
 }
 
 
-
 /*
  * get user parameters
  */
 void cmd_getu(char *cmdbuf)
 {
-
 	if (CtdlAccessCheck(ac_logged_in))
 		return;
 
 	CtdlGetUser(&CC->user, CC->curr_user);
-	cprintf("%d 80|24|%d|\n",
-		CIT_OK,
-		(CC->user.flags & US_USER_SET)
-	);
+	cprintf("%d 80|24|%d|\n", CIT_OK, (CC->user.flags & US_USER_SET));
 }
+
 
 /*
  * set user parameters
@@ -371,7 +366,7 @@ void cmd_invt_kick(char *iuser, int op) {
 		return;
 	}
 
-	if (!strncasecmp(CC->room.QRname, config.c_baseroom,
+	if (!strncasecmp(CC->room.QRname, CtdlGetConfigStr("c_baseroom"),
 			 ROOMNAMELEN)) {
 		cprintf("%d Can't add/remove users from this room.\n",
 			ERROR + NOT_HERE);
@@ -424,7 +419,7 @@ void cmd_gnur(char *argbuf)
 		return;
 	}
 
-	if ((CitControl.MMflags & MM_VALID) == 0) {
+	if ((CtdlGetConfigInt("MMflags") & MM_VALID) == 0) {
 		cprintf("%d There are no unvalidated users.\n", CIT_OK);
 		return;
 	}
@@ -452,13 +447,12 @@ void cmd_gnur(char *argbuf)
 	 */
 
 	begin_critical_section(S_CONTROL);
-	get_control();
-	CitControl.MMflags = CitControl.MMflags & (~MM_VALID);
-	put_control();
+	int flags;
+	flags = CtdlGetConfigInt("MMflags");
+	flags = flags & (~MM_VALID);
+	CtdlSetConfigInt("MMflags", flags);
 	end_critical_section(S_CONTROL);
 	cprintf("%d *** End of registration.\n", CIT_OK);
-
-
 }
 
 
@@ -534,9 +528,9 @@ void cmd_chek(char *argbuf)
 		regis = 1;
 
 	if (CC->user.axlevel >= AxAideU) {
-		get_control();
-		if (CitControl.MMflags & MM_VALID)
+		if (CtdlGetConfigInt("MMflags") & MM_VALID) {
 			vali = 1;
+		}
 	}
 
 	/* check for mail */

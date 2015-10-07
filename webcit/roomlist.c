@@ -441,7 +441,7 @@ HashList *GetThisRoomPossibleMAlias(StrBuf *Target, WCTemplputParams *TP)
 	if (Domains == NULL)
 		return NULL;
 	if (GetCount(Domains) == 0) {
-		DeleteHash(Domains);
+		DeleteHash(&Domains);
 		return NULL;
 	}
 	PossibleAliases = NewHash(1, NULL);

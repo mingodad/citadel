@@ -1,7 +1,7 @@
 //
 // NNTP server module (RFC 3977)
 //
-// Copyright (c) 2014 by the citadel.org team
+// Copyright (c) 2014-2015 by the citadel.org team
 //
 // This program is open source software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 3.
@@ -200,7 +200,7 @@ void nntp_greeting(void)
 	}
 
 	// Display the standard greeting
-	cprintf("200 %s NNTP Citadel server is not finished yet\r\n", config.c_fqdn);
+	cprintf("200 %s NNTP Citadel server is not finished yet\r\n", CtdlGetConfigStr("c_fqdn"));
 }
 
 
@@ -284,7 +284,7 @@ void nntp_authinfo_user(const char *username)
 		cprintf("482 Already logged in\r\n");
 		return;
 	case login_too_many_users:
-		cprintf("481 Too many users are already online (maximum is %d)\r\n", config.c_maxsessions);
+		cprintf("481 Too many users are already online (maximum is %d)\r\n", CtdlGetConfigInt("c_maxsessions"));
 		return;
 	case login_ok:
 		cprintf("381 Password required for %s\r\n", CC->curr_user);
@@ -977,7 +977,7 @@ void nntp_xover_backend(long msgnum, void *userdata) {
 	if (msgnum < lr->lo) return;
 	if ((lr->hi != 0) && (msgnum > lr->hi)) return;
 
-	struct CtdlMessage *msg = CtdlFetchMessage(msgnum, 0);
+	struct CtdlMessage *msg = CtdlFetchMessage(msgnum, 0, 1);
 	if (msg == NULL) {
 		return;
 	}
@@ -1178,7 +1178,7 @@ CTDL_MODULE_INIT(nntp)
 {
 	if (!threading)
 	{
-		CtdlRegisterServiceHook(config.c_nntp_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_nntp_port"),
 					NULL,
 					nntp_greeting,
 					nntp_command_loop,
@@ -1186,7 +1186,7 @@ CTDL_MODULE_INIT(nntp)
 					CitadelServiceNNTP);
 
 #ifdef HAVE_OPENSSL
-		CtdlRegisterServiceHook(config.c_nntps_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_nntps_port"),
 					NULL,
 					nntps_greeting,
 					nntp_command_loop,

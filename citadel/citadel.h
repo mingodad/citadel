@@ -1,7 +1,7 @@
 /*
  * Main Citadel header file
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -45,10 +45,10 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	830		/* This version */
+#define REV_LEVEL	901		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	760		/* Oldest compatible export files */
-#define LIBCITADEL_MIN	829		/* Minimum required version of libcitadel */
+#define LIBCITADEL_MIN	901		/* Minimum required version of libcitadel */
 
 #define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
 					   obtain SERVER_TYPE codes for your implementations */
@@ -116,9 +116,7 @@ struct ctdluser {			/* User record                       */
 };
 
 
-/* Bits which may appear in CitControl.MMflags.  Note that these don't
- * necessarily pertain to the message base -- it's just a good place to
- * store any global flags.
+/* Bits which may appear in MMflags.
  */
 #define MM_VALID	4		/* New users need validating        */
 

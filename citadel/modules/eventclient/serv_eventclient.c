@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 1998-2012 by the citadel.org team
+ * Copyright (c) 1998-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -53,9 +47,8 @@
 #include "server.h"
 #include "citserver.h"
 #include "support.h"
-
 #include "ctdl_module.h"
-
+#include "config.h"
 #include "event_client.h"
 #include "serv_curl.h"
 
@@ -154,7 +147,7 @@ gotstatus(int nnrun)
 
 			EVCURLM_syslog(LOG_DEBUG, "request complete\n");
 
-			IO->Now = ev_now(event_base);
+			IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 
 			ev_io_stop(event_base, &IO->recv_event);
 			ev_io_stop(event_base, &IO->send_event);
@@ -188,6 +181,7 @@ gotstatus(int nnrun)
 
 
 			curl_slist_free_all(IO->HttpReq.headers);
+			IO->HttpReq.headers = NULL;
 			msta = curl_multi_remove_handle(global.mhnd, chnd);
 			if (msta)
 				EVCURL_syslog(LOG_ERR,
@@ -289,7 +283,7 @@ gotdata(void *data, size_t size, size_t nmemb, void *cglobal)
 	{
 		IO->HttpReq.ReplyData = NewStrBufPlain(NULL, SIZ);
 	}
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	return CurlFillStrBuf_callback(data,
 				       size,
 				       nmemb,
@@ -350,7 +344,7 @@ gotwatchsock(CURL *easy,
 	}
 
 	SetEVState(IO, eCurlGotIO);
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 
 	Action = "";
 	switch (action)
@@ -477,13 +471,13 @@ int evcurl_init(AsyncIO *IO)
 	OPT(WRITEDATA, (void *)IO);
 	OPT(ERRORBUFFER, IO->HttpReq.errdesc);
 
-	if ((!IsEmptyStr(config.c_ip_addr))
-		&& (strcmp(config.c_ip_addr, "*"))
-		&& (strcmp(config.c_ip_addr, "::"))
-		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
+	if ((!IsEmptyStr(CtdlGetConfigStr("c_ip_addr")))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "*"))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "::"))
+		&& (strcmp(CtdlGetConfigStr("c_ip_addr"), "0.0.0.0"))
 		)
 	{
-		OPT(INTERFACE, config.c_ip_addr);
+		OPT(INTERFACE, CtdlGetConfigStr("c_ip_addr"));
 	}
 
 #ifdef CURLOPT_HTTP_CONTENT_DECODING
@@ -509,10 +503,11 @@ static void IOcurl_abort_shutdown_callback(struct ev_loop *loop,
 		return;
 
 	SetEVState(IO, eCurlShutdown);
-	IO->Now = ev_now(event_base);
+	IO->CitContext->lastcmd = IO->Now = ev_now(event_base);
 	EVCURL_syslog(LOG_DEBUG, "EVENT Curl: %s\n", __FUNCTION__);
 
 	curl_slist_free_all(IO->HttpReq.headers);
+	IO->HttpReq.headers = NULL;
 	msta = curl_multi_remove_handle(global.mhnd, IO->HttpReq.chnd);
 	if (msta)
 	{
@@ -530,6 +525,7 @@ static void IOcurl_abort_shutdown_callback(struct ev_loop *loop,
 	assert(IO->ShutdownAbort);
 	IO->ShutdownAbort(IO);
 }
+
 eNextState
 evcurl_handle_start(AsyncIO *IO)
 {
@@ -655,7 +651,7 @@ static void QueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		Ctx = h->IO->CitContext;
 		become_session(Ctx);
 
-		h->IO->Now = Now;
+		h->IO->CitContext->lastcmd = h->IO->Now = Now;
 		switch (h->EvAttch(h->IO))
 		{
 		case eReadMore:
@@ -805,7 +801,7 @@ static void DBQueueEventAddCallback(EV_P_ ev_async *w, int revents)
 		IOID = h->IO->ID;
 		if (h->IO->StartDB == 0.0)
 			h->IO->StartDB = Now;
-		h->IO->Now = Now;
+		h->IO->CitContext->lastcmd = h->IO->Now = Now;
 
 		SetEVState(h->IO, eDBAttach);
 		Ctx = h->IO->CitContext;

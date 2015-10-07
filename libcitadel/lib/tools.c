@@ -292,7 +292,6 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 	int breaklength = 68;
 	int readlength = 3 * breaklength / 4;
 
-	int t;
 	int destoffset;
 	int sourceoffset;
 	int sourceremaining;
@@ -318,12 +317,7 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 			dest[destoffset++] = '\n';
 		}
 
-		t = destoffset;
 		destoffset += base64_encode_blockend(&(dest[destoffset]), &_state);
-		if (t < destoffset) {
-			dest[destoffset++] = '\r';
-			dest[destoffset++] = '\n';
-		}
 	}
 	else {
 		destoffset = base64_encode_block(source, sourcelen, dest, &_state);

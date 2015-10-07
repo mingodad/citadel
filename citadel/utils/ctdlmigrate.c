@@ -137,10 +137,14 @@ int main(int argc, char *argv[])
 		"(example: ctdl.foo.org)\n"
 		"--> ");
 	getz(remote_host);
+
+get_remote_user:
 	printf("\nEnter the name of a user on %s who has full access to Citadel files\n"
 		"(usually root)\n--> ",
 		remote_host);
 	getz(remote_user);
+	if (IsEmptyStr(remote_user))
+		goto get_remote_user;
 
 	printf("\nEstablishing an SSH connection to the source system...\n\n");
 	unlink(socket_path);
@@ -194,6 +198,8 @@ int main(int argc, char *argv[])
 	}
 
 	printf("ctdlmigrate will now begin a database migration...\n");
+	printf("  if the system doesn't start working, \n");
+	printf("  have a look at the syslog for pending jobs needing to be terminated.\n");
 
 	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s -w3600 MIGR export",
 		socket_path, remote_user, remote_host, remote_sendcommand);

@@ -2,7 +2,7 @@
  * These functions implement the portions of AUTHMODE_LDAP and AUTHMODE_LDAP_AD which
  * actually speak to the LDAP server.
  *
- * Copyright (c) 2011-2014 by the citadel.org development team.
+ * Copyright (c) 2011-2015 by the citadel.org development team.
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -22,6 +22,7 @@ int ctdl_require_ldap_version = 3;
 #include "citadel_ldap.h"
 #include "ctdl_module.h"
 #include "user_ops.h"
+#include "config.h"
 
 #ifdef HAVE_LDAP
 #define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
@@ -37,7 +38,7 @@ int ctdl_ldap_initialize(LDAP **ld) {
 	char server_url[256];
 	int ret;
 
-	snprintf(server_url, sizeof server_url, "ldap://%s:%d", config.c_ldap_host, config.c_ldap_port);
+	snprintf(server_url, sizeof server_url, "ldap://%s:%d", CtdlGetConfigStr("c_ldap_host"), CtdlGetConfigInt("c_ldap_port"));
 	ret = ldap_initialize(ld, server_url);
 	if (ret != LDAP_SUCCESS) {
 		syslog(LOG_ALERT, "LDAP: Could not connect to %s : %s",
@@ -60,7 +61,7 @@ int ctdl_ldap_initialize(LDAP **ld) {
 int CtdlTryUserLDAP(char *username,
 		char *found_dn, int found_dn_size,
 		char *fullname, int fullname_size,
-		uid_t *uid, int lookup_based_on_uid)
+		uid_t *uid, int lookup_based_on_username)
 {
 	LDAP *ldserver = NULL;
 	int i;
@@ -80,12 +81,12 @@ int CtdlTryUserLDAP(char *username,
 	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 	ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
 
-	striplt(config.c_ldap_bind_dn);
-	striplt(config.c_ldap_bind_pw);
-	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
+	striplt(CtdlGetConfigStr("c_ldap_bind_dn"));
+	striplt(CtdlGetConfigStr("c_ldap_bind_pw"));
+	syslog(LOG_DEBUG, "LDAP bind DN: %s", CtdlGetConfigStr("c_ldap_bind_dn"));
 	i = ldap_simple_bind_s(ldserver,
-		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
-		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
+		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_dn")) ? CtdlGetConfigStr("c_ldap_bind_dn") : NULL),
+		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_pw")) ? CtdlGetConfigStr("c_ldap_bind_pw") : NULL)
 	);
 	if (i != LDAP_SUCCESS) {
 		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
@@ -95,15 +96,15 @@ int CtdlTryUserLDAP(char *username,
 	tv.tv_sec = 10;
 	tv.tv_usec = 0;
 
-	if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
-		if (lookup_based_on_uid!=0)
-			snprintf(searchstring, sizeof(searchstring), "(objectGUID=%d)",*uid);
+	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD) {
+		if (lookup_based_on_username != 0)
+			snprintf(searchstring, sizeof(searchstring), "(displayName=%s)",username);
 		else
 			snprintf(searchstring, sizeof(searchstring), "(sAMAccountName=%s)", username);
 	}
 	else {
-		if (lookup_based_on_uid!=0)
-			snprintf(searchstring, sizeof(searchstring), "(uidNumber=%d)",*uid);
+		if (lookup_based_on_username != 0)
+			snprintf(searchstring, sizeof(searchstring), "(cn=%s)",username);
 		else
 			snprintf(searchstring, sizeof(searchstring), "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
@@ -111,7 +112,7 @@ int CtdlTryUserLDAP(char *username,
 	syslog(LOG_DEBUG, "LDAP search: %s", searchstring);
 	(void) ldap_search_ext_s(
 		ldserver,					/* ld				*/
-		config.c_ldap_base_dn,				/* base				*/
+		CtdlGetConfigStr("c_ldap_base_dn"),		/* base				*/
 		LDAP_SCOPE_SUBTREE,				/* scope			*/
 		searchstring,					/* filter			*/
 		NULL,						/* attrs (all attributes)	*/
@@ -143,7 +144,7 @@ int CtdlTryUserLDAP(char *username,
 			syslog(LOG_DEBUG, "dn = %s", user_dn);
 		}
 
-		if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
+		if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD) {
 			values = ldap_get_values(ldserver, search_result, "displayName");
 			if (values) {
 				if (values[0]) {
@@ -163,9 +164,9 @@ int CtdlTryUserLDAP(char *username,
 				ldap_value_free(values);
 			}
 		}
-
-		if (lookup_based_on_uid==0) {
-			if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
+		/* If we know the username is the CN/displayName, we already set the uid*/
+		if (lookup_based_on_username==0) {
+			if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD) {
 				values = ldap_get_values(ldserver, search_result, "objectGUID");
 				if (values) {
 					if (values[0]) {
@@ -245,13 +246,14 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 //return !0 iff property changed.
 int vcard_set_props_iff_different(struct vCard *v,char *propname,int numvals, char **vals) {
 	int i;
-	char *oldval;
+	char *oldval = "";
 	for(i=0;i<numvals;i++) {
 	  oldval = vcard_get_prop(v,propname,0,i,0);
 	  if (oldval == NULL) break;
 	  if (strcmp(vals[i],oldval)) break;
 	}
 	if (i!=numvals) {
+		syslog(LOG_DEBUG, "LDAP: vcard property %s, element %d of %d changed from %s to %s\n", propname, i, numvals, oldval, vals[i]);
 		for(i=0;i<numvals;i++) vcard_set_prop(v,propname,vals[i],(i==0) ? 0 : 1);
 		return 1;
 	}
@@ -321,12 +323,12 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 	ldap_set_option(ldserver, LDAP_OPT_REFERRALS, (void *)LDAP_OPT_OFF);
 
-	striplt(config.c_ldap_bind_dn);
-	striplt(config.c_ldap_bind_pw);
-	syslog(LOG_DEBUG, "LDAP bind DN: %s", config.c_ldap_bind_dn);
+	striplt(CtdlGetConfigStr("c_ldap_bind_dn"));
+	striplt(CtdlGetConfigStr("c_ldap_bind_pw"));
+	syslog(LOG_DEBUG, "LDAP bind DN: %s", CtdlGetConfigStr("c_ldap_bind_dn"));
 	i = ldap_simple_bind_s(ldserver,
-		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
-		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
+		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_dn")) ? CtdlGetConfigStr("c_ldap_bind_dn") : NULL),
+		(!IsEmptyStr(CtdlGetConfigStr("c_ldap_bind_pw")) ? CtdlGetConfigStr("c_ldap_bind_pw") : NULL)
 	);
 	if (i != LDAP_SUCCESS) {
 		syslog(LOG_ALERT, "LDAP: Cannot bind: %s (%d)", ldap_err2string(i), i);
@@ -407,7 +409,7 @@ int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 		if (mail) {
 			changed_something |= vcard_set_props_iff_different(v,"email;internet",ldap_count_values(mail),mail);
 		}
-		if (uuid) changed_something |= vcard_set_one_prop_iff_different(v,"uid","%s",uuid[0]);
+		if (uuid) changed_something |= vcard_set_one_prop_iff_different(v,"X-uuid","%s",uuid[0]);
 		if (o) changed_something |= vcard_set_one_prop_iff_different(v,"org","%s",o[0]);
 		if (cn) changed_something |= vcard_set_one_prop_iff_different(v,"fn","%s",cn[0]);
 		if (title) changed_something |= vcard_set_one_prop_iff_different(v,"title","%s",title[0]);

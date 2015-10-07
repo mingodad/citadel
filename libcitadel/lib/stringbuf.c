@@ -2827,7 +2827,7 @@ int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut)
 		return -1;
 
 	if (BufOut->BufSize < BufIn->BufUsed)
-		IncreaseBuf(BufOut, BufIn->BufUsed, 0);
+		IncreaseBuf(BufOut, 0, BufIn->BufUsed);
 
 	BufOut->BufUsed = CtdlDecodeBase64(BufOut->buf,
 					   BufIn->buf,

@@ -15,44 +15,257 @@
 #include "calendar.h"
 
 CtxType CTX_VCARD = CTX_NONE;
+long VCEnumCounter = 0;
+
+typedef enum _VCStrEnum {
+	FlatString,
+	StringCluster,
+	PhoneNumber,
+	EmailAddr,
+	Street,
+	Number,
+	AliasFor,
+	Base64BinaryAttachment,
+	TerminateList
+}VCStrEnum;
+typedef struct vcField vcField;
+struct vcField {
+	ConstStr STR;
+	VCStrEnum Type;
+	vcField *Sub;
+	long cval;
+	const char *Str;
+};
+
+vcField VCStr_Ns [] = {
+	{{HKEY("last")},   FlatString,    NULL, 0, "Last Name"},
+	{{HKEY("first")},  FlatString,    NULL, 0, "First Name"},
+	{{HKEY("middle")}, FlatString,    NULL, 0, "Middle Name"},
+	{{HKEY("prefix")}, FlatString,    NULL, 0, "Prefix"},
+	{{HKEY("suffix")}, FlatString,    NULL, 0, "Suffix"},
+	{{HKEY("")},       TerminateList, NULL, 0, ""}
+};
+
+vcField VCStr_Addrs [] = {
+	{{HKEY("POBox")},    FlatString,    NULL, 0, "PO box"},
+	{{HKEY("address")},  FlatString,    NULL, 0, "Address"},
+	{{HKEY("address2")}, FlatString,    NULL, 0, ""},
+	{{HKEY("city")},     FlatString,    NULL, 0, "City"},
+	{{HKEY("state")},    FlatString,    NULL, 0, "State"},
+	{{HKEY("zip")},      FlatString,    NULL, 0, "ZIP code"},
+	{{HKEY("country")},  FlatString,    NULL, 0, "Country"},
+	{{HKEY("")},         TerminateList, NULL, 0, ""}
+};
+
+vcField VCStrE [] = {
+	{{HKEY("version")},         Number,                 NULL,        0, ""},
+	{{HKEY("rev")},             Number,                 NULL,        0, ""},
+	{{HKEY("label")},           FlatString,             NULL,        0, ""},
+	{{HKEY("uid")},             FlatString,             NULL,        0, ""},
+	{{HKEY("n")},               StringCluster,          VCStr_Ns,    0, ""}, /* N is name, but only if there's no FN already there */
+	{{HKEY("fn")},              FlatString,             NULL,        0, ""}, /* FN (full name) is a true 'display name' field */
+	{{HKEY("title")},           FlatString,             NULL,        0, "Title:"},
+	{{HKEY("org")},             FlatString,             NULL,        0, "Organization:"},/* organization */
+	{{HKEY("email")},           EmailAddr,              NULL,        0, "E-mail:"},
+	{{HKEY("tel")},             PhoneNumber,            NULL,        0, "Telephone:"},
+	{{HKEY("adr")},             StringCluster,          VCStr_Addrs, 0, "Address:"},
+	{{HKEY("photo")},           Base64BinaryAttachment, NULL,        0, "Photo:"},
+	{{HKEY("tel;home")},        PhoneNumber,            NULL,        0, " (home)"},
+	{{HKEY("tel;work")},        PhoneNumber,            NULL,        0, " (work)"},
+	{{HKEY("tel;fax")},         PhoneNumber,            NULL,        0, " (fax)"},
+	{{HKEY("tel;cell")},        PhoneNumber,            NULL,        0, " (cell)"},
+	{{HKEY("email;internet")},  EmailAddr,              NULL,        0, "E-mail:"},
+	{{HKEY("")},                TerminateList,          NULL,        0, ""}
+};
 
 ConstStr VCStr [] = {
+	{HKEY("")},
 	{HKEY("n")}, /* N is name, but only if there's no FN already there */
 	{HKEY("fn")}, /* FN (full name) is a true 'display name' field */
 	{HKEY("title")},   /* title */
 	{HKEY("org")},    /* organization */
 	{HKEY("email")},
 	{HKEY("tel")},
-	{HKEY("tel_tel")},
-	{HKEY("tel_work")},
-	{HKEY("tel_home")},
-	{HKEY("tel_cell")},
+	{HKEY("work")},
+	{HKEY("home")},
+	{HKEY("cell")},
 	{HKEY("adr")},
 	{HKEY("photo")},
 	{HKEY("version")},
 	{HKEY("rev")},
-	{HKEY("label")}
+	{HKEY("label")},
+	{HKEY("uid")}
 };
 
-typedef enum _eVC{
-	VC_n,
-	VC_fn,
-	VC_title,
-	VC_org,
-	VC_email,
-	VC_tel,
-	VC_tel_tel,
-	VC_tel_work,
-	VC_tel_home,
-	VC_tel_cell,
-	VC_adr,
-	VC_photo,
-	VC_version,
-	VC_rev,
-	VC_label
-} eVC;
 
-HashList *VCToEnum = NULL;
+HashList *DefineToToken = NULL;
+HashList *VCTokenToDefine = NULL;
+HashList *vcNames = NULL; /* todo: fill with the name strings */
+
+
+void RegisterVCardToken(vcField* vf, StrBuf *name, int inTokenCount)
+{
+	RegisterTokenParamDefine(SKEY(name), vf->cval);
+	Put(DefineToToken, LKEY(vf->cval), vf, reference_free_handler);
+
+	syslog(LOG_DEBUG, "Token: %s -> %ld, %d", 
+	       ChrPtr(name),
+	       vf->cval, 
+	       inTokenCount);
+
+}
+
+void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int layer)
+{
+	int i = 0;
+	while (vf[i].STR.len > 0) {
+		StrBuf *subStr = NewStrBuf();
+		vf[i].cval = (*enumCounter) ++;
+		StrBufAppendBuf(subStr, BaseStr, 0);
+		if (StrLength(subStr) > 0) {
+			StrBufAppendBufPlain(subStr, HKEY("."), 0);
+		}
+		StrBufAppendBufPlain(subStr, CKEY(vf[i].STR), 0);
+		if (layer == 0) {
+			Put(VCTokenToDefine, CKEY(vf[i].STR), &vf[i], reference_free_handler);
+		}
+		switch (vf[i].Type) {
+		case FlatString:
+			break;
+		case StringCluster:
+		{
+			autoRegisterTokens(enumCounter, vf[i].Sub, subStr, 1);
+			i++;
+			continue;
+		}
+		break;
+		case PhoneNumber:
+			break;
+		case EmailAddr:
+			break;
+		case Street:
+			break;
+		case Number:
+			break;
+		case AliasFor:
+			break;
+		case Base64BinaryAttachment:
+			break;
+		case TerminateList:
+			break;
+		}
+		RegisterVCardToken(&vf[i], subStr, i);
+		i++;
+	}
+}
+
+int preeval_vcard_item(WCTemplateToken *Token)
+{
+	WCTemplputParams TPP;
+	WCTemplputParams *TP;
+	int searchFieldNo;
+	StrBuf *Target = NULL;
+
+	memset(&TPP, 0, sizeof(WCTemplputParams));
+	TP = &TPP;
+	TP->Tokens = Token;
+	searchFieldNo = GetTemplateTokenNumber(Target, TP, 0, 0);
+	if (searchFieldNo >= VCEnumCounter) {
+		LogTemplateError(NULL, "VCardItem", ERR_PARM1, TP,
+				 "Invalid define");
+		return 0;
+	}
+	return 1;
+}
+
+void tmpl_vcard_item(StrBuf *Target, WCTemplputParams *TP)
+{
+	void *vItem;
+	long searchFieldNo = GetTemplateTokenNumber(Target, TP, 0, 0);
+	HashList *vc = (HashList*) CTX(CTX_VCARD);
+	if (GetHash(vc, LKEY(searchFieldNo), &vItem) && (vItem != NULL)) {
+		StrBufAppendTemplate(Target, TP, (StrBuf*) vItem, 1);
+	}
+}
+
+int preeval_vcard_name_str(WCTemplateToken *Token)
+{
+	WCTemplputParams TPP;
+	WCTemplputParams *TP;
+	int searchFieldNo;
+	StrBuf *Target = NULL;
+
+	memset(&TPP, 0, sizeof(WCTemplputParams));
+	TP = &TPP;
+	TP->Tokens = Token;
+	searchFieldNo = GetTemplateTokenNumber(Target, TP, 0, 0);
+	if (searchFieldNo >= VCEnumCounter) {
+		LogTemplateError(NULL, "VCardName", ERR_PARM1, TP,
+				 "Invalid define");
+		return 0;
+	}
+	return 1;
+}
+
+void tmpl_vcard_name_str(StrBuf *Target, WCTemplputParams *TP)
+{
+	void *vItem;
+	long searchFieldNo = GetTemplateTokenNumber(Target, TP, 0, 0);
+	/* todo: get descriptive string for this vcard type */
+	if (GetHash(vcNames, LKEY(searchFieldNo), &vItem) && (vItem != NULL)) {
+		StrBufAppendTemplate(Target, TP, (StrBuf*) vItem, 1);
+	}
+}
+
+int filter_VC_ByType(const char* key, long len, void *Context, StrBuf *Target, WCTemplputParams *TP)
+{
+	long searchType;
+	long type = 0;
+	void *vvcField;
+	int rc = 0;
+
+	memcpy(type, key, sizeof(long));
+	searchType = GetTemplateTokenNumber(Target, TP, 3, 0);/// todo: which?
+	
+	if (GetHash(DefineToToken, LKEY(type), &vvcField) &&
+	    (vvcField != NULL))
+	{
+		vcField *t = (vcField*) vvcField;
+		if (t && t->Type == searchType) {
+			rc = 1;	
+		}
+	}
+	return rc;
+}
+
+int conditional_VC_Havetype(StrBuf *Target, WCTemplputParams *TP)
+{
+	HashList *vc = (HashList*) CTX(CTX_VCARD);
+	long HaveFieldType = GetTemplateTokenNumber(Target, TP, 2, 0);
+	int rc = 0;	
+	void *vVCitem;
+	const char *Key;
+	long len;
+	HashPos *it = GetNewHashPos(vc, 0);
+	while (GetNextHashPos(vc, it, &len, &Key, &vVCitem) && 
+	       (vVCitem != NULL)) 
+	{
+		void *vvcField;
+		long type = 0;
+		memcpy(&type, Key, sizeof(long));
+		if (GetHash(DefineToToken, LKEY(type), &vvcField) &&
+		    (vvcField != NULL))
+		{
+			vcField *t = (vcField*) vvcField;
+			if (t && t->Type == HaveFieldType) {
+				rc = 1;
+				break;
+			}
+		}
+	}
+	DeleteHashPos(&it);
+	return rc;
+}
 
 /*
  * Record compare function for sorting address book indices
@@ -361,7 +574,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 				utf8ify_rfc822_string(&v->prop[i].value);
 
 			if (is_qp) {
-				// %ff can become 6 bytes in utf8 
+				/* %ff can become 6 bytes in utf8 */
 				thisvalue = malloc(len * 2 + 3); 
 				j = CtdlDecodeQuotedPrintable(
 					thisvalue, v->prop[i].value,
@@ -369,7 +582,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 				thisvalue[j] = 0;
 			}
 			else if (is_b64) {
-				// ff will become one byte..
+				/* ff will become one byte.. */
 				thisvalue = malloc(len + 50);
 				CtdlDecodeBase64(
 					thisvalue, v->prop[i].value,
@@ -533,6 +746,20 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 	StrBufAppendPrintf(Target, "</table></div>\n");
 }
 
+
+void PutVcardItem(vcField *thisField, HashList *thisVC, StrBuf *ThisFieldStr, int is_qp, StrBuf *Swap)
+{
+	/* if we have some untagged QP, detect it here. */
+	if (is_qp || (strstr(ChrPtr(ThisFieldStr), "=?")!=NULL)){
+		StrBuf *b;
+		StrBuf_RFC822_to_Utf8(Swap, ThisFieldStr, NULL, NULL); /* default charset, current charset */
+		b = ThisFieldStr;
+		ThisFieldStr = Swap; 
+		Swap = b;
+		FlushStrBuf(Swap);
+	}
+	Put(thisVC, LKEY(thisField->cval), ThisFieldStr, HFreeStrBuf);
+}
 /*
  * html print a vcard
  * display_vcard() calls this after parsing the textual vCard into
@@ -554,36 +781,103 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 {
 	StrBuf *Val = NULL;
 	StrBuf *Swap = NULL;
-	int i, j;
-	char buf[SIZ];
+	int i, j, k;
+	char buf[20]; //SIZ];
 	int is_qp = 0;
 	int is_b64 = 0;
+	int ntokens, len;
 	StrBuf *thisname = NULL;
-	char firsttoken[SIZ];
+	char firsttoken[20]; ///SIZ];
 	void *V;
+	HashList *thisVC;
+	StrBuf *thisVCToken;
+	void *vField = NULL;
 
+	thisVC = NewHash(1, lFlathash);
 	Swap = NewStrBuf ();
 	thisname = NewStrBuf();
+	thisVCToken = NewStrBufPlain(NULL, 63);
 	for (i=0; i<(v->numprops); ++i) {
+		FlushStrBuf(thisVCToken);
 		is_qp = 0;
 		is_b64 = 0;
+		syslog(LOG_DEBUG, "i: %d oneprop: %s - value: %s", i, v->prop[i].name, v->prop[i].value);
 		StrBufPlain(thisname, v->prop[i].name, -1);
 		StrBufLowerCase(thisname);
 		
 		/*len = */extract_token(firsttoken, ChrPtr(thisname), 0, ';', sizeof firsttoken);
-		
-		for (j=0; j<num_tokens(ChrPtr(thisname), ';'); ++j) {
-			extract_token(buf, ChrPtr(thisname), j, ';', sizeof buf);
+		ntokens = num_tokens(ChrPtr(thisname), ';');
+		for (j=0, k=0; j < ntokens && k < 10; ++j) {
+			int evc[10];
+			
+			len = extract_token(buf, ChrPtr(thisname), j, ';', sizeof buf);
 			if (!strcasecmp(buf, "encoding=quoted-printable")) {
 				is_qp = 1;
 /*				remove_token(thisname, j, ';');*/
 			}
-			if (!strcasecmp(buf, "encoding=base64")) {
+			else if (!strcasecmp(buf, "encoding=base64")) {
 				is_b64 = 1;
 /*				remove_token(thisname, j, ';');*/
 			}
+			else{
+				if (StrLength(thisVCToken) > 0) {
+					StrBufAppendBufPlain(thisVCToken, HKEY(";"), 0);
+				}
+				StrBufAppendBufPlain(thisVCToken, buf, len, 0);
+				/*
+				if (GetHash(VCToEnum, buf, len, &V))
+				{
+					evc[k] = (int) V;
+
+					Put(VC, IKEY(evc), Val, HFreeStrBuf);
+
+					syslog(LOG_DEBUG, "[%ul] -> k: %d %s - %s", evc, k, buf, VCStr[evc[k]].Key);
+					k++;
+				}
+*/
+
+			}
 		}
-		
+
+		vField = NULL;	
+		if ((StrLength(thisVCToken) > 0) &&
+		    GetHash(VCTokenToDefine, SKEY(thisVCToken), &vField) && 
+		    (vField != NULL)) {
+			vcField *thisField = (vcField *)vField;
+			StrBuf *ThisFieldStr = NULL;
+			syslog(LOG_DEBUG, "got this token: %s, found: %s", ChrPtr(thisVCToken), thisField->STR.Key);
+			switch (thisField->Type) {
+			case StringCluster: {
+				int j = 0;
+				const char *Pos = NULL;
+				StrBuf *thisArray = NewStrBufPlain(v->prop[i].value, -1);
+				StrBuf *Buf = NewStrBufPlain(NULL, StrLength(thisArray));
+				while (thisField->Sub[j].STR.len > 0) {
+					StrBufExtract_NextToken(Buf, thisArray, &Pos, ';');
+					ThisFieldStr = NewStrBufDup(Buf);
+					
+					PutVcardItem(&thisField->Sub[j], thisVC, ThisFieldStr, is_qp, Swap);
+					j++;
+				}
+			}
+				break;
+			case FlatString:
+			case PhoneNumber:
+			case EmailAddr:
+			case Street:
+			case Number:
+			case AliasFor:
+				/* copy over the payload into a StrBuf */
+				ThisFieldStr = NewStrBufPlain(v->prop[i].value, -1);
+				PutVcardItem(thisField, thisVC, ThisFieldStr, is_qp, Swap);
+
+				break;
+			case Base64BinaryAttachment:
+			case TerminateList:
+				break;
+			}
+
+		}
 		/* copy over the payload into a StrBuf */
 		Val = NewStrBufPlain(v->prop[i].value, -1);
 			
@@ -600,8 +894,10 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 			StrBufDecodeBase64(Val);
 
 		}
-		syslog(LOG_DEBUG, "%s [%s][%s]",
+#if 0
+		syslog(LOG_DEBUG, "-> firsttoken: %s thisname: %s Value: [%s][%s]",
 			firsttoken,
+		       ChrPtr(thisname),
 			ChrPtr(Val),
 			v->prop[i].value);
 		if (GetHash(VCToEnum, firsttoken, strlen(firsttoken), &V))
@@ -642,18 +938,32 @@ TODO: check for layer II
 
 		}
 */
-	
+#endif	
 		FreeStrBuf(&Val);
-		free(thisname);
-		thisname = NULL;
+		////free(thisname);
+		/// thisname = NULL;
 	}
 
+
+	{
+		WCTemplputParams *TP = NULL;
+		WCTemplputParams SubTP;
+		FlushStrBuf(Target);
+		StackContext(TP, &SubTP, thisVC, CTX_VCARD, 0, NULL);
+		{
+			DoTemplate(HKEY("test_vcard"), Target, &SubTP);
+		}
+		UnStackContext(&SubTP);
+	}
+	printf("%s\n", ChrPtr(Target));
+	FreeStrBuf(&thisVCToken);
+	DeleteHash(&thisVC);/// todo
 }
 
 void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
 {
 	HashList *VC = CTX(CTX_VCARD);
-	eVC evc;
+	int evc;
 	void *vStr;
 
 	evc = GetTemplateTokenNumber(Target, TP, 0, -1);
@@ -737,6 +1047,7 @@ void display_vcard(StrBuf *Target,
 		 ((!isalpha(alpha)) && (!isalpha(this_alpha)))
 		) 
 	{
+#define XXX_XXX 1
 #ifdef XXX_XXX
 		new_vcard (Target, v, full, Mime);
 #else
@@ -1497,7 +1808,7 @@ void
 ServerStartModule_VCARD
 (void)
 {
-	VCToEnum = NewHash(0, NULL);
+	///VCToEnum = NewHash(0, NULL);
 
 }
 
@@ -1505,7 +1816,7 @@ void
 ServerShutdownModule_VCARD
 (void)
 {
-	DeleteHash(&VCToEnum);
+	/// DeleteHash(&VCToEnum);
 }
 
 void 
@@ -1525,24 +1836,23 @@ InitModule_VCARD
 	WebcitAddUrlHandler(HKEY("edit_vcard"), "", 0, edit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("submit_vcard"), "", 0, submit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("vcardphoto"), "", 0, display_vcard_photo_img, NEED_URL);
-
+/*
 	Put(VCToEnum, HKEY("n"), (void*)VC_n, reference_free_handler);
 	Put(VCToEnum, HKEY("fn"), (void*)VC_fn, reference_free_handler);
 	Put(VCToEnum, HKEY("title"), (void*)VC_title, reference_free_handler);
 	Put(VCToEnum, HKEY("org"), (void*)VC_org, reference_free_handler);
 	Put(VCToEnum, HKEY("email"), (void*)VC_email, reference_free_handler);
 	Put(VCToEnum, HKEY("tel"), (void*)VC_tel, reference_free_handler);
-	Put(VCToEnum, HKEY("tel_tel"), (void*)VC_tel_tel, reference_free_handler);
-	Put(VCToEnum, HKEY("tel_work"), (void*)VC_tel_work, reference_free_handler);
-	Put(VCToEnum, HKEY("tel_home"), (void*)VC_tel_home, reference_free_handler);
-	Put(VCToEnum, HKEY("tel_cell"), (void*)VC_tel_cell, reference_free_handler);
+	Put(VCToEnum, HKEY("work"), (void*)VC_work, reference_free_handler);
+	Put(VCToEnum, HKEY("home"), (void*)VC_home, reference_free_handler);
+	Put(VCToEnum, HKEY("cell"), (void*)VC_cell, reference_free_handler);
 	Put(VCToEnum, HKEY("adr"), (void*)VC_adr, reference_free_handler);
 	Put(VCToEnum, HKEY("photo"), (void*)VC_photo, reference_free_handler);
 	Put(VCToEnum, HKEY("version"), (void*)VC_version, reference_free_handler);
 	Put(VCToEnum, HKEY("rev"), (void*)VC_rev, reference_free_handler);
 	Put(VCToEnum, HKEY("label"), (void*)VC_label, reference_free_handler);
-
-
+*/
+/*
 	RegisterNamespace("VC", 1, 2, tmplput_VCARD_ITEM, NULL, CTX_VCARD);
 
 	REGISTERTokenParamDefine(VC_n);
@@ -1551,15 +1861,37 @@ InitModule_VCARD
 	REGISTERTokenParamDefine(VC_org);
 	REGISTERTokenParamDefine(VC_email);
 	REGISTERTokenParamDefine(VC_tel);
-	REGISTERTokenParamDefine(VC_tel_tel);
-	REGISTERTokenParamDefine(VC_tel_work);
-	REGISTERTokenParamDefine(VC_tel_home);
-	REGISTERTokenParamDefine(VC_tel_cell);
+	REGISTERTokenParamDefine(VC_work);
+	REGISTERTokenParamDefine(VC_home);
+	REGISTERTokenParamDefine(VC_cell);
 	REGISTERTokenParamDefine(VC_adr);
 	REGISTERTokenParamDefine(VC_photo);
 	REGISTERTokenParamDefine(VC_version);
 	REGISTERTokenParamDefine(VC_rev);
 	REGISTERTokenParamDefine(VC_label);
+*/
 
+	{
+		StrBuf *Prefix  = NewStrBufPlain(HKEY("VC:"));
+		DefineToToken   = NewHash(1, lFlathash);
+		VCTokenToDefine = NewHash(1, NULL);
+		autoRegisterTokens(&VCEnumCounter, VCStrE, Prefix, 0);
+		FreeStrBuf(&Prefix);
+	}
+	RegisterCTX(CTX_VCARD);
+	RegisterNamespace("VC:ITEM", 2, 2, tmpl_vcard_item, preeval_vcard_item, CTX_VCARD);
+	RegisterNamespace("VC:NAME", 1, 1, tmpl_vcard_name_str, preeval_vcard_name_str, CTX_VCARD);
+	REGISTERTokenParamDefine(FlatString);
+	REGISTERTokenParamDefine(StringCluster);
+	REGISTERTokenParamDefine(PhoneNumber);
+	REGISTERTokenParamDefine(EmailAddr);
+	REGISTERTokenParamDefine(Street);
+	REGISTERTokenParamDefine(Number);
+	REGISTERTokenParamDefine(AliasFor);
+	REGISTERTokenParamDefine(Base64BinaryAttachment);
+	REGISTERTokenParamDefine(TerminateList);
+
+	RegisterConditional("VC:HAVE:TYPE",      1, conditional_VC_Havetype, CTX_VCARD);
+	RegisterFilteredIterator("VC:TYPE", 1, NULL, NULL, NULL, NULL, filter_VC_ByType, CTX_STRBUF, CTX_VCARD, IT_NOFLAG);
 }
 
