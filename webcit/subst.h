@@ -362,6 +362,7 @@ long GetTokenDefine(const char *Name,
 
 #define IT_NOFLAG 0
 #define IT_FLAG_DETECT_GROUPCHANGE (1<<0)
+#define IT_ADDT_PARAM(n) 5 + n /* If you have AdditionalParams, use this macro to fetch them. */
 #define RegisterIterator(a, b, c, d, e, f, g, h, i) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, NULL, g, h, i)
 #define RegisterFilteredIterator(a, b, c, d, e, f, g, h, i, j) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h, i, j)
 void RegisterITERATOR(const char *Name, long len, /* Our identifier */
