@@ -623,8 +623,9 @@ void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharse
 		Buf = NewStrBuf();
 		/** If it's my vCard I can edit it */
 		if (	(!strcasecmp(ChrPtr(WCC->CurRoom.name), USERCONFIGROOM))
-			|| (!strcasecmp(&(ChrPtr(WCC->CurRoom.name)[11]), USERCONFIGROOM))
-			|| (WC->CurRoom.view == VIEW_ADDRESSBOOK)
+			|| ((StrLength(WCC->CurRoom.name) > 11) &&
+			    (!strcasecmp(&(ChrPtr(WCC->CurRoom.name)[11]), USERCONFIGROOM)))
+			|| (WCC->CurRoom.view == VIEW_ADDRESSBOOK)
 			) {
 			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld?partnum=%s\">",
 				Mime->msgnum, ChrPtr(Mime->PartNum));
