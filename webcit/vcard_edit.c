@@ -23,6 +23,7 @@ typedef enum _VCStrEnum {
 	StringCluster,
 	PhoneNumber,
 	EmailAddr,
+	Address,
 	Street,
 	Number,
 	AliasFor,
@@ -48,13 +49,13 @@ vcField VCStr_Ns [] = {
 };
 
 vcField VCStr_Addrs [] = {
-	{{HKEY("POBox")},    FlatString,    NULL, 0, {HKEY("PO box")}},
-	{{HKEY("address")},  FlatString,    NULL, 0, {HKEY("Address")}},
-	{{HKEY("address2")}, FlatString,    NULL, 0, {HKEY("")}},
-	{{HKEY("city")},     FlatString,    NULL, 0, {HKEY("City")}},
-	{{HKEY("state")},    FlatString,    NULL, 0, {HKEY("State")}},
-	{{HKEY("zip")},      FlatString,    NULL, 0, {HKEY("ZIP code")}},
-	{{HKEY("country")},  FlatString,    NULL, 0, {HKEY("Country")}},
+	{{HKEY("POBox")},    Address,    NULL, 0, {HKEY("PO box")}},
+	{{HKEY("address")},  Address,    NULL, 0, {HKEY("Address")}},
+	{{HKEY("address2")}, Address,    NULL, 0, {HKEY("")}},
+	{{HKEY("city")},     Address,    NULL, 0, {HKEY("City")}},
+	{{HKEY("state")},    Address,    NULL, 0, {HKEY("State")}},
+	{{HKEY("zip")},      Address,    NULL, 0, {HKEY("ZIP code")}},
+	{{HKEY("country")},  Address,    NULL, 0, {HKEY("Country")}},
 	{{HKEY("")},         TerminateList, NULL, 0, {HKEY("")}}
 };
 
@@ -120,8 +121,9 @@ void RegisterVCardToken(vcField* vf, StrBuf *name, int inTokenCount)
 void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int layer)
 {
 	int i = 0;
+	StrBuf *subStr = NewStrBuf();
 	while (vf[i].STR.len > 0) {
-		StrBuf *subStr = NewStrBuf();
+		FlushStrBuf(subStr);
 		vf[i].cval = (*enumCounter) ++;
 		StrBufAppendBuf(subStr, BaseStr, 0);
 		if (StrLength(subStr) > 0) {
@@ -155,10 +157,13 @@ void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int lay
 			break;
 		case TerminateList:
 			break;
+		case Address:
+			break;
 		}
 		RegisterVCardToken(&vf[i], subStr, i);
 		i++;
 	}
+	FreeStrBuf(&subStr);
 }
 
 int preeval_vcard_item(WCTemplateToken *Token)
@@ -568,263 +573,6 @@ void fetchname_parsed_vcard(struct vCard *v, char **storename) {
 
 
 
-/*
- * html print a vcard
- * display_vcard() calls this after parsing the textual vCard into
- * our 'struct vCard' data object.
- *
- * Set 'full' to nonzero to display the full card, otherwise it will only
- * show a summary line.
- *
- * This code is a bit ugly, so perhaps an explanation is due: we do this
- * in two passes through the vCard fields.  On the first pass, we process
- * fields we understand, and then render them in a pretty fashion at the
- * end.  Then we make a second pass, outputting all the fields we don't
- * understand in a simple two-column name/value format.
- * v		the vCard to display
- * full		display all items of the vcard?
- * msgnum	Citadel message pointer
- */
-void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_attachment *Mime)
-{
-	int i, j;
-	char buf[SIZ];
-	char *name;
-	int is_qp = 0;
-	int is_b64 = 0;
-	char *thisname, *thisvalue;
-	char firsttoken[SIZ];
-	int pass;
-
-	char fullname[SIZ];
-	char title[SIZ];
-	char org[SIZ];
-	char phone[SIZ];
-	char mailto[SIZ];
-
-	strcpy(fullname, "");
-	strcpy(phone, "");
-	strcpy(mailto, "");
-	strcpy(title, "");
-	strcpy(org, "");
-
-	if (!full) {
-		StrBufAppendPrintf(Target, "<td>");
-		name = vcard_get_prop(v, "fn", 1, 0, 0);
-		if (name != NULL) {
-			StrEscAppend(Target, NULL, name, 0, 0);
-		}
-		else if (name = vcard_get_prop(v, "n", 1, 0, 0), name != NULL) {
-			strcpy(fullname, name);
-			vcard_n_prettyize(fullname);
-			StrEscAppend(Target, NULL, fullname, 0, 0);
-		}
-		else {
-			StrBufAppendPrintf(Target, "&nbsp;");
-		}
-		StrBufAppendPrintf(Target, "</td>");
-		return;
-	}
-
-	StrBufAppendPrintf(Target, "<div align=\"center\">"
-		"<table bgcolor=\"#aaaaaa\" width=\"50%%\">");
-	for (pass=1; pass<=2; ++pass) {
-
-		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-			int len;
-			thisname = strdup(v->prop[i].name);
-			extract_token(firsttoken, thisname, 0, ';', sizeof firsttoken);
-	
-			for (j=0; j<num_tokens(thisname, ';'); ++j) {
-				extract_token(buf, thisname, j, ';', sizeof buf);
-				if (!strcasecmp(buf, "encoding=quoted-printable")) {
-					is_qp = 1;
-					remove_token(thisname, j, ';');
-				}
-				if (!strcasecmp(buf, "encoding=base64")) {
-					is_b64 = 1;
-					remove_token(thisname, j, ';');
-				}
-			}
-			
-			len = strlen(v->prop[i].value);
-			/* if we have some untagged QP, detect it here. */
-			if (!is_qp && (strstr(v->prop[i].value, "=?")!=NULL))
-				utf8ify_rfc822_string(&v->prop[i].value);
-
-			if (is_qp) {
-				/* %ff can become 6 bytes in utf8 */
-				thisvalue = malloc(len * 2 + 3); 
-				j = CtdlDecodeQuotedPrintable(
-					thisvalue, v->prop[i].value,
-					len);
-				thisvalue[j] = 0;
-			}
-			else if (is_b64) {
-				/* ff will become one byte.. */
-				thisvalue = malloc(len + 50);
-				CtdlDecodeBase64(
-					thisvalue, v->prop[i].value,
-					strlen(v->prop[i].value) );
-			}
-			else {
-				thisvalue = strdup(v->prop[i].value);
-			}
-	
-			/* Various fields we may encounter ***/
-	
-			/* N is name, but only if there's no FN already there */
-			if (!strcasecmp(firsttoken, "n")) {
-				if (IsEmptyStr(fullname)) {
-					strcpy(fullname, thisvalue);
-					vcard_n_prettyize(fullname);
-				}
-			}
-	
-			/* FN (full name) is a true 'display name' field */
-			else if (!strcasecmp(firsttoken, "fn")) {
-				strcpy(fullname, thisvalue);
-			}
-
-			/* title */
-			else if (!strcasecmp(firsttoken, "title")) {
-				strcpy(title, thisvalue);
-			}
-	
-			/* organization */
-			else if (!strcasecmp(firsttoken, "org")) {
-				strcpy(org, thisvalue);
-			}
-	
-			else if (!strcasecmp(firsttoken, "email")) {
-				size_t len;
-				if (!IsEmptyStr(mailto)) strcat(mailto, "<br>");
-				strcat(mailto,
-					"<a href=\"display_enter"
-					"?force_room=_MAIL_?recp=");
-
-				len = strlen(mailto);
-				urlesc(&mailto[len], SIZ - len, "\"");
-				len = strlen(mailto);
-				urlesc(&mailto[len], SIZ - len,  fullname);
-				len = strlen(mailto);
-				urlesc(&mailto[len], SIZ - len, "\" <");
-				len = strlen(mailto);
-				urlesc(&mailto[len], SIZ - len, thisvalue);
-				len = strlen(mailto);
-				urlesc(&mailto[len], SIZ - len, ">");
-
-				strcat(mailto, "\">");
-				len = strlen(mailto);
-				stresc(mailto+len, SIZ - len, thisvalue, 1, 1);
-				strcat(mailto, "</A>");
-			}
-			else if (!strcasecmp(firsttoken, "tel")) {
-				if (!IsEmptyStr(phone)) strcat(phone, "<br>");
-				strcat(phone, thisvalue);
-				for (j=0; j<num_tokens(thisname, ';'); ++j) {
-					extract_token(buf, thisname, j, ';', sizeof buf);
-					if (!strcasecmp(buf, "tel"))
-						strcat(phone, "");
-					else if (!strcasecmp(buf, "work"))
-						strcat(phone, _(" (work)"));
-					else if (!strcasecmp(buf, "home"))
-						strcat(phone, _(" (home)"));
-					else if (!strcasecmp(buf, "cell"))
-						strcat(phone, _(" (cell)"));
-					else {
-						strcat(phone, " (");
-						strcat(phone, buf);
-						strcat(phone, ")");
-					}
-				}
-			}
-			else if (!strcasecmp(firsttoken, "adr")) {
-				if (pass == 2) {
-					StrBufAppendPrintf(Target, "<tr><td>");
-					StrBufAppendPrintf(Target, _("Address:"));
-					StrBufAppendPrintf(Target, "</td><td>");
-					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
-						extract_token(buf, thisvalue, j, ';', sizeof buf);
-						if (!IsEmptyStr(buf)) {
-							StrEscAppend(Target, NULL, buf, 0, 0);
-							if (j<3) StrBufAppendPrintf(Target, "<br>");
-							else StrBufAppendPrintf(Target, " ");
-						}
-					}
-					StrBufAppendPrintf(Target, "</td></tr>\n");
-				}
-			}
-			/* else if (!strcasecmp(firsttoken, "photo") && full && pass == 2) { 
-				// Only output on second pass
-				StrBufAppendPrintf(Target, "<tr><td>");
-				StrBufAppendPrintf(Target, _("Photo:"));
-				StrBufAppendPrintf(Target, "</td><td>");
-				StrBufAppendPrintf(Target, "<img src=\"/vcardphoto/%ld/\" alt=\"Contact photo\"/>",msgnum);
-				StrBufAppendPrintf(Target, "</td></tr>\n");
-			} */
-			else if (!strcasecmp(firsttoken, "version")) {
-				/* ignore */
-			}
-			else if (!strcasecmp(firsttoken, "rev")) {
-				/* ignore */
-			}
-			else if (!strcasecmp(firsttoken, "label")) {
-				/* ignore */
-			}
-			else {
-
-				/*** Don't show extra fields.  They're ugly.
-				if (pass == 2) {
-					StrBufAppendPrintf(Target, "<TR><TD>");
-					StrEscAppend(Target, NULL, thisname, 0, 0);
-					StrBufAppendPrintf(Target, "</TD><TD>");
-					StrEscAppend(Target, NULL, thisvalue, 0, 0);
-					StrBufAppendPrintf(Target, "</TD></TR>\n");
-				}
-				***/
-			}
-	
-			free(thisname);
-			free(thisvalue);
-		}
-	
-		if (pass == 1) {
-			StrBufAppendPrintf(Target, "<tr bgcolor=\"#aaaaaa\">"
-      "<td colspan=2 bgcolor=\"#ffffff\">"
-      "<img align=\"center\" src=\"static/webcit_icons/essen/32x32/contact.png\">"
-      "<font size=\"+1\"><b>");
-			StrEscAppend(Target, NULL, fullname, 0, 0);
-			StrBufAppendPrintf(Target, "</b></font>");
-			if (!IsEmptyStr(title)) {
-				StrBufAppendPrintf(Target, "<div align=\"right>\"");
-				StrEscAppend(Target, NULL, title, 0, 0);
-				StrBufAppendPrintf(Target, "</div>");
-			}
-			if (!IsEmptyStr(org)) {
-				StrBufAppendPrintf(Target, "<div align=\"right\">");
-				StrEscAppend(Target, NULL, org, 0, 0);
-				StrBufAppendPrintf(Target, "</div>");
-			}
-			StrBufAppendPrintf(Target, "</td></tr>\n");
-		
-			if (!IsEmptyStr(phone)) {
-				StrBufAppendPrintf(Target, "<tr><td>");
-				StrBufAppendPrintf(Target, _("Telephone:"));
-				StrBufAppendPrintf(Target, "</td><td>%s</td></tr>\n", phone);
-			}
-			if (!IsEmptyStr(mailto)) {
-				StrBufAppendPrintf(Target, "<tr><td>");
-				StrBufAppendPrintf(Target, _("E-mail:"));
-				StrBufAppendPrintf(Target, "</td><td>%s</td></tr>\n", mailto);
-			}
-		}
-
-	}
-
-	StrBufAppendPrintf(Target, "</table></div>\n");
-}
-
 
 void PutVcardItem(HashList *thisVC, vcField *thisField, StrBuf *ThisFieldStr, int is_qp, StrBuf *Swap)
 {
@@ -868,11 +616,9 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 	StrBuf *thisname = NULL;
 	char firsttoken[20]; ///SIZ];
 	//void *V;
-	HashList *thisVC;
 	StrBuf *thisVCToken;
 	void *vField = NULL;
 
-	thisVC = NewHash(0, lFlathash);
 	Swap = NewStrBuf ();
 	thisname = NewStrBuf();
 	thisVCToken = NewStrBufPlain(NULL, 63);
@@ -935,11 +681,14 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 					StrBufExtract_NextToken(Buf, thisArray, &Pos, ';');
 					ThisFieldStr = NewStrBufDup(Buf);
 					
-					PutVcardItem(thisVC, &thisField->Sub[j], ThisFieldStr, is_qp, Swap);
+					PutVcardItem(VC, &thisField->Sub[j], ThisFieldStr, is_qp, Swap);
 					j++;
 				}
+				FreeStrBuf(&thisArray);
+				FreeStrBuf(&Buf);
 			}
 				break;
+			case Address:
 			case FlatString:
 			case PhoneNumber:
 			case EmailAddr:
@@ -948,7 +697,7 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mim
 			case AliasFor:
 				/* copy over the payload into a StrBuf */
 				ThisFieldStr = NewStrBufPlain(v->prop[i].value, -1);
-				PutVcardItem(thisVC, thisField, ThisFieldStr, is_qp, Swap);
+				PutVcardItem(VC, thisField, ThisFieldStr, is_qp, Swap);
 
 				break;
 			case Base64BinaryAttachment:
@@ -1022,21 +771,9 @@ TODO: check for layer II
 		////free(thisname);
 		/// thisname = NULL;
 	}
-
-
-	{
-		WCTemplputParams *TP = NULL;
-		WCTemplputParams SubTP;
-		FlushStrBuf(Target);
-		StackContext(TP, &SubTP, thisVC, CTX_VCARD, 0, NULL);
-		{
-			DoTemplate(HKEY("vcard_msg_display"), Target, &SubTP);
-		}
-		UnStackContext(&SubTP);
-	}
-	printf("%s\n", ChrPtr(Target));
+	FreeStrBuf(&thisname);
+	FreeStrBuf(&Swap);
 	FreeStrBuf(&thisVCToken);
-	DeleteHash(&thisVC);/// todo
 }
 
 void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
@@ -1058,21 +795,24 @@ void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
 	
 }
 
-void new_vcard (StrBuf *Target, struct vCard *v, int full, wc_mime_attachment *Mime)
+void display_one_vcard (StrBuf *Target, struct vCard *v, int full, wc_mime_attachment *Mime)
 {
-	HashList *VC;
-	WCTemplputParams SubTP;
+	HashList *VC;	WCTemplputParams SubTP;
 
         memset(&SubTP, 0, sizeof(WCTemplputParams));    
 
 
-	VC = NewHash(0, Flathash);
+	VC = NewHash(0, lFlathash);
 	parse_vcard(Target, v, VC, full, Mime);
 
-	SubTP.Filter.ContextType = CTX_VCARD;
-	SubTP.Context = VC;
+	{
+		WCTemplputParams *TP = NULL;
+		WCTemplputParams SubTP;
+		StackContext(TP, &SubTP, VC, CTX_VCARD, 0, NULL);
 
-	//DoTemplate(HKEY("vcard_msg_display"), Target, &SubTP);
+		DoTemplate(HKEY("vcard_msg_display"), Target, &SubTP);
+		UnStackContext(&SubTP);
+	}
 	DeleteHash(&VC);
 }
 
@@ -1126,11 +866,7 @@ void display_vcard(StrBuf *Target,
 		 ((!isalpha(alpha)) && (!isalpha(this_alpha)))
 		) 
 	{
-		if (ibstr("x") == 1) {
-			new_vcard (Target, v, full, Mime);
-		} else {
-			display_parsed_vcard(Target, v, full, Mime);
-		}
+		display_one_vcard (Target, v, full, Mime);
 	}
 
 	vcard_free(v);
@@ -1894,6 +1630,9 @@ void
 ServerShutdownModule_VCARD
 (void)
 {
+	DeleteHash(&DefineToToken);
+	DeleteHash(&vcNames);
+	DeleteHash(&VCTokenToDefine);
 	/// DeleteHash(&VCToEnum);
 }
 
@@ -1972,6 +1711,7 @@ InitModule_VCARD
 	REGISTERTokenParamDefine(AliasFor);
 	REGISTERTokenParamDefine(Base64BinaryAttachment);
 	REGISTERTokenParamDefine(TerminateList);
+	REGISTERTokenParamDefine(Address);
 
 	RegisterConditional("VC:HAVE:TYPE",      1, conditional_VC_Havetype, CTX_VCARD);
 	RegisterFilteredIterator("VC:TYPE", 1, DefineToToken, NULL, NULL, NULL, filter_VC_ByType, CTX_VCARD_TYPE, CTX_VCARD, IT_NOFLAG);

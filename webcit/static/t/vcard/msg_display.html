@@ -10,28 +10,28 @@
 </td>
 </tr>
 
-<?!("VC:HAVE:TYPE", 5, #"PhoneNumber")>
+<?!("VC:HAVE:TYPE", 10, #"PhoneNumber")>
 <tr>
  <td>Telephone:</td>
  <td>
 <?ITERATE("VC:TYPE", ="vcard_msg_display_phone", 0, 0, -1, #"PhoneNumber")>
  </td>
 </tr>
-<?@("X", 10)>
+<??("X", 10)>
 
-<?!("VC:HAVE:TYPE", 10, #"EmailAddr")>
+<?!("VC:HAVE:TYPE", 20, #"EmailAddr")>
 <tr>
  <td>E-mail:</td>
  <td>
 <?ITERATE("VC:TYPE", ="vcard_msg_display_email", 0, 0, -1, #"EmailAddr")>
  </td>
 </tr>
-<?!("X", 10)>
+<?!("X", 20)>
 
 
-<?!("VC:HAVE:TYPE", 10, #"VC:.adr.address")>
+<?!("VC:HAVE:TYPE", 30, #"VC:.adr.address")>
 <tr>
- <td><?VC:NAME(#"VC:.adr")>:</td>
+ <td><?VC:NAME(#"Address")>:</td>
  <td>
 <?VC:ITEM(#"VC:.adr.POBox", "X")><br>
 <?VC:ITEM(#"VC:.adr.address", "X")><br>
@@ -39,6 +39,6 @@
 <?VC:ITEM(#"VC:.adr.city", "X")> <?VC:ITEM(#"VC:.adr.state", "X")> <?VC:ITEM(#"VC:.adr.zip", "X")> <?VC:ITEM(#"VC:.adr.country", "X")>
  </td>
 </tr>
-<?!("X", 10)>
+<?!("X", 30)>
 </table></div>
 
