@@ -2163,7 +2163,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 			if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
 
 				if ((It->Filter != NULL) &&
-				    It->Filter(Status.Key, Status.KeyLen, vContext, Target, TP)) 
+				    !It->Filter(Status.Key, Status.KeyLen, vContext, Target, TP)) 
 				{
 					continue;
 				}
