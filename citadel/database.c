@@ -1,7 +1,7 @@
 /*
  * This is a data store backend for the Citadel server which uses Berkeley DB.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -50,6 +50,7 @@
 #include "ctdl_module.h"
 #include "control.h"
 #include "citserver.h"
+#include "config.h"
 
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
@@ -223,7 +224,7 @@ void cdb_checkpoint(void)
 	}
 
 	/* After a successful checkpoint, we can cull the unused logs */
-	if (config.c_auto_cull) {
+	if (CtdlGetConfigInt("c_auto_cull")) {
 		cdb_cull_logs();
 	}
 }
@@ -243,30 +244,10 @@ void open_databases(void)
 	char dbfilename[32];
 	u_int32_t flags = 0;
 	int dbversion_major, dbversion_minor, dbversion_patch;
-	int current_dbversion = 0;
 
 	syslog(LOG_DEBUG, "bdb(): open_databases() starting");
 	syslog(LOG_DEBUG, "Compiled db: %s", DB_VERSION_STRING);
-	syslog(LOG_INFO, "  Linked db: %s",
-		db_version(&dbversion_major, &dbversion_minor, &dbversion_patch));
-
-	current_dbversion = (dbversion_major * 1000000) + (dbversion_minor * 1000) + dbversion_patch;
-
-	syslog(LOG_DEBUG, "Calculated dbversion: %d", current_dbversion);
-	syslog(LOG_DEBUG, "  Previous dbversion: %d", CitControl.MMdbversion);
-
-	if ( (getenv("SUPPRESS_DBVERSION_CHECK") == NULL)
-	   && (CitControl.MMdbversion > current_dbversion) ) {
-		syslog(LOG_EMERG, "You are attempting to run the Citadel server using a version");
-		syslog(LOG_EMERG, "of Berkeley DB that is older than that which last created or");
-		syslog(LOG_EMERG, "updated the database.  Because this would probably cause data");
-		syslog(LOG_EMERG, "corruption or loss, the server is aborting execution now.");
-		exit(CTDLEXIT_DB);
-	}
-
-	CitControl.MMdbversion = current_dbversion;
-	put_control();
-
+	syslog(LOG_INFO, "  Linked db: %s", db_version(&dbversion_major, &dbversion_minor, &dbversion_patch));
 	syslog(LOG_INFO, "Linked zlib: %s\n", zlibVersion());
 
 	/*
@@ -935,8 +916,10 @@ time_t CheckIfAlreadySeen(const char *Facility,
 		else
 		{
 			if (cdbut) cdb_free(cdbut);
-
+			
 			SEENM_syslog(LOG_DEBUG, "not Found");
+			if (cType == eCheckUpdate)
+				return 0;
 		}
 
 		if (cType == eCheckExist)

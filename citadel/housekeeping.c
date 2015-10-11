@@ -129,3 +129,60 @@ void do_housekeeping(void) {
 	housekeeping_in_progress = 0;
 	end_critical_section(S_HOUSEKEEPING);
 }
+
+void CtdlDisableHouseKeeping(void)
+{
+	int ActiveBackgroundJobs;
+	int do_housekeeping_now = 0;
+	struct CitContext *nptr;
+	int nContexts, i;
+
+retry_block_housekeeping:
+	syslog(LOG_INFO, "trying to disable housekeeping services");
+	begin_critical_section(S_HOUSEKEEPING);
+	if (housekeeping_in_progress == 0) {
+		do_housekeeping_now = 1;
+		housekeeping_in_progress = 1;
+	}
+	end_critical_section(S_HOUSEKEEPING);
+	if (do_housekeeping_now == 0) {
+		usleep(1000000);
+		goto retry_block_housekeeping;
+	}
+	
+	syslog(LOG_INFO, "checking for running server Jobs");
+
+retry_wait_for_contexts:
+	/* So that we don't keep the context list locked for a long time
+	 * we create a copy of it first
+	 */
+	ActiveBackgroundJobs = 0;
+	nptr = CtdlGetContextArray(&nContexts) ;
+	if (nptr)
+	{
+		for (i=0; i<nContexts; i++) 
+		{
+			if ((nptr[i].state != CON_SYS) || (nptr[i].IO == NULL) || (nptr[i].lastcmd == 0))
+				continue;
+			ActiveBackgroundJobs ++;
+			syslog(LOG_INFO, "Job CC[%d] active; use TERM if you don't want to wait for it",nptr[i].cs_pid);
+		
+		}
+	
+		free(nptr);
+
+	}
+	if (ActiveBackgroundJobs != 0) {
+		syslog(LOG_INFO, "found %d running jobs, need to wait", ActiveBackgroundJobs);
+		usleep(5000000);
+		goto retry_wait_for_contexts;
+	}
+	syslog(LOG_INFO, "Housekeeping disabled now.");
+}
+
+void CtdlEnableHouseKeeping(void)
+{
+	begin_critical_section(S_HOUSEKEEPING);
+	housekeeping_in_progress = 0;
+	end_critical_section(S_HOUSEKEEPING);
+}

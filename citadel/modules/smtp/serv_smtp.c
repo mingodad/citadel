@@ -20,7 +20,7 @@
  * The VRFY and EXPN commands have been removed from this implementation
  * because nobody uses these commands anymore, except for spammers.
  *
- * Copyright (c) 1998-2013 by the citadel.org team
+ * Copyright (c) 1998-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -154,7 +154,7 @@ void smtp_greeting(int is_msa)
 	/* If this config option is set, reject connections from problem
 	 * addresses immediately instead of after they execute a RCPT
 	 */
-	if ( (config.c_rbl_at_greeting) && (sSMTP->is_msa == 0) ) {
+	if ( (CtdlGetConfigInt("c_rbl_at_greeting")) && (sSMTP->is_msa == 0) ) {
 		if (rbl_check(message_to_spammer)) {
 			if (server_shutting_down)
 				cprintf("421 %s\r\n", message_to_spammer);
@@ -178,7 +178,7 @@ void smtp_greeting(int is_msa)
 	/* Note: the FQDN *must* appear as the first thing after the 220 code.
 	 * Some clients (including citmail.c) depend on it being there.
 	 */
-	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
+	cprintf("220 %s ESMTP Citadel server ready.\r\n", CtdlGetConfigStr("c_fqdn"));
 }
 
 
@@ -284,7 +284,7 @@ void smtp_hello(long offset, long which_command)
 			cprintf("250-Greetings and joyous salutations.\r\n");
 		}
 		cprintf("250-HELP\r\n");
-		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
+		cprintf("250-SIZE %ld\r\n", CtdlGetConfigLong("c_maxmsglen"));
 
 #ifdef HAVE_OPENSSL
 		/*
@@ -318,7 +318,7 @@ void smtp_webcit_preferences_hack_backend(long msgnum, void *userdata) {
 		return;	// already got it
 	}
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		return;
 	}
@@ -674,7 +674,7 @@ void smtp_mail(long offset, long flags) {
 	/* Otherwise, make sure outsiders aren't trying to forge mail from
 	 * this system (unless, of course, c_allow_spoofing is enabled)
 	 */
-	else if (config.c_allow_spoofing == 0) {
+	else if (CtdlGetConfigInt("c_allow_spoofing") == 0) {
 		process_rfc822_addr(ChrPtr(sSMTP->from), user, node, name);
 		syslog(LOG_DEBUG, "Claimed envelope sender is '%s' == '%s' @ '%s' ('%s')",
 			ChrPtr(sSMTP->from), user, node, name
@@ -730,7 +730,7 @@ void smtp_rcpt(long offset, long flags)
 	/* RBL check */
 	if ( (!CCC->logged_in)	/* Don't RBL authenticated users */
 	   && (!sSMTP->is_lmtp) ) {	/* Don't RBL LMTP clients */
-		if (config.c_rbl_at_greeting == 0) {	/* Don't RBL again if we already did it */
+		if (CtdlGetConfigInt("c_rbl_at_greeting") == 0) {	/* Don't RBL again if we already did it */
 			if (rbl_check(message_to_spammer)) {
 				if (server_shutting_down)
 					cprintf("421 %s\r\n", message_to_spammer);
@@ -826,7 +826,7 @@ void smtp_data(long offset, long flags)
 				"	by %s; %s\n",
 				ChrPtr(sSMTP->helo_node),
 				(long int) CCC->cs_UDSclientUID,
-				config.c_fqdn,
+				CtdlGetConfigStr("c_fqdn"),
 				nowstamp);
 		}
 		else {
@@ -837,11 +837,11 @@ void smtp_data(long offset, long flags)
 				ChrPtr(sSMTP->helo_node),
 				CCC->cs_host,
 				CCC->cs_addr,
-				config.c_fqdn,
+				CtdlGetConfigStr("c_fqdn"),
 				nowstamp);
 		}
 	}
-	body = CtdlReadMessageBodyBuf(HKEY("."), config.c_maxmsglen, defbody, 1, NULL);
+	body = CtdlReadMessageBodyBuf(HKEY("."), CtdlGetConfigLong("c_maxmsglen"), defbody, 1, NULL);
 	FreeStrBuf(&defbody);
 	if (body == NULL) {
 		cprintf("550 Unable to save message: internal error.\r\n");
@@ -861,12 +861,12 @@ void smtp_data(long offset, long flags)
 	 * to something ugly like "0000058008.Sent Items>" when the message
 	 * is read with a Citadel client.
 	 */
-	if ( (CCC->logged_in) && (config.c_rfc822_strict_from != CFG_SMTP_FROM_NOFILTER) ) {
+	if ( (CCC->logged_in) && (CtdlGetConfigInt("c_rfc822_strict_from") != CFG_SMTP_FROM_NOFILTER) ) {
 		int validemail = 0;
 		
 		if (!CM_IsEmpty(msg, erFc822Addr)       &&
-		    ((config.c_rfc822_strict_from == CFG_SMTP_FROM_CORRECT) || 
-		     (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)    )  )
+		    ((CtdlGetConfigInt("c_rfc822_strict_from") == CFG_SMTP_FROM_CORRECT) || 
+		     (CtdlGetConfigInt("c_rfc822_strict_from") == CFG_SMTP_FROM_REJECT)    )  )
 		{
 			if (!IsEmptyStr(CCC->cs_inet_email))
 				validemail = strcmp(CCC->cs_inet_email, msg->cm_fields[erFc822Addr]) == 0;
@@ -884,14 +884,14 @@ void smtp_data(long offset, long flags)
 			}
 		}
 
-		if (!validemail && (config.c_rfc822_strict_from == CFG_SMTP_FROM_REJECT)) {
+		if (!validemail && (CtdlGetConfigInt("c_rfc822_strict_from") == CFG_SMTP_FROM_REJECT)) {
 			syslog(LOG_ERR, "invalid sender '%s' - rejecting this message", msg->cm_fields[erFc822Addr]);
 			cprintf("550 Invalid sender '%s' - rejecting this message.\r\n", msg->cm_fields[erFc822Addr]);
 			return;
 		}
 
-		CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
-		CM_SetField(msg, eHumanNode, CFG_KEY(c_humannode));
+		CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
+		CM_SetField(msg, eHumanNode, CtdlGetConfigStr("c_humannode"), strlen(CtdlGetConfigStr("c_humannode")));
         	CM_SetField(msg, eOriginalRoom, HKEY(MAILROOM));
 		if (sSMTP->preferred_sender_name != NULL)
 			CM_SetField(msg, eAuthor, SKEY(sSMTP->preferred_sender_name));
@@ -1143,7 +1143,7 @@ CTDL_MODULE_INIT(smtp)
 #endif
 
 
-		CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_smtp_port"),	/* SMTP MTA */
 					NULL,
 					smtp_mta_greeting,
 					smtp_command_loop,
@@ -1151,7 +1151,7 @@ CTDL_MODULE_INIT(smtp)
 					CitadelServiceSMTP_MTA);
 
 #ifdef HAVE_OPENSSL
-		CtdlRegisterServiceHook(config.c_smtps_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_smtps_port"),	/* SMTPS MTA */
 					NULL,
 					smtps_greeting,
 					smtp_command_loop,
@@ -1159,7 +1159,7 @@ CTDL_MODULE_INIT(smtp)
 					CitadelServiceSMTPS_MTA);
 #endif
 
-		CtdlRegisterServiceHook(config.c_msa_port,	/* SMTP MSA */
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_msa_port"),		/* SMTP MSA */
 					NULL,
 					smtp_msa_greeting,
 					smtp_command_loop,

@@ -2,21 +2,17 @@
  * Implements the FETCH command in IMAP.
  * This is a good example of the protocol's gratuitous complexity.
  *
- * Copyright (c) 2001-2011 by the citadel.org team
+ * Copyright (c) 2001-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 
@@ -363,8 +359,8 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 		process_rfc822_addr(msg->cm_fields[erFc822Addr], user, node, name);
 		IPutStr(user, strlen(user));		/* mailbox name (user id) */
 		IAPuts(" ");
-		if (!strcasecmp(node, config.c_nodename)) {
-			IPutStr(CFG_KEY(c_fqdn));
+		if (!strcasecmp(node, CtdlGetConfigStr("c_nodename"))) {
+			IPutStr(CtdlGetConfigStr("c_fqdn"), strlen(CtdlGetConfigStr("c_fqdn")));
 		}
 		else {
 			IPutStr(node, strlen(node));		/* host name */
@@ -710,7 +706,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	if (Imap->cached_body == NULL) {
 		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		loading_body_now = 1;
-		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0));
+		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0), 1);
 	}
 
 	/* Now figure out what the client wants, and get it */
@@ -1085,7 +1081,7 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 				msg = NULL;
 			}
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 1, 1);
 				body_loaded = 1;
 			}
 			imap_fetch_bodystructure(Imap->msgids[seq-1],
@@ -1093,14 +1089,14 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 		}
 		else if (!strcasecmp(Cmd->Params[i].Key, "ENVELOPE")) {
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0, 1);
 				body_loaded = 0;
 			}
 			imap_fetch_envelope(msg);
 		}
 		else if (!strcasecmp(Cmd->Params[i].Key, "INTERNALDATE")) {
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0, 1);
 				body_loaded = 0;
 			}
 			imap_fetch_internaldate(msg);

@@ -187,7 +187,7 @@ int GetConnected (void)
 
 		/* Server isn't ready for us? */
 		if (short_status != 2) {
-			if (Status == 571) {
+			if (Status == 551) {
 				hprintf("HTTP/1.1 503 Service Unavailable\r\n");
 				hprintf("Content-type: text/plain; charset=utf-8\r\n");
 				wc_printf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));

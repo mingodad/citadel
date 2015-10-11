@@ -1,7 +1,7 @@
 /*
  * This module handles instant messaging between users.
  * 
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -11,6 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -174,7 +175,7 @@ void cmd_gexp(char *argbuf) {
 		(long)ptr->timestamp,			/* time sent */
 		ptr->flags,				/* flags */
 		ptr->sender,				/* sender of msg */
-		config.c_nodename,			/* static for now (and possibly deprecated) */
+		CtdlGetConfigStr("c_nodename"),		/* static for now (and possibly deprecated) */
 		ptr->sender_email			/* email or jid of sender */
 	);
 
@@ -478,7 +479,7 @@ void flush_individual_conversation(struct imlog *im) {
 	}
 
 	CM_SetField(msg, eOriginalRoom, HKEY(PAGELOGROOM));
-	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
 	CM_SetAsFieldSB(msg, eMesageText, &FullMsgBuf);	/* we own this memory now */
 
 	/* Start with usernums[1] because it's guaranteed to be higher than usernums[0],
@@ -503,9 +504,9 @@ void flush_individual_conversation(struct imlog *im) {
 	}
 
 	/* Finally, if we're logging instant messages globally, do that now. */
-	if (!IsEmptyStr(config.c_logpages)) {
-		CtdlCreateRoom(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
-		CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0, NULL);
+	if (!IsEmptyStr(CtdlGetConfigStr("c_logpages"))) {
+		CtdlCreateRoom(CtdlGetConfigStr("c_logpages"), 3, "", 0, 1, 1, VIEW_BBS);
+		CtdlSaveMsgPointerInRoom(CtdlGetConfigStr("c_logpages"), msgnum, 0, NULL);
 	}
 
 }

@@ -422,6 +422,7 @@ struct wcsession {
 	int ctdl_pid;				/* Session ID on the Citadel server */
 	int nonce;				/* session nonce (to prevent session riding) */
 	int inuse;				/* set to nonzero if bound to a running thread */
+	int isFailure;                          /* Http 2xx or 5xx? */
 
 /* Session local Members */
 	int serv_sock;				/* Client socket to Citadel server */

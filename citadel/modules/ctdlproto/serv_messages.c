@@ -1,7 +1,7 @@
 /*
  * represent messages to the citadel clients
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -20,9 +20,9 @@
 #include "internet_addressing.h"
 #include "user_ops.h"
 #include "room_ops.h"
+#include "config.h"
 
 extern char *msgkeys[];
-
 
 
 /*
@@ -34,7 +34,6 @@ void simple_listing(long msgnum, void *userdata)
 }
 
 
-
 /*
  * Back end for the MSGS command: output header summary.
  */
@@ -42,7 +41,7 @@ void headers_listing(long msgnum, void *userdata)
 {
 	struct CtdlMessage *msg;
 
-	msg = CtdlFetchMessage(msgnum, 0);
+	msg = CtdlFetchMessage(msgnum, 0, 1);
 	if (msg == NULL) {
 		cprintf("%ld|0|||||\n", msgnum);
 		return;
@@ -66,7 +65,7 @@ void headers_euid(long msgnum, void *userdata)
 {
 	struct CtdlMessage *msg;
 
-	msg = CtdlFetchMessage(msgnum, 0);
+	msg = CtdlFetchMessage(msgnum, 0, 1);
 	if (msg == NULL) {
 		cprintf("%ld||\n", msgnum);
 		return;
@@ -137,7 +136,7 @@ void cmd_msgs(char *cmdbuf)
 	else
 		mode = MSGS_ALL;
 
-	if ( (mode == MSGS_SEARCH) && (!config.c_enable_fulltext) ) {
+	if ( (mode == MSGS_SEARCH) && (!CtdlGetConfigInt("c_enable_fulltext")) ) {
 		cprintf("%d Full text index is not enabled on this server.\n",
 			ERROR + CMD_NOT_SUPPORTED);
 		return;
@@ -228,7 +227,7 @@ void cmd_msg3(char *cmdbuf)
 	}
 
 	msgnum = extract_long(cmdbuf, 0);
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) {
 		cprintf("%d Message %ld not found.\n", 
 			ERROR + MESSAGE_NOT_FOUND, msgnum);
