@@ -600,11 +600,10 @@ void PutVcardItem(HashList *thisVC, vcField *thisField, StrBuf *ThisFieldStr, in
  * fields we understand, and then render them in a pretty fashion at the
  * end.  Then we make a second pass, outputting all the fields we don't
  * understand in a simple two-column name/value format.
- * v		the vCard to display
- * full		display all items of the vcard?
+ * v		the vCard to parse
  * msgnum	Citadel message pointer
  */
-void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mime_attachment *Mime)
+void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachment *Mime)
 {
 	StrBuf *Val = NULL;
 	StrBuf *Swap = NULL;
@@ -768,8 +767,6 @@ TODO: check for layer II
 */
 #endif	
 		FreeStrBuf(&Val);
-		////free(thisname);
-		/// thisname = NULL;
 	}
 	FreeStrBuf(&thisname);
 	FreeStrBuf(&Swap);
@@ -803,7 +800,7 @@ void display_one_vcard (StrBuf *Target, struct vCard *v, int full, wc_mime_attac
 
 
 	VC = NewHash(0, lFlathash);
-	parse_vcard(Target, v, VC, full, Mime);
+	parse_vcard(Target, v, VC, Mime);
 
 	{
 		WCTemplputParams *TP = NULL;
@@ -996,59 +993,16 @@ void do_edit_vcard(long msgnum, char *partnum,
 		   wc_mime_attachment *VCAtt,
 		   const char *return_to, 
 		   const char *force_room) {
+	HashList *VC;	WCTemplputParams SubTP;
 	wcsession *WCC = WC;
 	message_summary *Msg = NULL;
 	wc_mime_attachment *VCMime = NULL;
 	struct vCard *v;
-	int i;
-	char *key, *value;
 	char whatuser[256];
+	VC = NewHash(0, lFlathash);
 
-	char lastname[256];
-	char firstname[256];
-	char middlename[256];
-	char prefix[256];
-	char suffix[256];
-	char pobox[256];
-	char extadr[256];
-	char street[256];
-	char city[256];
-	char state[256];
-	char zipcode[256];
-	char country[256];
-	char hometel[256];
-	char worktel[256];
-	char faxtel[256];
-	char mobiletel[256];
-	char primary_inetemail[256];
-	char other_inetemail[SIZ];
-	char extrafields[SIZ];
-	char fullname[256];
-	char title[256];
-	char org[256];
-
-	lastname[0] = 0;
-	firstname[0] = 0;
-	middlename[0] = 0;
-	prefix[0] = 0;
-	suffix[0] = 0;
-	pobox[0] = 0;
-	extadr[0] = 0;
-	street[0] = 0;
-	city[0] = 0;
-	state[0] = 0;
-	zipcode[0] = 0;
-	country[0] = 0;
-	hometel[0] = 0;
-	worktel[0] = 0;
-	faxtel[0] = 0;
-	mobiletel[0] = 0;
-	primary_inetemail[0] = 0;
-	other_inetemail[0] = 0;
-	title[0] = 0;
-	org[0] = 0;
-	extrafields[0] = 0;
-	fullname[0] = 0;
+	/* Display the form */
+	output_headers(1, 1, 1, 0, 0, 0);
 
 	safestrncpy(whatuser, "", sizeof whatuser);
 
@@ -1072,279 +1026,26 @@ void do_edit_vcard(long msgnum, char *partnum,
 		else {
 			v = VCardLoad(VCAtt->Data);
 		}
+
+		parse_vcard(WCC->WBuf, v, VC, NULL);
 	
-		/* Populate the variables for our form */
-		i = 0;
-		while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
-			char prp[256];	/* property name */
-			char prm[256];	/* parameters */
-
-			value = vcard_get_prop(v, "", 0, i++, 0);
-
-
-			extract_token(prp, key, 0, ';', sizeof prp);
-			safestrncpy(prm, key, sizeof prm);
-			remove_token(prm, 0, ';');
-
-			if (!strcasecmp(prp, "n")) {
-				extract_token(lastname, value, 0, ';', sizeof lastname);
-				extract_token(firstname, value, 1, ';', sizeof firstname);
-				extract_token(middlename, value, 2, ';', sizeof middlename);
-				extract_token(prefix, value, 3, ';', sizeof prefix);
-				extract_token(suffix, value, 4, ';', sizeof suffix);
-			}
-
-			else if (!strcasecmp(prp, "fn")) {
-				safestrncpy(fullname, value, sizeof fullname);
-			}
-
-			else if (!strcasecmp(prp, "title")) {
-				safestrncpy(title, value, sizeof title);
-			}
-	
-			else if (!strcasecmp(prp, "org")) {
-				safestrncpy(org, value, sizeof org);
-			}
-	
-			else if (!strcasecmp(prp, "adr")) {
-				extract_token(pobox, value, 0, ';', sizeof pobox);
-				extract_token(extadr, value, 1, ';', sizeof extadr);
-				extract_token(street, value, 2, ';', sizeof street);
-				extract_token(city, value, 3, ';', sizeof city);
-				extract_token(state, value, 4, ';', sizeof state);
-				extract_token(zipcode, value, 5, ';', sizeof zipcode);
-				extract_token(country, value, 6, ';', sizeof country);
-			}
-
-			else if (!strcasecmp(prp, "tel")) {
-
-				if (bmstrcasestr(prm, "home")) {
-					extract_token(hometel, value, 0, ';', sizeof hometel);
-				}
-				else if (bmstrcasestr(prm, "work")) {
-					extract_token(worktel, value, 0, ';', sizeof worktel);
-				}
-				else if (bmstrcasestr(prm, "fax")) {
-					extract_token(faxtel, value, 0, ';', sizeof faxtel);
-				}
-				else if (bmstrcasestr(prm, "cell")) {
-					extract_token(mobiletel, value, 0, ';', sizeof mobiletel);
-				}
-				else {	/* Missing or unknown type; put it in the home phone */
-					extract_token(hometel, value, 0, ';', sizeof hometel);
-				}
-			}
-	
-			else if ( (!strcasecmp(prp, "email")) && (bmstrcasestr(prm, "internet")) ) {
-				if (primary_inetemail[0] == 0) {
-					safestrncpy(primary_inetemail, value, sizeof primary_inetemail);
-				}
-				else {
-					if (other_inetemail[0] != 0) {
-						strcat(other_inetemail, "\n");
-					}
-					strcat(other_inetemail, value);
-				}
-			}
-
-			/* Unrecognized properties are preserved here so we don't discard them
-			 * just because the vCard was edited with WebCit.
-			 */
-			else {
-				strcat(extrafields, key);
-				strcat(extrafields, ":");
-				strcat(extrafields, value);
-				strcat(extrafields, "\n");
-			}
-	
-		}
 	
 		vcard_free(v);
 	}
 
-	/* Display the form */
-	output_headers(1, 1, 1, 0, 0, 0);
+        memset(&SubTP, 0, sizeof(WCTemplputParams));    
 
-	do_template("box_begin_1");
-	StrBufAppendBufPlain(WC->WBuf, _("Edit contact information"), -1, 0);
-	do_template("box_begin_2");
-
-	wc_printf("<form method=\"POST\" action=\"submit_vcard\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-
-	if (force_room != NULL) {
-		wc_printf("<input type=\"hidden\" name=\"force_room\" value=\"");
-		escputs(force_room);
-		wc_printf("\">\n");
-	}
-	else
 	{
-		wc_printf("<input type=\"hidden\" name=\"go\" value=\"");
-		StrEscAppend(WCC->WBuf, WCC->CurRoom.name, NULL, 0, 0);
-		wc_printf("\">\n");
+		WCTemplputParams *TP = NULL;
+		WCTemplputParams SubTP;
+		StackContext(TP, &SubTP, VC, CTX_VCARD, 0, NULL);
+
+		DoTemplate(HKEY("vcard_edit"), WCC->WBuf, &SubTP);
+		UnStackContext(&SubTP);
 	}
+	DeleteHash(&VC);
 
-	wc_printf("<table class=\"vcard_edit_background\"><tr><td>\n");
 
-	wc_printf("<table border=\"0\"><tr>"
-		"<td>%s</td>"
-		"<td>%s</td>"
-		"<td>%s</td>"
-		"<td>%s</td>"
-		"<td>%s</td></tr>\n",
-		_("Prefix"), _("First Name"), _("Middle Name"), _("Last Name"), _("Suffix")
-	);
-	wc_printf("<tr><td><input type=\"text\" name=\"prefix\" "
-		"value=\"%s\" maxlength=\"5\" size=\"5\"></td>",
-		prefix);
-	wc_printf("<td><input type=\"text\" name=\"firstname\" "
-		"value=\"%s\" maxlength=\"29\"></td>",
-		firstname);
-	wc_printf("<td><input type=\"text\" name=\"middlename\" "
-		"value=\"%s\" maxlength=\"29\"></td>",
-		middlename);
-	wc_printf("<td><input type=\"text\" name=\"lastname\" "
-		"value=\"%s\" maxlength=\"29\"></td>",
-		lastname);
-	wc_printf("<td><input type=\"text\" name=\"suffix\" "
-		"value=\"%s\" maxlength=\"10\" size=\"10\"></td></tr></table>\n",
-		suffix);
-
-	wc_printf("<table  class=\"vcard_edit_background_alt\">");
-	wc_printf("<tr><td>");
-
-	wc_printf(_("Display name:"));
-	wc_printf("<br>"
-		"<input type=\"text\" name=\"fullname\" "
-		"value=\"%s\" maxlength=\"40\"><br><br>\n",
-		fullname
-	);
-
-	wc_printf(_("Title:"));
-	wc_printf("<br>"
-		"<input type=\"text\" name=\"title\" "
-		"value=\"%s\" maxlength=\"40\"><br><br>\n",
-		title
-	);
-
-	wc_printf(_("Organization:"));
-	wc_printf("<br>"
-		"<input type=\"text\" name=\"org\" "
-		"value=\"%s\" maxlength=\"40\"><br><br>\n",
-		org
-	);
-
-	wc_printf("</td><td>");
-
-	wc_printf("<table border=\"0\">");
-	wc_printf("<tr><td>");
-	wc_printf(_("PO box:"));
-	wc_printf("</td><td>"
-		"<input type=\"text\" name=\"pobox\" "
-		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
-		pobox);
-	wc_printf("<tr><td>");
-	wc_printf(_("Address:"));
-	wc_printf("</td><td>"
-		"<input type=\"text\" name=\"extadr\" "
-		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
-		extadr);
-	wc_printf("<tr><td> </td><td>"
-		"<input type=\"text\" name=\"street\" "
-		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
-		street);
-	wc_printf("<tr><td>");
-	wc_printf(_("City:"));
-	wc_printf("</td><td>"
-		"<input type=\"text\" name=\"city\" "
-		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
-		city);
-	wc_printf("<tr><td>");
-	wc_printf(_("State:"));
-	wc_printf("</td><td>"
-		"<input type=\"text\" name=\"state\" "
-		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
-		state);
-	wc_printf("<tr><td>");
-	wc_printf(_("ZIP code:"));
-	wc_printf("</td><td>"
-		"<input type=\"text\" name=\"zipcode\" "
-		"value=\"%s\" maxlength=\"10\"></td></tr>\n",
-		zipcode);
-	wc_printf("<tr><td>");
-	wc_printf(_("Country:"));
-	wc_printf("</td><td>"
-		"<input type=\"text\" name=\"country\" "
-		"value=\"%s\" maxlength=\"29\" width=\"5\"></td></tr>\n",
-		country);
-	wc_printf("</table>\n");
-
-	wc_printf("</table>\n");
-
-	wc_printf("<table border=0><tr><td>");
-	wc_printf(_("Home telephone:"));
-	wc_printf("</td>"
-		"<td><input type=\"text\" name=\"hometel\" "
-		"value=\"%s\" maxlength=\"29\"></td>\n",
-		hometel);
-	wc_printf("<td>");
-	wc_printf(_("Work telephone:"));
-	wc_printf("</td>"
-		"<td><input type=\"text\" name=\"worktel\" "
-		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
-		worktel);
-	wc_printf("<tr><td>");
-	wc_printf(_("Mobile telephone:"));
-	wc_printf("</td>"
-		"<td><input type=\"text\" name=\"mobiletel\" "
-		"value=\"%s\" maxlength=\"29\"></td>\n",
-		mobiletel);
-	wc_printf("<td>");
-	wc_printf(_("Fax number:"));
-	wc_printf("</td>"
-		"<td><input type=\"text\" name=\"faxtel\" "
-		"value=\"%s\" maxlength=\"29\"></td></tr></table>\n",
-		faxtel);
-
-	wc_printf("<table class=\"vcard_edit_background_alt\">");
-	wc_printf("<tr><td>");
-
-	wc_printf("<table border=0><TR>"
-		"<td valign=top>");
-	wc_printf(_("Primary Internet e-mail address"));
-	wc_printf("<br>"
-		"<input type=\"text\" name=\"primary_inetemail\" "
-		"size=40 maxlength=60 value=\"");
-	escputs(primary_inetemail);
-	wc_printf("\"><br>"
-		"</td><td valign=top>");
-	wc_printf(_("Internet e-mail aliases"));
-	wc_printf("<br>"
-		"<textarea name=\"other_inetemail\" rows=5 cols=40 width=40>");
-	escputs(other_inetemail);
-	wc_printf("</textarea></td></tr></table>\n");
-
-	wc_printf("</td></tr></table>\n");
-
-	wc_printf("<input type=\"hidden\" name=\"extrafields\" value=\"");
-	escputs(extrafields);
-	wc_printf("\">\n");
-
-	wc_printf("<input type=\"hidden\" name=\"return_to\" value=\"");
-	escputs(return_to);
-	wc_printf("\">\n");
-
-	wc_printf("<div class=\"buttons\">\n"
-		"<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
-		"&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">"
-		"</div></form>\n",
-		_("Save changes"),
-		_("Cancel")
-	);
-	
-	wc_printf("</td></tr></table>\n");
-	do_template("box_end");
 	wDumpContent(1);
 	if (Msg != NULL) {
 		DestroyMessageSummary(Msg);

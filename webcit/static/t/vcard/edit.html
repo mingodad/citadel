@@ -1,0 +1,78 @@
+<?=("box_begin_1")><?_("Edit contact information")><?=("box_begin_2")>
+
+<form method="POST" action="submit_vcard">
+<input type="hidden" name="nonce" value="<?NONCE()>">
+<input type="hidden" name="force_room" value="My Citadel Config">
+<table class="vcard_edit_background"><tr><td>
+
+<table border="0">
+<tr>
+  <td><?_("Prefix")></td>
+  <td><?_("First Name")></td>
+  <td><?_("Middle Name")></td>
+  <td><?_("Last Name")></td>
+  <td><?_("Suffix")></td>
+</tr>
+<tr>
+  <td><input type="text" name="prefix" value='<?VC:ITEM(#"VC:.n.prefix", "X")>' maxlength="5" size="5"></td>
+  <td><input type="text" name="firstname" value='<?VC:ITEM(#"VC:.n.first", "X")>' maxlength="29"></td>
+  <td><input type="text" name="middlename" value='<?VC:ITEM(#"VC:.n.middle", "X")>' maxlength="29"></td>
+  <td><input type="text" name="lastname" value='<?VC:ITEM(#"VC:.n.last", "X")>' maxlength="29"></td>
+  <td><input type="text" name="suffix" value='<?VC:ITEM(#"VC:.n.suffix", "X")>' maxlength="10" size="10"></td>
+</tr></table>
+
+<table  class="vcard_edit_background_alt">
+<tr>
+  <td>
+    <?_("Display name:")><br> <input type="text" name="fullname" value='<?VC:ITEM(#"VC:.fn", "X")>' maxlength="40"><br><br>
+    <?_("Title:")><br><input type="text" name="title" value='<?VC:ITEM(#"VC:.title", "X")>' maxlength="40"><br><br>
+    <?_("Organization:")><br><input type="text" name="org" value='<?VC:ITEM(#"VC:.org", "X")>' maxlength="40"><br><br>
+  </td>
+<td>
+
+<table border="0">
+  <tr><td><?_("PO box:")></td><td><input type="text" name="pobox" value='<?VC:ITEM(#"VC:.adr.POBox", "X")>' maxlength="29"></td></tr>
+  <tr><td><?_("Address:")></td><td><input type="text" name="extadr" value='<?VC:ITEM(#"VC:.adr.address", "X")>' maxlength="29"></td></tr>
+  <tr><td> </td><td><input type="text" name="street" value='<?VC:ITEM(#"VC:.adr.address2", "X")>' maxlength="29"></td></tr>
+  <tr><td><?_("City:")></td><td><input type="text" name="city" value='<?VC:ITEM(#"VC:.adr.city", "X")>' maxlength="29"></td></tr>
+  <tr><td><?_("State:")></td><td><input type="text" name="state" value='<?VC:ITEM(#"VC:.adr.state", "X")>' maxlength="29"></td></tr>
+  <tr><td><?_("ZIP code:")></td><td><input type="text" name="zipcode" value='<?VC:ITEM(#"VC:.adr.zip", "X")>' maxlength="10"></td></tr>
+  <tr><td><?_("Country:")></td><td><input type="text" name="country" value='<?VC:ITEM(#"VC:.adr.country", "X")>' maxlength="29" width="5"></td></tr>
+</table>
+
+</table>
+<table border=0>
+<tr>
+  <td><?_("Home telephone:")></td><td><input type="text" name="hometel" value='<?VC:ITEM(#"VC:.tel;home", "X")>' maxlength="29"></td>
+  <td><?_("Work telephone:")></td><td><input type="text" name="worktel" value='<?VC:ITEM(#"VC:.tel;work", "X")>' maxlength="29"></td>
+</tr>
+<tr>
+  <td><?_("Mobile telephone:")></td><td><input type="text" name="mobiletel" value='<?VC:ITEM(#"VC:.tel;cell", "X")>' maxlength="29"></td>
+  <td><?_("Fax number:")></td><td><input type="text" name="faxtel" value='<?VC:ITEM(#"VC:.tel;fax", "X")>' maxlength="29"></td>
+</tr></table>
+
+<table class="vcard_edit_background_alt">
+<tr>
+  <td>
+    <table border=0>
+      <tr>
+	<td valign=top><?_("Primary Internet e-mail address")><br>
+	  <input type="text" name="primary_inetemail" size=40 maxlength=60 value='<?VC:ITEM(#"VC:.email;internet", "X")>'><br>
+	</td>
+	<td valign=top><?_("Internet e-mail aliases")><br><textarea name="other_inetemail" rows=5 cols=40 width=40><?ITERATE("VC:TYPE", ="vcard_edit_email", 0, 0, -1, #"EmailAddr")></textarea>
+    </td>
+    </tr>
+    </table>
+</td></tr></table>
+
+<input type="hidden" name="extrafields" value="VERSION:2.1
+FBURL;PREF:http://flunder/willi.vfb
+UID:Citadel vCard: personal card for willi at flunder
+TODO
+">
+
+<input type="hidden" name="return_to" value="display_main_menu?go=Contacts">
+<div class="buttons">
+<input type="submit" name="ok_button" value="Save changes">&nbsp;<input type="submit" name="cancel_button" value="Cancel"></div></form>
+</td></tr></table>
+<?=("box_end")>
