@@ -80,7 +80,7 @@ JsonValue *NewJsonArray(const char *Key, long keylen)
 	Ret->Type = JSON_ARRAY;
 	if (Key != NULL)
 		Ret->Name = NewStrBufPlain(Key, keylen);
-	Ret->SubValues = NewHash(1, Flathash);
+	Ret->SubValues = NewHash(1, lFlathash);
 	return Ret;
 }
 
@@ -177,7 +177,7 @@ void JsonArrayAppend(JsonValue *Array, JsonValue *Val)
 		return; /* todo assert! */
 
 	n = GetCount(Array->SubValues);
-	Put(Array->SubValues, (const char*) &n, sizeof(n), Val, DeleteJSONValue);
+	Put(Array->SubValues, LKEY(n), Val, DeleteJSONValue);
 }
 
 void JsonObjectAppend(JsonValue *Array, JsonValue *Val)
