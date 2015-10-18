@@ -28,6 +28,7 @@ typedef enum _VCStrEnum {
 	Number,
 	AliasFor,
 	Base64BinaryAttachment,
+	UnKnown,
 	TerminateList
 }VCStrEnum;
 typedef struct vcField vcField;
@@ -36,48 +37,50 @@ struct vcField {
 	VCStrEnum Type;
 	vcField *Sub;
 	long cval;
+	long parentCVal;
 	ConstStr Name;
 };
 
 vcField VCStr_Ns [] = {
-	{{HKEY("last")},   FlatString,    NULL, 0, {HKEY("Last Name")}},
-	{{HKEY("first")},  FlatString,    NULL, 0, {HKEY("First Name")}},
-	{{HKEY("middle")}, FlatString,    NULL, 0, {HKEY("Middle Name")}},
-	{{HKEY("prefix")}, FlatString,    NULL, 0, {HKEY("Prefix")}},
-	{{HKEY("suffix")}, FlatString,    NULL, 0, {HKEY("Suffix")}},
-	{{HKEY("")},       TerminateList, NULL, 0, {HKEY("")}}
+	{{HKEY("last")},   FlatString,    NULL, 0, 0, {HKEY("Last Name")}},
+	{{HKEY("first")},  FlatString,    NULL, 0, 0, {HKEY("First Name")}},
+	{{HKEY("middle")}, FlatString,    NULL, 0, 0, {HKEY("Middle Name")}},
+	{{HKEY("prefix")}, FlatString,    NULL, 0, 0, {HKEY("Prefix")}},
+	{{HKEY("suffix")}, FlatString,    NULL, 0, 0, {HKEY("Suffix")}},
+	{{HKEY("")},       TerminateList, NULL, 0, 0, {HKEY("")}}
 };
 
 vcField VCStr_Addrs [] = {
-	{{HKEY("POBox")},    Address,    NULL, 0, {HKEY("PO box")}},
-	{{HKEY("address")},  Address,    NULL, 0, {HKEY("Address")}},
-	{{HKEY("address2")}, Address,    NULL, 0, {HKEY("")}},
-	{{HKEY("city")},     Address,    NULL, 0, {HKEY("City")}},
-	{{HKEY("state")},    Address,    NULL, 0, {HKEY("State")}},
-	{{HKEY("zip")},      Address,    NULL, 0, {HKEY("ZIP code")}},
-	{{HKEY("country")},  Address,    NULL, 0, {HKEY("Country")}},
-	{{HKEY("")},         TerminateList, NULL, 0, {HKEY("")}}
+	{{HKEY("POBox")},    Address,       NULL, 0, 0, {HKEY("PO box")}},
+	{{HKEY("extadr")},   Address,       NULL, 0, 0, {HKEY("Address")}},
+	{{HKEY("street")},   Address,       NULL, 0, 0, {HKEY("")}},
+	{{HKEY("city")},     Address,       NULL, 0, 0, {HKEY("City")}},
+	{{HKEY("state")},    Address,       NULL, 0, 0, {HKEY("State")}},
+	{{HKEY("zip")},      Address,       NULL, 0, 0, {HKEY("ZIP code")}},
+	{{HKEY("country")},  Address,       NULL, 0, 0, {HKEY("Country")}},
+	{{HKEY("")},         TerminateList, NULL, 0, 0, {HKEY("")}}
 };
 
 vcField VCStrE [] = {
-	{{HKEY("version")},         Number,                 NULL,        0, {HKEY("")}},
-	{{HKEY("rev")},             Number,                 NULL,        0, {HKEY("")}},
-	{{HKEY("label")},           FlatString,             NULL,        0, {HKEY("")}},
-	{{HKEY("uid")},             FlatString,             NULL,        0, {HKEY("")}},
-	{{HKEY("n")},               StringCluster,          VCStr_Ns,    0, {HKEY("")}}, /* N is name, but only if there's no FN already there */
-	{{HKEY("fn")},              FlatString,             NULL,        0, {HKEY("")}}, /* FN (full name) is a true 'display name' field */
-	{{HKEY("title")},           FlatString,             NULL,        0, {HKEY("Title:")}},
-	{{HKEY("org")},             FlatString,             NULL,        0, {HKEY("Organization:")}},/* organization */
-	{{HKEY("email")},           EmailAddr,              NULL,        0, {HKEY("E-mail:")}},
-	{{HKEY("tel")},             PhoneNumber,            NULL,        0, {HKEY("Telephone:")}},
-	{{HKEY("adr")},             StringCluster,          VCStr_Addrs, 0, {HKEY("Address:")}},
-	{{HKEY("photo")},           Base64BinaryAttachment, NULL,        0, {HKEY("Photo:")}},
-	{{HKEY("tel;home")},        PhoneNumber,            NULL,        0, {HKEY(" (home)")}},
-	{{HKEY("tel;work")},        PhoneNumber,            NULL,        0, {HKEY(" (work)")}},
-	{{HKEY("tel;fax")},         PhoneNumber,            NULL,        0, {HKEY(" (fax)")}},
-	{{HKEY("tel;cell")},        PhoneNumber,            NULL,        0, {HKEY(" (cell)")}},
-	{{HKEY("email;internet")},  EmailAddr,              NULL,        0, {HKEY("E-mail:")}},
-	{{HKEY("")},                TerminateList,          NULL,        0, {HKEY("")}}
+	{{HKEY("version")},         Number,                 NULL,        0, 0, {HKEY("")}},
+	{{HKEY("rev")},             Number,                 NULL,        0, 0, {HKEY("")}},
+	{{HKEY("label")},           FlatString,             NULL,        0, 0, {HKEY("")}},
+	{{HKEY("uid")},             FlatString,             NULL,        0, 0, {HKEY("")}},
+	{{HKEY("n")},               StringCluster,          VCStr_Ns,    0, 0, {HKEY("")}}, /* N is name, but only if there's no FN already there */
+	{{HKEY("fn")},              FlatString,             NULL,        0, 0, {HKEY("")}}, /* FN (full name) is a true 'display name' field */
+	{{HKEY("title")},           FlatString,             NULL,        0, 0, {HKEY("Title:")}},
+	{{HKEY("org")},             FlatString,             NULL,        0, 0, {HKEY("Organization:")}},/* organization */
+	{{HKEY("email")},           EmailAddr,              NULL,        0, 0, {HKEY("E-mail:")}},
+	{{HKEY("tel")},             PhoneNumber,            NULL,        0, 0, {HKEY("Telephone:")}},
+	{{HKEY("adr")},             StringCluster,          VCStr_Addrs, 0, 0, {HKEY("Address:")}},
+	{{HKEY("photo")},           Base64BinaryAttachment, NULL,        0, 0, {HKEY("Photo:")}},
+	{{HKEY("tel;home")},        PhoneNumber,            NULL,        0, 0, {HKEY(" (home)")}},
+	{{HKEY("tel;work")},        PhoneNumber,            NULL,        0, 0, {HKEY(" (work)")}},
+	{{HKEY("tel;fax")},         PhoneNumber,            NULL,        0, 0, {HKEY(" (fax)")}},
+	{{HKEY("tel;cell")},        PhoneNumber,            NULL,        0, 0, {HKEY(" (cell)")}},
+	{{HKEY("email;internet")},  EmailAddr,              NULL,        0, 0, {HKEY("E-mail:")}},
+	{{HKEY("UNKNOWN")},         UnKnown,                NULL,        0, 0, {HKEY("")}},
+	{{HKEY("")},                TerminateList,          NULL,        0, 0, {HKEY("")}}
 };
 
 ConstStr VCStr [] = {
@@ -103,10 +106,13 @@ ConstStr VCStr [] = {
 HashList *DefineToToken = NULL;
 HashList *VCTokenToDefine = NULL;
 HashList *vcNames = NULL; /* todo: fill with the name strings */
-
+vcField* vcfUnknown = NULL;
 
 void RegisterVCardToken(vcField* vf, StrBuf *name, int inTokenCount)
 {
+	if (vf->Type == UnKnown) {
+		vcfUnknown = vf;
+	}
 	RegisterTokenParamDefine(SKEY(name), vf->cval);
 	Put(DefineToToken, LKEY(vf->cval), vf, reference_free_handler);
 	Put(vcNames, LKEY(vf->cval), NewStrBufPlain(CKEY(vf->Name)), HFreeStrBuf);
@@ -118,13 +124,14 @@ void RegisterVCardToken(vcField* vf, StrBuf *name, int inTokenCount)
 
 }
 
-void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int layer)
+void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int layer, long parentCVal)
 {
 	int i = 0;
 	StrBuf *subStr = NewStrBuf();
 	while (vf[i].STR.len > 0) {
 		FlushStrBuf(subStr);
 		vf[i].cval = (*enumCounter) ++;
+		vf[i].parentCVal = parentCVal;
 		StrBufAppendBuf(subStr, BaseStr, 0);
 		if (StrLength(subStr) > 0) {
 			StrBufAppendBufPlain(subStr, HKEY("."), 0);
@@ -138,9 +145,7 @@ void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int lay
 			break;
 		case StringCluster:
 		{
-			autoRegisterTokens(enumCounter, vf[i].Sub, subStr, 1);
-			i++;
-			continue;
+			autoRegisterTokens(enumCounter, vf[i].Sub, subStr, 1, vf[i].cval);
 		}
 		break;
 		case PhoneNumber:
@@ -158,6 +163,8 @@ void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int lay
 		case TerminateList:
 			break;
 		case Address:
+			break;
+		case UnKnown:
 			break;
 		}
 		RegisterVCardToken(&vf[i], subStr, i);
@@ -608,13 +615,12 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 	StrBuf *Val = NULL;
 	StrBuf *Swap = NULL;
 	int i, j, k;
-	char buf[20]; //SIZ];
+	char buf[SIZ];
 	int is_qp = 0;
 	int is_b64 = 0;
 	int ntokens, len;
 	StrBuf *thisname = NULL;
-	char firsttoken[20]; ///SIZ];
-	//void *V;
+	char firsttoken[SIZ];
 	StrBuf *thisVCToken;
 	void *vField = NULL;
 
@@ -701,10 +707,31 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 				break;
 			case Base64BinaryAttachment:
 			case TerminateList:
+			case UnKnown:
 				break;
 			}
 
 		}
+		else if (StrLength(thisVCToken) > 0) {
+			/* Add it to the UNKNOWN field... */
+			void *pv = NULL;
+			StrBuf *oldVal;
+			GetHash(VC, IKEY(vcfUnknown->cval), &pv);
+			oldVal = (StrBuf*) pv;
+			if (oldVal == NULL) {
+				oldVal = NewStrBuf();
+				Put(VC, IKEY(vcfUnknown->cval), oldVal, HFreeStrBuf);
+			}
+			else {
+				StrBufAppendBufPlain(oldVal, HKEY("\n"), 0);
+			}
+
+			StrBufAppendBuf(oldVal, thisVCToken, 0);
+			StrBufAppendBufPlain(oldVal, HKEY(":"), 0);
+			StrBufAppendBufPlain(oldVal, v->prop[i].value, -1, 0);
+			continue;
+		}
+
 		/* copy over the payload into a StrBuf */
 		Val = NewStrBufPlain(v->prop[i].value, -1);
 			
@@ -719,7 +746,6 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 		}
 		else if (is_b64) {
 			StrBufDecodeBase64(Val);
-
 		}
 #if 0
 		syslog(LOG_DEBUG, "-> firsttoken: %s thisname: %s Value: [%s][%s]",
@@ -1073,10 +1099,16 @@ void edit_vcard(void) {
 void submit_vcard(void) {
 	struct vCard *v;
 	char *serialized_vcard;
-	char buf[SIZ];
 	StrBuf *Buf;
 	const StrBuf *ForceRoom;
-	int i;
+	HashList* postVcard;
+	HashPos *it, *itSub;
+	const char *Key;
+	long len;
+	void *pv;
+	StrBuf *SubStr;
+	const StrBuf *s;
+	const char *Pos = NULL;
 
 	if (!havebstr("ok_button")) { 
 		readloop(readnew, eUseDefault);
@@ -1108,6 +1140,13 @@ void submit_vcard(void) {
 		}
 	}
 
+	postVcard = getSubStruct(HKEY("VC"));
+	if (postVcard == NULL) {
+		AppendImportantMessage(_("An error has occurred."), -1);
+		edit_vcard();
+		return;//// more details
+	}
+	
 	Buf = NewStrBuf();
 	serv_write(HKEY("ENT0 1|||4\n"));
 	if (!StrBuf_ServGetln(Buf) && (GetServerStatus(Buf, NULL) != 4))
@@ -1115,7 +1154,7 @@ void submit_vcard(void) {
 		edit_vcard();
 		return;
 	}
-
+	
 	/* Make a vCard structure out of the data supplied in the form */
 	StrBufPrintf(Buf, "begin:vcard\r\n%s\r\nend:vcard\r\n",
 		     bstr("extrafields")
@@ -1128,40 +1167,99 @@ void submit_vcard(void) {
 		return;
 	}
 
-	snprintf(buf, sizeof buf, "%s;%s;%s;%s;%s",
-		bstr("lastname"),
-		bstr("firstname"),
-		bstr("middlename"),
-		bstr("prefix"),
-		bstr("suffix") );
-	vcard_add_prop(v, "n", buf);
-	
-	vcard_add_prop(v, "title", bstr("title"));
-	vcard_add_prop(v, "fn", bstr("fullname"));
-	vcard_add_prop(v, "org", bstr("org"));
+	SubStr = NewStrBuf();
+	it = GetNewHashPos(DefineToToken, 0);
+	while (GetNextHashPos(DefineToToken, it, &len, &Key, &pv) && 
+	       (pv != NULL)) 
+	{
+		char buf[32];
+		long blen;
+		vcField *t = (vcField*) pv;
 
-	snprintf(buf, sizeof buf, "%s;%s;%s;%s;%s;%s;%s",
-		bstr("pobox"),
-		bstr("extadr"),
-		bstr("street"),
-		bstr("city"),
-		bstr("state"),
-		bstr("zipcode"),
-		bstr("country") );
-	vcard_add_prop(v, "adr", buf);
+ 		if (t->Sub != NULL){
+			vcField *Sub;
+			FlushStrBuf(SubStr);
+			itSub = GetNewHashPos(DefineToToken, 0);
+			while (GetNextHashPos(DefineToToken, itSub, &len, &Key, &pv) && 
+			       (pv != NULL)) 
+			{
+				Sub = (vcField*) pv;
+				if (Sub->parentCVal == t->cval) {
+					if (StrLength(SubStr) > 0)
+						StrBufAppendBufPlain(SubStr, HKEY(";"), 0);
 
-	vcard_add_prop(v, "tel;home", bstr("hometel"));
-	vcard_add_prop(v, "tel;work", bstr("worktel"));
-	vcard_add_prop(v, "tel;fax", bstr("faxtel"));
-	vcard_add_prop(v, "tel;cell", bstr("mobiletel"));
-	vcard_add_prop(v, "email;internet", bstr("primary_inetemail"));
 
-	for (i=0; i<num_tokens(bstr("other_inetemail"), '\n'); ++i) {
-		extract_token(buf, bstr("other_inetemail"), i, '\n', sizeof buf);
-		if (!IsEmptyStr(buf)) {
-			vcard_add_prop(v, "email;internet", buf);
+
+					blen = snprintf(buf, sizeof(buf), "%ld", Sub->cval);
+					s = SSubBstr(postVcard, buf, blen);
+			
+					if ((s != NULL) && (StrLength(s) > 0)) {
+						/// todo: utf8 qp
+						StrBufAppendBuf(SubStr, s, 0);
+					}
+				}
+			}
+			if (StrLength(SubStr) > 0) {
+				vcard_add_prop(v, t->STR.Key, ChrPtr(SubStr));
+			}
+			DeleteHashPos(&itSub);
+		}
+		else if (t->parentCVal == 0) {
+			blen = snprintf(buf, sizeof(buf), "%ld", t->cval);
+			s = SSubBstr(postVcard, buf, blen);
+			
+			if ((s != NULL) && (StrLength(s) > 0)) {
+				vcard_add_prop(v, t->STR.Key, ChrPtr(s));
+			}
+			/*
+		    (vvcField != NULL))
+		{
+			vcField *t = (vcField*) vvcField;
+			if (t->layer == 0) switch (t->Type) {
+				break;
+			case StringCluster:
+			{
+				
+				i++;
+				continue;
+			}
+			break;
+				break;
+			case EmailAddr:
+				break;
+			case Street:
+				break;
+			case FlatString:
+			case PhoneNumber:
+			case Number:
+				break;
+			case AliasFor:
+				break;
+			case Base64BinaryAttachment:
+				break;
+			case TerminateList:
+				break;
+			case Address:
+				break;
+
+			}
+*/
 		}
 	}
+	DeleteHashPos(&it);
+
+	s = sbstr("other_inetemail");
+	if (StrLength(s) > 0) {
+		FlushStrBuf(SubStr);
+		while (StrBufSipLine(SubStr, s, &Pos), ((Pos!=StrBufNOTNULL) && (Pos!=NULL)) ) {
+			if (StrLength(SubStr) > 0) {
+				vcard_add_prop(v, "email;internet", ChrPtr(SubStr));
+			}
+		}
+	}
+
+	FreeStrBuf(&SubStr);
+
 
 	serialized_vcard = vcard_serialize(v);
 	vcard_free(v);
@@ -1172,6 +1270,7 @@ void submit_vcard(void) {
 		return;
 	}
 
+	printf("%s", serialized_vcard);
 	serv_write(HKEY("Content-type: text/x-vcard; charset=UTF-8\n"));
 	serv_write(HKEY("\n"));
 	serv_printf("%s\r\n", serialized_vcard);
@@ -1395,7 +1494,7 @@ InitModule_VCARD
 		DefineToToken   = NewHash(1, lFlathash);
 		vcNames         = NewHash(1, lFlathash);
 		VCTokenToDefine = NewHash(1, NULL);
-		autoRegisterTokens(&VCEnumCounter, VCStrE, Prefix, 0);
+		autoRegisterTokens(&VCEnumCounter, VCStrE, Prefix, 0, 0);
 		FreeStrBuf(&Prefix);
 	}
 	RegisterCTX(CTX_VCARD);

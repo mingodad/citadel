@@ -62,7 +62,7 @@ void PutSubstructUrlKey(HashList *list, urlcontent *u, char **keys, long *length
 }
 
 void PutUrlKey(HashList *urlstrings, urlcontent *u, int have_colons) {
-	if (!have_colons) {
+	if (have_colons == 0) {
 		Put(urlstrings, u->url_key, u->klen, u, free_url);
 	}
 	else {
@@ -78,22 +78,54 @@ void PutUrlKey(HashList *urlstrings, urlcontent *u, int have_colons) {
 		pchs = pch = u->url_key;
 		pche = u->url_key + u->klen;
 		while ((i < 10) && (pch <= pche)) {
-			if ((*pch != ':') && (pch != pche)){
-				pch ++;
-				continue;
+			if ((have_colons == 2) &&
+			    (*pch == '%') &&
+			    (*(pch + 1) == '3') && 
+			    ((*(pch + 2) == 'A') ||
+			     (*(pch + 1) == 'a')
+				    ))
+			{
+				*pch = '\0';
+
+				if (i == 0) {
+					/* Separate the toplevel key : */
+					u->klen = pch - pchs;
+				}
+
+				/* sub-section: */
+				keys[i] = pchs;
+				lengths[i] = pch - pchs;
+
+				pch += 3;
+
+				pchs = pch;
+				i++;
 			}
-			*pch = '\0';
-			if (i == 0) {
-				/* Separate the toplevel key : */
-				u->klen = pch - pchs;
-			}
-			/* sub-section: */
-			keys[i] = pchs;
-			lengths[i] = pch - pchs;
+			else if ((have_colons == 1) &&
+				 (*pch == ':')) {
+				*pch = '\0';
+				if (i == 0) {
+					/* Separate the toplevel key : */
+					u->klen = pch - pchs;
+				}
+				/* sub-section: */
+				keys[i] = pchs;
+				lengths[i] = pch - pchs;
 			
-			pch++;
-			pchs = pch;
-			i++;
+				pch++;
+				pchs = pch;
+				i++;
+			}
+			else if (pch == pche){
+				/* sub-section: */
+				keys[i] = pchs;
+				lengths[i] = pch - pchs;
+				i++;
+				break;
+			}
+			else {
+				pch ++;
+			}
 		}
 		
 		PutSubstructUrlKey(urlstrings, u, keys, lengths, i - 1, 0);
@@ -121,6 +153,14 @@ void ParseURLParams(StrBuf *url)
 		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '=')) {
 			if (*aptr == ':') {
 				have_colon = 1;
+			}
+			else if ((*aptr == '%') &&
+				 (*(aptr + 1) == '3') && 
+				 ((*(aptr + 2) == 'A') ||
+				  (*(aptr + 1) == 'a')
+					 ))
+			{
+				have_colon = 2;
 			}
 			aptr++;
 		}
@@ -299,17 +339,6 @@ long LBstr(const char *key, size_t keylen)
 		return (0);
 }
 
-long LBSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->Hdr->urlstrings != NULL) && 
-	    GetHash(WC->Hdr->urlstrings, key, strlen(key), &U))
-		return StrTol(((urlcontent *)U)->url_data);
-	else	
-		return (0);
-}
-
 int IBstr(const char *key, size_t keylen)
 {
 	void *U;
@@ -343,18 +372,6 @@ int HaveBstr(const char *key, size_t keylen)
 		return (0);
 }
 
-int HAVEBSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->Hdr->urlstrings != NULL) && 
-	    GetHash(WC->Hdr->urlstrings, key, strlen(key), &U))
-		return (StrLength(((urlcontent *)U)->url_data) != 0);
-	else	
-		return (0);
-}
-
-
 int YesBstr(const char *key, size_t keylen)
 {
 	void *U;
@@ -378,6 +395,110 @@ int YESBSTR(const char *key)
 }
 
 
+/*
+ * Return a sub array that was separated by a colon:
+ */
+HashList* getSubStruct(const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, strlen(key), &U))
+		return ((urlcontent *)U)->sub;
+	else	
+		return NULL;
+}
+
+
+/*
+ * Return the value of a variable of a substruct provided by getSubStruct
+ */
+const char *XSubBstr(HashList *sub, const char *key, size_t keylen, size_t *len)
+{
+	void *U;
+
+	if ((sub != NULL) && 
+	    GetHash(sub, key, keylen, &U)) {
+		*len = StrLength(((urlcontent *)U)->url_data);
+		return ChrPtr(((urlcontent *)U)->url_data);
+	}
+	else {
+		*len = 0;
+		return ("");
+	}
+}
+
+const char *SubBstr(HashList *sub, const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((sub != NULL) && 
+	    GetHash(sub, key, keylen, &U)) {
+		return ChrPtr(((urlcontent *)U)->url_data);
+	}
+	else	
+		return ("");
+}
+
+const StrBuf *SSubBstr(HashList *sub, const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((sub != NULL) && 
+	    GetHash(sub, key, keylen, &U)) {
+		return ((urlcontent *)U)->url_data;
+	}
+	else	
+		return NULL;
+}
+
+long LSubBstr(HashList *sub, const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((sub != NULL) && 
+	    GetHash(sub, key, keylen, &U)) {
+		return StrTol(((urlcontent *)U)->url_data);
+	}
+	else	
+		return (0);
+}
+
+int ISubBstr(HashList *sub, const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((sub != NULL) && 
+	    GetHash(sub, key, keylen, &U)) {
+		return StrTol(((urlcontent *)U)->url_data);
+	}
+	else	
+		return (0);
+}
+
+int HaveSubBstr(HashList *sub, const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((sub != NULL) && 
+	    GetHash(sub, key, keylen, &U)) {
+		return (StrLength(((urlcontent *)U)->url_data) != 0);
+	}
+	else	
+		return (0);
+}
+
+int YesSubBstr(HashList *sub, const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((sub != NULL) && 
+	    GetHash(sub, key, keylen, &U)) {
+		return strcmp( ChrPtr(((urlcontent *)U)->url_data), "yes") == 0;
+	}
+	else	
+		return (0);
+}
 
 
 /*

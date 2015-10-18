@@ -2140,7 +2140,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 				/** Ok, its us, lets see in which direction we should sort... */
 				    (havebstr("SortOrder"))) {
 					int SortOrder;
-					SortOrder = LBSTR("SortOrder");
+					SortOrder = lbstr("SortOrder");
 					if (SortOrder != 0)
 						DetectGroupChange = 1;
 				}
@@ -2663,7 +2663,7 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 
 	/** Ok, its us, lets see in which direction we should sort... */
 	if (havebstr("SortOrder")) {
-		SortOrder = LBSTR("SortOrder");
+		SortOrder = lbstr("SortOrder");
 	}
 	else { /** Try to fallback to our remembered values... */
 		StrBuf *Buf = NULL;
@@ -2755,7 +2755,7 @@ int GetSortMetric(WCTemplputParams *TP, SortStruct **Next, SortStruct **Param, l
 
 	/** Ok, its us, lets see in which direction we should sort... */
 	if (havebstr("SortOrder")) {
-		*SortOrder = LBSTR("SortOrder");
+		*SortOrder = lbstr("SortOrder");
 	}
 	else { /** Try to fallback to our remembered values... */
 		if ((*Param)->PrefPrepend == NULL) {

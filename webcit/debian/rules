@@ -59,7 +59,7 @@ endif
 		--with-wwwdir=/usr/share/citadel-webcit \
 		--with-localedir=/usr/share/ \
 		--with-editordir=/usr/share/tinymce/www/ \
-		--with-markdowneditordir=/usr/share/epic/www/ \
+		--with-markdowneditordir=/usr/share/citadel-webcit/epic/ \
 		--with-rundir=/var/run/citadel \
                 --with-ssldir=/etc/ssl/webcit/ \
 		--with-etcdir=/etc/citadel \
@@ -96,7 +96,7 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	$(MAKE) install-bin install-locale install-wwwdata install-cfg DESTDIR=$(DESTDIR)
+	$(MAKE) install-bin install-locale install-wwwdata install-cfg install-epic DESTDIR=$(DESTDIR)
 	chmod a-x -R $(DESTDIR)/usr/share/citadel-webcit/static/*
 	find $(DESTDIR)/usr/share/locale/ -name webcit.mo -exec chmod a-x {} \;
 	rm $(DESTDIR)/usr/share/citadel-webcit/static/prototype.js

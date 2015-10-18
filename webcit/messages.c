@@ -1221,7 +1221,7 @@ void upload_attachment(void) {
 	att->length = WCC->upload_length;
 	att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
 	att->FileName = NewStrBufDup(WCC->upload_filename);
-	UID = SBSTR("qquuid");
+	UID = sbstr("qquuid");
 	if (UID)
 		att->PartNum = NewStrBufDup(UID);
 

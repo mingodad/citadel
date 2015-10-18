@@ -504,7 +504,7 @@ void push_destination(void) {
 	}
 
 	FreeStrBuf(&WCC->PushedDestination);
-	WCC->PushedDestination = NewStrBufDup(SBSTR("url"));
+	WCC->PushedDestination = NewStrBufDup(sbstr("url"));
 	if (verbose)
 		syslog(LOG_DEBUG, "Push: %s", ChrPtr(WCC->PushedDestination));
 	wc_printf("OK");

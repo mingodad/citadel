@@ -201,7 +201,7 @@ void StrEndTab(StrBuf *Target, int tabnum, int num_tabs) {
 			"<!-- end tab %d of %d -->\n", tabnum, num_tabs
 		);
 	}
-	if (HAVEBSTR("last_tabsel"))
+	if (havebstr("last_tabsel"))
 	{
 		StrBufAppendPrintf(Target, "<script type=\"text/javascript\">tabsel(%s);</script>", BSTR("last_tabsel"));
 	}

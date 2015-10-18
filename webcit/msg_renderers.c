@@ -932,7 +932,7 @@ void tmplput_MAIL_SUMM_PERMALINK(StrBuf *Target, WCTemplputParams *TP)
 
 	perma_link = NewStrBufPlain(HKEY("/readfwd?go="));
 	StrBufUrlescAppend(perma_link, WC->CurRoom.name, NULL);
-	View = SBSTR("view");
+	View = sbstr("view");
 	if (View != NULL) {
 		StrBufAppendBufPlain(perma_link, HKEY("?view="), 0);
 		StrBufAppendBuf(perma_link, View, 0);
