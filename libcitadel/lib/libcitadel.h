@@ -483,7 +483,7 @@ struct vCard {
 
 
 struct vCard *vcard_new(void);
-void vcard_add_prop(struct vCard *v, char *propname, char *propvalue);
+void vcard_add_prop(struct vCard *v, const char *propname, const char *propvalue);
 struct vCard *vcard_load(char *vtext);
 struct vCard *VCardLoad(StrBuf *vbtext);
 
@@ -512,7 +512,7 @@ typedef const char *(*PrintHashContent)(void * Data);
 typedef int (*CompareFunc)(const void* Item1, const void*Item2);
 typedef long (*HashFunc)(const char *Str, long Len);
 typedef void (*TransitionFunc) (void *Item1, void *Item2, int Odd);
-typedef void (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
+typedef const char* (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
 
 long Flathash(const char *str, long len);
 long lFlathash(const char *str, long len);
@@ -529,6 +529,7 @@ int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data);
 void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
 int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);
 int GetHashKeys(HashList *Hash, char ***List);
+const char *dbg_PrintStrBufPayload(const char *Key, void *Item, int Odd);
 int dbg_PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry);
 HashPos *GetNewHashPos(const HashList *Hash, int StepWidth);

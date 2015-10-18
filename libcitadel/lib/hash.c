@@ -162,6 +162,10 @@ int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry
 	return i;
 }
 
+const char *dbg_PrintStrBufPayload(const char *Key, void *Item, int Odd)
+{
+	return ChrPtr((StrBuf*)Item);
+}
 
 /**
  * @ingroup HashListDebug
