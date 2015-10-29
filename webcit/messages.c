@@ -476,7 +476,7 @@ void display_headers(void) {
 		PACKAGE_STRING);
 	begin_burst();
 
-	serv_printf("MSG2 %ld|3", msgnum);
+	serv_printf("MSG2 %ld|1", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
