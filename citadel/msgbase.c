@@ -1766,7 +1766,7 @@ void OutputCtdlMsgHeaders(
 void OutputRFC822MsgHeaders(
 	struct CtdlMessage *TheMessage,
 	int flags,		/* should the bessage be exported clean	*/
-	const char *nl,
+	const char *nl, int nlen,
 	char *mid, long sizeof_mid,
 	char *suser, long sizeof_suser,
 	char *luser, long sizeof_luser,
@@ -1904,7 +1904,7 @@ void Dump_RFC822HeadersBody(
 	int headers_only,	/* eschew the message body? */
 	int flags,		/* should the bessage be exported clean? */
 
-	const char *nl)
+	const char *nl, int nlen)
 {
 	cit_uint8_t prev_ch;
 	int eoh = 0;
@@ -1913,6 +1913,7 @@ void Dump_RFC822HeadersBody(
 	int outlen = 0;
 	int nllen = strlen(nl);
 	char *mptr;
+	int lfSent = 0;
 
 	mptr = TheMessage->cm_fields[eMesageText];
 
@@ -1969,12 +1970,16 @@ void Dump_RFC822HeadersBody(
 				MSGM_syslog(LOG_ERR, "Dump_RFC822HeadersBody(): aborting due to write failure.\n");
 				return;
 			}
+			lfSent =  (outbuf[outlen - 1] == '\n');
 			outlen = 0;
 		}
 	}
 	if (outlen > 0) {
 		client_write(outbuf, outlen);
+		lfSent =  (outbuf[outlen - 1] == '\n');
 	}
+	if (!lfSent)
+		client_write(nl, nlen);
 }
 
 
@@ -1986,13 +1991,12 @@ void Dump_RFC822HeadersBody(
 void DumpFormatFixed(
 	struct CtdlMessage *TheMessage,
 	int mode,		/* how would you like that message? */
-	const char *nl)
+	const char *nl, int nllen)
 {
 	cit_uint8_t ch;
 	char buf[SIZ];
 	int buflen;
 	int xlline = 0;
-	int nllen = strlen (nl);
 	char *mptr;
 
 	mptr = TheMessage->cm_fields[eMesageText];
@@ -2067,6 +2071,7 @@ int CtdlOutputPreLoadedMsg(
 	struct CitContext *CCC = CC;
 	int i;
 	const char *nl;	/* newline string */
+	int nlen;
 	struct ma_info ma;
 
 	/* Buffers needed for RFC822 translation.  These are all filled
@@ -2085,6 +2090,7 @@ int CtdlOutputPreLoadedMsg(
 
 	strcpy(mid, "unknown");
 	nl = (crlf ? "\r\n" : "\n");
+	nlen = crlf ? 2 : 1;
 
 	if (!CM_IsValidMsg(TheMessage)) {
 		MSGM_syslog(LOG_ERR,
@@ -2185,7 +2191,7 @@ int CtdlOutputPreLoadedMsg(
 		OutputRFC822MsgHeaders(
 			TheMessage,
 			flags,
-			nl,
+			nl, nlen,
 			mid, sizeof(mid),
 			suser, sizeof(suser),
 			luser, sizeof(luser),
@@ -2249,7 +2255,7 @@ START_TEXT:
 				TheMessage,
 				headers_only,
 				flags,
-				nl);
+				nl, nlen);
 			goto DONE;
 		}
 	}
@@ -2267,7 +2273,7 @@ START_TEXT:
 		DumpFormatFixed(
 			TheMessage,
 			mode,		/* how would you like that message? */
-			nl);
+			nl, nlen);
 
 	/* If the message on disk is format 0 (Citadel vari-format), we
 	 * output using the formatter at 80 columns.  This is the final output
