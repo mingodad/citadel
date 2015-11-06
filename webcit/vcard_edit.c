@@ -358,6 +358,17 @@ int conditional_VC_Havetype(StrBuf *Target, WCTemplputParams *TP)
 	return rc;
 }
 
+
+/*
+ * Address book entry (keep it short and sweet, it's just a quickie lookup
+ * which we can use to get to the real meat and bones later)
+ */
+typedef struct _addrbookent {
+	char ab_name[64];	/* name string */
+	long ab_msgnum;		/* message number of address book entry */
+} addrbookent;
+
+
 /*
  * Record compare function for sorting address book indices
  */
@@ -446,38 +457,6 @@ wc_mime_attachment *load_vcard(message_summary *Msg)
 	return VCMime;
 }
 
-/*
- * fetch the display name off a vCard
- */
-void fetch_ab_name(message_summary *Msg, char **namebuf) {
-	long len;
-	int i;
-	wc_mime_attachment *VCMime = NULL;
-
-	if (namebuf == NULL) return;
-
-	VCMime = load_vcard(Msg);
-	if (VCMime == NULL)
-		return;
-
-	/* Grab the name off the card */
-	display_vcard(WC->WBuf, VCMime, 0, 0, namebuf, Msg->msgnum);
-
-	if (*namebuf != NULL) {
-		lastfirst_firstlast(*namebuf);
-		striplt(*namebuf);
-		len = strlen(*namebuf);
-		for (i=0; i<len; ++i) {
-			if ((*namebuf)[i] != ';') return;
-		}
-		free (*namebuf);
-		(*namebuf) = strdup(_("(no name)"));
-	}
-	else {
-		(*namebuf) = strdup(_("(no name)"));
-	}
-}
-
 
 
 /*
@@ -517,66 +496,6 @@ void vcard_n_prettyize(char *name)
 
 
 
-
-/*
- * preparse a vcard name
- * display_vcard() calls this after parsing the textual vCard into
- * our 'struct vCard' data object.
- * This gets called instead of display_parsed_vcard() if we are only looking
- * to extract the person's name instead of displaying the card.
- */
-void fetchname_parsed_vcard(struct vCard *v, char **storename) {
-	char *name;
-	char *prop;
-	char buf[SIZ];
-	int j, n, len;
-	int is_qp = 0;
-	int is_b64 = 0;
-
-	*storename = NULL;
-
-	name = vcard_get_prop(v, "n", 1, 0, 0);
-	if (name != NULL) {
-		len = strlen(name);
-		prop = vcard_get_prop(v, "n", 1, 0, 1);
-		n = num_tokens(prop, ';');
-
-		for (j=0; j<n; ++j) {
-			extract_token(buf, prop, j, ';', sizeof buf);
-			if (!strcasecmp(buf, "encoding=quoted-printable")) {
-				is_qp = 1;
-			}
-			if (!strcasecmp(buf, "encoding=base64")) {
-				is_b64 = 1;
-			}
-		}
-		if (is_qp) {
-			/* %ff can become 6 bytes in utf8  */
-			*storename = malloc(len * 2 + 3); 
-			j = CtdlDecodeQuotedPrintable(
-				*storename, name,
-				len);
-			(*storename)[j] = 0;
-		}
-		else if (is_b64) {
-			/* ff will become one byte.. */
-			*storename = malloc(len + 50);
-			CtdlDecodeBase64(
-				*storename, name,
-				len);
-		}
-		else {
-			size_t len;
-
-			len = strlen (name);
-			
-			*storename = malloc(len + 3); /* \0 + eventualy missing ', '*/
-			memcpy(*storename, name, len + 1);
-		}
-		/* vcard_n_prettyize(storename); */
-	}
-
-}
 
 
 
@@ -753,44 +672,6 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 		       ChrPtr(thisname),
 			ChrPtr(Val),
 			v->prop[i].value);
-		if (GetHash(VCToEnum, firsttoken, strlen(firsttoken), &V))
-		{
-			eVC evc = (eVC) V;
-			Put(VC, IKEY(evc), Val, HFreeStrBuf);
-			syslog(LOG_DEBUG, "[%ul]\n", evc);
-			Val = NULL;
-		}
-		else
-			syslog(LOG_DEBUG, "[]\n");
-/*
-TODO: check for layer II
-		else 
-		{
-			long max = num_tokens(thisname, ';');
-			firsttoken[len] = '_';
-
-			for (j = 0; j < max; j++) {
-//			firsttoken[len]
-
-				extract_token(buf, thisname, j, ';', sizeof (buf));
-					if (!strcasecmp(buf, "tel"))
-						strcat(phone, "");
-					else if (!strcasecmp(buf, "work"))
-						strcat(phone, _(" (work)"));
-					else if (!strcasecmp(buf, "home"))
-						strcat(phone, _(" (home)"));
-					else if (!strcasecmp(buf, "cell"))
-						strcat(phone, _(" (cell)"));
-					else {
-						strcat(phone, " (");
-						strcat(phone, buf);
-						strcat(phone, ")");
-					}
-				}
-			}
-
-		}
-*/
 #endif	
 		FreeStrBuf(&Val);
 	}
@@ -818,83 +699,17 @@ void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
 	
 }
 
-void display_one_vcard (StrBuf *Target, struct vCard *v, int full, wc_mime_attachment *Mime)
+void display_one_vcard (StrBuf *Target, HashList *VC, const char *tp_name, size_t tp_name_len)
 {
-	HashList *VC;	WCTemplputParams SubTP;
+	WCTemplputParams *TP = NULL;
+	WCTemplputParams SubTP;
 
         memset(&SubTP, 0, sizeof(WCTemplputParams));    
+	StackContext(TP, &SubTP, VC, CTX_VCARD, 0, NULL);
 
-
-	VC = NewHash(0, lFlathash);
-	parse_vcard(Target, v, VC, Mime);
-
-	{
-		WCTemplputParams *TP = NULL;
-		WCTemplputParams SubTP;
-		StackContext(TP, &SubTP, VC, CTX_VCARD, 0, NULL);
-
-		DoTemplate(HKEY("vcard_msg_display"), Target, &SubTP);
-		UnStackContext(&SubTP);
-	}
-	DeleteHash(&VC);
+	DoTemplate(tp_name, tp_name_len, Target, &SubTP);
+	UnStackContext(&SubTP);
 }
-
-
-
-/*
- * Display a textual vCard
- * (Converts to a vCard object and then calls the actual display function)
- * Set 'full' to nonzero to display the whole card instead of a one-liner.
- * Or, if "storename" is non-NULL, just store the person's name in that
- * buffer instead of displaying the card at all.
- *
- * vcard_source	the buffer containing the vcard text
- * alpha	Display only if name begins with this letter of the alphabet
- * full		Display the full vCard (otherwise just the display name)
- * storename	If not NULL, also store the display name here
- * msgnum	Citadel message pointer
- */
-void display_vcard(StrBuf *Target, 
-		   wc_mime_attachment *Mime, 
-		   char alpha, 
-		   int full, 
-		   char **storename, 
-		   long msgnum) 
-{
-	struct vCard *v;
-	char *name;
-	StrBuf *Buf;
-	StrBuf *Buf2;
-	char this_alpha = 0;
-
-	v = VCardLoad(Mime->Data);
-
-	if (v == NULL) return;
-
-	name = vcard_get_prop(v, "n", 1, 0, 0);
-	if (name != NULL) {
-		Buf = NewStrBufPlain(name, -1);
-		Buf2 = NewStrBufPlain(NULL, StrLength(Buf));
-		StrBuf_RFC822_to_Utf8(Buf2, Buf, WC->DefaultCharset, NULL);
-		this_alpha = ChrPtr(Buf)[0];
-		FreeStrBuf(&Buf);
-		FreeStrBuf(&Buf2);
-	}
-
-	if (storename != NULL) {
-		fetchname_parsed_vcard(v, storename);
-	}
-	else if ((alpha == 0) || 
-		 ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha))) || 
-		 ((!isalpha(alpha)) && (!isalpha(this_alpha)))
-		) 
-	{
-		display_one_vcard (Target, v, full, Mime);
-	}
-
-	vcard_free(v);
-}
-
 
 
 /*
@@ -1365,6 +1180,70 @@ int vcard_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	return 200;
 }
 
+
+
+
+
+/*
+ * preparse a vcard name
+ * display_vcard() calls this after parsing the textual vCard into
+ * our 'struct vCard' data object.
+ * This gets called instead of display_parsed_vcard() if we are only looking
+ * to extract the person's name instead of displaying the card.
+ */
+void fetchname_parsed_vcard(struct vCard *v, char **storename) {
+	char *name;
+	char *prop;
+	char buf[SIZ];
+	int j, n, len;
+	int is_qp = 0;
+	int is_b64 = 0;
+
+	*storename = NULL;
+
+	name = vcard_get_prop(v, "n", 1, 0, 0);
+	if (name != NULL) {
+		len = strlen(name);
+		prop = vcard_get_prop(v, "n", 1, 0, 1);
+		n = num_tokens(prop, ';');
+
+		for (j=0; j<n; ++j) {
+			extract_token(buf, prop, j, ';', sizeof buf);
+			if (!strcasecmp(buf, "encoding=quoted-printable")) {
+				is_qp = 1;
+			}
+			if (!strcasecmp(buf, "encoding=base64")) {
+				is_b64 = 1;
+			}
+		}
+		if (is_qp) {
+			/* %ff can become 6 bytes in utf8  */
+			*storename = malloc(len * 2 + 3); 
+			j = CtdlDecodeQuotedPrintable(
+				*storename, name,
+				len);
+			(*storename)[j] = 0;
+		}
+		else if (is_b64) {
+			/* ff will become one byte.. */
+			*storename = malloc(len + 50);
+			CtdlDecodeBase64(
+				*storename, name,
+				len);
+		}
+		else {
+			size_t len;
+
+			len = strlen (name);
+			
+			*storename = malloc(len + 3); /* \0 + eventualy missing ', '*/
+			memcpy(*storename, name, len + 1);
+		}
+		/* vcard_n_prettyize(storename); */
+	}
+
+}
+
 int vcard_LoadMsgFromServer(SharedMessageStatus *Stat, 
 			    void **ViewSpecific, 
 			    message_summary* Msg, 
@@ -1372,21 +1251,72 @@ int vcard_LoadMsgFromServer(SharedMessageStatus *Stat,
 			    int i)
 {
 	vcardview_struct *VS;
-	char *ab_name;
+//	char *ab_name;
+	char *namebuf;
+
+	namebuf = NULL;
+	long len;
+	int j;
+	wc_mime_attachment *VCMime = NULL;
+	struct vCard *v;
+	char *name;
+	StrBuf *Buf;
+	StrBuf *Buf2;
+	char this_alpha = 0;
+	HashList *VC;
 
 	VS = (vcardview_struct*) *ViewSpecific;
 
-	ab_name = NULL;
-	fetch_ab_name(Msg, &ab_name);
-	if (ab_name == NULL) 
+	VCMime = load_vcard(Msg);
+	if (VCMime == NULL)
+		return 0;
+
+	v = VCardLoad(VCMime->Data);
+
+	if (v == NULL) return 0;
+	VC = NewHash(0, lFlathash);
+	parse_vcard(WC->WBuf, v, VC, VCMime);
+
+	name = vcard_get_prop(v, "n", 1, 0, 0);
+	if (name != NULL) {
+		Buf = NewStrBufPlain(name, -1);
+		Buf2 = NewStrBufPlain(NULL, StrLength(Buf));
+		StrBuf_RFC822_to_Utf8(Buf2, Buf, WC->DefaultCharset, NULL);
+		this_alpha = ChrPtr(Buf)[0];
+		FreeStrBuf(&Buf);
+		FreeStrBuf(&Buf2);
+	}
+
+	fetchname_parsed_vcard(v, &namebuf);
+	DeleteHash(&VC);
+
+	vcard_free(v);
+
+
+	if (namebuf != NULL) {
+		lastfirst_firstlast(namebuf);
+		striplt(namebuf);
+		len = strlen(namebuf);
+		for (j=0; i<len; ++j) {
+			if (namebuf[j] != ';') return 0;
+		}
+		free (namebuf);
+		namebuf = strdup(_("(no name)"));
+	}
+	else {
+		namebuf = strdup(_("(no name)"));
+	}
+
+
+	if (namebuf == NULL) 
 		return 0;
 	++VS->num_ab;
 	VS->addrbook = realloc(VS->addrbook,
 			       (sizeof(addrbookent) * VS->num_ab) );
-	safestrncpy(VS->addrbook[VS->num_ab-1].ab_name, ab_name,
+	safestrncpy(VS->addrbook[VS->num_ab-1].ab_name, namebuf,
 		    sizeof(VS->addrbook[VS->num_ab-1].ab_name));
 	VS->addrbook[VS->num_ab-1].ab_msgnum = Msg->msgnum;
-	free(ab_name);
+	free(namebuf);
 	return 0;
 }
 
@@ -1418,6 +1348,50 @@ int vcard_Cleanup(void **ViewSpecific)
 	return 0;
 }
 
+void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
+{
+	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
+	wcsession *WCC = WC;
+	if (StrLength(Mime->Data) == 0)
+		MimeLoadData(Mime);
+	if (StrLength(Mime->Data) > 0) {
+		struct vCard *v;
+		StrBuf *Buf;
+
+		Buf = NewStrBuf();
+		/** If it's my vCard I can edit it */
+		if (	(!strcasecmp(ChrPtr(WCC->CurRoom.name), USERCONFIGROOM))
+			|| ((StrLength(WCC->CurRoom.name) > 11) &&
+			    (!strcasecmp(&(ChrPtr(WCC->CurRoom.name)[11]), USERCONFIGROOM)))
+			|| (WCC->CurRoom.view == VIEW_ADDRESSBOOK)
+			) {
+			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld?partnum=%s\">",
+				Mime->msgnum, ChrPtr(Mime->PartNum));
+			StrBufAppendPrintf(Buf, "[%s]</a>", _("edit"));
+		}
+
+		/* In all cases, display the full card */
+
+		v = VCardLoad(Mime->Data);
+
+		if (v != NULL) {
+			HashList *VC;
+			
+			VC = NewHash(0, lFlathash);
+			parse_vcard(Target, v, VC, Mime);
+			display_one_vcard (Target, VC, HKEY("vcard_msg_display"));
+			DeleteHash(&VC);
+
+		}
+		else {
+			StrBufPlain(Buf, _("failed to load vcard"), -1);
+		}
+		FreeStrBuf(&Mime->Data);
+		Mime->Data = Buf;
+	}
+
+}
+
 void 
 ServerStartModule_VCARD
 (void)
@@ -1440,6 +1414,12 @@ void
 InitModule_VCARD
 (void)
 {
+	StrBuf *Prefix  = NewStrBufPlain(HKEY("VC:"));
+	DefineToToken   = NewHash(1, lFlathash);
+	vcNames         = NewHash(1, lFlathash);
+	VCTokenToDefine = NewHash(1, NULL);
+	autoRegisterTokens(&VCEnumCounter, VCStrE, Prefix, 0, 0);
+	FreeStrBuf(&Prefix);
 	RegisterCTX(CTX_VCARD);
 	RegisterCTX(CTX_VCARD_TYPE);
 	RegisterReadLoopHandlerset(
@@ -1454,50 +1434,7 @@ InitModule_VCARD
 	WebcitAddUrlHandler(HKEY("edit_vcard"), "", 0, edit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("submit_vcard"), "", 0, submit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("vcardphoto"), "", 0, display_vcard_photo_img, NEED_URL);
-/*
-	Put(VCToEnum, HKEY("n"), (void*)VC_n, reference_free_handler);
-	Put(VCToEnum, HKEY("fn"), (void*)VC_fn, reference_free_handler);
-	Put(VCToEnum, HKEY("title"), (void*)VC_title, reference_free_handler);
-	Put(VCToEnum, HKEY("org"), (void*)VC_org, reference_free_handler);
-	Put(VCToEnum, HKEY("email"), (void*)VC_email, reference_free_handler);
-	Put(VCToEnum, HKEY("tel"), (void*)VC_tel, reference_free_handler);
-	Put(VCToEnum, HKEY("work"), (void*)VC_work, reference_free_handler);
-	Put(VCToEnum, HKEY("home"), (void*)VC_home, reference_free_handler);
-	Put(VCToEnum, HKEY("cell"), (void*)VC_cell, reference_free_handler);
-	Put(VCToEnum, HKEY("adr"), (void*)VC_adr, reference_free_handler);
-	Put(VCToEnum, HKEY("photo"), (void*)VC_photo, reference_free_handler);
-	Put(VCToEnum, HKEY("version"), (void*)VC_version, reference_free_handler);
-	Put(VCToEnum, HKEY("rev"), (void*)VC_rev, reference_free_handler);
-	Put(VCToEnum, HKEY("label"), (void*)VC_label, reference_free_handler);
-*/
-/*
-	RegisterNamespace("VC", 1, 2, tmplput_VCARD_ITEM, NULL, CTX_VCARD);
 
-	REGISTERTokenParamDefine(VC_n);
-	REGISTERTokenParamDefine(VC_fn);
-	REGISTERTokenParamDefine(VC_title);
-	REGISTERTokenParamDefine(VC_org);
-	REGISTERTokenParamDefine(VC_email);
-	REGISTERTokenParamDefine(VC_tel);
-	REGISTERTokenParamDefine(VC_work);
-	REGISTERTokenParamDefine(VC_home);
-	REGISTERTokenParamDefine(VC_cell);
-	REGISTERTokenParamDefine(VC_adr);
-	REGISTERTokenParamDefine(VC_photo);
-	REGISTERTokenParamDefine(VC_version);
-	REGISTERTokenParamDefine(VC_rev);
-	REGISTERTokenParamDefine(VC_label);
-*/
-
-	{
-		StrBuf *Prefix  = NewStrBufPlain(HKEY("VC:"));
-		DefineToToken   = NewHash(1, lFlathash);
-		vcNames         = NewHash(1, lFlathash);
-		VCTokenToDefine = NewHash(1, NULL);
-		autoRegisterTokens(&VCEnumCounter, VCStrE, Prefix, 0, 0);
-		FreeStrBuf(&Prefix);
-	}
-	RegisterCTX(CTX_VCARD);
 	RegisterNamespace("VC:ITEM", 2, 2, tmpl_vcard_item, preeval_vcard_item, CTX_VCARD);
 	RegisterNamespace("VC:CTXITEM", 1, 1, tmpl_vcard_context_item, NULL, CTX_VCARD_TYPE);
 	RegisterNamespace("VC:NAME", 1, 1, tmpl_vcard_name_str, preeval_vcard_name_str, CTX_VCARD);
@@ -1516,5 +1453,8 @@ InitModule_VCARD
 	RegisterConditional("VC:HAVE:TYPE",      1, conditional_VC_Havetype, CTX_VCARD);
 	RegisterFilteredIterator("VC:TYPE", 1, DefineToToken, NULL, NULL, NULL, filter_VC_ByType, CTX_VCARD_TYPE, CTX_VCARD, IT_NOFLAG);
 	RegisterFilteredIterator("VC:TYPE:ITEMS", 0, NULL, getContextVcard, NULL, NULL, filter_VC_ByContextType, CTX_STRBUF, CTX_VCARD_TYPE, IT_NOFLAG);
+
+	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard, 1, 201);
+	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard, 1, 200);
 }
 

@@ -612,34 +612,6 @@ void render_MAIL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 */
 }
 
-void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
-{
-	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
-	wcsession *WCC = WC;
-	if (StrLength(Mime->Data) == 0)
-		MimeLoadData(Mime);
-	if (StrLength(Mime->Data) > 0) {
-		StrBuf *Buf;
-		Buf = NewStrBuf();
-		/** If it's my vCard I can edit it */
-		if (	(!strcasecmp(ChrPtr(WCC->CurRoom.name), USERCONFIGROOM))
-			|| ((StrLength(WCC->CurRoom.name) > 11) &&
-			    (!strcasecmp(&(ChrPtr(WCC->CurRoom.name)[11]), USERCONFIGROOM)))
-			|| (WCC->CurRoom.view == VIEW_ADDRESSBOOK)
-			) {
-			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld?partnum=%s\">",
-				Mime->msgnum, ChrPtr(Mime->PartNum));
-			StrBufAppendPrintf(Buf, "[%s]</a>", _("edit"));
-		}
-
-		/* In all cases, display the full card */
-		display_vcard(Buf, Mime, 0, 1, NULL, -1);
-		FreeStrBuf(&Mime->Data);
-		Mime->Data = Buf;
-	}
-
-}
-
 void render_MIME_ICS(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 {
 	wc_mime_attachment *Mime = (wc_mime_attachment *) CTX(CTX_MIME_ATACH);
@@ -1672,8 +1644,6 @@ InitModule_MSGRENDERERS
 
 	/* mime renderers translate an attachment into webcit viewable html text */
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 0, 150);
-	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard, 1, 201);
-	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard, 1, 200);
 //*
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS, 1, 501);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS, 1, 500);

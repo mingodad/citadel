@@ -268,15 +268,6 @@ typedef struct _IcalMethodEnumMap {
         icalproperty_method map;
 } IcalMethodEnumMap;
 
-/*
- * Address book entry (keep it short and sweet, it's just a quickie lookup
- * which we can use to get to the real meat and bones later)
- */
-typedef struct _addrbookent {
-	char ab_name[64];	/* name string */
-	long ab_msgnum;		/* message number of address book entry */
-} addrbookent;
-
 
 #define AJAX (1<<0)
 #define ANONYMOUS (1<<1)
@@ -659,9 +650,6 @@ void cdataout(char *rawdata);
 
 void url(char *buf, size_t bufsize);
 void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf);
-
-
-void display_vcard(StrBuf *Target, wc_mime_attachment *Mime, char alpha, int full, char **storename, long msgnum);
 
 void display_success(const char *successmessage);
 
