@@ -15,6 +15,7 @@
 #include "calendar.h"
 
 CtxType CTX_VCARD = CTX_NONE;
+CtxType CTX_VCARD_LIST = CTX_NONE;
 CtxType CTX_VCARD_TYPE = CTX_NONE;
 long VCEnumCounter = 0;
 
@@ -102,6 +103,21 @@ ConstStr VCStr [] = {
 	{HKEY("uid")}
 };
 
+/*
+ * Address book entry (keep it short and sweet, it's just a quickie lookup
+ * which we can use to get to the real meat and bones later)
+ */
+typedef struct _addrbookent {
+	StrBuf *name;
+	HashList *VC;
+	long ab_msgnum;		/* message number of address book entry */
+} addrbookent;
+
+void deleteAbEnt(void *v) {
+	addrbookent *vc = (addrbookent*)v;
+	DeleteHash(&vc->VC);
+	FreeStrBuf(&vc->name);
+}
 
 HashList *DefineToToken = NULL;
 HashList *VCTokenToDefine = NULL;
@@ -196,8 +212,8 @@ void tmpl_vcard_item(StrBuf *Target, WCTemplputParams *TP)
 {
 	void *vItem;
 	long searchFieldNo = GetTemplateTokenNumber(Target, TP, 0, 0);
-	HashList *vc = (HashList*) CTX(CTX_VCARD);
-	if (GetHash(vc, LKEY(searchFieldNo), &vItem) && (vItem != NULL)) {
+	addrbookent *ab = (addrbookent*) CTX(CTX_VCARD);
+	if (GetHash(ab->VC, LKEY(searchFieldNo), &vItem) && (vItem != NULL)) {
 		StrBufAppendTemplate(Target, TP, (StrBuf*) vItem, 1);
 	}
 }
@@ -206,7 +222,7 @@ void tmpl_vcard_context_item(StrBuf *Target, WCTemplputParams *TP)
 {
 	void *vItem;
 	vcField *t = (vcField*) CTX(CTX_VCARD_TYPE);
-	HashList *vc = (HashList*) CTX(CTX_VCARD);
+	addrbookent *ab = (addrbookent*) CTX(CTX_VCARD);
 
 	if (t == NULL) {
 		LogTemplateError(NULL, "VCard item", ERR_NAME, TP,
@@ -214,7 +230,7 @@ void tmpl_vcard_context_item(StrBuf *Target, WCTemplputParams *TP)
 		return;
 	}
 
-	if (GetHash(vc, LKEY(t->cval), &vItem) && (vItem != NULL)) {
+	if (GetHash(ab->VC, LKEY(t->cval), &vItem) && (vItem != NULL)) {
 		StrBufAppendTemplate(Target, TP, (StrBuf*) vItem, 0);
 	}
 	else {
@@ -289,8 +305,8 @@ int filter_VC_ByType(const char* key, long len, void *Context, StrBuf *Target, W
 	searchType = GetTemplateTokenNumber(Target, TP, IT_ADDT_PARAM(0), 0);
 	
 	if (vf->Type == searchType) {
-		HashList *vc = (HashList*) CTX(CTX_VCARD);
-		if (GetHash(vc, LKEY(vf->cval), &v) && v != NULL)
+		addrbookent *ab = (addrbookent*) CTX(CTX_VCARD);
+		if (GetHash(ab->VC, LKEY(vf->cval), &v) && v != NULL)
 			return 1;
 	}
 	return rc;
@@ -302,15 +318,15 @@ int filter_VC_ByType(const char* key, long len, void *Context, StrBuf *Target, W
 HashList *getContextVcard(StrBuf *Target, WCTemplputParams *TP)
 {
 	vcField *vf = (vcField*) CTX(CTX_VCARD_TYPE);
-	HashList *vc = (HashList*) CTX(CTX_VCARD);
+	addrbookent *ab = (addrbookent*) CTX(CTX_VCARD);
 
-	if ((vf == NULL) || (vc == NULL)) {
+	if ((vf == NULL) || (ab == NULL)) {
 		LogTemplateError(NULL, "VCard item type", ERR_NAME, TP,
 				 "Need VCard and Vcard type in context");
 		
 		return NULL;
 	}
-	return vc;
+	return ab->VC;
 }
 
 int filter_VC_ByContextType(const char* key, long len, void *Context, StrBuf *Target, WCTemplputParams *TP)
@@ -331,14 +347,14 @@ int filter_VC_ByContextType(const char* key, long len, void *Context, StrBuf *Ta
 
 int conditional_VC_Havetype(StrBuf *Target, WCTemplputParams *TP)
 {
-	HashList *vc = (HashList*) CTX(CTX_VCARD);
+	addrbookent *ab = (addrbookent*) CTX(CTX_VCARD);
 	long HaveFieldType = GetTemplateTokenNumber(Target, TP, 2, 0);
 	int rc = 0;	
 	void *vVCitem;
 	const char *Key;
 	long len;
-	HashPos *it = GetNewHashPos(vc, 0);
-	while (GetNextHashPos(vc, it, &len, &Key, &vVCitem) && 
+	HashPos *it = GetNewHashPos(ab->VC, 0);
+	while (GetNextHashPos(ab->VC, it, &len, &Key, &vVCitem) && 
 	       (vVCitem != NULL)) 
 	{
 		void *vvcField;
@@ -634,14 +650,14 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 
 void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
 {
-	HashList *VC = CTX(CTX_VCARD);
+	addrbookent *ab = CTX(CTX_VCARD);
 	int evc;
 	void *vStr;
 
 	evc = GetTemplateTokenNumber(Target, TP, 0, -1);
 	if (evc != -1)
 	{
-		if (GetHash(VC, IKEY(evc), &vStr))
+		if (GetHash(ab->VC, IKEY(evc), &vStr))
 		{
 			StrBufAppendTemplate(Target, TP,
 					     (StrBuf*) vStr,
@@ -651,13 +667,13 @@ void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
 	
 }
 
-void display_one_vcard (StrBuf *Target, HashList *VC, const char *tp_name, size_t tp_name_len)
+void display_one_vcard (StrBuf *Target, addrbookent *ab, const char *tp_name, size_t tp_name_len)
 {
 	WCTemplputParams *TP = NULL;
 	WCTemplputParams SubTP;
 
         memset(&SubTP, 0, sizeof(WCTemplputParams));    
-	StackContext(TP, &SubTP, VC, CTX_VCARD, 0, NULL);
+	StackContext(TP, &SubTP, ab, CTX_VCARD, 0, NULL);
 
 	DoTemplate(tp_name, tp_name_len, Target, &SubTP);
 	UnStackContext(&SubTP);
@@ -717,8 +733,10 @@ void do_edit_vcard(long msgnum, char *partnum,
 	wc_mime_attachment *VCMime = NULL;
 	struct vCard *v;
 	char whatuser[256];
-	VC = NewHash(0, lFlathash);
+	addrbookent ab;
 
+	memset(&ab, 0, sizeof(addrbookent));
+	ab.VC = NewHash(0, lFlathash);
 	/* Display the form */
 	output_headers(1, 1, 1, 0, 0, 0);
 
@@ -737,6 +755,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 				convenience_page("770000", _("Error"), "");/*TODO: important message*/
 				DestroyMessageSummary(Msg);
 				return;
+				DeleteHash(&ab.VC);
 			}
 		
 			v = VCardLoad(VCMime->Data);
@@ -752,16 +771,16 @@ void do_edit_vcard(long msgnum, char *partnum,
 	}
 
         memset(&SubTP, 0, sizeof(WCTemplputParams));    
-
 	{
 		WCTemplputParams *TP = NULL;
 		WCTemplputParams SubTP;
-		StackContext(TP, &SubTP, VC, CTX_VCARD, 0, NULL);
+
+		StackContext(TP, &SubTP, &ab, CTX_VCARD, 0, NULL);
 
 		DoTemplate(HKEY("vcard_edit"), WCC->WBuf, &SubTP);
 		UnStackContext(&SubTP);
 	}
-	DeleteHash(&VC);
+	DeleteHash(&ab.VC);
 
 
 	wDumpContent(1);
@@ -953,22 +972,6 @@ void submit_vcard(void) {
 
 
 
-/*
- * Address book entry (keep it short and sweet, it's just a quickie lookup
- * which we can use to get to the real meat and bones later)
- */
-typedef struct _addrbookent {
-	StrBuf *name;
-	HashList *VC;
-	long ab_msgnum;		/* message number of address book entry */
-} addrbookent;
-
-void deleteAbEnt(void *v) {
-	addrbookent *vc = (addrbookent*)v;
-	DeleteHash(&vc->VC);
-	FreeStrBuf(&vc->name);
-}
-
 typedef struct _vcardview_struct {
 	long is_singlecard;
 	HashList *addrbook;
@@ -1031,7 +1034,7 @@ int vcard_LoadMsgFromServer(SharedMessageStatus *Stat,
 	abEntry->ab_msgnum = Msg->msgnum;
 	parse_vcard(WC->WBuf, v, abEntry->VC, VCMime);
 
-	display_one_vcard(abEntry->name, abEntry->VC, HKEY("vcard_list_name"));
+	display_one_vcard(abEntry->name, abEntry, HKEY("vcard_list_name"));
 
 	if (StrLength(abEntry->name) == 0) {
 		StrBufPlain(abEntry->name, _("(no name)"), -1);
@@ -1147,7 +1150,7 @@ void do_addrbook_view(vcardview_struct* VS) {
 		}
 	
 
-		StackContext(TP, &SubTP, abEnt->VC, CTX_VCARD, 0, NULL);
+		StackContext(TP, &SubTP, abEnt, CTX_VCARD, 0, NULL);
 
 		DoTemplate(HKEY("vcard_list_entry"), WCC->WBuf, &SubTP);
 		UnStackContext(&SubTP);
@@ -1232,10 +1235,14 @@ void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharse
 
 		if (v != NULL) {
 			HashList *VC;
-			
-			VC = NewHash(0, lFlathash);
+			addrbookent ab;
+			memset(&ab, 0, sizeof(addrbookent));
+
+			ab.VC = NewHash(0, lFlathash);
+			ab.ab_msgnum = Mime->msgnum;
+
 			parse_vcard(Target, v, VC, Mime);
-			display_one_vcard (Target, VC, HKEY("vcard_msg_display"));
+			display_one_vcard (Target, &ab, HKEY("vcard_msg_display"));
 			DeleteHash(&VC);
 
 		}
@@ -1276,8 +1283,11 @@ InitModule_VCARD
 	VCTokenToDefine = NewHash(1, NULL);
 	autoRegisterTokens(&VCEnumCounter, VCStrE, Prefix, 0, 0);
 	FreeStrBuf(&Prefix);
+
 	RegisterCTX(CTX_VCARD);
+	RegisterCTX(CTX_VCARD_LIST);
 	RegisterCTX(CTX_VCARD_TYPE);
+
 	RegisterReadLoopHandlerset(
 		VIEW_ADDRESSBOOK,
 		vcard_GetParamsGetServerCall,
