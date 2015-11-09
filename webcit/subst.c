@@ -2242,10 +2242,20 @@ int conditional_ITERATE_FIRSTN(StrBuf *Target, WCTemplputParams *TP)
 	return Ctx->n == 0;
 }
 
+int conditional_ITERATE_ISMOD(StrBuf *Target, WCTemplputParams *TP)
+{
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
+	
+	return Ctx->n == 0;
+}
+
 int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CTX(CTX_ITERATE);
-	return Ctx->LastN;
+
+	long divisor = GetTemplateTokenNumber(Target, TP, 2, 1);
+	long expectRemainder = GetTemplateTokenNumber(Target, TP, 2, 1);
+	return Ctx->n % divisor == expectRemainder;
 }
 
 
@@ -2977,6 +2987,9 @@ InitModule_SUBST
 			    CTX_ITERATE);
 	RegisterConditional("COND:ITERATE:FIRSTN", 2, 
 			    conditional_ITERATE_FIRSTN, 
+			    CTX_ITERATE);
+	RegisterConditional("COND:ITERATE:ISMOD", 3, 
+			    conditional_ITERATE_ISMOD, 
 			    CTX_ITERATE);
 
 	RegisterNamespace("ITERATE:ODDEVEN", 0, 0, tmplput_ITERATE_ODDEVEN, NULL, CTX_ITERATE);
