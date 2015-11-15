@@ -93,7 +93,6 @@ const char *EnvNames [eMaxQuestions] = {
 };
 
 int setup_type = (-1);
-int using_web_installer = 0;
 int enable_home = 1;
 char admin_name[SIZ];
 char admin_pass[SIZ];
@@ -1088,11 +1087,6 @@ int main(int argc, char *argv[])
 
 	/* set an invalid setup type */
 	setup_type = (-1);
-
-	/* Check to see if we're running the web installer */
-	if (getenv("CITADEL_INSTALLER") != NULL) {
-		using_web_installer = 1;
-	}
 
 	/* parse command line args */
 	for (a = 0; a < argc; ++a) {
