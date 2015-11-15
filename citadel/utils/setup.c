@@ -1,7 +1,7 @@
 /*
  * Citadel setup utility
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -73,7 +73,7 @@ typedef enum _SetupStep {
 	eLDAP_Bind_DN = 10,
 	eLDAP_Bind_PW = 11,
 	eMaxQuestions = 12
-} eSteupStep;
+} eSetupStep;
 
 ///"CREATE_XINETD_ENTRY";
 /* Environment variables, don't translate! */
@@ -95,10 +95,10 @@ const char *EnvNames [eMaxQuestions] = {
 int setup_type = (-1);
 int using_web_installer = 0;
 int enable_home = 1;
+char admin_name[SIZ];
 char admin_pass[SIZ];
 char admin_cmd[SIZ];
 int serv_sock = (-1) ;
-char configs[NUM_CONFIGS][1024];
 
 const char *setup_titles[eMaxQuestions];
 const char *setup_text[eMaxQuestions];
@@ -236,28 +236,6 @@ void SetTitles(void)
 			printf("%s - %s\n", setup_titles[i], _(setup_titles[i]));
 		exit(0);
 	}
-#endif
-}
-
-/*
- * Print the stack frame for a backtrace
- */
-void cit_backtrace(void)
-{
-#ifdef HAVE_BACKTRACE
-	void *stack_frames[50];
-	size_t size, i;
-	char **strings;
-
-	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
-	strings = backtrace_symbols(stack_frames, size);
-	for (i = 0; i < size; i++) {
-		if (strings != NULL)
-			fprintf(stderr, "%s\n", strings[i]);
-		else
-			fprintf(stderr, "%p\n", stack_frames[i]);
-	}
-	free(strings);
 #endif
 }
 
@@ -538,10 +516,60 @@ void serv_puts(char *buf)
 
 
 /*
+ * Convenience functions to get/set system configuration entries
+ */
+void getconf_str(char *buf, char *key)
+{
+	char cmd[SIZ];
+	char ret[SIZ];
+
+	sprintf(cmd, "CONF GETVAL|%s", key);
+	serv_puts(cmd);
+	serv_gets(ret);
+	if (ret[0] == '2') {
+		extract_token(buf, &ret[4], 0, '|', SIZ);
+	}
+	else {
+		strcpy(buf, "");
+	}
+}
+
+int getconf_int(char *key)
+{
+	char buf[SIZ];
+	getconf_str(buf, key);
+	return atoi(buf);
+}
+
+void setconf_str(char *key, char *val)
+{
+	char buf[SIZ];
+
+	sprintf(buf, "CONF PUTVAL|%s|%s", key, val);
+	serv_puts(buf);
+	serv_gets(buf);
+}
+
+
+void setconf_int(char *key, int val)
+{
+	char buf[SIZ];
+
+	sprintf(buf, "CONF PUTVAL|%s|%d", key, val);
+	serv_puts(buf);
+	serv_gets(buf);
+}
+
+
+
+
+
+/*
  * On systems which use xinetd, see if we can offer to install Citadel as
  * the default telnet target.
  */
-void check_xinetd_entry(void) {
+void check_xinetd_entry(void)
+{
 	char *filename = "/etc/xinetd.d/telnet";
 	FILE *fp;
 	char buf[SIZ];
@@ -717,7 +745,7 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 		printf("\n%s\n", prompt_text);
 		printf("%s\n%s\n", _("This is currently set to:"), Target);
 		printf("%s\n", _("Enter new value or press return to leave unchanged:"));
-		if (fgets(buf, sizeof buf, stdin)){
+		if (fgets(buf, sizeof buf, stdin)) {
 			buf[strlen(buf) - 1] = 0;
 		}
 		if (!IsEmptyStr(buf))
@@ -770,136 +798,145 @@ void set_str_val(int msgpos, char *Target, char *DefValue)
 	);
 }
 
-/* like set_str_val() but make sure we ended up with a numeric value */
-void set_int_val(int msgpos, char *target, char *DefValue)
+/* like set_str_val() but for numeric values */
+void set_int_val(int msgpos, int *target, char *default_value)
 {
-	while(1) {
-		set_str_val(msgpos, target, DefValue);
-		if (!strcmp(target, "0")) return;
-		if (atoi(target) != 0) return;
-	}
+	char buf[32];
+	sprintf(buf, "%d", *target);
+	do {
+		set_str_val(msgpos, buf, default_value);
+	} while ( (strcmp(buf, "0")) && (atoi(buf) == 0) );
+	*target = atoi(buf);
 }
 
 
 void edit_value(int curr)
 {
-	int i;
-	struct passwd *pw;
+	struct passwd *pw = NULL;
 	char ctdluidname[256];
-	char *Value = NULL;
+	char buf[SIZ];
+	char *default_value = NULL;
+	int ctdluid = 0;
+	int portnum = 0;
+	int auth = 0;
+	int lportnum = 0;
 
 	if (setup_type == UI_SILENT)
 	{
-		Value = getenv(EnvNames[curr]);
+		default_value = getenv(EnvNames[curr]);
 	}
-	if (Value == NULL) {
-		Value = "";
+	if (default_value == NULL) {
+		default_value = "";
 	}
 
 	switch (curr) {
 
 	case eSysAdminName:
-		set_str_val(curr, configs[13], Value);
+		getconf_str(admin_name, "c_sysadm");
+		set_str_val(curr, admin_name, default_value);
+		setconf_str("c_sysadm", admin_name);
 		break;
 
 	case eSysAdminPW:
-		set_str_val(curr, admin_pass, Value);
+		set_str_val(curr, admin_pass, default_value);
 		break;
 	
 	case eUID:
+
 		if (setup_type == UI_SILENT)
 		{		
-			if (Value) {
-				sprintf(configs[69], "%d", atoi(Value));
+			if (default_value) {
+				ctdluid = atoi(default_value);
 			}					
 		}
 		else
 		{
 #ifdef __CYGWIN__
-			strcpy(configs[69], "0");	/* work-around for Windows */
+			ctdluid = 0;	/* work-around for Windows */
 #else
-			i = atoi(configs[69]);
-			pw = getpwuid(i);
+			pw = getpwuid(ctdluid);
 			if (pw == NULL) {
-				set_int_val(curr, configs[69], Value);
-				sprintf(configs[69], "%d", i);
+				set_int_val(curr, &ctdluid, default_value);
 			}
 			else {
 				strcpy(ctdluidname, pw->pw_name);
-				set_str_val(curr, ctdluidname, Value);
+				set_str_val(curr, ctdluidname, default_value);
 				pw = getpwnam(ctdluidname);
 				if (pw != NULL) {
-					sprintf(configs[69], "%d", pw->pw_uid);
+					ctdluid = pw->pw_uid;
 				}
 				else if (atoi(ctdluidname) > 0) {
-					sprintf(configs[69], "%d", atoi(ctdluidname));
+					ctdluid = atoi(ctdluidname);
 				}
 			}
 #endif
 		}
+		setconf_int("c_ctdluid", ctdluid);
 		break;
 
 	case eIP_ADDR:
-		set_str_val(curr, configs[37], Value);
+		getconf_str(buf, "c_ip_addr");
+		set_str_val(curr, buf, default_value);
+		setconf_str("c_ip_addr", buf);
 		break;
 
 	case eCTDL_Port:
-		set_int_val(curr, configs[68], Value);
+		portnum = getconf_int("c_port_number");
+		set_int_val(curr, &portnum, default_value);
+		setconf_int("c_port_number", portnum);
 		break;
 
 	case eAuthType:
+		auth = getconf_int("c_auth_mode");
 		if (setup_type == UI_SILENT)
 		{
-			const char *auth;
-			//config.c_auth_mode = AUTHMODE_NATIVE;
-			auth = Value;
-			if (auth != NULL)
-			{
-				if ((strcasecmp(auth, "yes") == 0) ||
-				    (strcasecmp(auth, "host") == 0))
-				{
-					//config.c_auth_mode = AUTHMODE_HOST;
-				}
-				else if (strcasecmp(auth, "ldap") == 0){
-					//config.c_auth_mode = AUTHMODE_LDAP;
-				}
-				else if ((strcasecmp(auth, "ldap_ad") == 0) ||
-					 (strcasecmp(auth, "active directory") == 0)){
-					//config.c_auth_mode = AUTHMODE_LDAP_AD;
-				}
-			}
+			if ( (default_value) && (!strcasecmp(default_value, "yes")) ) auth = AUTHMODE_HOST;
+			if ( (default_value) && (!strcasecmp(default_value, "host")) ) auth = AUTHMODE_HOST;
+			if ( (default_value) && (!strcasecmp(default_value, "ldap")) ) auth = AUTHMODE_LDAP;
+			if ( (default_value) && (!strcasecmp(default_value, "ldap_ad")) ) auth = AUTHMODE_LDAP_AD;
+			if ( (default_value) && (!strcasecmp(default_value, "active directory")) ) auth = AUTHMODE_LDAP_AD;
 		}
 		else {
-			set_int_val(curr, configs[52], Value);
+			set_int_val(curr, &auth, default_value);
 		}
+		setconf_int("c_auth_mode", auth);
 		break;
 
 	case eLDAP_Host:
-		if (IsEmptyStr(configs[32])) {
-			strcpy(configs[32], "localhost");
+		getconf_str(buf, "c_ldap_host");
+		if (IsEmptyStr(buf)) {
+			strcpy(buf, "localhost");
 		}
-		set_str_val(curr, configs[32], Value);
+		set_str_val(curr, buf, default_value);
+		setconf_str("c_ldap_host", buf);
 		break;
 
 	case eLDAP_Port:
-		if (atoi(configs[33]) == 0) {
-			strcpy(configs[33], "389");
+		lportnum = getconf_int("c_ldap_port");
+		if (lportnum == 0) {
+			lportnum = 389;
 		}
-		set_int_val(curr, configs[33], Value);
+		set_int_val(curr, &lportnum, default_value);
+		setconf_int("c_ldap_port", lportnum);
 		break;
 
 	case eLDAP_Base_DN:
-		set_str_val(curr, configs[34], Value);
+		getconf_str(buf, "c_ldap_base_dn");
+		set_str_val(curr, buf, default_value);
+		setconf_str("c_ldap_base_dn", buf);
 		break;
 
 	case eLDAP_Bind_DN:
-		set_str_val(curr, configs[35], Value);
+		getconf_str(buf, "c_ldap_bind_dn");
+		set_str_val(curr, buf, default_value);
+		setconf_str("c_ldap_bind_dn", buf);
 		break;
 
 	case eLDAP_Bind_PW:
-		set_str_val(curr, configs[36], Value);
+		getconf_str(buf, "c_ldap_bind_pw");
+		set_str_val(curr, buf, default_value);
+		setconf_str("c_ldap_bind_pw", buf);
 		break;
-
 	}
 }
 
@@ -1011,7 +1048,10 @@ void fixnss(void) {
 }
 
 
-
+/*
+ * Messages that are no longer in use.
+ * We keep them here so we don't lose the translations if we need them later.
+ */
 #if 0
 				important_message(_("Setup finished"),
 						  _("Setup of the Citadel server is complete.\n"
@@ -1027,45 +1067,6 @@ void fixnss(void) {
 
 
 
-#define GetDefaultVALINT(CFGNAME, DEFL) GetDefaultValInt(&config.CFGNAME, "CITADEL_"#CFGNAME, DEFL)
-void GetDefaultValInt(int *WhereTo, const char *VarName, int DefVal)
-{
-	const char *ch;
-	if (*WhereTo == 0) *WhereTo = DefVal;
-
-	if ((setup_type == UI_SILENT) &&
-	    (ch = getenv(VarName), ch != NULL))
-	{
-		*WhereTo = atoi(ch);
-	}
-}
-#define GetDefaultVALCHAR(CFGNAME, DEFL) GetDefaultValChar(&config.CFGNAME, "CITADEL_"#CFGNAME, DEFL)
-void GetDefaultValChar(char *WhereTo, const char *VarName, char DefVal)
-{
-	const char *ch;
-	if (*WhereTo == 0) *WhereTo = DefVal;
-
-	if ((setup_type == UI_SILENT) &&
-	    (ch = getenv(VarName), ch != NULL))
-	{
-		*WhereTo = atoi(ch);
-	}
-}
-#define GetDefaultVALSTR(CFGNAME, DEFL) GetDefaultValStr(&config.CFGNAME[0], sizeof(config.CFGNAME), "CITADEL_"#CFGNAME, DEFL)
-void GetDefaultValStr(char *WhereTo, size_t nMax, const char *VarName, const char *DefVal)
-{
-	const char *ch;
-	if (*WhereTo == '\0') 
-		safestrncpy(WhereTo, DefVal, nMax);
-
-	if ((setup_type == UI_SILENT) &&
-	    (ch = getenv(VarName), ch != NULL))
-	{
-		safestrncpy(WhereTo, ch, nMax);
-	}
-}
-
-
 
 int main(int argc, char *argv[])
 {
@@ -1073,7 +1074,6 @@ int main(int argc, char *argv[])
 	int curr;
 	char buf[1024]; 
 	char aaa[128];
-	int info_only = 0;
 	int relh = 0;
 	int home = 0;
 	int nRetries = 0;
@@ -1101,9 +1101,6 @@ int main(int argc, char *argv[])
 			strcpy(aaa, &aaa[2]);
 			setup_type = atoi(aaa);
 		}
-		else if (!strcmp(argv[a], "-i")) {
-			info_only = 1;
-		}
 		else if (!strcmp(argv[a], "-q")) {
 			setup_type = UI_SILENT;
 		}
@@ -1128,17 +1125,11 @@ int main(int argc, char *argv[])
 	if (setup_type < 0) {
 		setup_type = discover_ui();
 	}
-	if (info_only == 1) {
-		important_message(_("Citadel Setup"), CITADEL);
-		exit(0);
-	}
 
 	enable_home = ( relh | home );
 
 	if (chdir(ctdl_run_dir) != 0) {
-		display_error("%s: [%s]\n", 
-			      _("The directory you specified does not exist"), 
-			      ctdl_run_dir);
+		display_error("%s: [%s]\n", _("The directory you specified does not exist"), ctdl_run_dir);
 		exit(errno);
 	}
 
@@ -1193,28 +1184,9 @@ int main(int argc, char *argv[])
 	}
 
 	/*
-	 * Load the server's configuration
-	 */
-	serv_puts("CONF GET");
-	serv_gets(buf);
-	if (buf[0] != '1') {
-		display_error("%s\n", buf);
-		exit(5);
-	}
-	memset(configs, 0, sizeof configs);
-	a = 0;
-	while (serv_gets(buf), strcmp(buf, "000")) {
-		if (a < NUM_CONFIGS) {
-			safestrncpy(configs[a], buf, sizeof(configs[a]));
-		}
-		++a;
-	}
-
-	/*
 	 * Now begin.
 	 */
 
-	/* _("Citadel Setup"),  */
 
 	if (setup_type == UI_TEXT) {
 		printf("\n\n\n	       *** %s ***\n\n", program_title);
@@ -1228,17 +1200,17 @@ int main(int argc, char *argv[])
 	for (curr = 1; curr < eMaxQuestions; ++curr) {
 		edit_value(curr);
 
-		if (	(curr == 6)
-			&& (atoi(configs[52]) != AUTHMODE_LDAP)
-			&& (atoi(configs[52]) != AUTHMODE_LDAP_AD)
+		if (	(curr == eAuthType)
+			&& (getconf_int("c_auth_mode") != AUTHMODE_LDAP)
+			&& (getconf_int("c_auth_mode") != AUTHMODE_LDAP_AD)
 		) {
 			curr += 5;	/* skip LDAP questions if we're not authenticating against LDAP */
 		}
 
 		if (curr == eSysAdminName) {
-			if (atoi(configs[52]) == AUTHMODE_NATIVE) {
+			if (getconf_int("c_auth_mode") == AUTHMODE_NATIVE) {
 						/* for native auth mode, fetch the admin's existing pw */
-				snprintf(buf, sizeof buf, "AGUP %s", configs[13]);
+				snprintf(buf, sizeof buf, "AGUP %s", admin_name);
 				serv_puts(buf);
 				serv_gets(buf);
 				if (buf[0] == '2') {
@@ -1251,71 +1223,54 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((pw = getpwuid(atoi(configs[69]))) == NULL) {
+	if ((pw = getpwuid( getconf_int("c_ctdluid") )) == NULL) {
 		gid = getgid();
 	} else {
 		gid = pw->pw_gid;
 	}
 
-	if (create_run_directories(atoi(configs[69]), gid) != 0) {
-		display_error("%s\n",
-			      _("failed to create directories"));
+	if (create_run_directories(getconf_int("c_ctdluid"), gid) != 0) {
+		display_error("%s\n", _("failed to create directories"));
 	}
 		
-
 	activity = _("Reconfiguring Citadel server");
-	progress(activity, 0, NUM_CONFIGS+3);
-	sleep(1);					/* Let the message appear briefly */
-	serv_puts("CONF SET");
-	serv_gets(buf);
-	if (buf[0] == '4') {
-		for (i=0; i<NUM_CONFIGS; ++i) {
-			progress(activity, i+1, NUM_CONFIGS+3);
-			serv_puts(configs[i]);
-		}
-		serv_puts("000");
-	}
+	progress(activity, 0, 5);
 	sleep(1);					/* Let the message appear briefly */
 
 	/*
 	 * Create the administrator account.  It's ok if the command fails if this user already exists.
 	 */
-	progress(activity, NUM_CONFIGS+1, NUM_CONFIGS+3);
-	snprintf(buf, sizeof buf, "CREU %s|%s", configs[13], admin_pass);
+	progress(activity, 1, 5);
+	snprintf(buf, sizeof buf, "CREU %s|%s", admin_name, admin_pass);
 	serv_puts(buf);
-	progress(activity, NUM_CONFIGS+2, NUM_CONFIGS+3);
+	progress(activity, 2, 5);
 	serv_gets(buf);
-	progress(activity, NUM_CONFIGS+3, NUM_CONFIGS+3);
+	progress(activity, 3, 5);
 
 	/*
 	 * Assign the desired password and access level to the administrator account.
 	 */
-	snprintf(buf, sizeof buf, "AGUP %s", configs[13]);
+	snprintf(buf, sizeof buf, "AGUP %s", admin_name);
 	serv_puts(buf);
+	progress(activity, 4, 5);
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		int admin_flags = extract_int(&buf[4], 2);
 		int admin_times_called = extract_int(&buf[4], 3);
 		int admin_msgs_posted = extract_int(&buf[4], 4);
 		snprintf(buf, sizeof buf, "ASUP %s|%s|%d|%d|%d|6",
-			configs[13], admin_pass, admin_flags, admin_times_called, admin_msgs_posted
+			admin_name, admin_pass, admin_flags, admin_times_called, admin_msgs_posted
 		);
 		serv_puts(buf);
 		serv_gets(buf);
 	}
+	progress(activity, 5, 5);
 
 #ifndef __CYGWIN__
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 	disable_other_mtas();   /* Offer to disable other MTAs */
 	fixnss();		/* Check for the 'db' nss and offer to disable it */
 #endif
-
-	activity = _("Setting file permissions");
-	progress(activity, 0, 2);
-	//chown(file_citadel_config, config.c_ctdluid, gid);
-	progress(activity, 1, 2);
-	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
-	progress(activity, 2, 2);
 
 	/*
 	 * Restart citserver
@@ -1364,9 +1319,7 @@ int main(int argc, char *argv[])
 	if (	(original_start_time == new_start_time)
 		|| (new_start_time <= 0)
 	) {
-		display_error("%s\n",
-			_("Setup failed to restart Citadel server.  Please restart it manually.")
-		);
+		display_error("%s\n", _("Setup failed to restart Citadel server.  Please restart it manually."));
 		exit(7);
 	}
 

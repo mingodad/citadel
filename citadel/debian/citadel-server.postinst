@@ -37,7 +37,7 @@ case "$1" in
         export CITADEL='/var/run/citadel'
 	export CITADEL_PORT=504
         export CITADEL_INSTALLER=yes
-	 export CITADEL_UID=`grep ^citadel: /etc/passwd | cut -d :  -f 3`
+	export CITADEL_UID=`grep ^citadel: /etc/passwd | cut -d :  -f 3`
         export ACT_AS_MTA=no
         export SYSADMIN_NAME=$admin
         export CREATE_XINETD_ENTRY=no

@@ -628,10 +628,10 @@ void cmd_conf(char *argbuf)
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		char *v = CtdlGetConfigStr(confname);
 		if (v) {
-			cprintf("%d|%s|\n", CIT_OK, v);
+			cprintf("%d %s|\n", CIT_OK, v);
 		}
 		else {
-			cprintf("%d||\n", ERROR);
+			cprintf("%d |\n", ERROR);
 		}
 	}
 
