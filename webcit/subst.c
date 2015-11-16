@@ -2229,8 +2229,17 @@ void tmplput_ITERATE_KEY(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendBufPlain(Target, Ctx->Key, Ctx->KeyLen, 0);
 }
 
+void tmplput_ITERATE_N_DIV(StrBuf *Target, WCTemplputParams *TP)
+{
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
+	long div;
+	long divisor = GetTemplateTokenNumber(Target, TP, 0, 1);
+///TODO divisor == 0 -> log error exit
+	div = Ctx->n / divisor;
+	StrBufAppendPrintf(Target, "%ld", div);
+}
 
-void tmplput_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
+void tmplput_ITERATE_N(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	StrBufAppendPrintf(Target, "%d", Ctx->n);
@@ -2242,19 +2251,19 @@ int conditional_ITERATE_FIRSTN(StrBuf *Target, WCTemplputParams *TP)
 	return Ctx->n == 0;
 }
 
-int conditional_ITERATE_ISMOD(StrBuf *Target, WCTemplputParams *TP)
+int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CTX(CTX_ITERATE);
-	
-	return Ctx->n == 0;
+	return Ctx->LastN;
 }
 
-int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
+int conditional_ITERATE_ISMOD(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CTX(CTX_ITERATE);
 
 	long divisor = GetTemplateTokenNumber(Target, TP, 2, 1);
-	long expectRemainder = GetTemplateTokenNumber(Target, TP, 2, 1);
+	long expectRemainder = GetTemplateTokenNumber(Target, TP, 3, 0);
+	
 	return Ctx->n % divisor == expectRemainder;
 }
 
@@ -2994,7 +3003,8 @@ InitModule_SUBST
 
 	RegisterNamespace("ITERATE:ODDEVEN", 0, 0, tmplput_ITERATE_ODDEVEN, NULL, CTX_ITERATE);
 	RegisterNamespace("ITERATE:KEY", 0, 0, tmplput_ITERATE_KEY, NULL, CTX_ITERATE);
-	RegisterNamespace("ITERATE:N", 0, 0, tmplput_ITERATE_LASTN, NULL, CTX_ITERATE);
+	RegisterNamespace("ITERATE:N", 0, 0, tmplput_ITERATE_N, NULL, CTX_ITERATE);
+	RegisterNamespace("ITERATE:N:DIV", 1, 1, tmplput_ITERATE_N_DIV, NULL, CTX_ITERATE);
 	RegisterNamespace("CURRENTFILE", 0, 1, tmplput_CURRENT_FILE, NULL, CTX_NONE);
 	RegisterNamespace("DEF:STR", 1, 1, tmplput_DefStr, NULL, CTX_NONE);
 	RegisterNamespace("DEF:VAL", 1, 1, tmplput_DefVal, NULL, CTX_NONE);
