@@ -687,7 +687,7 @@ void check_thread_pool_size(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs, StrBuf **Names);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
-void tabbed_dialog(int num_tabs, char *tabnames[]);
+void tabbed_dialog(int num_tabs, const char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
 

@@ -5,7 +5,7 @@
 /*
  * print tabbed dialog
  */
-void tabbed_dialog(int num_tabs, char *tabnames[]) {
+void tabbed_dialog(int num_tabs, const char *tabnames[]) {
 	int i;
 
 	StrBufAppendPrintf(WC->trailing_javascript,

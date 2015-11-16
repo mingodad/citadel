@@ -64,7 +64,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int which_rryeartype_is_preselected;
 
 	const char *ch;
-	char *tabnames[3];
+	const char *tabnames[3];
 	const char *frequency_units[8];
 	const char *ordinals[6];
 
