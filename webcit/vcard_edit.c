@@ -111,12 +111,15 @@ typedef struct _addrbookent {
 	StrBuf *name;
 	HashList *VC;
 	long ab_msgnum;		/* message number of address book entry */
+	StrBuf *msgNoStr;
 } addrbookent;
 
 void deleteAbEnt(void *v) {
 	addrbookent *vc = (addrbookent*)v;
 	DeleteHash(&vc->VC);
 	FreeStrBuf(&vc->name);
+	FreeStrBuf(&vc->msgNoStr);
+	free(vc);
 }
 
 HashList *DefineToToken = NULL;
@@ -272,6 +275,15 @@ void tmpl_vcard_name_str(StrBuf *Target, WCTemplputParams *TP)
 	}
 }
 
+void tmpl_vcard_msgno(StrBuf *Target, WCTemplputParams *TP)
+{
+	addrbookent *ab = (addrbookent*) CTX(CTX_VCARD);
+	if (ab->msgNoStr == NULL) {
+		ab->msgNoStr = NewStrBufPlain(NULL, 64);
+	}
+	StrBufPrintf(ab->msgNoStr, "%ld", ab->ab_msgnum);
+	StrBufAppendTemplate(Target, TP, ab->msgNoStr, 0);
+}
 void tmpl_vcard_context_name_str(StrBuf *Target, WCTemplputParams *TP)
 {
 	void *vItem;
@@ -667,6 +679,12 @@ void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
 	
 }
 
+HashList *CtxGetVcardList(StrBuf *Target, WCTemplputParams *TP)
+{
+	HashList *pb = CTX(CTX_VCARD_LIST);
+	return pb;
+}
+
 void display_one_vcard (StrBuf *Target, addrbookent *ab, const char *tp_name, size_t tp_name_len)
 {
 	WCTemplputParams *TP = NULL;
@@ -727,7 +745,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 		   wc_mime_attachment *VCAtt,
 		   const char *return_to, 
 		   const char *force_room) {
-	HashList *VC;	WCTemplputParams SubTP;
+	WCTemplputParams SubTP;
 	wcsession *WCC = WC;
 	message_summary *Msg = NULL;
 	wc_mime_attachment *VCMime = NULL;
@@ -764,7 +782,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 			v = VCardLoad(VCAtt->Data);
 		}
 
-		parse_vcard(WCC->WBuf, v, VC, NULL);
+		parse_vcard(WCC->WBuf, v, ab.VC, NULL);
 	
 	
 		vcard_free(v);
@@ -1053,16 +1071,16 @@ int vcard_LoadMsgFromServer(SharedMessageStatus *Stat,
  * addrbook	the addressbook to render
  * num_ab	the number of the addressbook
  */
+static int NAMESPERPAGE = 60;
 void do_addrbook_view(vcardview_struct* VS) {
 	long i = 0;
 	int displayed = 0;
 	int bg = 0;
-	static int NAMESPERPAGE = 60;
 	int num_pages = 0;
 	int tabfirst = 0;
 	int tablast = 0;
 	int page = 0;
-	char **tablabels;
+	const char **tablabels;
 	int num_ab = GetCount(VS->addrbook);
 	HashList *headlines;
 	HashPos *it;
@@ -1114,12 +1132,19 @@ void do_addrbook_view(vcardview_struct* VS) {
 				StrBufAppendBuf(headline, a2->name, 0);
 			}
 		}
+		tablabels[i] = ChrPtr(headline);
 		Put(headlines, LKEY(i), headline, HFreeStrBuf);
 	}
 
 	tabbed_dialog(num_pages, tablabels);
 	page = (-1);
 
+
+	StackContext(TP, &SubTP, VS->addrbook, CTX_VCARD_LIST, 0, NULL);
+
+	DoTemplate(HKEY("vcard_list"), WCC->WBuf, &SubTP);
+	UnStackContext(&SubTP);
+/*
 	it = GetNewHashPos(VS->addrbook, 0);
 	for (i=0; i<num_ab; ++i) {
 		void *v;
@@ -1130,7 +1155,7 @@ void do_addrbook_view(vcardview_struct* VS) {
 		if (v == NULL)
 			continue;
 		abEnt = (addrbookent *) v;
-		if ((i / NAMESPERPAGE) != page) {	/* New tab */
+		if ((i / NAMESPERPAGE) != page) {	/ * New tab * /
 			page = (i / NAMESPERPAGE);
 			if (page > 0) {
 				do_template("vcard_list_section_end");
@@ -1158,7 +1183,7 @@ void do_addrbook_view(vcardview_struct* VS) {
 		++displayed;
 	}
 	DeleteHashPos(&it);
-
+*/
 	/* Placeholders for empty columns at end */
 	if ((num_ab % 4) != 0) {
 		for (i=0; i<(4-(num_ab % 4)); ++i) {
@@ -1174,6 +1199,7 @@ void do_addrbook_view(vcardview_struct* VS) {
 	end_tab(num_pages, num_pages);
 
 	DeleteHash(&headlines);
+	free(tablabels);
 	wDumpContent(1);
 }
 
@@ -1284,6 +1310,9 @@ InitModule_VCARD
 	autoRegisterTokens(&VCEnumCounter, VCStrE, Prefix, 0, 0);
 	FreeStrBuf(&Prefix);
 
+	REGISTERTokenParamDefine(NAMESPERPAGE);
+
+
 	RegisterCTX(CTX_VCARD);
 	RegisterCTX(CTX_VCARD_LIST);
 	RegisterCTX(CTX_VCARD_TYPE);
@@ -1297,6 +1326,10 @@ InitModule_VCARD
 		vcard_LoadMsgFromServer,
 		vcard_RenderView_or_Tail,
 		vcard_Cleanup);
+
+	RegisterIterator("MAIL:VCARDS", 0, NULL, CtxGetVcardList, NULL, NULL, CTX_VCARD, CTX_VCARD_LIST, IT_NOFLAG);
+
+
 	WebcitAddUrlHandler(HKEY("edit_vcard"), "", 0, edit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("submit_vcard"), "", 0, submit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("vcardphoto"), "", 0, display_vcard_photo_img, NEED_URL);
@@ -1304,6 +1337,7 @@ InitModule_VCARD
 	RegisterNamespace("VC:ITEM", 2, 2, tmpl_vcard_item, preeval_vcard_item, CTX_VCARD);
 	RegisterNamespace("VC:CTXITEM", 1, 1, tmpl_vcard_context_item, NULL, CTX_VCARD_TYPE);
 	RegisterNamespace("VC:NAME", 1, 1, tmpl_vcard_name_str, preeval_vcard_name_str, CTX_VCARD);
+	RegisterNamespace("VC:MSGNO", 0, 1, tmpl_vcard_msgno, NULL, CTX_VCARD);
 	RegisterNamespace("VC:CTXNAME", 1, 1, tmpl_vcard_context_name_str, NULL, CTX_VCARD_TYPE);
 	REGISTERTokenParamDefine(FlatString);
 	REGISTERTokenParamDefine(StringCluster);
