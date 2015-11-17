@@ -1080,7 +1080,7 @@ void do_addrbook_view(vcardview_struct* VS) {
 	int tabfirst = 0;
 	int tablast = 0;
 	int page = 0;
-	const char **tablabels;
+	const StrBuf **tablabels;
 	int num_ab = GetCount(VS->addrbook);
 	HashList *headlines;
 	HashPos *it;
@@ -1102,7 +1102,7 @@ void do_addrbook_view(vcardview_struct* VS) {
 
 	num_pages = (GetCount(VS->addrbook) / NAMESPERPAGE) + 1;
 
-	tablabels = malloc(num_pages * sizeof (char *));
+	tablabels = malloc(num_pages * sizeof (StrBuf *));
 	if (tablabels == NULL) {
 		return;
 	}
@@ -1132,11 +1132,10 @@ void do_addrbook_view(vcardview_struct* VS) {
 				StrBufAppendBuf(headline, a2->name, 0);
 			}
 		}
-		tablabels[i] = ChrPtr(headline);
+		tablabels[i] = headline;
 		Put(headlines, LKEY(i), headline, HFreeStrBuf);
 	}
-
-	tabbed_dialog(num_pages, tablabels);
+	StrTabbedDialog(WC->WBuf, num_pages, tablabels);
 	page = (-1);
 
 

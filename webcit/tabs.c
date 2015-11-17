@@ -127,7 +127,7 @@ void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]) {
 			( (i==0) ? "tab_cell_label" : "tab_cell_edit" ),
 			i
 			);
-		StrBufAppendBuf(Target, tabnames[i], 0);
+		StrEscAppend(Target, tabnames[i], NULL, 0, 0);
 		StrBufAppendBufPlain(
 			Target, 
 			HKEY(
