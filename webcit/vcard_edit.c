@@ -386,20 +386,6 @@ int conditional_VC_Havetype(StrBuf *Target, WCTemplputParams *TP)
 	return rc;
 }
 
-
-
-/*
- * Helper function for do_addrbook_view()
- * Converts a name into a three-letter tab label
- */
-void nametab(char *tabbuf, long len, char *name) {
-	stresc(tabbuf, len, name, 0, 0);
-	tabbuf[0] = toupper(tabbuf[0]);
-	tabbuf[1] = tolower(tabbuf[1]);
-	tabbuf[2] = tolower(tabbuf[2]);
-	tabbuf[3] = 0;
-}
-
 wc_mime_attachment *load_vcard(message_summary *Msg) 
 {
 	HashPos  *it;
@@ -442,76 +428,20 @@ wc_mime_attachment *load_vcard(message_summary *Msg)
 	return VCMime;
 }
 
-
-
-/*
- * Turn a vCard "n" (name) field into something displayable.
- */
-void vcard_n_prettyize(char *name)
-{
-	char *original_name;
-	int i, j, len;
-
-	original_name = strdup(name);
-	len = strlen(original_name);
-	for (i=0; i<5; ++i) {
-		if (len > 0) {
-			if (original_name[len-1] == ' ') {
-				original_name[--len] = 0;
-			}
-			if (original_name[len-1] == ';') {
-				original_name[--len] = 0;
-			}
-		}
-	}
-	strcpy(name, "");
-	j=0;
-	for (i=0; i<len; ++i) {
-		if (original_name[i] == ';') {
-			name[j++] = ',';
-			name[j++] = ' ';			
-		}
-		else {
-			name[j++] = original_name[i];
-		}
-	}
-	name[j] = '\0';
-	free(original_name);
-}
-
-
 void PutVcardItem(HashList *thisVC, vcField *thisField, StrBuf *ThisFieldStr, int is_qp, StrBuf *Swap)
 {
 	/* if we have some untagged QP, detect it here. */
 	if (is_qp || (strstr(ChrPtr(ThisFieldStr), "=?")!=NULL)){
-		StrBuf *b;
+		FlushStrBuf(Swap);
 		StrBuf_RFC822_to_Utf8(Swap, ThisFieldStr, NULL, NULL); /* default charset, current charset */
-		b = ThisFieldStr;
-		ThisFieldStr = Swap; 
-		Swap = b;
+		SwapBuffers(Swap, ThisFieldStr);
 		FlushStrBuf(Swap);
 	}
 	Put(thisVC, LKEY(thisField->cval), ThisFieldStr, HFreeStrBuf);
 }
-/*
- * html print a vcard
- * display_vcard() calls this after parsing the textual vCard into
- * our 'struct vCard' data object.
- *
- * Set 'full' to nonzero to display the full card, otherwise it will only
- * show a summary line.
- *
- * This code is a bit ugly, so perhaps an explanation is due: we do this
- * in two passes through the vCard fields.  On the first pass, we process
- * fields we understand, and then render them in a pretty fashion at the
- * end.  Then we make a second pass, outputting all the fields we don't
- * understand in a simple two-column name/value format.
- * v		the vCard to parse
- * msgnum	Citadel message pointer
- */
+
 void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachment *Mime)
 {
-	StrBuf *Val = NULL;
 	StrBuf *Swap = NULL;
 	int i, j, k;
 	char buf[SIZ];
@@ -537,34 +467,18 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 		/*len = */extract_token(firsttoken, ChrPtr(thisname), 0, ';', sizeof firsttoken);
 		ntokens = num_tokens(ChrPtr(thisname), ';');
 		for (j=0, k=0; j < ntokens && k < 10; ++j) {
-			/*int evc[10];*/
-			
 			len = extract_token(buf, ChrPtr(thisname), j, ';', sizeof buf);
 			if (!strcasecmp(buf, "encoding=quoted-printable")) {
 				is_qp = 1;
-/*				remove_token(thisname, j, ';');*/
 			}
 			else if (!strcasecmp(buf, "encoding=base64")) {
 				is_b64 = 1;
-/*				remove_token(thisname, j, ';');*/
 			}
 			else{
 				if (StrLength(thisVCToken) > 0) {
 					StrBufAppendBufPlain(thisVCToken, HKEY(";"), 0);
 				}
 				StrBufAppendBufPlain(thisVCToken, buf, len, 0);
-				/*
-				if (GetHash(VCToEnum, buf, len, &V))
-				{
-					evc[k] = (int) V;
-
-					Put(VC, IKEY(evc), Val, HFreeStrBuf);
-
-					syslog(LOG_DEBUG, "[%ul] -> k: %d %s - %s", evc, k, buf, VCStr[evc[k]].Key);
-					k++;
-				}
-*/
-
 			}
 		}
 
@@ -605,6 +519,10 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 
 				break;
 			case Base64BinaryAttachment:
+				ThisFieldStr = NewStrBufPlain(v->prop[i].value, -1);
+				StrBufDecodeBase64(ThisFieldStr);
+				PutVcardItem(VC, thisField, ThisFieldStr, is_qp, Swap);
+				break;
 			case TerminateList:
 			case UnKnown:
 				break;
@@ -630,30 +548,6 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 			StrBufAppendBufPlain(oldVal, v->prop[i].value, -1, 0);
 			continue;
 		}
-
-		/* copy over the payload into a StrBuf */
-		Val = NewStrBufPlain(v->prop[i].value, -1);
-			
-		/* if we have some untagged QP, detect it here. */
-		if (is_qp || (strstr(v->prop[i].value, "=?")!=NULL)){
-			StrBuf *b;
-			StrBuf_RFC822_to_Utf8(Swap, Val, NULL, NULL); /* default charset, current charset */
-			b = Val;
-			Val = Swap; 
-			Swap = b;
-			FlushStrBuf(Swap);
-		}
-		else if (is_b64) {
-			StrBufDecodeBase64(Val);
-		}
-#if 0
-		syslog(LOG_DEBUG, "-> firsttoken: %s thisname: %s Value: [%s][%s]",
-			firsttoken,
-		       ChrPtr(thisname),
-			ChrPtr(Val),
-			v->prop[i].value);
-#endif	
-		FreeStrBuf(&Val);
 	}
 	FreeStrBuf(&thisname);
 	FreeStrBuf(&Swap);
@@ -819,8 +713,6 @@ void edit_vcard(void) {
 	partnum = bstr("partnum");
 	do_edit_vcard(msgnum, partnum, NULL, NULL, "", NULL);
 }
-
-
 
 /*
  *  parse edited vcard from the browser
@@ -1074,16 +966,12 @@ int vcard_LoadMsgFromServer(SharedMessageStatus *Stat,
 static int NAMESPERPAGE = 60;
 void do_addrbook_view(vcardview_struct* VS) {
 	long i = 0;
-	int displayed = 0;
-	int bg = 0;
 	int num_pages = 0;
 	int tabfirst = 0;
 	int tablast = 0;
-	int page = 0;
-	const StrBuf **tablabels;
+	StrBuf **tablabels;
 	int num_ab = GetCount(VS->addrbook);
 	HashList *headlines;
-	HashPos *it;
 	wcsession *WCC = WC;
 
 	WCTemplputParams *TP = NULL;
@@ -1136,53 +1024,10 @@ void do_addrbook_view(vcardview_struct* VS) {
 		Put(headlines, LKEY(i), headline, HFreeStrBuf);
 	}
 	StrTabbedDialog(WC->WBuf, num_pages, tablabels);
-	page = (-1);
-
-
 	StackContext(TP, &SubTP, VS->addrbook, CTX_VCARD_LIST, 0, NULL);
 
 	DoTemplate(HKEY("vcard_list"), WCC->WBuf, &SubTP);
 	UnStackContext(&SubTP);
-/*
-	it = GetNewHashPos(VS->addrbook, 0);
-	for (i=0; i<num_ab; ++i) {
-		void *v;
-		long hklen;
-		const char *key;
-		addrbookent *abEnt;
-		GetNextHashPos(VS->addrbook, it, &hklen, &key, &v);
-		if (v == NULL)
-			continue;
-		abEnt = (addrbookent *) v;
-		if ((i / NAMESPERPAGE) != page) {	/ * New tab * /
-			page = (i / NAMESPERPAGE);
-			if (page > 0) {
-				do_template("vcard_list_section_end");
-				end_tab(page-1, num_pages);
-			}
-			begin_tab(page, num_pages);
-			do_template("vcard_list_section_start");
-			displayed = 0;
-		}
-
-		if ((displayed % 4) == 0) {
-			if (displayed > 0) {
-				do_template("vcard_list_row_end");
-			}
-			do_template("vcard_list_row_start");
-			bg = 1 - bg;
-		}
-	
-
-		StackContext(TP, &SubTP, abEnt, CTX_VCARD, 0, NULL);
-
-		DoTemplate(HKEY("vcard_list_entry"), WCC->WBuf, &SubTP);
-		UnStackContext(&SubTP);
-
-		++displayed;
-	}
-	DeleteHashPos(&it);
-*/
 	/* Placeholders for empty columns at end */
 	if ((num_ab % 4) != 0) {
 		for (i=0; i<(4-(num_ab % 4)); ++i) {
@@ -1259,16 +1104,16 @@ void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharse
 		v = VCardLoad(Mime->Data);
 
 		if (v != NULL) {
-			HashList *VC;
 			addrbookent ab;
 			memset(&ab, 0, sizeof(addrbookent));
 
 			ab.VC = NewHash(0, lFlathash);
 			ab.ab_msgnum = Mime->msgnum;
 
-			parse_vcard(Target, v, VC, Mime);
+			parse_vcard(Target, v, ab.VC, Mime);
 			display_one_vcard (Target, &ab, HKEY("vcard_msg_display"));
-			DeleteHash(&VC);
+			DeleteHash(&ab.VC);
+			vcard_free(v);
 
 		}
 		else {
@@ -1284,8 +1129,6 @@ void
 ServerStartModule_VCARD
 (void)
 {
-	///VCToEnum = NewHash(0, NULL);
-
 }
 
 void 
@@ -1295,7 +1138,6 @@ ServerShutdownModule_VCARD
 	DeleteHash(&DefineToToken);
 	DeleteHash(&vcNames);
 	DeleteHash(&VCTokenToDefine);
-	/// DeleteHash(&VCToEnum);
 }
 
 void 
