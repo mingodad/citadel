@@ -1,5 +1,10 @@
-<??("COND:ITERATE:FIRSTN", 5)><?!("COND:ITERATE:ISMOD", 7, #"NAMESPERPAGE", 0)><?=("vcard_list_section_end")><??("X", 7)><??("X",5)>
+<??("COND:ITERATE:FIRSTN", 40)><?!("COND:ITERATE:ISMOD", 45, #"NAMESPERPAGE", 0)><!--y=<?ITERATE:N()>--><?=("vcard_list_section_end")><??("X", 40)><??("X", 45)>
 <?!("COND:ITERATE:ISMOD", 10, #"NAMESPERPAGE", 0)><?=("vcard_list_section_start")><??("X", 10)>
 <?!("COND:ITERATE:ISMOD", 20, 4, 0)> <?=("vcard_list_row_start")><??("X", 20)>
-<td><a href='readfwd?startmsg=<?VC:MSGNO()>?is_singlecard=1?maxmsgs=1?is_summary=0?alpha=<?BSTR("alpha")>'><?VC:ITEM(#"VC:.n.last", "X")> <?VC:ITEM(#"VC:.n.first", "X")><?VC:ITEM(#"VC:.n.middle", "X")>;<?VC:ITEM(#"VC:.n.prefix", "X")>;<?VC:ITEM(#"VC:.n.suffix", "X")></a></td>
+<td><!--X=<?ITERATE:N()>--><a href='readfwd?startmsg=<?VC:MSGNO()>?is_singlecard=1?maxmsgs=1?is_summary=0?alpha=<?BSTR("alpha")>'><?VC:ITEM(#"VC:.n.last", "X")> <?VC:ITEM(#"VC:.n.first", "X")><?VC:ITEM(#"VC:.n.middle", "X")>;<?VC:ITEM(#"VC:.n.prefix", "X")>;<?VC:ITEM(#"VC:.n.suffix", "X")></a></td>
+
 <??("COND:ITERATE:FIRSTN", 30)><?!("COND:ITERATE:ISMOD", 35, 4, 3)> <?=("vcard_list_row_end")><??("X", 35)><?!("X", 30)>
+<?!("COND:ITERATE:LASTN",  40)><??("COND:ITERATE:ISMOD", 45, 4, 3)> <?=("vcard_list_row_end")><??("X", 45)><?!("X", 40)>
+
+
+<?!("COND:ITERATE:LASTN",  40)><??("COND:ITERATE:ISMOD", 45, #"NAMESPERPAGE", 0)><!--z=<?ITERATE:N()>--><?=("vcard_list_section_end")><??("X", 45)><?!("X", 40)>

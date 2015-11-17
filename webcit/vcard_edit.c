@@ -1028,22 +1028,9 @@ void do_addrbook_view(vcardview_struct* VS) {
 
 	DoTemplate(HKEY("vcard_list"), WCC->WBuf, &SubTP);
 	UnStackContext(&SubTP);
-	/* Placeholders for empty columns at end */
-	if ((num_ab % 4) != 0) {
-		for (i=0; i<(4-(num_ab % 4)); ++i) {
-			do_template("vcard_list_cell_end");
-		}
-	}
-	
-	do_template("vcard_list_section_end");
-	end_tab((num_pages-1), num_pages);
-
-	begin_tab(num_pages, num_pages);
-	/* FIXME there ought to be something here */
-	end_tab(num_pages, num_pages);
-
 	DeleteHash(&headlines);
 	free(tablabels);
+	StrBufAppendBufPlain(WCC->WBuf, HKEY("</div>"), 0);/* closes: id=global */
 	wDumpContent(1);
 }
 
