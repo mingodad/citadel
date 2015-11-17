@@ -192,6 +192,7 @@ typedef struct _ConstStr {
 StrBuf* NewStrBuf(void);
 StrBuf* NewStrBufDup(const StrBuf *CopyMe);
 StrBuf* NewStrBufPlain(const char* ptr, int nChars);
+void SwapBuffers(StrBuf *A, StrBuf *B);
 long StrBufShrinkToFit(StrBuf *Buf, int Force);
 void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize);
 void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, const char *NoMe, int KeepOriginal);
