@@ -4142,11 +4142,11 @@ long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
 			n++;
 			aptr++;
 		}
-		if (n > maxlen) {
+		if (n >= maxlen) {
 			*aptr = '\0';
 			Buf->BufUsed = aptr - Buf->buf;
 			return Buf->BufUsed;
-		}			
+		}
 	}
 	return Buf->BufUsed;
 
