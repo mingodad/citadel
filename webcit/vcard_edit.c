@@ -985,7 +985,7 @@ void do_addrbook_view(vcardview_struct* VS) {
 	}
 
 	if (num_ab > 1) {
-		///SortByHashKey(VS->addrbook, 0);
+		SortByHashKey(VS->addrbook, 1);
 	}
 
 	num_pages = (GetCount(VS->addrbook) / NAMESPERPAGE) + 1;
@@ -1012,12 +1012,13 @@ void do_addrbook_view(vcardview_struct* VS) {
 		if (GetHashAt(VS->addrbook, tabfirst, &hklen1, &c1, &v1)) {
 			a1 = (addrbookent*) v1;
 			StrBufAppendBuf(headline, a1->name, 0);
-
+			StrBuf_Utf8StrCut(headline, 3);
 			if (GetHashAt(VS->addrbook, tablast, &hklen2, &c2, &v2)) {
 
 				a2 = (addrbookent*) v2;
 				StrBufAppendBufPlain(headline, HKEY(" - "), 0);
 				StrBufAppendBuf(headline, a2->name, 0);
+				StrBuf_Utf8StrCut(headline, 9);
 			}
 		}
 		tablabels[i] = headline;
@@ -1031,7 +1032,6 @@ void do_addrbook_view(vcardview_struct* VS) {
 	DeleteHash(&headlines);
 	free(tablabels);
 	StrBufAppendBufPlain(WCC->WBuf, HKEY("</div>"), 0);/* closes: id=global */
-	wDumpContent(1);
 }
 
 
