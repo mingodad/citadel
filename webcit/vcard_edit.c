@@ -127,6 +127,10 @@ HashList *VCTokenToDefine = NULL;
 HashList *vcNames = NULL; /* todo: fill with the name strings */
 vcField* vcfUnknown = NULL;
 
+/******************************************************************************
+ *                   initialize vcard structure                               *
+ ******************************************************************************/
+
 void RegisterVCardToken(vcField* vf, StrBuf *name, int inTokenCount)
 {
 	if (vf->Type == UnKnown) {
@@ -191,6 +195,10 @@ void autoRegisterTokens(long *enumCounter, vcField* vf, StrBuf *BaseStr, int lay
 	}
 	FreeStrBuf(&subStr);
 }
+
+/******************************************************************************
+ *               VCard template functions                                     *
+ ******************************************************************************/
 
 int preeval_vcard_item(WCTemplateToken *Token)
 {
@@ -324,9 +332,6 @@ int filter_VC_ByType(const char* key, long len, void *Context, StrBuf *Target, W
 	return rc;
 }
 
-
-
-
 HashList *getContextVcard(StrBuf *Target, WCTemplputParams *TP)
 {
 	vcField *vf = (vcField*) CTX(CTX_VCARD_TYPE);
@@ -355,7 +360,6 @@ int filter_VC_ByContextType(const char* key, long len, void *Context, StrBuf *Ta
 		return 0;
 	}
 }
-
 
 int conditional_VC_Havetype(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -386,47 +390,9 @@ int conditional_VC_Havetype(StrBuf *Target, WCTemplputParams *TP)
 	return rc;
 }
 
-wc_mime_attachment *load_vcard(message_summary *Msg) 
-{
-	HashPos  *it;
-	StrBuf *FoundCharset = NewStrBuf();
-	StrBuf *Error;
-	void *vMime;
-	const char *Key;
-	long len;
-	wc_mime_attachment *Mime;
-	wc_mime_attachment *VCMime = NULL;
-
-	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
-	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
-	Msg->MsgBody->msgnum = Msg->msgnum;
-
-	load_message(Msg, FoundCharset, &Error);
-
-	FreeStrBuf(&FoundCharset);
-	/* look up the vcard... */
-	it = GetNewHashPos(Msg->AllAttach, 0);
-	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
-	       (vMime != NULL)) 
-	{
-		Mime = (wc_mime_attachment*) vMime;
-		if ((strcmp(ChrPtr(Mime->ContentType),
-			   "text/x-vcard") == 0) ||
-		    (strcmp(ChrPtr(Mime->ContentType),
-			    "text/vcard") == 0))
-		{
-			VCMime = Mime;
-			break;
-		}
-	}
-	DeleteHashPos(&it);
-	if (VCMime == NULL)
-		return NULL;
-
-	if (VCMime->Data == NULL)
-		MimeLoadData(VCMime);
-	return VCMime;
-}
+/******************************************************************************
+ *              parse one VCard                                               *
+ ******************************************************************************/
 
 void PutVcardItem(HashList *thisVC, vcField *thisField, StrBuf *ThisFieldStr, int is_qp, StrBuf *Swap)
 {
@@ -554,46 +520,16 @@ void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, wc_mime_attachme
 	FreeStrBuf(&thisVCToken);
 }
 
-void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
-{
-	addrbookent *ab = CTX(CTX_VCARD);
-	int evc;
-	void *vStr;
-
-	evc = GetTemplateTokenNumber(Target, TP, 0, -1);
-	if (evc != -1)
-	{
-		if (GetHash(ab->VC, IKEY(evc), &vStr))
-		{
-			StrBufAppendTemplate(Target, TP,
-					     (StrBuf*) vStr,
-					     1);
-		}
-	}
-	
-}
-
 HashList *CtxGetVcardList(StrBuf *Target, WCTemplputParams *TP)
 {
 	HashList *pb = CTX(CTX_VCARD_LIST);
 	return pb;
 }
 
-void display_one_vcard (StrBuf *Target, addrbookent *ab, const char *tp_name, size_t tp_name_len)
-{
-	WCTemplputParams *TP = NULL;
-	WCTemplputParams SubTP;
+/******************************************************************************
+ * Extract an embedded photo from a vCard for display on the client           *
+ ******************************************************************************/
 
-        memset(&SubTP, 0, sizeof(WCTemplputParams));    
-	StackContext(TP, &SubTP, ab, CTX_VCARD, 0, NULL);
-
-	DoTemplate(tp_name, tp_name_len, Target, &SubTP);
-	UnStackContext(&SubTP);
-}
-
-/*
- * Extract an embedded photo from a vCard for display on the client
- */
 void display_vcard_photo_img(void)
 {
 	long msgnum = 0L;
@@ -626,6 +562,48 @@ void display_vcard_photo_img(void)
 	http_transmit_thing(contentType, 0);
 	free(v);
 	free(photosrc);
+}
+
+wc_mime_attachment *load_vcard(message_summary *Msg) 
+{
+	HashPos  *it;
+	StrBuf *FoundCharset = NewStrBuf();
+	StrBuf *Error;
+	void *vMime;
+	const char *Key;
+	long len;
+	wc_mime_attachment *Mime;
+	wc_mime_attachment *VCMime = NULL;
+
+	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
+	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
+	Msg->MsgBody->msgnum = Msg->msgnum;
+
+	load_message(Msg, FoundCharset, &Error);
+
+	FreeStrBuf(&FoundCharset);
+	/* look up the vcard... */
+	it = GetNewHashPos(Msg->AllAttach, 0);
+	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
+	       (vMime != NULL)) 
+	{
+		Mime = (wc_mime_attachment*) vMime;
+		if ((strcmp(ChrPtr(Mime->ContentType),
+			   "text/x-vcard") == 0) ||
+		    (strcmp(ChrPtr(Mime->ContentType),
+			    "text/vcard") == 0))
+		{
+			VCMime = Mime;
+			break;
+		}
+	}
+	DeleteHashPos(&it);
+	if (VCMime == NULL)
+		return NULL;
+
+	if (VCMime->Data == NULL)
+		MimeLoadData(VCMime);
+	return VCMime;
 }
 
 /*
@@ -880,7 +858,9 @@ void submit_vcard(void) {
 	FreeStrBuf(&Buf);
 }
 
-
+/******************************************************************************
+ *              Render Addressbooks                                           *
+ ******************************************************************************/
 
 typedef struct _vcardview_struct {
 	long is_singlecard;
@@ -922,6 +902,9 @@ int vcard_LoadMsgFromServer(SharedMessageStatus *Stat,
 			    int is_new, 
 			    int i)
 {
+	wcsession *WCC = WC;
+	WCTemplputParams *TP = NULL;
+	WCTemplputParams SubTP;
 	vcardview_struct *VS;
 	wc_mime_attachment *VCMime = NULL;
 	struct vCard *v;
@@ -942,9 +925,13 @@ int vcard_LoadMsgFromServer(SharedMessageStatus *Stat,
 	abEntry->name = NewStrBuf();
 	abEntry->VC = NewHash(0, lFlathash);
 	abEntry->ab_msgnum = Msg->msgnum;
-	parse_vcard(WC->WBuf, v, abEntry->VC, VCMime);
+	parse_vcard(WCC->WBuf, v, abEntry->VC, VCMime);
 
-	display_one_vcard(abEntry->name, abEntry, HKEY("vcard_list_name"));
+        memset(&SubTP, 0, sizeof(WCTemplputParams));    
+	StackContext(TP, &SubTP, abEntry, CTX_VCARD, 0, NULL);
+
+	DoTemplate(HKEY("vcard_list_name"), WCC->WBuf, &SubTP);
+	UnStackContext(&SubTP);
 
 	if (StrLength(abEntry->name) == 0) {
 		StrBufPlain(abEntry->name, _("(no name)"), -1);
@@ -1091,6 +1078,8 @@ void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharse
 		v = VCardLoad(Mime->Data);
 
 		if (v != NULL) {
+			WCTemplputParams *TP = NULL;
+			WCTemplputParams SubTP;
 			addrbookent ab;
 			memset(&ab, 0, sizeof(addrbookent));
 
@@ -1098,7 +1087,12 @@ void render_MIME_VCard(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharse
 			ab.ab_msgnum = Mime->msgnum;
 
 			parse_vcard(Target, v, ab.VC, Mime);
-			display_one_vcard (Target, &ab, HKEY("vcard_msg_display"));
+
+			memset(&SubTP, 0, sizeof(WCTemplputParams));    
+			StackContext(TP, &SubTP, &ab, CTX_VCARD, 0, NULL);
+
+			DoTemplate(HKEY("vcard_msg_display"), Target, &SubTP);
+			UnStackContext(&SubTP);
 			DeleteHash(&ab.VC);
 			vcard_free(v);
 
