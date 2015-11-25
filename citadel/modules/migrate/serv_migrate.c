@@ -76,7 +76,7 @@ int total_msgs = 0;
  ******************************************************************************/
 
 /*
- * Output a string to the client with these characters escaped:  & < >
+ * Output a string to the client with these characters escaped:  & < > " '
  */
 void xml_strout(char *str) {
 
@@ -194,9 +194,9 @@ void migr_export_rooms(void) {
 	 * exporting the message multiple times.)
 	 */
 	snprintf(cmd, sizeof cmd, "sort -n <%s >%s", migr_tempfilename1, migr_tempfilename2);
-	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
+	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d", errno);
 	snprintf(cmd, sizeof cmd, "uniq <%s >%s", migr_tempfilename2, migr_tempfilename1);
-	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
+	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d", errno);
 
 
 	snprintf(cmd, sizeof cmd, "wc -l %s", migr_tempfilename1);
@@ -415,7 +415,7 @@ void migr_export_messages(void) {
 	Ctx = CC;
 	migr_global_message_list = fopen(migr_tempfilename1, "r");
 	if (migr_global_message_list != NULL) {
-		syslog(LOG_INFO, "Opened %s\n", migr_tempfilename1);
+		syslog(LOG_INFO, "Opened %s", migr_tempfilename1);
 		while ((Ctx->kill_me == 0) && 
 		       (fgets(buf, sizeof(buf), migr_global_message_list) != NULL)) {
 			msgnum = atol(buf);
@@ -432,9 +432,9 @@ void migr_export_messages(void) {
 		fclose(migr_global_message_list);
 	}
 	if (Ctx->kill_me == 0)
-		syslog(LOG_INFO, "Exported %d messages.\n", count);
+		syslog(LOG_INFO, "Exported %d messages.", count);
 	else
-		syslog(LOG_ERR, "Export aborted due to client disconnect! \n");
+		syslog(LOG_ERR, "Export aborted due to client disconnect!");
 
 	migr_export_message(-1L);	/* This frees the encoding buffer */
 }
@@ -533,7 +533,7 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 	}
 
 	if (citadel_migrate_data != 1) {
-		syslog(LOG_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
+		syslog(LOG_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!", el);
 		return;
 	}
 
@@ -652,7 +652,7 @@ void migr_xml_end(void *data, const char *el)
 	}
 
 	if (citadel_migrate_data != 1) {
-		syslog(LOG_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
+		syslog(LOG_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!", el);
 		return;
 	}
 
@@ -672,7 +672,7 @@ void migr_xml_end(void *data, const char *el)
 		; /* Nothing to do anymore */
 	else if (!strcasecmp(el, "user")) {
 		CtdlPutUser(&usbuf);
-		syslog(LOG_INFO, "Imported user: %s\n", usbuf.fullname);
+		syslog(LOG_INFO, "Imported user: %s", usbuf.fullname);
 	}
 
 	/*** OPENID ***/
@@ -689,7 +689,7 @@ void migr_xml_end(void *data, const char *el)
 		memcpy(&oid_data[sizeof(long)], openid_url, strlen(openid_url) + 1);
 		cdb_store(CDB_OPENID, openid_url, strlen(openid_url), oid_data, oid_data_len);
 		free(oid_data);
-		syslog(LOG_INFO, "Imported OpenID: %s (%ld)\n", openid_url, openid_usernum);
+		syslog(LOG_INFO, "Imported OpenID: %s (%ld)", openid_url, openid_usernum);
 	}
 
 	/*** ROOM ***/
@@ -698,7 +698,7 @@ void migr_xml_end(void *data, const char *el)
 		; /* Nothing to do anymore */
 	else if (!strcasecmp(el, "room")) {
 		CtdlPutRoom(&qrbuf);
-		syslog(LOG_INFO, "Imported room: %s\n", qrbuf.QRname);
+		syslog(LOG_INFO, "Imported room: %s", qrbuf.QRname);
 	}
 
 	/*** ROOM MESSAGE POINTERS ***/
@@ -711,7 +711,7 @@ void migr_xml_end(void *data, const char *el)
 			msglist_alloc = 1000;
 			msglist = malloc(sizeof(long) * msglist_alloc);
 
-			syslog(LOG_DEBUG, "Message list for: %s\n", FRname);
+			syslog(LOG_DEBUG, "Message list for: %s", FRname);
 
 			ptr = ChrPtr(migr_chardata);
 			while (*ptr != 0) {
@@ -739,7 +739,7 @@ void migr_xml_end(void *data, const char *el)
 			free(msglist);
 			msglist = NULL;
 			msglist_alloc = 0;
-			syslog(LOG_DEBUG, "Imported %d messages.\n", msgcount);
+			syslog(LOG_DEBUG, "Imported %d messages.", msgcount);
 			if (server_shutting_down) {
 				return;
 		}
@@ -752,7 +752,7 @@ void migr_xml_end(void *data, const char *el)
 
 	else if (!strcasecmp(el, "floor")) {
 		CtdlPutFloor(&flbuf, floornum);
-		syslog(LOG_INFO, "Imported floor #%d (%s)\n", floornum, flbuf.f_name);
+		syslog(LOG_INFO, "Imported floor #%d (%s)", floornum, flbuf.f_name);
 	}
 
 	/*** VISITS ***/
@@ -761,7 +761,7 @@ void migr_xml_end(void *data, const char *el)
 		; /* Nothing to do anymore */
 	else if (!strcasecmp(el, "visit")) {
 		put_visit(&vbuf);
-		syslog(LOG_INFO, "Imported visit: %ld/%ld/%ld\n", vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
+		syslog(LOG_INFO, "Imported visit: %ld/%ld/%ld", vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
 	}
 
 	/*** MESSAGES ***/
@@ -795,7 +795,7 @@ void migr_xml_end(void *data, const char *el)
 		}
 
 		syslog(LOG_INFO,
-		       "%s message #%ld, size=%d, refcount=%d, bodylength=%ld, content-type: %s / %s \n",
+		       "%s message #%ld, size=%d, refcount=%d, bodylength=%ld, content-type: %s / %s",
 		       (rc!= 0)?"failed to import ":"Imported ",
 		       import_msgnum,
 		       StrLength(migr_MsgData),
@@ -961,7 +961,7 @@ int migr_restore_message_metadata(long msgnum, int refcount)
 
 
 	syslog(LOG_INFO,
-	       "Setting message #%ld meta data to: refcount=%d, bodylength=%ld, content-type: %s / %s \n",
+	       "Setting message #%ld meta data to: refcount=%d, bodylength=%ld, content-type: %s / %s",
 	       smi.meta_msgnum,
 	       smi.meta_refcount,
 	       smi.meta_rfc822_length,
@@ -1006,7 +1006,7 @@ void RemoveMessagesFromRooms(StrBuf *RoomNameVec, long msgnum) {
 void migr_do_restore_meta(void) {
 	char buf[SIZ];
 	int failGetMessage;
-	long msgnum;
+	long msgnum = 0;
 	int lastnum = 0;
 	int refcount = 0;
 	CitContext *Ctx;
@@ -1027,13 +1027,13 @@ void migr_do_restore_meta(void) {
 	 * exporting the message multiple times.)
 	 */
 	snprintf(cmd, sizeof cmd, "sort -n <%s >%s", migr_tempfilename1, migr_tempfilename2);
-	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
+	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d", errno);
 
 	RoomNames = NewStrBuf();
 	Ctx = CC;
 	migr_global_message_list = fopen(migr_tempfilename2, "r");
 	if (migr_global_message_list != NULL) {
-		syslog(LOG_INFO, "Opened %s\n", migr_tempfilename1);
+		syslog(LOG_INFO, "Opened %s", migr_tempfilename1);
 		while ((Ctx->kill_me == 0) && 
 		       (fgets(buf, sizeof(buf), migr_global_message_list) != NULL)) {
 			msgnum = atol(buf);
