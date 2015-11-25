@@ -69,6 +69,7 @@ char migr_tempfilename1[PATH_MAX];
 char migr_tempfilename2[PATH_MAX];
 FILE *migr_global_message_list;
 int total_msgs = 0;
+char *ikey = NULL;			// If we're importing a config key we store it here.
 
 
 /******************************************************************************
@@ -552,7 +553,16 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 		import_msgnum = 0;
 	}
 	else if (!strcasecmp(el, "config")) {
-		syslog(LOG_DEBUG, "\033[31m IMPORT OF CONFIG START ELEMENT FIXME\033\0m");
+		if (ikey != NULL) {
+			free(ikey);
+			ikey = NULL;
+		}
+		while (*attr) {
+			if (!strcasecmp(attr[0], "key")) {
+				ikey = strdup(attr[1]);
+			}
+			attr += 2;
+		}
 	}
 
 }
@@ -662,8 +672,16 @@ void migr_xml_end(void *data, const char *el)
 
 	if (!strcasecmp(el, "config"))
 	{
-		syslog(LOG_DEBUG, "\033[31m IMPORT OF CONFIG END ELEMENT FIXME\033\0m");
-		CtdlSetConfigInt("c_enable_fulltext", 0);	/* always disable FIXME put this somewhere more appropriate */
+		syslog(LOG_DEBUG, "Imported config key=%s", ikey);
+
+		if (ikey != NULL) {
+			CtdlSetConfigStr(ikey, ChrPtr(migr_chardata));
+			free(ikey);
+			ikey = NULL;
+		}
+		else {
+			syslog(LOG_INFO, "Closed a <config> tag but no key name was supplied.");
+		}
 	}
 
 	/*** USER ***/
@@ -865,6 +883,7 @@ void migr_do_import(void) {
 	FreeStrBuf(&migr_MsgData);
 	rebuild_euid_index();
 	rebuild_usersbynumber();
+	CtdlSetConfigInt("MM_fulltext_wordbreaker", -1);	// Set an invalid wordbreaker to force re-indexing
 	CC->dont_term = 0;
 }
 
