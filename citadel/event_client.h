@@ -328,6 +328,10 @@ void SetNextTimeout(AsyncIO *IO, double timeout);
 			       curl_easy_strerror(sta));		\
 	} } while (0)
 
+#define SET_EV_TIME(IO, BASE)						\
+	IO->Now = ev_now(BASE);						\
+	if (IO->CitContext != NULL) IO->CitContext->lastcmd = IO->Now; 
+
 void InitIOStruct(AsyncIO *IO,
 		  void *Data,
 		  eNextState NextState,

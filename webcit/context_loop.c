@@ -397,7 +397,11 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 		nLine ++;
 		Line = NewStrBufPlain(NULL, SIZ / 4);
 
-		if (ClientGetLine(Hdr, Line) < 0) return 1;
+		if (ClientGetLine(Hdr, Line) < 0) {
+			FreeStrBuf(&Line);
+			isbogus = 1;
+			break;
+		}
 
 		if (StrLength(Line) == 0) {
 			FreeStrBuf(&Line);
@@ -603,6 +607,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
 	TheSession->inuse = 1;				/* mark the session as bound */
+	TheSession->isFailure = 0;                      /* reset evntually existing error flags */
 	TheSession->lastreq = now;			/* log */
 	TheSession->Hdr = Hdr;
 

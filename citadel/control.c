@@ -1,15 +1,15 @@
 /*
  * This module handles states which are global to the entire server.
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include <stdio.h>
@@ -21,26 +21,23 @@
 #include "citserver.h"
 #include "user_ops.h"
 
-struct CitControl CitControl;
-extern struct config config;
-FILE *control_fp = NULL;
 long control_highest_user = 0;
 
-
 /*
- * lock_control  -  acquire a lock on the control record file.
- *                  This keeps multiple citservers from running concurrently.
+ * This is the control record for the message base... 
  */
-void lock_control(void)
-{
-#if defined(LOCK_EX) && defined(LOCK_NB)
-	if (flock(fileno(control_fp), (LOCK_EX | LOCK_NB))) {
-		syslog(LOG_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
-		syslog(LOG_EMERG, "Is another citserver already running?\n");
-		exit(CTDLEXIT_CONTROL);
-	}
-#endif
-}
+struct legacy_ctrl_format {
+	long MMhighest;			/* highest message number in file   */
+	unsigned MMflags;		/* Global system flags              */
+	long MMnextuser;		/* highest user number on system    */
+	long MMnextroom;		/* highest room number on system    */
+	int MM_hosted_upgrade_level;	/* Server-hosted upgrade level      */
+	int MM_fulltext_wordbreaker;	/* ID of wordbreaker in use         */
+	long MMfulltext;		/* highest message number indexed   */
+	int MMdbversion;		/* Version of Berkeley DB used on previous server run */
+};
+
+
 
 /*
  * callback to get highest room number when rebuilding control file
@@ -55,9 +52,9 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 	int room_fixed = 0;
 	int message_fixed = 0;
 	
-	if (qrbuf->QRnumber > CitControl.MMnextroom)
+	if (qrbuf->QRnumber > CtdlGetConfigLong("MMnextroom"))
 	{
-		CitControl.MMnextroom = qrbuf->QRnumber;
+		CtdlSetConfigLong("MMnextroom", qrbuf->QRnumber);
 		room_fixed = 1;
 	}
 		
@@ -76,18 +73,20 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 	{
 		for (c=0; c<num_msgs; c++)
 		{
-			if (msglist[c] > CitControl.MMhighest)
+			if (msglist[c] > CtdlGetConfigLong("MMhighest"))
 			{
-				CitControl.MMhighest = msglist[c];
+				CtdlSetConfigLong("MMhighest", msglist[c]);
 				message_fixed = 1;
 			}
 		}
 	}
 	cdb_free(cdbfr);
-	if (room_fixed)
+	if (room_fixed) {
 		syslog(LOG_INFO, "Control record checking....Fixed room counter\n");
-	if (message_fixed)
+	}
+	if (message_fixed) {
 		syslog(LOG_INFO, "Control record checking....Fixed message count\n");
+	}
 	return;
 }
 
@@ -100,9 +99,9 @@ void control_find_user (struct ctdluser *EachUser, void *out_data)
 {
 	int user_fixed = 0;
 	
-	if (EachUser->usernum > CitControl.MMnextuser)
+	if (EachUser->usernum > CtdlGetConfigLong("MMnextuser"))
 	{
-		CitControl.MMnextuser = EachUser->usernum;
+		CtdlSetConfigLong("MMnextuser", EachUser->usernum);
 		user_fixed = 1;
 	}
 	if(user_fixed)
@@ -111,91 +110,33 @@ void control_find_user (struct ctdluser *EachUser, void *out_data)
 
 
 /*
- * get_control  -  read the control record into memory.
+ * If we have a legacy format control record on disk, import it.
  */
-void get_control(void)
+void migrate_legacy_control_record(void)
 {
-	static int already_have_control = 0;
-	int rv = 0;
+	FILE *fp = NULL;
+	struct legacy_ctrl_format c;
+	memset(&c, 0, sizeof(c));
 
-	/*
-	 * If we already have the control record in memory, there's no point
-	 * in reading it from disk again.
-	 */
-	if (already_have_control) return;
+	fp = fopen(file_citadel_control, "rb+");
+	if (fp != NULL) {
+		syslog(LOG_INFO, "Legacy format control record found -- importing to db");
+		fread(&c, sizeof(struct legacy_ctrl_format), 1, fp);
+		
+		CtdlSetConfigLong(	"MMhighest",			c.MMhighest);
+		CtdlSetConfigInt(	"MMflags",			c.MMflags);
+		CtdlSetConfigLong(	"MMnextuser",			c.MMnextuser);
+		CtdlSetConfigLong(	"MMnextroom",			c.MMnextroom);
+		CtdlSetConfigInt(	"MM_hosted_upgrade_level",	c.MM_hosted_upgrade_level);
+		CtdlSetConfigInt(	"MM_fulltext_wordbreaker",	c.MM_fulltext_wordbreaker);
+		CtdlSetConfigLong(	"MMfulltext",			c.MMfulltext);
 
-	/* Zero it out.  If the control record on disk is missing or short,
-	 * the system functions with all control record fields initialized
-	 * to zero.
-	 */
-	memset(&CitControl, 0, sizeof(struct CitControl));
-	if (control_fp == NULL) {
-		control_fp = fopen(file_citadel_control, "rb+");
-		if (control_fp != NULL) {
-			lock_control();
-			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust accessrights of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
+		fclose(fp);
+		if (unlink(file_citadel_control) != 0) {
+			fprintf(stderr, "Unable to remove legacy control record %s after migrating it.\n", file_citadel_control);
+			fprintf(stderr, "Exiting to prevent data corruption.\n");
+			exit(CTDLEXIT_CONFIG);
 		}
-	}
-	if (control_fp == NULL) {
-		control_fp = fopen(file_citadel_control, "wb+");
-		if (control_fp != NULL) {
-			lock_control();
-			memset(&CitControl, 0, sizeof(struct CitControl));
-
-			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-
-			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust accessrights of: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-			rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
-				       file_citadel_control, strerror(errno));
-			rewind(control_fp);
-		}
-	}
-	if (control_fp == NULL) {
-		syslog(LOG_ALERT, "ERROR opening %s: %s\n", file_citadel_control, strerror(errno));
-		return;
-	}
-
-	rewind(control_fp);
-	rv = fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
-	if (rv == -1)
-		syslog(LOG_EMERG, "Failed to read Controlfile: %s [%s]\n", 
-		       file_citadel_control, strerror(errno));
-	already_have_control = 1;
-	rv = chown(file_citadel_control, config.c_ctdluid, (-1));
-	if (rv == -1)
-		syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]\n", 
-		       file_citadel_control, strerror(errno));	
-}
-
-/*
- * put_control  -  write the control record to disk.
- */
-void put_control(void)
-{
-	int rv = 0;
-
-	if (control_fp != NULL) {
-		rewind(control_fp);
-		rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
-		if (rv == -1)
-			syslog(LOG_EMERG, "Failed to write: %s [%s]\n", 
-			       file_citadel_control, strerror(errno));
-		fflush(control_fp);
 	}
 }
 
@@ -205,25 +146,12 @@ void put_control(void)
  */
 void check_control(void)
 {
-	syslog(LOG_INFO, "Checking/re-building control record\n");
-	get_control();
-	// Find highest room number and message number.
+	syslog(LOG_INFO, "Sanity checking the recorded highest message, user, and room numbers\n");
 	CtdlForEachRoom(control_find_highest, NULL);
 	ForEachUser(control_find_user, NULL);
-	put_control();
 }
 
 
-/*
- * release_control - close our fd on exit
- */
-void release_control(void)
-{
-	if (control_fp != NULL) {
-		fclose(control_fp);
-	}
-	control_fp = NULL;
-}
 
 /*
  * get_new_message_number()  -  Obtain a new, unique ID to be used for a message.
@@ -232,9 +160,9 @@ long get_new_message_number(void)
 {
 	long retval = 0L;
 	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = ++CitControl.MMhighest;
-	put_control();
+	retval = CtdlGetConfigLong("MMhighest");
+	++retval;
+	CtdlSetConfigLong("MMhighest", retval);
 	end_critical_section(S_CONTROL);
 	return(retval);
 }
@@ -245,15 +173,12 @@ long get_new_message_number(void)
  * This provides a quick way to initialise a variable that might be used to indicate
  * messages that should not be processed. EG. a new Sieve script will use this
  * to record determine that messages older than this should not be processed.
+ *
+ * (Why is this function here?  Can't we just go straight to the config variable it fetches?)
  */
 long CtdlGetCurrentMessageNumber(void)
 {
-	long retval = 0L;
-	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = CitControl.MMhighest;
-	end_critical_section(S_CONTROL);
-	return(retval);
+	return CtdlGetConfigLong("MMhighest");
 }
 
 
@@ -264,9 +189,9 @@ long get_new_user_number(void)
 {
 	long retval = 0L;
 	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = ++CitControl.MMnextuser;
-	put_control();
+	retval = CtdlGetConfigLong("MMnextuser");
+	++retval;
+	CtdlSetConfigLong("MMnextuser", retval);
 	end_critical_section(S_CONTROL);
 	return(retval);
 }
@@ -280,73 +205,87 @@ long get_new_room_number(void)
 {
 	long retval = 0L;
 	begin_critical_section(S_CONTROL);
-	get_control();
-	retval = ++CitControl.MMnextroom;
-	put_control();
+	retval = CtdlGetConfigLong("MMnextroom");
+	++retval;
+	CtdlSetConfigLong("MMnextroom", retval);
 	end_critical_section(S_CONTROL);
 	return(retval);
 }
 
 
 
+/*
+ * Helper function for cmd_conf() to handle boolean values
+ */
+int confbool(char *v)
+{
+	if (IsEmptyStr(v)) return(0);
+	if (atoi(v) != 0) return(1);
+	return(0);
+}
+
+
 /* 
  * Get or set global configuration options
  *
  * IF YOU ADD OR CHANGE FIELDS HERE, YOU *MUST* DOCUMENT YOUR CHANGES AT:
- * http://www.citadel.org/doku.php?id=documentation:applicationprotocol
+ * http://www.citadel.org/doku.php/documentation:appproto:system_config
  *
  */
 void cmd_conf(char *argbuf)
 {
 	char cmd[16];
-	char buf[256];
-	int a;
+	char buf[1024];
+	int a, i;
+	long ii;
 	char *confptr;
 	char confname[128];
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract_token(cmd, argbuf, 0, '|', sizeof cmd);
+
+	// CONF GET - retrieve system configuration in legacy format (deprecated)
 	if (!strcasecmp(cmd, "GET")) {
 		cprintf("%d Configuration...\n", LISTING_FOLLOWS);
-		cprintf("%s\n", config.c_nodename);
-		cprintf("%s\n", config.c_fqdn);
-		cprintf("%s\n", config.c_humannode);
-		cprintf("%s\n", config.c_phonenum);
-		cprintf("%d\n", config.c_creataide);
-		cprintf("%d\n", config.c_sleeping);
-		cprintf("%d\n", config.c_initax);
-		cprintf("%d\n", config.c_regiscall);
-		cprintf("%d\n", config.c_twitdetect);
-		cprintf("%s\n", config.c_twitroom);
-		cprintf("%s\n", config.c_moreprompt);
-		cprintf("%d\n", config.c_restrict);
-		cprintf("%s\n", config.c_site_location);
-		cprintf("%s\n", config.c_sysadm);
-		cprintf("%d\n", config.c_maxsessions);
+		cprintf("%s\n",		CtdlGetConfigStr("c_nodename"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_fqdn"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_humannode"));
 		cprintf("xxx\n"); /* placeholder -- field no longer in use */
-		cprintf("%d\n", config.c_userpurge);
-		cprintf("%d\n", config.c_roompurge);
-		cprintf("%s\n", config.c_logpages);
-		cprintf("%d\n", config.c_createax);
-		cprintf("%ld\n", config.c_maxmsglen);
-		cprintf("%d\n", config.c_min_workers);
-		cprintf("%d\n", config.c_max_workers);
-		cprintf("%d\n", config.c_pop3_port);
-		cprintf("%d\n", config.c_smtp_port);
-		cprintf("%d\n", config.c_rfc822_strict_from);
-		cprintf("%d\n", config.c_aide_zap);
-		cprintf("%d\n", config.c_imap_port);
-		cprintf("%ld\n", config.c_net_freq);
-		cprintf("%d\n", config.c_disable_newu);
+		cprintf("%d\n",		CtdlGetConfigInt("c_creataide"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_sleeping"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_initax"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_regiscall"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_twitdetect"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_twitroom"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_moreprompt"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_restrict"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_site_location"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_sysadm"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_maxsessions"));
+		cprintf("xxx\n"); /* placeholder -- field no longer in use */
+		cprintf("%d\n",		CtdlGetConfigInt("c_userpurge"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_roompurge"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_logpages"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_createax"));
+		cprintf("%ld\n",	CtdlGetConfigLong("c_maxmsglen"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_min_workers"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_max_workers"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_pop3_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_smtp_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_rfc822_strict_from"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_aide_zap"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_imap_port"));
+		cprintf("%ld\n",	CtdlGetConfigLong("c_net_freq"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_disable_newu"));
 		cprintf("1\n");	/* niu */
-		cprintf("%d\n", config.c_purge_hour);
+		cprintf("%d\n",		CtdlGetConfigInt("c_purge_hour"));
 #ifdef HAVE_LDAP
-		cprintf("%s\n", config.c_ldap_host);
-		cprintf("%d\n", config.c_ldap_port);
-		cprintf("%s\n", config.c_ldap_base_dn);
-		cprintf("%s\n", config.c_ldap_bind_dn);
-		cprintf("%s\n", config.c_ldap_bind_pw);
+		cprintf("%s\n",		CtdlGetConfigStr("c_ldap_host"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_ldap_port"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_ldap_base_dn"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_ldap_bind_dn"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_ldap_bind_pw"));
 #else
 		cprintf("\n");
 		cprintf("0\n");
@@ -354,44 +293,45 @@ void cmd_conf(char *argbuf)
 		cprintf("\n");
 		cprintf("\n");
 #endif
-		cprintf("%s\n", config.c_ip_addr);
-		cprintf("%d\n", config.c_msa_port);
-		cprintf("%d\n", config.c_imaps_port);
-		cprintf("%d\n", config.c_pop3s_port);
-		cprintf("%d\n", config.c_smtps_port);
-		cprintf("%d\n", config.c_enable_fulltext);
-		cprintf("%d\n", config.c_auto_cull);
+		cprintf("%s\n",		CtdlGetConfigStr("c_ip_addr"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_msa_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_imaps_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_pop3s_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_smtps_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_enable_fulltext"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_auto_cull"));
 		cprintf("1\n");
-		cprintf("%d\n", config.c_allow_spoofing);
-		cprintf("%d\n", config.c_journal_email);
-		cprintf("%d\n", config.c_journal_pubmsgs);
-		cprintf("%s\n", config.c_journal_dest);
-		cprintf("%s\n", config.c_default_cal_zone);
-		cprintf("%d\n", config.c_pftcpdict_port);
-		cprintf("%d\n", config.c_managesieve_port);
-	        cprintf("%d\n", config.c_auth_mode);
-	        cprintf("%s\n", config.c_funambol_host);
-	        cprintf("%d\n", config.c_funambol_port);
-	        cprintf("%s\n", config.c_funambol_source);
-	        cprintf("%s\n", config.c_funambol_auth);
-		cprintf("%d\n", config.c_rbl_at_greeting);
-		cprintf("%s\n", config.c_master_user);
-		cprintf("%s\n", config.c_master_pass);
-		cprintf("%s\n", config.c_pager_program);
-		cprintf("%d\n", config.c_imap_keep_from);
-		cprintf("%d\n", config.c_xmpp_c2s_port);
-		cprintf("%d\n", config.c_xmpp_s2s_port);
-		cprintf("%ld\n", config.c_pop3_fetch);
-		cprintf("%ld\n", config.c_pop3_fastest);
-		cprintf("%d\n", config.c_spam_flag_only);
-		cprintf("%d\n", config.c_guest_logins);
-		cprintf("%d\n", config.c_port_number);
-		cprintf("%d\n", config.c_ctdluid);
-		cprintf("%d\n", config.c_nntp_port);
-		cprintf("%d\n", config.c_nntps_port);
+		cprintf("%d\n",		CtdlGetConfigInt("c_allow_spoofing"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_journal_email"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_journal_pubmsgs"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_journal_dest"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_default_cal_zone"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_pftcpdict_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_managesieve_port"));
+	        cprintf("%d\n",		CtdlGetConfigInt("c_auth_mode"));
+	        cprintf("%s\n",		CtdlGetConfigStr("c_funambol_host"));
+	        cprintf("%d\n",		CtdlGetConfigInt("c_funambol_port"));
+	        cprintf("%s\n",		CtdlGetConfigStr("c_funambol_source"));
+	        cprintf("%s\n",		CtdlGetConfigStr("c_funambol_auth"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_rbl_at_greeting"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_master_user"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_master_pass"));
+		cprintf("%s\n",		CtdlGetConfigStr("c_pager_program"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_imap_keep_from"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_xmpp_c2s_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_xmpp_s2s_port"));
+		cprintf("%ld\n",	CtdlGetConfigLong("c_pop3_fetch"));
+		cprintf("%ld\n",	CtdlGetConfigLong("c_pop3_fastest"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_spam_flag_only"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_guest_logins"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_port_number"));
+		cprintf("%d\n",		ctdluid);
+		cprintf("%d\n",		CtdlGetConfigInt("c_nntp_port"));
+		cprintf("%d\n",		CtdlGetConfigInt("c_nntps_port"));
 		cprintf("000\n");
 	}
 
+	// CONF SET - set system configuration in legacy format (really deprecated)
 	else if (!strcasecmp(cmd, "SET")) {
 		unbuffer_output();
 		cprintf("%d Send configuration...\n", SEND_LISTING);
@@ -399,294 +339,262 @@ void cmd_conf(char *argbuf)
 		while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000")) {
 			switch (a) {
 			case 0:
-				configlen.c_nodename = safestrncpy(config.c_nodename, buf,
-								   sizeof config.c_nodename);
+				CtdlSetConfigStr("c_nodename", buf);
 				break;
 			case 1:
-				configlen.c_fqdn = safestrncpy(config.c_fqdn, buf,
-							       sizeof config.c_fqdn);
+				CtdlSetConfigStr("c_fqdn", buf);
 				break;
 			case 2:
-				configlen.c_humannode = safestrncpy(config.c_humannode, buf,
-								    sizeof config.c_humannode);
+				CtdlSetConfigStr("c_humannode", buf);
 				break;
 			case 3:
-				configlen.c_phonenum = safestrncpy(config.c_phonenum, buf,
-								   sizeof config.c_phonenum);
+				/* placeholder -- field no longer in use */
 				break;
 			case 4:
-				config.c_creataide = atoi(buf);
+				CtdlSetConfigInt("c_creataide", atoi(buf));
 				break;
 			case 5:
-				config.c_sleeping = atoi(buf);
+				CtdlSetConfigInt("c_sleeping", atoi(buf));
 				break;
 			case 6:
-				config.c_initax = atoi(buf);
-				if (config.c_initax < 1)
-					config.c_initax = 1;
-				if (config.c_initax > 6)
-					config.c_initax = 6;
+				i = atoi(buf);
+				if (i < 1) i = 1;
+				if (i > 6) i = 6;
+				CtdlSetConfigInt("c_initax", i);
 				break;
 			case 7:
-				config.c_regiscall = atoi(buf);
-				if (config.c_regiscall != 0)
-					config.c_regiscall = 1;
+				CtdlSetConfigInt("c_regiscall", confbool(buf));
 				break;
 			case 8:
-				config.c_twitdetect = atoi(buf);
-				if (config.c_twitdetect != 0)
-					config.c_twitdetect = 1;
+				CtdlSetConfigInt("c_twitdetect", confbool(buf));
 				break;
 			case 9:
-				configlen.c_twitroom = safestrncpy(config.c_twitroom, buf,
-								   sizeof config.c_twitroom);
+				CtdlSetConfigStr("c_twitroom", buf);
 				break;
 			case 10:
-				configlen.c_moreprompt = safestrncpy(config.c_moreprompt, buf,
-								     sizeof config.c_moreprompt);
+				CtdlSetConfigStr("c_moreprompt", buf);
 				break;
 			case 11:
-				config.c_restrict = atoi(buf);
-				if (config.c_restrict != 0)
-					config.c_restrict = 1;
+				CtdlSetConfigInt("c_restrict", confbool(buf));
 				break;
 			case 12:
-				configlen.c_site_location = safestrncpy(
-					config.c_site_location, buf,
-					sizeof config.c_site_location);
+				CtdlSetConfigInt("c_site_location", confbool(buf));
 				break;
 			case 13:
-				configlen.c_sysadm = safestrncpy(config.c_sysadm, buf,
-								 sizeof config.c_sysadm);
+				CtdlSetConfigInt("c_sysadm", confbool(buf));
 				break;
 			case 14:
-				config.c_maxsessions = atoi(buf);
-				if (config.c_maxsessions < 0)
-					config.c_maxsessions = 0;
+				i = atoi(buf);
+				if (i < 0) i = 0;
+				CtdlSetConfigInt("c_maxsessions", i);
 				break;
 			case 15:
 				/* placeholder -- field no longer in use */
 				break;
 			case 16:
-				config.c_userpurge = atoi(buf);
+				CtdlSetConfigInt("c_userpurge", atoi(buf));
 				break;
 			case 17:
-				config.c_roompurge = atoi(buf);
+				CtdlSetConfigInt("c_roompurge", atoi(buf));
 				break;
 			case 18:
-				configlen.c_logpages = safestrncpy(config.c_logpages, buf,
-								   sizeof config.c_logpages);
+				CtdlSetConfigStr("c_logpages", buf);
 				break;
 			case 19:
-				config.c_createax = atoi(buf);
-				if (config.c_createax < 1)
-					config.c_createax = 1;
-				if (config.c_createax > 6)
-					config.c_createax = 6;
+				i = atoi(buf);
+				if (i < 1) i = 1;
+				if (i > 6) i = 6;
+				CtdlSetConfigInt("c_createax", i);
 				break;
 			case 20:
-				if (atoi(buf) >= 8192)
-					config.c_maxmsglen = atoi(buf);
+				ii = atol(buf);
+				if (ii >= 8192) {
+					CtdlSetConfigLong("c_maxmsglen", ii);
+				}
 				break;
 			case 21:
-				if (atoi(buf) >= 2)
-					config.c_min_workers = atoi(buf);
+				i = atoi(buf);
+				if (i >= 3) {					// minimum value
+					CtdlSetConfigInt("c_min_workers", i);
+				}
+				break;
 			case 22:
-				if (atoi(buf) >= config.c_min_workers)
-					config.c_max_workers = atoi(buf);
+				i = atoi(buf);
+				if (i >= CtdlGetConfigInt("c_min_workers")) {	// max must be >= min
+					CtdlSetConfigInt("c_max_workers", i);
+				}
+				break;
 			case 23:
-				config.c_pop3_port = atoi(buf);
+				CtdlSetConfigInt("c_pop3_port", atoi(buf));
 				break;
 			case 24:
-				config.c_smtp_port = atoi(buf);
+				CtdlSetConfigInt("c_smtp_port", atoi(buf));
 				break;
 			case 25:
-				config.c_rfc822_strict_from = atoi(buf);
+				CtdlSetConfigInt("c_rfc822_strict_from", atoi(buf));
 				break;
 			case 26:
-				config.c_aide_zap = atoi(buf);
-				if (config.c_aide_zap != 0)
-					config.c_aide_zap = 1;
+				CtdlSetConfigInt("c_aide_zap", confbool(buf));
 				break;
 			case 27:
-				config.c_imap_port = atoi(buf);
+				CtdlSetConfigInt("c_imap_port", atoi(buf));
 				break;
 			case 28:
-				config.c_net_freq = atol(buf);
+				CtdlSetConfigLong("c_net_freq", atol(buf));
 				break;
 			case 29:
-				config.c_disable_newu = atoi(buf);
-				if (config.c_disable_newu != 0)
-					config.c_disable_newu = 1;
+				CtdlSetConfigInt("c_disable_newu", confbool(buf));
 				break;
 			case 30:
 				/* niu */
 				break;
 			case 31:
-				if ((config.c_purge_hour >= 0)
-				    && (config.c_purge_hour <= 23)) {
-					config.c_purge_hour = atoi(buf);
+				i = atoi(buf);
+				if ((i >= 0) && (i <= 23)) {
+					CtdlSetConfigInt("c_purge_hour", i);
 				}
 				break;
-#ifdef HAVE_LDAP
 			case 32:
-				configlen.c_ldap_host = safestrncpy(config.c_ldap_host, buf,
-								    sizeof config.c_ldap_host);
+				CtdlSetConfigStr("c_ldap_host", buf);
 				break;
 			case 33:
-				config.c_ldap_port = atoi(buf);
+				CtdlSetConfigInt("c_ldap_port", atoi(buf));
 				break;
 			case 34:
-				configlen.c_ldap_base_dn = safestrncpy(config.c_ldap_base_dn, buf,
-								       sizeof config.c_ldap_base_dn);
+				CtdlSetConfigStr("c_ldap_base_dn", buf);
 				break;
 			case 35:
-				configlen.c_ldap_bind_dn = safestrncpy(config.c_ldap_bind_dn, buf,
-								       sizeof config.c_ldap_bind_dn);
+				CtdlSetConfigStr("c_ldap_bind_dn", buf);
 				break;
 			case 36:
-				configlen.c_ldap_bind_pw = safestrncpy(config.c_ldap_bind_pw, buf,
-								       sizeof config.c_ldap_bind_pw);
+				CtdlSetConfigStr("c_ldap_bind_pw", buf);
 				break;
-#endif
 			case 37:
-				configlen.c_ip_addr = safestrncpy(config.c_ip_addr, buf,
-								  sizeof config.c_ip_addr);
+				CtdlSetConfigStr("c_ip_addr", buf);
+				break;
 			case 38:
-				config.c_msa_port = atoi(buf);
+				CtdlSetConfigInt("c_msa_port", atoi(buf));
 				break;
 			case 39:
-				config.c_imaps_port = atoi(buf);
+				CtdlSetConfigInt("c_imaps_port", atoi(buf));
 				break;
 			case 40:
-				config.c_pop3s_port = atoi(buf);
+				CtdlSetConfigInt("c_pop3s_port", atoi(buf));
 				break;
 			case 41:
-				config.c_smtps_port = atoi(buf);
+				CtdlSetConfigInt("c_smtps_port", atoi(buf));
 				break;
 			case 42:
-				config.c_enable_fulltext = atoi(buf);
+				CtdlSetConfigInt("c_enable_fulltext", confbool(buf));
 				break;
 			case 43:
-				config.c_auto_cull = atoi(buf);
+				CtdlSetConfigInt("c_auto_cull", confbool(buf));
 				break;
 			case 44:
 				/* niu */
 				break;
 			case 45:
-				config.c_allow_spoofing = atoi(buf);
+				CtdlSetConfigInt("c_allow_spoofing", confbool(buf));
 				break;
 			case 46:
-				config.c_journal_email = atoi(buf);
+				CtdlSetConfigInt("c_journal_email", confbool(buf));
 				break;
 			case 47:
-				config.c_journal_pubmsgs = atoi(buf);
+				CtdlSetConfigInt("c_journal_pubmsgs", confbool(buf));
 				break;
 			case 48:
-				configlen.c_journal_dest = safestrncpy(config.c_journal_dest, buf,
-								       sizeof config.c_journal_dest);
+				CtdlSetConfigStr("c_journal_dest", buf);
+				break;
 			case 49:
-				configlen.c_default_cal_zone = safestrncpy(
-					config.c_default_cal_zone, buf,
-					sizeof config.c_default_cal_zone);
+				CtdlSetConfigStr("c_default_cal_zone", buf);
 				break;
 			case 50:
-				config.c_pftcpdict_port = atoi(buf);
+				CtdlSetConfigInt("c_pftcpdict_port", atoi(buf));
 				break;
 			case 51:
-				config.c_managesieve_port = atoi(buf);
+				CtdlSetConfigInt("c_managesieve_port", atoi(buf));
 				break;
 			case 52:
-				config.c_auth_mode = atoi(buf);
+				CtdlSetConfigInt("c_auth_mode", atoi(buf));
+				break;
 			case 53:
-				configlen.c_funambol_host = safestrncpy(
-					config.c_funambol_host, buf,
-					sizeof config.c_funambol_host);
+				CtdlSetConfigStr("c_funambol_host", buf);
 				break;
 			case 54:
-				config.c_funambol_port = atoi(buf);
+				CtdlSetConfigInt("c_funambol_port", atoi(buf));
 				break;
 			case 55:
-				configlen.c_funambol_source = safestrncpy(
-					config.c_funambol_source, buf, 
-					sizeof config.c_funambol_source);
+				CtdlSetConfigStr("c_funambol_source", buf);
 				break;
 			case 56:
-				configlen.c_funambol_auth = safestrncpy(
-					config.c_funambol_auth, buf,
-					sizeof config.c_funambol_auth);
+				CtdlSetConfigStr("c_funambol_auth", buf);
 				break;
 			case 57:
-				config.c_rbl_at_greeting = atoi(buf);
+				CtdlSetConfigInt("c_rbl_at_greeting", confbool(buf));
 				break;
 			case 58:
-				configlen.c_master_user = safestrncpy(
-					config.c_master_user,
-					buf, sizeof config.c_master_user);
+				CtdlSetConfigStr("c_master_user", buf);
 				break;
 			case 59:
-				configlen.c_master_pass = safestrncpy(
-					config.c_master_pass, buf, sizeof config.c_master_pass);
+				CtdlSetConfigStr("c_master_pass", buf);
 				break;
 			case 60:
-				configlen.c_pager_program = safestrncpy(
-					config.c_pager_program,	buf, sizeof config.c_pager_program);
+				CtdlSetConfigStr("c_pager_program", buf);
 				break;
 			case 61:
-				config.c_imap_keep_from = atoi(buf);
+				CtdlSetConfigInt("c_imap_keep_from", confbool(buf));
 				break;
 			case 62:
-				config.c_xmpp_c2s_port = atoi(buf);
+				CtdlSetConfigInt("c_xmpp_c2s_port", atoi(buf));
 				break;
 			case 63:
-				config.c_xmpp_s2s_port = atoi(buf);
+				CtdlSetConfigInt("c_xmpp_s2s_port", atoi(buf));
 				break;
 			case 64:
-				config.c_pop3_fetch = atol(buf);
+				CtdlSetConfigLong("c_pop3_fetch", atol(buf));
 				break;
 			case 65:
-				config.c_pop3_fastest = atol(buf);
+				CtdlSetConfigLong("c_pop3_fastest", atol(buf));
 				break;
 			case 66:
-				config.c_spam_flag_only = atoi(buf);
+				CtdlSetConfigInt("c_spam_flag_only", confbool(buf));
 				break;
 			case 67:
-				config.c_guest_logins = atoi(buf);
+				CtdlSetConfigInt("c_guest_logins", confbool(buf));
 				break;
 			case 68:
-				config.c_port_number = atoi(buf);
+				CtdlSetConfigInt("c_port_number", atoi(buf));
 				break;
 			case 69:
-				config.c_ctdluid = atoi(buf);
+				/* niu */
 				break;
 			case 70:
-				config.c_nntp_port = atoi(buf);
+				CtdlSetConfigInt("c_nntp_port", atoi(buf));
 				break;
 			case 71:
-				config.c_nntps_port = atoi(buf);
+				CtdlSetConfigInt("c_nntps_port", atoi(buf));
 				break;
 			}
 			++a;
 		}
-		put_config();
 		snprintf(buf, sizeof buf,
 			"The global system configuration has been edited by %s.\n",
 			 (CC->logged_in ? CC->curr_user : "an administrator")
 		);
 		CtdlAideMessage(buf,"Citadel Configuration Manager Message");
 
-		if (!IsEmptyStr(config.c_logpages))
-			CtdlCreateRoom(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
+		if (!IsEmptyStr(CtdlGetConfigStr("c_logpages")))
+			CtdlCreateRoom(CtdlGetConfigStr("c_logpages"), 3, "", 0, 1, 1, VIEW_BBS);
 
 		/* If full text indexing has been disabled, invalidate the
 		 * index so it doesn't try to use it later.
 		 */
-		if (config.c_enable_fulltext == 0) {
-			CitControl.fulltext_wordbreaker = 0;
-			put_control();
+		if (CtdlGetConfigInt("c_enable_fulltext") == 0) {
+			CtdlSetConfigInt("MM_fulltext_wordbreaker", 0);
 		}
 	}
 
+	// CONF GETSYS - retrieve arbitrary system configuration stanzas stored in the message base
 	else if (!strcasecmp(cmd, "GETSYS")) {
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		confptr = CtdlGetSysConfig(confname);
@@ -706,18 +614,41 @@ void cmd_conf(char *argbuf)
 		}
 	}
 
+	// CONF PUTSYS - store arbitrary system configuration stanzas in the message base
 	else if (!strcasecmp(cmd, "PUTSYS")) {
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		unbuffer_output();
 		cprintf("%d %s\n", SEND_LISTING, confname);
-		confptr = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
+		confptr = CtdlReadMessageBody(HKEY("000"), CtdlGetConfigLong("c_maxmsglen"), NULL, 0, 0);
 		CtdlPutSysConfig(confname, confptr);
 		free(confptr);
 	}
 
+	else if (!strcasecmp(cmd, "GETVAL")) {
+		extract_token(confname, argbuf, 1, '|', sizeof confname);
+		char *v = CtdlGetConfigStr(confname);
+		if (v) {
+			cprintf("%d %s|\n", CIT_OK, v);
+		}
+		else {
+			cprintf("%d |\n", ERROR);
+		}
+	}
+
+	else if (!strcasecmp(cmd, "PUTVAL")) {
+		if (num_tokens(argbuf, '|') < 3) {
+			cprintf("%d name and value required\n", ERROR);
+		}
+		else {
+			extract_token(confname, argbuf, 1, '|', sizeof confname);
+			extract_token(buf, argbuf, 2, '|', sizeof buf);
+			CtdlSetConfigStr(confname, buf);
+			cprintf("%d setting '%s' to '%s'\n", CIT_OK, confname, buf);
+		}
+	}
+
 	else {
-		cprintf("%d Illegal option(s) specified.\n",
-			ERROR + ILLEGAL_VALUE);
+		cprintf("%d Illegal option(s) specified.\n", ERROR + ILLEGAL_VALUE);
 	}
 }
 
@@ -758,7 +689,7 @@ void cmd_gvdn(char *argbuf)
 	void *vptr;
 	
 	List = NewHash(1, NULL);
-	Cfg = NewStrBufPlain(config.c_fqdn, -1);
+	Cfg = NewStrBufPlain(CtdlGetConfigStr("c_fqdn"), -1);
 	Put(List, SKEY(Cfg), Cfg, HFreeStrBuf);
 	Cfg = NULL;
 

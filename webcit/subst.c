@@ -1907,6 +1907,8 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 
 }
 
+
+StrBuf *textPlainType;
 /**
  * \brief Display a variable-substituted template
  * \param templatename template file to load
@@ -1933,23 +1935,28 @@ const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCT
 	{
 		syslog(LOG_WARNING, "Can't to load a template with empty name!\n");
 		StrBufAppendPrintf(Target, "<pre>\nCan't to load a template with empty name!\n</pre>");
-		return NULL;
+		return textPlainType;
 	}
 
 	if (!GetHash(StaticLocal, templatename, len, &vTmpl) &&
 	    !GetHash(Static, templatename, len, &vTmpl)) {
-		syslog(LOG_WARNING, "didn't find Template [%s] %ld %ld\n", templatename, len , (long)strlen(templatename));
+		StrBuf *escapedString = NewStrBufPlain(NULL, len);
+		
+		StrHtmlEcmaEscAppend(escapedString, NULL, templatename, 1, 1);
+		syslog(LOG_WARNING, "didn't find Template [%s] %ld %ld\n", ChrPtr(escapedString), len , (long)strlen(templatename));
 		StrBufAppendPrintf(Target, "<pre>\ndidn't find Template [%s] %ld %ld\n</pre>", 
-				   templatename, len, 
+				   ChrPtr(escapedString), len, 
 				   (long)strlen(templatename));
+		WC->isFailure = 1;
 #if 0
 		dbg_PrintHash(Static, PrintTemplate, NULL);
 		PrintHash(Static, VarPrintTransition, PrintTemplate);
 #endif
-		return NULL;
+		FreeStrBuf(&escapedString);
+		return textPlainType;
 	}
 	if (vTmpl == NULL) 
-		return NULL;
+		return textPlainType;
 	return ProcessTemplate(vTmpl, Target, TP);
 
 }
@@ -1984,6 +1991,7 @@ typedef struct _HashIterator {
 	RetrieveHashlistFunc GetHash;
 	HashDestructorFunc Destructor;
 	SubTemplFunc DoSubTemplate;
+	FilterByParamFunc Filter;
 } HashIterator;
 
 void RegisterITERATOR(const char *Name, long len, 
@@ -1992,6 +2000,7 @@ void RegisterITERATOR(const char *Name, long len,
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor,
+		      FilterByParamFunc Filter,
 		      CtxType ContextType, 
 		      CtxType XPectContextType, 
 		      int Flags)
@@ -2005,6 +2014,7 @@ void RegisterITERATOR(const char *Name, long len,
 	It->GetHash = GetHash;
 	It->DoSubTemplate = DoSubTempl;
 	It->Destructor = Destructor;
+	It->Filter = Filter;
 	It->ContextType = ContextType;
 	It->XPectContextType = XPectContextType;
 	It->Flags = Flags;
@@ -2130,7 +2140,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 				/** Ok, its us, lets see in which direction we should sort... */
 				    (havebstr("SortOrder"))) {
 					int SortOrder;
-					SortOrder = LBSTR("SortOrder");
+					SortOrder = lbstr("SortOrder");
 					if (SortOrder != 0)
 						DetectGroupChange = 1;
 				}
@@ -2158,6 +2168,13 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 		}
 		while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
 			if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
+
+				if ((It->Filter != NULL) &&
+				    !It->Filter(Status.Key, Status.KeyLen, vContext, Target, TP)) 
+				{
+					continue;
+				}
+
 				if (DetectGroupChange && Status.n > 0) {
 					Status.GroupChange = SortBy->GroupChange(vContext, vLastContext);
 				}
@@ -2212,8 +2229,17 @@ void tmplput_ITERATE_KEY(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendBufPlain(Target, Ctx->Key, Ctx->KeyLen, 0);
 }
 
+void tmplput_ITERATE_N_DIV(StrBuf *Target, WCTemplputParams *TP)
+{
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
+	long div;
+	long divisor = GetTemplateTokenNumber(Target, TP, 0, 1);
+///TODO divisor == 0 -> log error exit
+	div = Ctx->n / divisor;
+	StrBufAppendPrintf(Target, "%ld", div);
+}
 
-void tmplput_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
+void tmplput_ITERATE_N(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	StrBufAppendPrintf(Target, "%d", Ctx->n);
@@ -2229,6 +2255,16 @@ int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CTX(CTX_ITERATE);
 	return Ctx->LastN;
+}
+
+int conditional_ITERATE_ISMOD(StrBuf *Target, WCTemplputParams *TP)
+{
+	IterateStruct *Ctx = CTX(CTX_ITERATE);
+
+	long divisor = GetTemplateTokenNumber(Target, TP, 2, 1);
+	long expectRemainder = GetTemplateTokenNumber(Target, TP, 3, 0);
+	
+	return Ctx->n % divisor == expectRemainder;
 }
 
 
@@ -2646,7 +2682,7 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 
 	/** Ok, its us, lets see in which direction we should sort... */
 	if (havebstr("SortOrder")) {
-		SortOrder = LBSTR("SortOrder");
+		SortOrder = lbstr("SortOrder");
 	}
 	else { /** Try to fallback to our remembered values... */
 		StrBuf *Buf = NULL;
@@ -2738,7 +2774,7 @@ int GetSortMetric(WCTemplputParams *TP, SortStruct **Next, SortStruct **Param, l
 
 	/** Ok, its us, lets see in which direction we should sort... */
 	if (havebstr("SortOrder")) {
-		*SortOrder = LBSTR("SortOrder");
+		*SortOrder = lbstr("SortOrder");
 	}
 	else { /** Try to fallback to our remembered values... */
 		if ((*Param)->PrefPrepend == NULL) {
@@ -2961,10 +2997,14 @@ InitModule_SUBST
 	RegisterConditional("COND:ITERATE:FIRSTN", 2, 
 			    conditional_ITERATE_FIRSTN, 
 			    CTX_ITERATE);
+	RegisterConditional("COND:ITERATE:ISMOD", 3, 
+			    conditional_ITERATE_ISMOD, 
+			    CTX_ITERATE);
 
 	RegisterNamespace("ITERATE:ODDEVEN", 0, 0, tmplput_ITERATE_ODDEVEN, NULL, CTX_ITERATE);
 	RegisterNamespace("ITERATE:KEY", 0, 0, tmplput_ITERATE_KEY, NULL, CTX_ITERATE);
-	RegisterNamespace("ITERATE:N", 0, 0, tmplput_ITERATE_LASTN, NULL, CTX_ITERATE);
+	RegisterNamespace("ITERATE:N", 0, 0, tmplput_ITERATE_N, NULL, CTX_ITERATE);
+	RegisterNamespace("ITERATE:N:DIV", 1, 1, tmplput_ITERATE_N_DIV, NULL, CTX_ITERATE);
 	RegisterNamespace("CURRENTFILE", 0, 1, tmplput_CURRENT_FILE, NULL, CTX_NONE);
 	RegisterNamespace("DEF:STR", 1, 1, tmplput_DefStr, NULL, CTX_NONE);
 	RegisterNamespace("DEF:VAL", 1, 1, tmplput_DefVal, NULL, CTX_NONE);
@@ -2978,9 +3018,9 @@ void
 ServerStartModule_SUBST
 (void)
 {
+	textPlainType = NewStrBufPlain(HKEY("text/plain"));
 	LocalTemplateCache = NewHash(1, NULL);
 	TemplateCache = NewHash(1, NULL);
-
 	GlobalNS = NewHash(1, NULL);
 	Iterators = NewHash(1, NULL);
 	Conditionals = NewHash(1, NULL);
@@ -3006,9 +3046,11 @@ void
 ServerShutdownModule_SUBST
 (void)
 {
+	FreeStrBuf(&textPlainType);
+
 	DeleteHash(&TemplateCache);
 	DeleteHash(&LocalTemplateCache);
-
+	
 	DeleteHash(&GlobalNS);
 	DeleteHash(&Iterators);
 	DeleteHash(&Conditionals);

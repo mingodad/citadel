@@ -2,7 +2,7 @@
  * This module implementsserver commands related to the display and
  * manipulation of user "bio" files.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  */
 
 #include "ctdl_module.h"
+#include "config.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -45,7 +46,7 @@ void cmd_ebio(char *cmdbuf) {
 	}
 	cprintf("%d  \n",SEND_LISTING);
 	while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
-		if (ftell(fp) < config.c_maxmsglen) {
+		if (ftell(fp) < CtdlGetConfigLong("c_maxmsglen")) {
 			fprintf(fp,"%s\n",buf);
 		}
 	}

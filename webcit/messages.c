@@ -476,7 +476,7 @@ void display_headers(void) {
 		PACKAGE_STRING);
 	begin_burst();
 
-	serv_printf("MSG2 %ld|3", msgnum);
+	serv_printf("MSG2 %ld|1", msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -1221,7 +1221,7 @@ void upload_attachment(void) {
 	att->length = WCC->upload_length;
 	att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
 	att->FileName = NewStrBufDup(WCC->upload_filename);
-	UID = SBSTR("qquuid");
+	UID = sbstr("qquuid");
 	if (UID)
 		att->PartNum = NewStrBufDup(UID);
 

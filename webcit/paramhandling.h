@@ -20,7 +20,6 @@ void ParseURLParams(StrBuf *url);
 
 /* These may return NULL if not foud */
 #define sbstr(a) SBstr(a, sizeof(a) - 1)
-const StrBuf *SBSTR(const char *key);
 const StrBuf *SBstr(const char *key, size_t keylen);
 
 #define xbstr(a, b) (char*) XBstr(a, sizeof(a) - 1, b)
@@ -29,7 +28,6 @@ const char *XBSTR(const char *key, size_t *len);
 
 #define lbstr(a) LBstr(a, sizeof(a) - 1)
 long LBstr(const char *key, size_t keylen);
-long LBSTR(const char *key);
 
 #define ibstr(a) IBstr(a, sizeof(a) - 1)
 #define ibcstr(a) IBstr(a.Key, a.len)
@@ -38,11 +36,35 @@ int IBSTR(const char *key);
 
 #define havebstr(a) HaveBstr(a, sizeof(a) - 1)
 int HaveBstr(const char *key, size_t keylen);
-int HAVEBSTR(const char *key);
 
 #define yesbstr(a) YesBstr(a, sizeof(a) - 1)
 int YesBstr(const char *key, size_t keylen);
 int YESBSTR(const char *key);
+
+HashList* getSubStruct(const char *key, size_t keylen);
+
+/* These may return NULL if not foud */
+#define ssubbstr(s, a) SSubBstr(s, a, sizeof(a) - 1)
+const StrBuf *SSubBstr(HashList *sub, const char *key, size_t keylen);
+
+#define xsubbstr(s, a, b) (char*) XSubBstr(s, a, sizeof(a) - 1, b)
+const char *XSubBstr(HashList *sub, const char *key, size_t keylen, size_t *len);
+
+#define lsubbstr(s, a) LSubBstr(s, a, sizeof(a) - 1)
+long LSubBstr(HashList *sub, const char *key, size_t keylen);
+
+#define isubbstr(s, a) ISubBstr(s, a, sizeof(a) - 1)
+#define isubbcstr(s, a) ISubBstr(s, a.Key, a.len)
+int ISubBstr(HashList *sub, const char *key, size_t keylen);
+
+#define havesubbstr(s, a) HaveSubBstr(s, a, sizeof(a) - 1)
+int HaveSubBstr(HashList *sub, const char *key, size_t keylen);
+
+#define yessubbstr(s, a) YesSubBstr(s, a, sizeof(a) - 1)
+int YesSubBstr(HashList *sub, const char *key, size_t keylen);
+
+
+
 
 /* TODO: get rid of the non-const-typecast */
 #define bstr(a) (char*) Bstr(a, sizeof(a) - 1)

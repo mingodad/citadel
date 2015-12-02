@@ -168,6 +168,12 @@ void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc) (void *arg))
 
 void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name);
 
+/*
+ * if you say a) (which may take a while)
+ * don't forget to say b)
+ */
+void CtdlDisableHouseKeeping(void);
+void CtdlEnableHouseKeeping(void);
 
 /*
  * Directory services hooks for LDAP etc
@@ -234,7 +240,7 @@ unsigned CtdlCreateRoom(char *new_room_name,
 			int avoid_access,
 			int new_room_view);
 int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name);
-int CtdlGetRoomLock(struct ctdlroom *qrbuf, char *room_name);
+int CtdlGetRoomLock(struct ctdlroom *qrbuf, const char *room_name);
 int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
 void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf, int *result, int *view);
 void CtdlPutRoomLock(struct ctdlroom *qrbuf);
@@ -293,134 +299,14 @@ enum {
  */
 void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_string, const char *func_name);
 
-/* 
- * Global system configuration
- */
-struct config {
-	char c_nodename[16];		/* short name of this node on a Citadel network */
-	char c_fqdn[64];		/* this site's fully qualified domain name */
-	char c_humannode[21];		/* human-readable site name */
-	char c_phonenum[16];		/* telephone number */
-	uid_t c_ctdluid;		/* uid of posix account under which Citadel will run */
-	char c_creataide;		/* 1 = creating a room auto-grants room aide privileges */
-	int c_sleeping;			/* watchdog timer (seconds) */
-	char c_initax;			/* initial access level for new users */
-	char c_regiscall;		/* after c_regiscall logins user will be asked to register */
-	char c_twitdetect;		/* automatically move messages from problem users to trashcan */
-	char c_twitroom[ROOMNAMELEN];	/* name of trashcan */
-	char c_moreprompt[80];		/* paginator prompt */
-	char c_restrict;		/* require per-user permission to send Internet mail */
-	long c_niu_1;
-	char c_site_location[32];	/* geographic location of this Citadel site */
-	char c_sysadm[26];		/* name of system administrator */
-	char c_niu_2[15];
-	int c_niu_3;
-	int c_maxsessions;		/* maximum number of concurrent sessions allowed */
-	char c_ip_addr[20];		/* bind address for listening sockets */
-	int c_port_number;		/* port number for Citadel protocol (usually 504) */
-	int c_niu_4;
-	struct ExpirePolicy c_ep;	/* default expire policy for the entire site */
-	int c_userpurge;		/* user purge time (in days) */
-	int c_roompurge;		/* room purge time (in days) */
-	char c_logpages[ROOMNAMELEN];
-	char c_createax;
-	long c_maxmsglen;
-	int c_min_workers;
-	int c_max_workers;
-	int c_pop3_port;
-	int c_smtp_port;
-	int c_rfc822_strict_from;
-	int c_aide_zap;
-	int c_imap_port;
-	time_t c_net_freq;
-	char c_disable_newu;
-	char c_enable_fulltext;
-	char c_baseroom[ROOMNAMELEN];
-	char c_aideroom[ROOMNAMELEN];
-	int c_purge_hour;
-	struct ExpirePolicy c_mbxep;
-	char c_ldap_host[128];
-	int c_ldap_port;
-	char c_ldap_base_dn[256];
-	char c_ldap_bind_dn[256];
-	char c_ldap_bind_pw[256];
-	int c_msa_port;
-	int c_imaps_port;
-	int c_pop3s_port;
-	int c_smtps_port;
-	char c_auto_cull;
-	char c_niu_5;
-	char c_allow_spoofing;
-	char c_journal_email;
-	char c_journal_pubmsgs;
-	char c_journal_dest[128];
-	char c_default_cal_zone[128];
-	int c_pftcpdict_port;
-	int c_managesieve_port;
-	int c_auth_mode;
-	char c_funambol_host[256];
-	int c_funambol_port;
-	char c_funambol_source[256];
-	char c_funambol_auth[256];
-	char c_rbl_at_greeting;
-	char c_master_user[32];
-	char c_master_pass[32];
-	char c_pager_program[256];
-	char c_imap_keep_from;
-	int c_xmpp_c2s_port;
-	int c_xmpp_s2s_port;
-	time_t c_pop3_fetch;
-	time_t c_pop3_fastest;
-	int c_spam_flag_only;
-	int c_guest_logins;
-	int c_nntp_port;
-	int c_nntps_port;
-};
-struct configlen {
-	long c_nodename;
-	long c_fqdn;
-	long c_humannode;
-	long c_phonenum;
-	long c_twitroom;
-	long c_moreprompt;
-	long c_site_location;
-	long c_sysadm;
-	long c_niu_2;
-	long c_ip_addr;
-	long c_logpages;
-	long c_baseroom;
-	long c_aideroom;
-	long c_ldap_host;
-	long c_ldap_base_dn;
-	long c_ldap_bind_dn;
-	long c_ldap_bind_pw;
-	long c_journal_dest;
-	long c_default_cal_zone;
-	long c_funambol_host;
-	long c_funambol_source;
-	long c_funambol_auth;
-	long c_master_user;
-	long c_master_pass;
-	long c_pager_program;
-};
-
-#define SET_CFGSTRBUF(which, buffer) configlen.which = safestrncpy(config.which, ChrPtr(buffer), sizeof(config.which))
-#define SET_CFGSTR(which, buffer) configlen.which = safestrncpy(config.which, buffer, sizeof(config.which))
-
-extern struct config config;
-extern struct configlen configlen;
-
-
-#define NODENAME		config.c_nodename
-#define FQDN			config.c_fqdn
-#define CTDLUID			config.c_ctdluid
-#define CREATAIDE		config.c_creataide
-#define REGISCALL		config.c_regiscall
-#define TWITDETECT		config.c_twitdetect
-#define TWITROOM		config.c_twitroom
-#define RESTRICT_INTERNET	config.c_restrict
-
-#define CFG_KEY(which) config.which, configlen.which
+#define NODENAME		CtdlGetConfigStr("c_nodename")
+#define FQDN			CtdlGetConfigStr("c_fqdn")
+#define CTDLUID			ctdluid
+#define CREATAIDE		CtdlGetConfigInt("c_creataide")
+#define REGISCALL		CtdlGetConfigInt("c_regiscall")
+#define TWITDETECT		CtdlGetConfigInt("c_twitdetect")
+#define TWITROOM		CtdlGetConfigStr("c_twitroom")
+#define RESTRICT_INTERNET	CtdlGetConfigInt("c_restrict")
 
 typedef void (*CfgLineParser)(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *rncfg);
 typedef void (*CfgLineSerializer)(const CfgLineType *ThisOne, StrBuf *OuptputBuffer, OneRoomNetCfg *rncfg, RoomNetCfgLine *data);

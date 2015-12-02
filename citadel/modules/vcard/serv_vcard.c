@@ -2,7 +2,7 @@
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
  * 
- * Copyright (c) 1999-2012 by the citadel.org team
+ * Copyright (c) 1999-2015 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -73,10 +73,12 @@
  * set global flag calling for an aide to validate new users
  */
 void set_mm_valid(void) {
+	int flags = 0;
+
 	begin_critical_section(S_CONTROL);
-	get_control();
-	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
-	put_control();
+	flags = CtdlGetConfigInt("MMflags");
+	flags = flags | MM_VALID ;
+	CtdlSetConfigInt("MMflags", flags);
 	end_critical_section(S_CONTROL);
 }
 
@@ -185,7 +187,7 @@ int vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 void vcard_add_to_directory(long msgnum, void *data) {
 	struct CtdlMessage *msg;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg != NULL) {
 		vcard_extract_internet_addresses(msg, vcard_directory_add_user);
 	}
@@ -385,7 +387,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 
 	/* If users cannot create their own accounts, they cannot re-register either. */
 	if ( (yes_my_citadel_config) &&
-	     (config.c_disable_newu) &&
+	     (CtdlGetConfigInt("c_disable_newu")) &&
 	     (CCC->user.axlevel < AxAideU) &&
 	     (CCC->vcard_updated_by_ldap==0) )
 	{
@@ -433,7 +435,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	/* Insert or replace RFC2739-compliant free/busy URL */
 	if (yes_my_citadel_config) {
 		sprintf(buf, "http://%s/%s.vfb",
-			config.c_fqdn,
+			CtdlGetConfigStr("c_fqdn"),
 			usbuf.fullname);
 		for (i=0; buf[i]; ++i) {
 			if (buf[i] == ' ') buf[i] = '_';
@@ -653,7 +655,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 
 	if (VCmsgnum < 0L) return vcard_new();
 
-	msg = CtdlFetchMessage(VCmsgnum, 1);
+	msg = CtdlFetchMessage(VCmsgnum, 1, 1);
 	if (msg == NULL) return vcard_new();
 
 	v = vcard_load(msg->cm_fields[eMesageText]);
@@ -723,7 +725,7 @@ void cmd_regi(char *argbuf) {
 	}
 
 	/* If users cannot create their own accounts, they cannot re-register either. */
-	if ( (config.c_disable_newu) && (CCC->user.axlevel < AxAideU) ) {
+	if ( (CtdlGetConfigInt("c_disable_newu")) && (CCC->user.axlevel < AxAideU) ) {
 		cprintf("%d Self-service registration is not allowed here.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 	}
@@ -865,7 +867,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 
 #ifdef HAVE_GETPWUID_R
 	/* If using host auth mode, we add an email address based on the login */
-	if (config.c_auth_mode == AUTHMODE_HOST) {
+	if (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_HOST) {
 		struct passwd pwd;
 		char pwd_buffer[SIZ];
 		
@@ -876,9 +878,9 @@ void vcard_newuser(struct ctdluser *usbuf) {
 		syslog(LOG_DEBUG, "Searching for uid %d", usbuf->uid);
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, &result) == 0) {
 #endif // HAVE_GETPWUID_R
-			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, config.c_fqdn);
+			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, CtdlGetConfigStr("c_fqdn"));
 			vcard_add_prop(v, "email;internet", buf);
-			need_default_vcard=0;
+			need_default_vcard = 0;
 		}
 	}
 #endif
@@ -889,7 +891,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	 * Is this an LDAP session?  If so, copy various LDAP attributes from the directory entry
 	 * into the user's vCard.
 	 */
-	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
+	if ((CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP) || (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD)) {
             //uid_t ldap_uid;
 	    int found_user;
             char ldap_cn[512];
@@ -899,7 +901,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 		if (Ctdl_LDAP_to_vCard(ldap_dn, v)) {
 			/* Allow global address book and internet directory update without login long enough to write this. */
 			CC->vcard_updated_by_ldap++;  /* Otherwise we'll only update the user config. */
-			need_default_vcard=0;
+			need_default_vcard = 0;
 			syslog(LOG_DEBUG, "LDAP Created Initial Vcard for %s\n",usbuf->fullname);
 		}
 	    }
@@ -907,7 +909,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 #endif
 	if (need_default_vcard!=0) {
 	  /* Everyone gets an email address based on their display name */
-	  snprintf(buf, sizeof buf, "%s@%s", usbuf->fullname, config.c_fqdn);
+	  snprintf(buf, sizeof buf, "%s@%s", usbuf->fullname, CtdlGetConfigStr("c_fqdn"));
 	  for (i=0; buf[i]; ++i) {
 		if (buf[i] == ' ') buf[i] = '_';
 	  }
@@ -938,7 +940,7 @@ void vcard_purge(struct ctdluser *usbuf) {
 	msg->cm_format_type = 0;
 	CM_SetField(msg, eAuthor, usbuf->fullname, strlen(usbuf->fullname));
 	CM_SetField(msg, eOriginalRoom, HKEY(ADDRESS_BOOK_ROOM));
-	CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
 	CM_SetField(msg, eMesageText, HKEY("Purge this vCard\n"));
 
 	len = snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
@@ -1010,7 +1012,7 @@ void vcard_delete_remove(char *room, long msgnum) {
 		return;
 	}
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) return;
 
 	if (CM_IsEmpty(msg, eMesageText))
@@ -1137,7 +1139,7 @@ void dvca_mime_callback(char *name, char *filename, char *partnum, char *disp,
 void dvca_callback(long msgnum, void *userdata) {
 	struct CtdlMessage *msg = NULL;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) return;
 	mime_parser(CM_RANGE(msg, eMesageText),
 		    *dvca_mime_callback,	/* callback function */
@@ -1281,7 +1283,7 @@ void vcard_session_login_hook(void) {
 	 * Is this an LDAP session?  If so, copy various LDAP attributes from the directory entry
 	 * into the user's vCard.
 	 */
-	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
+	if ((CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP) || (CtdlGetConfigInt("c_auth_mode") == AUTHMODE_LDAP_AD)) {
 		v = vcard_get_user(&CCC->user);
 		if (v) {
 			if (Ctdl_LDAP_to_vCard(CCC->ldap_dn, v)) {
@@ -1361,7 +1363,7 @@ void strip_addresses_already_have(long msgnum, void *userdata) {
 
 	collected_addresses = (char *)userdata;
 
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(msgnum, 1, 1);
 	if (msg == NULL) return;
 	v = vcard_load(msg->cm_fields[eMesageText]);
 	CM_Free(msg);
@@ -1553,7 +1555,7 @@ CTDL_MODULE_INIT(vcard)
 		}
 
 		/* for postfix tcpdict */
-		CtdlRegisterServiceHook(config.c_pftcpdict_port,	/* Postfix */
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_pftcpdict_port"),	/* Postfix */
 					NULL,
 					check_get_greeting,
 					check_get,

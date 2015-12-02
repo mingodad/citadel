@@ -1,3 +1,5 @@
+/*jshint strict: false, bitwise: false */
+/*global document, window, Ajax, currentlyMarkedRows, Event, event, taskViewActivate, setTimeout, fillRooms, $, ctdlLocalPrefs, currentDropTargets, iconBarRoomList, confirm, Effect */
 /*
  * JavaScript function library for WebCit.
  *
@@ -22,13 +24,12 @@ var room_is_trash = 0;
 
 var currentlyExpandedFloor = null;
 var roomlist = null;
-var currentDropTarget = null;
 
 var supportsAddEventListener = (!!document.addEventListener);
 var today = new Date();
 
 var wc_log = "";
-if (document.all) {browserType = "ie"}
+if (document.all) {browserType = "ie";}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko";
 }
@@ -37,7 +38,7 @@ Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
 //document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
-function CtdlRandomString()  {
+function ctdlRandomString()  {
 	return((Math.random()+'').substr(3));
 }
 function strcmp ( str1, str2 ) {
@@ -51,30 +52,37 @@ function strcmp ( str1, str2 ) {
     // *     example 2: strcmp( 'owald', 'waldo' );
     // *     returns 2: -1
  
-    return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
+    return ( ( str1 === str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
 }
 
-function CtdlMarkLog($Which, $Status)
+function ctdlMarkLog(Which, Status)
 {
-    if ($Status)
-	document.getElementById($Which).checked == false;
-    else
-	document.getElementById($Which).checked == true;
+    if (Status) {
+	document.getElementById(Which).checked = false;
+    }
+    else {
+	document.getElementById(Which).checked = true;
+    }
  
 }
-function ToggleLogEnable($Which)
+function ToggleLogEnable(Which)
 {
     var p;
-    var Status = !document.getElementById($Which).checked;
-    if (Status)
-	p= encodeURI('g_cmd=LOGS ' + $Which + '|0');
-    else
-	p= encodeURI('g_cmd=LOGS ' + $Which + '|1');
-    new Ajax.Request('ajax_servcmd', {
-	method: 'post',
-	parameters: p,
-	onComplete: CtdlMarkLog($Which, Status)
-    });
+    var element = document.getElementById(Which);
+    if (element.hasOwnProperty('checked')) {
+	var Status = element.checked;
+	if (!Status) {
+	    p = encodeURI('g_cmd=LOGS ' + Which + '|0');
+	}
+	else {
+	    p = encodeURI('g_cmd=LOGS ' + Which + '|1');
+	}
+	new Ajax.Request('ajax_servcmd', {
+	    method: 'post',
+	    parameters: p,
+	    onComplete: ctdlMarkLog(Which, Status)
+	});
+    }
 }
 
 function SMTPRunQueue()
@@ -102,35 +110,38 @@ function NetworkSynchronizeRoom(NodeName)
 }
 function ToggleVisibility ($Which)
 {
-	if (document.getElementById)
-	{
-		if (document.getElementById($Which).style.display  == "none")
-			document.getElementById($Which).style.display  = "inline";
-		else
-			document.getElementById($Which).style.display  = "none";
+    if (document.getElementById)
+    {
+	if (document.getElementById($Which).style.display  === "none") {
+	    document.getElementById($Which).style.display  = "inline";
 	}
+	else {
+	    document.getElementById($Which).style.display  = "none";
+	}
+    }
 }
 
 function emptyElement(element) {
-  childNodes = element.childNodes;
+  var childNodes = element.childNodes;
   for(var i=0; i<childNodes.length; i++) {
     try {
     element.removeChild(childNodes[i]);
     } catch (e) {
-      WCLog(e+"|"+e.description);
+      wCLog(e+"|"+e.description);
     }
   }
 }
-/** Implements superior internet explorer 'extract all child text from element' feature'. Falls back on buggy, patent violating standardized method */
+// Implements superior internet explorer 'extract all child text from element' feature'.
+// Falls back on buggy, patent violating standardized method
 function getTextContent(element) {
-  if (element.textContent == undefined) {
+  if (element.textContent === undefined) {
     return element.innerText;
   }
   return element.textContent;
 }
 /** Same reasons as above */
 function setTextContent(element, textContent) {
-  if(element.textContent == undefined) {
+  if(element.textContent === undefined) {
     element.innerText = textContent;
   } else {
   element.textContent = textContent;
@@ -139,24 +150,24 @@ function setTextContent(element, textContent) {
 
 // We love string tokenizers.
 function extract_token(source_string, token_num, delimiter) {
-	var i = 0;
-	var extracted_string = source_string;
+    var j, i = 0;
+    var extracted_string = source_string;
 
-	if (token_num > 0) {
-		for (i=0; i<token_num; ++i) {
-			var j = extracted_string.indexOf(delimiter);
-			if (j >= 0) {
-				extracted_string = extracted_string.substr(j+1);
-			}
-		}
+    if (token_num > 0) {
+	for (i=0; i<token_num; ++i) {
+	    j = extracted_string.indexOf(delimiter);
+	    if (j >= 0) {
+		extracted_string = extracted_string.substr(j+1);
+	    }
 	}
+    }
 
-	j = extracted_string.indexOf(delimiter);
-	if (j >= 0) {
-		extracted_string = extracted_string.substr(0, j);
-	}
+    j = extracted_string.indexOf(delimiter);
+    if (j >= 0) {
+	extracted_string = extracted_string.substr(0, j);
+    }
 
-	return extracted_string;
+    return extracted_string;
 }
 
 function CtdlSpawnContextMenu(event, source) {
@@ -187,53 +198,54 @@ function disintergrateContextMenus(event) {
 }
 // This code handles the popups for important-messages.
 function hide_imsg_popup() {
-	if (browserType == "gecko") {
-		document.poppedLayer = eval('document.getElementById(\'important_message\')');
-	}
-	else if (browserType == "ie") {
-		document.poppedLayer = eval('document.all[\'important_message\']');
-	}
-	else {
-		document.poppedLayer = eval('document.layers[\'`important_message\']');
-	}
+    if (browserType === "gecko") {
+	document.poppedLayer = eval('document.getElementById(\'important_message\')');
+    }
+    else if (browserType === "ie") {
+	document.poppedLayer = eval('document.all[\'important_message\']');
+    }
+    else {
+	document.poppedLayer = eval('document.layers[\'`important_message\']');
+    }
 
-	document.poppedLayer.style.visibility = "hidden";
+    document.poppedLayer.style.visibility = "hidden";
 }
 function remove_something(what_to_search, new_visibility) {
-	if (browserType == "gecko") {
-		document.poppedLayer = eval('document.getElementById(\'' + what_to_search + '\')');
-	}
-	else if (browserType == "ie") {
-		document.poppedLayer = eval('document.all[\'' + what_to_search + '\']');
-	}
-	else {
-		document.poppedLayer = eval('document.layers[\'`' + what_to_search + '\']');
-	}
-    if (document.poppedLayer!= null)
+    if (browserType === "gecko") {
+	document.poppedLayer = eval('document.getElementById(\'' + what_to_search + '\')');
+    }
+    else if (browserType === "ie") {
+	document.poppedLayer = eval('document.all[\'' + what_to_search + '\']');
+    }
+    else {
+	document.poppedLayer = eval('document.layers[\'`' + what_to_search + '\']');
+    }
+    if (document.poppedLayer !== null) {
 	document.poppedLayer.innerHTML = "";
+    }
 }
 
 function unhide_imsg_popup() {
-	if (browserType == "gecko") {
-		document.poppedLayer = eval('document.getElementById(\'important_message\')');
-	}
-	else if (browserType == "ie") {
-		document.poppedLayer = eval('document.all[\'important_message\']');
-	}
-	else {
-		document.poppedLayer = eval('document.layers[\'`important_message\']');
-	}
+    if (browserType === "gecko") {
+	document.poppedLayer = eval('document.getElementById(\'important_message\')');
+    }
+    else if (browserType === "ie") {
+	document.poppedLayer = eval('document.all[\'important_message\']');
+    }
+    else {
+	document.poppedLayer = eval('document.layers[\'`important_message\']');
+    }
 
-	document.poppedLayer.style.visibility = "visible";
+    document.poppedLayer.style.visibility = "visible";
     setTimeout('hide_imsg_popup()', 5000);
 }
 
 function ajax_important_message(messagetext)
 {
-    if (browserType == "gecko") {
+    if (browserType === "gecko") {
 	document.poppedLayer = eval('document.getElementById(\'important_message\')');
     }
-    else if (browserType == "ie") {
+    else if (browserType === "ie") {
 	document.poppedLayer = eval('document.all[\'important_message\']');
     }
     else {
@@ -259,17 +271,17 @@ function activate_iconbar_wholist_populat0r()
 function setupIconBar() {
 
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
-	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) == "collapse.gif" ) {
+	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) === "collapse.gif" ) {
 		$('roomlist').style.display = 'block';
 		$('roomlist').innerHTML = '';
-		FillRooms(IconBarRoomList);
+		fillRooms(iconBarRoomList);
 	}
 	else {
 		$('roomlist').style.display = 'none';
 	}
 
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
-	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) == "collapse.gif" ) {
+	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) === "collapse.gif" ) {
 		$('online_users').style.display = 'block';
 		activate_iconbar_wholist_populat0r();
 	}
@@ -279,150 +291,6 @@ function setupIconBar() {
 
 }
 
-function GenericTreeRoomList(roomlist) {
-  var currentExpanded = ctdlLocalPrefs.readPref("rooms_expanded");
-  var curRoomName = "";
-  if (document.getElementById("rmname")) {
-    curRoomName = getTextContent(document.getElementById("rmname"));
-  }
-  currentDropTargets = new Array();
-  var iconbar = document.getElementById("iconbar");
-  var ul = document.createElement("ul");
-  roomlist.appendChild(ul);
-  // Add mailbox, because they are special
-  var mailboxLI = document.createElement("li");
-  ul.appendChild(mailboxLI);
-  var mailboxSPAN = document.createElement("span");
-  var _mailbox = getTextContent(document.getElementById("mbox_template"));
-  mailboxSPAN.appendChild(document.createTextNode(_mailbox));
-  $(mailboxSPAN).observe('click', expandFloorEvent);
-  mailboxLI.appendChild(mailboxSPAN);
-  mailboxLI.className = "floor";
-  var mailboxUL = document.createElement("ul");
-  mailboxLI.appendChild(mailboxUL);
-  var mailboxRooms = GetMailboxRooms();
-  for(var i=0; i<mailboxRooms.length; i++) {
-	  var room = mailboxRooms[i];
-	  currentDropTargets.push(addRoomToList(mailboxUL, room, curRoomName));
-  }
-  if (currentExpanded != null && currentExpanded == _mailbox ) {
-	  expandFloor(mailboxSPAN);
-  }
-  for(var a=0; a<floors.length; a++) {
-	  var floor = floors[a];
-	  var floornum = floor[0];
-    
-	  if (floornum != -1)
-	  {
-
-		  var name = floor[1];
-		  var floorLI = document.createElement("li");
-		  ul.appendChild(floorLI);
-		  var floorSPAN = document.createElement("span");
-		  floorSPAN.appendChild(document.createTextNode(name));
-		  $(floorSPAN).observe('click', expandFloorEvent);
-		  floorLI.appendChild(floorSPAN);
-		  floorLI.className = "floor";
-		  var floorUL = document.createElement("ul");
-		  floorLI.appendChild(floorUL);
-		  var roomsForFloor = GetRoomsByFloorNum(floornum);
-		  for(var b=0; b<roomsForFloor.length; b++) {
-			  var room = roomsForFloor[b];
-			  currentDropTargets.push(addRoomToList(floorUL, room, curRoomName));
-		  }
-		  if (currentExpanded != null && currentExpanded == name) {
-			  expandFloor(floorSPAN);
-		  }
-    }
-  }
-}
-function IconBarRoomList() {
-  roomlist = document.getElementById("roomlist");
-  GenericTreeRoomList(roomlist);
-}
-function KNRoomsRoomList() {
-  roomlist = document.getElementById("roomlist_knrooms");
-  GenericTreeRoomList(roomlist);
-}
-
-function addRoomToList(floorUL,room, roomToEmphasize) {
-  var roomName = room[RN_ROOM_NAME];
-  var flag = room[RN_ROOM_FLAG];
-  var curView = room[RN_CUR_VIEW];
-  var view = room[RN_DEF_VIEW];
-  var raflags = room[RN_RAFLAGS];
-  var isMailBox = ((flag & QR_MAILBOX) == QR_MAILBOX);
-  var hasNewMsgs = ((raflags & UA_HASNEWMSGS) == UA_HASNEWMSGS);
-  var roomLI = document.createElement("li");
-  var roomA = document.createElement("a");
-  roomA.setAttribute("href","dotgoto?room="+encodeURIComponent(roomName));
-  roomA.appendChild(document.createTextNode(roomName));
-  roomLI.appendChild(roomA);
-  floorUL.appendChild(roomLI);
-  var className = "room ";
-  if (view == VIEW_MAILBOX) {
-    className += "room-private"
-  } else if (view == VIEW_ADDRESSBOOK) {
-    className += "room-addr";
-  } else if (view == VIEW_CALENDAR || view == VIEW_CALBRIEF) {
-    className += "room-cal";
-  } else if (view == VIEW_TASKS) {
-    className += "room-tasks";
-  } else if (view == VIEW_NOTES) {
-    className += "room-notes";
-  } else {
-    className += "room-chat";
-  }
-  if (hasNewMsgs) {
-    className += " room-newmsgs";
-  }
-  if (roomName == roomToEmphasize) {
-    className += " room-emphasized";
-  }
-  roomLI.setAttribute("class", className);
-  roomA.dropTarget = true;
-  roomA.dropHandler = roomListDropHandler;
-  return roomLI;
-}
-
-function roomListDropHandler(target, dropped) {
-  if (dropped.getAttribute("citadel:msgid")) {
-      var room = getTextContent(target);
-      var msgIds = "";
-      for(msgId in currentlyMarkedRows) { //defined in summaryview.js
-	  msgIds += ","+msgId;
-	  if (msgIds.length > 800) {
-	      var mvCommand = "g_cmd=MOVE%20" + msgIds + "|"+encodeURIComponent(room)+"|0";
-	      new Ajax.Request("ajax_servcmd", {
-		  parameters: mvCommand,
-		  method: 'post',
-	      });
-	      msgIds = "";
-	  }
-
-      }
-      var mvCommand = "g_cmd=MOVE%20" + msgIds + "|"+encodeURIComponent(room)+"|0";
-      new Ajax.Request('ajax_servcmd', {
-	  method: 'post',
-	  parameters: mvCommand,
-	  onComplete: deleteAllMarkedRows()});
-  }
-}
-function expandFloorEvent(event) {
-  expandFloor(event.target);
-}
-function expandFloor(target) {
-  if (target.nodeName.toLowerCase() != "span") {
-    return; // ignore clicks on child UL
-  }
-  ctdlLocalPrefs.setPref("rooms_expanded", target.firstChild.nodeValue);
-  var parentUL = target.parentNode;
-  if (currentlyExpandedFloor != null) {
-    currentlyExpandedFloor.className = currentlyExpandedFloor.className.replace("floor-expanded","");
-  }
-  parentUL.className = parentUL.className + " floor-expanded";
-  currentlyExpandedFloor = parentUL;
-}
 
 // These functions handle moving sticky notes around the screen by dragging them
 
@@ -431,69 +299,69 @@ var saved_cursor_style = 'default';
 var note_was_dragged = 0;
 
 function NotesDragMouseUp(evt) {
-	document.onmouseup = null;
-	document.onmousemove = null;
-	if (document.layers) {
-		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
+    document.onmouseup = null;
+    document.onmousemove = null;
+    if (document.layers) {
+	document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+    }
 
-	d = $('note-' + uid_of_note_being_dragged);
-	d.style.cursor = saved_cursor_style;
+    var d = $('note-' + uid_of_note_being_dragged);
+    d.style.cursor = saved_cursor_style;
 
-	// If any motion actually occurred, submit an ajax http call to record it to the server
-	if (note_was_dragged > 0) {
-		p = 'note_uid=' + uid_of_note_being_dragged
-			+ '&left=' + d.style.left
-			+ '&top=' + d.style.top
-			+ '&r=' + CtdlRandomString();
-		new Ajax.Request(
-			'ajax_update_note',
-			{
-				method: 'post',
-				parameters: p
-			}
-		);
-	}
+    // If any motion actually occurred, submit an ajax http call to record it to the server
+    if (note_was_dragged > 0) {
+	var p = 'note_uid=' + uid_of_note_being_dragged
+	    + '&left=' + d.style.left
+	    + '&top=' + d.style.top
+	    + '&r=' + ctdlRandomString();
+	new Ajax.Request(
+	    'ajax_update_note',
+	    {
+		method: 'post',
+		parameters: p
+	    }
+	);
+    }
 
-	uid_of_note_being_dragged = '';
-	return true;
+    uid_of_note_being_dragged = '';
+    return true;
 }
-
+var saved_x, saved_y;
 function NotesDragMouseMove(evt) {
-	x = (ns6 ? evt.clientX : event.clientX);
-	x_increment = x - saved_x;
-	y = (ns6 ? evt.clientY : event.clientY);
-	y_increment = y - saved_y;
+    var x = (ns6 ? evt.clientX : event.clientX);
+    var x_increment = x - saved_x;
+    var y = (ns6 ? evt.clientY : event.clientY);
+    var y_increment = y - saved_y;
 
-	// Move the div
-	d = $('note-' + uid_of_note_being_dragged);
+    // Move the div
+    var d = $('note-' + uid_of_note_being_dragged);
 
-	divTop = parseInt(d.style.top);
-	divLeft = parseInt(d.style.left);
+    var divTop = parseInt(d.style.top);
+    var divLeft = parseInt(d.style.left);
 
-	d.style.top = (divTop + y_increment) + 'px';
-	d.style.left = (divLeft + x_increment) + 'px';
+    d.style.top = (divTop + y_increment) + 'px';
+    d.style.left = (divLeft + x_increment) + 'px';
 
-	saved_x = x;
-	saved_y = y;
-	note_was_dragged = 1;
-	return true;
+    saved_x = x;
+    saved_y = y;
+    note_was_dragged = 1;
+    return true;
 }
 
 
 function NotesDragMouseDown(evt, uid) {
-	saved_x = (ns6 ? evt.clientX : event.clientX);
-	saved_y = (ns6 ? evt.clientY : event.clientY);
-	document.onmouseup = NotesDragMouseUp;
-	document.onmousemove = NotesDragMouseMove;
-	if (document.layers) {
-		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
-	uid_of_note_being_dragged = uid;
-	d = $('note-' + uid_of_note_being_dragged);
-	saved_cursor_style = d.style.cursor;
-	d.style.cursor = 'move';
-	return false;		// disable the default action
+    saved_x = (ns6 ? evt.clientX : event.clientX);
+    saved_y = (ns6 ? evt.clientY : event.clientY);
+    document.onmouseup = NotesDragMouseUp;
+    document.onmousemove = NotesDragMouseMove;
+    if (document.layers) {
+	document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+    }
+    uid_of_note_being_dragged = uid;
+    var d = $('note-' + uid_of_note_being_dragged);
+    saved_cursor_style = d.style.cursor;
+    d.style.cursor = 'move';
+    return false;		// disable the default action
 }
 
 
@@ -501,22 +369,22 @@ function NotesDragMouseDown(evt, uid) {
 // It toggles the color selector visible or invisible.
 
 function NotesClickPalette(evt, uid) {
-	uid_of_note_being_colored = uid;
-	d = $('palette-' + uid_of_note_being_colored);
+    var uid_of_note_being_colored = uid;
+    var d = $('palette-' + uid_of_note_being_colored);
 
-	if (d.style.display) {
-		if (d.style.display == 'none') {
-			d.style.display = 'block';
-		}
-		else {
-			d.style.display = 'none';
-		}
+    if (d.style.display) {
+	if (d.style.display === 'none') {
+	    d.style.display = 'block';
 	}
 	else {
-		d.style.display = 'block';
+	    d.style.display = 'none';
 	}
+    }
+    else {
+	d.style.display = 'block';
+    }
 
-	return true;
+    return true;
 }
 
 
@@ -524,30 +392,30 @@ function NotesClickPalette(evt, uid) {
 // Sets the desired color and then closes the color selector.
 
 function NotesClickColor(evt, uid, red, green, blue, notecolor, titlecolor) {
-	uid_of_note_being_colored = uid;
-	palette_button = $('palette-' + uid_of_note_being_colored);
-	note_div = $('note-' + uid_of_note_being_colored);
-	titlebar_div = $('titlebar-' + uid_of_note_being_colored);
+    var uid_of_note_being_colored = uid;
+    var palette_button = $('palette-' + uid_of_note_being_colored);
+    var note_div = $('note-' + uid_of_note_being_colored);
+    var titlebar_div = $('titlebar-' + uid_of_note_being_colored);
 
-	// alert('FIXME red=' + red + ' green=' + green + ' blue=' + blue);
+    // alert('FIXME red=' + red + ' green=' + green + ' blue=' + blue);
 
-	note_div.style.backgroundColor = notecolor;
-	titlebar_div.style.backgroundColor = titlecolor;
-	palette_button.style.display = 'none';
+    note_div.style.backgroundColor = notecolor;
+    titlebar_div.style.backgroundColor = titlecolor;
+    palette_button.style.display = 'none';
 
-	// submit an ajax http call to record it to the server
-	p = 'note_uid=' + uid_of_note_being_colored
-		+ '&red=' + red
-		+ '&green=' + green
-		+ '&blue=' + blue
-		+ '&r=' + CtdlRandomString();
-	new Ajax.Request(
-		'ajax_update_note',
-		{
-			method: 'post',
-			parameters: p
-		}
-	);
+    // submit an ajax http call to record it to the server
+    var p = 'note_uid=' + uid_of_note_being_colored
+	+ '&red=' + red
+	+ '&green=' + green
+	+ '&blue=' + blue
+	+ '&r=' + ctdlRandomString();
+    new Ajax.Request(
+	'ajax_update_note',
+	{
+	    method: 'post',
+	    parameters: p
+	}
+    );
 }
 
 
@@ -560,125 +428,138 @@ var saved_cursor_style = 'default';
 var note_was_resized = 0;
 
 function NotesResizeMouseUp(evt) {
-	document.onmouseup = null;
-	document.onmousemove = null;
-	if (document.layers) {
-		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
+    document.onmouseup = null;
+    document.onmousemove = null;
+    if (document.layers) {
+	document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+    }
 
-	d = $('note-' + uid_of_note_being_resized);
-	d.style.cursor = saved_cursor_style;
+    var d = $('note-' + uid_of_note_being_resized);
+    d.style.cursor = saved_cursor_style;
 
-	// If any motion actually occurred, submit an ajax http call to record it to the server
-	if (note_was_resized > 0) {
-		p = 'note_uid=' + uid_of_note_being_resized
-			+ '&width=' + d.style.width
-			+ '&height=' + d.style.height
-			+ '&r=' + CtdlRandomString();
-		new Ajax.Request(
-			'ajax_update_note',
-			{
-				method: 'post',
-				parameters: p
-			}
-		);
-	}
+    // If any motion actually occurred, submit an ajax http call to record it to the server
+    if (note_was_resized > 0) {
+	var p = 'note_uid=' + uid_of_note_being_resized
+	    + '&width=' + d.style.width
+	    + '&height=' + d.style.height
+	    + '&r=' + ctdlRandomString();
+	new Ajax.Request(
+	    'ajax_update_note',
+	    {
+		method: 'post',
+		parameters: p
+	    }
+	);
+    }
 
-	uid_of_note_being_resized = '';
-	return false;		// disable the default action
+    uid_of_note_being_resized = '';
+    return false;		// disable the default action
 }
 
 function NotesResizeMouseMove(evt) {
-	x = (ns6 ? evt.clientX : event.clientX);
-	x_increment = x - saved_x;
-	y = (ns6 ? evt.clientY : event.clientY);
-	y_increment = y - saved_y;
+    var x = (ns6 ? evt.clientX : event.clientX);
+    var x_increment = x - saved_x;
+    var y = (ns6 ? evt.clientY : event.clientY);
+    var y_increment = y - saved_y;
 
-	// Move the div
-	d = $('note-' + uid_of_note_being_resized);
+    // Move the div
+    var d = $('note-' + uid_of_note_being_resized);
 
-	divTop = parseInt(d.style.height);
-	divLeft = parseInt(d.style.width);
+    var divTop = parseInt(d.style.height);
+    var divLeft = parseInt(d.style.width);
 
-	newHeight = divTop + y_increment;
-	if (newHeight < 50) newHeight = 50;
+    var newHeight = divTop + y_increment;
+    if (newHeight < 50) {
+	newHeight = 50;
+    }
 
-	newWidth = divLeft + x_increment;
-	if (newWidth < 50) newWidth = 50;
+    var newWidth = divLeft + x_increment;
+    if (newWidth < 50) {
+	newWidth = 50;
+    }
+    d.style.height = newHeight + 'px';
+    d.style.width = newWidth + 'px';
 
-	d.style.height = newHeight + 'px';
-	d.style.width = newWidth + 'px';
-
-	saved_x = x;
-	saved_y = y;
-	note_was_resized = 1;
-	return false;		// disable the default action
+    saved_x = x;
+    saved_y = y;
+    note_was_resized = 1;
+    return false;		// disable the default action
 }
 
 
 function NotesResizeMouseDown(evt, uid) {
-	saved_x = (ns6 ? evt.clientX : event.clientX);
-	saved_y = (ns6 ? evt.clientY : event.clientY);
-	document.onmouseup = NotesResizeMouseUp;
-	document.onmousemove = NotesResizeMouseMove;
-	if (document.layers) {
-		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
-	uid_of_note_being_resized = uid;
-	d = $('note-' + uid_of_note_being_resized);
-	saved_cursor_style = d.style.cursor;
-	d.style.cursor = 'move';
-	return false;		// disable the default action
+    var saved_x = (ns6 ? evt.clientX : event.clientX);
+    var saved_y = (ns6 ? evt.clientY : event.clientY);
+    document.onmouseup = NotesResizeMouseUp;
+    document.onmousemove = NotesResizeMouseMove;
+    if (document.layers) {
+	document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
+    }
+    uid_of_note_being_resized = uid;
+    var d = $('note-' + uid_of_note_being_resized);
+    saved_cursor_style = d.style.cursor;
+    d.style.cursor = 'move';
+    return false;		// disable the default action
 }
 
 
 function DeleteStickyNote(evt, uid, confirmation_prompt) {
-	uid_of_note_being_deleted = uid;
-	d = $('note-' + uid_of_note_being_deleted);
+    var uid_of_note_being_deleted = uid;
+    var d = $('note-' + uid_of_note_being_deleted);
 
-	if (confirm(confirmation_prompt)) {
-		new Effect.Puff(d);
+    if (confirm(confirmation_prompt)) {
+	new Effect.Puff(d);
 
-		// submit an ajax http call to delete it on the server
-		p = 'note_uid=' + uid_of_note_being_deleted
-			+ '&deletenote=yes'
-			+ '&r=' + CtdlRandomString();
-		new Ajax.Request(
-			'ajax_update_note',
-			{
-				method: 'post',
-				parameters: p
-			}
-		);
-	}
+	// submit an ajax http call to delete it on the server
+	var p = 'note_uid=' + uid_of_note_being_deleted
+	    + '&deletenote=yes'
+	    + '&r=' + ctdlRandomString();
+	new Ajax.Request(
+	    'ajax_update_note',
+	    {
+		method: 'post',
+		parameters: p
+	    }
+	);
+    }
 }
 
 function ctdl_ts_getInnerText(el) {
-	if (typeof el == "string") return el;
-	if (typeof el == "undefined") { return el };
-	if (el.innerText) return el.innerText;	//Not needed but it is faster
-	var str = "";
-	
-	var cs = el.childNodes;
-	var l = cs.length;
-	for (var i = 0; i < l; i++) {
-		switch (cs[i].nodeType) {
-			case 1: //ELEMENT_NODE
-				str += ts_getInnerText(cs[i]);
-				break;
-			case 3:	//TEXT_NODE
-				str += cs[i].nodeValue;
-				break;
-		}
+    if (typeof el === "string") {
+	return el;
+    }
+    if (typeof el === "undefined") {
+	return el;
+    }
+    if (el.innerText) {
+	return el.innerText;	//Not needed but it is faster
+    }
+    var str = "";
+    
+    var cs = el.childNodes;
+    var l = cs.length;
+    for (var i = 0; i < l; i++) {
+	switch (cs[i].nodeType) {
+	case 1: //ELEMENT_NODE
+	    str += ts_getInnerText(cs[i]);
+	    break;
+	case 3:	//TEXT_NODE
+	    str += cs[i].nodeValue;
+	    break;
 	}
-	return str;
+    }
+    return str;
 }
 
 
 // Place a gradient loadscreen on an element, e.g to use before Ajax.updater
 function CtdlLoadScreen(elementid) {
 var elem = document.getElementById(elementid);
-elem.innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br></div>";
+    elem.innerHTML = "<div align=center><br>" + 
+	"<table border=0 cellpadding=10 bgcolor=\"#ffffff\">" + 
+	" <tr><td><img src=\"static/throbber.gif\" />" + 
+	" <font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font>" + 
+	"</td></tr></table><br></div>";
 }
 
 
@@ -687,7 +568,7 @@ elem.innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\
 
 function PopOpenAddressBook(target_input) {
 	$('address_book_popup').style.display = 'block';
-	p = 'target_input=' + target_input + '&r=' + CtdlRandomString();
+	p = 'target_input=' + target_input + '&r=' + ctdlRandomString();
 	new Ajax.Updater(
 		'address_book_popup_middle_div',
 		'do_template?template=addressbook_list',
@@ -700,10 +581,18 @@ function PopOpenAddressBook(target_input) {
 }
 
 function PopulateAddressBookInnerDiv(which_addr_book, target_input) {
-    $('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br></div>";
+
+    $('address_book_inner_div').innerHTML =
+	"<div align=center><br>" + 
+	"<table border=0 cellpadding=10 bgcolor=\"#ffffff\">" + 
+	"<tr><td><img src=\"static/throbber.gif\" />" + 
+	"<font color=\"#AAAAAA\">" +
+	"&nbsp;&nbsp;Loading...." + 
+	"</font></td></tr></table><br></div>";
+
     p = 'which_addr_book=' + which_addr_book
 	+ '&target_input=' + target_input
-	+ '&r=' + CtdlRandomString()
+	+ '&r=' + ctdlRandomString()
 	+ "&template=addressbook_namelist";
     new Ajax.Updater(
 	'address_book_inner_div',
@@ -719,7 +608,7 @@ function PopulateAddressBookInnerDiv(which_addr_book, target_input) {
 // (populate the specified target)
 
 function AddContactsToTarget(target, whichaddr) {
-	while (whichaddr.selectedIndex != -1) {
+	while (whichaddr.selectedIndex !== -1) {
 		if (target.value.length > 0) {
 			target.value = target.value + ', ';
 		}
@@ -746,48 +635,50 @@ function HandleRSVP(question_divname, title_divname, msgnum, cal_partnum, sc) {
    0,0,0,0,0, false, false, false, false, 0, null); */
 // TODO: Collapse into one function
 function toggleTaskDtStart(event) {
-	var checkBox = $('nodtstart');
-	var checkBoxTime = $('dtstart_time_assoc');
-	var dtstart = document.getElementById("dtstart");
-	var dtstart_date = document.getElementById("dtstart_date");
-	var dtstart_time = document.getElementById("dtstart_time");
-	if (checkBox.checked) {
-		dtstart_date.style.visibility = "hidden";
-		dtstart_time.style.visibility = "hidden";
+    var checkBox = $('nodtstart');
+    var checkBoxTime = $('dtstart_time_assoc');
+    var dtstart = document.getElementById("dtstart");
+    var dtstart_date = document.getElementById("dtstart_date");
+    var dtstart_time = document.getElementById("dtstart_time");
+    if (checkBox.checked) {
+	dtstart_date.style.visibility = "hidden";
+	dtstart_time.style.visibility = "hidden";
+    } else {
+	if (checkBoxTime.checked) {
+	    dtstart_time.style.visibility = "visible";
 	} else {
-		if (checkBoxTime.checked) {
-			dtstart_time.style.visibility = "visible";
-		} else {
-			dtstart_time.style.visibility = "hidden";
-		}
-		dtstart_date.style.visibility = "visible";
-		if (dtstart.value.length == 0)
-			dtstart.dpck._initCurrentDate();
+	    dtstart_time.style.visibility = "hidden";
 	}
+	dtstart_date.style.visibility = "visible";
+	if (dtstart.value.length === 0) {
+	    dtstart.dpck._initCurrentDate();
+	}
+    }
 }
 function toggleTaskDue(event) {
-	var checkBox = $('nodue');
-	var checkBoxTime = $('due_time_assoc');
-	var due = document.getElementById("due");
-	var due_date = document.getElementById("due_date");
-	var due_time = document.getElementById("due_time");
-	if (checkBox.checked) {
-		due_date.style.visibility = "hidden";
-		due_time.style.visibility = "hidden";
+    var checkBox = $('nodue');
+    var checkBoxTime = $('due_time_assoc');
+    var due = document.getElementById("due");
+    var due_date = document.getElementById("due_date");
+    var due_time = document.getElementById("due_time");
+    if (checkBox.checked) {
+	due_date.style.visibility = "hidden";
+	due_time.style.visibility = "hidden";
+    } else {
+	if (checkBoxTime.checked) {
+	    due_time.style.visibility = "visible";
 	} else {
-		if (checkBoxTime.checked) {
-			due_time.style.visibility = "visible";
-		} else {
-			due_time.style.visibility = "hidden";
-		}
-		due_date.style.visibility = "visible";
-		if (due.value.length == 0)
-			due.dpck._initCurrentDate();
+	    due_time.style.visibility = "hidden";
 	}
+	due_date.style.visibility = "visible";
+	if (due.value.length === 0) {
+	    due.dpck._initCurrentDate();
+	}
+    }
 }
 function ToggleTaskDateOrNoDateActivate(event) {
 	var dtstart = document.getElementById("nodtstart");
-	if (dtstart != null) {
+	if (dtstart !== null) {
 		toggleTaskDtStart(null);
 		toggleTaskDue(null);
 		$('nodtstart').observe('click', toggleTaskDtStart);
@@ -834,14 +725,14 @@ function RecurrenceShowHide() {
 		$('rrule_div').style.display = 'none';
 	}
 
-	if ($('freq_selector').selectedIndex == 4) {
+	if ($('freq_selector').selectedIndex === 4) {
 		$('weekday_selector').style.display = 'block';
 	}
 	else {
 		$('weekday_selector').style.display = 'none';
 	}
 
-	if ($('freq_selector').selectedIndex == 5) {
+	if ($('freq_selector').selectedIndex === 5) {
 		$('monthday_selector').style.display = 'block';
 	}
 	else {
@@ -878,7 +769,7 @@ function RecurrenceShowHide() {
 		$('rrmweekday').disabled = true;
 	}
 
-	if ($('freq_selector').selectedIndex == 6) {
+	if ($('freq_selector').selectedIndex === 6) {
 		$('yearday_selector').style.display = 'block';
 	}
 	else {
@@ -906,7 +797,7 @@ function RecurrenceShowHide() {
 // the attendees list is empty
 function EnableOrDisableCheckButton()
 {
-	if ($('attendees_box').value.length == 0) {
+	if ($('attendees_box').value.length === 0) {
 		$('check_button').disabled = true;
 	}
 	else {
@@ -918,10 +809,12 @@ function EnableOrDisableCheckButton()
 
 
 function launchChat(event) {
-window.open('chat', 'ctdl_chat_window', 'toolbar=no,location=no,directories=no,copyhistory=no,status=no,scrollbars=yes,resizable=yes');
+    window.open('chat',
+		'ctdl_chat_window',
+		'toolbar=no,location=no,directories=no,copyhistory=no,status=no,scrollbars=yes,resizable=yes');
 }
 // logger
-function WCLog(msg) {
+function wCLog(msg) {
   if (!!window.console && !!console.log) {
     console.log(msg);
   } else if (!!window.opera && !!opera.postError) {
@@ -938,29 +831,31 @@ function RefreshSMTPqueueDisplay() {
 }
 
 function DeleteSMTPqueueMsg(msgnum1, msgnum2) {
-	var p = encodeURI('g_cmd=DELE ' + msgnum1 + ',' + msgnum2);
-	new Ajax.Request(
-		'ajax_servcmd', {
-			method: 'post',
-			parameters: p,
-		        onComplete: function(transport) { ajax_important_message(transport.responseText.substr(4)); RefreshSMTPqueueDisplay();}
-		}
-	);
+    var p = encodeURI('g_cmd=DELE ' + msgnum1 + ',' + msgnum2);
+    new Ajax.Request(
+	'ajax_servcmd', {
+	    method: 'post',
+	    parameters: p,
+	    onComplete: function(transport) {
+		ajax_important_message(transport.responseText.substr(4));
+		RefreshSMTPqueueDisplay();}
+	}
+    );
 }
 
 
 function ConfirmLogoff() {
-	new Ajax.Updater(
-		'md-content',
-		'do_template?template=confirmlogoff',
-		{
-			method: 'get',
-			evalScripts: true,
-			onSuccess: function(cl_success) {
-				toggleModal(1);
-			}
-		}
-	);
+    new Ajax.Updater(
+	'md-content',
+	'do_template?template=confirmlogoff',
+	{
+	    method: 'get',
+	    evalScripts: true,
+	    onSuccess: function(cl_success) {
+		toggleModal(1);
+	    }
+	}
+    );
 }
 
 
@@ -974,7 +869,7 @@ function switch_to_lang(new_lang) {
 function toggle_roomlist() 
 {
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
-	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) == "collapse.gif" ) {
+	if ( $('expand_roomlist').src.substring($('expand_roomlist').src.length - 12) === "collapse.gif" ) {
 		$('roomlist').style.display = 'none';
 		$('expand_roomlist').src = 'static/webcit_icons/expand.gif';
 		wstate=0;
@@ -984,7 +879,7 @@ function toggle_roomlist()
 		$('roomlist').style.display = 'block';
 		$('expand_roomlist').src = 'static/webcit_icons/collapse.gif';
 		$('roomlist').innerHTML = '';
-		FillRooms(IconBarRoomList);
+		fillRooms(iconBarRoomList);
 		wstate=1;
 	}
 
@@ -999,7 +894,7 @@ function toggle_roomlist()
 function toggle_wholist() 
 {
 	/* WARNING: VILE, SLEAZY HACK.  We determine the state of the box based on the image loaded. */
-	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) == "collapse.gif" ) {
+	if ( $('expand_wholist').src.substring($('expand_wholist').src.length - 12) === "collapse.gif" ) {
 		$('online_users').style.display = 'none';
 		$('expand_wholist').src = 'static/webcit_icons/expand.gif';
 		wstate=0;

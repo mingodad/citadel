@@ -28,7 +28,7 @@ HashList* GetAddressbookList()
 	long BufLen;
 	int IsLocalAddrBook;
 
-	WhichAddrBook = SBSTR("which_addr_book");
+	WhichAddrBook = sbstr("which_addr_book");
 	IsLocalAddrBook = strcasecmp(ChrPtr(WhichAddrBook), "__LOCAL_USERS__") == 1;
 
 	if (IsLocalAddrBook) {

@@ -256,7 +256,7 @@ void dbg_Init(StrBuf *Buf)
  * @param A First one
  * @param B second one
  */
-static inline void SwapBuffers(StrBuf *A, StrBuf *B)
+static inline void iSwapBuffers(StrBuf *A, StrBuf *B)
 {
 	StrBuf C;
 
@@ -265,6 +265,12 @@ static inline void SwapBuffers(StrBuf *A, StrBuf *B)
 	memcpy(B, &C, sizeof(C));
 
 }
+
+void SwapBuffers(StrBuf *A, StrBuf *B)
+{
+	iSwapBuffers(A, B);
+}
+
 
 /** 
  * @ingroup StrBuf_Cast
@@ -510,7 +516,7 @@ void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, cons
 		}
 		else 
 			NewBuf = *CreateRelpaceMe;
-		SwapBuffers (NewBuf, CopyFlushMe);
+		iSwapBuffers (NewBuf, CopyFlushMe);
 	}
 	if (!KeepOriginal)
 		FlushStrBuf(CopyFlushMe);
@@ -2827,7 +2833,7 @@ int StrBufDecodeBase64To(const StrBuf *BufIn, StrBuf *BufOut)
 		return -1;
 
 	if (BufOut->BufSize < BufIn->BufUsed)
-		IncreaseBuf(BufOut, BufIn->BufUsed, 0);
+		IncreaseBuf(BufOut, 0, BufIn->BufUsed);
 
 	BufOut->BufUsed = CtdlDecodeBase64(BufOut->buf,
 					   BufIn->buf,
@@ -3047,7 +3053,7 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 		     (stream->OutBuf.BufUsed != org_outbuf_len)
 			    ))
 		{
-			SwapBuffers(Target->Buf, &stream->OutBuf);
+			iSwapBuffers(Target->Buf, &stream->OutBuf);
 		}
 
 		if (stream->zstream.avail_in == 0)
@@ -3118,7 +3124,7 @@ int StrBufStreamTranscode(eStreamType type, IOBuffer *Target, IOBuffer *In, cons
 
 		stream->OutBuf.BufUsed += stream->zstream.total_out + org_outbuf_len;
 
-		if (Target) SwapBuffers(Target->Buf, &stream->OutBuf);
+		if (Target) iSwapBuffers(Target->Buf, &stream->OutBuf);
 
 		if (stream->zstream.avail_in == 0)
 		{
@@ -3767,7 +3773,7 @@ TRYAGAIN:
 		TmpBuf->buf[TmpBuf->BufUsed] = '\0';
 		
 		/* little card game: wheres the red lady? */
-		SwapBuffers(ConvertBuf, TmpBuf);
+		iSwapBuffers(ConvertBuf, TmpBuf);
 		FlushStrBuf(TmpBuf);
 	}
 #endif
@@ -4136,11 +4142,11 @@ long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
 			n++;
 			aptr++;
 		}
-		if (n > maxlen) {
+		if (n >= maxlen) {
 			*aptr = '\0';
 			Buf->BufUsed = aptr - Buf->buf;
 			return Buf->BufUsed;
-		}			
+		}
 	}
 	return Buf->BufUsed;
 

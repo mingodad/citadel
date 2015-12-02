@@ -93,7 +93,7 @@ void remove_charset_attribute(char *strbuf)
  * propname	name of new property
  * propvalue	value of new property
  */
-void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
+void vcard_add_prop(struct vCard *v, const char *propname, const char *propvalue) {
 	++v->numprops;
 	v->prop = realloc(v->prop,
 		(v->numprops * sizeof(struct vCardProp)) );

@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2015 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 3.
- *  
- *  
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  
- *  
- *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include <string.h>
@@ -93,14 +87,13 @@ void init_ssl(void)
 		RAND_egd(EGD_POOL);
 
 	if (!RAND_status()) {
-		syslog(LOG_CRIT,
-			"PRNG not adequately seeded, won't do SSL/TLS\n");
+		syslog(LOG_CRIT, "PRNG not adequately seeded, won't do SSL/TLS");
 		return;
 	}
 	SSLCritters =
 	    malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t *));
 	if (!SSLCritters) {
-		syslog(LOG_EMERG, "citserver: can't allocate memory!!\n");
+		syslog(LOG_EMERG, "citserver: can't allocate memory!!");
 		/* Nothing's been initialized, just die */
 		exit(1);
 	} else {
@@ -109,8 +102,7 @@ void init_ssl(void)
 		for (a = 0; a < CRYPTO_num_locks(); a++) {
 			SSLCritters[a] = malloc(sizeof(pthread_mutex_t));
 			if (!SSLCritters[a]) {
-				syslog(LOG_EMERG,
-					"citserver: can't allocate memory!!\n");
+				syslog(LOG_EMERG, "citserver: can't allocate memory!!");
 				/* Nothing's been initialized, just die */
 				exit(1);
 			}
@@ -125,12 +117,11 @@ void init_ssl(void)
 	SSL_load_error_strings();
 	ssl_method = SSLv23_server_method();
 	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {
-		syslog(LOG_CRIT, "SSL_CTX_new failed: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_CRIT, "SSL_CTX_new failed: %s", ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 	if (!(SSL_CTX_set_cipher_list(ssl_ctx, CIT_CIPHERS))) {
-		syslog(LOG_CRIT, "SSL: No ciphers available\n");
+		syslog(LOG_CRIT, "SSL: No ciphers available");
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return;
@@ -148,22 +139,19 @@ void init_ssl(void)
 	/* Load DH parameters into the context */
 	dh = DH_new();
 	if (!dh) {
-		syslog(LOG_CRIT, "init_ssl() can't allocate a DH object: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_CRIT, "init_ssl() can't allocate a DH object: %s", ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return;
 	}
 	if (!(BN_hex2bn(&(dh->p), DH_P))) {
-		syslog(LOG_CRIT, "init_ssl() can't assign DH_P: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_CRIT, "init_ssl() can't assign DH_P: %s", ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return;
 	}
 	if (!(BN_hex2bn(&(dh->g), DH_G))) {
-		syslog(LOG_CRIT, "init_ssl() can't assign DH_G: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_CRIT, "init_ssl() can't assign DH_G: %s", ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return;
@@ -181,14 +169,13 @@ void init_ssl(void)
 	 * Generate a key pair if we don't have one.
 	 */
 	if (access(file_crpt_file_key, R_OK) != 0) {
-		syslog(LOG_INFO, "Generating RSA key pair.\n");
+		syslog(LOG_INFO, "Generating RSA key pair.");
 		rsa = RSA_generate_key(1024,	/* modulus size */
 					65537,	/* exponent */
 					NULL,	/* no callback */
 					NULL);	/* no callback */
 		if (rsa == NULL) {
-			syslog(LOG_CRIT, "Key generation failed: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+			syslog(LOG_CRIT, "Key generation failed: %s", ERR_reason_error_string(ERR_get_error()));
 		}
 		if (rsa != NULL) {
 			fp = fopen(file_crpt_file_key, "w");
@@ -202,8 +189,7 @@ void init_ssl(void)
 							NULL,	/* no callbk */
 							NULL	/* no callbk */
 				) != 1) {
-					syslog(LOG_CRIT, "Cannot write key: %s\n",
-                                		ERR_reason_error_string(ERR_get_error()));
+					syslog(LOG_CRIT, "Cannot write key: %s", ERR_reason_error_string(ERR_get_error()));
 					unlink(file_crpt_file_key);
 				}
 				fclose(fp);
@@ -218,7 +204,7 @@ void init_ssl(void)
 	 * the CSR in this step so that the next step may commence.
 	 */
 	if ( (access(file_crpt_file_cer, R_OK) != 0) && (access(file_crpt_file_csr, R_OK) != 0) ) {
-		syslog(LOG_INFO, "Generating a certificate signing request.\n");
+		syslog(LOG_INFO, "Generating a generic certificate signing request.");
 
 		/*
 		 * Read our key from the file.  No, we don't just keep this
@@ -246,42 +232,17 @@ void init_ssl(void)
 					name = X509_REQ_get_subject_name(req);
 
 					/* Tell it who we are */
-
-					/*
-					X509_NAME_add_entry_by_txt(name, "C",
-						MBSTRING_ASC, "US", -1, -1, 0);
-
-					X509_NAME_add_entry_by_txt(name, "ST",
-						MBSTRING_ASC, "New York", -1, -1, 0);
-
-					X509_NAME_add_entry_by_txt(name, "L",
-						MBSTRING_ASC, "Mount Kisco", -1, -1, 0);
-					*/
-
-					X509_NAME_add_entry_by_txt(name, "O",
-								   MBSTRING_ASC, 
-								   (unsigned char*) config.c_humannode,
-								   -1, -1, 0);
-
-					X509_NAME_add_entry_by_txt(name, "OU",
-								   MBSTRING_ASC, 
-								   (unsigned const char*)"Citadel server",
-								   -1, -1, 0);
-
-					/* X509_NAME_add_entry_by_txt(name, "CN",
-						MBSTRING_ASC, config.c_fqdn, -1, -1, 0);
-					*/
-
-					X509_NAME_add_entry_by_txt(name, 
-								   "CN",
-								   MBSTRING_ASC, 
-								   (const unsigned char *)"*", -1, -1, 0);
-				
+					X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC, (unsigned const char *)"ZZ", -1, -1, 0);
+					X509_NAME_add_entry_by_txt(name, "ST", MBSTRING_ASC, (unsigned const char *)"The World", -1, -1, 0);
+					X509_NAME_add_entry_by_txt(name, "L", MBSTRING_ASC, (unsigned const char *)"My Location", -1, -1, 0);
+					X509_NAME_add_entry_by_txt(name, "O", MBSTRING_ASC, (unsigned const char *)"Generic certificate", -1, -1, 0);
+					X509_NAME_add_entry_by_txt(name, "OU", MBSTRING_ASC, (unsigned const char *)"Citadel server", -1, -1, 0);
+					X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned const char *)"*", -1, -1, 0);
 					X509_REQ_set_subject_name(req, name);
 
 					/* Sign the CSR */
 					if (!X509_REQ_sign(req, pk, EVP_md5())) {
-						syslog(LOG_CRIT, "X509_REQ_sign(): error\n");
+						syslog(LOG_CRIT, "X509_REQ_sign(): error");
 					}
 					else {
 						/* Write it to disk. */	
@@ -301,7 +262,7 @@ void init_ssl(void)
 		}
 
 		else {
-			syslog(LOG_CRIT, "Unable to read private key.\n");
+			syslog(LOG_CRIT, "Unable to read private key.");
 		}
 	}
 
@@ -311,7 +272,7 @@ void init_ssl(void)
 	 * Generate a self-signed certificate if we don't have one.
 	 */
 	if (access(file_crpt_file_cer, R_OK) != 0) {
-		syslog(LOG_INFO, "Generating a self-signed certificate.\n");
+		syslog(LOG_INFO, "Generating a generic self-signed certificate.");
 
 		/* Same deal as before: always read the key from disk because
 		 * it may or may not have just been generated.
@@ -351,7 +312,7 @@ void init_ssl(void)
 					
 					/* Sign the cert */
 					if (!X509_sign(cer, pk, EVP_md5())) {
-						syslog(LOG_CRIT, "X509_sign(): error\n");
+						syslog(LOG_CRIT, "X509_sign(): error");
 					}
 					else {
 						/* Write it to disk. */	
@@ -377,8 +338,7 @@ void init_ssl(void)
         SSL_CTX_use_certificate_chain_file(ssl_ctx, file_crpt_file_cer);
         SSL_CTX_use_PrivateKey_file(ssl_ctx, file_crpt_file_key, SSL_FILETYPE_PEM);
         if ( !SSL_CTX_check_private_key(ssl_ctx) ) {
-		syslog(LOG_CRIT, "Cannot install certificate: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_CRIT, "Cannot install certificate: %s", ERR_reason_error_string(ERR_get_error()));
         }
 
 	/* Finally let the server know we're here */
@@ -403,7 +363,7 @@ void client_write_ssl(const char *buf, int nbytes)
 	while (nremain > 0) {
 		if (SSL_want_write(CC->ssl)) {
 			if ((SSL_read(CC->ssl, junk, 0)) < 1) {
-				syslog(LOG_DEBUG, "SSL_read in client_write: %s\n", ERR_reason_error_string(ERR_get_error()));
+				syslog(LOG_DEBUG, "SSL_read in client_write: %s", ERR_reason_error_string(ERR_get_error()));
 			}
 		}
 		retval =
@@ -417,9 +377,9 @@ void client_write_ssl(const char *buf, int nbytes)
 				sleep(1);
 				continue;
 			}
-			syslog(LOG_DEBUG, "SSL_write got error %ld, ret %d\n", errval, retval);
+			syslog(LOG_DEBUG, "SSL_write got error %ld, ret %d", errval, retval);
 			if (retval == -1)
-				syslog(LOG_DEBUG, "errno is %d\n", errno);
+				syslog(LOG_DEBUG, "errno is %d", errno);
 			endtls();
 			client_write(&buf[nbytes - nremain], nremain);
 			return;
@@ -444,7 +404,7 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 	while (1) {
 		if (SSL_want_read(pssl)) {
 			if ((SSL_write(pssl, junk, 0)) < 1) {
-				syslog(LOG_DEBUG, "SSL_write in client_read\n");
+				syslog(LOG_DEBUG, "SSL_write in client_read");
 			}
 		}
 		rlen = SSL_read(pssl, sbuf, sizeof(sbuf));
@@ -456,7 +416,7 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 				sleep(1);
 				continue;
 			}
-			syslog(LOG_DEBUG, "SSL_read got error %ld\n", errval);
+			syslog(LOG_DEBUG, "SSL_read got error %ld", errval);
 			endtls();
 			return (-1);
 		}
@@ -636,19 +596,18 @@ void CtdlStartTLS(char *ok_response, char *nosup_response,
 	int retval, bits, alg_bits;
 
 	if (!ssl_ctx) {
-		syslog(LOG_CRIT, "SSL failed: no ssl_ctx exists?\n");
+		syslog(LOG_CRIT, "SSL failed: no ssl_ctx exists?");
 		if (nosup_response != NULL) cprintf("%s", nosup_response);
 		return;
 	}
 	if (!(CC->ssl = SSL_new(ssl_ctx))) {
-		syslog(LOG_CRIT, "SSL_new failed: %s\n",
+		syslog(LOG_CRIT, "SSL_new failed: %s",
 				ERR_reason_error_string(ERR_get_error()));
 		if (error_response != NULL) cprintf("%s", error_response);
 		return;
 	}
 	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
-		syslog(LOG_CRIT, "SSL_set_fd failed: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		syslog(LOG_CRIT, "SSL_set_fd failed: %s", ERR_reason_error_string(ERR_get_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
 		if (error_response != NULL) cprintf("%s", error_response);
@@ -666,7 +625,7 @@ void CtdlStartTLS(char *ok_response, char *nosup_response,
 		char error_string[128];
 
 		errval = SSL_get_error(CC->ssl, retval);
-		syslog(LOG_CRIT, "SSL_accept failed: retval=%d, errval=%ld, err=%s\n",
+		syslog(LOG_CRIT, "SSL_accept failed: retval=%d, errval=%ld, err=%s",
 			retval,
 			errval,
 			ERR_error_string(errval, error_string)
@@ -677,7 +636,7 @@ void CtdlStartTLS(char *ok_response, char *nosup_response,
 	}
 	BIO_set_close(CC->ssl->rbio, BIO_NOCLOSE);
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
-	syslog(LOG_INFO, "SSL/TLS using %s on %s (%d of %d bits)\n",
+	syslog(LOG_INFO, "SSL/TLS using %s on %s (%d of %d bits)",
 		SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
 		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
 		bits, alg_bits);
@@ -744,7 +703,7 @@ void endtls(void)
 		return;
 	}
 
-	syslog(LOG_INFO, "Ending SSL/TLS\n");
+	syslog(LOG_INFO, "Ending SSL/TLS");
 	SSL_shutdown(CC->ssl);
 	SSL_free(CC->ssl);
 	CC->ssl = NULL;

@@ -5,7 +5,7 @@
 /*
  * print tabbed dialog
  */
-void tabbed_dialog(int num_tabs, char *tabnames[]) {
+void tabbed_dialog(int num_tabs, const char *tabnames[]) {
 	int i;
 
 	StrBufAppendPrintf(WC->trailing_javascript,
@@ -127,7 +127,7 @@ void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]) {
 			( (i==0) ? "tab_cell_label" : "tab_cell_edit" ),
 			i
 			);
-		StrBufAppendBuf(Target, tabnames[i], 0);
+		StrEscAppend(Target, tabnames[i], NULL, 0, 0);
 		StrBufAppendBufPlain(
 			Target, 
 			HKEY(
@@ -201,7 +201,7 @@ void StrEndTab(StrBuf *Target, int tabnum, int num_tabs) {
 			"<!-- end tab %d of %d -->\n", tabnum, num_tabs
 		);
 	}
-	if (HAVEBSTR("last_tabsel"))
+	if (havebstr("last_tabsel"))
 	{
 		StrBufAppendPrintf(Target, "<script type=\"text/javascript\">tabsel(%s);</script>", BSTR("last_tabsel"));
 	}

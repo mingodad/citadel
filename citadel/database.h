@@ -54,10 +54,10 @@ struct CtdlCompressHeader {
 };
 
 typedef enum __eCheckType {
-	eCheckExist,
-	eCheckUpdate,
-	eUpdate,
-	eWrite
+	eCheckExist,   /* look up the item, return the timestamp if its there, 0 if not. */
+	eCheckUpdate,  /* if it exists, refresh in db timestamp. return the timstamp if its there, 0 if not. */
+	eUpdate,       /* insert/update the new value, return the old if its there, 0 if not. */
+	eWrite         /* write this to DB, unconditional. */
 }eCheckType;
 
 time_t CheckIfAlreadySeen(const char *Facility,

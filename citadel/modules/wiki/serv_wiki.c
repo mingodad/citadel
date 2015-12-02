@@ -1,7 +1,7 @@
 /*
  * Server-side module for Wiki rooms.  This handles things like version control. 
  * 
- * Copyright (c) 2009-2012 by the citadel.org team
+ * Copyright (c) 2009-2015 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -127,7 +127,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	/* See if we can retrieve the previous version. */
 	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields[eExclusiveID], &CCC->room);
 	if (old_msgnum > 0L) {
-		old_msg = CtdlFetchMessage(old_msgnum, 1);
+		old_msg = CtdlFetchMessage(old_msgnum, 1, 1);
 	}
 	else {
 		old_msg = NULL;
@@ -208,7 +208,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	history_msgnum = CtdlLocateMessageByEuid(history_page, &CCC->room);
 	history_msg = NULL;
 	if (history_msgnum > 0L) {
-		history_msg = CtdlFetchMessage(history_msgnum, 1);
+		history_msg = CtdlFetchMessage(history_msgnum, 1, 1);
 	}
 
 	/* Create a new history message if necessary */
@@ -303,7 +303,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 					   uuid,
 					   Now,
 					   CCC->user.fullname,
-					   config.c_nodename);
+					   CtdlGetConfigStr("c_nodename"));
 
 			memolen = CtdlEncodeBase64(encoded_memo, memo, memolen, 0);
 
@@ -390,7 +390,7 @@ void wiki_history(char *pagename) {
 	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
 	msgnum = CtdlLocateMessageByEuid(history_page_name, &CC->room);
 	if (msgnum > 0L) {
-		msg = CtdlFetchMessage(msgnum, 1);
+		msg = CtdlFetchMessage(msgnum, 1, 1);
 	}
 	else {
 		msg = NULL;
@@ -522,7 +522,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	 */
 	msgnum = CtdlLocateMessageByEuid(pagename, &CCC->room);
 	if (msgnum > 0L) {
-		msg = CtdlFetchMessage(msgnum, 1);
+		msg = CtdlFetchMessage(msgnum, 1, 1);
 	}
 	else {
 		msg = NULL;
@@ -556,7 +556,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
 	msgnum = CtdlLocateMessageByEuid(history_page_name, &CCC->room);
 	if (msgnum > 0L) {
-		msg = CtdlFetchMessage(msgnum, 1);
+		msg = CtdlFetchMessage(msgnum, 1, 1);
 	}
 	else {
 		msg = NULL;
@@ -643,7 +643,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
 			CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
 			CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
-			CM_SetField(msg, eNodeName, CFG_KEY(c_nodename));
+			CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
 			CM_SetField(msg, eExclusiveID, pagename, strlen(pagename));
 			msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Replace the current revision */
 		}

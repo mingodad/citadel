@@ -180,7 +180,7 @@ typedef struct _ConditionalStruct {
 typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, WCTemplputParams *TP);
 typedef HashList *(*RetrieveHashlistFunc)(StrBuf *Target, WCTemplputParams *TP);
 typedef void (*HashDestructorFunc) (HashList **KillMe);
-
+typedef int (*FilterByParamFunc)(const char* key, long len, void *Context, StrBuf *Target, WCTemplputParams *TP);
 
 extern WCTemplputParams NoCtx;
 
@@ -362,13 +362,16 @@ long GetTokenDefine(const char *Name,
 
 #define IT_NOFLAG 0
 #define IT_FLAG_DETECT_GROUPCHANGE (1<<0)
-#define RegisterIterator(a, b, c, d, e, f, g, h, i) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h, i)
+#define IT_ADDT_PARAM(n) 5 + n /* If you have AdditionalParams, use this macro to fetch them. */
+#define RegisterIterator(a, b, c, d, e, f, g, h, i) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, NULL, g, h, i)
+#define RegisterFilteredIterator(a, b, c, d, e, f, g, h, i, j) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h, i, j)
 void RegisterITERATOR(const char *Name, long len, /* Our identifier */
-		      int AdditionalParams,       /* doe we use more parameters? */
+		      int AdditionalParams,       /* do we use more parameters? */
 		      HashList *StaticList,       /* pointer to webcit lifetime hashlists */
 		      RetrieveHashlistFunc GetHash, /* else retrieve the hashlist by calling this function */
 		      SubTemplFunc DoSubTempl,       /* call this function on each iteration for svput & friends */
 		      HashDestructorFunc Destructor, /* use this function to shut down the hash; NULL if its a reference */
+		      FilterByParamFunc Filter,      /* use this function if you want to skip items */
 		      CtxType ContextType,               /* which context do we provide to the subtemplate? */
 		      CtxType XPectContextType,          /* which context do we expct to be called in? */
 		      int Flags);

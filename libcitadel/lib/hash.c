@@ -162,6 +162,10 @@ int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry
 	return i;
 }
 
+const char *dbg_PrintStrBufPayload(const char *Key, void *Item, int Odd)
+{
+	return ChrPtr((StrBuf*)Item);
+}
 
 /**
  * @ingroup HashListDebug
@@ -230,7 +234,12 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 
 		}
 #ifdef DEBUG
-		printf (" ---- Hashkey[%ld][%ld]: '%s' Value: '%s' ; %s\n", i, key, foo, bar, bla);
+		if ((Hash->Algorithm == lFlathash) || (Hash->Algorithm == Flathash)) {
+			printf (" ---- Hashkey[%ld][%ld]: %ld '%s' Value: '%s' ; %s\n", i, key, *(long*) foo, foo, bar, bla);
+		}
+		else {
+			printf (" ---- Hashkey[%ld][%ld]: '%s' Value: '%s' ; %s\n", i, key, foo, bar, bla);
+		}
 #endif
 	}
 #ifdef DEBUG
@@ -618,7 +627,13 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 long Flathash(const char *str, long len)
 {
 	if (len != sizeof (int))
+	{
+#ifdef DEBUG
+		int *crash = NULL;
+		*crash = 1;
+#endif
 		return 0;
+	}
 	else return *(int*)str;
 }
 
@@ -632,7 +647,13 @@ long Flathash(const char *str, long len)
 long lFlathash(const char *str, long len)
 {
 	if (len != sizeof (long))
+	{
+#ifdef DEBUG
+		int *crash = NULL;
+		*crash = 1;
+#endif
 		return 0;
+	}
 	else return *(long*)str;
 }
 

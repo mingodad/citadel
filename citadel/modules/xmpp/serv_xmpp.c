@@ -668,7 +668,7 @@ extern void xmpp_cleanup_events(void);
 CTDL_MODULE_INIT(xmpp)
 {
 	if (!threading) {
-		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,
+		CtdlRegisterServiceHook(CtdlGetConfigInt("c_xmpp_c2s_port"),
 					NULL,
 					xmpp_greeting,
 					xmpp_command_loop,

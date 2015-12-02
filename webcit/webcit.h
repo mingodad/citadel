@@ -268,15 +268,6 @@ typedef struct _IcalMethodEnumMap {
         icalproperty_method map;
 } IcalMethodEnumMap;
 
-/*
- * Address book entry (keep it short and sweet, it's just a quickie lookup
- * which we can use to get to the real meat and bones later)
- */
-typedef struct _addrbookent {
-	char ab_name[64];	/* name string */
-	long ab_msgnum;		/* message number of address book entry */
-} addrbookent;
-
 
 #define AJAX (1<<0)
 #define ANONYMOUS (1<<1)
@@ -422,6 +413,7 @@ struct wcsession {
 	int ctdl_pid;				/* Session ID on the Citadel server */
 	int nonce;				/* session nonce (to prevent session riding) */
 	int inuse;				/* set to nonzero if bound to a running thread */
+	int isFailure;                          /* Http 2xx or 5xx? */
 
 /* Session local Members */
 	int serv_sock;				/* Client socket to Citadel server */
@@ -659,9 +651,6 @@ void cdataout(char *rawdata);
 void url(char *buf, size_t bufsize);
 void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf);
 
-
-void display_vcard(StrBuf *Target, wc_mime_attachment *Mime, char alpha, int full, char **storename, long msgnum);
-
 void display_success(const char *successmessage);
 
 void shutdown_sessions(void);
@@ -698,7 +687,7 @@ void check_thread_pool_size(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs, StrBuf **Names);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
-void tabbed_dialog(int num_tabs, char *tabnames[]);
+void tabbed_dialog(int num_tabs, const char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
 
