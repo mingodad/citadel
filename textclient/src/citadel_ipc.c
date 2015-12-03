@@ -1520,7 +1520,7 @@ int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
 		return -3;
 
 	MimeType = GuessMimeType(&MimeTestBuf[0], len);
-	aaa = (char *)malloc(strlen(save_as) + strlen(comment) + 7);
+	aaa = (char *)malloc(strlen(save_as) + strlen(MimeType) + strlen(comment) + 7);
 	if (!aaa) return -1;
 
 	sprintf(aaa, "UOPN %s|%s|%s", save_as, MimeType,  comment);
