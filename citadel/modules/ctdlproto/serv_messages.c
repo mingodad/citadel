@@ -598,7 +598,7 @@ void cmd_ent0(char *entargs)
 	}
 	free(all_recps);
 
-	if ((valid != NULL) && (valid->num_room == 1))
+	if ((valid != NULL) && (valid->num_room == 1) && !IsEmptyStr(valid->recp_orgroom))
 	{
 		/* posting into an ML room? set the envelope from 
 		 * to the actual mail address so others get a valid

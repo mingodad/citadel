@@ -1227,9 +1227,9 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		process_rfc822_addr(value, user, node, name);
 		syslog(LOG_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof(addr), "%s@%s", user, node);
-		if (CM_IsEmpty(msg, eAuthor))
+		if (CM_IsEmpty(msg, eAuthor) && !IsEmptyStr(name))
 			CM_SetField(msg, eAuthor, name, strlen(name));
-		if (CM_IsEmpty(msg, erFc822Addr))
+		if (CM_IsEmpty(msg, erFc822Addr) && !IsEmptyStr(addr))
 			CM_SetField(msg, erFc822Addr, addr, strlen(addr));
 		processed = 1;
 	}

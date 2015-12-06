@@ -375,20 +375,25 @@ int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 		StrBufSpaceToBlank(SaveMsg->title);
 		len = StrLength(SaveMsg->title);
 		Sbj = html_to_ascii(ChrPtr(SaveMsg->title), len, 512, 0);
-		len = strlen(Sbj);
-		if ((len > 0) && (Sbj[len - 1] == '\n'))
-		{
-			len --;
-			Sbj[len] = '\0';
+		if (!IsEmptyStr(Sbj)) {
+			len = strlen(Sbj);
+			if ((Sbj[len - 1] == '\n'))
+			{
+				len --;
+				Sbj[len] = '\0';
+			}
+			Encoded = NewStrBufPlain(Sbj, len);
+		
+
+			StrBufTrim(Encoded);
+			StrBufRFC2047encode(&QPEncoded, Encoded);
+			
+			CM_SetAsFieldSB(&SaveMsg->Msg, eMsgSubject, &QPEncoded);
+			FreeStrBuf(&Encoded);
 		}
-		Encoded = NewStrBufPlain(Sbj, len);
-		free(Sbj);
-
-		StrBufTrim(Encoded);
-		StrBufRFC2047encode(&QPEncoded, Encoded);
-
-		CM_SetAsFieldSB(&SaveMsg->Msg, eMsgSubject, &QPEncoded);
-		FreeStrBuf(&Encoded);
+		if (Sbj != NULL) {
+			free(Sbj);
+		}
 	}
 	if (SaveMsg->link == NULL)
 		SaveMsg->link = NewStrBufPlain(HKEY(""));

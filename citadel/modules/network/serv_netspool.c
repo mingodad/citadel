@@ -130,7 +130,9 @@ void network_bounce(struct CtdlMessage **pMsg, char *reason)
 	 * FIXME ... right now we're just sending a bounce; we really want to
 	 * include the text of the bounced message.
 	 */
-	CM_SetField(msg, eMesageText, reason, strlen(reason));
+	if (!IsEmptyStr(reason)) {
+		CM_SetField(msg, eMesageText, reason, strlen(reason));
+	}
 	msg->cm_format_type = 0;
 
 	/*

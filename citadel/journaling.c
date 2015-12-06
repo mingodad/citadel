@@ -130,15 +130,33 @@ void JournalRunQueueMsg(struct jnlq *jmsg) {
 			journal_msg->cm_anon_type = MES_NORMAL;
 			journal_msg->cm_format_type = FMT_RFC822;
 			CM_SetField(journal_msg, eJournal, HKEY("is journal"));
-			CM_SetField(journal_msg, eAuthor, jmsg->from, strlen(jmsg->from));
-			CM_SetField(journal_msg, eNodeName, jmsg->node, strlen(jmsg->node));
-			CM_SetField(journal_msg, erFc822Addr, jmsg->rfca, strlen(jmsg->rfca));
-			CM_SetField(journal_msg, eMsgSubject, jmsg->subj, strlen(jmsg->subj));
+
+			if (!IsEmptyStr(jmsg->from)) {
+				CM_SetField(journal_msg, eAuthor, jmsg->from, strlen(jmsg->from));
+			}
+
+			if (!IsEmptyStr(jmsg->node)) {
+				CM_SetField(journal_msg, eNodeName, jmsg->node, strlen(jmsg->node));
+			}
+
+			if (!IsEmptyStr(jmsg->rfca)) {
+				CM_SetField(journal_msg, erFc822Addr, jmsg->rfca, strlen(jmsg->rfca));
+			}
+
+			if (!IsEmptyStr(jmsg->subj)) {
+				CM_SetField(journal_msg, eMsgSubject, jmsg->subj, strlen(jmsg->subj));
+			}
 
 			mblen = snprintf(mime_boundary, sizeof(mime_boundary),
 					 "--Citadel-Journal-%08lx-%04x--", time(NULL), ++seq);
-			rfc822len = strlen(jmsg->rfc822);
-		       
+
+			if (!IsEmptyStr(jmsg->rfc822)) {
+				rfc822len = strlen(jmsg->rfc822);
+			}
+			else {
+				rfc822len = 0;
+			}
+
 			message_text = NewStrBufPlain(NULL, rfc822len + sizeof(recptypes) + 1024);
 
 			/*

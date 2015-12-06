@@ -2832,7 +2832,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/*
 	 * If this message has no O (room) field, generate one.
 	 */
-	if (CM_IsEmpty(msg, eOriginalRoom)) {
+	if (CM_IsEmpty(msg, eOriginalRoom) && !IsEmptyStr(CCC->room.QRname)) {
 		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
 	}
 
@@ -3055,10 +3055,10 @@ void quickie_message(const char *from,
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = format_type;
 
-	if (from != NULL) {
+	if (!IsEmptyStr(from)) {
 		CM_SetField(msg, eAuthor, from, strlen(from));
 	}
-	else if (fromaddr != NULL) {
+	else if (!IsEmptyStr(fromaddr)) {
 		char *pAt;
 		CM_SetField(msg, eAuthor, fromaddr, strlen(fromaddr));
 		pAt = strchr(msg->cm_fields[eAuthor], '@');
@@ -3070,17 +3070,19 @@ void quickie_message(const char *from,
 		msg->cm_fields[eAuthor] = strdup("Citadel");
 	}
 
-	if (fromaddr != NULL) CM_SetField(msg, erFc822Addr, fromaddr, strlen(fromaddr));
-	if (room != NULL) CM_SetField(msg, eOriginalRoom, room, strlen(room));
+	if (!IsEmptyStr(fromaddr)) CM_SetField(msg, erFc822Addr, fromaddr, strlen(fromaddr));
+	if (!IsEmptyStr(room)) CM_SetField(msg, eOriginalRoom, room, strlen(room));
 	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
-	if (to != NULL) {
+	if (!IsEmptyStr(to)) {
 		CM_SetField(msg, eRecipient, to, strlen(to));
 		recp = validate_recipients(to, NULL, 0);
 	}
-	if (subject != NULL) {
+	if (!IsEmptyStr(subject)) {
 		CM_SetField(msg, eMsgSubject, subject, strlen(subject));
 	}
-	CM_SetField(msg, eMesageText, text, strlen(text));
+	if (!IsEmptyStr(text)) {
+		CM_SetField(msg, eMesageText, text, strlen(text));
+	}
 
 	CtdlSubmitMsg(msg, recp, room, 0);
 	CM_Free(msg);
@@ -3520,7 +3522,7 @@ struct CtdlMessage *CtdlMakeMessageLen(
 	if (myelen > 0) {
 		CM_SetField(msg, eMessagePath, my_email, myelen);
 	}
-	else {
+	else if (!IsEmptyStr(author->fullname)) {
 		CM_SetField(msg, eMessagePath, author->fullname, strlen(author->fullname));
 	}
 	convert_spaces_to_underscores(msg->cm_fields[eMessagePath]);
@@ -3538,11 +3540,13 @@ struct CtdlMessage *CtdlMakeMessageLen(
 	CM_SetAsFieldSB(msg, eAuthor, &FakeEncAuthor);
 	FreeStrBuf(&FakeAuthor);
 
-	if (CCC->room.QRflags & QR_MAILBOX) {		/* room */
-		CM_SetField(msg, eOriginalRoom, &CCC->room.QRname[11], strlen(&CCC->room.QRname[11]));
-	}
-	else {
-		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
+	if (!!IsEmptyStr(CCC->room.QRname)) {
+		if (CCC->room.QRflags & QR_MAILBOX) {		/* room */
+			CM_SetField(msg, eOriginalRoom, &CCC->room.QRname[11], strlen(&CCC->room.QRname[11]));
+		}
+		else {
+			CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
+		}
 	}
 
 	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
