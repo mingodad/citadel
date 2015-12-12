@@ -510,8 +510,6 @@ struct wcsession {
 	HashList *InetCfg;                      /* Our inet server config for editing */
 	ExpirePolicy Policy[maxpolicy];
 
-/* used by the blog viewer */
-	int bptlid;				/* hash of thread currently being rendered */
 };
 
 
@@ -734,29 +732,6 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 extern int time_to_die;			/* Nonzero if server is shutting down */
 extern int DisableGzip;
 
-/* 
- * Array type for a blog post.  The first message is the post; the rest are comments
- */
-struct blogpost {
-	int top_level_id;
-	long *msgs;		/* Array of msgnums for messages we are displaying */
-	int num_msgs;		/* Number of msgnums stored in 'msgs' */
-	int alloc_msgs;		/* Currently allocated size of array */
-	int unread_oments;
-};
-
-
-/*
- * Data which gets returned from a call to blogview_learn_thread_references()
- */
-struct bltr {
-	int id;
-	int refs;
-};
-
-
-struct bltr blogview_learn_thread_references(long msgnum);
-void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP);
 void display_summary_page(void);
 
 HashList *GetValidDomainNames(StrBuf *Target, WCTemplputParams *TP);
