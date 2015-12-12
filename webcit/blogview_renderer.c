@@ -32,17 +32,11 @@ typedef struct __BLOG {
  * instead of writing it to the template)
  */
 void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
-	char perma[SIZ];
-	
-	strcpy(perma, "/readfwd?go=");
-	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), (char *)ChrPtr(WC->CurRoom.name));
-	snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", WC->bptlid);
-	if (!Target) {
-		wc_printf("%s", perma);
-	}
-	else {
-		StrBufAppendPrintf(Target, "%s", perma);
-	}
+	StrBuf *buf = NewStrBufPlain(HKEY("/readfwd?go="));
+	StrBufUrlescAppend(buf, WC->CurRoom.name, 0);
+	StrBufAppendPrintf(buf, "?p=%d", WC->bptlid);
+	StrBufAppendTemplate(Target, TP, buf, 0);
+	FreeStrBuf(&buf);
 }
 
 
@@ -365,5 +359,5 @@ InitModule_BLOGVIEWRENDERERS
 		blogview_render,
 		blogview_Cleanup
 	);
-	RegisterNamespace("BLOG:PERMALINK", 0, 0, tmplput_blog_permalink, NULL, CTX_NONE);
+	RegisterNamespace("BLOG:PERMALINK", 0, 1, tmplput_blog_permalink, NULL, CTX_NONE);
 }
