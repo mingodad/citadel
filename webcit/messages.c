@@ -171,7 +171,7 @@ int load_message(message_summary *Msg,
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, const StrBuf *PartNum, const StrBuf **OutMime) 
+int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, const StrBuf *PartNum, const StrBuf **OutMime, WCTemplputParams *TP) 
 {
 	StrBuf *Buf;
 	StrBuf *FoundCharset;
@@ -208,7 +208,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	StrBufTrim(Buf);
 	StrBufLowerCase(Buf);
 
-	StackContext(NULL, &SuperTP, Msg, CTX_MAILSUM, 0, NULL);
+	StackContext(TP, &SuperTP, Msg, CTX_MAILSUM, 0, NULL);
 	{
 		/* Locate a renderer capable of converting this MIME part into HTML */
 		if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
@@ -357,9 +357,9 @@ void handle_one_message(void)
 	case ePOST:
 		Tmpl = sbstr("template");
 		if (StrLength(Tmpl) > 0) 
-			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime, NULL);
 		else 
-			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime, NULL);
 		http_transmit_thing(ChrPtr(Mime), 0);
 		break;
 	case eDELETE:
@@ -416,9 +416,9 @@ void embed_message(void) {
 	case ePOST:
 		Tmpl = sbstr("template");
 		if (StrLength(Tmpl) > 0) 
-			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime, NULL);
 		else 
-			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime, NULL);
 		http_transmit_thing(ChrPtr(Mime), 0);
 		break;
 	case eDELETE:
@@ -455,7 +455,7 @@ void print_message(void) {
 
 	begin_burst();
 
-	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, NULL, &Mime);
+	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, NULL, &Mime, NULL);
 
 	wDumpContent(0);
 }

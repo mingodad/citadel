@@ -76,7 +76,7 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 	}
 
 	if (msgnum >= 0L) {
-		read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+		read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime, NULL);
 		return;
 	}
 

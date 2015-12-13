@@ -1030,7 +1030,7 @@ int vcard_RenderView_or_Tail(SharedMessageStatus *Stat, void **ViewSpecific, lon
 
 	VS = (vcardview_struct*) *ViewSpecific;
 	if (VS->is_singlecard)
-		read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), NULL, &Mime);
+		read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), NULL, &Mime, NULL);
 	else
 		do_addrbook_view(VS);	/* Render the address book */
 	return 0;

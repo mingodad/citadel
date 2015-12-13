@@ -111,19 +111,19 @@ void tmplput_blog_comment_unread_count(StrBuf *Target, WCTemplputParams *TP) {
 /*
  * Render a single blog post and (optionally) its comments
  */
-void blogpost_render(blogpost *bp, int with_comments)
+void blogpost_render(blogpost *bp, int with_comments, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	WCTemplputParams SubTP;
 	const StrBuf *Mime;
 	int i;
 
-        memset(&SubTP, 0, sizeof(WCTemplputParams));    
-	StackContext(NULL, &SubTP, bp, CTX_BLOGPOST, 0, NULL);
+        memset(&SubTP, 0, sizeof(WCTemplputParams));
+	StackContext(TP, &SubTP, bp, CTX_BLOGPOST, 0, NULL);
 
 	/* Always show the top level post, unless we somehow ended up with an empty list */
 	if (bp->num_msgs > 0) {
-		read_message(WC->WBuf, HKEY("view_blog_post"), bp->msgs[0], NULL, &Mime);
+		read_message(WC->WBuf, HKEY("view_blog_post"), bp->msgs[0], NULL, &Mime, TP);
 	}
 
 	if (with_comments) {
@@ -131,7 +131,7 @@ void blogpost_render(blogpost *bp, int with_comments)
 		DoTemplate(HKEY("view_blog_show_commentlink"), WCC->WBuf, &SubTP);
 
 		for (i=1; i<bp->num_msgs; ++i) {
-			read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
+			read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime, &SubTP);
 		}
 		DoTemplate(HKEY("view_blog_comment_box"), WCC->WBuf, &SubTP);
 	}
@@ -297,9 +297,11 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	int firstp = 0;
 	int maxp = 0;
 	WCTemplputParams SubTP;
+	WCTemplputParams StopSubTP;
 	blogpost oneBP;
 
         memset(&SubTP, 0, sizeof(WCTemplputParams));    
+        memset(&StopSubTP, 0, sizeof(WCTemplputParams));    
 	memset(&oneBP, 0, sizeof(blogpost));
 
 	/* Comments are shown if we are only viewing a single blog post */
@@ -327,7 +329,7 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 			}
 		}
 		if (unread_count == 1) {
-			blogpost_render(unread_bp, 1);
+			blogpost_render(unread_bp, 1, NULL);/// TODO other than null?
 
 			DeleteHashPos(&it);
 			return 0;
@@ -370,22 +372,22 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 
 		/* Now go through the list and render what we've got */
 		for (i=start_here; i<num_blogposts; ++i) {
+			int j = i - maxp;
+			if (j < 0) j = 0;
+			StackContext(NULL, &SubTP, &blogposts[j], CTX_BLOGPOST, 0, NULL);
 			if ((i > 0) && (i == start_here)) {
-				int j = i - maxp;
-				if (j < 0) j = 0;
-
 				StackContext(NULL, &SubTP, &blogposts[j], CTX_BLOGPOST, 0, NULL);
 				DoTemplate(HKEY("view_blog_post_start"), WCC->WBuf, &SubTP);
-				UnStackContext(&SubTP);
 			}
 			if (i < (start_here + maxp)) {
-				blogpost_render(blogposts[i], with_comments);
+				blogpost_render(blogposts[i], with_comments, &SubTP);
 			}
 			else if (i == (start_here + maxp)) {
-				StackContext(NULL, &SubTP, &blogposts[i], CTX_BLOGPOST, 0, NULL);
+				StackContext(&SubTP, &StopSubTP, &blogposts[i], CTX_BLOGPOST, 0, NULL);
 				DoTemplate(HKEY("view_blog_post_stop"), WCC->WBuf, &SubTP);
-				UnStackContext(&SubTP);
+				UnStackContext(&StopSubTP);
 			}
+			UnStackContext(&SubTP);
 		}
 
 		/* Done.  We are only freeing the array of pointers; the data itself

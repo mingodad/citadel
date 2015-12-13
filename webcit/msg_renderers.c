@@ -598,7 +598,7 @@ void render_MAIL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 		Mime->Data = NewStrBufPlain(NULL, Mime->length);
 	else 
 		FlushStrBuf(Mime->Data);
-	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, Mime->PartNum, &TemplateMime);
+	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, Mime->PartNum, &TemplateMime, TP);
 /*
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
@@ -948,7 +948,7 @@ void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 
 	MsgNum = LBstr(TKEY(0));
 	Buf = NewStrBuf();
-	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, NULL, &Mime);
+	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, NULL, &Mime, TP);
 	StrBufAppendTemplate(Target, TP, Buf, 1);
 	FreeStrBuf(&Buf);
 }
@@ -961,7 +961,7 @@ void tmplput_EDIT_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 
 	MsgNum = LBstr(TKEY(0));
 	Buf = NewStrBuf();
-	read_message(Buf, HKEY("view_message_edit"), MsgNum, NULL, &Mime);
+	read_message(Buf, HKEY("view_message_edit"), MsgNum, NULL, &Mime, TP);
 	StrBufAppendTemplate(Target, TP, Buf, 1);
 	FreeStrBuf(&Buf);
 }
@@ -984,7 +984,7 @@ void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)
 		free(wikipage);
 		if (msgnum >= 0L) {
 			Buf = NewStrBuf();
-			read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime);
+			read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime, TP);
 			StrBufAppendTemplate(Target, TP, Buf, 1);
 			FreeStrBuf(&Buf);
 		}

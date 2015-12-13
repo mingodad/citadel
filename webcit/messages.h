@@ -139,7 +139,8 @@ int read_message(StrBuf *Target,
 		 const char *tmpl, long tmpllen, 
 		 long msgnum, 
 		 const StrBuf *section, 
-		 const StrBuf **OutMime);
+		 const StrBuf **OutMime,
+		 WCTemplputParams *TP);
 int load_message(message_summary *Msg, 
 		 StrBuf *FoundCharset,
 		 StrBuf **Error);
