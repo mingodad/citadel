@@ -39,7 +39,7 @@ ConstStr QR2FlagList[] = {
 	{HKEY(strof(QR2_SUBJECTREQ))},
 	{HKEY(strof(QR2_SMTP_PUBLIC))},
 	{HKEY(strof(QR2_MODERATED))},
-	{HKEY("")}, 
+	{HKEY(strof(QR2_NOUPLMSG))}, 
 	{HKEY("")}, 
 	{HKEY("")}, 
 	{HKEY("")}, 
@@ -806,6 +806,12 @@ void editroom(void)
 		WCC->CurRoom.QRFlags &= ~QR_DOWNLOAD;
 	}
 
+	if (yesbstr("ulmsg")) {
+		WCC->CurRoom.QRFlags2 |= QR2_NOUPLMSG;
+	} else {
+		WCC->CurRoom.QRFlags2 &= ~QR2_NOUPLMSG;
+	}
+
 	if (yesbstr("visdir")) {
 		WCC->CurRoom.QRFlags |= QR_VISDIR;
 	} else {
@@ -1427,6 +1433,7 @@ InitModule_ROOMOPS
 	REGISTERTokenParamDefine(QR2_SUBJECTREQ);
 	REGISTERTokenParamDefine(QR2_SMTP_PUBLIC);
 	REGISTERTokenParamDefine(QR2_MODERATED);
+	REGISTERTokenParamDefine(QR2_NOUPLMSG);
 
 	REGISTERTokenParamDefine(UA_KNOWN);
 	REGISTERTokenParamDefine(UA_GOTOALLOWED);

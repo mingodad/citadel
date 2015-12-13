@@ -557,14 +557,16 @@ void cmd_ucls(char *cmd)
 			fclose(fp);
 		}
 
-		/* put together an upload notice */
-		snprintf(upload_notice, sizeof upload_notice,
-			"NEW UPLOAD: '%s'\n %s\n%s\n",
-			 CC->upl_file, 
-			 CC->upl_comment, 
-			 CC->upl_mimetype);
-		quickie_message(CC->curr_user, NULL, NULL, CC->room.QRname,
-				upload_notice, 0, NULL);
+		if ((CC->room.QRflags2 & QR2_NOUPLMSG) == 0) {
+			/* put together an upload notice */
+			snprintf(upload_notice, sizeof upload_notice,
+				 "NEW UPLOAD: '%s'\n %s\n%s\n",
+				 CC->upl_file, 
+				 CC->upl_comment, 
+				 CC->upl_mimetype);
+			quickie_message(CC->curr_user, NULL, NULL, CC->room.QRname,
+					upload_notice, 0, NULL);
+		}
 	} else {
 		abort_upl(CC);
 		cprintf("%d File '%s' aborted.\n", CIT_OK, CC->upl_path);
