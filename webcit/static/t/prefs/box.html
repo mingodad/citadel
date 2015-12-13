@@ -6,9 +6,9 @@
 <td>
   <input type="radio" name="roomlistview" VALUE="folders" 
 	 <?%("COND:PREF", 1, :"roomlistview", "folders", "checked", "")> 
-	 ><?_("Tree (folders) view")></input>
+	 ><?_("Tree (folders) view")>
   &nbsp;&nbsp;&nbsp;
-  <input type="radio" name="roomlistview" VALUE="rooms" <?%("COND:PREF", 1, :"roomlistview", "folders", "", "checked")><?%("COND:PREF", 1, :"roomlistview", "", "checked", "")>><?_("Table (rooms) view")></input>
+  <input type="radio" name="roomlistview" VALUE="rooms" <?%("COND:PREF", 1, :"roomlistview", "folders", "", "checked")><?%("COND:PREF", 1, :"roomlistview", "", "checked", "")>><?_("Table (rooms) view")>
 </td>
 </tr>
 
@@ -17,13 +17,11 @@
   <td>
 	<input type="radio" name="calhourformat" VALUE="12" 
 		<?%("COND:PREF", 1, :"calhourformat", "24", "", "checked")>
-		><?_("12 hour (am/pm)")>
-	</input>
+		><label><?_("12 hour (am/pm)")></label>
 	&nbsp;&nbsp;&nbsp;
 	<input type="radio" name="calhourformat" VALUE="24"
 		<?%("COND:PREF", 1, :"calhourformat", "24", "checked", "")>
-		><?_("24 hour")>
-	</input>
+		><label><?_("24 hour")></label>
   </td>
 </tr>
 
@@ -171,18 +169,16 @@
 
 	<input type="radio" id="no_sig" name="use_sig" VALUE="no" onChange="show_or_hide_sigbox();" 
 <?%("COND:PREF", 1, "use_sig", "yes", "", "checked")> >
-	  <?_("No signature")>
-        </input>
-	&nbsp,&nbsp;&nbsp;
+	  <label><?_("No signature")></label>
+	&nbsp;&nbsp;&nbsp;
 	<input type="radio" id="yes_sig" name="use_sig" VALUE="yes" onChange="show_or_hide_sigbox();" 
 	       <?%("COND:PREF", 1, "use_sig", "yes", "checked", "")> >
 		<div id="signature_box"><br>
 		  <textarea name="signature" cols="40" rows="5"><?PREF:VALUE("signature")></textarea>
 		</div>
-	</input>
+		<script type="text/javascript">show_or_hide_sigbox();</script>
   </td>
 </tr>
-<script type="text/javascript">show_or_hide_sigbox();</script>
 
 <tr class="even">
   <td><?PREF:DESCR("default_header_charset")></td>
@@ -195,16 +191,16 @@
     <td>
       <input type="radio" name="emptyfloors" VALUE="yes" 
 	     <?%("COND:PREF", 1, :"emptyfloors", "no", "", "checked")> 
-	     ><?_("Yes")></input>
+	     ><label><?_("Yes")></label>
       &nbsp;&nbsp;&nbsp;
-      <input type="radio" name="emptyfloors" VALUE="no"  <?%("COND:PREF", 1, :"emptyfloors", "no",  "checked", "")> ><?_("No")></input>
+      <input type="radio" name="emptyfloors" VALUE="no"  <?%("COND:PREF", 1, :"emptyfloors", "no",  "checked", "")> ><label><?_("No")></label>
 </td>
 </tr>
 
 <tr class="even">
   <td><?PREF:DESCR("defaultname")></td>
   <td>
-<select name="defaultname" size=1 id="from_id">
+<select name="defaultname" size=1 id="from_id_name">
 <?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_sender_name_select")>
 </select>
 
@@ -214,7 +210,7 @@
 <tr class="odd">
   <td><?PREF:DESCR("defaulthandle")></td>
   <td>
-<select name="defaulthandle" size=1 id="from_id">
+<select name="defaulthandle" size=1 id="from_id_handle">
 <?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_handle_select")>
 </select>
 
@@ -235,11 +231,21 @@
   <td>
      <input type="radio" id="m_client" name="mailbox" VALUE="client" 
 	 <?%("COND:PREF", 1, :"mailbox", "client", "checked", "")> 
-	 ><label for="mailbox"><?_("Full-functionality")></label>
+	 ><label for="m_client"><?_("Full-functionality")></label>
      <input type="radio" name="mailbox" id="m_cnosort" VALUE="client-nosort" 
 	 <?%("COND:PREF", 1, :"mailbox", "client", "", "checked")> 
 	 ><label for="m_cnosort"><?_("Safe mode")></label><br>
     <?_("Safe mode is less intensive on your web browser, but not as fully featured.")>
+  </td>
+</tr>
+
+<tr class="even">
+  <td><?PREF:DESCR("markdown")></td>
+  <td>
+
+      <input type="radio" name="markdown" VALUE="yes" <?%("COND:PREF", 1, :"markdown", "yes", "checked", "")> ><label><?_("Yes")></label>
+      &nbsp;&nbsp;&nbsp;
+      <input type="radio" name="markdown" VALUE="no"  <?%("COND:PREF", 1, :"markdown", "no", "", "checked")> ><label><?_("No")></label>
   </td>
 </tr>
 
@@ -257,4 +263,6 @@
 <div class="buttons"> 
   <input type="submit" name="change_button" value="<?_("Change")>">&nbsp;
   <input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</div>
+</form>
 </div>

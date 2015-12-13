@@ -1366,6 +1366,10 @@ void display_enter(void)
 	int i = 0;
 	long replying_to;
 
+	int prefer_md;
+
+	get_pref_yesno("markdown", &prefer_md, 0);
+
 	if (havebstr("force_room")) {
 		gotoroom(sbstr("force_room"));
 	}
@@ -1695,7 +1699,7 @@ void display_enter(void)
 
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	if (WCC->CurRoom.defview == VIEW_WIKIMD) 
+	if ((WCC->CurRoom.defview == VIEW_WIKIMD) || prefer_md)
 		DoTemplate(HKEY("edit_markdown_epic"), NULL, &NoCtx);
 	else
 		DoTemplate(HKEY("edit_message"), NULL, &NoCtx);
@@ -2056,6 +2060,8 @@ InitModule_MSG
 			   PRF_STRING, 
 			   NULL);
 	RegisterPreference("mailbox",_("Mailbox view mode"), PRF_STRING, NULL);
+	RegisterPreference("markdown",_("Prefer markdown editing"), PRF_YESNO, NULL);
+
 
 	WebcitAddUrlHandler(HKEY("readnew"), "", 0, h_readnew, ANONYMOUS|NEED_URL);
 	WebcitAddUrlHandler(HKEY("readold"), "", 0, h_readold, ANONYMOUS|NEED_URL);
