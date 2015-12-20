@@ -636,7 +636,6 @@ void output_headers(    int do_httpheaders,
 			int unset_cookies,
 			int suppress_check,
 			int cache);
-void output_custom_content_header(const char *ctype);
 void cdataout(char *rawdata);
 
 
