@@ -15,6 +15,14 @@
 #include "webcit.h"
 #include "webserver.h"
 
+/*
+ * Expiry policy for the autopurger
+ */
+#define EXPIRE_NEXTLEVEL        0       /* Inherit expiration policy    */
+#define EXPIRE_MANUAL           1       /* Don't expire messages at all */
+#define EXPIRE_NUMMSGS          2       /* Keep only latest n messages  */
+#define EXPIRE_AGE              3       /* Expire messages after n days */
+
 CtxType CTX_SRVLOG = CTX_NONE;
 
 HashList *ZoneHash = NULL;

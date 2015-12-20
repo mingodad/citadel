@@ -196,17 +196,11 @@ extern char *ssl_cipher_list;
 /*
  * Expiry policy for the autopurger
  */
-#define EXPIRE_NEXTLEVEL        0       /* Inherit expiration policy    */
-#define EXPIRE_MANUAL           1       /* Don't expire messages at all */
-#define EXPIRE_NUMMSGS          2       /* Keep only latest n messages  */
-#define EXPIRE_AGE              3       /* Expire messages after n days */
 
 typedef struct __ExpirePolicy {
         int expire_mode;
         int expire_value;
 } ExpirePolicy;
-void LoadExpirePolicy(GPEXWhichPolicy which);
-void SaveExpirePolicyFromHTTP(GPEXWhichPolicy which);
 
 /*
  * Linked list of session variables encoded in an x-www-urlencoded content type
