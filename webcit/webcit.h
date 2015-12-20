@@ -545,7 +545,6 @@ extern char file_crpt_file_cer[PATH_MAX];
 
 void init_ssl(void);
 void endtls(void);
-void ssl_lock(int mode, int n, const char *file, int line);
 int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
 int client_read_sslbuffer(StrBuf *buf, int timeout);
