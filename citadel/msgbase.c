@@ -55,31 +55,31 @@ char *msgkeys[] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, 
-	"from", /* A */
-	NULL,   /* B */
-	NULL,   /* C */
-	NULL,   /* D */
-	"exti", /* E */
-	"rfca", /* F */
+	"from", /* A -> eAuthor       */
+	NULL,   /* B -> eBig_message  */
+	NULL,   /* C -> eRemoteRoom   */
+	NULL,   /* D -> eDestination  */
+	"exti", /* E -> eXclusivID    */
+	"rfca", /* F -> erFc822Addr   */
 	NULL,   /* G */
-	"hnod", /* H */
-	"msgn", /* I */
-	"jrnl", /* J */
-	"rep2", /* K */
-	"list", /* L */
-	"text", /* M */
-	"node", /* N */
-	"room", /* O */
-	"path", /* P */
+	"hnod", /* H -> eHumanNode    */
+	"msgn", /* I -> emessageId    */
+	"jrnl", /* J -> eJournal      */
+	"rep2", /* K -> eReplyTo      */
+	"list", /* L -> eListID       */
+	"text", /* M -> eMesageText   */
+	"node", /* N -> eNodeName     */
+	"room", /* O -> eOriginalRoom */
+	"path", /* P -> eMessagePath  */
 	NULL,   /* Q */
-	"rcpt", /* R */
-	"spec", /* S */
-	"time", /* T */
-	"subj", /* U */
-	"nvto", /* V */
-	"wefw", /* W */
+	"rcpt", /* R -> eRecipient    */
+	"spec", /* S -> eSpecialField */
+	"time", /* T -> eTimestamp    */
+	"subj", /* U -> eMsgSubject   */
+	"nvto", /* V -> eenVelopeTo   */
+	"wefw", /* W -> eWeferences   */
 	NULL,   /* X */
-	"cccc", /* Y */
+	"cccc", /* Y -> eCarbonCopY   */
 	NULL    /* Z */
 };
 
