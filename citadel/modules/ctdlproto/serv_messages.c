@@ -58,6 +58,44 @@ void headers_listing(long msgnum, void *userdata)
 	CM_Free(msg);
 }
 
+typedef struct _msg_filter{
+	HashList *Filter;
+	HashPos *p;
+	StrBuf *buffer;
+}msg_filter;
+
+void headers_brief_filter(long msgnum, void *userdata)
+{
+	long i, l;
+	struct CtdlMessage *msg;
+	msg_filter *flt = (msg_filter*) userdata;
+
+	l = GetCount(flt->Filter);
+	msg = CtdlFetchMessage(msgnum, 0, 1);
+	StrBufPrintf(flt->buffer, "%ld", msgnum);
+	if (msg == NULL) {
+		for (i = 0; i < l; i++) {
+			StrBufAppendBufPlain(flt->buffer, HKEY("|"), 0);
+		}
+	}
+	else {
+		const char *k;
+		long len;
+		void *v;
+		RewindHashPos(flt->Filter, flt->p, 0);
+		while (GetNextHashPos(flt->Filter, flt->p, &len, &k, &v)) {
+			eMsgField f = (eMsgField) v;
+			
+			StrBufAppendBufPlain(flt->buffer, HKEY("|"), 0);
+			if (!CM_IsEmpty(msg, f)) {
+				StrBufAppendBufPlain(flt->buffer, CM_KEY(msg, f), 0);
+			}
+		}
+	}
+	StrBufAppendBufPlain(flt->buffer, HKEY("\n"), 0);
+	cputbuf(flt->buffer);
+}
+
 /*
  * Back end for the MSGS command: output EUID header.
  */
@@ -94,6 +132,7 @@ void cmd_msgs(char *cmdbuf)
 	int cm_ref = 0;
 	int with_template = 0;
 	struct CtdlMessage *template = NULL;
+        msg_filter filt;
 	char search_string[1024];
 	ForEachMsgCallback CallBack;
 
@@ -114,6 +153,10 @@ void cmd_msgs(char *cmdbuf)
 		break;
 	case MSG_HDRS_EUID:
 		CallBack = headers_euid;
+		break;
+	case MSG_HDRS_BRIEFFILTER:
+		with_template = 2;
+		CallBack = headers_brief_filter;
 		break;
 	}
 
@@ -141,7 +184,8 @@ void cmd_msgs(char *cmdbuf)
 		return;
 	}
 
-	if (with_template) {
+	if (with_template == 1) {
+		memset(buf, 0, 5);
 		unbuffer_output();
 		cprintf("%d Send template then receive message list\n",
 			START_CHAT_MODE);
@@ -153,36 +197,63 @@ void cmd_msgs(char *cmdbuf)
 
 		while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
 			eMsgField f;
-
 			long tValueLen;
+
 			tValueLen = extract_token(tfield, buf, 0, '|', sizeof tfield);
 			if ((tValueLen == 4) && GetFieldFromMnemonic(&f, tfield))
 			{
-				if (with_template == 1) {
-					tValueLen = extract_token(tvalue, buf, 1, '|', sizeof tvalue);
-					if (tValueLen >= 0) {
-						CM_SetField(template, f, tvalue, tValueLen);
-					}
-				}
-				else {
-
+				tValueLen = extract_token(tvalue, buf, 1, '|', sizeof tvalue);
+				if (tValueLen >= 0) {
+					CM_SetField(template, f, tvalue, tValueLen);
 				}
 			}
 		}
+		buffer_output();
+	}
+	else if (with_template == 2) {
+		long i = 0;
+		memset(buf, 0, 5);
+		filt.Filter = NewHash(1, lFlathash);
+		filt.buffer = NewStrBufPlain(NULL, 1024);
+		while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
+			eMsgField f;
+	
+			if (GetFieldFromMnemonic(&f, buf))
+			{
+				Put(filt.Filter, LKEY(i), (void*)f, reference_free_handler);
+				i++;
+			}
+		}
+		filt.p = GetNewHashPos(filt.Filter, 0);
 		buffer_output();
 	}
 	else {
 		cprintf("%d  \n", LISTING_FOLLOWS);
 	}
 
-	CtdlForEachMessage(mode,
-			   ( (mode == MSGS_SEARCH) ? 0 : cm_ref ),
-			   ( (mode == MSGS_SEARCH) ? search_string : NULL ),
-			   NULL,
-			   template,
-			   CallBack,
-			   NULL);
-	if (template != NULL) CM_Free(template);
+	if (with_template < 2) {
+		CtdlForEachMessage(mode,
+				   ( (mode == MSGS_SEARCH) ? 0 : cm_ref ),
+				   ( (mode == MSGS_SEARCH) ? search_string : NULL ),
+				   NULL,
+				   template,
+				   CallBack,
+				   NULL);
+		if (template != NULL) CM_Free(template);
+	}
+	else {
+		CtdlForEachMessage(mode,
+				   ( (mode == MSGS_SEARCH) ? 0 : cm_ref ),
+				   ( (mode == MSGS_SEARCH) ? search_string : NULL ),
+				   NULL,
+				   NULL,
+				   CallBack,
+				   &filt);
+		DeleteHashPos(&filt.p);
+		DeleteHash(&filt.Filter);
+		FreeStrBuf(&filt.buffer);
+		
+	}
 	cprintf("000\n");
 }
 

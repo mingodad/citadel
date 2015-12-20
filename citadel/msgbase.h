@@ -18,7 +18,8 @@ enum {
 enum {
 	MSG_HDRS_BRIEF = 0,
 	MSG_HDRS_ALL = 1,
-	MSG_HDRS_EUID = 4
+	MSG_HDRS_EUID = 4,
+	MSG_HDRS_BRIEFFILTER = 8
 };
 
 /*
