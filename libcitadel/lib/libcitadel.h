@@ -515,6 +515,7 @@ typedef long (*HashFunc)(const char *Str, long Len);
 typedef void (*TransitionFunc) (void *Item1, void *Item2, int Odd);
 typedef const char* (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
 
+long FourHash(const char *key, long length);
 long Flathash(const char *str, long len);
 long lFlathash(const char *str, long len);
 #define IKEY(a) (const char*) &a, sizeof(a)

@@ -156,10 +156,12 @@ void cmd_msgs(char *cmdbuf)
 			long tValueLen;
 			extract_token(tfield, buf, 0, '|', sizeof tfield);
 			tValueLen = extract_token(tvalue, buf, 1, '|', sizeof tvalue);
-			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
-				if (!strcasecmp(tfield, msgkeys[i])) {
-					CM_SetField(template, i, tvalue, tValueLen);
-				}
+			if (tValueLen >= 0) {
+				for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
+						if (!strcasecmp(tfield, msgkeys[i])) {
+							CM_SetField(template, i, tvalue, tValueLen);
+						}
+					}
 			}
 		}
 		buffer_output();
