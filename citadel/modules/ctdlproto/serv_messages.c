@@ -92,7 +92,6 @@ void cmd_msgs(char *cmdbuf)
 	char tfield[256];
 	char tvalue[256];
 	int cm_ref = 0;
-	int i;
 	int with_template = 0;
 	struct CtdlMessage *template = NULL;
 	char search_string[1024];
@@ -153,15 +152,21 @@ void cmd_msgs(char *cmdbuf)
 		template->cm_anon_type = MES_NORMAL;
 
 		while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
+			eMsgField f;
+
 			long tValueLen;
-			extract_token(tfield, buf, 0, '|', sizeof tfield);
-			tValueLen = extract_token(tvalue, buf, 1, '|', sizeof tvalue);
-			if (tValueLen >= 0) {
-				for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
-						if (!strcasecmp(tfield, msgkeys[i])) {
-							CM_SetField(template, i, tvalue, tValueLen);
-						}
+			tValueLen = extract_token(tfield, buf, 0, '|', sizeof tfield);
+			if ((tValueLen == 4) && GetFieldFromMnemonic(&f, tfield))
+			{
+				if (with_template == 1) {
+					tValueLen = extract_token(tvalue, buf, 1, '|', sizeof tvalue);
+					if (tValueLen >= 0) {
+						CM_SetField(template, f, tvalue, tValueLen);
 					}
+				}
+				else {
+
+				}
 			}
 		}
 		buffer_output();

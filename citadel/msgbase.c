@@ -45,7 +45,7 @@ int MessageDebugEnabled = 0;
  * These are the four-character field headers we use when outputting
  * messages in Citadel format (as opposed to RFC822 format).
  */
-char *msgkeys[] = {
+char *msgkeys[91] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
@@ -80,8 +80,33 @@ char *msgkeys[] = {
 	"wefw", /* W -> eWeferences   */
 	NULL,   /* X */
 	"cccc", /* Y -> eCarbonCopY   */
-	NULL    /* Z */
+	NULL   /* Z */
+
 };
+HashList *msgKeyLookup = NULL;
+
+int GetFieldFromMnemonic(eMsgField *f, const char* c)
+{
+	void *v = NULL;
+	if (GetHash(msgKeyLookup, c, 4, &v)) {
+		*f = (eMsgField) v;
+		return 1;
+	}
+	return 0;
+}
+
+void FillMsgKeyLookupTable(void)
+{
+	long i;
+
+	msgKeyLookup = NewHash (1, FourHash);
+
+	for (i=0; i < 91; i++) {
+		if (msgkeys[i] != NULL) {
+			Put(msgKeyLookup, msgkeys[i], 4, (void*)i, reference_free_handler);
+		}
+	}
+}
 
 eMsgField FieldOrder[]  = {
 /* Important fields */
@@ -4120,6 +4145,7 @@ void SetMessageDebugEnabled(const int n)
 CTDL_MODULE_INIT(msgbase)
 {
 	if (!threading) {
+		FillMsgKeyLookupTable();
 		CtdlRegisterDebugFlagHook(HKEY("messages"), SetMessageDebugEnabled, &MessageDebugEnabled);
 	}
 

@@ -73,6 +73,9 @@ struct addresses_to_be_filed {
 
 extern struct addresses_to_be_filed *atbf;
 
+int GetFieldFromMnemonic(eMsgField *f, const char* c);
+
+
 void memfmout (char *mptr, const char *nl);
 void output_mime_parts(char *);
 long send_message (struct CtdlMessage *);
