@@ -9,6 +9,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#ifndef MESSAGES_H
+#define MESSAGES_H
 
 extern CtxType CTX_MAILSUM;
 extern CtxType CTX_MIME_ATACH;
@@ -294,3 +296,6 @@ void RegisterMimeRenderer(const char *HeaderName, long HdrNLen,
  * @param buf linebuffer used to buffer citserver replies
  */
 int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Buf);
+
+
+#endif
