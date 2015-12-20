@@ -692,7 +692,6 @@ void TmplGettext(StrBuf *Target, WCTemplputParams *TP);
 
 void set_selected_language(const char *);
 void go_selected_language(void);
-void stop_selected_language(void);
 const char *get_selected_language(void);
 
 void utf8ify_rfc822_string(char **buf);
