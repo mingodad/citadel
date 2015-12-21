@@ -5,6 +5,10 @@
 CtxType CTX_MAILSUM = CTX_NONE;
 CtxType CTX_MIME_ATACH = CTX_NONE;
 
+HashList *MsgHeaderHandler = NULL;
+HashList *DflMsgHeaderHandler = NULL;
+
+
 static inline void CheckConvertBufs(struct wcsession *WCC)
 {
 	if (WCC->ConvertBuf1 == NULL)
@@ -62,6 +66,25 @@ void DestroyMessageSummary(void *vMsg)
 }
 
 
+int EvaluateMsgHdr(const char *HeaderName, long HdrNLen, message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	void *vHdr;
+	headereval* Hdr = NULL;
+	if (HdrNLen == 4) {
+		if (GetHash(DflMsgHeaderHandler, HeaderName, HdrNLen, &vHdr) &&
+		    (vHdr != NULL)) {
+			Hdr = (headereval*)vHdr;
+		}
+	}
+	if (Hdr == NULL && GetHash(MsgHeaderHandler, HeaderName, HdrNLen, &vHdr) &&
+	    (vHdr != NULL)) {
+		Hdr = (headereval*)vHdr;
+	}
+	if (Hdr == NULL)
+		return -1;
+	Hdr->evaluator(Msg, HdrLine, FoundCharset);
+	return Hdr->Type;
+}
 
 void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc evaluator, int type)
 {
@@ -69,6 +92,14 @@ void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc e
 	ev = (headereval*) malloc(sizeof(headereval));
 	ev->evaluator = evaluator;
 	ev->Type = type;
+
+	if (HdrNLen == 4) {
+		eMessageField f;
+		if (GetFieldFromMnemonic(&f, HeaderName)) {
+			Put(DflMsgHeaderHandler, HeaderName, HdrNLen, ev, NULL);
+			return;
+		}
+	}
 	Put(MsgHeaderHandler, HeaderName, HdrNLen, ev, NULL);
 }
 
@@ -803,8 +834,6 @@ void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundC
 
 void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
-	void *vHdr;
-	headereval *Hdr;
 	StrBuf *Token;
 	StrBuf *Value;
 	const char* sem;
@@ -840,12 +869,8 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 			}
 			StrBufTrim(Token);
 
-			if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
-			    (vHdr != NULL)) {
-				Hdr = (headereval*)vHdr;
-				Hdr->evaluator(Msg, Value, FoundCharset);
-			}
-			else syslog(LOG_WARNING, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
+			if (EvaluateMsgHdr(SKEY(Token), Msg, Value, FoundCharset) < 0)
+				syslog(LOG_WARNING, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
 		}
 		FreeStrBuf(&Token);
 		FreeStrBuf(&Value);
@@ -1373,6 +1398,53 @@ readloop_struct rlid[] = {
 	{ {HKEY("readlt")},	servcmd_readlt		}
 };
 
+const char* fieldMnemonics[] = {
+	"from", /* A -> eAuthor       */
+	"exti", /* E -> eXclusivID    */
+	"rfca", /* F -> erFc822Addr   */
+	"hnod", /* H -> eHumanNode    */
+	"msgn", /* I -> emessageId    */
+	"jrnl", /* J -> eJournal      */
+	"rep2", /* K -> eReplyTo      */
+	"list", /* L -> eListID       */
+	"text", /* M -> eMesageText   */
+	"node", /* N -> eNodeName     */
+	"room", /* O -> eOriginalRoom */
+	"path", /* P -> eMessagePath  */
+	"rcpt", /* R -> eRecipient    */
+	"spec", /* S -> eSpecialField */
+	"time", /* T -> eTimestamp    */
+	"subj", /* U -> eMsgSubject   */
+	"nvto", /* V -> eenVelopeTo   */
+	"wefw", /* W -> eWeferences   */
+	"cccc"  /* Y -> eCarbonCopY   */
+};
+HashList *msgKeyLookup = NULL;
+
+int GetFieldFromMnemonic(eMessageField *f, const char* c)
+{
+	void *v = NULL;
+	if (GetHash(msgKeyLookup, c, 4, &v)) {
+		*f = (eMessageField) v;
+		return 1;
+	}
+	return 0;
+}
+
+void FillMsgKeyLookupTable(void)
+{
+	long i;
+
+	msgKeyLookup = NewHash (1, FourHash);
+
+	for (i=0; i < 20; i++) {
+		if (fieldMnemonics[i] != NULL) {
+			Put(msgKeyLookup, fieldMnemonics[i], 4, (void*)i, reference_free_handler);
+		}
+	}
+}
+
+
 
 void 
 InitModule_MSGRENDERERS
@@ -1487,6 +1559,8 @@ InitModule_MSGRENDERERS
 #endif
 	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN, 0, 0);
 
+	FillMsgKeyLookupTable();
+
 	/* these headers are citserver replies to MSG4 and friends. one evaluator for each */
 	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);
 	RegisterMsgHdr(HKEY("type"), examine_type, 0);
@@ -1529,6 +1603,7 @@ void
 ServerStartModule_MSGRENDERERS
 (void)
 {
+	DflMsgHeaderHandler = NewHash (1, FourHash);
 	MsgHeaderHandler = NewHash(1, NULL);
 	MimeRenderHandler = NewHash(1, NULL);
 	ReadLoopHandler = NewHash(1, NULL);
@@ -1541,9 +1616,8 @@ ServerShutdownModule_MSGRENDERERS
 	DeleteHash(&MsgHeaderHandler);
 	DeleteHash(&MimeRenderHandler);
 	DeleteHash(&ReadLoopHandler);
+	DeleteHash(&msgKeyLookup);
 }
-
-
 
 void 
 SessionDestroyModule_MSGRENDERERS

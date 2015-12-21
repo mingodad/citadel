@@ -17,7 +17,6 @@
 #include "dav.h"
 #include "calendar.h"
 
-HashList *MsgHeaderHandler = NULL;
 HashList *MimeRenderHandler = NULL;
 HashList *ReadLoopHandler = NULL;
 int dbg_analyze_msg = 0;
@@ -45,12 +44,11 @@ int load_message(message_summary *Msg,
 {
 	StrBuf *Buf;
 	StrBuf *HdrToken;
-	headereval *Hdr;
-	void *vHdr;
 	char buf[SIZ];
 	int Done = 0;
 	int state=0;
-	
+	int rc;
+
 	Buf = NewStrBuf();
 	if (Msg->PartNum != NULL) {
 		serv_printf("MSG4 %ld|%s", Msg->msgnum, ChrPtr(Msg->PartNum));
@@ -97,14 +95,11 @@ int load_message(message_summary *Msg,
 			StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 			
 			/* look up one of the examine_* functions to parse the content */
-			if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
-			    (vHdr != NULL)) {
-				Hdr = (headereval*)vHdr;
-				Hdr->evaluator(Msg, Buf, FoundCharset);
-				if (Hdr->Type == 1) {
-					state++;
-				}
-			}/* TODO: 
+			rc =  EvaluateMsgHdr(SKEY(HdrToken), Msg, Buf, FoundCharset);
+			if (rc == 1) {
+				state++;
+			}
+			/* TODO: 
 			else LogError(Target, 
 				      __FUNCTION__,  
 				      "don't know how to handle message header[%s]\n", 
@@ -125,11 +120,8 @@ int load_message(message_summary *Msg,
 				if (StrLength(HdrToken) > 0) {
 					StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 					/* the examine*'s know how to do with mime headers too... */
-					if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
-					    (vHdr != NULL)) {
-						Hdr = (headereval*)vHdr;
-						Hdr->evaluator(Msg, Buf, FoundCharset);
-					}
+					EvaluateMsgHdr(SKEY(HdrToken), Msg, Buf, FoundCharset);
+					
 					break;
 				}
 			}
@@ -1310,77 +1302,6 @@ void remove_attachment(void) {
 }
 
 
-/* Maps to msgkeys[] in msgbase.c: */
-
-typedef enum _eMessageField {
-	eAuthor,
-	eXclusivID,
-	erFc822Addr,
-	eHumanNode,
-	emessageId,
-	eJournal,
-	eReplyTo,
-	eListID,
-	eMesageText,
-	eNodeName,
-	eOriginalRoom,
-	eMessagePath,
-	eRecipient,
-	eSpecialField,
-	eTimestamp,
-	eMsgSubject,
-	eenVelopeTo,
-	eWeferences,
-	eCarbonCopY
-}eMessageField;
-
-const char* fieldMnemonics[] = {
-	"from", /* A -> eAuthor       */
-	"exti", /* E -> eXclusivID    */
-	"rfca", /* F -> erFc822Addr   */
-	"hnod", /* H -> eHumanNode    */
-	"msgn", /* I -> emessageId    */
-	"jrnl", /* J -> eJournal      */
-	"rep2", /* K -> eReplyTo      */
-	"list", /* L -> eListID       */
-	"text", /* M -> eMesageText   */
-	"node", /* N -> eNodeName     */
-	"room", /* O -> eOriginalRoom */
-	"path", /* P -> eMessagePath  */
-	"rcpt", /* R -> eRecipient    */
-	"spec", /* S -> eSpecialField */
-	"time", /* T -> eTimestamp    */
-	"subj", /* U -> eMsgSubject   */
-	"nvto", /* V -> eenVelopeTo   */
-	"wefw", /* W -> eWeferences   */
-	"cccc"  /* Y -> eCarbonCopY   */
-};
-
-HashList *msgKeyLookup = NULL;
-
-int GetFieldFromMnemonic(eMessageField *f, const char* c)
-{
-	void *v = NULL;
-	if (GetHash(msgKeyLookup, c, 4, &v)) {
-		*f = (eMessageField) v;
-		return 1;
-	}
-	return 0;
-}
-
-void FillMsgKeyLookupTable(void)
-{
-	long i;
-
-	msgKeyLookup = NewHash (1, FourHash);
-
-	for (i=0; i < 20; i++) {
-		if (fieldMnemonics[i] != NULL) {
-			Put(msgKeyLookup, fieldMnemonics[i], 4, (void*)i, reference_free_handler);
-		}
-	}
-}
-
 const char *ReplyToModeStrings [3] = {
 	"reply",
 	"replyall",
@@ -2099,24 +2020,15 @@ void RegisterReadLoopHandlerset(
 }
 
 void 
-ServerShutdownModule_MSG
-(void)
-{
-	DeleteHash(&msgKeyLookup);
-}
-
-void 
 InitModule_MSG
 (void)
 {
-	FillMsgKeyLookupTable();
-
 	RegisterPreference("use_sig",
 			   _("Attach signature to email messages?"), 
 			   PRF_YESNO, 
 			   NULL);
 	RegisterPreference("signature", _("Use this signature:"), PRF_QP_STRING, NULL);
-	RegisterPreference("default_header_charset", 
+	RegisterPreference("default_header_charset",
 			   _("Default character set for email headers:"), 
 			   PRF_STRING, 
 			   NULL);
