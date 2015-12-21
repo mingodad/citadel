@@ -787,13 +787,13 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		
 		Foo = NewStrBuf ();
 		StrBufPrintf(Foo, "%ld", Stat.nummsgs);
-		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo)); // keep Foo!
+		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo)); /* keep Foo! */
 
 		StrBufPrintf(Foo, "%ld", Stat.numNewmsgs);
-		PutBstr(HKEY("__READLOOP:NEWMSGS"), NewStrBufDup(Foo)); // keep Foo!
+		PutBstr(HKEY("__READLOOP:NEWMSGS"), NewStrBufDup(Foo)); /* keep Foo! */
 
 		StrBufPrintf(Foo, "%ld", Stat.startmsg);
-		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo); // store Foo elsewhere, descope it here.
+		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo); /* store Foo elsewhere, descope it here. */
 	}
 
 	/*
@@ -1310,32 +1310,76 @@ void remove_attachment(void) {
 }
 
 
-long FourHash(const char *key, long length) 
+/* Maps to msgkeys[] in msgbase.c: */
+
+typedef enum _eMessageField {
+	eAuthor,
+	eXclusivID,
+	erFc822Addr,
+	eHumanNode,
+	emessageId,
+	eJournal,
+	eReplyTo,
+	eListID,
+	eMesageText,
+	eNodeName,
+	eOriginalRoom,
+	eMessagePath,
+	eRecipient,
+	eSpecialField,
+	eTimestamp,
+	eMsgSubject,
+	eenVelopeTo,
+	eWeferences,
+	eCarbonCopY
+}eMessageField;
+
+const char* fieldMnemonics[] = {
+	"from", /* A -> eAuthor       */
+	"exti", /* E -> eXclusivID    */
+	"rfca", /* F -> erFc822Addr   */
+	"hnod", /* H -> eHumanNode    */
+	"msgn", /* I -> emessageId    */
+	"jrnl", /* J -> eJournal      */
+	"rep2", /* K -> eReplyTo      */
+	"list", /* L -> eListID       */
+	"text", /* M -> eMesageText   */
+	"node", /* N -> eNodeName     */
+	"room", /* O -> eOriginalRoom */
+	"path", /* P -> eMessagePath  */
+	"rcpt", /* R -> eRecipient    */
+	"spec", /* S -> eSpecialField */
+	"time", /* T -> eTimestamp    */
+	"subj", /* U -> eMsgSubject   */
+	"nvto", /* V -> eenVelopeTo   */
+	"wefw", /* W -> eWeferences   */
+	"cccc"  /* Y -> eCarbonCopY   */
+};
+
+HashList *msgKeyLookup = NULL;
+
+int GetFieldFromMnemonic(eMessageField *f, const char* c)
 {
-        int i;
-        long ret = 0;
-        const unsigned char *ptr = (const unsigned char*)key;
-
-        for (i = 0; i < 4; i++, ptr ++) 
-                ret = (ret << 8) | 
-                        ( ((*ptr >= 'a') &&
-                           (*ptr <= 'z'))? 
-                          *ptr - 'a' + 'A': 
-                          *ptr);
-
-        return ret;
+	void *v = NULL;
+	if (GetHash(msgKeyLookup, c, 4, &v)) {
+		*f = (eMessageField) v;
+		return 1;
+	}
+	return 0;
 }
 
-long l_subj;
-long l_wefw;
-long l_msgn;
-long l_from;
-long l_rcpt;
-long l_cccc;
-long l_replyto;
-long l_node;
-long l_rfca;
-long l_nvto;
+void FillMsgKeyLookupTable(void)
+{
+	long i;
+
+	msgKeyLookup = NewHash (1, FourHash);
+
+	for (i=0; i < 20; i++) {
+		if (fieldMnemonics[i] != NULL) {
+			Put(msgKeyLookup, fieldMnemonics[i], 4, (void*)i, reference_free_handler);
+		}
+	}
+}
 
 const char *ReplyToModeStrings [3] = {
 	"reply",
@@ -1469,95 +1513,112 @@ void display_enter(void)
 			       ((len != 3)  ||
 				strcmp(ChrPtr(Line), "000")))
 			{
-				long which = 0;
+				eMessageField which;
 				if ((StrLength(Line) > 4) && 
-				    (ChrPtr(Line)[4] == '='))
-					which = FourHash(ChrPtr(Line), 4);
+				    (ChrPtr(Line)[4] == '=') &&
+				    GetFieldFromMnemonic(&which, ChrPtr(Line)))
+					switch (which) {
+					case eMsgSubject: {
+						StrBuf *subj = NewStrBuf();
+						StrBuf *FlatSubject;
 
-				if (which == l_subj)
-				{
-					StrBuf *subj = NewStrBuf();
-					StrBuf *FlatSubject;
-
-					if (ReplyMode == eForward) {
-						if (strncasecmp(ChrPtr(Line) + 5, "Fw:", 3)) {
-							StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
+						if (ReplyMode == eForward) {
+							if (strncasecmp(ChrPtr(Line) + 5, "Fw:", 3)) {
+								StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
+							}
 						}
-					}
-					else {
-						if (strncasecmp(ChrPtr(Line) + 5, "Re:", 3)) {
-							StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+						else {
+							if (strncasecmp(ChrPtr(Line) + 5, "Re:", 3)) {
+								StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+							}
 						}
+						StrBufAppendBufPlain(subj, 
+								     ChrPtr(Line) + 5, 
+								     StrLength(Line) - 5, 0);
+						FlatSubject = NewStrBufPlain(NULL, StrLength(subj));
+						StrBuf_RFC822_to_Utf8(FlatSubject, subj, NULL, NULL);
+
+						PutBstr(HKEY("subject"), FlatSubject);
 					}
-					StrBufAppendBufPlain(subj, 
-							     ChrPtr(Line) + 5, 
-							     StrLength(Line) - 5, 0);
-					FlatSubject = NewStrBufPlain(NULL, StrLength(subj));
-					StrBuf_RFC822_to_Utf8(FlatSubject, subj, NULL, NULL);
+						break;
 
-					PutBstr(HKEY("subject"), FlatSubject);
-				}
+					case eWeferences:
+					{
+						int rrtok;
+						int rrlen;
 
-				else if (which == l_wefw)
-				{
-					int rrtok;
-					int rrlen;
-
-					wefw = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						wefw = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
 					
-					/* Trim down excessively long lists of thread references.  We eliminate the
-					 * second one in the list so that the thread root remains intact.
-					 */
-					rrtok = num_tokens(ChrPtr(wefw), '|');
-					rrlen = StrLength(wefw);
-					if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-						StrBufRemove_token(wefw, 1, '|');
+						/* Trim down excessively long lists of thread references.  We eliminate the
+						 * second one in the list so that the thread root remains intact.
+						 */
+						rrtok = num_tokens(ChrPtr(wefw), '|');
+						rrlen = StrLength(wefw);
+						if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+							StrBufRemove_token(wefw, 1, '|');
+						}
+						break;
 					}
-				}
 
-				else if (which == l_msgn) {
-					msgn = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
+					case emessageId:
+						msgn = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
 
-				else if (which == l_from) {
-					StrBuf *FlatFrom;
-					from = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-					FlatFrom = NewStrBufPlain(NULL, StrLength(from));
-					StrBuf_RFC822_to_Utf8(FlatFrom, from, NULL, NULL);
-					FreeStrBuf(&from);
-					from = FlatFrom;
-					for (i=0; i<StrLength(from); ++i) {
-						if (ChrPtr(from)[i] == ',')
-							StrBufPeek(from, NULL, i, ' ');
+					case eAuthor: {
+						StrBuf *FlatFrom;
+						from = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						FlatFrom = NewStrBufPlain(NULL, StrLength(from));
+						StrBuf_RFC822_to_Utf8(FlatFrom, from, NULL, NULL);
+						FreeStrBuf(&from);
+						from = FlatFrom;
+						for (i=0; i<StrLength(from); ++i) {
+							if (ChrPtr(from)[i] == ',')
+								StrBufPeek(from, NULL, i, ' ');
+						}
+						break;
 					}
-				}
 				
-				else if (which == l_rcpt) {
-					rcpt = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
+					case eRecipient:
+						rcpt = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+			
 				
-				else if (which == l_cccc) {
-					cccc = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
+					case eCarbonCopY:
+						cccc = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+
 				
-				else if (which == l_node) {
-					node = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
-				else if (which == l_replyto) {
-					replyto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
-				else if (which == l_rfca) {
-					StrBuf *FlatRFCA;
-					rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-					FlatRFCA = NewStrBufPlain(NULL, StrLength(rfca));
-					StrBuf_RFC822_to_Utf8(FlatRFCA, rfca, NULL, NULL);
-					FreeStrBuf(&rfca);
-					rfca = FlatRFCA;
-				}
-				else if (which == l_nvto) {
-					nvto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-					putbstr("nvto", nvto);
-				}
+					case eNodeName:
+						node = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+					case eReplyTo:
+						replyto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+					case erFc822Addr: {
+						StrBuf *FlatRFCA;
+						rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						FlatRFCA = NewStrBufPlain(NULL, StrLength(rfca));
+						StrBuf_RFC822_to_Utf8(FlatRFCA, rfca, NULL, NULL);
+						FreeStrBuf(&rfca);
+						rfca = FlatRFCA;
+						break;
+					}
+					case eenVelopeTo:
+						nvto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						putbstr("nvto", nvto);
+						break;
+					case eXclusivID:
+					case eHumanNode:
+					case eJournal:
+					case eListID:
+					case eMesageText:
+					case eOriginalRoom:
+					case eMessagePath:
+					case eSpecialField:
+					case eTimestamp:
+						break;
+
+					}
 			}
 
 
@@ -2038,9 +2099,18 @@ void RegisterReadLoopHandlerset(
 }
 
 void 
+ServerShutdownModule_MSG
+(void)
+{
+	DeleteHash(&msgKeyLookup);
+}
+
+void 
 InitModule_MSG
 (void)
 {
+	FillMsgKeyLookupTable();
+
 	RegisterPreference("use_sig",
 			   _("Attach signature to email messages?"), 
 			   PRF_YESNO, 
@@ -2089,19 +2159,6 @@ InitModule_MSG
 
 	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
-
-	l_subj = FourHash("subj", 4);
-	l_wefw = FourHash("wefw", 4);
-	l_msgn = FourHash("msgn", 4);
-	l_from = FourHash("from", 4);
-	l_rcpt = FourHash("rcpt", 4);
-	l_cccc = FourHash("cccc", 4);
-	l_replyto = FourHash("rep2", 4);
-	l_node = FourHash("node", 4);
-	l_rfca = FourHash("rfca", 4);
-	l_nvto = FourHash("nvto", 4);
-
-	return ;
 }
 
 void
