@@ -298,6 +298,14 @@ reaches zero.
 |       |                   |      |                |  other message ids)
 | Y     |    eCarbonCopY    | cccc | carbon copY    |  *eCarbonCopY*
 |       |                   |      |                |  Optional, and only in Mail messages.
+| %     |    eHeaderOnly    | nhdr | oNlyHeader     |  we will just be sending headers. for the Wire protocol only.
+| %     |    eFormatType    | type | type           |  type of citadel message: (Wire protocol only)
+|       |                   |      |                |     FMT\_CITADEL     0   Citadel vari-format (proprietary) 
+|       |                   |      |                |     FMT\_FIXED       1   Fixed format (proprietary)
+|       |                   |      |                |     FMT\_RFC822      4   Standard (headers are in M field)
+| %     |    eMessagePart   | part | emessagePart   |  *eMessagePart* is the id of this part in the mime hierachy
+| %     |	 eSubFolder     | suff | eSubFolder     |  descend into a mime sub container
+| %     | 	 ePevious       | pref | ePevious       |  exit a mime sub container
 | 0     |    eErrorMsg      |      | Error          |  *eErrorMsg*
 |       |                   |      |                |  This field is typically never found in a message on
 |       |                   |      |                |  disk or in transit.  Message scanning modules are
