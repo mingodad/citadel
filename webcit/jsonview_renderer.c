@@ -68,6 +68,7 @@ InitModule_JSONRENDERER
 		ParseMessageListHeaders_Detail,
 		NULL,
 		json_RenderView_or_Tail,
-		json_Cleanup);
+		json_Cleanup,
+		NULL);
 
 }

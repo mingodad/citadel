@@ -22,8 +22,11 @@ typedef struct __BLOG {
 	HashList *BLOGPOSTS;
 	long p;
 	int gotonext;
+	long firstp;
+	long maxp;
 	StrBuf *Charset;
 	StrBuf *Buf;
+	const StrBuf *FilterTag;
 } BLOG;
 
 /* 
@@ -60,7 +63,7 @@ void sitemap_do_blog(void) {
 	Stat.maxload = INT_MAX;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+	num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	if (num_msgs < 1) return;
 
 	for (i=0; i<num_msgs; ++i) {
@@ -159,9 +162,9 @@ void blogpost_destroy(blogpost *bp) {
  * Entry point for message read operations.
  */
 int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat, 
-				   void **ViewSpecific, 
-				   long oper, 
-				   char *cmd, 
+				    void **ViewSpecific, 
+				    long oper, 
+				    char *cmd, 
 				    long len,
 				    char *filter,
 				    long flen)
@@ -174,6 +177,11 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	BL->gotonext = havebstr("gotonext");
 	BL->Charset = NewStrBuf();
 	BL->Buf = NewStrBuf();
+	BL->FilterTag = sbstr("FilterTag");
+	BL->firstp = lbstr("firstp");   /* start reading at... */
+	BL->maxp   = lbstr("maxp");	    /* max posts to show... */
+	if (BL->maxp < 1) BL->maxp = 5;	    /* default; move somewhere else? */
+	putlbstr("maxp", BL->maxp);
 	*ViewSpecific = BL;
 
 	Stat->startmsg = (-1);					/* not used here */
@@ -182,10 +190,68 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	if (Stat->maxmsgs == 0) Stat->maxmsgs = DEFAULT_MAXMSGS;
 	
 	/* perform a "read all" call to fetch the message list -- we'll cut it down later */
-	rlid[2].cmd(cmd, len);
+	snprintf(cmd, len, "MSGS ALL||2|8\n");
+
 	if (BL->gotonext)
 		Stat->load_seen = 1;
 	return 200;
+}
+
+
+int blogview_IdentifyBlogposts (StrBuf *Line, 
+				const char **pos, 
+				message_summary *Msg, 
+				StrBuf *ConversionBuffer,
+				void **ViewSpecific)
+{
+	BLOG *BL = (BLOG*) *ViewSpecific;
+	blogpost *bp = NULL;
+
+	/* Stop processing if the viewer is only interested in a single post and
+	 * that message ID is neither the id nor the refs.
+	 */
+	if ((BL->p != 0) &&
+	    (BL->p != Msg->reply_inreplyto_hash) &&
+	    (BL->p != Msg->reply_references_hash)) {
+		return 0;
+	}
+
+	if ((Msg->reply_references_hash == 0) && 
+	    (BL->FilterTag != NULL) && 
+	    (strstr(ChrPtr(Msg->EnvTo) , ChrPtr(BL->FilterTag)) == NULL)) {
+		/* filtering for tags, blogpost doesn't fit. */
+		return 0;
+	}
+	    
+	/*
+	 * build up a hashtable of the blogposts.
+	 */
+	if (Msg->reply_references_hash == 0) {
+		bp = malloc(sizeof(blogpost));
+
+		if (bp == NULL) return 0;
+
+		memset(bp, 0, sizeof (blogpost));
+
+	 	bp->top_level_id = Msg->reply_inreplyto_hash;
+		bp->alloc_msgs = 1000;
+		bp->msgs = malloc(bp->alloc_msgs * sizeof(long));
+		memset(bp->msgs, 0, (bp->alloc_msgs * sizeof(long)) );
+
+		/* the first one is the blogpost itself, all subequent are comments. */
+		bp->msgs[0] = Msg->msgnum;
+		bp->num_msgs = 1;
+
+		Put(BL->BLOGPOSTS,
+		    LKEY(Msg->reply_inreplyto_hash),
+		    bp,
+		    (DeleteHashDataFunc)blogpost_destroy);
+	}
+	/*
+	 * Comments will be handled on the next iteration.
+	 */
+
+	return 1;
 }
 
 
@@ -198,67 +264,42 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 			      int is_new, 
 			      int i)
 {
-	BLOG *BL = (BLOG*) *ViewSpecific;
 	blogpost *bp = NULL;
+	BLOG *BL = (BLOG*) *ViewSpecific;
 
-	ReadOneMessageSummary(Msg, BL->Charset, BL->Buf);
-
-	/* Stop processing if the viewer is only interested in a single post and
-	 * that message ID is neither the id nor the refs.
-	 */
-	if ((BL->p != 0) &&
-	    (BL->p != Msg->reply_inreplyto_hash) &&
-	    (BL->p != Msg->reply_references_hash)) {
-		return 200;
-	}
-
-	/*
-	 * Add our little bundle of blogworthy wonderfulness to the hash table
-	 */
-	if (Msg->reply_references_hash == 0) {
-		bp = malloc(sizeof(blogpost));
-		if (!bp) return(200);
-		memset(bp, 0, sizeof (blogpost));
-	 	bp->top_level_id = Msg->reply_inreplyto_hash;
-		Put(BL->BLOGPOSTS,
-		    (const char *)&Msg->reply_inreplyto_hash,
-		    sizeof(Msg->reply_inreplyto_hash),
-		    bp,
-		    (DeleteHashDataFunc)blogpost_destroy);
-	}
-	else {
+	if (Msg->reply_references_hash != 0) {
+		/* 
+		 * this is a comment. try to assign it to a blogpost.
+		 */
 		GetHash(BL->BLOGPOSTS,
-			(const char *)&Msg->reply_references_hash,
-			sizeof(Msg->reply_references_hash),
+			LKEY(Msg->reply_references_hash),
 			(void *)&bp);
-	}
 
-	/*
-	 * Now we have a 'blogpost' to which we can add a message.  It's either the
-	 * blog post itself or a comment attached to it; either way, the code is the same from
-	 * this point onward.
-	 */
-	if (bp != NULL) {
-		if (bp->alloc_msgs == 0) {
-			bp->alloc_msgs = 1000;
-			bp->msgs = malloc(bp->alloc_msgs * sizeof(long));
-			memset(bp->msgs, 0, (bp->alloc_msgs * sizeof(long)) );
+		/*
+		 * Now we have a 'blogpost' to which we can add the comment.  It's either the
+		 * blog post itself or a comment attached to it; either way, the code is the same from
+		 * this point onward.
+		 */
+		if (bp != NULL) {
+			if (bp->num_msgs >= bp->alloc_msgs) {
+				bp->alloc_msgs *= 2;
+				bp->msgs = realloc(bp->msgs, (bp->alloc_msgs * sizeof(long)));
+				memset(&bp->msgs[bp->num_msgs], 0,
+				       ((bp->alloc_msgs - bp->num_msgs) * sizeof(long)) );
+			}
+			bp->msgs[bp->num_msgs++] = Msg->msgnum;
+			if ((Msg->Flags & MSGFLAG_READ) != 0) {
+				bp->unread_oments++;
+			}
 		}
-		if (bp->num_msgs >= bp->alloc_msgs) {
-			bp->alloc_msgs *= 2;
-			bp->msgs = realloc(bp->msgs, (bp->alloc_msgs * sizeof(long)));
-			memset(&bp->msgs[bp->num_msgs], 0,
-				((bp->alloc_msgs - bp->num_msgs) * sizeof(long)) );
-		}
-		bp->msgs[bp->num_msgs++] = Msg->msgnum;
-		if ((Msg->Flags & MSGFLAG_READ) != 0) {
-			bp->unread_oments++;
+		else {
+			/*
+			 * Ok, this comment probably belongs to one of the blogposts
+			 * we ruled out by filters. don't load it.
+			 */
+			return 200;
 		}
 	}
-	else {
-		syslog(LOG_DEBUG, "** comment %ld is unparented", Msg->msgnum);
-	}
-
 	return 200;
 }
 
@@ -268,11 +309,11 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
  * With big thanks to whoever wrote http://www.c.happycodings.com/Sorting_Searching/code14.html
  */
 static int blogview_sortfunc(const void *a, const void *b) { 
-	blogpost * const *one = a;
-	blogpost * const *two = b;
+	blogpost const *one = GetSearchPayload(a);
+	blogpost const *two = GetSearchPayload(b);
 
-	if ( (*one)->msgs[0] > (*two)->msgs[0] ) return(-1);
-	if ( (*one)->msgs[0] < (*two)->msgs[0] ) return(+1);
+	if ( one->msgs[0] > two->msgs[0] ) return(-1);
+	if ( one->msgs[0] < two->msgs[0] ) return(+1);
 	return(0);
 }
 
@@ -287,30 +328,30 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	BLOG *BL = (BLOG*) *ViewSpecific;
 	HashPos *it;
 	const char *Key;
+	blogpost *thisBlogpost;
 	void *Data;
 	long len;
-	int i;
-	blogpost **blogposts = NULL;
 	int num_blogposts = 0;
-	int num_blogposts_alloc = 0;
 	int with_comments = 0;
-	int firstp = 0;
-	int maxp = 0;
 	WCTemplputParams SubTP;
 	WCTemplputParams StopSubTP;
 	blogpost oneBP;
+	long firstPOffset = 0;
+	int count = 0;
+	int totalCount = 0;
+	StrBuf *PrevNext = NULL;
 
+	num_blogposts = GetCount(BL->BLOGPOSTS);
+	if (num_blogposts == 0) {
+		/* Nothing to do... */
+		return 0;
+	}
         memset(&SubTP, 0, sizeof(WCTemplputParams));    
         memset(&StopSubTP, 0, sizeof(WCTemplputParams));    
 	memset(&oneBP, 0, sizeof(blogpost));
 
 	/* Comments are shown if we are only viewing a single blog post */
 	with_comments = (BL->p != 0);
-
-	firstp = ibstr("firstp");   /* start reading at... */
-	maxp   = ibstr("maxp");	    /* max posts to show... */
-	if (maxp < 1) maxp = 5;	    /* default; move somewhere else? */
-	putlbstr("maxp", maxp);
 
 	it = GetNewHashPos(BL->BLOGPOSTS, 0);
 
@@ -334,67 +375,82 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 			DeleteHashPos(&it);
 			return 0;
 		}
-
-		RewindHashPos(BL->BLOGPOSTS, it, 0);
 	}
-
-	/* Iterate through the hash list and copy the data pointers into an array */
-	while (GetNextHashPos(BL->BLOGPOSTS, it, &len, &Key, &Data)) {
-		if (num_blogposts >= num_blogposts_alloc) {
-			if (num_blogposts_alloc == 0) {
-				num_blogposts_alloc = 100;
-			}
-			else {
-				num_blogposts_alloc *= 2;
-			}
-			blogposts = realloc(blogposts, (num_blogposts_alloc * sizeof (blogpost *)));
-		}
-		blogposts[num_blogposts++] = (blogpost *) Data;
-	}
-	DeleteHashPos(&it);
 
 	/* Now we have our array.  It is ONLY an array of pointers.  The objects to
 	 * which they point are still owned by the hash list.
 	 */
-	if (num_blogposts > 0) {
-		int start_here = 0;
-		/* Sort newest-to-oldest */
-		qsort(blogposts, num_blogposts, sizeof(void *), blogview_sortfunc);
+
+	/* get it into the right sort of order - blogposts may have been edited */
+	SortByPayload(BL->BLOGPOSTS, blogview_sortfunc);
+
+	/* Find the start post to display: */
+	if (BL->firstp != 0) {
+		/* Translate the firstpost id into an offset */
+		RewindHashPos(BL->BLOGPOSTS, it, 0);
+		while (GetNextHashPos(BL->BLOGPOSTS, it, &len, &Key, &Data)) {
+			thisBlogpost = (blogpost *) Data;
+			if (thisBlogpost->top_level_id == BL->firstp) {
+				firstPOffset = count;
+				break;
+			}
+			count ++;
+		}
+	}
+
+	if ((num_blogposts > BL->maxp) || (firstPOffset != 0)){
+		PrevNext = NewStrBuf();
+		if (firstPOffset  > 0) {
+			const char *k;
+			long len;
+			long posPrev = 0;
+			/* we now need to go up to maxp items back */
+			if (firstPOffset > BL->maxp) {
+				posPrev = firstPOffset - BL->maxp;
+			}
+			GetHashAt(BL->BLOGPOSTS, posPrev, &len, &k, &Data);
+			thisBlogpost = (blogpost *) Data;
+			StackContext(NULL, &SubTP, thisBlogpost, CTX_BLOGPOST, 0, NULL);
+			DoTemplate(HKEY("view_blog_post_start"), PrevNext, &SubTP);
+		}
+		if (firstPOffset + BL->maxp <= num_blogposts) {
+			const char *k;
+			long len;
+			long posNext = firstPOffset + BL->maxp;
+			GetHashAt(BL->BLOGPOSTS, posNext, &len, &k, &Data);
+			thisBlogpost = (blogpost *) Data;
+			StackContext(NULL, &SubTP, thisBlogpost, CTX_BLOGPOST, 0, NULL);
+			DoTemplate(HKEY("view_blog_post_stop"), PrevNext, &SubTP);
+		}
+	}
+
+	StrBufAppendBuf(WCC->WBuf, PrevNext, 0);
+	count = totalCount = 0;
+	RewindHashPos(BL->BLOGPOSTS, it, 0);
+
+	/* FIXME -- allow the user (or a default setting) to select a maximum number of posts to display */
+	while (GetNextHashPos(BL->BLOGPOSTS, it, &len, &Key, &Data)) {
+		thisBlogpost = (blogpost *) Data;
 
 		/* allow the user to select a starting point in the list */
-		for (i=0; i<num_blogposts; ++i) {
-			if (blogposts[i]->top_level_id == firstp) {
-				start_here = i;
-			}
+		if (totalCount < firstPOffset) {
+			/* skip all till we found the first valid: */
+			totalCount ++;
+			continue;
 		}
-
-		/* FIXME -- allow the user (or a default setting) to select a maximum number of posts to display */
-
-		/* Now go through the list and render what we've got */
-		for (i=start_here; i<num_blogposts; ++i) {
-			int j = i - maxp;
-			if (j < 0) j = 0;
-			StackContext(NULL, &SubTP, &blogposts[j], CTX_BLOGPOST, 0, NULL);
-			if ((i > 0) && (i == start_here)) {
-				StackContext(NULL, &SubTP, &blogposts[j], CTX_BLOGPOST, 0, NULL);
-				DoTemplate(HKEY("view_blog_post_start"), WCC->WBuf, &SubTP);
-			}
-			if (i < (start_here + maxp)) {
-				blogpost_render(blogposts[i], with_comments, &SubTP);
-			}
-			else if (i == (start_here + maxp)) {
-				StackContext(&SubTP, &StopSubTP, &blogposts[i], CTX_BLOGPOST, 0, NULL);
-				DoTemplate(HKEY("view_blog_post_stop"), WCC->WBuf, &SubTP);
-				UnStackContext(&StopSubTP);
-			}
-			UnStackContext(&SubTP);
+		if (count >= BL->maxp) {
+			/* enough is enough. */
+			break;
 		}
-
-		/* Done.  We are only freeing the array of pointers; the data itself
-		 * will be freed along with the hash list.
-		 */
-		free(blogposts);
+		StackContext(NULL, &SubTP, thisBlogpost, CTX_BLOGPOST, 0, NULL);
+		blogpost_render(thisBlogpost, with_comments, &SubTP);
+		UnStackContext(&SubTP);
+		count ++;
+		totalCount ++;
 	}
+	StrBufAppendBuf(WCC->WBuf, PrevNext, 0);
+	FreeStrBuf(&PrevNext);
+	DeleteHashPos(&it);
 
 	return(0);
 }
@@ -417,6 +473,12 @@ void
 InitModule_BLOGVIEWRENDERERS
 (void)
 {
+	const char* browseListFields[] = {
+		"msgn",
+		"nvto",
+		"wefw",
+		NULL
+	};
 	RegisterCTX(CTX_BLOGPOST);
 
 	RegisterReadLoopHandlerset(
@@ -424,10 +486,11 @@ InitModule_BLOGVIEWRENDERERS
 		blogview_GetParamsGetServerCall,
 		NULL,
 		NULL,
-		NULL, 
+		blogview_IdentifyBlogposts, 
 		blogview_LoadMsgFromServer,
 		blogview_render,
-		blogview_Cleanup
+		blogview_Cleanup,
+		browseListFields
 	);
 
 	RegisterNamespace("BLOG:TOPLEVEL:MSGID", 0, 0, tmplput_blog_toplevel_id, NULL, CTX_BLOGPOST);

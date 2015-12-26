@@ -14,7 +14,6 @@
 
 extern CtxType CTX_MAILSUM;
 extern CtxType CTX_MIME_ATACH;
-extern HashList *MsgHeaderHandler;
 extern HashList *MimeRenderHandler;
 extern HashList *ReadLoopHandler;
 typedef struct wc_mime_attachment wc_mime_attachment;
@@ -81,6 +80,43 @@ typedef struct _message_summary {
 } message_summary;
 void DestroyMessageSummary(void *vMsg);
 
+/* Maps to msgkeys[] in msgbase.c: */
+
+typedef enum _eMessageField {
+	eAuthor,
+	eXclusivID,
+	erFc822Addr,
+	eHumanNode,
+	emessageId,
+	eJournal,
+	eReplyTo,
+	eListID,
+	eMesageText,
+	eNodeName,
+	eOriginalRoom,
+	eMessagePath,
+	eRecipient,
+	eSpecialField,
+	eTimestamp,
+	eMsgSubject,
+	eenVelopeTo,
+	eWeferences,
+	eCarbonCopY,
+	eHeaderOnly,
+	eFormatType,
+	eMessagePart,
+	ePevious,
+	eSubFolder,
+	eLastHeader
+}eMessageField;
+
+extern const char* fieldMnemonics[];
+
+int GetFieldFromMnemonic(eMessageField *f, const char* c);
+
+int EvaluateMsgHdr(const char *HeaderName, long HdrNLen, message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
+int EvaluateMsgHdrEnum(eMessageField f, message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
+
 
 
 static inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
@@ -120,12 +156,14 @@ enum {
  * @param Line the raw line with your message data
  * @param Msg put your parser results here...
  * @param ConversionBuffer if you need some workbuffer, don't free me!
+ * @param ViewSpecific your view specific context data
  * @returns 0: failure, trash this message. 1: all right, store it
  */
 typedef int (*load_msg_ptrs_detailheaders) (StrBuf *Line, 
 					    const char **pos, 
 					    message_summary *Msg, 
-					    StrBuf *ConversionBuffer);
+					    StrBuf *ConversionBuffer,
+					    void **ViewSpecific);
 
 typedef void (*readloop_servcmd)(char *buf, long bufsize);
 
@@ -170,8 +208,13 @@ typedef struct _SharedMessageStatus {
 
 int load_msg_ptrs(const char *servcmd,
 		  const char *filter,
-		  SharedMessageStatus *Stat, 
-		  load_msg_ptrs_detailheaders LH);
+		  StrBuf *FoundCharset,
+		  SharedMessageStatus *Stat,
+		  void **ViewSpecific,
+		  load_msg_ptrs_detailheaders LH,
+		  StrBuf *FetchMessageList,
+		  eMessageField *MessageFieldList,
+		  long HeaderCount);
 
 typedef int (*GetParamsGetServerCall_func)(SharedMessageStatus *Stat, 
 					   void **ViewSpecific, 
@@ -256,7 +299,12 @@ void RegisterReadLoopHandlerset(
 	 * VALgrindHALLA.
 	 * it also should release the content for delivery via end_burst() or wDumpContent(1);
 	 */
-	View_Cleanup_func ViewCleanup
+	View_Cleanup_func ViewCleanup,
+	/**
+	 * brofwseListFields schould be a NULL-terminated list of message field mnemonics
+	 * that will be the browse vector for the message header list.
+	 */
+	const char **browseListFields
 	);
 /*
 GetParamsGetServerCall
@@ -272,9 +320,8 @@ RenderView_or_Tail
 int ParseMessageListHeaders_Detail(StrBuf *Line, 
 				   const char **pos, 
 				   message_summary *Msg, 
-				   StrBuf *ConversionBuffer);
-
-
+				   StrBuf *ConversionBuffer,
+				   void **ViewSpecific);
 
 /**
  * @brief function to register the availability to render a specific message
@@ -296,6 +343,5 @@ void RegisterMimeRenderer(const char *HeaderName, long HdrNLen,
  * @param buf linebuffer used to buffer citserver replies
  */
 int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Buf);
-
 
 #endif

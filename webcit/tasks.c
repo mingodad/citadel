@@ -758,6 +758,7 @@ InitModule_TASKS
 		NULL,
 		tasks_LoadMsgFromServer,
 		tasks_RenderView_or_Tail,
-		tasks_Cleanup);
+		tasks_Cleanup,
+		NULL);
 	WebcitAddUrlHandler(HKEY("save_task"), "", 0, save_task, 0);
 }

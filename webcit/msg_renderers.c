@@ -7,6 +7,7 @@ CtxType CTX_MIME_ATACH = CTX_NONE;
 
 HashList *MsgHeaderHandler = NULL;
 HashList *DflMsgHeaderHandler = NULL;
+HashList *DflEnumMsgHeaderHandler = NULL;
 
 
 static inline void CheckConvertBufs(struct wcsession *WCC)
@@ -65,6 +66,19 @@ void DestroyMessageSummary(void *vMsg)
 	free(Msg);
 }
 
+int EvaluateMsgHdrEnum(eMessageField f, message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	void *vHdr;
+	headereval* Hdr = NULL;
+	if (GetHash(DflEnumMsgHeaderHandler, IKEY(f), &vHdr) &&
+	    (vHdr != NULL)) {
+		Hdr = (headereval*)vHdr;
+	}
+	if (Hdr == NULL)
+		return -1;
+	Hdr->evaluator(Msg, HdrLine, FoundCharset);
+	return Hdr->Type;
+}
 
 int EvaluateMsgHdr(const char *HeaderName, long HdrNLen, message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -97,6 +111,7 @@ void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc e
 		eMessageField f;
 		if (GetFieldFromMnemonic(&f, HeaderName)) {
 			Put(DflMsgHeaderHandler, HeaderName, HdrNLen, ev, NULL);
+			Put(DflEnumMsgHeaderHandler, IKEY(f), ev, reference_free_handler);
 			return;
 		}
 	}
@@ -271,6 +286,12 @@ void examine_path(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {
 void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 /* TODO: do we care? */
+}
+
+
+void examine_exti(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	/* we don't care */
 }
 
 void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -880,8 +901,6 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 
 int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Buf)
 {
-	void *vHdr;
-	headereval *Hdr;
 	const char *buf;
 	const char *ebuf;
 	int nBuf;
@@ -903,13 +922,8 @@ int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Bu
 		ebuf = strchr(ChrPtr(Buf), '=');
 		nBuf = ebuf - buf;
 		
-		if (GetHash(MsgHeaderHandler, buf, nBuf, &vHdr) &&
-		    (vHdr != NULL)) {
-			Hdr = (headereval*)vHdr;
-			StrBufCutLeft(Buf, nBuf + 1);
-			Hdr->evaluator(Msg, Buf, FoundCharset);
-		}
-		else syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
+		if (EvaluateMsgHdr(buf, nBuf, Msg, Buf, FoundCharset) < 0)
+			syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
 	}
 	return 1;
 }
@@ -1417,7 +1431,12 @@ const char* fieldMnemonics[] = {
 	"subj", /* U -> eMsgSubject   */
 	"nvto", /* V -> eenVelopeTo   */
 	"wefw", /* W -> eWeferences   */
-	"cccc"  /* Y -> eCarbonCopY   */
+	"cccc", /* Y -> eCarbonCopY   */
+	"nhdr", /* % -> eHeaderOnly   */
+	"type", /* % -> eFormatType   */
+	"part", /* % -> eMessagePart  */
+	"suff", /* % -> eSubFolder    */
+	"pref"  /* % -> ePevious      */
 };
 HashList *msgKeyLookup = NULL;
 
@@ -1433,14 +1452,15 @@ int GetFieldFromMnemonic(eMessageField *f, const char* c)
 
 void FillMsgKeyLookupTable(void)
 {
-	long i;
+	long i = 0;
 
 	msgKeyLookup = NewHash (1, FourHash);
 
-	for (i=0; i < 20; i++) {
+	while (i != eLastHeader) {
 		if (fieldMnemonics[i] != NULL) {
 			Put(msgKeyLookup, fieldMnemonics[i], 4, (void*)i, reference_free_handler);
 		}
+		i++;
 	}
 }
 
@@ -1559,10 +1579,9 @@ InitModule_MSGRENDERERS
 #endif
 	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN, 0, 0);
 
-	FillMsgKeyLookupTable();
-
 	/* these headers are citserver replies to MSG4 and friends. one evaluator for each */
 	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);
+	RegisterMsgHdr(HKEY("exti"), examine_exti, 0);
 	RegisterMsgHdr(HKEY("type"), examine_type, 0);
 	RegisterMsgHdr(HKEY("from"), examine_from, 0);
 	RegisterMsgHdr(HKEY("subj"), examine_subj, 0);
@@ -1604,15 +1623,21 @@ ServerStartModule_MSGRENDERERS
 (void)
 {
 	DflMsgHeaderHandler = NewHash (1, FourHash);
+	DflEnumMsgHeaderHandler = NewHash (1, Flathash);
 	MsgHeaderHandler = NewHash(1, NULL);
 	MimeRenderHandler = NewHash(1, NULL);
 	ReadLoopHandler = NewHash(1, NULL);
+	FillMsgKeyLookupTable();
 }
 
 void 
 ServerShutdownModule_MSGRENDERERS
 (void)
 {
+	DeleteHash(&DflMsgHeaderHandler);
+	DeleteHash(&DflEnumMsgHeaderHandler);
+
+
 	DeleteHash(&MsgHeaderHandler);
 	DeleteHash(&MimeRenderHandler);
 	DeleteHash(&ReadLoopHandler);

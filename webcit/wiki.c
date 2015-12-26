@@ -346,7 +346,8 @@ InitModule_WIKI
 		NULL,
 		NULL,
 		NULL,
-		wiki_Cleanup
+		wiki_Cleanup,
+		NULL
 	);
 
 	RegisterReadLoopHandlerset(
@@ -357,7 +358,8 @@ InitModule_WIKI
 		NULL,
 		NULL,
 		NULL,
-		wiki_Cleanup
+		wiki_Cleanup,
+		NULL
 	);
 
 	WebcitAddUrlHandler(HKEY("wiki"), "", 0, display_wiki_page, 0);

@@ -1147,7 +1147,8 @@ InitModule_VCARD
 		NULL, 
 		vcard_LoadMsgFromServer,
 		vcard_RenderView_or_Tail,
-		vcard_Cleanup);
+		vcard_Cleanup,
+		NULL);
 
 	RegisterIterator("MAIL:VCARDS", 0, NULL, CtxGetVcardList, NULL, NULL, CTX_VCARD, CTX_VCARD_LIST, IT_NOFLAG);
 

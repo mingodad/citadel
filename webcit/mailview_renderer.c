@@ -13,7 +13,8 @@ static inline void CheckConvertBufs(struct wcsession *WCC)
 int ParseMessageListHeaders_Detail(StrBuf *Line, 
 				   const char **pos, 
 				   message_summary *Msg, 
-				   StrBuf *ConversionBuffer)
+				   StrBuf *ConversionBuffer,
+				   void **ViewSpecific)
 {
 	wcsession *WCC = WC;
 	long len;
@@ -117,6 +118,7 @@ InitModule_MAILVIEW_RENDERERS
 		ParseMessageListHeaders_Detail,
 		NULL,
 		NULL,
-		mailview_Cleanup);
+		mailview_Cleanup,
+		NULL);
 
 }

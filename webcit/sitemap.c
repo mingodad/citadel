@@ -30,7 +30,7 @@ void sitemap_do_bbs(void) {
 	Stat.maxload = INT_MAX;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+	num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	if (num_msgs < 1) return;
 
 	for (i=0; i<num_msgs; i+=20) {
@@ -61,7 +61,7 @@ void sitemap_do_wiki(void) {
 	Stat.maxload = INT_MAX;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+	num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	if (num_msgs < 1) return;
 
 	for (i=0; i<num_msgs; ++i) {

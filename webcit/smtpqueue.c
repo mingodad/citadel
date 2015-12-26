@@ -448,6 +448,7 @@ InitModule_SMTP_QUEUE
 		NULL,
 		qview_LoadMsgFromServer,
 		qview_RenderView_or_Tail,
-		qview_Cleanup);
+		qview_Cleanup,
+		NULL);
 
 }

@@ -417,6 +417,7 @@ InitModule_BBSVIEWRENDERERS
 		NULL, 
 		bbsview_LoadMsgFromServer,
 		bbsview_RenderView_or_Tail,
-		bbsview_Cleanup
+		bbsview_Cleanup,
+		NULL
 	);
 }

@@ -774,7 +774,8 @@ void dav_propfind(void)
 int ParseMessageListHeaders_EUID(StrBuf *Line, 
 				 const char **pos, 
 				 message_summary *Msg, 
-				 StrBuf *ConversionBuffer)
+				 StrBuf *ConversionBuffer,
+				 void **ViewSpecific)
 {
 	Msg->euid = NewStrBuf();
 	StrBufExtract_NextToken(Msg->euid,  Line, pos, '|');
@@ -834,6 +835,7 @@ InitModule_PROPFIND
 		ParseMessageListHeaders_EUID,
 		NULL, //// ""
 		DavUIDL_RenderView_or_Tail,
-		DavUIDL_Cleanup);
+		DavUIDL_Cleanup,
+		NULL);
 
 }

@@ -488,8 +488,13 @@ void display_headers(void) {
  */
 int load_msg_ptrs(const char *servcmd,
 		  const char *filter,
+		  StrBuf *FoundCharset,
 		  SharedMessageStatus *Stat, 
-		  load_msg_ptrs_detailheaders LH)
+		  void **ViewSpecific,
+		  load_msg_ptrs_detailheaders LH,
+		  StrBuf *FetchMessageList,
+		  eMessageField *MessageFieldList,
+		  long HeaderCount)
 {
         wcsession *WCC = WC;
 	message_summary *Msg;
@@ -521,6 +526,10 @@ int load_msg_ptrs(const char *servcmd,
                         serv_puts("000");
 			break;
 		}
+		else if (FetchMessageList != NULL) {
+			serv_putbuf(FetchMessageList);
+			break;
+		}
 		/* fall back to empty filter in case of we were fooled... */
 		serv_puts("");
 		serv_puts("000");
@@ -543,21 +552,30 @@ int load_msg_ptrs(const char *servcmd,
 
 			Msg->msgnum = StrBufExtractNext_long(Buf, &Ptr, '|');
 			Msg->date = StrBufExtractNext_long(Buf, &Ptr, '|');
-
-			if (Stat->nummsgs == 0) {
-				if (Msg->msgnum < Stat->lowest_found) {
-					Stat->lowest_found = Msg->msgnum;
-				}
-				if (Msg->msgnum > Stat->highest_found) {
-					Stat->highest_found = Msg->msgnum;
+			if (MessageFieldList != NULL) {
+				long i;
+				for (i = 0; i < HeaderCount; i++) {
+					StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
+					if (StrLength(Buf2) > 0) {
+						EvaluateMsgHdrEnum(MessageFieldList[i], Msg, Buf2, FoundCharset);
+					}
 				}
 			}
+			else {
+				if (Stat->nummsgs == 0) {
+					if (Msg->msgnum < Stat->lowest_found) {
+						Stat->lowest_found = Msg->msgnum;
+					}
+					if (Msg->msgnum > Stat->highest_found) {
+						Stat->highest_found = Msg->msgnum;
+					}
+				}
 
-			if ((Msg->msgnum == 0) && (StrLength(Buf) < 32)) {
-				free(Msg);
-				continue;
+				if ((Msg->msgnum == 0) && (StrLength(Buf) < 32)) {
+					free(Msg);
+					continue;
+				}
 			}
-
 			/* 
 			 * as citserver probably gives us messages in forward date sorting
 			 * nummsgs should be the same order as the message date.
@@ -568,7 +586,7 @@ int load_msg_ptrs(const char *servcmd,
 					skipit = 1;
 			}
 			if ((!skipit) && (LH != NULL)) {
-				if (!LH(Buf, &Ptr, Msg, Buf2)){
+				if (!LH(Buf, &Ptr, Msg, Buf2, ViewSpecific)){
 					free(Msg);
 					continue;
 				}					
@@ -658,6 +676,9 @@ typedef struct _RoomRenderer{
 	RenderView_or_Tail_func RenderView_or_Tail;
 	View_Cleanup_func ViewCleanup;
 	load_msg_ptrs_detailheaders LHParse;
+	long HeaderCount;
+	StrBuf *FetchMessageList;
+	eMessageField *MessageFieldList;
 } RoomRenderer;
 
 
@@ -739,9 +760,21 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	}
 	if (!IsEmptyStr(cmd)) {
 		const char *p = NULL;
+		StrBuf *FoundCharset = NULL;
 		if (!IsEmptyStr(filter))
 			p = filter;
-		Stat.nummsgs = load_msg_ptrs(cmd, p, &Stat, ViewMsg->LHParse);
+		if (ViewMsg->HeaderCount > 0) {
+			FoundCharset = NewStrBuf();
+		}
+		Stat.nummsgs = load_msg_ptrs(cmd, p,
+					     FoundCharset,
+					     &Stat,
+					     &ViewSpecific,
+					     ViewMsg->LHParse,
+					     ViewMsg->FetchMessageList,
+					     ViewMsg->MessageFieldList,
+					     ViewMsg->HeaderCount);
+		FreeStrBuf(&FoundCharset);
 	}
 
 	if (Stat.sortit) {
@@ -1537,6 +1570,12 @@ void display_enter(void)
 					case eMessagePath:
 					case eSpecialField:
 					case eTimestamp:
+					case eHeaderOnly:
+					case eFormatType:
+					case eMessagePart:
+					case eSubFolder:
+					case ePevious:
+					case eLastHeader:
 						break;
 
 					}
@@ -1992,6 +2031,15 @@ void jsonMessageList(void) {
 	readloop(oper, eUseDefault);
 }
 
+void FreeReadLoopHandlerSet(void *v) {
+	RoomRenderer *Handler = (RoomRenderer *) v;
+	FreeStrBuf(&Handler->FetchMessageList);
+	if (Handler->MessageFieldList != NULL) {
+		free(Handler->MessageFieldList);
+	}
+	free(Handler);
+}
+
 void RegisterReadLoopHandlerset(
 	int RoomType,
 	GetParamsGetServerCall_func GetParamsGetServerCall,
@@ -2000,9 +2048,12 @@ void RegisterReadLoopHandlerset(
 	load_msg_ptrs_detailheaders LH,
 	LoadMsgFromServer_func LoadMsgFromServer,
 	RenderView_or_Tail_func RenderView_or_Tail,
-	View_Cleanup_func ViewCleanup
+	View_Cleanup_func ViewCleanup,
+	const char **browseListFields
 	)
 {
+	long count = 0;
+	long i = 0;
 	RoomRenderer *Handler;
 
 	Handler = (RoomRenderer*) malloc(sizeof(RoomRenderer));
@@ -2016,7 +2067,30 @@ void RegisterReadLoopHandlerset(
 	Handler->ViewCleanup = ViewCleanup;
 	Handler->LHParse = LH;
 
-	Put(ReadLoopHandler, IKEY(RoomType), Handler, NULL);
+	if (browseListFields != NULL) {
+		while (browseListFields[count] != NULL) {
+			count ++;
+		}
+		Handler->HeaderCount = count;
+		Handler->MessageFieldList = (eMessageField*) malloc(sizeof(eMessageField) * count);
+		Handler->FetchMessageList = NewStrBufPlain(NULL, 5 * count + 4 + 5);
+		StrBufPlain(Handler->FetchMessageList, HKEY("time\n"));
+		for (i = 0; i < count; i++) {
+			if (!GetFieldFromMnemonic(&Handler->MessageFieldList[i], browseListFields[i])) {
+				fprintf(stderr, "Unknown message header: %s\n", browseListFields[i]);
+				exit(1);
+			}
+			StrBufAppendBufPlain(Handler->FetchMessageList, browseListFields[i], 4, 0);
+			StrBufAppendBufPlain(Handler->FetchMessageList, HKEY("\n"), 0);
+		}
+		StrBufAppendBufPlain(Handler->FetchMessageList, HKEY("000"), 0);
+	}
+	else {
+		Handler->FetchMessageList = NULL;
+		Handler->MessageFieldList = NULL;
+	}
+
+	Put(ReadLoopHandler, IKEY(RoomType), Handler, FreeReadLoopHandlerSet);
 }
 
 void 

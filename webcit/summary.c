@@ -111,7 +111,7 @@ void tasks_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+		num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	}
 
 	if (num_msgs > 0) {
@@ -160,7 +160,7 @@ void calendar_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+		num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	}
 	calendar_GetParamsGetServerCall(&Stat, 
 					&v,
