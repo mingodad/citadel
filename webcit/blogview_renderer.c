@@ -411,7 +411,7 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 			GetHashAt(BL->BLOGPOSTS, posPrev, &len, &k, &Data);
 			thisBlogpost = (blogpost *) Data;
 			StackContext(NULL, &SubTP, thisBlogpost, CTX_BLOGPOST, 0, NULL);
-			DoTemplate(HKEY("view_blog_post_start"), PrevNext, &SubTP);
+			DoTemplate(HKEY("view_blog_newer_posts"), PrevNext, &SubTP);
 		}
 		if (firstPOffset + BL->maxp <= num_blogposts) {
 			const char *k;
@@ -420,7 +420,7 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 			GetHashAt(BL->BLOGPOSTS, posNext, &len, &k, &Data);
 			thisBlogpost = (blogpost *) Data;
 			StackContext(NULL, &SubTP, thisBlogpost, CTX_BLOGPOST, 0, NULL);
-			DoTemplate(HKEY("view_blog_post_stop"), PrevNext, &SubTP);
+			DoTemplate(HKEY("view_blog_older_posts"), PrevNext, &SubTP);
 		}
 	}
 
