@@ -192,9 +192,9 @@ msgstr "Edytuj %s"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
-msgstr "Wprowadź %s poniżej. Tekst jest sformatowany dla przeglądarki."
+msgstr "Tekst jest sformatowany dla przeglądarki."
 
 #: ../../sysmsgs.c:61 ../../vcard_edit.c:1217 ../../i18n_templatelist.c:59
 #: ../../i18n_templatelist.c:194 ../../i18n_templatelist.c:355

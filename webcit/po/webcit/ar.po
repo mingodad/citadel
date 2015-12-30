@@ -189,10 +189,10 @@ msgstr "تحرير %s"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"ادخل  %s  في النص المهيئ لقارئة المتصفخ الخط الجديد يتم فرض خط جديد فارغ"
+"في النص المهيئ لقارئة المتصفخ الخط الجديد يتم فرض خط جديد فارغ"
 
 #: ../../sysmsgs.c:61 ../../vcard_edit.c:1217 ../../i18n_templatelist.c:59
 #: ../../i18n_templatelist.c:194 ../../i18n_templatelist.c:355

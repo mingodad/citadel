@@ -189,10 +189,10 @@ msgstr "Modifică %s"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"Introdu mai jos %s. Textul este aranjat după browserul cititorului. Trecerea "
+"Textul este aranjat după browserul cititorului. Trecerea "
 "la linie nouă poate fi forţată precedând linia următoare cu un spaţiu."
 
 #: ../../sysmsgs.c:61 ../../vcard_edit.c:1217 ../../i18n_templatelist.c:59

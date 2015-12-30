@@ -193,10 +193,10 @@ msgstr "%s bearbeiten"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"Geben sie hier %s ein. Der Text wird auf dem Browser des Lesers formatiert."
+"Der Text wird auf dem Browser des Lesers formatiert."
 "Eine neue Zeile erzwingt man, indem man die nächste Zeile mit einem "
 "Leerschritt beginnt."
 

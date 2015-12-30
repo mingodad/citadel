@@ -189,10 +189,10 @@ msgstr "Modifica %s"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"Inserisci %s qui sotto. Il testo viene formattato dalla larghezza dello "
+"Il testo viene formattato dalla larghezza dello "
 "schermo del lettore. Per non seguire la formattazione, indentare la linea di "
 "almeno uno spazio."
 

@@ -191,10 +191,10 @@ msgstr "编辑 %s"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"请输入下面的 %s。读者的浏览器设置文本格式。前面的一片空白的下一行，会强制换"
+"读者的浏览器设置文本格式。前面的一片空白的下一行，会强制换"
 "行。 "
 
 #: ../../sysmsgs.c:61 ../../vcard_edit.c:1217 ../../i18n_templatelist.c:59

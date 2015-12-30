@@ -451,6 +451,9 @@ void tmplput_USER_BIO(StrBuf *Target, WCTemplputParams *TP)
 	long len;
 
 	GetTemplateTokenString(Target, TP, 0, &who, &len);
+	if (len == 0) {
+		who = ChrPtr(WC->wc_fullname);
+	}
 
 	Buf = NewStrBuf();
 	serv_printf("RBIO %s", who);
