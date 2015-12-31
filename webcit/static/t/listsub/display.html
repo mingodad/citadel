@@ -27,7 +27,7 @@
 <a href="listsub"><?_("Go back...")></a>
 </center>
 <?!("X", 11)><??("COND:BSTR", 12, "__FAIL")>
-<font size=+1><b><?_("ERROR")>: <?IMPORTANTMESSAGE></b></font><br><br>
+<font size=+1><b><?_("ERROR")>: <?IMPORTANTMESSAGE("X")></b></font><br><br>
 <??("X", 12)>
 <?!("X", 10)>
 
@@ -47,7 +47,7 @@
 <a href="listsub"><?_("Back...")></a>
 </center>
 <?!("X", 21)><??("COND:BSTR", 22, "__FAIL")>
-<font SIZE=+1><b><?_("ERROR")>: <?IMPORTANTMESSAGE></b></font>
+<font SIZE=+1><b><?_("ERROR")>: <?IMPORTANTMESSAGE("X")></b></font>
 <br><br>
 <?!("X", 22)>
 <?!("X", 20)>
@@ -62,7 +62,7 @@
 <li><?_("You waited too long to confirm your subscribe/unsubscribe request (the confirmation link is only valid for three days)")></li>
 <li><?_("You have <i>already</i> successfully confirmed your subscribe/unsubscribe request and are attempting to do it again.")></li>
 </ul>
-<?_("The error returned by the server was: ")><?IMPORTANTMESSAGE>
+<?_("The error returned by the server was: ")><?IMPORTANTMESSAGE("X")>
 <??("X", 32)>
 <??("X", 30)>
 
