@@ -1,0 +1,95 @@
+<?!("COND:MAY_CREATE_ROOM", 10)>
+<?=("display_main_menu")>
+<?!("X", 10)>
+<??("COND:MAY_CREATE_ROOM", 11)>
+<?=("head")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<div id="banner">
+<?=("roombanner")>
+</div>
+
+<div id="content" class="service">
+<br>
+<?=("box_begin_1")><?_("Create a new blog")><?=("box_begin_2")>
+
+<form name="create_room_form" onsubmit="return false" action="entroom" >
+<input type="hidden" name="nonce" id="Nonce" value="<?NONCE>">
+<input type="hidden" name="er_view_blog" id="er_iew_blog" value="<?DEF:VAL(#"VIEW_BLOG")>">
+<input type="hidden" name="er_blog_markup_html" id="er_blog_markup_html" value="<?DEF:VAL(#"VIEW_WIKI")>">
+
+<div id="throbber" style="display: none;"><img src="static/throbber.gif" ></div>
+<div id="wikitext" style="display: none;"><?_("This is the new edit room for your blog")></div>
+<div id="wikipublish" style="display: none;"><?_("Once you've saved your edits, you can press 'publish' to make your writings visible in the blog.")></div>
+<div id="wikilinktext" style="display: none;"><?_("click this link to start your first article")></div>
+<div id="wikilinkmore" style="display: none;"><?_("Edit this page and copy plus edit the above to add more articles.")></div>
+<div id="wikilinkembedmedia" style="display: none;"><?_("You may link previously uploaded images like this:")> (<?_("assuming its name is test.jpg")>)</div>
+
+
+<table class="altern"> 
+
+<tr class="odd"><td><?_("Name of the blog: ")></td><td><input type="text" id="er_name" NAME="er_name" MAXLENGTH="127"><div id="er_name_fixed" style="display: none;"></div></td></tr>
+
+<tr class="even"><td><?_("Resides on floor: ")></td><td>
+
+
+<select name="er_floor" id="er_floor" size="1"><?ITERATE("LFLR", ="room_select_targetfloor")></select>
+<div id="er_floor_fixed" style="display: none;">xxx</div></td></tr>
+</table>
+<hr>
+<table class="altern"> 
+<tr class="odd"><td><?_("Default editor for blog: ")></td>
+<td>
+<?_("Articles will be published from wiki articles to the blog. Choose your prefered source wiki format:")>
+<select name="er_view" id="er_view" size="1">
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_WIKI")><option value="<?DEF:VAL(#"VIEW_WIKI")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_WIKI", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_WIKI", "X")></option><??("X", 1)>
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_WIKIMD")><option value="<?DEF:VAL(#"VIEW_WIKIMD")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_WIKIMD", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_WIKIMD", "X")></option><??("X", 1)>
+
+</select>
+<div id="er_view_fixed" style="display: none;">xxx</div></td></tr>
+<tr class="even"><td><?_("Type of edit room:")></td>
+<td>
+<ul class="adminlist">
+
+<li id="li_adminlist_passworded"><input id="adminlist_passworded" type="radio" NAME="type" VALUE="passworded" checked="false"> 
+<?_("Private - require password: ")>
+<input id="er_password" type="text" NAME="er_password" MAXLENGTH="9">
+</li>
+
+<li id="li_adminlist_invonly"><input id="adminlist_invonly" type="radio" NAME="type" VALUE="invonly" checked="true"> 
+<?_("Private - invitation only")>
+</li>
+
+</ul>
+</td></tr></table>
+
+<div id="create_buttons" class="buttons">
+<input type="submit" onclick="create_blog()" value="<?_('Create new blog')>">
+&nbsp;
+<input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</div>
+</form><hr />
+
+
+<div id="edit_info" style="display: none;">
+<?_("Enter the room info below.")> <?_("The text is formatted to the reader's browser. A newline is forced by preceding the next line by a blank.")>
+<form method="post" action="editinfo">
+<input type="hidden" name="nonce" value="<?NONCE()>">
+<input type="hidden" name="template" value="room_info_status_json">
+<textarea name="msgtext" wrap=soft rows=10 cols=80 width=80><?THISROOM:INFOTEXT("X")></textarea>
+
+<div class="buttons" >
+<input type="submit" name="save_button" value="<?_('Save changes')>">
+&nbsp;
+<input type="submit" name="cancel_button" value="<?_('Cancel')>"><br>
+</div>
+
+</form>
+</div>
+
+
+<?SERV:MESG("roomaccess")>
+
+<?=("box_end")>
+</div>
+</div>
+<?=("trailing")>
+<??("X", 11)>

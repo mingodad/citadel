@@ -914,4 +914,234 @@ function toggle_wholist()
 	return false;   /* this prevents the click from registering as a wholist button press */
 }
 
+function getBlogStartText(wikitype) {
+    var wikitext = document.getElementById("wikitext").innerHTML;
+    var wikipublish = document.getElementById("wikipublish").innerHTML;
+    var wikilinktext = document.getElementById("wikilinktext").innerHTML;
+    var wikilinkmore = document.getElementById("wikilinkmore").innerHTML;
+    var wikilinkembedmedia = document.getElementById("wikilinkembedmedia").innerHTML;
+    if (wikitype) {
+	return "<html><head></head><body>\n" +
+	    "<h1>" + wikitext + "</h1>\n" + 
+	    "<p>" + wikipublish + "</p>\n" +
+	    "<a href='wiki?page=firstarticle'>" + wikilinktext + "</a>" +
+	    "<p>" + wikilinkmore + "</p>\n" + 
+	    "<p>" + wikilinkembedmedia + " </p>\n<p><img src='/download_file/test.jpg' alt=\"alttext\"></p>\n" + 
+	    "</body></html>";
+    }
+    else {
+	return "#" + wikitext + "\n" + 
+	    wikipublish + "\n\n" + 
+	    "[" + wikilinktext + "](wiki?page=firstarticle)\n\n" +
+	    wikilinkmore + "\n\n" + 
+	    wikilinkembedmedia + "\n\n ![alttext](/download_file/test.jpg)";
+    }
+}
 
+function create_blog()
+{
+    var er_view_blog = document.getElementById('er_view_blog');
+    var Nonce = document.getElementById('Nonce');
+    var roomname = document.getElementById('er_name').value;
+    var editroomname = roomname + '\\edit';
+    var filePath = "files_" + roomname;
+    var floorID = document.getElementById('er_floor').value;
+
+    var selects = document.getElementById("er_floor");
+    var selectedFloor = selects.options[selects.selectedIndex].value;
+    var selectedFloorName = selects.options[selects.selectedIndex].text;
+
+    var vselects = document.getElementById("er_view");
+    var vselectedMarkup = vselects.options[vselects.selectedIndex].value;
+    var vselectedMarkupName = vselects.options[vselects.selectedIndex].text;
+
+    var adminPW = document.getElementById('adminlist_passworded').checked;
+
+    var passvoid = document.getElementById('er_password').value;
+    var roomtypeWiki = document.getElementById('er_blog_markup_html').value;
+
+    var isHtmlWiki = vselectedMarkup === roomtypeWiki;
+    var starttext = getBlogStartText(isHtmlWiki);
+
+
+    alert("atonehusnato " + roomname + "  " + starttext);
+
+    ToggleVisibility('er_password');
+    var type_edit;
+    if (adminPW) {
+	type_edit = document.getElementById('adminlist_passworded').value;
+	ToggleVisibility('li_adminlist_invonly');
+	ToggleVisibility('adminlist_passworded');
+	
+    }
+    else {
+	type_edit = document.getElementById('adminlist_invonly').value;
+	ToggleVisibility('adminlist_invonly');
+	ToggleVisibility('li_adminlist_passworded');
+    }
+
+    ToggleVisibility('er_floor');
+    document.getElementById('er_floor_fixed').innerHTML = selectedFloorName;
+    ToggleVisibility('er_floor_fixed');
+
+    ToggleVisibility('er_name');
+    document.getElementById('er_name_fixed').innerHTML = roomname;
+    ToggleVisibility('er_name_fixed');
+
+    ToggleVisibility('er_view');
+    document.getElementById('er_view_fixed').innerHTML = vselectedMarkupName;
+    ToggleVisibility('er_view_fixed');
+
+    ToggleVisibility('create_buttons');
+
+    ToggleVisibility('edit_info');
+    ToggleVisibility('throbber');
+    
+
+    var roomdata = {
+	create_blog_room: {
+	    nonce:       Nonce,
+	    er_name:     roomname,
+	    type:        'public',
+	    er_view:     er_view_blog,
+	    er_floor:    floorID,
+	    template:    "room_result_json",
+	    ok_button:   1
+	},
+	setflags_blog_room: {
+	    nonce:       Nonce,
+	    er_name:     roomname,
+	    go:          roomname,
+	    type:        'public',
+	    er_floor:    floorID,
+
+	    directory:   "yes",
+	    er_dirname:  filePath,
+	    ulallowed:   "no",
+	    dlallowed:   "yes",
+	    ulmsg:       "no",
+	    visdir:      "no",
+
+	    anon:        "no",
+	    last_tabsel: 1,
+	    er_view:     er_view_blog,
+	    template:    "room_result_json",
+	    ok_button:   1
+	},
+	create_blog_edit_room: {
+	    nonce:       Nonce,
+	    er_name:     editroomname,
+	    type:        type_edit,
+	    er_view:     vselectedMarkup,
+	    er_floor:    floorID,
+	    er_password: passvoid,
+	    template:    "room_result_json",
+	    ok_button:   1
+	},
+	setflags_blog_edit_room: {
+	    nonce:       Nonce,
+	    er_name:     editroomname,
+	    go:          editroomname,
+	    type:        type_edit,
+	    er_floor:    floorID,
+
+	    directory:   "yes",
+	    er_dirname:  filePath,
+	    ulallowed:   "yes",
+	    dlallowed:   "yes",
+	    ulmsg:       "no",
+	    visdir:      "yes",
+
+	    anon:        "no",
+	    last_tabsel: 1,
+	    er_view:     er_view_blog,
+	    template:    "room_result_json",
+	    ok_button:   1
+	},
+	blog_wiki_startmessage : {
+	    nonce:       Nonce,
+	    force_room:  editroomname,
+	    page:        "home",
+	    markdown:    (isHtmlWiki)?0:1,
+	    msgtext:     starttext
+
+	}
+    };
+
+    /* promises anyone?
+     *  - create the blog room
+     *  - set the blog rooms file flags
+     *  - create the edit room
+     *  - set the blog edit room flags
+     */
+    new Ajax.Request("/entroom",
+		     { method: 'post',
+		       parameters: $H(roomdata.create_blog_room).toQueryString(),
+		       onComplete: function(transport) {
+			   new Ajax.Request("/editroom",
+					    { method: 'post',
+					      parameters: $H(roomdata.setflags_blog_room).toQueryString(),
+					      onComplete: function(transport) {
+						  new Ajax.Request("/entroom",
+								   { method: 'post',
+								     parameters: $H(roomdata.create_blog_edit_room).toQueryString(),
+								     onComplete: function(transport) {
+									 new Ajax.Request("/editroom",
+											  { method: 'post',
+											    parameters: $H(roomdata.setflags_blog_edit_room).toQueryString(),
+											    onComplete: function(transport) {
+												ToggleVisibility('throbber');
+												new Ajax.Request("/post",
+														 { method: 'post',
+														   parameters: $H(roomdata.blog_wiki_startmessage).toQueryString(),
+														   onComplete: function(transport) {
+
+														   }
+														 }
+														);
+											    }
+											  }
+											 );
+								     }
+								   }
+								  );
+					      }
+					    }
+					   )
+		       }
+		     }
+		    );
+
+/*
+
+entroom 
+
+
+
+
+POST /editroom HTTP/1.1.
+
+
+nonce=1681692777
+   go=dnthdnth
+   er_name=dnthdnth
+   er_floor=0
+   type=public
+   er_password= 
+
+  directory=yes
+   er_dirname=blarg <- file pfad
+   ulallowed=yes
+   dlallowed=yes
+   ulmsg=yes
+   visdir=yes
+
+   anon=no
+
+   er_roomaide=
+   last_tabsel=1
+   ok_button=Save+changes
+
+*/
+    return false;
+}
