@@ -28,23 +28,34 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 		display_main_menu();
 		return;
 	}
+	templ = sbstr("template");
 	Line = NewStrBuf();
 	serv_puts(enter_cmd);
 	StrBuf_ServGetln(Line);
 	if (GetServerStatusMsg(Line, NULL, 1, 0) != 4) {
+		putlbstr("success", 0);
 		FreeStrBuf(&Line);
-		display_main_menu();
+		if (templ != NULL) {
+			output_headers(1, 0, 0, 0, 0, 0);	
+			DoTemplate(SKEY(templ), NULL, &NoCtx);
+			end_burst();
+		}
+		else {
+			display_main_menu();
+		}
 		return;
 	}
 	FreeStrBuf(&Line);
 	text_to_server(bstr("msgtext"));
 	serv_puts("000");
 
-	templ=sbstr("template");
 	AppendImportantMessage(description, -1);
 	AppendImportantMessage(_(" has been saved."), -1);
+	putlbstr("success", 1);
 	if (templ != NULL) {
+		output_headers(1, 0, 0, 0, 0, 0);	
 		DoTemplate(SKEY(templ), NULL, &NoCtx);
+		end_burst();
 	}
 	else if (regoto) {
 		smart_goto(WC->CurRoom.name);
