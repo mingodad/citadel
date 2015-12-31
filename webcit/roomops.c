@@ -716,20 +716,38 @@ void editroom(void)
 	const StrBuf *er_password;
 	const StrBuf *er_dirname;
 	const StrBuf *er_roomaide;
+	const StrBuf *templ;
 	int succ1, succ2;
 
+	templ = sbstr("template");
 	if (!havebstr("ok_button")) {
+		putlbstr("success", 0);
 		AppendImportantMessage(_("Cancelled.  Changes were not saved."), -1);
-		output_headers(1, 1, 1, 0, 0, 0);	
-		do_template("room_edit");
-		wDumpContent(1);
+		if (templ != NULL) {
+			output_headers(1, 0, 0, 0, 0, 0);	
+			DoTemplate(SKEY(templ), NULL, &NoCtx);
+			end_burst();
+		}
+		else {
+			output_headers(1, 1, 1, 0, 0, 0);	
+			do_template("room_edit");
+			wDumpContent(1);
+		}
 		return;
 	}
 
 	if (GetCurrentRoomFlags (&WCC->CurRoom, 1) == 0) {
-		output_headers(1, 1, 1, 0, 0, 0);	
-		do_template("room_edit");
-		wDumpContent(1);
+		putlbstr("success", 0);
+		if (templ != NULL) {
+			output_headers(1, 0, 0, 0, 0, 0);	
+			DoTemplate(SKEY(templ), NULL, &NoCtx);
+			end_burst();
+		}
+		else {
+			output_headers(1, 1, 1, 0, 0, 0);	
+			do_template("room_edit");
+			wDumpContent(1);
+		}
 		return;
 	}
 
@@ -852,11 +870,22 @@ void editroom(void)
 	succ2 = SaveRoomAide (&WCC->CurRoom);
 	
 	if (succ1 + succ2 == 0) {
+		putlbstr("success", 1);
 		AppendImportantMessage (_("Your changes have been saved."), -1);
 	}
-	output_headers(1, 1, 1, 0, 0, 0);	
-	do_template("room_edit");
-	wDumpContent(1);
+	else {
+		putlbstr("success", 0);
+	}
+	if (templ != NULL) {
+		output_headers(1, 0, 0, 0, 0, 0);	
+		DoTemplate(SKEY(templ), NULL, &NoCtx);
+		end_burst();
+	}
+	else {
+		output_headers(1, 1, 1, 0, 0, 0);	
+		do_template("room_edit");
+		wDumpContent(1);
+	}
 	return;
 }
 
@@ -940,14 +969,24 @@ void entroom(void)
 	const StrBuf *er_name;
 	const StrBuf *er_type;
 	const StrBuf *er_password;
+	const StrBuf *template;
 	int er_floor;
 	int er_num_type;
 	int er_view;
 	wcsession *WCC = WC;
 
-	if (!havebstr("ok_button")) {
+	template = sbstr("template");
+	if ((WCC == NULL) || !havebstr("ok_button")) {
+		putlbstr("success", 0);
 		AppendImportantMessage(_("Cancelled.  No new room was created."), -1);
-		display_main_menu();
+		if (template != NULL) {
+			output_headers(1, 0, 0, 0, 0, 0);	
+			DoTemplate(SKEY(template), NULL, &NoCtx);
+			end_burst();
+		}
+		else {
+			display_main_menu();
+		}
 		return;
 	}
 	er_name = sbstr("er_name");
@@ -977,8 +1016,16 @@ void entroom(void)
 	Line = NewStrBuf();
 	StrBuf_ServGetln(Line);
 	if (GetServerStatusMsg(Line, NULL, 1, 2) != 2) {
+		putlbstr("success", 0);
 		FreeStrBuf(&Line);
-		display_main_menu();
+		if (template != NULL) {
+			output_headers(1, 0, 0, 0, 0, 0);	
+			DoTemplate(SKEY(template), NULL, &NoCtx);
+			end_burst();
+		}
+		else {
+			display_main_menu();
+		}
 		return;
 	}
 	/** TODO: Room created, now update the left hand icon bar for this user */
@@ -989,7 +1036,13 @@ void entroom(void)
 	FreeStrBuf(&Line); /* TODO: should we care about errors? */
 	WCC->CurRoom.view = er_view;
 
-	if ( (WCC != NULL) && ( (WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) )  {
+	putlbstr("success", 1);
+	if (template != NULL) {
+		output_headers(1, 0, 0, 0, 0, 0);	
+		DoTemplate(SKEY(template), NULL, &NoCtx);
+		end_burst();
+	}
+	else if ( (WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) {
 		output_headers(1, 1, 1, 0, 0, 0);	
 		do_template("room_edit");
 		wDumpContent(1);
