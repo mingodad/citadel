@@ -1,7 +1,7 @@
 /*
  * This is a data store backend for the Citadel server which uses Berkeley DB.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -281,7 +281,7 @@ void open_databases(void)
 	dbenv->set_paniccall(dbenv, dbpanic);
 	dbenv->set_errcall(dbenv, cdb_verbose_err);
 	dbenv->set_errpfx(dbenv, "ctdl");
-#if (DB_VERSION_MAJOR == 4) && (DB_VERSION_MINOR >= 3)
+#if (DB_VERSION_MAJOR > 4) || ( (DB_VERSION_MAJOR == 4) && (DB_VERSION_MINOR >= 3) )
 	dbenv->set_msgcall(dbenv, cdb_verbose_log);
 #endif
 	dbenv->set_verbose(dbenv, DB_VERB_DEADLOCK, 1);

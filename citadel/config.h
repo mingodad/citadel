@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -112,6 +112,7 @@ int CtdlGetConfigInt(char *);
 long CtdlGetConfigLong(char *);
 void CtdlSetConfigInt(char *key, int value);
 void CtdlSetConfigLong(char *key, long value);
+void CtdlDelConfig(char *key);
 
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);

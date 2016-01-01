@@ -1,7 +1,7 @@
 /*
  * Read and write the citadel.config file
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <sys/utsname.h>
 #include <libcitadel.h>
+#include <assert.h>
 #include "config.h"
 #include "ctdl_module.h"
 
@@ -356,9 +357,6 @@ void CtdlSetConfigStr(char *key, char *value)
 	int key_len = strlen(key);
 	int value_len = strlen(value);
 
-	/* FIXME we are noisy logging for now */
-	syslog(LOG_DEBUG, "\033[31mSET CONFIG: '%s' = '%s'\033[0m", key, value);
-
 	/* Save it in memory */
 	Put(ctdlconfig, key, key_len, strdup(value), NULL);
 
@@ -395,6 +393,32 @@ void CtdlSetConfigInt(char *key, int value)
 }
 
 
+
+/*
+ * Delete a system config value.
+ */
+void CtdlDelConfig(char *key)
+{
+	int key_len = strlen(key);
+
+	if (IsEmptyStr(key)) return;
+
+	/* Delete from the database. */
+	cdb_delete(CDB_CONFIG, key, key_len);
+
+	/* Delete from the in-memory cache */
+	HashPos *Pos = GetNewHashPos(ctdlconfig, 1);
+	if (GetHashPosFromKey(ctdlconfig, key, key_len, Pos)) {
+		DeleteEntryFromHash(ctdlconfig, Pos);
+	}
+	DeleteHashPos(&Pos);
+
+	assert(Pos == NULL);	// no memory leaks allowed
+}
+
+
+
+
 /*
  * Fetch a system config value.  Caller does *not* own the returned value and may not alter it.
  */
@@ -406,16 +430,9 @@ char *CtdlGetConfigStr(char *key)
 
 	if (IsEmptyStr(key)) return(NULL);
 
-	/* Temporary hack to make sure we didn't mess up any porting - FIXME remove this after testing thoroughly */
-	if (!strncmp(key, "config", 6)) {
-		syslog(LOG_EMERG, "You requested a key starting with 'config' which probably means a porting error: %s", key);
-		abort();
-	}
-
 	/* First look in memory */
 	if (GetHash(ctdlconfig, key, key_len, (void *)&value))
 	{
-		if (strcmp(key, "c_min_workers")) syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = '%s'\033[0m", key, value);
 		return value;
 	}
 
@@ -424,7 +441,6 @@ char *CtdlGetConfigStr(char *key)
 	cdb = cdb_fetch(CDB_CONFIG, key, key_len);
 
 	if (cdb == NULL) {	/* nope, not there either. */
-		syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = NULL\033[0m", key);
 		return(NULL);
 	}
 
@@ -432,7 +448,6 @@ char *CtdlGetConfigStr(char *key)
 	value = strdup(cdb->ptr + key_len + 1);		/* The key was stored there too; skip past it */
 	cdb_free(cdb);
 	Put(ctdlconfig, key, key_len, value, NULL);
-	syslog(LOG_DEBUG, "\033[32mGET CONFIG: '%s' = '%s'\033[0m", key, value);
 	return value;
 }
 
