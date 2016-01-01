@@ -253,7 +253,7 @@ int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCfg, char *filename)
 	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
 	Cfg = NewStrBuf();
 	if ((TmpFD < 0) || (errno != 0)) {
-		syslog(LOG_CRIT, "ERROR: cannot open %s: %s\n",
+		syslog(LOG_CRIT, "ERROR: cannot open %s: %s",
 			filename, strerror(errno));
 		unlink(tempfilename);
 		FreeStrBuf(&Cfg);
@@ -300,9 +300,10 @@ int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCfg, char *filename)
 		}
 		else {
 			syslog(LOG_EMERG, 
-				      "unable to write %s; [%s]; not enough space on the disk?\n", 
-				      tempfilename, 
-				      strerror(errno));
+			      "unable to write %s; [%s]; not enough space on the disk?", 
+			      tempfilename, 
+			      strerror(errno)
+			);
 			close(TmpFD);
 			unlink(tempfilename);
 			rc = 0;
@@ -509,7 +510,6 @@ void LoadAllNetConfigs(void)
 
 				if (OneRNCfg != NULL)
 					Put(RoomConfigs, LKEY(RoomNumber), OneRNCfg, vFreeRoomNetworkStruct);
-				/* syslog(9, "[%s | %s]\n", ChrPtr(OneWebName), ChrPtr(FileName)); */
 			}
 			break;
 		default:
@@ -977,7 +977,7 @@ void cmd_netp(char *cmdbuf)
 	}
 	nodelen = safestrncpy(CCC->net_node, node, sizeof CCC->net_node);
 	CtdlNetworkTalkingTo(CCC->net_node, nodelen, NTT_ADD);
-	syslog(LOG_NOTICE, "Network node <%s> logged in from %s [%s]\n",
+	syslog(LOG_NOTICE, "Network node <%s> logged in from %s [%s]",
 		CCC->net_node, CCC->cs_host, CCC->cs_addr
 	);
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CCC->net_node);
@@ -1136,7 +1136,7 @@ int CtdlIsValidNode(const StrBuf **nexthop,
 	 * First try the neighbor nodes
 	 */
 	if (GetCount(IgnetCfg) == 0) {
-		syslog(LOG_INFO, "IgnetCfg is empty!\n");
+		syslog(LOG_INFO, "IgnetCfg is empty!");
 		if (nexthop != NULL) {
 			*nexthop = NULL;
 		}
@@ -1168,7 +1168,7 @@ int CtdlIsValidNode(const StrBuf **nexthop,
 	/*
 	 * If we get to this point, the supplied node name is bogus.
 	 */
-	syslog(LOG_ERR, "Invalid node name <%s>\n", ChrPtr(node));
+	syslog(LOG_ERR, "Invalid node name <%s>", ChrPtr(node));
 	return(-1);
 }
 
