@@ -18,23 +18,10 @@
 /* 
  * Convert a string to something suitable as a wiki index
  */
-void str_wiki_index(char *s)
+void str_wiki_index(StrBuf *s)
 {
-	int i;
-
-	if (s == NULL) return;
-
-	/* First remove all non-alphanumeric characters */
-	for (i=0; i<strlen(s); ++i) {
-		if (!isalnum(s[i])) {
-			strcpy(&s[i], &s[i+1]);
-		}
-	}
-
-	/* Then make everything lower case */
-	for (i=0; i<strlen(s); ++i) {
-		s[i] = tolower(s[i]);
-	}
+	StrBufSanitizeAscii(s, '_');
+	StrBufLowerCase(s);
 }
 
 /*
@@ -43,7 +30,7 @@ void str_wiki_index(char *s)
  * "rev" may be set to an empty string to display the current version.
  * "do_revert" may be set to nonzero to perform a reversion to the specified version.
  */
-void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
+void display_wiki_page_backend(StrBuf *pagename, char *rev, int do_revert)
 {
 	wcsession *WCC = WC;
 	const StrBuf *Mime;
@@ -56,15 +43,15 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 		return;
 	}
 
-	if (IsEmptyStr(pagename)) {
-		strcpy(pagename, "home");
+	if (StrLength(pagename) == 0) {
+		StrBufPlain(pagename, HKEY("home"));
 	}
 
 	str_wiki_index(pagename);	/* convert index name to lowercase and numeric only */
 
 	if ((rev != NULL) && (strlen(rev) > 0)) {
 		/* read an older revision */
-		serv_printf("WIKI rev|%s|%s|%s", pagename, rev, (do_revert ? "revert" : "fetch") );
+		serv_printf("WIKI rev|%s|%s|%s", ChrPtr(pagename), rev, (do_revert ? "revert" : "fetch") );
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			msgnum = extract_long(&buf[4], 0);
@@ -72,26 +59,15 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
 	}
 	else {
 		/* read the current revision */
-		msgnum = locate_message_by_uid(pagename);
+		msgnum = locate_message_by_uid(ChrPtr(pagename));
 	}
 
 	if (msgnum >= 0L) {
 		read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime, NULL);
 		return;
 	}
-
-	wc_printf("<br><br>"
-		"<div align=\"center\">"
-		"<table border=\"0\" bgcolor=\"#ffffff\" cellpadding=\"10\">"
-		"<tr><td align=\"center\">"
-	);
-	wc_printf("<br><b>");
-	wc_printf(_("There is no page called '%s' here."), pagename);
-	wc_printf("</b><br><br>");
-	wc_printf(_("Select the 'Edit this page' link in the room banner "
-		"if you would like to create this page."));
-	wc_printf("<br><br>");
-	wc_printf("</td></tr></table></div>\n");
+	putbstr("pagename", pagename);
+	do_template("wiki_empty");
 }
 
 
@@ -100,12 +76,12 @@ void display_wiki_page_backend(char *pagename, char *rev, int do_revert)
  */
 void display_wiki_page(void)
 {
-	char pagename[128];
+	StrBuf *pagename;
 	char rev[128];
 	int do_revert = 0;
 
 	output_headers(1, 1, 1, 0, 0, 0);
-	safestrncpy(pagename, bstr("page"), sizeof pagename);
+	pagename = NewStrBufDup(sbstr("page"));
 	str_wiki_index(pagename);
 	safestrncpy(rev, bstr("rev"), sizeof rev);
 	do_revert = atoi(bstr("revert"));
@@ -119,14 +95,14 @@ void display_wiki_page(void)
  */
 void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 {
-	char pagename[128];
+	StrBuf *pagename;
 	StrBuf *Buf;
 	int row = 0;
 
-	safestrncpy(pagename, bstr("page"), sizeof pagename);
+	pagename = NewStrBufDup(sbstr("page"));
 	str_wiki_index(pagename);
 
-	serv_printf("WIKI history|%s", pagename);
+	serv_printf("WIKI history|%s", ChrPtr(pagename));
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
@@ -280,8 +256,8 @@ void display_wiki_pagelist(void)
 
 int wiki_Cleanup(void **ViewSpecific)
 {
-	char pagename[5];
-	safestrncpy(pagename, "home", sizeof pagename);
+	StrBuf *pagename;
+	pagename = NewStrBufDup(sbstr("page"));
 	display_wiki_page_backend(pagename, "", 0);
 	wDumpContent(1);
 	return 0;
