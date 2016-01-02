@@ -494,6 +494,15 @@ int ConditionalThisRoomXHavePic(StrBuf *Target, WCTemplputParams *TP)
 	return WCC->CurRoom.XHaveRoomPic == 1;
 }
 
+int ConditionalThisRoomIsEdit(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	if (WCC == NULL)
+		return 0;
+	return ((WCC->CurRoom.nRoomNameParts > 1) && 
+		(strcmp(ChrPtr(WCC->CurRoom.RoomNameParts[WCC->CurRoom.nRoomNameParts]), "edit") == 0));
+}
 
 int ConditionalThisRoomXHaveInfoText(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -663,6 +672,7 @@ InitModule_ROOMTOKENS
 	RegisterConditional("COND:ROOM:EDITACCESS", 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
 	RegisterConditional("COND:THISROOM:HAVE_PIC", 0, ConditionalThisRoomXHavePic, CTX_NONE);
+	RegisterConditional("COND:THISROOM:IS_EDIT", 0, ConditionalThisRoomIsEdit, CTX_NONE);
 
 	RegisterNamespace("THISROOM:INFOTEXT", 1, 2, tmplput_ThisRoomInfoText, NULL, CTX_NONE);
 	RegisterConditional("COND:THISROOM:HAVE_INFOTEXT", 0, ConditionalThisRoomXHaveInfoText, CTX_NONE);
