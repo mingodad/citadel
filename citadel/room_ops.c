@@ -1132,6 +1132,7 @@ void CtdlDeleteRoom(struct ctdlroom *qrbuf)
 {
 	struct floor flbuf;
 	char filename[PATH_MAX];
+	char configdbkeyname[25];
 
 	syslog(LOG_NOTICE, "Deleting room <%s>", qrbuf->QRname);
 
@@ -1143,9 +1144,9 @@ void CtdlDeleteRoom(struct ctdlroom *qrbuf)
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_image_dir);
 	unlink(filename);
 
-	/* Delete the room's network config file */
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
-	unlink(filename);
+	/* Delete the room's network configdb entry */
+	netcfg_keyname(configdbkeyname, qrbuf->QRnumber);
+	CtdlDelConfig(configdbkeyname);
 
 	/* Delete the messages in the room
 	 * (Careful: this opens an S_ROOMS critical section!)
@@ -1165,7 +1166,6 @@ void CtdlDeleteRoom(struct ctdlroom *qrbuf)
 	/* Delete the room record from the database! */
 	b_deleteroom(qrbuf->QRname);
 }
-
 
 
 /*

@@ -117,3 +117,4 @@ void CtdlDelConfig(char *key);
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
 void validate_config(void);
+void netcfg_keyname(char *, long);
