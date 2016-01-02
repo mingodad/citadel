@@ -111,4 +111,6 @@ void CtdlRegisterDebugFlagHook(const char *Name, long len, CtdlDbgFunction F, co
 void CtdlSetDebugLogFacilities(const char **Str, long n);
 void CtdlDestroyDebugTable(void);
 
+void netcfg_keyname(char *keybuf, long roomnum);
+
 #endif /* SERV_EXTENSIONS_H */

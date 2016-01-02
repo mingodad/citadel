@@ -1,5 +1,5 @@
 
-Copyright: (C) 1987-2015 Citadel development team; GPL V3
+Copyright: (C) 1987-2016 Citadel development team; GPL V3
 
 Copyright for CRC16: (C) 2002-2003 Indigo Systems Corporation; 
 	  Artistic license + Non advertising clause
@@ -9,7 +9,7 @@ Copyright for MD5 implementation: (C) 1993 Colin Plumb; Public Domain
 Copyright for RFC 2739 openldap schema:
    (C) 2000 The Internet Society
    (C) 2004 Martin Konold <martin.konold@erfrakon.de>
-   (C) 2006 Art Cancro <ajc@uncensored.citadel.org>
+   (C) 2006 Art Cancro <ajc@citadel.org>
 
 * In addition, as a special exception, we hereby declare that our
   favorite type of software is called "open source" -- NOT "free
@@ -18,17 +18,17 @@ Copyright for RFC 2739 openldap schema:
   Richard Stallman's linguistic fascism.
 
 * In addition, as a special exception, the copyright holders give
-* permission to link the code of portions of this program with the
-* OpenSSL library under certain conditions as described in each
-* individual source file, and distribute linked combinations
-* including the two.
-* You must obey the General Public License in all respects
-* for all of the code used other than OpenSSL. If you modify
-* file(s) with this exception, you may extend this exception to your
-* version of the file(s), but you are not obligated to do so. If you
-* do not wish to do so, delete this exception statement from your
-* version. If you delete this exception statement from all source
-* files in the program, then also delete it here.
+  permission to link the code of portions of this program with the
+  OpenSSL library under certain conditions as described in each
+  individual source file, and distribute linked combinations
+  including the two.
+  You must obey the General Public License in all respects
+  for all of the code used other than OpenSSL. If you modify
+  file(s) with this exception, you may extend this exception to your
+  version of the file(s), but you are not obligated to do so. If you
+  do not wish to do so, delete this exception statement from your
+  version. If you delete this exception statement from all source
+  files in the program, then also delete it here.
 
 
                        GENERAL PUBLIC LICENSE
@@ -41,14 +41,14 @@ Copyright for RFC 2739 openldap schema:
   The licenses for most software and other practical works are designed
 to take away your freedom to share and change the works.  By contrast,
 the General Public License is intended to guarantee your freedom to
-share and change all versions of a program--to make sure it remains free
-software for all its users.  We, the Free Software Foundation, use the
-General Public License for most of our software; it applies also to
+share and change all versions of a program--to make sure it remains open
+source for all its users.  The Free Software Foundation uses the
+General Public License for most of its software; it applies also to
 any other work released this way by its authors.  You can apply it to
 your programs, too.
 
   When we speak of free software, we are referring to freedom, not
-price.  Our General Public Licenses are designed to make sure that you
+price.  General Public Licenses are designed to make sure that you
 have the freedom to distribute copies of free software (and charge for
 them if you wish), that you receive source code or can get it if you
 want it, that you can change the software or use pieces of it in new
@@ -70,8 +70,8 @@ know their rights.
 giving you legal permission to copy, distribute and/or modify it.
 
   For the developers' and authors' protection, the GPL clearly explains
-that there is no warranty for this free software.  For both users' and
-authors' sake, the GPL requires that modified versions be marked as
+that there is no warranty for this open source software.  For both users'
+and authors' sake, the GPL requires that modified versions be marked as
 changed, so that their problems will not be attributed erroneously to
 authors of previous versions.
 
@@ -89,9 +89,9 @@ of the GPL, as needed to protect the freedom of users.
   Finally, every program is threatened constantly by software patents.
 States should not allow patents to restrict development and use of
 software on general-purpose computers, but in those that do, we wish to
-avoid the special danger that patents applied to a free program could
-make it effectively proprietary.  To prevent this, the GPL assures that
-patents cannot be used to render the program non-free.
+avoid the special danger that patents applied to an open source program
+could make it effectively proprietary.  To prevent this, the GPL assures
+that patents cannot be used to render the program closed-source.
 
   The precise terms and conditions for copying, distribution and
 modification follow.
@@ -163,9 +163,9 @@ produce the work, or an object code interpreter used to run it.
 the source code needed to generate, install, and (for an executable
 work) run the object code and to modify the work, including scripts to
 control those activities.  However, it does not include the work's
-System Libraries, or general-purpose tools or generally available free
-programs which are used unmodified in performing those activities but
-which are not part of the work.  For example, Corresponding Source
+System Libraries, or general-purpose tools or generally available open
+source programs which are used unmodified in performing those activities
+but which are not part of the work.  For example, Corresponding Source
 includes interface definition files associated with source files for
 the work, and the source code for shared libraries and dynamically
 linked subprograms that the work is specifically designed to require,

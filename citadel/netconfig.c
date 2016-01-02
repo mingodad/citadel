@@ -2,20 +2,22 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2012 by the citadel.org team
+ * Copyright (c) 2000-2016 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  */
 
 #include "sysdep.h"
 #include <stdio.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #ifdef HAVE_SYSCALL_H
 # include <syscall.h>
@@ -1188,6 +1190,79 @@ void destroy_network_cfgs(void)
 	DeleteHash(&pCfgTypeHash);
 }
 
+
+
+
+/*
+ * Create a config key for a room's netconfig entry
+ */
+void netcfg_keyname(char *keybuf, long roomnum)
+{
+	if (!keybuf) return;
+	sprintf(keybuf, "c_netconfig_%010ld", roomnum);
+}
+
+
+
+
+/*
+ * Convert any legacy configuration files in the "netconfigs" directory
+ */
+void convert_legacy_netcfg_files(void)
+{
+	DIR *dh = NULL;
+	struct dirent *dit = NULL;
+	char keyname[25];
+	char filename[PATH_MAX];
+	long roomnum;
+	FILE *fp;
+	long len;
+	char *v;
+
+	dh = opendir(ctdl_netcfg_dir);
+	if (!dh) return;
+
+	syslog(LOG_INFO, "Legacy netconfig files exist - converting them!");
+
+	while (dit = readdir(dh), dit != NULL) {		// yes, we use the non-reentrant version; we're not in threaded mode yet
+		roomnum = atol(dit->d_name);
+		if (roomnum > 0) {
+			netcfg_keyname(keyname, roomnum);
+			snprintf(filename, sizeof filename, "%s/%ld", ctdl_netcfg_dir, roomnum);
+			fp = fopen(filename, "r");
+			if (fp) {
+				fseek(fp, 0L, SEEK_END);
+				len = ftell(fp);
+				v = malloc(len);
+				if (v) {
+					rewind(fp);
+					if (fread(v, len, 1, fp)) {
+						char *enc = malloc(len * 2);
+						int enc_len;
+						if (enc) {
+							enc_len = CtdlEncodeBase64(enc, v, len, 0);
+							if ((enc_len > 1) && (enc[enc_len-2] == 13)) enc[enc_len-2] = 0;
+							if ((enc_len > 0) && (enc[enc_len-1] == 10)) enc[enc_len-1] = 0;
+							enc[enc_len] = 0;
+							syslog(LOG_DEBUG, "Writing key '%s' (length=%d)", keyname, enc_len);
+							CtdlSetConfigStr(keyname, enc);
+							free(enc);
+							// unlink(filename);		// FIXME uncomment this when ready
+							fclose(fp);
+						}
+					}
+				free(v);
+				}
+			}
+		}
+	}
+
+	closedir(dh);
+	// rmdir(ctdl_netcfg_dir);		// FIXME uncomment this when ready
+}
+
+
+
 /*
  * Module entry point
  */
@@ -1196,7 +1271,8 @@ CTDL_MODULE_INIT(netconfig)
 	if (!threading)
 	{
 		CtdlRegisterCleanupHook(destroy_network_cfgs);
-		LoadAllNetConfigs ();
+		convert_legacy_netcfg_files();
+		LoadAllNetConfigs();
 		CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 		CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 		CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
