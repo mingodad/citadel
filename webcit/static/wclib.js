@@ -963,9 +963,6 @@ function create_blog()
     var isHtmlWiki = vselectedMarkup === roomtypeWiki;
     var starttext = getBlogStartText(isHtmlWiki);
 
-
-    alert("atonehusnato " + roomname + "  " + starttext);
-
     ToggleVisibility('er_password');
     var type_edit;
     if (adminPW) {
@@ -1112,36 +1109,36 @@ function create_blog()
 		     }
 		    );
 
-/*
-
-entroom 
-
-
-
-
-POST /editroom HTTP/1.1.
-
-
-nonce=1681692777
-   go=dnthdnth
-   er_name=dnthdnth
-   er_floor=0
-   type=public
-   er_password= 
-
-  directory=yes
-   er_dirname=blarg <- file pfad
-   ulallowed=yes
-   dlallowed=yes
-   ulmsg=yes
-   visdir=yes
-
-   anon=no
-
-   er_roomaide=
-   last_tabsel=1
-   ok_button=Save+changes
-
-*/
     return false;
+}
+
+
+function deleteAllSelectedMessages() {
+
+}
+
+
+function publishMessage()
+{
+    var messages = document.getElementsByClassName("message");
+    var messageIdParts = messages[0].id.split('|');
+    var editRoomName = getTextContent(document.getElementById("rmname"));
+    var roomName = editRoomName.substring(0, editRoomName.length - 5);
+
+    var publish = {
+	editRoom: editRoomName,
+	blogRoom: roomName,
+	msgNo : messageIdParts[1],
+	msgIdStr : messageIdParts[2]
+    }
+
+    mvCommand = encodeURI("g_cmd=MOVE " + publish.msgNo + "|" + publish.blogRoom + "|1");
+    
+    new Ajax.Request("ajax_servcmd", {
+	parameters: mvCommand,
+	method: 'post',
+	onSuccess: function(transport) {
+	    WCLog(transport.responseText);
+	}
+    });
 }
