@@ -317,6 +317,7 @@ int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCfg, char *filename)
 	return rc;
 }
 
+
 void SaveModifiedRooms(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCfg)
 {
 	char filename[PATH_MAX];
@@ -328,11 +329,11 @@ void SaveModifiedRooms(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNC
 		OneRNCfg->changed = 0;
 	}
 }
+
+
 void SaveChangedConfigs(void)
 {
-	CtdlForEachNetCfgRoom(SaveModifiedRooms,
-			      NULL, 
-			      maxRoomNetCfg);
+	CtdlForEachNetCfgRoom(SaveModifiedRooms, NULL, maxRoomNetCfg);
 }
 
 
@@ -361,6 +362,7 @@ void AddRoomCfgLine(OneRoomNetCfg *OneRNCfg, struct ctdlroom *qrbuf, RoomNetCfg 
 		Put(RoomConfigs, LKEY(qrbuf->QRnumber), OneRNCfg, vFreeRoomNetworkStruct);
 	}
 }
+
 
 void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg)
 {
@@ -396,6 +398,8 @@ void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg)
 	FreeStrBuf(&OneRNCfg->misc);
 	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
 }
+
+
 void vFreeRoomNetworkStruct(void *vOneRoomNetCfg)
 {
 	OneRoomNetCfg *OneRNCfg;
@@ -403,11 +407,14 @@ void vFreeRoomNetworkStruct(void *vOneRoomNetCfg)
 	FreeRoomNetworkStructContent(OneRNCfg);
 	free(OneRNCfg);
 }
+
+
 void FreeRoomNetworkStruct(OneRoomNetCfg **pOneRNCfg)
 {
 	vFreeRoomNetworkStruct(*pOneRNCfg);
 	*pOneRNCfg=NULL;
 }
+
 
 OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber)
 {
