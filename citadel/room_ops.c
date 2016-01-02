@@ -1,7 +1,7 @@
 /* 
  * Server functions which perform operations on room objects.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -16,7 +16,6 @@
 #include <libcitadel.h>
 
 #include "citserver.h"
-
 #include "ctdl_module.h"
 #include "config.h"
 #include "control.h"
@@ -79,8 +78,8 @@ int CtdlDoIHavePermissionToPostInThisRoom(
 
 	}
 
-	if ((CC->user.axlevel < AxProbU)
-	    && ((CC->room.QRflags & QR_MAILBOX) == 0)) {
+	if ((CC->user.axlevel < AxProbU) && ((CC->room.QRflags & QR_MAILBOX) == 0))
+	{
 		snprintf(errmsgbuf, n, "Need to be validated to enter (except in %s> to sysop)", MAILROOM);
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
@@ -125,7 +124,8 @@ int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void) {
 }
 
 /*
- * Retrieve access control information for any user/room pair
+ * Retrieve access control information for any user/room pair.
+ * Yes, it has a couple of gotos.  If you don't like that, go die in a car fire.
  */
 void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		int *result, int *view)
@@ -338,11 +338,12 @@ void room_sanity_check(struct ctdlroom *qrbuf)
 	}
 	/* Listing order of 0 is illegal except for base rooms */
 	if (qrbuf->QRorder == 0)
-		if (!(qrbuf->QRflags & QR_MAILBOX) &&
-		    strncasecmp(qrbuf->QRname, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN)
-		    &&
-		    strncasecmp(qrbuf->QRname, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN))
+		if (	!(qrbuf->QRflags & QR_MAILBOX)
+			&& strncasecmp(qrbuf->QRname, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN)
+			&& strncasecmp(qrbuf->QRname, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN)
+		) {
 			qrbuf->QRorder = 64;
+		}
 }
 
 
@@ -394,6 +395,7 @@ int CtdlGetRoom(struct ctdlroom *qrbuf, const char *room_name)
 		return (1);
 	}
 }
+
 
 /*
  * CtdlGetRoomLock()  -  same as getroom() but locks the record (if supported)
@@ -458,10 +460,8 @@ void b_deleteroom(char *room_name) {
  */
 void CtdlPutRoomLock(struct ctdlroom *qrbuf)
 {
-
 	CtdlPutRoom(qrbuf);
 	end_critical_section(S_ROOMS);
-
 }
 
 
@@ -550,7 +550,6 @@ void CtdlGetFloor(struct floor *flbuf, int floor_num)
  */
 void lgetfloor(struct floor *flbuf, int floor_num)
 {
-
 	begin_critical_section(S_FLOORTAB);
 	CtdlGetFloor(flbuf, floor_num);
 }
@@ -618,7 +617,6 @@ void CtdlPutFloor(struct floor *flbuf, int floor_num)
  */
 void CtdlPutFloorLock(struct floor *flbuf, int floor_num)
 {
-
 	CtdlPutFloor(flbuf, floor_num);
 	end_critical_section(S_FLOORTAB);
 
@@ -661,9 +659,7 @@ void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 /* 
  *  Traverse the room file...
  */
-void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB,
-			   void *in_data,
-			   RoomNetCfg filter)
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetCfg filter)
 {
 	struct ctdlroom qrbuf;
 	struct cdbdata *cdbqr;
@@ -910,7 +906,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	if (retnew != NULL) *retnew = new_messages;
 	if (retoldest != NULL) *retoldest = oldest_message;
 	if (retnewest != NULL) *retnewest = newest_message;
-	MSG_syslog(LOG_INFO, "<%s> %d new of %d total messages, oldest=%ld, newest=%ld\n",
+	MSG_syslog(LOG_INFO, "<%s> %d new of %d total messages, oldest=%ld, newest=%ld",
 		   CCC->room.QRname, new_messages, total_messages, oldest_message, newest_message
 	);
 
@@ -992,8 +988,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	long owner = 0L;
 	char actual_old_name[ROOMNAMELEN];
 
-	syslog(LOG_DEBUG, "CtdlRenameRoom(%s, %s, %d)\n",
-		old_name, new_name, new_floor);
+	syslog(LOG_DEBUG, "CtdlRenameRoom(%s, %s, %d)", old_name, new_name, new_floor);
 
 	if (new_floor >= 0) {
 		fl = CtdlGetCachedFloor(new_floor);
@@ -1040,7 +1035,8 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 
 		/* Reject change of floor for baseroom/aideroom */
 		if (!strncasecmp(old_name, CtdlGetConfigStr("c_baseroom"), ROOMNAMELEN) ||
-		    !strncasecmp(old_name, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN)) {
+		    !strncasecmp(old_name, CtdlGetConfigStr("c_aideroom"), ROOMNAMELEN))
+		{
 			new_floor = 0;
 		}
 
@@ -1081,11 +1077,11 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		lgetfloor(&flbuf, old_floor);
 		--flbuf.f_ref_count;
 		lputfloor(&flbuf, old_floor);
-		syslog(LOG_DEBUG, "Reference count for floor %d is now %d\n", old_floor, flbuf.f_ref_count);
+		syslog(LOG_DEBUG, "Reference count for floor %d is now %d", old_floor, flbuf.f_ref_count);
 		lgetfloor(&flbuf, new_floor);
 		++flbuf.f_ref_count;
 		lputfloor(&flbuf, new_floor);
-		syslog(LOG_DEBUG, "Reference count for floor %d is now %d\n", new_floor, flbuf.f_ref_count);
+		syslog(LOG_DEBUG, "Reference count for floor %d is now %d", new_floor, flbuf.f_ref_count);
 	}
 
 	/* ...and everybody say "YATTA!" */	
@@ -1093,22 +1089,20 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 }
 
 
-
 /*
- * Asynchronously schedule a room for deletion.  The room will appear
- * deleted to the user(s), but it won't actually get purged from the
- * database until THE DREADED AUTO-PURGER makes its next run.
+ * Asynchronously schedule a room for deletion.  By placing the room into an invalid private namespace,
+ * the room will appear deleted to the user(s), but the session doesn't need to block while waiting for
+ * database operations to complete.  Instead, the room gets purged when THE DREADED AUTO-PURGER makes
+ * its next run.  Aren't we so clever?!!
  */
 void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf)
 {
 	char old_name[ROOMNAMELEN];
 	static int seq = 0;
 
-	syslog(LOG_NOTICE, "Scheduling room <%s> for deletion\n",
-		qrbuf->QRname);
+	syslog(LOG_NOTICE, "Scheduling room <%s> for deletion", qrbuf->QRname);
 
 	safestrncpy(old_name, qrbuf->QRname, sizeof old_name);
-
 	CtdlGetRoom(qrbuf, qrbuf->QRname);
 
 	/* Turn the room into a private mailbox owned by a user who doesn't
@@ -1122,9 +1116,7 @@ void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf)
 	);
 	qrbuf->QRflags |= QR_MAILBOX;
 	time(&qrbuf->QRgen);	/* Use a timestamp as the new generation number  */
-
 	CtdlPutRoom(qrbuf);
-
 	b_deleteroom(old_name);
 }
 
@@ -1139,10 +1131,9 @@ void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf)
 void CtdlDeleteRoom(struct ctdlroom *qrbuf)
 {
 	struct floor flbuf;
-	char filename[100];
-	/* TODO: filename magic? does this realy work? */
+	char filename[PATH_MAX];
 
-	syslog(LOG_NOTICE, "Deleting room <%s>\n", qrbuf->QRname);
+	syslog(LOG_NOTICE, "Deleting room <%s>", qrbuf->QRname);
 
 	/* Delete the info file */
 	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_info_dir);
@@ -1235,11 +1226,10 @@ unsigned CtdlCreateRoom(char *new_room_name,
 	struct floor flbuf;
 	visit vbuf;
 
-	syslog(LOG_DEBUG, "CtdlCreateRoom(name=%s, type=%d, view=%d)\n",
-		new_room_name, new_room_type, new_room_view);
+	syslog(LOG_DEBUG, "CtdlCreateRoom(name=%s, type=%d, view=%d)", new_room_name, new_room_type, new_room_view);
 
 	if (CtdlGetRoom(&qrbuf, new_room_name) == 0) {
-		syslog(LOG_DEBUG, "%s already exists.\n", new_room_name);
+		syslog(LOG_DEBUG, "Cannot create room <%s> - already exists", new_room_name);
 		return(0);
 	}
 
