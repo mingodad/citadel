@@ -678,12 +678,11 @@ void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetC
 		{
 			OneRoomNetCfg* RNCfg;
 			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
-			if ((RNCfg != NULL) &&
-			    ((filter == maxRoomNetCfg) ||
-			     (RNCfg->NetConfigs[filter] != NULL)))
+			if ((RNCfg != NULL) && ((filter == maxRoomNetCfg) || (RNCfg->NetConfigs[filter] != NULL)))
 			{
 				CB(&qrbuf, in_data, RNCfg);
 			}
+			// FIXME free RNCfg
 		}
 	}
 }

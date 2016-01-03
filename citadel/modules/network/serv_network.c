@@ -87,7 +87,9 @@ extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
 typedef struct __roomlists {
 	RoomProcList *rplist;
-}roomlists;
+} roomlists;
+
+
 /*
  * When we do network processing, it's accomplished in two passes; one to
  * gather a list of rooms and one to actually do them.  It's ok that rplist
@@ -113,8 +115,7 @@ int network_sync_to(char *target_node, long len)
 	/* Grab the configuration line we're looking for */
 	begin_critical_section(S_NETCONFIGS);
 	pRNCFG = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
-	if ((pRNCFG == NULL) ||
-	    (pRNCFG->NetConfigs[ignet_push_share] == NULL))
+	if ((pRNCFG == NULL) || (pRNCFG->NetConfigs[ignet_push_share] == NULL))
 	{
 		return -1;
 	}
@@ -137,17 +138,11 @@ int network_sync_to(char *target_node, long len)
 	sc.RNCfg->NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
 	sc.Users[ignet_push_share] = NewStrBufPlain(NULL,
 						    StrLength(pCfgLine->Value[0]) +
-						    StrLength(pCfgLine->Value[1]) + 10);
-	StrBufAppendBuf(sc.Users[ignet_push_share], 
-			pCfgLine->Value[0],
-			0);
-	StrBufAppendBufPlain(sc.Users[ignet_push_share], 
-			     HKEY(","),
-			     0);
-
-	StrBufAppendBuf(sc.Users[ignet_push_share], 
-			pCfgLine->Value[1],
-			0);
+						    StrLength(pCfgLine->Value[1]) + 10
+	);
+	StrBufAppendBuf(sc.Users[ignet_push_share], pCfgLine->Value[0], 0);
+	StrBufAppendBufPlain(sc.Users[ignet_push_share], HKEY(","), 0);
+	StrBufAppendBuf(sc.Users[ignet_push_share], pCfgLine->Value[1], 0);
 	CalcListID(&sc);
 
 	end_critical_section(S_NETCONFIGS);
@@ -156,8 +151,7 @@ int network_sync_to(char *target_node, long len)
 	sc.the_netmap = CtdlReadNetworkMap();
 
 	/* Send ALL messages */
-	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
-		network_spool_msg, &sc);
+	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, network_spool_msg, &sc);
 
 	/* Concise cleanup because we know there's only one node in the sc */
 	DeleteGenericCfgLine(NULL/*TODO*/, &sc.RNCfg->NetConfigs[ignet_push_share]);
@@ -427,7 +421,7 @@ void network_do_queue(void)
 		last_run = time(NULL);
 	}
 	destroy_network_queue_room(RL.rplist);
-	SaveChangedConfigs();
+	// SaveChangedConfigs();	// FIXME FOOFOO SAVE CHANGED THIS AACACACACCKK
 
 }
 

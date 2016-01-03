@@ -593,7 +593,7 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		{
 			/* whipe duplicate subscribe entry... */
 			OneRNCfg->changed = 1;
-			SaveChangedConfigs();
+			// SaveChangedConfigs(); FIXME FOOFOO SAVE CONFIG HERE
 			errmsg = "already subscribed";
 		}
 	}
@@ -637,7 +637,7 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		}
 		DeleteGenericCfgLine(NULL/*TODO*/, &ConfirmLine);
 		OneRNCfg->changed = 1;
-		SaveChangedConfigs();
+		// SaveChangedConfigs(); FIXME FOOFOO SAVE CONFIG HERE
 	}
 
 	end_critical_section(S_NETCONFIGS);
