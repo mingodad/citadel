@@ -14,6 +14,7 @@
 <input type="hidden" name="force_room" value="<?THISROOM:NAME("X")>">
 <input type="hidden" name="references" value="<?BSTR("references")>">
 <input type="hidden" name="page" value="<?BSTR("page")>">
+<input type="hidden" name="" value="<?MAIL:SUMM:INREPLYTO()>">
 <input type="hidden" name="submit_action" value="">
 
 <table width="100%" class="edit_msg_table">
@@ -165,7 +166,7 @@
 	}
 
 	function update_attachment_count() {
-		p = 'r=' + CtdlRandomString();
+		p = 'r=' + ctdlRandomString();
 		new Ajax.Updater(
 			'num_attachments',
 			'show_num_attachments',

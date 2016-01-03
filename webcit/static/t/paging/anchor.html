@@ -9,7 +9,7 @@
   }
  }
  function CheckPager() {
-  new Ajax.Request('sslg', { method: 'get', parameters: CtdlRandomString(),
+  new Ajax.Request('sslg', { method: 'get', parameters: ctdlRandomString(),
    onSuccess: HandleSslp } );
  }
  new PeriodicalExecuter(CheckPager, 30);

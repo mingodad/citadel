@@ -106,7 +106,7 @@
 	function show_attachments_form() {
 		$('attachments_form').style.display = 'block';
 
-		p = 'template=edit_message_attachments_pane&r=' + CtdlRandomString();
+		p = 'template=edit_message_attachments_pane&r=' + ctdlRandomString();
 		new Ajax.Updater(
 			'attachments_form',
 			'do_template',
@@ -119,7 +119,7 @@
 	}
 
 	function update_attachment_count() {
-		p = 'r=' + CtdlRandomString();
+		p = 'r=' + ctdlRandomString();
 		new Ajax.Updater(
 			'num_attachments',
 			'show_num_attachments',
@@ -131,7 +131,7 @@
 	}
 
 	function remove_attachment(which_one) {
-		p = 'which_attachment=' + which_one + '&r=' + CtdlRandomString();
+		p = 'which_attachment=' + which_one + '&r=' + ctdlRandomString();
 		new Ajax.Updater(
 			'gonna_upload_this',
 			'remove_attachment',
