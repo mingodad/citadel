@@ -633,7 +633,7 @@ void lputfloor(struct floor *flbuf, int floor_num)
 
 
 /* 
- *  Traverse the room file...
+ * Iterate through the room table, performing a callback for each room.
  */
 void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 {
@@ -657,7 +657,7 @@ void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 }
 
 /* 
- *  Traverse the room file...
+ * Iterate through the room table, performing a callback for each room that has a netconfig entry.
  */
 void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetCfg filter)
 {
@@ -676,13 +676,13 @@ void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetC
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE)
 		{
-			OneRoomNetCfg* RNCfg;
+			OneRoomNetCfg *RNCfg;
 			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
 			if ((RNCfg != NULL) && ((filter == maxRoomNetCfg) || (RNCfg->NetConfigs[filter] != NULL)))
 			{
 				CB(&qrbuf, in_data, RNCfg);
+				FreeRoomNetworkStruct(&RNCfg);
 			}
-			// FIXME free RNCfg
 		}
 	}
 }

@@ -346,7 +346,9 @@ void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data);
 RoomNetCfgLine *DuplicateOneGenericCfgLine(const RoomNetCfgLine *data);
 void AddRoomCfgLine(OneRoomNetCfg *OneRNCfg, struct ctdlroom *qrbuf, RoomNetCfg LineType, RoomNetCfgLine *Line);
 
-OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber);
+OneRoomNetCfg *CtdlGetNetCfgForRoom(long QRNumber);
+void SaveRoomNetConfigFile(OneRoomNetCfg *, long);
+void FreeRoomNetworkStruct(OneRoomNetCfg **);
 
 typedef struct _nodeconf {
 	int DeleteMe;

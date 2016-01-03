@@ -605,6 +605,7 @@ int CtdlNetconfigCheckRoomaccess(
 		return (ERROR + NO_SUCH_USER);
 	}
 	found = is_recipient (RNCfg, RemoteIdentifier);
+	FreeRoomNetworkStruct(&RNCfg);
 	end_critical_section(S_NETCONFIGS);
 
 	if (found) {

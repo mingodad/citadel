@@ -1,15 +1,15 @@
 /*
  * This module handles self-service subscription/unsubscription to mail lists.
  *
- * Copyright (c) 2002-2012 by the citadel.org team
+ * Copyright (c) 2002-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
  *  
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include "sysdep.h"
@@ -134,7 +134,7 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 
 	RoomMailAddress = qrbuf.QRname;
 	OneRNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
-	if (OneRNCfg!=NULL) {
+	if (OneRNCfg != NULL) {
 		found_sub = CountThisSubscriber(OneRNCfg, *email);
 		if (StrLength(OneRNCfg->Sender) > 0) {
 		       EmailSender = RoomMailAddress = ChrPtr(OneRNCfg->Sender);
@@ -147,6 +147,7 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 			ChrPtr(*email),
 			RoomMailAddress);
 
+		FreeRoomNetworkStruct(&OneRNCfg);
 		end_critical_section(S_NETCONFIGS);
 		return;
 	}
@@ -270,6 +271,8 @@ void do_subscribe(StrBuf **room, StrBuf **email, StrBuf **subtype, StrBuf **webp
 		     "\n"
 		     "--__ctdlmultipart__--\n"), 0);
 
+	SaveRoomNetConfigFile(OneRNCfg, qrbuf.QRnumber);
+	FreeRoomNetworkStruct(&OneRNCfg);
 	end_critical_section(S_NETCONFIGS);
 
 	pcf_req = SmashStrBuf(&cf_req);
@@ -333,11 +336,8 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 	}
 
 	if (found_sub == 0) {
-		cprintf("%d '%s' is not subscribed to '%s'.\n",
-			ERROR + NO_SUCH_USER,
-			ChrPtr(*email),
-			qrbuf.QRname);
-
+		cprintf("%d '%s' is not subscribed to '%s'.\n", ERROR + NO_SUCH_USER, ChrPtr(*email), qrbuf.QRname);
+        	FreeRoomNetworkStruct(&OneRNCfg);
 		end_critical_section(S_NETCONFIGS);
 		return;
 	}
@@ -461,6 +461,8 @@ void do_unsubscribe(StrBuf **room, StrBuf **email, StrBuf **webpage) {
 		     "\n"
 		     "--__ctdlmultipart__--\n"), 0);
 
+	SaveRoomNetConfigFile(OneRNCfg, qrbuf.QRnumber);
+	FreeRoomNetworkStruct(&OneRNCfg);
 	end_critical_section(S_NETCONFIGS);
 
 	pcf_req = SmashStrBuf(&cf_req);
@@ -593,7 +595,6 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		{
 			/* whipe duplicate subscribe entry... */
 			OneRNCfg->changed = 1;
-			// SaveChangedConfigs(); FIXME FOOFOO SAVE CONFIG HERE
 			errmsg = "already subscribed";
 		}
 	}
@@ -637,9 +638,10 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		}
 		DeleteGenericCfgLine(NULL/*TODO*/, &ConfirmLine);
 		OneRNCfg->changed = 1;
-		// SaveChangedConfigs(); FIXME FOOFOO SAVE CONFIG HERE
 	}
 
+	SaveRoomNetConfigFile(OneRNCfg, qrbuf.QRnumber);
+	FreeRoomNetworkStruct(&OneRNCfg);
 	end_critical_section(S_NETCONFIGS);
 	
 	/*
