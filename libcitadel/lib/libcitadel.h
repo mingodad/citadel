@@ -677,6 +677,7 @@ extern ConstStr RoomNetCfgStrs[maxRoomNetCfg];
 
 /* a nice consistent place to define how we turn a message id into a thread id hash */
 #define ThreadIdHash(Buf) abs(HashLittle(ChrPtr(Buf), StrLength(Buf)))
+#define ThreadIdHashOffset(Buf, Offset) abs(HashLittle(ChrPtr(Buf) + Offset, StrLength(Buf)-Offset))
 
 #ifdef __cplusplus
 extern "C" {
