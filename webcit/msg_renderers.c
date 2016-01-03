@@ -377,11 +377,17 @@ int Conditional_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
 void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	wcsession *WCC = WC;
+	long Offset = 0;
+	const char *pOffset;
 
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_inreplyto);
 	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
-	Msg->reply_inreplyto_hash = ThreadIdHash(HdrLine);
+	pOffset = strchr(ChrPtr(HdrLine), '/');
+	if (pOffset != NULL) {
+		Offset = pOffset - ChrPtr(HdrLine);
+	}
+	Msg->reply_inreplyto_hash = ThreadIdHashOffset(HdrLine, Offset);
 	StrBuf_RFC822_2_Utf8(Msg->reply_inreplyto, 
 			     HdrLine, 
 			     WCC->DefaultCharset,
@@ -404,11 +410,17 @@ int Conditional_MAIL_SUMM_UNREAD(StrBuf *Target, WCTemplputParams *TP)
 void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	wcsession *WCC = WC;
+	long Offset = 0;
+	const char *pOffset;
 
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_references);
 	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
-	Msg->reply_references_hash = ThreadIdHash(HdrLine);
+	pOffset = strchr(ChrPtr(HdrLine), '/');
+	if (pOffset != NULL) {
+		Offset = pOffset - ChrPtr(HdrLine);
+	}
+	Msg->reply_references_hash = ThreadIdHashOffset(HdrLine, Offset);
 	StrBuf_RFC822_2_Utf8(Msg->reply_references, 
 			     HdrLine, 
 			     WCC->DefaultCharset, 
