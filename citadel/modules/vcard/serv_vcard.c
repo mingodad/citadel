@@ -2,7 +2,7 @@
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
  * 
- * Copyright (c) 1999-2015 by the citadel.org team
+ * Copyright (c) 1999-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -1548,18 +1548,25 @@ CTDL_MODULE_INIT(vcard)
 			 * on this room even if we don't share it with any other nodes.
 			 * This allows the CANCEL messages (i.e. "Purge this vCard") to be
 			 * purged.
+			 *
+			 * FIXME this no longer works
 			 */
 			assoc_file_name(filename, sizeof filename, &qr, ctdl_netcfg_dir);
 			fp = fopen(filename, "a");
-			if (fp != NULL) fclose(fp);
-			rv = chown(filename, CTDLUID, (-1));
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]", 
-				       filename, strerror(errno));
-			rv = chmod(filename, 0600);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]", 
-				       filename, strerror(errno));
+			if (fp != NULL) {
+				fclose(fp);
+				rv = chown(filename, CTDLUID, (-1));
+				if (rv == -1) {
+					syslog(LOG_ERR, "Failed to adjust ownership of %s: %s", filename, strerror(errno));
+				}
+				rv = chmod(filename, 0600);
+				if (rv == -1) {
+					syslog(LOG_ERR, "Failed to adjust ownership of %s: %s", filename, strerror(errno));
+				}
+			}
+			else {
+				syslog(LOG_ERR, "Cannot create %s: %s", filename, strerror(errno));
+			}
 		}
 
 		/* for postfix tcpdict */
