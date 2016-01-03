@@ -1138,7 +1138,7 @@ function publishMessage()
 	parameters: mvCommand,
 	method: 'post',
 	onSuccess: function(transport) {
-	    WCLog(transport.responseText);
+	    wCLog(transport.responseText);
 	}
     });
 }
