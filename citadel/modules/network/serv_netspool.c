@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2015 by the citadel.org team
+ * Copyright (c) 2000-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -108,7 +108,7 @@ void network_bounce(struct CtdlMessage **pMsg, char *reason)
 	long len;
 	struct CtdlMessage *msg = *pMsg;
 	*pMsg = NULL;
-	QNM_syslog(LOG_DEBUG, "entering network_bounce()\n");
+	QNM_syslog(LOG_DEBUG, "entering network_bounce()");
 
 	if (msg == NULL) return;
 
@@ -171,7 +171,7 @@ void network_bounce(struct CtdlMessage **pMsg, char *reason)
 	/* Clean up */
 	if (valid != NULL) free_recipients(valid);
 	CM_Free(msg);
-	QNM_syslog(LOG_DEBUG, "leaving network_bounce()\n");
+	QNM_syslog(LOG_DEBUG, "leaving network_bounce()");
 }
 
 
@@ -281,20 +281,21 @@ void InspectQueuedRoom(SpoolControl **pSC,
 	 * queued for networking and then deleted before it can happen.
 	 */
 	if (CtdlGetRoom(&sc->room, room_to_spool->name) != 0) {
-		syslog(LOG_CRIT, "ERROR: cannot load <%s>\n", room_to_spool->name);
+		syslog(LOG_CRIT, "ERROR: cannot load <%s>", room_to_spool->name);
 		free(sc);
 		return;
 	}
 	if (sc->room.QRhighest <= sc->lastsent)
 	{
-		QN_syslog(LOG_DEBUG, "nothing to do for <%s>\n", room_to_spool->name);
+		QN_syslog(LOG_DEBUG, "nothing to do for <%s>", room_to_spool->name);
 		free(sc);
 		return;
 	}
 
 	begin_critical_section(S_NETCONFIGS);
-	if (sc->RNCfg == NULL)
+	if (sc->RNCfg == NULL) {
 		sc->RNCfg = CtdlGetNetCfgForRoom(sc->room.QRnumber);
+	}
 
 	if (!HaveSpoolConfig(sc->RNCfg))
 	{
@@ -311,11 +312,13 @@ void InspectQueuedRoom(SpoolControl **pSC,
 		aggregate_recipients(&sc->Users[SpoolCfgs[i]],
 				     SpoolCfgs[i],
 				     sc->RNCfg,
-				     SpoolCfgsCopyN[i]);
+				     SpoolCfgsCopyN[i]
+		);
 	}
 	
-	if (StrLength(sc->RNCfg->Sender) > 0)
+	if (StrLength(sc->RNCfg->Sender) > 0) {
 		sc->Users[roommailalias] = NewStrBufDup(sc->RNCfg->Sender);
+	}
 	end_critical_section(S_NETCONFIGS);
 
 	sc->next = *pSC;
@@ -434,7 +437,7 @@ void network_spoolout_room(SpoolControl *sc)
 	 */
 	memcpy (&CCC->room, &sc->room, sizeof(ctdlroom));
 
-	syslog(LOG_INFO, "Networking started for <%s>\n", CCC->room.QRname);
+	syslog(LOG_INFO, "Networking started for <%s>", CCC->room.QRname);
 
 	CalcListID(sc);
 
@@ -584,14 +587,13 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 	unsigned char firstbyte;
 	unsigned char lastbyte;
 
-	QN_syslog(LOG_DEBUG, "network_process_buffer() processing %ld bytes\n", size);
+	QN_syslog(LOG_DEBUG, "network_process_buffer() processing %ld bytes", size);
 
 	/* Validate just a little bit.  First byte should be FF and * last byte should be 00. */
 	firstbyte = buffer[0];
 	lastbyte = buffer[size-1];
 	if ( (firstbyte != 255) || (lastbyte != 0) ) {
-		QN_syslog(LOG_ERR, "Corrupt message ignored.  Length=%ld, firstbyte = %d, lastbyte = %d\n",
-			  size, firstbyte, lastbyte);
+		QN_syslog(LOG_ERR, "Corrupt message ignored.  Length=%ld, firstbyte = %d, lastbyte = %d", size, firstbyte, lastbyte);
 		return;
 	}
 
@@ -641,14 +643,14 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 					 time(NULL),
 					 rand()
 				);
-				QN_syslog(LOG_DEBUG, "Appending to %s\n", filename);
+				QN_syslog(LOG_DEBUG, "Appending to %s", filename);
 				fp = fopen(filename, "ab");
 				if (fp != NULL) {
 					fwrite(sermsg.ser, sermsg.len, 1, fp);
 					fclose(fp);
 				}
 				else {
-					QN_syslog(LOG_ERR, "%s: %s\n", filename, strerror(errno));
+					QN_syslog(LOG_ERR, "%s: %s", filename, strerror(errno));
 				}
 				free(sermsg.ser);
 				CM_Free(msg);
@@ -702,7 +704,7 @@ void network_process_buffer(char *buffer, long size, HashList *working_ignetcfg,
 				"A message you sent could not be delivered due to an invalid address.\n"
 				"Please check the address and try sending the message again.\n");
 			free_recipients(recp);
-			QNM_syslog(LOG_DEBUG, "Bouncing message due to invalid recipient address.\n");
+			QNM_syslog(LOG_DEBUG, "Bouncing message due to invalid recipient address.");
 			return;
 		}
 		strcpy(target_room, "");	/* no target room if mail */
@@ -780,12 +782,12 @@ void network_process_file(char *filename,
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL) {
-		QN_syslog(LOG_CRIT, "Error opening %s: %s\n", filename, strerror(errno));
+		QN_syslog(LOG_CRIT, "Error opening %s: %s", filename, strerror(errno));
 		return;
 	}
 
 	fseek(fp, 0L, SEEK_END);
-	QN_syslog(LOG_INFO, "network: processing %ld bytes from %s\n", ftell(fp), filename);
+	QN_syslog(LOG_INFO, "network: processing %ld bytes from %s", ftell(fp), filename);
 	rewind(fp);
 
 	/* Look for messages in the data stream and break them out */
@@ -820,10 +822,7 @@ void network_process_file(char *filename,
 	}
 
 	if (nMessages > 0)
-		QN_syslog(LOG_INFO,
-			  "network: processed %d messages in %s\n",
-			  nMessages,
-			  filename);
+		QN_syslog(LOG_INFO, "network: processed %d messages in %s", nMessages, filename);
 
 	fclose(fp);
 	unlink(filename);
@@ -851,11 +850,11 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	 */
 	if (stat(ctdl_netin_dir, &statbuf)) return;
 	if (statbuf.st_mtime == last_spoolin_mtime) {
-		QNM_syslog(LOG_DEBUG, "network: nothing in inbound queue\n");
+		QNM_syslog(LOG_DEBUG, "network: nothing in inbound queue");
 		return;
 	}
 	last_spoolin_mtime = statbuf.st_mtime;
-	QNM_syslog(LOG_DEBUG, "network: processing inbound queue\n");
+	QNM_syslog(LOG_DEBUG, "network: processing inbound queue");
 
 	/*
 	 * Ok, there's something interesting in there, so scan it.
@@ -1023,13 +1022,10 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			 ctdl_netout_dir,
 			 ChrPtr(NextHop));
 
-		QN_syslog(LOG_DEBUG, "Consolidate %s to %s\n", filename, ChrPtr(NextHop));
+		QN_syslog(LOG_DEBUG, "Consolidate %s to %s", filename, ChrPtr(NextHop));
 		if (CtdlNetworkTalkingTo(SKEY(NextHop), NTT_CHECK)) {
 			nFailed++;
-			QN_syslog(LOG_DEBUG,
-				  "Currently online with %s - skipping for now\n",
-				  ChrPtr(NextHop)
-				);
+			QN_syslog(LOG_DEBUG, "Currently online with %s - skipping for now", ChrPtr(NextHop));
 		}
 		else {
 			size_t dsize;
@@ -1042,9 +1038,9 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			if (infd == -1) {
 				nFailed++;
 				QN_syslog(LOG_ERR,
-					  "failed to open %s for reading due to %s; skipping.\n",
+					  "failed to open %s for reading due to %s; skipping.",
 					  filename, strerror(errno)
-					);
+				);
 				CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 				continue;				
 			}
@@ -1061,9 +1057,9 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			if (outfd == -1) {
 				nFailed++;
 				QN_syslog(LOG_ERR,
-					  "failed to open %s for reading due to %s; skipping.\n",
+					  "failed to open %s for reading due to %s; skipping.",
 					  spooloutfilename, strerror(errno)
-					);
+				);
 				close(infd);
 				CtdlNetworkTalkingTo(SKEY(NextHop), NTT_REMOVE);
 				continue;
@@ -1086,18 +1082,11 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 			do {} while ((FileMoveChunked(&FDIO, &err) > 0) && (err == NULL));
 			if (err == NULL) {
 				unlink(filename);
-				QN_syslog(LOG_DEBUG,
-					  "Spoolfile %s now "SIZE_T_FMT" k\n",
-					  spooloutfilename,
-					  (dsize + fsize)/1024
-					);				
+				QN_syslog(LOG_DEBUG, "Spoolfile %s now "SIZE_T_FMT" KB", spooloutfilename, (dsize + fsize)/1024);
 			}
 			else {
 				nFailed++;
-				QN_syslog(LOG_ERR,
-					  "failed to append to %s [%s]; rolling back..\n",
-					  spooloutfilename, strerror(errno)
-					);
+				QN_syslog(LOG_ERR, "failed to append to %s [%s]; rolling back..", spooloutfilename, strerror(errno));
 				/* whoops partial append?? truncate spooloutfilename again! */
 				ftruncate(outfd, dsize);
 			}
@@ -1111,10 +1100,7 @@ void network_consolidate_spoolout(HashList *working_ignetcfg, HashList *the_netm
 
 	if (nFailed > 0) {
 		FreeStrBuf(&NextHop);
-		QN_syslog(LOG_INFO,
-			  "skipping Spoolcleanup because of %d files unprocessed.\n",
-			  nFailed
-			);
+		QN_syslog(LOG_INFO, "skipping Spoolcleanup because of %d files unprocessed.", nFailed);
 
 		return;
 	}
