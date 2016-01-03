@@ -90,6 +90,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	char *diffbuf = NULL;
 	size_t diffbuf_len = 0;
 	char *ptr = NULL;
+	long newmsgid;
+	StrBuf *msgidbuf;
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -104,6 +106,17 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 
 	/* If there's no EUID we can't do this.  Reject the post. */
 	if (CM_IsEmpty(msg, eExclusiveID)) return(1);
+
+	newmsgid = get_new_message_number();
+	msgidbuf = NewStrBuf();
+	StrBufPrintf(msgidbuf, "%08lX-%08lX@%s/%s",
+		     (long unsigned int) time(NULL),
+		     (long unsigned int) newmsgid,
+		     CtdlGetConfigStr("c_fqdn"),
+		     msg->cm_fields[eExclusiveID]
+		);
+
+	CM_SetAsFieldSB(msg, emessageId, &msgidbuf);
 
 	history_page_len = snprintf(history_page, sizeof history_page,
 				    "%s_HISTORY_", msg->cm_fields[eExclusiveID]);
