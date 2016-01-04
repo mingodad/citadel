@@ -507,7 +507,11 @@ void network_spoolout_room(SpoolControl *sc)
 		sc->digestfp = NULL;
 	}
 
-	/* Now rewrite the config file */
+	/* Now rewrite the netconfig */
+
+	// THIS IS THE ONLY PLACE WHERE WE HAVE TO REWRITE THE NETCONFIG.
+
+
 	if (sc->lastsent != lastsent)
 	{
 		begin_critical_section(S_NETCONFIGS);
