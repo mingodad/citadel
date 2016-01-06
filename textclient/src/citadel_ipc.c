@@ -92,7 +92,7 @@ char *axdefs[]={
         };
 
 
-INLINE void CtdlIPC_lock(CtdlIPC *ipc)
+void CtdlIPC_lock(CtdlIPC *ipc)
 {
 	if (ipc->network_status_cb) ipc->network_status_cb(1);
 #ifdef THREADED_CLIENT
@@ -101,7 +101,7 @@ INLINE void CtdlIPC_lock(CtdlIPC *ipc)
 }
 
 
-INLINE void CtdlIPC_unlock(CtdlIPC *ipc)
+void CtdlIPC_unlock(CtdlIPC *ipc)
 {
 #ifdef THREADED_CLIENT
 	pthread_mutex_unlock(&(ipc->mutex));
