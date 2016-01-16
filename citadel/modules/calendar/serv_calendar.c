@@ -906,11 +906,11 @@ int ical_conflicts_phase6(struct icaltimetype t1start,
 			existing_msgnum,
 			conflict_event_uid,
 			conflict_event_summary,
-			(	((strlen(compare_uid)>0)
+			(	(!IsEmptyStr(compare_uid)
 				&&(!strcasecmp(compare_uid,
 				conflict_event_uid))) ? 1 : 0
-			)
-		);
+				)
+			);
 		conflict_reported = 1;
 	}
 

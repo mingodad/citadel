@@ -5,7 +5,7 @@
  * The scope of this program isn't wide enough to make a difference.  If you don't like
  * it you can rewrite it.
  *
- * Copyright (c) 2009-2012 citadel.org
+ * Copyright (c) 2009-2016 citadel.org
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -263,10 +263,6 @@ FAIL:	if (sourcefp) pclose(sourcefp);
 		else if (!strncasecmp(buf, "messages|", 9)) {
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
 				socket_path, remote_user, remote_host, &buf[9], ctdl_message_dir);
-		}
-		else if (!strncasecmp(buf, "netconfigs|", 11)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[11], ctdl_netcfg_dir);
 		}
 		else if (!strncasecmp(buf, "keys|", 5)) {
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",

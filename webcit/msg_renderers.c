@@ -5,6 +5,11 @@
 CtxType CTX_MAILSUM = CTX_NONE;
 CtxType CTX_MIME_ATACH = CTX_NONE;
 
+HashList *MsgHeaderHandler = NULL;
+HashList *DflMsgHeaderHandler = NULL;
+HashList *DflEnumMsgHeaderHandler = NULL;
+
+
 static inline void CheckConvertBufs(struct wcsession *WCC)
 {
 	if (WCC->ConvertBuf1 == NULL)
@@ -61,7 +66,39 @@ void DestroyMessageSummary(void *vMsg)
 	free(Msg);
 }
 
+int EvaluateMsgHdrEnum(eMessageField f, message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	void *vHdr;
+	headereval* Hdr = NULL;
+	if (GetHash(DflEnumMsgHeaderHandler, IKEY(f), &vHdr) &&
+	    (vHdr != NULL)) {
+		Hdr = (headereval*)vHdr;
+	}
+	if (Hdr == NULL)
+		return -1;
+	Hdr->evaluator(Msg, HdrLine, FoundCharset);
+	return Hdr->Type;
+}
 
+int EvaluateMsgHdr(const char *HeaderName, long HdrNLen, message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	void *vHdr;
+	headereval* Hdr = NULL;
+	if (HdrNLen == 4) {
+		if (GetHash(DflMsgHeaderHandler, HeaderName, HdrNLen, &vHdr) &&
+		    (vHdr != NULL)) {
+			Hdr = (headereval*)vHdr;
+		}
+	}
+	if (Hdr == NULL && GetHash(MsgHeaderHandler, HeaderName, HdrNLen, &vHdr) &&
+	    (vHdr != NULL)) {
+		Hdr = (headereval*)vHdr;
+	}
+	if (Hdr == NULL)
+		return -1;
+	Hdr->evaluator(Msg, HdrLine, FoundCharset);
+	return Hdr->Type;
+}
 
 void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc evaluator, int type)
 {
@@ -69,6 +106,15 @@ void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc e
 	ev = (headereval*) malloc(sizeof(headereval));
 	ev->evaluator = evaluator;
 	ev->Type = type;
+
+	if (HdrNLen == 4) {
+		eMessageField f;
+		if (GetFieldFromMnemonic(&f, HeaderName)) {
+			Put(DflMsgHeaderHandler, HeaderName, HdrNLen, ev, NULL);
+			Put(DflEnumMsgHeaderHandler, IKEY(f), ev, reference_free_handler);
+			return;
+		}
+	}
 	Put(MsgHeaderHandler, HeaderName, HdrNLen, ev, NULL);
 }
 
@@ -242,6 +288,12 @@ void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *Fou
 /* TODO: do we care? */
 }
 
+
+void examine_exti(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	/* we don't care */
+}
+
 void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->nhdr = 0;
@@ -325,11 +377,17 @@ int Conditional_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
 void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	wcsession *WCC = WC;
+	long Offset = 0;
+	const char *pOffset;
 
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_inreplyto);
 	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
-	Msg->reply_inreplyto_hash = ThreadIdHash(HdrLine);
+	pOffset = strchr(ChrPtr(HdrLine), '/');
+	if (pOffset != NULL) {
+		Offset = pOffset - ChrPtr(HdrLine);
+	}
+	Msg->reply_inreplyto_hash = ThreadIdHashOffset(HdrLine, Offset);
 	StrBuf_RFC822_2_Utf8(Msg->reply_inreplyto, 
 			     HdrLine, 
 			     WCC->DefaultCharset,
@@ -352,11 +410,17 @@ int Conditional_MAIL_SUMM_UNREAD(StrBuf *Target, WCTemplputParams *TP)
 void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	wcsession *WCC = WC;
+	long Offset = 0;
+	const char *pOffset;
 
 	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_references);
 	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
-	Msg->reply_references_hash = ThreadIdHash(HdrLine);
+	pOffset = strchr(ChrPtr(HdrLine), '/');
+	if (pOffset != NULL) {
+		Offset = pOffset - ChrPtr(HdrLine);
+	}
+	Msg->reply_references_hash = ThreadIdHashOffset(HdrLine, Offset);
 	StrBuf_RFC822_2_Utf8(Msg->reply_references, 
 			     HdrLine, 
 			     WCC->DefaultCharset, 
@@ -598,7 +662,7 @@ void render_MAIL(StrBuf *Target, WCTemplputParams *TP, StrBuf *FoundCharset)
 		Mime->Data = NewStrBufPlain(NULL, Mime->length);
 	else 
 		FlushStrBuf(Mime->Data);
-	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, Mime->PartNum, &TemplateMime);
+	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, Mime->PartNum, &TemplateMime, TP);
 /*
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
@@ -803,8 +867,6 @@ void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundC
 
 void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
-	void *vHdr;
-	headereval *Hdr;
 	StrBuf *Token;
 	StrBuf *Value;
 	const char* sem;
@@ -840,12 +902,8 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 			}
 			StrBufTrim(Token);
 
-			if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
-			    (vHdr != NULL)) {
-				Hdr = (headereval*)vHdr;
-				Hdr->evaluator(Msg, Value, FoundCharset);
-			}
-			else syslog(LOG_WARNING, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
+			if (EvaluateMsgHdr(SKEY(Token), Msg, Value, FoundCharset) < 0)
+				syslog(LOG_WARNING, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
 		}
 		FreeStrBuf(&Token);
 		FreeStrBuf(&Value);
@@ -855,8 +913,6 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 
 int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Buf)
 {
-	void *vHdr;
-	headereval *Hdr;
 	const char *buf;
 	const char *ebuf;
 	int nBuf;
@@ -878,13 +934,8 @@ int ReadOneMessageSummary(message_summary *Msg, StrBuf *FoundCharset, StrBuf *Bu
 		ebuf = strchr(ChrPtr(Buf), '=');
 		nBuf = ebuf - buf;
 		
-		if (GetHash(MsgHeaderHandler, buf, nBuf, &vHdr) &&
-		    (vHdr != NULL)) {
-			Hdr = (headereval*)vHdr;
-			StrBufCutLeft(Buf, nBuf + 1);
-			Hdr->evaluator(Msg, Buf, FoundCharset);
-		}
-		else syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
+		if (EvaluateMsgHdr(buf, nBuf, Msg, Buf, FoundCharset) < 0)
+			syslog(LOG_INFO, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
 	}
 	return 1;
 }
@@ -948,7 +999,7 @@ void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 
 	MsgNum = LBstr(TKEY(0));
 	Buf = NewStrBuf();
-	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, NULL, &Mime);
+	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, NULL, &Mime, TP);
 	StrBufAppendTemplate(Target, TP, Buf, 1);
 	FreeStrBuf(&Buf);
 }
@@ -961,7 +1012,7 @@ void tmplput_EDIT_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 
 	MsgNum = LBstr(TKEY(0));
 	Buf = NewStrBuf();
-	read_message(Buf, HKEY("view_message_edit"), MsgNum, NULL, &Mime);
+	read_message(Buf, HKEY("view_message_edit"), MsgNum, NULL, &Mime, TP);
 	StrBufAppendTemplate(Target, TP, Buf, 1);
 	FreeStrBuf(&Buf);
 }
@@ -977,14 +1028,14 @@ void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)
 	 * to do it again.
 	 */
 	if (!havebstr("attach_button")) {
-		char *wikipage = strdup(bstr("page"));
+		StrBuf *wikipage = NewStrBufDup(sbstr("page"));
 		putbstr("format", NewStrBufPlain(HKEY("plain")));
 		str_wiki_index(wikipage);
-		msgnum = locate_message_by_uid(wikipage);
-		free(wikipage);
+		msgnum = locate_message_by_uid(ChrPtr(wikipage));
+		FreeStrBuf(&wikipage);
 		if (msgnum >= 0L) {
 			Buf = NewStrBuf();
-			read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime);
+			read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime, TP);
 			StrBufAppendTemplate(Target, TP, Buf, 1);
 			FreeStrBuf(&Buf);
 		}
@@ -1373,154 +1424,56 @@ readloop_struct rlid[] = {
 	{ {HKEY("readlt")},	servcmd_readlt		}
 };
 
+const char* fieldMnemonics[] = {
+	"from", /* A -> eAuthor       */
+	"exti", /* E -> eXclusivID    */
+	"rfca", /* F -> erFc822Addr   */
+	"hnod", /* H -> eHumanNode    */
+	"msgn", /* I -> emessageId    */
+	"jrnl", /* J -> eJournal      */
+	"rep2", /* K -> eReplyTo      */
+	"list", /* L -> eListID       */
+	"text", /* M -> eMesageText   */
+	"node", /* N -> eNodeName     */
+	"room", /* O -> eOriginalRoom */
+	"path", /* P -> eMessagePath  */
+	"rcpt", /* R -> eRecipient    */
+	"spec", /* S -> eSpecialField */
+	"time", /* T -> eTimestamp    */
+	"subj", /* U -> eMsgSubject   */
+	"nvto", /* V -> eenVelopeTo   */
+	"wefw", /* W -> eWeferences   */
+	"cccc", /* Y -> eCarbonCopY   */
+	"nhdr", /* % -> eHeaderOnly   */
+	"type", /* % -> eFormatType   */
+	"part", /* % -> eMessagePart  */
+	"suff", /* % -> eSubFolder    */
+	"pref"  /* % -> ePevious      */
+};
+HashList *msgKeyLookup = NULL;
 
-int ParseMessageListHeaders_Detail(StrBuf *Line, 
-				   const char **pos, 
-				   message_summary *Msg, 
-				   StrBuf *ConversionBuffer)
+int GetFieldFromMnemonic(eMessageField *f, const char* c)
 {
-	wcsession *WCC = WC;
-	long len;
-	long totallen;
-
-	CheckConvertBufs(WCC);
-
-	totallen = StrLength(Line);
-	Msg->from = NewStrBufPlain(NULL, totallen);
-	len = StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
-	if (len > 0) {
-		/* Handle senders with RFC2047 encoding */
-		StrBuf_RFC822_2_Utf8(Msg->from, 
-				     ConversionBuffer, 
-				     WCC->DefaultCharset, 
-				     NULL, 
-				     WCC->ConvertBuf1,
-				     WCC->ConvertBuf2);
+	void *v = NULL;
+	if (GetHash(msgKeyLookup, c, 4, &v)) {
+		*f = (eMessageField) v;
+		return 1;
 	}
-			
-	/* node name */
-	len = StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
-	if ((len > 0 ) &&
-	    ( ((WCC->CurRoom.QRFlags & QR_NETWORK)
-	       || ((strcasecmp(ChrPtr(ConversionBuffer), ChrPtr(WCC->serv_info->serv_nodename))
-		    && (strcasecmp(ChrPtr(ConversionBuffer), ChrPtr(WCC->serv_info->serv_fqdn))))))))
-	{
-		StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
-		StrBufAppendBuf(Msg->from, ConversionBuffer, 0);
-	}
-
-	/* Internet address (not used)
-	 *	StrBufExtract_token(Msg->inetaddr, Line, 4, '|');
-	 */
-	StrBufSkip_NTokenS(Line, pos, '|', 1);
-	Msg->subj = NewStrBufPlain(NULL, totallen);
-
-	FlushStrBuf(ConversionBuffer);
-	/* we assume the subject is the last parameter inside of the list; 
-	 * thus we don't use the tokenizer to fetch it, since it will hick up 
-	 * on tokenizer chars inside of the subjects
-	StrBufExtract_NextToken(ConversionBuffer,  Line, pos, '|');
-	*/
-	len = 0;
-	if (*pos != StrBufNOTNULL) {
-		len = totallen - (*pos - ChrPtr(Line));
-		StrBufPlain(ConversionBuffer, *pos, len);
-		*pos = StrBufNOTNULL;
-		if ((len > 0) &&
-		    (*(ChrPtr(ConversionBuffer) + len - 1) == '|'))
-			StrBufCutRight(ConversionBuffer, 1);
-	}
-
-	if (len == 0)
-		StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
-	else {
-		StrBuf_RFC822_2_Utf8(Msg->subj, 
-				     ConversionBuffer, 
-				     WCC->DefaultCharset, 
-				     NULL,
-				     WCC->ConvertBuf1,
-				     WCC->ConvertBuf2);
-	}
-
-	return 1;
-}
-
-
-int mailview_GetParamsGetServerCall(SharedMessageStatus *Stat, 
-				    void **ViewSpecific, 
-				    long oper, 
-				    char *cmd, 
-				    long len,
-				    char *filter,
-				    long flen)
-{
-	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
-
-	return 200;
-}
-
-int mailview_Cleanup(void **ViewSpecific)
-{
-	/* Note: wDumpContent() will output one additional </div> tag. */
-	/* We ought to move this out into template */
-	wDumpContent(1);
-
 	return 0;
 }
 
-
-int json_GetParamsGetServerCall(SharedMessageStatus *Stat, 
-				void **ViewSpecific, 
-				long oper, 
-				char *cmd, 
-				long len,
-				char *filter,
-				long flen)
+void FillMsgKeyLookupTable(void)
 {
-	Stat->defaultsortorder = 2;
-	Stat->sortit = 1;
-	Stat->load_seen = 1;
-	/* Generally using maxmsgs|startmsg is not required
-	   in mailbox view, but we have a 'safemode' for clients
-	   (*cough* Exploder) that simply can't handle too many */
-	if (havebstr("maxmsgs"))  Stat->maxmsgs  = ibstr("maxmsgs");
-	else                      Stat->maxmsgs  = 9999999;
-	if (havebstr("startmsg")) Stat->startmsg = lbstr("startmsg");
-	snprintf(cmd, len, "MSGS %s|%s||1",
-		 (oper == do_search) ? "SEARCH" : "ALL",
-		 (oper == do_search) ? bstr("query") : ""
-		);
+	long i = 0;
 
-	return 200;
-}
-int json_MessageListHdr(SharedMessageStatus *Stat, void **ViewSpecific) 
-{
-	/* TODO: make a generic function */
-	hprintf("HTTP/1.1 200 OK\r\n");
-	hprintf("Content-type: application/json; charset=utf-8\r\n");
-	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-	hprintf("Connection: close\r\n");
-	hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
-	begin_burst();
-	return 0;
-}
+	msgKeyLookup = NewHash (1, FourHash);
 
-int json_RenderView_or_Tail(SharedMessageStatus *Stat, 
-			    void **ViewSpecific, 
-			    long oper)
-{
-	DoTemplate(HKEY("mailsummary_json"),NULL, NULL);
-	
-	return 0;
-}
-
-int json_Cleanup(void **ViewSpecific)
-{
-	/* Note: wDumpContent() will output one additional </div> tag. */
-	/* We ought to move this out into template */
-	end_burst();
-
-	return 0;
+	while (i != eLastHeader) {
+		if (fieldMnemonics[i] != NULL) {
+			Put(msgKeyLookup, fieldMnemonics[i], 4, (void*)i, reference_free_handler);
+		}
+		i++;
+	}
 }
 
 
@@ -1531,25 +1484,6 @@ InitModule_MSGRENDERERS
 {
 	RegisterCTX(CTX_MAILSUM);
 	RegisterCTX(CTX_MIME_ATACH);
-	RegisterReadLoopHandlerset(
-		VIEW_MAILBOX,
-		mailview_GetParamsGetServerCall,
-		NULL, /* TODO: is this right? */
-		NULL,
-		ParseMessageListHeaders_Detail,
-		NULL,
-		NULL,
-		mailview_Cleanup);
-
-	RegisterReadLoopHandlerset(
-		VIEW_JSON_LIST,
-		json_GetParamsGetServerCall,
-		json_MessageListHdr,
-		NULL, /* TODO: is this right? */
-		ParseMessageListHeaders_Detail,
-		NULL,
-		json_RenderView_or_Tail,
-		json_Cleanup);
 
 	RegisterSortFunc(HKEY("date"), 
 			 NULL, 0,
@@ -1659,6 +1593,7 @@ InitModule_MSGRENDERERS
 
 	/* these headers are citserver replies to MSG4 and friends. one evaluator for each */
 	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);
+	RegisterMsgHdr(HKEY("exti"), examine_exti, 0);
 	RegisterMsgHdr(HKEY("type"), examine_type, 0);
 	RegisterMsgHdr(HKEY("from"), examine_from, 0);
 	RegisterMsgHdr(HKEY("subj"), examine_subj, 0);
@@ -1699,21 +1634,27 @@ void
 ServerStartModule_MSGRENDERERS
 (void)
 {
+	DflMsgHeaderHandler = NewHash (1, FourHash);
+	DflEnumMsgHeaderHandler = NewHash (1, Flathash);
 	MsgHeaderHandler = NewHash(1, NULL);
 	MimeRenderHandler = NewHash(1, NULL);
 	ReadLoopHandler = NewHash(1, NULL);
+	FillMsgKeyLookupTable();
 }
 
 void 
 ServerShutdownModule_MSGRENDERERS
 (void)
 {
+	DeleteHash(&DflMsgHeaderHandler);
+	DeleteHash(&DflEnumMsgHeaderHandler);
+
+
 	DeleteHash(&MsgHeaderHandler);
 	DeleteHash(&MimeRenderHandler);
 	DeleteHash(&ReadLoopHandler);
+	DeleteHash(&msgKeyLookup);
 }
-
-
 
 void 
 SessionDestroyModule_MSGRENDERERS

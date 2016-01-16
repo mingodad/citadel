@@ -2,20 +2,22 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2012 by the citadel.org team
+ * Copyright (c) 2000-2016 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  */
 
 #include "sysdep.h"
 #include <stdio.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #ifdef HAVE_SYSCALL_H
 # include <syscall.h>
@@ -36,10 +38,12 @@ void vFreeRoomNetworkStruct(void *vOneRoomNetCfg);
 void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg);
 
 HashList *CfgTypeHash = NULL;
-HashList *RoomConfigs = NULL;
+
 /*-----------------------------------------------------------------------------*
  *                       Per room network configs                              *
  *-----------------------------------------------------------------------------*/
+
+
 void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLineParser p, int uniq,  int nSegments, CfgLineSerializer s, CfgLineDeAllocator d)
 {
 	CfgLineType *pCfg;
@@ -89,6 +93,7 @@ const CfgLineType *GetCfgTypeByEnum(RoomNetCfg eCfg, HashPos *It)
 	}
 	return NULL;
 }
+
 void ParseGeneric(const CfgLineType *ThisOne, StrBuf *Line, const char *LinePos, OneRoomNetCfg *OneRNCfg)
 {
 	RoomNetCfgLine *nptr;
@@ -145,6 +150,7 @@ void DeleteGenericCfgLine(const CfgLineType *ThisOne, RoomNetCfgLine **data)
 	free(*data);
 	*data = NULL;
 }
+
 RoomNetCfgLine *DuplicateOneGenericCfgLine(const RoomNetCfgLine *data)
 {
 	int i;
@@ -162,186 +168,176 @@ RoomNetCfgLine *DuplicateOneGenericCfgLine(const RoomNetCfgLine *data)
 	NewData->nValues = data->nValues;
 	return NewData;
 }
-int ReadRoomNetConfigFile(OneRoomNetCfg **pOneRNCfg, char *filename)
+
+
+/*
+ * Create a config key for a room's netconfig entry
+ */
+void netcfg_keyname(char *keybuf, long roomnum)
 {
-	int fd;
-	const char *ErrStr = NULL;
-	const char *Pos;
-	const CfgLineType *pCfg;
-	StrBuf *Line;
-	StrBuf *InStr;
+	if (!keybuf) return;
+	sprintf(keybuf, "c_netconfig_%010ld", roomnum);
+}
+
+
+
+/*
+ * Given a room number and a textual netconfig, convert to base64 and write to the configdb
+ */
+void write_netconfig_to_configdb(long roomnum, const char *raw_netconfig)
+{
+	char keyname[25];
+	char *enc;
+	int enc_len;
+	int len;
+
+	syslog(LOG_DEBUG, "\033[32m--- START WRITE ---\033[0m\n\033[31m%s\033[0m\n\033[32m---- END WRITE ----\033[0m", raw_netconfig);
+	len = strlen(raw_netconfig);
+	netcfg_keyname(keyname, roomnum);
+	enc = malloc(len * 2);
+
+	if (enc) {
+		enc_len = CtdlEncodeBase64(enc, raw_netconfig, len, 0);
+		if ((enc_len > 1) && (enc[enc_len-2] == 13)) enc[enc_len-2] = 0;
+		if ((enc_len > 0) && (enc[enc_len-1] == 10)) enc[enc_len-1] = 0;
+		enc[enc_len] = 0;
+		syslog(LOG_DEBUG, "Writing key '%s' (length=%d)", keyname, enc_len);
+		CtdlSetConfigStr(keyname, enc);
+		free(enc);
+	}
+}
+
+
+
+/*
+ * Given a room number, attempt to load the netconfig configdb entry for that room.
+ * If it returns NULL, there is no netconfig.
+ * Otherwise the caller owns the returned memory and is responsible for freeing it.
+ */
+char *LoadRoomNetConfigFile(long roomnum)
+{
+	char keyname[25];
+	char *encoded_netconfig = NULL;
+	char *decoded_netconfig = NULL;
+
+	netcfg_keyname(keyname, roomnum);
+	encoded_netconfig = CtdlGetConfigStr(keyname);
+	if (!encoded_netconfig) return NULL;
+
+	decoded_netconfig = malloc(strlen(encoded_netconfig));	// yeah, way bigger than it needs to be, but safe
+	CtdlDecodeBase64(decoded_netconfig, encoded_netconfig, strlen(encoded_netconfig));
+	return decoded_netconfig;
+}
+
+
+/*
+ * Deserialize a netconfig , allocate and return structured data
+ */
+OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
+{
+	const char *Pos = NULL;
+        const char *CPos = NULL;
+	const CfgLineType *pCfg = NULL;
+	StrBuf *Line = NULL;
+	StrBuf *InStr = NULL;
+	StrBuf *Cfg = NULL;
 	OneRoomNetCfg *OneRNCfg = NULL;
 
-	fd = open(filename, O_NONBLOCK|O_RDONLY);
-	if (fd == -1) {
-		*pOneRNCfg = NULL;
-		return 0;
-	}
-	fchown(fd, CTDLUID, (-1));
-	fchmod(fd, 0600);
-
-	if (*pOneRNCfg != NULL)
-	{
-		OneRNCfg = *pOneRNCfg;
-		FreeRoomNetworkStructContent (OneRNCfg);
-	}
-	else
-		OneRNCfg = malloc(sizeof(OneRoomNetCfg));
+	OneRNCfg = malloc(sizeof(OneRoomNetCfg));
 	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
-	*pOneRNCfg = OneRNCfg;
+
 	Line = NewStrBuf();
 	InStr = NewStrBuf();
+        Cfg = NewStrBufPlain(serialized_data, -1);
 
-	while (StrBufTCP_read_line(Line, &fd, 0, &ErrStr) >= 0) {
-		if (StrLength(Line) == 0)
-			continue;
-		Pos = NULL;
-		StrBufExtract_NextToken(InStr, Line, &Pos, '|');
+	syslog(LOG_DEBUG, "\033[32m--- START READ ---\033[0m");
+        while (StrBufSipLine(Line, Cfg, &CPos)) {
+		syslog(LOG_DEBUG, "READ NET CONFIG LINE: '\033[31m%s\033[0m'", ChrPtr(Line));
 
-		pCfg = GetCfgTypeByStr(SKEY(InStr));
-		if (pCfg != NULL)
-		{
-			pCfg->Parser(pCfg, Line, Pos, OneRNCfg);
-		}
-		else
-		{
-			if (OneRNCfg->misc == NULL)
+		if (StrLength(Line) > 0) {
+			Pos = NULL;
+			StrBufExtract_NextToken(InStr, Line, &Pos, '|');
+	
+			pCfg = GetCfgTypeByStr(SKEY(InStr));
+			if (pCfg != NULL)
 			{
-				OneRNCfg->misc = NewStrBufDup(Line);
+				pCfg->Parser(pCfg, Line, Pos, OneRNCfg);
 			}
 			else
 			{
-				if(StrLength(OneRNCfg->misc) > 0)
-					StrBufAppendBufPlain(OneRNCfg->misc, HKEY("\n"), 0);
-				StrBufAppendBuf(OneRNCfg->misc, Line, 0);
+				if (OneRNCfg->misc == NULL)
+				{
+					OneRNCfg->misc = NewStrBufDup(Line);
+				}
+				else
+				{
+					if (StrLength(OneRNCfg->misc) > 0) {
+						StrBufAppendBufPlain(OneRNCfg->misc, HKEY("\n"), 0);
+					}
+					StrBufAppendBuf(OneRNCfg->misc, Line, 0);
+				}
 			}
 		}
 	}
-	if (fd > 0)
-		close(fd);
+	syslog(LOG_DEBUG, "\033[32m---- END READ ----\033[0m");
 	FreeStrBuf(&InStr);
 	FreeStrBuf(&Line);
-	return 1;
+	FreeStrBuf(&Cfg);
+	return OneRNCfg;
 }
 
-int SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCfg, char *filename)
+
+void SaveRoomNetConfigFile(OneRoomNetCfg *OneRNCfg, long roomnum)
 {
 	RoomNetCfg eCfg;
 	StrBuf *Cfg = NULL;
 	StrBuf *OutBuffer = NULL;
-	char tempfilename[PATH_MAX];
-	int TmpFD;
-	long len;
-	time_t unixtime;
-	struct timeval tv;
-	long reltid; /* if we don't have SYS_gettid, use "random" value */
-	int rc;
 	HashPos *CfgIt;
 
-	len = strlen(filename);
-	memcpy(tempfilename, filename, len + 1);
-
-#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
-	reltid = syscall(SYS_gettid);
-#endif
-	gettimeofday(&tv, NULL);
-	/* Promote to time_t; types differ on some OSes (like darwin) */
-	unixtime = tv.tv_sec;
-
-	sprintf(tempfilename + len, ".%ld-%ld", reltid, unixtime);
-	errno = 0;
-	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
 	Cfg = NewStrBuf();
-	if ((TmpFD < 0) || (errno != 0)) {
-		syslog(LOG_CRIT, "ERROR: cannot open %s: %s\n",
-			filename, strerror(errno));
-		unlink(tempfilename);
-		FreeStrBuf(&Cfg);
-		return 0;
-	}
-	else {
-		OutBuffer = NewStrBuf();
-		CfgIt = GetNewHashPos(CfgTypeHash, 1);
-		fchown(TmpFD, ctdluid, 0);
-		for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
-		{
-			const CfgLineType *pCfg;
-			pCfg = GetCfgTypeByEnum(eCfg, CfgIt);
-			if (pCfg->IsSingleLine)
-			{
-				pCfg->Serializer(pCfg, OutBuffer, OneRNCfg, NULL);
-			}
-			else
-			{
-				RoomNetCfgLine *pName = OneRNCfg->NetConfigs[pCfg->C];
-				while (pName != NULL)
-				{
-					pCfg->Serializer(pCfg, OutBuffer, OneRNCfg, pName);
-					pName = pName->next;
-				}
-				
-				
-			}
-
-		}
-		DeleteHashPos(&CfgIt);
-
-
-		if (OneRNCfg->misc != NULL) {
-			StrBufAppendBuf(OutBuffer, OneRNCfg->misc, 0);
-		}
-
-		rc = write(TmpFD, ChrPtr(OutBuffer), StrLength(OutBuffer));
-		if ((rc >=0 ) && (rc == StrLength(OutBuffer))) 
-		{
-			close(TmpFD);
-			rename(tempfilename, filename);
-			rc = 1;
-		}
-		else {
-			syslog(LOG_EMERG, 
-				      "unable to write %s; [%s]; not enough space on the disk?\n", 
-				      tempfilename, 
-				      strerror(errno));
-			close(TmpFD);
-			unlink(tempfilename);
-			rc = 0;
-		}
-		FreeStrBuf(&OutBuffer);
-		
-	}
-	FreeStrBuf(&Cfg);
-	return rc;
-}
-
-void SaveModifiedRooms(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneRNCfg)
-{
-	char filename[PATH_MAX];
-
-	if (OneRNCfg->changed)
+	OutBuffer = NewStrBuf();
+	CfgIt = GetNewHashPos(CfgTypeHash, 1);
+	for (eCfg = subpending; eCfg < maxRoomNetCfg; eCfg ++)
 	{
-		assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
-		SaveRoomNetConfigFile(OneRNCfg, filename);
-		OneRNCfg->changed = 0;
+		const CfgLineType *pCfg;
+		pCfg = GetCfgTypeByEnum(eCfg, CfgIt);
+		if (pCfg->IsSingleLine)
+		{
+			pCfg->Serializer(pCfg, OutBuffer, OneRNCfg, NULL);
+		}
+		else
+		{
+			RoomNetCfgLine *pName = OneRNCfg->NetConfigs[pCfg->C];
+			while (pName != NULL)
+			{
+				pCfg->Serializer(pCfg, OutBuffer, OneRNCfg, pName);
+				pName = pName->next;
+			}
+			
+			
+		}
+
 	}
+	DeleteHashPos(&CfgIt);
+
+	if (OneRNCfg->misc != NULL) {
+		StrBufAppendBuf(OutBuffer, OneRNCfg->misc, 0);
+	}
+
+	write_netconfig_to_configdb(roomnum, ChrPtr(OutBuffer));
+
+	FreeStrBuf(&OutBuffer);
+	FreeStrBuf(&Cfg);
 }
-void SaveChangedConfigs(void)
-{
-	CtdlForEachNetCfgRoom(SaveModifiedRooms,
-			      NULL, 
-			      maxRoomNetCfg);
-}
+
 
 
 void AddRoomCfgLine(OneRoomNetCfg *OneRNCfg, struct ctdlroom *qrbuf, RoomNetCfg LineType, RoomNetCfgLine *Line)
 {
-	int new = 0;
 	RoomNetCfgLine **pLine;
-	char filename[PATH_MAX];
 
 	if (OneRNCfg == NULL)
 	{
-		new = 1;
 		OneRNCfg = (OneRoomNetCfg*) malloc(sizeof(OneRoomNetCfg));
 		memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
 	}
@@ -349,15 +345,8 @@ void AddRoomCfgLine(OneRoomNetCfg *OneRNCfg, struct ctdlroom *qrbuf, RoomNetCfg 
 
 	while(*pLine != NULL) pLine = &((*pLine)->next);
 	*pLine = Line;
-
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_netcfg_dir);
-	SaveRoomNetConfigFile(OneRNCfg, filename);
-	OneRNCfg->changed = 0;
-	if (new)
-	{
-		Put(RoomConfigs, LKEY(qrbuf->QRnumber), OneRNCfg, vFreeRoomNetworkStruct);
-	}
 }
+
 
 void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg)
 {
@@ -393,6 +382,8 @@ void FreeRoomNetworkStructContent(OneRoomNetCfg *OneRNCfg)
 	FreeStrBuf(&OneRNCfg->misc);
 	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
 }
+
+
 void vFreeRoomNetworkStruct(void *vOneRoomNetCfg)
 {
 	OneRoomNetCfg *OneRNCfg;
@@ -400,339 +391,79 @@ void vFreeRoomNetworkStruct(void *vOneRoomNetCfg)
 	FreeRoomNetworkStructContent(OneRNCfg);
 	free(OneRNCfg);
 }
+
+
 void FreeRoomNetworkStruct(OneRoomNetCfg **pOneRNCfg)
 {
 	vFreeRoomNetworkStruct(*pOneRNCfg);
 	*pOneRNCfg=NULL;
 }
 
-OneRoomNetCfg* CtdlGetNetCfgForRoom(long QRNumber)
+
+/*
+ * Fetch the netconfig entry for a room, parse it, and return the data.
+ * Caller owns the returned memory and MUST free it using FreeRoomNetworkStruct()
+ */
+OneRoomNetCfg *CtdlGetNetCfgForRoom(long roomnum)
 {
-	void *pv;
-	GetHash(RoomConfigs, LKEY(QRNumber), &pv);
-	return (OneRoomNetCfg*)pv;
-}
+	OneRoomNetCfg *OneRNCfg = NULL;
+	char *serialized_config = NULL;
 
+	serialized_config = LoadRoomNetConfigFile(roomnum);
+	if (!serialized_config) return NULL;
 
-void LoadAllNetConfigs(void)
-{
-	DIR *filedir = NULL;
-	struct dirent *d;
-	struct dirent *filedir_entry;
-	int d_type = 0;
-        int d_namelen;
-	long RoomNumber;
-	OneRoomNetCfg *OneRNCfg;
-	int IsNumOnly;
-	const char *pch;
-	char path[PATH_MAX];
-
-	RoomConfigs = NewHash(1, NULL);
-	filedir = opendir (ctdl_netcfg_dir);
-	if (filedir == NULL) {
-		return ; /// todo: panic!
-	}
-
-	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
-	if (d == NULL) {
-		closedir(filedir);
-		return ;
-	}
-
-	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
-	       (filedir_entry != NULL))
-	{
-#ifdef _DIRENT_HAVE_D_NAMLEN
-		d_namelen = filedir_entry->d_namlen;
-#else
-		d_namelen = strlen(filedir_entry->d_name);
-#endif
-
-#ifdef _DIRENT_HAVE_D_TYPE
-		d_type = filedir_entry->d_type;
-#else
-
-#ifndef DT_UNKNOWN
-#define DT_UNKNOWN     0
-#define DT_DIR         4
-#define DT_REG         8
-#define DT_LNK         10
-
-#define IFTODT(mode)   (((mode) & 0170000) >> 12)
-#define DTTOIF(dirtype)        ((dirtype) << 12)
-#endif
-		d_type = DT_UNKNOWN;
-#endif
-		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
-			continue; /* Ignore backup files... */
-
-		if ((d_namelen == 1) && 
-		    (filedir_entry->d_name[0] == '.'))
-			continue;
-
-		if ((d_namelen == 2) && 
-		    (filedir_entry->d_name[0] == '.') &&
-		    (filedir_entry->d_name[1] == '.'))
-			continue;
-
-		snprintf(path, PATH_MAX, "%s/%s", 
-			 ctdl_netcfg_dir, filedir_entry->d_name);
-
-		if (d_type == DT_UNKNOWN) {
-			struct stat s;
-			if (lstat(path, &s) == 0) {
-				d_type = IFTODT(s.st_mode);
-			}
-		}
-
-		switch (d_type)
-		{
-		case DT_DIR:
-			break;
-		case DT_LNK: /* TODO: check whether its a file or a directory */
-		case DT_REG:
-			IsNumOnly = 1;
-			pch = filedir_entry->d_name;
-			while (*pch != '\0')
-			{
-				if (!isdigit(*pch))
-				{
-					IsNumOnly = 0;
-				}
-				pch ++;
-			}
-			if (IsNumOnly)
-			{
-				OneRNCfg = NULL;
-				RoomNumber = atol(filedir_entry->d_name);
-				ReadRoomNetConfigFile(&OneRNCfg, path);
-
-				if (OneRNCfg != NULL)
-					Put(RoomConfigs, LKEY(RoomNumber), OneRNCfg, vFreeRoomNetworkStruct);
-				/* syslog(9, "[%s | %s]\n", ChrPtr(OneWebName), ChrPtr(FileName)); */
-			}
-			break;
-		default:
-			break;
-		}
-
-
-	}
-	free(d);
-	closedir(filedir);
+	OneRNCfg = ParseRoomNetConfigFile(serialized_config);
+	free(serialized_config);
+	return OneRNCfg;
 }
 
 
 /*-----------------------------------------------------------------------------*
  *              Per room network configs : exchange with client                *
  *-----------------------------------------------------------------------------*/
+
 void cmd_gnet(char *argbuf)
 {
-	char filename[PATH_MAX];
-	char buf[SIZ];
-	FILE *fp;
-
-
-	if (!IsEmptyStr(argbuf))
-	{
-		if (CtdlAccessCheck(ac_aide)) return;
-		if (strcmp(argbuf, FILE_MAILALIAS))
-		{
-			cprintf("%d No such file or directory\n",
-				ERROR + INTERNAL_ERROR);
-			return;
-		}
-		safestrncpy(filename, file_mail_aliases, sizeof(filename));
-		cprintf("%d Settings for <%s>\n",
-			LISTING_FOLLOWS,
-			filename);
+	if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
+		/* users can edit the netconfigs for their own mailbox rooms */
 	}
-	else
-	{
-		if ( (CC->room.QRflags & QR_MAILBOX) && (CC->user.usernum == atol(CC->room.QRname)) ) {
-			/* users can edit the netconfigs for their own mailbox rooms */
-		}
-		else if (CtdlAccessCheck(ac_room_aide)) return;
-		
-		assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
-		cprintf("%d Network settings for room #%ld <%s>\n",
-			LISTING_FOLLOWS,
-			CC->room.QRnumber, CC->room.QRname);
-	}
+	else if (CtdlAccessCheck(ac_room_aide)) return;
+	
+	cprintf("%d Network settings for room #%ld <%s>\n", LISTING_FOLLOWS, CC->room.QRnumber, CC->room.QRname);
 
-	fp = fopen(filename, "r");
-	if (fp != NULL) {
-		while (fgets(buf, sizeof buf, fp) != NULL) {
-			buf[strlen(buf)-1] = 0;
-			cprintf("%s\n", buf);
-		}
-		fclose(fp);
+	char *c = LoadRoomNetConfigFile(CC->room.QRnumber);
+	if (c) {
+		cprintf("%s\n", c);
+		free(c);
 	}
-
 	cprintf("000\n");
 }
 
-#define nForceAliases 5
-const ConstStr ForceAliases[nForceAliases] = {
-	{HKEY("bbs,")},
-	{HKEY("root,")},
-	{HKEY("Auto,")},
-	{HKEY("postmaster,")},
-	{HKEY("abuse,")}
-};
+
 void cmd_snet(char *argbuf)
 {
 	struct CitContext *CCC = CC;
-	char tempfilename[PATH_MAX];
-	char filename[PATH_MAX];
-	int TmpFD;
-	StrBuf *Line;
-	struct stat StatBuf;
-	long len;
+	StrBuf *Line = NULL;
+	StrBuf *TheConfig = NULL;
 	int rc;
-	int IsMailAlias = 0;
-	int MailAliasesFound[nForceAliases];
 
 	unbuffer_output();
-
-	if (!IsEmptyStr(argbuf))
-	{
-		if (CtdlAccessCheck(ac_aide)) return;
-		if (strcmp(argbuf, FILE_MAILALIAS))
-		{
-			cprintf("%d No such file or directory\n",
-				ERROR + INTERNAL_ERROR);
-			return;
-		}
-		len = safestrncpy(filename, file_mail_aliases, sizeof(filename));
-		memset(MailAliasesFound, 0, sizeof(MailAliasesFound));
-		memcpy(tempfilename, filename, len + 1);
-		IsMailAlias = 1;
-	}
-	else
-	{
-		if ( (CCC->room.QRflags & QR_MAILBOX) && (CCC->user.usernum == atol(CCC->room.QRname)) ) {
-			/* users can edit the netconfigs for their own mailbox rooms */
-		}
-		else if (CtdlAccessCheck(ac_room_aide)) return;
-		
-		len = assoc_file_name(filename, sizeof filename, &CCC->room, ctdl_netcfg_dir);
-		memcpy(tempfilename, filename, len + 1);
-	}
-	memset(&StatBuf, 0, sizeof(struct stat));
-	if ((stat(filename, &StatBuf)  == -1) || (StatBuf.st_size == 0))
-		StatBuf.st_size = 80; /* Not there or empty? guess 80 chars line. */
-
-	sprintf(tempfilename + len, ".%d", CCC->cs_pid);
-	errno = 0;
-	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
-
-	if ((TmpFD > 0) && (errno == 0))
-	{
-		char *tmp = malloc(StatBuf.st_size * 2);
-		memset(tmp, ' ', StatBuf.st_size * 2);
-		rc = write(TmpFD, tmp, StatBuf.st_size * 2);
-		free(tmp);
-		if ((rc <= 0) || (rc != StatBuf.st_size * 2))
-		{
-			close(TmpFD);
-			cprintf("%d Unable to allocate the space required for %s: %s\n",
-				ERROR + INTERNAL_ERROR,
-				tempfilename,
-				strerror(errno));
-			unlink(tempfilename);
-			return;
-		}	
-		lseek(TmpFD, SEEK_SET, 0);
-	}
-	else {
-		cprintf("%d Unable to allocate the space required for %s: %s\n",
-			ERROR + INTERNAL_ERROR,
-			tempfilename,
-			strerror(errno));
-		unlink(tempfilename);
-		return;
-	}
 	Line = NewStrBuf();
+	TheConfig = NewStrBuf();
+	cprintf("%d send new netconfig now\n", SEND_LISTING);
 
-	cprintf("%d %s\n", SEND_LISTING, tempfilename);
-
-	len = 0;
-	while (rc = CtdlClientGetLine(Line), 
-	       (rc >= 0))
+	while (rc = CtdlClientGetLine(Line), (rc >= 0))
 	{
 		if ((rc == 3) && (strcmp(ChrPtr(Line), "000") == 0))
 			break;
-		if (IsMailAlias)
-		{
-			int i;
 
-			for (i = 0; i < nForceAliases; i++)
-			{
-				if ((!MailAliasesFound[i]) && 
-				    (strncmp(ForceAliases[i].Key, 
-					     ChrPtr(Line),
-					     ForceAliases[i].len) == 0)
-					)
-				    {
-					    MailAliasesFound[i] = 1;
-					    break;
-				    }
-			}
-		}
-
-		StrBufAppendBufPlain(Line, HKEY("\n"), 0);
-		write(TmpFD, ChrPtr(Line), StrLength(Line));
-		len += StrLength(Line);
+		StrBufAppendBuf(TheConfig, Line, 0);
+		StrBufAppendBufPlain(TheConfig, HKEY("\n"), 0);
 	}
 	FreeStrBuf(&Line);
-	ftruncate(TmpFD, len);
-	close(TmpFD);
 
-	if (IsMailAlias)
-	{
-		int i, state;
-		/*
-		 * Sanity check whether all aliases required by the RFCs were set
-		 * else bail out.
-		 */
-		state = 1;
-		for (i = 0; i < nForceAliases; i++)
-		{
-			if (!MailAliasesFound[i]) 
-				state = 0;
-		}
-		if (state == 0)
-		{
-			cprintf("%d won't do this - you're missing an RFC required alias.\n",
-				ERROR + INTERNAL_ERROR);
-			unlink(tempfilename);
-			return;
-		}
-	}
-
-	/* Now copy the temp file to its permanent location.
-	 * (We copy instead of link because they may be on different filesystems)
-	 */
-	begin_critical_section(S_NETCONFIGS);
-	rename(tempfilename, filename);
-	if (!IsMailAlias)
-	{
-		OneRoomNetCfg *RNCfg;
-		RNCfg = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
-		if (RNCfg != NULL)
-		{
-			ReadRoomNetConfigFile(&RNCfg, filename);
-		}
-		else
-		{
-			ReadRoomNetConfigFile(&RNCfg, filename);
-			Put(RoomConfigs, LKEY(CCC->room.QRnumber), RNCfg, vFreeRoomNetworkStruct);
-		}
-
-		PerformRoomHooks(&CCC->room);
-	}
-	end_critical_section(S_NETCONFIGS);
+	write_netconfig_to_configdb(CCC->room.QRnumber, ChrPtr(TheConfig));
+	FreeStrBuf(&TheConfig);
 }
 
 
@@ -874,6 +605,7 @@ int CtdlNetconfigCheckRoomaccess(
 		return (ERROR + NO_SUCH_USER);
 	}
 	found = is_recipient (RNCfg, RemoteIdentifier);
+	FreeRoomNetworkStruct(&RNCfg);
 	end_critical_section(S_NETCONFIGS);
 
 	if (found) {
@@ -977,7 +709,7 @@ void cmd_netp(char *cmdbuf)
 	}
 	nodelen = safestrncpy(CCC->net_node, node, sizeof CCC->net_node);
 	CtdlNetworkTalkingTo(CCC->net_node, nodelen, NTT_ADD);
-	syslog(LOG_NOTICE, "Network node <%s> logged in from %s [%s]\n",
+	syslog(LOG_NOTICE, "Network node <%s> logged in from %s [%s]",
 		CCC->net_node, CCC->cs_host, CCC->cs_addr
 	);
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CCC->net_node);
@@ -1136,7 +868,7 @@ int CtdlIsValidNode(const StrBuf **nexthop,
 	 * First try the neighbor nodes
 	 */
 	if (GetCount(IgnetCfg) == 0) {
-		syslog(LOG_INFO, "IgnetCfg is empty!\n");
+		syslog(LOG_INFO, "IgnetCfg is empty!");
 		if (nexthop != NULL) {
 			*nexthop = NULL;
 		}
@@ -1168,25 +900,56 @@ int CtdlIsValidNode(const StrBuf **nexthop,
 	/*
 	 * If we get to this point, the supplied node name is bogus.
 	 */
-	syslog(LOG_ERR, "Invalid node name <%s>\n", ChrPtr(node));
+	syslog(LOG_ERR, "Invalid node name <%s>", ChrPtr(node));
 	return(-1);
 }
 
 
-void destroy_network_cfgs(void)
+/*
+ * Convert any legacy configuration files in the "netconfigs" directory
+ */
+void convert_legacy_netcfg_files(void)
 {
-	HashList *pCfgTypeHash = CfgTypeHash;
-	HashList *pRoomConfigs;
+	DIR *dh = NULL;
+	struct dirent *dit = NULL;
+	char filename[PATH_MAX];
+	long roomnum;
+	FILE *fp;
+	long len;
+	char *v;
 
-	begin_critical_section(S_NETCONFIGS);
-	pRoomConfigs = RoomConfigs;
-	RoomConfigs = NULL;
-	end_critical_section(S_NETCONFIGS);
-	DeleteHash(&pRoomConfigs);
+	dh = opendir(ctdl_netcfg_dir);
+	if (!dh) return;
 
-	CfgTypeHash = NULL;
-	DeleteHash(&pCfgTypeHash);
+	syslog(LOG_INFO, "Legacy netconfig files exist - converting them!");
+
+	while (dit = readdir(dh), dit != NULL) {		// yes, we use the non-reentrant version; we're not in threaded mode yet
+		roomnum = atol(dit->d_name);
+		if (roomnum > 0) {
+			snprintf(filename, sizeof filename, "%s/%ld", ctdl_netcfg_dir, roomnum);
+			fp = fopen(filename, "r");
+			if (fp) {
+				fseek(fp, 0L, SEEK_END);
+				len = ftell(fp);
+				v = malloc(len);
+				if (v) {
+					rewind(fp);
+					if (fread(v, len, 1, fp)) {
+						write_netconfig_to_configdb(roomnum, v);
+						unlink(filename);
+					}
+					free(v);
+				}
+				fclose(fp);
+			}
+		}
+	}
+
+	closedir(dh);
+	rmdir(ctdl_netcfg_dir);
 }
+
+
 
 /*
  * Module entry point
@@ -1195,8 +958,7 @@ CTDL_MODULE_INIT(netconfig)
 {
 	if (!threading)
 	{
-		CtdlRegisterCleanupHook(destroy_network_cfgs);
-		LoadAllNetConfigs ();
+		convert_legacy_netcfg_files();
 		CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 		CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 		CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");

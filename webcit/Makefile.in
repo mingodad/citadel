@@ -55,10 +55,11 @@ setup: setup.o gettext.o
 webcit: webserver.o context_loop.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o summary.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o marchlist.o \
-	roomops.o roomlist.o roomtokens.o roomviews.o blogview_renderer.o \
-	messages.o msg_renderers.o paging.o sysmsgs.o \
+	roomops.o roomlist.o roomtokens.o roomviews.o \
+	blogview_renderer.o msg_renderers.o jsonview_renderer.o mailview_renderer.o bbsview_renderer.o \
+	messages.o paging.o sysmsgs.o \
 	useredit.o vcard_edit.o preferences.o html2html.o listsub.o roomchat.o \
-	graphics.o netconf.o siteconfig.o subst.o bbsview_renderer.o \
+	graphics.o netconf.o siteconfig.o subst.o \
 	calendar.o calendar_tools.o calendar_view.o tasks.o event.o smtpqueue.o \
 	availability.o iconbar.o icontheme.o crypto.o inetconf.o notes.o wiki.o \
 	dav_main.o dav_get.o dav_propfind.o dav_report.o fmt_date.o \
@@ -72,10 +73,11 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	$(CC) $(LDFLAGS) -o webcit $(LIBOBJS) \
 	webserver.o context_loop.o cookie_conversion.o marchlist.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
-	roomops.o roomlist.o roomtokens.o roomviews.o blogview_renderer.o \
+	roomops.o roomlist.o roomtokens.o roomviews.o \
 	messages.o msg_renderers.o paging.o sysmsgs.o \
+	blogview_renderer.o jsonview_renderer.o mailview_renderer.o bbsview_renderer.o \
 	useredit.o locate_host.o siteconfig.o subst.o vcard_edit.o roomchat.o \
-	graphics.o netconf.o preferences.o html2html.o openid.o bbsview_renderer.o \
+	graphics.o netconf.o preferences.o html2html.o openid.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o tasks.o event.o wiki.o \
 	availability.o ical_dezonify.o iconbar.o icontheme.o crypto.o inetconf.o notes.o \
 	dav_main.o dav_get.o dav_propfind.o dav_report.o dav_delete.o \

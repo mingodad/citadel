@@ -658,6 +658,29 @@ long lFlathash(const char *str, long len)
 }
 
 /**
+ * @ingroup HashListAlgorithm
+ * @brief another hashing algorithm; accepts exactly 4 characters, convert it to a hash key.
+ * @param str Our pointer to the long value
+ * @param len the length of the data pointed to; needs to be sizeof long, else we won't use it!
+ * @return the calculated hash value
+ */
+long FourHash(const char *key, long length) 
+{
+	int i;
+	int ret = 0;
+	const unsigned char *ptr = (const unsigned char*)key;
+
+	for (i = 0; i < 4; i++, ptr ++) 
+		ret = (ret << 8) | 
+			( ((*ptr >= 'a') &&
+			   (*ptr <= 'z'))? 
+			  *ptr - 'a' + 'A': 
+			  *ptr);
+
+	return ret;
+}
+
+/**
  * @ingroup HashListPrivate
  * @brief private abstract wrapper around the hashing algorithm
  * @param HKey the hash string

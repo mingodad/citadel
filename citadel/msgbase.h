@@ -18,7 +18,8 @@ enum {
 enum {
 	MSG_HDRS_BRIEF = 0,
 	MSG_HDRS_ALL = 1,
-	MSG_HDRS_EUID = 4
+	MSG_HDRS_EUID = 4,
+	MSG_HDRS_BRIEFFILTER = 8
 };
 
 /*
@@ -72,6 +73,9 @@ struct addresses_to_be_filed {
 };
 
 extern struct addresses_to_be_filed *atbf;
+
+int GetFieldFromMnemonic(eMsgField *f, const char* c);
+
 
 void memfmout (char *mptr, const char *nl);
 void output_mime_parts(char *);

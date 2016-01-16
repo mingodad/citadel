@@ -299,22 +299,6 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 	return 0;
 }
 
-long FourHash(const char *key, long length) 
-{
-	int i;
-	int ret = 0;
-	const unsigned char *ptr = (const unsigned char*)key;
-
-	for (i = 0; i < 4; i++, ptr ++) 
-		ret = (ret << 8) | 
-			( ((*ptr >= 'a') &&
-			   (*ptr <= 'z'))? 
-			  *ptr - 'a' + 'A': 
-			  *ptr);
-
-	return ret;
-}
-
 void CtdlRegisterDebugFlagHook(const char *Name, long Len, CtdlDbgFunction F, const int *LogP)
 {
 	LogDebugEntry *E;

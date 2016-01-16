@@ -2,7 +2,7 @@
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
  * 
- * Copyright (c) 1999-2015 by the citadel.org team
+ * Copyright (c) 1999-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -429,7 +429,9 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 		CtdlDeleteMessages(CCC->room.QRname, NULL, 0, "[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$");
 
 		/* Make the author of the message the name of the user. */
-		CM_SetField(msg, eAuthor, usbuf.fullname, strlen(usbuf.fullname));
+		if (!IsEmptyStr(usbuf.fullname)) {
+			CM_SetField(msg, eAuthor, usbuf.fullname, strlen(usbuf.fullname));
+		}
 	}
 
 	/* Insert or replace RFC2739-compliant free/busy URL */
@@ -463,7 +465,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	CM_FlushField(msg, eExclusiveID);
 
 	s = vcard_get_prop(v, "UID", 1, 0, 0);
-	if (s != NULL) {
+	if (!IsEmptyStr(s)) {
 		CM_SetField(msg, eExclusiveID, s, strlen(s));
 		if (CM_IsEmpty(msg, eMsgSubject)) {
 			CM_CopyField(msg, eMsgSubject, eExclusiveID);
@@ -477,13 +479,13 @@ int vcard_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	if (s == NULL) {
 		s = vcard_get_prop(v, "N", 1, 0, 0);
 	}
-	if (s != NULL) {
+	if (!IsEmptyStr(s)) {
 		CM_SetField(msg, eMsgSubject, s, strlen(s));
 	}
 
 	/* Re-serialize it back into the msg body */
 	ser = vcard_serialize(v);
-	if (ser != NULL) {
+	if (!IsEmptyStr(ser)) {
 		StrBuf *buf;
 		long serlen;
 
@@ -526,7 +528,9 @@ int vcard_upload_aftersave(struct CtdlMessage *msg, recptypes *recp) {
 
 	/* We're interested in user config rooms only. */
 
-	if ( (strlen(CCC->room.QRname) >= 12) && (!strcasecmp(&CCC->room.QRname[11], USERCONFIGROOM)) ) {
+	if ( !IsEmptyStr(CCC->room.QRname) &&
+             (strlen(CCC->room.QRname) >= 12) &&
+             (!strcasecmp(&CCC->room.QRname[11], USERCONFIGROOM)) ) {
 		is_UserConf = 1;	/* It's someone's config room */
 	}
 	CtdlMailboxName(roomname, sizeof roomname, &CCC->user, USERCONFIGROOM);
@@ -677,7 +681,7 @@ void vcard_write_user(struct ctdluser *u, struct vCard *v) {
 	if (ser == NULL) {
 		ser = strdup("begin:vcard\r\nend:vcard\r\n");
 	}
-	if (!ser) return;
+	if (ser == NULL) return;
 
 	/* This handy API function does all the work for us.
 	 * NOTE: normally we would want to set that last argument to 1, to
@@ -938,7 +942,9 @@ void vcard_purge(struct ctdluser *usbuf) {
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 0;
-	CM_SetField(msg, eAuthor, usbuf->fullname, strlen(usbuf->fullname));
+	if (!IsEmptyStr(usbuf->fullname)) {
+		CM_SetField(msg, eAuthor, usbuf->fullname, strlen(usbuf->fullname));
+	}
 	CM_SetField(msg, eOriginalRoom, HKEY(ADDRESS_BOOK_ROOM));
 	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
 	CM_SetField(msg, eMesageText, HKEY("Purge this vCard\n"));
@@ -1420,7 +1426,9 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			vmsg->cm_format_type = FMT_RFC822;
 			CM_SetField(vmsg, eAuthor, HKEY("Citadel"));
 			s = vcard_get_prop(v, "UID", 1, 0, 0);
-			CM_SetField(vmsg, eExclusiveID, s, strlen(s));
+			if (!IsEmptyStr(s)) {
+				CM_SetField(vmsg, eExclusiveID, s, strlen(s));
+			}
 			ser = vcard_serialize(v);
 			if (ser != NULL) {
 				StrBuf *buf;
@@ -1540,18 +1548,25 @@ CTDL_MODULE_INIT(vcard)
 			 * on this room even if we don't share it with any other nodes.
 			 * This allows the CANCEL messages (i.e. "Purge this vCard") to be
 			 * purged.
+			 *
+			 * FIXME this no longer works
 			 */
 			assoc_file_name(filename, sizeof filename, &qr, ctdl_netcfg_dir);
 			fp = fopen(filename, "a");
-			if (fp != NULL) fclose(fp);
-			rv = chown(filename, CTDLUID, (-1));
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]", 
-				       filename, strerror(errno));
-			rv = chmod(filename, 0600);
-			if (rv == -1)
-				syslog(LOG_EMERG, "Failed to adjust ownership of: %s [%s]", 
-				       filename, strerror(errno));
+			if (fp != NULL) {
+				fclose(fp);
+				rv = chown(filename, CTDLUID, (-1));
+				if (rv == -1) {
+					syslog(LOG_ERR, "Failed to adjust ownership of %s: %s", filename, strerror(errno));
+				}
+				rv = chmod(filename, 0600);
+				if (rv == -1) {
+					syslog(LOG_ERR, "Failed to adjust ownership of %s: %s", filename, strerror(errno));
+				}
+			}
+			else {
+				syslog(LOG_ERR, "Cannot create %s: %s", filename, strerror(errno));
+			}
 		}
 
 		/* for postfix tcpdict */

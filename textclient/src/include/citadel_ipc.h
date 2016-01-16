@@ -1,8 +1,3 @@
-#ifdef __GNUC__
-#define INLINE __inline__
-#else
-#define INLINE
-#endif
 
 #define	UDS			"_UDS_"
 #ifdef __CYGWIN__
@@ -476,9 +471,9 @@ char CtdlIPC_get(CtdlIPC* ipc);
 
 
 
-INLINE void CtdlIPC_lock(CtdlIPC *ipc);
+void CtdlIPC_lock(CtdlIPC *ipc);
 
-INLINE void CtdlIPC_unlock(CtdlIPC *ipc);
+void CtdlIPC_unlock(CtdlIPC *ipc);
 
 char *libcitadelclient_version_string(void);
 

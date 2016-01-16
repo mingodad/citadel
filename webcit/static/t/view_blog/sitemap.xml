@@ -1,0 +1,1 @@
+<url><loc><?SERV:SITE:PREFIX("X")>/readfwd?go=<?THISROOM:NAME("U")>?p=<?BLOG:TOPLEVEL:MSGID()></loc></url>

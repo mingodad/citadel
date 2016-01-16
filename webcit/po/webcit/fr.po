@@ -196,10 +196,10 @@ msgstr "Éditer %s"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"Écrivez %s ci-dessous. Le texte est composé à la largeur de l'écran du "
+"Le texte est composé à la largeur de l'écran du "
 "lecteur. Pour modifier ce formatage, indentez une ligne d'au moins un espace."
 
 #: ../../sysmsgs.c:61 ../../vcard_edit.c:1217 ../../i18n_templatelist.c:59

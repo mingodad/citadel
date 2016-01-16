@@ -243,7 +243,7 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 	int do_send = 0;		/* 1 = send message; 0 = only check for valid recipient */
 	static int serial_number = 0;	/* this keeps messages from getting logged twice */
 
-	if (strlen(x_msg) > 0) {
+	if (!IsEmptyStr(x_msg)) {
 		do_send = 1;
 	}
 

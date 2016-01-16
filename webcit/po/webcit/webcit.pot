@@ -188,7 +188,7 @@ msgstr ""
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
 

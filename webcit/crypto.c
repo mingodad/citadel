@@ -29,6 +29,8 @@ char *ssl_cipher_list = DEFAULT_SSL_CIPHER_LIST;
 
 pthread_key_t ThreadSSL;	/* Per-thread SSL context */
 
+void ssl_lock(int mode, int n, const char *file, int line);
+
 static unsigned long id_callback(void)
 {
 	return (unsigned long) pthread_self();

@@ -160,7 +160,7 @@ function loadMessages(transport) {
 		msgs = data['msgs'];
 		var length = msgs.length;
 		rowArray = new Array(length); // store so they can be sorted
-		WCLog("Row array length: "+rowArray.length);
+		wCLog("Row array length: "+rowArray.length);
 	} catch (e) {
 		//window.alert(e+"|"+e.description);
 	}
@@ -184,7 +184,7 @@ function loadMessages(transport) {
         refreshMessageCounter();
 }
 function resortAndDisplay(sortMode) {
-	WCLog("Begin resortAndDisplay");
+	wCLog("Begin resortAndDisplay");
   
 	/* We used to try and clear out the message_view element,
 	   but stupid IE doesn't even do that properly */
@@ -196,10 +196,10 @@ function resortAndDisplay(sortMode) {
 			msgs.sort(sortMode);
 		}
 	} catch (e) {
-		WCLog("Sort error: " + e);
+		wCLog("Sort error: " + e);
 	}
 	var endSort = new Date();
-	WCLog("Sort rowArray in " + (endSort-startSort));
+	wCLog("Sort rowArray in " + (endSort-startSort));
 	var start = new Date();
 	var length = msgs.length;
 	var compiled = new Array(length+2);
@@ -226,12 +226,12 @@ function resortAndDisplay(sortMode) {
 			var i = x+1;
 			compiled[i] = trTemplate.join("");
 		} catch (e) {
-			WCLog("Exception on row " +  x + ":" + e);
+			wCLog("Exception on row " +  x + ":" + e);
 		}
 	}
 	compiled[length+2] = "</table>";
 	var end = new Date();
-	WCLog("iterate: " + (end-start));
+	wCLog("iterate: " + (end-start));
 	var compile = compiled.join("");
 	start = new Date();
 	$(message_view_parent).update(compile);
@@ -239,7 +239,7 @@ function resortAndDisplay(sortMode) {
 	message_view = message_view_parent.firstChild;
 	end = new Date();
 	var delta = end.getTime() - start.getTime();
-	WCLog("append: " + delta);
+	wCLog("append: " + delta);
 	ApplySorterToggle();
 	normalizeHeaderTable();
 }
@@ -344,9 +344,9 @@ function CtdlMessageListClick(evt) {
 	    finish = markedRowIndex;
 	}
 	previousFinish = finish;
-	WCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
+	wCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
 	for(var x = startMarkingFrom; x<finish; x++) {
-	    WCLog("Marking row " + x);
+	    wCLog("Marking row " + x);
 	    markRow(parent.parentNode.rows[x]);
 	}
 	// If the ctrl key modifier is used, toggle one message
@@ -469,7 +469,7 @@ function deleteAllSelectedMessages() {
 		parameters: mvCommand,
 		method: 'post',
 		onSuccess: function(transport) {
-		    WCLog(transport.responseText);
+		    wCLog(transport.responseText);
 		}
 	    });
 	    msgIds = "";
@@ -486,7 +486,7 @@ function deleteAllSelectedMessages() {
 	parameters: mvCommand,
 	method: 'post',
 	onSuccess: function(transport) {
-	    WCLog(transport.responseText);
+	    wCLog(transport.responseText);
 	}
     });
 
@@ -614,7 +614,7 @@ function setupPageSelector() {
 	var select_page = document.getElementById("selectpage");
 	summpage.innerHTML = "";
 	if (is_safe_mode) {
-		WCLog("unhiding parent page");
+		wCLog("unhiding parent page");
 		select_page.className = "";
 	} else {
 		return;

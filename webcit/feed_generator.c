@@ -162,7 +162,7 @@ void feed_rss_do_messages(void) {
 	Stat.maxload = INT_MAX;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+	num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	if (num_msgs < 1) return;
 
 	i = num_msgs;					/* convention is to feed newest-to-oldest */

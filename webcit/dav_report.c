@@ -80,9 +80,10 @@ void dav_report(void)
 
 
 extern int ParseMessageListHeaders_EUID(StrBuf *Line, 
-				 const char **pos, 
-				 message_summary *Msg, 
-				 StrBuf *ConversionBuffer);
+					const char **pos, 
+					message_summary *Msg, 
+					StrBuf *ConversionBuffer,
+					void **ViewSpecific);
 
 extern int DavUIDL_GetParamsGetServerCall(SharedMessageStatus *Stat, 
 					  void **ViewSpecific, 
@@ -112,7 +113,8 @@ InitModule_REPORT
 		ParseMessageListHeaders_EUID,
 		NULL,
 		DavUIDL_RenderView_or_Tail,
-		DavUIDL_Cleanup
+		DavUIDL_Cleanup,
+		NULL
 	);
 
 }

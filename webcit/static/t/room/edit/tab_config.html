@@ -92,6 +92,11 @@
 						<?_("Downloading allowed")>
 					</li>
 					<li>
+						<input type="checkbox" name="ulmsg" value="yes" 
+						<?%("COND:THISROOM:FLAG:QR2", 17, #"QR2_NOUPLMSG", 1, 'checked="checked" ', "")>  />
+						<?_("Don't send message on upload")>
+					</li>
+					<li>
 						<input type="checkbox" name="visdir" value="yes" 
 						<?%("COND:THISROOM:FLAG:QR", 18, #"QR_VISDIR", 1, 'checked="checked" ', "")>  />
 						<?_("Visible directory")>

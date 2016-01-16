@@ -373,7 +373,7 @@ int qview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	const StrBuf *Mime;
 
         /* Not (yet?) needed here? calview *c = (calview *) *ViewSpecific; */
-	read_message(WCC->WBuf, HKEY("view_mailq_message_bearer"), Msg->msgnum, NULL, &Mime);
+	read_message(WCC->WBuf, HKEY("view_mailq_message_bearer"), Msg->msgnum, NULL, &Mime, NULL);
 
         return 0;
 }
@@ -448,6 +448,7 @@ InitModule_SMTP_QUEUE
 		NULL,
 		qview_LoadMsgFromServer,
 		qview_RenderView_or_Tail,
-		qview_Cleanup);
+		qview_Cleanup,
+		NULL);
 
 }

@@ -591,6 +591,12 @@ void tmplput_mesg(StrBuf *Target, WCTemplputParams *TP)
 	FreeStrBuf(&Line);
 }
 
+void tmplput_site_prefix(StrBuf *Target, WCTemplputParams *TP) {
+	wcsession *WCC = WC;
+	if ((WCC != NULL) && (WCC->Hdr->HostHeader != NULL)) {
+		StrBufAppendTemplate(Target, TP, WCC->Hdr->HostHeader, 0);
+	}
+}
 
 void RegisterEmbeddableMimeType(const char *MimeType, long MTLen, int Priority)
 {
@@ -652,11 +658,16 @@ InitModule_SERVFUNC
 	RegisterNamespace("SERV:NODENAME", 0, 1, tmplput_serv_nodename, NULL, CTX_NONE);
 	RegisterNamespace("SERV:HUMANNODE", 0, 1, tmplput_serv_humannode, NULL, CTX_NONE);
 	RegisterNamespace("SERV:FQDN", 0, 1, tmplput_serv_fqdn, NULL, CTX_NONE);
+	
 	RegisterNamespace("SERV:SOFTWARE", 0, 1, tmplput_serv_software, NULL, CTX_NONE);
 	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, NULL, CTX_NONE);
 	RegisterNamespace("SERV:BBS_CITY", 0, 1, tmplput_serv_bbs_city, NULL, CTX_NONE);
 	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, NULL, CTX_NONE);
 	RegisterNamespace("SERV:ADMIN", 0, 1, tmplput_serv_admin, NULL, CTX_NONE);
+
+	RegisterNamespace("SERV:SITE:PREFIX", 0, 1, tmplput_site_prefix, NULL, CTX_NONE);
+
+
 }
 
 

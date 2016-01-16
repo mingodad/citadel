@@ -92,7 +92,7 @@ char *axdefs[]={
         };
 
 
-INLINE void CtdlIPC_lock(CtdlIPC *ipc)
+void CtdlIPC_lock(CtdlIPC *ipc)
 {
 	if (ipc->network_status_cb) ipc->network_status_cb(1);
 #ifdef THREADED_CLIENT
@@ -101,7 +101,7 @@ INLINE void CtdlIPC_lock(CtdlIPC *ipc)
 }
 
 
-INLINE void CtdlIPC_unlock(CtdlIPC *ipc)
+void CtdlIPC_unlock(CtdlIPC *ipc)
 {
 #ifdef THREADED_CLIENT
 	pthread_mutex_unlock(&(ipc->mutex));
@@ -1520,7 +1520,7 @@ int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
 		return -3;
 
 	MimeType = GuessMimeType(&MimeTestBuf[0], len);
-	aaa = (char *)malloc(strlen(save_as) + strlen(comment) + 7);
+	aaa = (char *)malloc(strlen(save_as) + strlen(MimeType) + strlen(comment) + 7);
 	if (!aaa) return -1;
 
 	sprintf(aaa, "UOPN %s|%s|%s", save_as, MimeType,  comment);

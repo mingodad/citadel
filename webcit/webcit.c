@@ -908,7 +908,7 @@ void tmplput_importantmessage(StrBuf *Target, WCTemplputParams *TP)
 	
 	if (WCC != NULL) {
 		if (StrLength(WCC->ImportantMsg) > 0) {
-			StrEscAppend(Target, WCC->ImportantMsg, NULL, 0, 0);
+			StrBufAppendTemplate(Target, TP, WCC->ImportantMsg, 0);
 		}
 	}
 }
@@ -956,7 +956,7 @@ InitModule_WEBCIT
 	RegisterConditional("COND:IS_HTTPS", 0, Conditional_IS_HTTPS, CTX_NONE);
 
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, NULL, CTX_NONE);
-	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);
+	RegisterNamespace("IMPORTANTMESSAGE", 0, 1, tmplput_importantmessage, NULL, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, NULL, CTX_NONE);
 	RegisterNamespace("URL:DISPLAYNAME", 0, 1, tmplput_HANDLER_DISPLAYNAME, NULL, CTX_NONE);
 	RegisterNamespace("PACKAGESTRING", 0, 1, tmplput_packagestring, NULL, CTX_NONE);

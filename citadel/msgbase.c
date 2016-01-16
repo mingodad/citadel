@@ -45,7 +45,7 @@ int MessageDebugEnabled = 0;
  * These are the four-character field headers we use when outputting
  * messages in Citadel format (as opposed to RFC822 format).
  */
-char *msgkeys[] = {
+char *msgkeys[91] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
@@ -55,33 +55,58 @@ char *msgkeys[] = {
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
 	NULL, 
-	"from", /* A */
-	NULL,   /* B */
-	NULL,   /* C */
-	NULL,   /* D */
-	"exti", /* E */
-	"rfca", /* F */
+	"from", /* A -> eAuthor       */
+	NULL,   /* B -> eBig_message  */
+	NULL,   /* C -> eRemoteRoom   */
+	NULL,   /* D -> eDestination  */
+	"exti", /* E -> eXclusivID    */
+	"rfca", /* F -> erFc822Addr   */
 	NULL,   /* G */
-	"hnod", /* H */
-	"msgn", /* I */
-	"jrnl", /* J */
-	"rep2", /* K */
-	"list", /* L */
-	"text", /* M */
-	"node", /* N */
-	"room", /* O */
-	"path", /* P */
+	"hnod", /* H -> eHumanNode    */
+	"msgn", /* I -> emessageId    */
+	"jrnl", /* J -> eJournal      */
+	"rep2", /* K -> eReplyTo      */
+	"list", /* L -> eListID       */
+	"text", /* M -> eMesageText   */
+	"node", /* N -> eNodeName     */
+	"room", /* O -> eOriginalRoom */
+	"path", /* P -> eMessagePath  */
 	NULL,   /* Q */
-	"rcpt", /* R */
-	"spec", /* S */
-	"time", /* T */
-	"subj", /* U */
-	"nvto", /* V */
-	"wefw", /* W */
+	"rcpt", /* R -> eRecipient    */
+	"spec", /* S -> eSpecialField */
+	"time", /* T -> eTimestamp    */
+	"subj", /* U -> eMsgSubject   */
+	"nvto", /* V -> eenVelopeTo   */
+	"wefw", /* W -> eWeferences   */
 	NULL,   /* X */
-	"cccc", /* Y */
-	NULL    /* Z */
+	"cccc", /* Y -> eCarbonCopY   */
+	NULL   /* Z */
+
 };
+HashList *msgKeyLookup = NULL;
+
+int GetFieldFromMnemonic(eMsgField *f, const char* c)
+{
+	void *v = NULL;
+	if (GetHash(msgKeyLookup, c, 4, &v)) {
+		*f = (eMsgField) v;
+		return 1;
+	}
+	return 0;
+}
+
+void FillMsgKeyLookupTable(void)
+{
+	long i;
+
+	msgKeyLookup = NewHash (1, FourHash);
+
+	for (i=0; i < 91; i++) {
+		if (msgkeys[i] != NULL) {
+			Put(msgKeyLookup, msgkeys[i], 4, (void*)i, reference_free_handler);
+		}
+	}
+}
 
 eMsgField FieldOrder[]  = {
 /* Important fields */
@@ -2832,7 +2857,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/*
 	 * If this message has no O (room) field, generate one.
 	 */
-	if (CM_IsEmpty(msg, eOriginalRoom)) {
+	if (CM_IsEmpty(msg, eOriginalRoom) && !IsEmptyStr(CCC->room.QRname)) {
 		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
 	}
 
@@ -3055,10 +3080,10 @@ void quickie_message(const char *from,
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = format_type;
 
-	if (from != NULL) {
+	if (!IsEmptyStr(from)) {
 		CM_SetField(msg, eAuthor, from, strlen(from));
 	}
-	else if (fromaddr != NULL) {
+	else if (!IsEmptyStr(fromaddr)) {
 		char *pAt;
 		CM_SetField(msg, eAuthor, fromaddr, strlen(fromaddr));
 		pAt = strchr(msg->cm_fields[eAuthor], '@');
@@ -3070,17 +3095,19 @@ void quickie_message(const char *from,
 		msg->cm_fields[eAuthor] = strdup("Citadel");
 	}
 
-	if (fromaddr != NULL) CM_SetField(msg, erFc822Addr, fromaddr, strlen(fromaddr));
-	if (room != NULL) CM_SetField(msg, eOriginalRoom, room, strlen(room));
+	if (!IsEmptyStr(fromaddr)) CM_SetField(msg, erFc822Addr, fromaddr, strlen(fromaddr));
+	if (!IsEmptyStr(room)) CM_SetField(msg, eOriginalRoom, room, strlen(room));
 	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
-	if (to != NULL) {
+	if (!IsEmptyStr(to)) {
 		CM_SetField(msg, eRecipient, to, strlen(to));
 		recp = validate_recipients(to, NULL, 0);
 	}
-	if (subject != NULL) {
+	if (!IsEmptyStr(subject)) {
 		CM_SetField(msg, eMsgSubject, subject, strlen(subject));
 	}
-	CM_SetField(msg, eMesageText, text, strlen(text));
+	if (!IsEmptyStr(text)) {
+		CM_SetField(msg, eMesageText, text, strlen(text));
+	}
 
 	CtdlSubmitMsg(msg, recp, room, 0);
 	CM_Free(msg);
@@ -3520,7 +3547,7 @@ struct CtdlMessage *CtdlMakeMessageLen(
 	if (myelen > 0) {
 		CM_SetField(msg, eMessagePath, my_email, myelen);
 	}
-	else {
+	else if (!IsEmptyStr(author->fullname)) {
 		CM_SetField(msg, eMessagePath, author->fullname, strlen(author->fullname));
 	}
 	convert_spaces_to_underscores(msg->cm_fields[eMessagePath]);
@@ -3538,11 +3565,13 @@ struct CtdlMessage *CtdlMakeMessageLen(
 	CM_SetAsFieldSB(msg, eAuthor, &FakeEncAuthor);
 	FreeStrBuf(&FakeAuthor);
 
-	if (CCC->room.QRflags & QR_MAILBOX) {		/* room */
-		CM_SetField(msg, eOriginalRoom, &CCC->room.QRname[11], strlen(&CCC->room.QRname[11]));
-	}
-	else {
-		CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
+	if (!!IsEmptyStr(CCC->room.QRname)) {
+		if (CCC->room.QRflags & QR_MAILBOX) {		/* room */
+			CM_SetField(msg, eOriginalRoom, &CCC->room.QRname[11], strlen(&CCC->room.QRname[11]));
+		}
+		else {
+			CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
+		}
 	}
 
 	CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
@@ -4116,6 +4145,7 @@ void SetMessageDebugEnabled(const int n)
 CTDL_MODULE_INIT(msgbase)
 {
 	if (!threading) {
+		FillMsgKeyLookupTable();
 		CtdlRegisterDebugFlagHook(HKEY("messages"), SetMessageDebugEnabled, &MessageDebugEnabled);
 	}
 

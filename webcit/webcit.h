@@ -196,17 +196,11 @@ extern char *ssl_cipher_list;
 /*
  * Expiry policy for the autopurger
  */
-#define EXPIRE_NEXTLEVEL        0       /* Inherit expiration policy    */
-#define EXPIRE_MANUAL           1       /* Don't expire messages at all */
-#define EXPIRE_NUMMSGS          2       /* Keep only latest n messages  */
-#define EXPIRE_AGE              3       /* Expire messages after n days */
 
 typedef struct __ExpirePolicy {
         int expire_mode;
         int expire_value;
 } ExpirePolicy;
-void LoadExpirePolicy(GPEXWhichPolicy which);
-void SaveExpirePolicyFromHTTP(GPEXWhichPolicy which);
 
 /*
  * Linked list of session variables encoded in an x-www-urlencoded content type
@@ -510,8 +504,6 @@ struct wcsession {
 	HashList *InetCfg;                      /* Our inet server config for editing */
 	ExpirePolicy Policy[maxpolicy];
 
-/* used by the blog viewer */
-	int bptlid;				/* hash of thread currently being rendered */
 };
 
 
@@ -553,7 +545,6 @@ extern char file_crpt_file_cer[PATH_MAX];
 
 void init_ssl(void);
 void endtls(void);
-void ssl_lock(int mode, int n, const char *file, int line);
 int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
 int client_read_sslbuffer(StrBuf *buf, int timeout);
@@ -644,7 +635,6 @@ void output_headers(    int do_httpheaders,
 			int unset_cookies,
 			int suppress_check,
 			int cache);
-void output_custom_content_header(const char *ctype);
 void cdataout(char *rawdata);
 
 
@@ -693,7 +683,7 @@ void end_tab(int tabnum, int num_tabs);
 
 int get_time_format_cached (void);
 void display_wiki_pagelist(void);
-void str_wiki_index(char *);
+void str_wiki_index(StrBuf *);
 
 HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP);
 
@@ -702,7 +692,6 @@ void TmplGettext(StrBuf *Target, WCTemplputParams *TP);
 
 void set_selected_language(const char *);
 void go_selected_language(void);
-void stop_selected_language(void);
 const char *get_selected_language(void);
 
 void utf8ify_rfc822_string(char **buf);
@@ -734,29 +723,6 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 extern int time_to_die;			/* Nonzero if server is shutting down */
 extern int DisableGzip;
 
-/* 
- * Array type for a blog post.  The first message is the post; the rest are comments
- */
-struct blogpost {
-	int top_level_id;
-	long *msgs;		/* Array of msgnums for messages we are displaying */
-	int num_msgs;		/* Number of msgnums stored in 'msgs' */
-	int alloc_msgs;		/* Currently allocated size of array */
-	int unread_oments;
-};
-
-
-/*
- * Data which gets returned from a call to blogview_learn_thread_references()
- */
-struct bltr {
-	int id;
-	int refs;
-};
-
-
-struct bltr blogview_learn_thread_references(long msgnum);
-void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP);
 void display_summary_page(void);
 
 HashList *GetValidDomainNames(StrBuf *Target, WCTemplputParams *TP);

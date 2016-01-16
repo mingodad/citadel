@@ -285,7 +285,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 					}
 				}
 				if (BBS->msgs[i] > 0L) {
-					read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
+					read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime, NULL);
 				}
 				if (
 					(i == (BBS->num_msgs - 1))
@@ -417,6 +417,7 @@ InitModule_BBSVIEWRENDERERS
 		NULL, 
 		bbsview_LoadMsgFromServer,
 		bbsview_RenderView_or_Tail,
-		bbsview_Cleanup
+		bbsview_Cleanup,
+		NULL
 	);
 }

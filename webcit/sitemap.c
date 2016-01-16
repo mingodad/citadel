@@ -30,7 +30,7 @@ void sitemap_do_bbs(void) {
 	Stat.maxload = INT_MAX;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+	num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	if (num_msgs < 1) return;
 
 	for (i=0; i<num_msgs; i+=20) {
@@ -43,43 +43,6 @@ void sitemap_do_bbs(void) {
 			wc_printf("</loc></url>\r\n");
 		}
 	}
-}
-
-
-/*
- * XML sitemap generator -- go through the message list for a Blog room
- */
-void sitemap_do_blog(void) {
-	wcsession *WCC = WC;
-	int num_msgs = 0;
-	int i;
-	SharedMessageStatus Stat;
-	message_summary *Msg = NULL;
-	StrBuf *Buf = NewStrBuf();
-	StrBuf *FoundCharset = NewStrBuf();
-
-	memset(&Stat, 0, sizeof Stat);
-	Stat.maxload = INT_MAX;
-	Stat.lowest_found = (-1);
-	Stat.highest_found = (-1);
-	num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
-	if (num_msgs < 1) return;
-
-	for (i=0; i<num_msgs; ++i) {
-		Msg = GetMessagePtrAt(i, WCC->summ);
-		if (Msg != NULL) {
-			ReadOneMessageSummary(Msg, FoundCharset, Buf);
-			/* Show only top level posts, not comments */
-			if ((Msg->reply_inreplyto_hash != 0) && (Msg->reply_references_hash == 0)) {
-				WCC->bptlid = Msg->reply_inreplyto_hash;
-				wc_printf("<url><loc>%s", ChrPtr(site_prefix));
-				tmplput_blog_permalink(NULL, NULL);
-				wc_printf("</loc></url>\r\n");
-			}
-		}
-	}
-	FreeStrBuf(&Buf);
-	FreeStrBuf(&FoundCharset);
 }
 
 
@@ -98,7 +61,7 @@ void sitemap_do_wiki(void) {
 	Stat.maxload = INT_MAX;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	num_msgs = load_msg_ptrs("MSGS ALL", NULL, &Stat, NULL);
+	num_msgs = load_msg_ptrs("MSGS ALL", NULL, NULL, &Stat, NULL, NULL, NULL, NULL, 0);
 	if (num_msgs < 1) return;
 
 	for (i=0; i<num_msgs; ++i) {
@@ -152,6 +115,7 @@ struct sitemap_room_list *sitemap_load_roomlist(void) {
 	return(roomlist);
 }
 
+extern void sitemap_do_blog(void);
 
 /*
  * Entry point for RSS feed generator

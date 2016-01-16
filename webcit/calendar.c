@@ -915,7 +915,8 @@ InitModule_CALENDAR
 		NULL,
 		calendar_LoadMsgFromServer,
 		calendar_RenderView_or_Tail,
-		calendar_Cleanup);
+		calendar_Cleanup,
+		NULL);
 
 	RegisterReadLoopHandlerset(
 		VIEW_CALBRIEF,
@@ -925,7 +926,8 @@ InitModule_CALENDAR
 		NULL,
 		calendar_LoadMsgFromServer,
 		calendar_RenderView_or_Tail,
-		calendar_Cleanup);
+		calendar_Cleanup,
+		NULL);
 
 
 

@@ -17,7 +17,6 @@
 #include "dav.h"
 #include "calendar.h"
 
-HashList *MsgHeaderHandler = NULL;
 HashList *MimeRenderHandler = NULL;
 HashList *ReadLoopHandler = NULL;
 int dbg_analyze_msg = 0;
@@ -45,12 +44,11 @@ int load_message(message_summary *Msg,
 {
 	StrBuf *Buf;
 	StrBuf *HdrToken;
-	headereval *Hdr;
-	void *vHdr;
 	char buf[SIZ];
 	int Done = 0;
 	int state=0;
-	
+	int rc;
+
 	Buf = NewStrBuf();
 	if (Msg->PartNum != NULL) {
 		serv_printf("MSG4 %ld|%s", Msg->msgnum, ChrPtr(Msg->PartNum));
@@ -97,14 +95,11 @@ int load_message(message_summary *Msg,
 			StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 			
 			/* look up one of the examine_* functions to parse the content */
-			if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
-			    (vHdr != NULL)) {
-				Hdr = (headereval*)vHdr;
-				Hdr->evaluator(Msg, Buf, FoundCharset);
-				if (Hdr->Type == 1) {
-					state++;
-				}
-			}/* TODO: 
+			rc =  EvaluateMsgHdr(SKEY(HdrToken), Msg, Buf, FoundCharset);
+			if (rc == 1) {
+				state++;
+			}
+			/* TODO: 
 			else LogError(Target, 
 				      __FUNCTION__,  
 				      "don't know how to handle message header[%s]\n", 
@@ -125,11 +120,8 @@ int load_message(message_summary *Msg,
 				if (StrLength(HdrToken) > 0) {
 					StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 					/* the examine*'s know how to do with mime headers too... */
-					if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
-					    (vHdr != NULL)) {
-						Hdr = (headereval*)vHdr;
-						Hdr->evaluator(Msg, Buf, FoundCharset);
-					}
+					EvaluateMsgHdr(SKEY(HdrToken), Msg, Buf, FoundCharset);
+					
 					break;
 				}
 			}
@@ -171,7 +163,7 @@ int load_message(message_summary *Msg,
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, const StrBuf *PartNum, const StrBuf **OutMime) 
+int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, const StrBuf *PartNum, const StrBuf **OutMime, WCTemplputParams *TP) 
 {
 	StrBuf *Buf;
 	StrBuf *FoundCharset;
@@ -208,7 +200,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	StrBufTrim(Buf);
 	StrBufLowerCase(Buf);
 
-	StackContext(NULL, &SuperTP, Msg, CTX_MAILSUM, 0, NULL);
+	StackContext(TP, &SuperTP, Msg, CTX_MAILSUM, 0, NULL);
 	{
 		/* Locate a renderer capable of converting this MIME part into HTML */
 		if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
@@ -357,9 +349,9 @@ void handle_one_message(void)
 	case ePOST:
 		Tmpl = sbstr("template");
 		if (StrLength(Tmpl) > 0) 
-			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime, NULL);
 		else 
-			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime, NULL);
 		http_transmit_thing(ChrPtr(Mime), 0);
 		break;
 	case eDELETE:
@@ -416,9 +408,9 @@ void embed_message(void) {
 	case ePOST:
 		Tmpl = sbstr("template");
 		if (StrLength(Tmpl) > 0) 
-			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime, NULL);
 		else 
-			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime, NULL);
 		http_transmit_thing(ChrPtr(Mime), 0);
 		break;
 	case eDELETE:
@@ -455,7 +447,7 @@ void print_message(void) {
 
 	begin_burst();
 
-	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, NULL, &Mime);
+	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, NULL, &Mime, NULL);
 
 	wDumpContent(0);
 }
@@ -496,8 +488,13 @@ void display_headers(void) {
  */
 int load_msg_ptrs(const char *servcmd,
 		  const char *filter,
+		  StrBuf *FoundCharset,
 		  SharedMessageStatus *Stat, 
-		  load_msg_ptrs_detailheaders LH)
+		  void **ViewSpecific,
+		  load_msg_ptrs_detailheaders LH,
+		  StrBuf *FetchMessageList,
+		  eMessageField *MessageFieldList,
+		  long HeaderCount)
 {
         wcsession *WCC = WC;
 	message_summary *Msg;
@@ -529,6 +526,10 @@ int load_msg_ptrs(const char *servcmd,
                         serv_puts("000");
 			break;
 		}
+		else if (FetchMessageList != NULL) {
+			serv_putbuf(FetchMessageList);
+			break;
+		}
 		/* fall back to empty filter in case of we were fooled... */
 		serv_puts("");
 		serv_puts("000");
@@ -551,21 +552,30 @@ int load_msg_ptrs(const char *servcmd,
 
 			Msg->msgnum = StrBufExtractNext_long(Buf, &Ptr, '|');
 			Msg->date = StrBufExtractNext_long(Buf, &Ptr, '|');
-
-			if (Stat->nummsgs == 0) {
-				if (Msg->msgnum < Stat->lowest_found) {
-					Stat->lowest_found = Msg->msgnum;
-				}
-				if (Msg->msgnum > Stat->highest_found) {
-					Stat->highest_found = Msg->msgnum;
+			if (MessageFieldList != NULL) {
+				long i;
+				for (i = 0; i < HeaderCount; i++) {
+					StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
+					if (StrLength(Buf2) > 0) {
+						EvaluateMsgHdrEnum(MessageFieldList[i], Msg, Buf2, FoundCharset);
+					}
 				}
 			}
+			else {
+				if (Stat->nummsgs == 0) {
+					if (Msg->msgnum < Stat->lowest_found) {
+						Stat->lowest_found = Msg->msgnum;
+					}
+					if (Msg->msgnum > Stat->highest_found) {
+						Stat->highest_found = Msg->msgnum;
+					}
+				}
 
-			if ((Msg->msgnum == 0) && (StrLength(Buf) < 32)) {
-				free(Msg);
-				continue;
+				if ((Msg->msgnum == 0) && (StrLength(Buf) < 32)) {
+					free(Msg);
+					continue;
+				}
 			}
-
 			/* 
 			 * as citserver probably gives us messages in forward date sorting
 			 * nummsgs should be the same order as the message date.
@@ -576,7 +586,7 @@ int load_msg_ptrs(const char *servcmd,
 					skipit = 1;
 			}
 			if ((!skipit) && (LH != NULL)) {
-				if (!LH(Buf, &Ptr, Msg, Buf2)){
+				if (!LH(Buf, &Ptr, Msg, Buf2, ViewSpecific)){
 					free(Msg);
 					continue;
 				}					
@@ -666,6 +676,9 @@ typedef struct _RoomRenderer{
 	RenderView_or_Tail_func RenderView_or_Tail;
 	View_Cleanup_func ViewCleanup;
 	load_msg_ptrs_detailheaders LHParse;
+	long HeaderCount;
+	StrBuf *FetchMessageList;
+	eMessageField *MessageFieldList;
 } RoomRenderer;
 
 
@@ -747,9 +760,21 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	}
 	if (!IsEmptyStr(cmd)) {
 		const char *p = NULL;
+		StrBuf *FoundCharset = NULL;
 		if (!IsEmptyStr(filter))
 			p = filter;
-		Stat.nummsgs = load_msg_ptrs(cmd, p, &Stat, ViewMsg->LHParse);
+		if (ViewMsg->HeaderCount > 0) {
+			FoundCharset = NewStrBuf();
+		}
+		Stat.nummsgs = load_msg_ptrs(cmd, p,
+					     FoundCharset,
+					     &Stat,
+					     &ViewSpecific,
+					     ViewMsg->LHParse,
+					     ViewMsg->FetchMessageList,
+					     ViewMsg->MessageFieldList,
+					     ViewMsg->HeaderCount);
+		FreeStrBuf(&FoundCharset);
 	}
 
 	if (Stat.sortit) {
@@ -787,13 +812,13 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		
 		Foo = NewStrBuf ();
 		StrBufPrintf(Foo, "%ld", Stat.nummsgs);
-		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo)); // keep Foo!
+		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo)); /* keep Foo! */
 
 		StrBufPrintf(Foo, "%ld", Stat.numNewmsgs);
-		PutBstr(HKEY("__READLOOP:NEWMSGS"), NewStrBufDup(Foo)); // keep Foo!
+		PutBstr(HKEY("__READLOOP:NEWMSGS"), NewStrBufDup(Foo)); /* keep Foo! */
 
 		StrBufPrintf(Foo, "%ld", Stat.startmsg);
-		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo); // store Foo elsewhere, descope it here.
+		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo); /* store Foo elsewhere, descope it here. */
 	}
 
 	/*
@@ -1010,7 +1035,7 @@ void post_message(void)
 		StrBuf *Recp = NULL; 
 		StrBuf *Cc = NULL;
 		StrBuf *Bcc = NULL;
-		char *wikipage = NULL;
+		StrBuf *wikipage = NULL;
 		const StrBuf *my_email_addr = NULL;
 		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
@@ -1065,7 +1090,7 @@ void post_message(void)
 		FreeStrBuf(&EmailAddress);
 		FreeStrBuf(&EncBuf);
 
-		wikipage = strdup(bstr("page"));
+		wikipage = NewStrBufDup(sbstr("page"));
 		str_wiki_index(wikipage);
 		my_email_addr = sbstr("my_email_addr");
 		
@@ -1073,7 +1098,7 @@ void post_message(void)
 			StrLength(encoded_subject) +
 			StrLength(Cc) +
 			StrLength(Bcc) + 
-			strlen(wikipage) +
+			StrLength(wikipage) +
 			StrLength(my_email_addr) + 
 			StrLength(references);
 		CmdBuf = NewStrBufPlain(NULL, sizeof (CMD) + HeaderLen);
@@ -1085,7 +1110,7 @@ void post_message(void)
 			     ChrPtr(display_name),
 			     saving_to_drafts?"":ChrPtr(Cc),
 			     saving_to_drafts?"":ChrPtr(Bcc),
-			     wikipage,
+			     ChrPtr(wikipage),
 			     ChrPtr(my_email_addr),
 			     ChrPtr(references));
 		FreeStrBuf(&references);
@@ -1310,33 +1335,6 @@ void remove_attachment(void) {
 }
 
 
-long FourHash(const char *key, long length) 
-{
-        int i;
-        long ret = 0;
-        const unsigned char *ptr = (const unsigned char*)key;
-
-        for (i = 0; i < 4; i++, ptr ++) 
-                ret = (ret << 8) | 
-                        ( ((*ptr >= 'a') &&
-                           (*ptr <= 'z'))? 
-                          *ptr - 'a' + 'A': 
-                          *ptr);
-
-        return ret;
-}
-
-long l_subj;
-long l_wefw;
-long l_msgn;
-long l_from;
-long l_rcpt;
-long l_cccc;
-long l_replyto;
-long l_node;
-long l_rfca;
-long l_nvto;
-
 const char *ReplyToModeStrings [3] = {
 	"reply",
 	"replyall",
@@ -1365,6 +1363,10 @@ void display_enter(void)
       	wcsession *WCC = WC;
 	int i = 0;
 	long replying_to;
+
+	int prefer_md;
+
+	get_pref_yesno("markdown", &prefer_md, 0);
 
 	if (havebstr("force_room")) {
 		gotoroom(sbstr("force_room"));
@@ -1465,95 +1467,118 @@ void display_enter(void)
 			       ((len != 3)  ||
 				strcmp(ChrPtr(Line), "000")))
 			{
-				long which = 0;
+				eMessageField which;
 				if ((StrLength(Line) > 4) && 
-				    (ChrPtr(Line)[4] == '='))
-					which = FourHash(ChrPtr(Line), 4);
+				    (ChrPtr(Line)[4] == '=') &&
+				    GetFieldFromMnemonic(&which, ChrPtr(Line)))
+					switch (which) {
+					case eMsgSubject: {
+						StrBuf *subj = NewStrBuf();
+						StrBuf *FlatSubject;
 
-				if (which == l_subj)
-				{
-					StrBuf *subj = NewStrBuf();
-					StrBuf *FlatSubject;
-
-					if (ReplyMode == eForward) {
-						if (strncasecmp(ChrPtr(Line) + 5, "Fw:", 3)) {
-							StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
+						if (ReplyMode == eForward) {
+							if (strncasecmp(ChrPtr(Line) + 5, "Fw:", 3)) {
+								StrBufAppendBufPlain(subj, HKEY("Fw: "), 0);
+							}
 						}
-					}
-					else {
-						if (strncasecmp(ChrPtr(Line) + 5, "Re:", 3)) {
-							StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+						else {
+							if (strncasecmp(ChrPtr(Line) + 5, "Re:", 3)) {
+								StrBufAppendBufPlain(subj, HKEY("Re: "), 0);
+							}
 						}
+						StrBufAppendBufPlain(subj, 
+								     ChrPtr(Line) + 5, 
+								     StrLength(Line) - 5, 0);
+						FlatSubject = NewStrBufPlain(NULL, StrLength(subj));
+						StrBuf_RFC822_to_Utf8(FlatSubject, subj, NULL, NULL);
+
+						PutBstr(HKEY("subject"), FlatSubject);
 					}
-					StrBufAppendBufPlain(subj, 
-							     ChrPtr(Line) + 5, 
-							     StrLength(Line) - 5, 0);
-					FlatSubject = NewStrBufPlain(NULL, StrLength(subj));
-					StrBuf_RFC822_to_Utf8(FlatSubject, subj, NULL, NULL);
+						break;
 
-					PutBstr(HKEY("subject"), FlatSubject);
-				}
+					case eWeferences:
+					{
+						int rrtok;
+						int rrlen;
 
-				else if (which == l_wefw)
-				{
-					int rrtok;
-					int rrlen;
-
-					wefw = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						wefw = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
 					
-					/* Trim down excessively long lists of thread references.  We eliminate the
-					 * second one in the list so that the thread root remains intact.
-					 */
-					rrtok = num_tokens(ChrPtr(wefw), '|');
-					rrlen = StrLength(wefw);
-					if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-						StrBufRemove_token(wefw, 1, '|');
+						/* Trim down excessively long lists of thread references.  We eliminate the
+						 * second one in the list so that the thread root remains intact.
+						 */
+						rrtok = num_tokens(ChrPtr(wefw), '|');
+						rrlen = StrLength(wefw);
+						if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+							StrBufRemove_token(wefw, 1, '|');
+						}
+						break;
 					}
-				}
 
-				else if (which == l_msgn) {
-					msgn = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
+					case emessageId:
+						msgn = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
 
-				else if (which == l_from) {
-					StrBuf *FlatFrom;
-					from = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-					FlatFrom = NewStrBufPlain(NULL, StrLength(from));
-					StrBuf_RFC822_to_Utf8(FlatFrom, from, NULL, NULL);
-					FreeStrBuf(&from);
-					from = FlatFrom;
-					for (i=0; i<StrLength(from); ++i) {
-						if (ChrPtr(from)[i] == ',')
-							StrBufPeek(from, NULL, i, ' ');
+					case eAuthor: {
+						StrBuf *FlatFrom;
+						from = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						FlatFrom = NewStrBufPlain(NULL, StrLength(from));
+						StrBuf_RFC822_to_Utf8(FlatFrom, from, NULL, NULL);
+						FreeStrBuf(&from);
+						from = FlatFrom;
+						for (i=0; i<StrLength(from); ++i) {
+							if (ChrPtr(from)[i] == ',')
+								StrBufPeek(from, NULL, i, ' ');
+						}
+						break;
 					}
-				}
 				
-				else if (which == l_rcpt) {
-					rcpt = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
+					case eRecipient:
+						rcpt = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+			
 				
-				else if (which == l_cccc) {
-					cccc = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
+					case eCarbonCopY:
+						cccc = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+
 				
-				else if (which == l_node) {
-					node = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
-				else if (which == l_replyto) {
-					replyto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-				}
-				else if (which == l_rfca) {
-					StrBuf *FlatRFCA;
-					rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-					FlatRFCA = NewStrBufPlain(NULL, StrLength(rfca));
-					StrBuf_RFC822_to_Utf8(FlatRFCA, rfca, NULL, NULL);
-					FreeStrBuf(&rfca);
-					rfca = FlatRFCA;
-				}
-				else if (which == l_nvto) {
-					nvto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
-					putbstr("nvto", nvto);
-				}
+					case eNodeName:
+						node = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+					case eReplyTo:
+						replyto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						break;
+					case erFc822Addr: {
+						StrBuf *FlatRFCA;
+						rfca = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						FlatRFCA = NewStrBufPlain(NULL, StrLength(rfca));
+						StrBuf_RFC822_to_Utf8(FlatRFCA, rfca, NULL, NULL);
+						FreeStrBuf(&rfca);
+						rfca = FlatRFCA;
+						break;
+					}
+					case eenVelopeTo:
+						nvto = NewStrBufPlain(ChrPtr(Line) + 5, StrLength(Line) - 5);
+						putbstr("nvto", nvto);
+						break;
+					case eXclusivID:
+					case eHumanNode:
+					case eJournal:
+					case eListID:
+					case eMesageText:
+					case eOriginalRoom:
+					case eMessagePath:
+					case eSpecialField:
+					case eTimestamp:
+					case eHeaderOnly:
+					case eFormatType:
+					case eMessagePart:
+					case eSubFolder:
+					case ePevious:
+					case eLastHeader:
+						break;
+
+					}
 			}
 
 
@@ -1641,14 +1666,14 @@ void display_enter(void)
 		const StrBuf *Recp = NULL; 
 		const StrBuf *Cc = NULL;
 		const StrBuf *Bcc = NULL;
-		char *wikipage = NULL;
+		StrBuf *wikipage = NULL;
 		StrBuf *CmdBuf = NULL;
 		const char CMD[] = "ENT0 0|%s|%d|0||%s||%s|%s|%s";
 		
 		Recp = sbstr("recp");
 		Cc = sbstr("cc");
 		Bcc = sbstr("bcc");
-		wikipage = strdup(bstr("page"));
+		wikipage = NewStrBufDup(sbstr("page"));
 		str_wiki_index(wikipage);
 		
 		CmdBuf = NewStrBufPlain(NULL, 
@@ -1657,7 +1682,7 @@ void display_enter(void)
 					StrLength(display_name) +
 					StrLength(Cc) +
 					StrLength(Bcc) + 
-					strlen(wikipage));
+					StrLength(wikipage));
 
 		StrBufPrintf(CmdBuf, 
 			     CMD,
@@ -1666,7 +1691,7 @@ void display_enter(void)
 			     ChrPtr(display_name),
 			     ChrPtr(Cc), 
 			     ChrPtr(Bcc), 
-			     wikipage
+			     ChrPtr(wikipage)
 		);
 		serv_puts(ChrPtr(CmdBuf));
 		StrBuf_ServGetln(CmdBuf);
@@ -1695,7 +1720,7 @@ void display_enter(void)
 
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	if (WCC->CurRoom.defview == VIEW_WIKIMD) 
+	if ((WCC->CurRoom.defview == VIEW_WIKIMD) || prefer_md)
 		DoTemplate(HKEY("edit_markdown_epic"), NULL, &NoCtx);
 	else
 		DoTemplate(HKEY("edit_message"), NULL, &NoCtx);
@@ -2006,6 +2031,15 @@ void jsonMessageList(void) {
 	readloop(oper, eUseDefault);
 }
 
+void FreeReadLoopHandlerSet(void *v) {
+	RoomRenderer *Handler = (RoomRenderer *) v;
+	FreeStrBuf(&Handler->FetchMessageList);
+	if (Handler->MessageFieldList != NULL) {
+		free(Handler->MessageFieldList);
+	}
+	free(Handler);
+}
+
 void RegisterReadLoopHandlerset(
 	int RoomType,
 	GetParamsGetServerCall_func GetParamsGetServerCall,
@@ -2014,9 +2048,12 @@ void RegisterReadLoopHandlerset(
 	load_msg_ptrs_detailheaders LH,
 	LoadMsgFromServer_func LoadMsgFromServer,
 	RenderView_or_Tail_func RenderView_or_Tail,
-	View_Cleanup_func ViewCleanup
+	View_Cleanup_func ViewCleanup,
+	const char **browseListFields
 	)
 {
+	long count = 0;
+	long i = 0;
 	RoomRenderer *Handler;
 
 	Handler = (RoomRenderer*) malloc(sizeof(RoomRenderer));
@@ -2030,7 +2067,30 @@ void RegisterReadLoopHandlerset(
 	Handler->ViewCleanup = ViewCleanup;
 	Handler->LHParse = LH;
 
-	Put(ReadLoopHandler, IKEY(RoomType), Handler, NULL);
+	if (browseListFields != NULL) {
+		while (browseListFields[count] != NULL) {
+			count ++;
+		}
+		Handler->HeaderCount = count;
+		Handler->MessageFieldList = (eMessageField*) malloc(sizeof(eMessageField) * count);
+		Handler->FetchMessageList = NewStrBufPlain(NULL, 5 * count + 4 + 5);
+		StrBufPlain(Handler->FetchMessageList, HKEY("time\n"));
+		for (i = 0; i < count; i++) {
+			if (!GetFieldFromMnemonic(&Handler->MessageFieldList[i], browseListFields[i])) {
+				fprintf(stderr, "Unknown message header: %s\n", browseListFields[i]);
+				exit(1);
+			}
+			StrBufAppendBufPlain(Handler->FetchMessageList, browseListFields[i], 4, 0);
+			StrBufAppendBufPlain(Handler->FetchMessageList, HKEY("\n"), 0);
+		}
+		StrBufAppendBufPlain(Handler->FetchMessageList, HKEY("000"), 0);
+	}
+	else {
+		Handler->FetchMessageList = NULL;
+		Handler->MessageFieldList = NULL;
+	}
+
+	Put(ReadLoopHandler, IKEY(RoomType), Handler, FreeReadLoopHandlerSet);
 }
 
 void 
@@ -2042,7 +2102,7 @@ InitModule_MSG
 			   PRF_YESNO, 
 			   NULL);
 	RegisterPreference("signature", _("Use this signature:"), PRF_QP_STRING, NULL);
-	RegisterPreference("default_header_charset", 
+	RegisterPreference("default_header_charset",
 			   _("Default character set for email headers:"), 
 			   PRF_STRING, 
 			   NULL);
@@ -2056,6 +2116,8 @@ InitModule_MSG
 			   PRF_STRING, 
 			   NULL);
 	RegisterPreference("mailbox",_("Mailbox view mode"), PRF_STRING, NULL);
+	RegisterPreference("markdown",_("Prefer markdown editing"), PRF_YESNO, NULL);
+
 
 	WebcitAddUrlHandler(HKEY("readnew"), "", 0, h_readnew, ANONYMOUS|NEED_URL);
 	WebcitAddUrlHandler(HKEY("readold"), "", 0, h_readold, ANONYMOUS|NEED_URL);
@@ -2083,19 +2145,6 @@ InitModule_MSG
 
 	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
-
-	l_subj = FourHash("subj", 4);
-	l_wefw = FourHash("wefw", 4);
-	l_msgn = FourHash("msgn", 4);
-	l_from = FourHash("from", 4);
-	l_rcpt = FourHash("rcpt", 4);
-	l_cccc = FourHash("cccc", 4);
-	l_replyto = FourHash("rep2", 4);
-	l_node = FourHash("node", 4);
-	l_rfca = FourHash("rfca", 4);
-	l_nvto = FourHash("nvto", 4);
-
-	return ;
 }
 
 void

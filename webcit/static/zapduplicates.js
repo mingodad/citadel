@@ -11,7 +11,7 @@ function loadZapMessages(transport)
 	msgs = data['msgs'];
 	var length = msgs.length;
 	rowArray = new Array(length); // store so they can be sorted
-	WCLog("Row array length: "+rowArray.length);
+	wCLog("Row array length: "+rowArray.length);
 	for(var x=1; x<length; ++x) {
 	    var currentRow = msgs[x];
 	    var LastRow = msgs[x-1];

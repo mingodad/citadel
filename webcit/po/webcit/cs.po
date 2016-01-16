@@ -189,10 +189,10 @@ msgstr "Upravit %s"
 #: ../../sysmsgs.c:49
 #, c-format
 msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"The text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"Vložte %s dolu. Text je formátován pro prohlížeč návštěvníka. Nová řádka je "
+"Text je formátován pro prohlížeč návštěvníka. Nová řádka je "
 "vynucena následující druhou prázdnou řádkou."
 
 #: ../../sysmsgs.c:61 ../../vcard_edit.c:1217 ../../i18n_templatelist.c:59

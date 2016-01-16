@@ -1,0 +1,26 @@
+<?=("head")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<div id="banner">
+<?=("roombanner")>
+</div>
+<div id="content" class="service">
+
+<?=("box_begin_1")>
+<?_("Edit Room info")>
+<?=("box_begin_2")>
+
+<?_("Enter the room info below.")> <?_("The text is formatted to the reader's browser. A newline is forced by preceding the next line by a blank.")>
+<form method="post" action="editinfo">
+<input type="hidden" name="nonce" value="<?NONCE()>">
+<textarea name="msgtext" wrap=soft rows=10 cols=80 width=80><?THISROOM:INFOTEXT("X")></textarea>
+
+<div class="buttons" >
+<input type="submit" name="save_button" value="<?_('Save changes')>">
+&nbsp;
+<input type="submit" name="cancel_button" value="<?_('Cancel')>"><br>
+</div>
+
+</form>
+<?=("box_end")>
+</div>
+</div>
+<?=("trailing")>

@@ -1,7 +1,7 @@
 /*
  * citadel_dirs.c : calculate pathnames for various files used in the Citadel system
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
@@ -457,8 +457,6 @@ int create_run_directories(long UID, long GID)
 		rv = create_dir(ctdl_bb_dir        , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
 		rv = create_dir(ctdl_file_dir      , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	if (rv != -1)
-		rv = create_dir(ctdl_netcfg_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
 		rv = create_dir(ctdl_spool_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)

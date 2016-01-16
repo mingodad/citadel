@@ -137,7 +137,7 @@ void embeddable_mini_calendar(int year, int month)
 	StrBufAppendPrintf(WC->trailing_javascript,
 		"	function minical_change_month(year, month) {					\n"
 		"		p = 'year=' + year + '&month=' + month					\n"
-		"			+ '&r=' + CtdlRandomString();			                \n"
+		"			+ '&r=' + ctdlRandomString();			                \n"
 		"		new Ajax.Updater('%s', 'mini_calendar', 				\n"
 		"			{ method: 'get', parameters: p, evalScripts: true } );		\n"
 		"	}										\n"

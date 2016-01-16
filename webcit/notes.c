@@ -487,7 +487,8 @@ InitModule_NOTES
 		NULL,
 		notes_LoadMsgFromServer,
 		NULL,
-		notes_Cleanup);
+		notes_Cleanup,
+		NULL);
 
 	WebcitAddUrlHandler(HKEY("add_new_note"), "", 0, add_new_note, 0);
 	WebcitAddUrlHandler(HKEY("ajax_update_note"), "", 0, ajax_update_note, 0);

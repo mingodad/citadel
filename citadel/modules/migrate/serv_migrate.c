@@ -1,7 +1,7 @@
 /*
  * This module dumps and/or loads the Citadel database in XML format.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -901,7 +901,6 @@ void migr_do_listdirs(void) {
 	cprintf("files|%s\n",		ctdl_file_dir);
 	cprintf("userpics|%s\n",	ctdl_usrpic_dir);
 	cprintf("messages|%s\n",	ctdl_message_dir);
-	cprintf("netconfigs|%s\n",	ctdl_netcfg_dir);
 	cprintf("keys|%s\n",		ctdl_key_dir);
 	cprintf("images|%s\n",		ctdl_image_dir);
 	cprintf("info|%s\n",		ctdl_info_dir);

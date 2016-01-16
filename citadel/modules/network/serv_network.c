@@ -2,7 +2,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2015 by the citadel.org team
+ * Copyright (c) 2000-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 3.
@@ -18,7 +18,6 @@
  * so many things inside these, here are the rules:
  *  1. begin_critical_section(S_NETCONFIGS) *before* begin_ any others.
  *  2. Do *not* perform any I/O with the client during these sections.
- *
  */
 
 /*
@@ -87,7 +86,9 @@ extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
 typedef struct __roomlists {
 	RoomProcList *rplist;
-}roomlists;
+} roomlists;
+
+
 /*
  * When we do network processing, it's accomplished in two passes; one to
  * gather a list of rooms and one to actually do them.  It's ok that rplist
@@ -110,64 +111,59 @@ int network_sync_to(char *target_node, long len)
 	SpoolControl sc;
 	int num_spooled = 0;
 
-	/* Grab the configuration line we're looking for */
-	begin_critical_section(S_NETCONFIGS);
+	/* Load the netconfig for this room */
 	pRNCFG = CtdlGetNetCfgForRoom(CCC->room.QRnumber);
-	if ((pRNCFG == NULL) ||
-	    (pRNCFG->NetConfigs[ignet_push_share] == NULL))
+	if (pRNCFG == NULL) {					// no netconfig at all?
+		return -1;
+	}
+	if (pRNCFG->NetConfigs[ignet_push_share] == NULL)	// no ignet push shares?
 	{
+		FreeRoomNetworkStruct(&pRNCFG);
 		return -1;
 	}
 
-	pCfgLine = pRNCFG->NetConfigs[ignet_push_share];
-	while (pCfgLine != NULL)
+	/* Search for an ignet_oush_share configuration bearing the target node's name */
+	for (pCfgLine = pRNCFG->NetConfigs[ignet_push_share]; pCfgLine != NULL; pCfgLine = pCfgLine->next)
 	{
 		if (!strcmp(ChrPtr(pCfgLine->Value[0]), target_node))
 			break;
-		pCfgLine = pCfgLine->next;
 	}
+
+	/* If we aren't sharing with that node, bail out */
 	if (pCfgLine == NULL)
 	{
+		FreeRoomNetworkStruct(&pRNCFG);
 		return -1;
 	}
 
+	/* If we got here, we're good to go ... make up a dummy spoolconfig and roll with it */
+
+	begin_critical_section(S_NETCONFIGS);
 	memset(&sc, 0, sizeof(SpoolControl));
 	memset(&OneRNCFG, 0, sizeof(OneRoomNetCfg));
 	sc.RNCfg = &OneRNCFG;
 	sc.RNCfg->NetConfigs[ignet_push_share] = DuplicateOneGenericCfgLine(pCfgLine);
-	sc.Users[ignet_push_share] = NewStrBufPlain(NULL,
-						    StrLength(pCfgLine->Value[0]) +
-						    StrLength(pCfgLine->Value[1]) + 10);
-	StrBufAppendBuf(sc.Users[ignet_push_share], 
-			pCfgLine->Value[0],
-			0);
-	StrBufAppendBufPlain(sc.Users[ignet_push_share], 
-			     HKEY(","),
-			     0);
-
-	StrBufAppendBuf(sc.Users[ignet_push_share], 
-			pCfgLine->Value[1],
-			0);
+	sc.Users[ignet_push_share] = NewStrBufPlain(NULL, (StrLength(pCfgLine->Value[0]) + StrLength(pCfgLine->Value[1]) + 10) );
+	StrBufAppendBuf(sc.Users[ignet_push_share], pCfgLine->Value[0], 0);
+	StrBufAppendBufPlain(sc.Users[ignet_push_share], HKEY(","), 0);
+	StrBufAppendBuf(sc.Users[ignet_push_share], pCfgLine->Value[1], 0);
 	CalcListID(&sc);
-
 	end_critical_section(S_NETCONFIGS);
 
 	sc.working_ignetcfg = CtdlLoadIgNetCfg();
 	sc.the_netmap = CtdlReadNetworkMap();
 
 	/* Send ALL messages */
-	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
-		network_spool_msg, &sc);
+	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, network_spool_msg, &sc);
 
 	/* Concise cleanup because we know there's only one node in the sc */
-	DeleteGenericCfgLine(NULL/*TODO*/, &sc.RNCfg->NetConfigs[ignet_push_share]);
+	DeleteGenericCfgLine(NULL, &sc.RNCfg->NetConfigs[ignet_push_share]);
 
 	DeleteHash(&sc.working_ignetcfg);
 	DeleteHash(&sc.the_netmap);
 	free_spoolcontrol_struct_members(&sc);
 
-	QN_syslog(LOG_NOTICE, "Synchronized %d messages to <%s>\n",
-		  num_spooled, target_node);
+	QN_syslog(LOG_NOTICE, "Synchronized %d messages to <%s>", num_spooled, target_node);
 	return(num_spooled);
 }
 
@@ -188,8 +184,7 @@ void cmd_nsyn(char *argbuf) {
 		cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
 	}
 	else {
-		cprintf("%d No such room/node share exists.\n",
-			ERROR + ROOM_NOT_FOUND);
+		cprintf("%d No such room/node share exists.\n", ERROR + ROOM_NOT_FOUND);
 	}
 }
 
@@ -229,8 +224,9 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, OneRoom
 	struct RoomProcList *ptr;
 	roomlists *RP = (roomlists*) data;
 
-	if (!HaveSpoolConfig(OneRNCfg))
+	if (!HaveSpoolConfig(OneRNCfg)) {
 		return;
+	}
 
 	ptr = CreateRoomProcListEntry(qrbuf, OneRNCfg);
 
@@ -244,30 +240,37 @@ void network_queue_interesting_rooms(struct ctdlroom *qrbuf, void *data, OneRoom
 /*
  * Batch up and send all outbound traffic from the current room
  */
-int network_room_handler (struct ctdlroom *qrbuf)
+int network_room_handler(struct ctdlroom *qrbuf)
 {
 	struct RoomProcList *ptr;
-	OneRoomNetCfg* RNCfg;
+	OneRoomNetCfg *RNCfg;
 
-	if (qrbuf->QRdefaultview == VIEW_QUEUE)
+	if (qrbuf->QRdefaultview == VIEW_QUEUE) {
 		return 1;
+	}
 
 	RNCfg = CtdlGetNetCfgForRoom(qrbuf->QRnumber);
-	if (RNCfg == NULL)
+	if (RNCfg == NULL) {
 		return 1;
+	}
 
-	if (!HaveSpoolConfig(RNCfg))
+	if (!HaveSpoolConfig(RNCfg)) {
+		FreeRoomNetworkStruct(&RNCfg);
 		return 1;
+	}
 
 	ptr = CreateRoomProcListEntry(qrbuf, RNCfg);
-	if (ptr == NULL)
+	if (ptr == NULL) {
+		FreeRoomNetworkStruct(&RNCfg);
 		return 1;
+	}
 
 	ptr->OneRNCfg = NULL;
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
 	end_critical_section(S_RPLIST);
+	FreeRoomNetworkStruct(&RNCfg);
 	return 1;
 }
 
@@ -316,7 +319,7 @@ void network_do_queue(void)
 	if ( (time(NULL) - last_run) < CtdlGetConfigLong("c_net_freq") )
 	{
 		full_processing = 0;
-		syslog(LOG_DEBUG, "Network full processing in %ld seconds.\n",
+		syslog(LOG_DEBUG, "Network full processing in %ld seconds.",
 		       CtdlGetConfigLong("c_net_freq") - (time(NULL)- last_run)
 		);
 	}
@@ -326,21 +329,17 @@ void network_do_queue(void)
 	RL.rplist = rplist;
 	rplist = NULL;
 	end_critical_section(S_RPLIST);
-///TODO hm, check whether we have a config at all here?
+
+	// TODO hm, check whether we have a config at all here?
 	/* Load the IGnet Configuration into memory */
 	working_ignetcfg = CtdlLoadIgNetCfg();
 
 	/*
 	 * Load the network map and filter list into memory.
 	 */
-	if (!server_shutting_down)
+	if (!server_shutting_down) {
 		the_netmap = CtdlReadNetworkMap();
-#if 0
-	/* filterlist isn't supported anymore
-	if (!server_shutting_down)
-		load_network_filter_list();
-	*/
-#endif
+	}
 
 	/* 
 	 * Go ahead and run the queue
@@ -427,15 +426,9 @@ void network_do_queue(void)
 		last_run = time(NULL);
 	}
 	destroy_network_queue_room(RL.rplist);
-	SaveChangedConfigs();
+	// SaveChangedConfigs();	// FIXME FOOFOO SAVE CHANGED THIS AACACACACCKK
 
 }
-
-
-
-
-
-
 
 
 void network_logout_hook(void)
@@ -450,6 +443,8 @@ void network_logout_hook(void)
 		CCC->net_node[0] = '\0';
 	}
 }
+
+
 void network_cleanup_function(void)
 {
 	struct CitContext *CCC = CC;
@@ -461,8 +456,7 @@ void network_cleanup_function(void)
 }
 
 
-int ignet_aftersave(struct CtdlMessage *msg,
-		    recptypes *recps)	/* recipients (if mail) */
+int ignet_aftersave(struct CtdlMessage *msg, recptypes *recps)
 {
 	/* For IGnet mail, we have to save a new copy into the spooler for
 	 * each recipient, with the R and D fields set to the recipient and
@@ -494,8 +488,7 @@ int ignet_aftersave(struct CtdlMessage *msg,
 		RBuf = malloc(rlen + 1);
 		DBuf = malloc(rlen + 1);
 		for (i=0; i<count; ++i) {
-			extract_token(recipient, recps->recp_ignet, i,
-				      '|', rlen + 1);
+			extract_token(recipient, recps->recp_ignet, i, '|', rlen + 1);
 
 			rblen = extract_token(RBuf, recipient, 0, '@', rlen + 1);
 			dblen = extract_token(DBuf, recipient, 1, '@', rlen + 1);
@@ -515,7 +508,7 @@ int ignet_aftersave(struct CtdlMessage *msg,
 				if (network_fp != NULL) {
 					rv = fwrite(smr.ser, smr.len, 1, network_fp);
 					if (rv == -1) {
-						MSG_syslog(LOG_EMERG, "CtdlSubmitMsg(): Couldn't write network spool file: %s\n",
+						MSG_syslog(LOG_EMERG, "CtdlSubmitMsg(): Couldn't write network spool file: %s",
 							   strerror(errno));
 					}
 					fclose(network_fp);
@@ -535,6 +528,7 @@ int ignet_aftersave(struct CtdlMessage *msg,
 	return 0;
 }
 
+
 /*
  * Module entry point
  */
@@ -543,6 +537,7 @@ void SetNetQDebugEnabled(const int n)
 {
 	NetQDebugEnabled = n;
 }
+
 
 CTDL_MODULE_INIT(network)
 {

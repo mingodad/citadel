@@ -90,6 +90,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 	char *diffbuf = NULL;
 	size_t diffbuf_len = 0;
 	char *ptr = NULL;
+	long newmsgid;
+	StrBuf *msgidbuf;
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -104,6 +106,17 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 
 	/* If there's no EUID we can't do this.  Reject the post. */
 	if (CM_IsEmpty(msg, eExclusiveID)) return(1);
+
+	newmsgid = get_new_message_number();
+	msgidbuf = NewStrBuf();
+	StrBufPrintf(msgidbuf, "%08lX-%08lX@%s/%s",
+		     (long unsigned int) time(NULL),
+		     (long unsigned int) newmsgid,
+		     CtdlGetConfigStr("c_fqdn"),
+		     msg->cm_fields[eExclusiveID]
+		);
+
+	CM_SetAsFieldSB(msg, emessageId, &msgidbuf);
 
 	history_page_len = snprintf(history_page, sizeof history_page,
 				    "%s_HISTORY_", msg->cm_fields[eExclusiveID]);
@@ -222,7 +235,9 @@ int wiki_upload_beforesave(struct CtdlMessage *msg, recptypes *recp) {
 		history_msg->cm_anon_type = MES_NORMAL;
 		history_msg->cm_format_type = FMT_RFC822;
 		CM_SetField(history_msg, eAuthor, HKEY("Citadel"));
-		CM_SetField(history_msg, eRecipient, CCC->room.QRname, strlen(CCC->room.QRname));
+		if (!IsEmptyStr(CCC->room.QRname)){
+			CM_SetField(history_msg, eRecipient, CCC->room.QRname, strlen(CCC->room.QRname));
+		}
 		CM_SetField(history_msg, eExclusiveID, history_page, history_page_len);
 		CM_SetField(history_msg, eMsgSubject, history_page, history_page_len);
 		CM_SetField(history_msg, eSuppressIdx, HKEY("1")); /* suppress full text indexing */
@@ -640,11 +655,23 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		}
 		else if (!strcasecmp(operation, "revert")) {
 			CM_SetFieldLONG(msg, eTimestamp, time(NULL));
-			CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
-			CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
-			CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
+			if (!IsEmptyStr(CCC->user.fullname)) {
+				CM_SetField(msg, eAuthor, CCC->user.fullname, strlen(CCC->user.fullname));
+			}
+
+			if (!IsEmptyStr(CCC->cs_inet_email)) {
+				CM_SetField(msg, erFc822Addr, CCC->cs_inet_email, strlen(CCC->cs_inet_email));
+			}
+
+			if (!IsEmptyStr(CCC->room.QRname)) {
+				CM_SetField(msg, eOriginalRoom, CCC->room.QRname, strlen(CCC->room.QRname));
+			}
+
 			CM_SetField(msg, eNodeName, CtdlGetConfigStr("c_nodename"), strlen(CtdlGetConfigStr("c_nodename")));
-			CM_SetField(msg, eExclusiveID, pagename, strlen(pagename));
+			
+			if (!IsEmptyStr(pagename)) {
+				CM_SetField(msg, eExclusiveID, pagename, strlen(pagename));
+			}
 			msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Replace the current revision */
 		}
 		else {

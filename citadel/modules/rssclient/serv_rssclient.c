@@ -1,7 +1,7 @@
 /*
  * Bring external RSS feeds into rooms.
  *
- * Copyright (c) 2007-2015 by the citadel.org team
+ * Copyright (c) 2007-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -375,20 +375,25 @@ int rss_format_item(AsyncIO *IO, networker_save_message *SaveMsg)
 		StrBufSpaceToBlank(SaveMsg->title);
 		len = StrLength(SaveMsg->title);
 		Sbj = html_to_ascii(ChrPtr(SaveMsg->title), len, 512, 0);
-		len = strlen(Sbj);
-		if ((len > 0) && (Sbj[len - 1] == '\n'))
-		{
-			len --;
-			Sbj[len] = '\0';
+		if (!IsEmptyStr(Sbj)) {
+			len = strlen(Sbj);
+			if ((Sbj[len - 1] == '\n'))
+			{
+				len --;
+				Sbj[len] = '\0';
+			}
+			Encoded = NewStrBufPlain(Sbj, len);
+		
+
+			StrBufTrim(Encoded);
+			StrBufRFC2047encode(&QPEncoded, Encoded);
+			
+			CM_SetAsFieldSB(&SaveMsg->Msg, eMsgSubject, &QPEncoded);
+			FreeStrBuf(&Encoded);
 		}
-		Encoded = NewStrBufPlain(Sbj, len);
-		free(Sbj);
-
-		StrBufTrim(Encoded);
-		StrBufRFC2047encode(&QPEncoded, Encoded);
-
-		CM_SetAsFieldSB(&SaveMsg->Msg, eMsgSubject, &QPEncoded);
-		FreeStrBuf(&Encoded);
+		if (Sbj != NULL) {
+			free(Sbj);
+		}
 	}
 	if (SaveMsg->link == NULL)
 		SaveMsg->link = NewStrBufPlain(HKEY(""));
@@ -502,9 +507,9 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 
 void UpdateLastKnownGood(pRSSConfig *pCfg, time_t now)
 {
-	OneRoomNetCfg* pRNCfg;
+	OneRoomNetCfg *pRNCfg;
 	begin_critical_section(S_NETCONFIGS);
-	pRNCfg = CtdlGetNetCfgForRoom (pCfg->QRnumber);
+	pRNCfg = CtdlGetNetCfgForRoom(pCfg->QRnumber);
 	if (pRNCfg != NULL)
 	{
 		RSSCfgLine *RSSCfg = (RSSCfgLine *)pRNCfg->NetConfigs[rssclient];
@@ -523,6 +528,8 @@ void UpdateLastKnownGood(pRSSConfig *pCfg, time_t now)
 		}
 	}
 
+	SaveRoomNetConfigFile(pRNCfg, pCfg->QRnumber);
+	FreeRoomNetworkStruct(&pRNCfg);
 	end_critical_section(S_NETCONFIGS);
 }
 
