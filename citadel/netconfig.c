@@ -931,14 +931,19 @@ void convert_legacy_netcfg_files(void)
 			if (fp) {
 				fseek(fp, 0L, SEEK_END);
 				len = ftell(fp);
-				v = malloc(len);
-				if (v) {
-					rewind(fp);
-					if (fread(v, len, 1, fp)) {
-						write_netconfig_to_configdb(roomnum, v);
-						unlink(filename);
+				if (len > 0) {
+					v = malloc(len);
+					if (v) {
+						rewind(fp);
+						if (fread(v, len, 1, fp)) {
+							write_netconfig_to_configdb(roomnum, v);
+							unlink(filename);
+						}
+						free(v);
 					}
-					free(v);
+				}
+				else {
+					unlink(filename);	// zero length netconfig, just delete it
 				}
 				fclose(fp);
 			}

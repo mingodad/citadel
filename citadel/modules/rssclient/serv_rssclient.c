@@ -772,6 +772,8 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 	rss_aggregator *use_this_RSSAggr = NULL;
 	void *vptr;
 
+	TRACE;
+
 	pthread_mutex_lock(&RSSQueueMutex);
 	if (GetHash(RSSQueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
