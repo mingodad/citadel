@@ -317,12 +317,12 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 			dest[destoffset++] = '\n';
 		}
 
-		destoffset += base64_encode_blockend(&(dest[destoffset]), &_state);
+		destoffset += base64_encode_blockend(&(dest[destoffset]), &_state, 0);
 	}
 	else {
 		destoffset = base64_encode_block(source, sourcelen, dest, &_state);
 
-		destoffset += base64_encode_blockend(&(dest[destoffset]), &_state);
+		destoffset += base64_encode_blockend(&(dest[destoffset]), &_state, 0);
 	}
 	dest[destoffset] = 0;
 	return destoffset;
