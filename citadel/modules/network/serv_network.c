@@ -194,11 +194,14 @@ RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, OneRoomNetCfg *One
 	struct RoomProcList *ptr;
 
 	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
-	if (ptr == NULL) return NULL;
+	if (ptr == NULL) {
+		return NULL;
+	}
 
 	ptr->namelen = strlen(qrbuf->QRname);
-	if (ptr->namelen > ROOMNAMELEN)
+	if (ptr->namelen > ROOMNAMELEN) {
 		ptr->namelen = ROOMNAMELEN - 1;
+	}
 
 	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
 	ptr->name[ptr->namelen] = '\0';
@@ -411,7 +414,7 @@ void network_do_queue(void)
 		free(pMapStr);
 	}
 
-	/* combine singe message files into one spool entry per remote node. */
+	/* combine single message files into one spool entry per remote node. */
 	network_consolidate_spoolout(working_ignetcfg, the_netmap);
 
 	/* shut down. */
@@ -426,8 +429,6 @@ void network_do_queue(void)
 		last_run = time(NULL);
 	}
 	destroy_network_queue_room(RL.rplist);
-	// SaveChangedConfigs();	// FIXME FOOFOO SAVE CHANGED THIS AACACACACCKK
-
 }
 
 

@@ -95,60 +95,6 @@ void fix_sys_user_name(void)
 
 
 /* 
- * Back end processing function for cmd_bmbx
- */
-void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
-	static struct RoomProcList *rplist = NULL;
-	struct RoomProcList *ptr;
-	struct ctdlroom qr;
-
-	/* Lazy programming here.  Call this function as a CtdlForEachRoom backend
-	 * in order to queue up the room names, or call it with a null room
-	 * to make it do the processing.
-	 */
-	if (qrbuf != NULL) {
-		ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
-		if (ptr == NULL) return;
-
-		safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
-		ptr->next = rplist;
-		rplist = ptr;
-		return;
-	}
-
-	while (rplist != NULL) {
-
-		if (CtdlGetRoomLock(&qr, rplist->name) == 0) {
-			syslog(LOG_DEBUG, "Processing <%s>...", rplist->name);
-			if ( (qr.QRflags & QR_MAILBOX) == 0) {
-				syslog(LOG_DEBUG, "  -- not a mailbox");
-			}
-			else {
-
-				qr.QRgen = time(NULL);
-				syslog(LOG_DEBUG, "  -- fixed!");
-			}
-			CtdlPutRoomLock(&qr);
-		}
-
-		ptr = rplist;
-		rplist = rplist->next;
-		free(ptr);
-	}
-}
-
-/*
- * quick fix to bump mailbox generation numbers
- */
-void bump_mailbox_generation_numbers(void) {
-	syslog(LOG_WARNING, "Applying security fix to mailbox rooms");
-	CtdlForEachRoom(cmd_bmbx_backend, NULL);
-	cmd_bmbx_backend(NULL, NULL);
-	return;
-}
-
-
-/* 
  * Back end processing function for convert_ctdluid_to_minusone()
  */
 void cbtm_backend(struct ctdluser *usbuf, void *data) {
@@ -326,12 +272,9 @@ void check_server_upgrades(void) {
 
 	update_config();
 
-	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 555)) {
+	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 591)) {
 		syslog(LOG_EMERG, "This database is too old to be upgraded.  Citadel server will exit.");
 		exit(EXIT_FAILURE);
-	}
-	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 591)) {
-		bump_mailbox_generation_numbers();
 	}
 	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 608)) {
 		convert_ctdluid_to_minusone();
