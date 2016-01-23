@@ -293,7 +293,7 @@ void InspectQueuedRoom(SpoolControl **pSC,
 	if ( (!HaveSpoolConfig(sc->RNCfg)) || (sc->room.QRhighest <= sc->RNCfg->lastsent) ) 
 	{
 		// There is nothing to send from this room.
-		syslog(LOG_DEBUG, "Nothing to do for <%s>", room_to_spool->name);
+		MARK_syslog(LOG_DEBUG, "Nothing to do for <%s>", room_to_spool->name);
 		FreeRoomNetworkStruct(&sc->RNCfg);
 		sc->RNCfg = NULL;
 		free(sc);
@@ -845,11 +845,11 @@ void network_do_spoolin(HashList *working_ignetcfg, HashList *the_netmap, int *n
 	 */
 	if (stat(ctdl_netin_dir, &statbuf)) return;
 	if (statbuf.st_mtime == last_spoolin_mtime) {
-		syslog(LOG_DEBUG, "network: nothing in inbound queue");
+		MARKM_syslog(LOG_DEBUG, "network: nothing in inbound queue");
 		return;
 	}
 	last_spoolin_mtime = statbuf.st_mtime;
-	syslog(LOG_DEBUG, "network: processing inbound queue");
+	MARKM_syslog(LOG_DEBUG, "network: processing inbound queue");
 
 	/*
 	 * Ok, there's something interesting in there, so scan it.

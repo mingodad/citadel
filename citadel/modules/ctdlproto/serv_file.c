@@ -500,39 +500,40 @@ void abort_upl(CitContext *who)
  */
 void cmd_ucls(char *cmd)
 {
+	struct CitContext *CCC = CC;
 	FILE *fp;
 	char upload_notice[512];
 	static int seq = 0;
 
-	if (CC->upload_fp == NULL) {
+	if (CCC->upload_fp == NULL) {
 		cprintf("%d You don't have an upload file open.\n", ERROR + RESOURCE_NOT_OPEN);
 		return;
 	}
 
 	fclose(CC->upload_fp);
-	CC->upload_fp = NULL;
+	CCC->upload_fp = NULL;
 
-	if ((!strcasecmp(cmd, "1")) && (CC->upload_type != UPL_FILE)) {
+	if ((!strcasecmp(cmd, "1")) && (CCC->upload_type != UPL_FILE)) {
 		cprintf("%d Upload completed.\n", CIT_OK);
 
-		if (CC->upload_type == UPL_NET) {
+		if (CCC->upload_type == UPL_NET) {
 			char final_filename[PATH_MAX];
 		        snprintf(final_filename, sizeof final_filename,
 				"%s/%s.%04lx.%04x",
 				ctdl_netin_dir,
-				CC->net_node,
+				CCC->net_node,
 				(long)getpid(),
 				++seq
 			);
 
-			if (link(CC->upl_path, final_filename) == 0) {
-				syslog(LOG_INFO, "UCLS: updoaded %s\n",
+			if (link(CCC->upl_path, final_filename) == 0) {
+				CTDL_syslog(LOG_INFO, "UCLS: updoaded %s",
 				       final_filename);
-				unlink(CC->upl_path);
+				unlink(CCC->upl_path);
 			}
 			else {
-				syslog(LOG_ALERT, "Cannot link %s to %s: %s\n",
-					CC->upl_path, final_filename, strerror(errno)
+				CTDL_syslog(LOG_INFO, "Cannot link %s to %s: %s",
+					    CCC->upl_path, final_filename, strerror(errno)
 				);
 			}
 			
@@ -540,36 +541,36 @@ void cmd_ucls(char *cmd)
 			/* FIXME ... here we need to trigger a network run */
 		}
 
-		CC->upload_type = UPL_FILE;
+		CCC->upload_type = UPL_FILE;
 		return;
 	}
 
 	if (!strcasecmp(cmd, "1")) {
-		cprintf("%d File '%s' saved.\n", CIT_OK, CC->upl_path);
-		fp = fopen(CC->upl_filedir, "a");
+		cprintf("%d File '%s' saved.\n", CIT_OK, CCC->upl_path);
+		fp = fopen(CCC->upl_filedir, "a");
 		if (fp == NULL) {
-			fp = fopen(CC->upl_filedir, "w");
+			fp = fopen(CCC->upl_filedir, "w");
 		}
 		if (fp != NULL) {
-			fprintf(fp, "%s %s %s\n", CC->upl_file,
-				CC->upl_mimetype,
-				CC->upl_comment);
+			fprintf(fp, "%s %s %s\n", CCC->upl_file,
+				CCC->upl_mimetype,
+				CCC->upl_comment);
 			fclose(fp);
 		}
 
-		if ((CC->room.QRflags2 & QR2_NOUPLMSG) == 0) {
+		if ((CCC->room.QRflags2 & QR2_NOUPLMSG) == 0) {
 			/* put together an upload notice */
 			snprintf(upload_notice, sizeof upload_notice,
 				 "NEW UPLOAD: '%s'\n %s\n%s\n",
-				 CC->upl_file, 
-				 CC->upl_comment, 
-				 CC->upl_mimetype);
-			quickie_message(CC->curr_user, NULL, NULL, CC->room.QRname,
+				 CCC->upl_file, 
+				 CCC->upl_comment, 
+				 CCC->upl_mimetype);
+			quickie_message(CCC->curr_user, NULL, NULL, CCC->room.QRname,
 					upload_notice, 0, NULL);
 		}
 	} else {
-		abort_upl(CC);
-		cprintf("%d File '%s' aborted.\n", CIT_OK, CC->upl_path);
+		abort_upl(CCC);
+		cprintf("%d File '%s' aborted.\n", CIT_OK, CCC->upl_path);
 	}
 }
 
@@ -605,11 +606,12 @@ void cmd_read(char *cmdbuf)
 
 	rc = fseek(CC->download_fp, start_pos, 0);
 	if (rc < 0) {
+		struct CitContext *CCC = CC;
 		cprintf("%d your file is smaller then %ld.\n", ERROR + ILLEGAL_VALUE, start_pos);
-		syslog(LOG_ALERT, "your file %s is smaller then %ld. [%s]\n", 
-		       CC->upl_path, 
-		       start_pos,
-		       strerror(errno));
+		CTDL_syslog(LOG_ERR, "your file %s is smaller then %ld. [%s]\n", 
+			    CC->upl_path, 
+			    start_pos,
+			    strerror(errno));
 
 		return;
 	}
@@ -630,6 +632,7 @@ void cmd_read(char *cmdbuf)
  */
 void cmd_writ(char *cmdbuf)
 {
+	struct CitContext *CCC = CC;
 	int bytes;
 	char *buf;
 	int rv;
@@ -638,7 +641,7 @@ void cmd_writ(char *cmdbuf)
 
 	bytes = extract_int(cmdbuf, 0);
 
-	if (CC->upload_fp == NULL) {
+	if (CCC->upload_fp == NULL) {
 		cprintf("%d You don't have an upload file open.\n", ERROR + RESOURCE_NOT_OPEN);
 		return;
 	}
@@ -654,10 +657,10 @@ void cmd_writ(char *cmdbuf)
 	cprintf("%d %d\n", SEND_BINARY, bytes);
 	buf = malloc(bytes + 1);
 	client_read(buf, bytes);
-	rv = fwrite(buf, bytes, 1, CC->upload_fp);
+	rv = fwrite(buf, bytes, 1, CCC->upload_fp);
 	if (rv == -1) {
-		syslog(LOG_EMERG, "Couldn't write: %s\n",
-		       strerror(errno));
+		CTDL_syslog(LOG_EMERG, "Couldn't write: %s\n",
+			    strerror(errno));
 	}
 	free(buf);
 }
@@ -670,16 +673,17 @@ void cmd_writ(char *cmdbuf)
  */
 void cmd_ndop(char *cmdbuf)
 {
+	struct CitContext *CCC = CC;
 	char pathname[256];
 	struct stat statbuf;
 
-	if (IsEmptyStr(CC->net_node)) {
+	if (IsEmptyStr(CCC->net_node)) {
 		cprintf("%d Not authenticated as a network node.\n",
 			ERROR + NOT_LOGGED_IN);
 		return;
 	}
 
-	if (CC->download_fp != NULL) {
+	if (CCC->download_fp != NULL) {
 		cprintf("%d You already have a download file open.\n",
 			ERROR + RESOURCE_BUSY);
 		return;
@@ -688,18 +692,18 @@ void cmd_ndop(char *cmdbuf)
 	snprintf(pathname, sizeof pathname, 
 			 "%s/%s",
 			 ctdl_netout_dir,
-			 CC->net_node);
+			 CCC->net_node);
 
 	/* first open the file in append mode in order to create a
 	 * zero-length file if it doesn't already exist 
 	 */
-	CC->download_fp = fopen(pathname, "a");
-	if (CC->download_fp != NULL)
-		fclose(CC->download_fp);
+	CCC->download_fp = fopen(pathname, "a");
+	if (CCC->download_fp != NULL)
+		fclose(CCC->download_fp);
 
 	/* now open it */
-	CC->download_fp = fopen(pathname, "r");
-	if (CC->download_fp == NULL) {
+	CCC->download_fp = fopen(pathname, "r");
+	if (CCC->download_fp == NULL) {
 		cprintf("%d cannot open %s: %s\n",
 			ERROR + INTERNAL_ERROR, pathname, strerror(errno));
 		return;
@@ -709,10 +713,10 @@ void cmd_ndop(char *cmdbuf)
 	/* set this flag so other routines know that the download file
 	 * currently open is a network spool file 
 	 */
-	CC->dl_is_net = 1;
+	CCC->dl_is_net = 1;
 
 	stat(pathname, &statbuf);
-	CC->download_fp_total = statbuf.st_size;
+	CCC->download_fp_total = statbuf.st_size;
 	cprintf("%d %ld\n", CIT_OK, (long)statbuf.st_size);
 }
 

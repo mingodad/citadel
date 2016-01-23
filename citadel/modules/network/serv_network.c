@@ -319,8 +319,8 @@ void network_do_queue(void)
 	if ( (time(NULL) - last_run) < CtdlGetConfigLong("c_net_freq") )
 	{
 		full_processing = 0;
-		syslog(LOG_DEBUG, "Network full processing in %ld seconds.",
-		       CtdlGetConfigLong("c_net_freq") - (time(NULL)- last_run)
+		MARK_syslog(LOG_DEBUG, "Network full processing in %ld seconds.",
+			    CtdlGetConfigLong("c_net_freq") - (time(NULL)- last_run)
 		);
 	}
 

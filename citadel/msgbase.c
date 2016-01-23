@@ -2848,7 +2848,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		strcpy(actual_rm, force_room);
 	}
 
-	MSG_syslog(LOG_INFO, "Final selection: %s (%s)\n", actual_rm, room);
+	MSG_syslog(LOG_DEBUG, "Final selection: %s (%s)\n", actual_rm, room);
 	if (strcasecmp(actual_rm, CCC->room.QRname)) {
 		/* CtdlGetRoom(&CCC->room, actual_rm); */
 		CtdlUserGoto(actual_rm, 0, 1, NULL, NULL, NULL, NULL);

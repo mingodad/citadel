@@ -905,7 +905,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	if (retnew != NULL) *retnew = new_messages;
 	if (retoldest != NULL) *retoldest = oldest_message;
 	if (retnewest != NULL) *retnewest = newest_message;
-	MSG_syslog(LOG_INFO, "<%s> %d new of %d total messages, oldest=%ld, newest=%ld",
+	MSG_syslog(LOG_DEBUG, "<%s> %d new of %d total messages, oldest=%ld, newest=%ld",
 		   CCC->room.QRname, new_messages, total_messages, oldest_message, newest_message
 	);
 
@@ -1225,10 +1225,10 @@ unsigned CtdlCreateRoom(char *new_room_name,
 	struct floor flbuf;
 	visit vbuf;
 
-	syslog(LOG_DEBUG, "CtdlCreateRoom(name=%s, type=%d, view=%d)", new_room_name, new_room_type, new_room_view);
+	MARK_syslog(LOG_DEBUG, "CtdlCreateRoom(name=%s, type=%d, view=%d)", new_room_name, new_room_type, new_room_view);
 
 	if (CtdlGetRoom(&qrbuf, new_room_name) == 0) {
-		syslog(LOG_DEBUG, "Cannot create room <%s> - already exists", new_room_name);
+		MARK_syslog(LOG_DEBUG, "Cannot create room <%s> - already exists", new_room_name);
 		return(0);
 	}
 

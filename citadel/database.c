@@ -215,7 +215,7 @@ void cdb_checkpoint(void)
 {
 	int ret;
 
-	syslog(LOG_DEBUG, "-- db checkpoint --");
+	MARKM_syslog(LOG_DEBUG, "-- db checkpoint --");
 	ret = dbenv->txn_checkpoint(dbenv, MAX_CHECKPOINT_KBYTES, MAX_CHECKPOINT_MINUTES, 0);
 
 	if (ret != 0) {

@@ -120,7 +120,7 @@ int GetNotifyHosts(NotifyContext *Ctx)
 		if (pche == NULL) {
 			syslog(LOG_ERR,
 			       "extnotify: filename of notification "
-			       "template not found in %s.\n",
+			       "template not found in %s.",
 			       pchs);
 			continue;
 		}
@@ -174,9 +174,9 @@ eNotifyType extNotify_getConfigMessage(char *username,
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
-		syslog(LOG_DEBUG,
-		       "extNotify_getConfigMessage: "
-		       "No config messages found\n");
+		MARKM_syslog(LOG_DEBUG,
+			     "extNotify_getConfigMessage: "
+			     "No config messages found");
 		return eNone;	/* No messages at all?  No further action. */
 	}
 	for (a = 0; a < num_msgs; ++a) {
@@ -392,8 +392,8 @@ void do_extnotify_queue(void)
 	if (IsEmptyStr(CtdlGetConfigStr("c_pager_program")) &&
 	    IsEmptyStr(CtdlGetConfigStr("c_funambol_host")))
 	{
-		syslog(LOG_ERR,
-		       "No external notifiers configured on system/user\n");
+		MARKM_syslog(LOG_DEBUG,
+			     "No external notifiers configured on system/user");
 		return;
 	}
 
@@ -409,13 +409,13 @@ void do_extnotify_queue(void)
 	/*
 	 * Go ahead and run the queue
 	 */
-	syslog(LOG_DEBUG, "serv_extnotify: processing notify queue\n");
+	MARKM_syslog(LOG_DEBUG, "serv_extnotify: processing notify queue");
 
 	memset(&Ctx, 0, sizeof(NotifyContext));
 	if ((GetNotifyHosts(&Ctx) > 0) &&
 	    (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0))
 	{
-		syslog(LOG_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
+		syslog(LOG_ERR, "Cannot find room <%s>", FNBL_QUEUE_ROOM);
 		if (Ctx.nNotifyHosts > 0)
 		{
 			for (i = 0; i < Ctx.nNotifyHosts * 2; i++)
@@ -426,7 +426,7 @@ void do_extnotify_queue(void)
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
 			   SPOOLMIME, NULL, process_notify, &Ctx);
-	syslog(LOG_DEBUG, "serv_extnotify: queue run completed\n");
+	MARKM_syslog(LOG_DEBUG, "serv_extnotify: queue run completed");
 	doing_queue = 0;
 	if (Ctx.nNotifyHosts > 0)
 	{
