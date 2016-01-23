@@ -992,12 +992,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				nActivated++;
 
 				if (i > 1) n = MsgCount++;
-				syslog(LOG_INFO,
-				       "SMTPC: giving up on <%ld> <%s> %d / %d \n",
-				       MyQItem->MessageID,
-				       ChrPtr(ThisItem->Recipient),
-				       i,
-				       m);
+				SMTPC_syslog(LOG_INFO,
+					     "SMTPC: giving up on <%ld> <%s> %d / %d \n",
+					     MyQItem->MessageID,
+					     ChrPtr(ThisItem->Recipient),
+					     i,
+					     m);
 				(*((int*) userdata)) ++;
 				smtp_try_one_queue_entry(MyQItem,
 							 ThisItem,
@@ -1034,12 +1034,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 					usleep(delay_msec);
 
 				if (i > 1) n = MsgCount++;
-				syslog(LOG_DEBUG,
-				       "SMTPC: Trying <%ld> <%s> %d / %d \n",
-				       MyQItem->MessageID,
-				       ChrPtr(ThisItem->Recipient),
-				       i,
-				       m);
+				SMTPC_syslog(LOG_DEBUG,
+					     "SMTPC: Trying <%ld> <%s> %d / %d \n",
+					     MyQItem->MessageID,
+					     ChrPtr(ThisItem->Recipient),
+					     i,
+					     m);
 				(*((int*) userdata)) ++;
 				smtp_try_one_queue_entry(MyQItem,
 							 ThisItem,

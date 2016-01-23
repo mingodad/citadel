@@ -978,6 +978,7 @@ void convert_room_name_macros(char *towhere, size_t maxlen) {
  * in *at least* the old name!
  */
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
+	struct CitContext *CCC = CC;
 	int old_floor = 0;
 	struct ctdlroom qrbuf;
 	struct ctdlroom qrtmp;
@@ -987,7 +988,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	long owner = 0L;
 	char actual_old_name[ROOMNAMELEN];
 
-	syslog(LOG_DEBUG, "CtdlRenameRoom(%s, %s, %d)", old_name, new_name, new_floor);
+	MSG_syslog(LOG_DEBUG, "CtdlRenameRoom(%s, %s, %d)", old_name, new_name, new_floor);
 
 	if (new_floor >= 0) {
 		fl = CtdlGetCachedFloor(new_floor);
@@ -1007,9 +1008,9 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		ret = crr_room_not_found;
 	}
 
-	else if ( (CC->user.axlevel < AxAideU) && (!CC->internal_pgm)
-		  && (CC->user.usernum != qrbuf.QRroomaide)
-		  && ( (((qrbuf.QRflags & QR_MAILBOX) == 0) || (atol(qrbuf.QRname) != CC->user.usernum))) )  {
+	else if ( (CCC->user.axlevel < AxAideU) && (!CCC->internal_pgm)
+		  && (CCC->user.usernum != qrbuf.QRroomaide)
+		  && ( (((qrbuf.QRflags & QR_MAILBOX) == 0) || (atol(qrbuf.QRname) != CCC->user.usernum))) )  {
 		ret = crr_access_denied;
 	}
 
@@ -1076,11 +1077,11 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		lgetfloor(&flbuf, old_floor);
 		--flbuf.f_ref_count;
 		lputfloor(&flbuf, old_floor);
-		syslog(LOG_DEBUG, "Reference count for floor %d is now %d", old_floor, flbuf.f_ref_count);
+		MSG_syslog(LOG_DEBUG, "Reference count for floor %d is now %d", old_floor, flbuf.f_ref_count);
 		lgetfloor(&flbuf, new_floor);
 		++flbuf.f_ref_count;
 		lputfloor(&flbuf, new_floor);
-		syslog(LOG_DEBUG, "Reference count for floor %d is now %d", new_floor, flbuf.f_ref_count);
+		MSG_syslog(LOG_DEBUG, "Reference count for floor %d is now %d", new_floor, flbuf.f_ref_count);
 	}
 
 	/* ...and everybody say "YATTA!" */	

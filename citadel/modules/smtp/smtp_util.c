@@ -81,6 +81,8 @@
 #include "ctdl_module.h"
 
 #include "smtp_util.h"
+#include "smtpqueue.h"
+#include "smtp_clienthandlers.h"
 
 const char *smtp_get_Recipients(void)
 {
@@ -119,7 +121,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	StrBuf *BounceMB;
 	long omsgid = (-1);
 
-	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
+	SMTPCM_syslog(LOG_DEBUG, "smtp_do_bounce() called");
 	strcpy(bounceto, "");
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
 
@@ -204,8 +206,8 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 		dsnlen = extract_token(dsn, buf, 3, '|', sizeof dsn);
 		bounce_this = 0;
 
-		syslog(LOG_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
-		       key, addr, status, dsn);
+		SMTPC_syslog(LOG_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>",
+			     key, addr, status, dsn);
 
 		if (!strcasecmp(key, "bounceto")) {
 			strcpy(bounceto, addr);
@@ -277,14 +279,16 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	CM_SetAsFieldSB(bmsg, eMesageText, &BounceMB);
 
 	/* Deliver the bounce if there's anything worth mentioning */
-	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
+	SMTPC_syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {
 
 		/* First try the user who sent the message */
-		if (IsEmptyStr(bounceto))
-			syslog(LOG_ERR, "No bounce address specified\n");
-		else
-			syslog(LOG_DEBUG, "bounce to user <%s>\n", bounceto);
+		if (IsEmptyStr(bounceto)) {
+			SMTPCM_syslog(LOG_ERR, "No bounce address specified");
+		}
+		else {
+			SMTPC_syslog(LOG_DEBUG, "bounce to user <%s>", bounceto);
+		}
 		/* Can we deliver the bounce to the original sender? */
 		valid = validate_recipients(bounceto,
 					    smtp_get_Recipients (),
@@ -308,5 +312,5 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	}
 	FreeStrBuf(&boundary);
 	CM_Free(bmsg);
-	syslog(LOG_DEBUG, "Done processing bounces\n");
+	SMTPCM_syslog(LOG_DEBUG, "Done processing bounces\n");
 }

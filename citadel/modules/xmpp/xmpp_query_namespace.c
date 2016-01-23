@@ -78,7 +78,7 @@ void xmpp_iq_roster_query(void)
 	struct CitContext *cptr;
 	int nContexts, i;
 
-	syslog(LOG_DEBUG, "Roster push!");
+	XMPPM_syslog(LOG_DEBUG, "Roster push!");
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {

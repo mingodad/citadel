@@ -3128,6 +3128,7 @@ void flood_protect_quickie_message(const char *from,
 				   long ioid,
 				   time_t NOW)
 {
+	struct CitContext *CCC = CC;
 	int i;
 	u_char rawdigest[MD5_DIGEST_LEN];
 	struct MD5Context md5context;
@@ -3165,14 +3166,14 @@ void flood_protect_quickie_message(const char *from,
 	{
 		FreeStrBuf(&guid);
 		/* yes, we did. flood protection kicks in. */
-		syslog(LOG_DEBUG,
-		       "not sending message again - %ld < %ld \n", seenstamp, tsday);
+		MSG_syslog(LOG_DEBUG,
+			   "not sending message again - %ld < %ld \n", seenstamp, tsday);
 		return;
 	}
 	else
 	{
-		syslog(LOG_DEBUG,
-		       "sending message. %ld >= %ld", seenstamp, tsday);
+		MSG_syslog(LOG_DEBUG,
+			   "sending message. %ld >= %ld", seenstamp, tsday);
 		FreeStrBuf(&guid);
 		/* no, this message isn't sent recently; go ahead. */
 		quickie_message(from,

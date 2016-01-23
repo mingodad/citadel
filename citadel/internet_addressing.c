@@ -1176,6 +1176,7 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
  * message text.
  */
 int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
+	struct CitContext *CCC = CC;
 	char *key, *value, *valueend;
 	long len;
 	const char *pos;
@@ -1225,7 +1226,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 
 	else if (!strcasecmp(key, "From")) {
 		process_rfc822_addr(value, user, node, name);
-		syslog(LOG_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
+		MSG_syslog(LOG_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof(addr), "%s@%s", user, node);
 		if (CM_IsEmpty(msg, eAuthor) && !IsEmptyStr(name))
 			CM_SetField(msg, eAuthor, name, strlen(name));
@@ -1530,6 +1531,7 @@ char *rfc822_fetch_field(const char *rfc822, const char *fieldname) {
 void directory_key(char *key, char *addr) {
 	int i;
 	int keylen = 0;
+	struct CitContext *CCC = CC;
 
 	for (i=0; !IsEmptyStr(&addr[i]); ++i) {
 		if (!isspace(addr[i])) {
@@ -1538,7 +1540,7 @@ void directory_key(char *key, char *addr) {
 	}
 	key[keylen++] = 0;
 
-	syslog(LOG_DEBUG, "Directory key is <%s>\n", key);
+	MSG_syslog(LOG_DEBUG, "Directory key is <%s>\n", key);
 }
 
 
@@ -1580,10 +1582,11 @@ void CtdlDirectoryInit(void) {
  */
 int CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
+	struct CitContext *CCC = CC;
 
 	if (IsDirectory(internet_addr, 0) == 0) 
 		return 0;
-	syslog(LOG_DEBUG, "Create directory entry: %s --> %s\n", internet_addr, citadel_addr);
+	MSG_syslog(LOG_DEBUG, "Create directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
 	cdb_store(CDB_DIRECTORY, key, strlen(key), citadel_addr, strlen(citadel_addr)+1 );
 	return 1;
@@ -1598,8 +1601,9 @@ int CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
  */
 int CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
-
-	syslog(LOG_DEBUG, "Delete directory entry: %s --> %s\n", internet_addr, citadel_addr);
+	struct CitContext *CCC = CC;
+	
+	MSG_syslog(LOG_DEBUG, "Delete directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
 	return cdb_delete(CDB_DIRECTORY, key, strlen(key) ) == 0;
 }
