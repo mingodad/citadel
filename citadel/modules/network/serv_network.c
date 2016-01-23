@@ -214,8 +214,6 @@ RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, OneRoomNetCfg *One
 
 	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
-	ptr->lastsent = OneRNCFG->lastsent;
-	ptr->OneRNCfg = OneRNCFG;
 	return ptr;
 }
 
@@ -268,7 +266,6 @@ int network_room_handler(struct ctdlroom *qrbuf)
 		return 1;
 	}
 
-	ptr->OneRNCfg = NULL;
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
@@ -372,10 +369,7 @@ void network_do_queue(void)
 			}
 
 			if (ptr->namelen > 0) {
-				InspectQueuedRoom(&sc,
-						  ptr, 
-						  working_ignetcfg,
-						  the_netmap);
+				InspectQueuedRoom(&sc, ptr, working_ignetcfg, the_netmap);
 			}
 			ptr = ptr->next;
 		}

@@ -330,7 +330,7 @@ struct RoomNetCfgLine {
 
 struct OneRoomNetCfg {
 	long lastsent;
-	long changed;
+	// long changed;
 	StrBuf *Sender;
 	StrBuf *RoomInfo;
 	RoomNetCfgLine *NetConfigs[maxRoomNetCfg];

@@ -523,11 +523,9 @@ void UpdateLastKnownGood(pRSSConfig *pCfg, time_t now)
 		}
 		if (RSSCfg != NULL)
 		{
-			pRNCfg->changed = 1;
 			RSSCfg->last_known_good = now;
 		}
 	}
-
 	SaveRoomNetConfigFile(pRNCfg, pCfg->QRnumber);
 	FreeRoomNetworkStruct(&pRNCfg);
 	end_critical_section(S_NETCONFIGS);

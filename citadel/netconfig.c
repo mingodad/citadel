@@ -191,7 +191,6 @@ void write_netconfig_to_configdb(long roomnum, const char *raw_netconfig)
 	int enc_len;
 	int len;
 
-	syslog(LOG_DEBUG, "\033[32m--- START WRITE ---\033[0m\n\033[31m%s\033[0m\n\033[32m---- END WRITE ----\033[0m", raw_netconfig);
 	len = strlen(raw_netconfig);
 	netcfg_keyname(keyname, roomnum);
 	enc = malloc(len * 2);
@@ -250,9 +249,7 @@ OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
 	InStr = NewStrBuf();
         Cfg = NewStrBufPlain(serialized_data, -1);
 
-	syslog(LOG_DEBUG, "\033[32m--- START READ ---\033[0m");
         while (StrBufSipLine(Line, Cfg, &CPos)) {
-		syslog(LOG_DEBUG, "READ NET CONFIG LINE: '\033[31m%s\033[0m'", ChrPtr(Line));
 
 		if (StrLength(Line) > 0) {
 			Pos = NULL;
@@ -279,7 +276,6 @@ OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
 			}
 		}
 	}
-	syslog(LOG_DEBUG, "\033[32m---- END READ ----\033[0m");
 	FreeStrBuf(&InStr);
 	FreeStrBuf(&Line);
 	FreeStrBuf(&Cfg);

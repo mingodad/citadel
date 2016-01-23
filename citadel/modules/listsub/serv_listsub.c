@@ -594,7 +594,6 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		else
 		{
 			/* whipe duplicate subscribe entry... */
-			OneRNCfg->changed = 1;
 			errmsg = "already subscribed";
 		}
 	}
@@ -637,7 +636,6 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 			errmsg = "no subscriber found for this unsubscription request";
 		}
 		DeleteGenericCfgLine(NULL/*TODO*/, &ConfirmLine);
-		OneRNCfg->changed = 1;
 	}
 
 	SaveRoomNetConfigFile(OneRNCfg, qrbuf.QRnumber);
