@@ -271,7 +271,6 @@ void InspectQueuedRoom(SpoolControl **pSC,
 
 	sc = (SpoolControl*)malloc(sizeof(SpoolControl));
 	memset(sc, 0, sizeof(SpoolControl));
-	sc->lastsent = room_to_spool->lastsent;
 	sc->working_ignetcfg = working_ignetcfg;
 	sc->the_netmap = the_netmap;
 
@@ -294,7 +293,7 @@ void InspectQueuedRoom(SpoolControl **pSC,
 	if ( (!HaveSpoolConfig(sc->RNCfg)) || (sc->room.QRhighest <= sc->RNCfg->lastsent) ) 
 	{
 		// There is nothing to send from this room.
-		syslog(LOG_DEBUG, "nothing to do for <%s>", room_to_spool->name);
+		syslog(LOG_DEBUG, "Nothing to do for <%s>", room_to_spool->name);
 		FreeRoomNetworkStruct(&sc->RNCfg);
 		sc->RNCfg = NULL;
 		free(sc);
@@ -302,6 +301,7 @@ void InspectQueuedRoom(SpoolControl **pSC,
 	}
 
 	sc->lastsent = sc->RNCfg->lastsent;
+	room_to_spool->lastsent = sc->lastsent;
 
 	/* Now lets remember whats needed for the actual work... */
 
@@ -433,7 +433,7 @@ void network_spoolout_room(SpoolControl *sc)
 	 */
 	memcpy (&CCC->room, &sc->room, sizeof(ctdlroom));
 
-	syslog(LOG_INFO, "network_spoolout_room(%s)", CCC->room.QRname);
+	syslog(LOG_INFO, "network_spoolout_room(room=%s, lastsent=%ld)", CCC->room.QRname, sc->lastsent);
 
 	CalcListID(sc);
 
@@ -441,8 +441,7 @@ void network_spoolout_room(SpoolControl *sc)
 	lastsent = sc->lastsent;
 
 	/* Fetch the messages we ought to send & prepare them. */
-	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL,
-		network_spool_msg, sc);
+	CtdlForEachMessage(MSGS_GT, sc->lastsent, NULL, NULL, NULL, network_spool_msg, sc);
 
 	if (StrLength(sc->Users[roommailalias]) > 0)
 	{
@@ -504,19 +503,14 @@ void network_spoolout_room(SpoolControl *sc)
 	}
 
 	/* Now rewrite the netconfig */
-
-	// THIS IS THE ONLY PLACE WHERE WE HAVE TO REWRITE THE NETCONFIG.
-
-
+	syslog(LOG_DEBUG, "lastsent was %ld , now it is %ld", lastsent, sc->lastsent);
 	if (sc->lastsent != lastsent)
 	{
 		OneRoomNetCfg *r;
 
 		begin_critical_section(S_NETCONFIGS);
 		r = CtdlGetNetCfgForRoom(sc->room.QRnumber);
-
-		r->lastsent = sc->lastsent;		// FIXME we have to do something here !!!!!!!
-
+		r->lastsent = sc->lastsent;
 		SaveRoomNetConfigFile(r, sc->room.QRnumber);
 		FreeRoomNetworkStruct(&r);
 		end_critical_section(S_NETCONFIGS);
