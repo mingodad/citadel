@@ -113,11 +113,14 @@ void dotskip(void) {
 }
 
 void dotgoto(void) {
+	wcsession *WCC = WC;
 	if (!havebstr("room")) {
 		readloop(readnew, eUseDefault);
 		return;
 	}
-	if (WC->CurRoom.view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
+	if ((WCC->CurRoom.view != VIEW_MAILBOX)  &&
+	    (WCC->CurRoom.view != WCC->CurRoom.view)) {
+		/* dotgoto acts like dotskip when we're in a mailbox view */
 		slrp_highest();
 	}
 	smart_goto(sbstr("room"));
