@@ -893,12 +893,13 @@ void rssclient_scan(void) {
 			      "rssclient: concurrency check failed; %d rooms and %d url's are queued",
 			      RSSRoomCount, RSSCount
 			);
+		abort();
 		return;
 	}
 
 	become_session(&rss_CC);
 	EVRSSQM_syslog(LOG_DEBUG, "rssclient started");
-	CtdlForEachNetCfgRoom(rssclient_scan_room, NULL, rssclient);
+	CtdlForEachNetCfgRoom(rssclient_scan_room, NULL);
 
 	if (GetCount(RSSFetchUrls) > 0)
 	{
@@ -973,7 +974,7 @@ int RSSCheckUsetableVeto(StrBuf *ErrMsg)
 	Info.Now = time (NULL);
 	Info.Veto = 0;
 
-	CtdlForEachNetCfgRoom(rssclient_veto_scan_room, &Info, rssclient);
+	CtdlForEachNetCfgRoom(rssclient_veto_scan_room, &Info);
 
 	return Info.Veto;;
 }

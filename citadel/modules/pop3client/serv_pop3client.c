@@ -1173,7 +1173,7 @@ void pop3client_scan(void) {
 	doing_pop3client = 1;
 
 	EVP3CQM_syslog(LOG_DEBUG, "pop3client started");
-	CtdlForEachNetCfgRoom(pop3client_scan_room, NULL, pop3client);
+	CtdlForEachNetCfgRoom(pop3client_scan_room, NULL);
 
 	pthread_mutex_lock(&POP3QueueMutex);
 	it = GetNewHashPos(POP3FetchUrls, 0);

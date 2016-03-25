@@ -346,7 +346,7 @@ void network_do_queue(void)
 	 */
 	if (full_processing && !server_shutting_down) {
 		QNM_syslog(LOG_DEBUG, "network: loading outbound queue");
-		CtdlForEachNetCfgRoom(network_queue_interesting_rooms, &RL, maxRoomNetCfg);
+		CtdlForEachNetCfgRoom(network_queue_interesting_rooms, &RL);
 	}
 
 	if ((RL.rplist != NULL) && (!server_shutting_down)) {

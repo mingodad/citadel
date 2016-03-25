@@ -659,7 +659,7 @@ void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 /* 
  * Iterate through the room table, performing a callback for each room that has a netconfig entry.
  */
-void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetCfg filter)
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data)
 {
 	struct ctdlroom qrbuf;
 	struct cdbdata *cdbqr;
@@ -668,20 +668,22 @@ void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetC
 
 	while (cdbqr = cdb_next_item(CDB_ROOMS), cdbqr != NULL) {
 		memset(&qrbuf, 0, sizeof(struct ctdlroom));
-		memcpy(&qrbuf, cdbqr->ptr,
-		       ((cdbqr->len > sizeof(struct ctdlroom)) ?
-			sizeof(struct ctdlroom) : cdbqr->len)
-		);
+		memcpy(&qrbuf, cdbqr->ptr, ((cdbqr->len > sizeof(struct ctdlroom)) ?  sizeof(struct ctdlroom) : cdbqr->len));
 		cdb_free(cdbqr);
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE)
 		{
 			OneRoomNetCfg *RNCfg;
 			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
-			if ((RNCfg != NULL) && ((filter == maxRoomNetCfg) || (RNCfg->NetConfigs[filter] != NULL)))
+			if (RNCfg != NULL)
 			{
+				TRACE;
 				CB(&qrbuf, in_data, RNCfg);
 				FreeRoomNetworkStruct(&RNCfg);
+			}
+			else
+			{
+				TRACE;
 			}
 		}
 	}

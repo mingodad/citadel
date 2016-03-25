@@ -186,7 +186,7 @@ struct floor {
 /* number of items which may be handled by the CONF command */
 #define NUM_CONFIGS 71
 
-#define TRACE	syslog(LOG_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
+#define TRACE	syslog(LOG_DEBUG, "\033[31mCheckpoint: %s : %d\033[0m", __FILE__, __LINE__)
 
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647L
