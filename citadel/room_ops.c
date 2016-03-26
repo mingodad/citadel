@@ -677,13 +677,8 @@ void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data)
 			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
 			if (RNCfg != NULL)
 			{
-				TRACE;
 				CB(&qrbuf, in_data, RNCfg);
 				FreeRoomNetworkStruct(&RNCfg);
-			}
-			else
-			{
-				TRACE;
 			}
 		}
 	}
