@@ -27,6 +27,7 @@
 # endif
 #endif
 #include <dirent.h>
+#include <assert.h>
 
 #include <libcitadel.h>
 
@@ -57,8 +58,9 @@ void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLinePar
 	pCfg->Str.len = len;
 	pCfg->IsSingleLine = uniq;
  	pCfg->nSegments = nSegments;
-	if (CfgTypeHash == NULL)
+	if (CfgTypeHash == NULL) {
 		CfgTypeHash = NewHash(1, NULL);
+	}
 	Put(CfgTypeHash, Name, len, pCfg, NULL);
 }
 
@@ -235,12 +237,13 @@ char *LoadRoomNetConfigFile(long roomnum)
 OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
 {
 	const char *Pos = NULL;
-        const char *CPos = NULL;
 	const CfgLineType *pCfg = NULL;
 	StrBuf *Line = NULL;
 	StrBuf *InStr = NULL;
 	StrBuf *Cfg = NULL;
 	OneRoomNetCfg *OneRNCfg = NULL;
+	int num_lines = 0;
+	int i = 0;
 
 	OneRNCfg = malloc(sizeof(OneRoomNetCfg));
 	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
@@ -248,9 +251,10 @@ OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
 	Line = NewStrBuf();
 	InStr = NewStrBuf();
         Cfg = NewStrBufPlain(serialized_data, -1);
+	num_lines = num_tokens(ChrPtr(Cfg), '\n');
 
-        while (StrBufSipLine(Line, Cfg, &CPos)) {
-
+	for (i=0; i<num_lines; ++i) {
+		StrBufExtract_token(Line, Cfg, i, '\n');
 		if (StrLength(Line) > 0) {
 			Pos = NULL;
 			StrBufExtract_NextToken(InStr, Line, &Pos, '|');

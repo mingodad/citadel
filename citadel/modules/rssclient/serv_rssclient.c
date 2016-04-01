@@ -793,6 +793,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 
 	while (RSSCfg != NULL)
 	{
+		// syslog(LOG_DEBUG, "\033[32m RSSCfg %s for %s %d \033[0m", ((RSSCfg == NULL) ? "IS NULL" : "IS NOT NULL"), qrbuf->QRname, __LINE__);
 		pthread_mutex_lock(&RSSQueueMutex);
 		GetHash(RSSFetchUrls,
 			SKEY(RSSCfg->Url),
