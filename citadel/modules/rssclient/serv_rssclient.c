@@ -436,13 +436,10 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 	if (rss_format_item(IO, RSSAggr->ThisMsg))
 	{
-		CM_SetAsFieldSB(&RSSAggr->ThisMsg->Msg, eMesageText,
-				       &RSSAggr->ThisMsg->Message);
-
+		CM_SetAsFieldSB(&RSSAggr->ThisMsg->Msg, eMesageText, &RSSAggr->ThisMsg->Message);
 		CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
 		
 		/* write the uidl to the use table so we don't store this item again */
-		
 		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, EvGetNow(IO), 0, eWrite, CCID, IO->ID);
 	}
 
@@ -793,21 +790,15 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 
 	while (RSSCfg != NULL)
 	{
-		// syslog(LOG_DEBUG, "\033[32m RSSCfg %s for %s %d \033[0m", ((RSSCfg == NULL) ? "IS NULL" : "IS NOT NULL"), qrbuf->QRname, __LINE__);
 		pthread_mutex_lock(&RSSQueueMutex);
-		GetHash(RSSFetchUrls,
-			SKEY(RSSCfg->Url),
-			&vptr);
+		GetHash(RSSFetchUrls, SKEY(RSSCfg->Url), &vptr);
 
 		use_this_RSSAggr = (rss_aggregator *)vptr;
 		if (use_this_RSSAggr != NULL)
 		{
 			pRSSConfig *pRSSCfg;
 
-			StrBufAppendBufPlain(
-				use_this_RSSAggr->rooms,
-				qrbuf->QRname,
-				-1, 0);
+			StrBufAppendBufPlain(use_this_RSSAggr->rooms, qrbuf->QRname, -1, 0);
 			if (use_this_RSSAggr->roomlist_parts==1)
 			{
 				use_this_RSSAggr->OtherQRnumbers
