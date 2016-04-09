@@ -127,6 +127,8 @@ void migr_export_users_backend(struct ctdluser *buf, void *data) {
 	cprintf("<u_lastcall>%ld</u_lastcall>\n", (long)buf->lastcall);
 	cprintf("<u_USuserpurge>%d</u_USuserpurge>\n", buf->USuserpurge);
 	client_write(HKEY("<u_fullname>"));	xml_strout(buf->fullname);		client_write(HKEY("</u_fullname>\n"));
+	cprintf("<u_msgnum_bio>%ld</u_msgnum_bio>\n", buf->msgnum_bio);
+	cprintf("<u_msgnum_pic>%ld</u_msgnum_pic>\n", buf->msgnum_pic);
 	client_write(HKEY("</user>\n"));
 }
 
@@ -581,9 +583,12 @@ int migr_userrecord(void *data, const char *el)
 	else if (!strcasecmp(el, "u_lastcall"))			usbuf.lastcall = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "u_USuserpurge"))		usbuf.USuserpurge = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "u_fullname"))			safestrncpy(usbuf.fullname, ChrPtr(migr_chardata), sizeof usbuf.fullname);
+	else if (!strcasecmp(el, "u_msgnum_bio"))		usbuf.msgnum_bio = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_msgnum_pic"))		usbuf.msgnum_pic = atol(ChrPtr(migr_chardata));
 	else return 0;
 	return 1;
 }
+
 
 int migr_roomrecord(void *data, const char *el)
 {
@@ -897,7 +902,6 @@ void migr_do_import(void) {
  */
 void migr_do_listdirs(void) {
 	cprintf("%d Don't forget these:\n", LISTING_FOLLOWS);
-	cprintf("bio|%s\n",		ctdl_bio_dir);
 	cprintf("files|%s\n",		ctdl_file_dir);
 	cprintf("userpics|%s\n",	ctdl_usrpic_dir);
 	cprintf("messages|%s\n",	ctdl_message_dir);

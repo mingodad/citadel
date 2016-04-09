@@ -248,11 +248,7 @@ FAIL:	if (sourcefp) pclose(sourcefp);
 	while ((fgets(buf, sizeof buf, sourcefp)) && (strcmp(buf, "000"))) {
 		buf[strlen(buf)-1] = 0;
 
-		if (!strncasecmp(buf, "bio|", 4)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[4], ctdl_bio_dir);
-		}
-		else if (!strncasecmp(buf, "files|", 6)) {
+		if (!strncasecmp(buf, "files|", 6)) {
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
 				socket_path, remote_user, remote_host, &buf[6], ctdl_file_dir);
 		}

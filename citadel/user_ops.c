@@ -1,7 +1,7 @@
 /* 
  * Server functions which perform operations on user objects.
  *
- * Copyright (c) 1987-2011 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -1015,14 +1015,6 @@ int purge_user(char pname[])
 
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
-
-	/* remove the user's bio file */
-	snprintf(filename, 
-			 sizeof filename, 
-			 "%s/%ld",
-			 ctdl_bio_dir,
-			 usbuf.usernum);
-	unlink(filename);
 
 	/* remove the user's picture */
 	snprintf(filename, 

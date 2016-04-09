@@ -444,8 +444,6 @@ int create_run_directories(long UID, long GID)
 
 	rv = create_dir(ctdl_info_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
-		rv = create_dir(ctdl_bio_dir       , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	if (rv != -1)
 		rv = create_dir(ctdl_usrpic_dir    , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	if (rv != -1)
 		rv = create_dir(ctdl_message_dir   , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);

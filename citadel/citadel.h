@@ -113,6 +113,8 @@ struct ctdluser {			/* User record                       */
 	time_t lastcall;		/* Date/time of most recent login    */
 	int USuserpurge;		/* Purge time (in days) for user     */
 	char fullname[64];		/* Display name (primary identifier) */
+	long msgnum_bio;		/* msgnum of user's profile (bio)    */
+	long msgnum_pic;		/* msgnum of user's avatar (photo)   */
 };
 
 
