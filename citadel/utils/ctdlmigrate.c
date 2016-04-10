@@ -252,10 +252,6 @@ FAIL:	if (sourcefp) pclose(sourcefp);
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
 				socket_path, remote_user, remote_host, &buf[6], ctdl_file_dir);
 		}
-		else if (!strncasecmp(buf, "userpics|", 9)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[9], ctdl_usrpic_dir);
-		}
 		else if (!strncasecmp(buf, "messages|", 9)) {
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
 				socket_path, remote_user, remote_host, &buf[9], ctdl_message_dir);

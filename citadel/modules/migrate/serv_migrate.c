@@ -903,7 +903,6 @@ void migr_do_import(void) {
 void migr_do_listdirs(void) {
 	cprintf("%d Don't forget these:\n", LISTING_FOLLOWS);
 	cprintf("files|%s\n",		ctdl_file_dir);
-	cprintf("userpics|%s\n",	ctdl_usrpic_dir);
 	cprintf("messages|%s\n",	ctdl_message_dir);
 	cprintf("keys|%s\n",		ctdl_key_dir);
 	cprintf("images|%s\n",		ctdl_image_dir);

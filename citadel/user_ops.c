@@ -968,7 +968,6 @@ int CtdlTryPassword(const char *password, long len)
  */
 int purge_user(char pname[])
 {
-	char filename[64];
 	struct ctdluser usbuf;
 	char usernamekey[USERNAME_SIZE];
 
@@ -1015,14 +1014,6 @@ int purge_user(char pname[])
 
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
-
-	/* remove the user's picture */
-	snprintf(filename, 
-			 sizeof filename, 
-			 "%s/%ld.gif",
-			 ctdl_image_dir,
-			 usbuf.usernum);
-	unlink(filename);
 
 	return (0);
 }
