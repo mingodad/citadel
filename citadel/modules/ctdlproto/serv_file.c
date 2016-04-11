@@ -246,25 +246,14 @@ void cmd_oimg(char *cmdbuf)
 		return;
 	}
 
-	if (!strcasecmp(filename, "_userpic_")) {
-		extract_token(which_user, cmdbuf, 1, '|', sizeof which_user);
-		if (CtdlGetUser(&usbuf, which_user) != 0) {
-			cprintf("%d No such user.\n",
-				ERROR + NO_SUCH_USER);
-			return;
-		}
-		snprintf(pathname, sizeof pathname, 
-				 "%s/%ld",
-				 ctdl_usrpic_dir,
-				 usbuf.usernum);
-	} else if (!strcasecmp(filename, "_floorpic_")) {
+	if (!strcasecmp(filename, "_floorpic_")) {
 		which_floor = extract_int(cmdbuf, 1);
-		snprintf(pathname, sizeof pathname,
-				 "%s/floor.%d",
-				 ctdl_image_dir, which_floor);
-	} else if (!strcasecmp(filename, "_roompic_")) {
+		snprintf(pathname, sizeof pathname, "%s/floor.%d", ctdl_image_dir, which_floor);
+	}
+	else if (!strcasecmp(filename, "_roompic_")) {
 		assoc_file_name(pathname, sizeof pathname, &CC->room, ctdl_image_dir);
-	} else {
+	}
+	else {
 		for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
 			filename[a] = tolower(filename[a]);
 			if ( (filename[a] == '/') || (filename[a] == '\\') ) {
@@ -304,6 +293,7 @@ void cmd_oimg(char *cmdbuf)
 	rewind (CC->download_fp);
 	OpenCmdResult(pathname, GuessMimeType(&MimeTestBuf[0], 32));
 }
+
 
 /*
  * open a file for uploading
