@@ -726,3 +726,4 @@ extern int DisableGzip;
 void display_summary_page(void);
 
 HashList *GetValidDomainNames(StrBuf *Target, WCTemplputParams *TP);
+void output_error_pic(const char *ErrMsg1, const char *ErrMsg2);

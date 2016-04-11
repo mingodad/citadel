@@ -15,10 +15,10 @@
 <div id="content" class="service">
 	<div id="bio_page">
 		<div id="bio_pic">
-		<??("COND:USER:PIC", 1, B"who")><img src="image?name=_userpic_?parm=<?BSTR("who", "U")>" alt=""><??("X", 1)>
+		<img src="userpic?user=<?BSTR("who", "U")>" alt="" border=0>
         	</div>
 		<?!("X", 1)>
-		<div id="bio_title"><h1><<?BSTR("who", "X")></h1></div>
+		<div id="bio_title"><h1><?BSTR("who", "X")></h1></div>
 		<div id="bio_text">
 	<?USER:BIO(B"who", "FJUSTIFY")>
 		</div>

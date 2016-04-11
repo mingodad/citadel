@@ -20,6 +20,42 @@
 #include <dirent.h>
 
 
+
+/*
+ * DownLoad User Image (see their avatar or photo or whatever)
+ * If this command succeeds, it follows the same protocol as the DLAT command.
+ */
+void cmd_dlui(char *cmdbuf)
+{
+	struct ctdluser ruser;
+	char buf[SIZ];
+
+	extract_token(buf, cmdbuf, 0, '|', sizeof buf);
+	if (CtdlGetUser(&ruser, buf) != 0) {
+		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
+		return;
+	}
+	if (ruser.msgnum_pic < 1) {
+		cprintf("%d No image found.\n", ERROR + FILE_NOT_FOUND);
+		return;
+	}
+
+	struct CtdlMessage *msg = CtdlFetchMessage(ruser.msgnum_pic, 1, 1);
+	if (msg != NULL) {
+		// 600 402132|-1||image/gif|
+		safestrncpy(CC->download_desired_section, "1", sizeof CC->download_desired_section);
+		CtdlOutputPreLoadedMsg(msg, MT_SPEW_SECTION, HEADERS_NONE, 1, 0, 0);
+		CM_Free(msg);
+	}
+	else {
+		cprintf("%d No image found.\n", ERROR + MESSAGE_NOT_FOUND);
+		return;
+	}
+}
+
+
+
+
 /*
  * Import function called by import_old_userpic_files() for a single user
  */
@@ -159,6 +195,7 @@ CTDL_MODULE_INIT(image)
 	if (!threading)
 	{
 		import_old_userpic_files();
+        	CtdlRegisterProtoHook(cmd_dlui, "DLUI", "DownLoad User Image");
 	}
 	/* return our module name for the log */
         return "image";
