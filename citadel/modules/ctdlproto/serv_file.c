@@ -223,11 +223,9 @@ void cmd_open(char *cmdbuf)
  */
 void cmd_oimg(char *cmdbuf)
 {
-	char filename[256];
+	char filename[PATH_MAX];
 	char pathname[PATH_MAX];
 	char MimeTestBuf[32];
-	struct ctdluser usbuf;
-	char which_user[USERNAME_SIZE];
 	int which_floor;
 	int a;
 	int rv;
