@@ -398,13 +398,6 @@ void cmd_uimg(char *cmdbuf)
 				 basenm);
 	}
 
-	if (!strcasecmp(basenm, "_userpic_")) {
-		snprintf(CC->upl_path, sizeof CC->upl_path,
-				 "%s/%ld.gif",
-				 ctdl_usrpic_dir,
-				 CC->user.usernum);
-	}
-
 	if ((!strcasecmp(basenm, "_floorpic_"))
 	    && (CC->user.axlevel >= AxAideU)) {
 		which_floor = extract_int(cmdbuf, 2);
