@@ -30,6 +30,7 @@ void cmd_dlui(char *cmdbuf)
 	struct ctdluser ruser;
 	char buf[SIZ];
 
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	extract_token(buf, cmdbuf, 0, '|', sizeof buf);
 	if (CtdlGetUser(&ruser, buf) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
@@ -56,6 +57,15 @@ void cmd_dlui(char *cmdbuf)
 }
 
 
+/*
+ * DownLoad User Image (avatar or photo or whatever)
+ */
+void cmd_ului(char *cmdbuf)
+{
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
+	cprintf("500 FIXME not finished\n");
+}
 
 
 /*
@@ -199,6 +209,7 @@ CTDL_MODULE_INIT(image)
 	{
 		import_old_userpic_files();
         	CtdlRegisterProtoHook(cmd_dlui, "DLUI", "DownLoad User Image");
+        	CtdlRegisterProtoHook(cmd_ului, "ULUI", "UpLoad User Image");
 	}
 	/* return our module name for the log */
         return "image";
