@@ -42,7 +42,9 @@ void cmd_dlui(char *cmdbuf)
 
 	struct CtdlMessage *msg = CtdlFetchMessage(ruser.msgnum_pic, 1, 1);
 	if (msg != NULL) {
-		// 600 402132|-1||image/gif|		FIXME update the protocol doc on the web site
+		// The call to CtdlOutputPreLoadedMsg() with MT_SPEW_SECTION will cause the DLUI command
+		// to have the same output format as the DLAT command, because it calls the same code.
+		// For example: 600 402132|-1||image/gif|
 		safestrncpy(CC->download_desired_section, "1", sizeof CC->download_desired_section);
 		CtdlOutputPreLoadedMsg(msg, MT_SPEW_SECTION, HEADERS_NONE, 1, 0, 0);
 		CM_Free(msg);
