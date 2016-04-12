@@ -42,7 +42,7 @@ void cmd_dlui(char *cmdbuf)
 
 	struct CtdlMessage *msg = CtdlFetchMessage(ruser.msgnum_pic, 1, 1);
 	if (msg != NULL) {
-		// 600 402132|-1||image/gif|
+		// 600 402132|-1||image/gif|		FIXME update the protocol doc on the web site
 		safestrncpy(CC->download_desired_section, "1", sizeof CC->download_desired_section);
 		CtdlOutputPreLoadedMsg(msg, MT_SPEW_SECTION, HEADERS_NONE, 1, 0, 0);
 		CM_Free(msg);
@@ -76,6 +76,7 @@ void import_one_userpic_file(char *username, long usernum, char *path)
 			fread(unencoded_data, data_length, 1, fp);
 			char *encoded_data = malloc((data_length * 2) + 100);
 			if (encoded_data) {
+				// FIXME try to guess the content-type based on the filename, don't assume GIF
 				sprintf(encoded_data, "Content-type: image/gif\nContent-transfer-encoding: base64\n\n");
 				CtdlEncodeBase64(&encoded_data[strlen(encoded_data)], unencoded_data, data_length, 1);
 
