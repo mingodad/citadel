@@ -62,9 +62,42 @@ void cmd_dlui(char *cmdbuf)
  */
 void cmd_ului(char *cmdbuf)
 {
+	long data_length;
+	char mimetype[SIZ];
+	char username[USERNAME_SIZE];
+
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
-	cprintf("500 FIXME not finished\n");
+	if ( (num_parms(cmdbuf) < 2) || (num_parms(cmdbuf) > 3) )
+	{
+		cprintf("%d Usage error.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
+
+	data_length = extract_long(cmdbuf, 0);
+	extract_token(mimetype, cmdbuf, 1, '|', sizeof mimetype);
+	extract_token(username, cmdbuf, 2, '|', sizeof username);
+
+	if (data_length < 20) {
+		cprintf("%d That's an awfully small file.  Try again.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
+
+	if (strncasecmp(mimetype, "image/", 6)) {
+		cprintf("%d Only image files are permitted.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
+
+	if (IsEmptyStr(username)) {
+		safestrncpy(username, CC->curr_user, sizeof username);
+	}
+
+	// Normal users can only change their own photo
+	if ( (strcasecmp(username, CC->curr_user)) && (CC->user.axlevel < AxAideU) && (!CC->internal_pgm) ) {
+		cprintf("%d Higher access required to change another user's photo.\n", ERROR + HIGHER_ACCESS_REQUIRED);
+	}
+
+	cprintf("500 nope not yet, I am %s , modifying %s , data length is %ld\n", CC->curr_user, username, data_length);
 }
 
 
