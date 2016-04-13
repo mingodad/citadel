@@ -65,6 +65,7 @@ void cmd_ului(char *cmdbuf)
 	long data_length;
 	char mimetype[SIZ];
 	char username[USERNAME_SIZE];
+	char userconfigroomname[ROOMNAMELEN];
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
@@ -103,6 +104,7 @@ void cmd_ului(char *cmdbuf)
 		cprintf("%d %s not found.\n", ERROR + NO_SUCH_USER , username);
 		return;
 	}
+	CtdlMailboxName(userconfigroomname, sizeof userconfigroomname, &usbuf, USERCONFIGROOM);
 
 	char *unencoded_data = malloc(data_length + 1);
 	if (!unencoded_data) {
@@ -114,7 +116,25 @@ void cmd_ului(char *cmdbuf)
 	client_read(unencoded_data, data_length);
 
 	// We've got the data read from the client, now save it.
-	// FIXME do this
+	char *encoded_data = malloc((data_length * 2) + 100);
+	if (encoded_data) {
+		sprintf(encoded_data, "Content-type: %s\nContent-transfer-encoding: base64\n\n", mimetype);
+		CtdlEncodeBase64(&encoded_data[strlen(encoded_data)], unencoded_data, data_length, 1);
+		long new_msgnum = quickie_message("Citadel", NULL, NULL, userconfigroomname, encoded_data, FMT_RFC822, "Photo uploaded by user");
+
+		if (CtdlGetUserLock(&usbuf, username) == 0) {	// lock it this time
+			long old_msgnum = usbuf.msgnum_pic;
+			syslog(LOG_DEBUG, "Message %ld is now the photo for %s", new_msgnum, username);
+			usbuf.msgnum_pic = new_msgnum;
+			CtdlPutUserLock(&usbuf);
+			if (old_msgnum > 0) {
+				syslog(LOG_DEBUG, "Deleting old message %ld from %s", old_msgnum, userconfigroomname);
+				CtdlDeleteMessages(userconfigroomname, &old_msgnum, 1, "");
+			}
+		}
+
+		free(encoded_data);
+	}
 
 	free(unencoded_data);
 }
@@ -150,7 +170,7 @@ void import_one_userpic_file(char *username, long usernum, char *path)
 					long old_msgnum = usbuf.msgnum_pic;
 					CtdlMailboxName(userconfigroomname, sizeof userconfigroomname, &usbuf, USERCONFIGROOM);
 					long new_msgnum = quickie_message("Citadel", NULL, NULL, userconfigroomname, encoded_data, FMT_RFC822, "Photo imported from file");
-					syslog(LOG_DEBUG, "Message %ld is now the profile for %s", new_msgnum, username);
+					syslog(LOG_DEBUG, "Message %ld is now the photo for %s", new_msgnum, username);
 					usbuf.msgnum_pic = new_msgnum;
 					CtdlPutUser(&usbuf);
 					unlink(path);				// delete the old file , it's in the database now
