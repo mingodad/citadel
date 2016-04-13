@@ -16,6 +16,37 @@
 
 extern void output_static(const char* What);
 
+
+// upload your photo
+void editpic(void)
+{
+	if (havebstr("cancel_button")) {
+		AppendImportantMessage(_("Graphics upload has been cancelled."), -1);
+		display_main_menu();
+		return;
+	}
+
+	if (WC->upload_length == 0) {
+		AppendImportantMessage(_("You didn't upload a file."), -1);
+		display_main_menu();
+		return;
+	}
+	
+	serv_printf("ULUI %ld|%s", (long)WC->upload_length, GuessMimeType(ChrPtr(WC->upload), WC->upload_length));
+	StrBuf *Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 0, 0) == 7) {
+		serv_write(ChrPtr(WC->upload), WC->upload_length);
+		display_success(ChrPtr(Line) + 4);
+	}
+	else {
+		AppendImportantMessage((ChrPtr(Line) + 4), -1);
+		display_main_menu();
+	}
+	FreeStrBuf(&Line);
+}
+
+
 void display_graphics_upload(char *filename)
 {
 	StrBuf *Line;
@@ -97,7 +128,6 @@ void do_graphics_upload(char *filename)
 
 
 void edithellopic(void)    { do_graphics_upload("hello"); }
-void editpic(void)         { do_graphics_upload("_userpic_"); }
 void editgoodbuyepic(void) { do_graphics_upload("UIMG 1|%s|goodbuye"); }
 
 /* The users photo display / upload facility */
