@@ -1934,12 +1934,6 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 			case 73:
 				cli_image_upload(ipc, "_roompic_");
 				break;
-
-			case 74:
-				snprintf(aaa, sizeof aaa, "_floorpic_|%d", curr_floor);
-				cli_image_upload(ipc, aaa);
-				break;
-
 			case 75:
 				enternew(ipc, "roomname", aaa, 20);
 				r = CtdlIPCChangeRoomname(ipc, aaa, bbb);

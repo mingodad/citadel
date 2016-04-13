@@ -161,28 +161,10 @@ void display_editgoodbyepic(void) {
 	display_graphics_upload("editgoodbuyepic");
 }
 
-void display_editfloorpic(void) {
-	StrBuf *PicAction;
-
-	PicAction = NewStrBuf();
-	StrBufPrintf(PicAction, "_floorpic_|%s", bstr("which_floor"));
-	putbstr("__WHICHPIC", PicAction);
-	putbstr("__PICDESC", NewStrBufPlain(_("the icon for this floor"), -1));
-	putbstr("__UPLURL", NewStrBufPlain(HKEY("editfloorpic")));
-	display_graphics_upload("editfloorpic");
-}
-
 void editroompic(void) {
 	char buf[SIZ];
 	snprintf(buf, SIZ, "_roompic_|%s",
 		 bstr("which_room"));
-	do_graphics_upload(buf);
-}
-
-void editfloorpic(void){
-	char buf[SIZ];
-	snprintf(buf, SIZ, "_floorpic_|%s",
-		 bstr("which_floor"));
 	do_graphics_upload(buf);
 }
 
@@ -198,6 +180,4 @@ InitModule_GRAPHICS
 	WebcitAddUrlHandler(HKEY("edithellopic"), "", 0, edithellopic, 0);
 	WebcitAddUrlHandler(HKEY("display_editgoodbuye"), "", 0, display_editgoodbyepic, 0);
 	WebcitAddUrlHandler(HKEY("editgoodbuyepic"), "", 0, editgoodbuyepic, 0);
-	WebcitAddUrlHandler(HKEY("display_editfloorpic"), "", 0, display_editfloorpic, 0);
-	WebcitAddUrlHandler(HKEY("editfloorpic"), "", 0, editfloorpic, 0);
 }

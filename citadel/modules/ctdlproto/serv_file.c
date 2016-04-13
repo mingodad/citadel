@@ -1,7 +1,7 @@
 /* 
  * Server functions which handle file transfers and room directories.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -226,7 +226,6 @@ void cmd_oimg(char *cmdbuf)
 	char filename[PATH_MAX];
 	char pathname[PATH_MAX];
 	char MimeTestBuf[32];
-	int which_floor;
 	int a;
 	int rv;
 
@@ -244,11 +243,7 @@ void cmd_oimg(char *cmdbuf)
 		return;
 	}
 
-	if (!strcasecmp(filename, "_floorpic_")) {
-		which_floor = extract_int(cmdbuf, 1);
-		snprintf(pathname, sizeof pathname, "%s/floor.%d", ctdl_image_dir, which_floor);
-	}
-	else if (!strcasecmp(filename, "_roompic_")) {
+	if (!strcasecmp(filename, "_roompic_")) {
 		assoc_file_name(pathname, sizeof pathname, &CC->room, ctdl_image_dir);
 	}
 	else {
@@ -365,7 +360,6 @@ void cmd_uimg(char *cmdbuf)
 {
 	int is_this_for_real;
 	char basenm[256];
-	int which_floor;
 	int a;
 
 	if (num_parms(cmdbuf) < 2) {
@@ -396,15 +390,6 @@ void cmd_uimg(char *cmdbuf)
 				 "%s/%s",
 				 ctdl_image_dir,
 				 basenm);
-	}
-
-	if ((!strcasecmp(basenm, "_floorpic_"))
-	    && (CC->user.axlevel >= AxAideU)) {
-		which_floor = extract_int(cmdbuf, 2);
-		snprintf(CC->upl_path, sizeof CC->upl_path,
-				 "%s/floor.%d.gif",
-				 ctdl_image_dir,
-				 which_floor);
 	}
 
 	if ((!strcasecmp(basenm, "_roompic_")) && (is_room_aide())) {

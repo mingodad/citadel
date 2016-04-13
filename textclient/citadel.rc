@@ -286,12 +286,11 @@ cmd=77,0,&.,&Enter,&Username
 # cmd=44,0,&.,&Enter,file using &Zmodem
 #
 # Command 57 is the local-file-upload command for users with their own
-# copy of the clientware.  Commands 72-74 are for image uploads.
+# copy of the clientware.  Commands 72-73 are for image uploads.
 #
 #cmd=57,0,&.,&Enter,&File
 #cmd=72,0,&.,&Enter,&Image,user &Picture
 #cmd=73,0,&.,&Enter,&Image,&Room banner
-#cmd=74,0,&.,&Enter,&Image,&Floor label
 #
 cmd=41,0,&.,&Enter,re&Gistration
 cmd=4,0,&.,&Enter,&Message
