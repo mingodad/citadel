@@ -68,9 +68,9 @@ void cmd_ului(char *cmdbuf)
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
-	if ( (num_parms(cmdbuf) < 2) || (num_parms(cmdbuf) > 3) )
+	if (num_parms(cmdbuf) < 2)
 	{
-		cprintf("%d Usage error.\n", ERROR + ILLEGAL_VALUE);
+		cprintf("%d Usage error\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -97,7 +97,27 @@ void cmd_ului(char *cmdbuf)
 		cprintf("%d Higher access required to change another user's photo.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
-	cprintf("500 nope not yet, I am %s , modifying %s , data length is %ld\n", CC->curr_user, username, data_length);
+	// Check to make sure the user exists
+	// FIXME do this
+	struct ctdluser usbuf;
+	if (CtdlGetUser(&usbuf, username) != 0) {		// check for existing user, don't lock it yet
+		cprintf("%d %s not found.\n", ERROR + NO_SUCH_USER , username);
+		return;
+	}
+
+	char *unencoded_data = malloc(data_length + 1);
+	if (!unencoded_data) {
+		cprintf("%d Could not allocate %ld bytes of memory\n", ERROR + INTERNAL_ERROR , data_length);
+		return;
+	}
+
+	cprintf("%d %ld\n", SEND_BINARY, data_length);
+	client_read(unencoded_data, data_length);
+
+	// We've got the data read from the client, now save it.
+	// FIXME do this
+
+	free(unencoded_data);
 }
 
 
