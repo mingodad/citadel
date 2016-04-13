@@ -98,6 +98,7 @@ void cmd_ului(char *cmdbuf)
 	}
 
 	// Check to make sure the user exists
+	// FIXME do this
 	struct ctdluser usbuf;
 	if (CtdlGetUser(&usbuf, username) != 0) {		// check for existing user, don't lock it yet
 		cprintf("%d %s not found.\n", ERROR + NO_SUCH_USER , username);
