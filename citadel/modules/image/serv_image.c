@@ -98,7 +98,6 @@ void cmd_ului(char *cmdbuf)
 	}
 
 	// Check to make sure the user exists
-	// FIXME do this
 	struct ctdluser usbuf;
 	if (CtdlGetUser(&usbuf, username) != 0) {		// check for existing user, don't lock it yet
 		cprintf("%d %s not found.\n", ERROR + NO_SUCH_USER , username);
@@ -141,8 +140,7 @@ void import_one_userpic_file(char *username, long usernum, char *path)
 			fread(unencoded_data, data_length, 1, fp);
 			char *encoded_data = malloc((data_length * 2) + 100);
 			if (encoded_data) {
-				// FIXME try to guess the content-type based on the filename, don't assume GIF
-				sprintf(encoded_data, "Content-type: image/gif\nContent-transfer-encoding: base64\n\n");
+				sprintf(encoded_data, "Content-type: %s\nContent-transfer-encoding: base64\n\n", GuessMimeByFilename(path, strlen(path)));
 				CtdlEncodeBase64(&encoded_data[strlen(encoded_data)], unencoded_data, data_length, 1);
 
 				char userconfigroomname[ROOMNAMELEN];
