@@ -1,7 +1,7 @@
 /*
  * Transparently handle the upgrading of server data formats.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -256,10 +256,7 @@ void update_config(void) {
  */
 void check_server_upgrades(void) {
 
-	syslog(LOG_INFO, "Existing database version on disk is %d.%02d",
-		(CtdlGetConfigInt("MM_hosted_upgrade_level") / 100),
-		(CtdlGetConfigInt("MM_hosted_upgrade_level") % 100)
-	);
+	syslog(LOG_INFO, "Existing database version on disk is %d", CtdlGetConfigInt("MM_hosted_upgrade_level"));
 
 	if (CtdlGetConfigInt("MM_hosted_upgrade_level") < REV_LEVEL) {
 		syslog(LOG_WARNING,

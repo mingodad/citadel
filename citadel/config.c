@@ -239,12 +239,8 @@ void initialize_config_system(void) {
 
 	/* Ensure that we are linked to the correct version of libcitadel */
 	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
-		fprintf(stderr, "You are running libcitadel version %d.%02d\n",
-			(libcitadel_version_number() / 100), (libcitadel_version_number() % 100)
-		);
-		fprintf(stderr, "citserver was compiled against version %d.%02d\n",
-			(LIBCITADEL_VERSION_NUMBER / 100), (LIBCITADEL_VERSION_NUMBER % 100)
-		);
+		fprintf(stderr, "You are running libcitadel version %d\n", libcitadel_version_number());
+		fprintf(stderr, "citserver was compiled against version %d\n", LIBCITADEL_VERSION_NUMBER);
 		exit(CTDLEXIT_LIBCITADEL);
 	}
 

@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 		"to a new host system via a network connection, without disturbing\n"
 		"the source system.  The target may be a different CPU architecture\n"
 		"and/or operating system.  The source system should be running\n"
-		"Citadel %d.%02d or newer, and the target system should be running\n"
+		"Citadel version %d or newer, and the target system should be running\n"
 		"either the same version or a newer version.  You will also need\n"
 		"the 'rsync' utility, and OpenSSH v4 or newer.\n"
 		"\n"
@@ -111,8 +111,7 @@ int main(int argc, char *argv[])
 		"\n"
 		"Do you wish to continue? "
 		,
-		EXPORT_REV_MIN / 100,
-		EXPORT_REV_MIN % 100
+		EXPORT_REV_MIN
 	);
 
 	if ((fgets(yesno, sizeof yesno, stdin) == NULL) || (tolower(yesno[0]) != 'y')) {
