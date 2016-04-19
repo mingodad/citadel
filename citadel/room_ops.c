@@ -1130,18 +1130,9 @@ void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf)
 void CtdlDeleteRoom(struct ctdlroom *qrbuf)
 {
 	struct floor flbuf;
-	char filename[PATH_MAX];
 	char configdbkeyname[25];
 
 	syslog(LOG_NOTICE, "Deleting room <%s>", qrbuf->QRname);
-
-	/* Delete the info file */
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_info_dir);
-	unlink(filename);
-
-	/* Delete the image file */
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_image_dir);
-	unlink(filename);
 
 	/* Delete the room's network configdb entry */
 	netcfg_keyname(configdbkeyname, qrbuf->QRnumber);

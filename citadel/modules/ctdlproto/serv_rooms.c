@@ -708,29 +708,20 @@ void cmd_seta(char *new_ra)
 }
 
 /* 
- * retrieve info file for this room
+ * Retrieve info file for this room (this ought to be upgraded to handle non-plain-text)
  */
-void cmd_rinf(char *gargs)
+void cmd_rinf(char *argbuf)
 {
-	char filename[PATH_MAX];
-	char buf[SIZ];
-	FILE *info_fp;
-
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_info_dir);
-	info_fp = fopen(filename, "r");
-
-	if (info_fp == NULL) {
+	struct CtdlMessage *msg = CtdlFetchMessage(CC->room.msgnum_info, 1, 1);
+	if (msg != NULL) {
+		cprintf("%d Info:\n", LISTING_FOLLOWS);
+		CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0, 0);
+		CM_Free(msg);
+		cprintf("000\n");
+	}
+	else {
 		cprintf("%d No info file.\n", ERROR + FILE_NOT_FOUND);
-		return;
 	}
-	cprintf("%d Info:\n", LISTING_FOLLOWS);
-	while (fgets(buf, sizeof buf, info_fp) != NULL) {
-		if (!IsEmptyStr(buf))
-			buf[strlen(buf) - 1] = 0;
-		cprintf("%s\n", buf);
-	}
-	cprintf("000\n");
-	fclose(info_fp);
 }
 
 
