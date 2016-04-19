@@ -134,7 +134,7 @@ struct ctdlroom {
  	time_t QRgen;			/* Generation number of room        */
  	unsigned QRflags;		/* See flag values below            */
  	char QRdirname[15];		/* Directory name, if applicable    */
- 	long QRinfo;			/* Info file update relative to msgs*/
+ 	long msgnum_info;		/* msgnum of room banner (info file)*/
  	char QRfloor;			/* Which floor this room is on      */
  	time_t QRmtime;			/* Date/time of last post           */
  	struct ExpirePolicy QRep;	/* Message expiration policy        */
@@ -142,6 +142,7 @@ struct ctdlroom {
  	char QRorder;			/* Sort key for room listing order  */
  	unsigned QRflags2;		/* Additional flags                 */
  	int QRdefaultview;		/* How to display the contents      */
+	long msgnum_pic;		/* msgnum of room picture or icon   */
 };
 
 /* Private rooms are always flagged with QR_PRIVATE.  If neither QR_PASSWORDED

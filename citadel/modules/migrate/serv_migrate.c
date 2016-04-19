@@ -157,7 +157,6 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 		xml_strout(buf->QRdirname);
 		client_write(HKEY("</QRdirname>\n"));
 	}
-	cprintf("<QRinfo>%ld</QRinfo>\n", buf->QRinfo);
 	cprintf("<QRfloor>%d</QRfloor>\n", buf->QRfloor);
 	cprintf("<QRmtime>%ld</QRmtime>\n", (long)buf->QRmtime);
 	cprintf("<QRexpire_mode>%d</QRexpire_mode>\n", buf->QRep.expire_mode);
@@ -166,6 +165,8 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	cprintf("<QRorder>%d</QRorder>\n", buf->QRorder);
 	cprintf("<QRflags2>%u</QRflags2>\n", buf->QRflags2);
 	cprintf("<QRdefaultview>%d</QRdefaultview>\n", buf->QRdefaultview);
+	cprintf("<msgnum_info>%ld</msgnum_info>\n", buf->msgnum_info);
+	cprintf("<msgnum_pic>%ld</msgnum_pic>\n", buf->msgnum_pic);
 	client_write(HKEY("</room>\n"));
 
 	/* message list goes inside this tag */
@@ -592,14 +593,13 @@ int migr_userrecord(void *data, const char *el)
 
 int migr_roomrecord(void *data, const char *el)
 {
-	if (!strcasecmp(el, "QRname"))			safestrncpy(qrbuf.QRname, ChrPtr(migr_chardata), sizeof qrbuf.QRname);
+	if (!strcasecmp(el, "QRname"))				safestrncpy(qrbuf.QRname, ChrPtr(migr_chardata), sizeof qrbuf.QRname);
 	else if (!strcasecmp(el, "QRpasswd"))			safestrncpy(qrbuf.QRpasswd, ChrPtr(migr_chardata), sizeof qrbuf.QRpasswd);
 	else if (!strcasecmp(el, "QRroomaide"))			qrbuf.QRroomaide = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRhighest"))			qrbuf.QRhighest = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRgen"))			qrbuf.QRgen = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRflags"))			qrbuf.QRflags = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRdirname"))			safestrncpy(qrbuf.QRdirname, ChrPtr(migr_chardata), sizeof qrbuf.QRdirname);
-	else if (!strcasecmp(el, "QRinfo"))			qrbuf.QRinfo = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRfloor"))			qrbuf.QRfloor = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRmtime"))			qrbuf.QRmtime = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRexpire_mode"))		qrbuf.QRep.expire_mode = atoi(ChrPtr(migr_chardata));
@@ -608,6 +608,8 @@ int migr_roomrecord(void *data, const char *el)
 	else if (!strcasecmp(el, "QRorder"))			qrbuf.QRorder = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRflags2"))			qrbuf.QRflags2 = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRdefaultview"))		qrbuf.QRdefaultview = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msgnum_info"))		qrbuf.msgnum_info = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msgnum_pic"))			qrbuf.msgnum_pic = atol(ChrPtr(migr_chardata));
 	else return 0;
 	return 1;
 }
@@ -906,7 +908,6 @@ void migr_do_listdirs(void) {
 	cprintf("messages|%s\n",	ctdl_message_dir);
 	cprintf("keys|%s\n",		ctdl_key_dir);
 	cprintf("images|%s\n",		ctdl_image_dir);
-	cprintf("info|%s\n",		ctdl_info_dir);
 	cprintf("000\n");
 }
 

@@ -931,7 +931,6 @@ void cmd_einf(char *ok)
 
 	/* now update the room index so people will see our new info */
 	CtdlGetRoomLock(&CCC->room, CCC->room.QRname);		/* lock so no one steps on us */
-	CCC->room.QRinfo = CCC->room.QRhighest + 1L;
 	CtdlPutRoomLock(&CCC->room);
 }
 

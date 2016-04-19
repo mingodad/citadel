@@ -826,8 +826,10 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	/* Check for new mail */
 	newmailcount = NewMailCount();
 
-	/* set info to 1 if the user needs to read the room's info file */
-	if (CCC->room.QRinfo > vbuf.v_lastseen) {
+	/* Set info to 1 if the room banner is new since our last visit.
+	 * Some clients only want to display it when it changes.
+	 */
+	if (CCC->room.msgnum_info > vbuf.v_lastseen) {
 		info = 1;
 	}
 

@@ -1,5 +1,8 @@
 /*
- * Transparently handle the upgrading of server data formats.
+ * Transparently handle the upgrading of server data formats.  If we see
+ * an existing version number of our database, we can make some intelligent
+ * guesses about what kind of data format changes need to be applied, and
+ * we apply them transparently.
  *
  * Copyright (c) 1987-2016 by the citadel.org team
  *
@@ -199,6 +202,176 @@ void guess_time_zone(void) {
 }
 
 
+
+/*
+ * Per-room callback function for ingest_old_roominfo_and_roompic_files()
+ *
+ * This is the second pass, where we process the list of rooms with info or pic files.
+ */
+void iorarf_oneroom(char *roomname, char *infofile, char *picfile)
+{
+	FILE *fp;
+	long data_length;
+	char *unencoded_data;
+	char *encoded_data;
+	long info_msgnum = 0;
+	long pic_msgnum = 0;
+	char subject[SIZ];
+
+	syslog(LOG_DEBUG, "iorarf_oneroom( %s , %s , %s )", roomname, infofile, picfile);
+
+	// Test for the presence of a legacy "room info file"
+	if (!IsEmptyStr(infofile)) {
+		fp = fopen(infofile, "r");
+	}
+	else {
+		fp = NULL;
+	}
+	if (fp) {
+		fseek(fp, 0, SEEK_END);
+		data_length = ftell(fp);
+
+		if (data_length >= 1) {
+			rewind(fp);
+			unencoded_data = malloc(data_length);
+			if (unencoded_data) {
+				fread(unencoded_data, data_length, 1, fp);
+				encoded_data = malloc((data_length * 2) + 100);
+				if (encoded_data) {
+					sprintf(encoded_data, "Content-type: text/plain\nContent-transfer-encoding: base64\n\n");
+					CtdlEncodeBase64(&encoded_data[strlen(encoded_data)], unencoded_data, data_length, 1);
+					snprintf(subject, sizeof subject, "Imported room banner for %s", roomname);
+					info_msgnum = quickie_message("Citadel", NULL, NULL, SYSCONFIGROOM, encoded_data, FMT_RFC822, subject);
+					free(encoded_data);
+				}
+				free(unencoded_data);
+			}
+		}
+		fclose(fp);
+		// unlink(filename);
+	}
+
+	// Test for the presence of a legacy "room picture file" and import it.
+	if (!IsEmptyStr(picfile)) {
+		fp = fopen(picfile, "r");
+	}
+	else {
+		fp = NULL;
+	}
+	if (fp) {
+		fseek(fp, 0, SEEK_END);
+		data_length = ftell(fp);
+
+		if (data_length >= 1) {
+			rewind(fp);
+			unencoded_data = malloc(data_length);
+			if (unencoded_data) {
+				fread(unencoded_data, data_length, 1, fp);
+				encoded_data = malloc((data_length * 2) + 100);
+				if (encoded_data) {
+					sprintf(encoded_data, "Content-type: image/gif\nContent-transfer-encoding: base64\n\n");
+					CtdlEncodeBase64(&encoded_data[strlen(encoded_data)], unencoded_data, data_length, 1);
+					snprintf(subject, sizeof subject, "Imported room icon for %s", roomname);
+					pic_msgnum = quickie_message("Citadel", NULL, NULL, SYSCONFIGROOM, encoded_data, FMT_RFC822, subject);
+					free(encoded_data);
+				}
+				free(unencoded_data);
+			}
+		}
+		fclose(fp);
+		// unlink(filename);
+	}
+
+	// Now we have the message numbers of our new banner and icon.  Record them in the room record.
+	// NOTE: we are not deleting the old msgnum_info because that position in the record was previously
+	// a pointer to the highest message number which existed in the room when the info file was saved,
+	// and we don't want to delete messages that are not *actually* old banners.
+	struct ctdlroom qrbuf;
+	if (CtdlGetRoomLock(&qrbuf, roomname) == 0) {
+		qrbuf.msgnum_info = info_msgnum;
+		qrbuf.msgnum_pic = pic_msgnum;
+		CtdlPutRoomLock(&qrbuf);
+	}
+
+}
+
+
+
+struct iorarf_list {
+	struct iorarf_list *next;
+	char name[ROOMNAMELEN];
+	char info[PATH_MAX];
+	char pic[PATH_MAX];
+};
+
+
+/*
+ * Per-room callback function for ingest_old_roominfo_and_roompic_files()
+ *
+ * This is the first pass, where the list of qualifying rooms is gathered.
+ */
+void iorarf_backend(struct ctdlroom *qrbuf, void *data)
+{
+	FILE *fp;
+	struct iorarf_list **iorarf_list = (struct iorarf_list **)data;
+
+	struct iorarf_list *i = malloc(sizeof(struct iorarf_list));
+	i->next = *iorarf_list;
+	strcpy(i->name, qrbuf->QRname);
+	strcpy(i->info, "");
+	strcpy(i->pic, "");
+
+	// Test for the presence of a legacy "room info file"
+	assoc_file_name(i->info, sizeof i->info, qrbuf, ctdl_info_dir);
+	fp = fopen(i->info, "r");
+	if (fp) {
+		fclose(fp);
+	}
+	else {
+		i->info[0] = 0;
+	}
+
+	// Test for the presence of a legacy "room picture file"
+	assoc_file_name(i->pic, sizeof i->pic, qrbuf, ctdl_image_dir);
+	fp = fopen(i->pic, "r");
+	if (fp) {
+		fclose(fp);
+	}
+	else {
+		i->pic[0] = 0;
+	}
+
+	if ( (!IsEmptyStr(i->info)) || (!IsEmptyStr(i->pic)) ) {
+		*iorarf_list = i;
+	}
+	else {
+		free(i);
+	}
+}
+
+
+/*
+ * Prior to Citadel Server version 902, room info and pictures (which comprise the
+ * displayed banner for each room) were stored in the filesystem.  If we are upgrading
+ * from version >000 to version >=902, ingest those files into the database.
+ */
+void ingest_old_roominfo_and_roompic_files(void)
+{
+	struct iorarf_list *il = NULL;
+
+	CtdlForEachRoom(iorarf_backend, &il);
+
+	struct iorarf_list *p;
+	while (il) {
+		iorarf_oneroom(il->name, il->info, il->pic);
+		p = il->next;
+		free(il);
+		il = p;
+	}
+
+}
+
+
 /*
  * Perform any upgrades that can be done automatically based on our knowledge of the previous
  * version of Citadel server that was running here.
@@ -300,6 +473,10 @@ void check_server_upgrades(void) {
 		}
 	}
 
+	if ((CtdlGetConfigInt("MM_hosted_upgrade_level") > 000) && (CtdlGetConfigInt("MM_hosted_upgrade_level") < 902)) {
+		ingest_old_roominfo_and_roompic_files();
+	}
+
 	CtdlSetConfigInt("MM_hosted_upgrade_level", REV_LEVEL);
 
 	/*
@@ -323,6 +500,7 @@ void check_server_upgrades(void) {
 CTDL_MODULE_UPGRADE(upgrade)
 {
 	check_server_upgrades();
+	ingest_old_roominfo_and_roompic_files();	// FIXME remove this line, it's proper above!!!!
 	
 	/* return our module id for the Log */
 	return "upgrade";
