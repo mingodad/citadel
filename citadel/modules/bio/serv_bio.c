@@ -51,6 +51,7 @@ void cmd_ebio(char *cmdbuf) {
 	char userconfigroomname[ROOMNAMELEN];
 	CtdlMailboxName(userconfigroomname, sizeof userconfigroomname, &CC->user, USERCONFIGROOM);
 	long new_msgnum = quickie_message("Citadel", NULL, NULL, userconfigroomname, ChrPtr(NewProfile), FMT_RFC822, "Profile submitted with EBIO command");
+	FreeStrBuf(&NewProfile);
 	CtdlGetUserLock(&CC->user, CC->curr_user);
 	CC->user.msgnum_bio = new_msgnum;
 	CtdlPutUserLock(&CC->user);
@@ -58,8 +59,6 @@ void cmd_ebio(char *cmdbuf) {
 		syslog(LOG_DEBUG, "Deleting old message %ld from %s", old_msgnum, userconfigroomname);
 		CtdlDeleteMessages(userconfigroomname, &old_msgnum, 1, "");
 	}
-
-	FreeStrBuf(&NewProfile);
 }
 
 

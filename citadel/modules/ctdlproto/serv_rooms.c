@@ -886,14 +886,13 @@ void cmd_cre8(char *args)
 }
 
 
-
+/*
+ * Upload the room banner text for this room.
+ * This should be amended to handle content types other than plain text.
+ */
 void cmd_einf(char *ok)
 {				/* enter info file for current room */
-	struct CitContext *CCC = CC;
-	FILE *fp;
-	char infofilename[SIZ];
 	char buf[SIZ];
-
 	unbuffer_output();
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
@@ -902,27 +901,27 @@ void cmd_einf(char *ok)
 		cprintf("%d Ok.\n", CIT_OK);
 		return;
 	}
-	assoc_file_name(infofilename, sizeof infofilename, &CCC->room, ctdl_info_dir);
-	CTDL_syslog(LOG_DEBUG, "opening %s", infofilename);
-	fp = fopen(infofilename, "w");
-	CTDLM_syslog(LOG_DEBUG, "checking");
-	if (fp == NULL) {
-		cprintf("%d Cannot open %s: %s\n",
-		  ERROR + INTERNAL_ERROR, infofilename, strerror(errno));
-		return;
+
+	StrBuf *NewBanner = NewStrBufPlain("Content-type: text/plain; charset=UTF-8\nContent-transfer-encoding: 8bit\n\n", -1);
+
+	cprintf("%d Transmit new banner in plain text now.\n", SEND_LISTING);
+	while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
+		StrBufAppendBufPlain(NewBanner, buf, -1, 0);
+		StrBufAppendBufPlain(NewBanner, HKEY("\n"), 0);
 	}
-	cprintf("%d Send info...\n", SEND_LISTING);
 
-	do {
-		client_getln(buf, sizeof buf);
-		if (strcmp(buf, "000"))
-			fprintf(fp, "%s\n", buf);
-	} while (strcmp(buf, "000"));
-	fclose(fp);
+	// We have read the new banner from the user , now save it
+	long new_msgnum = quickie_message("Citadel", NULL, NULL, SYSCONFIGROOM, ChrPtr(NewBanner), FMT_RFC822, "Banner submitted with EINF command");
+	FreeStrBuf(&NewBanner);
 
-	/* now update the room index so people will see our new info */
-	CtdlGetRoomLock(&CCC->room, CCC->room.QRname);		/* lock so no one steps on us */
-	CtdlPutRoomLock(&CCC->room);
+	// Update the room record with a pointer to our new banner
+	CtdlGetRoomLock(&CC->room, CC->room.QRname);
+	long old_msgnum = CC->room.msgnum_info;
+	CC->room.msgnum_info = new_msgnum;
+	CtdlPutRoomLock(&CC->room);
+
+	// Delete the old one
+	CtdlDeleteMessages(SYSCONFIGROOM, &old_msgnum, 1, "");
 }
 
 
