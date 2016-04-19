@@ -248,7 +248,7 @@ void iorarf_oneroom(char *roomname, char *infofile, char *picfile)
 			}
 		}
 		fclose(fp);
-		// unlink(filename);
+		if (info_msgnum > 0) unlink(infofile);
 	}
 
 	// Test for the presence of a legacy "room picture file" and import it.
@@ -279,7 +279,7 @@ void iorarf_oneroom(char *roomname, char *infofile, char *picfile)
 			}
 		}
 		fclose(fp);
-		// unlink(filename);
+		if (pic_msgnum > 0) unlink(picfile);
 	}
 
 	// Now we have the message numbers of our new banner and icon.  Record them in the room record.
