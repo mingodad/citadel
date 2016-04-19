@@ -202,7 +202,6 @@ void guess_time_zone(void) {
 }
 
 
-
 /*
  * Per-room callback function for ingest_old_roominfo_and_roompic_files()
  *
@@ -217,8 +216,6 @@ void iorarf_oneroom(char *roomname, char *infofile, char *picfile)
 	long info_msgnum = 0;
 	long pic_msgnum = 0;
 	char subject[SIZ];
-
-	syslog(LOG_DEBUG, "iorarf_oneroom( %s , %s , %s )", roomname, infofile, picfile);
 
 	// Test for the presence of a legacy "room info file"
 	if (!IsEmptyStr(infofile)) {
@@ -294,7 +291,6 @@ void iorarf_oneroom(char *roomname, char *infofile, char *picfile)
 	}
 
 }
-
 
 
 struct iorarf_list {
