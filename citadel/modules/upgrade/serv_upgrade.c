@@ -432,9 +432,7 @@ void check_server_upgrades(void) {
 	syslog(LOG_INFO, "Existing database version on disk is %d", CtdlGetConfigInt("MM_hosted_upgrade_level"));
 
 	if (CtdlGetConfigInt("MM_hosted_upgrade_level") < REV_LEVEL) {
-		syslog(LOG_WARNING,
-			"Server hosted updates need to be processed at this time.  Please wait..."
-		);
+		syslog(LOG_WARNING, "Server hosted updates need to be processed at this time.  Please wait...");
 	}
 	else {
 		return;
@@ -500,7 +498,6 @@ void check_server_upgrades(void) {
 CTDL_MODULE_UPGRADE(upgrade)
 {
 	check_server_upgrades();
-	ingest_old_roominfo_and_roompic_files();	// FIXME remove this line, it's proper above!!!!
 	
 	/* return our module id for the Log */
 	return "upgrade";
