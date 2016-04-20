@@ -22,6 +22,90 @@
 
 
 /*
+ * DownLoad Room Image (see its icon or whatever)
+ * If this command succeeds, it follows the same protocol as the DLAT command.
+ */
+void cmd_dlri(char *cmdbuf)
+{
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+	if (CC->room.msgnum_pic < 1) {
+		cprintf("%d No image found.\n", ERROR + FILE_NOT_FOUND);
+		return;
+	}
+
+	struct CtdlMessage *msg = CtdlFetchMessage(CC->room.msgnum_pic, 1, 1);
+	if (msg != NULL) {
+		// The call to CtdlOutputPreLoadedMsg() with MT_SPEW_SECTION will cause the DLUI command
+		// to have the same output format as the DLAT command, because it calls the same code.
+		// For example: 600 402132|-1||image/gif|
+		safestrncpy(CC->download_desired_section, "1", sizeof CC->download_desired_section);
+		CtdlOutputPreLoadedMsg(msg, MT_SPEW_SECTION, HEADERS_NONE, 1, 0, 0);
+		CM_Free(msg);
+	}
+	else {
+		cprintf("%d No image found.\n", ERROR + MESSAGE_NOT_FOUND);
+		return;
+	}
+}
+
+
+/*
+ * UpLoad Room Image (avatar or photo or whatever)
+ */
+void cmd_ulri(char *cmdbuf)
+{
+	long data_length;
+	char mimetype[SIZ];
+
+	if (CtdlAccessCheck(ac_room_aide)) return;
+
+	data_length = extract_long(cmdbuf, 0);
+	extract_token(mimetype, cmdbuf, 1, '|', sizeof mimetype);
+
+	if (data_length < 20) {
+		cprintf("%d That's an awfully small file.  Try again.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
+
+	if (strncasecmp(mimetype, "image/", 6)) {
+		cprintf("%d Only image files are permitted.\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
+
+	char *unencoded_data = malloc(data_length + 1);
+	if (!unencoded_data) {
+		cprintf("%d Could not allocate %ld bytes of memory\n", ERROR + INTERNAL_ERROR , data_length);
+		return;
+	}
+
+	cprintf("%d %ld\n", SEND_BINARY, data_length);
+	client_read(unencoded_data, data_length);
+
+	// We've got the data read from the client, now save it.
+	char *encoded_data = malloc((data_length * 2) + 100);
+	if (encoded_data) {
+		sprintf(encoded_data, "Content-type: %s\nContent-transfer-encoding: base64\n\n", mimetype);
+		CtdlEncodeBase64(&encoded_data[strlen(encoded_data)], unencoded_data, data_length, 1);
+		long new_msgnum = quickie_message("Citadel", NULL, NULL, SYSCONFIGROOM, encoded_data, FMT_RFC822, "Image uploaded by admin user");
+
+		if (CtdlGetRoomLock(&CC->room, CC->room.QRname) == 0) {
+			long old_msgnum = CC->room.msgnum_pic;
+			syslog(LOG_DEBUG, "Message %ld is now the photo for %s", new_msgnum, CC->room.QRname);
+			CC->room.msgnum_pic = new_msgnum;
+			CtdlPutRoomLock(&CC->room);
+			if (old_msgnum > 0) {
+				syslog(LOG_DEBUG, "Deleting old message %ld from %s", old_msgnum, SYSCONFIGROOM);
+				CtdlDeleteMessages(SYSCONFIGROOM, &old_msgnum, 1, "");
+			}
+		}
+		free(encoded_data);
+	}
+
+	free(unencoded_data);
+}
+
+
+/*
  * DownLoad User Image (see their avatar or photo or whatever)
  * If this command succeeds, it follows the same protocol as the DLAT command.
  */
@@ -58,7 +142,7 @@ void cmd_dlui(char *cmdbuf)
 
 
 /*
- * DownLoad User Image (avatar or photo or whatever)
+ * UpLoad User Image (avatar or photo or whatever)
  */
 void cmd_ului(char *cmdbuf)
 {
@@ -279,6 +363,8 @@ CTDL_MODULE_INIT(image)
 	if (!threading)
 	{
 		import_old_userpic_files();
+        	CtdlRegisterProtoHook(cmd_dlri, "DLRI", "DownLoad Room Image");
+        	CtdlRegisterProtoHook(cmd_ulri, "ULRI", "UpLoad Room Image");
         	CtdlRegisterProtoHook(cmd_dlui, "DLUI", "DownLoad User Image");
         	CtdlRegisterProtoHook(cmd_ului, "ULUI", "UpLoad User Image");
 	}
