@@ -226,7 +226,6 @@ void cmd_oimg(char *cmdbuf)
 	char filename[PATH_MAX];
 	char pathname[PATH_MAX];
 	char MimeTestBuf[32];
-	int a;
 	int rv;
 
 	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
@@ -243,29 +242,6 @@ void cmd_oimg(char *cmdbuf)
 		return;
 	}
 
-	if (!strcasecmp(filename, "_roompic_")) {
-		assoc_file_name(pathname, sizeof pathname, &CC->room, ctdl_image_dir);
-	}
-	else {
-		for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
-			filename[a] = tolower(filename[a]);
-			if ( (filename[a] == '/') || (filename[a] == '\\') ) {
-				filename[a] = '_';
-			}
-		}
-		if (strstr(filename, "../") != NULL)
-		{
-			cprintf("%d syntax error.\n",
-				ERROR + ILLEGAL_VALUE);
-			return;
-		}
-
-		snprintf(pathname, sizeof pathname,
-				 "%s/%s",
-				 ctdl_image_dir,
-				 filename);
-	}
-
 	CC->download_fp = fopen(pathname, "rb");
 	if (CC->download_fp == NULL) {
 		strcat(pathname, ".gif");
@@ -278,8 +254,7 @@ void cmd_oimg(char *cmdbuf)
 	}
 	rv = fread(&MimeTestBuf[0], 1, 32, CC->download_fp);
 	if (rv == -1) {
-		cprintf("%d Cannot access %s: %s\n",
-			ERROR + FILE_NOT_FOUND, pathname, strerror(errno));
+		cprintf("%d Cannot access %s: %s\n", ERROR + FILE_NOT_FOUND, pathname, strerror(errno));
 		return;
 	}
 
@@ -392,10 +367,6 @@ void cmd_uimg(char *cmdbuf)
 				 basenm);
 	}
 
-	if ((!strcasecmp(basenm, "_roompic_")) && (is_room_aide())) {
-		assoc_file_name(CC->upl_path, sizeof CC->upl_path, &CC->room, ctdl_image_dir);
-	}
-
 	if (IsEmptyStr(CC->upl_path)) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
@@ -493,8 +464,7 @@ void cmd_ucls(char *cmd)
 			);
 
 			if (link(CCC->upl_path, final_filename) == 0) {
-				CTDL_syslog(LOG_INFO, "UCLS: updoaded %s",
-				       final_filename);
+				CTDL_syslog(LOG_INFO, "UCLS: updoaded %s", final_filename);
 				unlink(CCC->upl_path);
 			}
 			else {
@@ -574,7 +544,7 @@ void cmd_read(char *cmdbuf)
 	if (rc < 0) {
 		struct CitContext *CCC = CC;
 		cprintf("%d your file is smaller then %ld.\n", ERROR + ILLEGAL_VALUE, start_pos);
-		CTDL_syslog(LOG_ERR, "your file %s is smaller then %ld. [%s]\n", 
+		CTDL_syslog(LOG_ERR, "your file %s is smaller then %ld. [%s]", 
 			    CC->upl_path, 
 			    start_pos,
 			    strerror(errno));
@@ -625,8 +595,7 @@ void cmd_writ(char *cmdbuf)
 	client_read(buf, bytes);
 	rv = fwrite(buf, bytes, 1, CCC->upload_fp);
 	if (rv == -1) {
-		CTDL_syslog(LOG_EMERG, "Couldn't write: %s\n",
-			    strerror(errno));
+		CTDL_syslog(LOG_EMERG, "Couldn't write: %s", strerror(errno));
 	}
 	free(buf);
 }
