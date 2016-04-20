@@ -590,22 +590,24 @@ void LoadXRoomPic(void)
 {
 	wcsession *WCC = WC;
 	StrBuf *Buf;
+	off_t bytes;
 	
-	if (WCC->CurRoom.XHaveRoomPicLoaded)
+	if (WCC->CurRoom.XHaveRoomPicLoaded) {
 		return;
+	}
 
 	WCC->CurRoom.XHaveRoomPicLoaded = 1;
 	Buf = NewStrBuf();
-	serv_puts("OIMG _roompic_");
+	serv_puts("DLRI");
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) {
-		WCC->CurRoom.XHaveRoomPic = 0;
-	} else {
+	if (GetServerStatus(Buf, NULL) == 6) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
 		WCC->CurRoom.XHaveRoomPic = 1;
+		StrBuf_ServGetBLOBBuffered(Buf, bytes);		// discard the data
+	} else {
+		WCC->CurRoom.XHaveRoomPic = 0;
 	}
-	serv_puts("CLOS");
-	StrBuf_ServGetln(Buf);
-	GetServerStatus(Buf, NULL);
 	FreeStrBuf (&Buf);
 }
 
