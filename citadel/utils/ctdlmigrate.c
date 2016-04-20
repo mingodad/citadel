@@ -259,10 +259,6 @@ FAIL:	if (sourcefp) pclose(sourcefp);
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
 				socket_path, remote_user, remote_host, &buf[5], ctdl_key_dir);
 		}
-		else if (!strncasecmp(buf, "images|", 7)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[7], ctdl_image_dir);
-		}
 		else {
 			strcpy(cmd, "false");	/* cheap and sleazy way to throw an error */
 		}

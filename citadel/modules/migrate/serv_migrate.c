@@ -682,7 +682,7 @@ void migr_xml_end(void *data, const char *el)
 		syslog(LOG_DEBUG, "Imported config key=%s", ikey);
 
 		if (ikey != NULL) {
-			CtdlSetConfigStr(ikey, ChrPtr(migr_chardata));
+			CtdlSetConfigStr(ikey, (char *)ChrPtr(migr_chardata));
 			free(ikey);
 			ikey = NULL;
 		}
@@ -895,7 +895,6 @@ void migr_do_import(void) {
 }
 
 
-
 /******************************************************************************
  *                         Dispatcher, Common code                            *
  ******************************************************************************/
@@ -907,9 +906,9 @@ void migr_do_listdirs(void) {
 	cprintf("files|%s\n",		ctdl_file_dir);
 	cprintf("messages|%s\n",	ctdl_message_dir);
 	cprintf("keys|%s\n",		ctdl_key_dir);
-	cprintf("images|%s\n",		ctdl_image_dir);
 	cprintf("000\n");
 }
+
 
 /******************************************************************************
  *                    Repair database integrity                               *

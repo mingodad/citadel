@@ -443,7 +443,6 @@ int create_run_directories(long UID, long GID)
 	int rv = 0;
 	rv += create_dir(ctdl_message_dir   , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	rv += create_dir(ctdl_hlp_dir       , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv += create_dir(ctdl_image_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	rv += create_dir(ctdl_bb_dir        , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	rv += create_dir(ctdl_file_dir      , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	rv += create_dir(ctdl_spool_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
