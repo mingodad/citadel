@@ -365,6 +365,7 @@ void ingest_old_roominfo_and_roompic_files(void)
 		il = p;
 	}
 
+	unlink(ctdl_info_dir);
 }
 
 

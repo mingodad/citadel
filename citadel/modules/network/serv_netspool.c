@@ -325,27 +325,23 @@ void InspectQueuedRoom(SpoolControl **pSC,
 void CalcListID(SpoolControl *sc)
 {
 	StrBuf *RoomName;
-	const char *err;
-	int fd;
 	struct CitContext *CCC = CC;
-	char filename[PATH_MAX];
 #define MAX_LISTIDLENGTH 150
 
-	assoc_file_name(filename, sizeof filename, &sc->room, ctdl_info_dir);
-	fd = open(filename, 0);
-
-	if (fd > 0) {
-		struct stat stbuf;
-
-		if ((fstat(fd, &stbuf) == 0) &&
-		    (stbuf.st_size > 0))
-		{
-			sc->RoomInfo = NewStrBufPlain(NULL, stbuf.st_size + 1);
-			StrBufReadBLOB(sc->RoomInfo, &fd, 0, stbuf.st_size, &err);
-		}
-		close(fd);
+	// Load the room banner as the list description
+	struct CtdlMessage *msg = CtdlFetchMessage(sc->room.msgnum_info, 1, 1);
+        if (msg != NULL) {
+		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+                CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0, 0);
+                CM_Free(msg);
+		sc->RoomInfo = CC->redirect_buffer;
+		CC->redirect_buffer = NULL;
+        }
+	else {
+		sc->RoomInfo = NewStrBufPlain(NULL, SIZ);
 	}
 
+	// Calculate the List ID
 	sc->ListID = NewStrBufPlain(NULL, 1024);
 	if (StrLength(sc->RoomInfo) > 0)
 	{
