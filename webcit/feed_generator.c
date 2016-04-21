@@ -231,7 +231,7 @@ void feed_rss(void) {
 	escputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</title><url>");
 	escputs(ChrPtr(site_prefix));
-	wc_printf("/image?name=_roompic_?go=");
+	wc_printf("/roompic?room=");
 	urlescputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</url><link>");
 	escputs(ChrPtr(site_prefix));

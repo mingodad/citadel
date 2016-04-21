@@ -1,7 +1,7 @@
 /*
  * Handles HTTP upload of graphics files into the system.
  *
- * Copyright (c) 1996-2012 by the citadel.org team
+ * Copyright (c) 1996-2016 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -17,7 +17,7 @@
 extern void output_static(const char* What);
 
 
-
+// display the picture (icon, photo, whatever) associated with the current room
 void display_roompic(void) {
 	off_t bytes;
 	StrBuf *Buf = NewStrBuf();
@@ -40,8 +40,8 @@ void display_roompic(void) {
 }
 
 
-// upload your photo
-void editpic(void)
+// upload the picture (icon, photo, whatever) associated with the current room
+void common_code_for_editroompic_and_editpic(char *servcmd)
 {
 	if (havebstr("cancel_button")) {
 		AppendImportantMessage(_("Graphics upload has been cancelled."), -1);
@@ -55,7 +55,7 @@ void editpic(void)
 		return;
 	}
 	
-	serv_printf("ULUI %ld|%s", (long)WC->upload_length, GuessMimeType(ChrPtr(WC->upload), WC->upload_length));
+	serv_printf("%s %ld|%s", servcmd, (long)WC->upload_length, GuessMimeType(ChrPtr(WC->upload), WC->upload_length));
 	StrBuf *Line = NewStrBuf();
 	StrBuf_ServGetln(Line);
 	if (GetServerStatusMsg(Line, NULL, 0, 0) == 7) {
@@ -70,6 +70,21 @@ void editpic(void)
 }
 
 
+// upload the picture (icon, photo, whatever) associated with the current room
+void editroompic(void)
+{
+	common_code_for_editroompic_and_editpic("ULRI");
+}
+
+	
+// upload the picture (icon, photo, whatever) associated with the current user
+void editpic(void)
+{
+	common_code_for_editroompic_and_editpic("ULUI");
+}
+
+
+// display the screen for uploading graphics to the server
 void display_graphics_upload(char *filename)
 {
 	StrBuf *Line;
@@ -89,6 +104,7 @@ void display_graphics_upload(char *filename)
 	}
 	FreeStrBuf(&Line);
 }
+
 
 void do_graphics_upload(char *filename)
 {
@@ -155,14 +171,12 @@ void editgoodbuyepic(void) { do_graphics_upload("UIMG 1|%s|goodbuye"); }
 
 /* The users photo display / upload facility */
 void display_editpic(void) {
-	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("_userpic_")));
 	putbstr("__PICDESC", NewStrBufPlain(_("your photo"), -1));
 	putbstr("__UPLURL", NewStrBufPlain(HKEY("editpic")));
 	display_graphics_upload("editpic");
 }
 /* room picture dispay / upload facility */
 void display_editroompic(void) {
-	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("_roompic_")));
 	putbstr("__PICDESC", NewStrBufPlain(_("the icon for this room"), -1));
 	putbstr("__UPLURL", NewStrBufPlain(HKEY("editroompic")));
 	display_graphics_upload("editroompic");
@@ -184,12 +198,6 @@ void display_editgoodbyepic(void) {
 	display_graphics_upload("editgoodbuyepic");
 }
 
-void editroompic(void) {
-	char buf[SIZ];
-	snprintf(buf, SIZ, "_roompic_|%s",
-		 bstr("which_room"));
-	do_graphics_upload(buf);
-}
 
 void 
 InitModule_GRAPHICS
