@@ -801,7 +801,6 @@ void display_userpic(void) {
 }
 
 
-
 void _select_user_to_edit(void) {
 	select_user_to_edit(NULL);
 }

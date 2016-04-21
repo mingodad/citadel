@@ -17,6 +17,29 @@
 extern void output_static(const char* What);
 
 
+
+void display_roompic(void) {
+	off_t bytes;
+	StrBuf *Buf = NewStrBuf();
+	serv_printf("DLRI");
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 6) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
+		StrBuf *content_type = NewStrBuf();
+		StrBufExtract_token(content_type, Buf, 3, '|');
+		WC->WBuf = NewStrBuf();
+		StrBuf_ServGetBLOBBuffered(WC->WBuf, bytes);
+		http_transmit_thing(ChrPtr(content_type), 0);
+		FreeStrBuf(&content_type);
+	}
+	else {
+		output_error_pic("", "");
+	}
+	FreeStrBuf(&Buf);
+}
+
+
 // upload your photo
 void editpic(void)
 {
@@ -180,4 +203,5 @@ InitModule_GRAPHICS
 	WebcitAddUrlHandler(HKEY("edithellopic"), "", 0, edithellopic, 0);
 	WebcitAddUrlHandler(HKEY("display_editgoodbuye"), "", 0, display_editgoodbyepic, 0);
 	WebcitAddUrlHandler(HKEY("editgoodbuyepic"), "", 0, editgoodbuyepic, 0);
+	WebcitAddUrlHandler(HKEY("roompic"), "", 0, display_roompic, 0);
 }
