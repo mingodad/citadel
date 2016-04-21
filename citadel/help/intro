@@ -134,5 +134,3 @@ they are in any type of private room, however, the room name will simply
 display as "<private room>".  Along with this information is displayed the
 name of the host computer the user is logged in from.
  
- (This file was shamelessly swiped from QuartzBBS.  Thanks to its original
-author for putting it together.)
