@@ -1,16 +1,16 @@
-                     Welcome to ^humannode!
                   New User's Introduction to the site
   
- This is an introduction to ^humannode and to the Citadel BBS concept.
-It is intended for new users so that they can more easily become
-aquainted with the bbs system.  Of course, old users might learn
-something new each time they read through it.
+ This is an introduction to the Citadel BBS concept.  It is intended
+for new users so that they can more easily become acquainted to using
+Citadel when accessing it in the form of a text-based BBS.  Of
+course, old users might learn something new each time they read
+through it.
  
  Full help for the BBS commands can be obtained by typing <.H>elp SUMMARY
   
  The CITADEL BBS room concept
  ----------------------------
-   The term BBS stands for "Bulletin-Board System".  The analogy is
+   The term BBS stands for "Bulletin Board System".  The analogy is
 appropriate: one posts messages so that others may read them.  In
 order to organize the posts, people can post in different areas of the
 BBS, called rooms.
@@ -22,7 +22,7 @@ greater-than-sign, such as:
  
  The easiest way to traverse the room structure is with the "Goto"
 command, on the "G" key.  Pressing "G" will take you to the next room
-in the "scanlist" (see below) that has new messages in it.  You can
+in the "march list" (see below) that has new messages in it.  You can
 read these new messages with the "N" key.
  Once you've "Gotoed" every room in the system (or all of the ones
 you choose to read) you return to the "Lobby," the first and last room
@@ -30,15 +30,15 @@ in the system.  If new messages get posted to rooms you've already
 read during your session you will be brought BACK to those rooms so
 you can read them.
  
- Scanlist
- --------
-   All the room names are stored in a scanlist, which is just a
-string containing all the room names.  When you <G>oto or <S>kip a
-room, you are placed in the next room in your scanlist THAT HAS NEW
+ March List
+ ----------
+   All the room names are stored in a march list, which is just a
+list containing all the room names.  When you <G>oto or <S>kip a
+room, you are placed in the next room in your march list THAT HAS NEW
 MESSAGES.  If you have no new messages in any of the rooms on your
-scanlist, you will keep going to the Lobby>.  You can choose not to
+march list, you will keep going to the Lobby>.  You can choose not to
 read certain rooms (that don't interest you) by "Z"apping them.  When
-you <Z>ap a room, you are merely deleting it from your scanlist (but
+you <Z>ap a room, you are merely deleting it from your march list (but
 not from anybody else's).
  
    You can use the <.G>oto (note the period before the G.  You can also use
@@ -50,28 +50,27 @@ typed (for example) ".Goto TECH", you might be taken to a room called
 "Tech Area>" even if it found a room called "Biotech/Ethics>" first.
  
   To return to a room you have previously <Z>apped, use the <.G>oto command
-to enter it, and it will be re-inserted into your scanlist.  In the case
+to enter it, and it will be re-inserted into your march list.  In the case
 of returning to Zapped rooms, you must type the room name in its entirety.
 REMEMBER, rooms with no new messages will not show on your
-scanlist!  You must <.G>oto to a room with no new messages.
-Incidentally, you cannot change the order of the rooms on your scanlist.
+march list!  You must <.G>oto to a room with no new messages.
+Incidentally, you cannot change the order of the rooms on your march list.
 It's the same for everybody.
  
  Special rooms
  -------------
-   There are two special rooms on ^humannode that you should
-know about.
+   There are two special rooms on a Citadel that you should know about.
   
    The first is the Lobby>.  It's used for system announcements and other
 such administrativia.  You cannot <Z>ap the Lobby>.  Each time you first
 login, you will be placed in the Lobby>.
  
    The second is Mail>.  In Mail>, when you post a messages, you are
-prompted to enter the person (handle) who you want to send the message
-to.  Only the person who you send the message to can read the message.
-NO ONE else can read it, not even the admins.  Mail> is the first room
-on the scanlist, and is un-<Z>appable, so you can be sure that the
-person will get the message.
+prompted to enter the screen name of the person who you want to send the
+message to.  Only the person who you send the message to can read the
+message.  NO ONE else can read it, not even the admins.  Mail> is the
+first room on the march list, and is un-<Z>appable, so you can be sure
+that the person will get the message.
    
  System admins
  -------------
@@ -85,34 +84,34 @@ Aide> room, a special room only for admins.
    If you enter a mail message to "Sysop" it will be placed in the
 Aide> room so that the next admin online will read it and deal with it.
 Admins cannot <Z>ap rooms.  All the rooms are always on each admin's
-scanlist.  Admins can read *any* and *every* room, but they *CAN* *NOT*
-read other user's Mail!
- 
+march list.  Admins can read *any* and *every* room, but they *CAN* *NOT*
+read other users' Mail!
+  
  Room admins
  -----------
    Room admins are granted special privileges in specific rooms.
 They are *NOT* true system admins; their power extends only over the
 rooms that they control, and they answer to the system admins.
- 
+  
    A room admin's job is to keep the topic of the their room on track,
 with nudges in the right direction now and then.  A room admin can also
 move an off topic post to another room, or delete a post, if he/she
 feels it is necessary. 
- 
+  
    Currently, very few rooms have room admins.  Most rooms do not need
 their own specific room admin.  Being a room admin requires a certain
 amount of trust, due to the additional privileges granted.
- 
+  
  Citadel messages
  ----------------
-   Most of the time, the bbs code does not print a lot of messages
+   Most of the time, the BBS code does not print a lot of messages
 to your screen.  This is a great benefit once you become familiar
 with the system, because you do not have endless menus and screens
 to navigate through.  nevertheless, there are some messages which you
 might see from time to time.
- 
+  
   "There were messages posted while you were entering."
- 
+  
    This is also known as "simulposting."  When you start entering a 
 message, the system knows where you last left off.  When you save
 your message, the system checks to see if any messages were entered
@@ -121,11 +120,11 @@ to go back and re-read the last few messages.  This message may appear
 in any room.
    
  "*** You have new mail"
- 
+  
    This message is essentially the same as the above message, but can
 appear at any time.  It simply means that new mail has arrived for you while
 you are logged in.  Simply go to the Mail> room to read it.
- 
+  
  Who list
  --------
    The <W>ho command shows you the names of all users who are currently
@@ -133,4 +132,4 @@ online.  It also shows you the name of the room they are currently in.  If
 they are in any type of private room, however, the room name will simply
 display as "<private room>".  Along with this information is displayed the
 name of the host computer the user is logged in from.
- 
+  
