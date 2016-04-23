@@ -81,28 +81,3 @@ int getstring(FILE *fp, char *string)
 		} while(string[0]=='#');
 	return(strlen(string));
 }
-
-
-
-
-/*
- * mesg_locate()  -  locate a message or help file, case insensitive
- */
-void mesg_locate(char *targ, size_t n, const char *searchfor,
-		 int numdirs, const char * const *dirs)
-{
-	int a;
-	char buf[SIZ];
-	struct stat test;
-
-	for (a=0; a<numdirs; ++a) {
-		snprintf(buf, sizeof buf, "%s/%s", dirs[a], searchfor);
-		if (!stat(buf, &test)) {
-			snprintf(targ, n, "%s/%s", dirs[a], searchfor);
-			return;
-		}
-	}
-	strcpy(targ,"");
-}
-
-

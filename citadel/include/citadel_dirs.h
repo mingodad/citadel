@@ -13,7 +13,6 @@ extern char ctdl_bb_dir[PATH_MAX];
 extern char ctdl_data_dir[PATH_MAX];
 extern char ctdl_dspam_dir[PATH_MAX];
 extern char ctdl_file_dir[PATH_MAX];
-extern char ctdl_hlp_dir[PATH_MAX];
 extern char ctdl_shared_dir[PATH_MAX];
 extern char ctdl_image_dir[PATH_MAX];
 extern char ctdl_info_dir[PATH_MAX];

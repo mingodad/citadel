@@ -31,7 +31,6 @@ char ctdl_bb_dir[PATH_MAX]="bitbucket";
 char ctdl_data_dir[PATH_MAX]="data";
 char ctdl_dspam_dir[PATH_MAX]="dspam";
 char ctdl_file_dir[PATH_MAX]="files";
-char ctdl_hlp_dir[PATH_MAX]="help";
 char ctdl_shared_dir[PATH_MAX]="";
 char ctdl_image_dir[PATH_MAX]="images";
 char ctdl_info_dir[PATH_MAX]="info";
@@ -153,16 +152,6 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 #endif
 	COMPUTE_DIRECTORY(ctdl_message_dir);
 	StripSlashes(ctdl_message_dir, 1);
-
-#ifndef HAVE_HELP_DIR
-	basedir=ctdldir;
-#else
-	basedir=HELP_DIR;
-#endif
-	COMPUTE_DIRECTORY(ctdl_hlp_dir);
-	StripSlashes(ctdl_hlp_dir, 1);
-	COMPUTE_DIRECTORY(ctdl_shared_dir);
-	StripSlashes(ctdl_shared_dir, 1);
 
 #ifndef HAVE_DATA_DIR
 	basedir=ctdldir;
@@ -324,7 +313,6 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	DBG_PRINT(ctdl_data_dir);
 	DBG_PRINT(ctdl_dspam_dir);
 	DBG_PRINT(ctdl_file_dir);
-	DBG_PRINT(ctdl_hlp_dir);
 	DBG_PRINT(ctdl_image_dir);
 	DBG_PRINT(ctdl_info_dir);
 	DBG_PRINT(ctdl_key_dir);
@@ -442,7 +430,6 @@ int create_run_directories(long UID, long GID)
 {
 	int rv = 0;
 	rv += create_dir(ctdl_message_dir   , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
-	rv += create_dir(ctdl_hlp_dir       , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	rv += create_dir(ctdl_bb_dir        , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	rv += create_dir(ctdl_file_dir      , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);
 	rv += create_dir(ctdl_spool_dir     , S_IRUSR|S_IWUSR|S_IXUSR, UID, -1);

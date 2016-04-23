@@ -763,22 +763,17 @@ void cmd_mesg(char *mname)
 	char targ[256];
 	char buf[256];
 	char buf2[256];
-	char *dirs[2];
 	DIR *dp;
 	struct dirent *d;
 
 	extract_token(buf, mname, 0, '|', sizeof buf);
 
-	dirs[0] = strdup(ctdl_message_dir);
-	dirs[1] = strdup(ctdl_hlp_dir);
-
-	snprintf(buf2, sizeof buf2, "%s.%d.%d",
-		buf, CC->cs_clientdev, CC->cs_clienttyp);
+	snprintf(buf2, sizeof buf2, "%s.%d.%d", buf, CC->cs_clientdev, CC->cs_clienttyp);
 
 	/* If the client requested "?" then produce a listing */
 	if (!strcmp(buf, "?")) {
 		cprintf("%d %s\n", LISTING_FOLLOWS, buf);
-		dp = opendir(dirs[1]);
+		dp = opendir(ctdl_message_dir);
 		if (dp != NULL) {
 			while (d = readdir(dp), d != NULL) {
 				if (d->d_name[0] != '.') {
@@ -788,43 +783,15 @@ void cmd_mesg(char *mname)
 			closedir(dp);
 		}
 		cprintf("000\n");
-		free(dirs[0]);
-		free(dirs[1]);
 		return;
 	}
 
 	/* Otherwise, look for the requested file by name. */
-	else {
-		mesg_locate(targ, sizeof targ, buf2, 2, (const ccharp*)dirs);
-		if (IsEmptyStr(targ)) {
-			snprintf(buf2, sizeof buf2, "%s.%d",
-							buf, CC->cs_clientdev);
-			mesg_locate(targ, sizeof targ, buf2, 2,
-				    (const ccharp*)dirs);
-			if (IsEmptyStr(targ)) {
-				mesg_locate(targ, sizeof targ, buf, 2,
-					    (const ccharp*)dirs);
-			}	
-		}
-	}
-
-	free(dirs[0]);
-	free(dirs[1]);
-
-	if (IsEmptyStr(targ)) {
-		cprintf("%d '%s' not found.  (Searching in %s and %s)\n",
-			ERROR + FILE_NOT_FOUND,
-			mname,
-			ctdl_message_dir,
-			ctdl_hlp_dir
-		);
-		return;
-	}
-
+	snprintf(targ, sizeof targ, "%s/%s", ctdl_message_dir, buf);
 	mfp = fopen(targ, "r");
 	if (mfp==NULL) {
 		cprintf("%d Cannot open '%s': %s\n",
-			ERROR + INTERNAL_ERROR, targ, strerror(errno));
+			ERROR + FILE_NOT_FOUND, targ, strerror(errno));
 		return;
 	}
 	cprintf("%d %s\n", LISTING_FOLLOWS,buf);
@@ -848,7 +815,6 @@ void cmd_emsg(char *mname)
 	FILE *mfp;
 	char targ[256];
 	char buf[256];
-	char *dirs[2];
 	int a;
 
 	unbuffer_output();
@@ -860,20 +826,11 @@ void cmd_emsg(char *mname)
 		if (buf[a] == '/') buf[a] = '.';
 	}
 
-	dirs[0] = strdup(ctdl_message_dir);
-	dirs[1] = strdup(ctdl_hlp_dir);
-
-	mesg_locate(targ, sizeof targ, buf, 2, (const ccharp*)dirs);
-	free(dirs[0]);
-	free(dirs[1]);
-
 	if (IsEmptyStr(targ)) {
-		snprintf(targ, sizeof targ, 
-				 "%s/%s",
-				 ctdl_hlp_dir, buf);
+		snprintf(targ, sizeof targ, "%s/%s", ctdl_message_dir, buf);
 	}
 
-	mfp = fopen(targ,"w");
+	mfp = fopen(targ, "w");
 	if (mfp==NULL) {
 		cprintf("%d Cannot open '%s': %s\n",
 			ERROR + INTERNAL_ERROR, targ, strerror(errno));
