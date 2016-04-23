@@ -176,7 +176,7 @@ void ParseURLParams(StrBuf *url)
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if (keylen > sizeof(u->url_key)) {
 			syslog(LOG_WARNING, "%s:%d: invalid url_key of size %d in string size %ld",
-				__FILE__, __LINE__, keylen, sizeof(u->url_key)
+				__FILE__, __LINE__, keylen, (long)sizeof(u->url_key)
 			);
 		}
 
