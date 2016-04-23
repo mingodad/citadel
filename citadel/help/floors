@@ -12,7 +12,7 @@ experiment.
 <G>oto and <S>kip commands take you to the next room with new messages on the
 current floor; if there are none left, then the system will automatically
 switch floors (and let you know) and put you in the first room with new messages
-on that level.  (Notice that your pattern of basic use of ^variantname therefore
+on that level.  (Notice that your pattern of basic use of Citadel therefore
 doesn't really change.)
  
    Direct access to floor options is via the use of a ";" command.
