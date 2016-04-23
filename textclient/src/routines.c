@@ -433,20 +433,6 @@ void strproc(char *string)
 }
 
 
-#ifndef HAVE_STRERROR
-/*
- * replacement strerror() for systems that don't have it
- */
-char *strerror(int e)
-{
-	static char buf[128];
-
-	snprintf(buf, sizeof buf, "errno = %d",e);
-	return(buf);
-}
-#endif
-
-
 void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax)
 {
 	static char dots[] =

@@ -106,16 +106,3 @@ void mesg_locate(char *targ, size_t n, const char *searchfor,
 }
 
 
-#ifndef HAVE_STRERROR
-/*
- * replacement strerror() for systems that don't have it
- */
-char *strerror(int e)
-{
-	static char buf[32];
-
-	snprintf(buf,sizeof buf,"errno = %d",e);
-	return(buf);
-	}
-#endif
-
