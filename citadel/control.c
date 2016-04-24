@@ -1,7 +1,7 @@
 /*
  * This module handles states which are global to the entire server.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -24,7 +24,9 @@
 long control_highest_user = 0;
 
 /*
- * This is the control record for the message base... 
+ * This is the legacy "control record" format for the message base.  If found
+ * on disk, its contents will be migrated into the system configuration.  Never
+ * change this.
  */
 struct legacy_ctrl_format {
 	long MMhighest;			/* highest message number in file   */
@@ -38,9 +40,8 @@ struct legacy_ctrl_format {
 };
 
 
-
 /*
- * callback to get highest room number when rebuilding control file
+ * Callback to get highest room number when rebuilding message base metadata
  */
 void control_find_highest(struct ctdlroom *qrbuf, void *data)
 {
@@ -152,7 +153,6 @@ void check_control(void)
 }
 
 
-
 /*
  * get_new_message_number()  -  Obtain a new, unique ID to be used for a message.
  */
@@ -197,7 +197,6 @@ long get_new_user_number(void)
 }
 
 
-
 /*
  * get_new_room_number()  -  Obtain a new, unique ID to be used for a room.
  */
@@ -211,7 +210,6 @@ long get_new_room_number(void)
 	end_critical_section(S_CONTROL);
 	return(retval);
 }
-
 
 
 /*
@@ -245,7 +243,8 @@ void cmd_conf(char *argbuf)
 
 	extract_token(cmd, argbuf, 0, '|', sizeof cmd);
 
-	// CONF GET - retrieve system configuration in legacy format (deprecated)
+	// CONF GET - retrieve system configuration in legacy format
+	// This is deprecated; please do not add fields or change their order.
 	if (!strcasecmp(cmd, "GET")) {
 		cprintf("%d Configuration...\n", LISTING_FOLLOWS);
 		cprintf("%s\n",		CtdlGetConfigStr("c_nodename"));
@@ -331,7 +330,8 @@ void cmd_conf(char *argbuf)
 		cprintf("000\n");
 	}
 
-	// CONF SET - set system configuration in legacy format (really deprecated)
+	// CONF SET - set system configuration in legacy format
+	// This is deprecated; please do not add fields or change their order.
 	else if (!strcasecmp(cmd, "SET")) {
 		unbuffer_output();
 		cprintf("%d Send configuration...\n", SEND_LISTING);
@@ -624,6 +624,7 @@ void cmd_conf(char *argbuf)
 		free(confptr);
 	}
 
+	// CONF GETVAL - retrieve configuration variables from the database
 	else if (!strcasecmp(cmd, "GETVAL")) {
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		char *v = CtdlGetConfigStr(confname);
@@ -635,6 +636,7 @@ void cmd_conf(char *argbuf)
 		}
 	}
 
+	// CONF PUTVAL - store configuration variables from the database
 	else if (!strcasecmp(cmd, "PUTVAL")) {
 		if (num_tokens(argbuf, '|') < 3) {
 			cprintf("%d name and value required\n", ERROR);
@@ -647,10 +649,30 @@ void cmd_conf(char *argbuf)
 		}
 	}
 
+	// CONF LISTVAL - list configuration variables in the database and their values
+	else if (!strcasecmp(cmd, "LISTVAL")) {
+		struct cdbdata *cdbcfg;
+		int keylen = 0;
+		char *key = NULL;
+		char *value = NULL;
+	
+		cprintf("%d all configuration variables\n", LISTING_FOLLOWS);
+		cdb_rewind(CDB_CONFIG);
+		while (cdbcfg = cdb_next_item(CDB_CONFIG), cdbcfg != NULL) {
+			keylen = strlen(cdbcfg->ptr);
+			key = cdbcfg->ptr;
+			value = cdbcfg->ptr + keylen + 1;
+			cprintf("%s|%s\n", key, value);
+			cdb_free(cdbcfg);
+		}
+		cprintf("000\n");
+	}
+
 	else {
 		cprintf("%d Illegal option(s) specified.\n", ERROR + ILLEGAL_VALUE);
 	}
 }
+
 
 typedef struct __ConfType {
 	ConstStr Name;
