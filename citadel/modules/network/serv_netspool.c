@@ -410,7 +410,6 @@ void CalcListID(SpoolControl *sc)
 	FreeStrBuf(&RoomName);
 }
 
-static time_t last_digest_delivery = 0;
 
 /*
  * Batch up and send all outbound traffic from the current room
@@ -450,8 +449,7 @@ void network_spoolout_room(SpoolControl *sc)
 	}
 	else
 	{
-		snprintf(buf, sizeof buf, "room_%s@%s",
-			 CCC->room.QRname, CtdlGetConfigStr("c_fqdn"));
+		snprintf(buf, sizeof buf, "room_%s@%s", CCC->room.QRname, CtdlGetConfigStr("c_fqdn"));
 	}
 
 	for (i=0; buf[i]; ++i) {
@@ -461,41 +459,18 @@ void network_spoolout_room(SpoolControl *sc)
 
 
 	/* If we wrote a digest, deliver it and then close it */
-	if (sc->Users[digestrecp] != NULL) {
-		time_t now = time(NULL);
-		time_t secs_today = now % (24 * 60 * 60);
-		long delta = 0;
-
-		if (last_digest_delivery != 0) {
-			delta = now - last_digest_delivery;
-			delta = (24 * 60 * 60) - delta;
-		}
-
-		if ((secs_today < 300) && 
-		    (delta < 300))
-		{
-			if (sc->digestfp == NULL) {
-				sc->digestfp = create_digest_file(&sc->room, 0);
-			}
-			if (sc->digestfp != NULL) {
-				last_digest_delivery = now;
-				fprintf(sc->digestfp,
-					" -----------------------------------"
-					"------------------------------------"
-					"-------\n"
-					"You are subscribed to the '%s' "
-					"list.\n"
-					"To post to the list: %s\n",
-					CCC->room.QRname, buf
-					);
-				network_deliver_digest(sc);	/* deliver */
-				remove_digest_file(&sc->room);
-			}
-		}
-	}
-	if (sc->digestfp != NULL) {
+	if ( (sc->Users[digestrecp] != NULL) && (sc->digestfp != NULL) )
+	{
+		fprintf(sc->digestfp,
+			" ------------------------------------------------------------------------------\n"
+			"You are subscribed to the '%s' list.\n"
+			"To post to the list: %s\n",
+			CCC->room.QRname, buf
+		);
+		network_deliver_digest(sc);	/* deliver */
 		fclose(sc->digestfp);
 		sc->digestfp = NULL;
+		remove_digest_file(&sc->room);
 	}
 
 	/* Now rewrite the netconfig */
