@@ -2,7 +2,7 @@
  * This file contains functions which implement parts of the
  * text-mode user interface.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -60,7 +60,7 @@
 #include "routines2.h"
 #include "rooms.h"
 #include "client_chat.h"
-////#include "citadel_dirs.h"
+#include "help.h"
 #include "tuiconfig.h"
 //#ifndef HAVE_SNPRINTF
 //#include "snprintf.h"
@@ -1192,11 +1192,24 @@ void stty_ctdl(int cmd)
 
 
 /*
- * display_help()  -  help file viewer
+ * display_help()  -  help text viewer
  */
 void display_help(CtdlIPC *ipc, char *name)
 {
-	formout(ipc, name);
+	int i;
+	int num_helps = sizeof(helpnames) / sizeof(char *) ;
+
+	for (i=0; i<num_helps; ++i) {
+		if (!strcasecmp(name, helpnames[i])) {
+			fmout(screenwidth, NULL, helptexts[i], NULL, 0);
+			return;
+		}
+	}
+
+	scr_printf("'%s' not found.  Enter one of:\n", name);
+	for (i=0; i<num_helps; ++i) {
+		scr_printf("  %s\n", helpnames[i]);
+	}
 }
 
 
