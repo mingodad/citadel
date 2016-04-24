@@ -1,7 +1,7 @@
 /*
  * Client-side support functions.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
@@ -40,25 +40,13 @@
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
-#ifdef HAVE_UTMP_H
-#include <utmp.h>
-#endif
-#ifdef HAVE_UTMPX_H
-#include <utmpx.h>
-#endif
 
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "screen.h"
 
-#ifndef HAVE_GETUTLINE
-struct utmp *getutline(struct utmp *ut);
-#endif
-
 #define ROUTINES_C
 
-///#include "citadel.h"
 #include "routines.h"
 #include "commands.h"
 #include "citadel_decls.h"
@@ -462,79 +450,14 @@ void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax)
  */
 void locate_host(CtdlIPC* ipc, char *hbuf)
 {
-#ifndef HAVE_UTMP_H
-	char buf[SIZ];
-	FILE *who;
-	int a,b;
-
-	who = (FILE *)popen("who am i","r");
+	FILE *who = (FILE *)popen("who am i","r");
 	if (who==NULL) {
 		strcpy(hbuf, ipc->ServInfo.fqdn);
 		return;	
 	}
-	fgets(buf,sizeof buf,who);
+	fgets(hbuf, SIZ, who);
 	pclose(who);
-
-	b = 0;
-	for (a=0; !IsEmptyStr(&buf[a]); ++a) {
-		if ((buf[a]=='(')||(buf[a]==')')) ++b;
-	}
-	if (b<2) {
-		strcpy(hbuf, ipc->ServInfo.fqdn);
-		return;
-	}
-
-	for (a=0; a<strlen(buf); ++a) {
-		if (buf[a]=='(') {
-			strcpy(buf,&buf[a+1]);
-		}
-	}
-	for (a=0; a<strlen(buf); ++a) {
-		if (buf[a]==')') buf[a] = 0;
-	}
-
-	if (IsEmptyStr(buf)) strcpy(hbuf, ipc->ServInfo.fqdn);
-	else strncpy(hbuf,buf,24);
-#else
-	char *tty = ttyname(0);
-#ifdef HAVE_GETUTXLINE
-	struct utmpx ut, *put;
-#else
-	struct utmp ut, *put;
-#endif
-
-	if (tty == NULL) {
-	    fail:
-		safestrncpy(hbuf, ipc->ServInfo.fqdn, 24);
-		return;
-	}
-
-	if (strncmp(tty, "/dev/", 5))
-		goto fail;
-
-	safestrncpy(ut.ut_line, &tty[5], sizeof ut.ut_line);
-
-#ifdef HAVE_GETUTXLINE /* Solaris uses this */
-	if ((put = getutxline(&ut)) == NULL)
-#else
-	if ((put = getutline(&ut)) == NULL)
-#endif
-		goto fail;
-
-#if defined(HAVE_UT_TYPE) || defined(HAVE_GETUTXLINE)
-	if (put->ut_type == USER_PROCESS) {
-#endif
-#if defined(HAVE_UT_HOST) || defined(HAVE_GETUTXLINE)
-		if (*put->ut_host)
-			safestrncpy(hbuf, put->ut_host, 24);
-		else
-#endif
-			safestrncpy(hbuf, put->ut_line, 24);
-#if defined(HAVE_UT_TYPE) || defined(HAVE_GETUTXLINE)
-	}
-	else goto fail;
-#endif
-#endif /* HAVE_UTMP_H */
+	stripallbut(hbuf, '(' , ')' );
 }
 
 /*
