@@ -9,7 +9,6 @@
 
 #include <libcitadel.h>
 #include <limits.h>
-////#include "sysdep.h"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
@@ -40,10 +40,7 @@
 #include <pthread.h>
 #endif
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
-//#include "citadel_decls.h"
-//#include "citadel_dirs.h"
 #ifdef THREADED_CLIENT
 pthread_mutex_t rwlock;
 #endif
@@ -2276,22 +2273,6 @@ int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret)
 }
 
 
-
-/*
- * Not implemented:
- * 
- * CHAT
- * ETLS
- * EXPI
- * GTLS
- * IGAB
- * MSG3
- * MSG4
- * NDOP
- * NETP
- * NUOP
- * SMTP
- */
 
 
 /* ************************************************************************** */

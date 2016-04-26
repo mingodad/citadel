@@ -2,7 +2,7 @@
  * Functions which allow the client to remember usernames and passwords for
  * various sites.
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
@@ -24,7 +24,6 @@
 #include <limits.h>
 #include <stdio.h>
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "commands.h"
 #include "client_passwords.h"

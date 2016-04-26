@@ -57,7 +57,6 @@
 #define IFNAIDE if (axlevel<AxAideU)
 
 extern unsigned userflags;
-//extern char *axdefs[8];
 extern char sigcaught;
 extern char rc_floor_mode;
 extern int rc_ansi_color;

@@ -51,7 +51,6 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "commands.h"
 #include "messages.h"
@@ -62,9 +61,6 @@
 #include "client_chat.h"
 #include "help.h"
 #include "tuiconfig.h"
-//#ifndef HAVE_SNPRINTF
-//#include "snprintf.h"
-///#endif
 #include "screen.h"
 #include "ecrash.h"
 

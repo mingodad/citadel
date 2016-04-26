@@ -1,7 +1,7 @@
 /*
  * Main source module for the client program.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -41,9 +41,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
-//#include "axdefs.h"
 #include "routines.h"
 #include "routines2.h"
 #include "tuiconfig.h"
@@ -58,7 +56,6 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
-///#include "citadel_dirs.h"
 
 #include "ecrash.h"
 #include "md5.h"
@@ -1418,20 +1415,13 @@ int main(int argc, char **argv)
 
 #ifdef HAVE_BACKTRACE
 	bzero(&params, sizeof(params));
-//	params.filename = file_pid_paniclog;
-//	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
-///	params.filep = fopen(file_pid_paniclog, "a+");
 	params.debugLevel = ECRASH_DEBUG_VERBOSE;
 	params.dumpAllThreads = TRUE;
 	params.useBacktraceSymbols = 1;
-///	BuildSymbolTable(&symbol_table);
-//	params.symbolTable = &symbol_table;
 	params.signals[0]=SIGSEGV;
 	params.signals[1]=SIGILL;
 	params.signals[2]=SIGBUS;
 	params.signals[3]=SIGABRT;
-
-///	eCrash_Init(&params);
 #endif	
 	setIPCErrorPrintf(scr_printf);
 	setCryptoStatusHook(statusHook);
@@ -1445,10 +1435,9 @@ int main(int argc, char **argv)
 		logoff(NULL, 3);
 	}
 
-	stty_ctdl(SB_SAVE);	/* Store the old terminal parameters */
-	load_command_set();	/* parse the citadel.rc file */
-	stty_ctdl(SB_NO_INTR);	/* Install the new ones */
-	/* signal(SIGHUP, dropcarr);FIXME */	/* Cleanup gracefully if carrier is dropped */
+	stty_ctdl(SB_SAVE);		/* Store the old terminal parameters */
+	load_command_set();		/* parse the citadel.rc file */
+	stty_ctdl(SB_NO_INTR);		/* Install the new ones */
 	signal(SIGPIPE, dropcarr);	/* Cleanup gracefully if local conn. dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);	/* Catch SIGCONT so we can reset terminal */

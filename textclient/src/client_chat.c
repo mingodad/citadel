@@ -1,7 +1,7 @@
 /*
  * front end for multiuser chat
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -39,7 +39,6 @@
 #endif
 #include <stdarg.h>
 #include <libcitadel.h>
-//#include "citadel.h"
 #include "citadel_ipc.h"
 #include "client_chat.h"
 #include "commands.h"
@@ -47,9 +46,6 @@
 #include "citadel_decls.h"
 #include "rooms.h"
 #include "messages.h"
-//#ifndef HAVE_SNPRINTF
-//#include "snprintf.h"
-//#endif
 #include "screen.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

@@ -38,11 +38,6 @@
 #include <sys/stat.h>
 #include <pthread.h>
 #include <libcitadel.h>
-///#include "server.h"
-/// #include "sysdep_decls.h"
-//#include "support.h"
-///#include "config.h"
-//#include "citserver.h"
 #include "ecrash.h"
 
 #define NIY()	printf("function not implemented yet!\n");

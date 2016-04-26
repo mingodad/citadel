@@ -1,7 +1,7 @@
 /*
  * Configuration screens that are part of the text mode client.
  *
- * Copyright (c) 1987-2014 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -39,16 +39,12 @@
 #include <stdarg.h>
 #include <libcitadel.h>
 #include "sysdep.h"
-///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "tuiconfig.h"
 #include "messages.h"
 #include "routines.h"
 #include "commands.h"
-///#ifndef HAVE_SNPRINTF
-///#include "snprintf.h"
-///#endif
 #include "screen.h"
 
 /* work around solaris include files */
