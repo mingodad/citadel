@@ -351,7 +351,7 @@ void cmd_conf(char *argbuf)
 				/* placeholder -- field no longer in use */
 				break;
 			case 4:
-				CtdlSetConfigInt("c_creataide", atoi(buf));
+				CtdlSetConfigInt("c_creataide", confbool(buf));
 				break;
 			case 5:
 				CtdlSetConfigInt("c_sleeping", atoi(buf));
@@ -378,10 +378,10 @@ void cmd_conf(char *argbuf)
 				CtdlSetConfigInt("c_restrict", confbool(buf));
 				break;
 			case 12:
-				CtdlSetConfigInt("c_site_location", confbool(buf));
+				CtdlSetConfigStr("c_site_location", buf);
 				break;
 			case 13:
-				CtdlSetConfigInt("c_sysadm", confbool(buf));
+				CtdlSetConfigStr("c_sysadm", buf);
 				break;
 			case 14:
 				i = atoi(buf);
@@ -581,7 +581,7 @@ void cmd_conf(char *argbuf)
 			"The global system configuration has been edited by %s.\n",
 			 (CC->logged_in ? CC->curr_user : "an administrator")
 		);
-		CtdlAideMessage(buf,"Citadel Configuration Manager Message");
+		CtdlAideMessage(buf, "Citadel Configuration Manager Message");
 
 		if (!IsEmptyStr(CtdlGetConfigStr("c_logpages")))
 			CtdlCreateRoom(CtdlGetConfigStr("c_logpages"), 3, "", 0, 1, 1, VIEW_BBS);
