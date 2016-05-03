@@ -863,7 +863,7 @@ void edit_value(int curr)
 				pw = getpwnam(ctdluidname);
 				if (pw != NULL) {
 					ctdluid = pw->pw_uid;
-				}
+				
 				else if (atoi(ctdluidname) > 0) {
 					ctdluid = atoi(ctdluidname);
 				}
