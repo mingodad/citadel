@@ -502,12 +502,8 @@ void tmplput_serv_software(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_serv_rev_level(StrBuf *Target, WCTemplputParams *TP)
 {
-	wcsession *WCC = WC;
-	if (WCC->serv_info == NULL)
-		return;
-	StrBufAppendPrintf(Target, "%d.%02d",
-			    WCC->serv_info->serv_rev_level / 100,
-			    WCC->serv_info->serv_rev_level % 100);
+	if (WC->serv_info == NULL) return;
+	StrBufAppendPrintf(Target, "%d", WC->serv_info->serv_rev_level);
 }
 int conditional_serv_newuser_disabled(StrBuf *Target, WCTemplputParams *TP)
 {
