@@ -1,7 +1,7 @@
 /*
  * Citadel setup utility
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -1075,7 +1075,6 @@ int main(int argc, char *argv[])
 	char aaa[128];
 	int relh = 0;
 	int home = 0;
-	int nRetries = 0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	struct passwd *pw;
@@ -1131,12 +1130,14 @@ int main(int argc, char *argv[])
 	/*
 	 * Connect to the running Citadel server.
 	 */
-	while ((serv_sock < 0) && (nRetries < 10)) {
+	char *connectingmsg = _("Connecting to Citadel server");
+	for (i=0; ((i<30) && (serv_sock < 0)) ; ++i) {		/* wait for server to start up */
+		progress(connectingmsg, i, 30);
         	serv_sock = uds_connectsock(file_citadel_admin_socket);
-		nRetries ++;
-		if (serv_sock < 0)
-			sleep(1);
+		sleep(1);
 	}
+	progress(connectingmsg, 30, 30);
+
 	if (serv_sock < 0) { 
 		display_error(
 			"%s: %s %s\n", 
