@@ -79,6 +79,9 @@ case $1 in
 	./webcit -G `pwd`/i18n_templatelist.c
 	cd po/webcit;  ./create-pot.sh
 	;;
+    version)
+	echo This would build webcit-${WEBCIT_VERSION}
+	;;
     *)
 	echo "Not yet implemented. we have: debian, sourcedist, i18n (needs ready compiled & installed webcit in your system)"
 	;;

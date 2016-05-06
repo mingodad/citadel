@@ -111,6 +111,9 @@ EMAIL=citadel@outgesourced.org
 	    \
 	    -chvzf citadel-$CITADEL_VERSION.tar.gz citadel-$CITADEL_VERSION/
 	;;
+    version)
+	echo This would build citadel-$CITADEL_VERSION
+	;;
 	*)
 		echo "Not yet implemented. we have: debian "
 		;;
