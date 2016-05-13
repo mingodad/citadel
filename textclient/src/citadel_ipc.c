@@ -66,8 +66,6 @@ char ctdl_run_dir[PATH_MAX]="";
 char ctdl_etc_dir[PATH_MAX]="";
 char ctdl_home_directory[PATH_MAX] = "";
 char file_citadel_socket[PATH_MAX]="";
-char file_citadel_config[PATH_MAX]="";
-
 
 char *viewdefs[]={
         "Messages",
@@ -177,12 +175,6 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 				"%scitadel.socket",
 			 ctdl_run_dir);
 	StripSlashes(file_citadel_socket, 0);
-
-	snprintf(file_citadel_config, 
-			 sizeof file_citadel_config,
-			 "%scitadel.config",
-			 ctdl_autoetc_dir);
-	StripSlashes(file_citadel_config, 0);
 
 	DBG_PRINT(ctdl_run_dir);
 	DBG_PRINT(file_citadel_socket);

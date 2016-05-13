@@ -321,6 +321,7 @@ enum {
 	eNone
 };
 
+<<<<<<< HEAD
 enum {
 	eGET,
 	ePOST,
@@ -727,3 +728,15 @@ void display_summary_page(void);
 
 HashList *GetValidDomainNames(StrBuf *Target, WCTemplputParams *TP);
 void output_error_pic(const char *ErrMsg1, const char *ErrMsg2);
+=======
+#define TRACE syslog(LOG_DEBUG, "\033[3%dmCHECKPOINT: %s:%d\033[0m", ((__LINE__%6)+1), __FILE__, __LINE__)
+#define SLEEPING		180		// TCP connection timeout
+#define MAX_WORKER_THREADS	32		// Maximum number of worker threads permitted to exist
+
+int webserver(char *webserver_interface, int webserver_port, int webserver_protocol);
+int webcit_tcp_server(const char *ip_addr, int port_number, int queue_len);
+int webcit_uds_server(char *sockpath, int queue_len);
+int lingering_close(int fd);
+void perform_one_http_transaction(int ssock);
+void worker_entry(int *pointer_to_master_socket);
+>>>>>>> af64ffb... textclient: don't try to stat citadel.config; it doesn't exist anymore.

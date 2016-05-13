@@ -1426,15 +1426,6 @@ int main(int argc, char **argv)
 	setIPCErrorPrintf(scr_printf);
 	setCryptoStatusHook(statusHook);
 	
-	/* Permissions sanity check - don't run citadel setuid/setgid */
-	if (getuid() != geteuid()) {
-		scr_printf("Please do not run citadel setuid!\n");
-		logoff(NULL, 3);
-	} else if (getgid() != getegid()) {
-		scr_printf("Please do not run citadel setgid!\n");
-		logoff(NULL, 3);
-	}
-
 	stty_ctdl(SB_SAVE);		/* Store the old terminal parameters */
 	load_command_set();		/* parse the citadel.rc file */
 	stty_ctdl(SB_NO_INTR);		/* Install the new ones */
@@ -1473,42 +1464,8 @@ int main(int argc, char **argv)
 			return 1;
 #endif
 		}
-		if (!strcmp(argv[a], "-p")) {
-			struct stat st;
-		
-			if (chdir(CTDLDIR) < 0) {
-				perror("can't change to " CTDLDIR);
-				logoff(NULL, 3);
-			}
-
-			/*
-			 * Drop privileges if necessary. We stat
-			 * citadel.config to get the uid/gid since it's
-			 * guaranteed to have the uid/gid we want.
-			 */
-			if (!getuid() || !getgid()) {
-				if (stat(file_citadel_config, &st) < 0) {
-					perror("couldn't stat citadel.config");
-					logoff(NULL, 3);
-				}
-				if (!getgid() && (setgid(st.st_gid) < 0)) {
-					perror("couldn't change gid");
-					logoff(NULL, 3);
-				}
-				if (!getuid() && (setuid(st.st_uid) < 0)) {
-					perror("couldn't change uid");
-					logoff(NULL, 3);
-				}
-				/*
-				  scr_printf("Privileges changed to uid %d gid %d\n",
-				  getuid(), getgid());
-				*/
-			}
-			argc = shift(argc, argv, a, 1);
-		}
 	}
 	
-
 	screen_new();
 	/* Get screen dimensions.  First we go to a default of 80x24.
 	 * Then attempt to read the actual screen size from the terminal.
