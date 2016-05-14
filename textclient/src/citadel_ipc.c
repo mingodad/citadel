@@ -3335,6 +3335,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		else {
 			snprintf(sockpath, sizeof sockpath, "%s/%s", citport, "citadel.socket");
 		}
+		printf("[%s]\n", sockpath);
 		ipc->sock = uds_connectsock(&(ipc->isLocal), sockpath);
 		if (ipc->sock == -1) {
 			ifree(ipc);
@@ -3347,6 +3348,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		return ipc;
 	}
 
+	printf("[%s:%s]\n", cithost, citport);
 	ipc->sock = tcp_connectsock(cithost, citport);
 	if (ipc->sock == -1) {
 		ifree(ipc);
