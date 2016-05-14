@@ -1464,6 +1464,10 @@ int main(int argc, char **argv)
 			return 1;
 #endif
 		}
+		if (!strcmp(argv[a], "-p")) {
+			// ignore this argument when called from telnetd
+			argc = shift(argc, argv, a, 1);
+		}
 	}
 	
 	screen_new();
