@@ -213,6 +213,8 @@ void cmd_msgs(char *cmdbuf)
 	else if (with_template == 2) {
 		long i = 0;
 		memset(buf, 0, 5);
+		cprintf("%d Send list of headers\n",
+			START_CHAT_MODE);
 		filt.Filter = NewHash(1, lFlathash);
 		filt.buffer = NewStrBufPlain(NULL, 1024);
 		while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {

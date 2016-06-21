@@ -659,7 +659,7 @@ void CtdlForEachRoom(ForEachRoomCallBack CB, void *in_data)
 /* 
  * Iterate through the room table, performing a callback for each room that has a netconfig entry.
  */
-void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetCfg filter)
+void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data)
 {
 	struct ctdlroom qrbuf;
 	struct cdbdata *cdbqr;
@@ -668,17 +668,14 @@ void CtdlForEachNetCfgRoom(ForEachRoomNetCfgCallBack CB, void *in_data, RoomNetC
 
 	while (cdbqr = cdb_next_item(CDB_ROOMS), cdbqr != NULL) {
 		memset(&qrbuf, 0, sizeof(struct ctdlroom));
-		memcpy(&qrbuf, cdbqr->ptr,
-		       ((cdbqr->len > sizeof(struct ctdlroom)) ?
-			sizeof(struct ctdlroom) : cdbqr->len)
-		);
+		memcpy(&qrbuf, cdbqr->ptr, ((cdbqr->len > sizeof(struct ctdlroom)) ?  sizeof(struct ctdlroom) : cdbqr->len));
 		cdb_free(cdbqr);
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE)
 		{
 			OneRoomNetCfg *RNCfg;
 			RNCfg = CtdlGetNetCfgForRoom(qrbuf.QRnumber);
-			if ((RNCfg != NULL) && ((filter == maxRoomNetCfg) || (RNCfg->NetConfigs[filter] != NULL)))
+			if (RNCfg != NULL)
 			{
 				CB(&qrbuf, in_data, RNCfg);
 				FreeRoomNetworkStruct(&RNCfg);
@@ -829,8 +826,10 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	/* Check for new mail */
 	newmailcount = NewMailCount();
 
-	/* set info to 1 if the user needs to read the room's info file */
-	if (CCC->room.QRinfo > vbuf.v_lastseen) {
+	/* Set info to 1 if the room banner is new since our last visit.
+	 * Some clients only want to display it when it changes.
+	 */
+	if (CCC->room.msgnum_info > vbuf.v_lastseen) {
 		info = 1;
 	}
 
@@ -905,7 +904,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	if (retnew != NULL) *retnew = new_messages;
 	if (retoldest != NULL) *retoldest = oldest_message;
 	if (retnewest != NULL) *retnewest = newest_message;
-	MSG_syslog(LOG_INFO, "<%s> %d new of %d total messages, oldest=%ld, newest=%ld",
+	MSG_syslog(LOG_DEBUG, "<%s> %d new of %d total messages, oldest=%ld, newest=%ld",
 		   CCC->room.QRname, new_messages, total_messages, oldest_message, newest_message
 	);
 
@@ -978,6 +977,7 @@ void convert_room_name_macros(char *towhere, size_t maxlen) {
  * in *at least* the old name!
  */
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
+	struct CitContext *CCC = CC;
 	int old_floor = 0;
 	struct ctdlroom qrbuf;
 	struct ctdlroom qrtmp;
@@ -987,7 +987,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	long owner = 0L;
 	char actual_old_name[ROOMNAMELEN];
 
-	syslog(LOG_DEBUG, "CtdlRenameRoom(%s, %s, %d)", old_name, new_name, new_floor);
+	MSG_syslog(LOG_DEBUG, "CtdlRenameRoom(%s, %s, %d)", old_name, new_name, new_floor);
 
 	if (new_floor >= 0) {
 		fl = CtdlGetCachedFloor(new_floor);
@@ -1007,9 +1007,9 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		ret = crr_room_not_found;
 	}
 
-	else if ( (CC->user.axlevel < AxAideU) && (!CC->internal_pgm)
-		  && (CC->user.usernum != qrbuf.QRroomaide)
-		  && ( (((qrbuf.QRflags & QR_MAILBOX) == 0) || (atol(qrbuf.QRname) != CC->user.usernum))) )  {
+	else if ( (CCC->user.axlevel < AxAideU) && (!CCC->internal_pgm)
+		  && (CCC->user.usernum != qrbuf.QRroomaide)
+		  && ( (((qrbuf.QRflags & QR_MAILBOX) == 0) || (atol(qrbuf.QRname) != CCC->user.usernum))) )  {
 		ret = crr_access_denied;
 	}
 
@@ -1076,11 +1076,11 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		lgetfloor(&flbuf, old_floor);
 		--flbuf.f_ref_count;
 		lputfloor(&flbuf, old_floor);
-		syslog(LOG_DEBUG, "Reference count for floor %d is now %d", old_floor, flbuf.f_ref_count);
+		MSG_syslog(LOG_DEBUG, "Reference count for floor %d is now %d", old_floor, flbuf.f_ref_count);
 		lgetfloor(&flbuf, new_floor);
 		++flbuf.f_ref_count;
 		lputfloor(&flbuf, new_floor);
-		syslog(LOG_DEBUG, "Reference count for floor %d is now %d", new_floor, flbuf.f_ref_count);
+		MSG_syslog(LOG_DEBUG, "Reference count for floor %d is now %d", new_floor, flbuf.f_ref_count);
 	}
 
 	/* ...and everybody say "YATTA!" */	
@@ -1130,18 +1130,9 @@ void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf)
 void CtdlDeleteRoom(struct ctdlroom *qrbuf)
 {
 	struct floor flbuf;
-	char filename[PATH_MAX];
 	char configdbkeyname[25];
 
 	syslog(LOG_NOTICE, "Deleting room <%s>", qrbuf->QRname);
-
-	/* Delete the info file */
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_info_dir);
-	unlink(filename);
-
-	/* Delete the image file */
-	assoc_file_name(filename, sizeof filename, qrbuf, ctdl_image_dir);
-	unlink(filename);
 
 	/* Delete the room's network configdb entry */
 	netcfg_keyname(configdbkeyname, qrbuf->QRnumber);
@@ -1225,10 +1216,10 @@ unsigned CtdlCreateRoom(char *new_room_name,
 	struct floor flbuf;
 	visit vbuf;
 
-	syslog(LOG_DEBUG, "CtdlCreateRoom(name=%s, type=%d, view=%d)", new_room_name, new_room_type, new_room_view);
+	MARK_syslog(LOG_DEBUG, "CtdlCreateRoom(name=%s, type=%d, view=%d)", new_room_name, new_room_type, new_room_view);
 
 	if (CtdlGetRoom(&qrbuf, new_room_name) == 0) {
-		syslog(LOG_DEBUG, "Cannot create room <%s> - already exists", new_room_name);
+		MARK_syslog(LOG_DEBUG, "Cannot create room <%s> - already exists", new_room_name);
 		return(0);
 	}
 

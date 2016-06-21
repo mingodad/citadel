@@ -238,7 +238,7 @@ void nntp_starttls(void)
 void nntp_capabilities(void)
 {
 	cprintf("101 Capability list:\r\n");
-	cprintf("IMPLEMENTATION Citadel v%d.%02d\r\n", (REV_LEVEL/100), (REV_LEVEL%100));
+	cprintf("IMPLEMENTATION Citadel %d\r\n", REV_LEVEL);
 	cprintf("VERSION 2\r\n");
 	cprintf("READER\r\n");
 	cprintf("MODE-READER\r\n");

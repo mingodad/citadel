@@ -83,13 +83,7 @@ long send_message (struct CtdlMessage *);
 void loadtroom (void);
 long CtdlSubmitMsg(struct CtdlMessage *, recptypes *, const char *, int);
 
-void quickie_message(const char *from,
-		     const char *fromaddr,
-		     const char *to,
-		     char *room,
-		     const char *text, 
-		     int format_type,
-		     const char *subject);
+long quickie_message(const char *from, const char *fromaddr, const char *to, char *room, const char *text, int format_type, const char *subject);
 
 void flood_protect_quickie_message(const char *from,
 				   const char *fromaddr,

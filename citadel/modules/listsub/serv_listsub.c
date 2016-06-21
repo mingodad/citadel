@@ -63,9 +63,7 @@ void listsub_generate_token(char *buf) {
 	 * tinfoil-hat secure, it just needs to be reasonably unguessable
 	 * and unique.
 	 */
-	len = sprintf(sourcebuf, "%lx",
-		(long) (++seq + getpid() + time(NULL))
-	);
+	len = sprintf(sourcebuf, "%lx", (long) (++seq + getpid() + time(NULL)));
 
 	/* Convert it to base64 so it looks cool */	
 	len = CtdlEncodeBase64(buf, sourcebuf, len, 0);
@@ -73,6 +71,7 @@ void listsub_generate_token(char *buf) {
 		buf[len - 1] = '\0';
 	}
 }
+
 
 const RoomNetCfg ActiveSubscribers[] = {listrecp, digestrecp};
 
@@ -594,7 +593,6 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 		else
 		{
 			/* whipe duplicate subscribe entry... */
-			OneRNCfg->changed = 1;
 			errmsg = "already subscribed";
 		}
 	}
@@ -637,7 +635,6 @@ void do_confirm(StrBuf **room, StrBuf **token) {
 			errmsg = "no subscriber found for this unsubscription request";
 		}
 		DeleteGenericCfgLine(NULL/*TODO*/, &ConfirmLine);
-		OneRNCfg->changed = 1;
 	}
 
 	SaveRoomNetConfigFile(OneRNCfg, qrbuf.QRnumber);

@@ -1044,7 +1044,7 @@ void network_poll_other_citadel_nodes(int full_poll, HashList *ignetcfg)
 	int poll = 0;
 	
 	if (GetCount(ignetcfg) ==0) {
-		syslog(LOG_DEBUG, "network: no neighbor nodes are configured - not polling.\n");
+		MARKM_syslog(LOG_DEBUG, "network: no neighbor nodes are configured - not polling.\n");
 		return;
 	}
 	become_session(&networker_client_CC);

@@ -139,12 +139,15 @@ static size_t GetLocationString( void *ptr, size_t size, size_t nmemb, void *use
 	return size * nmemb;
 }
 
+
 static void SetRSSState(AsyncIO *IO, RSSState State)
 {
 	CitContext* CCC = IO->CitContext;
-	if (CCC != NULL)
+	if (CCC != NULL) {
 		memcpy(CCC->cs_clientname, RSSStates[State].Key, RSSStates[State].len + 1);
+	}
 }
+
 
 void DeleteRoomReference(long QRnumber)
 {
@@ -218,8 +221,9 @@ void DeleteRssCfg(void *vptr)
 	rss_aggregator *RSSAggr = (rss_aggregator *)vptr;
 	AsyncIO *IO = &RSSAggr->IO;
 
-	if (IO->CitContext != NULL)
-		EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying\n");
+	if (IO->CitContext != NULL) {
+		EVRSSCM_syslog(LOG_DEBUG, "RSS: destroying");
+	}
 
 	FreeStrBuf(&RSSAggr->Url);
 	FreeStrBuf(&RSSAggr->RedirectUrl);
@@ -250,7 +254,7 @@ eNextState RSSAggregator_Terminate(AsyncIO *IO)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator *)IO->Data;
 
-	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
+	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.");
 
 	StopCurlWatchers(IO);
 	UnlinkRSSAggregator(RSSAggr);
@@ -261,7 +265,7 @@ eNextState RSSAggregator_TerminateDB(AsyncIO *IO)
 {
 	rss_aggregator *RSSAggr = (rss_aggregator *)IO->Data;
 
-	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.\n");
+	EVRSSCM_syslog(LOG_DEBUG, "RSS: Terminating.");
 
 
 	StopDBWatchers(&RSSAggr->IO);
@@ -278,7 +282,7 @@ eNextState RSSAggregator_ShutdownAbort(AsyncIO *IO)
 	if (pUrl == NULL)
 		pUrl = "";
 
-	EVRSSC_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.\n", pUrl);
+	EVRSSC_syslog(LOG_DEBUG, "RSS: Aborting by shutdown: %s.", pUrl);
 
 	StopCurlWatchers(IO);
 	UnlinkRSSAggregator(RSSAggr);
@@ -432,13 +436,10 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 
 	if (rss_format_item(IO, RSSAggr->ThisMsg))
 	{
-		CM_SetAsFieldSB(&RSSAggr->ThisMsg->Msg, eMesageText,
-				       &RSSAggr->ThisMsg->Message);
-
+		CM_SetAsFieldSB(&RSSAggr->ThisMsg->Msg, eMesageText, &RSSAggr->ThisMsg->Message);
 		CtdlSubmitMsg(&RSSAggr->ThisMsg->Msg, &RSSAggr->recp, NULL, 0);
 		
 		/* write the uidl to the use table so we don't store this item again */
-		
 		CheckIfAlreadySeen("RSS Item Insert", RSSAggr->ThisMsg->MsgGUID, EvGetNow(IO), 0, eWrite, CCID, IO->ID);
 	}
 
@@ -523,11 +524,9 @@ void UpdateLastKnownGood(pRSSConfig *pCfg, time_t now)
 		}
 		if (RSSCfg != NULL)
 		{
-			pRNCfg->changed = 1;
 			RSSCfg->last_known_good = now;
 		}
 	}
-
 	SaveRoomNetConfigFile(pRNCfg, pCfg->QRnumber);
 	FreeRoomNetworkStruct(&pRNCfg);
 	end_critical_section(S_NETCONFIGS);
@@ -545,18 +544,18 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	rss_aggregator *Ctx = (rss_aggregator *) IO->Data;
 
 
-	if ((IO->HttpReq.httpcode >= 300) &&
-	    (IO->HttpReq.httpcode < 400)  && 
-	    (Ctx->RedirectUrl != NULL)) {
-
+	if ((IO->HttpReq.httpcode >= 300) && (IO->HttpReq.httpcode < 400)  && (Ctx->RedirectUrl != NULL))
+	{
 		StrBuf *ErrMsg;
 		long lens[2];
 		const char *strs[2];
 
 		SetRSSState(IO, eRSSFailure);
 		ErrMsg = NewStrBuf();
-		if (IO) EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
-			      IO->HttpReq.httpcode);
+		if (IO) {
+			EVRSSC_syslog(LOG_INFO, "need a 200, got a %ld !",
+				      IO->HttpReq.httpcode);
+		}
 		strs[0] = ChrPtr(Ctx->Url);
 		lens[0] = StrLength(Ctx->Url);
 
@@ -591,7 +590,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 		
 		FreeStrBuf(&ErrMsg);
 		EVRSSC_syslog(LOG_DEBUG,
-			      "RSS feed returned an invalid http status code. <%s><HTTP %ld>\n",
+			      "RSS feed returned an invalid http status code. <%s><HTTP %ld>",
 			      ChrPtr(Ctx->Url),
 			      IO->HttpReq.httpcode);
 		return eAbort;
@@ -604,8 +603,10 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 
 		SetRSSState(IO, eRSSFailure);
 		ErrMsg = NewStrBuf();
-		if (IO) EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !\n",
-			      IO->HttpReq.httpcode);
+		if (IO) {
+			EVRSSC_syslog(LOG_ALERT, "need a 200, got a %ld !",
+				      IO->HttpReq.httpcode);
+		}
 		strs[0] = ChrPtr(Ctx->Url);
 		lens[0] = StrLength(Ctx->Url);
 
@@ -638,7 +639,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 		
 		FreeStrBuf(&ErrMsg);
 		EVRSSC_syslog(LOG_DEBUG,
-			      "RSS feed returned an invalid http status code. <%s><HTTP %ld>\n",
+			      "RSS feed returned an invalid http status code. <%s><HTTP %ld>",
 			      ChrPtr(Ctx->Url),
 			      IO->HttpReq.httpcode);
 		return eAbort;
@@ -698,7 +699,7 @@ eNextState RSSAggregator_AnalyseReply(AsyncIO *IO)
 	{
 		FreeStrBuf(&guid);
 
-		EVRSSC_syslog(LOG_DEBUG, "RSS feed already seen. <%s>\n", ChrPtr(Ctx->Url));
+		EVRSSC_syslog(LOG_DEBUG, "RSS feed already seen. <%s>", ChrPtr(Ctx->Url));
 		return eAbort;
 	}
 	FreeStrBuf(&guid);
@@ -741,7 +742,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 			       RSSAggregator_TerminateDB,
 			       RSSAggregator_ShutdownAbort))
 	{
-		EVRSSCM_syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
+		EVRSSCM_syslog(LOG_ALERT, "Unable to initialize libcurl.");
 		return 0;
 	}
 	chnd = IO->HttpReq.chnd;
@@ -753,7 +754,7 @@ int rss_do_fetching(rss_aggregator *RSSAggr)
 		    ChrPtr(RSSAggr->Url),
 		    sizeof(((CitContext*)RSSAggr->IO.CitContext)->cs_host));
 
-	EVRSSC_syslog(LOG_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(RSSAggr->Url));
+	EVRSSC_syslog(LOG_DEBUG, "Fetching RSS feed <%s>", ChrPtr(RSSAggr->Url));
 	ParseURL(&RSSAggr->IO.ConnectMe, RSSAggr->Url, 80);
 	CurlPrepareURL(RSSAggr->IO.ConnectMe);
 
@@ -772,11 +773,12 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 	rss_aggregator *use_this_RSSAggr = NULL;
 	void *vptr;
 
+	EVRSSQ_syslog(LOG_DEBUG, "rssclient_scan_room(%s)", qrbuf->QRname);
 	pthread_mutex_lock(&RSSQueueMutex);
 	if (GetHash(RSSQueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
 		EVRSSQ_syslog(LOG_DEBUG,
-			      "rssclient: [%ld] %s already in progress.\n",
+			      "rssclient: [%ld] %s already in progress.",
 			      qrbuf->QRnumber,
 			      qrbuf->QRname);
 		pthread_mutex_unlock(&RSSQueueMutex);
@@ -789,19 +791,14 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data, OneRoomNetCfg *OneR
 	while (RSSCfg != NULL)
 	{
 		pthread_mutex_lock(&RSSQueueMutex);
-		GetHash(RSSFetchUrls,
-			SKEY(RSSCfg->Url),
-			&vptr);
+		GetHash(RSSFetchUrls, SKEY(RSSCfg->Url), &vptr);
 
 		use_this_RSSAggr = (rss_aggregator *)vptr;
 		if (use_this_RSSAggr != NULL)
 		{
 			pRSSConfig *pRSSCfg;
 
-			StrBufAppendBufPlain(
-				use_this_RSSAggr->rooms,
-				qrbuf->QRname,
-				-1, 0);
+			StrBufAppendBufPlain(use_this_RSSAggr->rooms, qrbuf->QRname, -1, 0);
 			if (use_this_RSSAggr->roomlist_parts==1)
 			{
 				use_this_RSSAggr->OtherQRnumbers
@@ -888,12 +885,13 @@ void rssclient_scan(void) {
 			      "rssclient: concurrency check failed; %d rooms and %d url's are queued",
 			      RSSRoomCount, RSSCount
 			);
+		abort();
 		return;
 	}
 
 	become_session(&rss_CC);
 	EVRSSQM_syslog(LOG_DEBUG, "rssclient started");
-	CtdlForEachNetCfgRoom(rssclient_scan_room, NULL, rssclient);
+	CtdlForEachNetCfgRoom(rssclient_scan_room, NULL);
 
 	if (GetCount(RSSFetchUrls) > 0)
 	{
@@ -916,7 +914,7 @@ void rssclient_scan(void) {
 	else
 		EVRSSQM_syslog(LOG_DEBUG, "Nothing to do.");
 
-	EVRSSQM_syslog(LOG_DEBUG, "rssclient ended\n");
+	EVRSSQM_syslog(LOG_DEBUG, "rssclient ended");
 	return;
 }
 
@@ -968,7 +966,7 @@ int RSSCheckUsetableVeto(StrBuf *ErrMsg)
 	Info.Now = time (NULL);
 	Info.Veto = 0;
 
-	CtdlForEachNetCfgRoom(rssclient_veto_scan_room, &Info, rssclient);
+	CtdlForEachNetCfgRoom(rssclient_veto_scan_room, &Info);
 
 	return Info.Veto;;
 }

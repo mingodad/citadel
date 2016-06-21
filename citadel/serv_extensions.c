@@ -25,7 +25,9 @@
 
 
 int DebugModules = 0;
- 
+int EnableMarkers = 0;
+int EnableCtlProto = 0;
+
 /*
  * Structure defentitions for hook tables
  */
@@ -1480,10 +1482,21 @@ void DebugModulesEnable(const int n)
 {
 	DebugModules = n;
 }
+void MarkersEnable(const int n)
+{
+	EnableMarkers = n;
+}
+void DebugCitadelProtoEnable(const int n)
+{
+	EnableCtlProto = n;
+}
+
 CTDL_MODULE_INIT(modules)
 {
 	if (!threading) {
 		CtdlRegisterDebugFlagHook(HKEY("modules"), DebugModulesEnable, &DebugModules);
+		CtdlRegisterDebugFlagHook(HKEY("periodicmarkers"), MarkersEnable, &EnableMarkers);
+		CtdlRegisterDebugFlagHook(HKEY("citadelprotocol"), DebugCitadelProtoEnable, &EnableCtlProto);
 	}
 	return "modules";
 }

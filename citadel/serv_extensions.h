@@ -29,6 +29,29 @@ extern int DebugModules;
 			      "%s Modules: " FORMAT, IOSTR);
 
 
+extern int EnableMarkers;
+#define MARKLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (EnableMarkers != 0))
+
+#define MARK_syslog(LEVEL, FORMAT, ...)					\
+	MARKLOG(LEVEL) syslog(LEVEL,					\
+			      "%s: " FORMAT, IOSTR, __VA_ARGS__)
+
+#define MARKM_syslog(LEVEL, FORMAT)				\
+	MARKLOG(LEVEL) syslog(LEVEL,				\
+			       "%s: " FORMAT, IOSTR);
+
+
+extern int EnableCtlProto;
+#define CTDLLOG(LEVEL) if ((LEVEL != LOG_DEBUG) || (EnableCtlProto != 0))
+
+#define CTDL_syslog(LEVEL, FORMAT, ...)					\
+	CTDLLOG(LEVEL) syslog(LEVEL,					\
+			      "%s CC[%d]: " FORMAT, IOSTR, CCCID, __VA_ARGS__)
+
+#define CTDLM_syslog(LEVEL, FORMAT)				\
+	CTDLLOG(LEVEL) syslog(LEVEL,				\
+			      "%s CC[%d]: " FORMAT, IOSTR, CCCID);
+
 
 
 /*

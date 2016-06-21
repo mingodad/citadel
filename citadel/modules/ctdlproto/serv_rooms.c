@@ -266,6 +266,7 @@ void cmd_lzrm(char *argbuf)
  */
 void cmd_goto(char *gargs)
 {
+	struct CitContext *CCC = CC;
 	struct ctdlroom QRscratch;
 	int c;
 	int ok = 0;
@@ -281,7 +282,7 @@ void cmd_goto(char *gargs)
 	extract_token(password, gargs, 1, '|', sizeof password);
 	transiently = extract_int(gargs, 2);
 
-	CtdlGetUser(&CC->user, CC->curr_user);
+	CtdlGetUser(&CCC->user, CCC->curr_user);
 
 	/*
 	 * Handle some of the macro named rooms
@@ -294,7 +295,7 @@ void cmd_goto(char *gargs)
 	/* Then try a mailbox name match */
 	if (c != 0) {
 		CtdlMailboxName(augmented_roomname, sizeof augmented_roomname,
-			    &CC->user, towhere);
+			    &CCC->user, towhere);
 		c = CtdlGetRoom(&QRscratch, augmented_roomname);
 		if (c == 0)
 			safestrncpy(towhere, augmented_roomname, sizeof towhere);
@@ -304,15 +305,15 @@ void cmd_goto(char *gargs)
 	if (c == 0) {
 
 		/* Let internal programs go directly to any room. */
-		if (CC->internal_pgm) {
-			memcpy(&CC->room, &QRscratch,
+		if (CCC->internal_pgm) {
+			memcpy(&CCC->room, &QRscratch,
 				sizeof(struct ctdlroom));
 			CtdlUserGoto(NULL, 1, transiently, NULL, NULL, NULL, NULL);
 			return;
 		}
 
 		/* See if there is an existing user/room relationship */
-		CtdlRoomAccess(&QRscratch, &CC->user, &ra, NULL);
+		CtdlRoomAccess(&QRscratch, &CCC->user, &ra, NULL);
 
 		/* normal clients have to pass through security */
 		if (ra & UA_GOTOALLOWED) {
@@ -322,14 +323,14 @@ void cmd_goto(char *gargs)
 		if (ok == 1) {
 			if ((QRscratch.QRflags & QR_MAILBOX) &&
 			    ((ra & UA_GOTOALLOWED))) {
-				memcpy(&CC->room, &QRscratch,
+				memcpy(&CCC->room, &QRscratch,
 					sizeof(struct ctdlroom));
 				CtdlUserGoto(NULL, 1, transiently, NULL, NULL, NULL, NULL);
 				return;
 			} else if ((QRscratch.QRflags & QR_PASSWORDED) &&
 			    ((ra & UA_KNOWN) == 0) &&
 			    (strcasecmp(QRscratch.QRpasswd, password)) &&
-			    (CC->user.axlevel < AxAideU)
+			    (CCC->user.axlevel < AxAideU)
 			    ) {
 				cprintf("%d wrong or missing passwd\n",
 					ERROR + PASSWORD_REQUIRED);
@@ -338,11 +339,11 @@ void cmd_goto(char *gargs)
 				   ((QRscratch.QRflags & QR_PASSWORDED) == 0) &&
 				   ((QRscratch.QRflags & QR_GUESSNAME) == 0) &&
 				   ((ra & UA_KNOWN) == 0) &&
-			           (CC->user.axlevel < AxAideU)
+			           (CCC->user.axlevel < AxAideU)
                                   ) {
-				syslog(LOG_DEBUG, "Failed to acquire private room\n");
+				CTDLM_syslog(LOG_DEBUG, "Failed to acquire private room");
 			} else {
-				memcpy(&CC->room, &QRscratch,
+				memcpy(&CCC->room, &QRscratch,
 					sizeof(struct ctdlroom));
 				CtdlUserGoto(NULL, 1, transiently, NULL, NULL, NULL, NULL);
 				return;
@@ -707,29 +708,20 @@ void cmd_seta(char *new_ra)
 }
 
 /* 
- * retrieve info file for this room
+ * Retrieve info file for this room (this ought to be upgraded to handle non-plain-text)
  */
-void cmd_rinf(char *gargs)
+void cmd_rinf(char *argbuf)
 {
-	char filename[PATH_MAX];
-	char buf[SIZ];
-	FILE *info_fp;
-
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_info_dir);
-	info_fp = fopen(filename, "r");
-
-	if (info_fp == NULL) {
+	struct CtdlMessage *msg = CtdlFetchMessage(CC->room.msgnum_info, 1, 1);
+	if (msg != NULL) {
+		cprintf("%d Info:\n", LISTING_FOLLOWS);
+		CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0, 0);
+		CM_Free(msg);
+		cprintf("000\n");
+	}
+	else {
 		cprintf("%d No info file.\n", ERROR + FILE_NOT_FOUND);
-		return;
 	}
-	cprintf("%d Info:\n", LISTING_FOLLOWS);
-	while (fgets(buf, sizeof buf, info_fp) != NULL) {
-		if (!IsEmptyStr(buf))
-			buf[strlen(buf) - 1] = 0;
-		cprintf("%s\n", buf);
-	}
-	cprintf("000\n");
-	fclose(info_fp);
 }
 
 
@@ -894,13 +886,13 @@ void cmd_cre8(char *args)
 }
 
 
-
+/*
+ * Upload the room banner text for this room.
+ * This should be amended to handle content types other than plain text.
+ */
 void cmd_einf(char *ok)
 {				/* enter info file for current room */
-	FILE *fp;
-	char infofilename[SIZ];
 	char buf[SIZ];
-
 	unbuffer_output();
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
@@ -909,28 +901,27 @@ void cmd_einf(char *ok)
 		cprintf("%d Ok.\n", CIT_OK);
 		return;
 	}
-	assoc_file_name(infofilename, sizeof infofilename, &CC->room, ctdl_info_dir);
-	syslog(LOG_DEBUG, "opening\n");
-	fp = fopen(infofilename, "w");
-	syslog(LOG_DEBUG, "checking\n");
-	if (fp == NULL) {
-		cprintf("%d Cannot open %s: %s\n",
-		  ERROR + INTERNAL_ERROR, infofilename, strerror(errno));
-		return;
+
+	StrBuf *NewBanner = NewStrBufPlain("Content-type: text/plain; charset=UTF-8\nContent-transfer-encoding: 8bit\n\n", -1);
+
+	cprintf("%d Transmit new banner in plain text now.\n", SEND_LISTING);
+	while(client_getln(buf, sizeof buf) >= 0 && strcmp(buf,"000")) {
+		StrBufAppendBufPlain(NewBanner, buf, -1, 0);
+		StrBufAppendBufPlain(NewBanner, HKEY("\n"), 0);
 	}
-	cprintf("%d Send info...\n", SEND_LISTING);
 
-	do {
-		client_getln(buf, sizeof buf);
-		if (strcmp(buf, "000"))
-			fprintf(fp, "%s\n", buf);
-	} while (strcmp(buf, "000"));
-	fclose(fp);
+	// We have read the new banner from the user , now save it
+	long new_msgnum = quickie_message("Citadel", NULL, NULL, SYSCONFIGROOM, ChrPtr(NewBanner), FMT_RFC822, "Banner submitted with EINF command");
+	FreeStrBuf(&NewBanner);
 
-	/* now update the room index so people will see our new info */
-	CtdlGetRoomLock(&CC->room, CC->room.QRname);		/* lock so no one steps on us */
-	CC->room.QRinfo = CC->room.QRhighest + 1L;
+	// Update the room record with a pointer to our new banner
+	CtdlGetRoomLock(&CC->room, CC->room.QRname);
+	long old_msgnum = CC->room.msgnum_info;
+	CC->room.msgnum_info = new_msgnum;
 	CtdlPutRoomLock(&CC->room);
+
+	// Delete the old one
+	CtdlDeleteMessages(SYSCONFIGROOM, &old_msgnum, 1, "");
 }
 
 

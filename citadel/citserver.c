@@ -373,69 +373,6 @@ void citproto_begin_admin_session() {
 }
 
 
-
-
-/*
- * This loop recognizes all server commands.
- */
-void do_command_loop(void) {
-	char cmdbuf[SIZ];
-	
-	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		syslog(LOG_ERR, "Citadel client disconnected: ending session.\n");
-		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
-		return;
-	}
-
-	/* Log the server command, but don't show passwords... */
-	if ( (strncasecmp(cmdbuf, "PASS", 4)) && (strncasecmp(cmdbuf, "SETP", 4)) ) {
-		syslog(LOG_INFO, "[%d][%s(%ld)] %s",
-			CC->cs_pid, CC->curr_user, CC->user.usernum, cmdbuf
-		);
-	}
-	else {
-		syslog(LOG_INFO, "[%d][%s(%ld)] <password command hidden from log>",
-			CC->cs_pid, CC->curr_user, CC->user.usernum
-		);
-	}
-
-	buffer_output();
-
-	/*
-	 * Let other clients see the last command we executed, and
-	 * update the idle time, but not NOOP, QNOP, PEXP, GEXP, RWHO, or TIME.
-	 */
-	if ( (strncasecmp(cmdbuf, "NOOP", 4))
-	   && (strncasecmp(cmdbuf, "QNOP", 4))
-	   && (strncasecmp(cmdbuf, "PEXP", 4))
-	   && (strncasecmp(cmdbuf, "GEXP", 4))
-	   && (strncasecmp(cmdbuf, "RWHO", 4))
-	   && (strncasecmp(cmdbuf, "TIME", 4)) ) {
-		strcpy(CC->lastcmdname, "    ");
-		safestrncpy(CC->lastcmdname, cmdbuf, sizeof(CC->lastcmdname));
-		time(&CC->lastidle);
-	}
-	
-	if ((strncasecmp(cmdbuf, "ENT0", 4))
-	   && (strncasecmp(cmdbuf, "MESG", 4))
-	   && (strncasecmp(cmdbuf, "MSGS", 4)))
-	{
-	   CC->cs_flags &= ~CS_POSTING;
-	}
-		   
-	if (!DLoader_Exec_Cmd(cmdbuf)) {
-		cprintf("%d Unrecognized or unsupported command.\n", ERROR + CMD_NOT_SUPPORTED);
-	}	
-
-	unbuffer_output();
-
-	/* Run any after-each-command routines registered by modules */
-	PerformSessionHooks(EVT_CMD);
-}
-
-
 /*
  * This loop performs all asynchronous functions.
  */

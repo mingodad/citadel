@@ -2,15 +2,15 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2015 by the citadel.org team
+ * Copyright (c) 2000-2016 by the citadel.org team
  *
- *  This program is open source software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License, version 3.
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 3.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
  * This is a fairly high-level type of critical section.  It ensures that no
@@ -585,23 +585,18 @@ void network_process_ignetpush(SpoolControl *sc, struct CtdlMessage *omsg, long 
 /*
  * Spools out one message from the list.
  */
-void network_spool_msg(long msgnum,
-		       void *userdata)
+void network_spool_msg(long msgnum, void *userdata)
 {
-	struct CitContext *CCC = CC;
 	struct CtdlMessage *msg = NULL;
 	long delete_after_send = 0;	/* Set to 1 to delete after spooling */
 	SpoolControl *sc;
 
 	sc = (SpoolControl *)userdata;
-
 	msg = CtdlFetchMessage(msgnum, 1, 1);
 
 	if (msg == NULL)
 	{
-		QN_syslog(LOG_ERR,
-			  "failed to load Message <%ld> from disk\n",
-			  msgnum);
+		syslog(LOG_ERR, "failed to load Message <%ld> from disk\n", msgnum);
 		return;
 	}
 	network_process_list(sc, msg, &delete_after_send);

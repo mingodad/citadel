@@ -1,7 +1,7 @@
 /*
  * Implements the message store.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -1177,7 +1177,7 @@ struct CtdlMessage *CtdlDeserializeMessage(long msgnum, int with_body, const cha
  * This is used by CtdlOutputMsg() and other fetch functions.
  *
  * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
- *       using the CtdlMessageFree() function.
+ *       using the CM_Free(); function.
  */
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body, int run_msg_hooks)
 {
@@ -2848,7 +2848,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		strcpy(actual_rm, force_room);
 	}
 
-	MSG_syslog(LOG_INFO, "Final selection: %s (%s)\n", actual_rm, room);
+	MSG_syslog(LOG_DEBUG, "Final selection: %s (%s)\n", actual_rm, room);
 	if (strcasecmp(actual_rm, CCC->room.QRname)) {
 		/* CtdlGetRoom(&CCC->room, actual_rm); */
 		CtdlUserGoto(actual_rm, 0, 1, NULL, NULL, NULL, NULL);
@@ -3063,7 +3063,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 /*
  * Convenience function for generating small administrative messages.
  */
-void quickie_message(const char *from,
+long quickie_message(const char *from,
 		     const char *fromaddr,
 		     const char *to,
 		     char *room,
@@ -3109,10 +3109,12 @@ void quickie_message(const char *from,
 		CM_SetField(msg, eMesageText, text, strlen(text));
 	}
 
-	CtdlSubmitMsg(msg, recp, room, 0);
+	long msgnum = CtdlSubmitMsg(msg, recp, room, 0);
 	CM_Free(msg);
 	if (recp != NULL) free_recipients(recp);
+	return msgnum;
 }
+
 
 void flood_protect_quickie_message(const char *from,
 				   const char *fromaddr,
@@ -3128,6 +3130,7 @@ void flood_protect_quickie_message(const char *from,
 				   long ioid,
 				   time_t NOW)
 {
+	struct CitContext *CCC = CC;
 	int i;
 	u_char rawdigest[MD5_DIGEST_LEN];
 	struct MD5Context md5context;
@@ -3165,14 +3168,14 @@ void flood_protect_quickie_message(const char *from,
 	{
 		FreeStrBuf(&guid);
 		/* yes, we did. flood protection kicks in. */
-		syslog(LOG_DEBUG,
-		       "not sending message again - %ld < %ld \n", seenstamp, tsday);
+		MSG_syslog(LOG_DEBUG,
+			   "not sending message again - %ld < %ld \n", seenstamp, tsday);
 		return;
 	}
 	else
 	{
-		syslog(LOG_DEBUG,
-		       "sending message. %ld >= %ld", seenstamp, tsday);
+		MSG_syslog(LOG_DEBUG,
+			   "sending message. %ld >= %ld", seenstamp, tsday);
 		FreeStrBuf(&guid);
 		/* no, this message isn't sent recently; go ahead. */
 		quickie_message(from,

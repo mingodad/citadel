@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 		"to a new host system via a network connection, without disturbing\n"
 		"the source system.  The target may be a different CPU architecture\n"
 		"and/or operating system.  The source system should be running\n"
-		"Citadel %d.%02d or newer, and the target system should be running\n"
+		"Citadel version %d or newer, and the target system should be running\n"
 		"either the same version or a newer version.  You will also need\n"
 		"the 'rsync' utility, and OpenSSH v4 or newer.\n"
 		"\n"
@@ -111,8 +111,7 @@ int main(int argc, char *argv[])
 		"\n"
 		"Do you wish to continue? "
 		,
-		EXPORT_REV_MIN / 100,
-		EXPORT_REV_MIN % 100
+		EXPORT_REV_MIN
 	);
 
 	if ((fgets(yesno, sizeof yesno, stdin) == NULL) || (tolower(yesno[0]) != 'y')) {
@@ -248,17 +247,9 @@ FAIL:	if (sourcefp) pclose(sourcefp);
 	while ((fgets(buf, sizeof buf, sourcefp)) && (strcmp(buf, "000"))) {
 		buf[strlen(buf)-1] = 0;
 
-		if (!strncasecmp(buf, "bio|", 4)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[4], ctdl_bio_dir);
-		}
-		else if (!strncasecmp(buf, "files|", 6)) {
+		if (!strncasecmp(buf, "files|", 6)) {
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
 				socket_path, remote_user, remote_host, &buf[6], ctdl_file_dir);
-		}
-		else if (!strncasecmp(buf, "userpics|", 9)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[9], ctdl_usrpic_dir);
 		}
 		else if (!strncasecmp(buf, "messages|", 9)) {
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
@@ -267,14 +258,6 @@ FAIL:	if (sourcefp) pclose(sourcefp);
 		else if (!strncasecmp(buf, "keys|", 5)) {
 			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
 				socket_path, remote_user, remote_host, &buf[5], ctdl_key_dir);
-		}
-		else if (!strncasecmp(buf, "images|", 7)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[7], ctdl_image_dir);
-		}
-		else if (!strncasecmp(buf, "info|", 5)) {
-			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
-				socket_path, remote_user, remote_host, &buf[5], ctdl_info_dir);
 		}
 		else {
 			strcpy(cmd, "false");	/* cheap and sleazy way to throw an error */

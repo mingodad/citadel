@@ -1,7 +1,7 @@
 /*
  * Main source module for the client program.
  *
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -41,9 +41,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
-//#include "axdefs.h"
 #include "routines.h"
 #include "routines2.h"
 #include "tuiconfig.h"
@@ -58,7 +56,6 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
-///#include "citadel_dirs.h"
 
 #include "ecrash.h"
 #include "md5.h"
@@ -1418,37 +1415,20 @@ int main(int argc, char **argv)
 
 #ifdef HAVE_BACKTRACE
 	bzero(&params, sizeof(params));
-//	params.filename = file_pid_paniclog;
-//	panic_fd=open(file_pid_paniclog, O_APPEND|O_CREAT|O_DIRECT);
-///	params.filep = fopen(file_pid_paniclog, "a+");
 	params.debugLevel = ECRASH_DEBUG_VERBOSE;
 	params.dumpAllThreads = TRUE;
 	params.useBacktraceSymbols = 1;
-///	BuildSymbolTable(&symbol_table);
-//	params.symbolTable = &symbol_table;
 	params.signals[0]=SIGSEGV;
 	params.signals[1]=SIGILL;
 	params.signals[2]=SIGBUS;
 	params.signals[3]=SIGABRT;
-
-///	eCrash_Init(&params);
 #endif	
 	setIPCErrorPrintf(scr_printf);
 	setCryptoStatusHook(statusHook);
 	
-	/* Permissions sanity check - don't run citadel setuid/setgid */
-	if (getuid() != geteuid()) {
-		scr_printf("Please do not run citadel setuid!\n");
-		logoff(NULL, 3);
-	} else if (getgid() != getegid()) {
-		scr_printf("Please do not run citadel setgid!\n");
-		logoff(NULL, 3);
-	}
-
-	stty_ctdl(SB_SAVE);	/* Store the old terminal parameters */
-	load_command_set();	/* parse the citadel.rc file */
-	stty_ctdl(SB_NO_INTR);	/* Install the new ones */
-	/* signal(SIGHUP, dropcarr);FIXME */	/* Cleanup gracefully if carrier is dropped */
+	stty_ctdl(SB_SAVE);		/* Store the old terminal parameters */
+	load_command_set();		/* parse the citadel.rc file */
+	stty_ctdl(SB_NO_INTR);		/* Install the new ones */
 	signal(SIGPIPE, dropcarr);	/* Cleanup gracefully if local conn. dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);	/* Catch SIGCONT so we can reset terminal */
@@ -1485,41 +1465,11 @@ int main(int argc, char **argv)
 #endif
 		}
 		if (!strcmp(argv[a], "-p")) {
-			struct stat st;
-		
-			if (chdir(CTDLDIR) < 0) {
-				perror("can't change to " CTDLDIR);
-				logoff(NULL, 3);
-			}
-
-			/*
-			 * Drop privileges if necessary. We stat
-			 * citadel.config to get the uid/gid since it's
-			 * guaranteed to have the uid/gid we want.
-			 */
-			if (!getuid() || !getgid()) {
-				if (stat(file_citadel_config, &st) < 0) {
-					perror("couldn't stat citadel.config");
-					logoff(NULL, 3);
-				}
-				if (!getgid() && (setgid(st.st_gid) < 0)) {
-					perror("couldn't change gid");
-					logoff(NULL, 3);
-				}
-				if (!getuid() && (setuid(st.st_uid) < 0)) {
-					perror("couldn't change uid");
-					logoff(NULL, 3);
-				}
-				/*
-				  scr_printf("Privileges changed to uid %d gid %d\n",
-				  getuid(), getgid());
-				*/
-			}
+			// ignore this argument when called from telnetd
 			argc = shift(argc, argv, a, 1);
 		}
 	}
 	
-
 	screen_new();
 	/* Get screen dimensions.  First we go to a default of 80x24.
 	 * Then attempt to read the actual screen size from the terminal.
@@ -1934,12 +1884,6 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 			case 73:
 				cli_image_upload(ipc, "_roompic_");
 				break;
-
-			case 74:
-				snprintf(aaa, sizeof aaa, "_floorpic_|%d", curr_floor);
-				cli_image_upload(ipc, aaa);
-				break;
-
 			case 75:
 				enternew(ipc, "roomname", aaa, 20);
 				r = CtdlIPCChangeRoomname(ipc, aaa, bbb);

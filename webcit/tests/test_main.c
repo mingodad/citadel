@@ -3,7 +3,7 @@
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
- * Copyright (c) 1996-2012 by the citadel.org developers.
+ * Copyright (c) 1996-2016 by the citadel.org developers.
  * This program is released under the terms of the GNU General Public License v3.
  */
 
@@ -86,10 +86,8 @@ int main(int argc, char **argv)
 
 	/* Ensure that we are linked to the correct version of libcitadel */
 	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
-		fprintf(stderr, " You are running libcitadel version %d.%02d\n",
-			(libcitadel_version_number() / 100), (libcitadel_version_number() % 100));
-		fprintf(stderr, "WebCit was compiled against version %d.%02d\n",
-			(LIBCITADEL_VERSION_NUMBER / 100), (LIBCITADEL_VERSION_NUMBER % 100));
+		fprintf(stderr, " You are running libcitadel version %d\n", (libcitadel_version_number()));
+		fprintf(stderr, "WebCit was compiled against version %d\n", LIBCITADEL_VERSION_NUMBER);
 		return(1);
 	}
 

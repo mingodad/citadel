@@ -1,9 +1,14 @@
-/*
-cencoder.c - c source to a base64 encoding algorithm implementation
-
-This is part of the libb64 project, and has been placed in the public domain.
-For details, see http://sourceforge.net/projects/libb64
-*/
+// 
+// cencoder.c - c source to a base64 encoding algorithm implementation
+// 
+// This is part of the libb64 project, and has been placed in the public domain.
+// For details, see http://sourceforge.net/projects/libb64
+// 
+// ** NOTE: MODIFIED BY AJC 2016JAN22 **
+// The libb64 distribution always places a newline at the end of an encoded block.
+// We have removed that behavior.  If libb64 is updated, make that change again.
+// 
+// 
 
 #include "b64/cencode.h"
 
@@ -74,7 +79,7 @@ int base64_encode_block(const char* plaintext_in, int length_in, char* code_out,
 	return codechar - code_out;
 }
 
-int base64_encode_blockend(char* code_out, base64_encodestate* state_in)
+int base64_encode_blockend(char* code_out, base64_encodestate* state_in, int with_newline)
 {
 	char* codechar = code_out;
 	
@@ -92,8 +97,10 @@ int base64_encode_blockend(char* code_out, base64_encodestate* state_in)
 	case step_A:
 		break;
 	}
-	*codechar++ = '\r';
-	*codechar++ = '\n';
+	if (with_newline) {			// added by ajc on 2016jan22, normally citadel doesn't want this
+		*codechar++ = '\r';
+		*codechar++ = '\n';
+	}
 	
 	return codechar - code_out;
 }

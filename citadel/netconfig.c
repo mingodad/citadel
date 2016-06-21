@@ -27,6 +27,7 @@
 # endif
 #endif
 #include <dirent.h>
+#include <assert.h>
 
 #include <libcitadel.h>
 
@@ -57,8 +58,9 @@ void RegisterRoomCfgType(const char* Name, long len, RoomNetCfg eCfg, CfgLinePar
 	pCfg->Str.len = len;
 	pCfg->IsSingleLine = uniq;
  	pCfg->nSegments = nSegments;
-	if (CfgTypeHash == NULL)
+	if (CfgTypeHash == NULL) {
 		CfgTypeHash = NewHash(1, NULL);
+	}
 	Put(CfgTypeHash, Name, len, pCfg, NULL);
 }
 
@@ -191,7 +193,6 @@ void write_netconfig_to_configdb(long roomnum, const char *raw_netconfig)
 	int enc_len;
 	int len;
 
-	syslog(LOG_DEBUG, "\033[32m--- START WRITE ---\033[0m\n\033[31m%s\033[0m\n\033[32m---- END WRITE ----\033[0m", raw_netconfig);
 	len = strlen(raw_netconfig);
 	netcfg_keyname(keyname, roomnum);
 	enc = malloc(len * 2);
@@ -236,12 +237,13 @@ char *LoadRoomNetConfigFile(long roomnum)
 OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
 {
 	const char *Pos = NULL;
-        const char *CPos = NULL;
 	const CfgLineType *pCfg = NULL;
 	StrBuf *Line = NULL;
 	StrBuf *InStr = NULL;
 	StrBuf *Cfg = NULL;
 	OneRoomNetCfg *OneRNCfg = NULL;
+	int num_lines = 0;
+	int i = 0;
 
 	OneRNCfg = malloc(sizeof(OneRoomNetCfg));
 	memset(OneRNCfg, 0, sizeof(OneRoomNetCfg));
@@ -249,11 +251,10 @@ OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
 	Line = NewStrBuf();
 	InStr = NewStrBuf();
         Cfg = NewStrBufPlain(serialized_data, -1);
+	num_lines = num_tokens(ChrPtr(Cfg), '\n');
 
-	syslog(LOG_DEBUG, "\033[32m--- START READ ---\033[0m");
-        while (StrBufSipLine(Line, Cfg, &CPos)) {
-		syslog(LOG_DEBUG, "READ NET CONFIG LINE: '\033[31m%s\033[0m'", ChrPtr(Line));
-
+	for (i=0; i<num_lines; ++i) {
+		StrBufExtract_token(Line, Cfg, i, '\n');
 		if (StrLength(Line) > 0) {
 			Pos = NULL;
 			StrBufExtract_NextToken(InStr, Line, &Pos, '|');
@@ -279,7 +280,6 @@ OneRoomNetCfg *ParseRoomNetConfigFile(char *serialized_data)
 			}
 		}
 	}
-	syslog(LOG_DEBUG, "\033[32m---- END READ ----\033[0m");
 	FreeStrBuf(&InStr);
 	FreeStrBuf(&Line);
 	FreeStrBuf(&Cfg);
@@ -931,14 +931,19 @@ void convert_legacy_netcfg_files(void)
 			if (fp) {
 				fseek(fp, 0L, SEEK_END);
 				len = ftell(fp);
-				v = malloc(len);
-				if (v) {
-					rewind(fp);
-					if (fread(v, len, 1, fp)) {
-						write_netconfig_to_configdb(roomnum, v);
-						unlink(filename);
+				if (len > 0) {
+					v = malloc(len);
+					if (v) {
+						rewind(fp);
+						if (fread(v, len, 1, fp)) {
+							write_netconfig_to_configdb(roomnum, v);
+							unlink(filename);
+						}
+						free(v);
 					}
-					free(v);
+				}
+				else {
+					unlink(filename);	// zero length netconfig, just delete it
 				}
 				fclose(fp);
 			}

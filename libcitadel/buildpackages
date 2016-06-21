@@ -114,6 +114,9 @@ EMAIL=citadel@outgesourced.org
 	    \
 	    -chvzf libcitadel-$LIBCITADEL_VERSION.tar.gz libcitadel-$LIBCITADEL_VERSION/
 	;;
+	version)
+		echo This would build libcitadel-$LIBCITADEL_VERSION
+		;;
 	*)
 		echo "Not yet implemented. we have: debian, sourcedist "
 		;;

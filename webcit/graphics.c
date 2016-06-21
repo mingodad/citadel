@@ -1,7 +1,7 @@
 /*
  * Handles HTTP upload of graphics files into the system.
  *
- * Copyright (c) 1996-2012 by the citadel.org team
+ * Copyright (c) 1996-2016 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -16,6 +16,75 @@
 
 extern void output_static(const char* What);
 
+
+// display the picture (icon, photo, whatever) associated with the current room
+void display_roompic(void) {
+	off_t bytes;
+	StrBuf *Buf = NewStrBuf();
+	serv_printf("DLRI");
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 6) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
+		StrBuf *content_type = NewStrBuf();
+		StrBufExtract_token(content_type, Buf, 3, '|');
+		WC->WBuf = NewStrBuf();
+		StrBuf_ServGetBLOBBuffered(WC->WBuf, bytes);
+		http_transmit_thing(ChrPtr(content_type), 0);
+		FreeStrBuf(&content_type);
+	}
+	else {
+		output_error_pic("", "");
+	}
+	FreeStrBuf(&Buf);
+}
+
+
+// upload the picture (icon, photo, whatever) associated with the current room
+void common_code_for_editroompic_and_editpic(char *servcmd)
+{
+	if (havebstr("cancel_button")) {
+		AppendImportantMessage(_("Graphics upload has been cancelled."), -1);
+		display_main_menu();
+		return;
+	}
+
+	if (WC->upload_length == 0) {
+		AppendImportantMessage(_("You didn't upload a file."), -1);
+		display_main_menu();
+		return;
+	}
+	
+	serv_printf("%s %ld|%s", servcmd, (long)WC->upload_length, GuessMimeType(ChrPtr(WC->upload), WC->upload_length));
+	StrBuf *Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatusMsg(Line, NULL, 0, 0) == 7) {
+		serv_write(ChrPtr(WC->upload), WC->upload_length);
+		display_success(ChrPtr(Line) + 4);
+	}
+	else {
+		AppendImportantMessage((ChrPtr(Line) + 4), -1);
+		display_main_menu();
+	}
+	FreeStrBuf(&Line);
+}
+
+
+// upload the picture (icon, photo, whatever) associated with the current room
+void editroompic(void)
+{
+	common_code_for_editroompic_and_editpic("ULRI");
+}
+
+	
+// upload the picture (icon, photo, whatever) associated with the current user
+void editpic(void)
+{
+	common_code_for_editroompic_and_editpic("ULUI");
+}
+
+
+// display the screen for uploading graphics to the server
 void display_graphics_upload(char *filename)
 {
 	StrBuf *Line;
@@ -35,6 +104,7 @@ void display_graphics_upload(char *filename)
 	}
 	FreeStrBuf(&Line);
 }
+
 
 void do_graphics_upload(char *filename)
 {
@@ -97,19 +167,16 @@ void do_graphics_upload(char *filename)
 
 
 void edithellopic(void)    { do_graphics_upload("hello"); }
-void editpic(void)         { do_graphics_upload("_userpic_"); }
 void editgoodbuyepic(void) { do_graphics_upload("UIMG 1|%s|goodbuye"); }
 
 /* The users photo display / upload facility */
 void display_editpic(void) {
-	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("_userpic_")));
 	putbstr("__PICDESC", NewStrBufPlain(_("your photo"), -1));
 	putbstr("__UPLURL", NewStrBufPlain(HKEY("editpic")));
 	display_graphics_upload("editpic");
 }
 /* room picture dispay / upload facility */
 void display_editroompic(void) {
-	putbstr("__WHICHPIC", NewStrBufPlain(HKEY("_roompic_")));
 	putbstr("__PICDESC", NewStrBufPlain(_("the icon for this room"), -1));
 	putbstr("__UPLURL", NewStrBufPlain(HKEY("editroompic")));
 	display_graphics_upload("editroompic");
@@ -131,30 +198,6 @@ void display_editgoodbyepic(void) {
 	display_graphics_upload("editgoodbuyepic");
 }
 
-void display_editfloorpic(void) {
-	StrBuf *PicAction;
-
-	PicAction = NewStrBuf();
-	StrBufPrintf(PicAction, "_floorpic_|%s", bstr("which_floor"));
-	putbstr("__WHICHPIC", PicAction);
-	putbstr("__PICDESC", NewStrBufPlain(_("the icon for this floor"), -1));
-	putbstr("__UPLURL", NewStrBufPlain(HKEY("editfloorpic")));
-	display_graphics_upload("editfloorpic");
-}
-
-void editroompic(void) {
-	char buf[SIZ];
-	snprintf(buf, SIZ, "_roompic_|%s",
-		 bstr("which_room"));
-	do_graphics_upload(buf);
-}
-
-void editfloorpic(void){
-	char buf[SIZ];
-	snprintf(buf, SIZ, "_floorpic_|%s",
-		 bstr("which_floor"));
-	do_graphics_upload(buf);
-}
 
 void 
 InitModule_GRAPHICS
@@ -168,6 +211,5 @@ InitModule_GRAPHICS
 	WebcitAddUrlHandler(HKEY("edithellopic"), "", 0, edithellopic, 0);
 	WebcitAddUrlHandler(HKEY("display_editgoodbuye"), "", 0, display_editgoodbyepic, 0);
 	WebcitAddUrlHandler(HKEY("editgoodbuyepic"), "", 0, editgoodbuyepic, 0);
-	WebcitAddUrlHandler(HKEY("display_editfloorpic"), "", 0, display_editfloorpic, 0);
-	WebcitAddUrlHandler(HKEY("editfloorpic"), "", 0, editfloorpic, 0);
+	WebcitAddUrlHandler(HKEY("roompic"), "", 0, display_roompic, 0);
 }

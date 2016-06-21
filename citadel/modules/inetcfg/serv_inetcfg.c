@@ -92,7 +92,10 @@ int inetcfg_aftersave(struct CtdlMessage *msg, recptypes *recp) {
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
 	 */
-	if (strcasecmp(msg->cm_fields[eOriginalRoom], SYSCONFIGROOM)) return(0);
+	if ((msg->cm_fields[eOriginalRoom]) && (strcasecmp(msg->cm_fields[eOriginalRoom], SYSCONFIGROOM)))
+	{
+		return(0);
+	}
 	if (msg->cm_format_type != 4) return(0);
 
 	ptr = msg->cm_fields[eMesageText];

@@ -194,11 +194,14 @@ RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, OneRoomNetCfg *One
 	struct RoomProcList *ptr;
 
 	ptr = (struct RoomProcList *) malloc(sizeof (struct RoomProcList));
-	if (ptr == NULL) return NULL;
+	if (ptr == NULL) {
+		return NULL;
+	}
 
 	ptr->namelen = strlen(qrbuf->QRname);
-	if (ptr->namelen > ROOMNAMELEN)
+	if (ptr->namelen > ROOMNAMELEN) {
 		ptr->namelen = ROOMNAMELEN - 1;
+	}
 
 	memcpy (ptr->name, qrbuf->QRname, ptr->namelen);
 	ptr->name[ptr->namelen] = '\0';
@@ -211,8 +214,6 @@ RoomProcList *CreateRoomProcListEntry(struct ctdlroom *qrbuf, OneRoomNetCfg *One
 
 	ptr->lcname[ptr->namelen] = '\0';
 	ptr->key = hashlittle(ptr->lcname, ptr->namelen, 9872345);
-	ptr->lastsent = OneRNCFG->lastsent;
-	ptr->OneRNCfg = OneRNCFG;
 	return ptr;
 }
 
@@ -265,7 +266,6 @@ int network_room_handler(struct ctdlroom *qrbuf)
 		return 1;
 	}
 
-	ptr->OneRNCfg = NULL;
 	begin_critical_section(S_RPLIST);
 	ptr->next = rplist;
 	rplist = ptr;
@@ -319,8 +319,8 @@ void network_do_queue(void)
 	if ( (time(NULL) - last_run) < CtdlGetConfigLong("c_net_freq") )
 	{
 		full_processing = 0;
-		syslog(LOG_DEBUG, "Network full processing in %ld seconds.",
-		       CtdlGetConfigLong("c_net_freq") - (time(NULL)- last_run)
+		MARK_syslog(LOG_DEBUG, "Network full processing in %ld seconds.",
+			    CtdlGetConfigLong("c_net_freq") - (time(NULL)- last_run)
 		);
 	}
 
@@ -346,7 +346,7 @@ void network_do_queue(void)
 	 */
 	if (full_processing && !server_shutting_down) {
 		QNM_syslog(LOG_DEBUG, "network: loading outbound queue");
-		CtdlForEachNetCfgRoom(network_queue_interesting_rooms, &RL, maxRoomNetCfg);
+		CtdlForEachNetCfgRoom(network_queue_interesting_rooms, &RL);
 	}
 
 	if ((RL.rplist != NULL) && (!server_shutting_down)) {
@@ -369,10 +369,7 @@ void network_do_queue(void)
 			}
 
 			if (ptr->namelen > 0) {
-				InspectQueuedRoom(&sc,
-						  ptr, 
-						  working_ignetcfg,
-						  the_netmap);
+				InspectQueuedRoom(&sc, ptr, working_ignetcfg, the_netmap);
 			}
 			ptr = ptr->next;
 		}
@@ -411,7 +408,7 @@ void network_do_queue(void)
 		free(pMapStr);
 	}
 
-	/* combine singe message files into one spool entry per remote node. */
+	/* combine single message files into one spool entry per remote node. */
 	network_consolidate_spoolout(working_ignetcfg, the_netmap);
 
 	/* shut down. */
@@ -426,8 +423,6 @@ void network_do_queue(void)
 		last_run = time(NULL);
 	}
 	destroy_network_queue_room(RL.rplist);
-	// SaveChangedConfigs();	// FIXME FOOFOO SAVE CHANGED THIS AACACACACCKK
-
 }
 
 

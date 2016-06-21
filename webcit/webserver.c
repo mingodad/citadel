@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996-2015 by the citadel.org team
+ * Copyright (c) 1996-2016 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -90,10 +90,8 @@ int main(int argc, char **argv)
 
 	/* Ensure that we are linked to the correct version of libcitadel */
 	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
-		fprintf(stderr, " You are running libcitadel version %d.%02d\n",
-			(libcitadel_version_number() / 100), (libcitadel_version_number() % 100));
-		fprintf(stderr, "WebCit was compiled against version %d.%02d\n",
-			(LIBCITADEL_VERSION_NUMBER / 100), (LIBCITADEL_VERSION_NUMBER % 100));
+		fprintf(stderr, " You are running libcitadel version %d\n", libcitadel_version_number() );
+		fprintf(stderr, "WebCit was compiled against version %d\n", LIBCITADEL_VERSION_NUMBER );
 		return(1);
 	}
 

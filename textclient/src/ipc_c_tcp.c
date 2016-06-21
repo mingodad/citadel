@@ -21,12 +21,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <libcitadel.h>
-//#include "citadel.h"
 #include "citadel_ipc.h"
-//#include "citadel_decls.h"
-//#ifndef HAVE_SNPRINTF
-//#include "snprintf.h"
-//#endif
 #include "commands.h"
 #include <stdlib.h>
 #include <unistd.h>

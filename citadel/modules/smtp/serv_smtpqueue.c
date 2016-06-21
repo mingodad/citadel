@@ -992,12 +992,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 				nActivated++;
 
 				if (i > 1) n = MsgCount++;
-				syslog(LOG_INFO,
-				       "SMTPC: giving up on <%ld> <%s> %d / %d \n",
-				       MyQItem->MessageID,
-				       ChrPtr(ThisItem->Recipient),
-				       i,
-				       m);
+				SMTPC_syslog(LOG_INFO,
+					     "SMTPC: giving up on <%ld> <%s> %d / %d \n",
+					     MyQItem->MessageID,
+					     ChrPtr(ThisItem->Recipient),
+					     i,
+					     m);
 				(*((int*) userdata)) ++;
 				smtp_try_one_queue_entry(MyQItem,
 							 ThisItem,
@@ -1034,12 +1034,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 					usleep(delay_msec);
 
 				if (i > 1) n = MsgCount++;
-				syslog(LOG_DEBUG,
-				       "SMTPC: Trying <%ld> <%s> %d / %d \n",
-				       MyQItem->MessageID,
-				       ChrPtr(ThisItem->Recipient),
-				       i,
-				       m);
+				SMTPC_syslog(LOG_DEBUG,
+					     "SMTPC: Trying <%ld> <%s> %d / %d \n",
+					     MyQItem->MessageID,
+					     ChrPtr(ThisItem->Recipient),
+					     i,
+					     m);
 				(*((int*) userdata)) ++;
 				smtp_try_one_queue_entry(MyQItem,
 							 ThisItem,
@@ -1113,7 +1113,7 @@ void smtp_do_queue(void) {
 	int num_activated = 0;
 
 	pthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	SMTPCM_syslog(LOG_INFO, "processing outbound queue");
+	SMTPCM_syslog(LOG_DEBUG, "processing outbound queue");
 
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		SMTPC_syslog(LOG_ERR, "Cannot find room <%s>", SMTP_SPOOLOUT_ROOM);
@@ -1127,9 +1127,11 @@ void smtp_do_queue(void) {
 						   smtp_do_procmsg,
 						   &num_activated);
 	}
-	SMTPC_syslog(LOG_INFO,
-		     "queue run completed; %d messages processed %d activated",
-		     num_processed, num_activated);
+	if (num_activated > 0) {
+		SMTPC_syslog(LOG_INFO,
+			     "queue run completed; %d messages processed %d activated",
+			     num_processed, num_activated);
+	}
 
 }
 

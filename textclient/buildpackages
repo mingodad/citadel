@@ -113,6 +113,9 @@ EMAIL=citadel@outgesourced.org
 	    \
 	    -chvzf textclient-$CITADEL_VERSION.tar.gz textclient-$CITADEL_VERSION/
 	;;
+	version)
+		echo This would build textclient-$CITADEL_VERSION
+		;;
 	*)
 		echo "Not yet implemented. we have: debian "
 		;;

@@ -475,29 +475,11 @@ void tmplput_USER_BIO(StrBuf *Target, WCTemplputParams *TP)
 	FreeStrBuf(&Buf);
 }
 
+
 int Conditional_USER_HAS_PIC(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBuf *Buf;
-	const char *who;
-	long len;
-	int r = 0;
-
-	GetTemplateTokenString(Target, TP, 2, &who, &len);
-
-	Buf = NewStrBuf();
-	serv_printf("OIMG _userpic_|%s", who);
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) {
-		r = 1;
-	}
-	else {
-		r = 0;
-	}
-	serv_puts("CLOS");
-	StrBuf_ServGetln(Buf);
-	GetServerStatus(Buf, NULL);
-	FreeStrBuf(&Buf);
-	return(r);
+	// ajc 2016apr10 this needs to be re-evaluated with the new protocol
+	return(0);
 }
 
 
@@ -796,6 +778,29 @@ void create_user(void) {
 }
 
 
+void display_userpic(void) {
+	off_t bytes;
+	StrBuf *Buf = NewStrBuf();
+	const char *username = bstr("user");
+	serv_printf("DLUI %s", username);
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 6) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
+		StrBuf *content_type = NewStrBuf();
+		StrBufExtract_token(content_type, Buf, 3, '|');
+		WC->WBuf = NewStrBuf();
+		StrBuf_ServGetBLOBBuffered(WC->WBuf, bytes);
+		http_transmit_thing(ChrPtr(content_type), 0);
+		FreeStrBuf(&content_type);
+	}
+	else {
+		output_error_pic("", "");
+	}
+	FreeStrBuf(&Buf);
+}
+
+
 void _select_user_to_edit(void) {
 	select_user_to_edit(NULL);
 }
@@ -814,6 +819,7 @@ InitModule_USEREDIT
 	WebcitAddUrlHandler(HKEY("display_edituser"), "", 0, _display_edituser, 0);
 	WebcitAddUrlHandler(HKEY("edituser"), "", 0, edituser, 0);
 	WebcitAddUrlHandler(HKEY("create_user"), "", 0, create_user, 0);
+	WebcitAddUrlHandler(HKEY("userpic"), "", 0, display_userpic, 0);
 
 	RegisterNamespace("USERLIST:USERNAME",      0, 1, tmplput_USERLIST_UserName, NULL, CTX_USERLIST);
 	RegisterNamespace("USERLIST:PASSWD",        0, 1, tmplput_USERLIST_Password, NULL, CTX_USERLIST);

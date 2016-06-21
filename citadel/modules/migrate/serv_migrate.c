@@ -127,6 +127,8 @@ void migr_export_users_backend(struct ctdluser *buf, void *data) {
 	cprintf("<u_lastcall>%ld</u_lastcall>\n", (long)buf->lastcall);
 	cprintf("<u_USuserpurge>%d</u_USuserpurge>\n", buf->USuserpurge);
 	client_write(HKEY("<u_fullname>"));	xml_strout(buf->fullname);		client_write(HKEY("</u_fullname>\n"));
+	cprintf("<u_msgnum_bio>%ld</u_msgnum_bio>\n", buf->msgnum_bio);
+	cprintf("<u_msgnum_pic>%ld</u_msgnum_pic>\n", buf->msgnum_pic);
 	client_write(HKEY("</user>\n"));
 }
 
@@ -155,7 +157,6 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 		xml_strout(buf->QRdirname);
 		client_write(HKEY("</QRdirname>\n"));
 	}
-	cprintf("<QRinfo>%ld</QRinfo>\n", buf->QRinfo);
 	cprintf("<QRfloor>%d</QRfloor>\n", buf->QRfloor);
 	cprintf("<QRmtime>%ld</QRmtime>\n", (long)buf->QRmtime);
 	cprintf("<QRexpire_mode>%d</QRexpire_mode>\n", buf->QRep.expire_mode);
@@ -164,6 +165,8 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	cprintf("<QRorder>%d</QRorder>\n", buf->QRorder);
 	cprintf("<QRflags2>%u</QRflags2>\n", buf->QRflags2);
 	cprintf("<QRdefaultview>%d</QRdefaultview>\n", buf->QRdefaultview);
+	cprintf("<msgnum_info>%ld</msgnum_info>\n", buf->msgnum_info);
+	cprintf("<msgnum_pic>%ld</msgnum_pic>\n", buf->msgnum_pic);
 	client_write(HKEY("</room>\n"));
 
 	/* message list goes inside this tag */
@@ -581,20 +584,22 @@ int migr_userrecord(void *data, const char *el)
 	else if (!strcasecmp(el, "u_lastcall"))			usbuf.lastcall = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "u_USuserpurge"))		usbuf.USuserpurge = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "u_fullname"))			safestrncpy(usbuf.fullname, ChrPtr(migr_chardata), sizeof usbuf.fullname);
+	else if (!strcasecmp(el, "u_msgnum_bio"))		usbuf.msgnum_bio = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "u_msgnum_pic"))		usbuf.msgnum_pic = atol(ChrPtr(migr_chardata));
 	else return 0;
 	return 1;
 }
 
+
 int migr_roomrecord(void *data, const char *el)
 {
-	if (!strcasecmp(el, "QRname"))			safestrncpy(qrbuf.QRname, ChrPtr(migr_chardata), sizeof qrbuf.QRname);
+	if (!strcasecmp(el, "QRname"))				safestrncpy(qrbuf.QRname, ChrPtr(migr_chardata), sizeof qrbuf.QRname);
 	else if (!strcasecmp(el, "QRpasswd"))			safestrncpy(qrbuf.QRpasswd, ChrPtr(migr_chardata), sizeof qrbuf.QRpasswd);
 	else if (!strcasecmp(el, "QRroomaide"))			qrbuf.QRroomaide = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRhighest"))			qrbuf.QRhighest = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRgen"))			qrbuf.QRgen = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRflags"))			qrbuf.QRflags = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRdirname"))			safestrncpy(qrbuf.QRdirname, ChrPtr(migr_chardata), sizeof qrbuf.QRdirname);
-	else if (!strcasecmp(el, "QRinfo"))			qrbuf.QRinfo = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRfloor"))			qrbuf.QRfloor = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRmtime"))			qrbuf.QRmtime = atol(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRexpire_mode"))		qrbuf.QRep.expire_mode = atoi(ChrPtr(migr_chardata));
@@ -603,6 +608,8 @@ int migr_roomrecord(void *data, const char *el)
 	else if (!strcasecmp(el, "QRorder"))			qrbuf.QRorder = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRflags2"))			qrbuf.QRflags2 = atoi(ChrPtr(migr_chardata));
 	else if (!strcasecmp(el, "QRdefaultview"))		qrbuf.QRdefaultview = atoi(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msgnum_info"))		qrbuf.msgnum_info = atol(ChrPtr(migr_chardata));
+	else if (!strcasecmp(el, "msgnum_pic"))			qrbuf.msgnum_pic = atol(ChrPtr(migr_chardata));
 	else return 0;
 	return 1;
 }
@@ -675,7 +682,7 @@ void migr_xml_end(void *data, const char *el)
 		syslog(LOG_DEBUG, "Imported config key=%s", ikey);
 
 		if (ikey != NULL) {
-			CtdlSetConfigStr(ikey, ChrPtr(migr_chardata));
+			CtdlSetConfigStr(ikey, (char *)ChrPtr(migr_chardata));
 			free(ikey);
 			ikey = NULL;
 		}
@@ -888,7 +895,6 @@ void migr_do_import(void) {
 }
 
 
-
 /******************************************************************************
  *                         Dispatcher, Common code                            *
  ******************************************************************************/
@@ -897,15 +903,12 @@ void migr_do_import(void) {
  */
 void migr_do_listdirs(void) {
 	cprintf("%d Don't forget these:\n", LISTING_FOLLOWS);
-	cprintf("bio|%s\n",		ctdl_bio_dir);
 	cprintf("files|%s\n",		ctdl_file_dir);
-	cprintf("userpics|%s\n",	ctdl_usrpic_dir);
 	cprintf("messages|%s\n",	ctdl_message_dir);
 	cprintf("keys|%s\n",		ctdl_key_dir);
-	cprintf("images|%s\n",		ctdl_image_dir);
-	cprintf("info|%s\n",		ctdl_info_dir);
 	cprintf("000\n");
 }
+
 
 /******************************************************************************
  *                    Repair database integrity                               *

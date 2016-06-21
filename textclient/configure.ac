@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.52)
-AC_INIT([Citadel], [9.01], [http://www.citadel.org/])
+AC_INIT([Citadel], [902], [http://www.citadel.org/])
 AC_REVISION([$Revision: 5108 $])
 
 AC_CONFIG_HEADER(sysdep.h)
@@ -642,7 +642,7 @@ dnl
 dnl TODO: for the DB header checks, we should check whether the headers
 dnl define db_env_create, somehow
 dnl
-AC_CHECK_HEADERS(dl.h fcntl.h limits.h malloc.h termios.h sys/ioctl.h sys/select.h sys/stat.h sys/time.h sys/prctl.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db4/db.h pthread.h netinet/in.h arpa/nameser.h arpa/nameser_compat.h syscall.h sys/syscall.h)
+AC_CHECK_HEADERS(dl.h fcntl.h limits.h malloc.h termios.h sys/ioctl.h sys/select.h sys/stat.h sys/time.h sys/prctl.h syslog.h unistd.h paths.h db.h db4/db.h pthread.h netinet/in.h arpa/nameser.h arpa/nameser_compat.h syscall.h sys/syscall.h)
 
 AC_CHECK_HEADER(resolv.h,AC_DEFINE(HAVE_RESOLV_H, [], [define this if you have the resolv.h header file.]),,
 [#ifdef HAVE_SYS_TYPES_H
@@ -664,14 +664,6 @@ AC_HEADER_TIME
 
 dnl defined in acinclude.m4:
 CIT_STRUCT_TM
-
-AC_CACHE_CHECK([for ut_type in struct utmp], ac_cv_struct_ut_type,
-[AC_TRY_COMPILE([#include <sys/types.h>
-#include <utmp.h>], [struct utmp ut; ut.ut_type;],
-ac_cv_struct_ut_type=yes, ac_cv_struct_ut_type=no)])
-if test $ac_cv_struct_ut_type = yes; then
-	AC_DEFINE(HAVE_UT_TYPE, [], [define this if struct utmp has an ut_type member])
-fi
 
 AC_CACHE_CHECK(
 	[for call semantics from getpwuid_r], 
@@ -735,20 +727,12 @@ esac
 
 
 
-AC_CACHE_CHECK([for ut_host in struct utmp], ac_cv_struct_ut_host,
-[AC_TRY_COMPILE([#include <sys/types.h>
-#include <utmp.h>], [struct utmp ut; ut.ut_host;],
-ac_cv_struct_ut_host=yes, ac_cv_struct_ut_host=no)])
-if test $ac_cv_struct_ut_host = yes; then
-	AC_DEFINE(HAVE_UT_HOST, [], [define this if struct utmp has an ut_host member])
-fi
-
 dnl Checks for library functions.
 AC_FUNC_GETPGRP
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(getspnam getutxline mkdir mkfifo mktime rmdir select socket strerror strcasecmp strncasecmp)
+AC_CHECK_FUNCS(getspnam mkdir mkfifo mktime rmdir select socket strerror strcasecmp strncasecmp)
 
 dnl Now check for pthreads
 
@@ -831,8 +815,6 @@ AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
 	esac
 	])
 
-
-STRUCT_UCRED
 
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(RESOLV)

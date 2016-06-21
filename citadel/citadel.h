@@ -45,7 +45,7 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	901		/* This version */
+#define REV_LEVEL	902		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	760		/* Oldest compatible export files */
 #define LIBCITADEL_MIN	901		/* Minimum required version of libcitadel */
@@ -113,6 +113,8 @@ struct ctdluser {			/* User record                       */
 	time_t lastcall;		/* Date/time of most recent login    */
 	int USuserpurge;		/* Purge time (in days) for user     */
 	char fullname[64];		/* Display name (primary identifier) */
+	long msgnum_bio;		/* msgnum of user's profile (bio)    */
+	long msgnum_pic;		/* msgnum of user's avatar (photo)   */
 };
 
 
@@ -132,7 +134,7 @@ struct ctdlroom {
  	time_t QRgen;			/* Generation number of room        */
  	unsigned QRflags;		/* See flag values below            */
  	char QRdirname[15];		/* Directory name, if applicable    */
- 	long QRinfo;			/* Info file update relative to msgs*/
+ 	long msgnum_info;		/* msgnum of room banner (info file)*/
  	char QRfloor;			/* Which floor this room is on      */
  	time_t QRmtime;			/* Date/time of last post           */
  	struct ExpirePolicy QRep;	/* Message expiration policy        */
@@ -140,6 +142,7 @@ struct ctdlroom {
  	char QRorder;			/* Sort key for room listing order  */
  	unsigned QRflags2;		/* Additional flags                 */
  	int QRdefaultview;		/* How to display the contents      */
+	long msgnum_pic;		/* msgnum of room picture or icon   */
 };
 
 /* Private rooms are always flagged with QR_PRIVATE.  If neither QR_PASSWORDED
@@ -186,7 +189,7 @@ struct floor {
 /* number of items which may be handled by the CONF command */
 #define NUM_CONFIGS 71
 
-#define TRACE	syslog(LOG_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
+#define TRACE	syslog(LOG_DEBUG, "\033[31mCheckpoint: %s : %d\033[0m", __FILE__, __LINE__)
 
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647L

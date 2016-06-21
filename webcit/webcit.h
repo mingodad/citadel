@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2015 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 3.
@@ -127,9 +127,9 @@ extern char *ssl_cipher_list;
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		901		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	901		/* Minimum required version of Citadel server */
-#define	LIBCITADEL_MIN		901		/* Minimum required version of libcitadel */
+#define CLIENT_VERSION		902		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	902		/* Minimum required version of Citadel server */
+#define	LIBCITADEL_MIN		902		/* Minimum required version of libcitadel */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Window target for inline URL's */
@@ -321,6 +321,7 @@ enum {
 	eNone
 };
 
+<<<<<<< HEAD
 enum {
 	eGET,
 	ePOST,
@@ -726,3 +727,16 @@ extern int DisableGzip;
 void display_summary_page(void);
 
 HashList *GetValidDomainNames(StrBuf *Target, WCTemplputParams *TP);
+void output_error_pic(const char *ErrMsg1, const char *ErrMsg2);
+=======
+#define TRACE syslog(LOG_DEBUG, "\033[3%dmCHECKPOINT: %s:%d\033[0m", ((__LINE__%6)+1), __FILE__, __LINE__)
+#define SLEEPING		180		// TCP connection timeout
+#define MAX_WORKER_THREADS	32		// Maximum number of worker threads permitted to exist
+
+int webserver(char *webserver_interface, int webserver_port, int webserver_protocol);
+int webcit_tcp_server(const char *ip_addr, int port_number, int queue_len);
+int webcit_uds_server(char *sockpath, int queue_len);
+int lingering_close(int fd);
+void perform_one_http_transaction(int ssock);
+void worker_entry(int *pointer_to_master_socket);
+>>>>>>> af64ffb... textclient: don't try to stat citadel.config; it doesn't exist anymore.

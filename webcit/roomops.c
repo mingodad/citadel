@@ -1,7 +1,7 @@
 /*
  * Lots of different room-related operations.
  *
- * Copyright (c) 1996-2012 by the citadel.org team
+ * Copyright (c) 1996-2016 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License, version 3.
@@ -113,11 +113,14 @@ void dotskip(void) {
 }
 
 void dotgoto(void) {
+	wcsession *WCC = WC;
 	if (!havebstr("room")) {
 		readloop(readnew, eUseDefault);
 		return;
 	}
-	if (WC->CurRoom.view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
+	if ((WCC->CurRoom.view != VIEW_MAILBOX)  &&
+	    (WCC->CurRoom.view != WCC->CurRoom.view)) {
+		/* dotgoto acts like dotskip when we're in a mailbox view */
 		slrp_highest();
 	}
 	smart_goto(sbstr("room"));
@@ -587,22 +590,24 @@ void LoadXRoomPic(void)
 {
 	wcsession *WCC = WC;
 	StrBuf *Buf;
+	off_t bytes;
 	
-	if (WCC->CurRoom.XHaveRoomPicLoaded)
+	if (WCC->CurRoom.XHaveRoomPicLoaded) {
 		return;
+	}
 
 	WCC->CurRoom.XHaveRoomPicLoaded = 1;
 	Buf = NewStrBuf();
-	serv_puts("OIMG _roompic_");
+	serv_puts("DLRI");
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) {
-		WCC->CurRoom.XHaveRoomPic = 0;
-	} else {
+	if (GetServerStatus(Buf, NULL) == 6) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
 		WCC->CurRoom.XHaveRoomPic = 1;
+		StrBuf_ServGetBLOBBuffered(Buf, bytes);		// discard the data
+	} else {
+		WCC->CurRoom.XHaveRoomPic = 0;
 	}
-	serv_puts("CLOS");
-	StrBuf_ServGetln(Buf);
-	GetServerStatus(Buf, NULL);
 	FreeStrBuf (&Buf);
 }
 

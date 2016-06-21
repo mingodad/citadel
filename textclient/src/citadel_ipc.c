@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  *  This program is open source software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 3.
@@ -40,10 +40,7 @@
 #include <pthread.h>
 #endif
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
-//#include "citadel_decls.h"
-//#include "citadel_dirs.h"
 #ifdef THREADED_CLIENT
 pthread_mutex_t rwlock;
 #endif
@@ -69,8 +66,6 @@ char ctdl_run_dir[PATH_MAX]="";
 char ctdl_etc_dir[PATH_MAX]="";
 char ctdl_home_directory[PATH_MAX] = "";
 char file_citadel_socket[PATH_MAX]="";
-char file_citadel_config[PATH_MAX]="";
-
 
 char *viewdefs[]={
         "Messages",
@@ -180,12 +175,6 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 				"%scitadel.socket",
 			 ctdl_run_dir);
 	StripSlashes(file_citadel_socket, 0);
-
-	snprintf(file_citadel_config, 
-			 sizeof file_citadel_config,
-			 "%scitadel.config",
-			 ctdl_autoetc_dir);
-	StripSlashes(file_citadel_config, 0);
 
 	DBG_PRINT(ctdl_run_dir);
 	DBG_PRINT(file_citadel_socket);
@@ -2277,22 +2266,6 @@ int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret)
 
 
 
-/*
- * Not implemented:
- * 
- * CHAT
- * ETLS
- * EXPI
- * GTLS
- * IGAB
- * MSG3
- * MSG4
- * NDOP
- * NETP
- * NUOP
- * SMTP
- */
-
 
 /* ************************************************************************** */
 /*	     Stuff below this line is not for public consumption	    */
@@ -3362,6 +3335,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		else {
 			snprintf(sockpath, sizeof sockpath, "%s/%s", citport, "citadel.socket");
 		}
+		printf("[%s]\n", sockpath);
 		ipc->sock = uds_connectsock(&(ipc->isLocal), sockpath);
 		if (ipc->sock == -1) {
 			ifree(ipc);
@@ -3374,6 +3348,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		return ipc;
 	}
 
+	printf("[%s:%s]\n", cithost, citport);
 	ipc->sock = tcp_connectsock(cithost, citport);
 	if (ipc->sock == -1) {
 		ifree(ipc);

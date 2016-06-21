@@ -100,7 +100,7 @@ case "$yesno" in
 		exit
 esac
 
-for x in 00 01 02 03 04 05 06 07 08 09 0a 0b 0c
+for x in 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d
 do
 	filename=cdb.$x
 	echo Dumping $filename

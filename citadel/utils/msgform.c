@@ -26,18 +26,6 @@ int fpgetfield(FILE * fp, char *string);
 int fmout(int width, FILE * fp);
 
 
-#ifndef HAVE_STRERROR
-/*
- * replacement strerror() for systems that don't have it
- */
-char *strerror(int e)
-{
-	static char buf[32];
-
-	snprintf(buf, sizeof buf, "errno = %d", e);
-	return (buf);
-}
-#endif
 
 int main(int argc, char **argv)
 {

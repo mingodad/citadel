@@ -1,7 +1,7 @@
 /*
  * Screen output handling
  *
- * Copyright (c) 1987-2012 by the citadel.org team
+ * Copyright (c) 1987-2016 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -23,11 +23,7 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include "sysdep.h"
-///#ifndef HAVE_SNPRINTF
-///#include "snprintf.h"
-///#endif
 #include <libcitadel.h>
-///#include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "commands.h"
